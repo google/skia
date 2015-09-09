@@ -224,8 +224,23 @@ void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
-    GrDrawPathBatch* batch = GrDrawPathBatch::Create(pathProc, path);
+    GrDrawPathBatchBase* batch = GrDrawPathBatch::Create(pathProc, path);
+    this->drawPathBatch(pipelineBuilder, batch, fill);
+    batch->unref();
+}
 
+void GrDrawTarget::drawPathsFromRange(const GrPipelineBuilder& pipelineBuilder,
+                                      const GrPathProcessor* pathProc,
+                                      GrPathRangeDraw* draw,
+                                      GrPathRendering::FillType fill) {
+    GrDrawPathBatchBase* batch = GrDrawPathRangeBatch::Create(pathProc, draw);
+    this->drawPathBatch(pipelineBuilder, batch, fill);
+    batch->unref();
+}
+
+void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
+                                 GrDrawPathBatchBase* batch,
+                                 GrPathRendering::FillType fill) {
     // This looks like drawBatch() but there is an added wrinkle that stencil settings get inserted
     // after setupClip() but before onDrawBatch(). TODO: Figure out a better model for handling
     // stencil settings WRT interactions between pipeline(builder), clipmaskmanager, and batches.
@@ -244,11 +259,8 @@ void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
     batch->setStencilSettings(stencilSettings);
 
-    // Don't compute a bounding box for dst copy texture, we'll opt
-    // instead for it to just copy the entire dst. Realistically this is a moot
-    // point, because any context that supports NV_path_rendering will also
-    // support NV_blend_equation_advanced.
-    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch, nullptr, this);
+    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch,
+                                            &batch->bounds(), this);
 
     if (!pipelineInfo.valid()) {
         return;
@@ -258,50 +270,6 @@ void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
     }
 
     this->onDrawBatch(batch);
-    batch->unref();
-}
-
-void GrDrawTarget::drawPaths(const GrPipelineBuilder& pipelineBuilder,
-                             const GrPathProcessor* pathProc,
-                             const GrPathRange* pathRange,
-                             const void* indices,
-                             PathIndexType indexType,
-                             const float transformValues[],
-                             PathTransformType transformType,
-                             int count,
-                             GrPathRendering::FillType fill) {
-    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
-    SkASSERT(pathRange);
-    SkASSERT(indices);
-    SkASSERT(0 == reinterpret_cast<intptr_t>(indices) %
-             GrPathRange::PathIndexSizeInBytes(indexType));
-    SkASSERT(transformValues);
-
-    // Setup clip
-    GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, nullptr)) {
-        return;
-    }
-
-    // set stencil settings for path
-    GrStencilSettings stencilSettings;
-    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
-    this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
-
-    // Don't compute a bounding box for dst copy texture, we'll opt
-    // instead for it to just copy the entire dst. Realistically this is a moot
-    // point, because any context that supports NV_path_rendering will also
-    // support NV_blend_equation_advanced.
-    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, pathProc, nullptr, this);
-    if (!pipelineInfo.valid()) {
-        return;
-    }
-
-    this->onDrawPaths(pathProc, pathRange, indices, indexType, transformValues,
-                      transformType, count, stencilSettings, pipelineInfo);
 }
 
 void GrDrawTarget::drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
@@ -403,22 +371,6 @@ void GrDrawTarget::copySurface(GrSurface* dst,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilder,
-                                         const GrScissorState* scissor,
-                                         const GrPrimitiveProcessor* primProc,
-                                         const SkRect* devBounds,
-                                         GrDrawTarget* target) {
-    fArgs.fPipelineBuilder = pipelineBuilder;
-    fArgs.fCaps = target->caps();
-    fArgs.fScissor = scissor;
-    fArgs.fColorPOI = fArgs.fPipelineBuilder->colorProcInfo(primProc);
-    fArgs.fCoveragePOI = fArgs.fPipelineBuilder->coverageProcInfo(primProc);
-    if (!target->setupDstReadIfNecessary(*fArgs.fPipelineBuilder, fArgs.fColorPOI,
-                                         fArgs.fCoveragePOI, &fArgs.fDstTexture, devBounds)) {
-        fArgs.fPipelineBuilder = nullptr;
-    }
-}
 
 GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilder,
                                          const GrScissorState* scissor,

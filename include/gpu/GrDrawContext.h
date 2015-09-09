@@ -18,7 +18,7 @@ class GrDrawBatch;
 class GrDrawTarget;
 class GrPaint;
 class GrPathProcessor;
-class GrPathRange;
+class GrPathRangeDraw;
 class GrPipelineBuilder;
 class GrRenderTarget;
 class GrStrokeInfo;
@@ -61,17 +61,12 @@ public:
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds);
 
-    // drawPaths is thanks to GrStencilAndCoverTextContext
-    // TODO: remove
-    void drawPaths(GrPipelineBuilder* pipelineBuilder,
-                   const GrPathProcessor* pathProc,
-                   const GrPathRange* pathRange,
-                   const void* indices,
-                   int /*GrDrawTarget::PathIndexType*/ indexType,
-                   const float transformValues[],
-                   int /*GrDrawTarget::PathTransformType*/ transformType,
-                   int count,
-                   int /*GrPathRendering::FillType*/ fill);
+    // drawPathsFromRange is thanks to GrStencilAndCoverTextContext
+    // TODO: remove once path batches can be created external to GrDrawTarget.
+    void drawPathsFromRange(const GrPipelineBuilder*,
+                            const GrPathProcessor*,
+                            GrPathRangeDraw* draw,
+                            int /*GrPathRendering::FillType*/ fill);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed

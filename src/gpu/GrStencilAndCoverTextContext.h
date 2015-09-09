@@ -15,6 +15,7 @@
 class GrTextStrike;
 class GrPath;
 class GrPathRange;
+class GrPathRangeDraw;
 class SkSurfaceProps;
 
 /*
@@ -29,8 +30,6 @@ public:
     virtual ~GrStencilAndCoverTextContext();
 
 private:
-    static const int kGlyphBufferSize = 1024;
-
     enum RenderMode {
         /**
          * This is the render mode used by drawText(), which is mainly used by
@@ -55,12 +54,13 @@ private:
     SkScalar                                            fTextRatio;
     float                                               fTextInverseRatio;
     SkGlyphCache*                                       fGlyphCache;
+
     GrPathRange*                                        fGlyphs;
+    GrPathRangeDraw*                                    fDraw;
     GrStrokeInfo                                        fStroke;
-    uint16_t                                            fGlyphIndices[kGlyphBufferSize];
-    SkPoint                                             fGlyphPositions[kGlyphBufferSize];
-    int                                                 fQueuedGlyphCount;
-    int                                                 fFallbackGlyphsIdx;
+    SkSTArray<32, uint16_t, true>                       fFallbackIndices;
+    SkSTArray<32, SkPoint, true>                        fFallbackPositions;
+
     SkMatrix                                            fContextInitialMatrix;
     SkMatrix                                            fViewMatrix;
     SkMatrix                                            fLocalMatrix;
@@ -92,10 +92,11 @@ private:
               size_t textByteLength, RenderMode, const SkMatrix& viewMatrix,
               const SkIRect& regionClipBounds);
     bool mapToFallbackContext(SkMatrix* inverse);
-    void appendGlyph(GrDrawContext* dc, const SkGlyph&, const SkPoint&);
+    void appendGlyph(const SkGlyph&, const SkPoint&);
     void flush(GrDrawContext* dc);
     void finish(GrDrawContext* dc);
 
+    typedef GrTextContext INHERITED;
 };
 
 #endif

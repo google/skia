@@ -13,30 +13,13 @@
 class GrReorderCommandBuilder : public GrCommandBuilder {
 public:
     typedef GrCommandBuilder::Cmd Cmd;
-    typedef GrCommandBuilder::State State;
 
     GrReorderCommandBuilder() : INHERITED() {}
 
     Cmd* recordDrawBatch(GrBatch*, const GrCaps&) override;
 
-    Cmd* recordDrawPaths(State*,
-                         GrBufferedDrawTarget*,
-                         const GrPathProcessor*,
-                         const GrPathRange*,
-                         const void*,
-                         GrDrawTarget::PathIndexType,
-                         const float transformValues[],
-                         GrDrawTarget::PathTransformType ,
-                         int,
-                         const GrStencilSettings&,
-                         const GrPipelineOptimizations&) override {
-        SkFAIL("Unsupported\n");
-        return nullptr;
-    }
-
 private:
     typedef GrCommandBuilder INHERITED;
-
 };
 
 #endif

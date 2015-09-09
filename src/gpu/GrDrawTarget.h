@@ -33,8 +33,9 @@ class GrBatch;
 class GrClip;
 class GrCaps;
 class GrPath;
-class GrPathRange;
 class GrDrawBatch;
+class GrDrawPathBatchBase;
+class GrPathRangeDraw;
 
 class GrDrawTarget : public SkRefCnt {
 public:
@@ -81,6 +82,8 @@ public:
     /**
      * Draws a path. Fill must not be a hairline. It will respect the HW
      * antialias flag on the GrPipelineBuilder (if possible in the 3D API).
+     *
+     * TODO: Remove this function and construct the batch outside GrDrawTarget.
      */
     void drawPath(const GrPipelineBuilder&, const GrPathProcessor*, const GrPath*,
                   GrPathRendering::FillType);
@@ -90,23 +93,17 @@ public:
      * always be equivalent to back-to-back calls to drawPath(). It will respect
      * the HW antialias flag on the GrPipelineBuilder (if possible in the 3D API).
      *
-     * @param pathRange       Source paths to draw from
-     * @param indices         Array of path indices to draw
-     * @param indexType       Data type of the array elements in indexBuffer
-     * @param transformValues Array of transforms for the individual paths
-     * @param transformType   Type of transforms in transformBuffer
-     * @param count           Number of paths to draw
+     * TODO: Remove this function and construct the batch outside GrDrawTarget.
+     *
+     * @param draw            The range, transforms, and indices for the draw.
+     *                        This object must only be drawn once. The draw
+     *                        may modify its contents.
      * @param fill            Fill type for drawing all the paths
      */
-    void drawPaths(const GrPipelineBuilder&,
-                   const GrPathProcessor*,
-                   const GrPathRange* pathRange,
-                   const void* indices,
-                   PathIndexType indexType,
-                   const float transformValues[],
-                   PathTransformType transformType,
-                   int count,
-                   GrPathRendering::FillType fill);
+    void drawPathsFromRange(const GrPipelineBuilder&,
+                            const GrPathProcessor*,
+                            GrPathRangeDraw* draw,
+                            GrPathRendering::FillType fill);
 
     /**
      * Helper function for drawing rects.
@@ -187,10 +184,6 @@ public:
 
     struct PipelineInfo {
         PipelineInfo(const GrPipelineBuilder* pipelineBuilder, const GrScissorState* scissor,
-                     const GrPrimitiveProcessor* primProc,
-                     const SkRect* devBounds, GrDrawTarget* target);
-
-        PipelineInfo(const GrPipelineBuilder* pipelineBuilder, const GrScissorState* scissor,
                      const GrDrawBatch* batch, const SkRect* devBounds,
                      GrDrawTarget* target);
 
@@ -225,18 +218,9 @@ private:
 
     virtual void onFlush() = 0;
 
-    virtual void onDrawPaths(const GrPathProcessor*,
-                             const GrPathRange*,
-                             const void* indices,
-                             PathIndexType,
-                             const float transformValues[],
-                             PathTransformType,
-                             int count,
-                             const GrStencilSettings&,
-                             const PipelineInfo&) = 0;
-
+    void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch,
+                       GrPathRendering::FillType fill);
     // Check to see if this set of draw commands has been sent out
-    virtual bool       isIssued(uint32_t drawID) { return true; }
     void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
                                            const GrStencilAttachment*,
                                            GrStencilSettings*);

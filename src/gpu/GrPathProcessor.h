@@ -31,9 +31,9 @@ public:
 
     void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const override;
 
-    bool canMakeEqual(const GrBatchTracker& mine,
-                      const GrPrimitiveProcessor& that,
-                      const GrBatchTracker& theirs) const override;
+    bool isEqual(const GrBatchTracker& mine,
+                 const GrPrimitiveProcessor& that,
+                 const GrBatchTracker& theirs) const;
 
     const char* name() const override { return "PathProcessor"; }
 

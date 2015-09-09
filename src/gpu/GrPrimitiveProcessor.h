@@ -174,10 +174,6 @@ class GrPrimitiveProcessor : public GrProcessor {
 public:
     virtual void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const = 0;
 
-    virtual bool canMakeEqual(const GrBatchTracker& mine,
-                              const GrPrimitiveProcessor& that,
-                              const GrBatchTracker& theirs) const = 0;
-
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
     virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
 

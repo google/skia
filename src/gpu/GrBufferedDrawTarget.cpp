@@ -16,9 +16,6 @@ static inline bool allow_reordering(const GrCaps* caps) {
 GrBufferedDrawTarget::GrBufferedDrawTarget(GrContext* context)
     : INHERITED(context)
     , fCommands(GrCommandBuilder::Create(context->getGpu(), allow_reordering(context->caps())))
-    , fPathIndexBuffer(kPathIdxBufferMinReserve * sizeof(char)/4)
-    , fPathTransformBuffer(kPathXformBufferMinReserve * sizeof(float)/4)
-    , fPipelineBuffer(kPipelineBufferMinReserve)
     , fDrawID(0) {
 }
 
@@ -30,66 +27,11 @@ void GrBufferedDrawTarget::onDrawBatch(GrBatch* batch) {
     fCommands->recordDrawBatch(batch, *this->caps());
 }
 
-void GrBufferedDrawTarget::onDrawPaths(const GrPathProcessor* pathProc,
-                                       const GrPathRange* pathRange,
-                                       const void* indices,
-                                       PathIndexType indexType,
-                                       const float transformValues[],
-                                       PathTransformType transformType,
-                                       int count,
-                                       const GrStencilSettings& stencilSettings,
-                                       const PipelineInfo& pipelineInfo) {
-    GrPipelineOptimizations opts;
-    StateForPathDraw* state = this->createStateForPathDraw(pathProc, pipelineInfo, &opts);
-    if (!state) {
-        return;
-    }
-    fCommands->recordDrawPaths(state, this, pathProc, pathRange, indices, indexType,
-                               transformValues, transformType, count, stencilSettings,
-                               opts);
-}
-
-void GrBufferedDrawTarget::onReset() {
-    fCommands->reset();
-    fPathIndexBuffer.rewind();
-    fPathTransformBuffer.rewind();
-
-    fPrevState.reset(nullptr);
-    // Note, fPrevState points into fPipelineBuffer's allocation, so we have to reset first.
-    // Furthermore, we have to reset fCommands before fPipelineBuffer too.
-    if (fDrawID % kPipelineBufferHighWaterMark) {
-        fPipelineBuffer.rewind();
-    } else {
-        fPipelineBuffer.reset();
-    }
-}
-
 void GrBufferedDrawTarget::onFlush() {
     fCommands->flush(this->getGpu(), this->getContext()->resourceProvider());
     ++fDrawID;
 }
 
-GrTargetCommands::StateForPathDraw*
-GrBufferedDrawTarget::createStateForPathDraw(const GrPrimitiveProcessor* primProc,
-                                             const GrDrawTarget::PipelineInfo& pipelineInfo,
-                                             GrPipelineOptimizations* opts) {
-    StateForPathDraw* state = this->allocState(primProc);
-    if (!GrPipeline::CreateAt(state->pipelineLocation(), pipelineInfo.pipelineCreateArgs(), opts)) {
-        this->unallocState(state);
-        return nullptr;
-    }
-
-    state->fPrimitiveProcessor->initBatchTracker(&state->fBatchTracker, *opts);
-
-    if (fPrevState && fPrevState->fPrimitiveProcessor.get() &&
-        fPrevState->fPrimitiveProcessor->canMakeEqual(fPrevState->fBatchTracker,
-                                                      *state->fPrimitiveProcessor,
-                                                      state->fBatchTracker) &&
-        GrPipeline::AreEqual(*fPrevState->getPipeline(), *state->getPipeline(), false)) {
-        this->unallocState(state);
-    } else {
-        fPrevState.reset(state);
-    }
-
-    return fPrevState;
+void GrBufferedDrawTarget::onReset() {
+    fCommands->reset();
 }

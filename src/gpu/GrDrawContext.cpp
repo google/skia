@@ -111,20 +111,12 @@ void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
                                clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);
 }
 
-void GrDrawContext::drawPaths(GrPipelineBuilder* pipelineBuilder,
-                              const GrPathProcessor* pathProc,
-                              const GrPathRange* pathRange,
-                              const void* indices,
-                              int /*GrDrawTarget::PathIndexType*/ indexType,
-                              const float transformValues[],
-                              int /*GrDrawTarget::PathTransformType*/ transformType,
-                              int count,
-                              int /*GrPathRendering::FillType*/ fill) {
-    fDrawTarget->drawPaths(*pipelineBuilder, pathProc, pathRange,
-                           indices, (GrDrawTarget::PathIndexType) indexType,
-                           transformValues,
-                           (GrDrawTarget::PathTransformType) transformType,
-                           count, (GrPathRendering::FillType) fill);
+void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
+                                       const GrPathProcessor* pathProc,
+                                       GrPathRangeDraw* draw,
+                                       int /*GrPathRendering::FillType*/ fill) {
+    fDrawTarget->drawPathsFromRange(*pipelineBuilder, pathProc, draw,
+                                    (GrPathRendering::FillType) fill);
 }
 
 void GrDrawContext::discard(GrRenderTarget* renderTarget) {

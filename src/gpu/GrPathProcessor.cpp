@@ -46,9 +46,9 @@ void GrPathProcessor::initBatchTracker(GrBatchTracker* bt, const GrPipelineOptim
     local->fUsesLocalCoords = opt.readsLocalCoords();
 }
 
-bool GrPathProcessor::canMakeEqual(const GrBatchTracker& m,
-                                   const GrPrimitiveProcessor& that,
-                                   const GrBatchTracker& t) const {
+bool GrPathProcessor::isEqual(const GrBatchTracker& m,
+                              const GrPrimitiveProcessor& that,
+                              const GrBatchTracker& t) const {
     if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
         return false;
     }

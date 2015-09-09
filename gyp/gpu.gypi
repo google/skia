@@ -229,6 +229,7 @@
       '<(skia_src_path)/gpu/batches/GrDrawBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrDrawAtlasBatch.h',
+      '<(skia_src_path)/gpu/batches/GrDrawPathBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrDrawPathBatch.h',
       '<(skia_src_path)/gpu/batches/GrDrawVerticesBatch.cpp',
       '<(skia_src_path)/gpu/batches/GrDrawVerticesBatch.h',

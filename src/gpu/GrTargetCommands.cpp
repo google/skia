@@ -43,29 +43,6 @@ void GrTargetCommands::flush(GrGpu* gpu, GrResourceProvider* resourceProvider) {
     fLastFlushToken = flushState.lastFlushedToken();
 }
 
-void GrTargetCommands::DrawPath::execute(GrBatchFlushState* state) {
-    if (!fState->fCompiled) {
-        state->gpu()->buildProgramDesc(&fState->fDesc, *fState->fPrimitiveProcessor,
-                                       *fState->getPipeline(), fState->fBatchTracker);
-        fState->fCompiled = true;
-    }
-    GrPathRendering::DrawPathArgs args(fState->fPrimitiveProcessor.get(), fState->getPipeline(),
-                                       &fState->fDesc, &fState->fBatchTracker, &fStencilSettings);
-    state->gpu()->pathRendering()->drawPath(args, this->path());
-}
-
-void GrTargetCommands::DrawPaths::execute(GrBatchFlushState* state) {
-    if (!fState->fCompiled) {
-        state->gpu()->buildProgramDesc(&fState->fDesc, *fState->fPrimitiveProcessor,
-                                       *fState->getPipeline(), fState->fBatchTracker);
-        fState->fCompiled = true;
-    }
-    GrPathRendering::DrawPathArgs args(fState->fPrimitiveProcessor.get(), fState->getPipeline(),
-                                       &fState->fDesc, &fState->fBatchTracker, &fStencilSettings);
-    state->gpu()->pathRendering()->drawPaths(args, this->pathRange(), fIndices, fIndexType,
-                                             fTransforms, fTransformType, fCount);
-}
-
 void GrTargetCommands::DrawBatch::execute(GrBatchFlushState* state) {
     fBatch->draw(state);
 }
