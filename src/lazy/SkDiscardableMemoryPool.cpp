@@ -202,13 +202,6 @@ void DiscardableMemoryPool::free(PoolDiscardableMemory* dm) {
 
 bool DiscardableMemoryPool::lock(PoolDiscardableMemory* dm) {
     SkASSERT(dm != nullptr);
-    if (nullptr == dm->fPointer) {
-        #if SK_LAZY_CACHE_STATS
-        SkAutoMutexAcquire autoMutexAcquire(fMutex);
-        ++fCacheMisses;
-        #endif  // SK_LAZY_CACHE_STATS
-        return false;
-    }
     SkAutoMutexAcquire autoMutexAcquire(fMutex);
     if (nullptr == dm->fPointer) {
         // May have been purged while waiting for lock.
