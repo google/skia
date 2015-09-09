@@ -8,8 +8,8 @@
 #include "SkDiscardableMemory.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageGenerator.h"
+#include "SkLazyPtr.h"
 #include "SkMutex.h"
-#include "SkOncePtr.h"
 #include "SkTInternalLList.h"
 
 // Note:
@@ -246,18 +246,23 @@ void DiscardableMemoryPool::dumpPool() {
     this->dumpDownTo(0);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+SK_DECLARE_STATIC_MUTEX(gMutex);
+SkDiscardableMemoryPool* create_global_pool() {
+    return SkDiscardableMemoryPool::Create(SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE,
+                                           &gMutex);
+}
+
 }  // namespace
 
 SkDiscardableMemoryPool* SkDiscardableMemoryPool::Create(size_t size, SkBaseMutex* mutex) {
     return new DiscardableMemoryPool(size, mutex);
 }
 
-SK_DECLARE_STATIC_MUTEX(gMutex);
-SK_DECLARE_STATIC_ONCE_PTR(SkDiscardableMemoryPool, global);
+SK_DECLARE_STATIC_LAZY_PTR(SkDiscardableMemoryPool, global, create_global_pool);
 
 SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool() {
-    return global.get([] {
-        return SkDiscardableMemoryPool::Create(SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE,
-                                               &gMutex);
-    });
+    return global.get();
 }
+
+////////////////////////////////////////////////////////////////////////////////

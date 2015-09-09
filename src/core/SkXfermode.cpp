@@ -9,8 +9,8 @@
 #include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
+#include "SkLazyPtr.h"
 #include "SkMathPriv.h"
-#include "SkOncePtr.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
@@ -996,7 +996,20 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 #endif
 
 
-SK_DECLARE_STATIC_ONCE_PTR(SkXfermode, cached[SkXfermode::kLastMode + 1]);
+// Technically, can't be static and passed as a template parameter.  So we use anonymous namespace.
+namespace {
+SkXfermode* create_mode(int iMode) {
+    SkXfermode::Mode mode = (SkXfermode::Mode)iMode;
+
+    ProcCoeff rec = gProcCoeffs[mode];
+    if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
+        return xfermode;
+    }
+    return new SkProcCoeffXfermode(rec, mode);
+}
+}  // namespace
+
+SK_DECLARE_STATIC_LAZY_PTR_ARRAY(SkXfermode, cached, SkXfermode::kLastMode + 1, create_mode);
 
 SkXfermode* SkXfermode::Create(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
@@ -1012,13 +1025,7 @@ SkXfermode* SkXfermode::Create(Mode mode) {
         return nullptr;
     }
 
-    return SkSafeRef(cached[mode].get([=]{
-        ProcCoeff rec = gProcCoeffs[mode];
-        if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
-            return xfermode;
-        }
-        return (SkXfermode*) new SkProcCoeffXfermode(rec, mode);
-    }));
+    return SkSafeRef(cached[mode]);
 }
 
 SkXfermodeProc SkXfermode::GetProc(Mode mode) {

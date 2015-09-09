@@ -6,7 +6,7 @@
  */
 
 #include "SkBuffer.h"
-#include "SkOncePtr.h"
+#include "SkLazyPtr.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
 
@@ -44,13 +44,17 @@ SkPathRef::~SkPathRef() {
     SkDEBUGCODE(fEditorsAttached = 0x7777777;)
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkPathRef, empty);
+// As a template argument, this must have external linkage.
+SkPathRef* sk_create_empty_pathref() {
+    SkPathRef* empty = new SkPathRef;
+    empty->computeBounds();   // Avoids races later to be the first to do this.
+    return empty;
+}
+
+SK_DECLARE_STATIC_LAZY_PTR(SkPathRef, empty, sk_create_empty_pathref);
+
 SkPathRef* SkPathRef::CreateEmpty() {
-    return SkRef(empty.get([]{
-        SkPathRef* pr = new SkPathRef;
-        pr->computeBounds();   // Avoids races later to be the first to do this.
-        return pr;
-    }));
+    return SkRef(empty.get());
 }
 
 void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
@@ -439,7 +443,7 @@ uint32_t SkPathRef::genID() const {
 }
 
 void SkPathRef::addGenIDChangeListener(GenIDChangeListener* listener) {
-    if (nullptr == listener || this == (SkPathRef*)empty) {
+    if (nullptr == listener || this == empty.get()) {
         delete listener;
         return;
     }

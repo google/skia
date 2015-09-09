@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkOncePtr.h"
 #include "SkRemotableFontMgr.h"
+
+#include "SkLazyPtr.h"
 
 SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity** data)
       : fCount(count), fData(count)
@@ -15,7 +16,12 @@ SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity
     *data = fData;
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkRemotableFontIdentitySet, empty);
+// As a template argument, this must have external linkage.
+SkRemotableFontIdentitySet* sk_remotable_font_identity_set_new() {
+    return new SkRemotableFontIdentitySet;
+}
+
+SK_DECLARE_STATIC_LAZY_PTR(SkRemotableFontIdentitySet, empty, sk_remotable_font_identity_set_new);
 SkRemotableFontIdentitySet* SkRemotableFontIdentitySet::NewEmpty() {
-    return SkRef(empty.get([]{ return new SkRemotableFontIdentitySet; }));
+    return SkRef(empty.get());
 }

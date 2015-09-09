@@ -8,8 +8,8 @@
 #ifndef SkMessageBus_DEFINED
 #define SkMessageBus_DEFINED
 
+#include "SkLazyPtr.h"
 #include "SkMutex.h"
-#include "SkOncePtr.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
@@ -40,17 +40,20 @@ private:
     SkMessageBus();
     static SkMessageBus* Get();
 
+    // Allow SkLazyPtr to call SkMessageBus::SkMessageBus().
+    template <typename T> friend T* Private::sk_new();
+
     SkTDArray<Inbox*> fInboxes;
     SkMutex           fInboxesMutex;
 };
 
 // This must go in a single .cpp file, not some .h, or we risk creating more than one global
 // SkMessageBus per type when using shared libraries.  NOTE: at most one per file will compile.
-#define DECLARE_SKMESSAGEBUS_MESSAGE(Message)                      \
-    SK_DECLARE_STATIC_ONCE_PTR(SkMessageBus<Message>, bus);        \
-    template <>                                                    \
-    SkMessageBus<Message>* SkMessageBus<Message>::Get() {          \
-        return bus.get([]{ return new SkMessageBus<Message>(); }); \
+#define DECLARE_SKMESSAGEBUS_MESSAGE(Message)               \
+    SK_DECLARE_STATIC_LAZY_PTR(SkMessageBus<Message>, bus); \
+    template <>                                             \
+    SkMessageBus<Message>* SkMessageBus<Message>::Get() {   \
+        return bus.get();                                   \
     }
 
 //   ----------------------- Implementation of SkMessageBus::Inbox -----------------------

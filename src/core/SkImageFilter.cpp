@@ -11,9 +11,9 @@
 #include "SkBitmapDevice.h"
 #include "SkChecksum.h"
 #include "SkDevice.h"
+#include "SkLazyPtr.h"
 #include "SkMatrixImageFilter.h"
 #include "SkMutex.h"
-#include "SkOncePtr.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkTDynamicHash.h"
@@ -560,19 +560,24 @@ private:
     mutable SkMutex                    fMutex;
 };
 
+SkImageFilter::Cache* CreateCache() {
+    return SkImageFilter::Cache::Create(kDefaultCacheSize);
+}
+
 } // namespace
 
 SkImageFilter::Cache* SkImageFilter::Cache::Create(size_t maxBytes) {
     return new CacheImpl(maxBytes);
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkImageFilter::Cache, cache);
+SK_DECLARE_STATIC_LAZY_PTR(SkImageFilter::Cache, cache, CreateCache);
+
 SkImageFilter::Cache* SkImageFilter::Cache::Get() {
-    return cache.get([]{ return SkImageFilter::Cache::Create(kDefaultCacheSize); });
+    return cache.get();
 }
 
 void SkImageFilter::PurgeCache() {
-    Cache::Get()->purge();
+    cache.get()->purge();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

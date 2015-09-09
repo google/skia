@@ -13,7 +13,7 @@
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE4.h"
-#include "SkOncePtr.h"
+#include "SkLazyPtr.h"
 #include "SkRTConf.h"
 
 #if defined(_MSC_VER) && defined(_WIN64)
@@ -71,7 +71,8 @@ static inline void getcpuid(int info_type, int info[4]) {
 /* Fetch the SIMD level directly from the CPU, at run-time.
  * Only checks the levels needed by the optimizations in this file.
  */
-static int* get_SIMD_level() {
+namespace {  // get_SIMD_level() technically must have external linkage, so no static.
+int* get_SIMD_level() {
     int cpu_info[4] = { 0, 0, 0, 0 };
     getcpuid(1, cpu_info);
 
@@ -90,8 +91,9 @@ static int* get_SIMD_level() {
     }
     return level;
 }
+} // namespace
 
-SK_DECLARE_STATIC_ONCE_PTR(int, gSIMDLevel);
+SK_DECLARE_STATIC_LAZY_PTR(int, gSIMDLevel, get_SIMD_level);
 
 /* Verify that the requested SIMD level is supported in the build.
  * If not, check if the platform supports it.
@@ -112,7 +114,7 @@ static inline bool supports_simd(int minLevel) {
          */
         return false;
 #else
-        return minLevel <= *gSIMDLevel.get(get_SIMD_level);
+        return minLevel <= *gSIMDLevel.get();
 #endif
     }
 }

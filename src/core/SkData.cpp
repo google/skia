@@ -6,8 +6,8 @@
  */
 
 #include "SkData.h"
+#include "SkLazyPtr.h"
 #include "SkOSFile.h"
-#include "SkOncePtr.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkWriteBuffer.h"
@@ -80,9 +80,14 @@ SkData* SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SK_DECLARE_STATIC_ONCE_PTR(SkData, gEmpty);
+// As a template argument these must have external linkage.
+SkData* sk_new_empty_data() { return new SkData(nullptr, 0, nullptr, nullptr); }
+namespace { void sk_unref_data(SkData* ptr) { return SkSafeUnref(ptr); } }
+
+SK_DECLARE_STATIC_LAZY_PTR(SkData, empty, sk_new_empty_data, sk_unref_data);
+
 SkData* SkData::NewEmpty() {
-    return SkRef(gEmpty.get([]{return new SkData(nullptr, 0, nullptr, nullptr); }));
+    return SkRef(empty.get());
 }
 
 // assumes fPtr was allocated via sk_malloc

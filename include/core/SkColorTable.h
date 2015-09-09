@@ -10,10 +10,10 @@
 #ifndef SkColorTable_DEFINED
 #define SkColorTable_DEFINED
 
-#include "../private/SkOncePtr.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
+#include "SkLazyPtr.h"
 
 /** \class SkColorTable
 
@@ -55,16 +55,16 @@ public:
     static SkColorTable* Create(SkReadBuffer&);
 
 private:
+    static void Free16BitCache(uint16_t*);
+
     enum AllocatedWithMalloc {
         kAllocatedWithMalloc
     };
     // assumes ownership of colors (assumes it was allocated w/ malloc)
     SkColorTable(SkPMColor* colors, int count, AllocatedWithMalloc);
 
-    struct Free16BitCache { void operator()(uint16_t* cache) const { sk_free(cache); } };
-
     SkPMColor*                          fColors;
-    SkOncePtr<uint16_t, Free16BitCache> f16BitCache;
+    SkLazyPtr<uint16_t, Free16BitCache> f16BitCache;
     int                                 fCount;
 
     void init(const SkPMColor* colors, int count);

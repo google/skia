@@ -8,7 +8,7 @@
 #ifndef SkBigPicture_DEFINED
 #define SkBigPicture_DEFINED
 
-#include "SkOncePtr.h"
+#include "SkLazyPtr.h"
 #include "SkPicture.h"
 #include "SkTemplates.h"
 
@@ -79,7 +79,7 @@ private:
 
     const SkRect                          fCullRect;
     const size_t                          fApproxBytesUsedBySubPictures;
-    SkOncePtr<const Analysis>             fAnalysis;
+    SkLazyPtr<const Analysis>             fAnalysis;
     SkAutoTUnref<const SkRecord>          fRecord;
     SkAutoTDelete<const SnapshotArray>    fDrawablePicts;
     SkAutoTUnref<const SkBBoxHierarchy>   fBBH;

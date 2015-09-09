@@ -28,6 +28,8 @@ DEF_TEST(OncePtr, r) {
         REPORTER_ASSERT(r, *n == 5);
     });
     REPORTER_ASSERT(r, calls.load() == 1);
+
+    delete (int*)once;
 }
 
 /* TODO(mtklein): next CL

@@ -6,7 +6,7 @@
  */
 
 #include "SkData.h"
-#include "SkOncePtr.h"
+#include "SkLazyPtr.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
@@ -126,7 +126,8 @@ SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
     return pdfGraphicState;
 }
 
-static SkPDFObject* create_invert_function() {
+namespace {
+SkPDFObject* create_invert_function() {
     // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
     // a type 2 function, so we use a type 4 function.
     SkAutoTUnref<SkPDFArray> domainAndRange(new SkPDFArray);
@@ -146,7 +147,13 @@ static SkPDFObject* create_invert_function() {
     return invertFunction;
 }
 
-SK_DECLARE_STATIC_ONCE_PTR(SkPDFObject, invertFunction);
+template <typename T> void unref(T* ptr) { ptr->unref(); }
+}  // namespace
+
+SK_DECLARE_STATIC_LAZY_PTR(SkPDFObject,
+                           invertFunction,
+                           create_invert_function,
+                           unref<SkPDFObject>);
 
 // static
 SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
@@ -162,7 +169,7 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
     }
     sMaskDict->insertObjRef("G", SkRef(sMask));
     if (invert) {
-        sMaskDict->insertObjRef("TR", SkRef(invertFunction.get(create_invert_function)));
+        sMaskDict->insertObjRef("TR", SkRef(invertFunction.get()));
     }
 
     SkPDFDict* result = new SkPDFDict("ExtGState");
@@ -170,16 +177,21 @@ SkPDFDict* SkPDFGraphicState::GetSMaskGraphicState(SkPDFFormXObject* sMask,
     return result;
 }
 
-static SkPDFDict* create_no_smask_graphic_state() {
+namespace {
+SkPDFDict* create_no_smask_graphic_state() {
     SkPDFDict* noSMaskGS = new SkPDFDict("ExtGState");
     noSMaskGS->insertName("SMask", "None");
     return noSMaskGS;
 }
-SK_DECLARE_STATIC_ONCE_PTR(SkPDFDict, noSMaskGraphicState);
+} // namespace
+SK_DECLARE_STATIC_LAZY_PTR(SkPDFDict,
+                           noSMaskGraphicState,
+                           create_no_smask_graphic_state,
+                           unref<SkPDFDict>);
 
 // static
 SkPDFDict* SkPDFGraphicState::GetNoSMaskGraphicState() {
-    return SkRef(noSMaskGraphicState.get(create_no_smask_graphic_state));
+    return SkRef(noSMaskGraphicState.get());
 }
 
 void SkPDFGraphicState::emitObject(
