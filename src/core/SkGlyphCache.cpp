@@ -8,7 +8,7 @@
 #include "SkGlyphCache.h"
 #include "SkGlyphCache_Globals.h"
 #include "SkGraphics.h"
-#include "SkLazyPtr.h"
+#include "SkOncePtr.h"
 #include "SkPath.h"
 #include "SkTemplates.h"
 #include "SkTraceMemoryDump.h"
@@ -17,8 +17,6 @@
 //#define SPEW_PURGE_STATUS
 
 namespace {
-
-SkGlyphCache_Globals* create_globals() { return new SkGlyphCache_Globals; }
 
 const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
 
@@ -30,11 +28,10 @@ struct SkGlyphCacheDumpContext {
 
 }  // namespace
 
-SK_DECLARE_STATIC_LAZY_PTR(SkGlyphCache_Globals, globals, create_globals);
-
 // Returns the shared globals
+SK_DECLARE_STATIC_ONCE_PTR(SkGlyphCache_Globals, globals);
 static SkGlyphCache_Globals& get_globals() {
-    return *globals.get();
+    return *globals.get([]{ return new SkGlyphCache_Globals; });
 }
 
 ///////////////////////////////////////////////////////////////////////////////

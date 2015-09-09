@@ -7,7 +7,7 @@
 
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
-#include "SkLazyPtr.h"
+#include "SkOncePtr.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
@@ -158,14 +158,10 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
     return this->onLegacyCreateTypeface(familyName, styleBits);
 }
 
-// As a template argument this must have external linkage.
-SkFontMgr* sk_fontmgr_create_default() {
-    SkFontMgr* fm = SkFontMgr::Factory();
-    return fm ? fm : new SkEmptyFontMgr;
-}
-
-SK_DECLARE_STATIC_LAZY_PTR(SkFontMgr, singleton, sk_fontmgr_create_default);
-
+SK_DECLARE_STATIC_ONCE_PTR(SkFontMgr, singleton);
 SkFontMgr* SkFontMgr::RefDefault() {
-    return SkRef(singleton.get());
+    return SkRef(singleton.get([]{
+        SkFontMgr* fm = SkFontMgr::Factory();
+        return fm ? fm : new SkEmptyFontMgr;
+    }));
 }

@@ -10,6 +10,7 @@
 #include "SkPDFShader.h"
 
 #include "SkData.h"
+#include "SkOncePtr.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFFormXObject.h"
@@ -677,8 +678,7 @@ static bool split_perspective(const SkMatrix in, SkMatrix* affine,
     return true;
 }
 
-namespace {
-SkPDFObject* create_range_object() {
+static SkPDFObject* create_range_object() {
     SkPDFArray* range = new SkPDFArray;
     range->reserve(6);
     range->appendInt(0);
@@ -689,12 +689,7 @@ SkPDFObject* create_range_object() {
     range->appendInt(1);
     return range;
 }
-
-template <typename T> void unref(T* ptr) { ptr->unref();}
-}  // namespace
-
-SK_DECLARE_STATIC_LAZY_PTR(SkPDFObject, rangeObject,
-                           create_range_object, unref<SkPDFObject>);
+SK_DECLARE_STATIC_ONCE_PTR(SkPDFObject, rangeObject);
 
 static SkPDFStream* make_ps_function(const SkString& psCode,
                                      SkPDFArray* domain) {
@@ -703,7 +698,7 @@ static SkPDFStream* make_ps_function(const SkString& psCode,
     SkPDFStream* result = new SkPDFStream(funcData.get());
     result->insertInt("FunctionType", 4);
     result->insertObject("Domain", SkRef(domain));
-    result->insertObject("Range", SkRef(rangeObject.get()));
+    result->insertObject("Range", SkRef(rangeObject.get(create_range_object)));
     return result;
 }
 

@@ -10,11 +10,11 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
+#include "../private/SkOncePtr.h"
+#include "../private/SkWeakRefCnt.h"
 #include "SkFontStyle.h"
-#include "SkLazyPtr.h"
 #include "SkRect.h"
 #include "SkString.h"
-#include "../private/SkWeakRefCnt.h"
 
 class SkDescriptor;
 class SkFontData;
@@ -398,10 +398,7 @@ private:
     static SkTypeface* CreateDefault(int style);  // SkLazyPtr requires an int, not a Style.
     static void        DeleteDefault(SkTypeface*);
 
-    struct BoundsComputer;
-//    friend struct BoundsComputer;
-
-    SkLazyPtr<SkRect>   fLazyBounds;
+    SkOncePtr<SkRect>   fLazyBounds;
     SkFontID            fUniqueID;
     SkFontStyle         fStyle;
     bool                fIsFixedPitch;
