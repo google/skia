@@ -136,7 +136,6 @@ public:
         }
 
         fXPFactory.reset(SkRef(paint.getXPFactory()));
-        fProcDataManager.reset(new GrProcessorDataManager(*paint.processorDataManager()));
 
         return *this;
     }
@@ -149,9 +148,9 @@ public:
      */
     bool isConstantBlendedColor(GrColor* constantColor) const;
 
-    GrProcessorDataManager* getProcessorDataManager() { return fProcDataManager.get(); }
+    GrProcessorDataManager* getProcessorDataManager() { return &fProcDataManager; }
 
-    const GrProcessorDataManager* processorDataManager() const { return fProcDataManager.get(); }
+    const GrProcessorDataManager* processorDataManager() const { return &fProcDataManager; }
 
 private:
     void resetFragmentProcessors() {
@@ -173,7 +172,7 @@ private:
     bool                                            fDither;
 
     GrColor                                         fColor;
-    SkAutoTUnref<GrProcessorDataManager>            fProcDataManager;
+    GrProcessorDataManager                          fProcDataManager;
 };
 
 #endif

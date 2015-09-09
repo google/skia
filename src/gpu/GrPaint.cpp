@@ -16,35 +16,34 @@
 GrPaint::GrPaint()
     : fAntiAlias(false)
     , fDither(false)
-    , fColor(GrColor_WHITE)
-    , fProcDataManager(new GrProcessorDataManager) {}
+    , fColor(GrColor_WHITE) {}
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
     fXPFactory.reset(GrCoverageSetOpXPFactory::Create(regionOp, invertCoverage));
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
-                                                          matrix))->unref();
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+                                                                  matrix))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
-                                                             matrix))->unref();
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+                                                                     matrix))->unref();
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
-                                                          params))->unref();
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+                                                                  matrix, params))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
                                           const GrTextureParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture, matrix,
-                                                             params))->unref();
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+                                                                     matrix, params))->unref();
 }
 
 bool GrPaint::isConstantBlendedColor(GrColor* color) const {

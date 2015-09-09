@@ -80,19 +80,19 @@ public:
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
                                                                       matrix))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
                                                                          matrix))->unref();
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
                                                                       matrix,
                                                                       params))->unref();
     }
@@ -100,7 +100,7 @@ public:
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrTextureParams& params) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(fProcDataManager, texture,
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
                                                                          matrix, params))->unref();
     }
 
@@ -116,14 +116,12 @@ public:
         AutoRestoreFragmentProcessorState() 
             : fPipelineBuilder(nullptr)
             , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0)
-            , fSaveMarker(0) {}
+            , fCoverageEffectCnt(0) {}
 
         AutoRestoreFragmentProcessorState(const GrPipelineBuilder& ds)
             : fPipelineBuilder(nullptr)
             , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0)
-            , fSaveMarker(0) {
+            , fCoverageEffectCnt(0) {
             this->set(&ds);
         }
 
@@ -148,7 +146,6 @@ public:
         GrPipelineBuilder*    fPipelineBuilder;
         int                   fColorEffectCnt;
         int                   fCoverageEffectCnt;
-        uint32_t              fSaveMarker;
     };
 
     /// @}
@@ -408,8 +405,8 @@ public:
     void setClip(const GrClip& clip) { fClip = clip; }
     const GrClip& clip() const { return fClip; }
 
-    GrProcessorDataManager* getProcessorDataManager() { return fProcDataManager.get(); }
-    const GrProcessorDataManager* processorDataManager() const { return fProcDataManager.get(); }
+    GrProcessorDataManager* getProcessorDataManager() { return &fProcDataManager; }
+    const GrProcessorDataManager* processorDataManager() const { return &fProcDataManager; }
 
 private:
     // Calculating invariant color / coverage information is expensive, so we partially cache the
@@ -438,7 +435,7 @@ private:
 
     typedef SkSTArray<4, const GrFragmentProcessor*, true> FragmentProcessorArray;
 
-    SkAutoTUnref<GrProcessorDataManager>    fProcDataManager;
+    GrProcessorDataManager                  fProcDataManager;
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
     uint32_t                                fFlags;
     GrStencilSettings                       fStencilSettings;

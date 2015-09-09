@@ -16,16 +16,12 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 GrPipelineBuilder::GrPipelineBuilder()
-    : fProcDataManager(new GrProcessorDataManager), fFlags(0x0), fDrawFace(kBoth_DrawFace) {
+    : fFlags(0x0), fDrawFace(kBoth_DrawFace) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
 GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, const GrClip& clip) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
-
-    // TODO keep this logically const using an AutoReset
-    fProcDataManager.reset(
-         const_cast<GrProcessorDataManager*>(SkRef(paint.processorDataManager())));
 
     for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
         fColorFragmentProcessors.push_back(SkRef(paint.getColorFragmentProcessor(i)));
@@ -77,14 +73,12 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
         }
         fPipelineBuilder->fCoverageFragmentProcessors.pop_back_n(n);
         SkDEBUGCODE(--fPipelineBuilder->fBlockEffectRemovalCnt;)
-        fPipelineBuilder->getProcessorDataManager()->restoreToSaveMarker(/*fSaveMarker*/);
     }
     fPipelineBuilder = const_cast<GrPipelineBuilder*>(pipelineBuilder);
     if (nullptr != pipelineBuilder) {
         fColorEffectCnt = pipelineBuilder->numColorFragmentProcessors();
         fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentProcessors();
         SkDEBUGCODE(++pipelineBuilder->fBlockEffectRemovalCnt;)
-        fSaveMarker = pipelineBuilder->processorDataManager()->currentSaveMarker();
     }
 }
 
