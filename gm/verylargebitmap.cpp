@@ -32,7 +32,8 @@ static SkImage* make_raster_image(int width, int height, SkColor colors[2]) {
 static SkImage* make_picture_image(int width, int height, SkColor colors[2]) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(width, height)), width, height, colors);
-    return SkImage::NewFromPicture(recorder.endRecording(), SkISize::Make(width, height),
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    return SkImage::NewFromPicture(picture, SkISize::Make(width, height),
                                    nullptr, nullptr);
 }
 
