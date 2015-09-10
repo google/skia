@@ -428,12 +428,10 @@ SkGlyphCache* SkGlyphCache::VisitCache(
         }
 
         cache = new SkGlyphCache(typeface, desc, ctx);
-
-        globals.attachCacheToHead(cache);
     }
 
-    AutoValidate av(cache);
     AutoAcquire ac(globals.fLock);
+    globals.internalAttachCacheToHead(cache);
 
     cache->fMapMutex.acquireShared();
     if (!proc(cache, context)) {   // need to reattach
@@ -534,9 +532,8 @@ void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
-    AutoAcquire ac(fLock);
-
+void SkGlyphCache_Globals::internalAttachCacheToHead(SkGlyphCache* cache) {
+    this->internalPurge();
     fCacheCount += 1;
     cache->fRefCount += 1;
     // Access to cache->fMemoryUsed is single threaded until internalMoveToHead.
@@ -546,8 +543,6 @@ void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
 
     this->validate();
     cache->validate();
-
-    this->internalPurge();
 }
 
 SkGlyphCache* SkGlyphCache_Globals::internalGetTail() const {

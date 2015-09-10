@@ -74,7 +74,7 @@ public:
     void purgeAll(); // does not change budget
 
     // call when a glyphcache is available for caching (i.e. not in use)
-    void attachCacheToHead(SkGlyphCache*);
+    void internalAttachCacheToHead(SkGlyphCache*);
 
     // can only be called when the mutex is already held
     void internalMoveToHead(SkGlyphCache *);
