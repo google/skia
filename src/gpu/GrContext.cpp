@@ -460,7 +460,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     RETURN_FALSE_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(src);
     SkASSERT(src);
-    SkAutoMutexAcquire ama(fReadPixelsMutex);
+
     // Adjust the params so that if we wind up using an intermediate surface we've already done
     // all the trimming and the temporary can be the min size required.
     if (!GrSurfacePriv::AdjustReadPixelParams(src->width(), src->height(),

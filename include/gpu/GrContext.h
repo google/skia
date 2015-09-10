@@ -15,7 +15,6 @@
 #include "GrRenderTarget.h"
 #include "GrTextureProvider.h"
 #include "SkMatrix.h"
-#include "SkMutex.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
 
@@ -381,11 +380,6 @@ private:
     bool                            fDidTestPMConversions;
     int                             fPMToUPMConversion;
     int                             fUPMToPMConversion;
-    // The sw backend may call GrContext::readSurfacePixels on multiple threads
-    // We may transfer the responsibilty for using a mutex to the sw backend
-    // when there are fewer code paths that lead to a readSurfacePixels call
-    // from the sw backend.
-    SkMutex                         fReadPixelsMutex;
 
     struct CleanUpData {
         PFCleanUpFunc fFunc;
