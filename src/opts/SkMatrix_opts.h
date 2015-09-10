@@ -89,11 +89,12 @@ static void matrix_affine(const SkMatrix& m, SkPoint* dst, const SkPoint* src, i
         }
         Sk4s trans4(tx, ty, tx, ty);
         Sk4s scale4(sx, sy, sx, sy);
-        Sk4s  skew4(ky, kx, ky, kx);    // applied src4, then x/y swapped
+        Sk4s  skew4(kx, ky, kx, ky);    // applied to swizzle of src4
         count >>= 1;
         for (int i = 0; i < count; ++i) {
             Sk4s src4 = Sk4s::Load(&src->fX);
-            (trans4 + src4 * scale4 + SkNx_shuffle<1,0,3,2>(src4 * skew4)).store(&dst->fX);
+            Sk4s swz4(src[0].fY, src[0].fX, src[1].fY, src[1].fX);  // need ABCD -> BADC
+            (src4 * scale4 + swz4 * skew4 + trans4).store(&dst->fX);
             src += 2;
             dst += 2;
         }
