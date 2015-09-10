@@ -77,7 +77,10 @@ struct GrAtlasTextBlob : public SkRefCnt {
                 , fVertexEndIndex(0)
                 , fGlyphStartIndex(0)
                 , fGlyphEndIndex(0)
-                , fDrawAsDistanceFields(false) {}
+                , fTextRatio(1.0f)
+                , fMaskFormat(kA8_GrMaskFormat)
+                , fDrawAsDistanceFields(false)
+                , fUseLCDText(false) {}
             SubRunInfo(const SubRunInfo& that)
                 : fBulkUseToken(that.fBulkUseToken)
                 , fStrike(SkSafeRef(that.fStrike.get()))
