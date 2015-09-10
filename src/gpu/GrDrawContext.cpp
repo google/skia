@@ -112,10 +112,12 @@ void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
 }
 
 void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
-                                       const GrPathProcessor* pathProc,
+                                       const SkMatrix& viewMatrix,
+                                       const SkMatrix& localMatrix,
+                                       GrColor color,
                                        GrPathRangeDraw* draw,
                                        int /*GrPathRendering::FillType*/ fill) {
-    fDrawTarget->drawPathsFromRange(*pipelineBuilder, pathProc, draw,
+    fDrawTarget->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color, draw,
                                     (GrPathRendering::FillType) fill);
 }
 

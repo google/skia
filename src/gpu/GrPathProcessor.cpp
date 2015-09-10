@@ -13,12 +13,14 @@
 #include "glsl/GrGLSLCaps.h"
 
 GrPathProcessor::GrPathProcessor(GrColor color,
+                                 const GrPipelineOptimizations& opts,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
     : INHERITED(true)
     , fColor(color)
     , fViewMatrix(viewMatrix)
-    , fLocalMatrix(localMatrix) {
+    , fLocalMatrix(localMatrix)
+    , fOpts(opts) {
     this->initClassID<GrPathProcessor>();
 }
 

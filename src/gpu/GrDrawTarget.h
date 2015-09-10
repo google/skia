@@ -69,7 +69,7 @@ public:
      * on the GrPipelineBuilder (if possible in the 3D API).  Note, we will never have an inverse
      * fill with stencil path
      */
-    void stencilPath(const GrPipelineBuilder&, const GrPathProcessor*, const GrPath*,
+    void stencilPath(const GrPipelineBuilder&, const SkMatrix& viewMatrix, const GrPath*,
                      GrPathRendering::FillType);
 
     /**
@@ -78,8 +78,8 @@ public:
      *
      * TODO: Remove this function and construct the batch outside GrDrawTarget.
      */
-    void drawPath(const GrPipelineBuilder&, const GrPathProcessor*, const GrPath*,
-                  GrPathRendering::FillType);
+    void drawPath(const GrPipelineBuilder&, const SkMatrix& viewMatrix, GrColor color,
+                  const GrPath*, GrPathRendering::FillType);
 
     /**
      * Draws the aggregate path from combining multiple. Note that this will not
@@ -94,7 +94,9 @@ public:
      * @param fill            Fill type for drawing all the paths
      */
     void drawPathsFromRange(const GrPipelineBuilder&,
-                            const GrPathProcessor*,
+                            const SkMatrix& viewMatrix,
+                            const SkMatrix& localMatrix,
+                            GrColor color,
                             GrPathRangeDraw* draw,
                             GrPathRendering::FillType fill);
 

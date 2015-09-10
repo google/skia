@@ -207,7 +207,7 @@ void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType f
 }
 
 void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
-                               const GrPathProcessor* pathProc,
+                               const SkMatrix& viewMatrix,
                                const GrPath* path,
                                GrPathRendering::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
@@ -228,7 +228,7 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
-    GrBatch* batch = GrStencilPathBatch::Create(pathProc->viewMatrix(),
+    GrBatch* batch = GrStencilPathBatch::Create(viewMatrix,
                                                 pipelineBuilder.isHWAntialias(),
                                                 stencilSettings, scissorState,
                                                 pipelineBuilder.getRenderTarget(),
@@ -238,22 +238,25 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 }
 
 void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
-                            const GrPathProcessor* pathProc,
+                            const SkMatrix& viewMatrix,
+                            GrColor color,
                             const GrPath* path,
                             GrPathRendering::FillType fill) {
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
-    GrDrawPathBatchBase* batch = GrDrawPathBatch::Create(pathProc, path);
+    GrDrawPathBatchBase* batch = GrDrawPathBatch::Create(viewMatrix, color, path);
     this->drawPathBatch(pipelineBuilder, batch, fill);
     batch->unref();
 }
 
 void GrDrawTarget::drawPathsFromRange(const GrPipelineBuilder& pipelineBuilder,
-                                      const GrPathProcessor* pathProc,
+                                      const SkMatrix& viewMatrix,
+                                      const SkMatrix& localMatrix,
+                                      GrColor color,
                                       GrPathRangeDraw* draw,
                                       GrPathRendering::FillType fill) {
-    GrDrawPathBatchBase* batch = GrDrawPathRangeBatch::Create(pathProc, draw);
+    GrDrawPathBatchBase* batch = GrDrawPathRangeBatch::Create(viewMatrix, localMatrix, color, draw);
     this->drawPathBatch(pipelineBuilder, batch, fill);
     batch->unref();
 }

@@ -17,13 +17,13 @@ GrGLPathProcessor::GrGLPathProcessor(const GrPathProcessor&, const GrBatchTracke
 void GrGLPathProcessor::emitCode(EmitArgs& args) {
     GrGLGPBuilder* pb = args.fPB;
     GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
-    const PathBatchTracker& local = args.fBT.cast<PathBatchTracker>();
+    const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
     // emit transforms
     this->emitTransforms(args.fPB, args.fTransformsIn, args.fTransformsOut);
 
     // Setup uniform color
-    if (kUniform_GrGPInput == local.fInputColorType) {
+    if (pathProc.opts().readsColor()) {
         const char* stagedLocalVarName;
         fColorUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec4f_GrSLType,
@@ -34,28 +34,28 @@ void GrGLPathProcessor::emitCode(EmitArgs& args) {
     }
 
     // setup constant solid coverage
-    if (kAllOnes_GrGPInput == local.fInputCoverageType) {
+    if (pathProc.opts().readsCoverage()) {
         fs->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
     }
 }
 
-void GrGLPathProcessor::GenKey(const GrPathProcessor&,
+void GrGLPathProcessor::GenKey(const GrPathProcessor& pathProc,
                                const GrBatchTracker& bt,
                                const GrGLSLCaps&,
                                GrProcessorKeyBuilder* b) {
-    const PathBatchTracker& local = bt.cast<PathBatchTracker>();
-    b->add32(local.fInputColorType | local.fInputCoverageType << 16);
+    b->add32(SkToInt(pathProc.opts().readsColor()) |
+             SkToInt(pathProc.opts().readsCoverage()) << 16);
 }
 
 void GrGLPathProcessor::setData(const GrGLProgramDataManager& pdman,
                                 const GrPrimitiveProcessor& primProc,
                                 const GrBatchTracker& bt) {
-    const PathBatchTracker& local = bt.cast<PathBatchTracker>();
-    if (kUniform_GrGPInput == local.fInputColorType && local.fColor != fColor) {
+    const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
+    if (pathProc.opts().readsColor() && pathProc.color() != fColor) {
         GrGLfloat c[4];
-        GrColorToRGBAFloat(local.fColor, c);
+        GrColorToRGBAFloat(pathProc.color(), c);
         pdman.set4fv(fColorUniform, 1, c);
-        fColor = local.fColor;
+        fColor = pathProc.color();
     }
 }
 

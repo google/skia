@@ -427,9 +427,6 @@ static const SkScalar* get_xy_scalar_array(const SkPoint* pointArray) {
 void GrStencilAndCoverTextContext::flush(GrDrawContext* dc) {
     if (fDraw) {
         SkASSERT(fDraw->count());
-        SkAutoTUnref<GrPathProcessor> pp(GrPathProcessor::Create(fPaint.getColor(),
-                                                                 fViewMatrix,
-                                                                 fLocalMatrix));
 
         // We should only be flushing about once every run.  However, if this impacts performance
         // we could move the creation of the GrPipelineBuilder earlier.
@@ -447,7 +444,8 @@ void GrStencilAndCoverTextContext::flush(GrDrawContext* dc) {
 
         *pipelineBuilder.stencil() = kStencilPass;
 
-        dc->drawPathsFromRange(&pipelineBuilder, pp, fDraw, GrPathRendering::kWinding_FillType);
+        dc->drawPathsFromRange(&pipelineBuilder, fViewMatrix, fLocalMatrix, fPaint.getColor(),
+                               fDraw, GrPathRendering::kWinding_FillType);
         fDraw->unref();
         fDraw = nullptr;
     }

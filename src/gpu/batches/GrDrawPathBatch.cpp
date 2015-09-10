@@ -15,9 +15,13 @@ SkString GrDrawPathBatch::dumpInfo() const {
 
 void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
     GrProgramDesc  desc;
-    state->gpu()->buildProgramDesc(&desc, *this->pathProcessor(),
+
+    SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
+                                                                   this->opts(),
+                                                                   this->viewMatrix()));
+    state->gpu()->buildProgramDesc(&desc, *pathProc,
                                     *this->pipeline(), *this->tracker());
-    GrPathRendering::DrawPathArgs args(this->pathProcessor(), this->pipeline(),
+    GrPathRendering::DrawPathArgs args(pathProc, this->pipeline(),
                                         &desc, this->tracker(), &this->stencilSettings());
     state->gpu()->pathRendering()->drawPath(args, fPath.get());
 }
@@ -52,10 +56,11 @@ bool GrDrawPathRangeBatch::isWinding() const {
     return isWinding;
 }
 
-GrDrawPathRangeBatch::GrDrawPathRangeBatch(const GrPathProcessor* pathProc,
-                                           GrPathRangeDraw* pathRangeDraw)
-    : INHERITED(pathProc)
-    , fDraws(4) {
+GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+                                           GrColor color, GrPathRangeDraw* pathRangeDraw)
+    : INHERITED(viewMatrix, color)
+    , fDraws(4)
+    , fLocalMatrix(localMatrix) {
     SkDEBUGCODE(pathRangeDraw->fUsedInBatch = true;)
     this->initClassID<GrDrawPathRangeBatch>();
     fDraws.addToHead(SkRef(pathRangeDraw));
@@ -75,8 +80,9 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline(), false)) {
         return false;
     }
-    if (!this->pathProcessor()->isEqual(*this->tracker(), *that->pathProcessor(),
-                                        *that->tracker())) {
+    if (this->color() != that->color() ||
+        !this->viewMatrix().cheapEqualTo(that->viewMatrix()) ||
+        !fLocalMatrix.cheapEqualTo(that->fLocalMatrix)) {
         return false;
     }
     // TODO: Check some other things here. (winding, opaque, pathProc color, vm, ...)
@@ -103,9 +109,13 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
 
 void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
     GrProgramDesc  desc;
-    state->gpu()->buildProgramDesc(&desc, *this->pathProcessor(), *this->pipeline(),
-                                    *this->tracker());
-    GrPathRendering::DrawPathArgs args(this->pathProcessor(), this->pipeline(),
+    SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
+                                                                   this->opts(),
+                                                                   this->viewMatrix(),
+                                                                   fLocalMatrix));
+    state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline(),
+                                   *this->tracker());
+    GrPathRendering::DrawPathArgs args(pathProc, this->pipeline(),
                                         &desc, this->tracker(), &this->stencilSettings());
     if (fDraws.count() == 1) {
         const GrPathRangeDraw& draw = **fDraws.head();

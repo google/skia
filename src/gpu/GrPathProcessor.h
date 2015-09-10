@@ -24,9 +24,10 @@ struct PathBatchTracker {
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
     static GrPathProcessor* Create(GrColor color,
+                                   const GrPipelineOptimizations& opts,
                                    const SkMatrix& viewMatrix = SkMatrix::I(),
                                    const SkMatrix& localMatrix = SkMatrix::I()) {
-        return new GrPathProcessor(color, viewMatrix, localMatrix);
+        return new GrPathProcessor(color, opts, viewMatrix, localMatrix);
     }
 
     void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const override;
@@ -40,7 +41,6 @@ public:
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override;
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override;
@@ -56,14 +56,18 @@ public:
 
     bool hasTransformedLocalCoords() const override { return false; }
 
+    const GrPipelineOptimizations& opts() const { return fOpts; }
+
 private:
-    GrPathProcessor(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
+    GrPathProcessor(GrColor color, const GrPipelineOptimizations& opts,
+                    const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
     bool hasExplicitLocalCoords() const override { return false; }
 
     GrColor fColor;
     const SkMatrix fViewMatrix;
     const SkMatrix fLocalMatrix;
+    GrPipelineOptimizations fOpts;
 
     typedef GrPrimitiveProcessor INHERITED;
 };

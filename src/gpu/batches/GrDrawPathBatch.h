@@ -20,33 +20,41 @@
 class GrDrawPathBatchBase : public GrDrawBatch {
 public:
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        this->pathProcessor()->getInvariantOutputColor(out);
+        out->setKnownFourComponents(fColor);
     }
 
     void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        this->pathProcessor()->getInvariantOutputCoverage(out);
+        out->setKnownSingleComponent(0xff);
     }
 
     void setStencilSettings(const GrStencilSettings& stencil) { fStencilSettings = stencil; }
 
 protected:
-    GrDrawPathBatchBase(const GrPathProcessor* pathProc) : fPrimitiveProcessor(pathProc) {}
+    GrDrawPathBatchBase(const SkMatrix& viewMatrix, GrColor initialColor)
+        : fViewMatrix(viewMatrix)
+        , fColor(initialColor) {}
 
-    GrBatchTracker* tracker() { return reinterpret_cast<GrBatchTracker*>(&fWhatchamacallit); }
-    const GrPathProcessor* pathProcessor() const { return fPrimitiveProcessor.get(); }
     const GrStencilSettings& stencilSettings() const { return fStencilSettings; }
     const GrPipelineOptimizations& opts() const { return fOpts; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    GrColor color() const { return fColor; }
+
+    // TODO delete
+    const GrBatchTracker* tracker() const { return &fBatchTracker; }
 
 private:
     void initBatchTracker(const GrPipelineOptimizations& opts) override {
-        this->pathProcessor()->initBatchTracker(this->tracker(), opts);
+        opts.getOverrideColorIfSet(&fColor);
         fOpts = opts;
     }
 
-    GrPendingProgramElement<const GrPathProcessor>          fPrimitiveProcessor;
-    PathBatchTracker                                        fWhatchamacallit; // TODO: delete this
+    SkMatrix                                                fViewMatrix;
+    GrColor                                                 fColor;
     GrStencilSettings                                       fStencilSettings;
     GrPipelineOptimizations                                 fOpts;
+
+    // TODO delete
+    GrBatchTracker      fBatchTracker;
 
     typedef GrDrawBatch INHERITED;
 };
@@ -54,8 +62,9 @@ private:
 class GrDrawPathBatch final : public GrDrawPathBatchBase {
 public:
     // This can't return a more abstract type because we install the stencil settings late :(
-    static GrDrawPathBatchBase* Create(const GrPathProcessor* primProc, const GrPath* path) {
-        return new GrDrawPathBatch(primProc, path);
+    static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, GrColor color,
+                                       const GrPath* path) {
+        return new GrDrawPathBatch(viewMatrix, color, path);
     }
 
     const char* name() const override { return "DrawPath"; }
@@ -63,11 +72,11 @@ public:
     SkString dumpInfo() const override;
 
 private:
-    GrDrawPathBatch(const GrPathProcessor* pathProc, const GrPath* path)
-        : INHERITED(pathProc)
+    GrDrawPathBatch(const SkMatrix& viewMatrix, GrColor color, const GrPath* path)
+        : INHERITED(viewMatrix, color)
         , fPath(path) {
         fBounds = path->getBounds();
-        this->pathProcessor()->viewMatrix().mapRect(&fBounds);
+        viewMatrix.mapRect(&fBounds);
         this->initClassID<GrDrawPathBatch>();
     }
 
@@ -145,9 +154,9 @@ private:
 class GrDrawPathRangeBatch final : public GrDrawPathBatchBase {
 public:
     // This can't return a more abstracet type because we install the stencil settings late :(
-    static GrDrawPathBatchBase* Create(const GrPathProcessor* pathProc,
-                                       GrPathRangeDraw* pathRangeDraw) {
-        return SkNEW_ARGS(GrDrawPathRangeBatch, (pathProc, pathRangeDraw));
+    static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+                                       GrColor color, GrPathRangeDraw* pathRangeDraw) {
+        return SkNEW_ARGS(GrDrawPathRangeBatch, (viewMatrix, localMatrix, color, pathRangeDraw));
     }
 
     ~GrDrawPathRangeBatch() override;
@@ -159,7 +168,8 @@ public:
 private:
     inline bool isWinding() const;
 
-    GrDrawPathRangeBatch(const GrPathProcessor* pathProc, GrPathRangeDraw* pathRangeDraw);
+    GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix, GrColor color,
+                         GrPathRangeDraw* pathRangeDraw);
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
 
@@ -170,6 +180,7 @@ private:
     typedef SkTLList<GrPathRangeDraw*> DrawList;
     DrawList    fDraws;
     int         fTotalPathCount;
+    SkMatrix    fLocalMatrix;
 
     typedef GrDrawPathBatchBase INHERITED;
 };

@@ -64,7 +64,9 @@ public:
     // drawPathsFromRange is thanks to GrStencilAndCoverTextContext
     // TODO: remove once path batches can be created external to GrDrawTarget.
     void drawPathsFromRange(const GrPipelineBuilder*,
-                            const GrPathProcessor*,
+                            const SkMatrix& viewMatrix,
+                            const SkMatrix& localMatrix,
+                            GrColor color,
                             GrPathRangeDraw* draw,
                             int /*GrPathRendering::FillType*/ fill);
 
