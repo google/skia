@@ -44,6 +44,7 @@ namespace SkOpts {
     extern bool (*fill_block_dimensions)(SkTextureCompressor::Format, int* x, int* y);
 
     extern void (*blit_mask_d32_a8)(SkPMColor*, size_t, const SkAlpha*, size_t, SkColor, int, int);
+    extern void (*blit_row_color32)(SkPMColor*, const SkPMColor*, int, SkPMColor);
 
     // This function is an optimized version of SkColorCubeFilter::filterSpan
     extern void (*color_cube_filter_span)(const SkPMColor[],

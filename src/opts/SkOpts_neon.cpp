@@ -9,6 +9,7 @@
 
 #define SK_OPTS_NS sk_neon
 #include "SkBlitMask_opts.h"
+#include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
@@ -37,6 +38,8 @@ namespace SkOpts {
         fill_block_dimensions = sk_neon::fill_block_dimensions;
 
         blit_mask_d32_a8 = sk_neon::blit_mask_d32_a8;
+
+        blit_row_color32 = sk_neon::blit_row_color32;
 
         color_cube_filter_span = sk_neon::color_cube_filter_span;
     }

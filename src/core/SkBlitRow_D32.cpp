@@ -8,6 +8,7 @@
 #include "SkBlitRow.h"
 #include "SkBlitMask.h"
 #include "SkColorPriv.h"
+#include "SkOpts.h"
 #include "SkUtils.h"
 
 #define UNROLL
@@ -131,32 +132,10 @@ SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
     return proc;
 }
 
-#include "Sk4px.h"
-
-// Color32 uses the blend_256_round_alt algorithm from tests/BlendTest.cpp.
-// It's not quite perfect, but it's never wrong in the interesting edge cases,
-// and it's quite a bit faster than blend_perfect.
-//
-// blend_256_round_alt is our currently blessed algorithm.  Please use it or an analogous one.
 void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color) {
     switch (SkGetPackedA32(color)) {
         case   0: memmove(dst, src, count * sizeof(SkPMColor)); return;
         case 255: sk_memset32(dst, color, count);               return;
     }
-
-    // This Sk4px impl works great on other platforms or when we have NEON.
-#if defined(SK_CPU_ARM32) && !defined(SK_ARM_HAS_NEON)
-    if (auto proc = PlatformColor32Proc()) { return proc(dst, src, count, color); }
-#endif
-
-    unsigned invA = 255 - SkGetPackedA32(color);
-    invA += invA >> 7;
-    SkASSERT(invA < 256);  // We've already handled alpha == 0 above.
-
-    Sk16h colorHighAndRound = Sk4px::DupPMColor(color).widenHi() + Sk16h(128);
-    Sk16b invA_16x(invA);
-
-    Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
-        return (src4 * invA_16x).addNarrowHi(colorHighAndRound);
-    });
+    return SkOpts::blit_row_color32(dst, src, count, color);
 }

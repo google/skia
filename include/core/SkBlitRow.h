@@ -82,9 +82,6 @@ public:
     static ColorProc16 PlatformColorFactory565(unsigned flags);
 
 private:
-    typedef void (*Color32Proc)(SkPMColor[], const SkPMColor[], int, SkPMColor);
-    static Color32Proc PlatformColor32Proc();
-
     enum {
         kFlags16_Mask = 7,
         kFlags32_Mask = 3
