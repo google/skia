@@ -14,6 +14,7 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
+#include "SkMatrix_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkTextureCompressor_opts.h"
 #include "SkUtils_opts.h"
@@ -57,6 +58,10 @@ namespace SkOpts {
     decltype(blit_mask_d32_a8) blit_mask_d32_a8 = sk_default::blit_mask_d32_a8;
 
     decltype(blit_row_color32) blit_row_color32 = sk_default::blit_row_color32;
+
+    decltype(matrix_translate)       matrix_translate       = sk_default::matrix_translate;
+    decltype(matrix_scale_translate) matrix_scale_translate = sk_default::matrix_scale_translate;
+    decltype(matrix_affine)          matrix_affine          = sk_default::matrix_affine;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

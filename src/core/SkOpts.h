@@ -8,6 +8,7 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
+#include "SkMatrix.h"
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermode.h"
@@ -54,6 +55,8 @@ namespace SkOpts {
                                           const SkScalar * [2],
                                           int,
                                           const SkColor*);
+
+    extern SkMatrix::MapPtsProc matrix_translate, matrix_scale_translate, matrix_affine;
 }
 
 #endif//SkOpts_DEFINED

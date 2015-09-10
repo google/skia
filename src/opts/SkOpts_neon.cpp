@@ -13,6 +13,7 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
 #include "SkFloatingPoint_opts.h"
+#include "SkMatrix_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkTextureCompressor_opts.h"
 #include "SkUtils_opts.h"
@@ -42,5 +43,9 @@ namespace SkOpts {
         blit_row_color32 = sk_neon::blit_row_color32;
 
         color_cube_filter_span = sk_neon::color_cube_filter_span;
+
+        matrix_translate       = sk_neon::matrix_translate;
+        matrix_scale_translate = sk_neon::matrix_scale_translate;
+        matrix_affine          = sk_neon::matrix_affine;
     }
 }
