@@ -165,8 +165,11 @@ const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesP
 }
 
 void SkImage_Raster::onPreroll(GrContext* ctx) const {
-    fBitmap.lockPixels();
-    fBitmap.unlockPixels();
+    // SkImage can be called from lots of threads, but our fBitmap is *not* thread-safe,
+    // so we have to perform this lock/unlock in a non-racy way... we make a copy!
+    SkBitmap localShallowCopy(fBitmap);
+    localShallowCopy.lockPixels();
+    localShallowCopy.unlockPixels();
 }
 
 SkData* SkImage_Raster::onRefEncoded() const {
