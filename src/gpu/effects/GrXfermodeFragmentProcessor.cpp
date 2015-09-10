@@ -147,19 +147,13 @@ const GrFragmentProcessor* GrXfermodeFragmentProcessor::CreateFromTwoProcessors(
     }
     switch (mode) {
         case SkXfermode::kClear_Mode:
-            SkDebugf("CreateFromTwoProcessors() should not be used with kClear_Mode. "
-                     "Use GrConstColorProcessor.\n");
             return GrConstColorProcessor::Create(GrColor_TRANS_BLACK,
                                                  GrConstColorProcessor::kIgnore_InputMode);
             break;
         case SkXfermode::kSrc_Mode:
-            SkDebugf("CreateFromTwoProcessors() should not be used with kSrc_Mode. "
-                     "Use the src processor directly.\n");
             return SkRef(src);
             break;
         case SkXfermode::kDst_Mode:
-            SkDebugf("CreateFromTwoProcessors() should not be used with kDst_Mode. "
-                     "Use the dst processor directly.\n");
             return SkRef(dst);
             break;
         default:

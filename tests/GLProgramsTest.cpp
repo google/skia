@@ -28,6 +28,7 @@
 
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
 
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLPathRendering.h"
@@ -136,23 +137,81 @@ static void set_random_xpf(GrPipelineBuilder* pipelineBuilder, GrProcessorTestDa
     pipelineBuilder->setXPFactory(xpf.get());
 }
 
+static const GrFragmentProcessor* create_random_proc_tree(GrProcessorTestData* d,
+                                                           int minLevels, int maxLevels) {
+    SkASSERT(1 <= minLevels);
+    SkASSERT(minLevels <= maxLevels);
+
+    // Return a leaf node if maxLevels is 1 or if we randomly chose to terminate.
+    // If returning a leaf node, make sure that it doesn't have children (e.g. another
+    // GrComposeEffect)
+    const float terminateProbability = 0.3f;
+    if (1 == minLevels) {
+        bool terminate = (1 == maxLevels) || (d->fRandom->nextF() < terminateProbability);
+        if (terminate) {
+            const GrFragmentProcessor* fp;
+            while (true) {
+                fp = GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d);
+                SkASSERT(fp);
+                if (0 == fp->numChildProcessors()) {
+                    break;
+                }
+                fp->unref();
+            }
+            return fp;
+        }
+    }
+    // If we didn't terminate, choose either the left or right subtree to fulfill
+    // the minLevels requirement of this tree; the other child can have as few levels as it wants.
+    // Also choose a random xfer mode that's supported by CreateFrom2Procs().
+    if (minLevels > 1) {
+        --minLevels;
+    }
+    SkAutoTUnref<const GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels,
+                                                                                   maxLevels - 1));
+    SkAutoTUnref<const GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1,
+                                                                               maxLevels - 1));
+    SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(d->fRandom->nextRangeU(0,
+                                                          SkXfermode::kLastCoeffMode));
+    const GrFragmentProcessor* fp;
+    if (d->fRandom->nextF() < 0.5f) {
+        fp = GrXfermodeFragmentProcessor::CreateFromTwoProcessors(minLevelsChild, otherChild, mode);
+        SkASSERT(fp);
+    } else {
+        fp = GrXfermodeFragmentProcessor::CreateFromTwoProcessors(otherChild, minLevelsChild, mode);
+        SkASSERT(fp);
+    }
+    return fp;
+}
+
 static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
                                              GrProcessorTestData* d, int maxStages) {
-    int numProcs = d->fRandom->nextULessThan(maxStages + 1);
-    int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
-
-    for (int s = 0; s < numProcs;) {
+    // Randomly choose to either create a linear pipeline of procs or create one proc tree
+    const float procTreeProbability = 0.5f;
+    if (d->fRandom->nextF() < procTreeProbability) {
+        // A full tree with 5 levels (31 nodes) may exceed the max allowed length of the gl
+        // processor key; maxTreeLevels should be a number from 1 to 4 inclusive.
+        const int maxTreeLevels = 4;
         SkAutoTUnref<const GrFragmentProcessor> fp(
-                GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
-        SkASSERT(fp);
+                                        create_random_proc_tree(d, 2, maxTreeLevels));
+        pipelineBuilder->addColorFragmentProcessor(fp);
+    } else {
+        int numProcs = d->fRandom->nextULessThan(maxStages + 1);
+        int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
 
-        // finally add the stage to the correct pipeline in the drawstate
-        if (s < numColorProcs) {
-            pipelineBuilder->addColorFragmentProcessor(fp);
-        } else {
-            pipelineBuilder->addCoverageFragmentProcessor(fp);
+        for (int s = 0; s < numProcs;) {
+            SkAutoTUnref<const GrFragmentProcessor> fp(
+                    GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
+            SkASSERT(fp);
+
+            // finally add the stage to the correct pipeline in the drawstate
+            if (s < numColorProcs) {
+                pipelineBuilder->addColorFragmentProcessor(fp);
+            } else {
+                pipelineBuilder->addCoverageFragmentProcessor(fp);
+            }
+            ++s;
         }
-        ++s;
     }
 }
 
