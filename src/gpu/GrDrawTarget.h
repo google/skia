@@ -177,39 +177,27 @@ public:
 
     bool programUnitTest(GrContext* owner, int maxStages);
 
-    struct PipelineInfo {
-        PipelineInfo(const GrPipelineBuilder* pipelineBuilder, const GrScissorState* scissor,
-                     const GrDrawBatch* batch, const SkRect* devBounds,
-                     GrDrawTarget* target);
-
-        bool valid() const { return SkToBool(fArgs.fPipelineBuilder); }
-
-        const GrPipeline::CreateArgs& pipelineCreateArgs() const {
-            SkASSERT(this->valid());
-            return fArgs;
-        }
-
-    private:
-        GrPipeline::CreateArgs      fArgs;
-    };
-
 protected:
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
-
-    // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
-    // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
-    // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(const GrPipelineBuilder&,
-                                 const GrProcOptInfo& colorPOI,
-                                 const GrProcOptInfo& coveragePOI,
-                                 GrXferProcessor::DstTexture*,
-                                 const SkRect* drawBounds);
 
     void recordBatch(GrBatch*);
 
 private:
     SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
+
+    bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
+                                    const GrScissorState* scissor,
+                                    GrDrawBatch* batch);
+
+    // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
+    // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
+    // needs to be accessed by GLPrograms to setup a correct drawstate
+    bool setupDstReadIfNecessary(const GrPipelineBuilder&,
+        const GrProcOptInfo& colorPOI,
+        const GrProcOptInfo& coveragePOI,
+        GrXferProcessor::DstTexture*,
+        const SkRect& batchBounds);
 
     void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch,
                        GrPathRendering::FillType fill);

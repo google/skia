@@ -51,7 +51,10 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
                                            const GrProcOptInfo& colorPOI,
                                            const GrProcOptInfo& coveragePOI,
                                            GrXferProcessor::DstTexture* dstTexture,
-                                           const SkRect* drawBounds) {
+                                           const SkRect& batchBounds) {
+    SkRect bounds = batchBounds;
+    bounds.outset(0.5f, 0.5f);
+
     if (!pipelineBuilder.willXPNeedDstTexture(*this->caps(), colorPOI, coveragePOI)) {
         return true;
     }
@@ -71,20 +74,14 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     SkIRect copyRect;
     pipelineBuilder.clip().getConservativeBounds(rt, &copyRect);
 
-    if (drawBounds) {
-        SkIRect drawIBounds;
-        drawBounds->roundOut(&drawIBounds);
-        if (!copyRect.intersect(drawIBounds)) {
+    SkIRect drawIBounds;
+    bounds.roundOut(&drawIBounds);
+    if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
-            GrCapsDebugf(fCaps, "Missed an early reject. "
-                         "Bailing on draw from setupDstReadIfNecessary.\n");
+        GrCapsDebugf(fCaps, "Missed an early reject. "
+                        "Bailing on draw from setupDstReadIfNecessary.\n");
 #endif
-            return false;
-        }
-    } else {
-#ifdef SK_DEBUG
-        //SkDebugf("No dev bounds when dst copy is made.\n");
-#endif
+        return false;
     }
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
@@ -95,7 +92,6 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fConfig = rt->config();
     }
-
 
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
@@ -154,20 +150,11 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBat
         return;
     }
 
-    // Batch bounds are tight, so for dev copies
-    // TODO move this into setupDstReadIfNecessary when paths are in batch
-    SkRect bounds = batch->bounds();
-    bounds.outset(0.5f, 0.5f);
-
-    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch, &bounds,
-                                            this);
-
-    if (!pipelineInfo.valid()) {
+    GrPipeline::CreateArgs args;
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &scissorState, batch)) {
         return;
     }
-    if (!batch->installPipeline(pipelineInfo.pipelineCreateArgs())) {
-        return;
-    }
+
     this->recordBatch(batch);
 }
 
@@ -282,13 +269,8 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
     batch->setStencilSettings(stencilSettings);
 
-    GrDrawTarget::PipelineInfo pipelineInfo(&pipelineBuilder, &scissorState, batch,
-                                            &batch->bounds(), this);
-
-    if (!pipelineInfo.valid()) {
-        return;
-    }
-    if (!batch->installPipeline(pipelineInfo.pipelineCreateArgs())) {
+    GrPipeline::CreateArgs args;
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &scissorState, batch)) {
         return;
     }
 
@@ -451,20 +433,26 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::PipelineInfo::PipelineInfo(const GrPipelineBuilder* pipelineBuilder,
-                                         const GrScissorState* scissor,
-                                         const GrDrawBatch* batch,
-                                         const SkRect* devBounds,
-                                         GrDrawTarget* target) {
-    fArgs.fPipelineBuilder = pipelineBuilder;
-    fArgs.fCaps = target->caps();
-    fArgs.fScissor = scissor;
-    fArgs.fColorPOI = fArgs.fPipelineBuilder->colorProcInfo(batch);
-    fArgs.fCoveragePOI = fArgs.fPipelineBuilder->coverageProcInfo(batch);
-    if (!target->setupDstReadIfNecessary(*fArgs.fPipelineBuilder, fArgs.fColorPOI,
-                                         fArgs.fCoveragePOI, &fArgs.fDstTexture, devBounds)) {
-        fArgs.fPipelineBuilder = nullptr;
+bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
+                                              const GrScissorState* scissor,
+                                              GrDrawBatch* batch) {
+    GrPipeline::CreateArgs args;
+    args.fPipelineBuilder = pipelineBuilder;
+    args.fCaps = this->caps();
+    args.fScissor = scissor;
+    args.fColorPOI = pipelineBuilder->colorProcInfo(batch);
+    args.fCoveragePOI = pipelineBuilder->coverageProcInfo(batch);
+    if (!this->setupDstReadIfNecessary(*pipelineBuilder, args.fColorPOI,
+                                       args.fCoveragePOI, &args.fDstTexture,
+                                       batch->bounds())) {
+        return false;
     }
+
+    if (!batch->installPipeline(args)) {
+        return false;
+    }
+
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
