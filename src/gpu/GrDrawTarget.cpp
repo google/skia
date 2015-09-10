@@ -39,6 +39,7 @@ GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     , fLastFlushToken(0) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
+    fClipMaskManager.reset(new GrClipMaskManager(this));
 }
 
 GrDrawTarget::~GrDrawTarget() {
