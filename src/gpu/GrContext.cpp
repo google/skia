@@ -329,6 +329,10 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
                                    GrPixelConfig srcConfig, const void* buffer, size_t rowBytes,
                                    uint32_t pixelOpsFlags) {
     RETURN_FALSE_IF_ABANDONED
+    ASSERT_OWNED_RESOURCE(surface);
+    SkASSERT(surface);
+
+    this->testPMConversionsIfNecessary(pixelOpsFlags);
 
     // Trim the params here so that if we wind up making a temporary surface it can be as small as
     // necessary and because GrGpu::getWritePixelsInfo requires it.
@@ -460,6 +464,9 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     RETURN_FALSE_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(src);
     SkASSERT(src);
+
+    this->testPMConversionsIfNecessary(flags);
+    SkAutoMutexAcquire ama(fReadPixelsMutex);
 
     // Adjust the params so that if we wind up using an intermediate surface we've already done
     // all the trimming and the temporary can be the min size required.
@@ -694,14 +701,22 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 }
 }
 
+void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
+    if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
+        SkAutoMutexAcquire ama(fTestPMConversionsMutex);
+        if (!fDidTestPMConversions) {
+            test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
+            fDidTestPMConversions = true;
+        }
+    }
+}
+
 const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrProcessorDataManager* procDataManager,
                                                           GrTexture* texture,
                                                           bool swapRAndB,
-                                                          const SkMatrix& matrix) {
-    if (!fDidTestPMConversions) {
-        test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
-        fDidTestPMConversions = true;
-    }
+                                                          const SkMatrix& matrix) const {
+    // We should have already called this->testPMConversionsIfNecessary().
+    SkASSERT(fDidTestPMConversions);
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
@@ -715,11 +730,9 @@ const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrProcessorDataManager
 const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrProcessorDataManager* procDataManager,
                                                           GrTexture* texture,
                                                           bool swapRAndB,
-                                                          const SkMatrix& matrix) {
-    if (!fDidTestPMConversions) {
-        test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
-        fDidTestPMConversions = true;
-    }
+                                                          const SkMatrix& matrix) const {
+    // We should have already called this->testPMConversionsIfNecessary().
+    SkASSERT(fDidTestPMConversions);
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
@@ -731,9 +744,10 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrProcessorDataManager
 }
 
 bool GrContext::didFailPMUPMConversionTest() const {
+    // We should have already called this->testPMConversionsIfNecessary().
+    SkASSERT(fDidTestPMConversions);
     // The PM<->UPM tests fail or succeed together so we only need to check one.
-    return fDidTestPMConversions &&
-           GrConfigConversionEffect::kNone_PMConversion == fPMToUPMConversion;
+    return GrConfigConversionEffect::kNone_PMConversion == fPMToUPMConversion;
 }
 
 //////////////////////////////////////////////////////////////////////////////
