@@ -18,7 +18,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLInterface* glInterface) : INHERITED(contextOptions) {
     fVerifiedColorConfigs.reset();
     fStencilFormats.reset();
-    fStencilVerifiedColorConfigs.reset();
     fMSFBOType = kNone_MSFBOType;
     fInvalidateFBType = kNone_InvalidateFBType;
     fLATCAlias = kLATC_LATCAlias;
@@ -1019,53 +1018,6 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
             fStencilFormats.push_back() = gS4;
         }
     }
-    SkASSERT(0 == fStencilVerifiedColorConfigs.count());
-    fStencilVerifiedColorConfigs.push_back_n(fStencilFormats.count());
-}
-
-void GrGLCaps::markColorConfigAndStencilFormatAsVerified(
-                                    GrPixelConfig config,
-                                    const GrGLStencilAttachment::Format& format) {
-#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
-    return;
-#endif
-    SkASSERT((unsigned)config < (unsigned)kGrPixelConfigCnt);
-    SkASSERT(fStencilFormats.count() == fStencilVerifiedColorConfigs.count());
-    int count = fStencilFormats.count();
-    // we expect a really small number of possible formats so linear search
-    // should be OK
-    SkASSERT(count < 16);
-    for (int i = 0; i < count; ++i) {
-        if (format.fInternalFormat ==
-            fStencilFormats[i].fInternalFormat) {
-            fStencilVerifiedColorConfigs[i].markVerified(config);
-            return;
-        }
-    }
-    SkFAIL("Why are we seeing a stencil format that "
-            "GrGLCaps doesn't know about.");
-}
-
-bool GrGLCaps::isColorConfigAndStencilFormatVerified(
-                                GrPixelConfig config,
-                                const GrGLStencilAttachment::Format& format) const {
-#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
-    return false;
-#endif
-    SkASSERT((unsigned)config < (unsigned)kGrPixelConfigCnt);
-    int count = fStencilFormats.count();
-    // we expect a really small number of possible formats so linear search
-    // should be OK
-    SkASSERT(count < 16);
-    for (int i = 0; i < count; ++i) {
-        if (format.fInternalFormat ==
-            fStencilFormats[i].fInternalFormat) {
-            return fStencilVerifiedColorConfigs[i].isVerified(config);
-        }
-    }
-    SkFAIL("Why are we seeing a stencil format that "
-            "GLCaps doesn't know about.");
-    return false;
 }
 
 SkString GrGLCaps::dump() const {

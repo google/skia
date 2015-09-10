@@ -115,24 +115,6 @@ public:
     }
 
     /**
-     * Call to note that a color config / stencil format pair passed
-     * FBO status check. We may skip calling glCheckFramebufferStatus for
-     * this combination in the future using
-     * isColorConfigAndStencilFormatVerified().
-     */
-    void markColorConfigAndStencilFormatAsVerified(
-                    GrPixelConfig config,
-                    const GrGLStencilAttachment::Format& format);
-
-    /**
-     * Call to check whether color config / stencil format pair has already
-     * passed FBO status check.
-     */
-    bool isColorConfigAndStencilFormatVerified(
-                    GrPixelConfig config,
-                    const GrGLStencilAttachment::Format& format) const;
-
-    /**
      * Reports the type of MSAA FBO support.
      */
     MSFBOType msFBOType() const { return fMSFBOType; }
@@ -343,10 +325,6 @@ private:
     VerifiedColorConfigs fVerifiedColorConfigs;
 
     SkTArray<StencilFormat, true> fStencilFormats;
-    // tracks configs that have been verified to pass the FBO completeness when
-    // used as a color attachment when a particular stencil format is used
-    // as a stencil attachment.
-    SkTArray<VerifiedColorConfigs, true> fStencilVerifiedColorConfigs;
 
     int fMaxFragmentUniformVectors;
     int fMaxVertexAttributes;

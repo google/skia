@@ -126,6 +126,9 @@ private:
     bool createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int width, int height) override;
     bool attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb,
                                                GrRenderTarget* rt) override;
+    // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
+    // compatible stencil format.
+    int getCompatibleStencilIndex(GrPixelConfig config);
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
 
@@ -489,9 +492,9 @@ private:
 
     ///@}
 
-    // we record what stencil format worked last time to hopefully exit early
-    // from our loop that tries stencil formats and calls check fb status.
-    int fLastSuccessfulStencilFmtIdx;
+    // Mapping of pixel configs to known supported stencil formats to be used
+    // when adding a stencil buffer to a framebuffer.
+    int fPixelConfigToStencilIndex[kGrPixelConfigCnt];
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.

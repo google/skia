@@ -159,6 +159,15 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Used in the map of pixel configs to stencil format indices. This value is used to
+// indicate that a stencil format has not yet been set for the given config.
+static const int kUnknownStencilIndex = -1;
+// This value is used as the stencil index when no stencil configs are supported with the
+// given pixel config.
+static const int kUnsupportedStencilIndex = -2;
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
                        GrContext* context) {
     SkAutoTUnref<const GrGLInterface> glInterface(
@@ -211,7 +220,9 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
 
     SkASSERT(this->glCaps().maxVertexAttributes() >= GrGeometryProcessor::kMaxVertexAttribs);
 
-    fLastSuccessfulStencilFmtIdx = 0;
+    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+        fPixelConfigToStencilIndex[i] = kUnknownStencilIndex;
+    }
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
@@ -1169,6 +1180,123 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 }
 
+int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
+    int size = this->caps()->minTextureSize();
+    if (kUnknownStencilIndex == fPixelConfigToStencilIndex[config]) {
+        // Default to unsupported
+        fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
+        // Create color texture
+        GrGLuint colorID;
+        GL_CALL(GenTextures(1, &colorID));
+        this->setScratchTextureUnit();
+        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, colorID));
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_MAG_FILTER,
+                              GR_GL_NEAREST));
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_MIN_FILTER,
+                              GR_GL_NEAREST));
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_WRAP_S,
+                              GR_GL_CLAMP_TO_EDGE));
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
+                              GR_GL_TEXTURE_WRAP_T,
+                              GR_GL_CLAMP_TO_EDGE));
+
+        GrGLenum internalFormat = 0x0; // suppress warning
+        GrGLenum externalFormat = 0x0; // suppress warning
+        GrGLenum externalType = 0x0;   // suppress warning
+        if (!this->configToGLFormats(config, false, &internalFormat,
+                                     &externalFormat, &externalType)) {
+            GL_CALL(DeleteTextures(1, &colorID));
+            fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
+            return kUnsupportedStencilIndex;
+        }
+
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
+        GL_ALLOC_CALL(this->glInterface(), TexImage2D(GR_GL_TEXTURE_2D,
+                                                      0, internalFormat,
+                                                      size,
+                                                      size,
+                                                      0,
+                                                      externalFormat,
+                                                      externalType,
+                                                      NULL));
+        if (GR_GL_NO_ERROR != GR_GL_GET_ERROR(this->glInterface())) {
+            GL_CALL(DeleteTextures(1, &colorID));
+            fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
+            return kUnsupportedStencilIndex;
+        }
+
+        // unbind the texture from the texture unit before binding it to the frame buffer
+        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, 0));
+
+        // Create Framebuffer
+        GrGLuint fb;
+        GL_CALL(GenFramebuffers(1, &fb));
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fb)); 
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+        GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
+                                     GR_GL_COLOR_ATTACHMENT0,
+                                     GR_GL_TEXTURE_2D,
+                                     colorID,
+                                     0));
+
+        // look over formats till I find a compatible one
+        int stencilFmtCnt = this->glCaps().stencilFormats().count();
+        GrGLuint sbRBID = 0;
+        for (int i = 0; i < stencilFmtCnt; ++i) {
+            const GrGLCaps::StencilFormat& sFmt = this->glCaps().stencilFormats()[i];
+
+            GL_CALL(GenRenderbuffers(1, &sbRBID));
+            if (!sbRBID) {
+                break;
+            }
+            GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbRBID));
+            CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
+            GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
+                                                                   sFmt.fInternalFormat,
+                                                                   size, size));
+            if (GR_GL_NO_ERROR == GR_GL_GET_ERROR(this->glInterface())) {
+                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                GR_GL_STENCIL_ATTACHMENT,
+                                                GR_GL_RENDERBUFFER, sbRBID));
+                if (sFmt.fPacked) {
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                    GR_GL_DEPTH_ATTACHMENT,
+                                                    GR_GL_RENDERBUFFER, sbRBID));
+                } else {
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                    GR_GL_DEPTH_ATTACHMENT,
+                                                    GR_GL_RENDERBUFFER, 0));
+                }
+                GrGLenum status;
+                GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+                if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                    GR_GL_STENCIL_ATTACHMENT,
+                                                    GR_GL_RENDERBUFFER, 0));
+                    if (sFmt.fPacked) {
+                        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                        GR_GL_DEPTH_ATTACHMENT,
+                                                        GR_GL_RENDERBUFFER, 0));
+                    }
+                } else {
+                    fPixelConfigToStencilIndex[config] = i;
+                    break;
+                }
+            }
+            sbRBID = 0;
+        }
+        GL_CALL(DeleteTextures(1, &colorID));
+        GL_CALL(DeleteRenderbuffers(1, &sbRBID));
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
+        GL_CALL(DeleteFramebuffers(1, &fb));
+    }
+    SkASSERT(kUnknownStencilIndex != fPixelConfigToStencilIndex[config]);
+    return fPixelConfigToStencilIndex[config];
+}
+
 bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int width, int height) {
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is a RT that isn't also a texture).
@@ -1179,110 +1307,96 @@ bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int wid
     int samples = rt->numStencilSamples();
     GrGLStencilAttachment::IDDesc sbDesc;
 
-    int stencilFmtCnt = this->glCaps().stencilFormats().count();
-    for (int i = 0; i < stencilFmtCnt; ++i) {
-        if (!sbDesc.fRenderbufferID) {
-            GL_CALL(GenRenderbuffers(1, &sbDesc.fRenderbufferID));
-        }
-        if (!sbDesc.fRenderbufferID) {
-            return false;
-        }
-        GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
-        // we start with the last stencil format that succeeded in hopes
-        // that we won't go through this loop more than once after the
-        // first (painful) stencil creation.
-        int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
-        const GrGLCaps::StencilFormat& sFmt = this->glCaps().stencilFormats()[sIdx];
-        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-        // we do this "if" so that we don't call the multisample
-        // version on a GL that doesn't have an MSAA extension.
-        bool created;
-        if (samples > 0) {
-            created = renderbuffer_storage_msaa(*fGLContext,
-                                                samples,
-                                                sFmt.fInternalFormat,
-                                                width, height);
-        } else {
-            GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                                                   sFmt.fInternalFormat,
-                                                                   width, height));
-            created = (GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
-        }
-        if (created) {
-            fStats.incStencilAttachmentCreates();
-            // After sized formats we attempt an unsized format and take
-            // whatever sizes GL gives us. In that case we query for the size.
-            GrGLStencilAttachment::Format format = sFmt;
-            get_stencil_rb_sizes(this->glInterface(), &format);
-            SkAutoTUnref<GrGLStencilAttachment> sb(
-                    new GrGLStencilAttachment(this, sbDesc, width, height, samples, format));
-            if (this->attachStencilAttachmentToRenderTarget(sb, rt)) {
-                fLastSuccessfulStencilFmtIdx = sIdx;
-                rt->renderTargetPriv().didAttachStencilAttachment(sb);
-// This work around is currently breaking on windows 7 hd2000 bot when we bind a color buffer
-#if 0
-                // Clear the stencil buffer. We use a special purpose FBO for this so that the
-                // entire stencil buffer is cleared, even if it is attached to an FBO with a
-                // smaller color target.
-                if (0 == fStencilClearFBOID) {
-                    GL_CALL(GenFramebuffers(1, &fStencilClearFBOID));
-                }
-
-                GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fStencilClearFBOID));
-                fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
-                fStats.incRenderTargetBinds();
-                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                GR_GL_STENCIL_ATTACHMENT,
-                                                GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
-                if (sFmt.fPacked) {
-                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                    GR_GL_DEPTH_ATTACHMENT,
-                                                    GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
-                }
-
-                GL_CALL(ClearStencil(0));
-                // Many GL implementations seem to have trouble with clearing an FBO with only
-                // a stencil buffer.
-                GrGLuint tempRB;
-                GL_CALL(GenRenderbuffers(1, &tempRB));
-                GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, tempRB));
-                if (samples > 0) {
-                    renderbuffer_storage_msaa(fGLContext, samples, GR_GL_RGBA8, width, height);
-                } else {
-                    GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
-                }
-                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                GR_GL_COLOR_ATTACHMENT0,
-                                                GR_GL_RENDERBUFFER, tempRB));
-
-                GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-
-                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                GR_GL_COLOR_ATTACHMENT0,
-                                                GR_GL_RENDERBUFFER, 0));
-                GL_CALL(DeleteRenderbuffers(1, &tempRB));
-
-                // Unbind the SB from the FBO so that we don't keep it alive.
-                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                GR_GL_STENCIL_ATTACHMENT,
-                                                GR_GL_RENDERBUFFER, 0));
-                if (sFmt.fPacked) {
-                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                    GR_GL_DEPTH_ATTACHMENT,
-                                                    GR_GL_RENDERBUFFER, 0));
-                }
-#endif
-                return true;
-            }
-            // Remove the scratch key from this resource so we don't grab it from the cache ever
-            // again.
-            sb->resourcePriv().removeScratchKey();
-            // Set this to 0 since we handed the valid ID off to the failed stencil buffer resource.
-            sbDesc.fRenderbufferID = 0;
-        }
+    int sIdx = this->getCompatibleStencilIndex(rt->config());
+    if (sIdx == kUnsupportedStencilIndex) {
+        return false;
     }
-    GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
-    return false;
+
+    if (!sbDesc.fRenderbufferID) {
+        GL_CALL(GenRenderbuffers(1, &sbDesc.fRenderbufferID));
+    }
+    if (!sbDesc.fRenderbufferID) {
+        return false;
+    }
+    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
+    const GrGLCaps::StencilFormat& sFmt = this->glCaps().stencilFormats()[sIdx];
+    CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
+    // we do this "if" so that we don't call the multisample
+    // version on a GL that doesn't have an MSAA extension.
+    if (samples > 0) {
+        SkAssertResult(renderbuffer_storage_msaa(*fGLContext,
+                                                 samples,
+                                                 sFmt.fInternalFormat,
+                                                 width, height));
+    } else {
+        GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
+                                                               sFmt.fInternalFormat,
+                                                               width, height));
+        SkASSERT(GR_GL_NO_ERROR == check_alloc_error(rt->desc(), this->glInterface()));
+    }
+    fStats.incStencilAttachmentCreates();
+    // After sized formats we attempt an unsized format and take
+    // whatever sizes GL gives us. In that case we query for the size.
+    GrGLStencilAttachment::Format format = sFmt;
+    get_stencil_rb_sizes(this->glInterface(), &format);
+    SkAutoTUnref<GrGLStencilAttachment> sb(
+        new GrGLStencilAttachment(this, sbDesc, width, height, samples, format));
+    SkAssertResult(this->attachStencilAttachmentToRenderTarget(sb, rt));
+    rt->renderTargetPriv().didAttachStencilAttachment(sb);
+    // This work around is currently breaking on windows 7 hd2000 bot when we bind a color buffer
+#if 0
+    // Clear the stencil buffer. We use a special purpose FBO for this so that the
+    // entire stencil buffer is cleared, even if it is attached to an FBO with a
+    // smaller color target.
+    if (0 == fStencilClearFBOID) {
+        GL_CALL(GenFramebuffers(1, &fStencilClearFBOID));
+    }
+
+    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fStencilClearFBOID));
+    fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+    fStats.incRenderTargetBinds();
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                    GR_GL_STENCIL_ATTACHMENT,
+                                    GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
+    if (sFmt.fPacked) {
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                        GR_GL_DEPTH_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
+    }
+
+    GL_CALL(ClearStencil(0));
+    // Many GL implementations seem to have trouble with clearing an FBO with only
+    // a stencil buffer.
+    GrGLuint tempRB;
+    GL_CALL(GenRenderbuffers(1, &tempRB));
+    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, tempRB));
+    if (samples > 0) {
+        renderbuffer_storage_msaa(fGLContext, samples, GR_GL_RGBA8, width, height);
+    } else {
+        GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
+    }
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                    GR_GL_COLOR_ATTACHMENT0,
+                                    GR_GL_RENDERBUFFER, tempRB));
+
+    GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
+
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                    GR_GL_COLOR_ATTACHMENT0,
+                                    GR_GL_RENDERBUFFER, 0));
+    GL_CALL(DeleteRenderbuffers(1, &tempRB));
+
+    // Unbind the SB from the FBO so that we don't keep it alive.
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                    GR_GL_STENCIL_ATTACHMENT,
+                                    GR_GL_RENDERBUFFER, 0));
+    if (sFmt.fPacked) {
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                        GR_GL_DEPTH_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER, 0));
+    }
+#endif
+    return true;
 }
 
 bool GrGLGpu::attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb, GrRenderTarget* rt) {
@@ -1325,25 +1439,11 @@ bool GrGLGpu::attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb, GrR
                                             GR_GL_RENDERBUFFER, 0));
         }
 
+#ifdef SK_DEBUG
         GrGLenum status;
-        if (!this->glCaps().isColorConfigAndStencilFormatVerified(rt->config(), glsb->format())) {
-            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-            if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-                GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                              GR_GL_STENCIL_ATTACHMENT,
-                                              GR_GL_RENDERBUFFER, 0));
-                if (glsb->format().fPacked) {
-                    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                  GR_GL_DEPTH_ATTACHMENT,
-                                                  GR_GL_RENDERBUFFER, 0));
-                }
-                return false;
-            } else {
-                fGLContext->caps()->markColorConfigAndStencilFormatAsVerified(
-                    rt->config(),
-                    glsb->format());
-            }
-        }
+        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
+#endif
         return true;
     }
 }

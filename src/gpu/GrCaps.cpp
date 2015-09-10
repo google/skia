@@ -102,9 +102,9 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fMapBufferFlags = kNone_MapFlags;
 
-    fMaxRenderTargetSize = 0;
-    fMaxTextureSize = 0;
-    fMinTextureSize = 0;
+    fMaxRenderTargetSize = 1;
+    fMaxTextureSize = 1;
+    fMinTextureSize = 1;
     fMaxSampleCount = 0;
 
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
