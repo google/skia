@@ -396,6 +396,11 @@ public:
 #undef SHIFT16
 #undef SHIFT8
 
+template <>
+inline SkNf<4,float> SkNx_shuffle_impl<SkNf<4,float>, 1,0,3,2>(const SkNf<4,float>& src) {
+    return vrev64q_f32(src.fVec);
+}
+
 }  // namespace
 
 #endif//SkNx_neon_DEFINED
