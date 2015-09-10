@@ -116,7 +116,7 @@ public:
 
 private:
     GrPathRangeDraw(GrPathRange* range, TransformType transformType, int reserveCnt)
-        : fPathRange(SkRef(range))
+        : fPathRange(range)
         , fTransformType(transformType)
         , fIndices(reserveCnt)
         , fTransforms(reserveCnt * GrPathRendering::PathTransformSize(transformType)) {
