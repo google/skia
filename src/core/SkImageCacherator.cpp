@@ -17,6 +17,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceKey.h"
 #include "GrTextureAccess.h"
+#include "GrYUVProvider.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #endif
@@ -158,6 +159,49 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+static void make_texture_desc(const SkImageInfo& info, GrSurfaceDesc* desc) {
+    desc->fFlags = kNone_GrSurfaceFlags;
+    desc->fWidth = info.width();
+    desc->fHeight = info.height();
+    desc->fConfig = SkImageInfo2GrPixelConfig(info);
+    desc->fSampleCnt = 0;
+}
+
+static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrSurfaceDesc desc) {
+    const void* rawStart;
+    GrPixelConfig config = GrIsCompressedTextureDataSupported(ctx, data, desc.fWidth, desc.fHeight,
+                                                              &rawStart);
+    if (kUnknown_GrPixelConfig == config) {
+        return nullptr;
+    }
+
+    desc.fConfig = config;
+    return ctx->textureProvider()->createTexture(desc, true, rawStart, 0);
+}
+
+class Generator_GrYUVProvider : public GrYUVProvider {
+    SkImageGenerator* fGen;
+
+public:
+    Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
+
+    uint32_t onGetID() override { return fGen->uniqueID(); }
+    bool onGetYUVSizes(SkISize sizes[3]) override {
+        return fGen->getYUV8Planes(sizes, nullptr, nullptr, nullptr);
+    }
+    bool onGetYUVPlanes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
+                        SkYUVColorSpace* space) override {
+        return fGen->getYUV8Planes(sizes, planes, rowBytes, space);
+    }
+};
+
+static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
+    tex->resourcePriv().setUniqueKey(key);
+    return tex;
+}
+#endif
+
 /*
  *  We have a 5 ways to try to return a texture (in sorted order)
  *
@@ -173,9 +217,18 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usa
         return nullptr;
     }
 
+    // textures (at least the texture-key) only support 16bit dimensions, so abort early
+    // if we're too big.
+    if (fInfo.width() > 0xFFFF || fInfo.height() > 0xFFFF) {
+        return nullptr;
+    }
+
     GrUniqueKey key;
-    GrMakeKeyFromImageID(&key, fUniqueID, fInfo.width(), fInfo.height(), SkIPoint::Make(0, 0),
+    GrMakeKeyFromImageID(&key, fUniqueID, SkIRect::MakeWH(fInfo.width(), fInfo.height()),
                          *ctx->caps(), usage);
+
+    GrSurfaceDesc desc;
+    make_texture_desc(fInfo, &desc);
 
     // 1. Check the cache for a pre-existing one
     if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
@@ -187,26 +240,36 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usa
         ScopedGenerator generator(this);
         SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
         if (GrTexture* tex = generator->generateTexture(ctx, usage, &subset)) {
-            tex->resourcePriv().setUniqueKey(key);
-            return tex;
+            return set_key_and_return(tex, key);
         }
     }
 
     // 3. Ask the generator to return a compressed form that the GPU might support
-    // TODO
+    SkAutoTUnref<SkData> data(this->refEncoded());
+    if (data) {
+        GrTexture* tex = load_compressed_into_texture(ctx, data, desc);
+        if (tex) {
+            return set_key_and_return(tex, key);
+        }
+    }
 
     // 4. Ask the generator to return YUV planes, which the GPU can convert
-    // TODO
-
+    {
+        ScopedGenerator generator(this);
+        Generator_GrYUVProvider provider(generator);
+        GrTexture* tex = provider.refAsTexture(ctx, desc, true);
+        if (tex) {
+            return set_key_and_return(tex, key);
+        }
+    }
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (!this->generateBitmap(&bitmap)) {
-        return nullptr;
+    if (this->generateBitmap(&bitmap)) {
+        return GrRefCachedBitmapTexture(ctx, bitmap, usage);
     }
-    return GrRefCachedBitmapTexture(ctx, bitmap, usage);
-#else
-    return nullptr;
 #endif
+
+    return nullptr;
 }
 

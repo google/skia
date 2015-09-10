@@ -693,7 +693,7 @@ static inline int get_tile_count(const SkIRect& srcRect, int tileSize)  {
     return tilesX * tilesY;
 }
 
-static int determine_tile_size(const SkBitmap& bitmap, const SkIRect& src, int maxTileSize) {
+static int determine_tile_size(const SkIRect& src, int maxTileSize) {
     if (maxTileSize <= kBmpSmallTileSize) {
         return maxTileSize;
     }
@@ -716,7 +716,7 @@ static int determine_tile_size(const SkBitmap& bitmap, const SkIRect& src, int m
 static void determine_clipped_src_rect(const GrRenderTarget* rt,
                                        const GrClip& clip,
                                        const SkMatrix& viewMatrix,
-                                       const SkBitmap& bitmap,
+                                       const SkISize& imageSize,
                                        const SkRect* srcRectPtr,
                                        SkIRect* clippedSrcIRect) {
     clip.getConservativeBounds(rt, clippedSrcIRect, nullptr);
@@ -736,10 +736,59 @@ static void determine_clipped_src_rect(const GrRenderTarget* rt,
         }
     }
     clippedSrcRect.roundOut(clippedSrcIRect);
-    SkIRect bmpBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+    SkIRect bmpBounds = SkIRect::MakeSize(imageSize);
     if (!clippedSrcIRect->intersect(bmpBounds)) {
         clippedSrcIRect->setEmpty();
     }
+}
+
+bool SkGpuDevice::shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
+                                    const SkMatrix& viewMatrix,
+                                    const GrTextureParams& params,
+                                    const SkRect* srcRectPtr,
+                                    int maxTileSize,
+                                    int* tileSize,
+                                    SkIRect* clippedSubset) const {
+    // if it's larger than the max tile size, then we have no choice but tiling.
+    if (imageRect.width() > maxTileSize || imageRect.height() > maxTileSize) {
+        determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, imageRect.size(),
+                                   srcRectPtr, clippedSubset);
+        *tileSize = determine_tile_size(*clippedSubset, maxTileSize);
+        return true;
+    }
+
+    const size_t area = imageRect.width() * imageRect.height();
+    if (area < 4 * kBmpSmallTileSize * kBmpSmallTileSize) {
+        return false;
+    }
+
+    // if the entire image/bitmap is already in our cache then no reason to tile it
+    if (GrIsImageInCache(fContext, imageID, imageRect, nullptr, &params)) {
+        return false;
+    }
+
+    // At this point we know we could do the draw by uploading the entire bitmap
+    // as a texture. However, if the texture would be large compared to the
+    // cache size and we don't require most of it for this draw then tile to
+    // reduce the amount of upload and cache spill.
+
+    // assumption here is that sw bitmap size is a good proxy for its size as
+    // a texture
+    size_t bmpSize = area * sizeof(SkPMColor);  // assume 32bit pixels
+    size_t cacheSize;
+    fContext->getResourceCacheLimits(nullptr, &cacheSize);
+    if (bmpSize < cacheSize / 2) {
+        return false;
+    }
+
+    // Figure out how much of the src we will need based on the src rect and clipping.
+    determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, imageRect.size(), srcRectPtr,
+                               clippedSubset);
+    *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
+    size_t usedTileBytes = get_tile_count(*clippedSubset, kBmpSmallTileSize) *
+                           kBmpSmallTileSize * kBmpSmallTileSize;
+
+    return usedTileBytes < 2 * bmpSize;
 }
 
 bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
@@ -754,45 +803,41 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
         return false;
     }
 
-    // if it's larger than the max tile size, then we have no choice but tiling.
-    if (bitmap.width() > maxTileSize || bitmap.height() > maxTileSize) {
-        determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, bitmap,
-                                   srcRectPtr, clippedSrcRect);
-        *tileSize = determine_tile_size(bitmap, *clippedSrcRect, maxTileSize);
-        return true;
-    }
+    return this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(), viewMatrix, params,
+                                   srcRectPtr, maxTileSize, tileSize, clippedSrcRect);
+}
 
-    if (bitmap.width() * bitmap.height() < 4 * kBmpSmallTileSize * kBmpSmallTileSize) {
+bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr,
+                                  SkCanvas::SrcRectConstraint constraint, SkFilterQuality quality,
+                                  const SkMatrix& viewMatrix) const {
+    // if image is explictly texture backed then just use the texture
+    if (as_IB(image)->peekTexture()) {
         return false;
     }
 
-    // if the entire texture is already in our cache then no reason to tile it
-    if (GrIsBitmapInCache(fContext, bitmap, &params)) {
-        return false;
+    GrTextureParams params;
+    bool doBicubic;
+    GrTextureParams::FilterMode textureFilterMode =
+                    GrSkFilterQualityToGrFilterMode(quality, viewMatrix, SkMatrix::I(), &doBicubic);
+
+    int tileFilterPad;
+    if (doBicubic) {
+        tileFilterPad = GrBicubicEffect::kFilterTexelPad;
+    } else if (GrTextureParams::kNone_FilterMode == textureFilterMode) {
+        tileFilterPad = 0;
+    } else {
+        tileFilterPad = 1;
     }
+    params.setFilterMode(textureFilterMode);
 
-    // At this point we know we could do the draw by uploading the entire bitmap
-    // as a texture. However, if the texture would be large compared to the
-    // cache size and we don't require most of it for this draw then tile to
-    // reduce the amount of upload and cache spill.
+    int maxTileSize = fContext->caps()->maxTextureSize() - 2 * tileFilterPad;
 
-    // assumption here is that sw bitmap size is a good proxy for its size as
-    // a texture
-    size_t bmpSize = bitmap.getSize();
-    size_t cacheSize;
-    fContext->getResourceCacheLimits(nullptr, &cacheSize);
-    if (bmpSize < cacheSize / 2) {
-        return false;
-    }
+    // these are output, which we safely ignore, as we just want to know the predicate
+    int outTileSize;
+    SkIRect outClippedSrcRect;
 
-    // Figure out how much of the src we will need based on the src rect and clipping.
-    determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, bitmap, srcRectPtr,
-                               clippedSrcRect);
-    *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
-    size_t usedTileBytes = get_tile_count(*clippedSrcRect, kBmpSmallTileSize) *
-                           kBmpSmallTileSize * kBmpSmallTileSize;
-
-    return usedTileBytes < 2 * bmpSize;
+    return this->shouldTileImageID(image->unique(), image->bounds(), viewMatrix, params, srcRectPtr,
+                                   maxTileSize, &outTileSize, &outClippedSrcRect);
 }
 
 void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
@@ -1090,11 +1135,9 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 
     // If there is no mask filter than it is OK to handle the src rect -> dst rect scaling using
     // the view matrix rather than a local matrix.
-    SkMatrix m;
-    m.setScale(dstSize.fWidth / srcRect.width(),
-               dstSize.fHeight / srcRect.height());
     SkMatrix viewM = *draw.fMatrix;
-    viewM.preConcat(m);
+    viewM.preScale(dstSize.fWidth / srcRect.width(),
+                   dstSize.fHeight / srcRect.height());
 
     GrTextureParams params;
     bool doBicubic;
@@ -1546,8 +1589,8 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
                                filter, ctx, result, offset);
 }
 
-static bool wrap_as_bm(const SkImage* image, SkBitmap* bm) {
-    GrTexture* tex = as_IB(image)->getTexture();
+static bool wrap_as_bm(GrContext* ctx, const SkImage* image, SkBitmap* bm) {
+    SkAutoTUnref<GrTexture> tex(as_IB(image)->asTextureRef(ctx, kUntiled_SkImageUsageType));
     if (tex) {
         GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), bm);
         return true;
@@ -1559,18 +1602,47 @@ static bool wrap_as_bm(const SkImage* image, SkBitmap* bm) {
 void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     SkBitmap bm;
-    if (wrap_as_bm(image, &bm)) {
-        this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
+    if (GrTexture* tex = as_IB(image)->peekTexture()) {
+        GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), &bm);
+    } else {
+        if (this->shouldTileImage(image, nullptr, SkCanvas::kFast_SrcRectConstraint,
+                                  paint.getFilterQuality(), *draw.fMatrix)) {
+            // only support tiling as bitmap at the moment, so force raster-version
+            if (!as_IB(image)->getROPixels(&bm)) {
+                return;
+            }
+        } else {
+            if (!wrap_as_bm(this->context(), image, &bm)) {
+                return;
+            }
+        }
     }
+    this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
 }
 
 void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
                                 const SkRect& dst, const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
     SkBitmap bm;
-    if (wrap_as_bm(image, &bm)) {
-        this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
+    if (GrTexture* tex = as_IB(image)->peekTexture()) {
+        GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), &bm);
+    } else {
+        SkMatrix viewMatrix = *draw.fMatrix;
+        viewMatrix.preScale(dst.width() / (src ? src->width() : image->width()),
+                            dst.height() / (src ? src->height() : image->height()));
+
+        if (this->shouldTileImage(image, src, constraint, paint.getFilterQuality(), viewMatrix)) {
+            // only support tiling as bitmap at the moment, so force raster-version
+            if (!as_IB(image)->getROPixels(&bm)) {
+                return;
+            }
+        } else {
+            if (!wrap_as_bm(this->context(), image, &bm)) {
+                return;
+            }
+        }
     }
+    this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

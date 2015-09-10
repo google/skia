@@ -158,7 +158,7 @@ SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset,
 #if SK_SUPPORT_GPU
 
 GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->getTexture();
+    return as_IB(this)->peekTexture();
 }
 
 bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->getTexture()); }

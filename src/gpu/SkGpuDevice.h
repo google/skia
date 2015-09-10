@@ -194,6 +194,13 @@ private:
      */
 
     // The tileSize and clippedSrcRect will be valid only if true is returned.
+    bool shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
+                           const SkMatrix& viewMatrix,
+                           const GrTextureParams& params,
+                           const SkRect* srcRectPtr,
+                           int maxTileSize,
+                           int* tileSize,
+                           SkIRect* clippedSubset) const;
     bool shouldTileBitmap(const SkBitmap& bitmap,
                           const SkMatrix& viewMatrix,
                           const GrTextureParams& sampler,
@@ -201,6 +208,12 @@ private:
                           int maxTileSize,
                           int* tileSize,
                           SkIRect* clippedSrcRect) const;
+    // Just returns the predicate, not the out-tileSize or out-clippedSubset, as they are not
+    // needed at the moment.
+    bool shouldTileImage(const SkImage* image, const SkRect* srcRectPtr,
+                         SkCanvas::SrcRectConstraint constraint, SkFilterQuality quality,
+                         const SkMatrix& viewMatrix) const;
+
     void internalDrawBitmap(const SkBitmap&,
                             const SkMatrix& viewMatrix,
                             const SkRect&,

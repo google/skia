@@ -150,6 +150,8 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
+    SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
     uint32_t uniqueID() const { return fUniqueID; }
     virtual bool isOpaque() const { return false; }
 

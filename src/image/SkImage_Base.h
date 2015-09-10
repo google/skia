@@ -54,7 +54,7 @@ public:
 
     virtual void onPreroll(GrContext*) const {}
 
-    virtual GrTexture* getTexture() const { return nullptr; }
+    virtual GrTexture* peekTexture() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
@@ -72,6 +72,9 @@ public:
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
 
     virtual bool onIsLazyGenerated() const { return false; }
+
+    // Caller must call unref when they are done.
+    virtual GrTexture* asTextureRef(GrContext*, SkImageUsageType) const { return nullptr; }
 
 private:
     const SkSurfaceProps fProps;

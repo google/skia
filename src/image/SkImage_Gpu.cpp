@@ -79,6 +79,11 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     return true;
 }
 
+GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
+    fTexture->ref();
+    return fTexture;
+}
+
 bool SkImage_Gpu::isOpaque() const {
     return GrPixelConfigIsOpaque(fTexture->config()) || fAlphaType == kOpaque_SkAlphaType;
 }

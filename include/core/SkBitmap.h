@@ -214,6 +214,11 @@ public:
 
     SkIRect bounds() const { return fInfo.bounds(); }
     SkISize dimensions() const { return fInfo.dimensions(); }
+    // Returns the bounds of this bitmap, offset by its pixelref origin.
+    SkIRect getSubset() const {
+        return SkIRect::MakeXYWH(fPixelRefOrigin.x(), fPixelRefOrigin.y(),
+                                 fInfo.width(), fInfo.height());
+    }
 
     bool setInfo(const SkImageInfo&, size_t rowBytes = 0);
 

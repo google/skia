@@ -25,8 +25,7 @@ class GrUniqueKey;
  *
  *  Note: width/height must fit in 16bits for this impl.
  */
-void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID,
-                          U16CPU width, U16CPU height, SkIPoint origin,
+void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds,
                           const GrCaps&, SkImageUsageType);
 
 #endif

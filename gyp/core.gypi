@@ -249,6 +249,7 @@
         '<(skia_src_path)/doc/SkDocument.cpp',
 
         '<(skia_src_path)/image/SkImage.cpp',
+        '<(skia_src_path)/image/SkImage_Generator.cpp',
 #        '<(skia_src_path)/image/SkImage_Gpu.cpp',
         '<(skia_src_path)/image/SkImage_Raster.cpp',
         '<(skia_src_path)/image/SkSurface.cpp',
