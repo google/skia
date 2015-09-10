@@ -302,10 +302,10 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
                 srcf = unpremul(srcf);
             }
 
-            Sk4f r4 = Sk4f(srcf.kth<SK_R32_SHIFT/8>());
-            Sk4f g4 = Sk4f(srcf.kth<SK_G32_SHIFT/8>());
-            Sk4f b4 = Sk4f(srcf.kth<SK_B32_SHIFT/8>());
-            Sk4f a4 = Sk4f(srcf.kth<SK_A32_SHIFT/8>());
+            Sk4f r4 = SkNx_dup<SK_R32_SHIFT/8>(srcf);
+            Sk4f g4 = SkNx_dup<SK_G32_SHIFT/8>(srcf);
+            Sk4f b4 = SkNx_dup<SK_B32_SHIFT/8>(srcf);
+            Sk4f a4 = SkNx_dup<SK_A32_SHIFT/8>(srcf);
 
             // apply matrix
             Sk4f dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;

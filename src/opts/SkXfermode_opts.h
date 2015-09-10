@@ -117,7 +117,7 @@ static inline Sk4f a_rgb(const Sk4f& a, const Sk4f& rgb) {
     return a * Sk4f(0,0,0,1) + rgb * Sk4f(1,1,1,0);
 }
 static inline Sk4f alphas(const Sk4f& f) {
-    return Sk4f(f.kth<SK_A32_SHIFT/8>());
+    return SkNx_dup<SK_A32_SHIFT/8>(f);
 }
 
 XFERMODE(ColorDodge) {

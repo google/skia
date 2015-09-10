@@ -71,7 +71,7 @@ void color_cube_filter_span(const SkPMColor src[],
 
         // color is BGRA (SkColor order), dst is SkPMColor order, so may need to swap R+B.
     #if defined(SK_PMCOLOR_IS_RGBA)
-        color = Sk4f(color.kth<2>(), color.kth<1>(), color.kth<0>(), color.kth<3>());
+        color = SkNx_shuffle<2,1,0,3>(color);
     #endif
         uint8_t* dstBytes = (uint8_t*)(dst+i);
         color.toBytes(dstBytes);
