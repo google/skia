@@ -60,7 +60,7 @@
 
 void GrContext::DrawingMgr::init(GrContext* context) {
     fContext = context;
-    fDrawTarget = new GrClipTarget(context);
+    fDrawTarget = new GrDrawTarget(context->getGpu(), context->resourceProvider());
 }
 
 void GrContext::DrawingMgr::cleanup() {

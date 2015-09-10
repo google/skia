@@ -34,15 +34,15 @@
 
 GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     : fGpu(SkRef(gpu))
-    , fCaps(SkRef(gpu->caps()))
     , fResourceProvider(resourceProvider)
     , fFlushing(false)
     , fLastFlushToken(0) {
+    // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
+    fContext = fGpu->getContext();
 }
 
 GrDrawTarget::~GrDrawTarget() {
     fGpu->unref();
-    fCaps->unref();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,8 +78,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     bounds.roundOut(&drawIBounds);
     if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
-        GrCapsDebugf(fCaps, "Missed an early reject. "
-                        "Bailing on draw from setupDstReadIfNecessary.\n");
+        GrCapsDebugf(this->caps(), "Missed an early reject. "
+                                   "Bailing on draw from setupDstReadIfNecessary.\n");
 #endif
         return false;
     }
@@ -87,7 +87,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrSurfaceDesc desc;
-    if (!this->getGpu()->initCopySurfaceDstDesc(rt, &desc)) {
+    if (!fGpu->initCopySurfaceDstDesc(rt, &desc)) {
         desc.fOrigin = kDefault_GrSurfaceOrigin;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fConfig = rt->config();
@@ -146,7 +146,8 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBat
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, &batch->bounds())) {
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &arfps, &ars, &scissorState,
+                                         &batch->bounds())) {
         return;
     }
 
@@ -190,7 +191,7 @@ void GrDrawTarget::getPathStencilSettingsForFilltype(GrPathRendering::FillType f
             *outStencilSettings = even_odd_path_stencil_settings();
             break;
     }
-    this->clipMaskManager()->adjustPathStencilParams(sb, outStencilSettings);
+    fClipMaskManager->adjustPathStencilParams(sb, outStencilSettings);
 }
 
 void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
@@ -205,7 +206,8 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, nullptr)) {
+
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &arfps, &ars, &scissorState, nullptr)) {
         return;
     }
 
@@ -252,13 +254,15 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
                                  GrDrawPathBatchBase* batch,
                                  GrPathRendering::FillType fill) {
     // This looks like drawBatch() but there is an added wrinkle that stencil settings get inserted
-    // after setupClip() but before onDrawBatch(). TODO: Figure out a better model for handling
-    // stencil settings WRT interactions between pipeline(builder), clipmaskmanager, and batches.
+    // after setting up clipping but before onDrawBatch(). TODO: Figure out a better model for
+    // handling stencil settings WRT interactions between pipeline(builder), clipmaskmanager, and
+    // batches.
 
     GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!this->setupClip(pipelineBuilder, &arfps, &ars, &scissorState, &batch->bounds())) {
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &arfps, &ars, &scissorState,
+                                         &batch->bounds())) {
         return;
     }
 
@@ -335,7 +339,7 @@ void GrDrawTarget::clear(const SkIRect* rect,
         rect = &clippedRect;
     }
 
-    if (fCaps->useDrawInsteadOfClear()) {
+    if (this->caps()->useDrawInsteadOfClear()) {
         // This works around a driver bug with clear by drawing a rect instead.
         // The driver will ignore a clear if it is the only thing rendered to a
         // target before the target is read.
@@ -455,33 +459,7 @@ bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineB
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-GrClipTarget::GrClipTarget(GrContext* context)
-    : INHERITED(context->getGpu(), context->resourceProvider())
-    , fContext(context) {
-    fClipMaskManager.reset(new GrClipMaskManager(this));
-}
-
-
-bool GrClipTarget::setupClip(const GrPipelineBuilder& pipelineBuilder,
-                             GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
-                             GrPipelineBuilder::AutoRestoreStencil* ars,
-                             GrScissorState* scissorState,
-                             const SkRect* devBounds) {
-    return fClipMaskManager->setupClipping(pipelineBuilder,
-                                           arfps,
-                                           ars,
-                                           scissorState,
-                                           devBounds);
-}
-
-void GrClipTarget::purgeResources() {
-    // The clip mask manager can rebuild all its clip masks so just
-    // get rid of them all.
-    fClipMaskManager->purgeResources();
-};
-
-void GrClipTarget::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) {
+void GrDrawTarget::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) {
     GrBatch* batch = new GrClearStencilClipBatch(rect, insideClip, rt);
     this->recordBatch(batch);
     batch->unref();

@@ -37,7 +37,7 @@ class GrDrawBatch;
 class GrDrawPathBatchBase;
 class GrPathRangeDraw;
 
-class GrDrawTarget : public SkRefCnt {
+class GrDrawTarget final : public SkRefCnt {
 public:
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
@@ -59,7 +59,7 @@ public:
     /**
      * Gets the capabilities of the draw target.
      */
-    const GrCaps* caps() const { return fCaps; }
+    const GrCaps* caps() const { return fGpu->caps(); }
 
     void drawBatch(const GrPipelineBuilder&, GrDrawBatch*);
 
@@ -172,20 +172,35 @@ public:
     /**
      * Release any resources that are cached but not currently in use. This
      * is intended to give an application some recourse when resources are low.
+     * TODO: Stop holding on to resources.
      */
-    virtual void purgeResources() {};
+    virtual void purgeResources() {
+        // The clip mask manager can rebuild all its clip masks so just get rid of them all.
+        fClipMaskManager->purgeResources();
+    };
 
     bool programUnitTest(GrContext* owner, int maxStages);
 
-protected:
-    GrGpu* getGpu() { return fGpu; }
-    const GrGpu* getGpu() const { return fGpu; }
+    /** Provides access to internal functions to GrClipMaskManager without friending all of
+        GrDrawTarget to CMM. */
+    class CMMAccess {
+    public:
+        CMMAccess(GrDrawTarget* drawTarget) : fDrawTarget(drawTarget) {}
+    private:
+        void clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) const {
+            fDrawTarget->clearStencilClip(rect, insideClip, rt);
+        }
 
-    void recordBatch(GrBatch*);
+        GrContext* context() const { return fDrawTarget->fContext; }
+        GrResourceProvider* resourceProvider() const { return fDrawTarget->fResourceProvider; }
+        GrDrawTarget* fDrawTarget;
+        friend class GrClipMaskManager;
+    };
+
+    const CMMAccess cmmAccess() { return CMMAccess(this); }
 
 private:
-    SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
-
+    void recordBatch(GrBatch*);
     bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
                                     const GrScissorState* scissor,
                                     GrDrawBatch* batch);
@@ -205,63 +220,25 @@ private:
     void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
                                            const GrStencilAttachment*,
                                            GrStencilSettings*);
-    virtual GrClipMaskManager* clipMaskManager() = 0;
-    virtual bool setupClip(const GrPipelineBuilder&,
+    bool setupClip(const GrPipelineBuilder&,
                            GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
                            GrPipelineBuilder::AutoRestoreStencil*,
                            GrScissorState*,
-                           const SkRect* devBounds) = 0;
+                           const SkRect* devBounds);
 
-    GrGpu*                  fGpu;
-    const GrCaps*           fCaps;
-    GrResourceProvider*     fResourceProvider;
-    bool                    fFlushing;
-    GrBatchToken            fLastFlushToken;
-
-    typedef SkRefCnt INHERITED;
-};
-
-/*
- * This class is JUST for clip mask manager.  Everyone else should just use draw target above.
- */
-class GrClipTarget : public GrDrawTarget {
-public:
-    GrClipTarget(GrContext*);
-
-    /* Clip mask manager needs access to the context.
-     * TODO we only need a very small subset of context in the CMM.
-     */
-    GrContext* getContext() { return fContext; }
-    const GrContext* getContext() const { return fContext; }
-
-    /**
-     * Clip Mask Manager(and no one else) needs to clear private stencil bits.
-     * ClipTarget subclass sets clip bit in the stencil buffer. The subclass
-     * is free to clear the remaining bits to zero if masked clears are more
-     * expensive than clearing all bits.
-     */
+    // Used only by CMM.
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
-    /**
-     * Release any resources that are cached but not currently in use. This
-     * is intended to give an application some recourse when resources are low.
-     */
-    void purgeResources() override;
+    SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
+    SkAutoTDelete<GrClipMaskManager>            fClipMaskManager;
+    // The context is only in service of the clip mask manager, remove once CMM doesn't need this.
+    GrContext*                                  fContext;
+    GrGpu*                                      fGpu;
+    GrResourceProvider*                         fResourceProvider;
+    bool                                        fFlushing;
+    GrBatchToken                                fLastFlushToken;
 
-protected:
-    SkAutoTDelete<GrClipMaskManager> fClipMaskManager;
-    GrContext*                       fContext;
-
-private:
-    GrClipMaskManager* clipMaskManager() override { return fClipMaskManager; }
-
-    bool setupClip(const GrPipelineBuilder&,
-                   GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
-                   GrPipelineBuilder::AutoRestoreStencil*,
-                   GrScissorState* scissorState,
-                   const SkRect* devBounds) override;
-
-    typedef GrDrawTarget INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

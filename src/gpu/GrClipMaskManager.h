@@ -19,7 +19,7 @@
 #include "SkTLList.h"
 #include "SkTypes.h"
 
-class GrClipTarget;
+class GrDrawTarget;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrTexture;
@@ -34,7 +34,7 @@ class SkPath;
  */
 class GrClipMaskManager : SkNoncopyable {
 public:
-    GrClipMaskManager(GrClipTarget* owner);
+    GrClipMaskManager(GrDrawTarget* owner);
 
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
@@ -51,7 +51,7 @@ public:
 
     /**
      * Purge resources to free up memory. TODO: This class shouldn't hold any long lived refs
-     * which will allow Resourcecache to automatically purge anything this class has created.
+     * which will allow GrResourceCache to automatically purge anything this class has created.
      */
     void purgeResources();
 
@@ -62,8 +62,6 @@ public:
     bool isClipInAlpha() const {
         return kAlpha_ClipMaskType == fCurrClipMaskType;
     }
-
-    void setClipTarget(GrClipTarget*);
 
     void adjustPathStencilParams(const GrStencilAttachment*, GrStencilSettings*);
 
@@ -184,7 +182,7 @@ private:
     } fCurrClipMaskType;
 
     GrClipMaskCache fAACache;       // cache for the AA path
-    GrClipTarget*   fClipTarget;    // This is our owning clip target.
+    GrDrawTarget*   fDrawTarget;    // This is our owning draw target.
     StencilClipMode fClipMode;
 
     typedef SkNoncopyable INHERITED;
