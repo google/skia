@@ -1206,7 +1206,14 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         GrGLenum internalFormat = 0x0; // suppress warning
         GrGLenum externalFormat = 0x0; // suppress warning
         GrGLenum externalType = 0x0;   // suppress warning
-        if (!this->configToGLFormats(config, false, &internalFormat,
+        bool useSizedFormat = false;
+        if (kGL_GrGLStandard == this->glStandard() ||
+            (this->glVersion() >= GR_GL_VER(3, 0) &&
+             // ES3 only works with sized BGRA8 format if "GL_APPLE_texture_format_BGRA8888" enabled
+             (kBGRA_8888_GrPixelConfig != config || !this->glCaps().bgraIsInternalFormat())))  {
+            useSizedFormat = true;
+        }
+        if (!this->configToGLFormats(config, useSizedFormat, &internalFormat,
                                      &externalFormat, &externalType)) {
             GL_CALL(DeleteTextures(1, &colorID));
             fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
