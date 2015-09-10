@@ -674,12 +674,23 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
         return false;
     }
 
+    SkString description;
+    description.append("Key: ");
+    for (int i = 0; i < FLAGS_key.count(); i++) {
+        description.appendf("%s ", FLAGS_key[i]);
+    }
+    description.append("Properties: ");
+    for (int i = 0; i < FLAGS_properties.count(); i++) {
+        description.appendf("%s ", FLAGS_properties[i]);
+    }
+    description.appendf("MD5: %s", md5);
+
     png_text text[2];
     text[0].key = (png_charp)"Author";
     text[0].text = (png_charp)"DM dump_png()";
     text[0].compression = PNG_TEXT_COMPRESSION_NONE;
     text[1].key = (png_charp)"Description";
-    text[1].text = (png_charp)md5;
+    text[1].text = (png_charp)description.c_str();
     text[1].compression = PNG_TEXT_COMPRESSION_NONE;
     png_set_text(png, info, text, 2);
 
