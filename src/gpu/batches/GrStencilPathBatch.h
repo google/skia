@@ -50,6 +50,7 @@ private:
     , fRenderTarget(renderTarget)
     , fPath(path) {
         this->initClassID<GrStencilPathBatch>();
+        fBounds = path->getBounds();
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }

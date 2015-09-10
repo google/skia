@@ -11,15 +11,14 @@
 #include "GrBatchFontCache.h"
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
-#include "GrBufferedDrawTarget.h"
 #include "GrCaps.h"
 #include "GrContextOptions.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawContext.h"
+#include "GrDrawTarget.h"
 #include "GrGpuResource.h"
 #include "GrGpuResourcePriv.h"
 #include "GrGpu.h"
-#include "GrImmediateDrawTarget.h"
 #include "GrIndexBuffer.h"
 #include "GrLayerCache.h"
 #include "GrOvalRenderer.h"
@@ -61,12 +60,7 @@
 
 void GrContext::DrawingMgr::init(GrContext* context) {
     fContext = context;
-
-#ifdef IMMEDIATE_MODE
-    fDrawTarget = new GrImmediateDrawTarget(context);
-#else
-    fDrawTarget = new GrBufferedDrawTarget(context);
-#endif    
+    fDrawTarget = new GrClipTarget(context);
 }
 
 void GrContext::DrawingMgr::cleanup() {

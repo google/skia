@@ -10,7 +10,6 @@
 
 #include "GrBatchAtlas.h"
 #include "GrBatchFontCache.h"
-#include "GrBufferedDrawTarget.h"
 #include "GrContextOptions.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrResourceCache.h"

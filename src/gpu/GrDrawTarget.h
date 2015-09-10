@@ -39,23 +39,16 @@ class GrPathRangeDraw;
 
 class GrDrawTarget : public SkRefCnt {
 public:
-    
-
-    typedef GrPathRange::PathIndexType PathIndexType;
-    typedef GrPathRendering::PathTransformType PathTransformType;
-
-    ///////////////////////////////////////////////////////////////////////////
-
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
     GrDrawTarget(GrGpu* gpu, GrResourceProvider*);
 
-    virtual ~GrDrawTarget();
+    ~GrDrawTarget() override;
 
     /**
      * Empties the draw buffer of any queued up draws.
      */
-    void reset() { this->onReset(); }
+    void reset();
 
     /**
      * This plays any queued up draws to its GrGpu target. It also resets this object (i.e. flushing
@@ -211,12 +204,10 @@ protected:
                                  GrXferProcessor::DstTexture*,
                                  const SkRect* drawBounds);
 
-    virtual void onDrawBatch(GrBatch*) = 0;
+    void recordBatch(GrBatch*);
 
 private:
-    virtual void onReset() = 0;
-
-    virtual void onFlush() = 0;
+    SkSTArray<256, SkAutoTUnref<GrBatch>, true> fBatches;
 
     void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch,
                        GrPathRendering::FillType fill);
@@ -235,6 +226,7 @@ private:
     const GrCaps*           fCaps;
     GrResourceProvider*     fResourceProvider;
     bool                    fFlushing;
+    GrBatchToken            fLastFlushToken;
 
     typedef SkRefCnt INHERITED;
 };
