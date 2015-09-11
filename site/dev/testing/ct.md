@@ -81,7 +81,7 @@ System Architecture
 
 3. The master pushes new tasks to all the workers using the master scripts [here](https://skia.googlesource.com/buildbot/+/master/ct/go/master_scripts/). The master scripts then check to see when the workers are done with the requested task.
 
-4. The workers execute the task using the worker scripts [here](https://skia.googlesource.com/buildbot/+/master/ct/go/worker_scripts/). All generated artifacts (CSV files, logs, SKP files, archives, etc) are then stored locally and copied to Google Storage.
+4. The workers execute the task using the worker scripts [here](https://skia.googlesource.com/buildbot/+/master/ct/go/worker_scripts/). All generated artifacts (CSV files, logs, SKP files, archives, etc) are then stored locally and copied to Google Storage. Worker logs are available [here](https://uberchromegw.corp.google.com/i/skia-ct-master/all_logs).
 
 5. The master scripts periodically check the workers to see when they are done with the requested task. Once the workers are done the generated artifacts are then read from Google Storage and consolidated (if required).
 
