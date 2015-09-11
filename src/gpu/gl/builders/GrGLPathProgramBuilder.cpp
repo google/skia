@@ -29,7 +29,7 @@ GrGLProgramBuilder::SeparableVaryingHandle GrGLPathProgramBuilder::addSeparableV
     SeparableVaryingInfo& varyingInfo = fSeparableVaryingInfos.push_back();
     varyingInfo.fVariable = this->getFragmentShaderBuilder()->fInputs.back();
     varyingInfo.fLocation = fSeparableVaryingInfos.count() - 1;
-    return SeparableVaryingHandle::CreateFromSeparableVaryingIndex(varyingInfo.fLocation);
+    return SeparableVaryingHandle(varyingInfo.fLocation);
 }
 
 void GrGLPathProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {

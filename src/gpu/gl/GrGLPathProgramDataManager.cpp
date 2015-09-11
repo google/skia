@@ -7,7 +7,6 @@
 
 #include "gl/GrGLPathProgramDataManager.h"
 #include "gl/GrGLPathRendering.h"
-#include "gl/GrGLUniformHandle.h"
 #include "gl/GrGLGpu.h"
 #include "SkMatrix.h"
 
@@ -33,8 +32,7 @@ GrGLPathProgramDataManager::GrGLPathProgramDataManager(
 void GrGLPathProgramDataManager::setPathFragmentInputTransform(SeparableVaryingHandle u,
                                                                int components,
                                                                const SkMatrix& matrix) const {
-    const SeparableVarying& fragmentInput =
-            fSeparableVaryings[u.toProgramDataIndex()];
+    const SeparableVarying& fragmentInput = fSeparableVaryings[u.toIndex()];
 
     SkASSERT((components == 2 && fragmentInput.fType == kVec2f_GrSLType) ||
               (components == 3 && fragmentInput.fType == kVec3f_GrSLType));

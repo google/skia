@@ -17,27 +17,7 @@ class GrGLPathProgramBuilder;
  */
 class GrGLPathProgramDataManager : SkNoncopyable {
 public:
-    class SeparableVaryingHandle : public GrGLProgramDataManager::ShaderResourceHandle {
-    public:
-        /*
-         * Creates a reference to a separable varying of a GrGLShaderBuilder.  The ref can be used
-         * to set the varying with the corresponding GrGLPathProgramDataManager.
-         */
-        static SeparableVaryingHandle CreateFromSeparableVaryingIndex(int i) {
-            return GrGLPathProgramDataManager::SeparableVaryingHandle(i);
-        }
-        SeparableVaryingHandle() { }
-        bool operator==(const SeparableVaryingHandle& other) {
-            return other.fValue == fValue;
-        }
-    private:
-        SeparableVaryingHandle(int value) : ShaderResourceHandle(value) { }
-        int toProgramDataIndex() const { SkASSERT(isValid()); return fValue; }
-        int toShaderBuilderIndex() const { return toProgramDataIndex(); }
-
-        friend class GrGLPathProgramDataManager; // For accessing toProgramDataIndex().
-        friend class GrGLPathProcessor; // For accessing toShaderBuilderIndex().
-    };
+    typedef GrGLProgramDataManager::ShaderResourceHandle SeparableVaryingHandle;
 
     struct SeparableVaryingInfo {
         GrGLShaderVar fVariable;

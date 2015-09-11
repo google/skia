@@ -13,7 +13,6 @@
 #include "GrGLVertexShaderBuilder.h"
 #include "../GrGLProgramDataManager.h"
 #include "../GrGLPathProgramDataManager.h"
-#include "../GrGLUniformHandle.h"
 #include "../GrGLPrimitiveProcessor.h"
 #include "../GrGLXferProcessor.h"
 #include "../../GrPipeline.h"
@@ -243,7 +242,7 @@ public:
                                   const char** outName) override;
 
     const GrGLShaderVar& getUniformVariable(UniformHandle u) const override {
-        return fUniforms[u.toShaderBuilderIndex()].fVariable;
+        return fUniforms[u.toIndex()].fVariable;
     }
 
     const char* getUniformCStr(UniformHandle u) const override {

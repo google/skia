@@ -96,7 +96,7 @@ private:
             SkASSERT(procTransforms[t].fHandle.isValid());
             const SkMatrix& transform = GetTransformMatrix(localMatrix, *transforms[t]);
             if (!procTransforms[t].fCurrentValue.cheapEqualTo(transform)) {
-                pdman.setSkMatrix(procTransforms[t].fHandle.convertToUniformHandle(), transform);
+                pdman.setSkMatrix(procTransforms[t].fHandle.toIndex(), transform);
                 procTransforms[t].fCurrentValue = transform;
             }
         }

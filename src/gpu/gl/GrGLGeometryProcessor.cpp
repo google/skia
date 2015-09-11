@@ -47,7 +47,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
                     pb->addUniform(GrGLProgramBuilder::kVertex_Visibility,
                                    kMat33f_GrSLType, precision,
                                    strUniName.c_str(),
-                                   &uniName).toShaderBuilderIndex();
+                                   &uniName).toIndex();
 
             SkString strVaryingName("MatrixCoord");
             strVaryingName.appendf("_%i_%i", i, t);

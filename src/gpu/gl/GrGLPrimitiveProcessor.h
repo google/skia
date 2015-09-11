@@ -72,30 +72,11 @@ public:
 protected:
     void setupUniformColor(GrGLGPBuilder* pb, const char* outputName, UniformHandle* colorUniform);
 
-    class ShaderVarHandle {
-    public:
-        bool isValid() const { return fHandle > -1; }
-        ShaderVarHandle() : fHandle(-1) {}
-        ShaderVarHandle(int value) : fHandle(value) { SkASSERT(this->isValid()); }
-        int handle() const { SkASSERT(this->isValid()); return fHandle; }
-        UniformHandle convertToUniformHandle() {
-            SkASSERT(this->isValid());
-            return GrGLProgramDataManager::UniformHandle::CreateFromUniformIndex(fHandle);
-        }
-        SeparableVaryingHandle convertToSeparableVaryingHandle() {
-            SkASSERT(this->isValid());
-            return SeparableVaryingHandle::CreateFromSeparableVaryingIndex(fHandle);
-        }
-
-    private:
-        int fHandle;
-    };
-
     struct Transform {
         Transform() : fType(kVoid_GrSLType) { fCurrentValue = SkMatrix::InvalidMatrix(); }
-        ShaderVarHandle fHandle;
-        SkMatrix       fCurrentValue;
-        GrSLType       fType;
+        GrGLProgramDataManager::UniformHandle fHandle;
+        SkMatrix                              fCurrentValue;
+        GrSLType                              fType;
     };
 
     SkSTArray<8, SkSTArray<2, Transform, true> > fInstalledTransforms;

@@ -24,37 +24,28 @@ class GrGLProgramBuilder;
  */
 class GrGLProgramDataManager : SkNoncopyable {
 public:
-    // Opaque handle to a uniform
+    // Opaque handle to a resource
     class ShaderResourceHandle {
     public:
-        bool isValid() const { return -1 != fValue; }
-        ShaderResourceHandle()
-            : fValue(-1) {
-        }
-    protected:
         ShaderResourceHandle(int value)
             : fValue(value) {
-            SkASSERT(isValid());
+            SkASSERT(this->isValid());
         }
+
+        ShaderResourceHandle()
+            : fValue(kInvalid_ShaderResourceHandle) {
+        }
+
+        bool operator==(const ShaderResourceHandle& other) const { return other.fValue == fValue; }
+        bool isValid() const { return kInvalid_ShaderResourceHandle != fValue; }
+        int toIndex() const { SkASSERT(this->isValid()); return fValue; }
+
+    private:
+        static const int kInvalid_ShaderResourceHandle = -1;
         int fValue;
     };
 
-    class UniformHandle : public ShaderResourceHandle {
-    public:
-        /** Creates a reference to an unifrom of a GrGLShaderBuilder.
-         * The ref can be used to set the uniform with corresponding the GrGLProgramDataManager.*/
-        static UniformHandle CreateFromUniformIndex(int i);
-        UniformHandle() { }
-        bool operator==(const UniformHandle& other) const { return other.fValue == fValue; }
-    private:
-        UniformHandle(int value) : ShaderResourceHandle(value) { }
-        int toProgramDataIndex() const { SkASSERT(isValid()); return fValue; }
-        int toShaderBuilderIndex() const { return toProgramDataIndex(); }
-
-        friend class GrGLProgramDataManager; // For accessing toProgramDataIndex().
-        friend class GrGLProgramBuilder; // For accessing toShaderBuilderIndex().
-        friend class GrGLGeometryProcessor;
-    };
+    typedef ShaderResourceHandle UniformHandle;
 
     struct UniformInfo {
         GrGLShaderVar fVariable;

@@ -73,7 +73,7 @@ void GrGLPathProcessor::emitTransforms(GrGLGPBuilder* pb, const TransformsIn& ti
             strVaryingName.appendf("_%i_%i", i, t);
             GrGLVertToFrag v(varyingType);
             fInstalledTransforms[i][t].fHandle =
-                    pb->addSeparableVarying(strVaryingName.c_str(), &v).toShaderBuilderIndex();
+                    pb->addSeparableVarying(strVaryingName.c_str(), &v).toIndex();
             fInstalledTransforms[i][t].fType = varyingType;
 
             SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLProcessor::TransformedCoords,
@@ -102,6 +102,6 @@ void GrGLPathProcessor::setTransformData(
         SkASSERT(transforms[t].fType == kVec2f_GrSLType ||
                  transforms[t].fType == kVec3f_GrSLType);
         unsigned components = transforms[t].fType == kVec2f_GrSLType ? 2 : 3;
-        pdman.setPathFragmentInputTransform(transforms[t].fHandle.handle(), components, transform);
+        pdman.setPathFragmentInputTransform(transforms[t].fHandle, components, transform);
     }
 }

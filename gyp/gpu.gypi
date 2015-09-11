@@ -344,7 +344,6 @@
       '<(skia_src_path)/gpu/gl/GrGLTextureRenderTarget.h',
       '<(skia_src_path)/gpu/gl/GrGLUtil.cpp',
       '<(skia_src_path)/gpu/gl/GrGLUtil.h',
-      '<(skia_src_path)/gpu/gl/GrGLUniformHandle.h',
       '<(skia_src_path)/gpu/gl/GrGLVertexArray.cpp',
       '<(skia_src_path)/gpu/gl/GrGLVertexArray.h',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.cpp',

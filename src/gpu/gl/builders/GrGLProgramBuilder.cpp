@@ -7,14 +7,6 @@
 
 #include "GrGLProgramBuilder.h"
 
-#include "gl/GrGLGeometryProcessor.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLPathProcessor.h"
-#include "gl/GrGLProgram.h"
-#include "gl/GrGLSLPrettyPrint.h"
-#include "gl/GrGLUniformHandle.h"
-#include "gl/GrGLXferProcessor.h"
-#include "glsl/GrGLSLCaps.h"
 #include "GrAutoLocaleSetter.h"
 #include "GrCoordTransform.h"
 #include "GrGLPathProgramBuilder.h"
@@ -22,6 +14,13 @@
 #include "GrTexture.h"
 #include "SkRTConf.h"
 #include "SkTraceEvent.h"
+#include "gl/GrGLGeometryProcessor.h"
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLPathProcessor.h"
+#include "gl/GrGLProgram.h"
+#include "gl/GrGLSLPrettyPrint.h"
+#include "gl/GrGLXferProcessor.h"
+#include "glsl/GrGLSLCaps.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
@@ -162,7 +161,7 @@ GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(
     if (outName) {
         *outName = uni.fVariable.c_str();
     }
-    return GrGLProgramDataManager::UniformHandle::CreateFromUniformIndex(fUniforms.count() - 1);
+    return GrGLProgramDataManager::UniformHandle(fUniforms.count() - 1);
 }
 
 void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
