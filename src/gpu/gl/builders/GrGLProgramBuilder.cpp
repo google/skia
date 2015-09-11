@@ -302,13 +302,12 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = new GrGLInstalledGeoProc;
 
-    const GrBatchTracker& bt = this->batchTracker();
-    fGeometryProcessor->fGLProc.reset(gp.createGLInstance(bt, *fGpu->glCaps().glslCaps()));
+    fGeometryProcessor->fGLProc.reset(gp.createGLInstance(*fGpu->glCaps().glslCaps()));
 
     SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLGeometryProcessor::EmitArgs args(this, gp, bt, outColor, outCoverage, samplers,
+    GrGLGeometryProcessor::EmitArgs args(this, gp, outColor, outCoverage, samplers,
                                          fCoordTransforms, &fOutCoords);
     fGeometryProcessor->fGLProc->emitCode(args);
 

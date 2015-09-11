@@ -29,24 +29,6 @@ void GrProcOptInfo::calcCoverageWithBatch(const GrDrawBatch* batch,
     this->internalCalc(processors, cnt, batch->willReadFragmentPosition());
 }
 
-void GrProcOptInfo::calcColorWithPrimProc(const GrPrimitiveProcessor* primProc,
-                                          const GrFragmentProcessor * const processors[],
-                                          int cnt) {
-    GrInitInvariantOutput out;
-    primProc->getInvariantOutputColor(&out);
-    fInOut.reset(out);
-    this->internalCalc(processors, cnt, primProc->willReadFragmentPosition());
-}
-
-void GrProcOptInfo::calcCoverageWithPrimProc(const GrPrimitiveProcessor* primProc,
-                                             const GrFragmentProcessor * const processors[],
-                                             int cnt) {
-    GrInitInvariantOutput out;
-    primProc->getInvariantOutputCoverage(&out);
-    fInOut.reset(out);
-    this->internalCalc(processors, cnt, primProc->willReadFragmentPosition());
-}
-
 void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const processors[],
                                           int cnt,
                                           GrColor startColor,

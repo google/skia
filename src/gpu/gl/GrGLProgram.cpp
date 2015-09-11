@@ -82,13 +82,12 @@ static void append_texture_bindings(const Proc* ip,
 
 void GrGLProgram::setData(const GrPrimitiveProcessor& primProc,
                           const GrPipeline& pipeline,
-                          const GrBatchTracker& batchTracker,
                           SkTArray<const GrTextureAccess*>* textureBindings) {
     this->setRenderTargetState(primProc, pipeline);
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
-    fGeometryProcessor->fGLProc->setData(fProgramDataManager, primProc, batchTracker);
+    fGeometryProcessor->fGLProc->setData(fProgramDataManager, primProc);
     append_texture_bindings(fGeometryProcessor.get(), primProc, textureBindings);
 
     this->setFragmentData(primProc, pipeline, textureBindings);

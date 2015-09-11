@@ -79,12 +79,9 @@ public:
 #endif
     uint32_t getFlags() const { return fFlags; }
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override;
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override;
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
 
 private:
     GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix,
@@ -141,12 +138,9 @@ public:
     uint32_t getFlags() const { return fFlags; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override;
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override;
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
 
 private:
     GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
@@ -211,12 +205,9 @@ public:
     uint32_t getFlags() const { return fFlags; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override;
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override;
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
 
 private:
     GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix,

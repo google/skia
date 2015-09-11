@@ -286,8 +286,7 @@ public:
 
     virtual void buildProgramDesc(GrProgramDesc*,
                                   const GrPrimitiveProcessor&,
-                                  const GrPipeline&,
-                                  const GrBatchTracker&) const = 0;
+                                  const GrPipeline&) const = 0;
 
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
     // take place at the GrDrawTarget level and this function implement faster copy paths. The rect
@@ -301,18 +300,15 @@ public:
     struct DrawArgs {
         DrawArgs(const GrPrimitiveProcessor* primProc,
                  const GrPipeline* pipeline,
-                 const GrProgramDesc* desc,
-                 const GrBatchTracker* batchTracker)
+                 const GrProgramDesc* desc)
             : fPrimitiveProcessor(primProc)
             , fPipeline(pipeline)
-            , fDesc(desc)
-            , fBatchTracker(batchTracker) {
-            SkASSERT(primProc && pipeline && desc && batchTracker);
+            , fDesc(desc) {
+            SkASSERT(primProc && pipeline && desc);
         }
         const GrPrimitiveProcessor* fPrimitiveProcessor;
         const GrPipeline* fPipeline;
         const GrProgramDesc* fDesc;
-        const GrBatchTracker* fBatchTracker;
     };
 
     void draw(const DrawArgs&, const GrVertices&);

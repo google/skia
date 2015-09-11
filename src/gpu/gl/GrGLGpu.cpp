@@ -1577,7 +1577,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     }
 
     SkSTArray<8, const GrTextureAccess*> textureAccesses;
-    program->setData(*args.fPrimitiveProcessor, pipeline, *args.fBatchTracker, &textureAccesses);
+    program->setData(*args.fPrimitiveProcessor, pipeline, &textureAccesses);
 
     int numTextureAccesses = textureAccesses.count();
     for (int i = 0; i < numTextureAccesses; i++) {
@@ -1652,9 +1652,8 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
 
 void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
                                const GrPrimitiveProcessor& primProc,
-                               const GrPipeline& pipeline,
-                               const GrBatchTracker& batchTracker) const {
-    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, this, batchTracker)) {
+                               const GrPipeline& pipeline) const {
+    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, this)) {
         SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }

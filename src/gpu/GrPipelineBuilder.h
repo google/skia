@@ -381,17 +381,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    // TODO delete when we have Batch
-    const GrProcOptInfo& colorProcInfo(const GrPrimitiveProcessor* pp) const {
-        this->calcColorInvariantOutput(pp);
-        return fColorProcInfo;
-    }
-
-    const GrProcOptInfo& coverageProcInfo(const GrPrimitiveProcessor* pp) const {
-        this->calcCoverageInvariantOutput(pp);
-        return fCoverageProcInfo;
-    }
-
     const GrProcOptInfo& colorProcInfo(const GrDrawBatch* batch) const {
         this->calcColorInvariantOutput(batch);
         return fColorProcInfo;
@@ -415,13 +404,6 @@ private:
     // canUseFracCoveragePrimProc() - Called in regular skia draw, caches results but only for a
     //                                specific color and coverage.  May be called multiple times
     // GrOptDrawState constructor - never caches results
-
-    /**
-     * Primproc variants of the calc functions
-     * TODO remove these when batch is everywhere
-     */
-    void calcColorInvariantOutput(const GrPrimitiveProcessor*) const;
-    void calcCoverageInvariantOutput(const GrPrimitiveProcessor*) const;
 
     /**
      * GrBatch provides the initial seed for these loops based off of its initial geometry data

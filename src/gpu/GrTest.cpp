@@ -191,9 +191,8 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return false; }
 
-    void buildProgramDesc(GrProgramDesc*,const GrPrimitiveProcessor&,
-                          const GrPipeline&,
-                          const GrBatchTracker&) const override {}
+    void buildProgramDesc(GrProgramDesc*, const GrPrimitiveProcessor&,
+                          const GrPipeline&) const override {}
 
     void discard(GrRenderTarget*) override {}
 

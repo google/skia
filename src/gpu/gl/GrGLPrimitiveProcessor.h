@@ -31,7 +31,6 @@ public:
     struct EmitArgs {
         EmitArgs(GrGLGPBuilder* pb,
                  const GrPrimitiveProcessor& gp,
-                 const GrBatchTracker& bt,
                  const char* outputColor,
                  const char* outputCoverage,
                  const TextureSamplerArray& samplers,
@@ -39,7 +38,6 @@ public:
                  TransformsOut* transformsOut)
             : fPB(pb)
             , fGP(gp)
-            , fBT(bt)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
             , fSamplers(samplers)
@@ -47,7 +45,6 @@ public:
             , fTransformsOut(transformsOut) {}
         GrGLGPBuilder* fPB;
         const GrPrimitiveProcessor& fGP;
-        const GrBatchTracker& fBT;
         const char* fOutputColor;
         const char* fOutputCoverage;
         const TextureSamplerArray& fSamplers;
@@ -68,9 +65,7 @@ public:
         GrPrimitiveProcessor parameter is guaranteed to be of the same type that created this
         GrGLPrimitiveProcessor and to have an identical processor key as the one that created this
         GrGLPrimitiveProcessor.  */
-    virtual void setData(const GrGLProgramDataManager&,
-                         const GrPrimitiveProcessor&,
-                         const GrBatchTracker&) = 0;
+    virtual void setData(const GrGLProgramDataManager&, const GrPrimitiveProcessor&) = 0;
 
     static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);
 

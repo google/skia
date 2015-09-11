@@ -96,17 +96,6 @@ GrPipelineBuilder::~GrPipelineBuilder() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrPipelineBuilder::calcColorInvariantOutput(const GrPrimitiveProcessor* pp) const {
-    fColorProcInfo.calcColorWithPrimProc(pp, fColorFragmentProcessors.begin(),
-                                         this->numColorFragmentProcessors());
-
-}
-
-void GrPipelineBuilder::calcCoverageInvariantOutput(const GrPrimitiveProcessor* pp) const {
-    fCoverageProcInfo.calcCoverageWithPrimProc(pp, fCoverageFragmentProcessors.begin(),
-                                               this->numCoverageFragmentProcessors());
-}
-
 void GrPipelineBuilder::calcColorInvariantOutput(const GrDrawBatch* batch) const {
     fColorProcInfo.calcColorWithBatch(batch, fColorFragmentProcessors.begin(),
                                       this->numColorFragmentProcessors());

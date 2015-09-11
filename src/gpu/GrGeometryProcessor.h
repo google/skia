@@ -26,17 +26,6 @@ public:
 
     bool willUseGeoShader() const override { return fWillUseGeoShader; }
 
-    // TODO delete when paths are in batch
-    void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const override {}
-
-    // TODO Delete when paths are in batch
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        SkFAIL("Unsupported\n");
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        SkFAIL("Unsupported\n");
-    }
-
     bool hasTransformedLocalCoords() const override {
         return kHasTransformed_LocalCoordsType == fLocalCoordsType;
     }

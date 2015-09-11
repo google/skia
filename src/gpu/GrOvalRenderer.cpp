@@ -89,8 +89,7 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrGeometryProcessor&,
-                    const GrBatchTracker&)
+        GLProcessor()
             : fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
@@ -130,7 +129,6 @@ public:
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
-                           const GrBatchTracker& bt,
                            const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const CircleEdgeEffect& ce = gp.cast<CircleEdgeEffect>();
@@ -140,9 +138,7 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) override {
+        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
             const CircleEdgeEffect& ce = gp.cast<CircleEdgeEffect>();
             if (ce.color() != fColor) {
                 GrGLfloat c[4];
@@ -165,15 +161,12 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, bt, caps, b);
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override {
-        return new GLProcessor(*this, bt);
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+        return new GLProcessor();
     }
 
 private:
@@ -243,8 +236,7 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrGeometryProcessor&,
-                    const GrBatchTracker&)
+        GLProcessor()
             : fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
@@ -305,7 +297,6 @@ public:
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
-                           const GrBatchTracker& bt,
                            const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const EllipseEdgeEffect& ee = gp.cast<EllipseEdgeEffect>();
@@ -315,9 +306,7 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) override {
+        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
             const EllipseEdgeEffect& ee = gp.cast<EllipseEdgeEffect>();
             if (ee.color() != fColor) {
                 GrGLfloat c[4];
@@ -341,15 +330,12 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, bt, caps, b);
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override {
-        return new GLProcessor(*this, bt);
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+        return new GLProcessor();
     }
 
 private:
@@ -361,9 +347,9 @@ private:
         this->initClassID<EllipseEdgeEffect>();
         fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
         fInEllipseOffset = &this->addVertexAttrib(Attribute("inEllipseOffset",
-                                                              kVec2f_GrVertexAttribType));
+                                                            kVec2f_GrVertexAttribType));
         fInEllipseRadii = &this->addVertexAttrib(Attribute("inEllipseRadii",
-                                                             kVec4f_GrVertexAttribType));
+                                                           kVec4f_GrVertexAttribType));
         fStroke = stroke;
     }
 
@@ -425,11 +411,10 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrGeometryProcessor&,
-                    const GrBatchTracker&)
+        GLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {}
 
-        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
             GrGLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
@@ -502,7 +487,6 @@ public:
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
-                           const GrBatchTracker& bt,
                            const GrGLSLCaps&,
                            GrProcessorKeyBuilder* b) {
             const DIEllipseEdgeEffect& ellipseEffect = gp.cast<DIEllipseEdgeEffect>();
@@ -512,9 +496,7 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) override {
+        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
             const DIEllipseEdgeEffect& dee = gp.cast<DIEllipseEdgeEffect>();
 
             if (!dee.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dee.viewMatrix())) {
@@ -541,15 +523,12 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, bt, caps, b);
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override {
-        return new GLProcessor(*this, bt);
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+        return new GLProcessor();
     }
 
 private:

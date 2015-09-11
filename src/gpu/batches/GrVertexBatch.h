@@ -79,9 +79,6 @@ private:
     // may use a different primitive processor.
     SkTLList<DrawArray> fDrawArrays;
 
-    // What is this?
-    GrBatchTracker      fBatchTracker;
-
     typedef GrDrawBatch INHERITED;
 };
 

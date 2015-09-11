@@ -156,9 +156,8 @@ public:
         DrawPathArgs(const GrPrimitiveProcessor* primProc,
                      const GrPipeline* pipeline,
                      const GrProgramDesc* desc,
-                     const GrBatchTracker* batchTracker,
                      const GrStencilSettings* stencil)
-            : DrawArgs(primProc, pipeline, desc, batchTracker)
+            : DrawArgs(primProc, pipeline, desc)
             , fStencil(stencil) {
         }
 

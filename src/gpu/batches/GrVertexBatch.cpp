@@ -75,8 +75,8 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state) {
         GrProgramDesc desc;
         const GrPipeline* pipeline = this->pipeline();
         const GrPrimitiveProcessor* primProc = drawArray.fPrimitiveProcessor.get();
-        state->gpu()->buildProgramDesc(&desc, *primProc, *pipeline, fBatchTracker);
-        GrGpu::DrawArgs args(primProc, pipeline, &desc, &fBatchTracker);
+        state->gpu()->buildProgramDesc(&desc, *primProc, *pipeline);
+        GrGpu::DrawArgs args(primProc, pipeline, &desc);
 
         int drawCount = drawArray.fDraws.count();
         for (int i = 0; i < drawCount; i++) {

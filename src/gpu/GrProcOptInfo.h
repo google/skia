@@ -36,12 +36,6 @@ public:
     void calcColorWithBatch(const GrDrawBatch*, const GrFragmentProcessor* const[], int cnt);
     void calcCoverageWithBatch(const GrDrawBatch*, const GrFragmentProcessor* const[], int cnt);
 
-    // TODO delete these when batch is everywhere
-    void calcColorWithPrimProc(const GrPrimitiveProcessor*, const GrFragmentProcessor* const[],
-                               int cnt);
-    void calcCoverageWithPrimProc(const GrPrimitiveProcessor*, const GrFragmentProcessor* const[],
-                                  int cnt);
-
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
     bool isSingleComponent() const { return fInOut.isSingleComponent(); }

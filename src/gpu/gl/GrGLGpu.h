@@ -93,8 +93,7 @@ public:
 
     void buildProgramDesc(GrProgramDesc*,
                           const GrPrimitiveProcessor&,
-                          const GrPipeline&,
-                          const GrBatchTracker&) const override;
+                          const GrPipeline&) const override;
 
     const GrGLContext* glContextForTesting() const override {
         return &this->glContext();

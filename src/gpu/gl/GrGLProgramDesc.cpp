@@ -111,8 +111,7 @@ static bool get_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
 bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
                                    const GrPrimitiveProcessor& primProc,
                                    const GrPipeline& pipeline,
-                                   const GrGLGpu* gpu,
-                                   const GrBatchTracker& batchTracker) {
+                                   const GrGLGpu* gpu) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
@@ -127,7 +126,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     GrProcessorKeyBuilder b(&glDesc->key());
 
-    primProc.getGLProcessorKey(batchTracker, *gpu->glCaps().glslCaps(), &b);
+    primProc.getGLProcessorKey(*gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
     if (!get_meta_key(primProc, gpu->glCaps(), 0, &b)) {
         glDesc->key().reset();

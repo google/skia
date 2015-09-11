@@ -11,7 +11,7 @@
 #include "GrGLGpu.h"
 #include "GrGLPathRendering.h"
 
-GrGLPathProcessor::GrGLPathProcessor(const GrPathProcessor&, const GrBatchTracker&)
+GrGLPathProcessor::GrGLPathProcessor()
     : fColor(GrColor_ILLEGAL) {}
 
 void GrGLPathProcessor::emitCode(EmitArgs& args) {
@@ -40,7 +40,6 @@ void GrGLPathProcessor::emitCode(EmitArgs& args) {
 }
 
 void GrGLPathProcessor::GenKey(const GrPathProcessor& pathProc,
-                               const GrBatchTracker& bt,
                                const GrGLSLCaps&,
                                GrProcessorKeyBuilder* b) {
     b->add32(SkToInt(pathProc.opts().readsColor()) |
@@ -48,8 +47,7 @@ void GrGLPathProcessor::GenKey(const GrPathProcessor& pathProc,
 }
 
 void GrGLPathProcessor::setData(const GrGLProgramDataManager& pdman,
-                                const GrPrimitiveProcessor& primProc,
-                                const GrBatchTracker& bt) {
+                                const GrPrimitiveProcessor& primProc) {
     const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
     if (pathProc.opts().readsColor() && pathProc.color() != fColor) {
         GrGLfloat c[4];

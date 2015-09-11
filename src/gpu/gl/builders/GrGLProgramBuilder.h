@@ -290,7 +290,6 @@ protected:
     const GrPrimitiveProcessor& primitiveProcessor() const { return *fArgs.fPrimitiveProcessor; }
     const GrPipeline& pipeline() const { return *fArgs.fPipeline; }
     const GrProgramDesc& desc() const { return *fArgs.fDesc; }
-    const GrBatchTracker& batchTracker() const { return *fArgs.fBatchTracker; }
     const GrProgramDesc::KeyHeader& header() const { return fArgs.fDesc->header(); }
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix

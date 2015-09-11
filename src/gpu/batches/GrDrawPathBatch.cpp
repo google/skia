@@ -19,10 +19,9 @@ void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
     SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                                    this->opts(),
                                                                    this->viewMatrix()));
-    state->gpu()->buildProgramDesc(&desc, *pathProc,
-                                    *this->pipeline(), *this->tracker());
+    state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline());
     GrPathRendering::DrawPathArgs args(pathProc, this->pipeline(),
-                                        &desc, this->tracker(), &this->stencilSettings());
+                                        &desc, &this->stencilSettings());
     state->gpu()->pathRendering()->drawPath(args, fPath.get());
 }
 
@@ -113,10 +112,9 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
                                                                    this->opts(),
                                                                    this->viewMatrix(),
                                                                    fLocalMatrix));
-    state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline(),
-                                   *this->tracker());
+    state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline());
     GrPathRendering::DrawPathArgs args(pathProc, this->pipeline(),
-                                        &desc, this->tracker(), &this->stencilSettings());
+                                        &desc, &this->stencilSettings());
     if (fDraws.count() == 1) {
         const GrPathRangeDraw& draw = **fDraws.head();
         state->gpu()->pathRendering()->drawPaths(args, draw.range(), draw.indices(),

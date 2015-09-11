@@ -42,30 +42,6 @@
  * it emits the appropriate color, or none at all, as directed.
  */
 
-/*
- * A struct for tracking batching decisions.  While this lives on GrOptState, it is managed
- * entirely by the derived classes of the GP.
- * // TODO this was an early attempt at handling out of order batching.  It should be
- * used carefully as it is being replaced by GrBatch
- */
-class GrBatchTracker {
-public:
-    template <typename T> const T& cast() const {
-        SkASSERT(sizeof(T) <= kMaxSize);
-        return *reinterpret_cast<const T*>(fData.get());
-    }
-
-    template <typename T> T* cast() {
-        SkASSERT(sizeof(T) <= kMaxSize);
-        return reinterpret_cast<T*>(fData.get());
-    }
-
-    static const size_t kMaxSize = 32;
-
-private:
-    SkAlignedSStorage<kMaxSize> fData;
-};
-
 class GrGLSLCaps;
 class GrGLPrimitiveProcessor;
 
@@ -155,28 +131,12 @@ private:
 };
 
 /*
- * This enum is shared by GrPrimitiveProcessors and GrGLPrimitiveProcessors to coordinate shaders
- * with vertex attributes / uniforms.
- */
-enum GrGPInput {
-    kAllOnes_GrGPInput,
-    kAttribute_GrGPInput,
-    kUniform_GrGPInput,
-    kIgnored_GrGPInput,
-};
-
-/*
  * GrPrimitiveProcessor defines an interface which all subclasses must implement.  All
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
  * pipelines, and they must provide some notion of equality
  */
 class GrPrimitiveProcessor : public GrProcessor {
 public:
-    virtual void initBatchTracker(GrBatchTracker*, const GrPipelineOptimizations&) const = 0;
-
-    virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
-    virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
-
     // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
     // we put these calls on the base class to prevent having to cast
     virtual bool willUseGeoShader() const = 0;
@@ -230,16 +190,14 @@ public:
      *
      * TODO: A better name for this function  would be "compute" instead of "get".
      */
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
+    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const = 0;
 
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps& caps) const = 0;
+    virtual GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps& caps) const = 0;
 
     bool isPathRendering() const { return fIsPathRendering; }
 

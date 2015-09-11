@@ -55,7 +55,7 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrGeometryProcessor& gp, const GrBatchTracker&)
+        GLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
@@ -115,7 +115,6 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrBatchTracker& bt,
                                   const GrGLSLCaps&,
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
@@ -131,9 +130,7 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) override {
+        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
             if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
@@ -175,15 +172,12 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, bt, caps, b);
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override {
-        return new GLProcessor(*this, bt);
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+        return new GLProcessor();
     }
 
 private:

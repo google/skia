@@ -543,8 +543,7 @@ public:
 
     class GLProcessor : public GrGLGeometryProcessor {
     public:
-        GLProcessor(const GrGeometryProcessor&,
-                    const GrBatchTracker&)
+        GLProcessor()
             : fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
@@ -597,7 +596,6 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrBatchTracker& bt,
                                   const GrGLSLCaps&,
                                   GrProcessorKeyBuilder* b) {
             const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
@@ -607,9 +605,7 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp,
-                             const GrBatchTracker& bt) override {
+        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
             if (qe.color() != fColor) {
                 GrGLfloat c[4];
@@ -633,15 +629,12 @@ public:
         typedef GrGLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, bt, caps, b);
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override {
-        return new GLProcessor(*this, bt);
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+        return new GLProcessor();
     }
 
 private:

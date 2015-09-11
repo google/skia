@@ -39,9 +39,6 @@ protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
 
-    // TODO delete
-    const GrBatchTracker* tracker() const { return &fBatchTracker; }
-
 private:
     void initBatchTracker(const GrPipelineOptimizations& opts) override {
         opts.getOverrideColorIfSet(&fColor);
@@ -52,9 +49,6 @@ private:
     GrColor                                                 fColor;
     GrStencilSettings                                       fStencilSettings;
     GrPipelineOptimizations                                 fOpts;
-
-    // TODO delete
-    GrBatchTracker      fBatchTracker;
 
     typedef GrDrawBatch INHERITED;
 };

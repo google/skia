@@ -94,7 +94,7 @@ public:
      * the program is bound before calling, and to bind the outgoing textures to their respective
      * units upon return. (Each index in the array corresponds to its matching GL texture unit.)
      */
-    void setData(const GrPrimitiveProcessor&, const GrPipeline&, const GrBatchTracker&,
+    void setData(const GrPrimitiveProcessor&, const GrPipeline&,
                  SkTArray<const GrTextureAccess*>* textureBindings);
 
 protected:

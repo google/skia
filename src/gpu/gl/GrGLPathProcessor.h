@@ -17,10 +17,9 @@ class GrGLPathProgramDataManager;
 
 class GrGLPathProcessor : public GrGLPrimitiveProcessor {
 public:
-    GrGLPathProcessor(const GrPathProcessor&, const GrBatchTracker&);
+    GrGLPathProcessor();
 
     static void GenKey(const GrPathProcessor&,
-                       const GrBatchTracker& bt,
                        const GrGLSLCaps&,
                        GrProcessorKeyBuilder* b);
 
@@ -31,9 +30,7 @@ public:
     void bindSeparableVaryings(GrGLGpu* gpu, GrGLuint programID);
     void resolveSeparableVaryings(GrGLGpu* gpu, GrGLuint programId);
 
-    void setData(const GrGLProgramDataManager&,
-                 const GrPrimitiveProcessor&,
-                 const GrBatchTracker&) override;
+    void setData(const GrGLProgramDataManager&, const GrPrimitiveProcessor&) override;
 
     void setTransformData(const GrPrimitiveProcessor&,
                           const GrGLPathProgramDataManager&,

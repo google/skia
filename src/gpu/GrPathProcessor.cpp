@@ -24,67 +24,12 @@ GrPathProcessor::GrPathProcessor(GrColor color,
     this->initClassID<GrPathProcessor>();
 }
 
-void GrPathProcessor::getInvariantOutputColor(GrInitInvariantOutput* out) const {
-    out->setKnownFourComponents(fColor);
-}
-
-void GrPathProcessor::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
-    out->setKnownSingleComponent(0xff);
-}
-
-void GrPathProcessor::initBatchTracker(GrBatchTracker* bt, const GrPipelineOptimizations& opt) const {
-    PathBatchTracker* local = bt->cast<PathBatchTracker>();
-    if (!opt.readsColor()) {
-        local->fInputColorType = kIgnored_GrGPInput;
-        local->fColor = GrColor_ILLEGAL;
-    } else {
-        local->fInputColorType = kUniform_GrGPInput;
-        if (!opt.getOverrideColorIfSet(&local->fColor)) {
-            local->fColor = this->color();
-        }
-    }
-
-    local->fInputCoverageType = opt.readsCoverage() ? kAllOnes_GrGPInput : kIgnored_GrGPInput;
-    local->fUsesLocalCoords = opt.readsLocalCoords();
-}
-
-bool GrPathProcessor::isEqual(const GrBatchTracker& m,
-                              const GrPrimitiveProcessor& that,
-                              const GrBatchTracker& t) const {
-    if (this->classID() != that.classID() || !this->hasSameTextureAccesses(that)) {
-        return false;
-    }
-
-    const GrPathProcessor& other = that.cast<GrPathProcessor>();
-    if (!this->viewMatrix().cheapEqualTo(other.viewMatrix())) {
-        return false;
-    }
-
-    const PathBatchTracker& mine = m.cast<PathBatchTracker>();
-    const PathBatchTracker& theirs = t.cast<PathBatchTracker>();
-    if (mine.fColor != theirs.fColor) {
-        return false;
-    }
-
-    if (mine.fUsesLocalCoords != theirs.fUsesLocalCoords) {
-        return false;
-    }
-
-    if (mine.fUsesLocalCoords && !this->localMatrix().cheapEqualTo(other.localMatrix())) {
-        return false;
-    }
-
-    return true;
-}
-
-void GrPathProcessor::getGLProcessorKey(const GrBatchTracker& bt,
-                                        const GrGLSLCaps& caps,
+void GrPathProcessor::getGLProcessorKey(const GrGLSLCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
-    GrGLPathProcessor::GenKey(*this, bt, caps, b);
+    GrGLPathProcessor::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrBatchTracker& bt,
-                                                          const GrGLSLCaps& caps) const {
+GrGLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrGLSLCaps& caps) const {
     SkASSERT(caps.pathRenderingSupport());
-    return new GrGLPathProcessor(*this, bt);
+    return new GrGLPathProcessor();
 }

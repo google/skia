@@ -784,12 +784,9 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    virtual void getGLProcessorKey(const GrBatchTracker&,
-                                   const GrGLSLCaps&,
-                                   GrProcessorKeyBuilder* b) const override;
+    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker&,
-                                                     const GrGLSLCaps&) const override;
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
 
 private:
     DashingCircleEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix,
@@ -812,18 +809,15 @@ private:
 
 class GLDashingCircleEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingCircleEffect(const GrGeometryProcessor&, const GrBatchTracker&);
+    GLDashingCircleEffect();
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrBatchTracker&,
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&,
-                         const GrPrimitiveProcessor&,
-                         const GrBatchTracker&) override;
+    void setData(const GrGLProgramDataManager&, const GrPrimitiveProcessor&) override;
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
                           const GrGLProgramDataManager& pdman,
@@ -842,8 +836,7 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GLDashingCircleEffect::GLDashingCircleEffect(const GrGeometryProcessor&,
-                                             const GrBatchTracker&) {
+GLDashingCircleEffect::GLDashingCircleEffect() {
     fColor = GrColor_ILLEGAL;
     fPrevRadius = SK_ScalarMin;
     fPrevCenterX = SK_ScalarMin;
@@ -900,8 +893,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
-                                    const GrPrimitiveProcessor& processor,
-                                    const GrBatchTracker& bt) {
+                                    const GrPrimitiveProcessor& processor) {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
         GrGLfloat c[4];
@@ -912,7 +904,6 @@ void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
-                                   const GrBatchTracker& bt,
                                    const GrGLSLCaps&,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
@@ -932,15 +923,12 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
     return new DashingCircleEffect(color, aaMode, localMatrix, usesLocalCoords);
 }
 
-void DashingCircleEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                            const GrGLSLCaps& caps,
-                                            GrProcessorKeyBuilder* b) const {
-    GLDashingCircleEffect::GenKey(*this, bt, caps, b);
+void DashingCircleEffect::getGLProcessorKey(const GrGLSLCaps& caps,GrProcessorKeyBuilder* b) const {
+    GLDashingCircleEffect::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrBatchTracker& bt,
-                                                              const GrGLSLCaps&) const {
-    return new GLDashingCircleEffect(*this, bt);
+GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrGLSLCaps&) const {
+    return new GLDashingCircleEffect();
 }
 
 DashingCircleEffect::DashingCircleEffect(GrColor color,
@@ -1007,12 +995,9 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    virtual void getGLProcessorKey(const GrBatchTracker& bt,
-                                   const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override;
+    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrBatchTracker& bt,
-                                                     const GrGLSLCaps&) const override;
+    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
 
 private:
     DashingLineEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix,
@@ -1035,18 +1020,15 @@ private:
 
 class GLDashingLineEffect : public GrGLGeometryProcessor {
 public:
-    GLDashingLineEffect(const GrGeometryProcessor&, const GrBatchTracker&);
+    GLDashingLineEffect();
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrBatchTracker&,
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    virtual void setData(const GrGLProgramDataManager&,
-                         const GrPrimitiveProcessor&,
-                         const GrBatchTracker&) override;
+    void setData(const GrGLProgramDataManager&, const GrPrimitiveProcessor&) override;
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
                           const GrGLProgramDataManager& pdman,
@@ -1061,8 +1043,7 @@ private:
     typedef GrGLGeometryProcessor INHERITED;
 };
 
-GLDashingLineEffect::GLDashingLineEffect(const GrGeometryProcessor&,
-                                         const GrBatchTracker&) {
+GLDashingLineEffect::GLDashingLineEffect() {
     fColor = GrColor_ILLEGAL;
 }
 
@@ -1136,8 +1117,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
-                                  const GrPrimitiveProcessor& processor,
-                                  const GrBatchTracker& bt) {
+                                  const GrPrimitiveProcessor& processor) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     if (de.color() != fColor) {
         GrGLfloat c[4];
@@ -1148,7 +1128,6 @@ void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
 }
 
 void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
-                                 const GrBatchTracker& bt,
                                  const GrGLSLCaps&,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineEffect& de = gp.cast<DashingLineEffect>();
@@ -1168,15 +1147,13 @@ GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
     return new DashingLineEffect(color, aaMode, localMatrix, usesLocalCoords);
 }
 
-void DashingLineEffect::getGLProcessorKey(const GrBatchTracker& bt,
-                                          const GrGLSLCaps& caps,
+void DashingLineEffect::getGLProcessorKey(const GrGLSLCaps& caps,
                                           GrProcessorKeyBuilder* b) const {
-    GLDashingLineEffect::GenKey(*this, bt, caps, b);
+    GLDashingLineEffect::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrBatchTracker& bt,
-                                                            const GrGLSLCaps&) const {
-    return new GLDashingLineEffect(*this, bt);
+GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrGLSLCaps&) const {
+    return new GLDashingLineEffect();
 }
 
 DashingLineEffect::DashingLineEffect(GrColor color,

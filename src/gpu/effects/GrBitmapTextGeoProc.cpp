@@ -15,10 +15,9 @@
 
 class GrGLBitmapTextGeoProc : public GrGLGeometryProcessor {
 public:
-    GrGLBitmapTextGeoProc(const GrGeometryProcessor&, const GrBatchTracker&)
-        : fColor(GrColor_ILLEGAL) {}
+    GrGLBitmapTextGeoProc() : fColor(GrColor_ILLEGAL) {}
 
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
 
         GrGLGPBuilder* pb = args.fPB;
@@ -73,9 +72,7 @@ public:
         }
     }
 
-    virtual void setData(const GrGLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor& gp,
-                         const GrBatchTracker& bt) override {
+    void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
         const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
             GrGLfloat c[4];
@@ -93,7 +90,6 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrBatchTracker& bt,
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
@@ -143,16 +139,12 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     this->addTextureAccess(&fTextureAccess);
 }
 
-void GrBitmapTextGeoProc::getGLProcessorKey(const GrBatchTracker& bt,
-                                            const GrGLSLCaps& caps,
-                                            GrProcessorKeyBuilder* b) const {
-    GrGLBitmapTextGeoProc::GenKey(*this, bt, caps, b);
+void GrBitmapTextGeoProc::getGLProcessorKey(const GrGLSLCaps& caps,GrProcessorKeyBuilder* b) const {
+    GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor*
-GrBitmapTextGeoProc::createGLInstance(const GrBatchTracker& bt,
-                                      const GrGLSLCaps& caps) const {
-    return new GrGLBitmapTextGeoProc(*this, bt);
+GrGLPrimitiveProcessor* GrBitmapTextGeoProc::createGLInstance(const GrGLSLCaps& caps) const {
+    return new GrGLBitmapTextGeoProc();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
