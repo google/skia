@@ -405,6 +405,8 @@ static void push_brd_srcs(Path path) {
             SkBitmapRegionDecoderInterface::kOriginal_Strategy
     };
 
+    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
     // We will only test to one backend (8888), but we will test all of the
     // color types that we need to decode to on this backend.
     const CodecSrc::DstColorType dstColorTypes[] = {
@@ -418,9 +420,8 @@ static void push_brd_srcs(Path path) {
         BRDSrc::kDivisor_Mode
     };
 
-    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
-
     for (SkBitmapRegionDecoderInterface::Strategy strategy : strategies) {
+
         // We disable png testing for kOriginal_Strategy because the implementation leaks
         // memory in our forked libpng.
         // TODO (msarett): Decide if we want to test pngs in this mode and how we might do this.
@@ -428,10 +429,19 @@ static void push_brd_srcs(Path path) {
                 (path.endsWith(".png") || path.endsWith(".PNG"))) {
             continue;
         }
-        for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
-            if (brd_color_type_supported(strategy, dstColorType)) {
-                for (BRDSrc::Mode mode : modes) {
-                    for (uint32_t sampleSize : sampleSizes) {
+        for (uint32_t sampleSize : sampleSizes) {
+
+            // kOriginal_Strategy does not work for jpegs that are scaled to non-powers of two.
+            // We don't need to test this.  We know it doesn't work, and it causes images with
+            // uninitialized memory to show up on Gold.
+            if (SkBitmapRegionDecoderInterface::kOriginal_Strategy == strategy &&
+                    (path.endsWith(".jpg") || path.endsWith(".JPG") ||
+                    path.endsWith(".jpeg") || path.endsWith(".JPEG")) && !SkIsPow2(sampleSize)) {
+                continue;
+            }
+            for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
+                if (brd_color_type_supported(strategy, dstColorType)) {
+                    for (BRDSrc::Mode mode : modes) {
                         push_brd_src(path, strategy, dstColorType, mode, sampleSize);
                     }
                 }
