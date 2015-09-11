@@ -418,7 +418,7 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
         EGL_NONE, EGL_NONE
     };
 
-    EGLDisplay display = SkANGLEGLContext::GetD3DEGLDisplay(GetDC(hWnd));
+    EGLDisplay display = SkANGLEGLContext::GetD3DEGLDisplay(GetDC(hWnd), false);
 
     if (EGL_NO_DISPLAY == display) {
         SkDebugf("Could not create ANGLE egl display!\n");

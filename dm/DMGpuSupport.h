@@ -65,6 +65,7 @@ public:
     typedef int GLContextType;
 
     static const GLContextType kANGLE_GLContextType         = 0,
+                               kANGLE_GL_GLContextType      = 0,
                                kCommandBuffer_GLContextType = 0,
                                kDebug_GLContextType         = 0,
                                kMESA_GLContextType          = 0,

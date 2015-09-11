@@ -33,6 +33,7 @@ public:
       kNative_GLContextType,
 #if SK_ANGLE
       kANGLE_GLContextType,
+      kANGLE_GL_GLContextType,
 #endif
 #if SK_COMMAND_BUFFER
       kCommandBuffer_GLContextType,
@@ -70,6 +71,8 @@ public:
 #if SK_ANGLE
             case kANGLE_GLContextType:
                 return "angle";
+            case kANGLE_GL_GLContextType:
+                return "angle-gl";
 #endif
 #if SK_COMMAND_BUFFER
             case kCommandBuffer_GLContextType:

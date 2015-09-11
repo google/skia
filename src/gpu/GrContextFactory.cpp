@@ -43,7 +43,10 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
             break;
 #ifdef SK_ANGLE
         case kANGLE_GLContextType:
-            glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI));
+            glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI, false));
+            break;
+        case kANGLE_GL_GLContextType:
+            glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI, true));
             break;
 #endif
 #ifdef SK_COMMAND_BUFFER
