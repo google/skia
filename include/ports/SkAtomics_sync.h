@@ -46,11 +46,6 @@ T sk_atomic_fetch_add(T* ptr, T val, sk_memory_order) {
 }
 
 template <typename T>
-T sk_atomic_fetch_sub(T* ptr, T val, sk_memory_order) {
-    return __sync_fetch_and_sub(ptr, val);
-}
-
-template <typename T>
 bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired, sk_memory_order, sk_memory_order) {
     T prev = __sync_val_compare_and_swap(ptr, *expected, desired);
     if (prev == *expected) {
