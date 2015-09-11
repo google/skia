@@ -15,7 +15,6 @@
 #include "SkTraceEvent.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLGpu.h"
-#include "gl/GrGLPathProcessor.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLXferProcessor.h"

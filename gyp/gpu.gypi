@@ -315,8 +315,6 @@
       '<(skia_src_path)/gpu/gl/GrGLNoOpInterface.h',
       '<(skia_src_path)/gpu/gl/GrGLPath.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPath.h',
-      '<(skia_src_path)/gpu/gl/GrGLPathProcessor.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLPathProcessor.h',
       '<(skia_src_path)/gpu/gl/GrGLPathRange.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPathRange.h',
       '<(skia_src_path)/gpu/gl/GrGLPathRendering.cpp',

@@ -12,7 +12,6 @@
 #include "GrCoordTransform.h"
 #include "GrGLGeometryProcessor.h"
 #include "GrGLGpu.h"
-#include "GrGLPathProcessor.h"
 #include "GrGLPathRendering.h"
 #include "GrGLShaderVar.h"
 #include "GrGLXferProcessor.h"
