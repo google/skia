@@ -13,7 +13,6 @@
 class GrPathProcessor;
 class GrGLPathRendering;
 class GrGLGpu;
-class GrGLPathProgramDataManager;
 
 class GrGLPathProcessor : public GrGLPrimitiveProcessor {
 public:
@@ -27,17 +26,12 @@ public:
 
     void emitTransforms(GrGLGPBuilder*, const TransformsIn&, TransformsOut*);
 
-    void bindSeparableVaryings(GrGLGpu* gpu, GrGLuint programID);
-    void resolveSeparableVaryings(GrGLGpu* gpu, GrGLuint programId);
-
     void setData(const GrGLProgramDataManager&, const GrPrimitiveProcessor&) override;
 
     void setTransformData(const GrPrimitiveProcessor&,
-                          const GrGLPathProgramDataManager&,
+                          const GrGLProgramDataManager&,
                           int index,
-                          const SkTArray<const GrCoordTransform*, true>& transforms);
-
-    virtual void didSetData(GrGLPathRendering*) {}
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override;
 
 private:
     UniformHandle fColorUniform;

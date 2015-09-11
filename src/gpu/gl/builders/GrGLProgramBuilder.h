@@ -12,7 +12,6 @@
 #include "GrGLGeometryShaderBuilder.h"
 #include "GrGLVertexShaderBuilder.h"
 #include "../GrGLProgramDataManager.h"
-#include "../GrGLPathProgramDataManager.h"
 #include "../GrGLPrimitiveProcessor.h"
 #include "../GrGLXferProcessor.h"
 #include "../../GrPipeline.h"
@@ -43,7 +42,7 @@ public:
     virtual ~GrGLUniformBuilder() {}
 
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLPathProgramDataManager::SeparableVaryingHandle SeparableVaryingHandle;
+    typedef GrGLProgramDataManager::SeparableVaryingHandle SeparableVaryingHandle;
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of ShaderVisibility values indicating from which shaders the
@@ -281,8 +280,8 @@ public:
 protected:
     typedef GrGLProgramDataManager::UniformInfo UniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
-
-    static GrGLProgramBuilder* CreateProgramBuilder(const DrawArgs&, GrGLGpu*);
+    typedef GrGLProgramDataManager::SeparableVaryingInfo SeparableVaryingInfo;
+    typedef GrGLProgramDataManager::SeparableVaryingInfoArray SeparableVaryingInfoArray;
 
     GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
 
@@ -399,6 +398,7 @@ protected:
     GrGLPrimitiveProcessor::TransformsIn fCoordTransforms;
     GrGLPrimitiveProcessor::TransformsOut fOutCoords;
     SkTArray<UniformHandle> fSamplerUniforms;
+    SeparableVaryingInfoArray fSeparableVaryingInfos;
 
     friend class GrGLShaderBuilder;
     friend class GrGLVertexBuilder;

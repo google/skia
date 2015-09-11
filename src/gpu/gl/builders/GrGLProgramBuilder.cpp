@@ -9,7 +9,6 @@
 
 #include "GrAutoLocaleSetter.h"
 #include "GrCoordTransform.h"
-#include "GrGLPathProgramBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "GrTexture.h"
 #include "SkRTConf.h"
@@ -32,7 +31,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    SkAutoTDelete<GrGLProgramBuilder> builder(CreateProgramBuilder(args, gpu));
+    SkAutoTDelete<GrGLProgramBuilder> builder(new GrGLProgramBuilder(gpu, args));
 
     GrGLProgramBuilder* pb = builder.get();
 
@@ -48,18 +47,6 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
     return pb->finalize();
 }
 
-GrGLProgramBuilder* GrGLProgramBuilder::CreateProgramBuilder(const DrawArgs& args,
-                                                             GrGLGpu* gpu) {
-    if (args.fPrimitiveProcessor->isPathRendering()) {
-        SkASSERT(gpu->glCaps().shaderCaps()->pathRenderingSupport() &&
-                 !args.fPrimitiveProcessor->willUseGeoShader() &&
-                 args.fPrimitiveProcessor->numAttribs() == 0);
-        return new GrGLPathProgramBuilder(gpu, args);
-    } else {
-        return new GrGLProgramBuilder(gpu, args);
-    }
-}
-
 /////////////////////////////////////////////////////////////////////////////
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
@@ -73,7 +60,8 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
     , fArgs(args)
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock)
-    , fSamplerUniforms(4) {
+    , fSamplerUniforms(4)
+    , fSeparableVaryingInfos(kVarsPerBlock) {
 }
 
 void GrGLProgramBuilder::addVarying(const char* name,
@@ -100,16 +88,20 @@ void GrGLProgramBuilder::addPassThroughAttribute(const GrPrimitiveProcessor::Att
     fFS.codeAppendf("%s = %s;", output, v.fsIn());
 }
 
-GrGLProgramBuilder::SeparableVaryingHandle GrGLProgramBuilder::addSeparableVarying(const char*,
-                                                                                   GrGLVertToFrag*,
-                                                                                   GrSLPrecision) {
-    // This call is not used for non-NVPR backends. However, the polymorphism between
-    // GrPrimitiveProcessor, GrGLPrimitiveProcessor and GrGLProgramBuilder does not allow for
-    // a system where GrGLPathProcessor would be able to refer to a primitive-specific builder
-    // that would understand separable varyings. Thus separable varyings need to be present
-    // early in the inheritance chain of builders.
-    SkASSERT(false);
-    return SeparableVaryingHandle();
+GrGLProgramBuilder::SeparableVaryingHandle GrGLProgramBuilder::addSeparableVarying(
+                                                                        const char* name,
+                                                                        GrGLVertToFrag* v,
+                                                                        GrSLPrecision fsPrecision) {
+    // This call is not used for non-NVPR backends.
+    SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport() &&
+             fArgs.fPrimitiveProcessor->isPathRendering() &&
+             !fArgs.fPrimitiveProcessor->willUseGeoShader() &&
+             fArgs.fPrimitiveProcessor->numAttribs() == 0);
+    this->addVarying(name, v, fsPrecision);
+    SeparableVaryingInfo& varyingInfo = fSeparableVaryingInfos.push_back();
+    varyingInfo.fVariable = this->getFragmentShaderBuilder()->fInputs.back();
+    varyingInfo.fLocation = fSeparableVaryingInfos.count() - 1;
+    return SeparableVaryingHandle(varyingInfo.fLocation);
 }
 
 void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name) {
@@ -440,6 +432,19 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
     }
 
     fFS.bindFragmentShaderLocations(programID);
+
+    // handle NVPR separable varyings
+    if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
+        !fGpu->glPathRendering()->shouldBindFragmentInputs()) {
+        return;
+    }
+    int count = fSeparableVaryingInfos.count();
+    for (int i = 0; i < count; ++i) {
+        GL_CALL(BindFragmentInputLocation(programID,
+                                          i,
+                                          fSeparableVaryingInfos[i].fVariable.c_str()));
+        fSeparableVaryingInfos[i].fLocation = i;
+    }
 }
 
 bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
@@ -476,6 +481,21 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
             fUniforms[i].fLocation = location;
         }
     }
+
+    // handle NVPR separable varyings
+    if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
+        !fGpu->glPathRendering()->shouldBindFragmentInputs()) {
+        return;
+    }
+    int count = fSeparableVaryingInfos.count();
+    for (int i = 0; i < count; ++i) {
+        GrGLint location;
+        GL_CALL_RET(location,
+                    GetProgramResourceLocation(programID,
+                                               GR_GL_FRAGMENT_INPUT,
+                                               fSeparableVaryingInfos[i].fVariable.c_str()));
+        fSeparableVaryingInfos[i].fLocation = location;
+    }
 }
 
 void GrGLProgramBuilder::cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs) {
@@ -490,6 +510,7 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
     return new GrGLProgram(fGpu, this->desc(), fUniformHandles, programID, fUniforms,
+                           fSeparableVaryingInfos,
                            fGeometryProcessor, fXferProcessor, fFragmentProcessors.get(),
                            &fSamplerUniforms);
 }

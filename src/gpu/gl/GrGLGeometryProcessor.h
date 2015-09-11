@@ -23,10 +23,10 @@ public:
     void emitCode(EmitArgs&) override;
 
     // By default we use the identity matrix
-    virtual void setTransformData(const GrPrimitiveProcessor&,
-                                  const GrGLProgramDataManager& pdman,
-                                  int index,
-                                  const SkTArray<const GrCoordTransform*, true>& transforms) {
+    void setTransformData(const GrPrimitiveProcessor&,
+                          const GrGLProgramDataManager& pdman,
+                          int index,
+                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
         this->setTransformDataMatrix(SkMatrix::I(), pdman, index, transforms);
     }
 

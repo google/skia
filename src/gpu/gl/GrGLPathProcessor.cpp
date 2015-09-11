@@ -84,7 +84,7 @@ void GrGLPathProcessor::emitTransforms(GrGLGPBuilder* pb, const TransformsIn& ti
 
 void GrGLPathProcessor::setTransformData(
         const GrPrimitiveProcessor& primProc,
-        const GrGLPathProgramDataManager& pdman,
+        const GrGLProgramDataManager& pdman,
         int index,
         const SkTArray<const GrCoordTransform*, true>& coordTransforms) {
     const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();

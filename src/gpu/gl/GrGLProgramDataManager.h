@@ -53,12 +53,19 @@ public:
         GrGLint       fLocation;
     };
 
+    struct SeparableVaryingInfo {
+        GrGLShaderVar fVariable;
+        GrGLint       fLocation;
+    };
+
     // This uses an allocator rather than array so that the GrGLShaderVars don't move in memory
     // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
     // name strings. Otherwise, we'd have to hand out copies.
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
+    typedef GrTAllocator<SeparableVaryingInfo> SeparableVaryingInfoArray;
 
-    GrGLProgramDataManager(GrGLGpu*, const UniformInfoArray&);
+    GrGLProgramDataManager(GrGLGpu*, GrGLuint programID, const UniformInfoArray&,
+                           const SeparableVaryingInfoArray&);
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
      *  array of uniforms. arrayCount must be <= the array count of the uniform.
@@ -82,6 +89,11 @@ public:
     // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
     void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
+    // for nvpr only
+    typedef GrGLProgramDataManager::ShaderResourceHandle SeparableVaryingHandle;
+    void setPathFragmentInputTransform(SeparableVaryingHandle u, int components,
+                                       const SkMatrix& matrix) const;
+
 private:
     enum {
         kUnusedUniform = -1,
@@ -96,10 +108,23 @@ private:
         );
     };
 
+    enum {
+        kUnusedSeparableVarying = -1,
+    };
+    struct SeparableVarying {
+        GrGLint     fLocation;
+        SkDEBUGCODE(
+            GrSLType    fType;
+            int         fArrayCount;
+        );
+    };
+
     SkDEBUGCODE(void printUnused(const Uniform&) const;)
 
     SkTArray<Uniform, true> fUniforms;
+    SkTArray<SeparableVarying, true> fSeparableVaryings;
     GrGLGpu* fGpu;
+    GrGLuint fProgramID;
 
     typedef SkNoncopyable INHERITED;
 };

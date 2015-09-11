@@ -9,7 +9,6 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
-#include "builders/GrGLProgramBuilder.h"
 #include "GrGLContext.h"
 #include "GrGLProgramDesc.h"
 #include "GrGLTexture.h"
@@ -17,6 +16,8 @@
 
 #include "SkString.h"
 #include "SkXfermode.h"
+
+#include "builders/GrGLProgramBuilder.h"
 
 class GrGLProcessor;
 class GrGLInstalledProcessors;
@@ -34,11 +35,9 @@ class GrPipeline;
  */
 class GrGLProgram : public SkRefCnt {
 public:
-    
-
     typedef GrGLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
 
-    virtual ~GrGLProgram();
+    ~GrGLProgram();
 
     /**
      * Call to abandon GL objects owned by this program.
@@ -100,12 +99,14 @@ public:
 protected:
     typedef GrGLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
+    typedef GrGLProgramDataManager::SeparableVaryingInfoArray SeparableVaryingInfoArray;
 
     GrGLProgram(GrGLGpu*,
                 const GrProgramDesc&,
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray&,
+                const SeparableVaryingInfoArray&,
                 GrGLInstalledGeoProc* geometryProcessor,
                 GrGLInstalledXferProc* xferProcessor,
                 GrGLInstalledFragProcs* fragmentProcessors,
@@ -114,20 +115,13 @@ protected:
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
     void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&,
                          SkTArray<const GrTextureAccess*>* textureBindings);
-    virtual void setTransformData(const GrPrimitiveProcessor&,
-                                  const GrFragmentProcessor&,
-                                  int index,
-                                  GrGLInstalledFragProc*);
-
-    /*
-     * Legacy NVPR needs a hook here to flush path tex gen settings.
-     * TODO when legacy nvpr is removed, remove this call.
-     */
-    virtual void didSetData() {}
+    void setTransformData(const GrPrimitiveProcessor&,
+                          const GrFragmentProcessor&,
+                          int index,
+                          GrGLInstalledFragProc*);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
-    virtual void onSetRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;

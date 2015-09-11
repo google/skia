@@ -31,6 +31,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const BuiltinUniformHandles& builtinUniforms,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
+                         const SeparableVaryingInfoArray& separableVaryings,
                          GrGLInstalledGeoProc* geometryProcessor,
                          GrGLInstalledXferProc* xferProcessor,
                          GrGLInstalledFragProcs* fragmentProcessors,
@@ -45,7 +46,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
     , fFragmentProcessors(SkRef(fragmentProcessors))
     , fDesc(desc)
     , fGpu(gpu)
-    , fProgramDataManager(gpu, uniforms) {
+    , fProgramDataManager(gpu, programID, uniforms, separableVaryings) {
     fSamplerUniforms.swap(passSamplerUniforms);
     // Assign texture units to sampler uniforms one time up front.
     GL_CALL(UseProgram(fProgramID));
@@ -95,9 +96,6 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc,
     const GrXferProcessor& xp = *pipeline.getXferProcessor();
     fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
     append_texture_bindings(fXferProcessor.get(), xp, textureBindings);
-
-    // Some of GrGLProgram subclasses need to update state here
-    this->didSetData();
 }
 
 void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
@@ -118,8 +116,7 @@ void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
                                    const GrFragmentProcessor& processor,
                                    int index,
                                    GrGLInstalledFragProc* ip) {
-    GrGLGeometryProcessor* gp =
-            static_cast<GrGLGeometryProcessor*>(fGeometryProcessor.get()->fGLProc.get());
+    GrGLPrimitiveProcessor* gp = fGeometryProcessor.get()->fGLProc.get();
     gp->setTransformData(primProc, fProgramDataManager, index,
                          processor.coordTransforms());
 }
@@ -133,23 +130,24 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
                                    SkIntToScalar(pipeline.getRenderTarget()->height()));
     }
 
-    // call subclasses to set the actual view matrix
-    this->onSetRenderTargetState(primProc, pipeline);
-}
-
-void GrGLProgram::onSetRenderTargetState(const GrPrimitiveProcessor&,
-                                         const GrPipeline& pipeline) {
+    // set RT adjustment
     const GrRenderTarget* rt = pipeline.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
-    if (fRenderTargetState.fRenderTargetOrigin != rt->origin() ||
-        fRenderTargetState.fRenderTargetSize != size) {
-        fRenderTargetState.fRenderTargetSize = size;
-        fRenderTargetState.fRenderTargetOrigin = rt->origin();
+    if (!primProc.isPathRendering()) {
+        if (fRenderTargetState.fRenderTargetOrigin != rt->origin() ||
+            fRenderTargetState.fRenderTargetSize != size) {
+            fRenderTargetState.fRenderTargetSize = size;
+            fRenderTargetState.fRenderTargetOrigin = rt->origin();
 
-        GrGLfloat rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+            GrGLfloat rtAdjustmentVec[4];
+            fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
+            fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        }
+    } else {
+        SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
+        const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
+        fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(),
+                                                     size, rt->origin());
     }
 }
-

@@ -313,10 +313,6 @@
       '<(skia_src_path)/gpu/gl/GrGLNameAllocator.h',
       '<(skia_src_path)/gpu/gl/GrGLNoOpInterface.cpp',
       '<(skia_src_path)/gpu/gl/GrGLNoOpInterface.h',
-      '<(skia_src_path)/gpu/gl/GrGLPathProgram.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLPathProgram.h',
-      '<(skia_src_path)/gpu/gl/GrGLPathProgramDataManager.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLPathProgramDataManager.h',
       '<(skia_src_path)/gpu/gl/GrGLPath.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPath.h',
       '<(skia_src_path)/gpu/gl/GrGLPathProcessor.cpp',
@@ -352,8 +348,6 @@
       '<(skia_src_path)/gpu/gl/GrGLXferProcessor.h',
 
       # Files for building GLSL shaders
-      '<(skia_src_path)/gpu/gl/builders/GrGLPathProgramBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLPathProgramBuilder.h',
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.cpp',
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.h',
       '<(skia_src_path)/gpu/gl/builders/GrGLShaderBuilder.cpp',
