@@ -26,7 +26,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage)
 #endif
 
 #ifndef SK_DEFAULT_IMAGE_CACHE_LIMIT
-    #define SK_DEFAULT_IMAGE_CACHE_LIMIT     (2 * 1024 * 1024)
+    #define SK_DEFAULT_IMAGE_CACHE_LIMIT     (32 * 1024 * 1024)
 #endif
 
 void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t length) {
