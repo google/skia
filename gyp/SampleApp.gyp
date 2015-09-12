@@ -64,7 +64,6 @@
         '../samplecode/SampleDitherBitmap.cpp',
         '../samplecode/SampleEffects.cpp',
         '../samplecode/SampleEmboss.cpp',
-        '../samplecode/SampleEncode.cpp',
         '../samplecode/SampleFatBits.cpp',
         '../samplecode/SampleFillType.cpp',
         '../samplecode/SampleFilter.cpp',
@@ -93,7 +92,6 @@
         '../samplecode/SamplePathClip.cpp',
         '../samplecode/SamplePathFuzz.cpp',
         '../samplecode/SamplePathEffects.cpp',
-        '../samplecode/SamplePicture.cpp',
         '../samplecode/SamplePictFile.cpp',
         '../samplecode/SamplePoints.cpp',
         '../samplecode/SamplePolyToPoly.cpp',
@@ -161,12 +159,6 @@
         'xml.gyp:xml',
       ],
       'conditions' : [
-        [ 'skia_os == "win"', {
-          'sources!': [
-            # require UNIX functions
-            '../samplecode/SampleEncode.cpp',
-          ],
-        }],
         [ 'skia_os == "ios"', {
           # TODO: This doesn't build properly yet, but it's getting there.
           'sources!': [
