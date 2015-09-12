@@ -37,9 +37,9 @@ if [ "$(git hash-object DEPS)" != "$(git config sync-deps.last)" ] ; then
     git config sync-deps.last "$(git hash-object DEPS)"
 fi
 
-function catifexists() { if [ -f "$1" ]; then cat "$1"; fi; }
+catifexists() { if [ -f "$1" ]; then cat "$1"; fi; }
 
-function gyp_hasher() {
+gyp_hasher() {
     {
         echo "$CC"
         echo "$CXX"
