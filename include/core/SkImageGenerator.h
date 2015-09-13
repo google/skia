@@ -165,6 +165,23 @@ public:
     static SkImageGenerator* NewFromPicture(const SkISize&, const SkPicture*, const SkMatrix*,
                                             const SkPaint*);
 
+    bool tryGenerateBitmap(SkBitmap* bm) {
+        return this->tryGenerateBitmap(bm, nullptr);
+    }
+    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info) {
+        return this->tryGenerateBitmap(bm, &info);
+    }
+    void generateBitmap(SkBitmap* bm) {
+        if (!this->tryGenerateBitmap(bm, nullptr)) {
+            sk_throw();
+        }
+    }
+    void generateBitmap(SkBitmap* bm, const SkImageInfo& info) {
+        if (!this->tryGenerateBitmap(bm, &info)) {
+            sk_throw();
+        }
+    }
+
 protected:
     SkImageGenerator(const SkImageInfo& info);
 
@@ -179,6 +196,8 @@ protected:
     virtual GrTexture* onGenerateTexture(GrContext*, SkImageUsageType, const SkIRect*) {
         return nullptr;
     }
+
+    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo* optionalInfo);
 
 private:
     const SkImageInfo fInfo;

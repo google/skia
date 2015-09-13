@@ -70,55 +70,19 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
     return true;
 }
 
-static void release_malloc_proc(void* pixels, void* ctx) {
-    sk_free(pixels);
-}
-
-static bool generate_a_bitmap(SkBitmap* bitmap, SkImageGenerator* gen, const SkImageInfo& info) {
-    const size_t rowBytes = info.minRowBytes();
-    const size_t pixelSize = info.getSafeSize(rowBytes);
-    if (0 == pixelSize) {
-        return false;
-    }
-
-    SkAutoFree pixelStorage(sk_malloc_flags(pixelSize, 0));
-    void* pixels = pixelStorage.get();
-    if (!pixels) {
-        return false;
-    }
-
-    SkPMColor ctStorage[256];
-    int ctCount = 0;
-
-    if (!gen->getPixels(info, pixels, rowBytes, ctStorage, &ctCount)) {
-        return false;
-    }
-
-    SkAutoTUnref<SkColorTable> ctable;
-    if (ctCount > 0) {
-        SkASSERT(kIndex_8_SkColorType == info.colorType());
-        ctable.reset(new SkColorTable(ctStorage, ctCount));
-    } else {
-        SkASSERT(kIndex_8_SkColorType != info.colorType());
-    }
-
-    return bitmap->installPixels(info, pixelStorage.detach(), rowBytes, ctable,
-                                 release_malloc_proc, nullptr);
-}
-
 bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
     ScopedGenerator generator(this);
     const SkImageInfo& genInfo = generator->getInfo();
     if (fInfo.dimensions() == genInfo.dimensions()) {
         SkASSERT(fOrigin.x() == 0 && fOrigin.y() == 0);
         // fast-case, no copy needed
-        return generate_a_bitmap(bitmap, generator, fInfo);
+        return generator->tryGenerateBitmap(bitmap, fInfo);
     } else {
         // need to handle subsetting, so we first generate the full size version, and then
         // "read" from it to get our subset. See skbug.com/4213
 
         SkBitmap full;
-        if (!generate_a_bitmap(&full, generator, genInfo)) {
+        if (!generator->tryGenerateBitmap(&full, genInfo)) {
             return false;
         }
         if (!bitmap->tryAllocPixels(fInfo, nullptr, full.getColorTable())) {

@@ -28,7 +28,8 @@ void SetResourcePath(const char* resource) {
 bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
     SkAutoTUnref<SkData> resourceData(SkData::NewFromFileName(resourcePath.c_str()));
-    return resourceData && SkInstallDiscardablePixelRef(resourceData, dst);
+    SkAutoTDelete<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(resourceData));
+    return gen && gen->tryGenerateBitmap(dst);
 }
 
 SkImage* GetResourceAsImage(const char* resource) {

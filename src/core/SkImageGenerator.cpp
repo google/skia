@@ -125,6 +125,46 @@ bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "SkBitmap.h"
+#include "SkColorTable.h"
+
+static void release_malloc_proc(void* pixels, void* ctx) {
+    sk_free(pixels);
+}
+
+bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo* infoPtr) {
+    const SkImageInfo info = infoPtr ? *infoPtr : this->getInfo();
+    const size_t rowBytes = info.minRowBytes();
+    const size_t pixelSize = info.getSafeSize(rowBytes);
+    if (0 == pixelSize) {
+        return false;
+    }
+
+    SkAutoFree pixelStorage(sk_malloc_flags(pixelSize, 0));
+    void* pixels = pixelStorage.get();
+    if (!pixels) {
+        return false;
+    }
+    
+    SkPMColor ctStorage[256];
+    int ctCount = 0;
+    
+    if (!this->getPixels(info, pixels, rowBytes, ctStorage, &ctCount)) {
+        return false;
+    }
+    
+    SkAutoTUnref<SkColorTable> ctable;
+    if (ctCount > 0) {
+        SkASSERT(kIndex_8_SkColorType == info.colorType());
+        ctable.reset(new SkColorTable(ctStorage, ctCount));
+    } else {
+        SkASSERT(kIndex_8_SkColorType != info.colorType());
+    }
+    
+    return bitmap->installPixels(info, pixelStorage.detach(), rowBytes, ctable,
+                                 release_malloc_proc, nullptr);
+}
+
 #include "SkGraphics.h"
 
 static SkGraphics::ImageGeneratorFromEncodedFactory gFactory;
