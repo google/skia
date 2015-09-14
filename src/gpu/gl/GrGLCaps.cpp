@@ -708,16 +708,19 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     fConfigTextureSupport[kRGBA_4444_GrPixelConfig] = true;
     fConfigTextureSupport[kRGBA_8888_GrPixelConfig] = true;
 
-    // Check for 8-bit palette..
-    GrGLint numFormats;
-    GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    if (numFormats) {
-        SkAutoSTMalloc<10, GrGLint> formats(numFormats);
-        GR_GL_GetIntegerv(gli, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
-        for (int i = 0; i < numFormats; ++i) {
-            if (GR_GL_PALETTE8_RGBA8 == formats[i]) {
-                fConfigTextureSupport[kIndex_8_GrPixelConfig] = true;
-                break;
+    // Disable this for now, while we investigate skbug.com/4333
+    if (false) {
+        // Check for 8-bit palette..
+        GrGLint numFormats;
+        GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+        if (numFormats) {
+            SkAutoSTMalloc<10, GrGLint> formats(numFormats);
+            GR_GL_GetIntegerv(gli, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
+            for (int i = 0; i < numFormats; ++i) {
+                if (GR_GL_PALETTE8_RGBA8 == formats[i]) {
+                    fConfigTextureSupport[kIndex_8_GrPixelConfig] = true;
+                    break;
+                }
             }
         }
     }
