@@ -58,6 +58,11 @@ public:
                    sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
     }
 
+    void dump() const {
+        SkDebugf("-- add [%d %d] %d [%d %d %d %d]\n", fWidth, fHeight, fGenID,
+                 fBounds.x(), fBounds.y(), fBounds.width(), fBounds.height());
+    }
+
     const uint32_t  fGenID;
     const int       fWidth;
     const int       fHeight;
@@ -69,7 +74,11 @@ struct BitmapRec : public SkResourceCache::Rec {
               const SkBitmap& result)
         : fKey(genID, width, height, bounds)
         , fBitmap(result)
-    {}
+    {
+#ifdef TRACE_NEW_BITMAP_CACHE_RECS
+        fKey.dump();
+#endif
+    }
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override { return sizeof(fKey) + fBitmap.getSize(); }

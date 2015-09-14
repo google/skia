@@ -78,6 +78,9 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
     return true;
 }
 
+// Note, this returns a new, mutable, bitmap, with a new genID.
+// If you want the immutable bitmap with the same ID as our cacherator, call tryLockAsBitmap()
+//
 bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
     ScopedGenerator generator(this);
     const SkImageInfo& genInfo = generator->getInfo();
@@ -264,7 +267,7 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usa
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (this->generateBitmap(&bitmap)) {
+    if (this->tryLockAsBitmap(&bitmap)) {
         return GrRefCachedBitmapTexture(ctx, bitmap, usage);
     }
 #endif
