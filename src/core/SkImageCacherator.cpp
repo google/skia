@@ -27,6 +27,10 @@ SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
     if (!gen) {
         return nullptr;
     }
+
+    // We are required to take ownership of gen, regardless of if we return a cacherator or not
+    SkAutoTDelete<SkImageGenerator> genHolder(gen);
+
     const SkImageInfo& info = gen->getInfo();
     if (info.isEmpty()) {
         return nullptr;
@@ -45,6 +49,10 @@ SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
     } else {
         subset = &bounds;
     }
+
+    // Now that we know we can hand-off the generator (to be owned by the cacherator) we can
+    // release our holder. (we DONT want to delete it here anymore)
+    genHolder.detach();
 
     return new SkImageCacherator(gen, gen->getInfo().makeWH(subset->width(), subset->height()),
                                  SkIPoint::Make(subset->x(), subset->y()), uniqueID);
