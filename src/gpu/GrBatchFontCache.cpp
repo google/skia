@@ -178,7 +178,7 @@ GrGlyph* GrBatchTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::Packe
     }
     GrMaskFormat format = scaler->getPackedGlyphMaskFormat(skGlyph);
 
-    GrGlyph* glyph = (GrGlyph*)fPool.alloc(sizeof(GrGlyph), SK_MALLOC_THROW);
+    GrGlyph* glyph = (GrGlyph*)fPool.alloc(sizeof(GrGlyph));
     glyph->init(packed, bounds, format);
     fCache.add(glyph);
     return glyph;

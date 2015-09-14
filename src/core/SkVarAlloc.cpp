@@ -18,9 +18,9 @@ struct SkVarAlloc::Block {
     Block* prev;
     char* data() { return (char*)(this + 1); }
 
-    static Block* Alloc(Block* prev, size_t size, unsigned flags) {
+    static Block* Alloc(Block* prev, size_t size) {
         SkASSERT(size >= sizeof(Block));
-        Block* b = (Block*)sk_malloc_flags(size, flags);
+        Block* b = (Block*)sk_malloc_throw(size);
         b->prev = prev;
         return b;
     }
@@ -49,7 +49,7 @@ SkVarAlloc::~SkVarAlloc() {
     }
 }
 
-void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
+void SkVarAlloc::makeSpace(size_t bytes) {
     SkASSERT(SkIsAlignPtr(bytes));
 
     size_t alloc = 1<<fLgSize++;
@@ -57,7 +57,7 @@ void SkVarAlloc::makeSpace(size_t bytes, unsigned flags) {
         alloc *= 2;
     }
     fBytesAllocated += alloc;
-    fBlock = Block::Alloc(fBlock, alloc, flags);
+    fBlock = Block::Alloc(fBlock, alloc);
     fByte = fBlock->data();
     fRemaining = alloc - sizeof(Block);
 

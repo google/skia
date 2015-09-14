@@ -19,12 +19,12 @@ public:
 
     ~SkVarAlloc();
 
-    // Returns contiguous bytes aligned at least for pointers.  You may pass SK_MALLOC_THROW, etc.
-    char* alloc(size_t bytes, unsigned sk_malloc_flags) {
+    // Returns contiguous bytes aligned at least for pointers.
+    char* alloc(size_t bytes) {
         bytes = SkAlignPtr(bytes);
 
         if (bytes > fRemaining) {
-            this->makeSpace(bytes, sk_malloc_flags);
+            this->makeSpace(bytes);
         }
         SkASSERT(bytes <= fRemaining);
 
@@ -39,7 +39,7 @@ public:
     size_t approxBytesAllocated() const { return fBytesAllocated; }
 
 private:
-    void makeSpace(size_t bytes, unsigned flags);
+    void makeSpace(size_t bytes);
 
     size_t fBytesAllocated;
 

@@ -68,7 +68,7 @@ public:
     // Here T can be any class, not just those from SkRecords.  Throws on failure.
     template <typename T>
     T* alloc(size_t count = 1) {
-        return (T*)fAlloc.alloc(sizeof(T) * count, SK_MALLOC_THROW);
+        return (T*)fAlloc.alloc(sizeof(T) * count);
     }
 
     // Add a new command of type T to the end of this SkRecord.
