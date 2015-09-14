@@ -78,12 +78,12 @@ const GrFragmentProcessor* GrComposeTwoFragmentProcessor::TestCreate(GrProcessor
     // possibility of an arbitrarily large tree of procs.
     SkAutoTUnref<const GrFragmentProcessor> fpA;
     do {
-        fpA.reset(GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
+        fpA.reset(GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
         SkASSERT(fpA);
     } while (fpA->numChildProcessors() != 0);
     SkAutoTUnref<const GrFragmentProcessor> fpB;
     do {
-        fpB.reset(GrProcessorTestFactory<GrFragmentProcessor>::CreateStage(d));
+        fpB.reset(GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
         SkASSERT(fpB);
     } while (fpB->numChildProcessors() != 0);
 
@@ -112,20 +112,26 @@ void GrGLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     // This is because we don't want the paint's alpha to affect either child proc's output
     // before the blend; we want to apply the paint's alpha AFTER the blend. This mirrors the
     // software implementation of SkComposeShader.
-    SkString inputAlpha("inputAlpha");
-    fsBuilder->codeAppendf("float %s = %s.a;", inputAlpha.c_str(), args.fInputColor);
-    fsBuilder->codeAppendf("%s /= %s.a;", args.fInputColor, args.fInputColor);
+    const char* opaqueInput = nullptr;
+    const char* inputAlpha = nullptr;
+    if (args.fInputColor) {
+        inputAlpha = "inputAlpha";
+        opaqueInput = "opaqueInput";
+        fsBuilder->codeAppendf("float inputAlpha = %s.a;", args.fInputColor);
+        fsBuilder->codeAppendf("vec4 opaqueInput = vec4(%s.rgb / inputAlpha, 1);",
+                               args.fInputColor);
+    }
 
     // declare outputColor and emit the code for each of the two children
     SkString outputColorSrc(args.fOutputColor);
     outputColorSrc.append("_src");
     fsBuilder->codeAppendf("vec4 %s;\n", outputColorSrc.c_str());
-    this->emitChild(0, args.fInputColor, outputColorSrc.c_str(), args);
+    this->emitChild(0, opaqueInput, outputColorSrc.c_str(), args);
 
     SkString outputColorDst(args.fOutputColor);
     outputColorDst.append("_dst");
     fsBuilder->codeAppendf("vec4 %s;\n", outputColorDst.c_str());
-    this->emitChild(1, args.fInputColor, outputColorDst.c_str(), args);
+    this->emitChild(1, opaqueInput, outputColorDst.c_str(), args);
 
     // emit blend code
     SkXfermode::Mode mode = cs.getMode();
@@ -136,9 +142,10 @@ void GrGLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend("}");
 
     // re-multiply the output color by the input color's alpha
-    fsBuilder->codeAppendf("%s *= %s;", args.fOutputColor, inputAlpha.c_str());
+    if (inputAlpha) {
+        fsBuilder->codeAppendf("%s *= %s;", args.fOutputColor, inputAlpha);
+    }
 }
-
 
 const GrFragmentProcessor* GrXfermodeFragmentProcessor::CreateFromTwoProcessors(
          const GrFragmentProcessor* src, const GrFragmentProcessor* dst, SkXfermode::Mode mode) {
