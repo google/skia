@@ -96,7 +96,8 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget*, const SkPaint& skPaint
 SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);
 
 // Using the dreaded SkGrPixelRef ...
-void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque, SkBitmap* dst);
+SK_API void GrWrapTextureInBitmap(GrTexture* src, int w, int h, bool isOpaque,
+                                  SkBitmap* dst);
 
 GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
                                                             const SkMatrix& viewM,
