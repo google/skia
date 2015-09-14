@@ -502,18 +502,18 @@ static void test_options(skiatest::Reporter* reporter,
                          bool useData,
                          const SkString& path) {
     SkBitmap bm;
-    SkImageGenerator* gen;
+    SkAutoTDelete<SkImageGenerator> gen;
 
     if (useData) {
         if (nullptr == encodedData) {
             return;
         }
-        gen = SkDecodingImageGenerator::Create(encodedData, opts);
+        gen.reset(SkDecodingImageGenerator::Create(encodedData, opts));
     } else {
         if (nullptr == encodedStream) {
             return;
         }
-        gen = SkDecodingImageGenerator::Create(encodedStream->duplicate(), opts);
+        gen.reset(SkDecodingImageGenerator::Create(encodedStream->duplicate(), opts));
     }
     if (!gen) {
         if (opts.fUseRequestedColorType && (kARGB_4444_SkColorType == opts.fRequestedColorType)) {
@@ -651,8 +651,8 @@ DEF_TEST(DecodingImageGenerator_ColorTableCheck, r) {
     }
     SkAutoDataUnref encoded(SkData::NewFromFileName(path.c_str()));
     SkBitmap bitmap;
-    SkImageGenerator* gen = SkDecodingImageGenerator::Create(encoded,
-                                                             SkDecodingImageGenerator::Options());
+    SkAutoTDelete<SkImageGenerator> gen(SkDecodingImageGenerator::Create(encoded,
+                                                             SkDecodingImageGenerator::Options()));
     if (!gen) {
         REPORTER_ASSERT(r, false);
         return;
