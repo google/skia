@@ -15,13 +15,19 @@
 class SkMatrix;
 class GrCaps;
 class GrContext;
+struct GrProcessorTestData;
 
 namespace GrProcessorUnitTest {
+
 // Used to access the dummy textures in TestCreate procs.
 enum {
     kSkiaPMTextureIdx = 0,
     kAlphaTextureIdx = 1,
 };
+
+/** This allows parent FPs to implement a test create with known leaf children in order to avoid
+creating an unbounded FP tree which may overflow various shader limits. */
+const GrFragmentProcessor* CreateChildFP(GrProcessorTestData*);
 
 }
 
@@ -57,10 +63,8 @@ struct GrProcessorTestData {
 class GrProcessor;
 class GrTexture;
 
-template <class Processor>
-class GrProcessorTestFactory : SkNoncopyable {
+template <class Processor> class GrProcessorTestFactory : SkNoncopyable {
 public:
-
     typedef const Processor* (*CreateProc)(GrProcessorTestData*);
 
     GrProcessorTestFactory(CreateProc createProc) {
@@ -110,7 +114,6 @@ private:
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrProcessorTestFactory<GrXPFactory> gTestFactory SK_UNUSED;                             \
     static const GrXPFactory* TestCreate(GrProcessorTestData*)
-
 
 /** GrProcessor subclasses should insert this macro in their implementation file. They must then
  *  also implement this static function:

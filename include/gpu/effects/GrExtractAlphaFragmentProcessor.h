@@ -39,6 +39,8 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+
     typedef GrFragmentProcessor INHERITED;
 };
 

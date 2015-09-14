@@ -72,28 +72,13 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrComposeTwoFragmentProcessor);
 
 const GrFragmentProcessor* GrComposeTwoFragmentProcessor::TestCreate(GrProcessorTestData* d) {
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     // Create two random frag procs.
-    // For now, we'll prevent either children from being a shader with children to prevent the
-    // possibility of an arbitrarily large tree of procs.
-    SkAutoTUnref<const GrFragmentProcessor> fpA;
-    do {
-        fpA.reset(GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
-        SkASSERT(fpA);
-    } while (fpA->numChildProcessors() != 0);
-    SkAutoTUnref<const GrFragmentProcessor> fpB;
-    do {
-        fpB.reset(GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
-        SkASSERT(fpB);
-    } while (fpB->numChildProcessors() != 0);
+    SkAutoTUnref<const GrFragmentProcessor> fpA(GrProcessorUnitTest::CreateChildFP(d));
+    SkAutoTUnref<const GrFragmentProcessor> fpB(GrProcessorUnitTest::CreateChildFP(d));
 
     SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(
             d->fRandom->nextRangeU(0, SkXfermode::kLastCoeffMode));
     return SkNEW_ARGS(GrComposeTwoFragmentProcessor, (fpA, fpB, mode));
-#else
-    SkFAIL("Should not be called if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS");
-    return nullptr;
-#endif
 }
 
 GrGLFragmentProcessor* GrComposeTwoFragmentProcessor::onCreateGLInstance() const{

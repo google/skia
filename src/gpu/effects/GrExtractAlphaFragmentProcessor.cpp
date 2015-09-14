@@ -47,3 +47,10 @@ void GrExtractAlphaFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput
     }
     this->childProcessor(0).computeInvariantOutput(inout);
 }
+
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrExtractAlphaFragmentProcessor);
+
+const GrFragmentProcessor* GrExtractAlphaFragmentProcessor::TestCreate(GrProcessorTestData* d) {
+    SkAutoTUnref<const GrFragmentProcessor> child(GrProcessorUnitTest::CreateChildFP(d));
+    return SkNEW_ARGS(GrExtractAlphaFragmentProcessor, (child));
+}
