@@ -437,7 +437,8 @@ DEF_TEST(ImprovedBitmapFactory, reporter) {
         // example of how Android will do this inside their BitmapFactory
         SkDecodingImageGenerator::Options opts(1, true, kN32_SkColorType);
         SkBitmap bm;
-        SkImageGenerator* gen = SkDecodingImageGenerator::Create(stream, opts);
+        SkAutoTDelete<SkImageGenerator> gen(SkDecodingImageGenerator::Create(stream.detach(),
+                                                                             opts));
         REPORTER_ASSERT(reporter, gen->tryGenerateBitmap(&bm));
     }
 }
