@@ -213,6 +213,7 @@ uint32_t SkValidatingReadBuffer::getArrayCount() {
 }
 
 SkTypeface* SkValidatingReadBuffer::readTypeface() {
+    SkASSERT(false);
     // TODO: Implement this (securely) when needed
     return nullptr;
 }
