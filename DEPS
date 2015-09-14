@@ -9,6 +9,7 @@ deps = {
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
 
   "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@f9ac8fea307532e31cba6240801b4a56483591f8",
+  "third_party/externals/cmake"   : "https://cmake.googlesource.com/cmake.git@v3.3.1",
   "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@08429da7955a98ef764fafa223dd7de73f654b2d",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",

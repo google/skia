@@ -1,0 +1,26 @@
+#!/bin/sh
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Script for building with CMake on Skia build bots.
+# If you have CMake installed on your system, you can just use it normally.
+
+set -e
+set -x
+
+here=`dirname $0`
+cores=32
+
+echo "Bootstrapping CMake"
+pushd $here/../third_party/externals/cmake
+./bootstrap --parallel=$cores
+make -j $cores
+popd
+
+echo "Building with bootstrapped CMake"
+pushd $here
+../third_party/externals/cmake/bin/cmake . -G Ninja
+ninja skia  # The default also builds `example`, which I'm leaving a TODO for now.
+popd
