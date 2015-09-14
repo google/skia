@@ -68,19 +68,10 @@ public:
         GetFactories()->push_back(this);
     }
 
-    /** Pick a random factory function and create a processor.  */
-    static const Processor* Create(GrProcessorTestData* data) {
+    static const Processor* CreateStage(GrProcessorTestData* data) {
         VerifyFactoryCount();
         SkASSERT(GetFactories()->count());
         uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
-        return CreateIdx(idx, data);
-    }
-
-    /** Number of registered factory functions */
-    static int Count() { return GetFactories()->count(); }
-
-    /** Use factory function at Index idx to create a processor. */
-    static const Processor* CreateIdx(int idx, GrProcessorTestData* data) {
         GrProcessorTestFactory<Processor>* factory = (*GetFactories())[idx];
         return factory->fCreateProc(data);
     }
