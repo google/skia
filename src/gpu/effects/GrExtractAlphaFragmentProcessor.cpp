@@ -14,9 +14,13 @@ public:
     GLExtractAlphaFragmentProcessor() {}
 
     void emitCode(EmitArgs& args) override {
-        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("vec4 alpha4 = %s.aaaa;", args.fInputColor);
-        this->emitChild(0, "alpha4", args.fOutputColor, args);
+        if (args.fInputColor) {
+            GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+            fsBuilder->codeAppendf("vec4 alpha4 = %s.aaaa;", args.fInputColor);
+            this->emitChild(0, "alpha4", args.fOutputColor, args);
+        } else {
+            this->emitChild(0, nullptr, args.fOutputColor, args);
+        }
     }
 
 private:
