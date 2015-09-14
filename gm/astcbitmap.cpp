@@ -38,7 +38,6 @@ static inline const char *get_astc_filename(int idx) {
     if (idx < 0 || kNumASTCFilenames <= idx) {
         return "";
     }
-
     return kASTCFilenames[idx];
 }
 
@@ -48,28 +47,27 @@ const int kBitmapDimension = kGMDimension / 4;
 }  // namespace
 
 DEF_SIMPLE_GM(astcbitmap, canvas, kGMDimension, kGMDimension) {
-        for (int j = 0; j < 4; ++j) {
-            for (int i = 0; i < 4; ++i) {
-                SkString filename = GetResourcePath(get_astc_filename(j*4+i));
-                if (filename == GetResourcePath("")) {
-                    continue;
-                }
-
-                SkAutoTUnref<SkData> fileData(SkData::NewFromFileName(filename.c_str()));
-                if (nullptr == fileData) {
-                    SkDebugf("Could not open the file. Did you forget to set the resourcePath?\n");
-                    return;
-                }
-
-                SkBitmap bm;
-                if (!SkInstallDiscardablePixelRef(fileData, &bm)) {
-                    SkDebugf("Could not install discardable pixel ref.\n");
-                    return;
-                }
-
+    for (int j = 0; j < 4; ++j) {
+        for (int i = 0; i < 4; ++i) {
+            SkBitmap bm;
+            if (GetResourceAsBitmap(get_astc_filename(j*4+i), &bm)) {
                 const SkScalar bmX = static_cast<SkScalar>(i*kBitmapDimension);
                 const SkScalar bmY = static_cast<SkScalar>(j*kBitmapDimension);
                 canvas->drawBitmap(bm, bmX, bmY);
             }
         }
+    }
+}
+
+DEF_SIMPLE_GM(astc_image, canvas, kGMDimension, kGMDimension) {
+    for (int j = 0; j < 4; ++j) {
+        for (int i = 0; i < 4; ++i) {
+            SkAutoTUnref<SkImage> image(GetResourceAsImage(get_astc_filename(j*4+i)));
+            if (image) {
+                const SkScalar bmX = static_cast<SkScalar>(i*kBitmapDimension);
+                const SkScalar bmY = static_cast<SkScalar>(j*kBitmapDimension);
+                canvas->drawImage(image, bmX, bmY);
+            }
+        }
+    }
 }

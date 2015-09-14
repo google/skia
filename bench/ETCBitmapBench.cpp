@@ -150,26 +150,28 @@ protected:
             return;
         }
 
-        // Install pixel ref
-        if (!SkInstallDiscardablePixelRef(fPKMData, &(this->fBitmap))) {
-            SkDebugf("Could not install discardable pixel ref.\n");
-            return;
-        }
-
-        // Decompress it if necessary
-        if (this->fDecompress) {
-            this->fBitmap.lockPixels();
+        if (fDecompress) {
+            SkAutoTDelete<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(fPKMData));
+            gen->generateBitmap(&fBitmap);
+        } else {
+            fImage.reset(SkImage::NewFromEncoded(fPKMData));
         }
     }
 
     void onDraw(const int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; ++i) {
-            canvas->drawBitmap(this->fBitmap, 0, 0, nullptr);
+            if (fDecompress) {
+                canvas->drawBitmap(this->fBitmap, 0, 0, nullptr);
+            } else {
+                canvas->drawImage(fImage, 0, 0, nullptr);
+            }
         }
     }
 
 protected:
     SkBitmap fBitmap;
+    SkAutoTUnref<SkImage> fImage;
+
     bool decompress() const { return fDecompress; }
     Backend backend() const { return fBackend; }
 private:

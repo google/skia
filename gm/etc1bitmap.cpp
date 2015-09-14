@@ -103,12 +103,8 @@ protected:
             return;
         }
 
-        if (!SkInstallDiscardablePixelRef(fileData, &bm)) {
-            SkDebugf("Could not install discardable pixel ref.\n");
-            return;
-        }
-
-        canvas->drawBitmap(bm, 0, 0);
+        SkAutoTUnref<SkImage> image(SkImage::NewFromEncoded(fileData));
+        canvas->drawImage(image, 0, 0);
     }
 
 private:
@@ -202,12 +198,8 @@ protected:
         size_t dataSz = etc1_get_encoded_data_size(width, height) + ETC_PKM_HEADER_SIZE;
         SkAutoDataUnref nonPOTData(SkData::NewWithCopy(am.get(), dataSz));
 
-        if (!SkInstallDiscardablePixelRef(nonPOTData, &bm)) {
-            SkDebugf("Could not install discardable pixel ref.\n");
-            return;
-        }
-
-        canvas->drawBitmap(bm, 0, 0);
+        SkAutoTUnref<SkImage> image(SkImage::NewFromEncoded(nonPOTData));
+        canvas->drawImage(image, 0, 0);
     }
 
 private:

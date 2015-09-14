@@ -160,7 +160,7 @@ protected:
                 SkImageGenerator::NewFromPicture(configs[i].size, fPicture.get(), &m,
                                                  p.getAlpha() != 255 ? &p : nullptr));
             SkBitmap bm;
-            SkAssertResult(SkInstallDiscardablePixelRef(gen.detach(), &bm));
+            gen->generateBitmap(&bm);
 
             const SkScalar x = kDrawSize * (i % kDrawsPerRow);
             const SkScalar y = kDrawSize * (i / kDrawsPerRow);
