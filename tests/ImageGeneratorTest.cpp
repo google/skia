@@ -68,5 +68,8 @@ DEF_TEST(ImageGenerator, reporter) {
 
     ig.getYUV8Planes(sizes, planes, rowBytes, &colorSpace);
 
-    test_imagegenerator_factory(reporter);
+    // Suppressed due to https://code.google.com/p/skia/issues/detail?id=4339
+    if (false) {
+        test_imagegenerator_factory(reporter);
+    }
 }
