@@ -10,8 +10,19 @@
 set -e
 set -x
 
-here=`dirname $0`
+fulldir() {
+    cd `dirname $1`
+    echo `pwd`
+}
+
+here=`fulldir $0`
 cores=32
+
+if [[ -z "$BUILDTYPE" || -z "$SKIA_OUT" ]]; then
+    echo "If you're a bot, you should be setting BUILDTYPE ($BUILDTYPE) and SKIA_OUT ($SKIA_OUT)."
+    echo "If you're not a bot, you don't want to run this script."
+    exit 1
+fi
 
 echo "Bootstrapping CMake"
 pushd $here/../third_party/externals/cmake
@@ -20,7 +31,8 @@ make -j $cores
 popd
 
 echo "Building with bootstrapped CMake"
-pushd $here
-../third_party/externals/cmake/bin/cmake . -G Ninja
+mkdir -p $SKIA_OUT
+pushd $SKIA_OUT
+$here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=$BUILDTYPE $here -G Ninja
 ninja skia  # The default also builds `example`, which I'm leaving a TODO for now.
 popd

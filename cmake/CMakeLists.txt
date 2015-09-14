@@ -54,7 +54,7 @@ remove_srcs (../src/utils/SkThreadUtils_pthread_*.cpp)
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
 
 # Some files only contain code in Debug mode.  This quiets down some linker warnings.
-if (NOT CMAKE_BUILD_TYPE EQUAL Debug)
+if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
     remove_srcs (../src/core/SkDebug.cpp ../src/utils/SkDumpCanvas.cpp)
 endif()
 
@@ -83,10 +83,10 @@ if (NOT APPLE)
 endif()
 
 # Remove processor-specific source files.
-if (NOT CMAKE_SYSTEM_PROCESSOR EQUAL ARM)
+if (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL ARM)
     remove_srcs(../src/*arm* ../src/*ARM* ../src/*neon* ../src/*NEON*)
 endif()
-if (NOT CMAKE_SYSTEM_PROCESSOR EQUAL MIPS)
+if (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL MIPS)
     remove_srcs(../src/*mips* ../src/*MIPS*)
 endif()
 
