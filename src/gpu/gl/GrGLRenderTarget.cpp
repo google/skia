@@ -7,15 +7,20 @@
 
 #include "GrGLRenderTarget.h"
 
+#include "GrRenderTargetPriv.h"
 #include "GrGLGpu.h"
+#include "GrGLUtil.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
-GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
+                                   const GrSurfaceDesc& desc,
+                                   const IDDesc& idDesc,
+                                   GrGLStencilAttachment* stencil)
     : GrSurface(gpu, idDesc.fLifeCycle, desc)
-    , INHERITED(gpu, idDesc.fLifeCycle, desc, idDesc.fSampleConfig) {
+    , INHERITED(gpu, idDesc.fLifeCycle, desc, idDesc.fSampleConfig, stencil) {
     this->init(desc, idDesc);
     this->registerWithCache();
 }
@@ -56,8 +61,75 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(fGpuMemorySize <= WorseCaseSize(desc));
 }
 
+GrGLRenderTarget* GrGLRenderTarget::CreateWrapped(GrGLGpu* gpu,
+                                                  const GrSurfaceDesc& desc,
+                                                  const IDDesc& idDesc,
+                                                  int stencilBits) {
+    GrGLStencilAttachment* sb = nullptr;
+    if (stencilBits) {
+        GrGLStencilAttachment::IDDesc sbDesc;
+        GrGLStencilAttachment::Format format;
+        format.fInternalFormat = GrGLStencilAttachment::kUnknownInternalFormat;
+        format.fPacked = false;
+        format.fStencilBits = stencilBits;
+        format.fTotalBits = stencilBits;
+        // Owndership of sb is passed to the GrRenderTarget so doesn't need to be deleted
+        sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight,
+                                       desc.fSampleCnt, format);
+    }
+    return (new GrGLRenderTarget(gpu, desc, idDesc, sb));
+}
+
 size_t GrGLRenderTarget::onGpuMemorySize() const {
     return fGpuMemorySize;
+}
+
+bool GrGLRenderTarget::completeStencilAttachment() {
+    GrGLGpu* gpu = this->getGLGpu();
+    const GrGLInterface* interface = gpu->glInterface();
+    GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
+    if (nullptr == stencil) {
+        if (this->renderTargetPriv().getStencilAttachment()) {
+            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                          GR_GL_STENCIL_ATTACHMENT,
+                                                          GR_GL_RENDERBUFFER, 0));
+            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                          GR_GL_DEPTH_ATTACHMENT,
+                                                          GR_GL_RENDERBUFFER, 0));
+#ifdef SK_DEBUG
+            GrGLenum status;
+            GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+            SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
+#endif
+        }
+        return true;
+    } else {
+        const GrGLStencilAttachment* glStencil = static_cast<const GrGLStencilAttachment*>(stencil);
+        GrGLuint rb = glStencil->renderbufferID();
+
+        gpu->invalidateBoundRenderTarget();
+        gpu->stats()->incRenderTargetBinds();
+        GR_GL_CALL(interface, BindFramebuffer(GR_GL_FRAMEBUFFER, this->renderFBOID()));
+        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                      GR_GL_STENCIL_ATTACHMENT,
+                                                      GR_GL_RENDERBUFFER, rb));
+        if (glStencil->format().fPacked) {
+            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                          GR_GL_DEPTH_ATTACHMENT,
+                                                          GR_GL_RENDERBUFFER, rb));
+        } else {
+            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                          GR_GL_DEPTH_ATTACHMENT,
+                                                          GR_GL_RENDERBUFFER, 0));
+        }
+
+#ifdef SK_DEBUG
+        GrGLenum status;
+        GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
+#endif
+        return true;
+    }
 }
 
 void GrGLRenderTarget::onRelease() {
@@ -84,3 +156,9 @@ void GrGLRenderTarget::onAbandon() {
     fMSColorRenderbufferID  = 0;
     INHERITED::onAbandon();
 }
+
+GrGLGpu* GrGLRenderTarget::getGLGpu() const {
+    SkASSERT(!this->wasDestroyed());
+    return static_cast<GrGLGpu*>(this->getGpu());
+}
+

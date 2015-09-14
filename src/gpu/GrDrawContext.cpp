@@ -63,7 +63,8 @@ GrTextContext* GrDrawContext::createTextContext(GrRenderTarget* renderTarget,
     if (fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         renderTarget->isStencilBufferMultisampled() &&
         fSurfaceProps.isUseDeviceIndependentFonts()) {
-        GrStencilAttachment* sb = renderTarget->renderTargetPriv().attachStencilAttachment();
+        GrStencilAttachment* sb =
+            fContext->resourceProvider()->attachStencilAttachment(renderTarget);
         if (sb) {
             return GrStencilAndCoverTextContext::Create(fContext, surfaceProps);
         }

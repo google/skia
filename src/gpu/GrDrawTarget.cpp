@@ -215,7 +215,7 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     // set stencil settings for path
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
+    GrStencilAttachment* sb = fResourceProvider->attachStencilAttachment(rt);
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
 
     GrBatch* batch = GrStencilPathBatch::Create(viewMatrix,
@@ -270,7 +270,7 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     // Ensure the render target has a stencil buffer and get the stencil settings.
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    GrStencilAttachment* sb = rt->renderTargetPriv().attachStencilAttachment();
+    GrStencilAttachment* sb = fResourceProvider->attachStencilAttachment(rt);
     this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
     batch->setStencilSettings(stencilSettings);
 

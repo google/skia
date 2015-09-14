@@ -717,7 +717,8 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
     SkASSERT(rt);
 
-    GrStencilAttachment* stencilAttachment = rt->renderTargetPriv().attachStencilAttachment();
+    GrStencilAttachment* stencilAttachment =
+        fDrawTarget->cmmAccess().resourceProvider()->attachStencilAttachment(rt);
     if (nullptr == stencilAttachment) {
         return false;
     }
@@ -977,7 +978,8 @@ void GrClipMaskManager::setPipelineBuilderStencil(const GrPipelineBuilder& pipel
 
     int stencilBits = 0;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
-    GrStencilAttachment* stencilAttachment = rt->renderTargetPriv().attachStencilAttachment();
+    GrStencilAttachment* stencilAttachment = 
+        fDrawTarget->cmmAccess().resourceProvider()->attachStencilAttachment(rt);
     if (stencilAttachment) {
         stencilBits = stencilAttachment->bits();
     }

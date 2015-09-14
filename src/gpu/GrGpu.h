@@ -369,8 +369,14 @@ public:
     virtual bool isTestingOnlyBackendTexture(GrBackendObject id) const = 0;
     virtual void deleteTestingOnlyBackendTexture(GrBackendObject id) const = 0;
 
-    // Given a rt, find or create a stencil buffer and attach it
-    bool attachStencilAttachmentToRenderTarget(GrRenderTarget* target);
+    // width and height may be larger than rt (if underlying API allows it).
+    // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
+    // the GrStencilAttachment.
+    virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+                                                                        int width,
+                                                                        int height) = 0;
+    // clears target's entire stencil buffer to 0
+    virtual void clearStencil(GrRenderTarget* target) = 0;
 
     // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return nullptr; }
@@ -465,17 +471,6 @@ private:
                                GrSurface* src,
                                const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
-
-    // width and height may be larger than rt (if underlying API allows it).
-    // Should attach the SB to the RT. Returns false if compatible sb could
-    // not be created.
-    virtual bool createStencilAttachmentForRenderTarget(GrRenderTarget*, int width, int height) = 0;
-
-    // attaches an existing SB to an existing RT.
-    virtual bool attachStencilAttachmentToRenderTarget(GrStencilAttachment*, GrRenderTarget*) = 0;
-
-    // clears target's entire stencil buffer to 0
-    virtual void clearStencil(GrRenderTarget* target) = 0;
 
     void resetContext() {
         this->onResetContext(fResetBits);

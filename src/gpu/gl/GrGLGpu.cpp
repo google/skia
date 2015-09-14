@@ -495,20 +495,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     desc.fSampleCnt = SkTMin(wrapDesc.fSampleCnt, this->caps()->maxSampleCount());
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin, true);
 
-    GrRenderTarget* tgt = new GrGLRenderTarget(this, desc, idDesc);
-    if (wrapDesc.fStencilBits) {
-        GrGLStencilAttachment::IDDesc sbDesc;
-        GrGLStencilAttachment::Format format;
-        format.fInternalFormat = GrGLStencilAttachment::kUnknownInternalFormat;
-        format.fPacked = false;
-        format.fStencilBits = wrapDesc.fStencilBits;
-        format.fTotalBits = wrapDesc.fStencilBits;
-        GrGLStencilAttachment* sb = new GrGLStencilAttachment(
-                this, sbDesc, desc.fWidth, desc.fHeight, desc.fSampleCnt, format);
-        tgt->renderTargetPriv().didAttachStencilAttachment(sb);
-        sb->unref();
-    }
-    return tgt;
+    return GrGLRenderTarget::CreateWrapped(this, desc, idDesc, wrapDesc.fStencilBits);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1241,7 +1228,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         // Create Framebuffer
         GrGLuint fb;
         GL_CALL(GenFramebuffers(1, &fb));
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fb)); 
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fb));
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
         GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                      GR_GL_COLOR_ATTACHMENT0,
@@ -1304,7 +1291,9 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
     return fPixelConfigToStencilIndex[config];
 }
 
-bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int width, int height) {
+GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                     int width,
+                                                                     int height) {
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is a RT that isn't also a texture).
     SkASSERT(rt->asTexture());
@@ -1316,14 +1305,14 @@ bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int wid
 
     int sIdx = this->getCompatibleStencilIndex(rt->config());
     if (sIdx == kUnsupportedStencilIndex) {
-        return false;
+        return nullptr;
     }
 
     if (!sbDesc.fRenderbufferID) {
         GL_CALL(GenRenderbuffers(1, &sbDesc.fRenderbufferID));
     }
     if (!sbDesc.fRenderbufferID) {
-        return false;
+        return nullptr;
     }
     GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
     const GrGLCaps::StencilFormat& sFmt = this->glCaps().stencilFormats()[sIdx];
@@ -1346,113 +1335,13 @@ bool GrGLGpu::createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int wid
     // whatever sizes GL gives us. In that case we query for the size.
     GrGLStencilAttachment::Format format = sFmt;
     get_stencil_rb_sizes(this->glInterface(), &format);
-    SkAutoTUnref<GrGLStencilAttachment> sb(
-        new GrGLStencilAttachment(this, sbDesc, width, height, samples, format));
-    SkAssertResult(this->attachStencilAttachmentToRenderTarget(sb, rt));
-    rt->renderTargetPriv().didAttachStencilAttachment(sb);
-    // This work around is currently breaking on windows 7 hd2000 bot when we bind a color buffer
-#if 0
-    // Clear the stencil buffer. We use a special purpose FBO for this so that the
-    // entire stencil buffer is cleared, even if it is attached to an FBO with a
-    // smaller color target.
-    if (0 == fStencilClearFBOID) {
-        GL_CALL(GenFramebuffers(1, &fStencilClearFBOID));
-    }
-
-    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fStencilClearFBOID));
-    fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
-    fStats.incRenderTargetBinds();
-    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                    GR_GL_STENCIL_ATTACHMENT,
-                                    GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
-    if (sFmt.fPacked) {
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                        GR_GL_DEPTH_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
-    }
-
-    GL_CALL(ClearStencil(0));
-    // Many GL implementations seem to have trouble with clearing an FBO with only
-    // a stencil buffer.
-    GrGLuint tempRB;
-    GL_CALL(GenRenderbuffers(1, &tempRB));
-    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, tempRB));
-    if (samples > 0) {
-        renderbuffer_storage_msaa(fGLContext, samples, GR_GL_RGBA8, width, height);
-    } else {
-        GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_RGBA8, width, height));
-    }
-    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                    GR_GL_COLOR_ATTACHMENT0,
-                                    GR_GL_RENDERBUFFER, tempRB));
-
-    GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-
-    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                    GR_GL_COLOR_ATTACHMENT0,
-                                    GR_GL_RENDERBUFFER, 0));
-    GL_CALL(DeleteRenderbuffers(1, &tempRB));
-
-    // Unbind the SB from the FBO so that we don't keep it alive.
-    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                    GR_GL_STENCIL_ATTACHMENT,
-                                    GR_GL_RENDERBUFFER, 0));
-    if (sFmt.fPacked) {
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                        GR_GL_DEPTH_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, 0));
-    }
-#endif
-    return true;
-}
-
-bool GrGLGpu::attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb, GrRenderTarget* rt) {
-    GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
-
-    GrGLuint fbo = glrt->renderFBOID();
-
-    if (nullptr == sb) {
-        if (rt->renderTargetPriv().getStencilAttachment()) {
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                            GR_GL_STENCIL_ATTACHMENT,
-                                            GR_GL_RENDERBUFFER, 0));
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                            GR_GL_DEPTH_ATTACHMENT,
-                                            GR_GL_RENDERBUFFER, 0));
-#ifdef SK_DEBUG
-            GrGLenum status;
-            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-            SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
-#endif
-        }
-        return true;
-    } else {
-        GrGLStencilAttachment* glsb = static_cast<GrGLStencilAttachment*>(sb);
-        GrGLuint rb = glsb->renderbufferID();
-
-        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
-        fStats.incRenderTargetBinds();
-        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fbo));
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                        GR_GL_STENCIL_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, rb));
-        if (glsb->format().fPacked) {
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                            GR_GL_DEPTH_ATTACHMENT,
-                                            GR_GL_RENDERBUFFER, rb));
-        } else {
-            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                            GR_GL_DEPTH_ATTACHMENT,
-                                            GR_GL_RENDERBUFFER, 0));
-        }
-
-#ifdef SK_DEBUG
-        GrGLenum status;
-        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-        SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
-#endif
-        return true;
-    }
+    GrGLStencilAttachment* stencil = new GrGLStencilAttachment(this,
+                                                               sbDesc,
+                                                               width,
+                                                               height,
+                                                               samples,
+                                                               format);
+    return stencil;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

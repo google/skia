@@ -99,6 +99,16 @@ public:
         return &this->glContext();
     }
 
+    void clearStencil(GrRenderTarget*) override;
+
+    void invalidateBoundRenderTarget() {
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+    }
+
+    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                int width,
+                                                                int height) override;
+
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config) const override;
     bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
@@ -122,9 +132,6 @@ private:
     GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
-    bool createStencilAttachmentForRenderTarget(GrRenderTarget* rt, int width, int height) override;
-    bool attachStencilAttachmentToRenderTarget(GrStencilAttachment* sb,
-                                               GrRenderTarget* rt) override;
     // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
     // compatible stencil format.
     int getCompatibleStencilIndex(GrPixelConfig config);
@@ -153,8 +160,6 @@ private:
                        GrSurface* src,
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
-
-    void clearStencil(GrRenderTarget*) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);

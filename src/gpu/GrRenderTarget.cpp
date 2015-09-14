@@ -55,29 +55,24 @@ void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
 }
 
 void GrRenderTarget::onRelease() {
-    this->renderTargetPriv().didAttachStencilAttachment(nullptr);
+    SkSafeSetNull(fStencilAttachment);
 
     INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
-    this->renderTargetPriv().didAttachStencilAttachment(nullptr);
+    SkSafeSetNull(fStencilAttachment);
 
     INHERITED::onAbandon();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrRenderTargetPriv::didAttachStencilAttachment(GrStencilAttachment* stencilAttachment) {
-    SkRefCnt_SafeAssign(fRenderTarget->fStencilAttachment, stencilAttachment);
-}
-
-GrStencilAttachment* GrRenderTargetPriv::attachStencilAttachment() const {
-    if (fRenderTarget->fStencilAttachment) {
-        return fRenderTarget->fStencilAttachment;
-    }
-    if (!fRenderTarget->wasDestroyed() && fRenderTarget->canAttemptStencilAttachment()) {
-        fRenderTarget->getGpu()->attachStencilAttachmentToRenderTarget(fRenderTarget);
-    }
-    return fRenderTarget->fStencilAttachment;
+bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
+    fRenderTarget->fStencilAttachment = stencil;
+    if (!fRenderTarget->completeStencilAttachment()) {
+        SkSafeSetNull(fRenderTarget->fStencilAttachment);
+        return false;
+    } 
+    return true;
 }

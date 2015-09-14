@@ -14,6 +14,7 @@
 #include "SkScalar.h"
 
 class GrGLGpu;
+class GrGLStencilAttachment;
 
 class GrGLRenderTarget : public GrRenderTarget {
 public:
@@ -29,7 +30,10 @@ public:
         GrRenderTarget::SampleConfig fSampleConfig;
     };
 
-    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+    static GrGLRenderTarget* CreateWrapped(GrGLGpu*,
+                                           const GrSurfaceDesc&,
+                                           const IDDesc&,
+                                           int stencilBits);
 
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
     const GrGLIRect& getViewport() const { return fViewport; }
@@ -78,6 +82,13 @@ protected:
     size_t onGpuMemorySize() const override;
 
 private:
+    // This ctor is used only for creating wrapped render targets and is only called for the static
+    // create function CreateWrapped(...).
+    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, GrGLStencilAttachment*);
+
+    GrGLGpu* getGLGpu() const;
+    bool completeStencilAttachment() override;
+
     GrGLuint    fRTFBOID;
     GrGLuint    fTexFBOID;
     GrGLuint    fMSColorRenderbufferID;

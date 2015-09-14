@@ -255,12 +255,10 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    bool createStencilAttachmentForRenderTarget(GrRenderTarget*, int width, int height) override {
-        return false;
-    }
-
-    bool attachStencilAttachmentToRenderTarget(GrStencilAttachment*, GrRenderTarget*) override {
-        return false;
+    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+                                                                int width,
+                                                                int height) override {
+        return nullptr;
     }
 
     void clearStencil(GrRenderTarget* target) override  {}

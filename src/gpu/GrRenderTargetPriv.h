@@ -21,12 +21,11 @@ public:
     GrStencilAttachment* getStencilAttachment() const { return fRenderTarget->fStencilAttachment; }
 
     /**
-     * If this render target already has a stencil buffer, return it. Otherwise attempt to attach
-     * one.
+     * Attaches the GrStencilAttachment onto the render target. If stencil is a nullptr then the
+     * currently attached GrStencilAttachment will be removed if one was previously attached. This
+     * function returns false if there were any failure in attaching the GrStencilAttachment.
      */
-    GrStencilAttachment* attachStencilAttachment() const;
-
-    void didAttachStencilAttachment(GrStencilAttachment*);
+    bool attachStencilAttachment(GrStencilAttachment* stencil);
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}

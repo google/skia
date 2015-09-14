@@ -144,15 +144,18 @@ public:
      */
     virtual GrBackendObject getRenderTargetHandle() const = 0;
 
+    // Checked when this object is asked to attach a stencil buffer.
+    virtual bool canAttemptStencilAttachment() const = 0;
+
     // Provides access to functions that aren't part of the public API.
     GrRenderTargetPriv renderTargetPriv();
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
     GrRenderTarget(GrGpu* gpu, LifeCycle lifeCycle, const GrSurfaceDesc& desc,
-                   SampleConfig sampleConfig)
+                   SampleConfig sampleConfig, GrStencilAttachment* stencil = nullptr)
         : INHERITED(gpu, lifeCycle, desc)
-        , fStencilAttachment(NULL)
+        , fStencilAttachment(stencil)
         , fSampleConfig(sampleConfig) {
         fResolveRect.setLargestInverted();
     }
@@ -162,8 +165,11 @@ protected:
     void onRelease() override;
 
 private:
-    // Checked when this object is asked to attach a stencil buffer.
-    virtual bool canAttemptStencilAttachment() const = 0;
+    // Allows the backends to perform any additional work that is required for attaching a
+    // GrStencilAttachment. When this is called, the GrStencilAttachment has already been put onto
+    // the GrRenderTarget. This function must return false if any failures occur when completing the
+    // stencil attachment.
+    virtual bool completeStencilAttachment() = 0;
 
     friend class GrRenderTargetPriv;
 

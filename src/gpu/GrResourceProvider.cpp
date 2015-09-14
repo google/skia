@@ -10,8 +10,11 @@
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPathRendering.h"
+#include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
+#include "GrStencilAttachment.h"
 #include "GrVertexBuffer.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
@@ -163,3 +166,52 @@ GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
     }
     return new GrBatchAtlas(texture, numPlotsX, numPlotsY);
 }
+
+GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
+    SkASSERT(rt);
+    if (rt->renderTargetPriv().getStencilAttachment()) {
+        return rt->renderTargetPriv().getStencilAttachment();
+    }
+
+    if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment()) {
+        GrUniqueKey sbKey;
+
+        int width = rt->width();
+        int height = rt->height();
+#if 0
+        if (this->caps()->oversizedStencilSupport()) {
+            width  = SkNextPow2(width);
+            height = SkNextPow2(height);
+        }
+#endif
+        bool newStencil = false;
+        GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
+                                                               rt->numStencilSamples(), &sbKey);
+        GrStencilAttachment* stencil = static_cast<GrStencilAttachment*>(
+            this->findAndRefResourceByUniqueKey(sbKey));
+        if (!stencil) {
+            // Need to try and create a new stencil
+            stencil = this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height);
+            if (stencil) {
+                stencil->resourcePriv().setUniqueKey(sbKey);
+                newStencil = true;
+            }
+        }
+        if (rt->renderTargetPriv().attachStencilAttachment(stencil)) {
+            if (newStencil) {
+                // Right now we're clearing the stencil attachment here after it is
+                // attached to an RT for the first time. When we start matching
+                // stencil buffers with smaller color targets this will no longer
+                // be correct because it won't be guaranteed to clear the entire
+                // sb.
+                // We used to clear down in the GL subclass using a special purpose
+                // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
+                // FBO status.
+                this->gpu()->clearStencil(rt);
+            }
+        }
+    }
+    return rt->renderTargetPriv().getStencilAttachment();
+}
+
+

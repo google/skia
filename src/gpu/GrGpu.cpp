@@ -16,6 +16,7 @@
 #include "GrPathRendering.h"
 #include "GrPipeline.h"
 #include "GrResourceCache.h"
+#include "GrResourceProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
@@ -134,48 +135,6 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
     return tex;
 }
 
-bool GrGpu::attachStencilAttachmentToRenderTarget(GrRenderTarget* rt) {
-    SkASSERT(nullptr == rt->renderTargetPriv().getStencilAttachment());
-    GrUniqueKey sbKey;
-
-    int width = rt->width();
-    int height = rt->height();
-#if 0
-    if (this->caps()->oversizedStencilSupport()) {
-        width  = SkNextPow2(width);
-        height = SkNextPow2(height);
-    }
-#endif
-
-    GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
-        rt->numStencilSamples(), &sbKey);
-    SkAutoTUnref<GrStencilAttachment> sb(static_cast<GrStencilAttachment*>(
-        this->getContext()->getResourceCache()->findAndRefUniqueResource(sbKey)));
-    if (sb) {
-        if (this->attachStencilAttachmentToRenderTarget(sb, rt)) {
-            rt->renderTargetPriv().didAttachStencilAttachment(sb);
-            return true;
-        }
-        return false;
-    }
-    if (this->createStencilAttachmentForRenderTarget(rt, width, height)) {
-        // Right now we're clearing the stencil buffer here after it is
-        // attached to an RT for the first time. When we start matching
-        // stencil buffers with smaller color targets this will no longer
-        // be correct because it won't be guaranteed to clear the entire
-        // sb.
-        // We used to clear down in the GL subclass using a special purpose
-        // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
-        // FBO status.
-        this->clearStencil(rt);
-        GrStencilAttachment* sb = rt->renderTargetPriv().getStencilAttachment();
-        sb->resourcePriv().setUniqueKey(sbKey);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
     this->handleDirtyContext();
     GrTexture* tex = this->onWrapBackendTexture(desc, ownership);
@@ -184,7 +143,7 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwn
     }
     // TODO: defer this and attach dynamically
     GrRenderTarget* tgt = tex->asRenderTarget();
-    if (tgt && !this->attachStencilAttachmentToRenderTarget(tgt)) {
+    if (tgt && !fContext->resourceProvider()->attachStencilAttachment(tgt)) {
         tex->unref();
         return nullptr;
     } else {
