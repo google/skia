@@ -33,6 +33,7 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkFlattenable.h"
 #include "SkGradientShader.h"
+#include "SkImageSource.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
 #include "SkLerpXfermode.h"
@@ -80,6 +81,7 @@ public:
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkErodeImageFilter)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageSource)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLerpXfermode)

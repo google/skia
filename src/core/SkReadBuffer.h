@@ -26,6 +26,7 @@
 #include "SkXfermode.h"
 
 class SkBitmap;
+class SkImage;
 
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_MAC)
     #define DEBUG_NON_DETERMINISTIC_ASSERT
@@ -168,6 +169,8 @@ public:
      *  to have width/height, but no pixels.
      */
     bool readBitmap(SkBitmap* bitmap);
+
+    SkImage* readImage();
 
     virtual SkTypeface* readTypeface();
 

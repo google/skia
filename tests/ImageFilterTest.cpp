@@ -17,6 +17,7 @@
 #include "SkDropShadowImageFilter.h"
 #include "SkFlattenableSerialization.h"
 #include "SkGradientShader.h"
+#include "SkImageSource.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
@@ -30,6 +31,7 @@
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkRectShaderImageFilter.h"
+#include "SkSurface.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
@@ -1210,6 +1212,30 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
     SkAutoTUnref<SkImageFilter> forceOpaque(SkColorFilterImageFilter::Create(forceOpaqueCF.get()));
     REPORTER_ASSERT(reporter, forceOpaqueCF->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, !forceOpaque->canComputeFastBounds());
+}
+
+// Verify that SkImageSource survives serialization
+DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+    surface->getCanvas()->clear(SK_ColorGREEN);
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    SkAutoTUnref<SkImageFilter> filter(SkImageSource::Create(image));
+
+    SkAutoTUnref<SkData> data(SkValidatingSerializeFlattenable(filter));
+    SkAutoTUnref<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
+        data->data(), data->size(), SkImageFilter::GetFlattenableType()));
+    SkImageFilter* unflattenedFilter = static_cast<SkImageFilter*>(flattenable.get());
+    REPORTER_ASSERT(reporter, unflattenedFilter);
+
+    SkBitmap bm;
+    bm.allocN32Pixels(10, 10);
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setImageFilter(unflattenedFilter);
+
+    SkCanvas canvas(bm);
+    canvas.drawRect(SkRect::MakeWH(10, 10), paint);
+    REPORTER_ASSERT(reporter, *bm.getAddr32(0, 0) == SkPreMultiplyColor(SK_ColorGREEN));
 }
 
 #if SK_SUPPORT_GPU

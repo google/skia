@@ -8,6 +8,8 @@
 
 #include "SkBitmap.h"
 #include "SkErrorInternals.h"
+#include "SkImage.h"
+#include "SkImageGenerator.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -272,6 +274,46 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
     // Could not read the SkBitmap. Use a placeholder bitmap.
     bitmap->setInfo(SkImageInfo::MakeUnknown(width, height));
     return false;
+}
+
+namespace {
+
+// This generator intentionally should always fail on all attempts to get its pixels,
+// simulating a bad or empty codec stream.
+class EmptyImageGenerator final : public SkImageGenerator {
+public:
+    EmptyImageGenerator(const SkImageInfo& info) : INHERITED(info) { }
+
+private:
+    typedef SkImageGenerator INHERITED;
+};
+
+} // anonymous namespace
+
+SkImage* SkReadBuffer::readImage() {
+    int width = this->read32();
+    int height = this->read32();
+    if (width <= 0 || height <= 0) {    // SkImage never has a zero dimension
+        this->validate(false);
+        return nullptr;
+    }
+
+    SkAutoTUnref<SkData> encoded(this->readByteArrayAsData());
+    if (encoded->size() == 0) {
+        // The image could not be encoded at serialization time - return an empty placeholder.
+        return SkImage::NewFromGenerator(
+            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height)));
+    }
+
+    int originX = this->read32();
+    int originY = this->read32();
+    if (originX < 0 || originY < 0) {
+        this->validate(false);
+        return nullptr;
+    }
+
+    const SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
+    return SkImage::NewFromEncoded(encoded, &subset);
 }
 
 SkTypeface* SkReadBuffer::readTypeface() {
