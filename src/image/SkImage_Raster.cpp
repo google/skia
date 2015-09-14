@@ -280,16 +280,3 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
     }
     return this->INHERITED::onAsLegacyBitmap(bitmap, mode);
 }
-
-#ifdef SK_SUPPORT_LEGACY_NEWFROMGENERATOR
-SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
-    SkBitmap bitmap;
-    if (!SkInstallDiscardablePixelRef(generator, subset, &bitmap, nullptr)) {
-        return nullptr;
-    }
-    if (0 == bitmap.width() || 0 == bitmap.height()) {
-        return nullptr;
-    }
-    return new SkImage_Raster(bitmap, nullptr);
-}
-#endif

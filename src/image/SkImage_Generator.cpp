@@ -84,7 +84,6 @@ GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, SkImageUsageType usag
     return fCache->lockAsTexture(ctx, usage);
 }
 
-#ifndef SK_SUPPORT_LEGACY_NEWFROMGENERATOR
 SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
     SkImageCacherator* cache = SkImageCacherator::NewFromGenerator(generator, subset);
     if (!cache) {
@@ -92,4 +91,3 @@ SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* s
     }
     return SkNEW_ARGS(SkImage_Generator, (cache));
 }
-#endif
