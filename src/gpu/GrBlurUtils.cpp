@@ -97,15 +97,20 @@ static bool draw_with_mask_filter(GrDrawContext* drawContext,
 
 // Create a mask of 'devPath' and place the result in 'mask'.
 static GrTexture* create_mask_GPU(GrContext* context,
-                                  const SkRect& maskRect,
+                                  SkRect* maskRect,
                                   const SkPath& devPath,
                                   const GrStrokeInfo& strokeInfo,
                                   bool doAA,
                                   int sampleCnt) {
+    // This mask will ultimately be drawn as a non-AA rect (see draw_mask). 
+    // Non-AA rects have a bad habit of snapping arbitrarily. Integerize here 
+    // so the mask draws in a reproducible manner.
+    *maskRect = SkRect::Make(maskRect->roundOut());
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = SkScalarCeilToInt(maskRect.width());
-    desc.fHeight = SkScalarCeilToInt(maskRect.height());
+    desc.fWidth = SkScalarCeilToInt(maskRect->width());
+    desc.fHeight = SkScalarCeilToInt(maskRect->height());
     desc.fSampleCnt = doAA ? sampleCnt : 0;
     // We actually only need A8, but it often isn't supported as a
     // render target so default to RGBA_8888
@@ -120,7 +125,7 @@ static GrTexture* create_mask_GPU(GrContext* context,
         return nullptr;
     }
 
-    SkRect clipRect = SkRect::MakeWH(maskRect.width(), maskRect.height());
+    SkRect clipRect = SkRect::MakeWH(maskRect->width(), maskRect->height());
 
     SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
     if (!drawContext) {
@@ -136,9 +141,10 @@ static GrTexture* create_mask_GPU(GrContext* context,
     // setup new clip
     GrClip clip(clipRect);
 
-    // Draw the mask into maskTexture with the path's top-left at the origin using tempPaint.
+    // Draw the mask into maskTexture with the path's integerized top-left at
+    // the origin using tempPaint.
     SkMatrix translate;
-    translate.setTranslate(-maskRect.fLeft, -maskRect.fTop);
+    translate.setTranslate(-maskRect->fLeft, -maskRect->fTop);
     drawContext->drawPath(mask->asRenderTarget(), clip, tempPaint, translate, devPath, strokeInfo);
     return mask;
 }
@@ -254,7 +260,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
             }
 
             SkAutoTUnref<GrTexture> mask(create_mask_GPU(context,
-                                                         maskRect,
+                                                         &maskRect,
                                                          *devPathPtr,
                                                          strokeInfo,
                                                          grPaint.isAntiAlias(),
