@@ -55,7 +55,14 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dst
 }
 
 void SkImage::preroll(GrContext* ctx) const {
-    as_IB(this)->onPreroll(ctx);
+    // For now, and to maintain parity w/ previous pixelref behavior, we just force the image
+    // to produce a cached raster-bitmap form, so that drawing to a raster canvas should be fast.
+    //
+    SkBitmap bm;
+    if (as_IB(this)->getROPixels(&bm)) {
+        bm.lockPixels();
+        bm.unlockPixels();
+    }
 }
 
 SkShader* SkImage::newShader(SkShader::TileMode tileX,

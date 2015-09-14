@@ -52,8 +52,6 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY) const;
 
-    virtual void onPreroll(GrContext*) const {}
-
     virtual GrTexture* peekTexture() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,

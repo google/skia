@@ -64,7 +64,6 @@ public:
 
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
-    void onPreroll(GrContext*) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkData* onRefEncoded() const override;
     bool getROPixels(SkBitmap*) const override;
@@ -162,14 +161,6 @@ const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesP
     *infoPtr = info;
     *rowBytesPtr = fBitmap.rowBytes();
     return fBitmap.getPixels();
-}
-
-void SkImage_Raster::onPreroll(GrContext* ctx) const {
-    // SkImage can be called from lots of threads, but our fBitmap is *not* thread-safe,
-    // so we have to perform this lock/unlock in a non-racy way... we make a copy!
-    SkBitmap localShallowCopy(fBitmap);
-    localShallowCopy.lockPixels();
-    localShallowCopy.unlockPixels();
 }
 
 SkData* SkImage_Raster::onRefEncoded() const {
