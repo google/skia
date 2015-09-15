@@ -11,12 +11,25 @@
 #include "SkScalar.h"
 #include "SkBitmap.h"
 
+class SkImage;
 class SkResourceCache;
 class SkMipMap;
 
 uint64_t SkMakeResourceCacheSharedIDForBitmap(uint32_t bitmapGenID);
 
 void SkNotifyBitmapGenIDIsStale(uint32_t bitmapGenID);
+
+struct SkBitmapCacheDesc {
+    uint32_t    fImageID;
+    int32_t     fWidth;
+    int32_t     fHeight;
+    SkIRect     fBounds;
+
+    static SkBitmapCacheDesc Make(const SkBitmap&, int width, int height);
+    static SkBitmapCacheDesc Make(const SkBitmap&);
+    static SkBitmapCacheDesc Make(const SkImage*, int width, int height);
+    static SkBitmapCacheDesc Make(const SkImage*);
+};
 
 class SkBitmapCache {
 public:
@@ -27,16 +40,16 @@ public:
     static SkBitmap::Allocator* GetAllocator();
 
     /**
-     *  Search based on the src bitmap and scaled width/height. If found, returns true and
+     *  Search based on the desc. If found, returns true and
      *  result will be set to the matching bitmap with its pixels already locked.
      */
-    static bool FindWH(const SkBitmap& src, int width, int height, SkBitmap* result,
+    static bool FindWH(const SkBitmapCacheDesc&, SkBitmap* result,
                        SkResourceCache* localCache = nullptr);
 
     /*
      *  result must be marked isImmutable()
      */
-    static void AddWH(const SkBitmap& src, int width, int height, const SkBitmap& result,
+    static bool AddWH(const SkBitmapCacheDesc&, const SkBitmap& result,
                       SkResourceCache* localCache = nullptr);
 
     /**
@@ -60,7 +73,8 @@ public:
 
 class SkMipMapCache {
 public:
-    static const SkMipMap* FindAndRef(const SkBitmap& src, SkResourceCache* localCache = nullptr);
+    static const SkMipMap* FindAndRef(const SkBitmapCacheDesc&,
+                                      SkResourceCache* localCache = nullptr);
     static const SkMipMap* AddAndRef(const SkBitmap& src, SkResourceCache* localCache = nullptr);
 };
 

@@ -9,8 +9,35 @@
 #define SkBitmapController_DEFINED
 
 #include "SkBitmap.h"
+#include "SkBitmapCache.h"
 #include "SkFilterQuality.h"
+#include "SkImage.h"
 #include "SkMatrix.h"
+
+class SkBitmapProvider {
+public:
+    SkBitmapProvider(const SkBitmap& bm) : fBitmap(bm) {}
+    SkBitmapProvider(const SkImage* img) : fImage(SkRef(img)) {}
+
+    int width() const;
+    int height() const;
+    uint32_t getID() const;
+
+    bool validForDrawing() const;
+    SkImageInfo info() const;
+
+    SkBitmapCacheDesc makeCacheDesc(int w, int h) const;
+    SkBitmapCacheDesc makeCacheDesc() const;
+    void notifyAddedToCache() const;
+
+    // Only call this if you're sure you need the bits, since it make be expensive
+    // ... cause a decode and cache, or gpu-readback
+    bool asBitmap(SkBitmap*) const;
+
+private:
+    SkBitmap fBitmap;
+    SkAutoTUnref<const SkImage> fImage;
+};
 
 /**
  *  Handles request to scale, filter, and lock a bitmap to be rasterized.
@@ -36,15 +63,15 @@ public:
 
     virtual ~SkBitmapController() {}
 
-    State* requestBitmap(const SkBitmap&, const SkMatrix& inverse, SkFilterQuality,
+    State* requestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
                          void* storage, size_t storageSize);
 
-    State* requestBitmap(const SkBitmap& bm, const SkMatrix& inverse, SkFilterQuality quality) {
-        return this->requestBitmap(bm, inverse, quality, nullptr, 0);
+    State* requestBitmap(const SkBitmapProvider& bp, const SkMatrix& inv, SkFilterQuality quality) {
+        return this->requestBitmap(bp, inv, quality, nullptr, 0);
     }
 
 protected:
-    virtual State* onRequestBitmap(const SkBitmap&, const SkMatrix& inverse, SkFilterQuality,
+    virtual State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
                                    void* storage, size_t storageSize) = 0;
 };
 
@@ -55,7 +82,7 @@ public:
     SkDefaultBitmapController() {}
     
 protected:
-    State* onRequestBitmap(const SkBitmap&, const SkMatrix& inverse, SkFilterQuality,
+    State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
                            void* storage, size_t storageSize) override;
 };
 

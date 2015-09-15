@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmapCache.h"
+#include "SkImage.h"
 #include "SkResourceCache.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
@@ -43,6 +44,41 @@ static SkIRect get_bounds_from_bitmap(const SkBitmap& bm) {
     return SkIRect::MakeXYWH(origin.fX, origin.fY, bm.width(), bm.height());
 }
 
+/**
+ *  This function finds the bounds of the image. Today this is just the entire bounds,
+ *  but in the future we may support subsets within an image, in which case this should
+ *  return that subset (see get_bounds_from_bitmap).
+ */
+static SkIRect get_bounds_from_image(const SkImage* image) {
+    return SkIRect::MakeWH(image->width(), image->height());
+}
+
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm, int width, int height) {
+    SkBitmapCacheDesc desc;
+    desc.fImageID = bm.getGenerationID();
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fBounds = get_bounds_from_bitmap(bm);
+    return desc;
+}
+
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
+    return Make(bm, bm.width(), bm.height());
+}
+
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image, int width, int height) {
+    SkBitmapCacheDesc desc;
+    desc.fImageID = image->uniqueID();
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fBounds = get_bounds_from_image(image);
+    return desc;
+}
+
+SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
+    return Make(image, image->width(), image->height());
+}
+
 namespace {
 static unsigned gBitmapKeyNamespaceLabel;
 
@@ -54,7 +90,17 @@ public:
         , fHeight(height)
         , fBounds(bounds)
     {
-        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(genID),
+        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fGenID),
+                   sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
+    }
+
+    BitmapKey(const SkBitmapCacheDesc& desc)
+        : fGenID(desc.fImageID)
+        , fWidth(desc.fWidth)
+        , fHeight(desc.fHeight)
+        , fBounds(desc.fBounds)
+    {
+        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fGenID),
                    sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
     }
 
@@ -73,6 +119,15 @@ struct BitmapRec : public SkResourceCache::Rec {
     BitmapRec(uint32_t genID, int width, int height, const SkIRect& bounds,
               const SkBitmap& result)
         : fKey(genID, width, height, bounds)
+        , fBitmap(result)
+    {
+#ifdef TRACE_NEW_BITMAP_CACHE_RECS
+        fKey.dump();
+#endif
+    }
+
+    BitmapRec(const SkBitmapCacheDesc& desc, const SkBitmap& result)
+        : fKey(desc)
         , fBitmap(result)
     {
 #ifdef TRACE_NEW_BITMAP_CACHE_RECS
@@ -106,28 +161,25 @@ private:
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
 
-bool SkBitmapCache::FindWH(const SkBitmap& src, int width, int height, SkBitmap* result,
+bool SkBitmapCache::FindWH(const SkBitmapCacheDesc& desc, SkBitmap* result,
                            SkResourceCache* localCache) {
-    if (0 == width || 0 == height) {
+    if (0 == desc.fWidth || 0 == desc.fHeight) {
+        // degenerate
+        return false;
+    }
+    return CHECK_LOCAL(localCache, find, Find, BitmapKey(desc), BitmapRec::Finder, result);
+}
+
+bool SkBitmapCache::AddWH(const SkBitmapCacheDesc& desc, const SkBitmap& result,
+                          SkResourceCache* localCache) {
+    if (0 == desc.fWidth || 0 == desc.fHeight) {
         // degenerate, and the key we use for mipmaps
         return false;
     }
-    BitmapKey key(src.getGenerationID(), width, height, get_bounds_from_bitmap(src));
-
-    return CHECK_LOCAL(localCache, find, Find, key, BitmapRec::Finder, result);
-}
-
-void SkBitmapCache::AddWH(const SkBitmap& src, int width, int height,
-                          const SkBitmap& result, SkResourceCache* localCache) {
-    if (0 == width || 0 == height) {
-        // degenerate, and the key we use for mipmaps
-        return;
-    }
     SkASSERT(result.isImmutable());
-    BitmapRec* rec = new BitmapRec(src.getGenerationID(), width, height,
-                                   get_bounds_from_bitmap(src), result);
+    BitmapRec* rec = new BitmapRec(desc, result);
     CHECK_LOCAL(localCache, add, Add, rec);
-    src.pixelRef()->notifyAddedToCache();
+    return true;
 }
 
 bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result,
@@ -226,8 +278,10 @@ private:
 };
 }
 
-const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmap& src, SkResourceCache* localCache) {
-    MipMapKey key(src.getGenerationID(), get_bounds_from_bitmap(src));
+const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmapCacheDesc& desc,
+                                          SkResourceCache* localCache) {
+    // Note: we ignore width/height from desc, just need id and bounds
+    MipMapKey key(desc.fImageID, desc.fBounds);
     const SkMipMap* result;
 
     if (!CHECK_LOCAL(localCache, find, Find, key, MipMapRec::Finder, &result)) {
