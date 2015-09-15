@@ -23,9 +23,9 @@
 #include "SkDistanceFieldGen.h"
 #include "SkRTConf.h"
 
-#define ATLAS_TEXTURE_WIDTH 1024
+#define ATLAS_TEXTURE_WIDTH 2048
 #define ATLAS_TEXTURE_HEIGHT 2048
-#define PLOT_WIDTH  256
+#define PLOT_WIDTH  512
 #define PLOT_HEIGHT 256
 
 #define NUM_PLOTS_X   (ATLAS_TEXTURE_WIDTH / PLOT_WIDTH)
@@ -38,8 +38,8 @@ static int g_NumFreedPaths = 0;
 
 // mip levels
 static const int kSmallMIP = 32;
-static const int kMediumMIP = 78;
-static const int kLargeMIP = 192;
+static const int kMediumMIP = 72;
+static const int kLargeMIP = 162;
 
 // Callback to clear out internal path cache when eviction occurs
 void GrAADistanceFieldPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, void* pr) {
@@ -82,7 +82,7 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    
+
     // TODO: Support inverse fill
     // TODO: Support strokes
     if (!args.fShaderCaps->shaderDerivativeSupport() || !args.fAntiAlias ||
