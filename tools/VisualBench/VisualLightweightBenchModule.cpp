@@ -31,8 +31,9 @@ DEFINE_int32(samples, 10, "Number of times to time each skp.");
 DEFINE_int32(frames, 5, "Number of frames of each skp to render per sample.");
 DEFINE_double(loopMs, 5, "Target loop time in millseconds.");
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
-DEFINE_string(key, "", "");  // dummy to enable gm tests that have platform-specific names
 DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
+DEFINE_string(key, "",
+              "Space-separated key/value pairs to add to JSON identifying this builder.");
 DEFINE_string(properties, "",
               "Space-separated key/value pairs to add to JSON identifying this run.");
 
@@ -61,6 +62,14 @@ VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
     // setup json logging if required
     if (!FLAGS_outResultsFile.isEmpty()) {
         fResults.reset(new NanoJSONResultsWriter(FLAGS_outResultsFile[0]));
+    }
+
+    if (1 == FLAGS_key.count() % 2) {
+        SkDebugf("ERROR: --key must be passed with an even number of arguments.\n");
+    } else {
+        for (int i = 1; i < FLAGS_key.count(); i += 2) {
+            fResults->key(FLAGS_key[i - 1], FLAGS_key[i]);
+        }
     }
 
     if (1 == FLAGS_properties.count() % 2) {
