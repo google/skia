@@ -26,9 +26,8 @@
 class SkGlyphCache_Globals {
 public:
     SkGlyphCache_Globals() {
-
         fHead = nullptr;
-        fTotalMemoryUsed.store(0);
+        fTotalMemoryUsed = 0;
         fCacheSizeLimit = SK_DEFAULT_FONT_CACHE_LIMIT;
         fCacheCount = 0;
         fCacheCountLimit = SK_DEFAULT_FONT_CACHE_COUNT_LIMIT;
@@ -48,8 +47,7 @@ public:
     SkGlyphCache* internalGetHead() const { return fHead; }
     SkGlyphCache* internalGetTail() const;
 
-    size_t getTotalMemoryUsed() const { return fTotalMemoryUsed.load(); }
-    void increaseTotalMemoryUsed(size_t increase) { fTotalMemoryUsed.fetch_add(increase);}
+    size_t getTotalMemoryUsed() const { return fTotalMemoryUsed; }
     int getCacheCountUsed() const { return fCacheCount; }
 
 #ifdef SK_DEBUG
@@ -68,30 +66,29 @@ public:
     // or count limit.
     bool isOverBudget() const {
         return fCacheCount > fCacheCountLimit ||
-               fTotalMemoryUsed.load() > fCacheSizeLimit;
+               fTotalMemoryUsed > fCacheSizeLimit;
     }
 
     void purgeAll(); // does not change budget
 
     // call when a glyphcache is available for caching (i.e. not in use)
-    void internalAttachCacheToHead(SkGlyphCache*);
+    void attachCacheToHead(SkGlyphCache*);
 
     // can only be called when the mutex is already held
-    void internalMoveToHead(SkGlyphCache *);
+    void internalDetachCache(SkGlyphCache*);
+    void internalAttachCacheToHead(SkGlyphCache*);
+
+private:
+    SkGlyphCache* fHead;
+    size_t  fTotalMemoryUsed;
+    size_t  fCacheSizeLimit;
+    int32_t fCacheCountLimit;
+    int32_t fCacheCount;
 
     // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
     // and attempt to purge caches to match.
     // Returns number of bytes freed.
-    void internalDetachCache(SkGlyphCache* cache);
     size_t internalPurge(size_t minBytesNeeded = 0);
-
-private:
-    SkGlyphCache*    fHead;
-    SkAtomic<size_t> fTotalMemoryUsed;
-    size_t           fCacheSizeLimit;
-    int32_t          fCacheCountLimit;
-    int32_t          fCacheCount;
-
 };
 
 #endif

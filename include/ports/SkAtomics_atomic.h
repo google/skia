@@ -32,12 +32,6 @@ T sk_atomic_fetch_add(T* ptr, T val, sk_memory_order mo) {
 }
 
 template <typename T>
-T sk_atomic_fetch_sub(T* ptr, T val, sk_memory_order mo) {
-    // All values of mo are valid.
-    return __atomic_fetch_sub(ptr, val, mo);
-}
-
-template <typename T>
 bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired,
                                 sk_memory_order success,
                                 sk_memory_order failure) {
