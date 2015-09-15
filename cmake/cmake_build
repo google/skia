@@ -10,12 +10,7 @@
 set -e
 set -x
 
-fulldir() {
-    cd `dirname $1`
-    echo `pwd`
-}
-
-here=`fulldir $0`
+here=$(cd `dirname $0`; echo `pwd`)
 cores=32
 
 if [[ -z "$BUILDTYPE" || -z "$SKIA_OUT" ]]; then
@@ -27,7 +22,7 @@ fi
 echo "Bootstrapping CMake"
 pushd $here/../third_party/externals/cmake
 ./bootstrap --parallel=$cores
-make -j $cores
+make -j $cores cmake
 popd
 
 echo "Building with bootstrapped CMake"
