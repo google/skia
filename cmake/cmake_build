@@ -34,5 +34,5 @@ echo "Building with bootstrapped CMake"
 mkdir -p $SKIA_OUT
 pushd $SKIA_OUT
 $here/../third_party/externals/cmake/bin/cmake -DCMAKE_BUILD_TYPE=$BUILDTYPE $here -G Ninja
-ninja skia  # The default also builds `example`, which I'm leaving a TODO for now.
+ninja
 popd
