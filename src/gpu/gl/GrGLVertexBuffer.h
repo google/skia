@@ -33,6 +33,8 @@ public:
 protected:
     void onAbandon() override;
     void onRelease() override;
+    void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
+                          const SkString& dumpName) const override;
 
 private:
     void* onMap() override;

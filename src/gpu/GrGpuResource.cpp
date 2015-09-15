@@ -11,6 +11,7 @@
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
+#include "SkTraceMemoryDump.h"
 
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     SkASSERT(gpu);
@@ -50,6 +51,23 @@ void GrGpuResource::abandon() {
     get_resource_cache(fGpu)->resourceAccess().removeResource(this);
     fGpu = nullptr;
     fGpuMemorySize = 0;
+}
+
+void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    // Dump resource as "skia/gpu_resources/resource_#".
+    SkString dumpName("skia/gpu_resources/resource_");
+    dumpName.appendS32(this->getUniqueID());
+
+    traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", this->gpuMemorySize());
+
+    if (this->isPurgeable()) {
+        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes",
+                                          this->gpuMemorySize());
+    }
+
+    // Call setMemoryBacking to allow sub-classes with implementation specific backings (such as GL
+    // objects) to provide additional information.
+    this->setMemoryBacking(traceMemoryDump, dumpName);
 }
 
 const SkData* GrGpuResource::setCustomData(const SkData* data) {

@@ -43,6 +43,7 @@ class GrTextureParams;
 class GrVertexBuffer;
 class GrStrokeInfo;
 class GrSoftwarePathRenderer;
+class SkTraceMemoryDump;
 
 class SK_API GrContext : public SkRefCnt {
 public:
@@ -357,6 +358,9 @@ public:
     /** Specify the sizes of the GrAtlasTextContext atlases.  The configs pointer below should be
         to an array of 3 entries */
     void setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs);
+
+    /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
 private:
     GrGpu*                          fGpu;

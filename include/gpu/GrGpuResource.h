@@ -15,6 +15,7 @@
 class GrContext;
 class GrGpu;
 class GrResourceCache;
+class SkTraceMemoryDump;
 
 /**
  * Base class for GrGpuResource. Handles the various types of refs we need. Separated out as a base
@@ -138,7 +139,7 @@ private:
  */
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
-    
+
 
     enum LifeCycle {
         /**
@@ -252,6 +253,13 @@ public:
      */
     void abandon();
 
+    /**
+     * Dumps memory usage information for this GrGpuResource to traceMemoryDump.
+     * Typically, subclasses should not need to override this, and should only
+     * need to override setMemoryBacking.
+     **/
+    virtual void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
+
 protected:
     // This must be called by every GrGpuObject. It should be called once the object is fully
     // initialized (i.e. not in a base class constructor).
@@ -287,6 +295,12 @@ protected:
      * By default resources are not usable as scratch. This should only be called once.
      **/
     void setScratchKey(const GrScratchKey& scratchKey);
+
+    /**
+     * Allows subclasses to add additional backing information to the SkTraceMemoryDump. Called by
+     * onMemoryDump. The default implementation adds no backing information.
+     **/
+    virtual void setMemoryBacking(SkTraceMemoryDump*, const SkString&) const {}
 
 private:
     /**

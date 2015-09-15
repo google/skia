@@ -336,6 +336,7 @@
       '<(skia_src_path)/gpu/gl/GrGLStencilAttachment.h',
       '<(skia_src_path)/gpu/gl/GrGLTexture.cpp',
       '<(skia_src_path)/gpu/gl/GrGLTexture.h',
+      '<(skia_src_path)/gpu/gl/GrGLTextureRenderTarget.cpp',
       '<(skia_src_path)/gpu/gl/GrGLTextureRenderTarget.h',
       '<(skia_src_path)/gpu/gl/GrGLUtil.cpp',
       '<(skia_src_path)/gpu/gl/GrGLUtil.h',

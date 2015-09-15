@@ -105,7 +105,7 @@ void GrContext::DrawingMgr::flush() {
     }
 }
 
-GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceProps) { 
+GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
     }
@@ -119,7 +119,7 @@ GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceP
     }
 
     // For now, everyone gets a faux creation ref
-    return SkRef(fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]); 
+    return SkRef(fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -759,3 +759,8 @@ void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) 
     fResourceCache->setLimits(maxTextures, maxTextureBytes);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    fResourceCache->dumpMemoryStatistics(traceMemoryDump);
+}

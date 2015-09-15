@@ -7,6 +7,7 @@
 
 #include "GrGLIndexBuffer.h"
 #include "GrGLGpu.h"
+#include "SkTraceMemoryDump.h"
 
 GrGLIndexBuffer::GrGLIndexBuffer(GrGLGpu* gpu, const Desc& desc)
     : INHERITED(gpu, desc.fSizeInBytes, desc.fDynamic, 0 == desc.fID)
@@ -47,4 +48,12 @@ bool GrGLIndexBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     } else {
         return false;
     }
+}
+
+void GrGLIndexBuffer::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
+                                       const SkString& dumpName) const {
+    SkString buffer_id;
+    buffer_id.appendU32(this->bufferID());
+    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_buffer",
+                                      buffer_id.c_str());
 }

@@ -22,6 +22,7 @@
 
 class GrCaps;
 class SkString;
+class SkTraceMemoryDump;
 
 /**
  * Manages the lifetime of all GrGpuResource instances.
@@ -178,7 +179,7 @@ public:
         fOverBudgetCB = overBudgetCB;
         fOverBudgetData = data;
     }
-    
+
     void notifyFlushOccurred();
 
 #if GR_GPU_STATS
@@ -187,6 +188,9 @@ public:
 
     // This function is for unit testing and is only defined in test tools.
     void changeTimestamp(uint32_t newTimestamp);
+
+    // Enumerates all cached resources and dumps their details to traceMemoryDump.
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
 private:
     ///////////////////////////////////////////////////////////////////////////

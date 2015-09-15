@@ -50,6 +50,8 @@ protected:
     // overrides of GrResource
     void onRelease() override;
     void onAbandon() override;
+    void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
+                          const SkString& dumpName) const override;
 
 private:
     size_t onGpuMemorySize() const override;

@@ -8,6 +8,7 @@
 
 #include "GrGLStencilAttachment.h"
 #include "GrGLGpu.h"
+#include "SkTraceMemoryDump.h"
 
 size_t GrGLStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
@@ -32,4 +33,12 @@ void GrGLStencilAttachment::onAbandon() {
     fRenderbufferID = 0;
 
     INHERITED::onAbandon();
+}
+
+void GrGLStencilAttachment::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
+                                             const SkString& dumpName) const {
+    SkString renderbuffer_id;
+    renderbuffer_id.appendU32(this->renderbufferID());
+    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_renderbuffer",
+                                      renderbuffer_id.c_str());
 }

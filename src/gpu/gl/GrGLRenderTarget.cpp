@@ -10,6 +10,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrGLGpu.h"
 #include "GrGLUtil.h"
+#include "SkTraceMemoryDump.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
@@ -43,20 +44,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fViewport.fWidth  = desc.fWidth;
     fViewport.fHeight = desc.fHeight;
 
-    // We own one color value for each MSAA sample.
-    int colorValuesPerPixel = SkTMax(1, fDesc.fSampleCnt);
-    if (fTexFBOID != kUnresolvableFBOID && fTexFBOID != fRTFBOID) {
-        // If we own the resolve buffer then that is one more sample per pixel.
-        colorValuesPerPixel += 1;
-    } else if (fTexFBOID != 0) {
-        // For auto-resolving FBOs, the MSAA buffer is free.
-        colorValuesPerPixel = 1;
-    }
-    SkASSERT(kUnknown_GrPixelConfig != fDesc.fConfig);
-    SkASSERT(!GrPixelConfigIsCompressed(fDesc.fConfig));
-    size_t colorBytes = GrBytesPerPixel(fDesc.fConfig);
-    SkASSERT(colorBytes > 0);
-    fGpuMemorySize = colorValuesPerPixel * fDesc.fWidth * fDesc.fHeight * colorBytes;
+    fGpuMemorySize = this->totalSamples() * this->totalBytesPerSample();
 
     SkASSERT(fGpuMemorySize <= WorseCaseSize(desc));
 }
@@ -160,3 +148,62 @@ GrGLGpu* GrGLRenderTarget::getGLGpu() const {
     return static_cast<GrGLGpu*>(this->getGpu());
 }
 
+void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    // Don't log the backing texture's contribution to the memory size. This will be handled by the
+    // texture object.
+
+    // Log any renderbuffer's contribution to memory. We only do this if we own the renderbuffer
+    // (have a fMSColorRenderbufferID).
+    if (fMSColorRenderbufferID) {
+        size_t size = this->msaaSamples() * this->totalBytesPerSample();
+
+        // Due to this resource having both a texture and a renderbuffer component, dump as
+        // skia/gpu_resources/resource_#/renderbuffer
+        SkString dumpName("skia/gpu_resources/resource_");
+        dumpName.appendS32(this->getUniqueID());
+        dumpName.append("/renderbuffer");
+
+        traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);
+
+        if (this->isPurgeable()) {
+            traceMemoryDump->dumpNumericValue(dumpName.c_str(), "purgeable_size", "bytes", size);
+        }
+
+        SkString renderbuffer_id;
+        renderbuffer_id.appendU32(fMSColorRenderbufferID);
+        traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_renderbuffer",
+                                          renderbuffer_id.c_str());
+    }
+}
+
+size_t GrGLRenderTarget::totalBytesPerSample() const {
+    SkASSERT(kUnknown_GrPixelConfig != fDesc.fConfig);
+    SkASSERT(!GrPixelConfigIsCompressed(fDesc.fConfig));
+    size_t colorBytes = GrBytesPerPixel(fDesc.fConfig);
+    SkASSERT(colorBytes > 0);
+
+    return fDesc.fWidth * fDesc.fHeight * colorBytes;
+}
+
+int GrGLRenderTarget::msaaSamples() const {
+    if (fTexFBOID == kUnresolvableFBOID || fTexFBOID != fRTFBOID) {
+        // If the render target's FBO is external (fTexFBOID == kUnresolvableFBOID), or if we own
+        // the render target's FBO (fTexFBOID == fRTFBOID) then we use the provided sample count.
+        return SkTMax(1, fDesc.fSampleCnt);
+    }
+
+    // When fTexFBOID == fRTFBOID, we either are not using MSAA, or MSAA is auto resolving, so use
+    // 0 for the sample count.
+    return 0;
+}
+
+int GrGLRenderTarget::totalSamples() const {
+  int total_samples = this->msaaSamples();
+
+  if (fTexFBOID != kUnresolvableFBOID) {
+      // If we own the resolve buffer then that is one more sample per pixel.
+      total_samples += 1;
+  }
+
+  return total_samples;
+}

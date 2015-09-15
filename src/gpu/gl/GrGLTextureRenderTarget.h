@@ -9,6 +9,7 @@
 #ifndef GrGLTextureRenderTarget_DEFINED
 #define GrGLTextureRenderTarget_DEFINED
 
+#include "GrGLGpu.h"
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
 
@@ -33,6 +34,8 @@ public:
         , GrGLRenderTarget(gpu, desc, rtIDDesc, GrGLRenderTarget::kDerived) {
         this->registerWithCache();
     }
+
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
 protected:
     void onAbandon() override {

@@ -616,6 +616,15 @@ void GrResourceCache::notifyFlushOccurred() {
     }
 }
 
+void GrResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        fNonpurgeableResources[i]->dumpMemoryStatistics(traceMemoryDump);
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        fPurgeableQueue.at(i)->dumpMemoryStatistics(traceMemoryDump);
+    }
+}
+
 #ifdef SK_DEBUG
 void GrResourceCache::validate() const {
     // Reduce the frequency of validations for large resource counts.

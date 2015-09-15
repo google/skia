@@ -66,6 +66,10 @@ public:
         return kCached_LifeCycle == fRTLifecycle || kUncached_LifeCycle == fRTLifecycle;
     }
 
+    // GrGLRenderTarget overrides dumpMemoryStatistics so it can log its texture and renderbuffer
+    // components seperately.
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
+
 protected:
     // The public constructor registers this object with the cache. However, only the most derived
     // class should register with the cache. This constructor does not do the registration and
@@ -88,6 +92,12 @@ private:
 
     GrGLGpu* getGLGpu() const;
     bool completeStencilAttachment() override;
+
+    // The total size of the resource (including all pixels) for a single sample.
+    size_t totalBytesPerSample() const;
+    int msaaSamples() const;
+    // The number total number of samples, including both MSAA and resolve texture samples.
+    int totalSamples() const;
 
     GrGLuint    fRTFBOID;
     GrGLuint    fTexFBOID;
