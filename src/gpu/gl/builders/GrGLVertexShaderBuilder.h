@@ -32,7 +32,7 @@ private:
     /*
      * Internal call for GrGLProgramBuilder.addVarying
      */
-    void addVarying(const char* name, GrGLVarying*);
+    void addVarying(const char* name, GrSLPrecision, GrGLVarying*);
 
     /*
      * private helpers for compilation by GrGLProgramBuilder

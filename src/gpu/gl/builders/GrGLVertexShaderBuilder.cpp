@@ -18,10 +18,11 @@ GrGLVertexBuilder::GrGLVertexBuilder(GrGLProgramBuilder* program)
     , fRtAdjustName(nullptr) {
 }
 
-void GrGLVertexBuilder::addVarying(const char* name, GrGLVarying* v) {
+void GrGLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLVarying* v) {
     fOutputs.push_back();
     fOutputs.back().setType(v->fType);
     fOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
+    fOutputs.back().setPrecision(precision);
     fProgramBuilder->nameVariable(fOutputs.back().accessName(), 'v', name);
     v->fVsOut = fOutputs.back().getName().c_str();
 }

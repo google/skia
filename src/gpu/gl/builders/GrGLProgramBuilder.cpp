@@ -65,16 +65,16 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
 
 void GrGLProgramBuilder::addVarying(const char* name,
                                     GrGLVarying* varying,
-                                    GrSLPrecision fsPrecision) {
+                                    GrSLPrecision precision) {
     SkASSERT(varying);
     if (varying->vsVarying()) {
-        fVS.addVarying(name, varying);
+        fVS.addVarying(name, precision, varying);
     }
     if (this->primitiveProcessor().willUseGeoShader()) {
-        fGS.addVarying(name, varying);
+        fGS.addVarying(name, precision, varying);
     }
     if (varying->fsVarying()) {
-        fFS.addVarying(varying, fsPrecision);
+        fFS.addVarying(varying, precision);
     }
 }
 
