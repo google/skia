@@ -7,6 +7,7 @@
 
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
+#include "SkBitmapProvider.h"
 #include "SkColorPriv.h"
 #include "SkErrorInternals.h"
 #include "SkPixelRef.h"
@@ -78,7 +79,7 @@ bool SkBitmapProcShader::isOpaque() const {
 
 SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
                                                    TileMode tmx, TileMode tmy,
-                                                   const SkBitmap& bitmap,
+                                                   const SkBitmapProvider& provider,
                                                    const ContextRec& rec, void* storage) {
     SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
@@ -87,8 +88,7 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
     }
 
     void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
-    SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(SkBitmapProvider(bitmap),
-                                                                    tmx, tmy);
+    SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(provider, tmx, tmy);
 
     SkASSERT(state);
     if (!state->chooseProcs(totalInverse, *rec.fPaint)) {
@@ -100,7 +100,8 @@ SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
 }
 
 SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    return MakeContext(*this, (TileMode)fTileModeX, (TileMode)fTileModeY, fRawBitmap, rec, storage);
+    return MakeContext(*this, (TileMode)fTileModeX, (TileMode)fTileModeY,
+                       SkBitmapProvider(fRawBitmap), rec, storage);
 }
 
 SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(const SkShader& shader,

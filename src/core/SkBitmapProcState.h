@@ -11,9 +11,11 @@
 #include "SkBitmap.h"
 #include "SkBitmapController.h"
 #include "SkBitmapFilter.h"
+#include "SkBitmapProvider.h"
 #include "SkMatrix.h"
 #include "SkMipMap.h"
 #include "SkPaint.h"
+#include "SkShader.h"
 #include "SkTemplates.h"
 
 typedef SkFixed3232    SkFractionalInt;

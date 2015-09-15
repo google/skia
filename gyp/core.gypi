@@ -39,6 +39,8 @@
         '<(skia_src_path)/core/SkBitmapProcState_matrix.h',
         '<(skia_src_path)/core/SkBitmapProcState_matrixProcs.cpp',
         '<(skia_src_path)/core/SkBitmapProcState_sample.h',
+        '<(skia_src_path)/core/SkBitmapProvider.cpp',
+        '<(skia_src_path)/core/SkBitmapProvider.h',
         '<(skia_src_path)/core/SkBitmapScaler.h',
         '<(skia_src_path)/core/SkBitmapScaler.cpp',
         '<(skia_src_path)/core/SkBlitBWMaskTemplate.h',

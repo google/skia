@@ -14,6 +14,7 @@
 #include "SkSmallAllocator.h"
 
 struct SkBitmapProcState;
+class SkBitmapProvider;
 
 class SkBitmapProcShader : public SkShader {
 public:
@@ -65,8 +66,8 @@ private:
     friend class SkImageShader;
 
     static size_t ContextSize();
-    static Context* MakeContext(const SkShader&, TileMode tmx, TileMode tmy, const SkBitmap&,
-                                const ContextRec&, void* storage);
+    static Context* MakeContext(const SkShader&, TileMode tmx, TileMode tmy,
+                                const SkBitmapProvider&, const ContextRec&, void* storage);
 
     typedef SkShader INHERITED;
 };
