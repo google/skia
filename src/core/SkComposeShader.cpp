@@ -207,17 +207,15 @@ const GrFragmentProcessor* SkComposeShader::asFragmentProcessor(GrContext* conte
                                                             SkFilterQuality fq,
                                                             GrProcessorDataManager* procDataManager
                                                             ) const {
-    // Fragment processor will only support coefficient modes. This is because
-    // GrGLBlend::AppendPorterDuffBlend(), which emits the blend code in the shader,
-    // only supports those modes.
+    // Fragment processor will only support SkXfermode::Mode modes currently.
     SkXfermode::Mode mode;
-    if (!(SkXfermode::AsMode(fMode, &mode) && SkXfermode::kLastCoeffMode >= mode)) {
+    if (!(SkXfermode::AsMode(fMode, &mode))) {
         return nullptr;
     }
 
     switch (mode) {
         case SkXfermode::kClear_Mode:
-            return GrConstColorProcessor::Create(GrColor_TRANS_BLACK,
+            return GrConstColorProcessor::Create(GrColor_TRANSPARENT_BLACK,
                                                  GrConstColorProcessor::kIgnore_InputMode);
             break;
         case SkXfermode::kSrc_Mode:

@@ -15,18 +15,16 @@ class GrInvariantOutput;
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). It can use
- * local coords, positions, or a custom vertex attribute as input texture coords. The input coords
- * can have a matrix applied in the VS in both the local and position cases but not with a custom
- * attribute coords at this time. It will add a varying to input interpolate texture coords to the
- * FS.
+ * local coords or device space coords as input texture coords. The input coords may be transformed
+ * by a matrix.
  */
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
-    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
-                                       GrTexture* tex,
-                                       const SkMatrix& matrix,
-                                       GrCoordSet coordSet = kLocal_GrCoordSet) {
+    static const GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
+                                             GrTexture* tex,
+                                             const SkMatrix& matrix,
+                                             GrCoordSet coordSet = kLocal_GrCoordSet) {
         return new GrSimpleTextureEffect(procDataManager, tex, matrix,
                                          GrTextureParams::kNone_FilterMode, coordSet);
     }

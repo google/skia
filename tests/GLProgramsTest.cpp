@@ -248,7 +248,7 @@ static void set_random_color_coverage_stages(GrPipelineBuilder* pipelineBuilder,
 
         for (int s = 0; s < numProcs;) {
             SkAutoTUnref<const GrFragmentProcessor> fp(
-                    GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
+                GrProcessorTestFactory<GrFragmentProcessor>::Create(d));
             SkASSERT(fp);
 
             // finally add the stage to the correct pipeline in the drawstate

@@ -21,16 +21,16 @@
 static const bool gUseUnpremul = false;
 
 static void add_arithmetic_code(GrGLFragmentBuilder* fsBuilder,
-                                const char* inputColor,
+                                const char* srcColor,
                                 const char* dstColor,
                                 const char* outputColor,
                                 const char* kUni,
                                 bool enforcePMColor) {
     // We don't try to optimize for this case at all
-    if (nullptr == inputColor) {
+    if (nullptr == srcColor) {
         fsBuilder->codeAppend("const vec4 src = vec4(1);");
     } else {
-        fsBuilder->codeAppendf("vec4 src = %s;", inputColor);
+        fsBuilder->codeAppendf("vec4 src = %s;", srcColor);
         if (gUseUnpremul) {
             fsBuilder->codeAppend("src.rgb = clamp(src.rgb / src.a, 0.0, 1.0);");
         }
@@ -54,26 +54,21 @@ static void add_arithmetic_code(GrGLFragmentBuilder* fsBuilder,
 
 class GLArithmeticFP : public GrGLFragmentProcessor {
 public:
-    GLArithmeticFP(const GrProcessor&)
-        : fEnforcePMColor(true) {
-    }
+    GLArithmeticFP(const GrProcessor&) : fEnforcePMColor(true) {}
 
     ~GLArithmeticFP() override {}
 
     void emitCode(EmitArgs& args) override {
         GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-        fsBuilder->codeAppend("vec4 bgColor = ");
-        fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
-                                       args.fCoords[0].getType());
-        fsBuilder->codeAppendf(";");
-        const char* dstColor = "bgColor";
+        fsBuilder->codeAppend("vec4 _dstColor;");
+        this->emitChild(0, nullptr, "_dstColor", args);
 
         fKUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                    "k");
+                                          kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                          "k");
         const char* kUni = args.fBuilder->getUniformCStr(fKUni);
 
-        add_arithmetic_code(fsBuilder, args.fInputColor, dstColor, args.fOutputColor, kUni,
+        add_arithmetic_code(fsBuilder, args.fInputColor, "_dstColor", args.fOutputColor, kUni,
                             fEnforcePMColor);
     }
 
@@ -100,17 +95,13 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrArithmeticFP::GrArithmeticFP(GrProcessorDataManager*, float k1, float k2, float k3, float k4,
-                               bool enforcePMColor, GrTexture* background)
+                               bool enforcePMColor, const GrFragmentProcessor* dst)
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrArithmeticFP>();
 
-    SkASSERT(background);
-
-    fBackgroundTransform.reset(kLocal_GrCoordSet, background,
-                               GrTextureParams::kNone_FilterMode);
-    this->addCoordTransform(&fBackgroundTransform);
-    fBackgroundAccess.reset(background);
-    this->addTextureAccess(&fBackgroundAccess);
+    SkASSERT(dst);
+    SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(dst);
+    SkASSERT(0 == dstIndex);
 }
 
 void GrArithmeticFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
@@ -144,7 +135,8 @@ const GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k4 = d->fRandom->nextF();
     bool enforcePMColor = d->fRandom->nextBool();
 
-    return new GrArithmeticFP(d->fProcDataManager, k1, k2, k3, k4, enforcePMColor, d->fTextures[0]);
+    SkAutoTUnref<const GrFragmentProcessor> dst(GrProcessorUnitTest::CreateChildFP(d));
+    return new GrArithmeticFP(d->fProcDataManager, k1, k2, k3, k4, enforcePMColor, dst);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);

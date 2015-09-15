@@ -29,7 +29,7 @@ public:
 
 #if SK_SUPPORT_GPU
     bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                              SkTDArray<GrFragmentProcessor*>*) const override;
+                              SkTDArray<const GrFragmentProcessor*>*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

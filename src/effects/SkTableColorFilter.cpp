@@ -49,7 +49,7 @@ public:
 
 #if SK_SUPPORT_GPU
     bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                              SkTDArray<GrFragmentProcessor*>*) const override;
+                              SkTDArray<const GrFragmentProcessor*>*) const override;
 #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
@@ -521,7 +521,7 @@ bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& other) const {
 void ColorTableEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     // If we kept the table in the effect then we could actually run known inputs through the
     // table.
-    uint8_t invalidateFlags = 0;
+    GrColorComponentFlags invalidateFlags = kNone_GrColorComponentFlags;
     if (fFlags & SkTable_ColorFilter::kR_Flag) {
         invalidateFlags |= kR_GrColorComponentFlag;
     }
@@ -563,7 +563,7 @@ const GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) 
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
 
-    SkTDArray<GrFragmentProcessor*> array;
+    SkTDArray<const GrFragmentProcessor*> array;
     if (filter->asFragmentProcessors(d->fContext, d->fProcDataManager, &array)) {
         SkASSERT(1 == array.count());   // TableColorFilter only returns 1
         return array[0];
@@ -573,7 +573,7 @@ const GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) 
 
 bool SkTable_ColorFilter::asFragmentProcessors(GrContext* context,
                                                GrProcessorDataManager*,
-                                               SkTDArray<GrFragmentProcessor*>* array) const {
+                                               SkTDArray<const GrFragmentProcessor*>* array) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
 

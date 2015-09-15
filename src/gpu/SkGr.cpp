@@ -734,7 +734,7 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkTDArray<GrFragmentProcessor*> array;
+            SkTDArray<const GrFragmentProcessor*> array;
             // return false if failed?
             if (colorFilter->asFragmentProcessors(context, grPaint->getProcessorDataManager(),
                                                   &array)) {

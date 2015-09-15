@@ -651,8 +651,8 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asFragmentProcessor(GrFragmentProcessor**, GrProcessorDataManager*,
-                                     GrTexture*) const {
+bool SkXfermode::asFragmentProcessor(const GrFragmentProcessor**, GrProcessorDataManager*,
+                                     const GrFragmentProcessor*) const {
     return false;
 }
 
@@ -920,19 +920,18 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 
 #if SK_SUPPORT_GPU
 #include "effects/GrCustomXfermode.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
 
-bool SkProcCoeffXfermode::asFragmentProcessor(GrFragmentProcessor** fp,
+bool SkProcCoeffXfermode::asFragmentProcessor(const GrFragmentProcessor** fp,
                                               GrProcessorDataManager* procDataManager,
-                                              GrTexture* background) const {
-    if (GrCustomXfermode::IsSupportedMode(fMode)) {
-        if (fp) {
-            SkASSERT(procDataManager);
-            *fp = GrCustomXfermode::CreateFP(procDataManager, fMode, background);
-            SkASSERT(*fp);
-        }
-        return true;
+                                              const GrFragmentProcessor* dst) const {
+    if (fp) {
+        SkASSERT(dst);
+        SkASSERT(procDataManager);
+        *fp = GrXfermodeFragmentProcessor::CreateFromDstProcessor(dst, fMode);
+        SkASSERT(*fp || kSrc_Mode == fMode);
     }
-    return false;
+    return true;
 }
 
 bool SkProcCoeffXfermode::asXPFactory(GrXPFactory** xp) const {

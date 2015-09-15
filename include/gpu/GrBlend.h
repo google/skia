@@ -6,11 +6,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrTypes.h"
-#include "../private/SkTLogic.h"
-
 #ifndef GrBlend_DEFINED
 #define GrBlend_DEFINED
+
+#include "GrColor.h"
+#include "../private/SkTLogic.h"
 
 /**
  * Equations for alpha-blending.
@@ -46,7 +46,7 @@ static const int kGrBlendEquationCnt = kLast_GrBlendEquation + 1;
 
 
 /**
- * Coeffecients for alpha-blending.
+ * Coefficients for alpha-blending.
  */
 enum GrBlendCoeff {
     kZero_GrBlendCoeff,    //<! 0
@@ -73,6 +73,19 @@ enum GrBlendCoeff {
 
 static const int kGrBlendCoeffCnt = kLast_GrBlendCoeff + 1;
 
+/**
+ * Given a known blend equation in the form of srcCoeff * srcColor + dstCoeff * dstColor where
+ * there may be partial knowledge of the srcColor and dstColor component values, determine what
+ * components of the blended output color are known. Coeffs must not refer to the constant or
+ * secondary src color.
+ */
+void GrGetCoeffBlendKnownComponents(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff,
+                                    GrColor srcColor,
+                                    GrColorComponentFlags srcColorFlags,
+                                    GrColor dstColor,
+                                    GrColorComponentFlags dstColorFlags,
+                                    GrColor* outColor,
+                                    GrColorComponentFlags* outFlags);
 
 template<GrBlendCoeff Coeff>
 struct GrTBlendCoeffRefsSrc : skstd::bool_constant<kSC_GrBlendCoeff == Coeff ||
@@ -94,7 +107,6 @@ inline bool GrBlendCoeffRefsSrc(GrBlendCoeff coeff) {
             return false;
     }
 }
-
 
 template<GrBlendCoeff Coeff>
 struct GrTBlendCoeffRefsDst : skstd::bool_constant<kDC_GrBlendCoeff == Coeff ||

@@ -136,7 +136,7 @@ public:
      *  If the subclass returns false, then it should not modify the array at all.
      */
     virtual bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                                      SkTDArray<GrFragmentProcessor*>*) const {
+                                      SkTDArray<const GrFragmentProcessor*>*) const {
         return false;
     }
 

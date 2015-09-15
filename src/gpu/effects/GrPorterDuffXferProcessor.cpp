@@ -13,7 +13,7 @@
 #include "GrProcOptInfo.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
-#include "gl/GrGLBlend.h"
+#include "gl/GrGLSLBlend.h"
 #include "gl/GrGLXferProcessor.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "gl/builders/GrGLProgramBuilder.h"
@@ -547,7 +547,7 @@ private:
         const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
         GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
 
-        GrGLBlend::AppendPorterDuffBlend(fsBuilder, srcColor, dstColor, outColor, xp.getXfermode());
+        GrGLSLBlend::AppendMode(fsBuilder, srcColor, dstColor, outColor, xp.getXfermode());
     }
 
     void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
@@ -651,7 +651,7 @@ GrXferProcessor* PDLCDXferProcessor::Create(SkXfermode::Mode xfermode,
         return nullptr;
     }
 
-    GrColor blendConstant = GrUnPreMulColor(colorPOI.color());
+    GrColor blendConstant = GrUnpremulColor(colorPOI.color());
     uint8_t alpha = GrColorUnpackA(blendConstant);
     blendConstant |= (0xff << GrColor_SHIFT_A);
 

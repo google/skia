@@ -16,6 +16,7 @@
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "effects/GrTextureDomain.h"
+#include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
 #endif
 
@@ -153,7 +154,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();
 
-    GrFragmentProcessor* xferProcessor = nullptr;
+    const GrFragmentProcessor* xferFP = nullptr;
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -166,8 +167,11 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     }
 
     GrPaint paint;
-    if (!fMode || !fMode->asFragmentProcessor(&xferProcessor, paint.getProcessorDataManager(),
-                                              backgroundTex)) {
+    SkMatrix bgMatrix;
+    bgMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
+    SkAutoTUnref<const GrFragmentProcessor> bgFP(
+        GrSimpleTextureEffect::Create(paint.getProcessorDataManager(), backgroundTex, bgMatrix));
+    if (!fMode || !fMode->asFragmentProcessor(&xferFP, paint.getProcessorDataManager(), bgFP)) {
         // canFilterImageGPU() should've taken care of this
         SkASSERT(false);
         return false;
@@ -190,7 +194,9 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     );
 
     paint.addColorFragmentProcessor(foregroundDomain.get());
-    paint.addColorFragmentProcessor(xferProcessor)->unref();
+    if (xferFP) {
+        paint.addColorFragmentProcessor(xferFP)->unref();
+    }
 
     SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
     if (!drawContext) {

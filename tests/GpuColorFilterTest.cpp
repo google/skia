@@ -101,7 +101,7 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
     for (size_t i = 0; i < SK_ARRAY_COUNT(filterTests); ++i) {
         const GetConstantComponentTestCase& test = filterTests[i];
         SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
-        SkTDArray<GrFragmentProcessor*> array;
+        SkTDArray<const GrFragmentProcessor*> array;
         bool hasFrag = cf->asFragmentProcessors(grContext, paint.getProcessorDataManager(), &array);
         REPORTER_ASSERT(reporter, hasFrag);
         REPORTER_ASSERT(reporter, 1 == array.count());

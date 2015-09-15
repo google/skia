@@ -77,7 +77,7 @@ static inline GrColor GrColorPackA4(unsigned a) {
 #define GrColor_ILLEGAL     (~(0xFF << GrColor_SHIFT_A))
 
 #define GrColor_WHITE 0xFFFFFFFF
-#define GrColor_TRANS_BLACK 0x0
+#define GrColor_TRANSPARENT_BLACK 0x0
 
 /**
  * Assert in debug builds that a GrColor is premultiplied.
@@ -93,6 +93,31 @@ static inline void GrColorIsPMAssert(GrColor SkDEBUGCODE(c)) {
     SkASSERT(g <= a);
     SkASSERT(b <= a);
 #endif
+}
+
+/** Inverts each color channel. */
+static inline GrColor GrInvertColor(GrColor c) {
+    U8CPU a = GrColorUnpackA(c);
+    U8CPU r = GrColorUnpackR(c);
+    U8CPU g = GrColorUnpackG(c);
+    U8CPU b = GrColorUnpackB(c);
+    return GrColorPackRGBA(0xff - r, 0xff - g, 0xff - b, 0xff - a);
+}
+
+static inline GrColor GrColorMul(GrColor c0, GrColor c1) {
+    U8CPU r = SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1));
+    U8CPU g = SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1));
+    U8CPU b = SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1));
+    U8CPU a = SkMulDiv255Round(GrColorUnpackA(c0), GrColorUnpackA(c1));
+    return GrColorPackRGBA(r, g, b, a);
+}
+
+static inline GrColor GrColorSatAdd(GrColor c0, GrColor c1) {
+    unsigned r = SkTMin<unsigned>(GrColorUnpackR(c0) + GrColorUnpackR(c1), 0xff);
+    unsigned g = SkTMin<unsigned>(GrColorUnpackG(c0) + GrColorUnpackG(c1), 0xff);
+    unsigned b = SkTMin<unsigned>(GrColorUnpackB(c0) + GrColorUnpackB(c1), 0xff);
+    unsigned a = SkTMin<unsigned>(GrColorUnpackA(c0) + GrColorUnpackA(c1), 0xff);
+    return GrColorPackRGBA(r, g, b, a);
 }
 
 /** Converts a GrColor to an rgba array of GrGLfloat */
@@ -115,8 +140,20 @@ static inline bool GrColorIsOpaque(GrColor color) {
     return (color & (0xFFU << GrColor_SHIFT_A)) == (0xFFU << GrColor_SHIFT_A);
 }
 
+static inline GrColor GrPremulColor(GrColor color) {
+    unsigned r = GrColorUnpackR(color);
+    unsigned g = GrColorUnpackG(color);
+    unsigned b = GrColorUnpackB(color);
+    unsigned a = GrColorUnpackA(color);
+    return GrColorPackRGBA(SkMulDiv255Round(r, a),
+                           SkMulDiv255Round(g, a),
+                           SkMulDiv255Round(b, a),
+                           a);
+}
+
 /** Returns an unpremuled version of the GrColor. */
-static inline GrColor GrUnPreMulColor(GrColor color) {
+static inline GrColor GrUnpremulColor(GrColor color) {
+    GrColorIsPMAssert(color);
     unsigned r = GrColorUnpackR(color);
     unsigned g = GrColorUnpackG(color); 
     unsigned b = GrColorUnpackB(color);

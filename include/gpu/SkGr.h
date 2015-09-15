@@ -38,8 +38,9 @@ GR_STATIC_ASSERT((int)kSA_GrBlendCoeff   == (int)SkXfermode::kSA_Coeff);
 GR_STATIC_ASSERT((int)kISA_GrBlendCoeff  == (int)SkXfermode::kISA_Coeff);
 GR_STATIC_ASSERT((int)kDA_GrBlendCoeff   == (int)SkXfermode::kDA_Coeff);
 GR_STATIC_ASSERT((int)kIDA_GrBlendCoeff  == (int)SkXfermode::kIDA_Coeff);
+GR_STATIC_ASSERT(SkXfermode::kCoeffCount == 10);
 
-#define sk_blend_to_grblend(X) ((GrBlendCoeff)(X))
+#define SkXfermodeCoeffToGrBlendCoeff(X) ((GrBlendCoeff)(X))
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -65,6 +66,16 @@ static inline GrColor SkColor2GrColor(SkColor c) {
 static inline GrColor SkColor2GrColorJustAlpha(SkColor c) {
     U8CPU a = SkColorGetA(c);
     return GrColorPackRGBA(a, a, a, a);
+}
+
+static inline SkPMColor GrColorToSkPMColor(GrColor c) {
+    GrColorIsPMAssert(c);
+    return SkPackARGB32(GrColorUnpackA(c), GrColorUnpackR(c), GrColorUnpackG(c), GrColorUnpackB(c));
+}
+
+static inline GrColor SkPMColorToGrColor(SkPMColor c) {
+    return GrColorPackRGBA(SkGetPackedR32(c), SkGetPackedG32(c), SkGetPackedB32(c),
+                           SkGetPackedA32(c));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
