@@ -6,10 +6,11 @@
  */
 
 #include "Resources.h"
-#include "SkBitmapSource.h"
 #include "SkCanvas.h"
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
+#include "SkImage.h"
+#include "SkImageSource.h"
 #include "SkMallocPixelRef.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
@@ -240,8 +241,10 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                                     const SkBitmap& invalidBitmap,
                                     bool shouldSucceed,
                                     skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkBitmapSource> validBitmapSource(SkBitmapSource::Create(validBitmap));
-    SkAutoTUnref<SkBitmapSource> invalidBitmapSource(SkBitmapSource::Create(invalidBitmap));
+    SkAutoTUnref<SkImage> validImage(SkImage::NewFromBitmap(validBitmap));
+    SkAutoTUnref<SkImageFilter> validBitmapSource(SkImageSource::Create(validImage));
+    SkAutoTUnref<SkImage> invalidImage(SkImage::NewFromBitmap(invalidBitmap));
+    SkAutoTUnref<SkImageFilter> invalidBitmapSource(SkImageSource::Create(invalidImage));
     SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
     SkAutoTUnref<SkXfermodeImageFilter> xfermodeImageFilter(
         SkXfermodeImageFilter::Create(mode, invalidBitmapSource, validBitmapSource));

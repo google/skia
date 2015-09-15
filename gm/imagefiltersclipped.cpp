@@ -6,12 +6,13 @@
  */
 
 #include "sk_tool_utils.h"
-#include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkColor.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkGradientShader.h"
+#include "SkImage.h"
+#include "SkImageSource.h"
 #include "SkLightingImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
@@ -19,6 +20,7 @@
 #include "SkPoint3.h"
 #include "SkRectShaderImageFilter.h"
 #include "SkScalar.h"
+#include "SkSurface.h"
 #include "gm.h"
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
@@ -45,9 +47,9 @@ protected:
         SkScalar x = SkIntToScalar(width / 2);
         SkScalar y = SkIntToScalar(height / 2);
         SkScalar radius = SkMinScalar(x, y) * 0.8f;
-        fGradientCircle.allocN32Pixels(width, height);
-        SkCanvas canvas(fGradientCircle);
-        canvas.clear(0x00000000);
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(width, height));
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->clear(0x00000000);
         SkColor colors[2];
         colors[0] = SK_ColorWHITE;
         colors[1] = SK_ColorBLACK;
@@ -57,7 +59,8 @@ protected:
         );
         SkPaint paint;
         paint.setShader(shader);
-        canvas.drawCircle(x, y, radius, paint);
+        canvas->drawCircle(x, y, radius, paint);
+        fGradientCircle.reset(surface->newImageSnapshot());
     }
 
     static void draw_clipped_filter(SkCanvas* canvas, SkImageFilter* filter, size_t i,
@@ -80,16 +83,16 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard = sk_tool_utils::create_checkerboard_bitmap(64, 64,
-                                                                  0xFFA0A0A0, 0xFF404040, 8);
+        fCheckerboard.reset(SkImage::NewFromBitmap
+            (sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8)));
         this->makeGradientCircle(64, 64);
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
-        SkAutoTUnref<SkImageFilter> gradient(SkBitmapSource::Create(fGradientCircle));
-        SkAutoTUnref<SkImageFilter> checkerboard(SkBitmapSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle));
+        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard));
         SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
         SkMatrix resizeMatrix;
@@ -136,19 +139,17 @@ protected:
             SkSafeUnref(filters[i]);
         }
 
-        SkImageFilter* rectFilter = SkRectShaderImageFilter::Create(noise);
+        SkAutoTUnref<SkImageFilter> rectFilter(SkRectShaderImageFilter::Create(noise));
         canvas->translate(SK_ARRAY_COUNT(filters)*(r.width() + margin), 0);
         for (int xOffset = 0; xOffset < 80; xOffset += 16) {
             bounds.fLeft = SkIntToScalar(xOffset);
             draw_clipped_filter(canvas, rectFilter, 0, r, bounds);
             canvas->translate(0, r.height() + margin);
         }
-        SkSafeUnref(rectFilter);
     }
 
 private:
-    SkBitmap fCheckerboard;
-    SkBitmap fGradientCircle;
+    SkAutoTUnref<SkImage> fCheckerboard, fGradientCircle;
 
     typedef GM INHERITED;
 };

@@ -7,7 +7,6 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
-#include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilterImageFilter.h"
@@ -17,6 +16,7 @@
 #include "SkDropShadowImageFilter.h"
 #include "SkFlattenableSerialization.h"
 #include "SkGradientShader.h"
+#include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
@@ -92,10 +92,10 @@ void MatrixTestImageFilter::toString(SkString* str) const {
 }
 #endif
 
-static void make_small_bitmap(SkBitmap& bitmap) {
-    bitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
-    SkCanvas canvas(bitmap);
-    canvas.clear(0x00000000);
+static SkImage* make_small_image() {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(kBitmapSize, kBitmapSize));
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->clear(0x00000000);
     SkPaint darkPaint;
     darkPaint.setColor(0xFF804020);
     SkPaint lightPaint;
@@ -103,26 +103,28 @@ static void make_small_bitmap(SkBitmap& bitmap) {
     const int i = kBitmapSize / 4;
     for (int y = 0; y < kBitmapSize; y += i) {
         for (int x = 0; x < kBitmapSize; x += i) {
-            canvas.save();
-            canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-            canvas.drawRect(SkRect::MakeXYWH(0, 0,
+            canvas->save();
+            canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+            canvas->drawRect(SkRect::MakeXYWH(0, 0,
                                              SkIntToScalar(i),
                                              SkIntToScalar(i)), darkPaint);
-            canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
+            canvas->drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
                                              0,
                                              SkIntToScalar(i),
                                              SkIntToScalar(i)), lightPaint);
-            canvas.drawRect(SkRect::MakeXYWH(0,
+            canvas->drawRect(SkRect::MakeXYWH(0,
                                              SkIntToScalar(i),
                                              SkIntToScalar(i),
                                              SkIntToScalar(i)), lightPaint);
-            canvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
+            canvas->drawRect(SkRect::MakeXYWH(SkIntToScalar(i),
                                              SkIntToScalar(i),
                                              SkIntToScalar(i),
                                              SkIntToScalar(i)), darkPaint);
-            canvas.restore();
+            canvas->restore();
         }
     }
+
+    return surface->newImageSnapshot();
 }
 
 static SkImageFilter* make_scale(float amount, SkImageFilter* input = nullptr) {
@@ -241,8 +243,8 @@ DEF_TEST(ImageFilter, reporter) {
 
     {
         // Tests pass by not asserting
-        SkBitmap bitmap, result;
-        make_small_bitmap(bitmap);
+        SkAutoTUnref<SkImage> image(make_small_image());
+        SkBitmap result;
         result.allocN32Pixels(kBitmapSize, kBitmapSize);
 
         {
@@ -254,7 +256,7 @@ DEF_TEST(ImageFilter, reporter) {
             // 3 ) large negative specular exponent value
             SkScalar specularExponent = -1000;
 
-            SkAutoTUnref<SkImageFilter> bmSrc(SkBitmapSource::Create(bitmap));
+            SkAutoTUnref<SkImageFilter> bmSrc(SkImageSource::Create(image));
             SkPaint paint;
             paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
                     location, target, specularExponent, 180,
@@ -424,7 +426,8 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     SkScalar gain = SK_Scalar1, bias = 0;
     SkScalar five = SkIntToScalar(5);
 
-    SkAutoTUnref<SkImageFilter> gradient_source(SkBitmapSource::Create(make_gradient_circle(64, 64)));
+    SkAutoTUnref<SkImage> gradientImage(SkImage::NewFromBitmap(make_gradient_circle(64, 64)));
+    SkAutoTUnref<SkImageFilter> gradientSource(SkImageSource::Create(gradientImage));
     SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(five, five));
     SkMatrix matrix;
 
@@ -458,7 +461,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
         { "displacement map", SkDisplacementMapEffect::Create(
               SkDisplacementMapEffect::kR_ChannelSelectorType,
               SkDisplacementMapEffect::kB_ChannelSelectorType,
-              20.0f, gradient_source.get()) },
+              20.0f, gradientSource.get()) },
         { "blur", SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1) },
         { "drop shadow", SkDropShadowImageFilter::Create(
               SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN,

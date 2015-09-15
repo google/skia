@@ -6,9 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "SkBitmapSource.h"
 #include "SkCanvas.h"
+#include "SkImageSource.h"
 #include "SkMergeImageFilter.h"
+#include "SkSurface.h"
 
 #define FILTER_WIDTH_SMALL  SkIntToScalar(32)
 #define FILTER_HEIGHT_SMALL SkIntToScalar(32)
@@ -44,49 +45,49 @@ protected:
 
 private:
     SkImageFilter* mergeBitmaps() {
-        SkImageFilter* first = SkBitmapSource::Create(fCheckerboard);
-        SkImageFilter* second = SkBitmapSource::Create(fBitmap);
-        SkAutoUnref aur0(first);
-        SkAutoUnref aur1(second);
+        SkAutoTUnref<SkImageFilter> first(SkImageSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> second(SkImageSource::Create(fImage));
         return SkMergeImageFilter::Create(first, second);
     }
 
     void make_bitmap() {
-        fBitmap.allocN32Pixels(80, 80);
-        SkCanvas canvas(fBitmap);
-        canvas.clear(0x00000000);
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(80, 80));
+        surface->getCanvas()->clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(0xFF884422);
         paint.setTextSize(SkIntToScalar(96));
         const char* str = "g";
-        canvas.drawText(str, strlen(str), SkIntToScalar(15), SkIntToScalar(55), paint);
+        surface->getCanvas()->drawText(str, strlen(str), 15, 55, paint);
+        fImage.reset(surface->newImageSnapshot());
     }
 
     void make_checkerboard() {
-        fCheckerboard.allocN32Pixels(80, 80);
-        SkCanvas canvas(fCheckerboard);
-        canvas.clear(0x00000000);
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(80, 80));
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->clear(0x00000000);
         SkPaint darkPaint;
         darkPaint.setColor(0xFF804020);
         SkPaint lightPaint;
         lightPaint.setColor(0xFF244484);
         for (int y = 0; y < 80; y += 16) {
             for (int x = 0; x < 80; x += 16) {
-                canvas.save();
-                canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-                canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
-                canvas.restore();
+                canvas->save();
+                canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+                canvas->drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
+                canvas->restore();
             }
         }
+
+        fCheckerboard.reset(surface->newImageSnapshot());
     }
 
     bool fIsSmall;
     bool fInitialized;
-    SkBitmap fBitmap, fCheckerboard;
+    SkAutoTUnref<SkImage> fImage, fCheckerboard;
 
     typedef Benchmark INHERITED;
 };

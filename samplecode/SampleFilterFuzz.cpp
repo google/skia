@@ -6,7 +6,6 @@
  */
 #include "SampleCode.h"
 #include "SkAlphaThresholdFilter.h"
-#include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorCubeFilter.h"
@@ -17,6 +16,7 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkFlattenableSerialization.h"
+#include "SkImageSource.h"
 #include "SkLightingImageFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
@@ -392,11 +392,14 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         }
         break;
     case BITMAP:
+    {
+        SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(make_bitmap()));
         if (R(2) == 1) {
-            filter = SkBitmapSource::Create(make_bitmap(), make_rect(), make_rect());
+            filter = SkImageSource::Create(image, make_rect(), make_rect(), kHigh_SkFilterQuality);
         } else {
-            filter = SkBitmapSource::Create(make_bitmap());
+            filter = SkImageSource::Create(image);
         }
+    }
         break;
     case DISPLACE:
         filter = SkDisplacementMapEffect::Create(make_channel_selector_type(),

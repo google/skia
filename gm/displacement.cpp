@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapSource.h"
 #include "SkDisplacementMapEffect.h"
+#include "SkImage.h"
+#include "SkImageSource.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
 
@@ -29,11 +30,16 @@ protected:
         SkColor c1 = sk_tool_utils::color_to_565(0xFF244484);
         SkColor c2 = sk_tool_utils::color_to_565(0xFF804020);
 
-        fCheckerboard = sk_tool_utils::create_checkerboard_bitmap(80, 80, c1, c2, 8);
-        fSmall = sk_tool_utils::create_checkerboard_bitmap(64, 64, c1, c2, 8);
-        fLarge = sk_tool_utils::create_checkerboard_bitmap(96, 96, c1, c2, 8);
-        fLargeW = sk_tool_utils::create_checkerboard_bitmap(96, 64, c1, c2, 8);
-        fLargeH = sk_tool_utils::create_checkerboard_bitmap(64, 96, c1, c2, 8);
+        fCheckerboard.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_checkerboard_bitmap(80, 80, c1, c2, 8)));
+        fSmall.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_checkerboard_bitmap(64, 64, c1, c2, 8)));
+        fLarge.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_checkerboard_bitmap(96, 96, c1, c2, 8)));
+        fLargeW.reset(
+            SkImage::NewFromBitmap(sk_tool_utils::create_checkerboard_bitmap(96, 64, c1, c2, 8)));
+        fLargeH.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_checkerboard_bitmap(64, 96, c1, c2, 8)));
     }
 
     SkISize onISize() override {
@@ -51,7 +57,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard));
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ))->unref();
@@ -148,25 +154,25 @@ protected:
         drawClippedBitmap(canvas, 400, 300, paint);
 
         // Tests for images of different sizes
-        displ.reset(SkBitmapSource::Create(fSmall));
+        displ.reset(SkImageSource::Create(fSmall));
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kG_ChannelSelectorType,
             40.0f, displ))->unref();
         drawClippedBitmap(canvas, 0, 400, paint);
-        displ.reset(SkBitmapSource::Create(fLarge));
+        displ.reset(SkImageSource::Create(fLarge));
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
             40.0f, displ))->unref();
         drawClippedBitmap(canvas, 100, 400, paint);
-        displ.reset(SkBitmapSource::Create(fLargeW));
+        displ.reset(SkImageSource::Create(fLargeW));
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
             SkDisplacementMapEffect::kB_ChannelSelectorType,
             40.0f, displ))->unref();
         drawClippedBitmap(canvas, 200, 400, paint);
-        displ.reset(SkBitmapSource::Create(fLargeH));
+        displ.reset(SkImageSource::Create(fLargeH));
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kG_ChannelSelectorType,
             SkDisplacementMapEffect::kA_ChannelSelectorType,
@@ -184,7 +190,8 @@ protected:
     }
 
 private:
-    SkBitmap fBitmap, fCheckerboard, fSmall, fLarge, fLargeW, fLargeH;
+    SkBitmap fBitmap;
+    SkAutoTUnref<SkImage> fCheckerboard, fSmall, fLarge, fLargeW, fLargeH;
 
     typedef GM INHERITED;
 };

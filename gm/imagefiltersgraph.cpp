@@ -9,11 +9,12 @@
 
 #include "SkArithmeticMode.h"
 #include "SkDevice.h"
-#include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
+#include "SkImage.h"
+#include "SkImageSource.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMergeImageFilter.h"
@@ -107,24 +108,17 @@ protected:
         return SkString("imagefiltersgraph");
     }
 
-    void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint) {
-        canvas->save();
-        canvas->clipRect(SkRect::MakeXYWH(0, 0,
-            SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height())));
-        canvas->drawBitmap(bitmap, 0, 0, &paint);
-        canvas->restore();
-    }
-
     SkISize onISize() override { return SkISize::Make(500, 150); }
 
     void onOnceBeforeDraw() override {
-        fBitmap = sk_tool_utils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e");
+        fImage.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e")));
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         {
-            SkAutoTUnref<SkImageFilter> bitmapSource(SkBitmapSource::Create(fBitmap));
+            SkAutoTUnref<SkImageFilter> bitmapSource(SkImageSource::Create(fImage));
             SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED,
                                                          SkXfermode::kSrcIn_Mode));
             SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f, bitmapSource));
@@ -152,7 +146,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(blendColor);
-            drawClippedBitmap(canvas, fBitmap, paint);
+            DrawClippedImage(canvas, fImage, paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
@@ -171,7 +165,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(arithFilter);
-            drawClippedBitmap(canvas, fBitmap, paint);
+            DrawClippedImage(canvas, fImage, paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
@@ -185,7 +179,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(blend);
-            drawClippedBitmap(canvas, fBitmap, paint);
+            DrawClippedImage(canvas, fImage, paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
         {
@@ -210,8 +204,16 @@ protected:
     }
 
 private:
+    static void DrawClippedImage(SkCanvas* canvas, const SkImage* image, const SkPaint& paint) {
+        canvas->save();
+        canvas->clipRect(SkRect::MakeIWH(image->width(), image->height()));
+        canvas->drawImage(image, 0, 0, &paint);
+        canvas->restore();
+    }
+
+    SkAutoTUnref<SkImage> fImage;
+
     typedef GM INHERITED;
-    SkBitmap fBitmap;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

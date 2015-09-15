@@ -6,9 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "SkBitmapSource.h"
 #include "SkCanvas.h"
 #include "SkDisplacementMapEffect.h"
+#include "SkImageSource.h"
+#include "SkSurface.h"
 
 #define FILTER_WIDTH_SMALL  32
 #define FILTER_HEIGHT_SMALL 32
@@ -47,24 +48,26 @@ protected:
     void makeCheckerboard() {
         const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
         const int h = this->isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
-        fCheckerboard.allocN32Pixels(w, h);
-        SkCanvas canvas(fCheckerboard);
-        canvas.clear(0x00000000);
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(w, h));
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->clear(0x00000000);
         SkPaint darkPaint;
         darkPaint.setColor(0xFF804020);
         SkPaint lightPaint;
         lightPaint.setColor(0xFF244484);
         for (int y = 0; y < h; y += 16) {
             for (int x = 0; x < w; x += 16) {
-                canvas.save();
-                canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
-                canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
-                canvas.drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
-                canvas.restore();
+                canvas->save();
+                canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+                canvas->drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);
+                canvas->drawRect(SkRect::MakeXYWH(8, 8, 8, 8), darkPaint);
+                canvas->restore();
             }
         }
+
+        fCheckerboard.reset(surface->newImageSnapshot());
     }
 
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
@@ -78,7 +81,9 @@ protected:
 
     inline bool isSmall() const { return fIsSmall; }
 
-    SkBitmap fBitmap, fCheckerboard;
+    SkBitmap fBitmap;
+    SkAutoTUnref<SkImage> fCheckerboard;
+
 private:
     bool fInitialized;
     bool fIsSmall;
@@ -97,7 +102,7 @@ protected:
 
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard));
         // No displacement effect
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,
@@ -124,7 +129,7 @@ protected:
 
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard));
         // Displacement, with 1 alpha component (which isn't pre-multiplied)
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kB_ChannelSelectorType,
@@ -150,7 +155,7 @@ protected:
 
     void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> displ(SkBitmapSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> displ(SkImageSource::Create(fCheckerboard));
         // Displacement, with 2 non-alpha components
         paint.setImageFilter(SkDisplacementMapEffect::Create(
             SkDisplacementMapEffect::kR_ChannelSelectorType,

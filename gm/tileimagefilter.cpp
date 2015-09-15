@@ -6,9 +6,10 @@
  */
 
 #include "sk_tool_utils.h"
-#include "SkBitmapSource.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
+#include "SkImage.h"
+#include "SkImageSource.h"
 #include "SkTileImageFilter.h"
 #include "gm.h"
 
@@ -34,13 +35,14 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap = sk_tool_utils::create_string_bitmap(50, 50, 0xD000D000, 10, 45, 50, "e");
+        fBitmap.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_string_bitmap(50, 50, 0xD000D000, 10, 45, 50, "e")));
 
-        fCheckerboard = sk_tool_utils::create_checkerboard_bitmap(
-                                                        80, 80,
-                                                        sk_tool_utils::color_to_565(0xFFA0A0A0),
-                                                        sk_tool_utils::color_to_565(0xFF404040),
-                                                        8);
+        fCheckerboard.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_checkerboard_bitmap(80, 80,
+                                                      sk_tool_utils::color_to_565(0xFFA0A0A0),
+                                                      sk_tool_utils::color_to_565(0xFF404040),
+                                                      8)));
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -48,28 +50,28 @@ protected:
 
         int x = 0, y = 0;
         for (size_t i = 0; i < 4; i++) {
-            SkBitmap* bitmap = (i & 0x01) ? &fCheckerboard : &fBitmap;
-            SkRect srcRect = SkRect::MakeXYWH(SkIntToScalar(bitmap->width()/4),
-                                              SkIntToScalar(bitmap->height()/4),
-                                              SkIntToScalar(bitmap->width()/(i+1)),
-                                              SkIntToScalar(bitmap->height()/(i+1)));
+            const SkImage* image = (i & 0x01) ? fCheckerboard : fBitmap;
+            SkRect srcRect = SkRect::MakeXYWH(SkIntToScalar(image->width()/4),
+                                              SkIntToScalar(image->height()/4),
+                                              SkIntToScalar(image->width()/(i+1)),
+                                              SkIntToScalar(image->height()/(i+1)));
             SkRect dstRect = SkRect::MakeXYWH(SkIntToScalar(i * 8),
                                               SkIntToScalar(i * 4),
-                                              SkIntToScalar(bitmap->width() - i * 12),
-                                              SkIntToScalar(bitmap->height()) - i * 12);
-            SkAutoTUnref<SkImageFilter> tileInput(SkBitmapSource::Create(*bitmap));
+                                              SkIntToScalar(image->width() - i * 12),
+                                              SkIntToScalar(image->height()) - i * 12);
+            SkAutoTUnref<SkImageFilter> tileInput(SkImageSource::Create(image));
             SkAutoTUnref<SkImageFilter> filter(
                 SkTileImageFilter::Create(srcRect, dstRect, tileInput));
             canvas->save();
             canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
             SkPaint paint;
             paint.setImageFilter(filter);
-            canvas->drawBitmap(fBitmap, 0, 0, &paint);
+            canvas->drawImage(fBitmap, 0, 0, &paint);
             canvas->restore();
-            x += bitmap->width() + MARGIN;
-            if (x + bitmap->width() > WIDTH) {
+            x += image->width() + MARGIN;
+            if (x + image->width() > WIDTH) {
                 x = 0;
-                y += bitmap->height() + MARGIN;
+                y += image->height() + MARGIN;
             }
         }
 
@@ -78,10 +80,10 @@ protected:
                                 0, 0, SK_Scalar1, 0, 0,
                                 0, 0, 0, SK_Scalar1, 0 };
 
-        SkRect srcRect = SkRect::MakeWH(SkIntToScalar(fBitmap.width()),
-                                        SkIntToScalar(fBitmap.height()));
-        SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap.width() * 2),
-                                        SkIntToScalar(fBitmap.height() * 2));
+        SkRect srcRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width()),
+                                        SkIntToScalar(fBitmap->height()));
+        SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width() * 2),
+                                        SkIntToScalar(fBitmap->height() * 2));
         SkAutoTUnref<SkImageFilter> tile(SkTileImageFilter::Create(srcRect, dstRect, nullptr));
         SkAutoTUnref<SkColorFilter> cf(SkColorMatrixFilter::Create(matrix));
 
@@ -92,13 +94,12 @@ protected:
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         canvas->clipRect(dstRect);
         canvas->saveLayer(&dstRect, &paint);
-        canvas->drawBitmap(fBitmap, 0, 0);
+        canvas->drawImage(fBitmap, 0, 0);
         canvas->restore();
         canvas->restore();
     }
 private:
-    SkBitmap fBitmap;
-    SkBitmap fCheckerboard;
+    SkAutoTUnref<SkImage> fBitmap, fCheckerboard;
 
     typedef GM INHERITED;
 };
