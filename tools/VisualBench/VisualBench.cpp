@@ -18,14 +18,20 @@
 #include "SkStream.h"
 #include "Stats.h"
 #include "VisualLightweightBenchModule.h"
+#include "VisualInteractiveModule.h"
 #include "gl/GrGLInterface.h"
 
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
+DEFINE_bool2(interactive, n, false, "Run in interactive mode.");
 
 VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd)
     , fModule(new VisualLightweightBenchModule(this)) {
     SkCommandLineFlags::Parse(argc, argv);
+
+    if (FLAGS_interactive) {
+        fModule.reset(new VisualInteractiveModule(this));
+    }
 
     this->setTitle();
     this->setupBackend();
@@ -98,12 +104,27 @@ void VisualBench::draw(SkCanvas* canvas) {
     this->inval(nullptr);
 }
 
+void VisualBench::clear(SkCanvas* canvas, SkColor color, int frames) {
+    canvas->clear(color);
+    for (int i = 0; i < frames - 1; ++i) {
+        canvas->flush();
+        this->present();
+        canvas->clear(color);
+    }
+}
+
 void VisualBench::onSizeChange() {
     this->setupRenderTarget();
 }
 
 bool VisualBench::onHandleChar(SkUnichar unichar) {
-    return true;
+    static const auto kEscKey = 27;
+    if (kEscKey == unichar) {
+        this->closeWindow();
+        return true;
+    }
+
+    return fModule->onHandleChar(unichar);
 }
 
 // Externally declared entry points

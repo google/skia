@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef VisualLightweightBenchModule_DEFINED
-#define VisualLightweightBenchModule_DEFINED
+#ifndef VisualInteractiveModule_DEFINED
+#define VisualInteractiveModule_DEFINED
 
 #include "VisualModule.h"
 
@@ -20,16 +20,15 @@
 class SkCanvas;
 
 /*
- * This module is designed to be a minimal overhead timing module for VisualBench
+ * This module for VisualBench is designed to display stats data dynamically
  */
-class VisualLightweightBenchModule : public VisualModule {
+class VisualInteractiveModule : public VisualModule {
 public:
     // TODO get rid of backpointer
-    VisualLightweightBenchModule(VisualBench* owner);
+    VisualInteractiveModule(VisualBench* owner);
 
     void draw(SkCanvas* canvas) override;
-
-    bool onHandleChar(SkUnichar c) override;
+    bool onHandleChar(SkUnichar unichar) override;
 
 private:
     /*
@@ -41,50 +40,44 @@ private:
      *                                       work state
      * kTuneLoops_State:                     Then we tune the loops of the benchmark to ensure we
      *                                       are doing a measurable amount of work
-     * kPreWarmTimingPerCanvasPreDraw_State: Because reset the context after tuning loops to ensure
-     *                                       coherent state, we need to give the benchmark
-     *                                       another hook
-     * kPreWarmTiming_State:                 We prewarm the gpu again to enter a steady state
-     * kTiming_State:                        Finally we time the benchmark.  When finished timing
-     *                                       if we have enough samples then we'll start the next
-     *                                       benchmark in the kPreWarmLoopsPerCanvasPreDraw_State.
-     *                                       otherwise, we enter the
-     *                                       kPreWarmTimingPerCanvasPreDraw_State for another sample
-     *                                       In either case we reset the context.
+     * kPreTiming_State:                     Because reset the context after tuning loops to ensure
+     *                                       coherent state, we need to restart before timing
+     * kTiming_State:                        Finally we time the benchmark.  In this case we
+     *                                       continue running and displaying benchmark data
+     *                                       until we quit or switch to another benchmark
+     * kAdvance_State:                       Advance to the next benchmark in the stream
      */
     enum State {
         kPreWarmLoopsPerCanvasPreDraw_State,
         kPreWarmLoops_State,
         kTuneLoops_State,
-        kPreWarmTimingPerCanvasPreDraw_State,
-        kPreWarmTiming_State,
+        kPreTiming_State,
         kTiming_State,
+        kAdvance_State,
     };
     void setTitle();
     bool setupBackend();
     void setupRenderTarget();
-    void printStats();
+    void drawStats(SkCanvas*);
     bool advanceRecordIfNecessary(SkCanvas*);
     inline void renderFrame(SkCanvas*);
     inline void nextState(State);
     void perCanvasPreDraw(SkCanvas*, State);
     void preWarm(State nextState);
     void scaleLoops(double elapsedMs);
-    inline void tuneLoops();
+    inline void tuneLoops(SkCanvas*);
     inline void timing(SkCanvas*);
     inline double elapsed();
     void resetTimingState();
     void postDraw(SkCanvas*);
     void recordMeasurement();
 
-    struct Record {
-        SkTArray<double> fMeasurements;
-    };
+    static const int kMeasurementCount = 64;  // should be power of 2 for fast mod
+    double fMeasurements[kMeasurementCount];
+    int fCurrentMeasurement;
 
-    int fCurrentSample;
     int fCurrentFrame;
     int fLoops;
-    SkTArray<Record> fRecords;
     WallTimer fTimer;
     State fState;
     SkAutoTDelete<VisualBenchmarkStream> fBenchmarkStream;
@@ -92,7 +85,6 @@ private:
 
     // support framework
     SkAutoTUnref<VisualBench> fOwner;
-    SkAutoTDelete<ResultsWriter> fResults;
 
     typedef VisualModule INHERITED;
 };

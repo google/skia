@@ -127,7 +127,9 @@ bool VisualLightweightBenchModule::advanceRecordIfNecessary(SkCanvas* canvas) {
         return false;
     }
 
-    canvas->clear(0xffffffff);
+    fOwner->clear(canvas, SK_ColorWHITE, 2);
+
+
     fBenchmark->preDraw();
     fRecords.push_back();
 
@@ -253,4 +255,8 @@ inline void VisualLightweightBenchModule::timing(SkCanvas* canvas) {
     } else {
         fCurrentFrame++;
     }
+}
+
+bool VisualLightweightBenchModule::onHandleChar(SkUnichar c) {
+    return true;
 }

@@ -33,6 +33,8 @@ public:
 
     void reset() { this->resetContext(); }
 
+    void clear(SkCanvas* canvas, SkColor color, int frames);
+
 protected:
     SkSurface* createSurface() override;
 

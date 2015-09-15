@@ -25,6 +25,8 @@ public:
 
     virtual void draw(SkCanvas* canvas)=0;
 
+    virtual bool onHandleChar(SkUnichar unichar) = 0;
+
 private:
     typedef SkRefCnt INHERITED;
 };
