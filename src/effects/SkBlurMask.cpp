@@ -678,7 +678,7 @@ static float gaussianIntegral(float x) {
     memory returned in profile_out.
 */
 
-void SkBlurMask::ComputeBlurProfile(SkScalar sigma, uint8_t **profile_out) {
+uint8_t* SkBlurMask::ComputeBlurProfile(SkScalar sigma) {
     int size = SkScalarCeilToInt(6*sigma);
 
     int center = size >> 1;
@@ -693,7 +693,7 @@ void SkBlurMask::ComputeBlurProfile(SkScalar sigma, uint8_t **profile_out) {
         profile[x] = 255 - (uint8_t) (255.f * gi);
     }
 
-    *profile_out = profile;
+    return profile;
 }
 
 // TODO MAYBE: Maintain a profile cache to avoid recomputing this for
@@ -769,10 +769,8 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
         }
         return true;
     }
-    uint8_t *profile = nullptr;
 
-    ComputeBlurProfile(sigma, &profile);
-    SkAutoTDeleteArray<uint8_t> ada(profile);
+    SkAutoTDeleteArray<uint8_t> profile(ComputeBlurProfile(sigma));
 
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
@@ -791,8 +789,8 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
     SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
     SkAutoTMalloc<uint8_t> verticalScanline(dstHeight);
 
-    ComputeBlurredScanline(horizontalScanline, profile, dstWidth, sigma);
-    ComputeBlurredScanline(verticalScanline, profile, dstHeight, sigma);
+    ComputeBlurredScanline(horizontalScanline, profile.get(), dstWidth, sigma);
+    ComputeBlurredScanline(verticalScanline, profile.get(), dstHeight, sigma);
 
     for (int y = 0 ; y < dstHeight ; ++y) {
         for (int x = 0 ; x < dstWidth ; x++) {

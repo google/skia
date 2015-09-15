@@ -96,8 +96,13 @@ public:
     inline bool isRect() const { return kRect_Type == this->getType(); }
     inline bool isOval() const { return kOval_Type == this->getType(); }
     inline bool isSimple() const { return kSimple_Type == this->getType(); }
+    // TODO: should isSimpleCircular & isCircle take a tolerance? This could help
+    // instances where the mapping to device space is noisy.
     inline bool isSimpleCircular() const {
-        return this->isSimple() && fRadii[0].fX == fRadii[0].fY;
+        return this->isSimple() && SkScalarNearlyEqual(fRadii[0].fX, fRadii[0].fY);
+    }
+    inline bool isCircle() const {
+        return this->isOval() && SkScalarNearlyEqual(fRadii[0].fX, fRadii[0].fY);
     }
     inline bool isNinePatch() const { return kNinePatch_Type == this->getType(); }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
@@ -140,6 +145,12 @@ public:
         return rr;
     }
     
+    static SkRRect MakeOval(const SkRect& oval) {
+        SkRRect rr;
+        rr.setOval(oval);
+        return rr;
+    }
+
     /**
      * Set this RR to match the supplied oval. All x radii will equal half the
      * width and all y radii will equal half the height.

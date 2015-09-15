@@ -544,7 +544,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         if (rect.transform(*draw.fMatrix, &devRRect)) {
             if (devRRect.allCornersCircular()) {
                 SkRect maskRect;
-                if (paint.getMaskFilter()->canFilterMaskGPU(devRRect.rect(),
+                if (paint.getMaskFilter()->canFilterMaskGPU(devRRect,
                                                             draw.fClip->getBounds(),
                                                             *draw.fMatrix,
                                                             &maskRect)) {
@@ -637,7 +637,9 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
     bool usePath = false;
     // some basic reasons we might need to call drawPath...
     if (paint.getMaskFilter()) {
-        usePath = true;
+        // The RRect path can handle special case blurring
+        SkRRect rr = SkRRect::MakeOval(oval);
+        return this->drawRRect(draw, rr, paint);
     } else {
         const SkPathEffect* pe = paint.getPathEffect();
         if (pe && !strokeInfo.isDashed()) {

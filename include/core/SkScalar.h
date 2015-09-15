@@ -224,7 +224,7 @@ static inline bool SkScalarNearlyZero(SkScalar x,
 }
 
 static inline bool SkScalarNearlyEqual(SkScalar x, SkScalar y,
-                                     SkScalar tolerance = SK_ScalarNearlyZero) {
+                                       SkScalar tolerance = SK_ScalarNearlyZero) {
     SkASSERT(tolerance >= 0);
     return SkScalarAbs(x-y) <= tolerance;
 }

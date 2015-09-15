@@ -78,17 +78,31 @@ public:
 
     /**
      *  If asFragmentProcessor() fails the filter may be implemented on the GPU by a subclass
-     *  overriding filterMaskGPU (declared below). That code path requires constructing a src mask
-     *  as input. Since that is a potentially expensive operation, the subclass must also override
-     *  this function to indicate whether filterTextureMaskGPU would succeeed if the mask were to be
-     *  created.
+     *  overriding filterMaskGPU (declared below). That code path requires constructing a
+     *  src mask as input. Since that is a potentially expensive operation, the subclass must also
+     *  override this function to indicate whether filterTextureMaskGPU would succeeed if the mask
+     *  were to be created.
      *
      *  'maskRect' returns the device space portion of the mask that the filter needs. The mask
-     *  passed into 'filterMaskGPU' should have the same extent as 'maskRect' but be translated
-     *  to the upper-left corner of the mask (i.e., (maskRect.fLeft, maskRect.fTop) appears at
-     *  (0, 0) in the mask).
+     *  passed into 'filterMaskGPU' should have the same extent as 'maskRect' but be
+     *  translated to the upper-left corner of the mask (i.e., (maskRect.fLeft, maskRect.fTop)
+     *  appears at (0, 0) in the mask).
+     *
+     * Logically, how this works is:
+     *    canFilterMaskGPU is called
+     *    if (it returns true)
+     *        the returned mask rect is used for quick rejecting
+     *        either directFilterMaskGPU or directFilterRRectMaskGPU is then called
+     *        if (neither of them handle the blur)
+     *            the mask rect is used to generate the mask
+     *            filterMaskGPU is called to filter the mask
+     *
+     * TODO: this should work as:
+     *    if (canFilterMaskGPU(devShape, ...)) // rect, rrect, drrect, path
+     *        filterMaskGPU(devShape, ...)
+     * this would hide the RRect special case and the mask generation
      */
-    virtual bool canFilterMaskGPU(const SkRect& devBounds,
+    virtual bool canFilterMaskGPU(const SkRRect& devRRect,
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
                                   SkRect* maskRect) const;

@@ -309,7 +309,7 @@ bool SkMaskFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const 
     return false;
 }
 
-bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds,
+bool SkMaskFilter::canFilterMaskGPU(const SkRRect& devRRect,
                                     const SkIRect& clipBounds,
                                     const SkMatrix& ctm,
                                     SkRect* maskRect) const {

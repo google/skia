@@ -218,6 +218,16 @@ static inline int SkAlphaBlend255(S16CPU src, S16CPU dst, U8CPU alpha) {
     return dst + prod;
 }
 
+static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
+    if (x < 0) {
+        return 0;
+    }
+    if (x >= SK_Scalar1) {
+        return 255;
+    }
+    return SkScalarToFixed(x) >> 8;
+}
+
 #define SK_R16_BITS     5
 #define SK_G16_BITS     6
 #define SK_B16_BITS     5

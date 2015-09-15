@@ -235,7 +235,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
         pathPtr->transform(viewMatrix, devPathPtr);
 
         SkRect maskRect;
-        if (paint.getMaskFilter()->canFilterMaskGPU(devPathPtr->getBounds(),
+        if (paint.getMaskFilter()->canFilterMaskGPU(SkRRect::MakeRect(devPathPtr->getBounds()),
                                                     clipBounds,
                                                     viewMatrix,
                                                     &maskRect)) {

@@ -70,21 +70,11 @@ void SkRGBToHSV(U8CPU r, U8CPU g, U8CPU b, SkScalar hsv[3]) {
     hsv[2] = v;
 }
 
-static inline U8CPU UnitScalarToByte(SkScalar x) {
-    if (x < 0) {
-        return 0;
-    }
-    if (x >= SK_Scalar1) {
-        return 255;
-    }
-    return SkScalarToFixed(x) >> 8;
-}
-
 SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
     SkASSERT(hsv);
 
-    U8CPU s = UnitScalarToByte(hsv[1]);
-    U8CPU v = UnitScalarToByte(hsv[2]);
+    U8CPU s = SkUnitScalarClampToByte(hsv[1]);
+    U8CPU v = SkUnitScalarClampToByte(hsv[2]);
 
     if (0 == s) { // shade of gray
         return SkColorSetARGB(a, v, v, v);
