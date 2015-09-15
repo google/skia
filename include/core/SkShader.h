@@ -439,6 +439,7 @@ private:
 
     // So the SkLocalMatrixShader can whack fLocalMatrix in its SkReadBuffer constructor.
     friend class SkLocalMatrixShader;
+    friend class SkBitmapProcShader;    // for computeTotalInverse()
 
     typedef SkFlattenable INHERITED;
 };

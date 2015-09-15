@@ -19,6 +19,12 @@
 #include "effects/GrSimpleTextureEffect.h"
 #endif
 
+size_t SkBitmapProcShader::ContextSize() {
+    // The SkBitmapProcState is stored outside of the context object, with the context holding
+    // a pointer to it.
+    return sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
+}
+
 SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                        const SkMatrix* localMatrix)
         : INHERITED(localMatrix) {
@@ -70,36 +76,36 @@ bool SkBitmapProcShader::isOpaque() const {
     return fRawBitmap.isOpaque();
 }
 
-SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, void* storage) const {
+SkShader::Context* SkBitmapProcShader::MakeContext(const SkShader& shader,
+                                                   TileMode tmx, TileMode tmy,
+                                                   const SkBitmap& bitmap,
+                                                   const ContextRec& rec, void* storage) {
     SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
-    if (!this->computeTotalInverse(rec, &totalInverse)) {
+    if (!shader.computeTotalInverse(rec, &totalInverse)) {
         return nullptr;
     }
 
     void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
-    SkBitmapProcState* state = new (stateStorage) SkBitmapProcState;
+    SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(SkBitmapProvider(bitmap),
+                                                                    tmx, tmy);
 
     SkASSERT(state);
-    state->fTileModeX = fTileModeX;
-    state->fTileModeY = fTileModeY;
-    state->fOrigBitmap = fRawBitmap;
     if (!state->chooseProcs(totalInverse, *rec.fPaint)) {
         state->~SkBitmapProcState();
         return nullptr;
     }
 
-    return new (storage) BitmapProcShaderContext(*this, rec, state);
+    return new (storage) BitmapProcShaderContext(shader, rec, state);
 }
 
-size_t SkBitmapProcShader::contextSize() const {
-    // The SkBitmapProcState is stored outside of the context object, with the context holding
-    // a pointer to it.
-    return sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
+SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, void* storage) const {
+    return MakeContext(*this, (TileMode)fTileModeX, (TileMode)fTileModeY, fRawBitmap, rec, storage);
 }
 
-SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(
-        const SkBitmapProcShader& shader, const ContextRec& rec, SkBitmapProcState* state)
+SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(const SkShader& shader,
+                                                                     const ContextRec& rec,
+                                                                     SkBitmapProcState* state)
     : INHERITED(shader, rec)
     , fState(state)
 {

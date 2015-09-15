@@ -22,7 +22,7 @@ public:
 
     bool isOpaque() const override;
 
-    size_t contextSize() const override;
+    size_t contextSize() const override { return ContextSize(); }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
@@ -33,11 +33,12 @@ public:
                                                    GrProcessorDataManager*) const override;
 #endif
 
+protected:
     class BitmapProcShaderContext : public SkShader::Context {
     public:
         // The context takes ownership of the state. It will call its destructor
         // but will NOT free the memory.
-        BitmapProcShaderContext(const SkBitmapProcShader&, const ContextRec&, SkBitmapProcState*);
+        BitmapProcShaderContext(const SkShader&, const ContextRec&, SkBitmapProcState*);
         ~BitmapProcShaderContext() override;
 
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
@@ -52,8 +53,7 @@ public:
 
         typedef SkShader::Context INHERITED;
     };
-
-protected:
+    
     void flatten(SkWriteBuffer&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
     bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
@@ -62,6 +62,12 @@ protected:
     uint8_t     fTileModeX, fTileModeY;
 
 private:
+    friend class SkImageShader;
+
+    static size_t ContextSize();
+    static Context* MakeContext(const SkShader&, TileMode tmx, TileMode tmy, const SkBitmap&,
+                                const ContextRec&, void* storage);
+
     typedef SkShader INHERITED;
 };
 
@@ -70,7 +76,7 @@ private:
 // an Sk3DBlitter in SkDraw.cpp
 // Note that some contexts may contain other contexts (e.g. for compose shaders), but we've not
 // yet found a situation where the size below isn't big enough.
-typedef SkSmallAllocator<3, 1152> SkTBlitterAllocator;
+typedef SkSmallAllocator<3, 1160> SkTBlitterAllocator;
 
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.

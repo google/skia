@@ -25,7 +25,8 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcState {
-    SkBitmapProcState();
+    SkBitmapProcState(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
+    SkBitmapProcState(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy);
     ~SkBitmapProcState();
 
     typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
@@ -128,7 +129,7 @@ private:
     SampleProc32        fSampleProc32;      // chooseProcs
     SampleProc16        fSampleProc16;      // chooseProcs
 
-    SkBitmap            fOrigBitmap;        // CONSTRUCTOR
+    const SkBitmapProvider fProvider;
 
     enum {
         kBMStateSize = 136  // found by inspection. if too small, we will call new/delete

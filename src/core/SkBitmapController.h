@@ -16,8 +16,12 @@
 
 class SkBitmapProvider {
 public:
-    SkBitmapProvider(const SkBitmap& bm) : fBitmap(bm) {}
-    SkBitmapProvider(const SkImage* img) : fImage(SkRef(img)) {}
+    explicit SkBitmapProvider(const SkBitmap& bm) : fBitmap(bm) {}
+    explicit SkBitmapProvider(const SkImage* img) : fImage(SkSafeRef(img)) {}
+    SkBitmapProvider(const SkBitmapProvider& other)
+        : fBitmap(other.fBitmap)
+        , fImage(SkSafeRef(other.fImage.get()))
+    {}
 
     int width() const;
     int height() const;
