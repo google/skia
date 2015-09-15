@@ -89,19 +89,17 @@ bool GrGLRenderTarget::completeStencilAttachment() {
     const GrGLInterface* interface = gpu->glInterface();
     GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (nullptr == stencil) {
-        if (this->renderTargetPriv().getStencilAttachment()) {
-            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                          GR_GL_STENCIL_ATTACHMENT,
-                                                          GR_GL_RENDERBUFFER, 0));
-            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                          GR_GL_DEPTH_ATTACHMENT,
-                                                          GR_GL_RENDERBUFFER, 0));
+        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                      GR_GL_STENCIL_ATTACHMENT,
+                                                      GR_GL_RENDERBUFFER, 0));
+        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                      GR_GL_DEPTH_ATTACHMENT,
+                                                      GR_GL_RENDERBUFFER, 0));
 #ifdef SK_DEBUG
-            GrGLenum status;
-            GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-            SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
+        GrGLenum status;
+        GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
 #endif
-        }
         return true;
     } else {
         const GrGLStencilAttachment* glStencil = static_cast<const GrGLStencilAttachment*>(stencil);
