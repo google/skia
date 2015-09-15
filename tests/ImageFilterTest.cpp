@@ -1229,6 +1229,7 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
 
     SkBitmap bm;
     bm.allocN32Pixels(10, 10);
+    bm.eraseColor(SK_ColorBLUE);
     SkPaint paint;
     paint.setColor(SK_ColorRED);
     paint.setImageFilter(unflattenedFilter);
