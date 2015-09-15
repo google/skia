@@ -112,7 +112,7 @@ static inline float disk(float x, float y, float radius) {
     } else if (distSq >= (radius+0.5f)*(radius+0.5f)) {
         return 0.0f;
     } else {
-        float ramp = radius + 0.5f - sqrt(distSq);
+        float ramp = radius + 0.5f - sqrtf(distSq);
         SkASSERT(ramp >= 0.0f && ramp <= 1.0f);
         return ramp;
     }
@@ -134,7 +134,7 @@ static void make_half_kernel(float* kernel, int kernelWH, float sigma) {
             float x2 = (x-kernelOff) * (x-kernelOff);
             float y2 = (y-kernelOff) * (y-kernelOff);
             // The kernel is symmetric so only compute it once for both sides
-            kernel[y*kernelWH+(kernelWH-x-1)] = kernel[y*kernelWH+x] = exp(-(x2 + y2) * b);
+            kernel[y*kernelWH+(kernelWH-x-1)] = kernel[y*kernelWH+x] = expf(-(x2 + y2) * b);
             tot += 2.0f * kernel[y*kernelWH+x];
         }
     }
