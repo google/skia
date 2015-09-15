@@ -10,6 +10,7 @@
 #include "SkDashPathPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
+#include "SkStrokeRec.h"
 
 SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase)
         : fPhase(0)

@@ -17,6 +17,7 @@
 #include "SkUtils.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
+#include "SkStrokeRec.h"
 #include "SkTypeface.h"
 
 static inline SkPMColor rgb2gray(SkPMColor c) {

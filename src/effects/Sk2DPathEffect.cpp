@@ -12,6 +12,7 @@
 #include "SkWriteBuffer.h"
 #include "SkPath.h"
 #include "SkRegion.h"
+#include "SkStrokeRec.h"
 
 Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     fMatrixIsInvertible = mat.invert(&fInverse);

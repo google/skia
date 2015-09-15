@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkString.h"
+#include "SkStrokeRec.h"
 #include "SkTDArray.h"
 
 

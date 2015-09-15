@@ -32,6 +32,7 @@
 #include "SkTextToPathIter.h"
 #include "SkTLazy.h"
 #include "SkTypeface.h"
+#include "SkStrokeRec.h"
 #include "SkSurfacePriv.h"
 #include "SkXfermode.h"
 

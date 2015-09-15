@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
+#include "SkStrokeRec.h"
 #include "SkSurface.h"
 #include "Test.h"
 

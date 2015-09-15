@@ -7,6 +7,7 @@
 
 #include "SkDashPathPriv.h"
 #include "SkPathMeasure.h"
+#include "SkStrokeRec.h"
 
 static inline int is_even(int x) {
     return (~x) << 31;

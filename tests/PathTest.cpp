@@ -16,6 +16,7 @@
 #include "SkReader32.h"
 #include "SkSize.h"
 #include "SkStream.h"
+#include "SkStrokeRec.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
 #include "SkWriter32.h"

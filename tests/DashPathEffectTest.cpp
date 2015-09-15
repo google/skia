@@ -9,6 +9,7 @@
 
 #include "SkDashPathEffect.h"
 #include "SkWriteBuffer.h"
+#include "SkStrokeRec.h"
 
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
 // fInitialDashLength < 0 (a signal the effect is nonsense).  Here we test that it flattens.

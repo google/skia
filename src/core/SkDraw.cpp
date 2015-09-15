@@ -24,6 +24,7 @@
 #include "SkSmallAllocator.h"
 #include "SkString.h"
 #include "SkStroke.h"
+#include "SkStrokeRec.h"
 #include "SkTextMapStateProc.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
