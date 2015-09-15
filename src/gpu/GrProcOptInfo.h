@@ -31,7 +31,7 @@ public:
         , fReadsFragPosition(false) {}
 
     void calcWithInitialValues(const GrFragmentProcessor* const *, int cnt, GrColor startColor,
-                               GrColorComponentFlags, bool areCoverageStages);
+                               GrColorComponentFlags, bool areCoverageStages, bool isLCD = false);
 
     void calcColorWithBatch(const GrDrawBatch*, const GrFragmentProcessor* const[], int cnt);
     void calcCoverageWithBatch(const GrDrawBatch*, const GrFragmentProcessor* const[], int cnt);

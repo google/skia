@@ -105,3 +105,4 @@ void GrPipelineBuilder::calcCoverageInvariantOutput(const GrDrawBatch* batch) co
     fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageFragmentProcessors.begin(),
                                             this->numCoverageFragmentProcessors());
 }
+

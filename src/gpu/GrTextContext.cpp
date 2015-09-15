@@ -80,7 +80,7 @@ void GrTextContext::drawPosText(GrDrawContext* dc, GrRenderTarget* rt,
 
 bool GrTextContext::ShouldDisableLCD(const SkPaint& paint) {
     if (paint.getShader() ||
-        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode) ||
+        !SkXfermode::AsMode(paint.getXfermode(), nullptr) ||
         paint.getMaskFilter() ||
         paint.getRasterizer() ||
         paint.getColorFilter() ||

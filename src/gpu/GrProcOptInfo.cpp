@@ -33,11 +33,13 @@ void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const proc
                                           int cnt,
                                           GrColor startColor,
                                           GrColorComponentFlags flags,
-                                          bool areCoverageStages) {
+                                          bool areCoverageStages,
+                                          bool isLCD) {
     GrInitInvariantOutput out;
     out.fIsSingleComponent = areCoverageStages;
     out.fColor = startColor;
     out.fValidFlags = flags;
+    out.fIsLCDCoverage = isLCD;
     fInOut.reset(out);
     this->internalCalc(processors, cnt, false);
 }

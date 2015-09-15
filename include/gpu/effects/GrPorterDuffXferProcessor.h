@@ -18,7 +18,9 @@ class GrPorterDuffXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkXfermode::Mode mode); 
 
-    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override;
+    bool supportsRGBCoverage(GrColor /*knownColor*/, uint32_t /*knownColorFlags*/) const override {
+        return true;
+    }
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
