@@ -633,8 +633,10 @@ public:
 
         fsBuilder->codeAppend(
                       "vec4 val = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);");
+        // set alpha to be max of rgb coverage
+        fsBuilder->codeAppend("val.a = max(max(val.r, val.g), val.b);");
 
-        fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
+        fsBuilder->codeAppendf("%s = val;", args.fOutputCoverage);
     }
 
     void setData(const GrGLProgramDataManager& pdman,

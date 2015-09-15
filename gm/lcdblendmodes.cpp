@@ -13,6 +13,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkSurface.h"
 
 namespace skiagm {
 
@@ -43,21 +44,44 @@ public:
     
 protected:
     SkString onShortName() override {
-        SkString name("lcdblendmodes");
-        name.append(sk_tool_utils::major_platform_os_name());
-        return name;
+        return SkString("lcdblendmodes");
+    }
+
+    void onOnceBeforeDraw() override {
+        fCheckerboard.reset(sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK,
+                                                                      SK_ColorWHITE,
+                                                                      4));
     }
     
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
     
     void onDraw(SkCanvas* canvas) override {
-        this->drawColumn(canvas, SK_ColorBLACK, SK_ColorWHITE, false);
-        canvas->translate(SkIntToScalar(kColWidth), 0);
-        this->drawColumn(canvas, SK_ColorWHITE, SK_ColorBLACK, false);
-        canvas->translate(SkIntToScalar(kColWidth), 0);
-        this->drawColumn(canvas, SK_ColorGREEN, SK_ColorMAGENTA, false);
-        canvas->translate(SkIntToScalar(kColWidth), 0);
-        this->drawColumn(canvas, SK_ColorCYAN, SK_ColorMAGENTA, true);
+        SkPaint p;
+        p.setAntiAlias(false);
+        p.setStyle(SkPaint::kFill_Style);
+        p.setShader(fCheckerboard);
+        SkRect r = SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
+        canvas->drawRect(r, p);
+
+        SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+        SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+        if (nullptr == surface) {
+            surface.reset(SkSurface::NewRaster(info));
+        }
+
+        SkCanvas* surfCanvas = surface->getCanvas();
+        this->drawColumn(surfCanvas, SK_ColorBLACK, SK_ColorWHITE, false);
+        surfCanvas->translate(SkIntToScalar(kColWidth), 0);
+        this->drawColumn(surfCanvas, SK_ColorWHITE, SK_ColorBLACK, false);
+        surfCanvas->translate(SkIntToScalar(kColWidth), 0);
+        this->drawColumn(surfCanvas, SK_ColorGREEN, SK_ColorMAGENTA, false);
+        surfCanvas->translate(SkIntToScalar(kColWidth), 0);
+        this->drawColumn(surfCanvas, SK_ColorCYAN, SK_ColorMAGENTA, true);
+
+        SkPaint surfPaint;
+        SkAutoTUnref<SkXfermode> xfermode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
+        surfPaint.setXfermode(xfermode);
+        surface->draw(canvas, 0, 0, &surfPaint);
     }
 
     void drawColumn(SkCanvas* canvas, SkColor backgroundColor, SkColor textColor, bool useGrad) {
@@ -124,6 +148,7 @@ protected:
     
 private:
     SkScalar fTextHeight;
+    SkAutoTUnref<SkShader> fCheckerboard;
     typedef skiagm::GM INHERITED;
 };
 

@@ -69,6 +69,12 @@ public:
             fsBuilder->codeAppendf("%s = ", args.fOutputCoverage);
             fsBuilder->appendTextureLookup(args.fSamplers[0], v.fsIn(), kVec2f_GrSLType);
             fsBuilder->codeAppend(";");
+            if (cte.maskFormat() == kA565_GrMaskFormat) {
+                // set alpha to be max of rgb coverage
+                fsBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);",
+                                       args.fOutputCoverage, args.fOutputCoverage,
+                                       args.fOutputCoverage, args.fOutputCoverage);
+            }
         }
     }
 
