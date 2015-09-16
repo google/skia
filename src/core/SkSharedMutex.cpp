@@ -184,7 +184,7 @@ void SkSharedMutex::releaseShared() {
     ANNOTATE_RWLOCK_RELEASED(this, 0);
 
     // Decrement the shared count.
-    int32_t oldQueueCounts = fQueueCounts.fetch_add(~0U << kSharedOffset,
+    int32_t oldQueueCounts = fQueueCounts.fetch_sub(1 << kSharedOffset,
                                                     sk_memory_order_release);
 
     // If shared count is going to zero (because the old count == 1) and there are exclusive
