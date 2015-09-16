@@ -162,13 +162,6 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-static void make_texture_desc(const SkImageInfo& info, GrSurfaceDesc* desc) {
-    desc->fFlags = kNone_GrSurfaceFlags;
-    desc->fWidth = info.width();
-    desc->fHeight = info.height();
-    desc->fConfig = SkImageInfo2GrPixelConfig(info);
-    desc->fSampleCnt = 0;
-}
 
 static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrSurfaceDesc desc) {
     const void* rawStart;
@@ -229,9 +222,6 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usa
     GrMakeKeyFromImageID(&key, fUniqueID, SkIRect::MakeWH(fInfo.width(), fInfo.height()),
                          *ctx->caps(), usage);
 
-    GrSurfaceDesc desc;
-    make_texture_desc(fInfo, &desc);
-
     // 1. Check the cache for a pre-existing one
     if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
         return tex;
@@ -245,6 +235,8 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usa
             return set_key_and_return(tex, key);
         }
     }
+
+    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo);
 
     // 3. Ask the generator to return a compressed form that the GPU might support
     SkAutoTUnref<SkData> data(this->refEncoded());

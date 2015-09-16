@@ -1042,6 +1042,13 @@ static void draw_aa_bitmap(GrDrawContext* drawContext, GrContext* context,
     drawContext->drawBatch(renderTarget, clip, grPaint, batch);
 }
 
+static bool can_ignore_strict_subset_constraint(const SkBitmap& bitmap, const SkRect& subset) {
+    GrTexture* tex = bitmap.getTexture();
+    int width = tex ? tex->width() : bitmap.width();
+    int height = tex ? tex->height() : bitmap.height();
+    return subset.contains(SkRect::MakeIWH(width, height));
+}
+
 void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                    const SkBitmap& bitmap,
                                    const SkRect* srcRectPtr,
@@ -1065,11 +1072,8 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
         srcRect = *srcRectPtr;
         dstSize = *dstSizePtr;
     }
-    GrTexture* tex = bitmap.getTexture();
-    int width = tex ? tex->width() : bitmap.width();
-    int height = tex ? tex->height() : bitmap.height();
-    if (srcRect.fLeft <= 0 && srcRect.fTop <= 0 &&
-        srcRect.fRight >= width && srcRect.fBottom >= height) {
+
+    if (can_ignore_strict_subset_constraint(bitmap, srcRect)) {
         constraint = SkCanvas::kFast_SrcRectConstraint;
     }
 

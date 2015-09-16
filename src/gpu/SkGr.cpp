@@ -205,12 +205,14 @@ static void make_image_keys(uint32_t imageID, const SkIRect& subset, const Stret
     }
 }
 
-static void generate_bitmap_texture_desc(const SkBitmap& bitmap, GrSurfaceDesc* desc) {
-    desc->fFlags = kNone_GrSurfaceFlags;
-    desc->fWidth = bitmap.width();
-    desc->fHeight = bitmap.height();
-    desc->fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
-    desc->fSampleCnt = 0;
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fWidth = info.width();
+    desc.fHeight = info.height();
+    desc.fConfig = SkImageInfo2GrPixelConfig(info);
+    desc.fSampleCnt = 0;
+    return desc;
 }
 
 namespace {
@@ -433,8 +435,7 @@ static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
 
     const SkBitmap* bitmap = &origBitmap;
 
-    GrSurfaceDesc desc;
-    generate_bitmap_texture_desc(*bitmap, &desc);
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap->info());
     const GrCaps* caps = ctx->caps();
 
     if (kIndex_8_SkColorType == bitmap->colorType()) {

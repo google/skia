@@ -78,6 +78,8 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
                            SkGetPackedA32(c));
 }
 
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
