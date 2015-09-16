@@ -440,3 +440,174 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
         }
     }
 }
+
+/////////////////////
+#if SK_SUPPORT_GPU
+
+// make_ringed_bitmap was lifted from gm/bleed.cpp, as that GM was what showed the following
+// bug when a change was made to SkImage_Raster.cpp. It is possible that other test bitmaps
+// would also tickle skbug.com/4351 but this one is know to do it, so I've pasted the code
+// here so we have a dependable repro case.
+
+// Create a black&white checked texture with 2 1-pixel rings
+// around the outside edge. The inner ring is red and the outer ring is blue.
+static void make_ringed_bitmap(SkBitmap* result, int width, int height) {
+    SkASSERT(0 == width % 2 && 0 == height % 2);
+
+    static const SkPMColor kRed = SkPreMultiplyColor(SK_ColorRED);
+    static const SkPMColor kBlue = SkPreMultiplyColor(SK_ColorBLUE);
+    static const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
+    static const SkPMColor kWhite = SkPreMultiplyColor(SK_ColorWHITE);
+
+    result->allocN32Pixels(width, height, true);
+
+    SkPMColor* scanline = result->getAddr32(0, 0);
+    for (int x = 0; x < width; ++x) {
+        scanline[x] = kBlue;
+    }
+    scanline = result->getAddr32(0, 1);
+    scanline[0] = kBlue;
+    for (int x = 1; x < width - 1; ++x) {
+        scanline[x] = kRed;
+    }
+    scanline[width-1] = kBlue;
+
+    for (int y = 2; y < height/2; ++y) {
+        scanline = result->getAddr32(0, y);
+        scanline[0] = kBlue;
+        scanline[1] = kRed;
+        for (int x = 2; x < width/2; ++x) {
+            scanline[x] = kBlack;
+        }
+        for (int x = width/2; x < width-2; ++x) {
+            scanline[x] = kWhite;
+        }
+        scanline[width-2] = kRed;
+        scanline[width-1] = kBlue;
+    }
+
+    for (int y = height/2; y < height-2; ++y) {
+        scanline = result->getAddr32(0, y);
+        scanline[0] = kBlue;
+        scanline[1] = kRed;
+        for (int x = 2; x < width/2; ++x) {
+            scanline[x] = kWhite;
+        }
+        for (int x = width/2; x < width-2; ++x) {
+            scanline[x] = kBlack;
+        }
+        scanline[width-2] = kRed;
+        scanline[width-1] = kBlue;
+    }
+
+    scanline = result->getAddr32(0, height-2);
+    scanline[0] = kBlue;
+    for (int x = 1; x < width - 1; ++x) {
+        scanline[x] = kRed;
+    }
+    scanline[width-1] = kBlue;
+
+    scanline = result->getAddr32(0, height-1);
+    for (int x = 0; x < width; ++x) {
+        scanline[x] = kBlue;
+    }
+    result->setImmutable();
+}
+
+static void compare_textures(skiatest::Reporter* reporter, GrTexture* txa, GrTexture* txb) {
+    REPORTER_ASSERT(reporter, txa->width() == 2);
+    REPORTER_ASSERT(reporter, txa->height() == 2);
+    REPORTER_ASSERT(reporter, txb->width() == 2);
+    REPORTER_ASSERT(reporter, txb->height() == 2);
+    REPORTER_ASSERT(reporter, txa->config() == txb->config());
+
+    SkPMColor pixelsA[4], pixelsB[4];
+    REPORTER_ASSERT(reporter, txa->readPixels(0, 0, 2, 2, txa->config(), pixelsA));
+    REPORTER_ASSERT(reporter, txb->readPixels(0, 0, 2, 2, txa->config(), pixelsB));
+    REPORTER_ASSERT(reporter, 0 == memcmp(pixelsA, pixelsB, sizeof(pixelsA)));
+}
+
+static SkData* draw_into_surface(SkSurface* surf, const SkBitmap& bm, SkFilterQuality quality) {
+    SkCanvas* canvas = surf->getCanvas();
+    canvas->clear(SK_ColorBLUE);
+
+    SkPaint paint;
+    paint.setFilterQuality(quality);
+
+    canvas->translate(40, 100);
+    canvas->rotate(30);
+    canvas->scale(20, 30);
+    canvas->translate(-SkScalarHalf(bm.width()), -SkScalarHalf(bm.height()));
+    canvas->drawBitmap(bm, 0, 0, &paint);
+
+    SkAutoTUnref<SkImage> image(surf->newImageSnapshot());
+    return image->encode();
+}
+
+#include "SkStream.h"
+static void dump_to_file(const char name[], SkData* data) {
+    SkFILEWStream file(name);
+    file.write(data->data(), data->size());
+}
+
+/*
+ *  Test two different ways to turn a subset of a bitmap into a texture
+ *  - subset and then upload to a texture
+ *  - upload to a texture and then subset
+ *
+ *  These two techniques result in the same pixels (ala readPixels)
+ *  but when we draw them (rotated+scaled) we don't always get the same results.
+ *
+ *  skbug.com/4351
+ */
+DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
+    GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);
+    if (!ctx) {
+        REPORTER_ASSERT(reporter, false);
+        return;
+    }
+
+    SkBitmap bitmap;
+    make_ringed_bitmap(&bitmap, 6, 6);
+    const SkIRect subset = SkIRect::MakeLTRB(2, 2, 4, 4);
+
+    // make two textures...
+    SkBitmap bm_subset, tx_subset;
+
+    // ... one from a texture-subset
+    SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(ctx, bitmap,
+                                                            kUntiled_SkImageUsageType));
+    SkBitmap tx_full;
+    GrWrapTextureInBitmap(fullTx, bitmap.width(), bitmap.height(), true, &tx_full);
+    tx_full.extractSubset(&tx_subset, subset);
+
+    // ... one from a bitmap-subset
+    SkBitmap tmp_subset;
+    bitmap.extractSubset(&tmp_subset, subset);
+    SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(ctx, tmp_subset,
+                                                              kUntiled_SkImageUsageType));
+    GrWrapTextureInBitmap(subsetTx, tmp_subset.width(), tmp_subset.height(), true, &bm_subset);
+
+    // did we get the same subset?
+    compare_textures(reporter, bm_subset.getTexture(), tx_subset.getTexture());
+
+    // do they draw the same?
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
+    SkAutoTUnref<SkSurface> surfA(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0));
+    SkAutoTUnref<SkSurface> surfB(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0));
+
+    //
+    //  BUG: if we change this to kNone_SkFilterQuality or kHigh_SkFilterQuality, it fails
+    //
+    SkFilterQuality quality = kLow_SkFilterQuality;
+
+    SkAutoTUnref<SkData> dataA(draw_into_surface(surfA, bm_subset, quality));
+    SkAutoTUnref<SkData> dataB(draw_into_surface(surfB, tx_subset, quality));
+
+    REPORTER_ASSERT(reporter, dataA->equals(dataB));
+    if (false) {
+        dump_to_file("test_image_A.png", dataA);
+        dump_to_file("test_image_B.png", dataB);
+    }
+}
+#endif
