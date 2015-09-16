@@ -140,10 +140,6 @@ public:
 
     bool readsFragPosition() const { return fReadsFragPosition; }
 
-    const SkTArray<const GrCoordTransform*, true>& coordTransforms() const {
-        return fCoordTransforms;
-    }
-
 private:
     GrPipeline() { /** Initialized in factory function*/ }
 
@@ -186,9 +182,6 @@ private:
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int                                 fNumColorProcessors;
-
-    SkSTArray<8, const GrCoordTransform*, true> fCoordTransforms;
-    GrProgramDesc                       fDesc;
 
     typedef SkRefCnt INHERITED;
 };

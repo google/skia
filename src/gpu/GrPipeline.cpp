@@ -96,7 +96,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         const GrFragmentProcessor* fp = builder.getColorFragmentProcessor(i);
         pipeline->fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
-        fp->gatherCoordTransforms(&pipeline->fCoordTransforms);
     }
 
     for (int i = firstCoverageProcessorIdx; i < builder.numCoverageFragmentProcessors();
@@ -104,7 +103,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         const GrFragmentProcessor* fp = builder.getCoverageFragmentProcessor(i);
         pipeline->fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
-        fp->gatherCoordTransforms(&pipeline->fCoordTransforms);
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
