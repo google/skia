@@ -56,7 +56,10 @@ public:
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*) const { return false; }
+    virtual bool getROPixels(SkBitmap*) const = 0;
+
+    // Caller must call unref when they are done.
+    virtual GrTexture* asTextureRef(GrContext*, SkImageUsageType) const = 0;
 
     virtual SkShader* onNewShader(SkShader::TileMode,
                                   SkShader::TileMode,
@@ -70,9 +73,6 @@ public:
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
 
     virtual bool onIsLazyGenerated() const { return false; }
-
-    // Caller must call unref when they are done.
-    virtual GrTexture* asTextureRef(GrContext*, SkImageUsageType) const { return nullptr; }
 
 private:
     const SkSurfaceProps fProps;

@@ -10,10 +10,15 @@
 #include "SkCanvas.h"
 #include "SkColorTable.h"
 #include "SkData.h"
-#include "SkImageGeneratorPriv.h"
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkSurface.h"
+
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "SkGr.h"
+#include "SkGrPriv.h"
+#endif
 
 class SkImage_Raster : public SkImage_Base {
 public:
@@ -67,6 +72,7 @@ public:
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkData* onRefEncoded() const override;
     bool getROPixels(SkBitmap*) const override;
+    GrTexture* asTextureRef(GrContext*, SkImageUsageType) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
     SkImage_Raster(const SkImageInfo&, SkPixelRef*, const SkIPoint& pixelRefOrigin, size_t rowBytes,
@@ -178,6 +184,32 @@ SkData* SkImage_Raster::onRefEncoded() const {
 bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
     *dst = fBitmap;
     return true;
+}
+
+GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
+#if SK_SUPPORT_GPU
+    if (!ctx) {
+        return nullptr;
+    }
+
+    // textures (at least the texture-key) only support 16bit dimensions, so abort early
+    // if we're too big.
+    if (fBitmap.width() > 0xFFFF || fBitmap.height() > 0xFFFF) {
+        return nullptr;
+    }
+
+    GrUniqueKey key;
+    GrMakeKeyFromImageID(&key, fBitmap.getGenerationID(),
+                         SkIRect::MakeWH(fBitmap.width(), fBitmap.height()),
+                         *ctx->caps(), usage);
+
+    if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
+        return tex;
+    }
+    return GrRefCachedBitmapTexture(ctx, fBitmap, usage);
+#endif
+    
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
