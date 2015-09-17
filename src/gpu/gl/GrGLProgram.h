@@ -72,7 +72,7 @@ public:
          * coords. Assuming the transformed position, pos, is a homogeneous vec3, the vec, v, is
          * applied as such:
          * pos.x = dot(v.xy, pos.xz)
-         * pos.y = dot(v.zq, pos.yz)
+         * pos.y = dot(v.zw, pos.yz)
          */
         void getRTAdjustmentVec(GrGLfloat* destVec) {
             destVec[0] = 2.f / fRenderTargetSize.fWidth;
