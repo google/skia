@@ -37,7 +37,7 @@ Quickstart
         out/Debug/dm
         out/Debug/SampleApp
 
-Prerequisites
+<a name="prerequisites"></a>Prerequisites
 -------------
 
 On a Ubuntu 12.04 (Precise) or Ubuntu 14.04 (Trusty) system, you can run

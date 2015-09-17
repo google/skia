@@ -20,6 +20,10 @@ Follow the instructions [here](../download) for downloading the Skia source.
 Inside your Skia checkout, `platform_tools/android` contains the Android setup
 scripts, Android specific dependencies, and the Android Sample App.
 
+You may need to [install other dependencies](./linux#prerequisites):
+
+    tools/install_dependencies.sh
+
 Setup the Android SDK
 ---------------------
 
