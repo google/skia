@@ -8,6 +8,7 @@
 #ifndef SkImageGenerator_DEFINED
 #define SkImageGenerator_DEFINED
 
+#include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkImageInfo.h"
 
@@ -166,18 +167,18 @@ public:
                                             const SkPaint*);
 
     bool tryGenerateBitmap(SkBitmap* bm) {
-        return this->tryGenerateBitmap(bm, nullptr);
+        return this->tryGenerateBitmap(bm, nullptr, nullptr);
     }
-    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info) {
-        return this->tryGenerateBitmap(bm, &info);
+    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator) {
+        return this->tryGenerateBitmap(bm, &info, allocator);
     }
     void generateBitmap(SkBitmap* bm) {
-        if (!this->tryGenerateBitmap(bm, nullptr)) {
+        if (!this->tryGenerateBitmap(bm, nullptr, nullptr)) {
             sk_throw();
         }
     }
     void generateBitmap(SkBitmap* bm, const SkImageInfo& info) {
-        if (!this->tryGenerateBitmap(bm, &info)) {
+        if (!this->tryGenerateBitmap(bm, &info, nullptr)) {
             sk_throw();
         }
     }
@@ -197,7 +198,7 @@ protected:
         return nullptr;
     }
 
-    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo* optionalInfo);
+    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo* optionalInfo, SkBitmap::Allocator*);
 
 private:
     const SkImageInfo fInfo;

@@ -11,6 +11,7 @@
 #include "SkMallocPixelRef.h"
 #include "SkNextID.h"
 #include "SkPixelRef.h"
+#include "SkResourceCache.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -82,18 +83,20 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
 // If you want the immutable bitmap with the same ID as our cacherator, call tryLockAsBitmap()
 //
 bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
+    SkBitmap::Allocator* allocator = SkResourceCache::GetAllocator();
+
     ScopedGenerator generator(this);
     const SkImageInfo& genInfo = generator->getInfo();
     if (fInfo.dimensions() == genInfo.dimensions()) {
         SkASSERT(fOrigin.x() == 0 && fOrigin.y() == 0);
         // fast-case, no copy needed
-        return generator->tryGenerateBitmap(bitmap, fInfo);
+        return generator->tryGenerateBitmap(bitmap, fInfo, allocator);
     } else {
         // need to handle subsetting, so we first generate the full size version, and then
         // "read" from it to get our subset. See skbug.com/4213
 
         SkBitmap full;
-        if (!generator->tryGenerateBitmap(&full, genInfo)) {
+        if (!generator->tryGenerateBitmap(&full, genInfo, allocator)) {
             return false;
         }
         if (!bitmap->tryAllocPixels(fInfo, nullptr, full.getColorTable())) {

@@ -67,6 +67,17 @@ private:
 
     void init(const SkPMColor* colors, int count);
 
+    friend class SkImageGenerator;
+    // Only call if no other thread or cache has seen this table.
+    void dangerous_overwriteColors(const SkPMColor newColors[], int count) {
+        if (count < 0 || count > fCount) {
+            sk_throw();
+        }
+        // assumes that f16BitCache nas NOT been initialized yet, so we don't try to update it
+        memcpy(fColors, newColors, count * sizeof(SkPMColor));
+        fCount = count; // update fCount, in case count is smaller
+    }
+
     typedef SkRefCnt INHERITED;
 };
 
