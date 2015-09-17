@@ -15,9 +15,11 @@
 
 class GrDiscardBatch final : public GrBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     GrDiscardBatch(GrRenderTarget* rt)
-        : fRenderTarget(rt) {
-        this->initClassID<GrDiscardBatch>();
+        : INHERITED(ClassID())
+        , fRenderTarget(rt) {
         fBounds = SkRect::MakeWH(SkIntToScalar(rt->width()), SkIntToScalar(rt->height()));
     }
 
@@ -43,6 +45,8 @@ private:
     }
 
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+
+    typedef GrBatch INHERITED;
 };
 
 #endif

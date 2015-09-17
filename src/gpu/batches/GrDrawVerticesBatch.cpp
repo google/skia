@@ -45,8 +45,8 @@ GrDrawVerticesBatch::GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveTy
                                          const SkPoint* positions, int vertexCount,
                                          const uint16_t* indices, int indexCount,
                                          const GrColor* colors, const SkPoint* localCoords,
-                                         const SkRect& bounds) {
-    this->initClassID<GrDrawVerticesBatch>();
+                                         const SkRect& bounds)
+    : INHERITED(ClassID()) {
     SkASSERT(positions);
 
     fBatch.fViewMatrix = viewMatrix;

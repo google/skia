@@ -46,10 +46,10 @@ void GrBatch::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
-GrBatch::GrBatch()
-    : fClassID(kIllegalBatchID)
+GrBatch::GrBatch(uint32_t classID)
+    : fClassID(classID)
 #if GR_BATCH_SPEW
-    , fUniqueID(GenID(&gCurrBatchUniqueID))
+    , fUniqueID(GenBatchID())
 #endif
 {
     SkDEBUGCODE(fUsed = false;)

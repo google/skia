@@ -9,7 +9,7 @@
 #include "GrBatchFlushState.h"
 #include "GrResourceProvider.h"
 
-GrVertexBatch::GrVertexBatch() : fDrawArrays(1) {}
+GrVertexBatch::GrVertexBatch(uint32_t classID) : INHERITED(classID), fDrawArrays(1) {}
 
 void GrVertexBatch::onPrepare(GrBatchFlushState* state) {
     Target target(state, this);

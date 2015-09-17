@@ -57,11 +57,10 @@ bool GrDrawPathRangeBatch::isWinding() const {
 
 GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
                                            GrColor color, GrPathRangeDraw* pathRangeDraw)
-    : INHERITED(viewMatrix, color)
+    : INHERITED(ClassID(), viewMatrix, color)
     , fDraws(4)
     , fLocalMatrix(localMatrix) {
     SkDEBUGCODE(pathRangeDraw->fUsedInBatch = true;)
-    this->initClassID<GrDrawPathRangeBatch>();
     fDraws.addToHead(SkRef(pathRangeDraw));
     fTotalPathCount = pathRangeDraw->count();
     // Don't compute a bounding box. For dst copy texture, we'll opt instead for it to just copy

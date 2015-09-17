@@ -23,6 +23,7 @@
 #include "SkClipStack.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkStringUtils.h"
 #include "SkStrokeRec.h"
 #include "SkTArray.h"
 #include "SkTLazy.h"
