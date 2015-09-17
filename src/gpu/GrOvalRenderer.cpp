@@ -606,13 +606,15 @@ bool GrOvalRenderer::DrawOval(GrDrawTarget* target,
 
 class CircleBatch : public GrVertexBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     struct Geometry {
-        GrColor fColor;
         SkMatrix fViewMatrix;
+        SkRect fDevBounds;
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
+        GrColor fColor;
         bool fStroke;
-        SkRect fDevBounds;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry) { return new CircleBatch(geometry); }
@@ -705,8 +707,7 @@ private:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    CircleBatch(const Geometry& geometry) {
-        this->initClassID<CircleBatch>();
+    CircleBatch(const Geometry& geometry) : INHERITED(ClassID()) {
         fGeoData.push_back(geometry);
 
         this->setBounds(geometry.fDevBounds);
@@ -753,6 +754,8 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
+
+    typedef GrVertexBatch INHERITED;
 };
 
 static GrDrawBatch* create_circle_batch(GrColor color,
@@ -821,15 +824,17 @@ void GrOvalRenderer::DrawCircle(GrDrawTarget* target,
 
 class EllipseBatch : public GrVertexBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     struct Geometry {
-        GrColor fColor;
         SkMatrix fViewMatrix;
+        SkRect fDevBounds;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;
         SkScalar fInnerYRadius;
+        GrColor fColor;
         bool fStroke;
-        SkRect fDevBounds;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry) { return new EllipseBatch(geometry); }
@@ -926,8 +931,7 @@ private:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    EllipseBatch(const Geometry& geometry) {
-        this->initClassID<EllipseBatch>();
+    EllipseBatch(const Geometry& geometry) : INHERITED(ClassID()) {
         fGeoData.push_back(geometry);
 
         this->setBounds(geometry.fDevBounds);
@@ -975,6 +979,8 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
+
+    typedef GrVertexBatch INHERITED;
 };
 
 static GrDrawBatch* create_ellipse_batch(GrColor color,
@@ -1085,17 +1091,19 @@ bool GrOvalRenderer::DrawEllipse(GrDrawTarget* target,
 
 class DIEllipseBatch : public GrVertexBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     struct Geometry {
-        GrColor fColor;
         SkMatrix fViewMatrix;
+        SkRect fBounds;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;
         SkScalar fInnerYRadius;
         SkScalar fGeoDx;
         SkScalar fGeoDy;
+        GrColor fColor;
         DIEllipseEdgeEffect::Mode fMode;
-        SkRect fBounds;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, const SkRect& bounds) {
@@ -1186,8 +1194,7 @@ private:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) {
-        this->initClassID<DIEllipseBatch>();
+    DIEllipseBatch(const Geometry& geometry, const SkRect& bounds) : INHERITED(ClassID()) {
         fGeoData.push_back(geometry);
 
         this->setBounds(bounds);
@@ -1234,6 +1241,8 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
+
+    typedef GrVertexBatch INHERITED;
 };
 
 static GrDrawBatch* create_diellipse_batch(GrColor color,
@@ -1441,13 +1450,15 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
 
 class RRectCircleRendererBatch : public GrVertexBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     struct Geometry {
-        GrColor fColor;
         SkMatrix fViewMatrix;
+        SkRect fDevBounds;
         SkScalar fInnerRadius;
         SkScalar fOuterRadius;
+        GrColor fColor;
         bool fStroke;
-        SkRect fDevBounds;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry) {
@@ -1563,8 +1574,7 @@ private:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    RRectCircleRendererBatch(const Geometry& geometry) {
-        this->initClassID<RRectCircleRendererBatch>();
+    RRectCircleRendererBatch(const Geometry& geometry) : INHERITED(ClassID()) {
         fGeoData.push_back(geometry);
 
         this->setBounds(geometry.fDevBounds);
@@ -1611,19 +1621,23 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
+
+    typedef GrVertexBatch INHERITED;
 };
 
 class RRectEllipseRendererBatch : public GrVertexBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     struct Geometry {
-        GrColor fColor;
         SkMatrix fViewMatrix;
+        SkRect fDevBounds;
         SkScalar fXRadius;
         SkScalar fYRadius;
         SkScalar fInnerXRadius;
         SkScalar fInnerYRadius;
+        GrColor fColor;
         bool fStroke;
-        SkRect fDevBounds;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry) {
@@ -1749,8 +1763,7 @@ private:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    RRectEllipseRendererBatch(const Geometry& geometry) {
-        this->initClassID<RRectEllipseRendererBatch>();
+    RRectEllipseRendererBatch(const Geometry& geometry) : INHERITED(ClassID()) {
         fGeoData.push_back(geometry);
 
         this->setBounds(geometry.fDevBounds);
@@ -1798,6 +1811,8 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
+
+    typedef GrVertexBatch INHERITED;
 };
 
 static GrDrawBatch* create_rrect_batch(GrColor color,

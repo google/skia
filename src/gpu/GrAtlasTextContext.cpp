@@ -1431,6 +1431,8 @@ inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* ru
 
 class TextBatch : public GrVertexBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     typedef GrAtlasTextContext::DistanceAdjustTable DistanceAdjustTable;
     typedef GrAtlasTextBlob Blob;
     typedef Blob::Run Run;
@@ -1448,7 +1450,6 @@ public:
                                    GrBatchFontCache* fontCache) {
         TextBatch* batch = new TextBatch;
 
-        batch->initClassID<TextBatch>();
         batch->fFontCache = fontCache;
         switch (maskFormat) {
             case kA8_GrMaskFormat:
@@ -1474,7 +1475,7 @@ public:
                                           SkColor filteredColor, bool isLCD,
                                           bool useBGR) {
         TextBatch* batch = new TextBatch;
-        batch->initClassID<TextBatch>();
+
         batch->fFontCache = fontCache;
         batch->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
         batch->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
@@ -1783,7 +1784,7 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    TextBatch() {} // initialized in factory functions.
+    TextBatch() : INHERITED(ClassID()) {} // initialized in factory functions.
 
     ~TextBatch() {
         for (int i = 0; i < fGeoCount; i++) {
@@ -2044,6 +2045,8 @@ private:
     // Distance field properties
     SkAutoTUnref<const DistanceAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
+
+    typedef GrVertexBatch INHERITED;
 };
 
 void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc, GrRenderTarget* rt,

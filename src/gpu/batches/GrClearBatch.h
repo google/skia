@@ -15,11 +15,13 @@
 
 class GrClearBatch final : public GrBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     GrClearBatch(const SkIRect& rect,  GrColor color, GrRenderTarget* rt)
-        : fRect(rect)
+        : INHERITED(ClassID())
+        , fRect(rect)
         , fColor(color)
         , fRenderTarget(rt) {
-        this->initClassID<GrClearBatch>();
         fBounds = SkRect::Make(rect);
     }
 
@@ -50,15 +52,19 @@ private:
     SkIRect                                                 fRect;
     GrColor                                                 fColor;
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+
+    typedef GrBatch INHERITED;
 };
 
 class GrClearStencilClipBatch final : public GrBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     GrClearStencilClipBatch(const SkIRect& rect, bool insideClip, GrRenderTarget* rt)
-        : fRect(rect)
+        : INHERITED(ClassID())
+        , fRect(rect)
         , fInsideClip(insideClip)
         , fRenderTarget(rt) {
-        this->initClassID<GrClearStencilClipBatch>();
         fBounds = SkRect::Make(rect);
     }
 
@@ -86,6 +92,8 @@ private:
     SkIRect                                                 fRect;
     bool                                                    fInsideClip;
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+
+    typedef GrBatch INHERITED;
 };
 
 #endif

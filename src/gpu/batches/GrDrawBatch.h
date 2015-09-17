@@ -40,7 +40,7 @@ class GrDrawBatch : public GrBatch {
 public:
     class Target;
 
-    GrDrawBatch();
+    GrDrawBatch(uint32_t classID);
     ~GrDrawBatch() override;
 
     virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;

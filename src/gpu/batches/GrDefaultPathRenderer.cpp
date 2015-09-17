@@ -211,6 +211,8 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
 
 class DefaultPathBatch : public GrVertexBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
+
     struct Geometry {
         GrColor fColor;
         SkPath fPath;
@@ -376,8 +378,8 @@ private:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
     DefaultPathBatch(const Geometry& geometry, uint8_t coverage, const SkMatrix& viewMatrix,
-                     bool isHairline, const SkRect& devBounds) {
-        this->initClassID<DefaultPathBatch>();
+                     bool isHairline, const SkRect& devBounds)
+        : INHERITED(ClassID()) {
         fBatch.fCoverage = coverage;
         fBatch.fIsHairline = isHairline;
         fBatch.fViewMatrix = viewMatrix;
@@ -530,6 +532,8 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
+
+    typedef GrVertexBatch INHERITED;
 };
 
 bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
