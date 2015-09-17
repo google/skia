@@ -13,72 +13,6 @@
 #include "SkResourceCache.h"
 #include "SkSurface.h"
 
-static const int kCanvasSize = 1;
-static const int kBitmapSize = 16;
-static const int kScale = 8;
-
-static bool is_in_scaled_image_cache(const SkBitmap& orig,
-                                     SkScalar xScale,
-                                     SkScalar yScale) {
-    SkBitmap scaled;
-    int width = SkScalarRoundToInt(orig.width() * xScale);
-    int height = SkScalarRoundToInt(orig.height() * yScale);
-    return SkBitmapCache::FindWH(SkBitmapCacheDesc::Make(orig, width, height), &scaled);
-}
-
-// Draw a scaled bitmap, then return true if it has been cached.
-static bool test_scaled_image_cache_usage() {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(kCanvasSize, kCanvasSize));
-    SkCanvas* canvas = surface->getCanvas();
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
-    bitmap.eraseColor(0xFFFFFFFF);
-    SkScalar xScale = SkIntToScalar(kScale);
-    SkScalar yScale = xScale / 2;
-    SkScalar xScaledSize = SkIntToScalar(kBitmapSize) * xScale;
-    SkScalar yScaledSize = SkIntToScalar(kBitmapSize) * yScale;
-    canvas->clipRect(SkRect::MakeLTRB(0, 0, xScaledSize, yScaledSize));
-    SkPaint paint;
-    paint.setFilterQuality(kHigh_SkFilterQuality);
-
-    canvas->drawBitmapRect(bitmap,
-                           SkRect::MakeLTRB(0, 0, xScaledSize, yScaledSize),
-                           &paint);
-
-    return is_in_scaled_image_cache(bitmap, xScale, yScale);
-}
-
-// http://crbug.com/389439
-DEF_TEST(ResourceCache_SingleAllocationByteLimit, reporter) {
-    size_t originalByteLimit = SkGraphics::GetResourceCacheTotalByteLimit();
-    size_t originalAllocationLimit =
-        SkGraphics::GetResourceCacheSingleAllocationByteLimit();
-
-    size_t size = kBitmapSize * kScale * kBitmapSize * kScale
-        * SkColorTypeBytesPerPixel(kN32_SkColorType);
-
-    SkGraphics::SetResourceCacheTotalByteLimit(0);  // clear cache
-    SkGraphics::SetResourceCacheTotalByteLimit(2 * size);
-    SkGraphics::SetResourceCacheSingleAllocationByteLimit(0);  // No limit
-
-    REPORTER_ASSERT(reporter, test_scaled_image_cache_usage());
-
-    SkGraphics::SetResourceCacheTotalByteLimit(0);  // clear cache
-    SkGraphics::SetResourceCacheTotalByteLimit(2 * size);
-    SkGraphics::SetResourceCacheSingleAllocationByteLimit(size * 2);  // big enough
-
-    REPORTER_ASSERT(reporter, test_scaled_image_cache_usage());
-
-    SkGraphics::SetResourceCacheTotalByteLimit(0);  // clear cache
-    SkGraphics::SetResourceCacheTotalByteLimit(2 * size);
-    SkGraphics::SetResourceCacheSingleAllocationByteLimit(size / 2);  // too small
-
-    REPORTER_ASSERT(reporter, !test_scaled_image_cache_usage());
-
-    SkGraphics::SetResourceCacheSingleAllocationByteLimit(originalAllocationLimit);
-    SkGraphics::SetResourceCacheTotalByteLimit(originalByteLimit);
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 
 static void make_bitmap(SkBitmap* bitmap, const SkImageInfo& info, SkBitmap::Allocator* allocator) {
@@ -268,7 +202,6 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     if (factory) {
         REPORTER_ASSERT(reporter, SkGetGlobalDiscardableMemoryPool()->getRAMUsed() > 0);
         SkGetGlobalDiscardableMemoryPool()->dumpPool();
-        REPORTER_ASSERT(reporter, SkGetGlobalDiscardableMemoryPool()->getRAMUsed() == 0);
 
         // The bitmap is not in the cache since it has been dropped.
         REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
