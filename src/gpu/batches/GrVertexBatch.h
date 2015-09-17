@@ -24,7 +24,7 @@ class GrVertexBatch : public GrDrawBatch {
 public:
     class Target;
 
-    GrVertexBatch(uint32_t classID);
+    GrVertexBatch();
 
 protected:
     /** Helper for rendering instances using an instanced index index buffer. This class creates the

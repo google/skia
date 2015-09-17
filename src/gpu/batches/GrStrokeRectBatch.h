@@ -14,8 +14,6 @@
 
 class GrStrokeRectBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     struct Geometry {
         GrColor fColor;
         SkMatrix fViewMatrix;
@@ -76,8 +74,6 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 #endif

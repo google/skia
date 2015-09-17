@@ -32,7 +32,6 @@ namespace skiagm {
 
 class BezierCubicOrConicTestBatch : public GrTestBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
     struct Geometry : public GrTestBatch::Geometry {
         SkRect fBounds;
     };
@@ -47,7 +46,8 @@ public:
 private:
     BezierCubicOrConicTestBatch(const GrGeometryProcessor* gp, const Geometry& geo,
                                 const SkScalar klmEqs[9], SkScalar sign)
-        : INHERITED(ClassID(), gp, geo.fBounds) {
+        : INHERITED(gp, geo.fBounds) {
+        this->initClassID<BezierCubicOrConicTestBatch>();
         for (int i = 0; i < 9; i++) {
             fKlmEqs[i] = klmEqs[i];
         }
@@ -432,7 +432,6 @@ private:
 
 class BezierQuadTestBatch : public GrTestBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
     struct Geometry : public GrTestBatch::Geometry {
         SkRect fBounds;
     };
@@ -447,9 +446,10 @@ public:
 private:
     BezierQuadTestBatch(const GrGeometryProcessor* gp, const Geometry& geo,
                         const GrPathUtils::QuadUVMatrix& devToUV)
-        : INHERITED(ClassID(), gp, geo.fBounds)
+        : INHERITED(gp, geo.fBounds)
         , fGeometry(geo)
         , fDevToUV(devToUV) {
+        this->initClassID<BezierQuadTestBatch>();
     }
 
     struct Vertex {

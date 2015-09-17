@@ -20,8 +20,6 @@ struct GrInitInvariantOutput;
 
 class GrDrawVerticesBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     struct Geometry {
         GrColor fColor;
         SkTDArray<SkPoint> fPositions;
@@ -93,8 +91,6 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 #endif

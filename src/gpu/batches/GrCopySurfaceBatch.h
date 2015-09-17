@@ -15,8 +15,6 @@
 
 class GrCopySurfaceBatch final : public GrBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     static GrBatch* Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
@@ -39,11 +37,11 @@ public:
 private:
     GrCopySurfaceBatch(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint)
-        : INHERITED(ClassID())
-        , fDst(dst)
+        : fDst(dst)
         , fSrc(src)
         , fSrcRect(srcRect)
         , fDstPoint(dstPoint) {
+        this->initClassID<GrCopySurfaceBatch>();        
         fBounds = SkRect::MakeXYWH(SkIntToScalar(dstPoint.fX), SkIntToScalar(dstPoint.fY),
                                    SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
     }
@@ -60,8 +58,6 @@ private:
     GrPendingIOResource<GrSurface, kRead_GrIOType>  fSrc;
     SkIRect                                         fSrcRect;
     SkIPoint                                        fDstPoint;
-
-    typedef GrBatch INHERITED;
 };
 
 #endif

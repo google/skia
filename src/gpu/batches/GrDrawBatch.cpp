@@ -7,7 +7,7 @@
 
 #include "GrDrawBatch.h"
 
-GrDrawBatch::GrDrawBatch(uint32_t classID) : INHERITED(classID), fPipelineInstalled(false) { }
+GrDrawBatch::GrDrawBatch() : fPipelineInstalled(false) { }
 
 GrDrawBatch::~GrDrawBatch() {
     if (fPipelineInstalled) {

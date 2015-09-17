@@ -1093,13 +1093,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 }
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
-    class TestLCDCoverageBatch: public GrVertexBatch {
-    public:
-        DEFINE_BATCH_CLASS_ID
-
-        TestLCDCoverageBatch() : INHERITED(ClassID()) {}
-
-    private:
+    class : public GrVertexBatch {
         void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
             out->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
         }
@@ -1114,7 +1108,6 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         bool onCombineIfPossible(GrBatch*, const GrCaps&) override  { return false; }
         void onPrepareDraws(Target*) override {};
 
-        typedef GrVertexBatch INHERITED;
     } testLCDCoverageBatch;
 
     GrProcOptInfo colorPOI, covPOI;

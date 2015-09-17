@@ -10,8 +10,9 @@
 #include "GrBatchFlushState.h"
 #include "SkRandom.h"
 
-GrStrokeRectBatch::GrStrokeRectBatch(const Geometry& geometry, bool snapToPixelCenters)
-    : INHERITED(ClassID()) {
+GrStrokeRectBatch::GrStrokeRectBatch(const Geometry& geometry, bool snapToPixelCenters) {
+    this->initClassID<GrStrokeRectBatch>();
+
     fBatch.fHairline = geometry.fStrokeWidth == 0;
 
     fGeoData.push_back(geometry);

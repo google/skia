@@ -41,16 +41,9 @@ class GrBatchFlushState;
     #define GrBATCH_INFO(...)
 #endif
 
-// A helper macro to generate a class static id
-#define DEFINE_BATCH_CLASS_ID \
-    static uint32_t ClassID() { \
-        static uint32_t kClassID = GenBatchClassID(); \
-        return kClassID; \
-    }
-
 class GrBatch : public GrNonAtomicRef {
 public:
-    GrBatch(uint32_t classID);
+    GrBatch();
     ~GrBatch() override;
 
     virtual const char* name() const = 0;
@@ -76,17 +69,10 @@ public:
     }
 
     /**
-     * Helper for safely down-casting to a GrBatch subclass
+     * Helper for down-casting to a GrBatch subclass
      */
-    template <typename T> const T& cast() const {
-        SkASSERT(T::ClassID() == this->classID());
-        return *static_cast<const T*>(this);
-    }
-
-    template <typename T> T* cast() {
-        SkASSERT(T::ClassID() == this->classID());
-        return static_cast<T*>(this);
-    }
+    template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
+    template <typename T> T* cast() { return static_cast<T*>(this); }
 
     uint32_t classID() const { SkASSERT(kIllegalBatchID != fClassID); return fClassID; }
 
@@ -110,6 +96,11 @@ public:
     virtual SkString dumpInfo() const = 0;
 
 protected:
+    template <typename PROC_SUBCLASS> void initClassID() {
+         static uint32_t kClassID = GenID(&gCurrBatchClassID);
+         fClassID = kClassID;
+    }
+
     // NOTE, compute some bounds, even if extremely conservative.  Do *NOT* setLargest on the bounds
     // rect because we outset it for dst copy textures
     void setBounds(const SkRect& newBounds) { fBounds = newBounds; }
@@ -117,8 +108,6 @@ protected:
     void joinBounds(const SkRect& otherBounds) {
         return fBounds.joinPossiblyEmptyRect(otherBounds);
     }
-
-    static uint32_t GenBatchClassID() { return GenID(&gCurrBatchClassID); }
 
     SkRect                              fBounds;
 
@@ -129,7 +118,8 @@ private:
     virtual void onDraw(GrBatchFlushState*) = 0;
 
     static uint32_t GenID(int32_t* idCounter) {
-        // The atomic inc returns the old value not the incremented value. So we add
+        // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
+        // atomic inc returns the old value not the incremented value. So we add
         // 1 to the returned value.
         uint32_t id = static_cast<uint32_t>(sk_atomic_inc(idCounter)) + 1;
         if (!id) {
@@ -143,14 +133,13 @@ private:
         kIllegalBatchID = 0,
     };
 
+    uint32_t                            fClassID;
     SkDEBUGCODE(bool                    fUsed;)
-    const uint32_t                      fClassID;
 #if GR_BATCH_SPEW
-    static uint32_t GenBatchID() { return GenID(&gCurrBatchUniqueID); }
-    const uint32_t                      fUniqueID;
-    static int32_t                      gCurrBatchUniqueID;
+    uint32_t                            fUniqueID;
+    static int32_t gCurrBatchUniqueID;
 #endif
-    static int32_t                      gCurrBatchClassID;
+    static int32_t gCurrBatchClassID;
     typedef GrNonAtomicRef INHERITED;
 };
 
