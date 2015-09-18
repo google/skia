@@ -49,13 +49,6 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
     }
 }
 
-SkShader* SkImage_Gpu::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
-                                   const SkMatrix* localMatrix) const {
-    SkBitmap bm;
-    GrWrapTextureInBitmap(fTexture, this->width(), this->height(), this->isOpaque(), &bm);
-    return SkShader::CreateBitmapShader(bm, tileX, tileY, localMatrix);
-}
-
 bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());

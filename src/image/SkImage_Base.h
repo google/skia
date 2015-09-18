@@ -56,10 +56,6 @@ public:
     // Caller must call unref when they are done.
     virtual GrTexture* asTextureRef(GrContext*, SkImageUsageType) const = 0;
 
-    virtual SkShader* onNewShader(SkShader::TileMode,
-                                  SkShader::TileMode,
-                                  const SkMatrix* localMatrix) const { return nullptr; }
-
     // newWidth > 0, newHeight > 0, subset either nullptr or a proper subset of this bounds
     virtual SkImage* onNewImage(int newWidth, int newHeight, const SkIRect* subset,
                                 SkFilterQuality) const;

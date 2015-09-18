@@ -40,9 +40,6 @@ public:
     GrTexture* asTextureRef(GrContext* ctx, SkImageUsageType usage) const override;
 
     GrTexture* peekTexture() const override { return fTexture; }
-    SkShader* onNewShader(SkShader::TileMode,
-                          SkShader::TileMode,
-                          const SkMatrix* localMatrix) const override;
     bool isOpaque() const override;
     SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,

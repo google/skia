@@ -11,6 +11,7 @@
 #include "SkData.h"
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
+#include "SkImageShader.h"
 #include "SkImage_Base.h"
 #include "SkNextID.h"
 #include "SkPixelRef.h"
@@ -69,7 +70,7 @@ void SkImage::preroll(GrContext* ctx) const {
 SkShader* SkImage::newShader(SkShader::TileMode tileX,
                              SkShader::TileMode tileY,
                              const SkMatrix* localMatrix) const {
-    return as_IB(this)->onNewShader(tileX, tileY, localMatrix);
+    return SkImageShader::Create(this, tileX, tileY, localMatrix);
 }
 
 SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
