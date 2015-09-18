@@ -87,7 +87,7 @@ SkISize SkScaledCodec::onGetScaledDimensions(float desiredScale) const {
     }
     // sampleSize determines the step size between samples
     // Ex: sampleSize = 2, sample every second pixel in x and y directions
-    int sampleSize = int(1 / desiredScale);
+    int sampleSize = int ((1.0f / desiredScale) + 0.5f);
 
     int scaledWidth = get_scaled_dimension(this->getInfo().width(), sampleSize);
     int scaledHeight = get_scaled_dimension(this->getInfo().height(), sampleSize);
