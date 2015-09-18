@@ -43,7 +43,111 @@ static const GrGeometryProcessor* create_stroke_rect_gp(bool tweakAlphaForCovera
     return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-void GrAAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
+class AAStrokeRectBatch : public GrVertexBatch {
+public:
+    DEFINE_BATCH_CLASS_ID
+
+    // TODO support AA rotated stroke rects by copying around view matrices
+    struct Geometry {
+        SkRect fDevOutside;
+        SkRect fDevOutsideAssist;
+        SkRect fDevInside;
+        GrColor fColor;
+        bool fMiterStroke;
+    };
+
+    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& devOutside,
+                               const SkRect& devOutsideAssist, const SkRect& devInside,
+                               bool miterStroke) {
+        return new AAStrokeRectBatch(color, viewMatrix, devOutside, devOutsideAssist, devInside,
+                                     miterStroke);
+    }
+
+    const char* name() const override { return "AAStrokeRect"; }
+
+    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+        // When this is called on a batch, there is only one geometry bundle
+        out->setKnownFourComponents(fGeoData[0].fColor);
+    }
+
+    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
+        out->setUnknownSingleComponent();
+    }
+
+    SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
+
+private:
+    void onPrepareDraws(Target*) override;
+    void initBatchTracker(const GrPipelineOptimizations&) override;
+
+    AAStrokeRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& devOutside,
+                      const SkRect& devOutsideAssist, const SkRect& devInside, bool miterStroke)
+        : INHERITED(ClassID()) {
+        fBatch.fViewMatrix = viewMatrix;
+        Geometry& geometry = fGeoData.push_back();
+        geometry.fColor = color;
+        geometry.fDevOutside = devOutside;
+        geometry.fDevOutsideAssist = devOutsideAssist;
+        geometry.fDevInside = devInside;
+        geometry.fMiterStroke = miterStroke;
+
+        // If we have miterstroke then we inset devOutside and outset devOutsideAssist, so we need
+        // the join for proper bounds
+        fBounds = geometry.fDevOutside;
+        fBounds.join(geometry.fDevOutsideAssist);
+    }
+
+
+    static const int kMiterIndexCnt = 3 * 24;
+    static const int kMiterVertexCnt = 16;
+    static const int kNumMiterRectsInIndexBuffer = 256;
+
+    static const int kBevelIndexCnt = 48 + 36 + 24;
+    static const int kBevelVertexCnt = 24;
+    static const int kNumBevelRectsInIndexBuffer = 256;
+
+    static const GrIndexBuffer* GetIndexBuffer(GrResourceProvider* resourceProvider,
+                                               bool miterStroke);
+
+    GrColor color() const { return fBatch.fColor; }
+    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
+    bool colorIgnored() const { return fBatch.fColorIgnored; }
+    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
+    bool miterStroke() const { return fBatch.fMiterStroke; }
+    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+
+    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
+
+    void generateAAStrokeRectGeometry(void* vertices,
+                                      size_t offset,
+                                      size_t vertexStride,
+                                      int outerVertexNum,
+                                      int innerVertexNum,
+                                      GrColor color,
+                                      const SkRect& devOutside,
+                                      const SkRect& devOutsideAssist,
+                                      const SkRect& devInside,
+                                      bool miterStroke,
+                                      bool tweakAlphaForCoverage) const;
+
+    struct BatchTracker {
+        SkMatrix fViewMatrix;
+        GrColor fColor;
+        bool fUsesLocalCoords;
+        bool fColorIgnored;
+        bool fCoverageIgnored;
+        bool fMiterStroke;
+        bool fCanTweakAlphaForCoverage;
+    };
+
+    BatchTracker fBatch;
+    SkSTArray<1, Geometry, true> fGeoData;
+
+    typedef GrVertexBatch INHERITED;
+};
+
+void AAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     // Handle any color overrides
     if (!opt.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -59,7 +163,7 @@ void GrAAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
 }
 
-void GrAAStrokeRectBatch::onPrepareDraws(Target* target) {
+void AAStrokeRectBatch::onPrepareDraws(Target* target) {
     bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
     SkAutoTUnref<const GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,
@@ -112,8 +216,8 @@ void GrAAStrokeRectBatch::onPrepareDraws(Target* target) {
     helper.recordDraw(target);
 }
 
-const GrIndexBuffer* GrAAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                                         bool miterStroke) {
+const GrIndexBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,
+                                                       bool miterStroke) {
 
     if (miterStroke) {
         static const uint16_t gMiterIndices[] = {
@@ -203,8 +307,8 @@ const GrIndexBuffer* GrAAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* res
     }
 }
 
-bool GrAAStrokeRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
-    GrAAStrokeRectBatch* that = t->cast<GrAAStrokeRectBatch>();
+bool AAStrokeRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+    AAStrokeRectBatch* that = t->cast<AAStrokeRectBatch>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                 that->bounds(), caps)) {
@@ -237,17 +341,17 @@ bool GrAAStrokeRectBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     return true;
 }
 
-void GrAAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
-                                                       size_t offset,
-                                                       size_t vertexStride,
-                                                       int outerVertexNum,
-                                                       int innerVertexNum,
-                                                       GrColor color,
-                                                       const SkRect& devOutside,
-                                                       const SkRect& devOutsideAssist,
-                                                       const SkRect& devInside,
-                                                       bool miterStroke,
-                                                       bool tweakAlphaForCoverage) const {
+void AAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
+                                                     size_t offset,
+                                                     size_t vertexStride,
+                                                     int outerVertexNum,
+                                                     int innerVertexNum,
+                                                     GrColor color,
+                                                     const SkRect& devOutside,
+                                                     const SkRect& devOutsideAssist,
+                                                     const SkRect& devInside,
+                                                     bool miterStroke,
+                                                     bool tweakAlphaForCoverage) const {
     intptr_t verts = reinterpret_cast<intptr_t>(vertices) + offset;
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
@@ -350,6 +454,20 @@ void GrAAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
     }
 }
 
+namespace GrAAStrokeRectBatch {
+
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& devOutside,
+                    const SkRect& devOutsideAssist,
+                    const SkRect& devInside,
+                    bool miterStroke) {
+    return AAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutsideAssist, devInside,
+                                     miterStroke);
+}
+
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef GR_TEST_UTILS
@@ -368,14 +486,10 @@ DRAW_BATCH_TEST_DEFINE(AAStrokeRectBatch) {
     SkRect inside = outside;
     inside.inset(strokeWidth, strokeWidth);
 
-    GrAAStrokeRectBatch::Geometry geo;
-    geo.fColor = GrRandomColor(random);
-    geo.fDevOutside = outside;
-    geo.fDevOutsideAssist = outsideAssist;
-    geo.fDevInside = inside;
-    geo.fMiterStroke = miterStroke;
+    GrColor color = GrRandomColor(random);
 
-    return GrAAStrokeRectBatch::Create(geo, GrTest::TestMatrix(random));
+    return GrAAStrokeRectBatch::Create(color, GrTest::TestMatrix(random), outside, outsideAssist,
+                                       inside, miterStroke);
 }
 
 #endif

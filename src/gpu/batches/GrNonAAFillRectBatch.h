@@ -15,11 +15,19 @@ class SkMatrix;
 struct SkRect;
 
 namespace GrNonAAFillRectBatch {
+
 GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkRect* localRect,
                     const SkMatrix* localMatrix);
+
+GrDrawBatch* CreateWithPerspective(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkRect* localRect,
+                                   const SkMatrix* localMatrix);
+
 };
 
 #endif

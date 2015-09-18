@@ -23,7 +23,7 @@ DRAW_BATCH_TEST_EXTERN(CircleBatch);
 DRAW_BATCH_TEST_EXTERN(DIEllipseBatch);
 DRAW_BATCH_TEST_EXTERN(EllipseBatch);
 DRAW_BATCH_TEST_EXTERN(GrDrawAtlasBatch);
-DRAW_BATCH_TEST_EXTERN(GrStrokeRectBatch);
+DRAW_BATCH_TEST_EXTERN(NonAAStrokeRectBatch);
 DRAW_BATCH_TEST_EXTERN(RRectBatch);
 DRAW_BATCH_TEST_EXTERN(TesselatingPathBatch);
 DRAW_BATCH_TEST_EXTERN(TextBlobBatch);
@@ -42,7 +42,7 @@ static BatchTestFunc gTestBatches[] = {
     DRAW_BATCH_TEST_ENTRY(DIEllipseBatch),
     DRAW_BATCH_TEST_ENTRY(EllipseBatch),
     DRAW_BATCH_TEST_ENTRY(GrDrawAtlasBatch),
-    DRAW_BATCH_TEST_ENTRY(GrStrokeRectBatch),
+    DRAW_BATCH_TEST_ENTRY(NonAAStrokeRectBatch),
     DRAW_BATCH_TEST_ENTRY(RRectBatch),
     DRAW_BATCH_TEST_ENTRY(TesselatingPathBatch),
     DRAW_BATCH_TEST_ENTRY(TextBlobBatch),

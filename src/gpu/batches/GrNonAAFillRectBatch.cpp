@@ -188,54 +188,59 @@ typedef GrTInstanceBatch<NonAAFillRectBatchImp> NonAAFillRectBatchSimple;
 typedef GrTInstanceBatch<NonAAFillRectBatchPerspectiveImp> NonAAFillRectBatchPerspective;
 
 namespace GrNonAAFillRectBatch {
+
 GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkRect* localRect,
                     const SkMatrix* localMatrix) {
+    SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
+    NonAAFillRectBatchSimple* batch = NonAAFillRectBatchSimple::Create();
+    NonAAFillRectBatchSimple::Geometry& geo = *batch->geometry();
 
-    /* Perspective has to be handled in a slow path for now */
-    if (viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective())) {
-        NonAAFillRectBatchPerspective* batch = NonAAFillRectBatchPerspective::Create();
-        NonAAFillRectBatchPerspective::Geometry& geo = *batch->geometry();
+    geo.fColor = color;
+    geo.fViewMatrix = viewMatrix;
+    geo.fRect = rect;
 
-        geo.fColor = color;
-        geo.fViewMatrix = viewMatrix;
-        geo.fRect = rect;
-        geo.fHasLocalRect = SkToBool(localRect);
-        geo.fHasLocalMatrix = SkToBool(localMatrix);
-        if (localMatrix) {
-            geo.fLocalMatrix = *localMatrix;
-        }
-        if (localRect) {
-            geo.fLocalRect = *localRect;
-        }
-
-        batch->init();
-        return batch;
+    if (localRect && localMatrix) {
+        geo.fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
+    } else if (localRect) {
+        geo.fLocalQuad.set(*localRect);
+    } else if (localMatrix) {
+        geo.fLocalQuad.setFromMappedRect(rect, *localMatrix);
     } else {
-        // TODO bubble these up as separate calls
-        NonAAFillRectBatchSimple* batch = NonAAFillRectBatchSimple::Create();
-        NonAAFillRectBatchSimple::Geometry& geo = *batch->geometry();
-
-        geo.fColor = color;
-        geo.fViewMatrix = viewMatrix;
-        geo.fRect = rect;
-
-        if (localRect && localMatrix) {
-            geo.fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
-        } else if (localRect) {
-            geo.fLocalQuad.set(*localRect);
-        } else if (localMatrix) {
-            geo.fLocalQuad.setFromMappedRect(rect, *localMatrix);
-        } else {
-            geo.fLocalQuad.set(rect);
-        }
-
-        batch->init();
-        return batch;
+        geo.fLocalQuad.set(rect);
     }
+
+    batch->init();
+    return batch;
 }
+
+GrDrawBatch* CreateWithPerspective(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkRect* localRect,
+                                   const SkMatrix* localMatrix) {
+    SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
+    NonAAFillRectBatchPerspective* batch = NonAAFillRectBatchPerspective::Create();
+    NonAAFillRectBatchPerspective::Geometry& geo = *batch->geometry();
+
+    geo.fColor = color;
+    geo.fViewMatrix = viewMatrix;
+    geo.fRect = rect;
+    geo.fHasLocalRect = SkToBool(localRect);
+    geo.fHasLocalMatrix = SkToBool(localMatrix);
+    if (localMatrix) {
+        geo.fLocalMatrix = *localMatrix;
+    }
+    if (localRect) {
+        geo.fLocalRect = *localRect;
+    }
+
+    batch->init();
+    return batch;
+}
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

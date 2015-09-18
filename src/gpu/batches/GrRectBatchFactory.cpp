@@ -8,40 +8,10 @@
 #include "GrRectBatchFactory.h"
 
 #include "GrAAStrokeRectBatch.h"
-#include "GrStrokeRectBatch.h"
 
 #include "SkStrokeRec.h"
 
-static GrDrawBatch* create_stroke_aa_batch(GrColor color,
-                                           const SkMatrix& viewMatrix,
-                                           const SkRect& devOutside,
-                                           const SkRect& devOutsideAssist,
-                                           const SkRect& devInside,
-                                           bool miterStroke) {
-    GrAAStrokeRectBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fDevOutside = devOutside;
-    geometry.fDevOutsideAssist = devOutsideAssist;
-    geometry.fDevInside = devInside;
-    geometry.fMiterStroke = miterStroke;
-
-    return GrAAStrokeRectBatch::Create(geometry, viewMatrix);
-}
-
 namespace GrRectBatchFactory {
-
-GrDrawBatch* CreateNonAAStroke(GrColor color,
-                            const SkMatrix& viewMatrix,
-                            const SkRect& rect,
-                            SkScalar strokeWidth,
-                            bool snapToPixelCenters) {
-    GrStrokeRectBatch::Geometry geometry;
-    geometry.fColor = color;
-    geometry.fViewMatrix = viewMatrix;
-    geometry.fRect = rect;
-    geometry.fStrokeWidth = strokeWidth;
-    return GrStrokeRectBatch::Create(geometry, snapToPixelCenters);
-}
 
 GrDrawBatch* CreateAAStroke(GrColor color,
                             const SkMatrix& viewMatrix,
@@ -98,8 +68,8 @@ GrDrawBatch* CreateAAStroke(GrColor color,
         devOutsideAssist.outset(0, ry);
     }
 
-    return create_stroke_aa_batch(color, viewMatrix, devOutside, devOutsideAssist, devInside,
-                                  miterStroke);
+    return GrAAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutsideAssist, devInside,
+                                       miterStroke);
 }
 
 GrDrawBatch* CreateAAFillNestedRects(GrColor color,
@@ -116,7 +86,7 @@ GrDrawBatch* CreateAAFillNestedRects(GrColor color,
         return CreateAAFill(color, viewMatrix, devOutside, devOutside);
     }
 
-    return create_stroke_aa_batch(color, viewMatrix, devOutside, devOutside, devInside, true);
+    return GrAAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutside, devInside, true);
 }
 
 };

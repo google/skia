@@ -11,9 +11,10 @@
 #include "GrAAFillRectBatch.h"
 #include "GrColor.h"
 #include "GrNonAAFillRectBatch.h"
+#include "GrNonAAStrokeRectBatch.h"
+#include "SkMatrix.h"
 
 class GrBatch;
-class SkMatrix;
 struct SkRect;
 class SkStrokeRec;
 
@@ -27,7 +28,12 @@ inline GrDrawBatch* CreateNonAAFill(GrColor color,
                                     const SkRect& rect,
                                     const SkRect* localRect,
                                     const SkMatrix* localMatrix) {
-    return GrNonAAFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
+    if (viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective())) {
+        return GrNonAAFillRectBatch::CreateWithPerspective(color, viewMatrix, rect, localRect,
+                                                           localMatrix);
+    } else {
+        return GrNonAAFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
+    }
 }
 
 inline GrDrawBatch* CreateAAFill(GrColor color,
@@ -45,11 +51,13 @@ inline GrDrawBatch* CreateAAFill(GrColor color,
     return GrAAFillRectBatch::Create(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-GrDrawBatch* CreateNonAAStroke(GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               SkScalar strokeWidth,
-                               bool snapToPixelCenters);
+inline GrDrawBatch* CreateNonAAStroke(GrColor color,
+                                      const SkMatrix& viewMatrix,
+                                      const SkRect& rect,
+                                      SkScalar strokeWidth,
+                                      bool snapToPixelCenters) {
+    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeWidth, snapToPixelCenters);
+}
 
 GrDrawBatch* CreateAAStroke(GrColor,
                             const SkMatrix& viewMatrix,
