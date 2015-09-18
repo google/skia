@@ -140,10 +140,6 @@ def gyp_defines(builder_dict):
       builder_dict.get('cpu_or_gpu_value') == 'Mesa'):
     gyp_defs['skia_mesa'] = '1'
 
-  # SKNX_NO_SIMD
-  if builder_dict.get('extra_config') == 'SKNX_NO_SIMD':
-    gyp_defs['sknx_no_simd'] = '1'
-
   # skia_use_android_framework_defines.
   if builder_dict.get('extra_config') == 'Android_FrameworkDefs':
     gyp_defs['skia_use_android_framework_defines'] = '1'
@@ -162,6 +158,11 @@ def get_extra_env_vars(builder_dict):
   elif builder_dict.get('compiler') == 'Clang':
     env['CC'] = '/usr/bin/clang'
     env['CXX'] = '/usr/bin/clang++'
+
+  # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
+  extra_config = builder_dict.get('extra_config', '')
+  if extra_config.startswith('SK') and extra_config.isupper():
+    env['CPPFLAGS'] = '-D' + extra_config
 
   return env
 

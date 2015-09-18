@@ -2910,7 +2910,8 @@
     "do_perf_steps": false, 
     "do_test_steps": true, 
     "env": {
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0 sknx_no_simd=1"
+      "CPPFLAGS": "-DSKNX_NO_SIMD", 
+      "GYP_DEFINES": "skia_arch_type=x86_64 skia_gpu=0 skia_warnings_as_errors=0"
     }, 
     "nanobench_flags": [
       "--scales", 
