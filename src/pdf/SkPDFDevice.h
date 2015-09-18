@@ -38,6 +38,7 @@ class SkRRect;
 struct ContentEntry;
 struct GraphicStateEntry;
 struct NamedDestination;
+struct RectWithData;
 
 /** \class SkPDFDevice
 
@@ -141,6 +142,12 @@ public:
      */
     const SkTDArray<SkPDFFont*>& getFontResources() const;
 
+    /** Add our annotations (link to urls and destinations) to the supplied
+     *  array.
+     *  @param array Array to add annotations to.
+     */
+    void appendAnnotations(SkPDFArray* array) const;
+
     /** Add our named destinations to the supplied dictionary.
      *  @param dict  Dictionary to add destinations to.
      *  @param page  The PDF object representing the page for this device.
@@ -151,10 +158,6 @@ public:
      *  to unref() this when it is finished.
      */
     SkPDFArray* copyMediaBox() const;
-
-    /** Get the annotations from this page, or nullptr if there are none.
-     */
-    SkPDFArray* getAnnotations() const { return fAnnotations; }
 
     /** Returns a SkStream with the page contents.  The caller is responsible
      *  for a deleting the returned value.
@@ -196,7 +199,9 @@ private:
     SkMatrix fInitialTransform;
     SkClipStack fExistingClipStack;
     SkRegion fExistingClipRegion;
-    SkPDFArray* fAnnotations;
+
+    SkTDArray<RectWithData*> fLinkToURLs;
+    SkTDArray<RectWithData*> fLinkToDestinations;
     SkTDArray<NamedDestination*> fNamedDestinations;
 
     SkTDArray<SkPDFObject*> fGraphicStateResources;
@@ -291,7 +296,8 @@ private:
                            const SkMatrix* prePathMatrix = nullptr);
     bool handlePointAnnotation(const SkPoint* points, size_t count,
                                const SkMatrix& matrix, SkAnnotation* annot);
-    void addAnnotation(SkPDFDict*);
+    bool handlePathAnnotation(const SkPath& path, const SkDraw& d,
+                              SkAnnotation* annot);
 
     typedef SkBaseDevice INHERITED;
 

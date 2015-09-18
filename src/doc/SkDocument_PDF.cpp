@@ -70,9 +70,10 @@ static SkPDFDict* create_pdf_page(const SkPDFDevice* pageDevice) {
     SkAutoTUnref<SkPDFDict> page(new SkPDFDict("Page"));
     page->insertObject("Resources", pageDevice->createResourceDict());
     page->insertObject("MediaBox", pageDevice->copyMediaBox());
-    if (SkPDFArray* annots = pageDevice->getAnnotations()) {
-        SkASSERT(annots->size() > 0);
-        page->insertObject("Annots", SkRef(annots));
+    SkAutoTUnref<SkPDFArray> annotations(new SkPDFArray);
+    pageDevice->appendAnnotations(annotations);
+    if (annotations->size() > 0) {
+        page->insertObject("Annots", annotations.detach());
     }
     page->insertObjRef("Contents", create_pdf_page_content(pageDevice));
     return page.detach();
