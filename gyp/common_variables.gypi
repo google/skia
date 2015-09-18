@@ -213,7 +213,6 @@
     'skia_vulkan%': '<(skia_vulkan)',
     'skia_win_exceptions%': 0,
     'skia_win_ltcg%': 1,
-    'sknx_no_simd%': 0,
     'skia_osx_deployment_target%': '<(skia_osx_deployment_target)',
     'skia_pdf%': '<(skia_pdf)',
     'skia_profile_enabled%': '<(skia_profile_enabled)',
