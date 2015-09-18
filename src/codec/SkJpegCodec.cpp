@@ -246,8 +246,12 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             return true;
         case kRGB_565_SkColorType:
             if (isCMYK) {
+                // FIXME (msarett): We need to support 565 here.  It's not hard to do, considering
+                // we already convert CMYK to RGBA, I just need to do it.  I think it might be
+                // best to do this in SkSwizzler and also move convert_CMYK_to_RGBA into SkSwizzler.
                 return false;
             } else {
+                fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
             }
             return true;

@@ -99,14 +99,6 @@ static void check(skiatest::Reporter* r,
     SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     REPORTER_ASSERT(r, info.dimensions() == size);
 
-    {
-        // Test decoding to 565
-        SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
-        SkCodec::Result expected = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
-                SkCodec::kSuccess : SkCodec::kInvalidConversion;
-        test_info(r, codec, info565, expected, nullptr);
-    }
-
     SkBitmap bm;
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
@@ -117,7 +109,18 @@ static void check(skiatest::Reporter* r,
     SkMD5::Digest digest;
     md5(bm, &digest);
 
-    // verify that re-decoding gives the same result.
+    {
+        // Test decoding to 565
+        SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
+        SkCodec::Result expected = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
+                SkCodec::kSuccess : SkCodec::kInvalidConversion;
+        test_info(r, codec, info565, expected, nullptr);
+    }
+
+    // Verify that re-decoding gives the same result.  It is interesting to check this after
+    // a decode to 565, since choosing to decode to 565 may result in some of the decode
+    // options being modified.  These options should return to their defaults on another
+    // decode to kN32, so the new digest should match the old digest.
     test_info(r, codec, info, SkCodec::kSuccess, &digest);
 
     {
