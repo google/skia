@@ -311,6 +311,8 @@ def self_test():
         'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
         'Test-Mac10.8-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release',
         'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage',
+        ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-'
+         'SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD',
         'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
         'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
