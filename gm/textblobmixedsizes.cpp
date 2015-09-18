@@ -37,7 +37,7 @@ protected:
         paint.setLCDRenderText(true);
         paint.setTypeface(typeface);
 
-        const char* text = "Sk";
+        const char* text = "Skia";
 
         // extra large
         paint.setTextSize(262);
