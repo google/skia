@@ -157,6 +157,7 @@ public:
                            const GrPipelineOptimizations& opts) {
         // We could batch across perspective vm changes if we really wanted to
         return mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix) &&
+               mine.fHasLocalRect == theirs.fHasLocalRect &&
                (!mine.fHasLocalMatrix || mine.fLocalMatrix.cheapEqualTo(theirs.fLocalMatrix));
     }
 
