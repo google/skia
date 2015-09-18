@@ -14,6 +14,7 @@
 
 class GrContext;
 class SkBitmap;
+class SkImage;
 
 /*
  *  Internal class to manage caching the output of an ImageGenerator.
@@ -29,16 +30,22 @@ public:
     /**
      *  On success (true), bitmap will point to the pixels for this generator. If this returns
      *  false, the bitmap will be reset to empty.
+     *
+     *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
+     *  added to the cache on its behalf.
      */
-    bool lockAsBitmap(SkBitmap*);
+    bool lockAsBitmap(SkBitmap*, const SkImage* client);
 
     /**
      *  Returns a ref() on the texture produced by this generator. The caller must call unref()
      *  when it is done. Will return nullptr on failure.
      *
+     *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
+     *  added to the cache on its behalf.
+     *
      *  The caller is responsible for calling texture->unref() when they are done.
      */
-    GrTexture* lockAsTexture(GrContext*, SkImageUsageType);
+    GrTexture* lockAsTexture(GrContext*, SkImageUsageType, const SkImage* client);
 
     /**
      *  If the underlying src naturally is represented by an encoded blob (in SkData), this returns
@@ -50,7 +57,7 @@ private:
     SkImageCacherator(SkImageGenerator*, const SkImageInfo&, const SkIPoint&, uint32_t uniqueID);
 
     bool generateBitmap(SkBitmap*);
-    bool tryLockAsBitmap(SkBitmap*);
+    bool tryLockAsBitmap(SkBitmap*, const SkImage*);
 
     class ScopedGenerator {
         SkImageCacherator* fCacher;

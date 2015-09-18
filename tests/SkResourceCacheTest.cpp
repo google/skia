@@ -10,6 +10,8 @@
 #include "SkCanvas.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkGraphics.h"
+#include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkResourceCache.h"
 #include "SkSurface.h"
 
@@ -218,4 +220,70 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
     test_mipmapcache(reporter, cache);
     test_bitmap_notify(reporter, cache);
     test_mipmap_notify(reporter, cache);
+}
+
+static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& transform,
+                                 SkImage* (*buildImage)()) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+    SkCanvas* canvas = surface->getCanvas();
+
+    // SkBitmapCache is global, so other threads could be evicting our bitmaps.  Loop a few times
+    // to mitigate this risk.
+    const unsigned kRepeatCount = 42;
+    for (unsigned i = 0; i < kRepeatCount; ++i) {
+        SkAutoCanvasRestore acr(canvas, true);
+
+        SkAutoTUnref<SkImage> image(buildImage());
+
+        // always use high quality to ensure caching when scaled
+        SkPaint paint;
+        paint.setFilterQuality(kHigh_SkFilterQuality);
+
+        // draw the image (with a transform, to tickle different code paths) to ensure
+        // any associated resources get cached
+        canvas->concat(transform);
+        canvas->drawImage(image, 0, 0, &paint);
+
+        auto imageId = image->uniqueID();
+
+        // delete the image
+        image.reset(nullptr);
+
+        // all resources should have been purged
+        SkBitmap result;
+        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(imageId, &result));
+    }
+}
+
+
+// Verify that associated bitmap cache entries are purged on SkImage destruction.
+DEF_TEST(BitmapCache_discarded_image, reporter) {
+    // Cache entries associated with SkImages fall into two categories:
+    //
+    // 1) generated image bitmaps (managed by the image cacherator)
+    // 2) scaled/resampled bitmaps (cached when HQ filters are used)
+    //
+    // To exercise the first cache type, we use generated/picture-backed SkImages.
+    // To exercise the latter, we draw scaled bitmap images using HQ filters.
+
+    const SkMatrix xforms[] = {
+        SkMatrix::MakeScale(1, 1),
+        SkMatrix::MakeScale(1.7f, 0.5f),
+    };
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(xforms); ++i) {
+        test_discarded_image(reporter, xforms[i], []() {
+            SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
+            surface->getCanvas()->clear(SK_ColorCYAN);
+            return surface->newImageSnapshot();
+        });
+
+        test_discarded_image(reporter, xforms[i], []() {
+            SkPictureRecorder recorder;
+            SkCanvas* canvas = recorder.beginRecording(10, 10);
+            canvas->clear(SK_ColorCYAN);
+            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+            return SkImage::NewFromPicture(picture, SkISize::Make(10, 10), nullptr, nullptr);
+        });
+    }
 }

@@ -77,11 +77,11 @@ SkData* SkImage_Generator::onRefEncoded() const {
 }
 
 bool SkImage_Generator::getROPixels(SkBitmap* bitmap) const {
-    return fCache->lockAsBitmap(bitmap);
+    return fCache->lockAsBitmap(bitmap, this);
 }
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
-    return fCache->lockAsTexture(ctx, usage);
+    return fCache->lockAsTexture(ctx, usage, this);
 }
 
 SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {

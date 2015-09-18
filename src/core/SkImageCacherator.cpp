@@ -7,6 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
+#include "SkImage_Base.h"
 #include "SkImageCacherator.h"
 #include "SkMallocPixelRef.h"
 #include "SkNextID.h"
@@ -109,7 +110,7 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap) {
+bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
     if (SkBitmapCache::Find(fUniqueID, bitmap)) {
         return check_output_bitmap(*bitmap, fUniqueID);
     }
@@ -120,11 +121,15 @@ bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap) {
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueID);
     SkBitmapCache::Add(fUniqueID, *bitmap);
+    if (client) {
+        as_IB(client)->notifyAddedToCache();
+    }
+
     return true;
 }
 
-bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap) {
-    if (this->tryLockAsBitmap(bitmap)) {
+bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
+    if (this->tryLockAsBitmap(bitmap, client)) {
         return check_output_bitmap(*bitmap, fUniqueID);
     }
 
@@ -156,6 +161,10 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap) {
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueID);
     SkBitmapCache::Add(fUniqueID, *bitmap);
+    if (client) {
+        as_IB(client)->notifyAddedToCache();
+    }
+
     return check_output_bitmap(*bitmap, fUniqueID);
 #else
     return false;
@@ -209,7 +218,8 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
  *  4. Ask the generator to return YUV planes, which the GPU can convert
  *  5. Ask the generator to return RGB(A) data, which the GPU can convert
  */
-GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usage) {
+GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usage,
+                                            const SkImage* client) {
 #if SK_SUPPORT_GPU
     if (!ctx) {
         return nullptr;
@@ -262,7 +272,7 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, SkImageUsageType usa
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (this->tryLockAsBitmap(&bitmap)) {
+    if (this->tryLockAsBitmap(&bitmap, client)) {
         return GrRefCachedBitmapTexture(ctx, bitmap, usage);
     }
 #endif

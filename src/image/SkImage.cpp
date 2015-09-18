@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmap.h"
+#include "SkBitmapCache.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImageGenerator.h"
@@ -208,6 +209,22 @@ static bool raster_canvas_supports(const SkImageInfo& info) {
             break;
     }
     return false;
+}
+
+static SkSurfaceProps copy_or_safe_defaults(const SkSurfaceProps* props) {
+    return props ? *props : SkSurfaceProps(0, kUnknown_SkPixelGeometry);
+}
+
+SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID, const SkSurfaceProps* props)
+    : INHERITED(width, height, uniqueID)
+    , fProps(copy_or_safe_defaults(props))
+    , fAddedToCache(false)
+{ }
+
+SkImage_Base::~SkImage_Base() {
+    if (fAddedToCache.load()) {
+        SkNotifyBitmapGenIDIsStale(this->uniqueID());
+    }
 }
 
 bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,

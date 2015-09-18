@@ -8,6 +8,7 @@
 #ifndef SkImage_Base_DEFINED
 #define SkImage_Base_DEFINED
 
+#include "SkAtomics.h"
 #include "SkImage.h"
 #include "SkSurface.h"
 
@@ -17,16 +18,10 @@ enum {
     kNeedNewImageUniqueID = 0
 };
 
-static SkSurfaceProps copy_or_safe_defaults(const SkSurfaceProps* props) {
-    return props ? *props : SkSurfaceProps(0, kUnknown_SkPixelGeometry);
-}
-
 class SkImage_Base : public SkImage {
 public:
-    SkImage_Base(int width, int height, uint32_t uniqueID, const SkSurfaceProps* props)
-        : INHERITED(width, height, uniqueID)
-        , fProps(copy_or_safe_defaults(props))
-    {}
+    SkImage_Base(int width, int height, uint32_t uniqueID, const SkSurfaceProps* props);
+    virtual ~SkImage_Base();
 
     /**
      *  If the props weren't know at constructor time, call this but only before the image is
@@ -74,8 +69,17 @@ public:
 
     virtual bool onIsLazyGenerated() const { return false; }
 
+    // Call when this image is part of the key to a resourcecache entry. This allows the cache
+    // to know automatically those entries can be purged when this SkImage deleted.
+    void notifyAddedToCache() const {
+        fAddedToCache.store(true);
+    }
+
 private:
     const SkSurfaceProps fProps;
+
+    // Set true by caches when they cache content that's derived from the current pixels.
+    mutable SkAtomic<bool> fAddedToCache;
 
     typedef SkImage INHERITED;
 };

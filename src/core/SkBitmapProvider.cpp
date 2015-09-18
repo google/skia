@@ -62,7 +62,7 @@ SkBitmapCacheDesc SkBitmapProvider::makeCacheDesc() const {
 
 void SkBitmapProvider::notifyAddedToCache() const {
     if (fImage) {
-        // TODO
+        as_IB(fImage)->notifyAddedToCache();
     } else {
         fBitmap.pixelRef()->notifyAddedToCache();
     }

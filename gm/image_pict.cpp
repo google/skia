@@ -303,14 +303,15 @@ protected:
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        cache->lockAsBitmap(&bitmap);
+        cache->lockAsBitmap(&bitmap, nullptr);
         canvas->drawBitmap(bitmap, x, y);
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
         SkAutoTUnref<GrTexture> texture(cache->lockAsTexture(canvas->getGrContext(),
-                                                             kUntiled_SkImageUsageType));
+                                                             kUntiled_SkImageUsageType,
+                                                             nullptr));
         if (!texture) {
             // show placeholder if we have no texture
             SkPaint paint;
