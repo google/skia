@@ -64,6 +64,7 @@ protected:
             do_font_stuff(&paint);
         }
         SkGraphics::SetFontCacheLimit(oldCacheLimitSize);
+        SkSafeUnref(typeface);
     }
 
 private:
@@ -103,6 +104,8 @@ protected:
             });
         }
         SkGraphics::SetFontCacheLimit(oldCacheLimitSize);
+        SkSafeUnref(typefaces[0]);
+        SkSafeUnref(typefaces[1]);
     }
 
 private:
