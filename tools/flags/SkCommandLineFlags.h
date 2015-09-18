@@ -218,9 +218,20 @@ SK_UNUSED static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(nam
 
 #define DECLARE_string(name) extern SkCommandLineFlags::StringArray FLAGS_##name;
 
+
+
+
 #define DEFINE_int32(name, defaultValue, helpString)                        \
 int32_t FLAGS_##name;                                                       \
 SK_UNUSED static bool unused_##name = SkFlagInfo::CreateIntFlag(TO_STRING(name),      \
+                                                                &FLAGS_##name,        \
+                                                                defaultValue,         \
+                                                                helpString)
+
+#define DEFINE_int32_2(name, shortName, defaultValue, helpString)                     \
+int32_t FLAGS_##name;                                                                 \
+SK_UNUSED static bool unused_##name = SkFlagInfo::CreateIntFlag(TO_STRING(name),      \
+                                                                TO_STRING(shortName), \
                                                                 &FLAGS_##name,        \
                                                                 defaultValue,         \
                                                                 helpString)
@@ -284,6 +295,14 @@ public:
     static bool CreateIntFlag(const char* name, int32_t* pInt,
                               int32_t defaultValue, const char* helpString) {
         SkFlagInfo* info = new SkFlagInfo(name, nullptr, kInt_FlagType, helpString);
+        info->fIntValue = pInt;
+        *info->fIntValue = info->fDefaultInt = defaultValue;
+        return true;
+    }
+
+    static bool CreateIntFlag(const char* name, const char* shortName, int32_t* pInt,
+                              int32_t defaultValue, const char* helpString) {
+        SkFlagInfo* info = new SkFlagInfo(name, shortName, kInt_FlagType, helpString);
         info->fIntValue = pInt;
         *info->fIntValue = info->fDefaultInt = defaultValue;
         return true;

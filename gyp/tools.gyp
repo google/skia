@@ -36,6 +36,7 @@
         'skpdiff',
         'skpinfo',
         'skpmaker',
+        'imgslice',
         'test_image_decoder',
         'test_public_includes',
         'whitelist_typefaces',
@@ -303,6 +304,20 @@
       'include_dirs': [
         '../include/private',
         '../src/core/',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
+      ],
+    },
+    {
+      'target_name': 'imgslice',
+      'type': 'executable',
+      'sources': [
+        '../tools/imgslice.cpp',
+      ],
+      'include_dirs': [
+        '../include/core',
       ],
       'dependencies': [
         'flags.gyp:flags',
