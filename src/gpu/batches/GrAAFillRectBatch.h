@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 
+class GrBatch;
 class GrDrawBatch;
 class SkMatrix;
 struct SkRect;
@@ -25,6 +26,19 @@ GrDrawBatch* Create(GrColor color,
                     const SkMatrix& localMatrix,
                     const SkRect& rect,
                     const SkRect& devRect);
+
+void Append(GrBatch*,
+            GrColor,
+            const SkMatrix& viewMatrix,
+            const SkRect& rect,
+            const SkRect& devRect);
+
+void Append(GrBatch*,
+            GrColor,
+            const SkMatrix& viewMatrix,
+            const SkMatrix& localMatrix,
+            const SkRect& rect,
+            const SkRect& devRect);
 };
 
 #endif

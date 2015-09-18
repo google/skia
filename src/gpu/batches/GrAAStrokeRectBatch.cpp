@@ -53,14 +53,10 @@ public:
         SkRect fDevOutsideAssist;
         SkRect fDevInside;
         GrColor fColor;
-        bool fMiterStroke;
     };
 
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& devOutside,
-                               const SkRect& devOutsideAssist, const SkRect& devInside,
-                               bool miterStroke) {
-        return new AAStrokeRectBatch(color, viewMatrix, devOutside, devOutsideAssist, devInside,
-                                     miterStroke);
+    static AAStrokeRectBatch* Create(const SkMatrix& viewMatrix, bool miterStroke) {
+        return new AAStrokeRectBatch(viewMatrix, miterStroke);
     }
 
     const char* name() const override { return "AAStrokeRect"; }
@@ -76,27 +72,46 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-private:
-    void onPrepareDraws(Target*) override;
-    void initBatchTracker(const GrPipelineOptimizations&) override;
+    bool canAppend(const SkMatrix& viewMatrix, bool miterStroke) {
+        return fViewMatrix.cheapEqualTo(viewMatrix) && fMiterStroke == miterStroke;
+    }
 
-    AAStrokeRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& devOutside,
-                      const SkRect& devOutsideAssist, const SkRect& devInside, bool miterStroke)
-        : INHERITED(ClassID()) {
-        fBatch.fViewMatrix = viewMatrix;
+    void append(GrColor color, const SkRect& devOutside, const SkRect& devOutsideAssist,
+                const SkRect& devInside) {
         Geometry& geometry = fGeoData.push_back();
         geometry.fColor = color;
         geometry.fDevOutside = devOutside;
         geometry.fDevOutsideAssist = devOutsideAssist;
         geometry.fDevInside = devInside;
-        geometry.fMiterStroke = miterStroke;
-
-        // If we have miterstroke then we inset devOutside and outset devOutsideAssist, so we need
-        // the join for proper bounds
-        fBounds = geometry.fDevOutside;
-        fBounds.join(geometry.fDevOutsideAssist);
     }
 
+    void appendAndUpdateBounds(GrColor color, const SkRect& devOutside,
+                               const SkRect& devOutsideAssist, const SkRect& devInside) {
+        this->append(color, devOutside, devOutsideAssist, devInside);
+
+        SkRect bounds;
+        this->updateBounds(&bounds, fGeoData.back());
+        this->joinBounds(bounds);
+    }
+
+    void init() { this->updateBounds(&fBounds, fGeoData[0]); }
+
+private:
+    void updateBounds(SkRect* bounds, const Geometry& geo) {
+        // If we have miterstroke then we inset devOutside and outset devOutsideAssist, so we need
+        // the join for proper bounds
+        *bounds = geo.fDevOutside;
+        bounds->join(geo.fDevOutsideAssist);
+    }
+
+    void onPrepareDraws(Target*) override;
+    void initBatchTracker(const GrPipelineOptimizations&) override;
+
+    AAStrokeRectBatch(const SkMatrix& viewMatrix,bool miterStroke)
+        : INHERITED(ClassID()) {
+        fViewMatrix = viewMatrix;
+        fMiterStroke = miterStroke;
+    }
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
@@ -113,9 +128,10 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
     bool colorIgnored() const { return fBatch.fColorIgnored; }
-    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
-    bool miterStroke() const { return fBatch.fMiterStroke; }
     bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+    const Geometry& geometry() const { return fGeoData[0]; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    bool miterStroke() const { return fMiterStroke; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
 
@@ -132,17 +148,17 @@ private:
                                       bool tweakAlphaForCoverage) const;
 
     struct BatchTracker {
-        SkMatrix fViewMatrix;
         GrColor fColor;
         bool fUsesLocalCoords;
         bool fColorIgnored;
         bool fCoverageIgnored;
-        bool fMiterStroke;
         bool fCanTweakAlphaForCoverage;
     };
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
+    SkMatrix fViewMatrix;
+    bool fMiterStroke;
 
     typedef GrVertexBatch INHERITED;
 };
@@ -159,7 +175,6 @@ void AAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     fBatch.fColor = fGeoData[0].fColor;
     fBatch.fUsesLocalCoords = opt.readsLocalCoords();
     fBatch.fCoverageIgnored = !opt.readsCoverage();
-    fBatch.fMiterStroke = fGeoData[0].fMiterStroke;
     fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
 }
 
@@ -210,7 +225,7 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) {
                                            args.fDevOutside,
                                            args.fDevOutsideAssist,
                                            args.fDevInside,
-                                           args.fMiterStroke,
+                                           fMiterStroke,
                                            canTweakAlphaForCoverage);
     }
     helper.recordDraw(target);
@@ -462,8 +477,28 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& devOutsideAssist,
                     const SkRect& devInside,
                     bool miterStroke) {
-    return AAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutsideAssist, devInside,
-                                     miterStroke);
+    AAStrokeRectBatch* batch = AAStrokeRectBatch::Create(viewMatrix, miterStroke);
+    batch->append(color, devOutside, devOutsideAssist, devInside);
+    batch->init();
+    return batch;
+}
+
+bool Append(GrBatch* origBatch,
+            GrColor color,
+            const SkMatrix& viewMatrix,
+            const SkRect& devOutside,
+            const SkRect& devOutsideAssist,
+            const SkRect& devInside,
+            bool miterStroke) {
+    AAStrokeRectBatch* batch = origBatch->cast<AAStrokeRectBatch>();
+
+    // we can't batch across vm changes
+    if (!batch->canAppend(viewMatrix, miterStroke)) {
+        return false;
+    }
+
+    batch->appendAndUpdateBounds(color, devOutside, devOutsideAssist, devInside);
+    return true;
 }
 
 };

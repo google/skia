@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 
+class GrBatch;
 class GrDrawBatch;
 class GrResourceProvider;
 class SkMatrix;
@@ -23,6 +24,14 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& devOutsideAssist,
                     const SkRect& devInside,
                     bool miterStroke);
+
+bool Append(GrBatch*,
+            GrColor color,
+            const SkMatrix& viewMatrix,
+            const SkRect& devOutside,
+            const SkRect& devOutsideAssist,
+            const SkRect& devInside,
+            bool miterStroke);
 
 };
 

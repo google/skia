@@ -48,9 +48,8 @@ public:
         GrColor fColor;
     };
 
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                               SkScalar strokeWidth, bool snapToPixelCenters) {
-        return new NonAAStrokeRectBatch(color, viewMatrix, rect, strokeWidth, snapToPixelCenters);
+    static NonAAStrokeRectBatch* Create() {
+        return new NonAAStrokeRectBatch;
     }
 
     const char* name() const override { return "GrStrokeRectBatch"; }
@@ -64,7 +63,45 @@ public:
         out->setKnownSingleComponent(0xff);
     }
 
+    void append(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                SkScalar strokeWidth) {
+        Geometry& geometry = fGeoData.push_back();
+        geometry.fViewMatrix = viewMatrix;
+        geometry.fRect = rect;
+        geometry.fStrokeWidth = strokeWidth;
+        geometry.fColor = color;
+    }
+
+    void appendAndUpdateBounds(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                               SkScalar strokeWidth, bool snapToPixelCenters) {
+        this->append(color, viewMatrix, rect, strokeWidth);
+
+        SkRect bounds;
+        this->setupBounds(&bounds, fGeoData.back(), snapToPixelCenters);
+        this->joinBounds(bounds);
+    }
+
+    void init(bool snapToPixelCenters) {
+        const Geometry& geo = fGeoData[0];
+        fBatch.fHairline = geo.fStrokeWidth == 0;
+
+        // setup bounds
+        this->setupBounds(&fBounds, geo, snapToPixelCenters);
+    }
+
 private:
+    void setupBounds(SkRect* bounds, const Geometry& geo, bool snapToPixelCenters) {
+        *bounds = geo.fRect;
+        SkScalar rad = SkScalarHalf(geo.fStrokeWidth);
+        bounds->outset(rad, rad);
+        geo.fViewMatrix.mapRect(&fBounds);
+
+        // If our caller snaps to pixel centers then we have to round out the bounds
+        if (snapToPixelCenters) {
+            bounds->roundOut();
+        }
+    }
+
     void onPrepareDraws(Target* target) override {
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
@@ -139,30 +176,7 @@ private:
         fBatch.fCoverageIgnored = !opt.readsCoverage();
     }
 
-    NonAAStrokeRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                         SkScalar strokeWidth, bool snapToPixelCenters)
-        : INHERITED(ClassID()) {
-        Geometry& geometry = fGeoData.push_back();
-        geometry.fViewMatrix = viewMatrix;
-        geometry.fRect = rect;
-        geometry.fStrokeWidth = strokeWidth;
-        geometry.fColor = color;
-
-        fBatch.fHairline = geometry.fStrokeWidth == 0;
-
-        fGeoData.push_back(geometry);
-
-        // setup bounds
-        fBounds = geometry.fRect;
-        SkScalar rad = SkScalarHalf(geometry.fStrokeWidth);
-        fBounds.outset(rad, rad);
-        geometry.fViewMatrix.mapRect(&fBounds);
-
-        // If our caller snaps to pixel centers then we have to round out the bounds
-        if (snapToPixelCenters) {
-            fBounds.roundOut();
-        }
-    }
+    NonAAStrokeRectBatch() : INHERITED(ClassID()) {}
 
     GrColor color() const { return fBatch.fColor; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
@@ -207,7 +221,20 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& rect,
                     SkScalar strokeWidth,
                     bool snapToPixelCenters) {
-    return NonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeWidth, snapToPixelCenters);
+    NonAAStrokeRectBatch* batch = NonAAStrokeRectBatch::Create();
+    batch->append(color, viewMatrix, rect, strokeWidth);
+    batch->init(snapToPixelCenters);
+    return batch;
+}
+
+void Append(GrBatch* origBatch,
+            GrColor color,
+            const SkMatrix& viewMatrix,
+            const SkRect& rect,
+            SkScalar strokeWidth,
+            bool snapToPixelCenters) {
+    NonAAStrokeRectBatch* batch = origBatch->cast<NonAAStrokeRectBatch>();
+    batch->appendAndUpdateBounds(color, viewMatrix, rect, strokeWidth, snapToPixelCenters);
 }
 
 };
@@ -220,7 +247,7 @@ DRAW_BATCH_TEST_DEFINE(NonAAStrokeRectBatch) {
     SkRect rect = GrTest::TestRect(random);
     SkScalar strokeWidth = random->nextBool() ? 0.0f : 1.0f;
 
-    return NonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeWidth, random->nextBool());
+    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeWidth, random->nextBool());
 }
 
 #endif

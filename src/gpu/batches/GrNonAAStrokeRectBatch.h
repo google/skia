@@ -24,6 +24,12 @@ GrDrawBatch* Create(GrColor color,
                     SkScalar strokeWidth,
                     bool snapToPixelCenters);
 
+void Append(GrColor color,
+            const SkMatrix& viewMatrix,
+            const SkRect& rect,
+            SkScalar strokeWidth,
+            bool snapToPixelCenters);
+
 };
 
 #endif

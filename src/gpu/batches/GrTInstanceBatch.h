@@ -26,6 +26,8 @@
  *
  *     void SetBounds(const Geometry& seedGeometry, SkRect* outBounds)
  *
+ *     void UpdateBoundsAfterAppend(const Geometry& lastGeometry, SkRect* currentBounds)
+ *
  *     bool CanCombine(const Geometry& mine, const Geometry& theirs,
  *                     const GrPipelineOptimizations&)
  *
@@ -64,20 +66,19 @@ public:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    // to avoid even the initial copy of the struct, we have a getter for the first item which
-    // is used to seed the batch with its initial geometry.  After seeding, the client should call
-    // init() so the Batch can initialize itself
-    Geometry* geometry() { return &fGeoData[0]; }
+    // After seeding, the client should call init() so the Batch can initialize itself
     void init() {
         const Geometry& geo = fGeoData[0];
         Impl::SetBounds(geo, &fBounds);
     }
 
-private:
-    GrTInstanceBatch() : INHERITED(ClassID()) {
-        // Push back an initial geometry
-        fGeoData.push_back();
+    void updateBoundsAfterAppend() {
+        const Geometry& geo = fGeoData.back();
+        Impl::UpdateBoundsAfterAppend(geo, &fBounds);
     }
+
+private:
+    GrTInstanceBatch() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) override {
         SkAutoTUnref<const GrGeometryProcessor> gp(Impl::CreateGP(this->seedGeometry(), fOpts));

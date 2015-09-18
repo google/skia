@@ -34,6 +34,13 @@ public:
     static void SetBounds(const Geometry& geo, SkRect* outBounds) {
         geo.fViewMatrix.mapRect(outBounds, geo.fRect);
     }
+
+    template <typename Geometry>
+    static void UpdateBoundsAfterAppend(const Geometry& geo, SkRect* outBounds) {
+        SkRect bounds = geo.fRect;
+        geo.fViewMatrix.mapRect(&bounds);
+        outBounds->join(bounds);
+    }
 };
 
 /** We always use per-vertex colors so that rects can be batched across color changes. Sometimes
@@ -188,16 +195,11 @@ public:
 typedef GrTInstanceBatch<NonAAFillRectBatchImp> NonAAFillRectBatchSimple;
 typedef GrTInstanceBatch<NonAAFillRectBatchPerspectiveImp> NonAAFillRectBatchPerspective;
 
-namespace GrNonAAFillRectBatch {
-
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect* localRect,
-                    const SkMatrix* localMatrix) {
+inline static void append_to_batch(NonAAFillRectBatchSimple* batch, GrColor color,
+                                   const SkMatrix& viewMatrix, const SkRect& rect,
+                                   const SkRect* localRect, const SkMatrix* localMatrix) {
     SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
-    NonAAFillRectBatchSimple* batch = NonAAFillRectBatchSimple::Create();
-    NonAAFillRectBatchSimple::Geometry& geo = *batch->geometry();
+    NonAAFillRectBatchSimple::Geometry& geo = batch->geoData()->push_back();
 
     geo.fColor = color;
     geo.fViewMatrix = viewMatrix;
@@ -212,19 +214,13 @@ GrDrawBatch* Create(GrColor color,
     } else {
         geo.fLocalQuad.set(rect);
     }
-
-    batch->init();
-    return batch;
 }
 
-GrDrawBatch* CreateWithPerspective(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRect& rect,
-                                   const SkRect* localRect,
-                                   const SkMatrix* localMatrix) {
+inline static void append_to_batch(NonAAFillRectBatchPerspective* batch, GrColor color,
+                                   const SkMatrix& viewMatrix, const SkRect& rect,
+                                   const SkRect* localRect, const SkMatrix* localMatrix) {
     SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
-    NonAAFillRectBatchPerspective* batch = NonAAFillRectBatchPerspective::Create();
-    NonAAFillRectBatchPerspective::Geometry& geo = *batch->geometry();
+    NonAAFillRectBatchPerspective::Geometry& geo = batch->geoData()->push_back();
 
     geo.fColor = color;
     geo.fViewMatrix = viewMatrix;
@@ -238,8 +234,65 @@ GrDrawBatch* CreateWithPerspective(GrColor color,
         geo.fLocalRect = *localRect;
     }
 
+}
+
+namespace GrNonAAFillRectBatch {
+
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkRect* localRect,
+                    const SkMatrix* localMatrix) {
+    NonAAFillRectBatchSimple* batch = NonAAFillRectBatchSimple::Create();
+    append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
     batch->init();
     return batch;
+}
+
+GrDrawBatch* CreateWithPerspective(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkRect* localRect,
+                                   const SkMatrix* localMatrix) {
+    NonAAFillRectBatchPerspective* batch = NonAAFillRectBatchPerspective::Create();
+    append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
+    batch->init();
+    return batch;
+}
+
+bool Append(GrBatch* origBatch,
+            GrColor color,
+            const SkMatrix& viewMatrix,
+            const SkRect& rect,
+            const SkRect* localRect,
+            const SkMatrix* localMatrix) {
+    bool usePerspective = viewMatrix.hasPerspective() ||
+                          (localMatrix && localMatrix->hasPerspective());
+
+    if (usePerspective && origBatch->classID() != NonAAFillRectBatchPerspective::ClassID()) {
+        return false;
+    }
+
+    if (!usePerspective) {
+        NonAAFillRectBatchSimple* batch = origBatch->cast<NonAAFillRectBatchSimple>();
+        append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
+        batch->updateBoundsAfterAppend();
+    } else {
+        NonAAFillRectBatchPerspective* batch = origBatch->cast<NonAAFillRectBatchPerspective>();
+        const NonAAFillRectBatchPerspective::Geometry& geo = batch->geoData()->back();
+
+        if (!geo.fViewMatrix.cheapEqualTo(viewMatrix) ||
+            geo.fHasLocalRect != SkToBool(localRect) ||
+            geo.fHasLocalMatrix != SkToBool(localMatrix) ||
+            (geo.fHasLocalMatrix && !geo.fLocalMatrix.cheapEqualTo(*localMatrix))) {
+            return false;
+        }
+
+        append_to_batch(batch, color, viewMatrix, rect, localRect, localMatrix);
+        batch->updateBoundsAfterAppend();
+    }
+
+    return true;
 }
 
 };
