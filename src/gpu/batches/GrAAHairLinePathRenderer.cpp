@@ -672,8 +672,6 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
 
 class AAHairlineBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     struct Geometry {
         GrColor fColor;
         uint8_t fCoverage;
@@ -718,7 +716,8 @@ private:
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
 
-    AAHairlineBatch(const Geometry& geometry) : INHERITED(ClassID()) {
+    AAHairlineBatch(const Geometry& geometry) {
+        this->initClassID<AAHairlineBatch>();
         fGeoData.push_back(geometry);
 
         // compute bounds
@@ -786,8 +785,6 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 void AAHairlineBatch::onPrepareDraws(Target* target) {

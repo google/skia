@@ -30,9 +30,8 @@ public:
     void setStencilSettings(const GrStencilSettings& stencil) { fStencilSettings = stencil; }
 
 protected:
-    GrDrawPathBatchBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor)
-        : INHERITED(classID)
-        , fViewMatrix(viewMatrix)
+    GrDrawPathBatchBase(const SkMatrix& viewMatrix, GrColor initialColor)
+        : fViewMatrix(viewMatrix)
         , fColor(initialColor) {}
 
     const GrStencilSettings& stencilSettings() const { return fStencilSettings; }
@@ -56,8 +55,6 @@ private:
 
 class GrDrawPathBatch final : public GrDrawPathBatchBase {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     // This can't return a more abstract type because we install the stencil settings late :(
     static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, GrColor color,
                                        const GrPath* path) {
@@ -70,10 +67,11 @@ public:
 
 private:
     GrDrawPathBatch(const SkMatrix& viewMatrix, GrColor color, const GrPath* path)
-        : INHERITED(ClassID(), viewMatrix, color)
+        : INHERITED(viewMatrix, color)
         , fPath(path) {
         fBounds = path->getBounds();
         viewMatrix.mapRect(&fBounds);
+        this->initClassID<GrDrawPathBatch>();
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
@@ -149,9 +147,7 @@ private:
 // Template this if we decide to support index types other than 16bit
 class GrDrawPathRangeBatch final : public GrDrawPathBatchBase {
 public:
-    DEFINE_BATCH_CLASS_ID
-
-    // This can't return a more abstract type because we install the stencil settings late :(
+    // This can't return a more abstracet type because we install the stencil settings late :(
     static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
                                        GrColor color, GrPathRangeDraw* pathRangeDraw) {
         return SkNEW_ARGS(GrDrawPathRangeBatch, (viewMatrix, localMatrix, color, pathRangeDraw));

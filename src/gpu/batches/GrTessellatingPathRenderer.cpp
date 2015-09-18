@@ -1385,7 +1385,6 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
 
 class TessellatingPathBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
 
     static GrDrawBatch* Create(const GrColor& color,
                                const SkPath& path,
@@ -1588,12 +1587,13 @@ private:
                           const GrStrokeInfo& stroke,
                           const SkMatrix& viewMatrix,
                           const SkRect& clipBounds)
-      : INHERITED(ClassID())
-      , fColor(color)
+      : fColor(color)
       , fPath(path)
       , fStroke(stroke)
       , fViewMatrix(viewMatrix)
       , fClipBounds(clipBounds) {
+        this->initClassID<TessellatingPathBatch>();
+
         fBounds = path.getBounds();
         if (!stroke.isFillStyle()) {
             SkScalar radius = SkScalarHalf(stroke.getWidth());
@@ -1614,8 +1614,6 @@ private:
     SkMatrix                fViewMatrix;
     SkRect                  fClipBounds; // in source space
     GrPipelineOptimizations fPipelineInfo;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {

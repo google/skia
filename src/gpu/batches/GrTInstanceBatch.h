@@ -40,8 +40,6 @@
 template <typename Impl>
 class GrTInstanceBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     typedef typename Impl::Geometry Geometry;
 
     static GrTInstanceBatch* Create() { return new GrTInstanceBatch; }
@@ -74,7 +72,9 @@ public:
     }
 
 private:
-    GrTInstanceBatch() : INHERITED(ClassID()) {
+    GrTInstanceBatch() {
+        this->initClassID<GrTInstanceBatch<Impl>>();
+
         // Push back an initial geometry
         fGeoData.push_back();
     }
@@ -136,8 +136,6 @@ private:
 
     GrPipelineOptimizations fOpts;
     SkSTArray<1, Geometry, true> fGeoData;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 #endif

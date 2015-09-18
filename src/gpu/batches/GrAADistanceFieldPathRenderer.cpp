@@ -111,8 +111,6 @@ static const SkScalar kAntiAliasPad = 1.0f;
 
 class AADistanceFieldPathBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     typedef GrAADistanceFieldPathRenderer::PathData PathData;
     typedef SkTDynamicHash<PathData, PathData::Key> PathCache;
     typedef GrAADistanceFieldPathRenderer::PathDataList PathDataList;
@@ -278,8 +276,8 @@ private:
 
     AADistanceFieldPathBatch(const Geometry& geometry, GrColor color, const SkMatrix& viewMatrix,
                              GrBatchAtlas* atlas,
-                             PathCache* pathCache, PathDataList* pathList)
-        : INHERITED(ClassID()) {
+                             PathCache* pathCache, PathDataList* pathList) {
+        this->initClassID<AADistanceFieldPathBatch>();
         fBatch.fColor = color;
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.push_back(geometry);
@@ -521,8 +519,6 @@ private:
     GrBatchAtlas* fAtlas;
     PathCache* fPathCache;
     PathDataList* fPathList;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {

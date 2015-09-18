@@ -50,8 +50,7 @@ public:
     }
 
 protected:
-    GrTestBatch(uint32_t classID, const GrGeometryProcessor* gp, const SkRect& bounds)
-        : INHERITED(classID) {
+    GrTestBatch(const GrGeometryProcessor* gp, const SkRect& bounds) {
         fGeometryProcessor.reset(SkRef(gp));
 
         this->setBounds(bounds);
@@ -83,8 +82,6 @@ private:
 
     SkAutoTUnref<const GrGeometryProcessor> fGeometryProcessor;
     BatchTracker fBatch;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 #endif

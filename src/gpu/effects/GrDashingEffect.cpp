@@ -245,9 +245,8 @@ static GrGeometryProcessor* create_dash_gp(GrColor,
 
 class DashBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     struct Geometry {
+        GrColor fColor;
         SkMatrix fViewMatrix;
         SkMatrix fSrcRotInv;
         SkPoint fPtsRot[2];
@@ -256,7 +255,6 @@ public:
         SkScalar fIntervals[2];
         SkScalar fParallelScale;
         SkScalar fPerpendicularScale;
-        GrColor fColor;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode,
@@ -277,8 +275,8 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    DashBatch(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode, bool fullDash)
-        : INHERITED(ClassID()) {
+    DashBatch(const Geometry& geometry, SkPaint::Cap cap, DashAAMode aaMode, bool fullDash) {
+        this->initClassID<DashBatch>();
         fGeoData.push_back(geometry);
 
         fBatch.fAAMode = aaMode;
@@ -676,8 +674,6 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 static GrDrawBatch* create_batch(GrColor color, const SkMatrix& viewMatrix, const SkPoint pts[2],

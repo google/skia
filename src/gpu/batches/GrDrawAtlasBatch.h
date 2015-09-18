@@ -14,13 +14,11 @@
 
 class GrDrawAtlasBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     struct Geometry {
         GrColor                 fColor;
         SkTArray<uint8_t, true> fVerts;
     };
-
+    
     static GrDrawBatch* Create(const Geometry& geometry, const SkMatrix& viewMatrix,
                                int spriteCount, const SkRSXform* xforms, const SkRect* rects,
                                const SkColor* colors) {
@@ -68,8 +66,6 @@ private:
     bool     fColorIgnored;
     bool     fCoverageIgnored;
     bool     fHasColors;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 #endif

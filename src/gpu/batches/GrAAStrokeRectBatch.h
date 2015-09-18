@@ -18,8 +18,6 @@ class GrResourceProvider;
 
 class GrAAStrokeRectBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     // TODO support AA rotated stroke rects by copying around view matrices
     struct Geometry {
         GrColor fColor;
@@ -50,8 +48,8 @@ private:
     void onPrepareDraws(Target*) override;
     void initBatchTracker(const GrPipelineOptimizations&) override;
 
-    GrAAStrokeRectBatch(const Geometry& geometry, const SkMatrix& viewMatrix)
-        : INHERITED(ClassID()) {
+    GrAAStrokeRectBatch(const Geometry& geometry, const SkMatrix& viewMatrix)  {
+        this->initClassID<GrAAStrokeRectBatch>();
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.push_back(geometry);
 
@@ -107,8 +105,6 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 

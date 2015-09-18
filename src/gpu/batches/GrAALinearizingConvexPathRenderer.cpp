@@ -119,8 +119,6 @@ static const GrGeometryProcessor* create_fill_gp(bool tweakAlphaForCoverage,
 
 class AAFlatteningConvexPathBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
-
     struct Geometry {
         GrColor fColor;
         SkMatrix fViewMatrix;
@@ -260,7 +258,8 @@ private:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    AAFlatteningConvexPathBatch(const Geometry& geometry) : INHERITED(ClassID()) {
+    AAFlatteningConvexPathBatch(const Geometry& geometry) {
+        this->initClassID<AAFlatteningConvexPathBatch>();
         fGeoData.push_back(geometry);
 
         // compute bounds
@@ -309,8 +308,6 @@ private:
 
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
-
-    typedef GrVertexBatch INHERITED;
 };
 
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
