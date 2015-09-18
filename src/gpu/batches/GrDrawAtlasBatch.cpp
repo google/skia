@@ -77,8 +77,8 @@ void GrDrawAtlasBatch::onPrepareDraws(Target* target) {
 
 GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix,
                                    int spriteCount, const SkRSXform* xforms, const SkRect* rects,
-                                   const SkColor* colors) {
-    this->initClassID<GrDrawAtlasBatch>();
+                                   const SkColor* colors)
+    : INHERITED(ClassID()) {
     SkASSERT(xforms);
     SkASSERT(rects);
     

@@ -31,6 +31,7 @@ namespace skiagm {
 
 class ConvexPolyTestBatch : public GrTestBatch {
 public:
+    DEFINE_BATCH_CLASS_ID
     struct Geometry : public GrTestBatch::Geometry {
         SkRect fBounds;
     };
@@ -43,9 +44,8 @@ public:
 
 private:
     ConvexPolyTestBatch(const GrGeometryProcessor* gp, const Geometry& geo)
-        : INHERITED(gp, geo.fBounds)
+        : INHERITED(ClassID(), gp, geo.fBounds)
         , fGeometry(geo) {
-        this->initClassID<ConvexPolyTestBatch>();
     }
 
     Geometry* geoData(int index) override {
