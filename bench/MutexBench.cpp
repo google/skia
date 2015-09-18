@@ -36,8 +36,33 @@ private:
     SkString fBenchName;
 };
 
+class SharedBench : public Benchmark {
+public:
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+protected:
+    const char* onGetName() override {
+        return "SkSharedMutexSharedUncontendedBenchmark";
+    }
+
+    void onDraw(const int loops, SkCanvas*) override {
+        SkSharedMutex mu;
+        for (int i = 0; i < loops; i++) {
+            mu.acquireShared();
+            mu.releaseShared();
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new MutexBench<SkSharedMutex>(SkString("SkSharedMutex")); )
 DEF_BENCH( return new MutexBench<SkMutex>(SkString("SkMutex")); )
 DEF_BENCH( return new MutexBench<SkSpinlock>(SkString("SkSpinlock")); )
+DEF_BENCH( return new SharedBench; )
+
