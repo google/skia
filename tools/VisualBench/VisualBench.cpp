@@ -25,10 +25,11 @@ DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 DEFINE_bool2(interactive, n, false, "Run in interactive mode.");
 
 VisualBench::VisualBench(void* hwnd, int argc, char** argv)
-    : INHERITED(hwnd)
-    , fModule(new VisualLightweightBenchModule(this)) {
+    : INHERITED(hwnd) {
     SkCommandLineFlags::Parse(argc, argv);
 
+    // this has to happen after commandline parsing
+    fModule.reset(new VisualLightweightBenchModule(this));
     if (FLAGS_interactive) {
         fModule.reset(new VisualInteractiveModule(this));
     }
