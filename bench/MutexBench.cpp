@@ -6,20 +6,25 @@
  */
 #include "Benchmark.h"
 #include "SkMutex.h"
+#include "SkSharedMutex.h"
+#include "SkSpinlock.h"
+#include "SkString.h"
 
+template <typename Mutex>
 class MutexBench : public Benchmark {
 public:
+    MutexBench(SkString benchPrefix) : fBenchName(benchPrefix += "UncontendedBenchmark") { }
     bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
 
 protected:
     const char* onGetName() override {
-        return "mutex";
+        return fBenchName.c_str();
     }
 
     void onDraw(const int loops, SkCanvas*) override {
-        SkMutex mu;
+        Mutex mu;
         for (int i = 0; i < loops; i++) {
             mu.acquire();
             mu.release();
@@ -28,8 +33,11 @@ protected:
 
 private:
     typedef Benchmark INHERITED;
+    SkString fBenchName;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new MutexBench(); )
+DEF_BENCH( return new MutexBench<SkSharedMutex>(SkString("SkSharedMutex")); )
+DEF_BENCH( return new MutexBench<SkMutex>(SkString("SkMutex")); )
+DEF_BENCH( return new MutexBench<SkSpinlock>(SkString("SkSpinlock")); )
