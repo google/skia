@@ -17,11 +17,13 @@ namespace SkOpts {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Inlining heuristics were determined by using perf.skia.org and bench/MemsetBench.cpp.
-// When using MSVC, inline is better >= 1K and worse <= 100.  The Nexus Player was the opposite.
-// Otherwise, when NEON or SSE is available to GCC or Clang, they can handle it best.
-// See https://code.google.com/p/chromium/issues/detail?id=516426#c15 for more details.
-// See also skia:4316; it might be a good idea to use rep stosw/stosd here.
+// The inlining heuristics below were determined using bench/MemsetBench.cpp
+// on a x86 desktop, a Nexus 7 with and without NEON, and a Nexus 9:
+//   - on x86, inlining was never faster,
+//   - on ARMv7, inlining was faster for N<=10.  Putting this check inside the NEON
+//     code was not helpful; it's got to be here outside.
+//   - NEON code generation for ARMv8 with GCC 4.9 is terrible,
+//     making the NEON code ~8x slower that just a serial loop.
 
 /** Similar to memset(), but it assigns a 16bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -29,12 +31,10 @@ namespace SkOpts {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
-#if defined(_MSC_VER)
-    if (count > 300) { while (count --> 0) { *buffer++ = value; } return; }
-#elif defined(SK_BUILD_FOR_ANDROID) && defined(SK_CPU_X86)
-    if (count < 300) { while (count --> 0) { *buffer++ = value; } return; }
-#elif defined(SK_ARM_HAS_NEON) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-                     { while (count --> 0) { *buffer++ = value; } return; }
+#if defined(SK_CPU_ARM64)
+    while (count --> 0) { *buffer++ = value; } return;
+#elif defined(SK_CPU_ARM32)
+    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
 #endif
     SkOpts::memset16(buffer, value, count);
 }
@@ -45,12 +45,10 @@ static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
-#if defined(_MSC_VER)
-    if (count > 300) { while (count --> 0) { *buffer++ = value; } return; }
-#elif defined(SK_BUILD_FOR_ANDROID) && defined(SK_CPU_X86)
-    if (count < 300) { while (count --> 0) { *buffer++ = value; } return; }
-#elif defined(SK_ARM_HAS_NEON) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-                     { while (count --> 0) { *buffer++ = value; } return; }
+#if defined(SK_CPU_ARM64)
+    while (count --> 0) { *buffer++ = value; } return;
+#elif defined(SK_CPU_ARM32)
+    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
 #endif
     SkOpts::memset32(buffer, value, count);
 }
