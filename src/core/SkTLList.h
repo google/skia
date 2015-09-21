@@ -247,7 +247,7 @@ private:
             fFreeList.remove(node);
             ++node->fBlock->fNodesInUse;
         } else {
-            Block* block = reinterpret_cast<Block*>(sk_malloc_flags(this->blockSize(), 0));
+            Block* block = reinterpret_cast<Block*>(sk_malloc_throw(this->blockSize()));
             node = &block->fNodes[0];
             new (node) Node;
             node->fBlock = block;
