@@ -41,27 +41,27 @@ const GrGLInterface* GrGLDefaultInterface();
  * GLX on linux, AGL on Mac). The interface is only valid for the GL context
  * that is current when the interface is created.
  */
-const GrGLInterface* GrGLCreateNativeInterface();
+SK_API const GrGLInterface* GrGLCreateNativeInterface();
 
 #if SK_MESA
 /**
  * Creates a GrGLInterface for an OSMesa context.
  */
-const GrGLInterface* GrGLCreateMesaInterface();
+SK_API const GrGLInterface* GrGLCreateMesaInterface();
 #endif
 
 #if SK_ANGLE
 /**
  * Creates a GrGLInterface for an ANGLE context.
  */
-const GrGLInterface* GrGLCreateANGLEInterface();
+SK_API const GrGLInterface* GrGLCreateANGLEInterface();
 #endif
 
 #if SK_COMMAND_BUFFER
 /**
  * Creates a GrGLInterface for a Command Buffer context.
  */
-const GrGLInterface* GrGLCreateCommandBufferInterface();
+SK_API const GrGLInterface* GrGLCreateCommandBufferInterface();
 #endif
 
 /**
