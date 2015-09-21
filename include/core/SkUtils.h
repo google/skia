@@ -9,6 +9,27 @@
 #define SkUtils_DEFINED
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN)
+    #include <intrin.h>
+#endif
+
+#if defined(SK_CPU_X86)
+    static inline void rep_stosw(uint16_t buffer[], uint16_t value, int count) {
+    #if defined(SK_BUILD_FOR_WIN)
+        __stosw(buffer, value, count);
+    #else
+        __asm__ __volatile__ ( "rep stosw" : "+D"(buffer), "+c"(count) : "a"(value) );
+    #endif
+    }
+
+    static inline void rep_stosd(uint32_t buffer[], uint32_t value, int count) {
+    #if defined(SK_BUILD_FOR_WIN)
+        __stosd((PDWORD)buffer, value, count);
+    #else
+        __asm__ __volatile__ ( "rep stosl" : "+D"(buffer), "+c"(count) : "a"(value) );
+    #endif
+    }
+#endif
 
 namespace SkOpts {
     extern void (*memset16)(uint16_t[], uint16_t, int);
@@ -17,13 +38,8 @@ namespace SkOpts {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// The inlining heuristics below were determined using bench/MemsetBench.cpp
-// on a x86 desktop, a Nexus 7 with and without NEON, and a Nexus 9:
-//   - on x86, inlining was never faster,
-//   - on ARMv7, inlining was faster for N<=10.  Putting this check inside the NEON
-//     code was not helpful; it's got to be here outside.
-//   - NEON code generation for ARMv8 with GCC 4.9 is terrible,
-//     making the NEON code ~8x slower that just a serial loop.
+// The stosw/d and inlining heuristics below were determined using
+// bench/MemsetBench.cpp and perf.skia.org.
 
 /** Similar to memset(), but it assigns a 16bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -31,10 +47,10 @@ namespace SkOpts {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
-#if defined(SK_CPU_ARM64)
+#if defined(SK_CPU_X86)
+    if (count > 30) { rep_stosw(buffer, value, count); return; }
+#elif defined(SK_ARM_HAS_NEON)
     while (count --> 0) { *buffer++ = value; } return;
-#elif defined(SK_CPU_ARM32)
-    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
 #endif
     SkOpts::memset16(buffer, value, count);
 }
@@ -45,10 +61,10 @@ static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
-#if defined(SK_CPU_ARM64)
+#if defined(SK_CPU_X86)
+    if (count > 30) { rep_stosd(buffer, value, count); return; }
+#elif defined(SK_ARM_HAS_NEON)
     while (count --> 0) { *buffer++ = value; } return;
-#elif defined(SK_CPU_ARM32)
-    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
 #endif
     SkOpts::memset32(buffer, value, count);
 }
