@@ -31,11 +31,12 @@ namespace SkOpts {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
-#if defined(SK_ARM_HAS_NEON) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    while (count --> 0) { *buffer++ = value; }
-#else
-    SkOpts::memset16(buffer, value, count);
+#if defined(SK_CPU_ARM64)
+    while (count --> 0) { *buffer++ = value; } return;
+#elif defined(SK_CPU_ARM32)
+    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
 #endif
+    SkOpts::memset16(buffer, value, count);
 }
 
 /** Similar to memset(), but it assigns a 32bit value into the buffer.
@@ -44,11 +45,12 @@ static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
-#if defined(SK_ARM_HAS_NEON) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    while (count --> 0) { *buffer++ = value; }
-#else
-    SkOpts::memset32(buffer, value, count);
+#if defined(SK_CPU_ARM64)
+    while (count --> 0) { *buffer++ = value; } return;
+#elif defined(SK_CPU_ARM32)
+    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
 #endif
+    SkOpts::memset32(buffer, value, count);
 }
 
 
