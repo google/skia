@@ -97,6 +97,9 @@ def gyp_defines(builder_dict):
   # ANGLE.
   if builder_dict.get('extra_config') == 'ANGLE':
     gyp_defs['skia_angle'] = '1'
+    if builder_dict.get('os', '') in ('Ubuntu', 'Linux'):
+      gyp_defs['use_x11'] = '1'
+      gyp_defs['chromeos'] = '0'
 
   # GDI.
   if builder_dict.get('extra_config') == 'GDI':
@@ -303,6 +306,7 @@ def self_test():
         'Build-Ubuntu-GCC-Arm7-Debug-CrOS_Daisy',
         'Build-Ubuntu-GCC-x86_64-Debug-CrOS_Link',
         'Build-Ubuntu-GCC-x86_64-Release-Mesa',
+        'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
         'Housekeeper-PerCommit',
         'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
         'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release-Appurify',
