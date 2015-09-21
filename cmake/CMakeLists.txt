@@ -100,7 +100,6 @@ remove_srcs(
     ../src/gpu/gl/command_buffer/*
     ../src/gpu/gl/egl/*
     ../src/gpu/gl/iOS/*
-    ../src/gpu/gl/mesa/*
     ../src/opts/SkBitmapProcState_opts_none.cpp
     ../src/opts/SkBlitMask_opts_none.cpp
     ../src/opts/SkBlitRow_opts_none.cpp
@@ -125,6 +124,8 @@ find_package (ZLIB)
 # No find_package for libwebp as far as I can tell, so simulate it here.
 find_path (WEBP_INCLUDE_DIRS "webp/decode.h")
 find_library (WEBP_LIBRARIES webp)
+find_path (OSMESA_INCLUDE_DIRS "GL/osmesa.h")
+find_library(OSMESA_LIBRARIES "OSMesa")
 
 if (UNIX AND NOT APPLE)
     find_package (Freetype)
@@ -196,6 +197,16 @@ if (APPLE)
     list (APPEND libs ${APPLICATION_SERVICES_FRAMEWORK})
 endif()
 
+if (OSMESA_LIBRARIES AND OSMESA_INCLUDE_DIRS)
+    list (APPEND libs             ${OSMESA_LIBRARIES})
+    list (APPEND private_includes ${OSMESA_INCLUDE_DIRS})
+    list (APPEND public_defines   "-DSK_MESA=1")
+    message("-- Found OSMesa: " ${OSMESA_LIBRARIES})
+else()
+    remove_srcs(../src/gpu/gl/mesa/*)
+    message("-- Could NOT find OSMesa")
+endif()
+
 find_package(OpenGL REQUIRED)
 list (APPEND libs  ${OPENGL_LIBRARIES})
 
@@ -204,9 +215,11 @@ list (APPEND libs  ${OPENGL_LIBRARIES})
 # not so much that we think Skia is a good candidate to ship as a shared library.
 add_library (skia SHARED ${srcs})
 
+list (APPEND private_defines "-DSKIA_DLL")
+
 target_compile_definitions(skia
-    PUBLIC
-    PRIVATE -DSKIA_DLL)
+    PUBLIC  ${public_defines}
+    PRIVATE ${private_defines})
 
 target_include_directories(skia
     PUBLIC  ${public_includes}
