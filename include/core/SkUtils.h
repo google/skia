@@ -9,6 +9,9 @@
 #define SkUtils_DEFINED
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN)
+    #include <intrin.h>
+#endif
 
 namespace SkOpts {
     extern void (*memset16)(uint16_t[], uint16_t, int);
@@ -31,12 +34,15 @@ namespace SkOpts {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
-#if defined(SK_CPU_ARM64)
-    while (count --> 0) { *buffer++ = value; } return;
-#elif defined(SK_CPU_ARM32)
-    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
-#endif
+#if defined(SK_BUILD_FOR_WIN)
+    __stosw(buffer, value, count);
+#elif defined(SK_CPU_X86)
+    __asm__ __volatile__ ( "rep stosw" : "+D"(buffer), "+c"(count) : "a"(value) );
+#elif defined(SK_ARM_HAS_NEON)
+    while (count --> 0) { *buffer++ = value; }
+#else
     SkOpts::memset16(buffer, value, count);
+#endif
 }
 
 /** Similar to memset(), but it assigns a 32bit value into the buffer.
@@ -45,12 +51,15 @@ static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
     @param count    The number of times value should be copied into the buffer.
 */
 static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
-#if defined(SK_CPU_ARM64)
-    while (count --> 0) { *buffer++ = value; } return;
-#elif defined(SK_CPU_ARM32)
-    if (count <= 10) { while (count --> 0) { *buffer++ = value; } return; }
-#endif
+#if defined(SK_BUILD_FOR_WIN)
+    __stosd((PDWORD)buffer, value, count);
+#elif defined(SK_CPU_X86)
+    __asm__ __volatile__ ( "rep stosl" : "+D"(buffer), "+c"(count) : "a"(value) );
+#elif defined(SK_ARM_HAS_NEON)
+    while (count --> 0) { *buffer++ = value; }
+#else
     SkOpts::memset32(buffer, value, count);
+#endif
 }
 
 
