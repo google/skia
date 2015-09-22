@@ -16,7 +16,6 @@
 
 #if SK_SUPPORT_GPU
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 #endif
 
@@ -411,7 +410,7 @@ const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* co
     if (kAlpha_8_SkColorType == fRawBitmap.colorType()) {
         return SkRef(inner.get());
     }
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
 }
 
 #endif

@@ -23,6 +23,16 @@ class GrProcessorKeyBuilder;
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
+    /**
+    *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
+    *  only consider the input color's alpha. However, there is a competing desire to have reusable
+    *  GrFragmentProcessor subclasses that can be used in other scenarios where the entire input
+    *  color is considered. This function exists to filter the input color and pass it to a FP. It
+    *  does so by returning a parent FP that multiplies the passed in FPs output by the parent's
+    *  input alpha. The passed in FP will not receive an input color.
+    */
+    static const GrFragmentProcessor* MulOuputByInputAlpha(const GrFragmentProcessor*);
+
     GrFragmentProcessor()
         : INHERITED()
         , fUsesLocalCoords(false)

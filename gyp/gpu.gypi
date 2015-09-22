@@ -46,7 +46,6 @@
       '<(skia_include_path)/gpu/effects/GrConstColorProcessor.h',
       '<(skia_include_path)/gpu/effects/GrCoverageSetOpXP.h',
       '<(skia_include_path)/gpu/effects/GrCustomXfermode.h',
-      '<(skia_include_path)/gpu/effects/GrExtractAlphaFragmentProcessor.h',
       '<(skia_include_path)/gpu/effects/GrPorterDuffXferProcessor.h',
       '<(skia_include_path)/gpu/effects/GrXfermodeFragmentProcessor.h',
 
@@ -243,7 +242,6 @@
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.h',
       '<(skia_src_path)/gpu/effects/GrConstColorProcessor.cpp',
-      '<(skia_src_path)/gpu/effects/GrExtractAlphaFragmentProcessor.cpp',
       '<(skia_src_path)/gpu/effects/GrCoverageSetOpXP.cpp',
       '<(skia_src_path)/gpu/effects/GrCustomXfermode.cpp',
       '<(skia_src_path)/gpu/effects/GrBezierEffect.cpp',

@@ -10,7 +10,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "Resources.h"
@@ -104,7 +104,7 @@ const GrFragmentProcessor* DCShader::asFragmentProcessor(
                                                  SkFilterQuality,
                                                  GrProcessorDataManager* procDataManager) const {
     SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(procDataManager, fDeviceMatrix));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
 }
 
 class DCShaderGM : public GM {

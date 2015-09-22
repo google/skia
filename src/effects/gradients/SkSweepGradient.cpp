@@ -167,7 +167,6 @@ void SkSweepGradient::SweepGradientContext::shadeSpan16(int x, int y, uint16_t* 
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLSweepGradient : public GrGLGradientEffect {
@@ -292,7 +291,7 @@ const GrFragmentProcessor* SkSweepGradient::asFragmentProcessor(
 
     SkAutoTUnref<const GrFragmentProcessor> inner(
         GrSweepGradient::Create(context, procDataManager, *this, matrix));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
 }
 
 #endif

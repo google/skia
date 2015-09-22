@@ -359,7 +359,6 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 
 const GrFragmentProcessor* SkTwoPointConicalGradient::asFragmentProcessor(
                                                   GrContext* context,
@@ -372,7 +371,7 @@ const GrFragmentProcessor* SkTwoPointConicalGradient::asFragmentProcessor(
     SkAutoTUnref<const GrFragmentProcessor> inner(
         Gr2PtConicalGradientEffect::Create(context, procDataManager, *this, fTileMode,
                                             localMatrix));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
 }
 
 #endif

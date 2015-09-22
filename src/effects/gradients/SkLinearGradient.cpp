@@ -439,7 +439,6 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 
@@ -562,7 +561,7 @@ const GrFragmentProcessor* SkLinearGradient::asFragmentProcessor(
 
     SkAutoTUnref<const GrFragmentProcessor> inner(
         GrLinearGradient::Create(context, procDataManager, *this, matrix, fTileMode));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
 }
 
 

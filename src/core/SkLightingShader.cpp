@@ -131,7 +131,6 @@ private:
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
@@ -401,7 +400,7 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
     SkAutoTUnref<const GrFragmentProcessor> inner (
         new LightingFP(pdm, diffuseTexture, normalTexture, diffM, normM, diffParams, normParams,
                        fLights, fInvNormRotation));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
 }
 
 #endif

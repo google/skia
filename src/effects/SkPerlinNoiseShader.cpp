@@ -20,7 +20,6 @@
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #endif
@@ -935,7 +934,7 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
             SkAutoTUnref<const GrFragmentProcessor> inner(
                 GrConstColorProcessor::Create(0x80404040,
                                               GrConstColorProcessor::kModulateRGBA_InputMode));
-            return GrExtractAlphaFragmentProcessor::Create(inner);
+            return GrFragmentProcessor::MulOuputByInputAlpha(inner);
         }
         // Emit zero.
         return GrConstColorProcessor::Create(0x0, GrConstColorProcessor::kIgnore_InputMode);
@@ -963,7 +962,7 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
                                         paintingData,
                                         permutationsTexture, noiseTexture,
                                         m));
-        return GrExtractAlphaFragmentProcessor::Create(inner);
+        return GrFragmentProcessor::MulOuputByInputAlpha(inner);
     }
     delete paintingData;
     return nullptr;

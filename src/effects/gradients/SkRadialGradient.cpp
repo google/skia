@@ -415,7 +415,6 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
-#include "effects/GrExtractAlphaFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLRadialGradient : public GrGLGradientEffect {
@@ -534,7 +533,7 @@ const GrFragmentProcessor* SkRadialGradient::asFragmentProcessor(
     matrix.postConcat(fPtsToUnit);
         SkAutoTUnref<const GrFragmentProcessor> inner(
             GrRadialGradient::Create(context, procDataManager, *this, matrix, fTileMode));
-    return GrExtractAlphaFragmentProcessor::Create(inner);
+    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
 }
 
 #endif

@@ -241,6 +241,13 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
     return true;
 }
 
+#include "effects/GrXfermodeFragmentProcessor.h"
+
+const GrFragmentProcessor* GrFragmentProcessor::MulOuputByInputAlpha(
+    const GrFragmentProcessor* fp) {
+    return GrXfermodeFragmentProcessor::CreateFromDstProcessor(fp, SkXfermode::kDstIn_Mode);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Initial static variable from GrXPFactory
