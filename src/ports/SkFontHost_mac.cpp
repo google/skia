@@ -714,6 +714,65 @@ private:
     typedef SkScalerContext INHERITED;
 };
 
+// CTFontCreateCopyWithAttributes or CTFontCreateCopyWithSymbolicTraits cannot be used on 10.10
+// as they appear to be buggy with respect to the default font. It is not possible to use
+// descriptors with CTFontCreateWithFontDescriptor, since that does not work with non-system
+// fonts. As a result, create the strike specific CTFonts from the underlying CGFont.
+static CTFontRef ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
+                                          const CGAffineTransform* transform, bool setVertical)
+{
+    AutoCFRelease<CTFontDescriptorRef> baseExtraDescriptor;
+    AutoCFRelease<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, &baseExtraDescriptor));
+
+    // Make a mutable copy of baseExtraDescriptor attributes.
+    AutoCFRelease<CFMutableDictionaryRef> newAttributes([](CTFontDescriptorRef descriptor) ->
+    CFMutableDictionaryRef {
+        if (nullptr == descriptor) {
+            return CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                             &kCFTypeDictionaryKeyCallBacks,
+                                             &kCFTypeDictionaryValueCallBacks);
+        }
+        AutoCFRelease<CFDictionaryRef> attributes(CTFontDescriptorCopyAttributes(descriptor));
+        return CFDictionaryCreateMutableCopy(kCFAllocatorDefault, 0, attributes);
+    }(baseExtraDescriptor));
+
+    // Copy all of the attributes out of the CTFont.
+    AutoCFRelease<CTFontDescriptorRef> baseDescriptor(CTFontCopyFontDescriptor(baseFont));
+    AutoCFRelease<CFDictionaryRef> baseAttributes(CTFontDescriptorCopyAttributes(baseDescriptor));
+    CFDictionaryApplyFunction(baseAttributes, [](CFTypeRef key, CFTypeRef value, void* context) {
+        CFMutableDictionaryRef self = static_cast<CFMutableDictionaryRef>(context);
+        CFDictionarySetValue(self, key, value);
+    }, newAttributes.get());
+
+    // Set the text size in attributes.
+    AutoCFRelease<CFNumberRef> cfTextSize(
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &textSize));
+    CFDictionarySetValue(newAttributes, kCTFontSizeAttribute, cfTextSize);
+
+    // Set the transform in attributes.
+    if (nullptr == transform) {
+        CFDictionaryRemoveValue(newAttributes, kCTFontMatrixAttribute);
+    } else {
+        AutoCFRelease<CFDataRef> cfMatrixData(CFDataCreate(
+            kCFAllocatorDefault, reinterpret_cast<const UInt8*>(transform), sizeof(*transform)));
+        CFDictionarySetValue(newAttributes, kCTFontMatrixAttribute, cfMatrixData);
+    }
+
+    // Set vertical orientation to attributes if requested.
+    if (setVertical) {
+        CTFontOrientation ctOrientation = kCTFontVerticalOrientation;
+        AutoCFRelease<CFNumberRef> cfVertical(
+            CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctOrientation));
+        CFDictionarySetValue(newAttributes, kCTFontOrientationAttribute, cfVertical);
+    }
+
+    // Create the new CTFont from the baseCGFont.
+    AutoCFRelease<CTFontDescriptorRef> newDescriptor(
+        CTFontDescriptorCreateWithAttributes(newAttributes));
+    return CTFontCreateWithGraphicsFont(baseCGFont, textSize, transform, newDescriptor);
+
+}
+
 SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
                                          const SkDescriptor* desc)
         : INHERITED(typeface, desc)
@@ -740,30 +799,13 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     fTransform = MatrixToCGAffineTransform(skTransform);
     fInvTransform = CGAffineTransformInvert(fTransform);
 
-    AutoCFRelease<CTFontDescriptorRef> ctFontDesc;
-    if (fVertical) {
-        // Setting the vertical orientation here is required for vertical metrics on some versions.
-        AutoCFRelease<CFMutableDictionaryRef> cfAttributes(CFDictionaryCreateMutable(
-                kCFAllocatorDefault, 0,
-                &kCFTypeDictionaryKeyCallBacks,
-                &kCFTypeDictionaryValueCallBacks));
-        if (cfAttributes) {
-            CTFontOrientation ctOrientation = kCTFontVerticalOrientation;
-            AutoCFRelease<CFNumberRef> cfVertical(CFNumberCreate(
-                    kCFAllocatorDefault, kCFNumberSInt32Type, &ctOrientation));
-            CFDictionaryAddValue(cfAttributes, kCTFontOrientationAttribute, cfVertical);
-            ctFontDesc.reset(CTFontDescriptorCreateWithAttributes(cfAttributes));
-        }
-    }
-
     // The transform contains everything except the requested text size.
     // Some properties, like 'trak', are based on the text size (before applying the matrix).
     CGFloat textSize = ScalarToCG(scale.y());
 
-    fCTFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize, &fTransform, ctFontDesc));
+    fCTFont.reset(ctfont_create_exact_copy(ctFont, textSize, &fTransform, fVertical));
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont, nullptr));
-    fCTUnrotatedFont.reset(CTFontCreateCopyWithAttributes(ctFont, textSize,
-                                                          &CGAffineTransformIdentity, nullptr));
+    fCTUnrotatedFont.reset(ctfont_create_exact_copy(ctFont, textSize, nullptr, false));
 
     // The fUnitMatrix includes the text size (and em) as it is used to scale the raw font data.
     SkScalar emPerFUnit = SkScalarInvert(SkIntToScalar(CGFontGetUnitsPerEm(fCGFont)));
@@ -1345,7 +1387,7 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
      *  The way we remove hinting is to scale the font by some value (4) in that
      *  direction, ask for the path, and then scale the path back down.
      */
-    if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
+    if (fDoSubPosition) {
         SkMatrix m;
         fRec.getSingleMatrix(&m);
 
@@ -1364,8 +1406,7 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         }
 
         CGAffineTransform xform = MatrixToCGAffineTransform(m, scaleX, scaleY);
-        // need to release font when we're done
-        font = CTFontCreateCopyWithAttributes(fCTFont, 1, &xform, nullptr);
+        font = ctfont_create_exact_copy(fCTFont, 1, &xform, false);
     }
 
     CGGlyph cgGlyph = (CGGlyph)glyph.getGlyphID();
@@ -1380,7 +1421,7 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         SkMatrix m;
         m.setScale(SkScalarInvert(scaleX), SkScalarInvert(scaleY));
         path->transform(m);
-        // balance the call to CTFontCreateCopyWithAttributes
+        // balance the call to ctfont_create_exact_copy
         CFSafeRelease(font);
     }
     if (fVertical) {
@@ -1561,8 +1602,9 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
     AUTO_CG_LOCK();
 
     CTFontRef originalCTFont = fFontRef.get();
-    AutoCFRelease<CTFontRef> ctFont(CTFontCreateCopyWithAttributes(
-            originalCTFont, CTFontGetUnitsPerEm(originalCTFont), nullptr, nullptr));
+    AutoCFRelease<CTFontRef> ctFont(ctfont_create_exact_copy(
+            originalCTFont, CTFontGetUnitsPerEm(originalCTFont), nullptr, false));
+
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
 
     {
