@@ -731,7 +731,11 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
     BlendFormula blendFormula;
     if (covPOI.isFourChannelOutput()) {
         if (SkXfermode::kSrcOver_Mode == fXfermode &&
-            kRGBA_GrColorComponentFlags == colorPOI.validFlags()) {
+            kRGBA_GrColorComponentFlags == colorPOI.validFlags() &&
+            !caps.shaderCaps()->dualSourceBlendingSupport() &&
+            !caps.shaderCaps()->dstReadInShaderSupport()) {
+            // If we don't have dual source blending or in shader dst reads, we fall back to this
+            // trick for rendering SrcOver LCD text instead of doing a dst copy.
             SkASSERT(!dstTexture || !dstTexture->texture());
             return PDLCDXferProcessor::Create(fXfermode, colorPOI);
         }
@@ -792,7 +796,8 @@ bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
     // the XP.
     if (covPOI.isFourChannelOutput()) {
         if (SkXfermode::kSrcOver_Mode == fXfermode &&
-            kRGBA_GrColorComponentFlags == colorPOI.validFlags()) {
+            kRGBA_GrColorComponentFlags == colorPOI.validFlags() &&
+            !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }
         return get_lcd_blend_formula(covPOI, fXfermode).hasSecondaryOutput();
