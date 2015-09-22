@@ -18,6 +18,7 @@
   'dependencies': [
     'etc1.gyp:libetc1',
     'skia_lib.gyp:skia_lib',
+    'tools.gyp:bitmap_region_decoder',
     'tools.gyp:resources',
     'tools.gyp:sk_tool_utils',
   ],

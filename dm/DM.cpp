@@ -14,6 +14,7 @@
 #include "SkBBHFactory.h"
 #include "SkChecksum.h"
 #include "SkCodec.h"
+#include "SkCodecTools.h"
 #include "SkCommonFlags.h"
 #include "SkFontMgr.h"
 #include "SkForceLinking.h"
@@ -396,7 +397,7 @@ static void push_brd_src(Path path, SkBitmapRegionDecoderInterface::Strategy str
     }
 
     if (1 != sampleSize) {
-        folder.appendf("_%.3f", BRDSrc::GetScale(sampleSize));
+        folder.appendf("_%.3f", get_scale_from_sample_size(sampleSize));
     }
 
     BRDSrc* src = new BRDSrc(path, strategy, mode, dstColorType, sampleSize);

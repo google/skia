@@ -38,6 +38,7 @@
         'jsoncpp.gyp:jsoncpp',
         'gputest.gyp:skgputest',
         'skia_lib.gyp:skia_lib',
+        'tools.gyp:bitmap_region_decoder',
         'tools.gyp:proc_stats',
         'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',

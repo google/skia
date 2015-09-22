@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "CodecBenchPriv.h"
 #include "SubsetSingleBench.h"
 #include "SubsetBenchPriv.h"
 #include "SkData.h"
@@ -39,7 +40,7 @@ SubsetSingleBench::SubsetSingleBench(const SkString& path,
     SkString baseName = SkOSPath::Basename(path.c_str());
 
     // Choose an informative color name
-    const char* colorName = get_color_name(fColorType);
+    const char* colorName = color_type_to_str(fColorType);
 
     fName.printf("%sSubsetSingle_%dx%d +%d_+%d_%s_%s", fUseCodec ? "Codec" : "Image", fSubsetWidth,
             fSubsetHeight, fOffsetLeft, fOffsetTop, baseName.c_str(), colorName);

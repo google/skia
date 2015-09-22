@@ -144,8 +144,6 @@ public:
 
     BRDSrc(Path, SkBitmapRegionDecoderInterface::Strategy, Mode, CodecSrc::DstColorType, uint32_t);
 
-    static float GetScale(uint32_t sampleSize) { return 1.0f / (float) sampleSize; }
-
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;

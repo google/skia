@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "CodecBenchPriv.h"
 #include "DecodingBench.h"
 #include "SkBitmap.h"
 #include "SkData.h"
@@ -25,21 +26,7 @@ DecodingBench::DecodingBench(SkString path, SkColorType colorType)
 {
     // Parse filename and the color type to give the benchmark a useful name
     SkString baseName = SkOSPath::Basename(path.c_str());
-    const char* colorName;
-    switch(colorType) {
-        case kN32_SkColorType:
-            colorName = "N32";
-            break;
-        case kRGB_565_SkColorType:
-            colorName = "565";
-            break;
-        case kAlpha_8_SkColorType:
-            colorName = "Alpha8";
-            break;
-        default:
-            colorName = "Unknown";
-    }
-    fName.printf("Decode_%s_%s", baseName.c_str(), colorName);
+    fName.printf("Decode_%s_%s", baseName.c_str(), color_type_to_str(colorType));
     
 #ifdef SK_DEBUG
     // Ensure that we can create a decoder.

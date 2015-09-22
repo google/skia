@@ -8,6 +8,7 @@
 #include "DMSrcSink.h"
 #include "SamplePipeControllers.h"
 #include "SkCodec.h"
+#include "SkCodecTools.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -216,7 +217,7 @@ Name BRDSrc::name() const {
     if (1 == fSampleSize) {
         return SkOSPath::Basename(fPath.c_str());
     }
-    return get_scaled_name(fPath, BRDSrc::GetScale(fSampleSize));
+    return get_scaled_name(fPath, get_scale_from_sample_size(fSampleSize));
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

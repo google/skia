@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "CodecBenchPriv.h"
 #include "SubsetZoomBench.h"
 #include "SubsetBenchPriv.h"
 #include "SkData.h"
@@ -35,7 +36,7 @@ SubsetZoomBench::SubsetZoomBench(const SkString& path,
     SkString baseName = SkOSPath::Basename(path.c_str());
 
     // Choose an informative color name
-    const char* colorName = get_color_name(fColorType);
+    const char* colorName = color_type_to_str(fColorType);
 
     fName.printf("%sSubsetZoom_%dx%d_%s_%s", fUseCodec ? "Codec" : "Image", fSubsetWidth,
             fSubsetHeight, baseName.c_str(), colorName);
