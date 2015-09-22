@@ -401,7 +401,8 @@
     "~tabl_mozilla_0", 
     "~desk_yahoonews_0", 
     "~imagefiltersclipped", 
-    "~scaled_tilemodes_npot"
+    "~scaled_tilemodes_npot", 
+    "~bleed_image"
   ], 
   "Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release": [
     "--config", 
