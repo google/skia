@@ -11,11 +11,7 @@
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
-// Used by SkSmallAllocator to call the destructor for objects it has
-// allocated.
-template<typename T> void destroyT(void* ptr) {
-   static_cast<T*>(ptr)->~T();
-}
+#include <new>
 
 /*
  *  Template class for allocating small objects without additional heap memory
@@ -52,58 +48,16 @@ public:
     /*
      *  Create a new object of type T. Its lifetime will be handled by this
      *  SkSmallAllocator.
-     *  Each version behaves the same but takes a different number of
-     *  arguments.
      *  Note: If kMaxObjects have been created by this SkSmallAllocator, nullptr
      *  will be returned.
      */
-    template<typename T>
-    T* createT() {
+    template<typename T, typename... Args>
+    T* createT(const Args&... args) {
         void* buf = this->reserveT<T>();
         if (nullptr == buf) {
             return nullptr;
         }
-        new (buf) T;
-        return static_cast<T*>(buf);
-    }
-
-    template<typename T, typename A1> T* createT(const A1& a1) {
-        void* buf = this->reserveT<T>();
-        if (nullptr == buf) {
-            return nullptr;
-        }
-        new (buf) T(a1);
-        return static_cast<T*>(buf);
-    }
-
-    template<typename T, typename A1, typename A2>
-    T* createT(const A1& a1, const A2& a2) {
-        void* buf = this->reserveT<T>();
-        if (nullptr == buf) {
-            return nullptr;
-        }
-        new (buf) T(a1, a2);
-        return static_cast<T*>(buf);
-    }
-
-    template<typename T, typename A1, typename A2, typename A3>
-    T* createT(const A1& a1, const A2& a2, const A3& a3) {
-        void* buf = this->reserveT<T>();
-        if (nullptr == buf) {
-            return nullptr;
-        }
-        new (buf) T(a1, a2, a3);
-        return static_cast<T*>(buf);
-    }
-
-    template<typename T, typename A1, typename A2, typename A3, typename A4>
-    T* createT(const A1& a1, const A2& a2, const A3& a3, const A4& a4) {
-        void* buf = this->reserveT<T>();
-        if (nullptr == buf) {
-            return nullptr;
-        }
-        new (buf) T(a1, a2, a3, a4);
-        return static_cast<T*>(buf);
+        return new (buf) T(args...);
     }
 
     /*
@@ -138,7 +92,7 @@ public:
             rec->fObj = static_cast<void*>(fStorage + (fStorageUsed / 4));
             fStorageUsed += storageRequired;
         }
-        rec->fKillProc = destroyT<T>;
+        rec->fKillProc = DestroyT<T>;
         fNumObjects++;
         return rec->fObj;
     }
@@ -164,6 +118,12 @@ private:
         void*  fHeapStorage;
         void   (*fKillProc)(void*);
     };
+
+    // Used to call the destructor for allocated objects.
+    template<typename T>
+    static void DestroyT(void* ptr) {
+        static_cast<T*>(ptr)->~T();
+    }
 
     // Number of bytes used so far.
     size_t              fStorageUsed;
