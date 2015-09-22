@@ -24,16 +24,16 @@ protected:
     }
 
     void onDraw(const int loops, SkCanvas*) override {
-        Mutex mu;
         for (int i = 0; i < loops; i++) {
-            mu.acquire();
-            mu.release();
+            fMu.acquire();
+            fMu.release();
         }
     }
 
 private:
     typedef Benchmark INHERITED;
     SkString fBenchName;
+    Mutex fMu;
 };
 
 class SharedBench : public Benchmark {
@@ -48,15 +48,15 @@ protected:
     }
 
     void onDraw(const int loops, SkCanvas*) override {
-        SkSharedMutex mu;
         for (int i = 0; i < loops; i++) {
-            mu.acquireShared();
-            mu.releaseShared();
+            fMu.acquireShared();
+            fMu.releaseShared();
         }
     }
 
 private:
     typedef Benchmark INHERITED;
+    SkSharedMutex fMu;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
