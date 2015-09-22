@@ -640,5 +640,5 @@ SkScanlineDecoder* SkBmpCodec::NewSDFromStream(SkStream* stream) {
         return NULL;
     }
 
-    return SkNEW_ARGS(SkBmpScanlineDecoder, (codec.detach()));
+    return new SkBmpScanlineDecoder(codec.detach());
 }

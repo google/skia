@@ -89,5 +89,5 @@ SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* s
     if (!cache) {
         return nullptr;
     }
-    return SkNEW_ARGS(SkImage_Generator, (cache));
+    return new SkImage_Generator(cache);
 }

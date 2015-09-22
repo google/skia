@@ -28,7 +28,7 @@ private:
 };
 
 GrGLFragmentProcessor* GrExtractAlphaFragmentProcessor::onCreateGLInstance() const {
-    return SkNEW(GLExtractAlphaFragmentProcessor);
+    return new GLExtractAlphaFragmentProcessor;
 }
 
 void GrExtractAlphaFragmentProcessor::onGetGLProcessorKey(const GrGLSLCaps&,
@@ -52,5 +52,5 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrExtractAlphaFragmentProcessor);
 
 const GrFragmentProcessor* GrExtractAlphaFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     SkAutoTUnref<const GrFragmentProcessor> child(GrProcessorUnitTest::CreateChildFP(d));
-    return SkNEW_ARGS(GrExtractAlphaFragmentProcessor, (child));
+    return new GrExtractAlphaFragmentProcessor(child);
 }

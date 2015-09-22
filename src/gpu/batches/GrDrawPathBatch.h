@@ -97,7 +97,7 @@ public:
 
     static GrPathRangeDraw* Create(GrPathRange* range, TransformType transformType,
         int reserveCnt) {
-        return SkNEW_ARGS(GrPathRangeDraw, (range, transformType, reserveCnt));
+        return new GrPathRangeDraw(range, transformType, reserveCnt);
     }
 
     void append(uint16_t index, float transform[]) {
@@ -154,7 +154,7 @@ public:
     // This can't return a more abstract type because we install the stencil settings late :(
     static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
                                        GrColor color, GrPathRangeDraw* pathRangeDraw) {
-        return SkNEW_ARGS(GrDrawPathRangeBatch, (viewMatrix, localMatrix, color, pathRangeDraw));
+        return new GrDrawPathRangeBatch(viewMatrix, localMatrix, color, pathRangeDraw);
     }
 
     ~GrDrawPathRangeBatch() override;

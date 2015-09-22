@@ -701,5 +701,5 @@ SkScanlineDecoder* SkGifCodec::NewSDFromStream(SkStream* stream) {
 
     const SkImageInfo& srcInfo = codec->getInfo();
 
-    return SkNEW_ARGS(SkGifScanlineDecoder, (srcInfo, codec.detach()));
+    return new SkGifScanlineDecoder(srcInfo, codec.detach());
 }

@@ -18,7 +18,7 @@ public:
         if (!processor) {
             return nullptr;
         }
-        return SkNEW_ARGS(GrExtractAlphaFragmentProcessor, (processor));
+        return new GrExtractAlphaFragmentProcessor(processor);
     }
 
     ~GrExtractAlphaFragmentProcessor() override {}

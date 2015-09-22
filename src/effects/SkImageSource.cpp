@@ -15,14 +15,14 @@
 #include "SkString.h"
 
 SkImageFilter* SkImageSource::Create(const SkImage* image) {
-    return image ? SkNEW_ARGS(SkImageSource, (image)) : nullptr;
+    return image ? new SkImageSource(image) : nullptr;
 }
 
 SkImageFilter* SkImageSource::Create(const SkImage* image,
                                      const SkRect& srcRect,
                                      const SkRect& dstRect,
                                      SkFilterQuality filterQuality) {
-    return image ? SkNEW_ARGS(SkImageSource, (image, srcRect, dstRect, filterQuality)) : nullptr;
+    return image ? new SkImageSource(image, srcRect, dstRect, filterQuality) : nullptr;
 }
 
 SkImageSource::SkImageSource(const SkImage* image)
