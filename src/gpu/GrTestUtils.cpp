@@ -106,9 +106,9 @@ const SkRect& TestRect(SkRandom* random) {
         gRects[0] = SkRect::MakeWH(1.f, 1.f);
         gRects[1] = SkRect::MakeWH(1.0f, 256.0f);
         gRects[2] = SkRect::MakeWH(256.0f, 1.0f);
-        gRects[4] = SkRect::MakeLargest();
-        gRects[5] = SkRect::MakeLTRB(-65535.0f, -65535.0f, 65535.0f, 65535.0f);
-        gRects[6] = SkRect::MakeLTRB(-10.0f, -10.0f, 10.0f, 10.0f);
+        gRects[3] = SkRect::MakeLargest();
+        gRects[4] = SkRect::MakeLTRB(-65535.0f, -65535.0f, 65535.0f, 65535.0f);
+        gRects[5] = SkRect::MakeLTRB(-10.0f, -10.0f, 10.0f, 10.0f);
     }
     return gRects[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gRects)))];
 }

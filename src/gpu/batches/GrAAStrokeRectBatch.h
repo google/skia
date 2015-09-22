@@ -23,7 +23,8 @@ GrDrawBatch* Create(GrColor color,
                     const SkRect& devOutside,
                     const SkRect& devOutsideAssist,
                     const SkRect& devInside,
-                    bool miterStroke);
+                    bool miterStroke,
+                    bool degenerate);
 
 bool Append(GrBatch*,
             GrColor color,
@@ -31,7 +32,8 @@ bool Append(GrBatch*,
             const SkRect& devOutside,
             const SkRect& devOutsideAssist,
             const SkRect& devInside,
-            bool miterStroke);
+            bool miterStroke,
+            bool degenerate);
 
 };
 
