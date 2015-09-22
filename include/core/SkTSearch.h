@@ -49,7 +49,7 @@ int SkTSearch(const T base[], int count, const K& key, size_t elemSize, LESS& le
     int hi = count - 1;
 
     while (lo < hi) {
-        int mid = (hi + lo) >> 1;
+        int mid = lo + ((hi - lo) >> 1);
         const T* elem = (const T*)((const char*)base + mid * elemSize);
 
         if (less(*elem, key))
