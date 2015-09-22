@@ -33,6 +33,13 @@ GrDrawBatch* CreateAAStroke(GrColor color,
     const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
     const SkScalar ry = SkScalarMul(dy, SK_ScalarHalf);
 
+    SkScalar spare;
+    {
+        SkScalar w = devRect.width() - dx;
+        SkScalar h = devRect.height() - dy;
+        spare = SkTMin(w, h);
+    }
+
     SkRect devOutside(devRect);
     devOutside.outset(rx, ry);
 
@@ -44,24 +51,12 @@ GrDrawBatch* CreateAAStroke(GrColor color,
         miterStroke = false;
     }
 
+    if (spare <= 0 && miterStroke) {
+        return CreateAAFill(color, viewMatrix, devOutside, devOutside);
+    }
+
     SkRect devInside(devRect);
     devInside.inset(rx, ry);
-
-    // If we have a degenerate stroking rect(ie the stroke is larger than inner rect) then we
-    // make a degenerate inside rect to avoid double hitting.  We will also jam all of the points
-    // together when we render these rects.
-    SkScalar spare;
-    {
-        SkScalar w = devRect.width() - dx;
-        SkScalar h = devRect.height() - dy;
-        spare = SkTMin(w, h);
-    }
-
-    bool degenerate = spare <= 0;
-    if (degenerate) {
-        devInside.fLeft = devInside.fRight = devRect.centerX();
-        devInside.fTop = devInside.fBottom = devRect.centerY();
-    }
 
     SkRect devOutsideAssist(devRect);
 
@@ -74,7 +69,7 @@ GrDrawBatch* CreateAAStroke(GrColor color,
     }
 
     return GrAAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutsideAssist, devInside,
-                                       miterStroke, degenerate);
+                                       miterStroke);
 }
 
 GrDrawBatch* CreateAAFillNestedRects(GrColor color,
@@ -87,8 +82,11 @@ GrDrawBatch* CreateAAFillNestedRects(GrColor color,
     viewMatrix.mapRect(&devOutside, rects[0]);
     viewMatrix.mapRect(&devInside, rects[1]);
 
-    return GrAAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutside, devInside, true,
-                                       devInside.isEmpty());
+    if (devInside.isEmpty()) {
+        return CreateAAFill(color, viewMatrix, devOutside, devOutside);
+    }
+
+    return GrAAStrokeRectBatch::Create(color, viewMatrix, devOutside, devOutside, devInside, true);
 }
 
 };
