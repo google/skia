@@ -164,6 +164,11 @@ static SkTHashSet<SkString> gUninterestingHashes;
 static void gather_uninteresting_hashes() {
     if (!FLAGS_uninterestingHashesFile.isEmpty()) {
         SkAutoTUnref<SkData> data(SkData::NewFromFileName(FLAGS_uninterestingHashesFile[0]));
+        if (!data) {
+            SkDebugf("WARNING: unable to read uninteresting hashes from %s\n",
+                     FLAGS_uninterestingHashesFile[0]);
+            return;
+        }
         SkTArray<SkString> hashes;
         SkStrSplit((const char*)data->data(), "\n", &hashes);
         for (const SkString& hash : hashes) {

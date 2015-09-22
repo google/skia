@@ -156,7 +156,7 @@ DEF_TEST(String, reporter) {
         { SK_Scalar1,   "1" },
         { -SK_Scalar1,  "-1" },
         { SK_Scalar1/2, "0.5" },
-  #if defined(SK_BUILD_FOR_WIN) && (_MSC_VER < 1900) 
+  #if defined(SK_BUILD_FOR_WIN) && (_MSC_VER < 1900)
         { 3.4028234e38f,   "3.4028235e+038" },
         { -3.4028234e38f, "-3.4028235e+038" },
   #else
@@ -198,4 +198,12 @@ DEF_TEST(String_SkStrSplit, r) {
     REPORTER_ASSERT(r, results[3].equals("dee"));
     REPORTER_ASSERT(r, results[4].equals("f"));
     REPORTER_ASSERT(r, results[5].equals("g"));
+
+    results.reset();
+    SkStrSplit("\n", "\n", &results);
+    REPORTER_ASSERT(r, results.count() == 1);
+
+    results.reset();
+    SkStrSplit("", "\n", &results);
+    REPORTER_ASSERT(r, results.count() == 0);
 }
