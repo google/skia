@@ -57,12 +57,6 @@ public:
     void setAntiAlias(bool aa) { fAntiAlias = aa; }
     bool isAntiAlias() const { return fAntiAlias; }
 
-    /**
-     * Should dithering be applied. Defaults to false.
-     */
-    void setDither(bool dither) { fDither = dither; }
-    bool isDither() const { return fDither; }
-
     const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
         fXPFactory.reset(SkRef(xpFactory));
         return xpFactory;
@@ -122,7 +116,6 @@ public:
 
     GrPaint& operator=(const GrPaint& paint) {
         fAntiAlias = paint.fAntiAlias;
-        fDither = paint.fDither;
 
         fColor = paint.fColor;
         this->resetFragmentProcessors();
@@ -169,7 +162,6 @@ private:
     SkSTArray<2, const GrFragmentProcessor*, true>  fCoverageFragmentProcessors;
 
     bool                                            fAntiAlias;
-    bool                                            fDither;
 
     GrColor                                         fColor;
     GrProcessorDataManager                          fProcDataManager;

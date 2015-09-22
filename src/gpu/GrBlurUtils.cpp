@@ -197,7 +197,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
     GrPaint grPaint;
-    if (!SkPaint2GrPaint(context, renderTarget, paint, viewMatrix, true, &grPaint)) {
+    if (!SkPaint2GrPaint(context, paint, viewMatrix, true, &grPaint)) {
         return;
     }
 

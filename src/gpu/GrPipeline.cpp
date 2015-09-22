@@ -66,9 +66,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (builder.isHWAntialias()) {
         pipeline->fFlags |= kHWAA_Flag;
     }
-    if (builder.isDither()) {
-        pipeline->fFlags |= kDither_Flag;
-    }
     if (builder.snapVerticesToPixelCenters()) {
         pipeline->fFlags |= kSnapVertices_Flag;
     }

@@ -42,7 +42,6 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
 
     fClip = clip;
 
-    this->setState(GrPipelineBuilder::kDither_Flag, paint.isDither());
     this->setState(GrPipelineBuilder::kHWAntialias_Flag,
                    rt->isUnifiedMultisampled() && paint.isAntiAlias());
 }

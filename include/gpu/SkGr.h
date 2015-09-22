@@ -115,14 +115,14 @@ GrTexture* GrCreateTextureForPixels(GrContext*, const GrUniqueKey& optionalKey, 
 // an optimization where the color filter can be applied to the SkPaint's
 // color once while converting to GrPaint and then ignored. TODO: Remove this
 // bool and use the invariant info to automatically apply the color filter.
-bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget*, const SkPaint& skPaint,
-                             GrColor paintColor, bool constantColor, GrPaint* grPaint);
+bool SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor paintColor,
+                             bool constantColor, GrPaint* grPaint);
 
 // This function is similar to skPaint2GrPaintNoShader but also converts
 // skPaint's shader to a GrFragmentProcessor if possible.
 // constantColor has the same meaning as in skPaint2GrPaintNoShader.
-bool SkPaint2GrPaint(GrContext* context, GrRenderTarget*, const SkPaint& skPaint,
-                     const SkMatrix& viewM, bool constantColor, GrPaint* grPaint);
+bool SkPaint2GrPaint(GrContext* context, const SkPaint& skPaint, const SkMatrix& viewM,
+                     bool constantColor, GrPaint* grPaint);
 
 
 SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);

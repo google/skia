@@ -130,7 +130,7 @@ void GrTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
         runPaint.setFlags(FilterTextFlags(fSurfaceProps, runPaint));
 
         GrPaint grPaint;
-        if (!SkPaint2GrPaint(fContext, rt, runPaint, viewMatrix, true, &grPaint)) {
+        if (!SkPaint2GrPaint(fContext, runPaint, viewMatrix, true, &grPaint)) {
             return;
         }
 

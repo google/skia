@@ -286,7 +286,6 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         GL_CALL(DepthMask(GR_GL_FALSE));
 
         fHWDrawFace = GrPipelineBuilder::kInvalid_DrawFace;
-        fHWDitherEnabled = kUnknown_TriState;
 
         if (kGL_GrGLStandard == this->glStandard()) {
             // Desktop-only state that we never change
@@ -323,6 +322,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fHWWriteToColor = kUnknown_TriState;
         // we only ever use lines in hairline mode
         GL_CALL(LineWidth(1));
+        GL_CALL(Disable(GR_GL_DITHER));
     }
 
     if (resetBits & kMSAAEnable_GrGLBackendState) {
@@ -1445,7 +1445,6 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     const GrPipeline& pipeline = *args.fPipeline;
     args.fPipeline->getXferProcessor()->getBlendInfo(&blendInfo);
 
-    this->flushDither(pipeline.isDitherState());
     this->flushColorWrite(blendInfo.fWriteColor);
     this->flushDrawFace(pipeline.getDrawFace());
 
@@ -2344,20 +2343,6 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     texture->setCachedTexParams(newTexParams, this->getResetTimestamp());
 }
 
-void GrGLGpu::flushDither(bool dither) {
-    if (dither) {
-        if (kYes_TriState != fHWDitherEnabled) {
-            GL_CALL(Enable(GR_GL_DITHER));
-            fHWDitherEnabled = kYes_TriState;
-        }
-    } else {
-        if (kNo_TriState != fHWDitherEnabled) {
-            GL_CALL(Disable(GR_GL_DITHER));
-            fHWDitherEnabled = kNo_TriState;
-        }
-    }
-}
-
 void GrGLGpu::flushColorWrite(bool writeColor) {
     if (!writeColor) {
         if (kNo_TriState != fHWWriteToColor) {
@@ -2930,7 +2915,6 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     blendInfo.reset();
     this->flushBlend(blendInfo);
     this->flushColorWrite(true);
-    this->flushDither(false);
     this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
     this->flushHWAAState(dstRT, false);
     this->disableScissor();

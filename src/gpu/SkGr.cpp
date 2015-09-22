@@ -708,10 +708,9 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
-                             GrColor paintColor, bool constantColor, GrPaint* grPaint) {
+bool SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor paintColor,
+                             bool constantColor, GrPaint* grPaint) {
 
-    grPaint->setDither(skPaint.isDither());
     grPaint->setAntiAlias(skPaint.isAntiAlias());
 
     SkXfermode* mode = skPaint.getXfermode();
@@ -748,34 +747,18 @@ bool SkPaint2GrPaintNoShader(GrContext* context, GrRenderTarget* rt, const SkPai
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
-    // If the dither flag is set, then we need to see if the underlying context
-    // supports it. If not, then install a dither effect.
     if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0) {
-        // What are we rendering into?
-        SkASSERT(rt);
-
-        // Suspect the dithering flag has no effect on these configs, otherwise
-        // fall back on setting the appropriate state.
-        if (GrPixelConfigIs8888(rt->config()) ||
-            GrPixelConfigIs8888(rt->config())) {
-            // The dither flag is set and the target is likely
-            // not going to be dithered by the GPU.
-            SkAutoTUnref<GrFragmentProcessor> fp(GrDitherEffect::Create());
-            if (fp.get()) {
-                grPaint->addColorFragmentProcessor(fp);
-                grPaint->setDither(false);
-            }
-        }
+        grPaint->addColorFragmentProcessor(GrDitherEffect::Create())->unref();
     }
 #endif
     return true;
 }
 
-bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPaint,
-                     const SkMatrix& viewM, bool constantColor, GrPaint* grPaint) {
+bool SkPaint2GrPaint(GrContext* context,const SkPaint& skPaint, const SkMatrix& viewM,
+                     bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
     if (nullptr == shader) {
-        return SkPaint2GrPaintNoShader(context, rt, skPaint, SkColor2GrColor(skPaint.getColor()),
+        return SkPaint2GrPaintNoShader(context, skPaint, SkColor2GrColor(skPaint.getColor()),
                                        constantColor, grPaint);
     }
 
@@ -791,7 +774,7 @@ bool SkPaint2GrPaint(GrContext* context, GrRenderTarget* rt, const SkPaint& skPa
 
     // The grcolor is automatically set when calling asFragmentProcessor.
     // If the shader can be seen as an effect it returns true and adds its effect to the grpaint.
-    return SkPaint2GrPaintNoShader(context, rt, skPaint, paintColor, constantColor, grPaint);
+    return SkPaint2GrPaintNoShader(context, skPaint, paintColor, constantColor, grPaint);
 }
 
 SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque) {

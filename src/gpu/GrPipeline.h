@@ -120,7 +120,6 @@ public:
 
     const GrScissorState& getScissorState() const { return fScissorState; }
 
-    bool isDitherState() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
 
@@ -162,9 +161,8 @@ private:
                             const GrCaps&);
 
     enum Flags {
-        kDither_Flag            = 0x1,
-        kHWAA_Flag              = 0x2,
-        kSnapVertices_Flag      = 0x4,
+        kHWAA_Flag              = 0x1,
+        kSnapVertices_Flag      = 0x2,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;

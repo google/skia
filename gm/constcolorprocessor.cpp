@@ -104,8 +104,7 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    SkAssertResult(SkPaint2GrPaint(context, rt, skPaint, viewMatrix, false,
-                                                   &grPaint));
+                    SkAssertResult(SkPaint2GrPaint(context, skPaint, viewMatrix, false, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     GrColor color = kColors[procColor];

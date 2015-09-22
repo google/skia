@@ -296,25 +296,20 @@ public:
      */
     enum Flags {
         /**
-         * Perform dithering. TODO: Re-evaluate whether we need this bit
-         */
-        kDither_Flag        = 0x01,
-        /**
          * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
          * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
          * the 3D API.
          */
-        kHWAntialias_Flag   = 0x02,
+        kHWAntialias_Flag   = 0x01,
 
         /**
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
-        kSnapVerticesToPixelCenters_Flag = 0x04,
+        kSnapVerticesToPixelCenters_Flag = 0x02,
 
         kLast_Flag = kSnapVerticesToPixelCenters_Flag,
     };
 
-    bool isDither() const { return SkToBool(fFlags & kDither_Flag); }
     bool isHWAntialias() const { return SkToBool(fFlags & kHWAntialias_Flag); }
     bool snapVerticesToPixelCenters() const {
         return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag); }

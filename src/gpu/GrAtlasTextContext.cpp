@@ -389,7 +389,7 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
     // Though for the time being runs in the textblob can override the paint, they only touch font
     // info.
     GrPaint grPaint;
-    if (!SkPaint2GrPaint(fContext, rt, skPaint, viewMatrix, true, &grPaint)) {
+    if (!SkPaint2GrPaint(fContext, skPaint, viewMatrix, true, &grPaint)) {
         return;
     }
 
@@ -2265,7 +2265,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     skPaint.setSubpixelText(random->nextBool());
 
     GrPaint grPaint;
-    if (!SkPaint2GrPaint(context, rt, skPaint, viewMatrix, true, &grPaint)) {
+    if (!SkPaint2GrPaint(context, skPaint, viewMatrix, true, &grPaint)) {
         SkFAIL("couldn't convert paint\n");
     }
 

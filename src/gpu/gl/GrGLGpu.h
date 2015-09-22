@@ -234,7 +234,6 @@ private:
 #endif
     };
 
-    void flushDither(bool dither);
     void flushColorWrite(bool writeColor);
     void flushDrawFace(GrPipelineBuilder::DrawFace face);
 
@@ -489,7 +488,6 @@ private:
 
     GrPipelineBuilder::DrawFace fHWDrawFace;
     TriState                    fHWWriteToColor;
-    TriState                    fHWDitherEnabled;
     uint32_t                    fHWBoundRenderTargetUniqueID;
     TriState                    fHWSRGBFramebuffer;
     SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
