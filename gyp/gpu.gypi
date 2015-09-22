@@ -91,6 +91,7 @@
       '<(skia_src_path)/gpu/GrDrawTarget.h',
       '<(skia_src_path)/gpu/GrFontScaler.cpp',
       '<(skia_src_path)/gpu/GrFontScaler.h',
+      '<(skia_src_path)/gpu/GrFragmentProcessor.cpp',
       '<(skia_src_path)/gpu/GrGeometryBuffer.h',
       '<(skia_src_path)/gpu/GrGeometryProcessor.h',
       '<(skia_src_path)/gpu/GrGlyph.h',
