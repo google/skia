@@ -15,6 +15,7 @@ class GrDrawBatch;
 class GrResourceProvider;
 class SkMatrix;
 struct SkRect;
+class SkStrokeRec;
 
 namespace GrAAStrokeRectBatch {
 
@@ -26,14 +27,16 @@ GrDrawBatch* Create(GrColor color,
                     bool miterStroke,
                     bool degenerate);
 
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkRect& rect,
+                    const SkStrokeRec& stroke);
+
 bool Append(GrBatch*,
             GrColor color,
             const SkMatrix& viewMatrix,
-            const SkRect& devOutside,
-            const SkRect& devOutsideAssist,
-            const SkRect& devInside,
-            bool miterStroke,
-            bool degenerate);
+            const SkRect& rect,
+            const SkStrokeRec& stroke);
 
 };
 

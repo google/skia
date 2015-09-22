@@ -9,6 +9,7 @@
 #define GrRectBatchFactory_DEFINED
 
 #include "GrAAFillRectBatch.h"
+#include "GrAAStrokeRectBatch.h"
 #include "GrColor.h"
 #include "GrNonAAFillRectBatch.h"
 #include "GrNonAAStrokeRectBatch.h"
@@ -59,11 +60,12 @@ inline GrDrawBatch* CreateNonAAStroke(GrColor color,
     return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeWidth, snapToPixelCenters);
 }
 
-GrDrawBatch* CreateAAStroke(GrColor,
-                            const SkMatrix& viewMatrix,
-                            const SkRect& rect,
-                            const SkRect& devRect,
-                            const SkStrokeRec& stroke);
+inline GrDrawBatch* CreateAAStroke(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkStrokeRec& stroke) {
+    return GrAAStrokeRectBatch::Create(color, viewMatrix, rect, stroke);
+}
 
 // First rect is outer; second rect is inner
 GrDrawBatch* CreateAAFillNestedRects(GrColor,

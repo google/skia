@@ -273,13 +273,12 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
 
     if (needAA && canApplyAA) {
         SkASSERT(!viewMatrix.hasPerspective());
-        SkRect devBoundRect;
-        viewMatrix.mapRect(&devBoundRect, rect);
         SkAutoTUnref<GrDrawBatch> batch;
         if (width >= 0) {
-            batch.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect, devBoundRect,
-                                                           *strokeInfo));
+            batch.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect, *strokeInfo));
         } else {
+            SkRect devBoundRect;
+            viewMatrix.mapRect(&devBoundRect, rect);
             batch.reset(GrRectBatchFactory::CreateAAFill(color, viewMatrix, rect, devBoundRect));
         }
         fDrawTarget->drawBatch(pipelineBuilder, batch);
