@@ -67,6 +67,8 @@ def get_args(bot):
     match.extend(['~gradient', '~etc1bitmap'])  # skia:2895
   if 'NexusPlayer' in bot:
     match.append('~desk_unicodetable')
+  if 'GalaxyS4' in bot:
+    match.append('~GLInstancedArraysBench')  # skia:4371
 
   if 'iOS' in bot:
     match.append('~blurroundrect')
@@ -92,6 +94,7 @@ def self_test():
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
     'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
+    'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
   ]
 
   cov = coverage.coverage()
