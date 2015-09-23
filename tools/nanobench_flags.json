@@ -49,7 +49,9 @@
     "~blurroundrect", 
     "~patch_grid", 
     "~desk_carsvg", 
-    "~GLInstancedArraysBench"
+    "~GLInstancedArraysBench", 
+    "~GLVertexAttributesBench", 
+    "~GLVec4ScalarBench"
   ], 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": [
     "--scales", 
