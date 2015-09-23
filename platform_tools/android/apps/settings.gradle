@@ -1,2 +1,3 @@
 include ':sample_app'
 include ':visualbench'
+include ':canvasproof'

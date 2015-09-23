@@ -45,6 +45,7 @@
       }],
     ],
   },
+  'includes' : [ 'canvasproof.gypi', ],
   'targets': [
     {
       'target_name': 'CopySampleAppDeps',
