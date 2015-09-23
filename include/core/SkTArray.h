@@ -194,6 +194,14 @@ public:
     }
 
     /**
+     *  Construct a new T at the back of this array.
+     */
+    template<class... Args> T& emplace_back(Args&&... args) {
+        T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
+        return *new (newT) T(skstd::forward<Args>(args)...);
+    }
+
+    /**
      * Allocates n more default-initialized T values, and returns the address of
      * the start of that new range. Note: this address is only valid until the
      * next API call made on the array that might add or remove elements.

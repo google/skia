@@ -12,6 +12,8 @@
 #include "SkPicture.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkString.h"
+#include "SkTime.h"
 
 class SkCanvas;
 class SkWStream;
@@ -103,6 +105,33 @@ public:
      *  The stream output must be ignored, and should not be trusted.
      */
     void abort();
+
+    /**
+     *  Set the document's metadata, if supported by the document
+     *  type.  The creationDate and modifiedDate parameters can be
+     *  nullptr.  For example:
+     *
+     *  SkDocument* make_doc(SkWStream* output) {
+     *      SkTArray<SkDocument::Attribute> info;
+     *      info.emplace_back(SkString("Title"), SkString("..."));
+     *      info.emplace_back(SkString("Author"), SkString("..."));
+     *      info.emplace_back(SkString("Subject"), SkString("..."));
+     *      info.emplace_back(SkString("Keywords"), SkString("..."));
+     *      info.emplace_back(SkString("Creator"), SkString("..."));
+     *      SkTime::DateTime now;
+     *      SkTime::GetDateTime(&now);
+     *      SkDocument* doc = SkDocument::CreatePDF(output);
+     *      doc->setMetadata(info, &now, &now);
+     *      return doc;
+     *  }
+     */
+    struct Attribute {
+        SkString fKey, fValue;
+        Attribute(const SkString& k, const SkString& v) : fKey(k), fValue(v) {}
+    };
+    virtual void setMetadata(const SkTArray<SkDocument::Attribute>&,
+                             const SkTime::DateTime* /* creationDate */,
+                             const SkTime::DateTime* /* modifiedDate */) {}
 
 protected:
     SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));

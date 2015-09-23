@@ -930,6 +930,12 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     if (!doc) {
         return "SkDocument::CreatePDF() returned nullptr";
     }
+    SkTArray<SkDocument::Attribute> info;
+    info.emplace_back(SkString("Title"), src.name());
+    info.emplace_back(SkString("Subject"),
+                      SkString("rendering correctness test"));
+    info.emplace_back(SkString("Creator"), SkString("Skia/DM"));
+    doc->setMetadata(info, nullptr, nullptr);
     return draw_skdocument(src, doc.get(), dst);
 }
 
