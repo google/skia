@@ -9,7 +9,7 @@ via the SkDocument and SkCanvas APIs.
     #include "SkDocument.h"
 
     bool WritePDF() {
-        SkWStream* output = ....;
+        SkWStream* outputStream = ....;
 
         SkAutoTUnref<SkDocument> pdfDocument(
                 SkDocument::CreatePDF(outputStream));
@@ -25,5 +25,16 @@ via the SkDocument and SkCanvas APIs.
 
             pdfDocument->endPage();
         }
+
+        SkTArray<SkDocument::Attribute> info;
+        info.emplace_back(SkString("Title"), SkString("...."));
+        info.emplace_back(SkString("Author"), SkString("...."));
+        info.emplace_back(SkString("Subject"), SkString("...."));
+        info.emplace_back(SkString("Keywords"), SkString("...."));
+        info.emplace_back(SkString("Creator"), SkString("...."));
+        SkTime::DateTime now;
+        SkTime::GetDateTime(&now);
+        pdfDocument->setMetadata(info, &now, &now);
+
         return pdfDocument->close();
     }
