@@ -36,6 +36,9 @@ public:
     enum SkBackEndTypes {
         kNone_BackEndType,
         kNativeGL_BackEndType,
+#if SK_ANGLE
+        kANGLE_BackEndType,
+#endif // SK_ANGLE
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);

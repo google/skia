@@ -30,8 +30,8 @@
         [ 'skia_mesa and skia_os not in ["mac", "linux"]', {
           'error': '<!(skia_mesa=1 only supported with skia_os="mac" or "linux".)',
         }],
-        [ 'skia_angle and not skia_os == "win"', {
-          'error': '<!(skia_angle=1 only supported with skia_os="win".)',
+        [ 'skia_angle and not (skia_os == "win" or skia_os == "linux")', {
+          'error': '<!(skia_angle=1 only supported with skia_os="win" or skia_os="linux".)',
         }],
         [ 'skia_os == "chromeos" and OS != "linux"', {
           'error': '<!(Skia ChromeOS build is only supported on Linux.)',

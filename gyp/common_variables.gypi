@@ -89,6 +89,11 @@
         }, {
           'os_posix%': 1,
         }],
+        [ 'skia_os == "linux"', {
+          # ANGLE on linux require these two variable be defined.
+          'chromeos%': 0,
+          'use_x11%': 1,
+        }],
         [ 'skia_os == "android"', {
           'skia_static_initializers%': 0,
           'skia_egl%': 1,
@@ -164,6 +169,11 @@
       }, {
         'skia_release_optimization_level%': '<(skia_default_gcc_optimization_level)',
       }],
+      [ 'skia_os == "linux"', {
+        # ANGLE on linux require these two variable be defined.
+        'chromeos%': 0,
+        'use_x11%': 1,
+      }],
       [ 'skia_sanitizer', {
         'skia_clang_build': 1,
         'skia_keep_frame_pointer': 1,
@@ -171,7 +181,7 @@
         'skia_clang_build%': 0,
         'skia_keep_frame_pointer%': 0,
       }],
-      [ 'skia_shared_lib or skia_sanitizer or skia_os == "android"', {
+      [ 'skia_shared_lib or skia_sanitizer or skia_os == "android" or (skia_os == "linux" and skia_angle == 1)', {
           'skia_pic%' : 1,
         }, {
           'skia_pic%' : 0,
