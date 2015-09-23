@@ -343,6 +343,10 @@
         '<(skia_include_path)/core/SkXfermode.h',
         '<(skia_include_path)/private/SkTemplates.h',
 
+        # Lazy decoding:
+        '<(skia_src_path)/lazy/SkCachingPixelRef.cpp',
+        '<(skia_src_path)/lazy/SkCachingPixelRef.h',
+
         # Path ops
         '<(skia_include_path)/pathops/SkPathOps.h',
 
