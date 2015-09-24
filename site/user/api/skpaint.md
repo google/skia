@@ -32,18 +32,18 @@ of matrix and clip settings.
 
         paint1.setTextSize(64.0f);
         paint1.setAntiAlias(true);
-        paint1.setColor(0xFFFF0000);
+        paint1.setColor(SkColorSetRGB(255, 0, 0);
         paint1.setStyle(SkPaint::kFill_Style);
 
         paint2.setTextSize(64.f);
         paint2.setAntiAlias(true);
-        paint2.setColor(0xFF008800);
+        paint2.setColor(SkColorSetRGB(0, 136, 0);
         paint2.setStyle(SkPaint::kStroke_Style);
         paint2.setStrokeWidth(SkIntToScalar(3));
 
         paint3.setTextSize(64.0f);
         paint3.setAntiAlias(true);
-        paint3.setColor(0xFF888888);
+        paint3.setColor(SkColorSetRGB(136, 136, 136));
         paint3.setTextScaleX(SkFloatToScalar(1.5f));
 
         const char text[] = "Skia!";
@@ -52,8 +52,8 @@ of matrix and clip settings.
         canvas->drawText(text, strlen(text), 20.0f, 224.0f, paint3);
     }
 
-<a href="https://fiddle.skia.org/c/b8e7991ede1ca88e5458aa1f0039caf9">
-<img src="https://fiddle.skia.org/i/b8e7991ede1ca88e5458aa1f0039caf9_raster.png"></a>
+<a href="https://fiddle.skia.org/c/c4cfc71ed9232dac9c0d6518311b386e">
+<img src="https://fiddle.skia.org/i/c4cfc71ed9232dac9c0d6518311b386e_raster.png"></a>
 
 This shows three different paints, each set up to draw in a different
 style. Now the caller can intermix these paints freely, either using
@@ -604,10 +604,11 @@ SkPathEffect
             const SkScalar R = 115.2f, C = 128.0f;
             SkPath path;
             path.moveTo(C + R, C);
-            for (int i = 1; i < 8; ++i) {
+            for (int i = 1; i < 7; ++i) {
                 SkScalar a = 2.6927937f * i;
                 path.lineTo(C + R * cos(a), C + R * sin(a));
             }
+            path.close();
             return path;
         }
 
@@ -645,7 +646,7 @@ SkPathEffect
             canvas->drawPath(path, paint);
         }
 
-    <a href="https://fiddle.skia.org/c/272c7c17e295747338200ab62e2051e7"><img src="https://fiddle.skia.org/i/272c7c17e295747338200ab62e2051e7_raster.png" alt=""></a>
+    <a href="https://fiddle.skia.org/c/f5361bbb33ad43c656dd40bb03ee2114"><img src="https://fiddle.skia.org/i/f5361bbb33ad43c656dd40bb03ee2114_raster.png" alt=""></a>
 
 *   SkDashPathEffect:  a path effect that implements dashing.
 
