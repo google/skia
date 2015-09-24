@@ -23,7 +23,6 @@ SkLayerDrawLooper::LayerInfo::LayerInfo() {
 
 SkLayerDrawLooper::SkLayerDrawLooper()
         : fRecs(nullptr),
-          fTopRec(nullptr),
           fCount(0) {
 }
 

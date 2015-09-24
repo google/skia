@@ -94,7 +94,6 @@ private:
         LayerInfo fInfo;
     };
     Rec*    fRecs;
-    Rec*    fTopRec;
     int     fCount;
 
     // state-machine during the init/next cycle
@@ -109,11 +108,6 @@ private:
         Rec* fCurrRec;
 
         static void ApplyInfo(SkPaint* dst, const SkPaint& src, const LayerInfo&);
-    };
-
-    class MyRegistrar : public SkFlattenable::Registrar {
-    public:
-        MyRegistrar();
     };
 
     typedef SkDrawLooper INHERITED;
