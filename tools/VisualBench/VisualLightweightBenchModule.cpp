@@ -26,6 +26,7 @@ __SK_FORCE_IMAGE_DECODER_LINKING;
 // Between samples we reset context
 // Between frames we swap buffers
 
+DEFINE_int32(maxWarmupFrames, 100, "maxmium frames to try and tune for sane timings");
 DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU allows to lag.");
 DEFINE_int32(samples, 10, "Number of times to time each skp.");
 DEFINE_int32(frames, 5, "Number of frames of each skp to render per sample.");
@@ -46,18 +47,31 @@ static SkString humanize(double ms) {
 
 #define HUMANIZE(time) humanize(time).c_str()
 
+// A trivial bench to warm up the gpu
+class WarmupBench : public Benchmark {
+public:
+private:
+    const char* onGetName() override { return "warmupbench"; }
+    void onDraw(const int loops, SkCanvas* canvas) override {
+        for (int i = 0; i < loops; i++) {
+            sk_tool_utils::draw_checkerboard(canvas, 0xffffffff, 0xffc6c3c6, 10);
+        }
+    }
+};
+
 VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
     : fCurrentSample(0)
     , fCurrentFrame(0)
     , fLoops(1)
-    , fState(kPreWarmLoops_State)
+    , fState(kWarmup_State)
     , fBenchmark(nullptr)
     , fOwner(SkRef(owner))
     , fResults(new ResultsWriter) {
     fBenchmarkStream.reset(new VisualBenchmarkStream);
 
     // Print header
-    SkDebugf("curr/maxrss\tloops\tflushes\tmin\tmedian\tmean\tmax\tstddev\tbench\n");
+    SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tbench\n", FLAGS_samples,
+             "samples");
 
     // setup json logging if required
     if (!FLAGS_outResultsFile.isEmpty()) {
@@ -100,10 +114,10 @@ void VisualLightweightBenchModule::printStats() {
         configName.appendf("gpu");
     }
     fResults->config(configName.c_str());
-    fResults->configOption("name", fBenchmark->getUniqueName());
+    fResults->configOption("name", shortName);
     SkASSERT(measurements.count());
     Stats stats(measurements);
-    fResults->metric("min_ms",    stats.min);
+    fResults->metric("min_ms", stats.min);
 
     // Print output
     if (FLAGS_verbose) {
@@ -113,7 +127,7 @@ void VisualLightweightBenchModule::printStats() {
         SkDebugf("%s\n", shortName);
     } else {
         const double stdDevPercent = 100 * sqrt(stats.var) / stats.mean;
-        SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\n",
+        SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\n",
                  sk_tools::getCurrResidentSetSizeMB(),
                  sk_tools::getMaxResidentSetSizeMB(),
                  fLoops,
@@ -122,11 +136,17 @@ void VisualLightweightBenchModule::printStats() {
                  HUMANIZE(stats.mean),
                  HUMANIZE(stats.max),
                  stdDevPercent,
+                 stats.plot.c_str(),
                  shortName);
     }
 }
 
 bool VisualLightweightBenchModule::advanceRecordIfNecessary(SkCanvas* canvas) {
+    if (!fBenchmark && fState == kWarmup_State) {
+        fBenchmark.reset(new WarmupBench);
+        return true;
+    }
+
     if (fBenchmark) {
         return true;
     }
@@ -137,7 +157,6 @@ bool VisualLightweightBenchModule::advanceRecordIfNecessary(SkCanvas* canvas) {
     }
 
     fOwner->clear(canvas, SK_ColorWHITE, 2);
-
 
     fBenchmark->preDraw();
     fRecords.push_back();
@@ -156,6 +175,27 @@ void VisualLightweightBenchModule::perCanvasPreDraw(SkCanvas* canvas, State next
     fBenchmark->perCanvasPreDraw(canvas);
     fCurrentFrame = 0;
     this->nextState(nextState);
+}
+
+void VisualLightweightBenchModule::warmup(SkCanvas* canvas) {
+    if (fCurrentFrame >= FLAGS_maxWarmupFrames) {
+        this->nextState(kPreWarmLoopsPerCanvasPreDraw_State);
+        fBenchmark.reset(nullptr);
+        this->resetTimingState();
+        fLoops = 1;
+    } else {
+        bool isEven = (fCurrentFrame++ % 2) == 0;
+        if (isEven) {
+            fTimer.start();
+        } else {
+            double elapsedMs = this->elapsed();
+            if (elapsedMs < FLAGS_loopMs) {
+                fLoops *= 2;
+            }
+            fTimer = WallTimer();
+            fOwner->reset();
+        }
+    }
 }
 
 void VisualLightweightBenchModule::preWarm(State nextState) {
@@ -177,6 +217,10 @@ void VisualLightweightBenchModule::draw(SkCanvas* canvas) {
     }
     this->renderFrame(canvas);
     switch (fState) {
+        case kWarmup_State: {
+            this->warmup(canvas);
+            break;
+        }
         case kPreWarmLoopsPerCanvasPreDraw_State: {
             this->perCanvasPreDraw(canvas, kPreWarmLoops_State);
             break;
@@ -224,7 +268,7 @@ inline void VisualLightweightBenchModule::tuneLoops() {
     if (1 << 30 == fLoops) {
         // We're about to wrap.  Something's wrong with the bench.
         SkDebugf("InnerLoops wrapped\n");
-        fLoops = 0;
+        fLoops = 1;
     } else {
         double elapsedMs = this->elapsed();
         if (elapsedMs > FLAGS_loopMs) {

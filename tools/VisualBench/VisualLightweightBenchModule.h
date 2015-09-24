@@ -34,6 +34,7 @@ public:
 private:
     /*
      * The heart of visual bench is an event driven timing loop.
+     * kWarmup_State:                        We run a dummy bench to let things settle on startup
      * kPreWarmLoopsPerCanvasPreDraw_State:  Before we begin timing, Benchmarks have a hook to
      *                                       access the canvas.  Then we prewarm before the autotune
      *                                       loops step.
@@ -53,6 +54,7 @@ private:
      *                                       In either case we reset the context.
      */
     enum State {
+        kWarmup_State,
         kPreWarmLoopsPerCanvasPreDraw_State,
         kPreWarmLoops_State,
         kTuneLoops_State,
@@ -76,6 +78,7 @@ private:
     void resetTimingState();
     void postDraw(SkCanvas*);
     void recordMeasurement();
+    void warmup(SkCanvas* canvas);
 
     struct Record {
         SkTArray<double> fMeasurements;

@@ -39,6 +39,8 @@ public:
         return fName.c_str();
     }
 
+    bool isVisual() override { return true; }
+
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRect(r, p);
