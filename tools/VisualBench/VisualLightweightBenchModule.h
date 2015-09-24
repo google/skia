@@ -71,7 +71,6 @@ private:
     inline void nextState(State);
     void perCanvasPreDraw(SkCanvas*, State);
     void preWarm(State nextState);
-    void scaleLoops(double elapsedMs);
     inline void tuneLoops();
     inline void timing(SkCanvas*);
     inline double elapsed();

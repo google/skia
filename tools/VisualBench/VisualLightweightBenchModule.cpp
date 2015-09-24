@@ -47,16 +47,26 @@ static SkString humanize(double ms) {
 
 #define HUMANIZE(time) humanize(time).c_str()
 
-// A trivial bench to warm up the gpu
+// We draw a big nonAA path to warmup the gpu / cpu
 class WarmupBench : public Benchmark {
 public:
+    WarmupBench() {
+        make_path(fPath);
+    }
 private:
+    static void make_path(SkPath& path) {
+        #include "BigPathBench.inc"
+    }
     const char* onGetName() override { return "warmupbench"; }
     void onDraw(const int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2);
         for (int i = 0; i < loops; i++) {
-            sk_tool_utils::draw_checkerboard(canvas, 0xffffffff, 0xffc6c3c6, 10);
+            canvas->drawPath(fPath, paint);
         }
     }
+    SkPath fPath;
 };
 
 VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
@@ -143,6 +153,7 @@ void VisualLightweightBenchModule::printStats() {
 
 bool VisualLightweightBenchModule::advanceRecordIfNecessary(SkCanvas* canvas) {
     if (!fBenchmark && fState == kWarmup_State) {
+        fOwner->clear(canvas, SK_ColorWHITE, 2);
         fBenchmark.reset(new WarmupBench);
         return true;
     }
@@ -259,11 +270,6 @@ void VisualLightweightBenchModule::resetTimingState() {
     fOwner->reset();
 }
 
-void VisualLightweightBenchModule::scaleLoops(double elapsedMs) {
-    // Scale back the number of loops
-    fLoops = (int)ceil(fLoops * FLAGS_loopMs / elapsedMs);
-}
-
 inline void VisualLightweightBenchModule::tuneLoops() {
     if (1 << 30 == fLoops) {
         // We're about to wrap.  Something's wrong with the bench.
@@ -272,7 +278,6 @@ inline void VisualLightweightBenchModule::tuneLoops() {
     } else {
         double elapsedMs = this->elapsed();
         if (elapsedMs > FLAGS_loopMs) {
-            this->scaleLoops(elapsedMs);
             this->nextState(kPreWarmTimingPerCanvasPreDraw_State);
         } else {
             fLoops *= 2;

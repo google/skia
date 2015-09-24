@@ -114,6 +114,30 @@ private:
     typedef RectBench INHERITED;
 };
 
+class TransparentRectBench : public RectBench {
+public:
+    TransparentRectBench() : INHERITED(1, 0) {}
+
+protected:
+    void setupPaint(SkPaint* paint) override {
+        this->INHERITED::setupPaint(paint);
+        // draw non opaque rect
+        paint->setAlpha(0x80);
+    }
+
+    const char* onGetName() override {
+        fName.set(this->INHERITED::onGetName());
+        fName.prepend("transparent_");
+        return fName.c_str();
+    }
+
+private:
+    SkString fName;
+
+    typedef RectBench INHERITED;
+};
+
+
 class OvalBench : public RectBench {
 public:
     OvalBench(int shift, int stroke = 0) : RectBench(shift, stroke) {}
@@ -268,6 +292,8 @@ DEF_BENCH(return new PointsBench(SkCanvas::kLines_PointMode, "lines");)
 DEF_BENCH(return new PointsBench(SkCanvas::kPolygon_PointMode, "polygon");)
 
 DEF_BENCH(return new SrcModeRectBench();)
+
+DEF_BENCH(return new TransparentRectBench();)
 
 /* init the blitmask bench
  */
