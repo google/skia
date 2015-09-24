@@ -46,6 +46,9 @@ void GrGpuResource::release() {
 }
 
 void GrGpuResource::abandon() {
+    if (this->wasDestroyed()) {
+        return;
+    }
     SkASSERT(fGpu);
     this->onAbandon();
     get_resource_cache(fGpu)->resourceAccess().removeResource(this);
@@ -104,6 +107,9 @@ void GrGpuResource::didChangeGpuMemorySize() const {
 }
 
 void GrGpuResource::removeUniqueKey() {
+    if (this->wasDestroyed()) {
+        return;
+    }
     SkASSERT(fUniqueKey.isValid());
     get_resource_cache(fGpu)->resourceAccess().removeUniqueKey(this);
 }
@@ -177,14 +183,15 @@ void GrGpuResource::removeScratchKey() {
 }
 
 void GrGpuResource::makeBudgeted() {
-    if (GrGpuResource::kUncached_LifeCycle == fLifeCycle) {
+    if (!this->wasDestroyed() && GrGpuResource::kUncached_LifeCycle == fLifeCycle) {
         fLifeCycle = kCached_LifeCycle;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }
 
 void GrGpuResource::makeUnbudgeted() {
-    if (GrGpuResource::kCached_LifeCycle == fLifeCycle && !fUniqueKey.isValid()) {
+    if (!this->wasDestroyed() && GrGpuResource::kCached_LifeCycle == fLifeCycle &&
+        !fUniqueKey.isValid()) {
         fLifeCycle = kUncached_LifeCycle;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }

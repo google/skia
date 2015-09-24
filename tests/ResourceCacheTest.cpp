@@ -1250,6 +1250,38 @@ static void test_custom_data(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, *(int*) key3.getCustomData()->data() == 4132);
 }
 
+static void test_abandoned(skiatest::Reporter* reporter) {
+    Mock mock(10, 300);
+    GrContext* context = mock.context();
+    TestResource* resource = new TestResource(context->getGpu());
+    context->abandonContext();
+
+    REPORTER_ASSERT(reporter, resource->wasDestroyed());
+
+    // Call all the public methods on resource in the abandoned state. They shouldn't crash.
+
+    int foo = 4132;
+    SkAutoTUnref<SkData> data(SkData::NewWithCopy(&foo, sizeof(foo)));
+    resource->setCustomData(data.get());
+    resource->getCustomData();
+    resource->getUniqueID();
+    resource->getUniqueKey();
+    resource->wasDestroyed();
+    resource->gpuMemorySize();
+    resource->getContext();
+
+    resource->abandon();
+    resource->resourcePriv().getScratchKey();
+    resource->resourcePriv().isBudgeted();
+    resource->resourcePriv().makeBudgeted();
+    resource->resourcePriv().makeUnbudgeted();
+    resource->resourcePriv().removeScratchKey();
+    GrUniqueKey key;
+    make_unique_key<0>(&key, 1);
+    resource->resourcePriv().setUniqueKey(key);
+    resource->resourcePriv().removeUniqueKey();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST(ResourceCache, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
@@ -1290,6 +1322,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
     test_flush(reporter);
     test_large_resource_count(reporter);
     test_custom_data(reporter);
+    test_abandoned(reporter);
 }
 
 #endif
