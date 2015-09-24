@@ -1253,7 +1253,7 @@ static void test_custom_data(skiatest::Reporter* reporter) {
 static void test_abandoned(skiatest::Reporter* reporter) {
     Mock mock(10, 300);
     GrContext* context = mock.context();
-    TestResource* resource = new TestResource(context->getGpu());
+    SkAutoTUnref<GrGpuResource> resource(new TestResource(context->getGpu()));
     context->abandonContext();
 
     REPORTER_ASSERT(reporter, resource->wasDestroyed());
