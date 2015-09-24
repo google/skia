@@ -130,7 +130,25 @@ void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRec
                                   xScale * input.width(),
                                   yScale * input.height());
 
+    static const int kNumBlocks = 8;
+
     canvas->clear(0xFFFFFFFF);
+    SkISize block = {
+        canvas->imageInfo().width()/kNumBlocks,
+        canvas->imageInfo().height()/kNumBlocks
+    };
+    for (int y = 0; y < kNumBlocks; ++y) {
+        for (int x = 0; x < kNumBlocks; ++x) {
+            SkPaint paint;
+            paint.setColor((x+y)%2 ? SK_ColorLTGRAY : SK_ColorDKGRAY);
+            SkRect r = SkRect::MakeXYWH(SkIntToScalar(x*block.width()),
+                                        SkIntToScalar(y*block.height()),
+                                        SkIntToScalar(block.width()),
+                                        SkIntToScalar(block.height()));
+            canvas->drawRect(r, paint);
+        }
+    }
+
     canvas->drawBitmapRect(input, dst, nullptr);
 
     if (srcRect) {
