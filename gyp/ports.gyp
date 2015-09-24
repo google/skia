@@ -66,8 +66,6 @@
         '../include/ports/SkFontMgr_custom.h',
         '../include/ports/SkFontMgr_fontconfig.h',
         '../include/ports/SkFontMgr_indirect.h',
-        '../include/ports/SkMutex_pthread.h',
-        '../include/ports/SkMutex_win.h',
         '../include/ports/SkRemotableFontMgr.h',
       ],
       'sources/': [

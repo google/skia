@@ -721,8 +721,6 @@
           '<(skia_include_path)/ports/SkAtomics_atomic.h',
           '<(skia_include_path)/ports/SkAtomics_sync.h',
           '<(skia_include_path)/ports/SkFontMgr_fontconfig.h',
-          '<(skia_include_path)/ports/SkMutex_pthread.h',
-          '<(skia_include_path)/ports/SkMutex_win.h',
           '<(skia_include_path)/ports/SkTypeface_mac.h',
           '<(skia_include_path)/ports/SkTypeface_win.h',
           '<(skia_include_path)/utils/ios',

@@ -8,8 +8,8 @@
 #include "SkSharedMutex.h"
 
 #include "SkAtomics.h"
-#include "SkSemaphore.h"
 #include "SkTypes.h"
+#include "../private/SkSemaphore.h"
 
 #if defined(THREAD_SANITIZER)
 

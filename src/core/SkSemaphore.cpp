@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSemaphore.h"
+#include "../private/SkSemaphore.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     #include <mach/mach.h>
-    struct SkSemaphore::OSSemaphore {
+    struct SkBaseSemaphore::OSSemaphore {
         semaphore_t fSemaphore;
 
         OSSemaphore()  {
@@ -21,7 +21,7 @@
         void wait() { semaphore_wait(fSemaphore); }
     };
 #elif defined(SK_BUILD_FOR_WIN32)
-    struct SkSemaphore::OSSemaphore {
+    struct SkBaseSemaphore::OSSemaphore {
         HANDLE fSemaphore;
 
         OSSemaphore()  {
@@ -41,7 +41,7 @@
     // It's important we test for Mach before this.  This code will compile but not work there.
     #include <errno.h>
     #include <semaphore.h>
-    struct SkSemaphore::OSSemaphore {
+    struct SkBaseSemaphore::OSSemaphore {
         sem_t fSemaphore;
 
         OSSemaphore()  { sem_init(&fSemaphore, 0/*cross process?*/, 0/*initial count*/); }
@@ -55,10 +55,9 @@
     };
 #endif
 
-    SkSemaphore::SkSemaphore() : fCount(0), fOSSemaphore(new OSSemaphore) {}
-    SkSemaphore::~SkSemaphore() { delete fOSSemaphore; }
+///////////////////////////////////////////////////////////////////////////////
 
-void SkSemaphore::signal(int n) {
+void SkBaseSemaphore::signal(int n) {
     SkASSERT(n >= 0);
 
     // We only want to call the OS semaphore when our logical count crosses
@@ -70,17 +69,31 @@ void SkSemaphore::signal(int n) {
     //
     // If prev >= 0, no threads are waiting, SkTMin(-prev, n) is always <= 0,
     // so we don't call the OS semaphore, leaving the count at (prev + n).
-    int prev = fCount.fetch_add(n, sk_memory_order_release);
+    int prev = sk_atomic_fetch_add(&fCount, n, sk_memory_order_release);
     int toSignal = SkTMin(-prev, n);
     if (toSignal > 0) {
-        fOSSemaphore->signal(toSignal);
+        this->osSignal(toSignal);
     }
 }
 
-void SkSemaphore::wait() {
-    // We only wait() on the OS semaphore if the count drops <= 0,
-    // i.e. when we need to make this thread sleep to wait for it to go back up.
-    if (fCount.fetch_add(-1, sk_memory_order_acquire) <= 0) {
-        fOSSemaphore->wait();
-    }
+static SkBaseSemaphore::OSSemaphore* semaphore(SkBaseSemaphore* semaphore) {
+    return semaphore->fOSSemaphore.get([](){ return new SkBaseSemaphore::OSSemaphore(); });
 }
+
+void SkBaseSemaphore::osSignal(int n) { semaphore(this)->signal(n); }
+
+void SkBaseSemaphore::osWait() { semaphore(this)->wait(); }
+
+void SkBaseSemaphore::deleteSemaphore() {
+    delete (OSSemaphore*) fOSSemaphore;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkSemaphore::SkSemaphore(){ fBaseSemaphore = {0, {0}}; }
+
+SkSemaphore::~SkSemaphore() { fBaseSemaphore.deleteSemaphore(); }
+
+void SkSemaphore::wait() { fBaseSemaphore.wait(); }
+
+void SkSemaphore::signal(int n) {fBaseSemaphore.signal(n); }
