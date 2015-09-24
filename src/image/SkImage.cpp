@@ -132,38 +132,6 @@ const char* SkImage::toString(SkString* str) const {
     return str->c_str();
 }
 
-#ifdef SK_SUPPORT_LEGACY_NEWIMAGE
-SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset) const {
-#if 0
-    if (newWidth <= 0 || newHeight <= 0) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-
-    if (subset) {
-        if (!bounds.contains(*subset)) {
-            return nullptr;
-        }
-        if (bounds == *subset) {
-            subset = nullptr;  // and fall through to check below
-        }
-    }
-
-    if (nullptr == subset && this->width() == newWidth && this->height() == newHeight) {
-        return SkRef(const_cast<SkImage*>(this));
-    }
-
-    return as_IB(this)->onNewImage(newWidth, newHeight, subset, quality);
-#else
-    SkASSERT(subset);
-    SkASSERT(subset->width() == newWidth);
-    SkASSERT(subset->height() == newHeight);
-    return this->newSubset(*subset);
-#endif
-}
-#endif
-
 SkImage* SkImage::newSubset(const SkIRect& subset) const {
     if (subset.isEmpty()) {
         return nullptr;
