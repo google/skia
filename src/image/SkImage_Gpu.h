@@ -22,8 +22,7 @@ public:
      *  An "image" can be a subset/window into a larger texture, so we explicit take the
      *  width and height.
      */
-    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*,
-                int sampleCountForNewSurfaces, SkSurface::Budgeted);
+    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, GrTexture*, SkSurface::Budgeted);
     ~SkImage_Gpu() override;
 
     void applyBudgetDecision() const {
@@ -38,19 +37,18 @@ public:
 
     bool getROPixels(SkBitmap*) const override;
     GrTexture* asTextureRef(GrContext* ctx, SkImageUsageType usage) const override;
+    SkImage* onNewSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture; }
     SkShader* onNewShader(SkShader::TileMode,
                           SkShader::TileMode,
                           const SkMatrix* localMatrix) const override;
     bool isOpaque() const override;
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY) const override;
 
 private:
     SkAutoTUnref<GrTexture>     fTexture;
-    const int                   fSampleCountForNewSurfaces;   // 0 if we don't know
     const SkAlphaType           fAlphaType;
     const SkSurface::Budgeted   fBudgeted;
     mutable SkAtomic<bool>      fAddedRasterVersionToCache;

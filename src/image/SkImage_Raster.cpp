@@ -67,12 +67,12 @@ public:
     SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, SkColorTable*, const SkSurfaceProps*);
     virtual ~SkImage_Raster();
 
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkData* onRefEncoded() const override;
     bool getROPixels(SkBitmap*) const override;
     GrTexture* asTextureRef(GrContext*, SkImageUsageType) const override;
+    SkImage* onNewSubset(const SkIRect&) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
     SkImage_Raster(const SkImageInfo&, SkPixelRef*, const SkIPoint& pixelRefOrigin, size_t rowBytes,
@@ -149,10 +149,6 @@ SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX, SkShader::TileMo
     return SkShader::CreateBitmapShader(fBitmap, tileX, tileY, localMatrix);
 }
 
-SkSurface* SkImage_Raster::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
-    return SkSurface::NewRaster(info, &props);
-}
-
 bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                   int srcX, int srcY) const {
     SkBitmap shallowCopy(fBitmap);
@@ -210,6 +206,20 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, SkImageUsageType usage) 
 #endif
     
     return nullptr;
+}
+
+SkImage* SkImage_Raster::onNewSubset(const SkIRect& subset) const {
+    // TODO : could consider heurist of sharing pixels, if subset is pretty close to complete
+
+    SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(), fBitmap.alphaType());
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    if (!surface) {
+        return nullptr;
+    }
+    surface->getCanvas()->clear(0);
+    surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
+                                    nullptr);
+    return surface->newImageSnapshot();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

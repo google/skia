@@ -37,8 +37,6 @@ public:
 
     const SkSurfaceProps& props() const { return fProps; }
 
-    virtual SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const = 0;
-
     virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const {
         return nullptr;
     }
@@ -60,9 +58,7 @@ public:
                                   SkShader::TileMode,
                                   const SkMatrix* localMatrix) const { return nullptr; }
 
-    // newWidth > 0, newHeight > 0, subset either nullptr or a proper subset of this bounds
-    virtual SkImage* onNewImage(int newWidth, int newHeight, const SkIRect* subset,
-                                SkFilterQuality) const;
+    virtual SkImage* onNewSubset(const SkIRect&) const = 0;
     virtual SkData* onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;

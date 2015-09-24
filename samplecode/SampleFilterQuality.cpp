@@ -46,14 +46,14 @@ static SkImage* make_image() {
     return surface->newImageSnapshot();
 }
 
-static SkImage* zoom_up(SkImage* orig) {
+static SkImage* zoom_up(SkSurface* origSurf, SkImage* orig) {
     const SkScalar S = 8;    // amount to scale up
     const int D = 2;    // dimension scaling for the offscreen
     // since we only view the center, don't need to produce the entire thing
     
     SkImageInfo info = SkImageInfo::MakeN32(orig->width() * D, orig->height() * D,
                                             kOpaque_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(orig->newSurface(info));
+    SkAutoTUnref<SkSurface> surface(origSurf->newSurface(info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->drawColor(SK_ColorWHITE);
     canvas->scale(S, S);
@@ -221,7 +221,7 @@ protected:
 
         if (surface) {
             SkAutoTUnref<SkImage> orig(surface->newImageSnapshot());
-            SkAutoTUnref<SkImage> zoomed(zoom_up(orig));
+            SkAutoTUnref<SkImage> zoomed(zoom_up(surface, orig));
             origCanvas->drawImage(zoomed,
                                   SkScalarHalf(fCell.width() - zoomed->width()),
                                   SkScalarHalf(fCell.height() - zoomed->height()));

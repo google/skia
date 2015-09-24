@@ -143,7 +143,7 @@ protected:
         SkAutoTUnref<SkImage> image(surf->newImageSnapshot());
         canvas->drawImage(image, 10, 10, nullptr);
 
-        SkAutoTUnref<SkSurface> surf2(image->newSurface(info, nullptr));
+        SkAutoTUnref<SkSurface> surf2(surf->newSurface(info));
         drawInto(surf2->getCanvas());
 
         // Assert that the props were communicated transitively through the first image

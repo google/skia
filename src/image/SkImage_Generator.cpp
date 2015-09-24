@@ -7,6 +7,7 @@
 
 #include "SkImage_Base.h"
 #include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImageCacherator.h"
 #include "SkImagePriv.h"
@@ -20,12 +21,11 @@ public:
         , fCache(cache) // take ownership
     {}
 
-    SkSurface* onNewSurface(const SkImageInfo&, const SkSurfaceProps&) const override;
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkData* onRefEncoded() const override;
     bool isOpaque() const override { return fCache->info().isOpaque(); }
-
+    SkImage* onNewSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*) const override;
     GrTexture* asTextureRef(GrContext*, SkImageUsageType) const override;
 
@@ -54,11 +54,6 @@ SkShader* SkImage_Generator::onNewShader(SkShader::TileMode tileX, SkShader::Til
     return nullptr;
 }
 
-SkSurface* SkImage_Generator::onNewSurface(const SkImageInfo& info,
-                                           const SkSurfaceProps& props) const {
-    return SkSurface::NewRaster(info, &props);
-}
-
 bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                      int srcX, int srcY) const {
     SkBitmap bm;
@@ -82,6 +77,22 @@ bool SkImage_Generator::getROPixels(SkBitmap* bitmap) const {
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
     return fCache->lockAsTexture(ctx, usage, this);
+}
+
+SkImage* SkImage_Generator::onNewSubset(const SkIRect& subset) const {
+    // TODO: make this lazy, by wrapping the subset inside a new generator or something
+    // For now, we do effectively what we did before, make it a raster
+
+    const SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(),
+                                      this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    if (!surface) {
+        return nullptr;
+    }
+    surface->getCanvas()->clear(0);
+    surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
+                                    nullptr);
+    return surface->newImageSnapshot();
 }
 
 SkImage* SkImage::NewFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {

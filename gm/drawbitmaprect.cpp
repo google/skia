@@ -89,33 +89,6 @@ static void imageproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const S
     canvas->drawImageRect(image, srcR, dstR, nullptr);
 }
 
-static void imagescaleproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect& srcIR,
-                           const SkRect& dstR) {
-    const int newW = SkScalarRoundToInt(dstR.width());
-    const int newH = SkScalarRoundToInt(dstR.height());
-    SkAutoTUnref<SkImage> newImage(image->newImage(newW, newH, &srcIR));
-
-#ifdef SK_DEBUG
-    const SkIRect baseR = SkIRect::MakeWH(image->width(), image->height());
-    const bool containsSubset = baseR.contains(srcIR);
-#endif
-
-    if (newImage) {
-        SkASSERT(containsSubset);
-        canvas->drawImage(newImage, dstR.x(), dstR.y());
-    } else {
-        // newImage() does not support subsets that are not contained by the original
-        // but drawImageRect does, so we just draw an X in its place to indicate that we are
-        // deliberately not drawing here.
-        SkASSERT(!containsSubset);
-        SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(4);
-        canvas->drawLine(4, 4, newW - 4.0f, newH - 4.0f, paint);
-        canvas->drawLine(4, newH - 4.0f, newW - 4.0f, 4, paint);
-    }
-}
-
 typedef void DrawRectRectProc(SkCanvas*, SkImage*, const SkBitmap&, const SkIRect&, const SkRect&);
 
 static const int gSize = 1024;
@@ -228,4 +201,3 @@ private:
 
 DEF_GM( return new DrawBitmapRectGM(canvasproc, nullptr); )
 DEF_GM( return new DrawBitmapRectGM(imageproc, "-imagerect"); )
-DEF_GM( return new DrawBitmapRectGM(imagescaleproc, "-imagescale"); )

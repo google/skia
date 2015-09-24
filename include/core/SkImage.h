@@ -270,17 +270,9 @@ public:
      */
     SkData* refEncoded() const;
 
-    /**
-     *  Return a new surface that is compatible with this image's internal representation
-     *  (e.g. raster or gpu).
-     *
-     *  If no surfaceprops are specified, the image will attempt to match the props of when it
-     *  was created (if it came from a surface).
-     */
-    SkSurface* newSurface(const SkImageInfo&, const SkSurfaceProps* = NULL) const;
-
     const char* toString(SkString*) const;
 
+#ifdef SK_SUPPORT_LEGACY_NEWIMAGE
     /**
      *  Return an image that is a rescale of this image (using newWidth, newHeight).
      *
@@ -299,8 +291,17 @@ public:
      *    since during drawing we will "apply the alpha" to the pixels. Future optimizations
      *    may take away this caveat, preserving unpremul.
      */
-    SkImage* newImage(int newWidth, int newHeight, const SkIRect* subset = NULL,
-                      SkFilterQuality = kNone_SkFilterQuality) const;
+    SkImage* newImage(int newWidth, int newHeight, const SkIRect* subset) const;
+#endif
+
+    /**
+     *  Return a new image that is a subset of this image. The underlying implementation may
+     *  share the pixels, or it may make a copy.
+     *
+     *  If subset does not intersect the bounds of this image, or the copy/share cannot be made,
+     *  NULL will be returned.
+     */
+    SkImage* newSubset(const SkIRect& subset) const;
 
     // Helper functions to convert to SkBitmap
 

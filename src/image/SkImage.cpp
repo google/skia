@@ -126,21 +126,15 @@ SkImage* SkImage::NewFromEncoded(SkData* encoded, const SkIRect* subset) {
     return generator ? SkImage::NewFromGenerator(generator, subset) : nullptr;
 }
 
-SkSurface* SkImage::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) const {
-    if (nullptr == props) {
-        props = &as_IB(this)->props();
-    }
-    return as_IB(this)->onNewSurface(info, *props);
-}
-
 const char* SkImage::toString(SkString* str) const {
     str->appendf("image: (id:%d (%d, %d) %s)", this->uniqueID(), this->width(), this->height(),
                  this->isOpaque() ? "opaque" : "");
     return str->c_str();
 }
 
-SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset,
-                           SkFilterQuality quality) const {
+#ifdef SK_SUPPORT_LEGACY_NEWIMAGE
+SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset) const {
+#if 0
     if (newWidth <= 0 || newHeight <= 0) {
         return nullptr;
     }
@@ -161,6 +155,30 @@ SkImage* SkImage::newImage(int newWidth, int newHeight, const SkIRect* subset,
     }
 
     return as_IB(this)->onNewImage(newWidth, newHeight, subset, quality);
+#else
+    SkASSERT(subset);
+    SkASSERT(subset->width() == newWidth);
+    SkASSERT(subset->height() == newHeight);
+    return this->newSubset(*subset);
+#endif
+}
+#endif
+
+SkImage* SkImage::newSubset(const SkIRect& subset) const {
+    if (subset.isEmpty()) {
+        return nullptr;
+    }
+
+    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+    if (!bounds.contains(subset)) {
+        return nullptr;
+    }
+
+    // optimization : return self if the subset == our bounds
+    if (bounds == subset) {
+        return SkRef(const_cast<SkImage*>(this));
+    }
+    return as_IB(this)->onNewSubset(subset);
 }
 
 #if SK_SUPPORT_GPU
@@ -244,33 +262,6 @@ bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
     return true;
 }
 
-SkImage* SkImage_Base::onNewImage(int newWidth, int newHeight, const SkIRect* subset,
-                                  SkFilterQuality quality) const {
-    const bool opaque = this->isOpaque();
-    const SkImageInfo info = SkImageInfo::Make(newWidth, newHeight, kN32_SkColorType,
-                                               opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(this->newSurface(info, nullptr));
-    if (!surface.get()) {
-        return nullptr;
-    }
-
-    SkRect src;
-    if (subset) {
-        src.set(*subset);
-    } else {
-        src = SkRect::MakeIWH(this->width(), this->height());
-    }
-
-    surface->getCanvas()->scale(newWidth / src.width(), newHeight / src.height());
-    surface->getCanvas()->translate(-src.x(), -src.y());
-
-    SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    paint.setFilterQuality(quality);
-    surface->getCanvas()->drawImage(this, 0, 0, &paint);
-    return surface->newImageSnapshot();
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage::peekPixels(SkPixmap* pmap) const {
@@ -311,7 +302,7 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
         }
         const SkImageInfo info = bm.info();
         return new SkImage_Gpu(info.width(), info.height(), bm.getGenerationID(), info.alphaType(),
-                               tex, 0, SkSurface::kNo_Budgeted);
+                               tex, SkSurface::kNo_Budgeted);
     }
 #endif
 

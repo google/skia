@@ -16,7 +16,6 @@
 
 #if SK_SUPPORT_GPU
 
-///////////////////////////////////////////////////////////////////////////////
 SkSurface_Gpu::SkSurface_Gpu(SkGpuDevice* device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(SkRef(device)) {
@@ -80,12 +79,11 @@ SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 
 SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
     const SkImageInfo info = fDevice->imageInfo();
-    const int sampleCount = fDevice->accessRenderTarget()->numColorSamples();
     SkImage* image = nullptr;
     GrTexture* tex = fDevice->accessRenderTarget()->asTexture();
     if (tex) {
         image = new SkImage_Gpu(info.width(), info.height(), kNeedNewImageUniqueID,
-                                info.alphaType(), tex, sampleCount, budgeted);
+                                info.alphaType(), tex, budgeted);
     }
     if (image) {
         as_IB(image)->initWithProps(this->props());

@@ -15,10 +15,9 @@
 #include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
-                         int sampleCountForNewSurfaces, SkSurface::Budgeted budgeted)
+                         SkSurface::Budgeted budgeted)
     : INHERITED(w, h, uniqueID, nullptr)
     , fTexture(SkRef(tex))
-    , fSampleCountForNewSurfaces(sampleCountForNewSurfaces)
     , fAlphaType(at)
     , fBudgeted(budgeted)
     , fAddedRasterVersionToCache(false)
@@ -28,19 +27,6 @@ SkImage_Gpu::~SkImage_Gpu() {
     if (fAddedRasterVersionToCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
-}
-
-SkSurface* SkImage_Gpu::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) const {
-    GrTexture* tex = this->getTexture();
-    SkASSERT(tex);
-    GrContext* ctx = tex->getContext();
-    if (!ctx) {
-        // the texture may have been abandoned, so we have to check
-        return nullptr;
-    }
-    // TODO: Change signature of onNewSurface to take a budgeted param.
-    const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
-    return SkSurface::NewRenderTarget(ctx, budgeted, info, fSampleCountForNewSurfaces, &props);
 }
 
 extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
@@ -136,6 +122,22 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t row
     return true;
 }
 
+SkImage* SkImage_Gpu::onNewSubset(const SkIRect& subset) const {
+    GrContext* ctx = fTexture->getContext();
+    GrSurfaceDesc desc = fTexture->desc();
+    desc.fWidth = subset.width();
+    desc.fHeight = subset.height();
+
+    GrTexture* subTx = ctx->textureProvider()->createTexture(desc,
+                                                             SkSurface::kYes_Budgeted == fBudgeted);
+    if (!subTx) {
+        return nullptr;
+    }
+    ctx->copySurface(subTx, fTexture, subset, SkIPoint::Make(0, 0));
+    return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, fAlphaType, subTx,
+                           fBudgeted);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextureDesc& desc,
@@ -154,7 +156,7 @@ static SkImage* new_wrapped_texture_common(GrContext* ctx, const GrBackendTextur
     }
 
     const SkSurface::Budgeted budgeted = SkSurface::kNo_Budgeted;
-    return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, tex, 0, budgeted);
+    return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, tex, budgeted);
 }
 
 SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at,
@@ -186,8 +188,7 @@ SkImage* SkImage::NewFromTextureCopy(GrContext* ctx, const GrBackendTextureDesc&
     }
 
     const SkSurface::Budgeted budgeted = SkSurface::kYes_Budgeted;
-    const int sampleCount = 0;  // todo: make this an explicit parameter to newSurface()?
-    return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, dst, sampleCount,
+    return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, at, dst,
                            budgeted);
 }
 
@@ -267,7 +268,7 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
     drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), rect);
     ctx->flushSurfaceWrites(dst);
     return new SkImage_Gpu(dstDesc.fWidth, dstDesc.fHeight, kNeedNewImageUniqueID,
-                           kOpaque_SkAlphaType, dst, 0, budgeted);
+                           kOpaque_SkAlphaType, dst, budgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
