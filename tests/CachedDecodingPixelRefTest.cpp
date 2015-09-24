@@ -6,7 +6,6 @@
  */
 
 #include "SkBitmap.h"
-#include "SkCachingPixelRef.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
@@ -141,9 +140,6 @@ static void test_three_encodings(skiatest::Reporter* reporter,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static bool install_skCachingPixelRef(SkData* encoded, SkBitmap* dst) {
-    return SkCachingPixelRef::Install(SkImageGenerator::NewFromEncoded(encoded), dst);
-}
 static bool install_skDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
     // Use system-default discardable memory.
     return SkInstallDiscardablePixelRef(encoded, dst);
@@ -151,12 +147,10 @@ static bool install_skDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
- *  This checks to see that a SkCachingPixelRef and a
- *  SkDiscardablePixelRef works as advertised with a
+ *  This checks to see that SkDiscardablePixelRef works as advertised with a
  *  SkDecodingImageGenerator.
  */
 DEF_TEST(DecodingImageGenerator, reporter) {
-    test_three_encodings(reporter, install_skCachingPixelRef);
     test_three_encodings(reporter, install_skDiscardablePixelRef);
 }
 
@@ -228,27 +222,14 @@ static void check_test_image_generator_bitmap(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, 0 == errors);
 }
 
-enum PixelRefType {
-    kSkCaching_PixelRefType,
-    kSkDiscardable_PixelRefType,
-    kLast_PixelRefType = kSkDiscardable_PixelRefType
-};
-
 static void check_pixelref(TestImageGenerator::TestType type,
                            skiatest::Reporter* reporter,
-                           PixelRefType pixelRefType,
                            SkDiscardableMemory::Factory* factory) {
-    SkASSERT((pixelRefType >= 0) && (pixelRefType <= kLast_PixelRefType));
     SkAutoTDelete<SkImageGenerator> gen(new TestImageGenerator(type, reporter));
     REPORTER_ASSERT(reporter, gen.get() != nullptr);
     SkBitmap lazy;
-    bool success;
-    if (kSkCaching_PixelRefType == pixelRefType) {
-        // Ignore factory; use global cache.
-        success = SkCachingPixelRef::Install(gen.detach(), &lazy);
-    } else {
-        success = SkInstallDiscardablePixelRef(gen.detach(), nullptr, &lazy, factory);
-    }
+    bool success = SkInstallDiscardablePixelRef(gen.detach(), nullptr, &lazy, factory);
+
     REPORTER_ASSERT(reporter, success);
     if (TestImageGenerator::kSucceedGetPixels_TestType == type) {
         check_test_image_generator_bitmap(reporter, lazy);
@@ -258,53 +239,29 @@ static void check_pixelref(TestImageGenerator::TestType type,
     }
 }
 
-// new/lock/delete is an odd pattern for a pixelref, but it needs to not assert
-static void test_newlockdelete(skiatest::Reporter* reporter) {
-#ifdef SK_SUPPORT_LEGACY_UNBALANCED_PIXELREF_LOCKCOUNT
-    SkBitmap bm;
-    SkImageGenerator* ig = new TestImageGenerator(
-        TestImageGenerator::kSucceedGetPixels_TestType, reporter);
-    SkInstallDiscardablePixelRef(ig, &bm);
-    bm.pixelRef()->lockPixels();
-#endif
-}
-
 /**
  *  This tests the basic functionality of SkDiscardablePixelRef with a
  *  basic SkImageGenerator implementation and several
  *  SkDiscardableMemory::Factory choices.
  */
 DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
-    test_newlockdelete(reporter);
-
-    check_pixelref(TestImageGenerator::kFailGetPixels_TestType,
-                   reporter, kSkCaching_PixelRefType, nullptr);
-    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
-                   reporter, kSkCaching_PixelRefType, nullptr);
-
-    check_pixelref(TestImageGenerator::kFailGetPixels_TestType,
-                   reporter, kSkDiscardable_PixelRefType, nullptr);
-    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
-                   reporter, kSkDiscardable_PixelRefType, nullptr);
+    check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, nullptr);
+    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, nullptr);
 
     SkAutoTUnref<SkDiscardableMemoryPool> pool(
         SkDiscardableMemoryPool::Create(1, nullptr));
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
-    check_pixelref(TestImageGenerator::kFailGetPixels_TestType,
-                   reporter, kSkDiscardable_PixelRefType, pool);
+    check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, pool);
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
-    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
-                   reporter, kSkDiscardable_PixelRefType, pool);
+    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, pool);
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 
     SkDiscardableMemoryPool* globalPool = SkGetGlobalDiscardableMemoryPool();
     // Only acts differently from nullptr on a platform that has a
     // default discardable memory implementation that differs from the
     // global DM pool.
-    check_pixelref(TestImageGenerator::kFailGetPixels_TestType,
-                   reporter, kSkDiscardable_PixelRefType, globalPool);
-    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
-                   reporter, kSkDiscardable_PixelRefType, globalPool);
+    check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, globalPool);
+    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, globalPool);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
