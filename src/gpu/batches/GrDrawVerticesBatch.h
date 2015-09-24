@@ -23,7 +23,7 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     struct Geometry {
-        GrColor fColor;
+        GrColor fColor; // Only used if there are no per-vertex colors
         SkTDArray<SkPoint> fPositions;
         SkTDArray<uint16_t> fIndices;
         SkTDArray<GrColor> fColors;
@@ -58,40 +58,22 @@ private:
                         const uint16_t* indices, int indexCount,
                         const GrColor* colors, const SkPoint* localCoords, const SkRect& bounds);
 
-    GrPrimitiveType primitiveType() const { return fBatch.fPrimitiveType; }
+    GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool batchablePrimitiveType() const {
-        return kTriangles_GrPrimitiveType == fBatch.fPrimitiveType ||
-               kLines_GrPrimitiveType == fBatch.fPrimitiveType ||
-               kPoints_GrPrimitiveType == fBatch.fPrimitiveType;
+        return kTriangles_GrPrimitiveType == fPrimitiveType ||
+               kLines_GrPrimitiveType == fPrimitiveType ||
+               kPoints_GrPrimitiveType == fPrimitiveType;
     }
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool colorIgnored() const { return fBatch.fColorIgnored; }
-    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
-    bool hasColors() const { return fBatch.fHasColors; }
-    bool hasIndices() const { return fBatch.fHasIndices; }
-    bool hasLocalCoords() const { return fBatch.fHasLocalCoords; }
-    int vertexCount() const { return fBatch.fVertexCount; }
-    int indexCount() const { return fBatch.fIndexCount; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
 
-    struct BatchTracker {
-        GrPrimitiveType fPrimitiveType;
-        SkMatrix fViewMatrix;
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        bool fHasColors;
-        bool fHasIndices;
-        bool fHasLocalCoords;
-        int fVertexCount;
-        int fIndexCount;
-    };
+    GrPrimitiveType     fPrimitiveType;
+    SkMatrix            fViewMatrix;
+    bool                fVariableColor;
+    int                 fVertexCount;
+    int                 fIndexCount;
+    bool                fCoverageIgnored; // comes from initBatchTracker.
 
-    BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
