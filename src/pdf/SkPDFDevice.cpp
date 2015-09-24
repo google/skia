@@ -9,6 +9,7 @@
 
 #include "SkAnnotation.h"
 #include "SkColor.h"
+#include "SkColorFilter.h"
 #include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDraw.h"
@@ -2202,9 +2203,25 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
     }
 
     SkBitmap subsetBitmap;
-    // Should extractSubset be done by the SkPDFDevice?
     if (!bitmap->extractSubset(&subsetBitmap, subset)) {
         return;
+    }
+    if (SkColorFilter* colorFilter = paint.getColorFilter()) {
+        // TODO(http://skbug.com/4378): implement colorfilter on other
+        // draw calls.  This code here works for all drawBitmap*()
+        // calls amd ImageFilters (which rasterize a layer on this
+        // backend).  Fortuanely, this seems to be how Chromium
+        // impements most color-filters.
+        SkBitmap tmp;
+        if (subsetBitmap.copyTo(&tmp, kN32_SkColorType)) {
+            SkAutoLockPixels autoLockPixelsTmp(tmp);
+            for (int y = 0; y < tmp.height();  ++y) {
+                SkPMColor* pixels = tmp.getAddr32(0, y);
+                colorFilter->filterSpan(pixels, tmp.width(), pixels);
+            }
+            tmp.setImmutable();
+            subsetBitmap = tmp;
+        }
     }
     SkAutoTUnref<SkPDFObject> image(SkPDFBitmap::Create(fCanon, subsetBitmap));
     if (!image) {

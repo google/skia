@@ -117,3 +117,15 @@ DEF_SIMPLE_GM(colorfilterimagefilter, canvas, 400, 100){
             canvas->translate(FILTER_WIDTH + MARGIN, 0);
         }
 }
+
+DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
+    SkAutoCanvasRestore autoCanvasRestore(canvas, false);
+    SkColorMatrix cm;
+    cm.setSaturation(0.0f);
+    SkAutoTUnref<SkColorFilter> cf(SkColorMatrixFilter::Create(cm));
+    SkAutoTUnref<SkImageFilter> imf(SkColorFilterImageFilter::Create(cf));
+    SkPaint p;
+    p.setImageFilter(imf);
+    canvas->saveLayer(NULL, &p);
+    canvas->clear(SK_ColorRED);
+}
