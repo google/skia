@@ -10,8 +10,13 @@
 #include "SkBlurMaskFilter.h"
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
-#include "SkShader.h"
 #include "SkImage.h"
+#include "SkShader.h"
+#include "SkSurface.h"
+
+#if SK_SUPPORT_GPU
+#include "SkGr.h"
+#endif
 
 static SkBitmap make_chessbm(int w, int h) {
     SkBitmap bm;
@@ -27,17 +32,18 @@ static SkBitmap make_chessbm(int w, int h) {
     return bm;
 }
 
-static SkImage* image_from_bitmap(const SkBitmap& bm) {
-    SkBitmap b(bm);
-    b.lockPixels();
-    return SkImage::NewRasterCopy(b.info(), b.getPixels(), b.rowBytes());
-}
+static SkImage* makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+    
+    SkAutoTUnref<SkSurface> surface(origCanvas->newSurface(info));
+    if (nullptr == surface) {
+        // picture canvas will return null, so fall-back to raster
+        surface.reset(SkSurface::NewRaster(info));
+    }
 
-static SkImage* makebm(SkBitmap* bm, int w, int h) {
-    bm->allocN32Pixels(w, h);
-    bm->eraseColor(SK_ColorTRANSPARENT);
+    SkCanvas* canvas = surface->getCanvas();
 
-    SkCanvas    canvas(*bm);
+    canvas->clear(SK_ColorTRANSPARENT);
 
     SkScalar wScalar = SkIntToScalar(w);
     SkScalar hScalar = SkIntToScalar(h);
@@ -69,14 +75,30 @@ static SkImage* makebm(SkBitmap* bm, int w, int h) {
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
                         0, &mat))->unref();
-        canvas.drawRect(rect, paint);
+        canvas->drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.postScale(SK_Scalar1 / 4, SK_Scalar1 / 4);
     }
-    // Let backends know we won't change this, so they don't have to deep copy it defensively.
-    bm->setImmutable();
 
-    return image_from_bitmap(*bm);
+    SkImage* image = surface->newImageSnapshot();
+
+    SkBitmap tempBM;
+
+#if SK_SUPPORT_GPU
+    if (image->getTexture()) {
+        GrWrapTextureInBitmap(image->getTexture(),
+                              image->width(), image->height(), image->isOpaque(), &tempBM);
+    } else 
+#endif
+    {
+        image->asLegacyBitmap(&tempBM, SkImage::kRO_LegacyBitmapMode);
+    }
+
+    // Let backends know we won't change this, so they don't have to deep copy it defensively.
+    tempBM.setImmutable();
+    *resultBM = tempBM;
+
+    return image;
 }
 
 static void canvasproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect& srcR,
@@ -113,11 +135,15 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(gSize, gSize); }
 
-    void onOnceBeforeDraw() override {
-        fImage.reset(makebm(&fLargeBitmap, gBmpSize, gBmpSize));
+    void setupImage(SkCanvas* canvas) {
+        fImage.reset(makebm(canvas, &fLargeBitmap, gBmpSize, gBmpSize));
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (!fImage) {
+            this->setupImage(canvas);
+        }
+
         SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
         static const int kMaxSrcRectSize = 1 << (SkNextLog2(gBmpSize) + 2);
 
