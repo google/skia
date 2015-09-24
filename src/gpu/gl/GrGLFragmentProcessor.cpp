@@ -19,9 +19,24 @@ void GrGLFragmentProcessor::setData(const GrGLProgramDataManager& pdman,
     }
 }
 
+void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor, EmitArgs& args) {
+    this->internalEmitChild(childIndex, inputColor, args.fOutputColor, args);
+}
+
 void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
-                                      const char* outputColor, EmitArgs& args) {
+                                      SkString* outputColor, EmitArgs& args) {
+
+    SkASSERT(outputColor);
     GrGLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
+    outputColor->append(fb->getMangleString());
+    fb->codeAppendf("vec4 %s;", outputColor->c_str());
+    this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
+}
+
+void GrGLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
+                                               const char* outputColor, EmitArgs& args) {
+    GrGLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
+
     fb->onBeforeChildProcEmitCode();  // call first so mangleString is updated
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);

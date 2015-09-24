@@ -60,15 +60,15 @@ public:
 
     void emitCode(EmitArgs& args) override {
         GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-        fsBuilder->codeAppend("vec4 _dstColor;");
-        this->emitChild(0, nullptr, "_dstColor", args);
+        SkString dstColor("dstColor");
+        this->emitChild(0, nullptr, &dstColor, args);
 
         fKUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                           kVec4f_GrSLType, kDefault_GrSLPrecision,
                                           "k");
         const char* kUni = args.fBuilder->getUniformCStr(fKUni);
 
-        add_arithmetic_code(fsBuilder, args.fInputColor, "_dstColor", args.fOutputColor, kUni,
+        add_arithmetic_code(fsBuilder, args.fInputColor, dstColor.c_str(), args.fOutputColor, kUni,
                             fEnforcePMColor);
     }
 

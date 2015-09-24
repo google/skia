@@ -45,7 +45,7 @@ public:
         @param samplers     Contains one entry for each GrTextureAccess of the GrProcessor. These
                             can be passed to the builder to emit texture reads in the generated
                             code.
-        */
+     */
 
     struct EmitArgs {
         EmitArgs(GrGLFPBuilder* builder,
@@ -81,11 +81,18 @@ public:
     }
 
     /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
-     * emitChild will automatically extract the coords and samplers of that child and pass them
-     * on to the child's emitCode().  Also, any uniforms or functions emitted by the child will
-     * have their names mangled to prevent redefinitions.
+     *  emitChild will automatically extract the coords and samplers of that child and pass them
+     *  on to the child's emitCode(). Also, any uniforms or functions emitted by the child will
+     *  have their names mangled to prevent redefinitions. The output color name is also mangled
+     *  therefore in an in/out param. It will be declared in mangled form by emitChild(). It is
+     *  legal to pass nullptr as inputColor, since all fragment processors are required to work
+     *  without an input color.
      */
-    void emitChild(int childIndex, const char* inputColor, const char* outputColor, EmitArgs& args);
+    void emitChild(int childIndex, const char* inputColor, SkString* outputColor,
+                   EmitArgs& parentArgs);
+
+    /** Variation that uses the parent's output color variable to hold the child's output.*/
+    void emitChild(int childIndex, const char* inputColor, EmitArgs& parentArgs);
 
 protected:
     /** A GrGLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
@@ -97,6 +104,8 @@ protected:
     virtual void onSetData(const GrGLProgramDataManager&, const GrProcessor&) {}
 
 private:
+    void internalEmitChild(int, const char*, const char*, EmitArgs&);
+
     SkTArray<GrGLFragmentProcessor*, true> fChildProcessors;
 
     friend class GrFragmentProcessor;
