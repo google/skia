@@ -14,7 +14,6 @@
 #include "SkBlurImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkColorFilterImageFilter.h"
-#include "SkBitmapSource.h"
 #include "SkMergeImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkTestImageFilters.h"

@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkColorCubeFilter.h"
-#include "SkBitmapSource.h"
 #include "SkData.h"
 #include "SkGradientShader.h"
 

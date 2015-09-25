@@ -6,13 +6,14 @@
  */
 
 #include "gm.h"
-#include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkDropShadowImageFilter.h"
+#include "SkImageSource.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
+#include "SkSurface.h"
 
 namespace skiagm {
 
@@ -251,24 +252,24 @@ protected:
         create_paints(pif, &pifPaints);
 
         //-----------
-        // Paints with a BitmapSource as a source
-        SkBitmap bm;
+        // Paints with a SkImageSource as a source
 
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(10, 10));
         {
             SkPaint p;
-            bm.allocN32Pixels(10, 10);
-            SkCanvas temp(bm);
-            temp.clear(SK_ColorYELLOW);
+            SkCanvas* temp = surface->getCanvas();
+            temp->clear(SK_ColorYELLOW);
             p.setColor(SK_ColorBLUE);
-            temp.drawRect(SkRect::MakeLTRB(5, 5, 10, 10), p);
+            temp->drawRect(SkRect::MakeLTRB(5, 5, 10, 10), p);
             p.setColor(SK_ColorGREEN);
-            temp.drawRect(SkRect::MakeLTRB(5, 0, 10, 5), p);
+            temp->drawRect(SkRect::MakeLTRB(5, 0, 10, 5), p);
         }
 
-        SkAutoTUnref<SkBitmapSource> bms(SkBitmapSource::Create(bm));
+        SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+        SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(image));
 
         SkTArray<SkPaint> bmsPaints;
-        create_paints(bms, &bmsPaints);
+        create_paints(imageSource, &bmsPaints);
 
         //-----------
         SkASSERT(paints.count() == kNumVertTiles);

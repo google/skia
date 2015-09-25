@@ -17,7 +17,7 @@
 #include "Sk2DPathEffect.h"
 #include "SkArithmeticMode.h"
 #include "SkArcToPathEffect.h"
-#include "SkBitmapSource.h"
+#include "SkBitmapSourceDeserializer.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
@@ -85,7 +85,7 @@ public:
     static void Init() {
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArcToPathEffect)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)
-        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapSource)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapSourceDeserializer)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurDrawLooper)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurImageFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorCubeFilter)

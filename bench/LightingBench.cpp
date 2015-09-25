@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkBitmapSource.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkLightingImageFilter.h"

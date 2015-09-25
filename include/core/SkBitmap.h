@@ -754,7 +754,6 @@ private:
     static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
     static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 
-    friend class SkBitmapSource;    // unflatten
     friend class SkReadBuffer;      // unflatten, rawpixels
     friend class SkWriteBuffer;     // rawpixels
     friend struct SkBitmapProcState;

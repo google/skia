@@ -6,14 +6,16 @@
  */
 
 #include "sk_tool_utils.h"
-#include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkColor.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkGradientShader.h"
+#include "SkImage.h"
+#include "SkImageSource.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkScalar.h"
+#include "SkSurface.h"
 #include "gm.h"
 
 namespace skiagm {
@@ -21,6 +23,29 @@ namespace skiagm {
 // This GM draws image filters with a CTM containing shearing / rotation.
 // It checks that the scale portion of the CTM is correctly extracted
 // and applied to the image inputs separately from the non-scale portion.
+
+static SkImage* make_gradient_circle(int width, int height) {
+    SkScalar x = SkIntToScalar(width / 2);
+    SkScalar y = SkIntToScalar(height / 2);
+    SkScalar radius = SkMinScalar(x, y) * 0.8f;
+
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(width, height));
+    SkCanvas* canvas = surface->getCanvas();
+
+    canvas->clear(0x00000000);
+    SkColor colors[2];
+    colors[0] = SK_ColorWHITE;
+    colors[1] = SK_ColorBLACK;
+    SkAutoTUnref<SkShader> shader(
+        SkGradientShader::CreateRadial(SkPoint::Make(x, y), radius, colors, nullptr, 2,
+                                       SkShader::kClamp_TileMode)
+    );
+    SkPaint paint;
+    paint.setShader(shader);
+    canvas->drawCircle(x, y, radius, paint);
+
+    return surface->newImageSnapshot();
+}
 
 class ImageFiltersTransformedGM : public GM {
 public:
@@ -34,34 +59,15 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(420, 240); }
 
-    void makeGradientCircle(int width, int height) {
-        SkScalar x = SkIntToScalar(width / 2);
-        SkScalar y = SkIntToScalar(height / 2);
-        SkScalar radius = SkMinScalar(x, y) * 0.8f;
-        fGradientCircle.allocN32Pixels(width, height);
-        SkCanvas canvas(fGradientCircle);
-        canvas.clear(0x00000000);
-        SkColor colors[2];
-        colors[0] = SK_ColorWHITE;
-        colors[1] = SK_ColorBLACK;
-        SkAutoTUnref<SkShader> shader(
-            SkGradientShader::CreateRadial(SkPoint::Make(x, y), radius, colors, nullptr, 2,
-                                           SkShader::kClamp_TileMode)
-        );
-        SkPaint paint;
-        paint.setShader(shader);
-        canvas.drawCircle(x, y, radius, paint);
-    }
-
     void onOnceBeforeDraw() override {
-        fCheckerboard = sk_tool_utils::create_checkerboard_bitmap(64, 64,
-                                                                  0xFFA0A0A0, 0xFF404040, 8);
-        this->makeGradientCircle(64, 64);
+        fCheckerboard.reset(SkImage::NewFromBitmap(
+            sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8)));
+        fGradientCircle.reset(make_gradient_circle(64, 64));
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkAutoTUnref<SkImageFilter> gradient(SkBitmapSource::Create(fGradientCircle));
-        SkAutoTUnref<SkImageFilter> checkerboard(SkBitmapSource::Create(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> gradient(SkImageSource::Create(fGradientCircle));
+        SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard));
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(12, 0),
             SkDropShadowImageFilter::Create(0, 15, 8, 0, SK_ColorGREEN,
@@ -110,8 +116,8 @@ protected:
     }
 
 private:
-    SkBitmap fCheckerboard;
-    SkBitmap fGradientCircle;
+    SkAutoTUnref<SkImage> fCheckerboard;
+    SkAutoTUnref<SkImage> fGradientCircle;
     typedef GM INHERITED;
 };
 
