@@ -887,7 +887,7 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     SkAutoDataUnref data(wStream.copyToData());
 
     SkBitmap bm;
-    bool installSuccess = SkInstallDiscardablePixelRef(data, &bm);
+    bool installSuccess = SkDEPRECATED_InstallDiscardablePixelRef(data, &bm);
     REPORTER_ASSERT(reporter, installSuccess);
 
     // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.

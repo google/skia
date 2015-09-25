@@ -142,7 +142,7 @@ static void test_three_encodings(skiatest::Reporter* reporter,
 ////////////////////////////////////////////////////////////////////////////////
 static bool install_skDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
     // Use system-default discardable memory.
-    return SkInstallDiscardablePixelRef(encoded, dst);
+    return SkDEPRECATED_InstallDiscardablePixelRef(encoded, dst);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -228,7 +228,7 @@ static void check_pixelref(TestImageGenerator::TestType type,
     SkAutoTDelete<SkImageGenerator> gen(new TestImageGenerator(type, reporter));
     REPORTER_ASSERT(reporter, gen.get() != nullptr);
     SkBitmap lazy;
-    bool success = SkInstallDiscardablePixelRef(gen.detach(), nullptr, &lazy, factory);
+    bool success = SkDEPRECATED_InstallDiscardablePixelRef(gen.detach(), nullptr, &lazy, factory);
 
     REPORTER_ASSERT(reporter, success);
     if (TestImageGenerator::kSucceedGetPixels_TestType == type) {

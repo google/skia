@@ -18,7 +18,7 @@
 static SkBitmap bitmap_from_data(SkData* data) {
     SkASSERT(data);
     SkBitmap bm;
-    SkInstallDiscardablePixelRef(data, &bm);
+    SkDEPRECATED_InstallDiscardablePixelRef(data, &bm);
     return bm;
 }
 

@@ -150,7 +150,7 @@ DEF_TEST(KtxReexportPKM, reporter) {
     }
 
     bool installDiscardablePixelRefSuccess =
-        SkInstallDiscardablePixelRef(fileData, &etcBitmap);
+        SkDEPRECATED_InstallDiscardablePixelRef(fileData, &etcBitmap);
     REPORTER_ASSERT(reporter, installDiscardablePixelRefSuccess);
 
     // Write the bitmap out to a KTX file.

@@ -219,7 +219,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkM
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                              SkMatrix::kFill_ScaleToFit);
         SkBitmap bm;
-        if (!SkInstallDiscardablePixelRef(
+        if (!SkDEPRECATED_InstallDiscardablePixelRef(
             SkImageGenerator::NewFromPicture(tileSize, fPicture, &tileMatrix, nullptr), &bm)) {
             return nullptr;
         }

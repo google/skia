@@ -39,13 +39,13 @@ class SkPicture;
  *
  *  @return true iff successful.
  */
-SK_API bool SkInstallDiscardablePixelRef(SkImageGenerator*, SkBitmap* destination);
+SK_API bool SkDEPRECATED_InstallDiscardablePixelRef(SkImageGenerator*, SkBitmap* destination);
 
 /**
  *  On success, installs a discardable pixelref into destination, based on encoded data.
  *  Regardless of success or failure, the caller must still balance their ownership of encoded.
  */
-SK_API bool SkInstallDiscardablePixelRef(SkData* encoded, SkBitmap* destination);
+SK_API bool SkDEPRECATED_InstallDiscardablePixelRef(SkData* encoded, SkBitmap* destination);
 
 /**
  *  An interface that allows a purgeable PixelRef (such as a

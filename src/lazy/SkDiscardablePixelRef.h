@@ -66,7 +66,7 @@ private:
         return fGenerator->getYUV8Planes(sizes, planes, rowBytes, colorSpace);
     }
 
-    friend bool SkInstallDiscardablePixelRef(SkImageGenerator*, const SkIRect*, SkBitmap*,
+    friend bool SkDEPRECATED_InstallDiscardablePixelRef(SkImageGenerator*, const SkIRect*, SkBitmap*,
                                              SkDiscardableMemory::Factory*);
 
     typedef SkPixelRef INHERITED;

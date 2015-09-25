@@ -34,7 +34,7 @@ DEFINE_bool(multiPage, false, "For document-type backends, render the source"
 
 static bool lazy_decode_bitmap(const void* src, size_t size, SkBitmap* dst) {
     SkAutoTUnref<SkData> encoded(SkData::NewWithCopy(src, size));
-    return encoded && SkInstallDiscardablePixelRef(encoded, dst);
+    return encoded && SkDEPRECATED_InstallDiscardablePixelRef(encoded, dst);
 }
 
 namespace DM {
