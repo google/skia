@@ -40,9 +40,6 @@ public:
     SkImage* onNewSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture; }
-    SkShader* onNewShader(SkShader::TileMode,
-                          SkShader::TileMode,
-                          const SkMatrix* localMatrix) const override;
     bool isOpaque() const override;
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY) const override;

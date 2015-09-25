@@ -28,11 +28,6 @@ public:
     SkImage* onNewSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*) const override;
     GrTexture* asTextureRef(GrContext*, SkImageUsageType) const override;
-
-    SkShader* onNewShader(SkShader::TileMode,
-                          SkShader::TileMode,
-                          const SkMatrix* localMatrix) const override;
-
     bool onIsLazyGenerated() const override { return true; }
 
 private:
@@ -42,17 +37,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SkShader* SkImage_Generator::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
-                                         const SkMatrix* localMatrix) const {
-    // TODO: need a native Shader that takes Cacherator (or this image) so we can natively return
-    // textures as output from the shader.
-    SkBitmap bm;
-    if (this->getROPixels(&bm)) {
-        return SkShader::CreateBitmapShader(bm, tileX, tileY, localMatrix);
-    }
-    return nullptr;
-}
 
 bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                      int srcX, int srcY) const {
