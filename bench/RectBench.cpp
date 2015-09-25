@@ -46,9 +46,9 @@ protected:
         c->drawRect(r, p);
     }
 
-    virtual const char* onGetName() { return computeName("rects"); }
+    const char* onGetName() override { return computeName("rects"); }
 
-    virtual void onPreDraw() {
+    void onPreDraw() override {
         SkRandom rand;
         const SkScalar offset = SK_Scalar1/3;
         for (int i = 0; i < N; i++) {
@@ -67,7 +67,7 @@ protected:
         }
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkPaint paint;
         if (fStroke > 0) {
             paint.setStyle(SkPaint::kStroke_Style);
@@ -142,20 +142,20 @@ class OvalBench : public RectBench {
 public:
     OvalBench(int shift, int stroke = 0) : RectBench(shift, stroke) {}
 protected:
-    virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
+    void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) override {
         c->drawOval(r, p);
     }
-    virtual const char* onGetName() { return computeName("ovals"); }
+    const char* onGetName() override { return computeName("ovals"); }
 };
 
 class RRectBench : public RectBench {
 public:
     RRectBench(int shift, int stroke = 0) : RectBench(shift, stroke) {}
 protected:
-    virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
+    void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) override {
         c->drawRoundRect(r, r.width() / 4, r.height() / 4, p);
     }
-    virtual const char* onGetName() { return computeName("rrects"); }
+    const char* onGetName() override { return computeName("rrects"); }
 };
 
 class PointsBench : public RectBench {
@@ -170,7 +170,7 @@ public:
     }
 
 protected:
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkScalar gSizes[] = {
             SkIntToScalar(7), 0
         };
@@ -193,7 +193,7 @@ protected:
             }
         }
     }
-    virtual const char* onGetName() { return fName; }
+    const char* onGetName() override { return fName; }
 };
 
 /*******************************************************************************
@@ -218,7 +218,7 @@ public:
     }
 
 protected:
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    void onDraw(const int loops, SkCanvas* canvas) override {
         SkScalar gSizes[] = {
             SkIntToScalar(13), SkIntToScalar(24)
         };
@@ -269,7 +269,7 @@ protected:
            }
         }
     }
-    virtual const char* onGetName() { return fName; }
+    const char* onGetName() override { return fName; }
 private:
     typedef RectBench INHERITED;
     kMaskType _type;
