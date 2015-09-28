@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDevice.h"
@@ -345,3 +346,18 @@ DEF_GPUTEST(SkImage_Gpu2Cpu, reporter, factory) {
     }
 }
 #endif
+
+// http://skbug.com/4390
+DEF_TEST(ImageFromIndex8Bitmap, r) {
+    SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
+    SkBitmap bm;
+    SkAutoTUnref<SkColorTable> ctable(
+            new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
+    SkImageInfo info =
+            SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
+    bm.allocPixels(info, nullptr, ctable);
+    SkAutoLockPixels autoLockPixels(bm);
+    *bm.getAddr8(0, 0) = 0;
+    SkAutoTUnref<SkImage> img(SkImage::NewFromBitmap(bm));
+    REPORTER_ASSERT(r, img.get() != nullptr);
+}

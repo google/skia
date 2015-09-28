@@ -22,7 +22,7 @@
 
 class SkImage_Raster : public SkImage_Base {
 public:
-    static bool ValidArgs(const Info& info, size_t rowBytes, SkColorTable* ctable,
+    static bool ValidArgs(const Info& info, size_t rowBytes, bool hasColorTable,
                           size_t* minSize) {
         const int maxDimension = SK_MaxS32 >> 2;
 
@@ -44,8 +44,7 @@ public:
         }
 
         const bool needsCT = kIndex_8_SkColorType == info.colorType();
-        const bool hasCT = nullptr != ctable;
-        if (needsCT != hasCT) {
+        if (needsCT != hasColorTable) {
             return false;
         }
 
@@ -227,7 +226,7 @@ SkImage* SkImage_Raster::onNewSubset(const SkIRect& subset) const {
 SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                                 SkColorTable* ctable) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, ctable, &size) || !pixels) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, ctable != nullptr, &size) || !pixels) {
         return nullptr;
     }
 
@@ -239,7 +238,7 @@ SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, siz
 
 SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t rowBytes) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, nullptr, &size) || !data) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, false, &size) || !data) {
         return nullptr;
     }
 
@@ -255,7 +254,7 @@ SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t ro
 SkImage* SkImage::NewFromRaster(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                                 RasterReleaseProc proc, ReleaseContext ctx) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, nullptr, &size) || !pixels) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, false, &size) || !pixels) {
         return nullptr;
     }
 
@@ -267,7 +266,7 @@ SkImage* SkImage::NewFromRaster(const SkImageInfo& info, const void* pixels, siz
 SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
                                 const SkIPoint& pixelRefOrigin, size_t rowBytes,
                                 const SkSurfaceProps* props) {
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, nullptr, nullptr)) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, false, nullptr)) {
         return nullptr;
     }
     return new SkImage_Raster(info, pr, pixelRefOrigin, rowBytes, props);
@@ -277,7 +276,13 @@ SkImage* SkNewImageFromRasterBitmap(const SkBitmap& bm, const SkSurfaceProps* pr
                                     ForceCopyMode forceCopy) {
     SkASSERT(nullptr == bm.getTexture());
 
-    if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), nullptr, nullptr)) {
+    bool hasColorTable = false;
+    if (kIndex_8_SkColorType == bm.colorType()) {
+        SkAutoLockPixels autoLockPixels(bm);
+        hasColorTable = bm.getColorTable() != nullptr;
+    }
+
+    if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), hasColorTable, nullptr)) {
         return nullptr;
     }
 
