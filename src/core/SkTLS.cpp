@@ -12,7 +12,7 @@
 
 
 #ifdef SK_TRACE_TLS_LIFETIME
-    #include "SkAtomics.h"
+    #include "../private/SkAtomics.h"
     static int32_t gTLSRecCount;
 #endif
 

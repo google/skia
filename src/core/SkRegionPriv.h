@@ -11,7 +11,7 @@
 #define SkRegionPriv_DEFINED
 
 #include "SkRegion.h"
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 
 #define assert_sentinel(value, isSentinel) \
     SkASSERT(((value) == SkRegion::kRunTypeSentinel) == isSentinel)

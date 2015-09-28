@@ -9,7 +9,7 @@
 #define SkTaskGroup_DEFINED
 
 #include "SkTypes.h"
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkTemplates.h"
 
 struct SkRunnable;

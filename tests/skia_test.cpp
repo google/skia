@@ -8,7 +8,7 @@
 #include "CrashHandler.h"
 #include "OverwriteLine.h"
 #include "Resources.h"
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"

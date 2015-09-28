@@ -7,7 +7,7 @@
  */
 
 #include "SkAAClip.h"
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkBlitter.h"
 #include "SkColorPriv.h"
 #include "SkPath.h"

@@ -9,7 +9,7 @@
 #define SkSemaphore_DEFINED
 
 #include "SkTypes.h"
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "../private/SkOncePtr.h"
 
 struct SkBaseSemaphore {

@@ -10,7 +10,7 @@
 #ifndef SkSpinlock_DEFINED
 #define SkSpinlock_DEFINED
 
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 
 #define SK_DECLARE_STATIC_SPINLOCK(name) namespace {} static SkPODSpinlock name
 

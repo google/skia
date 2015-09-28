@@ -8,7 +8,7 @@
 #ifndef SkOncePtr_DEFINED
 #define SkOncePtr_DEFINED
 
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkUniquePtr.h"
 
 template <typename T> class SkBaseOncePtr;

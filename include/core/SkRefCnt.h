@@ -8,7 +8,7 @@
 #ifndef SkRefCnt_DEFINED
 #define SkRefCnt_DEFINED
 
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkTypes.h"
 
 /** \class SkRefCntBase

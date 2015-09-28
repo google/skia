@@ -9,7 +9,7 @@
 
 
 #include "SkTypefaceCache.h"
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkMutex.h"
 
 #define TYPEFACE_CACHE_LIMIT    1024

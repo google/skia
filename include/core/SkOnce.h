@@ -27,7 +27,7 @@
 // No matter how many times you call EnsureRegistered(), register_my_stuff will be called just once.
 // OnceTest.cpp also should serve as a few other simple examples.
 
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkSpinlock.h"
 
 // This must be used in a global scope, not in function scope or as a class member.

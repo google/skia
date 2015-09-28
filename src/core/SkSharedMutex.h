@@ -8,7 +8,7 @@
 #ifndef SkSharedLock_DEFINED
 #define SkSharedLock_DEFINED
 
-#include "SkAtomics.h"
+#include "../private/SkAtomics.h"
 #include "SkSemaphore.h"
 #include "SkTypes.h"
 
