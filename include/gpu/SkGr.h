@@ -54,7 +54,7 @@ static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info) {
 
 bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
 
-static inline GrColor SkColor2GrColor(SkColor c) {
+static inline GrColor SkColorToPremulGrColor(SkColor c) {
     SkPMColor pm = SkPreMultiplyColor(c);
     unsigned r = SkGetPackedR32(pm);
     unsigned g = SkGetPackedG32(pm);
@@ -63,7 +63,23 @@ static inline GrColor SkColor2GrColor(SkColor c) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
-static inline GrColor SkColor2GrColorJustAlpha(SkColor c) {
+static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
+    unsigned r = SkColorGetR(c);
+    unsigned g = SkColorGetG(c);
+    unsigned b = SkColorGetB(c);
+    unsigned a = SkColorGetA(c);
+    return GrColorPackRGBA(r, g, b, a);
+}
+
+static inline GrColor SkColorToOpaqueGrColor(SkColor c) {
+    unsigned r = SkColorGetR(c);
+    unsigned g = SkColorGetG(c);
+    unsigned b = SkColorGetB(c);
+    return GrColorPackRGBA(r, g, b, 0xFF);
+}
+
+/** Replicates the SkColor's alpha to all four channels of the GrColor. */
+static inline GrColor SkColorAlphaToGrColor(SkColor c) {
     U8CPU a = SkColorGetA(c);
     return GrColorPackRGBA(a, a, a, a);
 }
@@ -107,23 +123,6 @@ GrTexture* GrCreateTextureForPixels(GrContext*, const GrUniqueKey& optionalKey, 
                                     const void* pixels, size_t rowBytesOrZero);
 
 ////////////////////////////////////////////////////////////////////////////////
-
-// Converts a SkPaint to a GrPaint, ignoring the SkPaint's shader.
-// Sets the color of GrPaint to the value of the parameter paintColor
-// Callers may subsequently modify the GrPaint. Setting constantColor indicates
-// that the final paint will draw the same color at every pixel. This allows
-// an optimization where the color filter can be applied to the SkPaint's
-// color once while converting to GrPaint and then ignored. TODO: Remove this
-// bool and use the invariant info to automatically apply the color filter.
-bool SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, GrColor paintColor,
-                             bool constantColor, GrPaint* grPaint);
-
-// This function is similar to skPaint2GrPaintNoShader but also converts
-// skPaint's shader to a GrFragmentProcessor if possible.
-// constantColor has the same meaning as in skPaint2GrPaintNoShader.
-bool SkPaint2GrPaint(GrContext* context, const SkPaint& skPaint, const SkMatrix& viewM,
-                     bool constantColor, GrPaint* grPaint);
-
 
 SkImageInfo GrMakeInfoFromTexture(GrTexture* tex, int w, int h, bool isOpaque);
 

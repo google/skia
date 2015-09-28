@@ -400,7 +400,7 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
     SkAutoTUnref<const GrFragmentProcessor> inner (
         new LightingFP(pdm, diffuseTexture, normalTexture, diffM, normM, diffParams, normParams,
                        fLights, fInvNormRotation));
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 #endif

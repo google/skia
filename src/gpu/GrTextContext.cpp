@@ -16,6 +16,7 @@
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
+#include "SkGrPriv.h"
 #include "SkTextBlob.h"
 #include "SkTextMapStateProc.h"
 #include "SkTextToPathIter.h"
@@ -130,7 +131,7 @@ void GrTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
         runPaint.setFlags(FilterTextFlags(fSurfaceProps, runPaint));
 
         GrPaint grPaint;
-        if (!SkPaint2GrPaint(fContext, runPaint, viewMatrix, true, &grPaint)) {
+        if (!SkPaintToGrPaint(fContext, runPaint, viewMatrix, &grPaint)) {
             return;
         }
 

@@ -29,7 +29,7 @@
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkPath.h"
 #include "SkRTConf.h"
 #include "SkStrokeRec.h"
@@ -389,7 +389,7 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
     // Though for the time being runs in the textblob can override the paint, they only touch font
     // info.
     GrPaint grPaint;
-    if (!SkPaint2GrPaint(fContext, skPaint, viewMatrix, true, &grPaint)) {
+    if (!SkPaintToGrPaint(fContext, skPaint, viewMatrix, &grPaint)) {
         return;
     }
 
@@ -2265,7 +2265,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     skPaint.setSubpixelText(random->nextBool());
 
     GrPaint grPaint;
-    if (!SkPaint2GrPaint(context, skPaint, viewMatrix, true, &grPaint)) {
+    if (!SkPaintToGrPaint(context, skPaint, viewMatrix, &grPaint)) {
         SkFAIL("couldn't convert paint\n");
     }
 

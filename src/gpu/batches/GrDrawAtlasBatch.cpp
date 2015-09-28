@@ -13,12 +13,21 @@
 #include "SkRSXform.h"
 
 void GrDrawAtlasBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
+    SkASSERT(fGeoData.count() == 1);
     // Handle any color overrides
     if (!opt.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    opt.getOverrideColorIfSet(&fGeoData[0].fColor);
-    
+    if (opt.getOverrideColorIfSet(&fGeoData[0].fColor) && fHasColors) {
+        size_t vertexStride = sizeof(SkPoint) + sizeof(SkPoint) +
+                             (this->hasColors() ? sizeof(GrColor) : 0);
+        uint8_t* currVertex = fGeoData[0].fVerts.begin();
+        for (int i = 0; i < 4*fQuadCount; ++i) {
+            *(reinterpret_cast<GrColor*>(currVertex + sizeof(SkPoint))) = fGeoData[0].fColor;
+            currVertex += vertexStride;
+        }
+    }
+
     // setup batch properties
     fColorIgnored = !opt.readsColor();
     fColor = fGeoData[0].fColor;
@@ -117,7 +126,7 @@ GrDrawAtlasBatch::GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& vie
             if (paintAlpha != 255) {
                 color = SkColorSetA(color, SkMulDiv255Round(SkColorGetA(color), paintAlpha));
             }
-            GrColor grColor = SkColor2GrColor(color);
+            GrColor grColor = SkColorToPremulGrColor(color);
             
             *(reinterpret_cast<GrColor*>(currVertex+sizeof(SkPoint))) = grColor;
             *(reinterpret_cast<GrColor*>(currVertex+vertexStride+sizeof(SkPoint))) = grColor;

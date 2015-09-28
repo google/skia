@@ -62,8 +62,8 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
 
     const SkColor c1 = SkColorSetARGB(200, 200, 200, 200);
     const SkColor c2 = SkColorSetARGB(60, 60, 60, 60);
-    const GrColor gr_c1 = SkColor2GrColor(c1);
-    const GrColor gr_c2 = SkColor2GrColor(c2);
+    const GrColor gr_c1 = SkColorToPremulGrColor(c1);
+    const GrColor gr_c2 = SkColorToPremulGrColor(c2);
 
     const GrColor gr_black = GrColorPackA4(0);
     const GrColor gr_white = GrColorPackA4(255);

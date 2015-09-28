@@ -31,7 +31,21 @@ public:
     *  does so by returning a parent FP that multiplies the passed in FPs output by the parent's
     *  input alpha. The passed in FP will not receive an input color.
     */
-    static const GrFragmentProcessor* MulOuputByInputAlpha(const GrFragmentProcessor*);
+    static const GrFragmentProcessor* MulOutputByInputAlpha(const GrFragmentProcessor*);
+
+    /**
+     *  Similar to the above but it modulates the output r,g,b of the child processor by the input
+     *  rgb and then multiplies all the components by the input alpha. This effectively modulates
+     *  the child processor's premul color by a unpremul'ed input and produces a premul output
+     */
+    static const GrFragmentProcessor* MulOutputByInputUnpremulColor(const GrFragmentProcessor*);
+
+    /**
+     * Returns a parent fragment processor that adopts the passed fragment processor as a child. The
+     * parent will ignore its input color and instead feed the passed in color as input to the
+     * child.
+     */
+    static const GrFragmentProcessor* OverrideInput(const GrFragmentProcessor*, GrColor);
 
     GrFragmentProcessor()
         : INHERITED()

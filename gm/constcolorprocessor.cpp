@@ -15,7 +15,7 @@
 #include "GrContext.h"
 #include "GrTest.h"
 #include "effects/GrConstColorProcessor.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkGradientShader.h"
 
 namespace skiagm {
@@ -104,7 +104,7 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    SkAssertResult(SkPaint2GrPaint(context, skPaint, viewMatrix, false, &grPaint));
+                    SkAssertResult(SkPaintToGrPaint(context, skPaint, viewMatrix, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
                     GrColor color = kColors[procColor];

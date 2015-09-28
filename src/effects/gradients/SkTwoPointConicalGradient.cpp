@@ -371,7 +371,7 @@ const GrFragmentProcessor* SkTwoPointConicalGradient::asFragmentProcessor(
     SkAutoTUnref<const GrFragmentProcessor> inner(
         Gr2PtConicalGradientEffect::Create(context, procDataManager, *this, fTileMode,
                                             localMatrix));
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 #endif

@@ -9,6 +9,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "gl/GrGLFragmentProcessor.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 GrFragmentProcessor::~GrFragmentProcessor() {
@@ -122,8 +123,159 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
     return true;
 }
 
-const GrFragmentProcessor* GrFragmentProcessor::MulOuputByInputAlpha(
+const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputAlpha(
     const GrFragmentProcessor* fp) {
+    if (!fp) {
+        return nullptr;
+    }
     return GrXfermodeFragmentProcessor::CreateFromDstProcessor(fp, SkXfermode::kDstIn_Mode);
 }
 
+const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
+    const GrFragmentProcessor* fp) {
+
+    class PremulFragmentProcessor : public GrFragmentProcessor {
+    public:
+        PremulFragmentProcessor(const GrFragmentProcessor* processor) {
+            this->initClassID<PremulFragmentProcessor>();
+            this->registerChildProcessor(processor);
+        }
+
+        const char* name() const override { return "Premultiply"; }
+
+    private:
+        GrGLFragmentProcessor* onCreateGLInstance() const override {
+            class GLFP : public GrGLFragmentProcessor {
+            public:
+                GLFP() {}
+
+                void emitCode(EmitArgs& args) override {
+                    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+                    this->emitChild(0, nullptr, args);
+                    fsBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
+                                                                args.fInputColor);
+                    fsBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
+                }
+            };
+            return new GLFP;
+        }
+
+        void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+
+        bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
+            // TODO: Add a helper to GrInvariantOutput that handles multiplying by color with flags?
+            if (!(inout->validFlags() & kA_GrColorComponentFlag)) {
+                inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+                return;
+            }
+
+            GrInvariantOutput childOutput(GrColor_WHITE, kRGBA_GrColorComponentFlags, false);
+            this->childProcessor(0).computeInvariantOutput(&childOutput);
+
+            if (0 == GrColorUnpackA(inout->color()) || 0 == GrColorUnpackA(childOutput.color())) {
+                inout->mulByKnownFourComponents(0x0);
+                return;
+            }
+            GrColorComponentFlags commonFlags = childOutput.validFlags() & inout->validFlags();
+            GrColor c0 = GrPremulColor(inout->color());
+            GrColor c1 = childOutput.color();
+            GrColor color = 0x0;
+            if (commonFlags & kR_GrColorComponentFlag) {
+                color |= SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1)) <<
+                    GrColor_SHIFT_R;
+            }
+            if (commonFlags & kG_GrColorComponentFlag) {
+                color |= SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1)) <<
+                    GrColor_SHIFT_G;
+            }
+            if (commonFlags & kB_GrColorComponentFlag) {
+                color |= SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1)) <<
+                    GrColor_SHIFT_B;
+            }
+            inout->setToOther(commonFlags, color, GrInvariantOutput::kWill_ReadInput);
+        }
+    };
+    if (!fp) {
+        return nullptr;
+    }
+    return new PremulFragmentProcessor(fp);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentProcessor* fp,
+                                                              GrColor color) {
+    class ReplaceInputFragmentProcessor : public GrFragmentProcessor {
+    public:
+        ReplaceInputFragmentProcessor(const GrFragmentProcessor* child, GrColor color)
+            : fColor(color) {
+            this->initClassID<ReplaceInputFragmentProcessor>();
+            this->registerChildProcessor(child);
+        }
+
+        const char* name() const override { return "Replace Color"; }
+
+        GrGLFragmentProcessor* onCreateGLInstance() const override {
+            class GLFP : public GrGLFragmentProcessor {
+            public:
+                GLFP() : fHaveSetColor(false) {}
+                void emitCode(EmitArgs& args) override {
+                    const char* colorName;
+                    fColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                          kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                          "Color", &colorName);
+                    this->emitChild(0, colorName, args);
+                }
+
+            private:
+                void onSetData(const GrGLProgramDataManager& pdman,
+                               const GrProcessor& fp) override {
+                    GrColor color = fp.cast<ReplaceInputFragmentProcessor>().fColor;
+                    if (!fHaveSetColor || color != fPreviousColor) {
+                        static const GrGLfloat scale = 1.f / 255.f;
+                        GrGLfloat floatColor[4] = {
+                            GrColorUnpackR(color) * scale,
+                            GrColorUnpackG(color) * scale,
+                            GrColorUnpackB(color) * scale,
+                            GrColorUnpackA(color) * scale,
+                        };
+                        pdman.set4fv(fColorUni, 1, floatColor);
+                        fPreviousColor = color;
+                        fHaveSetColor = true;
+                    }
+                }
+
+                GrGLProgramDataManager::UniformHandle fColorUni;
+                bool    fHaveSetColor;
+                GrColor fPreviousColor;
+            };
+
+            return new GLFP;
+        }
+
+    private:
+        void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {}
+
+        bool onIsEqual(const GrFragmentProcessor& that) const override {
+            return fColor == that.cast<ReplaceInputFragmentProcessor>().fColor;
+        }
+
+        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
+            inout->setToOther(kRGBA_GrColorComponentFlags, fColor,
+                              GrInvariantOutput::kWillNot_ReadInput);
+            this->childProcessor(0).computeInvariantOutput(inout);
+        }
+
+        GrColor fColor;
+    };
+
+    GrInvariantOutput childOut(0x0, kNone_GrColorComponentFlags, false);
+    fp->computeInvariantOutput(&childOut);
+    if (childOut.willUseInputColor()) {
+        return new ReplaceInputFragmentProcessor(fp, color);
+    } else {
+        return SkRef(fp);
+    }
+}

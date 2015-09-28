@@ -315,6 +315,9 @@ public:
      *
      *  The GrContext may be used by the to create textures that are required by the returned
      *  processor.
+     *
+     *  The returned GrFragmentProcessor should expect an unpremultiplied input color and
+     *  produce a premultiplied output.
      */
     virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                            const SkMatrix& viewMatrix,

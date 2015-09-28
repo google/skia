@@ -561,7 +561,7 @@ const GrFragmentProcessor* SkLinearGradient::asFragmentProcessor(
 
     SkAutoTUnref<const GrFragmentProcessor> inner(
         GrLinearGradient::Create(context, procDataManager, *this, matrix, fTileMode));
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 

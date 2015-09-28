@@ -104,7 +104,7 @@ const GrFragmentProcessor* DCShader::asFragmentProcessor(
                                                  SkFilterQuality,
                                                  GrProcessorDataManager* procDataManager) const {
     SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(procDataManager, fDeviceMatrix));
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 class DCShaderGM : public GM {

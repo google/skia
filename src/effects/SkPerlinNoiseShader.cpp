@@ -934,7 +934,7 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
             SkAutoTUnref<const GrFragmentProcessor> inner(
                 GrConstColorProcessor::Create(0x80404040,
                                               GrConstColorProcessor::kModulateRGBA_InputMode));
-            return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+            return GrFragmentProcessor::MulOutputByInputAlpha(inner);
         }
         // Emit zero.
         return GrConstColorProcessor::Create(0x0, GrConstColorProcessor::kIgnore_InputMode);
@@ -962,7 +962,7 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
                                         paintingData,
                                         permutationsTexture, noiseTexture,
                                         m));
-        return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+        return GrFragmentProcessor::MulOutputByInputAlpha(inner);
     }
     delete paintingData;
     return nullptr;

@@ -90,27 +90,18 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     const ComposeTwoFragmentProcessor& cs = args.fFp.cast<ComposeTwoFragmentProcessor>();
 
-    // Store alpha of input color and un-premultiply the input color by its alpha. We will
-    // re-multiply by this alpha after blending the output colors of the two child procs.
-    // This is because we don't want the paint's alpha to affect either child proc's output
-    // before the blend; we want to apply the paint's alpha AFTER the blend. This mirrors the
-    // software implementation of SkComposeShader.
-    const char* opaqueInput = nullptr;
-    const char* inputAlpha = nullptr;
+    const char* inputColor = nullptr;
     if (args.fInputColor) {
-        inputAlpha = "inputAlpha";
-        opaqueInput = "opaqueInput";
-        fsBuilder->codeAppendf("float inputAlpha = %s.a;", args.fInputColor);
-        fsBuilder->codeAppendf("vec4 opaqueInput = vec4(%s.rgb / inputAlpha, 1);",
-                               args.fInputColor);
+        inputColor = "inputColor";
+        fsBuilder->codeAppendf("vec4 inputColor = vec4(%s.rgb, 1.0);", args.fInputColor);
     }
 
     // declare outputColor and emit the code for each of the two children
     SkString srcColor("src");
-    this->emitChild(0, opaqueInput, &srcColor, args);
+    this->emitChild(0, inputColor, &srcColor, args);
 
     SkString dstColor("dst");
-    this->emitChild(1, opaqueInput, &dstColor, args);
+    this->emitChild(1, inputColor, &dstColor, args);
 
     // emit blend code
     SkXfermode::Mode mode = cs.getMode();
@@ -118,8 +109,8 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     GrGLSLBlend::AppendMode(fsBuilder, srcColor.c_str(), dstColor.c_str(), args.fOutputColor, mode);
 
     // re-multiply the output color by the input color's alpha
-    if (inputAlpha) {
-        fsBuilder->codeAppendf("%s *= %s;", args.fOutputColor, inputAlpha);
+    if (args.fInputColor) {
+        fsBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
     }
 }
 

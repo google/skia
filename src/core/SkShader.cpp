@@ -335,7 +335,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 const GrFragmentProcessor* SkColorShader::asFragmentProcessor(GrContext*, const SkMatrix&,
                                                               const SkMatrix*, SkFilterQuality,
                                                               GrProcessorDataManager*) const {
-    GrColor color = SkColor2GrColor(fColor);
+    GrColor color = SkColorToPremulGrColor(fColor);
     return GrConstColorProcessor::Create(color, GrConstColorProcessor::kModulateA_InputMode);
 }
 

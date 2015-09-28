@@ -17,8 +17,8 @@
 #include "SkUnPreMultiply.h"
 
 /**
- * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. The components are stored
- * premultiplied.
+ * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is
+ * premultiplied or not depends on the context in which it is being used.
  */
 typedef uint32_t GrColor;
 

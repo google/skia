@@ -14,7 +14,7 @@
 #include "GrTexture.h"
 #include "GrTextureProvider.h"
 #include "SkDraw.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 
@@ -197,7 +197,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
     GrPaint grPaint;
-    if (!SkPaint2GrPaint(context, paint, viewMatrix, true, &grPaint)) {
+    if (!SkPaintToGrPaint(context, paint, viewMatrix, &grPaint)) {
         return;
     }
 

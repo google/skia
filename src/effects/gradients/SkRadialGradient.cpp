@@ -533,7 +533,7 @@ const GrFragmentProcessor* SkRadialGradient::asFragmentProcessor(
     matrix.postConcat(fPtsToUnit);
         SkAutoTUnref<const GrFragmentProcessor> inner(
             GrRadialGradient::Create(context, procDataManager, *this, matrix, fTileMode));
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 #endif

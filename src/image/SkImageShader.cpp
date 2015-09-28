@@ -138,7 +138,7 @@ const GrFragmentProcessor* SkImageShader::asFragmentProcessor(GrContext* context
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
         return SkRef(inner.get());
     }
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 #endif

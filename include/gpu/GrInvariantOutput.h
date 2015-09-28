@@ -222,11 +222,6 @@ public:
             if (GetAlphaAndCheckSingleChannel(color, &a)) {
                 fIsSingleComponent = true;
             }
-        } else if (kA_GrColorComponentFlag & fValidFlags) {
-            // Assuming fColor is premul means if a is 0 the color must be all 0s.
-            if (!GrColorUnpackA(fColor)) {
-                this->internalSetToTransparentBlack();
-            }
         }
         SkDEBUGCODE(this->validate());
     }
@@ -249,6 +244,7 @@ public:
 
     GrColor color() const { return fColor; }
     GrColorComponentFlags validFlags() const { return fValidFlags; }
+    bool willUseInputColor() const { return fWillUseInputColor; }
 
     /**
      * If isSingleComponent is true, then the flag values for r, g, b, and a must all be the
@@ -308,7 +304,6 @@ private:
 
     bool isSingleComponent() const { return fIsSingleComponent; }
 
-    bool willUseInputColor() const { return fWillUseInputColor; }
     void resetWillUseInputColor() { fWillUseInputColor = true; }
 
     bool allStagesMulInput() const { return !fNonMulStageFound; }

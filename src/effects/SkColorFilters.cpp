@@ -74,7 +74,7 @@ bool SkModeColorFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*
                                              SkTDArray<const GrFragmentProcessor*>* array) const {
     if (SkXfermode::kDst_Mode != fMode) {
         SkAutoTUnref<const GrFragmentProcessor> constFP(
-            GrConstColorProcessor::Create(SkColor2GrColor(fColor),
+            GrConstColorProcessor::Create(SkColorToPremulGrColor(fColor),
                                           GrConstColorProcessor::kIgnore_InputMode));
         const GrFragmentProcessor* fp =
             GrXfermodeFragmentProcessor::CreateFromSrcProcessor(constFP, fMode);

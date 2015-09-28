@@ -23,6 +23,9 @@ namespace GrXfermodeFragmentProcessor {
     const GrFragmentProcessor* CreateFromSrcProcessor(const GrFragmentProcessor* src,
                                                       SkXfermode::Mode mode);
 
+    /** Takes the input color, which is assumed to be unpremultiplied, passes it as an opaque color
+        to both src and dst. The outputs of a src and dst are blended using mode and the original
+        input's alpha is applied to the blended color to produce a premul output. */
     const GrFragmentProcessor* CreateFromTwoProcessors(const GrFragmentProcessor* src,
                                                        const GrFragmentProcessor* dst,
                                                        SkXfermode::Mode mode);

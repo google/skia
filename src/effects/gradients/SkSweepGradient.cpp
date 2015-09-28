@@ -291,7 +291,7 @@ const GrFragmentProcessor* SkSweepGradient::asFragmentProcessor(
 
     SkAutoTUnref<const GrFragmentProcessor> inner(
         GrSweepGradient::Create(context, procDataManager, *this, matrix));
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 #endif

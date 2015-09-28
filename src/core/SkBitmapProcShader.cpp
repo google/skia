@@ -408,9 +408,9 @@ const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* co
     }
 
     if (kAlpha_8_SkColorType == fRawBitmap.colorType()) {
-        return SkRef(inner.get());
+        return GrFragmentProcessor::MulOutputByInputUnpremulColor(inner);
     }
-    return GrFragmentProcessor::MulOuputByInputAlpha(inner);
+    return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 
 #endif

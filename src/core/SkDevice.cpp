@@ -204,7 +204,7 @@ void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkR
         }
         pnt.setShader(shader);
 
-        if (colors && colors[i] != SK_ColorWHITE) {
+        if (colors) {
             SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(colors[i], mode));
             pnt.setColorFilter(cf);
         }
