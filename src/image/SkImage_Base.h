@@ -54,8 +54,11 @@ public:
     // Caller must call unref when they are done.
     virtual GrTexture* asTextureRef(GrContext*, SkImageUsageType) const = 0;
 
-    virtual SkImage* onNewSubset(const SkIRect&) const = 0;
+    virtual SkShader* onNewShader(SkShader::TileMode,
+                                  SkShader::TileMode,
+                                  const SkMatrix* localMatrix) const { return nullptr; }
 
+    virtual SkImage* onNewSubset(const SkIRect&) const = 0;
     virtual SkData* onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;

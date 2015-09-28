@@ -7,7 +7,6 @@
 
 #include "SkBitmapCache.h"
 #include "SkImage_Gpu.h"
-#include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "effects/GrYUVtoRGBEffect.h"
@@ -36,6 +35,13 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
     }
 }
 
+SkShader* SkImage_Gpu::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
+                                   const SkMatrix* localMatrix) const {
+    SkBitmap bm;
+    GrWrapTextureInBitmap(fTexture, this->width(), this->height(), this->isOpaque(), &bm);
+    return SkShader::CreateBitmapShader(bm, tileX, tileY, localMatrix);
+}
+
 bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
@@ -60,19 +66,6 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
 }
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
-    const bool is_pow2 = SkIsPow2(this->width()) && SkIsPow2(this->height());
-    const bool npot_tex_supported = ctx->caps()->npotTextureTileSupport();
-    if (!is_pow2 && kUntiled_SkImageUsageType != usage && !npot_tex_supported) {
-        // load as bitmap, since the GPU can support tiling a non-pow2 texture
-        // related to skbug.com/4365
-        SkBitmap bitmap;
-        if (this->getROPixels(&bitmap)) {
-            return GrRefCachedBitmapTexture(ctx, bitmap, usage);
-        } else {
-            return nullptr;
-        }
-    }
-
     fTexture->ref();
     return fTexture;
 }
