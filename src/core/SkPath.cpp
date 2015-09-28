@@ -36,7 +36,7 @@ static bool is_degenerate(const SkPath& path) {
 class SkAutoDisableDirectionCheck {
 public:
     SkAutoDisableDirectionCheck(SkPath* path) : fPath(path) {
-        fSaved = static_cast<SkPathPriv::FirstDirection>(fPath->fFirstDirection);
+        fSaved = static_cast<SkPathPriv::FirstDirection>(fPath->fFirstDirection.load());
     }
 
     ~SkAutoDisableDirectionCheck() {
@@ -166,7 +166,8 @@ void SkPath::copyFields(const SkPath& that) {
     fLastMoveToIndex = that.fLastMoveToIndex;
     fFillType        = that.fFillType;
     fConvexity       = that.fConvexity;
-    fFirstDirection  = that.fFirstDirection;
+    // Simulate fFirstDirection  = that.fFirstDirection;
+    fFirstDirection.store(that.fFirstDirection.load());
     fIsVolatile      = that.fIsVolatile;
 }
 
@@ -183,7 +184,10 @@ void SkPath::swap(SkPath& that) {
         SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);
         SkTSwap<uint8_t>(fFillType, that.fFillType);
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);
-        SkTSwap<uint8_t>(fFirstDirection, that.fFirstDirection);
+        // Simulate SkTSwap<uint8_t>(fFirstDirection, that.fFirstDirection);
+        uint8_t temp = fFirstDirection;
+        fFirstDirection.store(that.fFirstDirection.load());
+        that.fFirstDirection.store(temp);
         SkTSwap<SkBool8>(fIsVolatile, that.fIsVolatile);
     }
 }
@@ -1495,9 +1499,10 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
                 SkScalarMul(matrix.get(SkMatrix::kMScaleX), matrix.get(SkMatrix::kMScaleY)) -
                 SkScalarMul(matrix.get(SkMatrix::kMSkewX), matrix.get(SkMatrix::kMSkewY));
             if (det2x2 < 0) {
-                dst->fFirstDirection = SkPathPriv::OppositeFirstDirection((SkPathPriv::FirstDirection)fFirstDirection);
+                dst->fFirstDirection = SkPathPriv::OppositeFirstDirection(
+                        (SkPathPriv::FirstDirection)fFirstDirection.load());
             } else if (det2x2 > 0) {
-                dst->fFirstDirection = fFirstDirection;
+                dst->fFirstDirection = fFirstDirection.load();
             } else {
                 dst->fConvexity = kUnknown_Convexity;
                 dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
@@ -2475,8 +2480,8 @@ static void crossToDir(SkScalar cross, SkPathPriv::FirstDirection* dir) {
  *  its cross product.
  */
 bool SkPathPriv::CheapComputeFirstDirection(const SkPath& path, FirstDirection* dir) {
-    if (kUnknown_FirstDirection != path.fFirstDirection) {
-        *dir = static_cast<FirstDirection>(path.fFirstDirection);
+    if (kUnknown_FirstDirection != path.fFirstDirection.load()) {
+        *dir = static_cast<FirstDirection>(path.fFirstDirection.load());
         return true;
     }
 
@@ -2484,7 +2489,7 @@ bool SkPathPriv::CheapComputeFirstDirection(const SkPath& path, FirstDirection* 
     // is unknown, so we don't call isConvex()
     if (SkPath::kConvex_Convexity == path.getConvexityOrUnknown()) {
         SkASSERT(kUnknown_FirstDirection == path.fFirstDirection);
-        *dir = static_cast<FirstDirection>(path.fFirstDirection);
+        *dir = static_cast<FirstDirection>(path.fFirstDirection.load());
         return false;
     }
 
