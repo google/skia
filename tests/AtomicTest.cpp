@@ -54,4 +54,13 @@ DEF_TEST(Atomic, reporter) {
     int32_t valueToModify = 3;
     const int32_t originalValue = valueToModify;
     REPORTER_ASSERT(reporter, originalValue == sk_atomic_add(&valueToModify, 7));
+
+    {
+        SkAtomic<int> v {0};
+        REPORTER_ASSERT(reporter, 0 == v.load());
+        v = 10;
+        REPORTER_ASSERT(reporter, 10 == v.load());
+        int q = v;
+        REPORTER_ASSERT(reporter, 10 == q);
+    }
 }

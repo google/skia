@@ -57,6 +57,17 @@ public:
         sk_atomic_store(&fVal, val, mo);
     }
 
+    // Alias for .load(sk_memory_order_seq_cst).
+    operator T() const {
+        return this->load();
+    }
+
+    // Alias for .store(v, sk_memory_order_seq_cst).
+    T operator=(const T& v) {
+        this->store(v);
+        return v;
+    }
+
     T fetch_add(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
         return sk_atomic_fetch_add(&fVal, val, mo);
     }
