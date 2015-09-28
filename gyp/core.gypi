@@ -165,7 +165,6 @@
         '<(skia_src_path)/core/SkPictureShader.cpp',
         '<(skia_src_path)/core/SkPictureShader.h',
         '<(skia_src_path)/core/SkPixelRef.cpp',
-        '<(skia_src_path)/core/SkPixelSerializer.cpp',
         '<(skia_src_path)/core/SkPixmap.cpp',
         '<(skia_src_path)/core/SkPoint.cpp',
         '<(skia_src_path)/core/SkPoint3.cpp',

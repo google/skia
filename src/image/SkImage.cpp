@@ -74,14 +74,6 @@ SkShader* SkImage::newShader(SkShader::TileMode tileX,
 }
 
 SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
-    SkAutoDataUnref encoded(this->refEncoded());
-    if (encoded) {
-        SkAutoDataUnref reencoded(SkImageEncoder::ReencodeData(encoded, type));
-        if (reencoded) {
-            return reencoded.detach();
-        }
-    }
-
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm)) {
         return SkImageEncoder::EncodeData(bm, type, quality);
@@ -93,6 +85,10 @@ namespace {
 
 class DefaultSerializer :  public SkPixelSerializer {
 protected:
+    bool onUseEncodedData(const void *data, size_t len) override {
+        return true;
+    }
+
     SkData* onEncodePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes) override {
         return SkImageEncoder::EncodeData(info, pixels, rowBytes, SkImageEncoder::kPNG_Type, 100);
     }
@@ -105,17 +101,15 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
     SkPixelSerializer* effectiveSerializer = serializer ? serializer : &defaultSerializer;
 
     SkAutoTUnref<SkData> encoded(this->refEncoded());
-    if (encoded) {
-        encoded.reset(effectiveSerializer->reencodeData(encoded));
-        if (encoded) {
-            return encoded.detach();
-        }
+    if (encoded && effectiveSerializer->useEncodedData(encoded->data(), encoded->size())) {
+        return encoded.detach();
     }
 
     SkBitmap bm;
     SkAutoPixmapUnlock apu;
     if (as_IB(this)->getROPixels(&bm) && bm.requestLock(&apu)) {
-        return effectiveSerializer->encodePixels(apu.pixmap());
+        const SkPixmap& pmap = apu.pixmap();
+        return effectiveSerializer->encodePixels(pmap.info(), pmap.addr(), pmap.rowBytes());
     }
 
     return nullptr;

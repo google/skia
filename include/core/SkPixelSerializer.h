@@ -8,10 +8,9 @@
 #ifndef SkPixelSerializer_DEFINED
 #define SkPixelSerializer_DEFINED
 
-#include "SkData.h"
-#include "SkPixmap.h"
 #include "SkRefCnt.h"
 
+class SkData;
 struct SkImageInfo;
 
 /**
@@ -19,38 +18,35 @@ struct SkImageInfo;
  */
 class SkPixelSerializer : public SkRefCnt {
 public:
-    /**
-     *  Call to determine if the client wants to serialize the encoded data.
-     *
-     *  If the encoded data is can be re-encoded (or taken as is), this returns a ref to a data
-     *  with the result, which the caller must unref() when they are through. The returned
-     *  data may be the same as the input, or it may be different, but either way the caller is
-     *  responsible for calling unref() on it.
-     *
-     *  If the encoded data is not acceptable to this pixel serializer, this returns NULL.
-     */
-    SkData* reencodeData(SkData* encoded);
+    virtual ~SkPixelSerializer() {}
 
     /**
-     *  Call to get the client's version of encoding these pixels. If it
-     *  returns NULL, serialize the raw pixels.
+     *  Call to determine if the client wants to serialize the encoded data. If
+     *  false, serialize another version (e.g. the result of encodePixels).
      */
-    SkData* encodePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes);
-
-    /**
-     *  Call to get the client's version of encoding these pixels. If it
-     *  returns NULL, serialize the raw pixels.
-     */
-    SkData* encodePixels(const SkPixmap& pixmap);
-    
-protected:
-    // DEPRECATED -- this is no longer called, so remove from your subclasses!
-    virtual bool onUseEncodedData(const void*, size_t) { return true; }
-
-    virtual SkData* onReencodeData(SkData* encoded) {
-        return SkRef(encoded);
+    bool useEncodedData(const void* data, size_t len) {
+        return this->onUseEncodedData(data, len);
     }
 
+    /**
+     *  Call to get the client's version of encoding these pixels. If it
+     *  returns NULL, serialize the raw pixels.
+     */
+    SkData* encodePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes) {
+        return this->onEncodePixels(info, pixels, rowBytes);
+    }
+
+protected:
+    /**
+     *  Return true if you want to serialize the encoded data, false if you want
+     *  another version serialized (e.g. the result of encodePixels).
+     */
+    virtual bool onUseEncodedData(const void* data, size_t len) = 0;
+
+    /**
+     *  If you want to encode these pixels, return the encoded data as an SkData
+     *  Return null if you want to serialize the raw pixels.
+     */
     virtual SkData* onEncodePixels(const SkImageInfo&, const void* pixels, size_t rowBytes) = 0;
 };
 #endif // SkPixelSerializer_DEFINED

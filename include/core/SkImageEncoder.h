@@ -13,8 +13,6 @@
 
 class SkBitmap;
 class SkData;
-class SkPixmap;
-class SkPixelSerializer;
 class SkWStream;
 
 class SkImageEncoder {
@@ -62,23 +60,14 @@ public:
      */
     bool encodeStream(SkWStream* stream, const SkBitmap& bm, int quality);
 
-    SkPixelSerializer* refSerializer();
-
     static SkData* EncodeData(const SkImageInfo&, const void* pixels, size_t rowBytes,
                               Type, int quality);
-    static SkData* EncodeData(const SkPixmap&, Type, int quality);
     static SkData* EncodeData(const SkBitmap&, Type, int quality);
 
     static bool EncodeFile(const char file[], const SkBitmap&, Type,
                            int quality);
     static bool EncodeStream(SkWStream*, const SkBitmap&, Type,
                            int quality);
-
-    /**
-     *  If the existing data can be re-encoded into the specified type (efficiently), this
-     *  returns that new data (which the caller must unref()). If not, this returns null.
-     */
-    static SkData* ReencodeData(SkData* encoded, Type);
 
 protected:
     /**
@@ -89,8 +78,6 @@ protected:
      * This must be overridden by each SkImageEncoder implementation.
      */
     virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) = 0;
-
-    virtual SkData* onReencodeData(SkData*) { return nullptr; }
 };
 
 // This macro declares a global (i.e., non-class owned) creation entry point
