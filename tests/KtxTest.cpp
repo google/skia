@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkData.h"
+#include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
@@ -149,14 +150,11 @@ DEF_TEST(KtxReexportPKM, reporter) {
         return;
     }
 
-    bool installDiscardablePixelRefSuccess =
-        SkDEPRECATED_InstallDiscardablePixelRef(fileData, &etcBitmap);
-    REPORTER_ASSERT(reporter, installDiscardablePixelRefSuccess);
+    SkAutoTUnref<SkImage> image(SkImage::NewFromEncoded(fileData));
+    REPORTER_ASSERT(reporter, image.get());
 
-    // Write the bitmap out to a KTX file.
-    SkData *ktxDataPtr = SkImageEncoder::EncodeData(etcBitmap, SkImageEncoder::kKTX_Type, 0);
-    SkAutoDataUnref newKtxData(ktxDataPtr);
-    REPORTER_ASSERT(reporter, ktxDataPtr);
+    SkAutoDataUnref newKtxData(image->encode(SkImageEncoder::kKTX_Type, 0));
+    REPORTER_ASSERT(reporter, newKtxData.get());
 
     // See is this data is identical to data in existing ktx file.
     SkString ktxFilename = GetResourcePath("mandrill_128.ktx");

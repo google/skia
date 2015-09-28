@@ -252,34 +252,40 @@ SkImageDecoder::Result SkKTXImageDecoder::onDecode(SkStream* stream, SkBitmap* b
 class SkKTXImageEncoder : public SkImageEncoder {
 protected:
     bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) override;
+    SkData* onReencodeData(SkData*) override;
 
 private:
     virtual bool encodePKM(SkWStream* stream, const SkData *data);
     typedef SkImageEncoder INHERITED;
 };
 
+SkData* SkKTXImageEncoder::onReencodeData(SkData* encoded) {
+    const uint8_t* bytes = encoded->bytes();
+    if (etc1_pkm_is_valid(bytes)) {
+        SkDynamicMemoryWStream stream;
+        if (this->encodePKM(&stream, encoded)) {
+            return stream.copyToData();
+        }
+    }
+    // Is it a KTX file??
+    if (SkKTXFile::is_ktx(bytes)) {
+        return SkRef(encoded);
+    }
+    return nullptr;
+}
+
 bool SkKTXImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int) {
     if (!bitmap.pixelRef()) {
         return false;
     }
-    SkAutoDataUnref data(bitmap.pixelRef()->refEncodedData());
 
-    // Is this even encoded data?
-    if (data) {
-        const uint8_t *bytes = data->bytes();
-        if (etc1_pkm_is_valid(bytes)) {
-            return this->encodePKM(stream, data);
+    SkAutoDataUnref encoded(bitmap.pixelRef()->refEncodedData());
+    if (encoded) {
+        SkAutoDataUnref reencoded(this->onReencodeData(encoded));
+        if (reencoded) {
+            return stream->write(reencoded->bytes(), reencoded->size());
         }
-
-        // Is it a KTX file??
-        if (SkKTXFile::is_ktx(bytes)) {
-            return stream->write(bytes, data->size());
-        }
-        
-        // If it's neither a KTX nor a PKM, then we need to
-        // get at the actual pixels, so fall through and decompress...
     }
-
     return SkKTXFile::WriteBitmapToKTX(stream, bitmap);
 }
 

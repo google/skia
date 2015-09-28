@@ -60,3 +60,13 @@ SkData* SkImageEncoder::EncodeData(const SkImageInfo& info, const void* pixels, 
     SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
     return enc.get() ? enc.get()->encodeData(bm, quality) : nullptr;
 }
+
+SkData* SkImageEncoder::EncodeData(const SkPixmap& pmap, Type t, int quality) {
+    return EncodeData(pmap.info(), pmap.addr(), pmap.rowBytes(), t, quality);
+}
+
+SkData* SkImageEncoder::ReencodeData(SkData* encoded, Type t) {
+    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
+    return enc.get() ? enc.get()->onReencodeData(encoded) : nullptr;
+}
+

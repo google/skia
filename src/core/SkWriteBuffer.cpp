@@ -186,13 +186,15 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     SkPixelRef* pixelRef = bitmap.pixelRef();
     if (pixelRef) {
         // see if the pixelref already has an encoded version
-        SkAutoDataUnref existingData(pixelRef->refEncodedData());
-        if (existingData.get() != nullptr) {
+        SkAutoDataUnref encodedData(pixelRef->refEncodedData());
+        if (encodedData) {
             // Assumes that if the client did not set a serializer, they are
             // happy to get the encoded data.
-            if (!fPixelSerializer || fPixelSerializer->useEncodedData(existingData->data(),
-                                                                      existingData->size())) {
-                write_encoded_bitmap(this, existingData, bitmap.pixelRefOrigin());
+            if (fPixelSerializer) {
+                encodedData.reset(fPixelSerializer->reencodeData(encodedData));
+            }
+            if (encodedData) {
+                write_encoded_bitmap(this, encodedData, bitmap.pixelRefOrigin());
                 return;
             }
         }
@@ -200,12 +202,9 @@ void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
         // see if the caller wants to manually encode
         SkAutoPixmapUnlock result;
         if (fPixelSerializer && bitmap.requestLock(&result)) {
-            const SkPixmap& pmap = result.pixmap();
             SkASSERT(nullptr == fBitmapHeap);
-            SkAutoDataUnref data(fPixelSerializer->encodePixels(pmap.info(),
-                                                                pmap.addr(),
-                                                                pmap.rowBytes()));
-            if (data.get() != nullptr) {
+            SkAutoDataUnref data(fPixelSerializer->encodePixels(result.pixmap()));
+            if (data) {
                 // if we have to "encode" the bitmap, then we assume there is no
                 // offset to share, since we are effectively creating a new pixelref
                 write_encoded_bitmap(this, data, SkIPoint::Make(0, 0));

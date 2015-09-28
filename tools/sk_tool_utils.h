@@ -115,7 +115,6 @@ namespace sk_tool_utils {
     // used.
     class PngPixelSerializer : public SkPixelSerializer {
     public:
-        bool onUseEncodedData(const void*, size_t) override { return true; }
         SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
                                size_t rowBytes) override {
             return SkImageEncoder::EncodeData(info, pixels, rowBytes,

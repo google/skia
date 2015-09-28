@@ -119,8 +119,8 @@ public:
     bool didEncode() const { return fDidEncode; }
 
 protected:
-    bool onUseEncodedData(const void*, size_t) override {
-        return false;
+    SkData* onReencodeData(SkData*) override {
+        return nullptr;
     }
 
     SkData* onEncodePixels(const SkImageInfo&, const void*, size_t) override {
