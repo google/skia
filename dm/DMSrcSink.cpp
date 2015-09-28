@@ -924,7 +924,7 @@ static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
     return "";
 }
 
-PDFSink::PDFSink() {}
+PDFSink::PDFSink(const char* rasterizer) : fRasterizer(rasterizer) {}
 
 Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
     SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(dst));
@@ -936,6 +936,9 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     info.emplace_back(SkString("Subject"),
                       SkString("rendering correctness test"));
     info.emplace_back(SkString("Creator"), SkString("Skia/DM"));
+
+    info.emplace_back(SkString("Keywords"),
+                      SkStringPrintf("Rasterizer:%s;", fRasterizer));
     doc->setMetadata(info, nullptr, nullptr);
     return draw_skdocument(src, doc.get(), dst);
 }

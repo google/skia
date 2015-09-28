@@ -589,7 +589,8 @@ static Sink* create_sink(const char* tag) {
     if (FLAGS_cpu) {
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);
-        SINK("pdf",  PDFSink);
+        SINK("pdf",  PDFSink, "Pdfium");
+        SINK("pdf_poppler",  PDFSink, "Poppler");
         SINK("skp",  SKPSink);
         SINK("svg",  SVGSink);
         SINK("null", NullSink);

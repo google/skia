@@ -57,6 +57,7 @@ def get_args(bot):
   # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
   if 'Android' not in bot and 'Daisy' not in bot:
     configs.append('pdf')
+    configs.append('pdf_poppler')
 
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
