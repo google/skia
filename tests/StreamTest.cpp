@@ -391,5 +391,11 @@ DEF_TEST(StreamCopy, reporter) {
     stream_copy_test(reporter, src, N, &dumbStream);
     SkMemoryStream smartStream(src.get(), (size_t)N);
     stream_copy_test(reporter, src, N, &smartStream);
-
 }
+
+DEF_TEST(StreamEmptyStreamMemoryBase, r) {
+    SkDynamicMemoryWStream tmp;
+    SkAutoTDelete<SkStreamAsset> asset(tmp.detachAsStream());
+    REPORTER_ASSERT(r, nullptr == asset->getMemoryBase());
+}
+

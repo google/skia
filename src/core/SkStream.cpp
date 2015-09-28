@@ -795,7 +795,8 @@ public:
     }
 
     const void* getMemoryBase() override {
-        if (nullptr == fBlockMemory->fHead->fNext) {
+        if (nullptr != fBlockMemory->fHead &&
+            nullptr == fBlockMemory->fHead->fNext) {
             return fBlockMemory->fHead->start();
         }
         return nullptr;
