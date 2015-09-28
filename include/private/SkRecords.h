@@ -72,74 +72,6 @@ namespace SkRecords {
 enum Type { SK_RECORD_TYPES(ENUM) };
 #undef ENUM
 
-// Macros to make it easier to define a record for a draw call with 0 args, 1 args, 2 args, etc.
-// These should be clearer when you look at their use below.
-#define RECORD0(T)                      \
-struct T {                              \
-    static const Type kType = T##_Type; \
-};
-
-// Instead of requring the exact type A here, we take any type Z which implicitly casts to A.
-// This lets our wrappers like ImmutableBitmap work seamlessly.
-
-#define RECORD1(T, A, a)                \
-struct T {                              \
-    static const Type kType = T##_Type; \
-    T() {}                              \
-    template <typename Z>               \
-    T(const Z& a) : a(a) {}             \
-    A a;                                \
-};
-
-#define RECORD2(T, A, a, B, b)                \
-struct T {                                    \
-    static const Type kType = T##_Type;       \
-    T() {}                                    \
-    template <typename Z, typename Y>         \
-    T(const Z& a, const Y& b) : a(a), b(b) {} \
-    A a; B b;                                 \
-};
-
-#define RECORD3(T, A, a, B, b, C, c)                            \
-struct T {                                                      \
-    static const Type kType = T##_Type;                         \
-    T() {}                                                      \
-    template <typename Z, typename Y, typename X>               \
-    T(const Z& a, const Y& b, const X& c) : a(a), b(b), c(c) {} \
-    A a; B b; C c;                                              \
-};
-
-#define RECORD4(T, A, a, B, b, C, c, D, d)                                        \
-struct T {                                                                        \
-    static const Type kType = T##_Type;                                           \
-    T() {}                                                                        \
-    template <typename Z, typename Y, typename X, typename W>                     \
-    T(const Z& a, const Y& b, const X& c, const W& d) : a(a), b(b), c(c), d(d) {} \
-    A a; B b; C c; D d;                                                           \
-};
-
-#define RECORD5(T, A, a, B, b, C, c, D, d, E, e)                          \
-struct T {                                                                \
-    static const Type kType = T##_Type;                                   \
-    T() {}                                                                \
-    template <typename Z, typename Y, typename X, typename W, typename V> \
-    T(const Z& a, const Y& b, const X& c, const W& d, const V& e)         \
-        : a(a), b(b), c(c), d(d), e(e) {}                                 \
-    A a; B b; C c; D d; E e;                                              \
-};
-
-#define RECORD8(T, A, a, B, b, C, c, D, d, E, e, F, f, G, g, H, h) \
-struct T {                                                         \
-    static const Type kType = T##_Type;                            \
-    T() {}                                                         \
-    template <typename Z, typename Y, typename X, typename W,      \
-              typename V, typename U, typename S, typename R>      \
-    T(const Z& a, const Y& b, const X& c, const W& d,              \
-      const V& e, const U& f, const S& g, const R& h)              \
-        : a(a), b(b), c(c), d(d), e(e), f(f), g(g), h(h) {}        \
-    A a; B b; C c; D d; E e; F f; G g; H h;                        \
-};
-
 #define ACT_AS_PTR(ptr)                 \
     operator T*() const { return ptr; } \
     T* operator->() const { return ptr; }
@@ -149,6 +81,9 @@ class RefBox : SkNoncopyable {
 public:
     RefBox() {}
     RefBox(T* obj) : fObj(SkSafeRef(obj)) {}
+    RefBox(RefBox&& o) : fObj(o.fObj) {
+        o.fObj = nullptr;
+    }
     ~RefBox() { SkSafeUnref(fObj); }
 
     ACT_AS_PTR(fObj);
@@ -163,6 +98,9 @@ class Optional : SkNoncopyable {
 public:
     Optional() : fPtr(nullptr) {}
     Optional(T* ptr) : fPtr(ptr) {}
+    Optional(Optional&& o) : fPtr(o.fPtr) {
+        o.fPtr = nullptr;
+    }
     ~Optional() { if (fPtr) fPtr->~T(); }
 
     ACT_AS_PTR(fPtr);
@@ -207,7 +145,10 @@ private:
 class ImmutableBitmap : SkNoncopyable {
 public:
     ImmutableBitmap() {}
-    explicit ImmutableBitmap(const SkBitmap& bitmap);
+    ImmutableBitmap(const SkBitmap& bitmap);
+    ImmutableBitmap(ImmutableBitmap&& o) {
+        fBitmap.swap(o.fBitmap);
+    }
 
     int width()  const { return fBitmap.width();  }
     int height() const { return fBitmap.height(); }
@@ -223,23 +164,43 @@ private:
 // Recording is a convenient time to cache these, or we can delay it to between record and playback.
 struct PreCachedPath : public SkPath {
     PreCachedPath() {}
-    explicit PreCachedPath(const SkPath& path);
+    PreCachedPath(const SkPath& path);
 };
 
 // Like SkPath::getBounds(), SkMatrix::getType() isn't thread safe unless we precache it.
 // This may not cover all SkMatrices used by the picture (e.g. some could be hiding in a shader).
 struct TypedMatrix : public SkMatrix {
     TypedMatrix() {}
-    explicit TypedMatrix(const SkMatrix& matrix);
+    TypedMatrix(const SkMatrix& matrix);
 };
 
-RECORD0(NoOp);
+enum Tags {
+    kDraw_Tag      = 1,   // May draw something (usually named DrawFoo).
+    kHasImage_Tag  = 2,   // Contains an SkImage or SkBitmap.
+    kHasText_Tag   = 4,   // Contains text.
+};
 
-RECORD2(Restore, SkIRect, devBounds, TypedMatrix, matrix);
-RECORD0(Save);
-RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas::SaveFlags, flags);
+// A macro to make it a little easier to define a struct that can be stored in SkRecord.
+#define RECORD(T, tags, ...)            \
+struct T {                              \
+    static const Type kType = T##_Type; \
+    static const int kTags = tags;      \
+    __VA_ARGS__;                        \
+};
 
-RECORD1(SetMatrix, TypedMatrix, matrix);
+RECORD(NoOp, 0);
+RECORD(Restore, 0,
+        SkIRect devBounds;
+        TypedMatrix matrix);
+RECORD(Save, 0);
+
+RECORD(SaveLayer, 0,
+       Optional<SkRect> bounds;
+       Optional<SkPaint> paint;
+       SkCanvas::SaveFlags flags);
+
+RECORD(SetMatrix, 0,
+        TypedMatrix matrix);
 
 struct RegionOpAndAA {
     RegionOpAndAA() {}
@@ -249,138 +210,157 @@ struct RegionOpAndAA {
 };
 static_assert(sizeof(RegionOpAndAA) == 4, "RegionOpAndAASize");
 
-RECORD3(ClipPath,   SkIRect, devBounds, PreCachedPath,  path, RegionOpAndAA, opAA);
-RECORD3(ClipRRect,  SkIRect, devBounds, SkRRect,       rrect, RegionOpAndAA, opAA);
-RECORD3(ClipRect,   SkIRect, devBounds, SkRect,         rect, RegionOpAndAA, opAA);
-RECORD3(ClipRegion, SkIRect, devBounds, SkRegion,     region, SkRegion::Op,    op);
+RECORD(ClipPath, 0,
+        SkIRect devBounds;
+        PreCachedPath path;
+        RegionOpAndAA opAA);
+RECORD(ClipRRect, 0,
+        SkIRect devBounds;
+        SkRRect rrect;
+        RegionOpAndAA opAA);
+RECORD(ClipRect, 0,
+        SkIRect devBounds;
+        SkRect rect;
+        RegionOpAndAA opAA);
+RECORD(ClipRegion, 0,
+        SkIRect devBounds;
+        SkRegion region;
+        SkRegion::Op op);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
-RECORD4(DrawBitmap, Optional<SkPaint>, paint,
-                    ImmutableBitmap, bitmap,
-                    SkScalar, left,
-                    SkScalar, top);
-RECORD4(DrawBitmapNine, Optional<SkPaint>, paint,
-                        ImmutableBitmap, bitmap,
-                        SkIRect, center,
-                        SkRect, dst);
-RECORD4(DrawBitmapRect, Optional<SkPaint>, paint,
-                        ImmutableBitmap, bitmap,
-                        Optional<SkRect>, src,
-                        SkRect, dst);
-RECORD4(DrawBitmapRectFast, Optional<SkPaint>, paint,
-                            ImmutableBitmap, bitmap,
-                            Optional<SkRect>, src,
-                            SkRect, dst);
-RECORD5(DrawBitmapRectFixedSize, SkPaint, paint,
-                                 ImmutableBitmap, bitmap,
-                                 SkRect, src,
-                                 SkRect, dst,
-                                 SkCanvas::SrcRectConstraint, constraint);
-RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
-RECORD3(DrawDrawable, Optional<SkMatrix>, matrix, SkRect, worstCaseBounds, int32_t, index);
-RECORD4(DrawImage, Optional<SkPaint>, paint,
-                   RefBox<const SkImage>, image,
-                   SkScalar, left,
-                   SkScalar, top);
-RECORD5(DrawImageRect, Optional<SkPaint>, paint,
-                       RefBox<const SkImage>, image,
-                       Optional<SkRect>, src,
-                       SkRect, dst,
-                       SkCanvas::SrcRectConstraint, constraint);
-RECORD4(DrawImageNine, Optional<SkPaint>, paint,
-                       RefBox<const SkImage>, image,
-                       SkIRect, center,
-                       SkRect, dst);
-RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
-RECORD1(DrawPaint, SkPaint, paint);
-RECORD2(DrawPath, SkPaint, paint, PreCachedPath, path);
-RECORD3(DrawPicture, Optional<SkPaint>, paint,
-                     RefBox<const SkPicture>, picture,
-                     TypedMatrix, matrix);
-RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, unsigned, count, SkPoint*, pts);
-RECORD4(DrawPosText, SkPaint, paint,
-                     PODArray<char>, text,
-                     size_t, byteLength,
-                     PODArray<SkPoint>, pos);
-RECORD5(DrawPosTextH, SkPaint, paint,
-                      PODArray<char>, text,
-                      unsigned, byteLength,
-                      SkScalar, y,
-                      PODArray<SkScalar>, xpos);
-RECORD2(DrawRRect, SkPaint, paint, SkRRect, rrect);
-RECORD2(DrawRect, SkPaint, paint, SkRect, rect);
-RECORD4(DrawSprite, Optional<SkPaint>, paint, ImmutableBitmap, bitmap, int, left, int, top);
-RECORD5(DrawText, SkPaint, paint,
-                  PODArray<char>, text,
-                  size_t, byteLength,
-                  SkScalar, x,
-                  SkScalar, y);
-RECORD4(DrawTextBlob, SkPaint, paint,
-                      RefBox<const SkTextBlob>, blob,
-                      SkScalar, x,
-                      SkScalar, y);
-RECORD5(DrawTextOnPath, SkPaint, paint,
-                        PODArray<char>, text,
-                        size_t, byteLength,
-                        PreCachedPath, path,
-                        TypedMatrix, matrix);
+RECORD(DrawBitmap, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        ImmutableBitmap bitmap;
+        SkScalar left;
+        SkScalar top);
+RECORD(DrawBitmapNine, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        ImmutableBitmap bitmap;
+        SkIRect center;
+        SkRect dst);
+RECORD(DrawBitmapRect, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        ImmutableBitmap bitmap;
+        Optional<SkRect> src;
+        SkRect dst);
+RECORD(DrawBitmapRectFast, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        ImmutableBitmap bitmap;
+        Optional<SkRect> src;
+        SkRect dst);
+RECORD(DrawBitmapRectFixedSize, kDraw_Tag|kHasImage_Tag,
+        SkPaint paint;
+        ImmutableBitmap bitmap;
+        SkRect src;
+        SkRect dst;
+        SkCanvas::SrcRectConstraint constraint);
+RECORD(DrawDRRect, kDraw_Tag,
+        SkPaint paint;
+        SkRRect outer;
+        SkRRect inner);
+RECORD(DrawDrawable, kDraw_Tag,
+        Optional<SkMatrix> matrix;
+        SkRect worstCaseBounds;
+        int32_t index);
+RECORD(DrawImage, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        RefBox<const SkImage> image;
+        SkScalar left;
+        SkScalar top);
+RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        RefBox<const SkImage> image;
+        Optional<SkRect> src;
+        SkRect dst;
+        SkCanvas::SrcRectConstraint constraint);
+RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        RefBox<const SkImage> image;
+        SkIRect center;
+        SkRect dst);
+RECORD(DrawOval, kDraw_Tag,
+        SkPaint paint;
+        SkRect oval);
+RECORD(DrawPaint, kDraw_Tag,
+        SkPaint paint);
+RECORD(DrawPath, kDraw_Tag,
+        SkPaint paint;
+        PreCachedPath path);
+RECORD(DrawPicture, kDraw_Tag,
+        Optional<SkPaint> paint;
+        RefBox<const SkPicture> picture;
+        TypedMatrix matrix);
+RECORD(DrawPoints, kDraw_Tag,
+        SkPaint paint;
+        SkCanvas::PointMode mode;
+        unsigned count;
+        SkPoint* pts);
+RECORD(DrawPosText, kDraw_Tag|kHasText_Tag,
+        SkPaint paint;
+        PODArray<char> text;
+        size_t byteLength;
+        PODArray<SkPoint> pos);
+RECORD(DrawPosTextH, kDraw_Tag|kHasText_Tag,
+        SkPaint paint;
+        PODArray<char> text;
+        unsigned byteLength;
+        SkScalar y;
+        PODArray<SkScalar> xpos);
+RECORD(DrawRRect, kDraw_Tag,
+        SkPaint paint;
+        SkRRect rrect);
+RECORD(DrawRect, kDraw_Tag,
+        SkPaint paint;
+        SkRect rect);
+RECORD(DrawSprite, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        ImmutableBitmap bitmap;
+        int left;
+        int top);
+RECORD(DrawText, kDraw_Tag|kHasText_Tag,
+        SkPaint paint;
+        PODArray<char> text;
+        size_t byteLength;
+        SkScalar x;
+        SkScalar y);
+RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag,
+        SkPaint paint;
+        RefBox<const SkTextBlob> blob;
+        SkScalar x;
+        SkScalar y);
+RECORD(DrawTextOnPath, kDraw_Tag|kHasText_Tag,
+        SkPaint paint;
+        PODArray<char> text;
+        size_t byteLength;
+        PreCachedPath path;
+        TypedMatrix matrix);
+RECORD(DrawPatch, kDraw_Tag,
+        SkPaint paint;
+        PODArray<SkPoint> cubics;
+        PODArray<SkColor> colors;
+        PODArray<SkPoint> texCoords;
+        RefBox<SkXfermode> xmode);
+RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag,
+        Optional<SkPaint> paint;
+        RefBox<const SkImage> atlas;
+        PODArray<SkRSXform> xforms;
+        PODArray<SkRect> texs;
+        PODArray<SkColor> colors;
+        int count;
+        SkXfermode::Mode mode;
+        Optional<SkRect> cull);
+RECORD(DrawVertices, kDraw_Tag,
+        SkPaint paint;
+        SkCanvas::VertexMode vmode;
+        int vertexCount;
+        PODArray<SkPoint> vertices;
+        PODArray<SkPoint> texs;
+        PODArray<SkColor> colors;
+        RefBox<SkXfermode> xmode;
+        PODArray<uint16_t> indices;
+        int indexCount);
 
-RECORD5(DrawPatch, SkPaint, paint,
-                   PODArray<SkPoint>, cubics,
-                   PODArray<SkColor>, colors,
-                   PODArray<SkPoint>, texCoords,
-                   RefBox<SkXfermode>, xmode);
-
-RECORD8(DrawAtlas,  Optional<SkPaint>, paint,
-                    RefBox<const SkImage>, atlas,
-                    PODArray<SkRSXform>, xforms,
-                    PODArray<SkRect>, texs,
-                    PODArray<SkColor>, colors,
-                    int, count,
-                    SkXfermode::Mode, mode,
-                    Optional<SkRect>, cull);
-
-// This guy is so ugly we just write it manually.
-struct DrawVertices {
-    static const Type kType = DrawVertices_Type;
-
-    DrawVertices(const SkPaint& paint,
-                 SkCanvas::VertexMode vmode,
-                 int vertexCount,
-                 SkPoint* vertices,
-                 SkPoint* texs,
-                 SkColor* colors,
-                 SkXfermode* xmode,
-                 uint16_t* indices,
-                 int indexCount)
-        : paint(paint)
-        , vmode(vmode)
-        , vertexCount(vertexCount)
-        , vertices(vertices)
-        , texs(texs)
-        , colors(colors)
-        , xmode(SkSafeRef(xmode))
-        , indices(indices)
-        , indexCount(indexCount) {}
-
-    SkPaint paint;
-    SkCanvas::VertexMode vmode;
-    int vertexCount;
-    PODArray<SkPoint> vertices;
-    PODArray<SkPoint> texs;
-    PODArray<SkColor> colors;
-    SkAutoTUnref<SkXfermode> xmode;
-    PODArray<uint16_t> indices;
-    int indexCount;
-};
-
-#undef RECORD0
-#undef RECORD1
-#undef RECORD2
-#undef RECORD3
-#undef RECORD4
-#undef RECORD5
-#undef RECORD8
+#undef RECORD
 
 }  // namespace SkRecords
 

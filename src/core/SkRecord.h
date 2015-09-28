@@ -134,13 +134,13 @@ private:
     };
 
     template <typename T>
-    SK_WHEN(skstd::is_empty<T>, T*) allocCommand() {
+    SK_WHEN(skstd::is_empty<T>::value, T*) allocCommand() {
         static T singleton = {};
         return &singleton;
     }
 
     template <typename T>
-    SK_WHEN(!skstd::is_empty<T>, T*) allocCommand() { return this->alloc<T>(); }
+    SK_WHEN(!skstd::is_empty<T>::value, T*) allocCommand() { return this->alloc<T>(); }
 
     void grow();
 

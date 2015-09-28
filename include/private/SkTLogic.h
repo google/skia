@@ -220,35 +220,7 @@ template <typename D, typename S> using same_cv_t = typename same_cv<D, S>::type
 
 }  // namespace sknonstd
 
-/** Use as a return type to enable a function only when cond_type::value is true,
- *  like C++14's std::enable_if_t.  E.g.  (N.B. this is a dumb example.)
- *  SK_WHEN(true_type, int) f(void* ptr) { return 1; }
- *  SK_WHEN(!true_type, int) f(void* ptr) { return 2; }
- */
-#define SK_WHEN(cond_prefix, T) skstd::enable_if_t<cond_prefix::value, T>
-
-// See http://en.wikibooks.org/wiki/More_C++_Idioms/Member_Detector
-#define SK_CREATE_MEMBER_DETECTOR(member)                                           \
-template <typename T>                                                               \
-class HasMember_##member {                                                          \
-    struct Fallback { int member; };                                                \
-    struct Derived : T, Fallback {};                                                \
-    template <typename U, U> struct Check;                                          \
-    template <typename U> static uint8_t func(Check<int Fallback::*, &U::member>*); \
-    template <typename U> static uint16_t func(...);                                \
-public:                                                                             \
-    typedef HasMember_##member type;                                                \
-    static const bool value = sizeof(func<Derived>(NULL)) == sizeof(uint16_t);      \
-}
-
-// Same sort of thing as SK_CREATE_MEMBER_DETECTOR, but checks for the existence of a nested type.
-#define SK_CREATE_TYPE_DETECTOR(type)                                   \
-template <typename T>                                                   \
-class HasType_##type {                                                  \
-    template <typename U> static uint8_t func(typename U::type*);       \
-    template <typename U> static uint16_t func(...);                    \
-public:                                                                 \
-    static const bool value = sizeof(func<T>(NULL)) == sizeof(uint8_t); \
-}
+// Just a pithier wrapper for enable_if_t.
+#define SK_WHEN(condition, T) skstd::enable_if_t<!!(condition), T>
 
 #endif

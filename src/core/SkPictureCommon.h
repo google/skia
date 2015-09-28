@@ -16,28 +16,18 @@
 
 struct SkTextHunter {
     // Most ops never have text.  Some always do.  Subpictures know themeselves.
-    template <typename T> bool operator()(const T&) { return false; }
-    bool operator()(const SkRecords::DrawPosText&)    { return true; }
-    bool operator()(const SkRecords::DrawPosTextH&)   { return true; }
-    bool operator()(const SkRecords::DrawText&)       { return true; }
-    bool operator()(const SkRecords::DrawTextBlob&)   { return true; }
-    bool operator()(const SkRecords::DrawTextOnPath&) { return true; }
     bool operator()(const SkRecords::DrawPicture& op) { return op.picture->hasText(); }
+    bool operator()(const SkRecords::DrawDrawable&) { /*TODO*/ return false; }
+
+    template <typename T>
+    SK_WHEN(T::kTags & SkRecords::kHasText_Tag, bool) operator()(const T&) { return true; }
+    template <typename T>
+    SK_WHEN(!(T::kTags & SkRecords::kHasText_Tag), bool) operator()(const T&) { return false; }
 };
 
 
 // N.B. This name is slightly historical: hunting season is now open for SkImages too.
 struct SkBitmapHunter {
-    // Helpers.  These let us detect the presence of struct members with particular names.
-    SK_CREATE_MEMBER_DETECTOR(bitmap);
-    SK_CREATE_MEMBER_DETECTOR(image);
-    SK_CREATE_MEMBER_DETECTOR(paint);
-
-    template <typename T>
-    struct HasMember_bitmap_or_image {
-        static const bool value = HasMember_bitmap<T>::value || HasMember_image<T>::value;
-    };
-
     // Some ops have a paint, some have an optional paint.  Either way, get back a pointer.
     static const SkPaint* AsPtr(const SkPaint& p) { return &p; }
     static const SkPaint* AsPtr(const SkRecords::Optional<SkPaint>& p) { return p; }
@@ -48,26 +38,42 @@ struct SkBitmapHunter {
     // If the op has a paint and the paint has a bitmap, return true.
     // Otherwise, return false.
     bool operator()(const SkRecords::DrawPicture& op) { return op.picture->willPlayBackBitmaps(); }
+    bool operator()(const SkRecords::DrawDrawable&) { /*TODO*/ return false; }
 
     template <typename T>
-    bool operator()(const T& r) { return CheckBitmap(r); }
+    bool operator()(const T& op) { return CheckBitmap(op); }
 
-    // If the op has a bitmap, of course we're going to play back bitmaps.
+    // If the op is tagged as having an image, return true.
     template <typename T>
-    static SK_WHEN(HasMember_bitmap_or_image<T>, bool) CheckBitmap(const T&) {
+    static SK_WHEN(T::kTags & SkRecords::kHasImage_Tag, bool) CheckBitmap(const T&) {
         return true;
     }
 
     // If not, look for one in its paint (if it has a paint).
     template <typename T>
-    static SK_WHEN(!HasMember_bitmap_or_image<T>, bool) CheckBitmap(const T& r) {
-        return CheckPaint(r);
+    static SK_WHEN(!(T::kTags & SkRecords::kHasImage_Tag), bool) CheckBitmap(const T& op) {
+        return CheckPaint(op);
     }
 
-    // If we have a paint, dig down into the effects looking for a bitmap.
+    // Most draws-type ops have paints.
     template <typename T>
-    static SK_WHEN(HasMember_paint<T>, bool) CheckPaint(const T& r) {
-        const SkPaint* paint = AsPtr(r.paint);
+    static SK_WHEN(T::kTags & SkRecords::kDraw_Tag, bool) CheckPaint(const T& op) {
+        return PaintHasBitmap(AsPtr(op.paint));
+    }
+
+    // SaveLayers also have a paint to check.
+    static bool CheckPaint(const SkRecords::SaveLayer& op) {
+        return PaintHasBitmap(AsPtr(op.paint));
+    }
+
+    // Shouldn't be any non-Draw non-SaveLayer ops with paints.
+    template <typename T>
+    static SK_WHEN(!(T::kTags & SkRecords::kDraw_Tag), bool) CheckPaint(const T&) {
+        return false;
+    }
+
+private:
+    static bool PaintHasBitmap(const SkPaint* paint) {
         if (paint) {
             const SkShader* shader = paint->getShader();
             if (shader && shader->isABitmap()) {
@@ -76,16 +82,10 @@ struct SkBitmapHunter {
         }
         return false;
     }
-
-    // If we don't have a paint, that non-paint has no bitmap.
-    template <typename T>
-    static SK_WHEN(!HasMember_paint<T>, bool) CheckPaint(const T&) { return false; }
 };
 
 // TODO: might be nicer to have operator() return an int (the number of slow paths) ?
 struct SkPathCounter {
-    SK_CREATE_MEMBER_DETECTOR(paint);
-
     // Some ops have a paint, some have an optional paint.  Either way, get back a pointer.
     static const SkPaint* AsPtr(const SkPaint& p) { return &p; }
     static const SkPaint* AsPtr(const SkRecords::Optional<SkPaint>& p) { return p; }
@@ -96,6 +96,7 @@ struct SkPathCounter {
     void operator()(const SkRecords::DrawPicture& op) {
         fNumSlowPathsAndDashEffects += op.picture->numSlowPaths();
     }
+    void operator()(const SkRecords::DrawDrawable&) { /* TODO */ }
 
     void checkPaint(const SkPaint* paint) {
         if (paint && paint->getPathEffect()) {
@@ -134,13 +135,17 @@ struct SkPathCounter {
         }
     }
 
-    template <typename T>
-    SK_WHEN(HasMember_paint<T>, void) operator()(const T& op) {
+    void operator()(const SkRecords::SaveLayer& op) {
         this->checkPaint(AsPtr(op.paint));
     }
 
     template <typename T>
-    SK_WHEN(!HasMember_paint<T>, void) operator()(const T& op) { /* do nothing */ }
+    SK_WHEN(T::kTags & SkRecords::kDraw_Tag, void) operator()(const T& op) {
+        this->checkPaint(AsPtr(op.paint));
+    }
+
+    template <typename T>
+    SK_WHEN(!(T::kTags & SkRecords::kDraw_Tag), void) operator()(const T& op) { /* do nothing */ }
 
     int fNumSlowPathsAndDashEffects;
 };

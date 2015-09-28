@@ -70,7 +70,7 @@ SkMiniRecorder::~SkMiniRecorder() {
 #define TRY_TO_STORE(Type, ...)                    \
     if (fState != State::kEmpty) { return false; } \
     fState = State::k##Type;                       \
-    new (fBuffer.get()) Type(__VA_ARGS__);         \
+    new (fBuffer.get()) Type{__VA_ARGS__};         \
     return true
 
 bool SkMiniRecorder::drawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,

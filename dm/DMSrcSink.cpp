@@ -24,10 +24,11 @@
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 #include "SkSVGCanvas.h"
+#include "SkScaledCodec.h"
 #include "SkScanlineDecoder.h"
 #include "SkStream.h"
+#include "SkTLogic.h"
 #include "SkXMLWriter.h"
-#include "SkScaledCodec.h"
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
@@ -1212,8 +1213,6 @@ struct DrawsAsSingletonPictures {
     SkCanvas* fCanvas;
     const SkDrawableList& fDrawables;
 
-    SK_CREATE_MEMBER_DETECTOR(paint);
-
     template <typename T>
     void draw(const T& op, SkCanvas* canvas) {
         // We must pass SkMatrix::I() as our initial matrix.
@@ -1223,20 +1222,20 @@ struct DrawsAsSingletonPictures {
         d(op);
     }
 
-    // Most things that have paints are Draw-type ops.  Create sub-pictures for each.
+    // Draws get their own picture.
     template <typename T>
-    SK_WHEN(HasMember_paint<T>, void) operator()(const T& op) {
+    SK_WHEN(T::kTags & SkRecords::kDraw_Tag, void) operator()(const T& op) {
         SkPictureRecorder rec;
         this->draw(op, rec.beginRecording(SkRect::MakeLargest()));
         SkAutoTUnref<SkPicture> pic(rec.endRecordingAsPicture());
         fCanvas->drawPicture(pic);
     }
 
-    // If you don't have a paint or are a SaveLayer, you're not a Draw-type op.
-    // We cannot make subpictures out of these because they affect state.  Draw them directly.
+    // We'll just issue non-draws directly.
     template <typename T>
-    SK_WHEN(!HasMember_paint<T>, void) operator()(const T& op) { this->draw(op, fCanvas); }
-    void operator()(const SkRecords::SaveLayer& op)            { this->draw(op, fCanvas); }
+    skstd::enable_if_t<!(T::kTags & SkRecords::kDraw_Tag), void> operator()(const T& op) {
+        this->draw(op, fCanvas);
+    }
 };
 
 // Record Src into a picture, then record it into a macro picture with a sub-picture for each draw.

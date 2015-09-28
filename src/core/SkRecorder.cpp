@@ -70,7 +70,7 @@ void SkRecorder::forgetRecord() {
     if (fMiniRecorder) {           \
         this->flushMiniRecorder(); \
     }                              \
-    new (fRecord->append<SkRecords::T>()) SkRecords::T(__VA_ARGS__)
+    new (fRecord->append<SkRecords::T>()) SkRecords::T{__VA_ARGS__}
 
 #define TRY_MINIRECORDER(method, ...)                       \
     if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) { return; }

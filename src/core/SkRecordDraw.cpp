@@ -116,7 +116,7 @@ DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
 DRAW(DrawAtlas, drawAtlas(r.atlas, r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
-                                r.xmode.get(), r.indices, r.indexCount, r.paint));
+                                r.xmode, r.indices, r.indexCount, r.paint));
 #undef DRAW
 
 template <> void Draw::draw(const DrawDrawable& r) {
