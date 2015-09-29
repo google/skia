@@ -14,8 +14,10 @@
 #include "SkMatrixImageFilter.h"
 #include "SkMutex.h"
 #include "SkOncePtr.h"
+#include "SkPixelRef.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
+#include "SkResourceCache.h"
 #include "SkTDynamicHash.h"
 #include "SkTInternalLList.h"
 #include "SkValidationUtils.h"
@@ -25,12 +27,6 @@
 #include "GrDrawContext.h"
 #include "SkGrPixelRef.h"
 #include "SkGr.h"
-#endif
-
-#ifdef SK_BUILD_FOR_IOS
-  enum { kDefaultCacheSize = 2 * 1024 * 1024 };
-#else
-  enum { kDefaultCacheSize = 128 * 1024 * 1024 };
 #endif
 
 #ifndef SK_IGNORE_TO_STRING
@@ -477,102 +473,122 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
 
 namespace {
 
-class CacheImpl : public SkImageFilter::Cache {
+class ImageFilterRec : public SkResourceCache::Rec {
 public:
-    CacheImpl(size_t maxBytes) : fMaxBytes(maxBytes), fCurrentBytes(0) {
-    }
-    virtual ~CacheImpl() {
-        SkTDynamicHash<Value, Key>::Iter iter(&fLookup);
-
-        while (!iter.done()) {
-            Value* v = &*iter;
-            ++iter;
-            delete v;
+    struct Keys {
+        Keys(SkImageFilter::Cache::Key ifcKey) : fIFCKey(ifcKey) {
+            static bool unique_namespace;
+            fRCKey.init(&unique_namespace,
+                        0 /*shared ids allow fine-grained purging, which we can't use here*/,
+                        sizeof(fIFCKey));
         }
-    }
-    struct Value {
-        Value(const Key& key, const SkBitmap& bitmap, const SkIPoint& offset)
-            : fKey(key), fBitmap(bitmap), fOffset(offset) {}
-        Key fKey;
-        SkBitmap fBitmap;
-        SkIPoint fOffset;
-        static const Key& GetKey(const Value& v) {
-            return v.fKey;
-        }
-        static uint32_t Hash(const Key& key) {
-            return SkChecksum::Murmur3(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
-        }
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
+        // The SkImageFilter::Cache::Key must immediately follow the SkResourceCache::Key.
+        SkResourceCache::Key            fRCKey;
+        const SkImageFilter::Cache::Key fIFCKey;
     };
-    bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const override {
-        SkAutoMutexAcquire mutex(fMutex);
-        if (Value* v = fLookup.find(key)) {
-            *result = v->fBitmap;
-            *offset = v->fOffset;
-            if (v != fLRU.head()) {
-                fLRU.remove(v);
-                fLRU.addToHead(v);
-            }
-            return true;
+
+    ImageFilterRec(SkImageFilter::Cache::Key ifcKey, const SkBitmap& bm, const SkIPoint& offset)
+        : fKeys(ifcKey)
+        , fBitmap(bm)
+        , fOffset(offset) {}
+
+    const Key& getKey() const override { return fKeys.fRCKey; }
+    size_t bytesUsed() const override { return sizeof(*this) + fBitmap.getSize(); }
+    const char* getCategory() const override { return "SkImageFilter::Cache"; }
+
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override {
+        if (auto pr = fBitmap.pixelRef()) {
+            return pr->diagnostic_only_getDiscardable();
         }
-        return false;
+        return nullptr;
     }
+
+    const SkBitmap& bitmap() const { return fBitmap; }
+    const SkIPoint& offset() const { return fOffset; }
+
+private:
+    const Keys      fKeys;
+    const SkBitmap  fBitmap;
+    const SkIPoint  fOffset;
+};
+
+struct GetVisitor {
+    SkBitmap* fResult;
+    SkIPoint* fOffset;
+
+    static bool Visit(const SkResourceCache::Rec& rec, void* context) {
+        auto r = (const ImageFilterRec&)rec;
+        auto c = (GetVisitor*)context;
+        *c->fResult = r.bitmap();
+        *c->fOffset = r.offset();
+        return true;
+    }
+};
+
+// Thread-safe SkImageFilter::Cache that uses the global SkResourceCache.
+class GlobalCache : public SkImageFilter::Cache {
+public:
+    GlobalCache() {}
+
     void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) override {
-        SkAutoMutexAcquire mutex(fMutex);
-        if (Value* v = fLookup.find(key)) {
-            removeInternal(v);
+        const SkBitmap* bm = &result;
+        SkBitmap copy;
+        // Image filters allocate their own result bitmaps.
+        // If we're putting a bitmap into the SkResourceCache backed by discardable memory,
+        // we'd better make sure those bitmaps are discardable too (and vice versa).
+        // The expected case in Chrome is: rcIsDiscardable == true, bmIsDiscardable == false.
+        auto allocator = SkResourceCache::GetAllocator();
+#if 0
+        bool rcIsDiscardable = allocator,
+             bmIsDiscardable = bm->pixelRef() && bm->pixelRef()->diagnostic_only_getDiscardable();
+        if (rcIsDiscardable != bmIsDiscardable) {
+#else
+        {
+#endif
+            bm->copyTo(&copy, allocator);
+            bm = &copy;
         }
-        Value* v = new Value(key, result, offset);
-        fLookup.add(v);
-        fLRU.addToHead(v);
-        fCurrentBytes += result.getSize();
-        while (fCurrentBytes > fMaxBytes) {
-            Value* tail = fLRU.tail();
-            SkASSERT(tail);
-            if (tail == v) {
-                break;
-            }
-            removeInternal(tail);
-        }
+        SkResourceCache::Add(new ImageFilterRec(key, *bm, offset));
     }
 
-    void purge() override {
-        SkAutoMutexAcquire mutex(fMutex);
-        while (fCurrentBytes > 0) {
-            Value* tail = fLRU.tail();
-            SkASSERT(tail);
-            this->removeInternal(tail);
-        }
+    bool get(const Key& ifcKey, SkBitmap* result, SkIPoint* offset) const override {
+        const ImageFilterRec::Keys keys(ifcKey);
+        GetVisitor visitor { result, offset };
+        return SkResourceCache::Find(keys.fRCKey, GetVisitor::Visit, &visitor);
+    }
+};
+
+// Non-thread-safe siloed SkImageFilter::Cache, meant to be small and ephemeral.
+class LocalCache : public SkImageFilter::Cache {
+public:
+    LocalCache(size_t maxBytes) : fRC(maxBytes) {
+        SkASSERT(fRC.allocator() == nullptr);
     }
 
-private:
-    void removeInternal(Value* v) {
-        fCurrentBytes -= v->fBitmap.getSize();
-        fLRU.remove(v);
-        fLookup.remove(v->fKey);
-        delete v;
+    void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) override {
+        SkASSERT(result.pixelRef() == nullptr ||
+                 result.pixelRef()->diagnostic_only_getDiscardable() == nullptr);
+        fRC.add(new ImageFilterRec(key, result, offset));
+    }
+
+    bool get(const Key& ifcKey, SkBitmap* result, SkIPoint* offset) const override {
+        const ImageFilterRec::Keys keys(ifcKey);
+        GetVisitor visitor { result, offset };
+        return fRC.find(keys.fRCKey, GetVisitor::Visit, &visitor);
     }
 private:
-    SkTDynamicHash<Value, Key>         fLookup;
-    mutable SkTInternalLList<Value>    fLRU;
-    size_t                             fMaxBytes;
-    size_t                             fCurrentBytes;
-    mutable SkMutex                    fMutex;
+    mutable SkResourceCache fRC;  // SkResourceCache::find() is not const (updates LRU).
 };
 
 } // namespace
 
 SkImageFilter::Cache* SkImageFilter::Cache::Create(size_t maxBytes) {
-    return new CacheImpl(maxBytes);
+    return new LocalCache(maxBytes);
 }
 
 SK_DECLARE_STATIC_ONCE_PTR(SkImageFilter::Cache, cache);
 SkImageFilter::Cache* SkImageFilter::Cache::Get() {
-    return cache.get([]{ return SkImageFilter::Cache::Create(kDefaultCacheSize); });
-}
-
-void SkImageFilter::PurgeCache() {
-    Cache::Get()->purge();
+    return cache.get([]{ return new GlobalCache; });
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
