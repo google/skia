@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "../private/SkAtomics.h"
+#include "SkAtomics.h"
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
 #include "SkEmptyShader.h"

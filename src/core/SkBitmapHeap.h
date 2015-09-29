@@ -8,7 +8,7 @@
 #ifndef SkBitmapHeap_DEFINED
 #define SkBitmapHeap_DEFINED
 
-#include "../private/SkAtomics.h"
+#include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"

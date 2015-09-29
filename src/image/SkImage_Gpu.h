@@ -8,7 +8,7 @@
 #ifndef SkImage_Gpu_DEFINED
 #define SkImage_Gpu_DEFINED
 
-#include "../private/SkAtomics.h"
+#include "SkAtomics.h"
 #include "GrTexture.h"
 #include "GrGpuResourcePriv.h"
 #include "SkBitmap.h"

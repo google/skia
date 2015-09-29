@@ -7,7 +7,7 @@
  */
 
 
-#include "../private/SkAtomics.h"
+#include "SkAtomics.h"
 #include "SkFixed.h"
 #include "SkString.h"
 #include "SkUtils.h"

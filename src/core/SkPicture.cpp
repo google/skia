@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "../private/SkAtomics.h"
+#include "SkAtomics.h"
 #include "SkMessageBus.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"

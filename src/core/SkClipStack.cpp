@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "../private/SkAtomics.h"
+#include "SkAtomics.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkPath.h"
