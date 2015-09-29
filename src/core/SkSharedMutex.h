@@ -14,7 +14,7 @@
 
 #ifdef SK_DEBUG
     #include "SkMutex.h"
-    #include "../private/SkUniquePtr.h"
+    #include "SkUniquePtr.h"
 #endif  // SK_DEBUG
 
 // There are two shared lock implementations one debug the other is high performance. They implement

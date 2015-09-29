@@ -12,7 +12,7 @@
 #include "../private/SkTemplates.h"
 #include "GrTypes.h"
 #include "SkData.h"
-#include "SkOnce.h"
+#include "../private/SkOnce.h"
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
 

@@ -10,7 +10,7 @@
 
 #include "SkDataTable.h"
 #include "SkFontMgr.h"
-#include "SkMutex.h"
+#include "../private/SkMutex.h"
 #include "SkRefCnt.h"
 #include "SkRemotableFontMgr.h"
 #include "SkTArray.h"

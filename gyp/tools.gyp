@@ -118,6 +118,7 @@
         '../tools/sk_tool_utils_font.cpp',
       ],
       'include_dirs': [
+        '../include/private',
         '../src/fonts',
         '../src/core',
       ],

@@ -6,7 +6,7 @@
  */
 #include <memory>
 #include "Benchmark.h"
-#include "../private/SkAtomics.h"
+#include "SkAtomics.h"
 #include "SkRefCnt.h"
 #include "SkWeakRefCnt.h"
 

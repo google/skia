@@ -300,7 +300,6 @@
         '<(skia_include_path)/core/SkMatrix.h',
         '<(skia_include_path)/core/SkMetaData.h',
         '<(skia_include_path)/core/SkMultiPictureDraw.h',
-        '<(skia_include_path)/core/SkOnce.h',
         '<(skia_include_path)/core/SkOSFile.h',
         '<(skia_include_path)/core/SkPackBits.h',
         '<(skia_include_path)/core/SkPaint.h',
@@ -341,6 +340,14 @@
         '<(skia_include_path)/core/SkUtils.h',
         '<(skia_include_path)/core/SkWriter32.h',
         '<(skia_include_path)/core/SkXfermode.h',
+
+        # private
+        '<(skia_include_path)/private/SkAtomics.h',
+        '<(skia_include_path)/private/SkMutex.h',
+        '<(skia_include_path)/private/SkOnce.h',
+        '<(skia_include_path)/private/SkOncePtr.h',
+        '<(skia_include_path)/private/SkSemaphore.h',
+        '<(skia_include_path)/private/SkSpinlock.h',
         '<(skia_include_path)/private/SkTemplates.h',
 
         # Path ops

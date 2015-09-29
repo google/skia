@@ -10,7 +10,7 @@
 
 #include "SkColorFilter.h"
 #include "SkData.h"
-#include "SkMutex.h"
+#include "../private/SkMutex.h"
 
 class SK_API SkColorCubeFilter : public SkColorFilter {
 public:

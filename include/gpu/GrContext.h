@@ -15,7 +15,7 @@
 #include "GrRenderTarget.h"
 #include "GrTextureProvider.h"
 #include "SkMatrix.h"
-#include "SkMutex.h"
+#include "../private/SkMutex.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
 

@@ -28,7 +28,7 @@
 // OnceTest.cpp also should serve as a few other simple examples.
 
 #include "../private/SkAtomics.h"
-#include "SkSpinlock.h"
+#include "../private/SkSpinlock.h"
 
 // This must be used in a global scope, not in function scope or as a class member.
 #define SK_DECLARE_STATIC_ONCE(name) namespace {} static SkOnceFlag name
