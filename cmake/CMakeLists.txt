@@ -53,11 +53,6 @@ remove_srcs (../src/utils/SkThreadUtils_pthread_*.cpp)
 # Skia sure ships a lot of code no one uses.
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
 
-# Some files only contain code in Debug mode.  This quiets down some linker warnings.
-if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
-    remove_srcs (../src/core/SkDebug.cpp ../src/utils/SkDumpCanvas.cpp)
-endif()
-
 # Remove OS-specific source files.
 if (NOT WIN32)
     remove_srcs(../src/*XPS*
@@ -79,7 +74,7 @@ if (NOT APPLE)
     remove_srcs(../src/*darwin*
                 ../src/ports/SkImageDecoder_CG.cpp
                 ../src/utils/mac/*
-                ../src/*mac*)
+                ../src/*_mac*)
 endif()
 
 # Remove processor-specific source files.
@@ -201,10 +196,8 @@ if (OSMESA_LIBRARIES AND OSMESA_INCLUDE_DIRS)
     list (APPEND libs             ${OSMESA_LIBRARIES})
     list (APPEND private_includes ${OSMESA_INCLUDE_DIRS})
     list (APPEND public_defines   "-DSK_MESA=1")
-    message("-- Found OSMesa: " ${OSMESA_LIBRARIES})
 else()
     remove_srcs(../src/gpu/gl/mesa/*)
-    message("-- Could NOT find OSMesa")
 endif()
 
 find_package(OpenGL REQUIRED)
@@ -231,13 +224,13 @@ target_link_libraries(skia
 
 
 set_target_properties(skia PROPERTIES
-    COMPILE_FLAGS "-fno-exceptions -fno-rtti -Wno-deprecated-declarations"
+    COMPILE_FLAGS "-w -fno-exceptions -fno-rtti"
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN true)
 
 # Experimental C API install:
-file(GLOB cheaders "../include/c/*.h")
-install(FILES ${cheaders} DESTINATION include)
+file(GLOB c_headers "../include/c/*.h")
+install(FILES ${c_headers} DESTINATION include)
 install(TARGETS skia DESTINATION lib)
 
 # Now build a simple example app that uses Skia via libskia.so.
