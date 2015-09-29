@@ -42,6 +42,7 @@ public:
         static Cache* Get();
         virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
         virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
+        virtual void purge() {}
     };
 
     class Context {
@@ -374,6 +375,9 @@ protected:
     virtual bool affectsTransparentBlack() const;
 
 private:
+    friend class SkGraphics;
+    static void PurgeCache();
+
     bool usesSrcInput() const { return fUsesSrcInput; }
 
     typedef SkFlattenable INHERITED;

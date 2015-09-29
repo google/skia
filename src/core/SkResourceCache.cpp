@@ -658,6 +658,7 @@ size_t SkGraphics::SetResourceCacheSingleAllocationByteLimit(size_t newLimit) {
 }
 
 void SkGraphics::PurgeResourceCache() {
+    SkImageFilter::PurgeCache();
     return SkResourceCache::PurgeAll();
 }
 
