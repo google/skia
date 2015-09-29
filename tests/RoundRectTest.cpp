@@ -47,6 +47,61 @@ static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkRRect::kEmpty_Type == other.getType());
 }
 
+// Test that all the SkRRect entry points correctly handle un-sorted and
+// zero-sized input rects
+static void test_empty(skiatest::Reporter* reporter) {
+    static const SkRect oooRects[] = {  // out of order
+        { 100, 0, 0, 100 },  // ooo horizontal
+        { 0, 100, 100, 0 },  // ooo vertical
+        { 100, 100, 0, 0 },  // ooo both
+    };
+
+    static const SkRect emptyRects[] = {
+        { 100, 100, 100, 200 }, // empty horizontal
+        { 100, 100, 200, 100 }, // empty vertical
+        { 100, 100, 100, 100 }, // empty both
+        { 0, 0, 0, 0 }          // setEmpty-empty
+    };
+
+    static const SkVector radii[4] = { { 0, 1 }, { 2, 3 }, { 4, 5 }, { 6, 7 } };
+
+    SkRRect r;
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(oooRects); ++i) {
+        r.setRect(oooRects[i]);
+        REPORTER_ASSERT(reporter, !r.isEmpty());
+
+        r.setOval(oooRects[i]);
+        REPORTER_ASSERT(reporter, !r.isEmpty());
+
+        r.setRectXY(oooRects[i], 1, 2);
+        REPORTER_ASSERT(reporter, !r.isEmpty());
+
+        r.setNinePatch(oooRects[i], 0, 1, 2, 3);
+        REPORTER_ASSERT(reporter, !r.isEmpty());
+
+        r.setRectRadii(oooRects[i], radii);
+        REPORTER_ASSERT(reporter, !r.isEmpty());
+    }
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(emptyRects); ++i) {
+        r.setRect(emptyRects[i]);
+        REPORTER_ASSERT(reporter, r.isEmpty());
+
+        r.setOval(emptyRects[i]);
+        REPORTER_ASSERT(reporter, r.isEmpty());
+
+        r.setRectXY(emptyRects[i], 1, 2);
+        REPORTER_ASSERT(reporter, r.isEmpty());
+
+        r.setNinePatch(emptyRects[i], 0, 1, 2, 3);
+        REPORTER_ASSERT(reporter, r.isEmpty());
+
+        r.setRectRadii(emptyRects[i], radii);
+        REPORTER_ASSERT(reporter, r.isEmpty());
+    }
+}
+
 static const SkScalar kWidth = 100.0f;
 static const SkScalar kHeight = 100.0f;
 
@@ -679,4 +734,5 @@ DEF_TEST(RoundRect, reporter) {
     test_issue_2696(reporter);
     test_tricky_radii(reporter);
     test_empty_crbug_458524(reporter);
+    test_empty(reporter);
 }

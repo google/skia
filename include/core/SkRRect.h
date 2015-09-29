@@ -127,12 +127,14 @@ public:
      * Set this RR to match the supplied rect. All radii will be 0.
      */
     void setRect(const SkRect& rect) {
-        if (rect.isEmpty()) {
+        fRect = rect;
+        fRect.sort();
+
+        if (fRect.isEmpty()) {
             this->setEmpty();
             return;
         }
 
-        fRect = rect;
         memset(fRadii, 0, sizeof(fRadii));
         fType = kRect_Type;
 
@@ -156,15 +158,17 @@ public:
      * width and all y radii will equal half the height.
      */
     void setOval(const SkRect& oval) {
-        if (oval.isEmpty()) {
+        fRect = oval;
+        fRect.sort();
+
+        if (fRect.isEmpty()) {
             this->setEmpty();
             return;
         }
 
-        SkScalar xRad = SkScalarHalf(oval.width());
-        SkScalar yRad = SkScalarHalf(oval.height());
+        SkScalar xRad = SkScalarHalf(fRect.width());
+        SkScalar yRad = SkScalarHalf(fRect.height());
 
-        fRect = oval;
         for (int i = 0; i < 4; ++i) {
             fRadii[i].set(xRad, yRad);
         }

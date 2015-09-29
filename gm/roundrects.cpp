@@ -18,6 +18,15 @@
 
 namespace skiagm {
 
+static SkColor gen_color(SkRandom* rand) {
+    SkScalar hsv[3];
+    hsv[0] = rand->nextRangeF(0.0f, 360.0f);
+    hsv[1] = rand->nextRangeF(0.75f, 1.0f);
+    hsv[2] = rand->nextRangeF(0.75f, 1.0f);
+
+    return sk_tool_utils::color_to_565(SkHSVToColor(hsv));
+}
+
 class RoundRectGM : public GM {
 public:
     RoundRectGM() {
@@ -127,19 +136,10 @@ protected:
         }
     }
 
-    SkColor genColor(SkRandom* rand) {
-        SkScalar hsv[3];
-        hsv[0] = rand->nextRangeF(0.0f, 360.0f);
-        hsv[1] = rand->nextRangeF(0.75f, 1.0f);
-        hsv[2] = rand->nextRangeF(0.75f, 1.0f);
-
-        return sk_tool_utils::color_to_565(SkHSVToColor(hsv));
-    }
-
     void onDraw(SkCanvas* canvas) override {
         SkRandom rand(1);
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
-        SkRect rect = SkRect::MakeLTRB(-20, -30, 20, 30);
+        const SkRect rect = SkRect::MakeLTRB(-20, -30, 20, 30);
         SkRRect circleRect;
         circleRect.setRectXY(rect, 5, 5);
 
@@ -167,7 +167,7 @@ protected:
                                   3 * SK_Scalar1 / 4);
                 canvas->concat(mat);
 
-                SkColor color = genColor(&rand);
+                SkColor color = gen_color(&rand);
                 fPaints[i].setColor(color);
 
                 canvas->drawRect(rect, rectPaint);
@@ -192,7 +192,7 @@ protected:
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 2.55f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4);
 
-            SkColor color = genColor(&rand);
+            SkColor color = gen_color(&rand);
             fPaints[i].setColor(color);
 
             canvas->drawRect(rect, rectPaint);
@@ -212,7 +212,7 @@ protected:
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
 
-            SkColor color = genColor(&rand);
+            SkColor color = gen_color(&rand);
             fPaints[i].setColor(color);
 
             canvas->drawRect(rect, rectPaint);
@@ -231,7 +231,7 @@ protected:
             canvas->translate(kXStart + SK_Scalar1 * kXStep * 3.25f + SK_Scalar1 / 4,
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4);
 
-            SkColor color = genColor(&rand);
+            SkColor color = gen_color(&rand);
             fPaints[i].setColor(color);
 
             canvas->drawRRect(circleRect, fPaints[i]);
@@ -250,7 +250,7 @@ protected:
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
 
-            SkColor color = genColor(&rand);
+            SkColor color = gen_color(&rand);
             fPaints[i].setColor(color);
 
             canvas->drawRRect(circleRect, fPaints[i]);
@@ -275,7 +275,7 @@ protected:
                               kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                               SK_ScalarHalf * kYStep);
 
-            SkColor color = genColor(&rand);
+            SkColor color = gen_color(&rand);
             fPaints[i].setColor(color);
             fPaints[i].setShader(shader);
 
@@ -310,7 +310,7 @@ protected:
                                   kYStart + SK_Scalar1 * kYStep * i + 3 * SK_Scalar1 / 4 +
                                   SK_ScalarHalf * kYStep);
 
-                SkColor color = genColor(&rand);
+                SkColor color = gen_color(&rand);
 
                 SkPaint p;
                 p.setAntiAlias(true);
@@ -323,6 +323,24 @@ protected:
             }
         }
 
+        // test old entry point (skbug.com/3786)
+        {
+            canvas->save();
+
+            canvas->translate(kXStart + SK_Scalar1 * kXStep * 5 + SK_Scalar1 / 4,
+                              kYStart + SK_Scalar1 * kYStep * 4 + SK_Scalar1 / 4 +
+                              SK_ScalarHalf * kYStep);
+
+            const SkColor color = gen_color(&rand);
+
+            SkPaint p;
+            p.setColor(color);
+
+            const SkRect oooRect = { 20, 30, -20, -30 };     // intentionally out of order
+            canvas->drawRoundRect(oooRect, 10, 10, p);
+
+            canvas->restore();
+        }
     }
 
 private:
