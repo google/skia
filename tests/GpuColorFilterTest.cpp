@@ -100,19 +100,18 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
     GrPaint paint;
     for (size_t i = 0; i < SK_ARRAY_COUNT(filterTests); ++i) {
         const GetConstantComponentTestCase& test = filterTests[i];
-        SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
-        SkTDArray<const GrFragmentProcessor*> array;
-        bool hasFrag = cf->asFragmentProcessors(grContext, paint.getProcessorDataManager(), &array);
-        REPORTER_ASSERT(reporter, hasFrag);
-        REPORTER_ASSERT(reporter, 1 == array.count());
+        SkAutoTUnref<SkColorFilter> cf(
+            SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
+        SkAutoTUnref<const GrFragmentProcessor> fp(
+            cf->asFragmentProcessor(grContext, paint.getProcessorDataManager()));
+        REPORTER_ASSERT(reporter, fp);
         GrInvariantOutput inout(test.inputColor,
                                 static_cast<GrColorComponentFlags>(test.inputComponents),
                                 false);
-        array[0]->computeInvariantOutput(&inout);
-
-        REPORTER_ASSERT(reporter, filterColor(inout.color(), inout.validFlags()) == test.outputColor);
+        fp->computeInvariantOutput(&inout);
+        REPORTER_ASSERT(reporter, filterColor(inout.color(), inout.validFlags()) ==
+                                  test.outputColor);
         REPORTER_ASSERT(reporter, test.outputComponents == inout.validFlags());
-        array[0]->unref();
     }
 }
 

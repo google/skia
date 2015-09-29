@@ -812,12 +812,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (applyColorFilterToPaintColor) {
             grPaint->setColor(SkColorToPremulGrColor(colorFilter->filterColor(skPaint.getColor())));
         } else {
-            SkTDArray<const GrFragmentProcessor*> array;
-            if (colorFilter->asFragmentProcessors(context, grPaint->getProcessorDataManager(),
-                                                  &array)) {
-                for (int i = 0; i < array.count(); ++i) {
-                    grPaint->addColorFragmentProcessor(array[i])->unref();
-                }
+            SkAutoTUnref<const GrFragmentProcessor> cfFP(
+                colorFilter->asFragmentProcessor(context, grPaint->getProcessorDataManager()));
+            if (cfFP) {
+                grPaint->addColorFragmentProcessor(cfFP);
             } else {
                 return false;
             }

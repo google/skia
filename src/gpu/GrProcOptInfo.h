@@ -50,7 +50,7 @@ public:
     GrColor color() const { return fInOut.color(); }
 
     GrColorComponentFlags validFlags() const {
-        return static_cast<GrColorComponentFlags>(fInOut.validFlags());
+        return fInOut.validFlags();
     }
 
     /**

@@ -10,6 +10,7 @@
 #include "GrCoordTransform.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "effects/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 GrFragmentProcessor::~GrFragmentProcessor() {
@@ -279,3 +280,96 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
         return SkRef(fp);
     }
 }
+
+const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProcessor* series[],
+                                                            int cnt) {
+    class SeriesFragmentProcessor : public GrFragmentProcessor {
+    public:
+        SeriesFragmentProcessor(const GrFragmentProcessor* children[], int cnt){
+            SkASSERT(cnt > 1);
+            this->initClassID<SeriesFragmentProcessor>();
+            for (int i = 0; i < cnt; ++i) {
+                this->registerChildProcessor(children[i]);
+            }
+        }
+
+        const char* name() const override { return "Series"; }
+
+        GrGLFragmentProcessor* onCreateGLInstance() const override {
+            class GLFP : public GrGLFragmentProcessor {
+            public:
+                GLFP() {}
+                void emitCode(EmitArgs& args) override {
+                    SkString input(args.fInputColor);
+                    for (int i = 0; i < this->numChildProcessors() - 1; ++i) {
+                        SkString temp;
+                        temp.printf("out%d", i);
+                        this->emitChild(i, input.c_str(), &temp, args);
+                        input = temp;
+                    }
+                    // Last guy writes to our output variable.
+                    this->emitChild(this->numChildProcessors() - 1, input.c_str(), args);
+                }
+            };
+            return new GLFP;
+        }
+
+    private:
+        void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+
+        bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
+            GrProcOptInfo info;
+            SkTDArray<const GrFragmentProcessor*> children;
+            children.setCount(this->numChildProcessors());
+            for (int i = 0; i < children.count(); ++i) {
+                children[i] = &this->childProcessor(i);
+            }
+            info.calcWithInitialValues(children.begin(), children.count(), inout->color(),
+                                       inout->validFlags(), false, false);
+            for (int i = 0; i < this->numChildProcessors(); ++i) {
+                this->childProcessor(i).computeInvariantOutput(inout);
+            }
+        }
+    };
+
+    if (!cnt) {
+        return nullptr;
+    }
+
+    // Run the through the series, do the invariant output processing, and look for eliminations.
+    SkTDArray<const GrFragmentProcessor*> replacementSeries;
+    SkAutoTUnref<const GrFragmentProcessor> colorFP;
+    GrProcOptInfo info;
+
+    info.calcWithInitialValues(series, cnt, 0x0, kNone_GrColorComponentFlags, false, false);
+    if (kRGBA_GrColorComponentFlags == info.validFlags()) {
+        return GrConstColorProcessor::Create(info.color(),
+                                             GrConstColorProcessor::kIgnore_InputMode);
+    } else {
+        int firstIdx = info.firstEffectiveProcessorIndex();
+        cnt -= firstIdx;
+        if (firstIdx > 0 && info.inputColorIsUsed()) {
+            colorFP.reset(GrConstColorProcessor::Create(info.inputColorToFirstEffectiveProccesor(),
+                                                        GrConstColorProcessor::kIgnore_InputMode));
+            cnt += 1;
+            replacementSeries.setCount(cnt);
+            replacementSeries[0] = colorFP;
+            for (int i = 0; i < cnt - 1; ++i) {
+                replacementSeries[i + 1] = series[firstIdx + i];
+            }
+            series = replacementSeries.begin();
+        } else {
+            series += firstIdx;
+            cnt -= firstIdx;
+        }
+    }
+
+    if (1 == cnt) {
+        return SkRef(series[0]);
+    } else {
+        return new SeriesFragmentProcessor(series, cnt);
+    }
+}
+

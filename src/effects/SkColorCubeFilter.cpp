@@ -160,7 +160,7 @@ void SkColorCubeFilter::toString(SkString* str) const {
 
 class GrColorCubeEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrTexture* colorCube) {
+    static const GrFragmentProcessor* Create(GrTexture* colorCube) {
         return (nullptr != colorCube) ? new GrColorCubeEffect(colorCube) : nullptr;
     }
 
@@ -303,8 +303,8 @@ void GrColorCubeEffect::GLProcessor::GenKey(const GrProcessor& proc,
                                             const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
 }
 
-bool SkColorCubeFilter::asFragmentProcessors(GrContext* context, GrProcessorDataManager*,
-                                             SkTDArray<const GrFragmentProcessor*>* array) const {
+const GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context,
+                                                                  GrProcessorDataManager*) const {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
     GrUniqueKey::Builder builder(&key, kDomain, 2);
@@ -324,19 +324,11 @@ bool SkColorCubeFilter::asFragmentProcessors(GrContext* context, GrProcessorData
             desc, true, fCubeData->data(), 0));
         if (textureCube) {
             context->textureProvider()->assignUniqueKeyToTexture(key, textureCube);
+        } else {
+            return nullptr;
         }
     }
 
-    GrFragmentProcessor* frag = textureCube ? GrColorCubeEffect::Create(textureCube) : nullptr;
-    if (frag) {
-        if (array) {
-            *array->append() = frag;
-        } else {
-            frag->unref();
-            SkDEBUGCODE(frag = nullptr;)
-        }
-        return true;
-    }
-    return false;
+    return GrColorCubeEffect::Create(textureCube);
 }
 #endif

@@ -390,7 +390,7 @@ SkColorFilter* SkColorMatrixFilter::newComposed(const SkColorFilter* innerFilter
 
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(const SkColorMatrix& matrix) {
+    static const GrFragmentProcessor* Create(const SkColorMatrix& matrix) {
         return new ColorMatrixEffect(matrix);
     }
 
@@ -536,19 +536,9 @@ const GrFragmentProcessor* ColorMatrixEffect::TestCreate(GrProcessorTestData* d)
     return ColorMatrixEffect::Create(colorMatrix);
 }
 
-bool SkColorMatrixFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                                               SkTDArray<const GrFragmentProcessor*>* array) const {
-    GrFragmentProcessor* frag = ColorMatrixEffect::Create(fMatrix);
-    if (frag) {
-        if (array) {
-            *array->append() = frag;
-        } else {
-            frag->unref();
-            SkDEBUGCODE(frag = nullptr;)
-        }
-        return true;
-    }
-    return false;
+const GrFragmentProcessor* SkColorMatrixFilter::asFragmentProcessor(GrContext*,
+                                                                    GrProcessorDataManager*) const {
+    return ColorMatrixEffect::Create(fMatrix);
 }
 
 #endif

@@ -41,11 +41,19 @@ public:
     static const GrFragmentProcessor* MulOutputByInputUnpremulColor(const GrFragmentProcessor*);
 
     /**
-     * Returns a parent fragment processor that adopts the passed fragment processor as a child. The
-     * parent will ignore its input color and instead feed the passed in color as input to the
-     * child.
+     *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
+     *  The parent will ignore its input color and instead feed the passed in color as input to the
+     *  child.
      */
     static const GrFragmentProcessor* OverrideInput(const GrFragmentProcessor*, GrColor);
+
+    /**
+     * Returns a fragment processor that runs the passed in array of fragment processors in a
+     * series. The original input is passed to the first, the first's output is passed to the
+     * second, etc. The output of the returned processor is the output of the last processor of the
+     * series.
+     */
+    static const GrFragmentProcessor* RunInSeries(const GrFragmentProcessor*[], int cnt);
 
     GrFragmentProcessor()
         : INHERITED()

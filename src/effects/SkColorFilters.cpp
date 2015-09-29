@@ -70,36 +70,32 @@ SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 #include "effects/GrConstColorProcessor.h"
 #include "SkGr.h"
 
-bool SkModeColorFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                                             SkTDArray<const GrFragmentProcessor*>* array) const {
-    if (SkXfermode::kDst_Mode != fMode) {
-        SkAutoTUnref<const GrFragmentProcessor> constFP(
-            GrConstColorProcessor::Create(SkColorToPremulGrColor(fColor),
-                                          GrConstColorProcessor::kIgnore_InputMode));
-        const GrFragmentProcessor* fp =
-            GrXfermodeFragmentProcessor::CreateFromSrcProcessor(constFP, fMode);
-        if (fp) {
-#ifdef SK_DEBUG
-            // With a solid color input this should always be able to compute the blended color
-            // (at least for coeff modes)
-            if (fMode <= SkXfermode::kLastCoeffMode) {
-                static SkRandom gRand;
-                GrInvariantOutput io(GrPremulColor(gRand.nextU()), kRGBA_GrColorComponentFlags,
-                                     false);
-                fp->computeInvariantOutput(&io);
-                SkASSERT(io.validFlags() == kRGBA_GrColorComponentFlags);
-            }
-#endif
-            if (array) {
-                *array->append() = fp;
-            } else {
-                fp->unref();
-                SkDEBUGCODE(fp = nullptr;)
-            }
-            return true;
-        }
+const GrFragmentProcessor* SkModeColorFilter::asFragmentProcessor(GrContext*,
+                                                                  GrProcessorDataManager*) const {
+    if (SkXfermode::kDst_Mode == fMode) {
+        return nullptr;
     }
-    return false;
+
+    SkAutoTUnref<const GrFragmentProcessor> constFP(
+        GrConstColorProcessor::Create(SkColorToPremulGrColor(fColor),
+                                        GrConstColorProcessor::kIgnore_InputMode));
+    const GrFragmentProcessor* fp =
+        GrXfermodeFragmentProcessor::CreateFromSrcProcessor(constFP, fMode);
+    if (!fp) {
+        return nullptr;
+    }
+#ifdef SK_DEBUG
+    // With a solid color input this should always be able to compute the blended color
+    // (at least for coeff modes)
+    if (fMode <= SkXfermode::kLastCoeffMode) {
+        static SkRandom gRand;
+        GrInvariantOutput io(GrPremulColor(gRand.nextU()), kRGBA_GrColorComponentFlags,
+                                false);
+        fp->computeInvariantOutput(&io);
+        SkASSERT(io.validFlags() == kRGBA_GrColorComponentFlags);
+    }
+#endif
+    return fp;
 }
 
 #endif

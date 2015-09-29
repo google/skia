@@ -48,8 +48,8 @@ public:
     SkColorFilter* newComposed(const SkColorFilter* inner) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                              SkTDArray<const GrFragmentProcessor*>*) const override;
+    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+                                                   GrProcessorDataManager*) const override;
 #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
@@ -340,7 +340,7 @@ SkColorFilter* SkTable_ColorFilter::newComposed(const SkColorFilter* innerFilter
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrContext* context, SkBitmap bitmap, unsigned flags);
+    static const GrFragmentProcessor* Create(GrContext* context, SkBitmap bitmap, unsigned flags);
 
     virtual ~ColorTableEffect();
 
@@ -461,7 +461,8 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrFragmentProcessor* ColorTableEffect::Create(GrContext* context, SkBitmap bitmap, unsigned flags) {
+const GrFragmentProcessor* ColorTableEffect::Create(GrContext* context, SkBitmap bitmap,
+                                                    unsigned flags) {
 
     GrTextureStripAtlas::Desc desc;
     desc.fWidth  = bitmap.width();
@@ -563,31 +564,17 @@ const GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) 
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
 
-    SkTDArray<const GrFragmentProcessor*> array;
-    if (filter->asFragmentProcessors(d->fContext, d->fProcDataManager, &array)) {
-        SkASSERT(1 == array.count());   // TableColorFilter only returns 1
-        return array[0];
-    }
-    return nullptr;
+    const GrFragmentProcessor* fp = filter->asFragmentProcessor(d->fContext, d->fProcDataManager);
+    SkASSERT(fp);
+    return fp;
 }
 
-bool SkTable_ColorFilter::asFragmentProcessors(GrContext* context,
-                                               GrProcessorDataManager*,
-                                               SkTDArray<const GrFragmentProcessor*>* array) const {
+const GrFragmentProcessor* SkTable_ColorFilter::asFragmentProcessor(GrContext* context,
+                                                                    GrProcessorDataManager*) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
 
-    GrFragmentProcessor* frag = ColorTableEffect::Create(context, bitmap, fFlags);
-    if (frag) {
-        if (array) {
-            *array->append() = frag;
-        } else {
-            frag->unref();
-            SkDEBUGCODE(frag = nullptr;)
-        }
-        return true;
-    }
-    return false;
+    return ColorTableEffect::Create(context, bitmap, fFlags);
 }
 
 #endif // SK_SUPPORT_GPU

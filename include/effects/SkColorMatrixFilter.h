@@ -26,8 +26,8 @@ public:
     SkColorFilter* newComposed(const SkColorFilter*) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                              SkTDArray<const GrFragmentProcessor*>*) const override;
+    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
+                                                   GrProcessorDataManager*) const override;
 #endif
 
     struct State {

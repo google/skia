@@ -54,7 +54,7 @@ void SkLumaColorFilter::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 class LumaColorFilterEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create() {
+    static const GrFragmentProcessor* Create() {
         static LumaColorFilterEffect gLumaEffect;
         return SkRef(&gLumaEffect);
     }
@@ -108,19 +108,9 @@ private:
     }
 };
 
-bool SkLumaColorFilter::asFragmentProcessors(GrContext*, GrProcessorDataManager*,
-                                             SkTDArray<const GrFragmentProcessor*>* array) const {
+const GrFragmentProcessor* SkLumaColorFilter::asFragmentProcessor(GrContext*,
+                                                                  GrProcessorDataManager*) const {
 
-    GrFragmentProcessor* frag = LumaColorFilterEffect::Create();
-    if (frag) {
-        if (array) {
-            *array->append() = frag;
-        } else {
-            frag->unref();
-            SkDEBUGCODE(frag = nullptr;)
-        }
-        return true;
-    }
-    return false;
+    return LumaColorFilterEffect::Create();
 }
 #endif
