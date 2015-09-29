@@ -9,7 +9,7 @@
 
 #include "SkAtomics.h"
 #include "SkTypes.h"
-#include "../private/SkSemaphore.h"
+#include "SkSemaphore.h"
 
 #if defined(THREAD_SANITIZER)
 
@@ -68,21 +68,13 @@ void AnnotateRWLockReleased(
 
 #ifdef SK_DEBUG
 
+    #include "SkThreadID.h"
     #include "SkTDArray.h"
-    #ifdef SK_BUILD_FOR_WIN
-        #include <windows.h>
-        static int64_t get_thread_id() { return GetCurrentThreadId(); }
-    #else
-        #include <pthread.h>
-        static int64_t get_thread_id() { return (int64_t)pthread_self(); }
-    #endif
-
-    typedef int64_t ThreadID;
 
     class SkSharedMutex::ThreadIDSet {
     public:
         // Returns true if threadID is in the set.
-        bool find(ThreadID threadID) const {
+        bool find(SkThreadID threadID) const {
             for (auto& t : fThreadIDs) {
                 if (t == threadID) return true;
             }
@@ -90,7 +82,7 @@ void AnnotateRWLockReleased(
         }
 
         // Returns true if did not already exist.
-        bool tryAdd(ThreadID threadID) {
+        bool tryAdd(SkThreadID threadID) {
             for (auto& t : fThreadIDs) {
                 if (t == threadID) return false;
             }
@@ -98,7 +90,7 @@ void AnnotateRWLockReleased(
             return true;
         }
         // Returns true if already exists in Set.
-        bool tryRemove(ThreadID threadID) {
+        bool tryRemove(SkThreadID threadID) {
             for (int i = 0; i < fThreadIDs.count(); ++i) {
                 if (fThreadIDs[i] == threadID) {
                     fThreadIDs.remove(i);
@@ -117,7 +109,7 @@ void AnnotateRWLockReleased(
         }
 
     private:
-        SkTDArray<ThreadID> fThreadIDs;
+        SkTDArray<SkThreadID> fThreadIDs;
     };
 
     SkSharedMutex::SkSharedMutex()
@@ -130,7 +122,7 @@ void AnnotateRWLockReleased(
     SkSharedMutex::~SkSharedMutex() {  ANNOTATE_RWLOCK_DESTROY(this); }
 
     void SkSharedMutex::acquire() {
-        ThreadID threadID(get_thread_id());
+        SkThreadID threadID(SkGetThreadID());
         int currentSharedCount;
         int waitingExclusiveCount;
         {
@@ -156,7 +148,7 @@ void AnnotateRWLockReleased(
     // exclusive lock separate from the threads added before.
     void SkSharedMutex::release() {
         ANNOTATE_RWLOCK_RELEASED(this, 1);
-        ThreadID threadID(get_thread_id());
+        SkThreadID threadID(SkGetThreadID());
         int sharedWaitingCount;
         int exclusiveWaitingCount;
         int sharedQueueSelect;
@@ -183,14 +175,14 @@ void AnnotateRWLockReleased(
     }
 
     void SkSharedMutex::assertHeld() const {
-        ThreadID threadID(get_thread_id());
+        SkThreadID threadID(SkGetThreadID());
         SkAutoMutexAcquire l(&fMu);
         SkASSERT(0 == fCurrentShared->count());
         SkASSERT(fWaitingExclusive->find(threadID));
     }
 
     void SkSharedMutex::acquireShared() {
-        ThreadID threadID(get_thread_id());
+        SkThreadID threadID(SkGetThreadID());
         int exclusiveWaitingCount;
         int sharedQueueSelect;
         {
@@ -217,7 +209,7 @@ void AnnotateRWLockReleased(
 
     void SkSharedMutex::releaseShared() {
         ANNOTATE_RWLOCK_RELEASED(this, 0);
-        ThreadID threadID(get_thread_id());
+        SkThreadID threadID(SkGetThreadID());
 
         int currentSharedCount;
         int waitingExclusiveCount;
@@ -236,7 +228,7 @@ void AnnotateRWLockReleased(
     }
 
     void SkSharedMutex::assertHeldShared() const {
-        ThreadID threadID(get_thread_id());
+        SkThreadID threadID(SkGetThreadID());
         SkAutoMutexAcquire l(&fMu);
         SkASSERT(fCurrentShared->find(threadID));
     }

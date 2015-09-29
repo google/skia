@@ -226,6 +226,7 @@
         '<(skia_src_path)/core/SkTextMapStateProc.h',
         '<(skia_src_path)/core/SkTime.cpp',
         '<(skia_src_path)/core/SkTDPQueue.h',
+        '<(skia_src_path)/core/SkThreadID.cpp',
         '<(skia_src_path)/core/SkTLList.h',
         '<(skia_src_path)/core/SkTLS.cpp',
         '<(skia_src_path)/core/SkTraceEvent.h',
@@ -349,6 +350,7 @@
         '<(skia_include_path)/private/SkSemaphore.h',
         '<(skia_include_path)/private/SkSpinlock.h',
         '<(skia_include_path)/private/SkTemplates.h',
+        '<(skia_include_path)/private/SkThreadID.h',
 
         # Path ops
         '<(skia_include_path)/pathops/SkPathOps.h',

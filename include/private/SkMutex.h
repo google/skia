@@ -12,6 +12,10 @@
 #include "../private/SkSemaphore.h"
 #include "SkTypes.h"
 
+#ifdef SK_DEBUG
+    #include "../private/SkThreadID.h"
+#endif
+
 #define SK_MUTEX_SEMAPHORE_INIT {1, {0}}
 
 #ifdef SK_DEBUG
@@ -30,35 +34,20 @@
 // initialized in a class with this macro.
 #define SK_DECLARE_STATIC_MUTEX(name) namespace {} static SkBaseMutex name = SK_BASE_MUTEX_INIT;
 
-// TODO(herb): unify this with the ThreadID in SkSharedMutex.cpp.
-#ifdef SK_DEBUG
-    #ifdef SK_BUILD_FOR_WIN
-        #include <windows.h>
-        inline int64_t sk_get_thread_id() { return GetCurrentThreadId(); }
-    #else
-        #include <pthread.h>
-        inline int64_t sk_get_thread_id() { return (int64_t)pthread_self(); }
-    #endif
-#endif
-
-typedef int64_t SkThreadID;
-
-SkDEBUGCODE(static const SkThreadID kNoOwner = 0;)
-
 struct SkBaseMutex {
     void acquire() {
         fSemaphore.wait();
-        SkDEBUGCODE(fOwner = sk_get_thread_id();)
+        SkDEBUGCODE(fOwner = SkGetThreadID();)
     }
 
     void release() {
         this->assertHeld();
-        SkDEBUGCODE(fOwner = kNoOwner;)
+        SkDEBUGCODE(fOwner = kIllegalThreadID;)
         fSemaphore.signal();
     }
 
     void assertHeld() {
-        SkASSERT(fOwner == sk_get_thread_id());
+        SkASSERT(fOwner == SkGetThreadID());
     }
 
     SkBaseSemaphore fSemaphore;
@@ -70,7 +59,7 @@ class SkMutex : public SkBaseMutex {
 public:
     SkMutex () {
         fSemaphore = SK_MUTEX_SEMAPHORE_INIT;
-        SkDEBUGCODE(fOwner = kNoOwner);
+        SkDEBUGCODE(fOwner = kIllegalThreadID);
     }
     ~SkMutex () { fSemaphore.deleteSemaphore(); }
     SkMutex(const SkMutex&) = delete;
@@ -81,7 +70,7 @@ template <typename Lock>
 class SkAutoTAcquire : SkNoncopyable {
 public:
     explicit SkAutoTAcquire(Lock& mutex) : fMutex(&mutex) {
-        SkASSERT(fMutex != NULL);
+        SkASSERT(fMutex != nullptr);
         mutex.acquire();
     }
 
@@ -102,7 +91,7 @@ public:
     void release() {
         if (fMutex) {
             fMutex->release();
-            fMutex = NULL;
+            fMutex = nullptr;
         }
     }
 
