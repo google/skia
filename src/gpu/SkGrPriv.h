@@ -21,6 +21,16 @@ class SkPaint;
 class SkMatrix;
 struct SkIRect;
 
+struct SkGrStretch {
+    enum Type {
+        kNone_Type,
+        kBilerp_Type,
+        kNearest_Type
+    } fType;
+    int fWidth;
+    int fHeight;
+};
+
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()
  *  are unique.
