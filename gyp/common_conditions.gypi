@@ -250,17 +250,6 @@
                   '-m32',
                 ],
               }],
-              [ 'skia_angle == 1' , {
-                'cflags!': [
-                  '-fstrict-aliasing',
-                ],
-                'cflags_cc!': [
-                  '-Wnon-virtual-dtor',
-                ],
-                'cflags_cc': [
-                  '-Wno-unknown-pragmas',
-                ],
-              }],
             ],
           }],
           [ 'skia_warnings_as_errors', {
