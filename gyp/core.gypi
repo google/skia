@@ -346,13 +346,25 @@
 
         # private
         '<(skia_include_path)/private/SkAtomics.h',
+        '<(skia_include_path)/private/SkChecksum.h',
+        '<(skia_include_path)/private/SkFloatBits.h',
+        '<(skia_include_path)/private/SkFloatingPoint.h',
+        '<(skia_include_path)/private/SkFunction.h',
+        '<(skia_include_path)/private/SkGpuFenceSync.h',
+        '<(skia_include_path)/private/SkMiniRecorder.h',
         '<(skia_include_path)/private/SkMutex.h',
         '<(skia_include_path)/private/SkOnce.h',
         '<(skia_include_path)/private/SkOncePtr.h',
+        '<(skia_include_path)/private/SkRecords.h',
         '<(skia_include_path)/private/SkSemaphore.h',
         '<(skia_include_path)/private/SkSpinlock.h',
         '<(skia_include_path)/private/SkTemplates.h',
+        '<(skia_include_path)/private/SkTHash.h',
         '<(skia_include_path)/private/SkThreadID.h',
+        '<(skia_include_path)/private/SkTLogic.h',
+        '<(skia_include_path)/private/SkUniquePtr.h',
+        '<(skia_include_path)/private/SkUtility.h',
+        '<(skia_include_path)/private/SkWeakRefCnt.h',
 
         # Path ops
         '<(skia_include_path)/pathops/SkPathOps.h',
