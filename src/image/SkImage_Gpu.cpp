@@ -7,11 +7,14 @@
 
 #include "SkBitmapCache.h"
 #include "SkImage_Gpu.h"
+#include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrTextureMaker.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
+#include "SkGrPriv.h"
 #include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
@@ -33,13 +36,6 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
     if (as_IB(image)->getTexture()) {
         ((SkImage_Gpu*)image)->applyBudgetDecision();
     }
-}
-
-SkShader* SkImage_Gpu::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
-                                   const SkMatrix* localMatrix) const {
-    SkBitmap bm;
-    GrWrapTextureInBitmap(fTexture, this->width(), this->height(), this->isOpaque(), &bm);
-    return SkShader::CreateBitmapShader(bm, tileX, tileY, localMatrix);
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
@@ -65,9 +61,56 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     return true;
 }
 
+static void make_raw_texture_stretched_key(uint32_t imageID, const SkGrStretch& stretch,
+                                           GrUniqueKey* stretchedKey) {
+    SkASSERT(SkGrStretch::kNone_Type != stretch.fType);
+
+    uint32_t width = SkToU16(stretch.fWidth);
+    uint32_t height = SkToU16(stretch.fHeight);
+
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(stretchedKey, kDomain, 3);
+    builder[0] = imageID;
+    builder[1] = stretch.fType;
+    builder[2] = width | (height << 16);
+    builder.finish();
+}
+
+class Texture_GrTextureMaker : public GrTextureMaker {
+public:
+    Texture_GrTextureMaker(const SkImage* image, GrTexture* unstretched)
+        : INHERITED(image->width(), image->height())
+        , fImage(image)
+        , fUnstretched(unstretched)
+    {}
+
+protected:
+    GrTexture* onRefUnstretchedTexture(GrContext* ctx) override {
+        return SkRef(fUnstretched);
+    }
+
+    bool onMakeStretchedKey(const SkGrStretch& stretch, GrUniqueKey* stretchedKey) override {
+        make_raw_texture_stretched_key(fImage->uniqueID(), stretch, stretchedKey);
+        return stretchedKey->isValid();
+    }
+
+    void onNotifyStretchCached(const GrUniqueKey& stretchedKey) override {
+        as_IB(fImage)->notifyAddedToCache();
+    }
+
+    bool onGetROBitmap(SkBitmap* bitmap) override {
+        return as_IB(fImage)->getROPixels(bitmap);
+    }
+
+private:
+    const SkImage*  fImage;
+    GrTexture*      fUnstretched;
+
+    typedef GrTextureMaker INHERITED;
+};
+
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
-    fTexture->ref();
-    return fTexture;
+    return Texture_GrTextureMaker(this, fTexture).refCachedTexture(ctx, usage);
 }
 
 bool SkImage_Gpu::isOpaque() const {

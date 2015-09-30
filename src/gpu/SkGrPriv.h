@@ -9,6 +9,7 @@
 #define SkGrPriv_DEFINED
 
 #include "GrTypes.h"
+#include "GrTextureAccess.h"
 #include "SkImageInfo.h"
 #include "SkXfermode.h"
 
@@ -31,6 +32,8 @@ struct SkGrStretch {
     int fHeight;
 };
 
+GrTextureParams GrImageUsageToTextureParams(SkImageUsageType);
+
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()
  *  are unique.
@@ -44,6 +47,11 @@ struct SkGrStretch {
  */
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds,
                           const GrCaps&, SkImageUsageType);
+
+/**
+ *  Given an "unstretched" key, and a stretch rec, produce a stretched key.
+ */
+bool GrMakeStretchedKey(const GrUniqueKey& origKey, const SkGrStretch&, GrUniqueKey* stretchedKey);
 
 /** Converts an SkPaint to a GrPaint for a given GrContext. The matrix is required in order
     to convert the SkShader (if any) on the SkPaint. */
@@ -75,5 +83,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   SkXfermode::Mode primColorMode,
                                   bool primitiveIsSrc,
                                   GrPaint* grPaint);
+
+bool GrTextureUsageSupported(const GrCaps&, int width, int height, SkImageUsageType);
 
 #endif

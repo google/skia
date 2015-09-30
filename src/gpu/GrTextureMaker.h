@@ -24,6 +24,7 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 
+    GrTexture* refCachedTexture(GrContext*, SkImageUsageType);
     GrTexture* refCachedTexture(GrContext*, const GrTextureParams*);
 
 protected:

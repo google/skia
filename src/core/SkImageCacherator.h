@@ -58,6 +58,9 @@ private:
 
     bool generateBitmap(SkBitmap*);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*);
+#if SK_SUPPORT_GPU
+    GrTexture* lockUnstretchedTexture(GrContext*, SkImageUsageType, const SkImage* client);
+#endif
 
     class ScopedGenerator {
         SkImageCacherator* fCacher;
@@ -78,6 +81,8 @@ private:
     const SkImageInfo   fInfo;
     const SkIPoint      fOrigin;
     const uint32_t      fUniqueID;
+
+    friend class Cacherator_GrTextureMaker;
 };
 
 #endif

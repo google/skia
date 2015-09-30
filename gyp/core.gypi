@@ -255,6 +255,8 @@
         '<(skia_src_path)/image/SkImage_Generator.cpp',
 #        '<(skia_src_path)/image/SkImage_Gpu.cpp',
         '<(skia_src_path)/image/SkImage_Raster.cpp',
+        '<(skia_src_path)/image/SkImageShader.cpp',
+        '<(skia_src_path)/image/SkImageShader.h',
         '<(skia_src_path)/image/SkSurface.cpp',
         '<(skia_src_path)/image/SkSurface_Base.h',
 #        '<(skia_src_path)/image/SkSurface_Gpu.cpp',

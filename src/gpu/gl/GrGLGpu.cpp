@@ -2246,6 +2246,18 @@ static inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
 void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture) {
     SkASSERT(texture);
 
+#ifdef SK_DEBUG
+    if (!this->caps()->npotTextureTileSupport()) {
+        const bool tileX = SkShader::kClamp_TileMode != params.getTileModeX();
+        const bool tileY = SkShader::kClamp_TileMode != params.getTileModeY();
+        if (tileX || tileY) {
+            const int w = texture->width();
+            const int h = texture->height();
+            SkASSERT(SkIsPow2(w) && SkIsPow2(h));
+        }
+    }
+#endif
+
     // If we created a rt/tex and rendered to it without using a texture and now we're texturing
     // from the rt it will still be the last bound texture, but it needs resolving. So keep this
     // out of the "last != next" check.

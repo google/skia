@@ -79,10 +79,6 @@ public:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
-    SkShader* onNewShader(SkShader::TileMode,
-                          SkShader::TileMode,
-                          const SkMatrix* localMatrix) const override;
-
     bool isOpaque() const override;
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
@@ -142,11 +138,6 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint&
 }
 
 SkImage_Raster::~SkImage_Raster() {}
-
-SkShader* SkImage_Raster::onNewShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
-                                      const SkMatrix* localMatrix) const {
-    return SkShader::CreateBitmapShader(fBitmap, tileX, tileY, localMatrix);
-}
 
 bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                   int srcX, int srcY) const {
