@@ -68,16 +68,16 @@ static uint8_t get_comp(uint32_t pixel, uint32_t mask, uint32_t shift,
  * Get a color component
  *
  */
-uint8_t SkMasks::getRed(uint32_t pixel) {
+uint8_t SkMasks::getRed(uint32_t pixel) const {
     return get_comp(pixel, fRed.mask, fRed.shift, fRed.size);
 }
-uint8_t SkMasks::getGreen(uint32_t pixel) {
+uint8_t SkMasks::getGreen(uint32_t pixel) const {
     return get_comp(pixel, fGreen.mask, fGreen.shift, fGreen.size);
 }
-uint8_t SkMasks::getBlue(uint32_t pixel) {
+uint8_t SkMasks::getBlue(uint32_t pixel) const {
     return get_comp(pixel, fBlue.mask, fBlue.shift, fBlue.size);
 }
-uint8_t SkMasks::getAlpha(uint32_t pixel) {
+uint8_t SkMasks::getAlpha(uint32_t pixel) const {
     return get_comp(pixel, fAlpha.mask, fAlpha.shift, fAlpha.size);
 }
 
@@ -152,8 +152,8 @@ SkMasks* SkMasks::CreateMasks(InputMasks masks, uint32_t bitsPerPixel) {
 }
 
 
-SkMasks::SkMasks(const MaskInfo red, const MaskInfo green,
-                 const MaskInfo blue, const MaskInfo alpha)
+SkMasks::SkMasks(const MaskInfo& red, const MaskInfo& green,
+                 const MaskInfo& blue, const MaskInfo& alpha)
     : fRed(red)
     , fGreen(green)
     , fBlue(blue)
