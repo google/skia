@@ -9,7 +9,6 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkScaledCodec.h"
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 
 /*
@@ -19,7 +18,7 @@
 SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info, SkStream* stream,
                              uint16_t bitsPerPixel, uint32_t numColors,
                              uint32_t bytesPerColor, uint32_t offset,
-                             SkScanlineDecoder::SkScanlineOrder rowOrder,
+                             SkCodec::SkScanlineOrder rowOrder,
                              size_t RLEBytes)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(nullptr)

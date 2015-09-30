@@ -7,9 +7,8 @@
 
 #include "SkBitmapRegionCanvas.h"
 #include "SkCanvas.h"
-#include "SkScanlineDecoder.h"
 
-SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkScanlineDecoder* decoder)
+SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkCodec* decoder)
     : INHERITED(decoder->getInfo().width(), decoder->getInfo().height())
     , fDecoder(decoder)
 {}
@@ -114,7 +113,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
             dstColorType, dstAlphaType);
     
     // Start the scanline decoder
-    SkCodec::Result r = fDecoder->start(decodeInfo);
+    SkCodec::Result r = fDecoder->startScanlineDecode(decodeInfo);
     if (SkCodec::kSuccess != r) {
         SkDebugf("Error: Could not start scanline decoder.\n");
         return nullptr;

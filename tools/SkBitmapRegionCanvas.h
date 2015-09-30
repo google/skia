@@ -7,10 +7,10 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapRegionDecoderInterface.h"
-#include "SkScanlineDecoder.h"
+#include "SkCodec.h"
 
 /*
- * This class implements SkBitmapRegionDecoder using an SkScanlineDecoder and
+ * This class implements SkBitmapRegionDecoder using an SkCodec and
  * an SkCanvas.  It uses the scanline decoder to subset the height.  It then
  * will subset the width and scale by drawing to an SkCanvas.
  */
@@ -22,7 +22,7 @@ public:
     /*
      * Takes ownership of pointer to decoder
      */
-    SkBitmapRegionCanvas(SkScanlineDecoder* decoder);
+    SkBitmapRegionCanvas(SkCodec* decoder);
 
     /*
      * Three differences from the Android version:
@@ -36,7 +36,7 @@ public:
 
 private:
 
-    SkAutoTDelete<SkScanlineDecoder> fDecoder;
+    SkAutoTDelete<SkCodec> fDecoder;
 
     typedef SkBitmapRegionDecoderInterface INHERITED;
 

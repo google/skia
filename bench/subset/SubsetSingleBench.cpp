@@ -12,7 +12,6 @@
 #include "SkCodec.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 
 /*
@@ -65,20 +64,19 @@ void SubsetSingleBench::onDraw(const int n, SkCanvas* canvas) {
     SkPMColor colors[256];
     if (fUseCodec) {
         for (int count = 0; count < n; count++) {
-            SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
-                    SkScanlineDecoder::NewFromStream(fStream->duplicate()));
-            const SkImageInfo info = scanlineDecoder->getInfo().makeColorType(fColorType);
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(fStream->duplicate()));
+            const SkImageInfo info = codec->getInfo().makeColorType(fColorType);
             SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-            scanlineDecoder->start(info, nullptr, colors, &colorCount);
+            codec->startScanlineDecode(info, nullptr, colors, &colorCount);
 
             SkBitmap bitmap;
             SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);
             alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
-            scanlineDecoder->skipScanlines(fOffsetTop);
+            codec->skipScanlines(fOffsetTop);
             uint32_t bpp = info.bytesPerPixel();
             for (uint32_t y = 0; y < fSubsetHeight; y++) {
-                scanlineDecoder->getScanlines(row.get(), 1, 0);
+                codec->getScanlines(row.get(), 1, 0);
                 memcpy(bitmap.getAddr(0, y), row.get() + fOffsetLeft * bpp,
                         fSubsetWidth * bpp);
             }

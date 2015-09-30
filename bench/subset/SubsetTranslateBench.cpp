@@ -12,7 +12,6 @@
 #include "SkCodec.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 
 /*
@@ -61,11 +60,10 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
     SkPMColor colors[256];
     if (fUseCodec) {
         for (int count = 0; count < n; count++) {
-            SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
-                    SkScanlineDecoder::NewFromStream(fStream->duplicate()));
-            const SkImageInfo info = scanlineDecoder->getInfo().makeColorType(fColorType);
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(fStream->duplicate()));
+            const SkImageInfo info = codec->getInfo().makeColorType(fColorType);
             SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-            scanlineDecoder->start(info, nullptr, colors, &colorCount);
+            codec->startScanlineDecode(info, nullptr, colors, &colorCount);
 
             SkBitmap bitmap;
             // Note that we use the same bitmap for all of the subsets.
@@ -75,7 +73,7 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
 
             for (int x = 0; x < info.width(); x += fSubsetWidth) {
                 for (int y = 0; y < info.height(); y += fSubsetHeight) {
-                    scanlineDecoder->skipScanlines(y);
+                    codec->skipScanlines(y);
                     const uint32_t currSubsetWidth =
                             x + (int) fSubsetWidth > info.width() ?
                             info.width() - x : fSubsetWidth;
@@ -84,7 +82,7 @@ void SubsetTranslateBench::onDraw(const int n, SkCanvas* canvas) {
                             info.height() - y : fSubsetHeight;
                     const uint32_t bpp = info.bytesPerPixel();
                     for (uint32_t y = 0; y < currSubsetHeight; y++) {
-                        scanlineDecoder->getScanlines(row.get(), 1, 0);
+                        codec->getScanlines(row.get(), 1, 0);
                         memcpy(bitmap.getAddr(0, y), row.get() + x * bpp,
                                 currSubsetWidth * bpp);
                     }

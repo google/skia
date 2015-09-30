@@ -8,7 +8,6 @@
 #include "SkCodec.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
-#include "SkScanlineDecoder.h"
 #include "SkSwizzler.h"
 
 #include "gif_lib.h"
@@ -32,8 +31,6 @@ public:
      * Reads enough of the stream to determine the image format
      */
     static SkCodec* NewFromStream(SkStream*);
-
-    static SkScanlineDecoder* NewSDFromStream(SkStream* stream);
 
 protected:
 
@@ -83,7 +80,7 @@ private:
      * @param transIndex This call will set the transparent index based on the
      *                   extension data.
      */
-     static SkCodec::Result ReadUpToFirstImage(GifFileType* gif, uint32_t* transIndex);
+     static Result ReadUpToFirstImage(GifFileType* gif, uint32_t* transIndex);
 
      /*
       * A gif may contain many image frames, all of different sizes.
@@ -114,7 +111,7 @@ private:
     * Checks for invalid inputs and calls rewindIfNeeded(), setFramDimensions(), and
     * initializeColorTable() in the proper sequence.
     */
-    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
+    Result prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
             int* inputColorCount, const Options& opts);
 
     /*
@@ -125,14 +122,22 @@ private:
      *                 indicated in the header.
      * @param zeroInit Indicates if destination memory is zero initialized.
      */
-    SkCodec::Result initializeSwizzler(const SkImageInfo& dstInfo,
-            ZeroInitialized zeroInit);
+    Result initializeSwizzler(const SkImageInfo& dstInfo, ZeroInitialized zeroInit);
 
     /*
      * @return kSuccess if the read is successful and kIncompleteInput if the
      *         read fails.
      */
-    SkCodec::Result readRow();
+    Result readRow();
+
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& opts,
+                   SkPMColor inputColorPtr[], int* inputColorCount) override;
+
+    Result onGetScanlines(void* dst, int count, size_t rowBytes) override;
+
+    SkScanlineOrder onGetScanlineOrder() const override;
+
+    int onNextScanline() const override;
 
     /*
      * This function cleans up the gif object after the decode completes
@@ -167,8 +172,6 @@ private:
     bool                                    fFrameIsSubset;
     SkAutoTDelete<SkSwizzler>               fSwizzler;
     SkAutoTUnref<SkColorTable>              fColorTable;
-
-    friend class SkGifScanlineDecoder;
 
     typedef SkCodec INHERITED;
 };

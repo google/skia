@@ -38,7 +38,6 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
-#include "SkScanlineDecoder.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
@@ -522,9 +521,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
         int colorCount;
         const SkImageInfo info = codec->getInfo().makeColorType(colorType);
         SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-        SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromData(encoded));
-        if (nullptr == scanlineDecoder || scanlineDecoder->start(info, nullptr,
-                colors, &colorCount) != SkCodec::kSuccess)
+        if (codec->startScanlineDecode(info, nullptr, colors, &colorCount) != SkCodec::kSuccess)
         {
             SkDebugf("Could not create scanline decoder for %s with color type %s.  "
                     "Skipping bench.\n", path.c_str(), color_type_to_str(colorType));

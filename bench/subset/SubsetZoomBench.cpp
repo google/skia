@@ -12,7 +12,6 @@
 #include "SkCodec.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 
 /*
@@ -61,11 +60,10 @@ void SubsetZoomBench::onDraw(const int n, SkCanvas* canvas) {
     SkPMColor colors[256];
     if (fUseCodec) {
         for (int count = 0; count < n; count++) {
-            SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
-                    SkScanlineDecoder::NewFromStream(fStream->duplicate()));
-            const SkImageInfo info = scanlineDecoder->getInfo().makeColorType(fColorType);
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(fStream->duplicate()));
+            const SkImageInfo info = codec->getInfo().makeColorType(fColorType);
             SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-            scanlineDecoder->start(info, nullptr, colors, &colorCount);
+            codec->startScanlineDecode(info, nullptr, colors, &colorCount);
 
             const int centerX = info.width() / 2;
             const int centerY = info.height() / 2;
@@ -83,9 +81,9 @@ void SubsetZoomBench::onDraw(const int n, SkCanvas* canvas) {
                 alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
                 uint32_t bpp = info.bytesPerPixel();
-                scanlineDecoder->skipScanlines(subsetStartY);
+                codec->skipScanlines(subsetStartY);
                 for (int y = 0; y < subsetHeight; y++) {
-                    scanlineDecoder->getScanlines(row.get(), 1, 0);
+                    codec->getScanlines(row.get(), 1, 0);
                     memcpy(bitmap.getAddr(0, y), row.get() + subsetStartX * bpp,
                             subsetWidth * bpp);
                 }

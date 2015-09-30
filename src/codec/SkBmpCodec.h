@@ -11,7 +11,6 @@
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkMaskSwizzler.h"
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkTypes.h"
@@ -41,17 +40,10 @@ public:
      */
     static SkCodec* NewFromIco(SkStream*);
 
-    /*
-     * Assumes IsBmp was called and returned true
-     * Creates a bmp scanline decoder
-     * Takes ownership of the stream
-     */
-    static SkScanlineDecoder* NewSDFromStream(SkStream* stream);
-
 protected:
 
     SkBmpCodec(const SkImageInfo& info, SkStream* stream, uint16_t bitsPerPixel,
-            SkScanlineDecoder::SkScanlineOrder rowOrder);
+            SkCodec::SkScanlineOrder rowOrder);
 
     SkEncodedFormat onGetEncodedFormat() const override { return kBMP_SkEncodedFormat; }
 
@@ -87,7 +79,7 @@ protected:
      *               when we want to decode the full or one when we are
      *               sampling.
      */
-    int32_t getDstRow(int32_t y, int32_t height);
+    int32_t getDstRow(int32_t y, int32_t height) const;
 
     /*
      * Get the destination row to start filling from
@@ -107,7 +99,7 @@ protected:
      * Accessors used by subclasses
      */
     uint16_t bitsPerPixel() const { return fBitsPerPixel; }
-    SkScanlineDecoder::SkScanlineOrder rowOrder() const { return fRowOrder; }
+    SkScanlineOrder onGetScanlineOrder() const override { return fRowOrder; }
 
     /*
      * To be overriden by bmp subclasses, which provide unique implementations.
@@ -153,10 +145,17 @@ private:
     virtual Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) = 0;
 
-    const uint16_t                           fBitsPerPixel;
-    const SkScanlineDecoder::SkScanlineOrder fRowOrder;
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options&,
+            SkPMColor inputColorPtr[], int* inputColorCount) override;
 
-    friend class SkBmpScanlineDecoder;
+    Result onGetScanlines(void* dst, int count, size_t rowBytes) override;
+
+    int onNextScanline() const override;
+
+    // TODO(msarett): Override default skipping with something more clever.
+
+    const uint16_t          fBitsPerPixel;
+    const SkScanlineOrder   fRowOrder;
 
     typedef SkCodec INHERITED;
 };

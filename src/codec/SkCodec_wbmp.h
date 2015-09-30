@@ -9,7 +9,6 @@
 #define SkCodec_wbmp_DEFINED
 
 #include "SkCodec.h"
-#include "SkScanlineDecoder.h"
 #include "SkSwizzler.h"
 
 class SkWbmpCodec final : public SkCodec {
@@ -23,12 +22,6 @@ public:
      */
     static SkCodec* NewFromStream(SkStream*);
 
-    /*
-     * Assumes IsWbmp was called and returned true
-     * Creates a wbmp scanline decoder
-     * Takes ownership of the stream
-     */
-    static SkScanlineDecoder* NewSDFromStream(SkStream*);
 protected:
     SkEncodedFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo&, void*, size_t,
@@ -50,7 +43,16 @@ private:
 
     const size_t fSrcRowBytes;
 
-    friend class SkWbmpScanlineDecoder;
+    // Used for scanline decodes:
+    SkAutoTUnref<SkColorTable>   fColorTable;
+    SkAutoTDelete<SkSwizzler>    fSwizzler;
+    SkAutoTMalloc<uint8_t>       fSrcBuffer;
+
+    // FIXME: Override onSkipScanlines to avoid swizzling.
+    Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
+            SkPMColor inputColorTable[], int* inputColorCount) override;
+
     typedef SkCodec INHERITED;
 };
 

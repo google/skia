@@ -262,10 +262,10 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     }
 
     // Check for valid dimensions from header
-    SkScanlineDecoder::SkScanlineOrder rowOrder = SkScanlineDecoder::kBottomUp_SkScanlineOrder;
+    SkCodec::SkScanlineOrder rowOrder = SkCodec::kBottomUp_SkScanlineOrder;
     if (height < 0) {
         height = -height;
-        rowOrder = SkScanlineDecoder::kTopDown_SkScanlineOrder;
+        rowOrder = SkCodec::kTopDown_SkScanlineOrder;
     }
     // The height field for bmp in ico is double the actual height because they
     // contain an XOR mask followed by an AND mask
@@ -531,7 +531,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 }
 
 SkBmpCodec::SkBmpCodec(const SkImageInfo& info, SkStream* stream,
-        uint16_t bitsPerPixel, SkScanlineDecoder::SkScanlineOrder rowOrder)
+        uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
     : INHERITED(info, stream)
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
@@ -541,11 +541,11 @@ bool SkBmpCodec::onRewind() {
     return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr);
 }
 
-int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) {
-    if (SkScanlineDecoder::kTopDown_SkScanlineOrder == fRowOrder) {
+int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
+    if (SkCodec::kTopDown_SkScanlineOrder == fRowOrder) {
         return y;
     }
-    SkASSERT(SkScanlineDecoder::kBottomUp_SkScanlineOrder == fRowOrder);
+    SkASSERT(SkCodec::kBottomUp_SkScanlineOrder == fRowOrder);
     return height - y - 1;
 }
 
@@ -557,7 +557,7 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) {
  * filling at the top of the image.
  */
 void* SkBmpCodec::getDstStartRow(void* dst, size_t dstRowBytes, int32_t y) const {
-    return (SkScanlineDecoder::kTopDown_SkScanlineOrder == fRowOrder) ?
+    return (SkCodec::kTopDown_SkScanlineOrder == fRowOrder) ?
             SkTAddOffset<void*>(dst, y * dstRowBytes) : dst;
 }
 
@@ -574,71 +574,36 @@ uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
     return numColors;
 }
 
-/*
- * Scanline decoder for bmps
- */
-class SkBmpScanlineDecoder : public SkScanlineDecoder {
-public:
-    SkBmpScanlineDecoder(SkBmpCodec* codec)
-        : INHERITED(codec->getInfo())
-        , fCodec(codec)
-    {}
-
-    SkEncodedFormat onGetEncodedFormat() const override {
-        return kBMP_SkEncodedFormat;
+SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
     }
-
-    SkCodec::Result onStart(const SkImageInfo& dstInfo, const SkCodec::Options& options,
-                            SkPMColor inputColorPtr[], int* inputColorCount) override {
-        if (!fCodec->rewindIfNeeded()) {
-            return SkCodec::kCouldNotRewind;
+    if (options.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
+    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+        if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+            return SkCodec::kInvalidScale;
         }
-        if (options.fSubset) {
-            // Subsets are not supported.
-            return SkCodec::kUnimplemented;
-        }
-        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-                return SkCodec::kInvalidScale;
-            }
-        }
-        if (!conversion_possible(dstInfo, this->getInfo())) {
-            SkCodecPrintf("Error: cannot convert input type to output type.\n");
-            return SkCodec::kInvalidConversion;
-        }
-
-        return fCodec->prepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
+    }
+    if (!conversion_possible(dstInfo, this->getInfo())) {
+        SkCodecPrintf("Error: cannot convert input type to output type.\n");
+        return kInvalidConversion;
     }
 
-    SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
-        // Create a new image info representing the portion of the image to decode
-        SkImageInfo rowInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
+    return prepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
+}
 
-        // Decode the requested rows
-        return fCodec->decodeRows(rowInfo, dst, rowBytes, this->options());
-    }
+SkCodec::Result SkBmpCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
+    // Create a new image info representing the portion of the image to decode
+    SkImageInfo rowInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
 
-    SkScanlineOrder onGetScanlineOrder() const override {
-        return fCodec->fRowOrder;
-    }
+    // Decode the requested rows
+    return this->decodeRows(rowInfo, dst, rowBytes, this->options());
+}
 
-    int onGetY() const override {
-        return fCodec->getDstRow(this->INHERITED::onGetY(), this->dstInfo().height());
-    }
-
-    // TODO(msarett): Override default skipping with something more clever.
-
-private:
-    SkAutoTDelete<SkBmpCodec> fCodec;
-
-    typedef SkScanlineDecoder INHERITED;
-};
-
-SkScanlineDecoder* SkBmpCodec::NewSDFromStream(SkStream* stream) {
-    SkAutoTDelete<SkBmpCodec> codec(static_cast<SkBmpCodec*>(SkBmpCodec::NewFromStream(stream)));
-    if (!codec) {
-        return NULL;
-    }
-
-    return new SkBmpScanlineDecoder(codec.detach());
+int SkBmpCodec::onNextScanline() const {
+    return this->getDstRow(this->INHERITED::onNextScanline(), this->dstInfo().height());
 }

@@ -96,6 +96,8 @@ SkCodec::Result SkWbmpCodec::readRow(uint8_t* row) {
 SkWbmpCodec::SkWbmpCodec(const SkImageInfo& info, SkStream* stream)
     : INHERITED(info, stream)
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
+    , fColorTable(nullptr)
+    , fSwizzler(nullptr)
 {}
 
 SkEncodedFormat SkWbmpCodec::onGetEncodedFormat() const {
@@ -120,7 +122,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
     }
 
     if (!valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
-        return SkCodec::kInvalidConversion;
+        return kInvalidConversion;
     }
 
     // Prepare a color table if necessary
@@ -163,90 +165,55 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     return new SkWbmpCodec(info, streamDeleter.detach());
 }
 
-class SkWbmpScanlineDecoder : public SkScanlineDecoder {
-public:
-    /*
-     * Takes ownership of all pointer paramters.
-     */
-    SkWbmpScanlineDecoder(SkWbmpCodec* codec)
-        : INHERITED(codec->getInfo())
-        , fCodec(codec)
-        , fColorTable(nullptr)
-        , fSwizzler(nullptr)
-        , fSrcBuffer(codec->fSrcRowBytes)
-    {}
-
-    SkCodec::Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
-        void* dstRow = dst;
-        for (int y = 0; y < count; ++y) {
-            SkCodec::Result rowResult = fCodec->readRow(fSrcBuffer.get());
-            if (SkCodec::kSuccess != rowResult) {
-                return rowResult;
-            }
-            fSwizzler->swizzle(dstRow, fSrcBuffer.get());
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+SkCodec::Result SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
+    void* dstRow = dst;
+    for (int y = 0; y < count; ++y) {
+        Result rowResult = this->readRow(fSrcBuffer.get());
+        if (kSuccess != rowResult) {
+            return rowResult;
         }
-        return SkCodec::kSuccess;
+        fSwizzler->swizzle(dstRow, fSrcBuffer.get());
+        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
     }
-
-    SkCodec::Result onStart(const SkImageInfo& dstInfo,
-            const SkCodec::Options& options, SkPMColor inputColorTable[],
-            int* inputColorCount) {
-        if (!fCodec->rewindIfNeeded()) {
-            return SkCodec::kCouldNotRewind;
-        }
-        if (options.fSubset) {
-            // Subsets are not supported.
-            return SkCodec::kUnimplemented;
-        }
-        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-                return SkCodec::kInvalidScale;
-            }
-        }
-
-        if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
-            return SkCodec::kInvalidConversion;
-        }
-
-        // Fill in the color table
-        setup_color_table(dstInfo.colorType(), inputColorTable, inputColorCount);
-
-        // Copy the color table to a pointer that can be owned by the scanline decoder
-        if (kIndex_8_SkColorType == dstInfo.colorType()) {
-            fColorTable.reset(new SkColorTable(inputColorTable, 2));
-        }
-
-        // Initialize the swizzler
-        fSwizzler.reset(fCodec->initializeSwizzler(dstInfo,
-                get_color_ptr(fColorTable.get()), options));
-        if (nullptr == fSwizzler.get()) {
-            return SkCodec::kInvalidConversion;
-        }
-
-        return SkCodec::kSuccess;
-    }
-
-    SkEncodedFormat onGetEncodedFormat() const {
-        return kWBMP_SkEncodedFormat;
-    }
-
-private:
-    SkAutoTDelete<SkWbmpCodec>   fCodec;
-    SkAutoTUnref<SkColorTable>   fColorTable;
-    SkAutoTDelete<SkSwizzler>    fSwizzler;
-    SkAutoTMalloc<uint8_t>       fSrcBuffer;
-
-    typedef SkScanlineDecoder INHERITED;
-};
-
-SkScanlineDecoder* SkWbmpCodec::NewSDFromStream(SkStream* stream) {
-    SkAutoTDelete<SkWbmpCodec> codec(static_cast<SkWbmpCodec*>(
-            SkWbmpCodec::NewFromStream(stream)));
-    if (!codec) {
-        return nullptr;
-    }
-
-    // Return the new scanline decoder
-    return new SkWbmpScanlineDecoder(codec.detach());
+    return kSuccess;
 }
+
+SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+        const Options& options, SkPMColor inputColorTable[], int* inputColorCount) {
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
+    }
+    if (options.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
+    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+        if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+                return kInvalidScale;
+        }
+    }
+
+    if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
+        return kInvalidConversion;
+    }
+
+    // Fill in the color table
+    setup_color_table(dstInfo.colorType(), inputColorTable, inputColorCount);
+
+    // Copy the color table to a pointer that can be owned by the scanline decoder
+    if (kIndex_8_SkColorType == dstInfo.colorType()) {
+        fColorTable.reset(new SkColorTable(inputColorTable, 2));
+    }
+
+    // Initialize the swizzler
+    fSwizzler.reset(this->initializeSwizzler(dstInfo,
+            get_color_ptr(fColorTable.get()), options));
+    if (nullptr == fSwizzler.get()) {
+        return kInvalidConversion;
+    }
+
+    fSrcBuffer.reset(fSrcRowBytes);
+
+    return kSuccess;
+}
+

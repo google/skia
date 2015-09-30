@@ -8,9 +8,7 @@
 #define SkScaledCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkScanlineDecoder.h"
 
-class SkScanlineDecoder;
 class SkStream;
 
 /**
@@ -52,18 +50,18 @@ protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
             override;
     SkEncodedFormat onGetEncodedFormat() const override {
-        return fScanlineDecoder->getEncodedFormat();
+        return fCodec->getEncodedFormat();
     }
 
     bool onReallyHasAlpha() const override {
-        return fScanlineDecoder->reallyHasAlpha();
+        return fCodec->reallyHasAlpha();
     }
 
 private:
 
-    SkAutoTDelete<SkScanlineDecoder> fScanlineDecoder;
+    SkAutoTDelete<SkCodec> fCodec;
 
-    explicit SkScaledCodec(SkScanlineDecoder*);
+    explicit SkScaledCodec(SkCodec*);
 
     typedef SkCodec INHERITED;
 };

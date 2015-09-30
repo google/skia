@@ -18,8 +18,6 @@ extern "C" {
     #include "jpeglib.h"
 }
 
-class SkScanlineDecoder;
-
 /*
  *
  * This class implements the decoding for jpeg images
@@ -40,13 +38,6 @@ public:
      * Takes ownership of the stream
      */
     static SkCodec* NewFromStream(SkStream*);
-
-    /*
-     * Assumes IsJpeg was called and returned true
-     * Creates a jpeg scanline decoder
-     * Takes ownership of the stream
-     */
-    static SkScanlineDecoder* NewSDFromStream(SkStream*);
 
 protected:
 
@@ -102,6 +93,8 @@ private:
      */
     SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr);
 
+    ~SkJpegCodec() override;
+
     /*
      * Checks if the conversion between the input image and the requested output
      * image has been implemented
@@ -115,13 +108,23 @@ private:
      */
     bool nativelyScaleToDimensions(uint32_t width, uint32_t height); 
 
+    // scanline decoding
+    Result initializeSwizzler(const SkImageInfo&, const SkCodec::Options&);
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
+                   SkPMColor ctable[], int* ctableCount) override;
+    Result onGetScanlines(void* dst, int count, size_t rowBytes) override;
+    Result onSkipScanlines(int count) override;
+
     SkAutoTDelete<JpegDecoderMgr> fDecoderMgr;
     // We will save the state of the decompress struct after reading the header.
     // This allows us to safely call onGetScaledDimensions() at any time.
     const int                     fReadyState;
-    
-    friend class SkJpegScanlineDecoder;
 
+    // scanline decoding
+    SkAutoMalloc               fStorage;    // Only used if sampling is needed
+    uint8_t*                   fSrcRow;     // Only used if sampling is needed
+    SkAutoTDelete<SkSwizzler>  fSwizzler;
+    
     typedef SkCodec INHERITED;
 };
 

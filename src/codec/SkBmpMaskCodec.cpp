@@ -14,7 +14,7 @@
  */
 SkBmpMaskCodec::SkBmpMaskCodec(const SkImageInfo& info, SkStream* stream,
                                uint16_t bitsPerPixel, SkMasks* masks,
-                               SkScanlineDecoder::SkScanlineOrder rowOrder)
+                               SkCodec::SkScanlineOrder rowOrder)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fMasks(masks)
     , fMaskSwizzler(nullptr)

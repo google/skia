@@ -30,7 +30,7 @@ public:
      */
     SkBmpMaskCodec(const SkImageInfo& srcInfo, SkStream* stream,
             uint16_t bitsPerPixel, SkMasks* masks,
-            SkScanlineDecoder::SkScanlineOrder rowOrder);
+            SkCodec::SkScanlineOrder rowOrder);
 
 protected:
 

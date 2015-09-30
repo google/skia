@@ -37,7 +37,7 @@ public:
      */
     SkBmpStandardCodec(const SkImageInfo& srcInfo, SkStream* stream,
             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-            uint32_t offset, SkScanlineDecoder::SkScanlineOrder rowOrder,
+            uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
             bool isIco);
 
 protected:

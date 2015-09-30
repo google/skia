@@ -8,7 +8,6 @@
 #include "SkBmpStandardCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 
 /*
@@ -18,7 +17,7 @@
 SkBmpStandardCodec::SkBmpStandardCodec(const SkImageInfo& info, SkStream* stream,
                                        uint16_t bitsPerPixel, uint32_t numColors,
                                        uint32_t bytesPerColor, uint32_t offset,
-                                       SkScanlineDecoder::SkScanlineOrder rowOrder, bool inIco)
+                                       SkCodec::SkScanlineOrder rowOrder, bool inIco)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
     , fNumColors(this->computeNumColors(numColors))

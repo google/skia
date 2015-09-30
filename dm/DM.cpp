@@ -311,6 +311,12 @@ static void push_codec_srcs(Path path) {
         }
     }
 
+    if (path.endsWith(".ico") || path.endsWith(".ICO")) {
+        // FIXME: skbug.com/4404: ICO does not have the ability to decode scanlines, so we cannot
+        // use SkScaledCodec with it.
+        return;
+    }
+
     // SkScaledCodec Scales
     // The native scales are included to make sure that SkScaledCodec defaults to the native
     // scaling strategy when possible.

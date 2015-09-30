@@ -21,13 +21,13 @@ SkCodec* SkScaledCodec::NewFromStream(SkStream* stream) {
         return SkWebpCodec::NewFromStream(stream);  
     }
 
-    SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromStream(stream));
-    if (nullptr == scanlineDecoder) {
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream));
+    if (nullptr == codec) {
         return nullptr;
     }
 
     // wrap in new SkScaledCodec
-    return new SkScaledCodec(scanlineDecoder.detach());
+    return new SkScaledCodec(codec.detach());
 }
 
 SkCodec* SkScaledCodec::NewFromData(SkData* data) {
@@ -37,9 +37,9 @@ SkCodec* SkScaledCodec::NewFromData(SkData* data) {
     return NewFromStream(new SkMemoryStream(data));
 }
 
-SkScaledCodec::SkScaledCodec(SkScanlineDecoder* scanlineDecoder)
-    : INHERITED(scanlineDecoder->getInfo(), nullptr)
-    , fScanlineDecoder(scanlineDecoder)
+SkScaledCodec::SkScaledCodec(SkCodec* codec)
+    : INHERITED(codec->getInfo(), nullptr)
+    , fCodec(codec)
 {}
 
 SkScaledCodec::~SkScaledCodec() {}
@@ -78,12 +78,12 @@ static SkISize best_scaled_dimensions(const SkISize& origDims, const SkISize& na
  * Return a valid set of output dimensions for this decoder, given an input scale
  */
 SkISize SkScaledCodec::onGetScaledDimensions(float desiredScale) const {
-    SkISize nativeDimensions = fScanlineDecoder->getScaledDimensions(desiredScale);
+    SkISize nativeDimensions = fCodec->getScaledDimensions(desiredScale);
     // support scaling down by integer numbers. Ex: 1/2, 1/3, 1/4 ...
     SkISize scaledCodecDimensions;
     if (desiredScale > 0.5f) {
         // sampleSize = 1
-        scaledCodecDimensions = fScanlineDecoder->getInfo().dimensions();
+        scaledCodecDimensions = fCodec->getInfo().dimensions();
     }
     // sampleSize determines the step size between samples
     // Ex: sampleSize = 2, sample every second pixel in x and y directions
@@ -185,19 +185,20 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
         return kUnimplemented;
     } 
 
-    Result result = fScanlineDecoder->start(requestedInfo, &options, ctable, ctableCount);
+    // FIXME: If no scaling/subsets are requested, we can call fCodec->getPixels.
+    Result result = fCodec->startScanlineDecode(requestedInfo, &options, ctable, ctableCount);
     if (kSuccess == result) {
         // native decode supported
-        switch (fScanlineDecoder->getScanlineOrder()) {
-            case SkScanlineDecoder::kTopDown_SkScanlineOrder:
-            case SkScanlineDecoder::kBottomUp_SkScanlineOrder:
-            case SkScanlineDecoder::kNone_SkScanlineOrder:
-                return fScanlineDecoder->getScanlines(dst, requestedInfo.height(), rowBytes);
-            case SkScanlineDecoder::kOutOfOrder_SkScanlineOrder: {
+        switch (fCodec->getScanlineOrder()) {
+            case SkCodec::kTopDown_SkScanlineOrder:
+            case SkCodec::kBottomUp_SkScanlineOrder:
+            case SkCodec::kNone_SkScanlineOrder:
+                return fCodec->getScanlines(dst, requestedInfo.height(), rowBytes);
+            case SkCodec::kOutOfOrder_SkScanlineOrder: {
                 for (int y = 0; y < requestedInfo.height(); y++) {
-                    int dstY = fScanlineDecoder->getY();
+                    int dstY = fCodec->nextScanline();
                     void* dstPtr = SkTAddOffset<void>(dst, rowBytes * dstY);
-                    result = fScanlineDecoder->getScanlines(dstPtr, 1, rowBytes);
+                    result = fCodec->getScanlines(dstPtr, 1, rowBytes);
                     // FIXME (msarett): Make the SkCodec base class take care of filling
                     // uninitialized pixels so we can return immediately on kIncompleteInput.
                     if (kSuccess != result && kIncompleteInput != result) {
@@ -213,42 +214,44 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
         // no scaling requested
         return result;
     }
-    
+
     // scaling requested
     int sampleX;
     int sampleY;
-    if (!scaling_supported(requestedInfo, fScanlineDecoder->getInfo(), &sampleX, &sampleY)) {
+    if (!scaling_supported(requestedInfo, fCodec->getInfo(), &sampleX, &sampleY)) {
         return kInvalidScale;
     }
     // set first sample pixel in y direction
     int Y0 = get_start_coord(sampleY);
 
     int dstHeight = requestedInfo.height();
-    int srcHeight = fScanlineDecoder->getInfo().height();
+    int srcHeight = fCodec->getInfo().height();
     
     SkImageInfo info = requestedInfo;
-    // use original height as scanlineDecoder does not support y sampling natively
+    // use original height as codec does not support y sampling natively
     info = info.makeWH(requestedInfo.width(), srcHeight);
 
-    // update scanlineDecoder with new info
-    result = fScanlineDecoder->start(info, &options, ctable, ctableCount);
+    // update codec with new info
+    // FIXME: The previous call to start returned kInvalidScale. This call may
+    // require a rewind. (skbug.com/4284)
+    result = fCodec->startScanlineDecode(info, &options, ctable, ctableCount);
     if (kSuccess != result) {
         return result;
     }
 
-    switch(fScanlineDecoder->getScanlineOrder()) {
-        case SkScanlineDecoder::kTopDown_SkScanlineOrder: {
-            result = fScanlineDecoder->skipScanlines(Y0);
+    switch(fCodec->getScanlineOrder()) {
+        case SkCodec::kTopDown_SkScanlineOrder: {
+            result = fCodec->skipScanlines(Y0);
             if (kSuccess != result && kIncompleteInput != result) {
                 return result;
             }
             for (int y = 0; y < dstHeight; y++) {
-                result = fScanlineDecoder->getScanlines(dst, 1, rowBytes);
+                result = fCodec->getScanlines(dst, 1, rowBytes);
                 if (kSuccess != result && kIncompleteInput != result) {
                     return result;
                 }
                 if (y < dstHeight - 1) {
-                    result = fScanlineDecoder->skipScanlines(sampleY - 1);
+                    result = fCodec->skipScanlines(sampleY - 1);
                     if (kSuccess != result && kIncompleteInput != result) {
                         return result;
                     }
@@ -257,18 +260,18 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
             }
             return result;
         }
-        case SkScanlineDecoder::kBottomUp_SkScanlineOrder:
-        case SkScanlineDecoder::kOutOfOrder_SkScanlineOrder: {
+        case SkCodec::kBottomUp_SkScanlineOrder:
+        case SkCodec::kOutOfOrder_SkScanlineOrder: {
             for (int y = 0; y < srcHeight; y++) {
-                int srcY = fScanlineDecoder->getY();
+                int srcY = fCodec->nextScanline();
                 if (is_coord_necessary(srcY, sampleY, dstHeight)) {
                     void* dstPtr = SkTAddOffset<void>(dst, rowBytes * get_dst_coord(srcY, sampleY));
-                    result = fScanlineDecoder->getScanlines(dstPtr, 1, rowBytes);
+                    result = fCodec->getScanlines(dstPtr, 1, rowBytes);
                     if (kSuccess != result && kIncompleteInput != result) {
                         return result;
                     }
                 } else {
-                    result = fScanlineDecoder->skipScanlines(1);
+                    result = fCodec->skipScanlines(1);
                     if (kSuccess != result && kIncompleteInput != result) {
                         return result;
                     }
@@ -276,10 +279,10 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
             }
             return result;
         }
-        case SkScanlineDecoder::kNone_SkScanlineOrder: {
+        case SkCodec::kNone_SkScanlineOrder: {
             SkAutoMalloc storage(srcHeight * rowBytes);
             uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
-            result = fScanlineDecoder->getScanlines(storagePtr, srcHeight, rowBytes);
+            result = fCodec->getScanlines(storagePtr, srcHeight, rowBytes);
             if (kSuccess != result && kIncompleteInput != result) {
                 return result;
             }

@@ -25,7 +25,6 @@
 #include "SkRecorder.h"
 #include "SkSVGCanvas.h"
 #include "SkScaledCodec.h"
-#include "SkScanlineDecoder.h"
 #include "SkStream.h"
 #include "SkTLogic.h"
 #include "SkXMLWriter.h"
@@ -238,18 +237,6 @@ bool CodecSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
-SkScanlineDecoder* start_scanline_decoder(SkData* encoded, const SkImageInfo& info,
-        SkPMColor* colorPtr, int* colorCountPtr) {
-    SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(SkScanlineDecoder::NewFromData(encoded));
-    if (nullptr == scanlineDecoder) {
-        return nullptr;
-    }
-    if (SkCodec::kSuccess != scanlineDecoder->start(info, NULL, colorPtr, colorCountPtr)) {
-        return nullptr;
-    }
-    return scanlineDecoder.detach();
-}
-
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
@@ -348,25 +335,24 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             break;
         }
         case kScanline_Mode: {
-            SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
-                    start_scanline_decoder(encoded.get(), decodeInfo, colorPtr, colorCountPtr));
-            if (nullptr == scanlineDecoder) {
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
+                                                                colorCountPtr)) {
                 return Error::Nonfatal("Could not start scanline decoder");
             }
 
             SkCodec::Result result = SkCodec::kUnimplemented;
-            switch (scanlineDecoder->getScanlineOrder()) {
-                case SkScanlineDecoder::kTopDown_SkScanlineOrder:
-                case SkScanlineDecoder::kBottomUp_SkScanlineOrder:
-                case SkScanlineDecoder::kNone_SkScanlineOrder:
-                    result = scanlineDecoder->getScanlines(bitmap.getAddr(0, 0),
+            switch (codec->getScanlineOrder()) {
+                case SkCodec::kTopDown_SkScanlineOrder:
+                case SkCodec::kBottomUp_SkScanlineOrder:
+                case SkCodec::kNone_SkScanlineOrder:
+                    result = codec->getScanlines(bitmap.getAddr(0, 0),
                             decodeInfo.height(), bitmap.rowBytes());
                     break;
-                case SkScanlineDecoder::kOutOfOrder_SkScanlineOrder: {
+                case SkCodec::kOutOfOrder_SkScanlineOrder: {
                     for (int y = 0; y < decodeInfo.height(); y++) {
-                        int dstY = scanlineDecoder->getY();
+                        int dstY = codec->nextScanline();
                         void* dstPtr = bitmap.getAddr(0, dstY);
-                        result = scanlineDecoder->getScanlines(dstPtr, 1, bitmap.rowBytes());
+                        result = codec->getScanlines(dstPtr, 1, bitmap.rowBytes());
                         if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
                             return SkStringPrintf("%s failed with error message %d",
                                                   fPath.c_str(), (int) result);
@@ -432,11 +418,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                             subsetHeight + extraY : subsetHeight;
                     const int y = row * subsetHeight;
                     //create scanline decoder for each subset
-                    SkAutoTDelete<SkScanlineDecoder> decoder(start_scanline_decoder(encoded.get(),
-                            decodeInfo, colorPtr, colorCountPtr));
-                    // TODO (msarett): Support this mode for all scanline orderings.
-                    if (nullptr == decoder || SkScanlineDecoder::kTopDown_SkScanlineOrder !=
-                            decoder->getScanlineOrder()) {
+                    if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
+                                                                        colorCountPtr)
+                            // TODO (msarett): Support this mode for all scanline orderings.
+                            || SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
                         if (x == 0 && y == 0) {
                             //first try, image may not be compatible
                             return Error::Nonfatal("Could not start top-down scanline decoder");
@@ -445,7 +430,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         }
                     }
                     //skip to first line of subset
-                    const SkCodec::Result skipResult = decoder->skipScanlines(y);
+                    const SkCodec::Result skipResult = codec->skipScanlines(y);
                     switch (skipResult) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
@@ -461,7 +446,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
                     SkAutoLockPixels autlockSubsetBm(subsetBm, true);
                     const SkCodec::Result subsetResult =
-                            decoder->getScanlines(buffer, currentSubsetHeight, rowBytes);
+                            codec->getScanlines(buffer, currentSubsetHeight, rowBytes);
                     switch (subsetResult) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
@@ -501,10 +486,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int numStripes = (height + stripeHeight - 1) / stripeHeight;
 
             // Decode odd stripes
-            SkAutoTDelete<SkScanlineDecoder> decoder(
-                    start_scanline_decoder(encoded.get(), decodeInfo, colorPtr, colorCountPtr));
-            if (nullptr == decoder ||
-                    SkScanlineDecoder::kTopDown_SkScanlineOrder != decoder->getScanlineOrder()) {
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
+                                                                colorCountPtr)
+                    || SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
                 // This mode was designed to test the new skip scanlines API in libjpeg-turbo.
                 // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
                 // to run this test for image types that do not have this scanline ordering.
@@ -513,7 +497,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             for (int i = 0; i < numStripes; i += 2) {
                 // Skip a stripe
                 const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
-                SkCodec::Result result = decoder->skipScanlines(linesToSkip);
+                SkCodec::Result result = codec->skipScanlines(linesToSkip);
                 switch (result) {
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput:
@@ -526,7 +510,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 const int startY = (i + 1) * stripeHeight;
                 const int linesToRead = SkTMin(stripeHeight, height - startY);
                 if (linesToRead > 0) {
-                    result = decoder->getScanlines(bitmap.getAddr(0, startY),
+                    result = codec->getScanlines(bitmap.getAddr(0, startY),
                             linesToRead, bitmap.rowBytes());
                     switch (result) {
                         case SkCodec::kSuccess:
@@ -539,8 +523,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             // Decode even stripes
-            const SkCodec::Result startResult = decoder->start(decodeInfo, nullptr, colorPtr,
-                                                               colorCountPtr);
+            const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo, nullptr,
+                    colorPtr, colorCountPtr);
             if (SkCodec::kSuccess != startResult) {
                 return "Failed to restart scanline decoder with same parameters.";
             }
@@ -548,7 +532,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 // Read a stripe
                 const int startY = i * stripeHeight;
                 const int linesToRead = SkTMin(stripeHeight, height - startY);
-                SkCodec::Result result = decoder->getScanlines(bitmap.getAddr(0, startY),
+                SkCodec::Result result = codec->getScanlines(bitmap.getAddr(0, startY),
                         linesToRead, bitmap.rowBytes());
                 switch (result) {
                     case SkCodec::kSuccess:
@@ -561,7 +545,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 // Skip a stripe
                 const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
                 if (linesToSkip > 0) {
-                    result = decoder->skipScanlines(linesToSkip);
+                    result = codec->skipScanlines(linesToSkip);
                     switch (result) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:

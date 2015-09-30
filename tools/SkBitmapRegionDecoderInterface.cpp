@@ -8,7 +8,7 @@
 #include "SkBitmapRegionCanvas.h"
 #include "SkBitmapRegionDecoderInterface.h"
 #include "SkBitmapRegionSampler.h"
-#include "SkScanlineDecoder.h"
+#include "SkCodec.h"
 #include "SkImageDecoder.h"
 
 SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(
@@ -29,14 +29,14 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
             return new SkBitmapRegionSampler(decoder, width, height);
         }
         case kCanvas_Strategy: {
-            SkScanlineDecoder* decoder = SkScanlineDecoder::NewFromStream(stream);
+            SkCodec* decoder = SkCodec::NewFromStream(stream);
             if (nullptr == decoder) {
                 SkDebugf("Error: Failed to create decoder.\n");
                 return nullptr;
             }
             switch (decoder->getScanlineOrder()) {
-                case SkScanlineDecoder::kTopDown_SkScanlineOrder:
-                case SkScanlineDecoder::kNone_SkScanlineOrder:
+                case SkCodec::kTopDown_SkScanlineOrder:
+                case SkCodec::kNone_SkScanlineOrder:
                     break;
                 default:
                     SkDebugf("Error: Scanline ordering not supported.\n");

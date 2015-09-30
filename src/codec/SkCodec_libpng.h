@@ -36,7 +36,31 @@ protected:
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
     bool onRewind() override;
-    bool onReallyHasAlpha() const override { return fReallyHasAlpha; }
+    bool onReallyHasAlpha() const final;
+
+    // Helper to set up swizzler and color table. Also calls png_read_update_info.
+    Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
+                              SkPMColor*, int* ctableCount);
+
+    SkPngCodec(const SkImageInfo&, SkStream*, png_structp, png_infop, int, int);
+
+    png_structp png_ptr() { return fPng_ptr; }
+    SkSwizzler* swizzler() { return fSwizzler; }
+    SkSwizzler::SrcConfig srcConfig() const { return fSrcConfig; }
+    int numberPasses() const { return fNumberPasses; }
+
+    enum AlphaState {
+        // This class has done no decoding, or threw away its knowledge (in
+        // scanline decodes).
+        kUnknown_AlphaState,
+        // This class found the image (possibly partial, in the case of a
+        // scanline decode) to be opaque.
+        kOpaque_AlphaState,
+        // Ths class found the image to have alpha.
+        kHasAlpha_AlphaState,
+    };
+
+    virtual AlphaState alphaInScanlineDecode() const = 0;
 
 private:
     png_structp                 fPng_ptr;
@@ -47,21 +71,13 @@ private:
     SkAutoTDelete<SkSwizzler>   fSwizzler;
 
     SkSwizzler::SrcConfig       fSrcConfig;
-    int                         fNumberPasses;
-    bool                        fReallyHasAlpha;
+    const int                   fNumberPasses;
     int                         fBitDepth;
 
-    SkPngCodec(const SkImageInfo&, SkStream*, png_structp, png_infop, int);
-
-    // Helper to set up swizzler and color table. Also calls png_read_update_info.
-    Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
-                              SkPMColor*, int* ctableCount);
+    AlphaState                  fAlphaState;
 
     bool decodePalette(bool premultiply, int* ctableCount);
     void destroyReadStruct();
-
-    friend class SkPngScanlineDecoder;
-    friend class SkPngInterlacedScanlineDecoder;
 
     typedef SkCodec INHERITED;
 };

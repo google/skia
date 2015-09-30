@@ -11,7 +11,6 @@
 #include "SkMD5.h"
 #include "SkRandom.h"
 #include "SkScaledCodec.h"
-#include "SkScanlineDecoder.h"
 #include "Test.h"
 
 static SkStreamAsset* resource(const char path[]) {
@@ -147,25 +146,44 @@ static void check(skiatest::Reporter* r,
 
     // Scanline decoding follows.
 
-    stream.reset(resource(path));
-    SkAutoTDelete<SkScanlineDecoder> scanlineDecoder(
-            SkScanlineDecoder::NewFromStream(stream.detach()));
+    // Need to call start() first.
+    REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
+            == SkCodec::kScanlineDecodingNotStarted);
+    REPORTER_ASSERT(r, codec->skipScanlines(1)
+            == SkCodec::kScanlineDecodingNotStarted);
+
+    const SkCodec::Result startResult = codec->startScanlineDecode(info);
     if (supportsScanlineDecoding) {
         bm.eraseColor(SK_ColorYELLOW);
-        REPORTER_ASSERT(r, scanlineDecoder);
 
-        REPORTER_ASSERT(r, scanlineDecoder->start(info) == SkCodec::kSuccess);
+        REPORTER_ASSERT(r, startResult == SkCodec::kSuccess);
 
         for (int y = 0; y < info.height(); y++) {
-            result = scanlineDecoder->getScanlines(bm.getAddr(0, y), 1, 0);
+            result = codec->getScanlines(bm.getAddr(0, y), 1, 0);
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
         }
         // verify that scanline decoding gives the same result.
-        if (SkScanlineDecoder::kTopDown_SkScanlineOrder == scanlineDecoder->getScanlineOrder()) {
+        if (SkCodec::kTopDown_SkScanlineOrder == codec->getScanlineOrder()) {
             compare_to_good_digest(r, digest, bm);
         }
+
+        // Cannot continue to decode scanlines beyond the end
+        REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
+                == SkCodec::kInvalidParameters);
+
+        // Interrupting a scanline decode with a full decode starts from
+        // scratch
+        REPORTER_ASSERT(r, codec->startScanlineDecode(info) == SkCodec::kSuccess);
+        REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
+                == SkCodec::kSuccess);
+        REPORTER_ASSERT(r, codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes())
+                == SkCodec::kSuccess);
+        REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
+                == SkCodec::kScanlineDecodingNotStarted);
+        REPORTER_ASSERT(r, codec->skipScanlines(1)
+                == SkCodec::kScanlineDecodingNotStarted);
     } else {
-        REPORTER_ASSERT(r, !scanlineDecoder);
+        REPORTER_ASSERT(r, startResult == SkCodec::kUnimplemented);
     }
 
     // The rest of this function tests decoding subsets, and will decode an arbitrary number of
@@ -247,8 +265,100 @@ DEF_TEST(Codec, r) {
     check(r, "mandrill_512.png", SkISize::Make(512, 512), true, false);
     check(r, "mandrill_64.png", SkISize::Make(64, 64), true, false);
     check(r, "plane.png", SkISize::Make(250, 126), true, false);
+    check(r, "plane_interlaced.png", SkISize::Make(250, 126), true, false);
     check(r, "randPixels.png", SkISize::Make(8, 8), true, false);
     check(r, "yellow_rose.png", SkISize::Make(400, 301), true, false);
+}
+
+// Test interlaced PNG in stripes, similar to DM's kStripe_Mode
+DEF_TEST(Codec_stripes, r) {
+    const char * path = "plane_interlaced.png";
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+    }
+
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    REPORTER_ASSERT(r, codec);
+
+    if (!codec) {
+        return;
+    }
+
+    switch (codec->getScanlineOrder()) {
+        case SkCodec::kBottomUp_SkScanlineOrder:
+        case SkCodec::kOutOfOrder_SkScanlineOrder:
+            ERRORF(r, "This scanline order will not match the original.");
+            return;
+        default:
+            break;
+    }
+
+    // Baseline for what the image should look like, using N32.
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+
+    SkBitmap bm;
+    bm.allocPixels(info);
+    SkAutoLockPixels autoLockPixels(bm);
+    SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    SkMD5::Digest digest;
+    md5(bm, &digest);
+
+    // Now decode in stripes
+    const int height = info.height();
+    const int numStripes = 4;
+    int stripeHeight;
+    int remainingLines;
+    SkTDivMod(height, numStripes, &stripeHeight, &remainingLines);
+
+    bm.eraseColor(SK_ColorYELLOW);
+
+    result = codec->startScanlineDecode(info);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    // Odd stripes
+    for (int i = 1; i < numStripes; i += 2) {
+        // Skip the even stripes
+        result = codec->skipScanlines(stripeHeight);
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+        result = codec->getScanlines(bm.getAddr(0, i * stripeHeight), stripeHeight,
+                                     bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    }
+
+    // Even stripes
+    result = codec->startScanlineDecode(info);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    for (int i = 0; i < numStripes; i += 2) {
+        result = codec->getScanlines(bm.getAddr(0, i * stripeHeight), stripeHeight,
+                                     bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+        // Skip the odd stripes
+        if (i + 1 < numStripes) {
+            result = codec->skipScanlines(stripeHeight);
+            REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        }
+    }
+
+    // Remainder at the end
+    if (remainingLines > 0) {
+        result = codec->startScanlineDecode(info);
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+        result = codec->skipScanlines(height - remainingLines);
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+        result = codec->getScanlines(bm.getAddr(0, height - remainingLines),
+                                     remainingLines, bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    }
+
+    compare_to_good_digest(r, digest, bm);
 }
 
 static void test_invalid_stream(skiatest::Reporter* r, const void* stream, size_t len) {
@@ -369,13 +479,12 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkScanlineDecoder> decoder(SkScanlineDecoder::NewFromStream(
-        stream.detach()));
+    SkAutoTDelete<SkCodec> decoder(SkCodec::NewFromStream(stream.detach()));
     
     // This should return kSuccess because kIndex8 is supported.
     SkPMColor colorStorage[256];
     int colorCount;
-    SkCodec::Result result = decoder->start(
+    SkCodec::Result result = decoder->startScanlineDecode(
         decoder->getInfo().makeColorType(kIndex_8_SkColorType), nullptr, colorStorage, &colorCount);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     // The rest of the test is uninteresting if kIndex8 is not supported
@@ -385,10 +494,10 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
 
     // This should return kInvalidParameters because, in kIndex_8 mode, we must pass in a valid
     // colorPtr and a valid colorCountPtr.
-    result = decoder->start(
+    result = decoder->startScanlineDecode(
         decoder->getInfo().makeColorType(kIndex_8_SkColorType), nullptr, nullptr, nullptr);
     REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
-    result = decoder->start(
+    result = decoder->startScanlineDecode(
         decoder->getInfo().makeColorType(kIndex_8_SkColorType));
     REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
 }

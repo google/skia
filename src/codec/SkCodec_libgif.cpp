@@ -582,124 +582,94 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-// TODO (msarett): skbug.com/3582
-//                 Should we implement reallyHasAlpha?  Or should we read extension blocks in the
-//                 header?  Or should we do both?
-
-class SkGifScanlineDecoder : public SkScanlineDecoder {
-public:
-    SkGifScanlineDecoder(const SkImageInfo& srcInfo, SkGifCodec* codec)
-        : INHERITED(srcInfo)
-        , fCodec(codec)
-    {}
-
-    SkEncodedFormat onGetEncodedFormat() const override {
-        return kGIF_SkEncodedFormat;
+SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& opts, SkPMColor inputColorPtr[], int* inputColorCount) {
+    Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount,
+                                          this->options());
+    if (kSuccess != result) {
+        return result;
     }
 
-    SkCodec::Result onStart(const SkImageInfo& dstInfo, const SkCodec::Options& opts,
-                            SkPMColor inputColorPtr[], int* inputColorCount) override {
-        SkCodec::Result result = fCodec->prepareToDecode(dstInfo, inputColorPtr, inputColorCount,
-                this->options());
-        if (SkCodec::kSuccess != result) {
-            return result;
+    // Check to see if scaling was requested.
+    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+        if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
+            return gif_error("Scaling not supported.\n", SkCodec::kInvalidScale);
         }
-
-        // Check to see if scaling was requested.
-        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-                return gif_error("Scaling not supported.\n", SkCodec::kInvalidScale);
-            }
-        }
-
-        // Initialize the swizzler
-        if (fCodec->fFrameIsSubset) {
-            int sampleX;
-            SkScaledCodec::ComputeSampleSize(dstInfo, fCodec->getInfo(), &sampleX, NULL);
-            const SkImageInfo subsetDstInfo = dstInfo.makeWH(
-                    get_scaled_dimension(fCodec->fFrameDims.width(), sampleX),
-                    fCodec->fFrameDims.height());
-            if (SkCodec::kSuccess != fCodec->initializeSwizzler(subsetDstInfo,
-                    opts.fZeroInitialized)) {
-                return gif_error("Could not initialize swizzler.\n", SkCodec::kUnimplemented);
-            }
-        } else {
-            if (SkCodec::kSuccess != fCodec->initializeSwizzler(dstInfo, opts.fZeroInitialized)) {
-                return gif_error("Could not initialize swizzler.\n", SkCodec::kUnimplemented);
-            }
-        }
-
-        return SkCodec::kSuccess;
     }
 
-    SkCodec::Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
-        if (fCodec->fFrameIsSubset) {
-            // Fill the requested rows
-            const SkPMColor* colorPtr = get_color_ptr(fCodec->fColorTable.get());
-            SkSwizzler::Fill(dst, this->dstInfo(), rowBytes, count, fCodec->fFillIndex,
-                    colorPtr, this->options().fZeroInitialized);
+    // Initialize the swizzler
+    if (fFrameIsSubset) {
+        int sampleX;
+        SkScaledCodec::ComputeSampleSize(dstInfo, this->getInfo(), &sampleX, NULL);
+        const SkImageInfo subsetDstInfo = dstInfo.makeWH(
+                    get_scaled_dimension(fFrameDims.width(), sampleX),
+                    fFrameDims.height());
+        if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts.fZeroInitialized)) {
+            return gif_error("Could not initialize swizzler.\n", kUnimplemented);
+        }
+    } else {
+        if (kSuccess != this->initializeSwizzler(dstInfo, opts.fZeroInitialized)) {
+            return gif_error("Could not initialize swizzler.\n", kUnimplemented);
+        }
+    }
 
-            // Do nothing for rows before the image frame
-            int rowsBeforeFrame = fCodec->fFrameDims.top() - INHERITED::getY();
-            if (rowsBeforeFrame > 0) {
-                count = SkTMin(0, count - rowsBeforeFrame);
-                dst = SkTAddOffset<void>(dst, rowBytes * rowsBeforeFrame);
-            }
+    return kSuccess;
+}
 
-            // Do nothing for rows after the image frame
-            int rowsAfterFrame = INHERITED::getY() + count - fCodec->fFrameDims.bottom();
-            if (rowsAfterFrame > 0) {
-                count = SkTMin(0, count - rowsAfterFrame);
-            }
+SkCodec::Result SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
+    if (fFrameIsSubset) {
+        // Fill the requested rows
+        const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+        SkSwizzler::Fill(dst, this->dstInfo(), rowBytes, count, fFillIndex,
+                         colorPtr, this->options().fZeroInitialized);
+
+        // Do nothing for rows before the image frame
+        // FIXME: nextScanline is not virtual, so using "INHERITED" does not change
+        // behavior. Was the intent to call this->INHERITED::onNextScanline()? Same
+        // for the next call down below.
+        int rowsBeforeFrame = fFrameDims.top() - this->INHERITED::nextScanline();
+        if (rowsBeforeFrame > 0) {
+            count = SkTMin(0, count - rowsBeforeFrame);
+            dst = SkTAddOffset<void>(dst, rowBytes * rowsBeforeFrame);
+        }
+
+        // Do nothing for rows after the image frame
+        int rowsAfterFrame = this->INHERITED::nextScanline() + count - fFrameDims.bottom();
+        if (rowsAfterFrame > 0) {
+            count = SkTMin(0, count - rowsAfterFrame);
+        }
 
             // Adjust dst pointer for left offset
-            dst = SkTAddOffset<void>(dst, SkColorTypeBytesPerPixel(
-                    this->dstInfo().colorType()) * fCodec->fFrameDims.left());
-        }
-
-        for (int i = 0; i < count; i++) {
-            if (SkCodec::kSuccess != fCodec->readRow()) {
-                const SkPMColor* colorPtr = get_color_ptr(fCodec->fColorTable.get());
-                SkSwizzler::Fill(dst, this->dstInfo(), rowBytes,
-                        count - i, fCodec->fFillIndex, colorPtr,
-                        this->options().fZeroInitialized);
-                return gif_error("Could not decode line\n", SkCodec::kIncompleteInput);
-            }
-            fCodec->fSwizzler->swizzle(dst, fCodec->fSrcBuffer.get());
-            dst = SkTAddOffset<void>(dst, rowBytes);
-        }
-        return SkCodec::kSuccess;
+        int bpp = SkColorTypeBytesPerPixel(this->dstInfo().colorType()) * fFrameDims.left();
+        dst = SkTAddOffset<void>(dst, bpp);
     }
 
-    SkScanlineOrder onGetScanlineOrder() const override {
-        if (fCodec->fGif->Image.Interlace) {
-            return kOutOfOrder_SkScanlineOrder;
-        } else {
-            return kTopDown_SkScanlineOrder;
+    for (int i = 0; i < count; i++) {
+        if (kSuccess != this->readRow()) {
+            const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+            SkSwizzler::Fill(dst, this->dstInfo(), rowBytes, count - i, fFillIndex, colorPtr,
+                             this->options().fZeroInitialized);
+            return gif_error("Could not decode line\n", SkCodec::kIncompleteInput);
         }
+        fSwizzler->swizzle(dst, fSrcBuffer.get());
+        dst = SkTAddOffset<void>(dst, rowBytes);
     }
-
-    int onGetY() const override {
-        if (fCodec->fGif->Image.Interlace) {
-            return get_output_row_interlaced(INHERITED::onGetY(), this->dstInfo().height());
-        } else {
-            return INHERITED::onGetY();
-        }
-    }
-
-private:
-    SkAutoTDelete<SkGifCodec>   fCodec;
-
-    typedef SkScanlineDecoder INHERITED;
-};
-
-SkScanlineDecoder* SkGifCodec::NewSDFromStream(SkStream* stream) {
-    SkAutoTDelete<SkGifCodec> codec (static_cast<SkGifCodec*>(SkGifCodec::NewFromStream(stream)));
-    if (!codec) {
-        return NULL;
-    }
-
-    const SkImageInfo& srcInfo = codec->getInfo();
-
-    return new SkGifScanlineDecoder(srcInfo, codec.detach());
+    return SkCodec::kSuccess;
 }
+
+SkCodec::SkScanlineOrder SkGifCodec::onGetScanlineOrder() const {
+    if (fGif->Image.Interlace) {
+        return kOutOfOrder_SkScanlineOrder;
+    } else {
+        return kTopDown_SkScanlineOrder;
+    }
+}
+
+int SkGifCodec::onNextScanline() const {
+    if (fGif->Image.Interlace) {
+        return get_output_row_interlaced(this->INHERITED::onNextScanline(), this->dstInfo().height());
+    } else {
+        return this->INHERITED::onNextScanline();
+    }
+}
+

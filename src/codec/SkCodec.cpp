@@ -76,9 +76,12 @@ SkCodec* SkCodec::NewFromData(SkData* data) {
 }
 
 SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
-    : fInfo(info)
+    : fSrcInfo(info)
     , fStream(stream)
     , fNeedsRewind(false)
+    , fDstInfo()
+    , fOptions()
+    , fCurrScanline(-1)
 {}
 
 SkCodec::~SkCodec() {}
@@ -91,6 +94,9 @@ bool SkCodec::rewindIfNeeded() {
     if (!needsRewind) {
         return true;
     }
+
+    // startScanlineDecode will need to be called before decoding scanlines.
+    fCurrScanline = -1;
 
     if (!fStream->rewind()) {
         return false;
@@ -147,4 +153,76 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
 
 SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     return this->getPixels(info, pixels, rowBytes, nullptr, nullptr, nullptr);
+}
+
+SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options* options, SkPMColor ctable[], int* ctableCount) {
+    // Reset fCurrScanline in case of failure.
+    fCurrScanline = -1;
+    // Ensure that valid color ptrs are passed in for kIndex8 color type
+    if (kIndex_8_SkColorType == dstInfo.colorType()) {
+        if (nullptr == ctable || nullptr == ctableCount) {
+            return SkCodec::kInvalidParameters;
+        }
+    } else {
+        if (ctableCount) {
+            *ctableCount = 0;
+        }
+        ctableCount = nullptr;
+        ctable = nullptr;
+    }
+
+    // Set options.
+    Options optsStorage;
+    if (nullptr == options) {
+        options = &optsStorage;
+    }
+
+    const Result result = this->onStartScanlineDecode(dstInfo, *options, ctable, ctableCount);
+    if (result != SkCodec::kSuccess) {
+        return result;
+    }
+
+    fCurrScanline = 0;
+    fDstInfo = dstInfo;
+    fOptions = *options;
+    return kSuccess;
+}
+
+SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo) {
+    return this->startScanlineDecode(dstInfo, nullptr, nullptr, nullptr);
+}
+
+SkCodec::Result SkCodec::getScanlines(void* dst, int countLines, size_t rowBytes) {
+    if (fCurrScanline < 0) {
+        return kScanlineDecodingNotStarted;
+    }
+
+    SkASSERT(!fDstInfo.isEmpty());
+    if ((rowBytes < fDstInfo.minRowBytes() && countLines > 1 ) || countLines <= 0
+         || fCurrScanline + countLines > fDstInfo.height()) {
+        return kInvalidParameters;
+    }
+
+    const Result result = this->onGetScanlines(dst, countLines, rowBytes);
+    fCurrScanline += countLines;
+    return result;
+}
+
+SkCodec::Result SkCodec::skipScanlines(int countLines) {
+    if (fCurrScanline < 0) {
+        return kScanlineDecodingNotStarted;
+    }
+
+    SkASSERT(!fDstInfo.isEmpty());
+    if (fCurrScanline + countLines > fDstInfo.height()) {
+        // Arguably, we could just skip the scanlines which are remaining,
+        // and return kSuccess. We choose to return invalid so the client
+        // can catch their bug.
+        return SkCodec::kInvalidParameters;
+    }
+
+    const Result result = this->onSkipScanlines(countLines);
+    fCurrScanline += countLines;
+    return result;
 }
