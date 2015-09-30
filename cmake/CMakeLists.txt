@@ -57,9 +57,17 @@ remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/
 if (NOT WIN32)
     remove_srcs(../src/*XPS*
                 ../src/*_win*.cpp
-                ../src/gpu/gl/angle/*
                 ../src/ports/SkImageDecoder_WIC.cpp
                 ../src/utils/win/*)
+endif()
+if (NOT UNIX)
+    remove_srcs(../src/doc/SkDocument_XPS_None.cpp
+                ../src/ports/SkDebug_stdio.cpp
+                ../src/ports/SkOSFile_posix.cpp
+                ../src/ports/SkTLS_pthread.cpp
+                ../src/ports/SkTime_Unix.cpp
+                ../src/utils/SkThreadUtils_pthread.cpp
+                ../src/utils/SkThreadUtils_pthread_other.cpp)
 endif()
 if (APPLE OR NOT UNIX)
     remove_srcs(../src/gpu/gl/glx/*
@@ -104,6 +112,15 @@ remove_srcs(
     ../src/ports/SkImageGenerator_none.cpp
     ../src/ports/SkTLS_none.cpp)
 
+if (WIN32)
+    if(SKIA_GDI)
+        remove_srcs(../src/ports/SkFontMgr_win_dw_factory.cpp)
+    else()
+        remove_srcs(../src/ports/SkFontMgr_win_gdi_factory.cpp)
+    endif()
+endif()
+
+remove_srcs(../src/gpu/gl/angle/*)  # TODO
 remove_srcs(../src/codec/*)  # TODO: Requires Chromium's libjpeg-turbo, and incompatible giflib.
 
 # Certain files must be compiled with support for SSSE3 or SSE4.1 intrinsics.
@@ -200,6 +217,10 @@ else()
     remove_srcs(../src/gpu/gl/mesa/*)
 endif()
 
+if (WIN32)
+    list (APPEND libs FontSub.lib Usp10.lib)
+endif()
+
 find_package(OpenGL REQUIRED)
 list (APPEND libs  ${OPENGL_LIBRARIES})
 
@@ -208,11 +229,9 @@ list (APPEND libs  ${OPENGL_LIBRARIES})
 # not so much that we think Skia is a good candidate to ship as a shared library.
 add_library (skia SHARED ${srcs})
 
-list (APPEND private_defines "-DSKIA_DLL")
-
 target_compile_definitions(skia
     PUBLIC  ${public_defines}
-    PRIVATE ${private_defines})
+    PRIVATE -DSKIA_DLL -DSKIA_IMPLEMENTATION=1)
 
 target_include_directories(skia
     PUBLIC  ${public_includes}
@@ -222,9 +241,14 @@ target_link_libraries(skia
     PUBLIC
     PRIVATE ${libs})
 
+if (MSVC)
+    set(cc_flags "/w /GR-")
+else()
+    set(cc_flags "-w -fno-rtti -fno-exceptions")
+endif()
 
 set_target_properties(skia PROPERTIES
-    COMPILE_FLAGS "-w -fno-exceptions -fno-rtti"
+    COMPILE_FLAGS ${cc_flags}
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN true)
 
