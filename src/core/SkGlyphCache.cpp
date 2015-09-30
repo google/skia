@@ -427,16 +427,16 @@ static void sk_trace_dump_visitor(const SkGlyphCache& cache, void* context) {
     *counter += 1;
 
     const SkTypeface* face = cache.getScalerContext()->getTypeface();
-    SkString font_name;
-    face->getFamilyName(&font_name);
+    SkString fontName;
+    face->getFamilyName(&fontName);
     const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
 
-    SkString dump_name = SkStringPrintf("%s/%s_%3d/index_%d",
-                                        gGlyphCacheDumpName, font_name.c_str(), rec.fFontID, index);
+    SkString dumpName = SkStringPrintf("%s/%s_%3d/index_%d",
+                                        gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, index);
 
-    dump->dumpNumericValue(dump_name.c_str(), "size", "bytes", cache.getMemoryUsed());
-    dump->dumpNumericValue(dump_name.c_str(), "glyph_count", "objects", cache.countCachedGlyphs());
-    dump->setMemoryBacking(dump_name.c_str(), "malloc", nullptr);
+    dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", cache.getMemoryUsed());
+    dump->dumpNumericValue(dumpName.c_str(), "glyph_count", "objects", cache.countCachedGlyphs());
+    dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
 }
 
 void SkGlyphCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
@@ -447,6 +447,11 @@ void SkGlyphCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
                            SkGraphics::GetFontCacheCountUsed());
     dump->dumpNumericValue(gGlyphCacheDumpName, "budget_glyph_count", "objects",
                            SkGraphics::GetFontCacheCountLimit());
+
+    if (dump->getRequestedDetails() == SkTraceMemoryDump::kLight_LevelOfDetail) {
+        dump->setMemoryBacking(gGlyphCacheDumpName, "malloc", nullptr);
+        return;
+    }
 
     int counter = 0;
     SkGlyphCacheDumpContext context = { &counter, dump };

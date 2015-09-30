@@ -675,16 +675,18 @@ void SkResourceCache::TestDumpMemoryStatistics() {
 
 static void sk_trace_dump_visitor(const SkResourceCache::Rec& rec, void* context) {
     SkTraceMemoryDump* dump = static_cast<SkTraceMemoryDump*>(context);
-    SkString dump_name = SkStringPrintf("skia/sk_resource_cache/%s_%p", rec.getCategory(), &rec);
+    SkString dumpName = SkStringPrintf("skia/sk_resource_cache/%s_%p", rec.getCategory(), &rec);
     SkDiscardableMemory* discardable = rec.diagnostic_only_getDiscardable();
     if (discardable) {
-        dump->setDiscardableMemoryBacking(dump_name.c_str(), *discardable);
+        dump->setDiscardableMemoryBacking(dumpName.c_str(), *discardable);
     } else {
-        dump->dumpNumericValue(dump_name.c_str(), "size", "bytes", rec.bytesUsed());
-        dump->setMemoryBacking(dump_name.c_str(), "malloc", nullptr);
+        dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", rec.bytesUsed());
+        dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
     }
 }
 
 void SkResourceCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
+    // Since resource could be backed by malloc or discardable, the cache always dumps detailed
+    // stats to be accurate.
     VisitAll(sk_trace_dump_visitor, dump);
 }

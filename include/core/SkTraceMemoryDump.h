@@ -20,6 +20,17 @@ class SkDiscardableMemory;
 class SK_API SkTraceMemoryDump {
 public:
     /**
+     * Enum to specify the level of the requested details for the dump from the Skia objects.
+     */
+    enum LevelOfDetail {
+        // Dump only the minimal details to get the total memory usage (Usually just the totals).
+        kLight_LevelOfDetail,
+
+        // Dump the detailed breakdown of the objects in the caches.
+        kObjectsBreakdowns_LevelOfDetail
+    };
+
+    /**
      *  Appends a new memory dump (i.e. a row) to the trace memory infrastructure.
      *  If dumpName does not exist yet, a new one is created. Otherwise, a new column is appended to
      *  the previously created dump.
@@ -54,6 +65,13 @@ public:
     virtual void setDiscardableMemoryBacking(
         const char* dumpName,
         const SkDiscardableMemory& discardableMemoryObject) = 0;
+
+    /**
+     * Returns the type of details requested in the dump. The granularity of the dump is supposed to
+     * match the LevelOfDetail argument. The level of detail must not affect the total size
+     * reported, but only granularity of the child entries.
+     */
+    virtual LevelOfDetail getRequestedDetails() const = 0;
 
 protected:
     virtual ~SkTraceMemoryDump() { }

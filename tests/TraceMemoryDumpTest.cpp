@@ -24,9 +24,15 @@ public:
     void setDiscardableMemoryBacking(
         const char* dumpName,
         const SkDiscardableMemory& discardableMemoryObject) override { }
+    LevelOfDetail getRequestedDetails() const override {
+        return SkTraceMemoryDump::kObjectsBreakdowns_LevelOfDetail;
+    }
 };
 
 DEF_TEST(SkTraceMemoryDump, reporter) {
     TestSkTraceMemoryDump x;
     x.dumpNumericValue("foobar", "size", "bytes", 42);
+    if (x.getRequestedDetails() == SkTraceMemoryDump::kObjectsBreakdowns_LevelOfDetail) {
+        x.dumpNumericValue("foobar/object1", "size", "bytes", 23);
+    }
 }
