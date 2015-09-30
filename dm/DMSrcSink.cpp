@@ -441,8 +441,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     }
                     //create and set size of subsetBm
                     SkBitmap subsetBm;
-                    SkIRect bounds = SkIRect::MakeWH(subsetWidth, subsetHeight);
-                    bounds.setXYWH(0, 0, currentSubsetWidth, currentSubsetHeight);
+                    SkIRect bounds = SkIRect::MakeWH(currentSubsetWidth, currentSubsetHeight);
                     SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
                     SkAutoLockPixels autlockSubsetBm(subsetBm, true);
                     const SkCodec::Result subsetResult =
