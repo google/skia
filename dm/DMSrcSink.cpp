@@ -641,16 +641,18 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize CodecSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromData(encoded));
-    if (nullptr == codec) {
-        // scaledCodec not supported, try regular codec
+    SkAutoTDelete<SkCodec> codec(nullptr);
+
+    if (kScaledCodec_Mode == fMode) {
+        codec.reset(SkScaledCodec::NewFromData(encoded));
+    } else {
         codec.reset(SkCodec::NewFromData(encoded));
-        if (nullptr == codec) {
-            return SkISize::Make(0, 0);
-        }
     }
-    SkISize size = codec->getScaledDimensions(fScale);
-    return size;
+
+    if (nullptr == codec) {
+        return SkISize::Make(0, 0);
+    }
+    return codec->getScaledDimensions(fScale);
 }
 
 Name CodecSrc::name() const {
