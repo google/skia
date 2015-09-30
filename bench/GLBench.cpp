@@ -32,7 +32,7 @@ const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
     return this->onGetGLContext(ctx);
 }
 
-void GLBench::onPerCanvasPreDraw(SkCanvas* canvas) {
+void GLBench::onPreDraw(SkCanvas* canvas) {
     // This bench exclusively tests GL calls directly
     const GrGLContext* ctx = this->getGLContext(canvas);
     if (!ctx) {
@@ -41,7 +41,7 @@ void GLBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     this->setup(ctx);
 }
 
-void GLBench::onPerCanvasPostDraw(SkCanvas* canvas) {
+void GLBench::onPostDraw(SkCanvas* canvas) {
     // This bench exclusively tests GL calls directly
     const GrGLContext* ctx = this->getGLContext(canvas);
     if (!ctx) {

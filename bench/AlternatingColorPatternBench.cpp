@@ -113,7 +113,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         int w = 40;
         int h = 40;
         makebm(&fBmp, w, h);

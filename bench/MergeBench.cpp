@@ -25,7 +25,7 @@ protected:
         return fIsSmall ? "merge_small" : "merge_large";
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (!fInitialized) {
             make_bitmap();
             make_checkerboard();

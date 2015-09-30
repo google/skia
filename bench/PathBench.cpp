@@ -325,7 +325,7 @@ protected:
         return "path_create";
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         this->createData(10, 100);
     }
 
@@ -354,7 +354,7 @@ protected:
     const char* onGetName() override {
         return "path_copy";
     }
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         this->createData(10, 100);
         fPaths.reset(kPathCnt);
         fCopies.reset(kPathCnt);
@@ -390,7 +390,7 @@ protected:
         return fInPlace ? "path_transform_in_place" : "path_transform_copy";
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fMatrix.setScale(5 * SK_Scalar1, 6 * SK_Scalar1);
         this->createData(10, 100);
         fPaths.reset(kPathCnt);
@@ -438,7 +438,7 @@ protected:
         return "path_equality_50%";
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fParity = 0;
         this->createData(10, 100);
         fPaths.reset(kPathCnt);
@@ -501,7 +501,7 @@ protected:
         }
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         // reversePathTo assumes a single contour path.
         bool allowMoves = kReversePathTo_AddType != fType;
         this->createData(10, 100, allowMoves);
@@ -769,7 +769,7 @@ private:
         }
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fQueryRects.setCount(kQueryRectCnt);
 
         SkRandom rand;

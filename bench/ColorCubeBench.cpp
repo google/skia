@@ -31,7 +31,7 @@ protected:
         return "colorcube";
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (!SkToBool(fCubeData)) {
             this->makeCubeData();
             this->make_bitmap();

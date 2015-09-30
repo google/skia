@@ -115,7 +115,7 @@ protected:
         return fFullName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fContext.reset(GrContext::CreateMockContext());
         if (!fContext) {
             return;

@@ -78,7 +78,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (!fInitialized) {
             this->makeCheckerboard();
             this->makeAtlas();

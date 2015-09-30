@@ -23,7 +23,7 @@ public:
     }
 
 protected:
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (!fInitialized) {
             this->makeBitmap();
             this->makeCheckerboard();

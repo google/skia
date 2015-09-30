@@ -139,8 +139,8 @@ public:
         : INHERITED("playback", maxLevel, maxPictureLevel) {
     }
 protected:
-    void onPreDraw() override {
-        this->INHERITED::onPreDraw();
+    void onDelayedSetup() override {
+        this->INHERITED::onDelayedSetup();
 
         SkIPoint canvasSize = onGetSize();
         SkPictureRecorder recorder;

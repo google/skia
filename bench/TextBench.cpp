@@ -69,7 +69,7 @@ public:
     }
 
 protected:
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (fDoColorEmoji) {
             SkASSERT(kBW == fFQ);
             fColorEmojiTypeface.reset(GetResourceAsTypeface("/fonts/Funkster.ttf"));

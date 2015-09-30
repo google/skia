@@ -35,7 +35,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (!fInitialized) {
             make_checkerboard();
             fInitialized = true;

@@ -56,7 +56,7 @@ protected:
         fName.printf( "bitmap_scale_%s_%d_%d", name, fInputSize, fOutputSize );
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fInputBitmap.allocN32Pixels(fInputSize, fInputSize, true);
         fInputBitmap.eraseColor(SK_ColorWHITE);
 

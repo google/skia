@@ -44,7 +44,7 @@ bool DecodingBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend == backend;
 }
 
-void DecodingBench::onPreDraw() {
+void DecodingBench::onDelayedSetup() {
     // Allocate the pixels now, to remove it from the loop.
     SkAutoTDelete<SkStreamRewindable> stream(new SkMemoryStream(fData));
     SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));

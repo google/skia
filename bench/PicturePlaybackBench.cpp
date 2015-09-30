@@ -162,7 +162,7 @@ public:
     const char* onGetName() override { return fName.c_str(); }
     SkIPoint onGetSize() override { return SkIPoint::Make(1024,1024); }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         SkAutoTDelete<SkBBHFactory> factory;
         switch (fBBH) {
             case kNone:                                                 break;

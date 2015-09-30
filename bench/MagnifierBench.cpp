@@ -26,7 +26,7 @@ protected:
         return fIsSmall ? "magnifier_small" : "magnifier_large";
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (!fInitialized) {
             make_checkerboard();
             fInitialized = true;

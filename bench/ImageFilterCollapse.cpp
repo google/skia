@@ -83,7 +83,7 @@ protected:
         return "image_filter_collapse_table";
     }
 
-    virtual void onPreDraw() override {
+    virtual void onDelayedSetup() override {
         for (int i = 0; i < 256; ++i) {
             int n = i >> 5;
             table1[i] = (n << 5) | (n << 2) | (n >> 1);
@@ -139,7 +139,7 @@ protected:
         return "image_filter_collapse_matrix";
     }
 
-    virtual void onPreDraw() override {
+    virtual void onDelayedSetup() override {
         SkColorFilter* colorFilters[] = {
             make_brightness(0.1f),
             make_grayscale(),

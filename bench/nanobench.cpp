@@ -207,6 +207,7 @@ static double time(int loops, Benchmark* bench, Target* target) {
     if (canvas) {
         canvas->clear(SK_ColorWHITE);
     }
+    bench->preDraw(canvas);
     WallTimer timer;
     timer.start();
     canvas = target->beginTiming(canvas);
@@ -216,6 +217,7 @@ static double time(int loops, Benchmark* bench, Target* target) {
     }
     target->endTiming();
     timer.end();
+    bench->postDraw(canvas);
     return timer.fWall;
 }
 
@@ -1164,7 +1166,7 @@ int nanobench_main() {
 
         if (!configs.isEmpty()) {
             log->bench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
-            bench->preDraw();
+            bench->delayedSetup();
         }
         for (int i = 0; i < configs.count(); ++i) {
             Target* target = is_enabled(b, configs[i]);

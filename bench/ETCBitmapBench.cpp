@@ -144,7 +144,7 @@ protected:
         }
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (nullptr == fPKMData) {
             SkDebugf("Failed to load PKM data!\n");
             return;

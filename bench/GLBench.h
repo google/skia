@@ -29,9 +29,9 @@ public:
 protected:
     const GrGLContext* getGLContext(SkCanvas*);
     virtual const GrGLContext* onGetGLContext(const GrGLContext* ctx) { return ctx; }
-    void onPerCanvasPreDraw(SkCanvas* canvas) override;
+    void onPreDraw(SkCanvas*) override;
     virtual void setup(const GrGLContext*)=0;
-    void onPerCanvasPostDraw(SkCanvas* canvas) override;
+    void onPostDraw(SkCanvas* canvas) override;
     virtual void teardown(const GrGLInterface*)=0;
     void onDraw(const int loops, SkCanvas*) override;
     virtual void glDraw(const int loops, const GrGLContext*)=0;

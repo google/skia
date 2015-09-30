@@ -119,7 +119,7 @@ protected:
     }
 
     // Delayed initialization only done if onDraw will be called.
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fUnsorted.reset(N);
         gRec[fType].fProc(fUnsorted.get());
     }

@@ -70,12 +70,16 @@ public:
     // Call before draw, allows the benchmark to do setup work outside of the
     // timer. When a benchmark is repeatedly drawn, this should be called once
     // before the initial draw.
-    void preDraw();
+    void delayedSetup();
 
     // Called once before and after a series of draw calls to a single canvas.
     // The setup/break down in these calls is not timed.
     void perCanvasPreDraw(SkCanvas*);
     void perCanvasPostDraw(SkCanvas*);
+
+    // Called just before and after each call to draw().  Not timed.
+    void preDraw(SkCanvas*);
+    void postDraw(SkCanvas*);
 
     // Bench framework can tune loops to be large enough for stable timing.
     void draw(const int loops, SkCanvas*);
@@ -112,9 +116,11 @@ protected:
 
     virtual const char* onGetName() = 0;
     virtual const char* onGetUniqueName() { return this->onGetName(); }
-    virtual void onPreDraw() {}
+    virtual void onDelayedSetup() {}
     virtual void onPerCanvasPreDraw(SkCanvas*) {}
     virtual void onPerCanvasPostDraw(SkCanvas*) {}
+    virtual void onPreDraw(SkCanvas*) {}
+    virtual void onPostDraw(SkCanvas*) {}
     // Each bench should do its main work in a loop like this:
     //   for (int i = 0; i < loops; i++) { <work here> }
     virtual void onDraw(const int loops, SkCanvas*) = 0;

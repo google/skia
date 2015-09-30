@@ -200,7 +200,7 @@ protected:
         return fName.c_str();
     }
     
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         this->setGrid();
         switch (fVertexMode) {
             case kTexCoords_VertexMode:

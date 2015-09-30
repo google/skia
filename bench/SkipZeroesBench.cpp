@@ -45,7 +45,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         SkString resourcePath = GetResourcePath();
         if (resourcePath.isEmpty()) {
             fValid = false;

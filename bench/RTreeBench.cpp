@@ -67,7 +67,7 @@ protected:
     const char* onGetName() override {
         return fName.c_str();
     }
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         SkRandom rand;
         SkAutoTMalloc<SkRect> rects(NUM_QUERY_RECTS);
         for (int i = 0; i < NUM_QUERY_RECTS; ++i) {

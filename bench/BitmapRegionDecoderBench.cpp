@@ -53,7 +53,7 @@ bool BitmapRegionDecoderBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend == backend;
 }
 
-void BitmapRegionDecoderBench::onPreDraw() {
+void BitmapRegionDecoderBench::onDelayedSetup() {
     SkStreamRewindable* stream = new SkMemoryStream(fData);
     fBRD.reset(SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(stream, fStrategy));
 }

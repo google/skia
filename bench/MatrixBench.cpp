@@ -146,7 +146,7 @@ public:
     DecomposeMatrixBench() : INHERITED("decompose") {}
 
 protected:
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         for (int i = 0; i < 10; ++i) {
             SkScalar rot0 = (fRandom.nextBool()) ? fRandom.nextRangeF(-180, 180) : 0.0f;
             SkScalar sx = fRandom.nextRangeF(-3000.f, 3000.f);

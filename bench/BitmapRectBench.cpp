@@ -67,7 +67,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fBitmap.allocPixels();
         fBitmap.setAlphaType(kOpaque_SkAlphaType);
         fBitmap.eraseColor(SK_ColorBLACK);

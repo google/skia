@@ -22,7 +22,7 @@ protected:
 
     const char* onGetName() override { return "mipmap_build"; }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fBitmap.allocN32Pixels(1000, 1000, true);
         fBitmap.eraseColor(SK_ColorWHITE);  // so we don't read uninitialized memory
     }

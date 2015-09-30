@@ -33,12 +33,20 @@ SkIPoint Benchmark::getSize() {
     return this->onGetSize();
 }
 
-void Benchmark::preDraw() {
-    this->onPreDraw();
+void Benchmark::delayedSetup() {
+    this->onDelayedSetup();
 }
 
 void Benchmark::perCanvasPreDraw(SkCanvas* canvas) {
     this->onPerCanvasPreDraw(canvas);
+}
+
+void Benchmark::preDraw(SkCanvas* canvas) {
+    this->onPreDraw(canvas);
+}
+
+void Benchmark::postDraw(SkCanvas* canvas) {
+    this->onPostDraw(canvas);
 }
 
 void Benchmark::perCanvasPostDraw(SkCanvas* canvas) {

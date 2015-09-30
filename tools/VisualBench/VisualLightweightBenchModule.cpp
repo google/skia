@@ -169,7 +169,7 @@ bool VisualLightweightBenchModule::advanceRecordIfNecessary(SkCanvas* canvas) {
 
     fOwner->clear(canvas, SK_ColorWHITE, 2);
 
-    fBenchmark->preDraw();
+    fBenchmark->delayedSetup();
     fRecords.push_back();
 
     // Log bench name
@@ -184,6 +184,7 @@ inline void VisualLightweightBenchModule::nextState(State nextState) {
 
 void VisualLightweightBenchModule::perCanvasPreDraw(SkCanvas* canvas, State nextState) {
     fBenchmark->perCanvasPreDraw(canvas);
+    fBenchmark->preDraw(canvas);
     fCurrentFrame = 0;
     this->nextState(nextState);
 }
@@ -293,6 +294,7 @@ void VisualLightweightBenchModule::recordMeasurement() {
 }
 
 void VisualLightweightBenchModule::postDraw(SkCanvas* canvas) {
+    fBenchmark->postDraw(canvas);
     fBenchmark->perCanvasPostDraw(canvas);
     fBenchmark.reset(nullptr);
     fCurrentSample = 0;

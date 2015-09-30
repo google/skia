@@ -22,7 +22,7 @@ public:
 protected:
     const char* onGetName() override { return "fullscreen_rects"; }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         if (!fInit) {
             SkRandom rand;
             static const SkScalar kMinOffset = 0;

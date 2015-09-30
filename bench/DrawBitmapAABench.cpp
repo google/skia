@@ -32,7 +32,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fBitmap.allocN32Pixels(200, 200);
         fBitmap.eraseARGB(255, 0, 255, 0);
     }

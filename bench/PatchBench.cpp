@@ -107,7 +107,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         this->setCubics();
         this->setColors();
         this->setTexCoords();

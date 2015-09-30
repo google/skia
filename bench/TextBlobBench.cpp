@@ -29,7 +29,7 @@ public:
     }
 
 protected:
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         fTypeface.reset(sk_tool_utils::create_portable_typeface("serif", SkTypeface::kNormal));
         // make textblob
         SkPaint paint;

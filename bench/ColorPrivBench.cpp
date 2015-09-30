@@ -24,7 +24,7 @@ public:
 
     const char* onGetName() override { return fName.c_str(); }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         // A handful of random srcs and dsts.
         SkRandom rand;
         for (int i = 0; i < kInputs; i++) {

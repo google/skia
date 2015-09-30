@@ -72,7 +72,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         SkASSERT(nullptr == fRectanizer.get());
 
         if (kPow2_RectanizerType == fRectanizerType) {

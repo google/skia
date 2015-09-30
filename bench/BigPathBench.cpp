@@ -46,7 +46,7 @@ protected:
         return SkIPoint::Make(640, 100);
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         make_path(fPath);
     }
 

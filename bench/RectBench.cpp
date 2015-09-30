@@ -48,7 +48,7 @@ protected:
 
     const char* onGetName() override { return computeName("rects"); }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         SkRandom rand;
         const SkScalar offset = SK_Scalar1/3;
         for (int i = 0; i < N; i++) {

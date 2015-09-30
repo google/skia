@@ -110,7 +110,7 @@ protected:
         return fName.c_str();
     }
 
-    void onPreDraw() override {
+    void onDelayedSetup() override {
         SkBitmap bm;
 
         if (kIndex_8_SkColorType == fColorType) {

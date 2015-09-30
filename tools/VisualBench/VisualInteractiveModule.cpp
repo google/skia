@@ -98,7 +98,7 @@ bool VisualInteractiveModule::advanceRecordIfNecessary(SkCanvas* canvas) {
     // clear both buffers
     fOwner->clear(canvas, SK_ColorWHITE, 2);
 
-    fBenchmark->preDraw();
+    fBenchmark->delayedSetup();
 
     return true;
 }
@@ -125,6 +125,7 @@ void VisualInteractiveModule::draw(SkCanvas* canvas) {
         }
         case kPreTiming_State: {
             fBenchmark->perCanvasPreDraw(canvas);
+            fBenchmark->preDraw(canvas);
             fCurrentFrame = 0;
             fTimer.start();
             fState = kTiming_State;
@@ -148,6 +149,7 @@ inline void VisualInteractiveModule::nextState(State nextState) {
 
 void VisualInteractiveModule::perCanvasPreDraw(SkCanvas* canvas, State nextState) {
     fBenchmark->perCanvasPreDraw(canvas);
+    fBenchmark->preDraw(canvas);
     fCurrentFrame = 0;
     this->nextState(nextState);
 }
@@ -206,6 +208,7 @@ void VisualInteractiveModule::recordMeasurement() {
 }
 
 void VisualInteractiveModule::postDraw(SkCanvas* canvas) {
+    fBenchmark->postDraw(canvas);
     fBenchmark->perCanvasPostDraw(canvas);
     fBenchmark.reset(nullptr);
     fLoops = 1;

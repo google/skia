@@ -32,7 +32,7 @@ bool CodecBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend == backend;
 }
 
-void CodecBench::onPreDraw() {
+void CodecBench::onDelayedSetup() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fData));
 
     fInfo = codec->getInfo().makeColorType(fColorType);
