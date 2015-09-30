@@ -110,8 +110,6 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
                                                  int expectedW, int expectedH,
                                                  const void** outStartOfDataToUpload);
 
-// Helper that calls GrIsImageInCache assuming bitmap is not volatile.
-bool GrIsBitmapInCache(const GrContext*, const SkBitmap&, const GrTextureParams*);
 bool GrIsImageInCache(const GrContext* ctx, uint32_t imageID, const SkIRect& subset,
                       GrTexture* nativeTexture, const GrTextureParams*);
 

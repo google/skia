@@ -520,15 +520,6 @@ bool GrIsImageInCache(const GrContext* ctx, uint32_t imageID, const SkIRect& sub
         (SkGrStretch::kNone_Type == stretch.fType) ? key : stretchedKey);
 }
 
-bool GrIsBitmapInCache(const GrContext* ctx, const SkBitmap& bitmap,
-                       const GrTextureParams* params) {
-    if (bitmap.isVolatile()) {
-        return false;   // we don't cache volatile bitmaps.
-    }
-    return GrIsImageInCache(ctx, bitmap.getGenerationID(), bitmap.getSubset(), bitmap.getTexture(),
-                            params);
-}
-
 class Bitmap_GrTextureMaker : public GrTextureMaker {
 public:
     Bitmap_GrTextureMaker(const SkBitmap& bitmap)
