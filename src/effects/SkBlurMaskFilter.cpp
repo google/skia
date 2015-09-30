@@ -769,7 +769,7 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
 GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile)
     : fRect(rect)
     , fSigma(sigma)
-    , fBlurProfileAccess(blurProfile) {
+    , fBlurProfileAccess(blurProfile, GrTextureParams::kBilerp_FilterMode) {
     this->initClassID<GrRectBlurEffect>();
     this->addTextureAccess(&fBlurProfileAccess);
     this->setWillReadFragmentPosition();
