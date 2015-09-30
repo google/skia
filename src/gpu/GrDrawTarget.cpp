@@ -395,7 +395,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
     static const int kMaxLookback = 10;
 
     GrBATCH_INFO("Re-Recording (%s, B%u)\n"
-        "\tBounds (%f, %f, %f, %f)\n",
+        "\tBounds LRTB (%f, %f, %f, %f)\n",
         batch->name(),
         batch->uniqueID(),
         batch->bounds().fLeft, batch->bounds().fRight,
