@@ -30,9 +30,6 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
                                             const Options& opts,
                                             SkPMColor* inputColorPtr,
                                             int* inputColorCount) {
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
     if (opts.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;

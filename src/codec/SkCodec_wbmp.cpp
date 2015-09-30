@@ -110,9 +110,6 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
                                          const Options& options,
                                          SkPMColor ctable[],
                                          int* ctableCount) {
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -180,9 +177,6 @@ SkCodec::Result SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowB
 
 SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const Options& options, SkPMColor inputColorTable[], int* inputColorCount) {
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;

@@ -87,6 +87,12 @@ SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)
 SkCodec::~SkCodec() {}
 
 bool SkCodec::rewindIfNeeded() {
+    if (!fStream) {
+        // Some codecs do not have a stream, but they hold others that do. They
+        // must handle rewinding themselves.
+        return true;
+    }
+
     // Store the value of fNeedsRewind so we can update it. Next read will
     // require a rewind.
     const bool needsRewind = fNeedsRewind;
@@ -138,6 +144,10 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
         }
     }
 
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
+    }
+
     // Default options.
     Options optsStorage;
     if (nullptr == options) {
@@ -170,6 +180,10 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo,
         }
         ctableCount = nullptr;
         ctable = nullptr;
+    }
+
+    if (!this->rewindIfNeeded()) {
+        return kCouldNotRewind;
     }
 
     // Set options.

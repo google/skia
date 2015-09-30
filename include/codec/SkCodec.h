@@ -402,9 +402,8 @@ protected:
      *  @returns true if the codec is at the right position and can be used.
      *      false if there was a failure to rewind.
      *
-     *  Subclasses MUST call this function before reading the stream (e.g. in
-     *  onGetPixels). If it returns false, onGetPixels should return
-     *  kCouldNotRewind.
+     *  This is called by getPixels() and start(). Subclasses may call if they
+     *  need to rewind at another time.
      */
     bool SK_WARN_UNUSED_RESULT rewindIfNeeded();
 

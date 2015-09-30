@@ -456,11 +456,6 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inp
 
 SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
         int* inputColorCount, const Options& opts) {
-    // Rewind if necessary
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
-
     // Check for valid input parameters
     if (opts.fSubset) {
         // Subsets are not supported.

@@ -152,10 +152,6 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*) {
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
-
     if (!webp_conversion_possible(dstInfo, this->getInfo())) {
         return kInvalidConversion;
     }

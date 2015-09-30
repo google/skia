@@ -576,9 +576,6 @@ uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
 
 SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;

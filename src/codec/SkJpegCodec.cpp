@@ -303,11 +303,6 @@ bool SkJpegCodec::nativelyScaleToDimensions(uint32_t dstWidth, uint32_t dstHeigh
 SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
                                          void* dst, size_t dstRowBytes,
                                          const Options& options, SkPMColor*, int*) {
-    // Rewind the stream if needed
-    if (!this->rewindIfNeeded()) {
-        return fDecoderMgr->returnFailure("could not rewind stream", kCouldNotRewind);
-    }
-
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -412,11 +407,6 @@ SkCodec::Result SkJpegCodec::initializeSwizzler(const SkImageInfo& info, const O
 
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const Options& options, SkPMColor ctable[], int* ctableCount) {
-    // Rewind the stream if needed
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
-
     // Set the jump location for libjpeg errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
         SkCodecPrintf("setjmp: Error from libjpeg\n");

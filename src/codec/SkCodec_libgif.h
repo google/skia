@@ -108,7 +108,7 @@ private:
             int* inputColorCount);
 
    /*
-    * Checks for invalid inputs and calls rewindIfNeeded(), setFramDimensions(), and
+    * Checks for invalid inputs and calls setFrameDimensions(), and
     * initializeColorTable() in the proper sequence.
     */
     Result prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,

@@ -477,9 +477,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
         return kInvalidScale;
     }
-    if (!this->rewindIfNeeded()) {
-        return kCouldNotRewind;
-    }
 
     // Note that ctable and ctableCount may be modified if there is a color table
     const Result result = this->initializeSwizzler(requestedInfo, options,
@@ -592,10 +589,6 @@ public:
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor ctable[], int* ctableCount) override {
-        if (!this->rewindIfNeeded()) {
-            return kCouldNotRewind;
-        }
-
         if (!conversion_possible(dstInfo, this->getInfo())) {
             return kInvalidConversion;
         }
@@ -690,10 +683,6 @@ public:
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor ctable[], int* ctableCount) override
     {
-        if (!this->rewindIfNeeded()) {
-            return kCouldNotRewind;
-        }
-
         if (!conversion_possible(dstInfo, this->getInfo())) {
             return kInvalidConversion;    
         }
