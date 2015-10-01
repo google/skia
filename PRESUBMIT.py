@@ -244,20 +244,11 @@ def _CheckOwnerIsInAuthorsFile(input_api, output_api):
           # Found a match, the user is in the AUTHORS file break out of the loop
           break
       else:
-        # TODO(rmistry): Remove the below CLA messaging once a CLA checker has
-        # been added to the CQ.
         results.append(
           output_api.PresubmitError(
             'The email %s is not in Skia\'s AUTHORS file.\n'
             'Issue owner, this CL must include an addition to the Skia AUTHORS '
-            'file.\n'
-            'Googler reviewers, please check that the AUTHORS entry '
-            'corresponds to an email address in http://goto/cla-signers. If it '
-            'does not then ask the issue owner to sign the CLA at '
-            'https://developers.google.com/open-source/cla/individual '
-            '(individual) or '
-            'https://developers.google.com/open-source/cla/corporate '
-            '(corporate).'
+            'file.'
             % owner_email))
     except IOError:
       # Do not fail if authors file cannot be found.
@@ -297,10 +288,7 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
       # It is a revert CL, ignore the public api owners check.
       return results
 
-    # TODO(rmistry): Stop checking for COMMIT=false once crbug/470609 is
-    # resolved.
-    if issue_properties['cq_dry_run'] or re.search(
-        r'^COMMIT=false$', issue_properties['description'], re.M):
+    if issue_properties['cq_dry_run']:
       # Ignore public api owners check for dry run CLs since they are not
       # going to be committed.
       return results
