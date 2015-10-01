@@ -193,7 +193,11 @@ struct SkConvolutionProcs {
 //
 // The layout in memory is assumed to be 4-bytes per pixel in B-G-R-A order
 // (this is ARGB when loaded into 32-bit words on a little-endian machine).
-SK_API void BGRAConvolve2D(const unsigned char* sourceData,
+/**
+ *  Returns false if it was unable to perform the convolution/rescale. in which case the output
+ *  buffer is assumed to be undefined.
+ */
+SK_API bool BGRAConvolve2D(const unsigned char* sourceData,
     int sourceByteRowStride,
     bool sourceHasAlpha,
     const SkConvolutionFilter1D& xfilter,

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "SkConvolver.h"
+#include "SkMath.h"
 #include "SkSize.h"
 #include "SkTypes.h"
 
@@ -358,7 +359,7 @@ const SkConvolutionFilter1D::ConvolutionFixed* SkConvolutionFilter1D::GetSingleF
     return &fFilterValues[filter.fDataLocation];
 }
 
-void BGRAConvolve2D(const unsigned char* sourceData,
+bool BGRAConvolve2D(const unsigned char* sourceData,
                     int sourceByteRowStride,
                     bool sourceHasAlpha,
                     const SkConvolutionFilter1D& filterX,
@@ -393,6 +394,20 @@ void BGRAConvolve2D(const unsigned char* sourceData,
     int rowBufferWidth = (filterX.numValues() + 15) & ~0xF;
     int rowBufferHeight = maxYFilterSize +
                           (convolveProcs.fConvolve4RowsHorizontally ? 4 : 0);
+
+    // check for too-big allocation requests : crbug.com/528628
+    {
+        int64_t size = sk_64_mul(rowBufferWidth, rowBufferHeight);
+        // need some limit, to avoid over-committing success from malloc, but then
+        // crashing when we try to actually use the memory.
+        // 100meg seems big enough to allow "normal" zoom factors and image sizes through
+        // while avoiding the crash seen by the bug (crbug.com/528628)
+        if (size > 100 * 1024 * 1024) {
+//            SkDebugf("BGRAConvolve2D: tmp allocation [%lld] too big\n", size);
+            return false;
+        }
+    }
+
     CircularRowBuffer rowBuffer(rowBufferWidth,
                                 rowBufferHeight,
                                 filterOffset);
@@ -486,4 +501,5 @@ void BGRAConvolve2D(const unsigned char* sourceData,
                                sourceHasAlpha);
         }
     }
+    return true;
 }

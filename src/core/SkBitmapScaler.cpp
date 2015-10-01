@@ -245,11 +245,13 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeM
       return false;
     }
 
-    BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
-      !source.isOpaque(), filter.xFilter(), filter.yFilter(),
-      static_cast<int>(result.rowBytes()),
-      static_cast<unsigned char*>(result.getPixels()),
-      convolveProcs, true);
+    if (!BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
+                        !source.isOpaque(), filter.xFilter(), filter.yFilter(),
+                        static_cast<int>(result.rowBytes()),
+                        static_cast<unsigned char*>(result.getPixels()),
+                        convolveProcs, true)) {
+        return false;
+    }
 
     *resultPtr = result;
     resultPtr->lockPixels();
