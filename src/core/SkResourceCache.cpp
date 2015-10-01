@@ -679,6 +679,10 @@ static void sk_trace_dump_visitor(const SkResourceCache::Rec& rec, void* context
     SkDiscardableMemory* discardable = rec.diagnostic_only_getDiscardable();
     if (discardable) {
         dump->setDiscardableMemoryBacking(dumpName.c_str(), *discardable);
+
+        // The discardable memory size will be calculated by dumper, but we also dump what we think
+        // the size of object in memory is irrespective of whether object is live or dead.
+        dump->dumpNumericValue(dumpName.c_str(), "discardable_size", "bytes", rec.bytesUsed());
     } else {
         dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", rec.bytesUsed());
         dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);

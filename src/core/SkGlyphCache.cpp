@@ -14,6 +14,8 @@
 #include "SkTraceMemoryDump.h"
 #include "SkTypeface.h"
 
+#include <cctype>
+
 //#define SPEW_PURGE_STATUS
 
 namespace {
@@ -427,12 +429,19 @@ static void sk_trace_dump_visitor(const SkGlyphCache& cache, void* context) {
     *counter += 1;
 
     const SkTypeface* face = cache.getScalerContext()->getTypeface();
-    SkString fontName;
-    face->getFamilyName(&fontName);
     const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
 
-    SkString dumpName = SkStringPrintf("%s/%s_%3d/index_%d",
-                                        gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, index);
+    SkString fontName;
+    face->getFamilyName(&fontName);
+    // Replace all special characters with '_'.
+    for (size_t index = 0; index < fontName.size(); ++index) {
+        if (!std::isalnum(fontName[index])) {
+            fontName[index] = '_';
+        }
+    }
+
+    SkString dumpName = SkStringPrintf("%s/%s_%d/index_%d",
+                                       gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, index);
 
     dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", cache.getMemoryUsed());
     dump->dumpNumericValue(dumpName.c_str(), "glyph_count", "objects", cache.countCachedGlyphs());
