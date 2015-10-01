@@ -87,10 +87,8 @@ DEF_GPUTEST(ImageIsOpaqueTest_GPU, reporter, factory) {
         SkImageInfo infoOpaque = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
         SkAutoTUnref<SkSurface> surfaceOpaque(
             SkSurface::NewRenderTarget(context,SkSurface::kNo_Budgeted, infoOpaque));
-#if 0
-        // this is failing right now : TODO fix me
+
         check_isopaque(reporter, surfaceOpaque, true);
-#endif
     }
 }
 
