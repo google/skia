@@ -677,6 +677,14 @@ bool GrPixelConfig2ColorAndProfileType(GrPixelConfig config, SkColorType* ctOut,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+static inline bool blend_requires_shader(const SkXfermode::Mode mode, bool primitiveIsSrc) {
+    if (primitiveIsSrc) {
+        return SkXfermode::kSrc_Mode != mode;
+    } else {
+        return SkXfermode::kDst_Mode != mode;
+    }
+}
+
 static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            const SkPaint& skPaint,
                                            const SkMatrix& viewM,
@@ -689,15 +697,18 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
     SkAutoTUnref<const GrFragmentProcessor> aufp;
-    const GrFragmentProcessor* shaderFP = NULL;
-    if (shaderProcessor) {
-        shaderFP = *shaderProcessor;
-    } else if (const SkShader* shader = skPaint.getShader()) {
-        aufp.reset(shader->asFragmentProcessor(context, viewM, NULL, skPaint.getFilterQuality(),
-                                               grPaint->getProcessorDataManager()));
-        shaderFP = aufp;
-        if (!shaderFP) {
-            return false;
+    const GrFragmentProcessor* shaderFP = nullptr;
+    if (!primColorMode || blend_requires_shader(*primColorMode, primitiveIsSrc)) {
+        if (shaderProcessor) {
+            shaderFP = *shaderProcessor;
+        } else if (const SkShader* shader = skPaint.getShader()) {
+            aufp.reset(shader->asFragmentProcessor(context, viewM, nullptr,
+                                                   skPaint.getFilterQuality(),
+                                                   grPaint->getProcessorDataManager()));
+            shaderFP = aufp;
+            if (!shaderFP) {
+                return false;
+            }
         }
     }
 
@@ -761,11 +772,13 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                 grPaint->addColorFragmentProcessor(processor);
             }
 
-            grPaint->setColor(SkColorToUnpremulGrColor(skPaint.getColor()) | 0xFF000000);
+            grPaint->setColor(SkColorToOpaqueGrColor(skPaint.getColor()));
 
             GrColor paintAlpha = SkColorAlphaToGrColor(skPaint.getColor());
-            grPaint->addColorFragmentProcessor(GrConstColorProcessor::Create(
-                paintAlpha, GrConstColorProcessor::kModulateRGBA_InputMode))->unref();
+            if (GrColor_WHITE != paintAlpha) {
+                grPaint->addColorFragmentProcessor(GrConstColorProcessor::Create(
+                    paintAlpha, GrConstColorProcessor::kModulateRGBA_InputMode))->unref();
+            }
         } else {
             // No shader, no primitive color.
             grPaint->setColor(SkColorToPremulGrColor(skPaint.getColor()));

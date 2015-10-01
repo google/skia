@@ -1742,42 +1742,50 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
     SkAutoSTMalloc<128, GrColor> convertedColors(0);
     if (colors) {
-        // need to convert byte order and from non-PM to PM
+        // need to convert byte order and from non-PM to PM. TODO: Keep unpremul until after
+        // interpolation.
         convertedColors.reset(vertexCount);
-        SkColor color;
         for (int i = 0; i < vertexCount; ++i) {
-            color = colors[i];
-            if (paint.getAlpha() != 255) {
-                color = SkColorSetA(color, SkMulDiv255Round(SkColorGetA(color), paint.getAlpha()));
-            }
-            /// TODO: Perform the premul after interpolating
-            convertedColors[i] = SkColorToPremulGrColor(color);
+            convertedColors[i] = SkColorToPremulGrColor(colors[i]);
         }
         colors = convertedColors.get();
     }
     GrPaint grPaint;
-    if (texs && colors && paint.getShader()) {
-        // When there are texs and colors the shader and colors are combined using xmode. A null
-        // xmode is defined to mean modulate.
-        SkXfermode::Mode colorMode;
-        if (xmode) {
-            if (!xmode->asMode(&colorMode)) {
+    if (texs && paint.getShader()) {
+        if (colors) {
+            // When there are texs and colors the shader and colors are combined using xmode. A null
+            // xmode is defined to mean modulate.
+            SkXfermode::Mode colorMode;
+            if (xmode) {
+                if (!xmode->asMode(&colorMode)) {
+                    return;
+                }
+            } else {
+                colorMode = SkXfermode::kModulate_Mode;
+            }
+            if (!SkPaintToGrPaintWithXfermode(this->context(), paint, *draw.fMatrix, colorMode,
+                                              false, &grPaint)) {
                 return;
             }
         } else {
-            colorMode = SkXfermode::kModulate_Mode;
+            // We have a shader, but no colors to blend it against.
+            if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix, &grPaint)) {
+                return;
+            }
         }
-        if (!SkPaintToGrPaintWithXfermode(this->context(), paint, *draw.fMatrix, colorMode, false,
-                                          &grPaint)) {
-            return;
+    } else {
+        if (colors) {
+            // We have colors, but either have no shader or no texture coords (which implies that
+            // we should ignore the shader).
+            if (!SkPaintToGrPaintWithPrimitiveColor(this->context(), paint, &grPaint)) {
+                return;
+            }
+        } else {
+            // No colors and no shaders. Just draw with the paint color.
+            if (!SkPaintToGrPaintNoShader(this->context(), paint, &grPaint)) {
+                return;
+            }
         }
-    } else if (!texs) {
-        // Defined to ignore the shader unless texs is provided.
-        if (!SkPaintToGrPaintNoShader(this->context(), paint, &grPaint)) {
-            return;
-        }
-    } else if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix, &grPaint)) {
-        return;
     }
 
     fDrawContext->drawVertices(fRenderTarget,
