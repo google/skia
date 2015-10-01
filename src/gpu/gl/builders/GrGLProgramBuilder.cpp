@@ -421,8 +421,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 }
 
 void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
-    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != nullptr;
-    if (usingBindUniform) {
+    if (fGpu->glCaps().bindUniformLocationSupport()) {
         int count = fUniforms.count();
         for (int i = 0; i < count; ++i) {
             GL_CALL(BindUniformLocation(programID, i, fUniforms[i].fVariable.c_str()));

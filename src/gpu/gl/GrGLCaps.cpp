@@ -304,6 +304,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
+    fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
+
 #ifdef SK_BUILD_FOR_WIN
     // We're assuming that on Windows Chromium we're using ANGLE.
     bool isANGLE = kANGLE_GrGLDriver == ctxInfo.driver() ||
@@ -1113,6 +1115,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
+    r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
     return r;
 }
 
