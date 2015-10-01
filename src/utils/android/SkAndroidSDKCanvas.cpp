@@ -248,11 +248,33 @@ void SkAndroidSDKCanvas::onDrawImageRect(const SkImage* image,
 }
 
 void SkAndroidSDKCanvas::onDrawPicture(const SkPicture* picture,
-                                                const SkMatrix* matrix,
-                                                const SkPaint* paint) {
+                                       const SkMatrix* matrix,
+                                       const SkPaint* paint) {
     FILTER_PTR(paint);
     fProxyTarget->drawPicture(picture, matrix, filteredPaint);
 }
+
+void SkAndroidSDKCanvas::onDrawAtlas(const SkImage* atlas,
+                                     const SkRSXform xform[],
+                                     const SkRect tex[],
+                                     const SkColor colors[],
+                                     int count,
+                                     SkXfermode::Mode mode,
+                                     const SkRect* cullRect,
+                                     const SkPaint* paint) {
+    FILTER_PTR(paint);
+    fProxyTarget->drawAtlas(atlas, xform, tex, colors, count, mode, cullRect,
+                            filteredPaint);
+}
+
+void SkAndroidSDKCanvas::onDrawImageNine(const SkImage* image,
+                                         const SkIRect& center,
+                                         const SkRect& dst,
+                                         const SkPaint* paint) {
+    FILTER_PTR(paint);
+    fProxyTarget->drawImageNine(image, center, dst, filteredPaint);
+}
+
 
 void SkAndroidSDKCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     fProxyTarget->drawDrawable(drawable, matrix);

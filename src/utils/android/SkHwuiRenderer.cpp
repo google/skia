@@ -61,7 +61,6 @@ void SkHwuiRenderer::initialize(SkISize size) {
 }
 
 SkCanvas* SkHwuiRenderer::prepareToDraw() {
-    this->canvas->reset(size.width(), size.height());
     this->canvas->clipRect(0, 0, this->size.width(), this->size.height(),
                            SkRegion::Op::kReplace_Op);
     return this->canvas->asSkCanvas();
