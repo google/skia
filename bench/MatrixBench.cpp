@@ -31,7 +31,7 @@ protected:
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             this->performTest();
         }

@@ -67,7 +67,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         if (fStroke > 0) {
             paint.setStyle(SkPaint::kStroke_Style);
@@ -170,7 +170,7 @@ public:
     }
 
 protected:
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkScalar gSizes[] = {
             SkIntToScalar(7), 0
         };
@@ -218,7 +218,7 @@ public:
     }
 
 protected:
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkScalar gSizes[] = {
             SkIntToScalar(13), SkIntToScalar(24)
         };

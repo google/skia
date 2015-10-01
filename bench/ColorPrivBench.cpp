@@ -39,7 +39,7 @@ public:
         if (kScale) fScales[256] = 255;  // We'll just do 255 twice if we're limited to [0,255].
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         // We xor results of FourByteInterp into junk to make sure the function runs.
         volatile SkPMColor junk = 0;
 

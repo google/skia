@@ -33,7 +33,7 @@ public:
 protected:
     const char* onGetName() override { return fName.c_str(); }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         const char* text = "Hamburgefons";
         size_t len = strlen(text);
         SkISize size = canvas->getDeviceSize();
@@ -85,7 +85,7 @@ public:
 protected:
     const char* onGetName() override { return "xfermode_create"; }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         for (int outer = 0; outer < loops * 10; ++outer) {
             for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
                 SkXfermode* xfer = SkXfermode::Create(SkXfermode::Mode(i));

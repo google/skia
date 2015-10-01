@@ -62,7 +62,7 @@ protected:
 
     const GrGLContext* onGetGLContext(const GrGLContext*) override;
     void setup(const GrGLContext*) override;
-    void glDraw(const int loops, const GrGLContext*) override;
+    void glDraw(int loops, const GrGLContext*) override;
     void teardown(const GrGLInterface*) override;
 
 private:
@@ -339,7 +339,7 @@ void GLCpuPosInstancedArraysBench::setup(const GrGLContext* ctx) {
     GR_GL_CALL(gl, BindVertexArray(fVAO));
 }
 
-void GLCpuPosInstancedArraysBench::glDraw(const int loops, const GrGLContext* ctx) {
+void GLCpuPosInstancedArraysBench::glDraw(int loops, const GrGLContext* ctx) {
     const GrGLInterface* gl = ctx->interface();
 
     uint32_t maxTrianglesPerFlush = fDrawDiv == 0 ?  kNumTri :

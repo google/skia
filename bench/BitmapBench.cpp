@@ -131,7 +131,7 @@ protected:
         fBitmap.setIsVolatile(fIsVolatile);
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         if (fDoScale) {
             canvas->scale(.99f, .99f);
         }
@@ -225,7 +225,7 @@ protected:
         return fFullName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkISize dim = canvas->getDeviceSize();
         if (fFlags & kScale_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;

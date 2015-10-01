@@ -34,7 +34,7 @@ protected:
     const char* onGetName() override {
         return fName.c_str();
     }
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRandom rand;
         SkAutoTMalloc<SkRect> rects(NUM_BUILD_RECTS);
         for (int i = 0; i < NUM_BUILD_RECTS; ++i) {
@@ -76,7 +76,7 @@ protected:
         fTree.insert(rects.get(), NUM_QUERY_RECTS);
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRandom rand;
         for (int i = 0; i < loops; ++i) {
             SkTDArray<int> hits;

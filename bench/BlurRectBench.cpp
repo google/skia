@@ -51,7 +51,7 @@ protected:
         fName = name;
     }
 
-    virtual void onDraw(const int loops, SkCanvas*) {
+    virtual void onDraw(int loops, SkCanvas*) {
         SkPaint paint;
         this->setupPaint(&paint);
 

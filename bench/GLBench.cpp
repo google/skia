@@ -50,7 +50,7 @@ void GLBench::onPostDraw(SkCanvas* canvas) {
     this->teardown(ctx->interface());
 }
 
-void GLBench::onDraw(const int loops, SkCanvas* canvas) {
+void GLBench::onDraw(int loops, SkCanvas* canvas) {
     const GrGLContext* ctx = this->getGLContext(canvas);
     if (!ctx) {
         return;

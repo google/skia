@@ -28,7 +28,7 @@ SkIPoint RecordingBench::onGetSize() {
                           SkScalarCeilToInt(fSrc->cullRect().height()));
 }
 
-void RecordingBench::onDraw(const int loops, SkCanvas*) {
+void RecordingBench::onDraw(int loops, SkCanvas*) {
     SkRTreeFactory factory;
     const SkScalar w = fSrc->cullRect().width(),
                    h = fSrc->cullRect().height();

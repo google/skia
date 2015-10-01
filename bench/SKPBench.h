@@ -34,7 +34,7 @@ protected:
     void onPerCanvasPreDraw(SkCanvas*) override;
     void onPerCanvasPostDraw(SkCanvas*) override;
     bool isSuitableFor(Backend backend) override;
-    void onDraw(const int loops, SkCanvas* canvas) override;
+    void onDraw(int loops, SkCanvas* canvas) override;
     SkIPoint onGetSize() override;
 
     virtual void drawMPDPicture();

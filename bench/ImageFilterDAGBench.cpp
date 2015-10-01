@@ -25,7 +25,7 @@ protected:
         return "image_filter_dag";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         for (int j = 0; j < loops; j++) {
             SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(20.0f, 20.0f));
             SkImageFilter* inputs[kNumInputs];

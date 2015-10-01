@@ -36,7 +36,7 @@ public:
 protected:
     const char* onGetName() override { return fName.c_str(); }
     void setup(const GrGLContext*) override;
-    void glDraw(const int loops, const GrGLContext*) override;
+    void glDraw(int loops, const GrGLContext*) override;
     void teardown(const GrGLInterface*) override;
 
     static const GrGLuint kScreenWidth = 800;
@@ -207,7 +207,7 @@ void GLVertexAttributesBench::setup(const GrGLContext* ctx) {
     GR_GL_CALL(gl, UseProgram(fProgram));
 }
 
-void GLVertexAttributesBench::glDraw(const int loops, const GrGLContext* ctx) {
+void GLVertexAttributesBench::glDraw(int loops, const GrGLContext* ctx) {
     const GrGLInterface* gl = ctx->interface();
 
     // upload vertex attributes

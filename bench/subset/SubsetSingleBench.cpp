@@ -57,7 +57,7 @@ bool SubsetSingleBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend == backend;
 }
 
-void SubsetSingleBench::onDraw(const int n, SkCanvas* canvas) {
+void SubsetSingleBench::onDraw(int n, SkCanvas* canvas) {
     // When the color type is kIndex8, we will need to store the color table.  If it is
     // used, it will be initialized by the codec.
     int colorCount;

@@ -20,7 +20,7 @@ public:
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
     const char* onGetName() override { return fName.c_str(); }
 
-    void onDraw(const int loops, SkCanvas*) override;
+    void onDraw(int loops, SkCanvas*) override;
 
 private:
     int fN;
@@ -28,13 +28,13 @@ private:
     SkString fName;
 };
 
-template <> void MemsetBench<uint32_t, false>::onDraw(const int loops, SkCanvas*) {
+template <> void MemsetBench<uint32_t, false>::onDraw(int loops, SkCanvas*) {
     for (int i = 0; i < 1000*loops; i++) {
         sk_memset32(fBuffer.get(), 0xFACEB004, fN);
     }
 }
 
-template <> void MemsetBench<uint16_t, false>::onDraw(const int loops, SkCanvas*) {
+template <> void MemsetBench<uint16_t, false>::onDraw(int loops, SkCanvas*) {
     for (int i = 0; i < 1000*loops; i++) {
         sk_memset16(fBuffer.get(), 0x4973, fN);
     }
@@ -45,13 +45,13 @@ static void memsetT(T* dst, T val, int n) {
     for (int i = 0; i < n; i++) { dst[i] = val; }
 }
 
-template <> void MemsetBench<uint32_t, true>::onDraw(const int loops, SkCanvas*) {
+template <> void MemsetBench<uint32_t, true>::onDraw(int loops, SkCanvas*) {
     for (int i = 0; i < 1000*loops; i++) {
         memsetT<uint32_t>(fBuffer.get(), 0xFACEB004, fN);
     }
 }
 
-template <> void MemsetBench<uint16_t, true>::onDraw(const int loops, SkCanvas*) {
+template <> void MemsetBench<uint16_t, true>::onDraw(int loops, SkCanvas*) {
     for (int i = 0; i < 1000*loops; i++) {
         memsetT<uint16_t>(fBuffer.get(), 0x4973, fN);
     }

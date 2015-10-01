@@ -26,7 +26,7 @@ struct Sk4fBytesRoundtripBench : public Benchmark {
     const char* onGetName() override { return "Sk4f_roundtrip"; }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         // Unlike blackhole, junk can and probably will be a register.
         uint32_t junk = 0;
         uint32_t seed = 0;
@@ -47,7 +47,7 @@ struct Sk4fGradientBench : public Benchmark {
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
     SkPMColor fDevice[100];
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         Sk4f c0(0,0,255,255),
              c1(255,0,0,255),
              dc = c1 - c0,

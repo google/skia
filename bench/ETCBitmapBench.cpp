@@ -158,7 +158,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; ++i) {
             if (fDecompress) {
                 canvas->drawBitmap(this->fBitmap, 0, 0, nullptr);
@@ -206,7 +206,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPixelRef* pr = fBitmap.pixelRef();
         for (int i = 0; i < loops; ++i) {
             if (pr) {

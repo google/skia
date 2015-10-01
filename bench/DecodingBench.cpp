@@ -27,7 +27,7 @@ DecodingBench::DecodingBench(SkString path, SkColorType colorType)
     // Parse filename and the color type to give the benchmark a useful name
     SkString baseName = SkOSPath::Basename(path.c_str());
     fName.printf("Decode_%s_%s", baseName.c_str(), color_type_to_str(colorType));
-    
+
 #ifdef SK_DEBUG
     // Ensure that we can create a decoder.
     SkAutoTDelete<SkStreamRewindable> stream(new SkMemoryStream(fData));
@@ -78,7 +78,7 @@ private:
     void* fPixelStorage; // Unowned. DecodingBench owns this.
 };
 
-void DecodingBench::onDraw(const int n, SkCanvas* canvas) {
+void DecodingBench::onDraw(int n, SkCanvas* canvas) {
     SkBitmap bitmap;
     // Declare the allocator before the decoder, so it will outlive the
     // decoder, which will unref it.

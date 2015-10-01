@@ -37,7 +37,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    virtual void onDraw(int loops, SkCanvas* canvas) {
 
         SkPictureRecorder recorder;
         SkCanvas* pCanvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, nullptr, 0);
@@ -185,7 +185,7 @@ public:
         fPic.reset(recorder.endRecording());
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
             // This inner loop guarantees we make the same choices for all bench variants.
             SkRandom rand;

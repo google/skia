@@ -24,7 +24,7 @@ protected:
         return "readpix";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         SkISize size = canvas->getDeviceSize();

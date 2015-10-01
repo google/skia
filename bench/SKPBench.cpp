@@ -104,7 +104,7 @@ SkIPoint SKPBench::onGetSize() {
     return SkIPoint::Make(fClip.width(), fClip.height());
 }
 
-void SKPBench::onDraw(const int loops, SkCanvas* canvas) {
+void SKPBench::onDraw(int loops, SkCanvas* canvas) {
     SkASSERT(fDoLooping || 1 == loops);
     if (fUseMultiPictureDraw) {
         for (int i = 0; i < loops; i++) {

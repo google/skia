@@ -58,7 +58,7 @@ void BitmapRegionDecoderBench::onDelayedSetup() {
     fBRD.reset(SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(stream, fStrategy));
 }
 
-void BitmapRegionDecoderBench::onDraw(const int n, SkCanvas* canvas) {
+void BitmapRegionDecoderBench::onDraw(int n, SkCanvas* canvas) {
     SkAutoTDelete<SkBitmap> bitmap;
     for (int i = 0; i < n; i++) {
         bitmap.reset(fBRD->decodeRegion(fSubset.left(), fSubset.top(), fSubset.width(),

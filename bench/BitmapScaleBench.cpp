@@ -65,7 +65,7 @@ protected:
         fMatrix.setScale( scale(), scale() );
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         SkPaint paint;
         this->setupPaint(&paint);
 

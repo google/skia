@@ -461,7 +461,7 @@ public:
 protected:
 
     virtual const char* onGetName() { return "chrome_scrollGmail"; }
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    virtual void onDraw(int loops, SkCanvas* canvas) {
         SkDEBUGCODE(this->validateBounds(canvas));
         SkPaint paint;
         this->setupPaint(&paint);

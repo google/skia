@@ -58,7 +58,7 @@ private:
         #include "BigPathBench.inc"
     }
     const char* onGetName() override { return "warmupbench"; }
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(2);

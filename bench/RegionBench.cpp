@@ -106,7 +106,7 @@ public:
 protected:
     const char* onGetName() override { return fName.c_str(); }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         Proc proc = fProc;
         for (int i = 0; i < loops; ++i) {
             proc(fA, fB);

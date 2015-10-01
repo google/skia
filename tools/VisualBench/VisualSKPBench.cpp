@@ -26,7 +26,7 @@ bool VisualSKPBench::isSuitableFor(Backend backend) {
     return backend != kNonRendering_Backend;
 }
 
-void VisualSKPBench::onDraw(const int loops, SkCanvas* canvas) {
+void VisualSKPBench::onDraw(int loops, SkCanvas* canvas) {
     for (int i = 0; i < loops; i++) {
         canvas->drawPicture(fPic);
     }

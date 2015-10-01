@@ -53,7 +53,7 @@ protected:
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         int n = loops * this->mulLoopCount();
         for (int i = 0; i < n; i++) {
             this->performTest(fDst, fSrc, kBuffer);
@@ -287,7 +287,7 @@ public:
     }
 
 protected:
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         IsFiniteProc proc = fProc;
         const float* data = fData;
         // do this so the compiler won't throw away the function call
@@ -357,7 +357,7 @@ public:
     virtual void process(float) {}
 
 protected:
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         SkRandom rand;
         float accum = 0;
         const float* data = fData;
@@ -419,7 +419,7 @@ public:
     virtual void process(int) {}
 
 protected:
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         int accum = 0;
 
         if (fUsePortable) {
@@ -475,7 +475,7 @@ public:
     virtual void process(int) {}
 
 protected:
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         int accum = 0;
 
         for (int j = 0; j < loops; ++j) {
@@ -519,7 +519,7 @@ public:
     }
 
 protected:
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         for (int j = 0; j < loops; ++j) {
             for (int i = 0; i < N - 4; ++i) {
                 fResult[i] = SkFloatToFixed(fData[i]);
@@ -559,7 +559,7 @@ protected:
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         volatile T a = 0, b = 0;
         T div = 0, mod = 0;
         for (int i = 0; i < loops; i++) {

@@ -111,7 +111,7 @@ protected:
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         const SkIPoint dim = this->getSize();
         SkRandom rand;
 

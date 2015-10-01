@@ -54,7 +54,7 @@ protected:
     }
 
     void setup(const GrGLContext*) override;
-    void glDraw(const int loops, const GrGLContext*) override;
+    void glDraw(int loops, const GrGLContext*) override;
     void teardown(const GrGLInterface*) override;
 
 private:
@@ -262,7 +262,7 @@ void GLVec4ScalarBench::setup(const GrGLContext* ctx) {
     GR_GL_CALL(gl, UseProgram(fProgram));
 }
 
-void GLVec4ScalarBench::glDraw(const int loops, const GrGLContext* ctx) {
+void GLVec4ScalarBench::glDraw(int loops, const GrGLContext* ctx) {
     const GrGLInterface* gl = ctx->interface();
 
     for (int i = 0; i < loops; i++) {

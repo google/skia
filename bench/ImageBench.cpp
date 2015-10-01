@@ -39,7 +39,7 @@ protected:
         fRasterSurface.reset(SkSurface::NewRaster(info));
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             for (int inner = 0; inner < 10; ++inner) {
                 fRasterSurface->getCanvas()->drawImage(fImage, 0, 0);

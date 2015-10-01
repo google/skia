@@ -33,7 +33,7 @@ protected:
         return "tablebench";
     }
 
-    virtual void onDraw(const int loops, SkCanvas* canvas) {
+    virtual void onDraw(int loops, SkCanvas* canvas) {
         SkPaint cellPaint;
         cellPaint.setColor(0xFFFFFFF);
 

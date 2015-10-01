@@ -66,7 +66,7 @@ protected:
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         if (fRaw) {
             for (int i = 0; i < loops; ++i) {
                 SkPath::RawIter iter(fPath);

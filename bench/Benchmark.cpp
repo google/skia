@@ -53,7 +53,7 @@ void Benchmark::perCanvasPostDraw(SkCanvas* canvas) {
     this->onPerCanvasPostDraw(canvas);
 }
 
-void Benchmark::draw(const int loops, SkCanvas* canvas) {
+void Benchmark::draw(int loops, SkCanvas* canvas) {
     SkAutoCanvasRestore ar(canvas, true/*save now*/);
     this->onDraw(loops, canvas);
 }

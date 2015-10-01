@@ -48,7 +48,7 @@ void CodecBench::onDelayedSetup() {
     fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
 }
 
-void CodecBench::onDraw(const int n, SkCanvas* canvas) {
+void CodecBench::onDraw(int n, SkCanvas* canvas) {
     SkAutoTDelete<SkCodec> codec;
     SkPMColor colorTable[256];
     int colorCount;

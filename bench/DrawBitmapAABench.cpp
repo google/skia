@@ -37,7 +37,7 @@ protected:
         fBitmap.eraseARGB(255, 0, 255, 0);
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         canvas->concat(fMatrix);
         for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fBitmap, 0, 0, &fPaint);

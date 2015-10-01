@@ -43,7 +43,7 @@ protected:
         return "grmemorypool_stack";
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
@@ -105,7 +105,7 @@ protected:
         return "grmemorypool_random";
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
@@ -153,7 +153,7 @@ protected:
         return "grmemorypool_queue";
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         SkRandom r;
         C* objects[M];
         for (int i = 0; i < loops; i++) {

@@ -33,7 +33,7 @@ public:
 protected:
     const char* onGetName() override;
     bool isSuitableFor(Backend backend) override;
-    void onDraw(const int n, SkCanvas* canvas) override;
+    void onDraw(int n, SkCanvas* canvas) override;
     void onDelayedSetup() override;
 
 private:

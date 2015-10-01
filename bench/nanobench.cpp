@@ -1182,7 +1182,7 @@ int nanobench_main() {
             bench->perCanvasPreDraw(canvas);
 
             int maxFrameLag;
-            const int loops = target->needsFrameTiming(&maxFrameLag)
+            int loops = target->needsFrameTiming(&maxFrameLag)
                 ? setup_gpu_bench(target, bench.get(), maxFrameLag)
                 : setup_cpu_bench(overhead, target, bench.get());
 

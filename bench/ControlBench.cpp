@@ -14,7 +14,7 @@ struct ControlBench : public Benchmark {
     const char* onGetName() override { return "control"; }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         // Nothing terribly useful: force a memory read, a memory write, and some math.
         volatile uint32_t rand = 0;
         for (int i = 0; i < 1000*loops; i++) {

@@ -69,7 +69,7 @@ protected:
         return fFullName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkAutoTUnref<GrContext> context(GrContext::CreateMockContext());
         if (nullptr == context) {
             return;
@@ -134,7 +134,7 @@ protected:
         populate_cache(gpu, CACHE_SIZE_COUNT, fKeyData32Count);
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         if (!fContext) {
             return;
         }

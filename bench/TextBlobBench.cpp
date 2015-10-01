@@ -54,7 +54,7 @@ protected:
         return "TextBlobBench";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
 
         // To ensure maximum caching, we just redraw the blob at the same place everytime

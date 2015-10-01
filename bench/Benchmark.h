@@ -82,7 +82,7 @@ public:
     void postDraw(SkCanvas*);
 
     // Bench framework can tune loops to be large enough for stable timing.
-    void draw(const int loops, SkCanvas*);
+    void draw(int loops, SkCanvas*);
 
     void setForceAlpha(int alpha) {
         fForceAlpha = alpha;
@@ -123,7 +123,7 @@ protected:
     virtual void onPostDraw(SkCanvas*) {}
     // Each bench should do its main work in a loop like this:
     //   for (int i = 0; i < loops; i++) { <work here> }
-    virtual void onDraw(const int loops, SkCanvas*) = 0;
+    virtual void onDraw(int loops, SkCanvas*) = 0;
 
     virtual SkIPoint onGetSize();
 

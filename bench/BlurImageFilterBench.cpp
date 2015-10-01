@@ -42,7 +42,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         static const SkScalar kX = 0;
         static const SkScalar kY = 0;

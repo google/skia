@@ -50,7 +50,7 @@ protected:
         return backend == kNonRendering_Backend;
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
         SkTypeface* typeface = sk_tool_utils::create_portable_typeface(
@@ -87,7 +87,7 @@ protected:
         return backend == kNonRendering_Backend;
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
         SkTypeface* typefaces[] =

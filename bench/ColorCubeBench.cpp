@@ -38,7 +38,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         this->test(loops, canvas);
     }
 
@@ -93,7 +93,7 @@ private:
         }
     }
 
-    void test(const int loops, SkCanvas* canvas) {
+    void test(int loops, SkCanvas* canvas) {
         SkPaint paint;
         for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkColorFilter> colorCube(

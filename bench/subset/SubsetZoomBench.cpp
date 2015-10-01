@@ -53,7 +53,7 @@ bool SubsetZoomBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend == backend;
 }
 
-void SubsetZoomBench::onDraw(const int n, SkCanvas* canvas) {
+void SubsetZoomBench::onDraw(int n, SkCanvas* canvas) {
     // When the color type is kIndex8, we will need to store the color table.  If it is
     // used, it will be initialized by the codec.
     int colorCount;

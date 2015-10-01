@@ -51,7 +51,7 @@ protected:
         }
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         switch (fType) {
             case kChecksum_ChecksumType: {
                 for (int i = 0; i < loops; i++) {

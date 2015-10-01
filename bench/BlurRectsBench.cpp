@@ -29,7 +29,7 @@ public:
         fName = name;
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, fRadius))->unref();
 

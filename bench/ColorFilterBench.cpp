@@ -74,7 +74,7 @@ protected:
         return isSmall() ? "colorfilter_dim_bright_small" : "colorfilter_dim_bright_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -104,7 +104,7 @@ protected:
         return isSmall() ? "colorfilter_bright_gray_small" : "colorfilter_bright_gray_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -131,7 +131,7 @@ protected:
         return isSmall() ? "colorfilter_gray_bright_small" : "colorfilter_gray_bright_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -158,7 +158,7 @@ protected:
         return isSmall() ? "colorfilter_blue_bright_small" : "colorfilter_blue_bright_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -185,7 +185,7 @@ protected:
         return isSmall() ? "colorfilter_bright_blue_small" : "colorfilter_bright_blue_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -212,7 +212,7 @@ protected:
         return isSmall() ? "colorfilter_bright_small" : "colorfilter_bright_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -238,7 +238,7 @@ protected:
         return isSmall() ? "colorfilter_blue_small" : "colorfilter_blue_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -263,7 +263,7 @@ protected:
         return isSmall() ? "colorfilter_gray_small" : "colorfilter_gray_large";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);

@@ -23,7 +23,7 @@ protected:
         return fBenchName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             fMu.acquire();
             fMu.release();
@@ -47,7 +47,7 @@ protected:
         return "SkSharedMutexSharedUncontendedBenchmark";
     }
 
-    void onDraw(const int loops, SkCanvas*) override {
+    void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             fMu.acquireShared();
             fMu.releaseShared();

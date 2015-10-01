@@ -48,7 +48,7 @@ protected:
         return fName.c_str();
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         if (fDrawCoverage) {
             for (int i = 0; i < loops; ++i) {
                 fDraw.drawPathCoverage(fPath, fPaint);

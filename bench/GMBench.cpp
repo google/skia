@@ -21,7 +21,7 @@ bool GMBench::isSuitableFor(Backend backend) {
     return kNonRendering_Backend != backend;
 }
 
-void GMBench::onDraw(const int loops, SkCanvas* canvas) {
+void GMBench::onDraw(int loops, SkCanvas* canvas) {
     // Do we care about timing the draw of the background (once)?
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);

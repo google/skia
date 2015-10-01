@@ -25,7 +25,7 @@ protected:
         return "rectori";
     }
 
-    void onDraw(const int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkRandom Random;
 
         for (int i = 0; i < loops; i++) {
