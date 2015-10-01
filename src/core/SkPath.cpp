@@ -180,7 +180,7 @@ bool operator==(const SkPath& a, const SkPath& b) {
 
 void SkPath::swap(SkPath& that) {
     if (this != &that) {
-        fPathRef.swap(&that.fPathRef);
+        fPathRef.swap(that.fPathRef);
         SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);
         SkTSwap<uint8_t>(fFillType, that.fFillType);
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);

@@ -76,7 +76,7 @@ void PictureRenderer::init(const SkPicture* pict,
         return;
     }
 
-    fPicture.reset(pict)->ref();
+    fPicture.reset(SkRef(pict));
     fCanvas.reset(this->setupCanvas());
 }
 
@@ -503,7 +503,7 @@ void TiledPictureRenderer::init(const SkPicture* pict, const SkString* writePath
 
     // Do not call INHERITED::init(), which would create a (potentially large) canvas which is not
     // used by bench_pictures.
-    fPicture.reset(pict)->ref();
+    fPicture.reset(SkRef(pict));
     this->CopyString(&fWritePath, writePath);
     this->CopyString(&fMismatchPath, mismatchPath);
     this->CopyString(&fInputFilename, inputFilename);

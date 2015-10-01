@@ -9,6 +9,7 @@
 #define SkRefCnt_DEFINED
 
 #include "../private/SkAtomics.h"
+#include "../private/SkUniquePtr.h"
 #include "SkTypes.h"
 
 /** \class SkRefCntBase
@@ -143,7 +144,7 @@ class SK_API SkRefCnt : public SkRefCntBase { };
     } while (0)
 
 
-/** Call obj->ref() and return obj. The obj must not be NULL.
+/** Call obj->ref() and return obj. The obj must not be nullptr.
  */
 template <typename T> static inline T* SkRef(T* obj) {
     SkASSERT(obj);
@@ -171,51 +172,25 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
 template<typename T> static inline void SkSafeSetNull(T*& obj) {
     if (obj) {
         obj->unref();
-        obj = NULL;
+        obj = nullptr;
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename T> struct SkTUnref {
+    void operator()(T* t) { t->unref(); }
+};
+
 /**
  *  Utility class that simply unref's its argument in the destructor.
  */
-template <typename T> class SkAutoTUnref : SkNoncopyable {
+template <typename T> class SkAutoTUnref : public skstd::unique_ptr<T, SkTUnref<T>> {
 public:
-    explicit SkAutoTUnref(T* obj = NULL) : fObj(obj) {}
-    ~SkAutoTUnref() { SkSafeUnref(fObj); }
+    explicit SkAutoTUnref(T* obj = nullptr) : skstd::unique_ptr<T, SkTUnref<T>>(obj) {}
 
-    T* get() const { return fObj; }
-
-    T* reset(T* obj) {
-        SkSafeUnref(fObj);
-        fObj = obj;
-        return obj;
-    }
-
-    void swap(SkAutoTUnref* other) {
-        T* tmp = fObj;
-        fObj = other->fObj;
-        other->fObj = tmp;
-    }
-
-    /**
-     *  Return the hosted object (which may be null), transferring ownership.
-     *  The reference count is not modified, and the internal ptr is set to NULL
-     *  so unref() will not be called in our destructor. A subsequent call to
-     *  detach() will do nothing and return null.
-     */
-    T* detach() {
-        T* obj = fObj;
-        fObj = NULL;
-        return obj;
-    }
-
-    T* operator->() const { return fObj; }
-    operator T*() const { return fObj; }
-
-private:
-    T*  fObj;
+    T* detach() { return this->release(); }
+    operator T*() const { return this->get(); }
 };
 // Can't use the #define trick below to guard a bare SkAutoTUnref(...) because it's templated. :(
 

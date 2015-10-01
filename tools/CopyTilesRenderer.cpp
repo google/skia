@@ -35,7 +35,7 @@ namespace sk_tools {
         SkASSERT(pict != nullptr);
         // Only work with absolute widths (as opposed to percentages).
         SkASSERT(this->getTileWidth() != 0 && this->getTileHeight() != 0);
-        fPicture.reset(pict)->ref();
+        fPicture.reset(SkRef(pict));
         this->CopyString(&fWritePath, writePath);
         this->CopyString(&fMismatchPath, mismatchPath);
         this->CopyString(&fInputFilename, inputFilename);
