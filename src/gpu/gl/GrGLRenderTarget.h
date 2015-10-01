@@ -70,6 +70,21 @@ public:
     // components seperately.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
+    /**
+     * @return true if sample locations colocated at pixel center have been set for this
+     *         render target.  Requires support for NV_sample_locations.
+     */
+    bool usesColocatedSampleLocations() const {
+        return fUsesColocatedSampleLocations;
+    }
+
+    /**
+     * Flag render target as using or not using sample locations colocated at pixel center.
+     */
+    void flagAsUsingColocatedSampleLocations(bool useColocatedSampleLocations) {
+        fUsesColocatedSampleLocations = useColocatedSampleLocations;
+    }
+
 protected:
     // The public constructor registers this object with the cache. However, only the most derived
     // class should register with the cache. This constructor does not do the registration and
@@ -115,6 +130,10 @@ private:
     // onGpuMemorySize() needs to know the VRAM footprint of the FBO(s). However, abandon and
     // release zero out the IDs and the cache needs to know the size even after those actions.
     size_t      fGpuMemorySize;
+
+    // True if sample locations colocated at pixel center are currently in use, false if default
+    // sample locations are currently in use.
+    bool        fUsesColocatedSampleLocations;
 
     typedef GrRenderTarget INHERITED;
 };

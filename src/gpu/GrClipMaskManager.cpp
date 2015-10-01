@@ -306,7 +306,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     }
 
     // If MSAA is enabled we can do everything in the stencil buffer.
-    if (0 == rt->numColorSamples() && requiresAA) {
+    if (0 == rt->numStencilSamples() && requiresAA) {
         GrTexture* result = nullptr;
 
         // The top-left of the mask corresponds to the top-left corner of the bounds.
@@ -757,7 +757,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             pipelineBuilder.setDisableColorXPFactory();
 
             // if the target is MSAA then we want MSAA enabled when the clip is soft
-            if (rt->isUnifiedMultisampled()) {
+            if (rt->isStencilBufferMultisampled()) {
                 pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, element->isAA());
             }
 

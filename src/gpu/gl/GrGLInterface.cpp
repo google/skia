@@ -701,6 +701,12 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if (kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,5)) {
+        if (nullptr == fFunctions.fNamedFramebufferParameteri) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
     if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
         fExtensions.has("GL_KHR_debug")) {
         if (nullptr == fFunctions.fDebugMessageControl ||

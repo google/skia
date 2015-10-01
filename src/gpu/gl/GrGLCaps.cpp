@@ -355,6 +355,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDiscardRenderTargetSupport = false;
         fInvalidateFBType = kNone_InvalidateFBType;
     }
+    glslCaps->fProgrammableSampleLocationsSupport =
+        ctxInfo.hasExtension("GL_NV_sample_locations") ||
+        ctxInfo.hasExtension("GL_ARB_sample_locations");
+
 
     /**************************************************************************
      * GrCaps fields
