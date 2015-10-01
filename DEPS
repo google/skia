@@ -14,7 +14,8 @@ deps = {
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@08429da7955a98ef764fafa223dd7de73f654b2d",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@1afff032c83e26ddf7f2776e8b43de5ad666c1fa",
-  "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.4.3",
+  # Slightly ahead of v 0.4.3, to include the fix for skbug.com/4038
+  "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@5ff0079ece626f122bfb8e33a5f92b5a68484176",
   "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4ba7cdd0e7bf49d671645264f839838fc56e1492",
   # NOTE: If we update libpng, we may need to update the generated file at third_party/libpng/pnglibconf.h

@@ -302,12 +302,6 @@ static void push_codec_srcs(Path path) {
     }
 
     for (float scale : nativeScales) {
-        if (scale != 1.0f && (path.endsWith(".webp") || path.endsWith(".WEBP"))) {
-            // FIXME: skbug.com/4038 Scaling webp seems to leave some pixels uninitialized/
-            // compute their colors based on uninitialized values.
-            continue;
-        }
-
         for (CodecSrc::Mode mode : nativeModes) {
             for (uint32_t i = 0; i < numColorTypes; i++) {
                 push_codec_src(path, mode, colorTypes[i], scale);
