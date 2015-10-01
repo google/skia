@@ -7,11 +7,12 @@
 #ifndef SkJpegInfo_DEFINED
 #define SkJpegInfo_DEFINED
 
+#include "SkSize.h"
+
 class SkData;
 
 struct SkJFIFInfo {
-    int fWidth;
-    int fHeight;
+    SkISize fSize;
     enum Type {
         kGrayscale,
         kYCbCr,

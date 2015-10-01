@@ -107,8 +107,8 @@ bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
         return false;  // Invalid JFIF
     }
     if (info) {
-        info->fHeight = JpegSegment::GetBigendianUint16(&segment.data()[1]);
-        info->fWidth = JpegSegment::GetBigendianUint16(&segment.data()[3]);
+        info->fSize.set(JpegSegment::GetBigendianUint16(&segment.data()[3]),
+                        JpegSegment::GetBigendianUint16(&segment.data()[1]));
         if (numberOfComponents == 3) {
             info->fType = SkJFIFInfo::kYCbCr;
         } else {

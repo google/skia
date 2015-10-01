@@ -99,6 +99,17 @@ public:
                     const SkMatrix& matrix, const SkPaint&) override;
     void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
                     const SkPaint& paint) override;
+    void drawImage(const SkDraw&,
+                   const SkImage*,
+                   SkScalar x,
+                   SkScalar y,
+                   const SkPaint&) override;
+    void drawImageRect(const SkDraw&,
+                       const SkImage*,
+                       const SkRect* src,
+                       const SkRect& dst,
+                       const SkPaint&,
+                       SkCanvas::SrcRectConstraint) override;
     void drawText(const SkDraw&, const void* text, size_t len,
                   SkScalar x, SkScalar y, const SkPaint&) override;
     void drawPosText(const SkDraw&, const void* text, size_t len,
@@ -279,12 +290,12 @@ private:
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
-    void internalDrawBitmap(const SkMatrix& matrix,
-                            const SkClipStack* clipStack,
-                            const SkRegion& clipRegion,
-                            const SkBitmap& bitmap,
-                            const SkIRect* srcRect,
-                            const SkPaint& paint);
+    void internalDrawImage(const SkMatrix& matrix,
+                           const SkClipStack* clipStack,
+                           const SkRegion& clipRegion,
+                           const SkImage* image,
+                           const SkIRect* srcRect,
+                           const SkPaint& paint);
 
     /** Helper method for copyContentToData. It is responsible for copying the
      *  list of content entries |entry| to |data|.

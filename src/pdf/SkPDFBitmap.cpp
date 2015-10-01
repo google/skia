@@ -8,13 +8,32 @@
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDeflate.h"
-#include "SkImageGenerator.h"
+#include "SkImage_Base.h"
 #include "SkJpegInfo.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
-#include "SkPixelRef.h"
 #include "SkStream.h"
 #include "SkUnPreMultiply.h"
+
+void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
+    if(as_IB(image)->getROPixels(dst)
+       && dst->dimensions() == image->dimensions()) {
+        return;
+    }
+    // no pixels or wrong size: fill with zeros.
+    SkAlphaType at = image->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    dst->setInfo(SkImageInfo::MakeN32(image->width(), image->height(), at));
+}
+
+bool image_compute_is_opaque(const SkImage* image) {
+    if (image->isOpaque()) {
+        return true;
+    }
+    // keep output PDF small at cost of possible resource use.
+    SkBitmap bm;
+    image_get_ro_pixels(image, &bm);
+    return SkBitmap::ComputeIsOpaque(bm);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -239,80 +258,6 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-namespace {
-// This SkPDFObject only outputs the alpha layer of the given bitmap.
-class PDFAlphaBitmap : public SkPDFObject {
-public:
-    PDFAlphaBitmap(const SkBitmap& bm) : fBitmap(bm) {}
-    ~PDFAlphaBitmap() {}
-    void emitObject(SkWStream*,
-                    const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) const override;
-
-private:
-    const SkBitmap fBitmap;
-};
-
-void PDFAlphaBitmap::emitObject(SkWStream* stream,
-                                const SkPDFObjNumMap& objNumMap,
-                                const SkPDFSubstituteMap& substitutes) const {
-    SkAutoLockPixels autoLockPixels(fBitmap);
-    SkASSERT(fBitmap.colorType() != kIndex_8_SkColorType ||
-             fBitmap.getColorTable());
-
-    // Write to a temporary buffer to get the compressed length.
-    SkDynamicMemoryWStream buffer;
-    SkDeflateWStream deflateWStream(&buffer);
-    bitmap_alpha_to_a8(fBitmap, &deflateWStream);
-    deflateWStream.finalize();  // call before detachAsStream().
-    SkAutoTDelete<SkStreamAsset> asset(buffer.detachAsStream());
-
-    SkPDFDict pdfDict("XObject");
-    pdfDict.insertName("Subtype", "Image");
-    pdfDict.insertInt("Width", fBitmap.width());
-    pdfDict.insertInt("Height", fBitmap.height());
-    pdfDict.insertName("ColorSpace", "DeviceGray");
-    pdfDict.insertInt("BitsPerComponent", 8);
-    pdfDict.insertName("Filter", "FlateDecode");
-    pdfDict.insertInt("Length", asset->getLength());
-    pdfDict.emitObject(stream, objNumMap, substitutes);
-
-    pdf_stream_begin(stream);
-    stream->writeStream(asset.get(), asset->getLength());
-    pdf_stream_end(stream);
-}
-}  // namespace
-
-////////////////////////////////////////////////////////////////////////////////
-
-namespace {
-class PDFDefaultBitmap : public SkPDFBitmap {
-public:
-    const SkAutoTUnref<SkPDFObject> fSMask;
-    void emitObject(SkWStream*,
-                    const SkPDFObjNumMap&,
-                    const SkPDFSubstituteMap&) const override;
-    void addResources(SkPDFObjNumMap*,
-                      const SkPDFSubstituteMap&) const override;
-    PDFDefaultBitmap(const SkBitmap& bm, SkPDFObject* smask)
-        : SkPDFBitmap(bm), fSMask(smask) {}
-};
-}  // namespace
-
-void PDFDefaultBitmap::addResources(
-        SkPDFObjNumMap* catalog,
-        const SkPDFSubstituteMap& substitutes) const {
-    if (fSMask.get()) {
-        SkPDFObject* obj = substitutes.getSubstitute(fSMask.get());
-        SkASSERT(obj);
-        if (catalog->addObject(obj)) {
-            obj->addResources(catalog, substitutes);
-        }
-    }
-}
-
 static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
     SkPDFArray* result = new SkPDFArray;
     result->reserve(4);
@@ -343,37 +288,48 @@ static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
     return result;
 }
 
-void PDFDefaultBitmap::emitObject(SkWStream* stream,
-                                  const SkPDFObjNumMap& objNumMap,
-                                  const SkPDFSubstituteMap& substitutes) const {
-    SkAutoLockPixels autoLockPixels(fBitmap);
-    SkASSERT(fBitmap.colorType() != kIndex_8_SkColorType ||
-             fBitmap.getColorTable());
+static void emit_image_xobject(SkWStream* stream,
+                               const SkImage* image,
+                               bool alpha,
+                               SkPDFObject* smask,
+                               const SkPDFObjNumMap& objNumMap,
+                               const SkPDFSubstituteMap& substitutes) {
+    SkBitmap bitmap;
+    image_get_ro_pixels(image, &bitmap);      // TODO(halcanary): test
+    SkAutoLockPixels autoLockPixels(bitmap);  // with malformed images.
+    SkASSERT(bitmap.colorType() != kIndex_8_SkColorType ||
+             bitmap.getColorTable());
 
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
     SkDeflateWStream deflateWStream(&buffer);
-    bitmap_to_pdf_pixels(fBitmap, &deflateWStream);
+    if (alpha) {
+        bitmap_alpha_to_a8(bitmap, &deflateWStream);
+    } else {
+        bitmap_to_pdf_pixels(bitmap, &deflateWStream);
+    }
     deflateWStream.finalize();  // call before detachAsStream().
     SkAutoTDelete<SkStreamAsset> asset(buffer.detachAsStream());
 
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
-    pdfDict.insertInt("Width", fBitmap.width());
-    pdfDict.insertInt("Height", fBitmap.height());
-    if (fBitmap.colorType() == kIndex_8_SkColorType) {
-        SkASSERT(1 == pdf_color_component_count(fBitmap.colorType()));
+    pdfDict.insertInt("Width", bitmap.width());
+    pdfDict.insertInt("Height", bitmap.height());
+    if (alpha) {
+        pdfDict.insertName("ColorSpace", "DeviceGray");
+    } else if (bitmap.colorType() == kIndex_8_SkColorType) {
+        SkASSERT(1 == pdf_color_component_count(bitmap.colorType()));
         pdfDict.insertObject("ColorSpace",
-                             make_indexed_color_space(fBitmap.getColorTable()));
-    } else if (1 == pdf_color_component_count(fBitmap.colorType())) {
+                             make_indexed_color_space(bitmap.getColorTable()));
+    } else if (1 == pdf_color_component_count(bitmap.colorType())) {
         pdfDict.insertName("ColorSpace", "DeviceGray");
     } else {
         pdfDict.insertName("ColorSpace", "DeviceRGB");
     }
-    pdfDict.insertInt("BitsPerComponent", 8);
-    if (fSMask) {
-        pdfDict.insertObjRef("SMask", SkRef(fSMask.get()));
+    if (smask) {
+        pdfDict.insertObjRef("SMask", SkRef(smask));
     }
+    pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
     pdfDict.insertInt("Length", asset->getLength());
     pdfDict.emitObject(stream, objNumMap, substitutes);
@@ -385,26 +341,68 @@ void PDFDefaultBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static const SkBitmap& immutable_bitmap(const SkBitmap& bm, SkBitmap* copy) {
-    if (bm.isImmutable()) {
-        return bm;
+namespace {
+// This SkPDFObject only outputs the alpha layer of the given bitmap.
+class PDFAlphaBitmap : public SkPDFObject {
+public:
+    PDFAlphaBitmap(const SkImage* image) : fImage(SkRef(image)) {}
+    ~PDFAlphaBitmap() {}
+    void emitObject(SkWStream*  stream,
+                    const SkPDFObjNumMap& objNumMap,
+                    const SkPDFSubstituteMap& subs) const override {
+        emit_image_xobject(stream, fImage, true, nullptr, objNumMap, subs);
     }
-    bm.copyTo(copy);
-    copy->setImmutable();
-    return *copy;
-}
+
+private:
+    SkAutoTUnref<const SkImage> fImage;
+};
+
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace {
+class PDFDefaultBitmap : public SkPDFObject {
+public:
+    void emitObject(SkWStream*  stream,
+                    const SkPDFObjNumMap& objNumMap,
+                    const SkPDFSubstituteMap& substitutes) const override {
+        emit_image_xobject(stream, fImage, false, fSMask, objNumMap, substitutes);
+    }
+    void addResources(SkPDFObjNumMap* catalog,
+                      const SkPDFSubstituteMap& substitutes) const override {
+        if (fSMask.get()) {
+            SkPDFObject* obj = substitutes.getSubstitute(fSMask.get());
+            SkASSERT(obj);
+            if (catalog->addObject(obj)) {
+                obj->addResources(catalog, substitutes);
+            }
+        }
+    }
+    PDFDefaultBitmap(const SkImage* image, SkPDFObject* smask)
+        : fImage(SkRef(image)), fSMask(smask) {}
+
+private:
+    SkAutoTUnref<const SkImage> fImage;
+    const SkAutoTUnref<SkPDFObject> fSMask;
+};
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
 
 namespace {
 /**
- *  This PDFObject assumes that its constructor was handed YUV JFIF
- *  Jpeg-encoded data that can be directly embedded into a PDF.
+ *  This PDFObject assumes that its constructor was handed YUV or
+ *  Grayscale JFIF Jpeg-encoded data that can be directly embedded
+ *  into a PDF.
  */
-class PDFJpegBitmap : public SkPDFBitmap {
+class PDFJpegBitmap : public SkPDFObject {
 public:
+    SkISize fSize;
     SkAutoTUnref<SkData> fData;
     bool fIsYUV;
-    PDFJpegBitmap(const SkBitmap& bm, SkData* data, bool isYUV)
-        : SkPDFBitmap(bm), fData(SkRef(data)), fIsYUV(isYUV) {}
+    PDFJpegBitmap(SkISize size, SkData* data, bool isYUV)
+        : fSize(size), fData(SkRef(data)), fIsYUV(isYUV) {}
     void emitObject(SkWStream*,
                     const SkPDFObjNumMap&,
                     const SkPDFSubstituteMap&) const override;
@@ -415,8 +413,8 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
                                const SkPDFSubstituteMap& substituteMap) const {
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
-    pdfDict.insertInt("Width", fBitmap.width());
-    pdfDict.insertInt("Height", fBitmap.height());
+    pdfDict.insertInt("Width", fSize.width());
+    pdfDict.insertInt("Height", fSize.height());
     if (fIsYUV) {
         pdfDict.insertName("ColorSpace", "DeviceRGB");
     } else {
@@ -435,39 +433,23 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFBitmap* SkPDFBitmap::Create(SkPDFCanon* canon, const SkBitmap& bitmap) {
-    SkASSERT(canon);
-    if (!SkColorTypeIsValid(bitmap.colorType()) ||
-        kUnknown_SkColorType == bitmap.colorType()) {
-        return nullptr;
-    }
-    SkBitmap copy;
-    const SkBitmap& bm = immutable_bitmap(bitmap, &copy);
-    if (bm.drawsNothing()) {
-        return nullptr;
-    }
-    if (SkPDFBitmap* canonBitmap = canon->findBitmap(bm)) {
-        return SkRef(canonBitmap);
-    }
-
-    if (bm.pixelRef() && bm.pixelRefOrigin().isZero() &&
-        bm.dimensions() == bm.pixelRef()->info().dimensions()) {
-        // Requires the bitmap to be backed by lazy pixels.
-        SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
-        SkJFIFInfo info;
-        if (data && SkIsJFIF(data, &info)) {
-            bool yuv = info.fType == SkJFIFInfo::kYCbCr;
-            SkPDFBitmap* pdfBitmap = new PDFJpegBitmap(bm, data, yuv);
-            canon->addBitmap(pdfBitmap);
-            return pdfBitmap;
+SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image) {
+    SkAutoTUnref<SkData> data(image->refEncoded());
+    SkJFIFInfo info;
+    if (data && SkIsJFIF(data, &info)) {
+        bool yuv = info.fType == SkJFIFInfo::kYCbCr;
+        if (info.fSize == image->dimensions()) {  // Sanity check.
+            // hold on to data, not image.
+            #ifdef SK_PDF_IMAGE_STATS
+            gJpegImageObjects.fetch_add(1);
+            #endif
+            return new PDFJpegBitmap(info.fSize, data, yuv);
         }
     }
-
-    SkPDFObject* smask = nullptr;
-    if (!bm.isOpaque() && !SkBitmap::ComputeIsOpaque(bm)) {
-        smask = new PDFAlphaBitmap(bm);
-    }
-    SkPDFBitmap* pdfBitmap = new PDFDefaultBitmap(bm, smask);
-    canon->addBitmap(pdfBitmap);
-    return pdfBitmap;
+    SkPDFObject* smask =
+            image_compute_is_opaque(image) ? nullptr : new PDFAlphaBitmap(image);
+    #ifdef SK_PDF_IMAGE_STATS
+    gRegularImageObjects.fetch_add(1);
+    #endif
+    return new PDFDefaultBitmap(image, smask);
 }

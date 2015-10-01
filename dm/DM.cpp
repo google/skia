@@ -29,6 +29,10 @@
 #include "Timer.h"
 #include "sk_tool_utils.h"
 
+#ifdef SK_PDF_IMAGE_STATS
+extern void SkPDFImageDumpStats();
+#endif
+
 #ifdef SKIA_PNG_PREFIXED
     // this must proceed png.h
     #include "pngprefix.h"
@@ -1105,6 +1109,9 @@ int dm_main() {
         SkDebugf("Hrm, we didn't seem to run everything we intended to!  Please file a bug.\n");
         return 1;
     }
+    #ifdef SK_PDF_IMAGE_STATS
+    SkPDFImageDumpStats();
+    #endif  // SK_PDF_IMAGE_STATS
     return 0;
 }
 

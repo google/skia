@@ -506,3 +506,17 @@ int32_t SkPDFObjNumMap::getObjectNumber(SkPDFObject* obj) const {
     return *objectNumberFound;
 }
 
+#ifdef SK_PDF_IMAGE_STATS
+SkAtomic<int> gDrawImageCalls(0);
+SkAtomic<int> gJpegImageObjects(0);
+SkAtomic<int> gRegularImageObjects(0);
+
+void SkPDFImageDumpStats() {
+    SkDebugf("\ntotal PDF drawImage/drawBitmap calls: %d\n"
+             "total PDF jpeg images: %d\n"
+             "total PDF regular images: %d\n",
+             gDrawImageCalls.load(),
+             gJpegImageObjects.load(),
+             gRegularImageObjects.load());
+}
+#endif // SK_PDF_IMAGE_STATS

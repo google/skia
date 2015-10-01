@@ -7,15 +7,29 @@
 #ifndef SkPDFCanon_DEFINED
 #define SkPDFCanon_DEFINED
 
+#include "SkBitmap.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
 
-class SkBitmap;
 class SkPDFFont;
-class SkPDFBitmap;
 class SkPaint;
+class SkImage;
+
+class SkBitmapKey {
+public:
+    SkBitmapKey() : fSubset(SkIRect::MakeEmpty()), fGenID(0) {}
+    explicit SkBitmapKey(const SkBitmap& bm)
+        : fSubset(bm.getSubset()), fGenID(bm.getGenerationID()) {}
+    bool operator==(const SkBitmapKey& rhs) const {
+        return fGenID == rhs.fGenID && fSubset == rhs.fSubset;
+    }
+
+private:
+    SkIRect fSubset;
+    uint32_t fGenID;
+};
 
 /**
  *  The SkPDFCanon canonicalizes objects across PDF pages(SkPDFDevices).
@@ -60,8 +74,9 @@ public:
     const SkPDFGraphicState* findGraphicState(const SkPDFGraphicState&) const;
     void addGraphicState(const SkPDFGraphicState*);
 
-    SkPDFBitmap* findBitmap(const SkBitmap&) const;
-    void addBitmap(SkPDFBitmap*);
+    SkPDFObject* findPDFBitmap(const SkImage* image) const;
+    void addPDFBitmap(uint32_t imageUniqueID, SkPDFObject*);
+    const SkImage* bitmapToImage(const SkBitmap&);
 
 private:
     struct FontRec {
@@ -92,6 +107,7 @@ private:
     };
     SkTHashSet<WrapGS, WrapGS::Hash> fGraphicStateRecords;
 
-    SkTDArray<SkPDFBitmap*> fBitmapRecords;
+    SkTHashMap<SkBitmapKey, const SkImage*> fBitmapToImageMap;
+    SkTHashMap<uint32_t /*ImageUniqueID*/, SkPDFObject*> fPDFBitmapMap;
 };
 #endif  // SkPDFCanon_DEFINED

@@ -8,33 +8,14 @@
 #define SkPDFBitmap_DEFINED
 
 #include "SkPDFTypes.h"
-#include "SkBitmap.h"
 
-class SkPDFCanon;
+class SkImage;
 
 /**
- * SkPDFBitmap wraps a SkBitmap and serializes it as an image Xobject.
+ * SkPDFBitmap wraps a SkImage and serializes it as an image Xobject.
  * It is designed to use a minimal amout of memory, aside from refing
- * the bitmap's pixels, and its emitObject() does not cache any data.
- *
- * If !bitmap.isImmutable(), then a copy of the bitmap must be made;
- * there is no way around this.
- *
- * The SkPDFBitmap::Create function will check the canon for duplicates.
+ * the image, and its emitObject() does not cache any data.
  */
-class SkPDFBitmap : public SkPDFObject {
-public:
-    // Returns nullptr on unsupported bitmap;
-    static SkPDFBitmap* Create(SkPDFCanon*, const SkBitmap&);
-    bool equals(const SkBitmap& other) const {
-        return fBitmap.getGenerationID() == other.getGenerationID() &&
-               fBitmap.pixelRefOrigin() == other.pixelRefOrigin() &&
-               fBitmap.dimensions() == other.dimensions();
-    }
-
-protected:
-    const SkBitmap fBitmap;
-    SkPDFBitmap(const SkBitmap& bm) : fBitmap(bm) {}
-};
+SkPDFObject* SkPDFCreateBitmapObject(const SkImage*);
 
 #endif  // SkPDFBitmap_DEFINED
