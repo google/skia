@@ -2282,7 +2282,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // TODO(halcanary): de-dupe this by caching filtered images.
         // (maybe in the resource cache?)
     }
-    SkAutoTUnref<SkPDFObject> pdfimage(fCanon->findPDFBitmap(image));
+    SkAutoTUnref<SkPDFObject> pdfimage(SkSafeRef(fCanon->findPDFBitmap(image)));
     if (!pdfimage) {
         pdfimage.reset(SkPDFCreateBitmapObject(image));
         if (!pdfimage) {
@@ -2290,6 +2290,6 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         }
         fCanon->addPDFBitmap(image->uniqueID(), pdfimage);
     }
-    SkPDFUtils::DrawFormXObject(this->addXObjectResource(SkRef(pdfimage.get())),
+    SkPDFUtils::DrawFormXObject(this->addXObjectResource(pdfimage.get()),
                                 &content.entry()->fContent);
 }
