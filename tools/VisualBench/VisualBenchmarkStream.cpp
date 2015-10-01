@@ -7,12 +7,14 @@
  */
 
 #include <VisualBench/VisualBenchmarkStream.h>
+#include "CpuWrappedBenchmark.h"
 #include "GMBench.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "VisualSKPBench.h"
 
+DEFINE_bool(cpu, false, "Run in CPU mode?");
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
                "Multiple matches may be separated by spaces.\n"
@@ -71,6 +73,9 @@ Benchmark* VisualBenchmarkStream::next() {
            (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName()) ||
             !bench->isSuitableFor(Benchmark::kGPU_Backend))) {
         bench->unref();
+    }
+    if (FLAGS_cpu) {
+        return new CpuWrappedBenchmark(bench);
     }
     return bench;
 }
