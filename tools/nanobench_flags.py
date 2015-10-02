@@ -69,8 +69,6 @@ def get_args(bot):
     match.append('~desk_unicodetable')
   if 'GalaxyS4' in bot:
     match.append('~GLInstancedArraysBench')  # skia:4371
-    # skia:4373
-    match.extend(['~GLVertexAttributesBench', '~GLVec4ScalarBench'])
 
   if 'iOS' in bot:
     match.append('~blurroundrect')
