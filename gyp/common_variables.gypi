@@ -181,7 +181,7 @@
         'skia_clang_build%': 0,
         'skia_keep_frame_pointer%': 0,
       }],
-      [ 'skia_shared_lib or skia_sanitizer or skia_os == "android" or (skia_os == "linux" and skia_angle == 1)', {
+      [ 'skia_shared_lib or skia_sanitizer or skia_os == "android" or (skia_os == "linux" and (skia_angle == 1 or skia_command_buffer == 1))', {
           'skia_pic%' : 1,
         }, {
           'skia_pic%' : 0,

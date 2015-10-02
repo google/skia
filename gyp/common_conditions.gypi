@@ -618,6 +618,12 @@
       ],
     }],
 
+    [ 'skia_command_buffer', {
+      'ldflags': [
+          '-Wl,-rpath,\$$ORIGIN/lib',
+      ],
+    }],
+
   ], # end 'conditions'
   # The Xcode SYMROOT must be at the root. See build/common.gypi in chromium for more details
   'xcode_settings': {

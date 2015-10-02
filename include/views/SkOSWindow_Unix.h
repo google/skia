@@ -39,6 +39,9 @@ public:
 #if SK_ANGLE
         kANGLE_BackEndType,
 #endif // SK_ANGLE
+#if SK_COMMAND_BUFFER
+        kCommandBuffer_BackEndType,
+#endif // SK_COMMAND_BUFFER
     };
 
     bool attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*);

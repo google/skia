@@ -11,6 +11,7 @@
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/command_buffer/SkCommandBufferGLContext.h"
+#include "../ports/SkOSLibrary.h"
 
 typedef EGLDisplay (*GetDisplayProc)(EGLNativeDisplayType display_id);
 typedef EGLBoolean (*InitializeProc)(EGLDisplay dpy, EGLint *major, EGLint *minor);
@@ -40,27 +41,30 @@ static MakeCurrentProc gfMakeCurrent = nullptr;
 static SwapBuffersProc gfSwapBuffers = nullptr;
 static GetProcAddressProc gfGetProcAddress = nullptr;
 
-static HMODULE ghLibrary = nullptr;
+static void* gLibrary = nullptr;
 static bool gfFunctionsLoadedSuccessfully = false;
 
 static void load_command_buffer_functions() {
-    if (!ghLibrary) {
-        ghLibrary = LoadLibrary("command_buffer_gles2.dll");
-
-        if (ghLibrary) {
-            gfGetDisplay = (GetDisplayProc)::GetProcAddress(ghLibrary, "eglGetDisplay");
-            gfInitialize = (InitializeProc)::GetProcAddress(ghLibrary, "eglInitialize");
-            gfTerminate = (TerminateProc)::GetProcAddress(ghLibrary, "eglTerminate");
-            gfChooseConfig = (ChooseConfigProc)::GetProcAddress(ghLibrary, "eglChooseConfig");
-            gfGetConfigAttrib = (GetConfigAttrib)::GetProcAddress(ghLibrary, "eglGetConfigAttrib");
-            gfCreateWindowSurface = (CreateWindowSurfaceProc)::GetProcAddress(ghLibrary, "eglCreateWindowSurface");
-            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)::GetProcAddress(ghLibrary, "eglCreatePbufferSurface");
-            gfDestroySurface = (DestroySurfaceProc)::GetProcAddress(ghLibrary, "eglDestroySurface");
-            gfCreateContext = (CreateContextProc)::GetProcAddress(ghLibrary, "eglCreateContext");
-            gfDestroyContext = (DestroyContextProc)::GetProcAddress(ghLibrary, "eglDestroyContext");
-            gfMakeCurrent = (MakeCurrentProc)::GetProcAddress(ghLibrary, "eglMakeCurrent");
-            gfSwapBuffers = (SwapBuffersProc)::GetProcAddress(ghLibrary, "eglSwapBuffers");
-            gfGetProcAddress = (GetProcAddressProc)::GetProcAddress(ghLibrary, "eglGetProcAddress");
+    if (!gLibrary) {
+#if defined _WIN32
+        gLibrary = DynamicLoadLibrary("command_buffer_gles2.dll");
+#else
+        gLibrary = DynamicLoadLibrary("libcommand_buffer_gles2.so");
+#endif // defined _WIN32
+        if (gLibrary) {
+            gfGetDisplay = (GetDisplayProc)GetProcedureAddress(gLibrary, "eglGetDisplay");
+            gfInitialize = (InitializeProc)GetProcedureAddress(gLibrary, "eglInitialize");
+            gfTerminate = (TerminateProc)GetProcedureAddress(gLibrary, "eglTerminate");
+            gfChooseConfig = (ChooseConfigProc)GetProcedureAddress(gLibrary, "eglChooseConfig");
+            gfGetConfigAttrib = (GetConfigAttrib)GetProcedureAddress(gLibrary, "eglGetConfigAttrib");
+            gfCreateWindowSurface = (CreateWindowSurfaceProc)GetProcedureAddress(gLibrary, "eglCreateWindowSurface");
+            gfCreatePbufferSurface = (CreatePbufferSurfaceProc)GetProcedureAddress(gLibrary, "eglCreatePbufferSurface");
+            gfDestroySurface = (DestroySurfaceProc)GetProcedureAddress(gLibrary, "eglDestroySurface");
+            gfCreateContext = (CreateContextProc)GetProcedureAddress(gLibrary, "eglCreateContext");
+            gfDestroyContext = (DestroyContextProc)GetProcedureAddress(gLibrary, "eglDestroyContext");
+            gfMakeCurrent = (MakeCurrentProc)GetProcedureAddress(gLibrary, "eglMakeCurrent");
+            gfSwapBuffers = (SwapBuffersProc)GetProcedureAddress(gLibrary, "eglSwapBuffers");
+            gfGetProcAddress = (GetProcAddressProc)GetProcedureAddress(gLibrary, "eglGetProcAddress");
 
             gfFunctionsLoadedSuccessfully = gfGetDisplay && gfInitialize && gfTerminate &&
                                             gfChooseConfig && gfCreateWindowSurface &&
@@ -73,7 +77,7 @@ static void load_command_buffer_functions() {
 }
 
 static GrGLFuncPtr command_buffer_get_gl_proc(void* ctx, const char name[]) {
-    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcAddress((HMODULE)ctx, name);
+    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcedureAddress(ctx, name);
     if (proc) {
         return proc;
     }
@@ -93,7 +97,7 @@ const GrGLInterface* GrGLCreateCommandBufferInterface() {
     if (!gfFunctionsLoadedSuccessfully) {
         return nullptr;
     }
-    return GrGLAssembleGLESInterface(ghLibrary, command_buffer_get_gl_proc);
+    return GrGLAssembleGLESInterface(gLibrary, command_buffer_get_gl_proc);
 }
 
 SkCommandBufferGLContext::SkCommandBufferGLContext()

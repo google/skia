@@ -6,25 +6,14 @@
  * found in the LICENSE file.
  */
 
-
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
-
-#if defined _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#else
-#include <dlfcn.h>
-#endif // defined _WIN32
+#include "../ports/SkOSLibrary.h"
 
 #include <EGL/egl.h>
 
 static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
-#if defined _WIN32
-    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcAddress((HMODULE)ctx, name);
-#else
-    GrGLFuncPtr proc = (GrGLFuncPtr) dlsym(ctx, name);
-#endif // defined _WIN32
+    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcedureAddress(ctx, name);
     if (proc) {
         return proc;
     }
@@ -37,9 +26,9 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     if (nullptr == gANGLELib) {
         // We load the ANGLE library and never let it go
 #if defined _WIN32
-        gANGLELib = LoadLibrary("libGLESv2.dll");
+        gANGLELib = DynamicLoadLibrary("libGLESv2.dll");
 #else
-        gANGLELib = dlopen("libGLESv2.so", RTLD_LAZY);
+        gANGLELib = DynamicLoadLibrary("libGLESv2.so");
 #endif // defined _WIN32
     }
 
