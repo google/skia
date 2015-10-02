@@ -4,9 +4,6 @@
 # found in the LICENSE file.
 #
 {
-  'includes': [
-    'apptype_console.gypi',
-  ],
   'targets': [
     {
       'target_name': 'SampleApp',
@@ -158,13 +155,20 @@
         'views_animated.gyp:views_animated',
         'xml.gyp:xml',
       ],
+      'msvs_settings': {
+        'VCLinkerTool': {
+          #Allows for creation / output to console.
+          #Console (/SUBSYSTEM:CONSOLE)
+          'SubSystem': '1',
+
+          #Console app, use main/wmain
+          'EntryPointSymbol': 'mainCRTStartup',
+        },
+      },
       'conditions' : [
         [ 'skia_os == "ios"', {
+          'mac_bundle' : 1,
           # TODO: This doesn't build properly yet, but it's getting there.
-          'sources!': [
-            '../samplecode/SampleDecode.cpp',
-            '../experimental/SimpleiOSApp/SimpleApp.mm',
-          ],
           'sources': [
             '../src/views/mac/SkEventNotifier.mm',
             '../experimental/iOSSampleApp/SkSampleUIView.mm',
@@ -182,12 +186,10 @@
             # iPad
             '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
             '../experimental/iOSSampleApp/iPad/SkUISplitViewController.mm',
-            '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
 
             # iPhone
             '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',
             '../experimental/iOSSampleApp/iPhone/SkUINavigationController.mm',
-            '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
 
             '../src/views/ios/SkOSWindow_iOS.mm',
 
@@ -229,11 +231,20 @@
           'sources!': [
             '../samplecode/SampleAnimator.cpp',
           ],
+          'conditions': [
+            ['skia_android_framework == 0', {
+              'dependencies': [
+                'android_deps.gyp:Android_EntryPoint',
+                'skia_launcher.gyp:skia_launcher',
+              ],
+            }],
+          ],
           'dependencies!': [
             'animator.gyp:animator',
             'experimental.gyp:experimental',
           ],
           'dependencies': [
+            'android_output.gyp:android_output',
             'android_deps.gyp:Android_SampleApp',
           ],
         }],

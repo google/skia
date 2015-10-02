@@ -711,6 +711,7 @@ DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
 DEFINE_bool(sort, false, "Sort samples by title.");
 DEFINE_bool(list, false, "List samples?");
+DEFINE_bool(gpu, false, "Start up with gpu?");
 DEFINE_string(key, "", "");  // dummy to enable gm tests that have platform-specific names
 #ifdef SAMPLE_PDF_FILE_VIEWER
 DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
@@ -799,6 +800,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #endif
 
     fDeviceType = kRaster_DeviceType;
+    if (FLAGS_gpu) {
+        fDeviceType = kGPU_DeviceType;
+    }
 
 #if DEFAULT_TO_GPU
     fDeviceType = kGPU_DeviceType;

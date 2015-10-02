@@ -17,6 +17,34 @@
 #include <io.h>
 #endif
 
+#ifdef SK_BUILD_FOR_IOS
+#import <CoreFoundation/CoreFoundation.h>
+
+static FILE* ios_open_from_bundle(const char path[], const char* perm) {
+    // Get a reference to the main bundle
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    
+    // Get a reference to the file's URL
+    CFStringRef pathRef = CFStringCreateWithCString(NULL, path, kCFStringEncodingUTF8);
+    CFURLRef imageURL = CFBundleCopyResourceURL(mainBundle, pathRef, NULL, NULL);
+    if (!imageURL) {
+        return nullptr;
+    }
+    
+    // Convert the URL reference into a string reference
+    CFStringRef imagePath = CFURLCopyFileSystemPath(imageURL, kCFURLPOSIXPathStyle);
+    
+    // Get the system encoding method
+    CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
+    
+    // Convert the string reference into a C string
+    const char *finalPath = CFStringGetCStringPtr(imagePath, encodingMethod);
+   
+    return fopen(finalPath, perm);
+}
+#endif
+
+
 SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     char    perm[4];
     char*   p = perm;
@@ -29,10 +57,22 @@ SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     }
     *p++ = 'b';
     *p = 0;
-
+    
     //TODO: on Windows fopen is just ASCII or the current code page,
     //convert to utf16 and use _wfopen
-    SkFILE* file = (SkFILE*)::fopen(path, perm);
+    SkFILE* file = nullptr;
+#ifdef SK_BUILD_FOR_IOS
+    // if read-only, try to open from bundle first
+    if (kRead_SkFILE_Flag == flags) {
+        file = (SkFILE*)ios_open_from_bundle(path, perm);
+    }
+    // otherwise just read from the Documents directory (default)
+    if (!file) {
+#endif
+        file = (SkFILE*)::fopen(path, perm);
+#ifdef SK_BUILD_FOR_IOS
+    }
+#endif
     if (nullptr == file && (flags & kWrite_SkFILE_Flag)) {
         SkDEBUGF(("sk_fopen: fopen(\"%s\", \"%s\") returned NULL (errno:%d): %s\n",
                   path, perm, errno, strerror(errno)));
