@@ -35,9 +35,8 @@
 GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
-    , fFlushState(fGpu, fResourceProvider, 0)
     , fFlushing(false)
-    , fFirstUnpreparedBatch(0) {
+    , fLastFlushToken(0) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
@@ -118,26 +117,28 @@ void GrDrawTarget::flush() {
     }
     fFlushing = true;
 
+    GrBatchFlushState flushState(fGpu, fResourceProvider, fLastFlushToken);
+
     // Loop over all batches and generate geometry
-    for (; fFirstUnpreparedBatch < fBatches.count(); ++fFirstUnpreparedBatch) {
-        fBatches[fFirstUnpreparedBatch]->prepare(&fFlushState);
+    for (int i = 0; i < fBatches.count(); ++i) {
+        fBatches[i]->prepare(&flushState);
     }
 
     // Upload all data to the GPU
-    fFlushState.preIssueDraws();
+    flushState.preIssueDraws();
 
     // Draw all the generated geometry.
     for (int i = 0; i < fBatches.count(); ++i) {
-        fBatches[i]->draw(&fFlushState);
+        fBatches[i]->draw(&flushState);
     }
 
-    this->reset();
+    fLastFlushToken = flushState.lastFlushedToken();
 
     fFlushing = false;
+    this->reset();
 }
 
 void GrDrawTarget::reset() {
-    fFirstUnpreparedBatch = 0;
     fBatches.reset();
 }
 
@@ -433,10 +434,6 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
         GrBATCH_INFO("\t\tFirstBatch\n");
     }
     fBatches.push_back().reset(SkRef(batch));
-    if (fBatches.count() > kMaxLookback) {
-        SkASSERT(fBatches.count() - kMaxLookback - fFirstUnpreparedBatch == 1);
-        fBatches[fFirstUnpreparedBatch++]->prepare(&fFlushState);
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

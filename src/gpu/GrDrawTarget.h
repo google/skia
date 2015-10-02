@@ -8,7 +8,6 @@
 #ifndef GrDrawTarget_DEFINED
 #define GrDrawTarget_DEFINED
 
-#include "GrBatchFlushState.h"
 #include "GrClip.h"
 #include "GrClipMaskManager.h"
 #include "GrContext.h"
@@ -34,7 +33,6 @@
 #include "SkXfermode.h"
 
 class GrBatch;
-class GrBatchFlushState;
 class GrClip;
 class GrCaps;
 class GrPath;
@@ -230,9 +228,8 @@ private:
     GrContext*                                  fContext;
     GrGpu*                                      fGpu;
     GrResourceProvider*                         fResourceProvider;
-    GrBatchFlushState                           fFlushState;
     bool                                        fFlushing;
-    int                                         fFirstUnpreparedBatch;
+    GrBatchToken                                fLastFlushToken;
 
     typedef SkRefCnt INHERITED;
 };
