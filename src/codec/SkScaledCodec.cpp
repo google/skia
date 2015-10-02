@@ -100,13 +100,13 @@ SkISize SkScaledCodec::onGetScaledDimensions(float desiredScale) const {
 }
 
 // check if scaling to dstInfo size from srcInfo size using sampleSize is possible
-static bool scaling_supported(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
+static bool scaling_supported(const SkISize& dstDim, const SkISize& srcDim,
                               int* sampleX, int* sampleY) {
-    SkScaledCodec::ComputeSampleSize(dstInfo, srcInfo, sampleX, sampleY);
-    const int dstWidth = dstInfo.width();
-    const int dstHeight = dstInfo.height();
-    const int srcWidth = srcInfo.width();
-    const int srcHeight = srcInfo.height();
+    SkScaledCodec::ComputeSampleSize(dstDim, srcDim, sampleX, sampleY);
+    const int dstWidth = dstDim.width();
+    const int dstHeight = dstDim.height();
+    const int srcWidth = srcDim.width();
+    const int srcHeight = srcDim.height();
      // only support down sampling, not up sampling
     if (dstWidth > srcWidth || dstHeight  > srcHeight) {
         return false;
@@ -130,13 +130,29 @@ static bool scaling_supported(const SkImageInfo& dstInfo, const SkImageInfo& src
     return true;
 }
 
+bool SkScaledCodec::onDimensionsSupported(const SkISize& dim) {
+    // Check with fCodec first. No need to call the non-virtual version, which
+    // just checks if it matches the original, since a match means this method
+    // will not be called.
+    if (fCodec->onDimensionsSupported(dim)) {
+        return true;
+    }
+
+    // FIXME: These variables are unused, but are needed by scaling_supported.
+    // This class could also cache these values, and avoid calling this in
+    // onGetPixels (since getPixels already calls it).
+    int sampleX;
+    int sampleY;
+    return scaling_supported(dim, this->getInfo().dimensions(), &sampleX, &sampleY);
+}
+
 // calculates sampleSize in x and y direction
-void SkScaledCodec::ComputeSampleSize(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
+void SkScaledCodec::ComputeSampleSize(const SkISize& dstDim, const SkISize& srcDim,
                                       int* sampleXPtr, int* sampleYPtr) {
-    int srcWidth = srcInfo.width();
-    int dstWidth = dstInfo.width();
-    int srcHeight = srcInfo.height();
-    int dstHeight = dstInfo.height();
+    int srcWidth = srcDim.width();
+    int dstWidth = dstDim.width();
+    int srcHeight = srcDim.height();
+    int dstHeight = dstDim.height();
 
     int sampleX = srcWidth / dstWidth;
     int sampleY = srcHeight / dstHeight;
@@ -183,60 +199,44 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
-    } 
-
-    // FIXME: If no scaling/subsets are requested, we can call fCodec->getPixels.
-    Result result = fCodec->startScanlineDecode(requestedInfo, &options, ctable, ctableCount);
-    if (kSuccess == result) {
-        // native decode supported
-        switch (fCodec->getScanlineOrder()) {
-            case SkCodec::kTopDown_SkScanlineOrder:
-            case SkCodec::kBottomUp_SkScanlineOrder:
-            case SkCodec::kNone_SkScanlineOrder:
-                return fCodec->getScanlines(dst, requestedInfo.height(), rowBytes);
-            case SkCodec::kOutOfOrder_SkScanlineOrder: {
-                for (int y = 0; y < requestedInfo.height(); y++) {
-                    int dstY = fCodec->nextScanline();
-                    void* dstPtr = SkTAddOffset<void>(dst, rowBytes * dstY);
-                    result = fCodec->getScanlines(dstPtr, 1, rowBytes);
-                    // FIXME (msarett): Make the SkCodec base class take care of filling
-                    // uninitialized pixels so we can return immediately on kIncompleteInput.
-                    if (kSuccess != result && kIncompleteInput != result) {
-                        return result;
-                    }
-                }
-                return result;
-            }
-        }
     }
 
-    if (kInvalidScale != result) {
-        // no scaling requested
-        return result;
+    if (fCodec->dimensionsSupported(requestedInfo.dimensions())) {
+        return fCodec->getPixels(requestedInfo, dst, rowBytes, &options, ctable, ctableCount);
     }
 
     // scaling requested
     int sampleX;
     int sampleY;
-    if (!scaling_supported(requestedInfo, fCodec->getInfo(), &sampleX, &sampleY)) {
+    if (!scaling_supported(requestedInfo.dimensions(), fCodec->getInfo().dimensions(),
+                           &sampleX, &sampleY)) {
+        // onDimensionsSupported would have returned false, meaning we should never reach here.
+        SkASSERT(false);
         return kInvalidScale;
     }
+
     // set first sample pixel in y direction
-    int Y0 = get_start_coord(sampleY);
+    const int Y0 = get_start_coord(sampleY);
 
-    int dstHeight = requestedInfo.height();
-    int srcHeight = fCodec->getInfo().height();
-    
-    SkImageInfo info = requestedInfo;
-    // use original height as codec does not support y sampling natively
-    info = info.makeWH(requestedInfo.width(), srcHeight);
+    const int dstHeight = requestedInfo.height();
+    const int srcWidth = fCodec->getInfo().width();
+    const int srcHeight = fCodec->getInfo().height();
 
-    // update codec with new info
-    // FIXME: The previous call to start returned kInvalidScale. This call may
-    // require a rewind. (skbug.com/4284)
-    result = fCodec->startScanlineDecode(info, &options, ctable, ctableCount);
+    const SkImageInfo info = requestedInfo.makeWH(srcWidth, srcHeight);
+
+    Result result = fCodec->startScanlineDecode(info, &options, ctable, ctableCount);
+
     if (kSuccess != result) {
         return result;
+    }
+
+    SkSampler* sampler = fCodec->getSampler();
+    if (!sampler) {
+        return kUnimplemented;
+    }
+
+    if (sampler->setSampleX(sampleX) != requestedInfo.width()) {
+        return kInvalidScale;
     }
 
     switch(fCodec->getScanlineOrder()) {

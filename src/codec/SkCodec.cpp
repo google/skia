@@ -152,7 +152,21 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     Options optsStorage;
     if (nullptr == options) {
         options = &optsStorage;
+    } else if (options->fSubset) {
+        SkIRect subset(*options->fSubset);
+        if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
+            // FIXME: How to differentiate between not supporting subset at all
+            // and not supporting this particular subset?
+            return kUnimplemented;
+        }
     }
+
+    // FIXME: Support subsets somehow? Note that this works for SkWebpCodec
+    // because it supports arbitrary scaling/subset combinations.
+    if (!this->dimensionsSupported(info.dimensions())) {
+        return kInvalidScale;
+    }
+
     const Result result = this->onGetPixels(info, pixels, rowBytes, *options, ctable, ctableCount);
 
     if ((kIncompleteInput == result || kSuccess == result) && ctableCount) {
@@ -190,6 +204,18 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo,
     Options optsStorage;
     if (nullptr == options) {
         options = &optsStorage;
+    } else if (options->fSubset) {
+        SkIRect subset(*options->fSubset);
+        if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
+            // FIXME: How to differentiate between not supporting subset at all
+            // and not supporting this particular subset?
+            return kUnimplemented;
+        }
+    }
+
+    // FIXME: Support subsets somehow?
+    if (!this->dimensionsSupported(dstInfo.dimensions())) {
+        return kInvalidScale;
     }
 
     const Result result = this->onStartScanlineDecode(dstInfo, *options, ctable, ctableCount);
@@ -213,8 +239,8 @@ SkCodec::Result SkCodec::getScanlines(void* dst, int countLines, size_t rowBytes
     }
 
     SkASSERT(!fDstInfo.isEmpty());
-    if ((rowBytes < fDstInfo.minRowBytes() && countLines > 1 ) || countLines <= 0
-         || fCurrScanline + countLines > fDstInfo.height()) {
+
+    if (countLines <= 0 || fCurrScanline + countLines > fDstInfo.height()) {
         return kInvalidParameters;
     }
 

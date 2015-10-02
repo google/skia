@@ -17,6 +17,7 @@
 #include "SkTypes.h"
 
 class SkData;
+class SkSampler;
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -382,6 +383,15 @@ protected:
         return this->getInfo().dimensions();
     }
 
+    // FIXME: What to do about subsets??
+    /**
+     *  Subclasses should override if they support dimensions other than the
+     *  srcInfo's.
+     */
+    virtual bool onDimensionsSupported(const SkISize&) {
+        return false;
+    }
+
     virtual SkEncodedFormat onGetEncodedFormat() const = 0;
 
     virtual Result onGetPixels(const SkImageInfo& info,
@@ -455,6 +465,19 @@ private:
     SkCodec::Options        fOptions;
     int                     fCurrScanline;
 
+    /**
+     *  Return whether these dimensions are supported as a scale.
+     *
+     *  The codec may choose to cache the information about scale and subset.
+     *  Either way, the same information will be passed to onGetPixels/onStart
+     *  on success.
+     *
+     *  This must return true for a size returned from getScaledDimensions.
+     */
+    bool dimensionsSupported(const SkISize& dim) {
+        return dim == fSrcInfo.dimensions() || this->onDimensionsSupported(dim);
+    }
+
     // Methods for scanline decoding.
     virtual SkCodec::Result onStartScanlineDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor ctable[], int* ctableCount) {
@@ -477,5 +500,17 @@ private:
         return kUnimplemented;
     }
 
+    /**
+     *  Return an object which will allow forcing scanline decodes to sample in X.
+     *
+     *  May create a sampler, if one is not currently being used. Otherwise, does
+     *  not affect ownership.
+     *
+     *  Only valid during scanline decoding.
+     */
+    virtual SkSampler* getSampler() { return nullptr; }
+
+    // Needed to call getSampler and dimensionsSupported.
+    friend class SkScaledCodec;
 };
 #endif // SkCodec_DEFINED

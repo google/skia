@@ -8,6 +8,7 @@
 #include "SkBmpCodec.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
+#include "SkSampler.h"
 #include "SkTypes.h"
 
 /*
@@ -38,6 +39,8 @@ public:
             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
             uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
             size_t RLEBytes);
+
+    int setSampleX(int);
 
 protected:
 
@@ -84,6 +87,8 @@ private:
     Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
                       const Options& opts) override;
 
+    SkSampler* getSampler() override;
+
     SkAutoTUnref<SkColorTable>          fColorTable;    // owned
     const uint32_t                      fNumColors;
     const uint32_t                      fBytesPerColor;
@@ -92,6 +97,7 @@ private:
     size_t                              fRLEBytes;
     uint32_t                            fCurrRLEByte;
     int                                 fSampleX;
+    SkAutoTDelete<SkSampler>            fSampler;
 
     typedef SkBmpCodec INHERITED;
 };

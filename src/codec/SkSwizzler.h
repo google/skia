@@ -11,8 +11,9 @@
 #include "SkCodec.h"
 #include "SkColor.h"
 #include "SkImageInfo.h"
+#include "SkSampler.h"
 
-class SkSwizzler : public SkNoncopyable {
+class SkSwizzler : public SkSampler {
 public:
     /**
      *  Enum describing the config of the source data.
@@ -117,22 +118,17 @@ public:
     /**
      *  Create a new SkSwizzler.
      *  @param SrcConfig Description of the format of the source.
-     *  @param dstInfo describes the destination.
+     *  @param ctable Unowned pointer to an array of up to 256 colors for an
+     *                index source.
+     *  @param dstInfo Describes the destination.
      *  @param ZeroInitialized Whether dst is zero-initialized. The
-                               implementation may choose to skip writing zeroes
+     *                         implementation may choose to skip writing zeroes
      *                         if set to kYes_ZeroInitialized.
-     *  @param srcInfo is the info of the source. Used to calculate the width samplesize.
-     *                  Width sampling is supported by the swizzler, by skipping pixels when 
-                        swizzling the row. Height sampling is not supported by the swizzler, 
-                        but is implemented in SkScaledCodec.
-                        Sampling in Y can be done by a client with a scanline decoder, 
-                        but sampling in X allows the swizzler to skip swizzling pixels and
-                        reading from and writing to memory.
      *  @return A new SkSwizzler or nullptr on failure.
      */
     static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
-                                      const SkImageInfo& dstInfo, SkCodec::ZeroInitialized, 
-                                      const SkImageInfo& srcInfo);
+                                      const SkImageInfo& dstInfo, SkCodec::ZeroInitialized);
+
     /**
      * Fill the remainder of the destination with a single color
      *
@@ -210,12 +206,13 @@ private:
                                           //     deltaSrc is bytesPerPixel
                                           // else
                                           //     deltaSrc is bitsPerPixel
-    const SkImageInfo   fDstInfo;
-    int                 fCurrY;
-    const int           fX0;              // first X coord to sample
-    const int           fSampleX;         // step between X samples
+    const int           fSrcWidth;        // Width of the source - i.e. before any sampling.
+    int                 fDstWidth;        // Width of dst, which may differ with sampling.
+    int                 fX0;              // first X coord to sample
+    int                 fSampleX;         // step between X samples
 
-    SkSwizzler(RowProc proc, const SkPMColor* ctable, int deltaSrc, const SkImageInfo& info, 
-               int sampleX);
+    SkSwizzler(RowProc proc, const SkPMColor* ctable, int deltaSrc, int srcWidth);
+
+    int onSetSampleX(int) override;
 };
 #endif // SkSwizzler_DEFINED

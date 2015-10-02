@@ -580,11 +580,6 @@ SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         // Subsets are not supported.
         return kUnimplemented;
     }
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-        if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-            return SkCodec::kInvalidScale;
-        }
-    }
     if (!conversion_possible(dstInfo, this->getInfo())) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;

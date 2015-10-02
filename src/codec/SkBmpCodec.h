@@ -10,7 +10,6 @@
 #include "SkCodec.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
-#include "SkMaskSwizzler.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkTypes.h"

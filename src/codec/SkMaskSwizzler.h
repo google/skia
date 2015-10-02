@@ -8,6 +8,7 @@
 #define SkMaskSwizzler_DEFINED
 
 #include "SkMasks.h"
+#include "SkSampler.h"
 #include "SkSwizzler.h"
 #include "SkTypes.h"
 
@@ -17,7 +18,7 @@
  * Currently only used by bmp
  *
  */
-class SkMaskSwizzler {
+class SkMaskSwizzler : public SkSampler {
 public:
 
     /*
@@ -46,15 +47,18 @@ private:
     /*
      * Constructor for mask swizzler
      */
-    SkMaskSwizzler(const SkImageInfo& info, SkMasks* masks, RowProc proc,
-            uint32_t sampleX);
+    SkMaskSwizzler(int width, SkMasks* masks, RowProc proc);
 
-    // Fields
-    const SkImageInfo& fDstInfo;
-    SkMasks*           fMasks;       // unowned
-    const RowProc      fRowProc;
-    const uint32_t     fSampleX;
-    const uint32_t     fStartX;
+    int onSetSampleX(int) override;
+
+    SkMasks*        fMasks;           // unowned
+    const RowProc   fRowProc;
+
+    // FIXME: Can this class share more with SkSwizzler? These variables are all the same.
+    const int       fSrcWidth;        // Width of the source - i.e. before any sampling.
+    int             fDstWidth;        // Width of dst, which may differ with sampling.
+    int             fSampleX;
+    int             fX0;
 };
 
 #endif

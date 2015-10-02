@@ -41,6 +41,7 @@ protected:
     // Helper to set up swizzler and color table. Also calls png_read_update_info.
     Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
                               SkPMColor*, int* ctableCount);
+    SkSampler* getSampler() override { return fSwizzler; }
 
     SkPngCodec(const SkImageInfo&, SkStream*, png_structp, png_infop, int, int);
 

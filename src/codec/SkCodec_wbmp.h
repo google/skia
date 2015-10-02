@@ -33,6 +33,7 @@ private:
      */
     SkSwizzler* initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
                                    const Options& opts);
+    SkSampler* getSampler() override { return fSwizzler; }
 
     /*
      * Read a src row from the encoded stream

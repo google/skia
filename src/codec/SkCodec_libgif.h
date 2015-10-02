@@ -124,6 +124,8 @@ private:
      */
     Result initializeSwizzler(const SkImageInfo& dstInfo, ZeroInitialized zeroInit);
 
+    SkSampler* getSampler() override { return fSwizzler; }
+
     /*
      * @return kSuccess if the read is successful and kIncompleteInput if the
      *         read fails.

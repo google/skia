@@ -35,6 +35,8 @@ protected:
      */
     SkISize onGetScaledDimensions(float desiredScale) const override;
 
+    bool onDimensionsSupported(const SkISize&) override;
+
     /*
      * Initiates the Ico decode
      */

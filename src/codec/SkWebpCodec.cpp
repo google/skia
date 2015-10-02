@@ -114,6 +114,13 @@ SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
     return dim;
 }
 
+bool SkWebpCodec::onDimensionsSupported(const SkISize& dim) {
+    const SkImageInfo& info = this->getInfo();
+    return dim.width() >= 1 && dim.width() <= info.width()
+            && dim.height() >= 1 && dim.height() <= info.height();
+}
+
+
 static WEBP_CSP_MODE webp_decode_mode(SkColorType ct, bool premultiply) {
     switch (ct) {
         case kBGRA_8888_SkColorType:

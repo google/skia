@@ -352,11 +352,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
             return nullptr;
     }
 
-    // Get the sample size
-    int sampleX;
-    SkScaledCodec::ComputeSampleSize(dstInfo, srcInfo, &sampleX, NULL);
-
-    return new SkMaskSwizzler(dstInfo, masks, proc, sampleX);
+    return new SkMaskSwizzler(dstInfo.width(), masks, proc);
 }
 
 /*
@@ -364,14 +360,27 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
  * Constructor for mask swizzler
  *
  */
-SkMaskSwizzler::SkMaskSwizzler(const SkImageInfo& dstInfo, SkMasks* masks,
-                               RowProc proc, uint32_t sampleX)
-    : fDstInfo(dstInfo)
-    , fMasks(masks)
+SkMaskSwizzler::SkMaskSwizzler(int width, SkMasks* masks, RowProc proc)
+    : fMasks(masks)
     , fRowProc(proc)
-    , fSampleX(sampleX)
-    , fStartX(get_start_coord(sampleX))
+    , fSrcWidth(width)
+    , fDstWidth(width)
+    , fSampleX(1)
+    , fX0(0)
 {}
+
+int SkMaskSwizzler::onSetSampleX(int sampleX) {
+    // FIXME: Share this function with SkSwizzler?
+    SkASSERT(sampleX > 0); // Surely there is an upper limit? Should there be
+                           // way to report failure?
+    fSampleX = sampleX;
+    fX0 = get_start_coord(sampleX);
+    fDstWidth = get_scaled_dimension(fSrcWidth, sampleX);
+
+    // check that fX0 is less than original width
+    SkASSERT(fX0 >= 0 && fX0 < fSrcWidth);
+    return fDstWidth;
+}
 
 /*
  *
@@ -380,5 +389,5 @@ SkMaskSwizzler::SkMaskSwizzler(const SkImageInfo& dstInfo, SkMasks* masks,
  */
 SkSwizzler::ResultAlpha SkMaskSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
     SkASSERT(nullptr != dst && nullptr != src);
-    return fRowProc(dst, src, fDstInfo.width(), fMasks, fStartX, fSampleX);
+    return fRowProc(dst, src, fDstWidth, fMasks, fX0, fSampleX);
 }

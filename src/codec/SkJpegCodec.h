@@ -58,6 +58,8 @@ protected:
 
     bool onRewind() override;
 
+    bool onDimensionsSupported(const SkISize&) override;
+
 private:
 
     /*
@@ -102,14 +104,8 @@ private:
      */
     bool setOutputColorSpace(const SkImageInfo& dst);
 
-    /*
-     * Checks if we can natively scale to the requested dimensions and natively scales the 
-     * dimensions if possible
-     */
-    bool nativelyScaleToDimensions(uint32_t width, uint32_t height); 
-
     // scanline decoding
-    Result initializeSwizzler(const SkImageInfo&, const SkCodec::Options&);
+    SkSampler* getSampler() override;
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
                    SkPMColor ctable[], int* ctableCount) override;
     Result onGetScanlines(void* dst, int count, size_t rowBytes) override;

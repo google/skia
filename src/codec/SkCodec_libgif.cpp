@@ -9,7 +9,6 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
-#include "SkScaledCodec.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkUtils.h"
@@ -485,7 +484,7 @@ SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo,
         ZeroInitialized zeroInit) {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(SkSwizzler::kIndex,
-            colorPtr, dstInfo, zeroInit, this->getInfo()));
+            colorPtr, dstInfo, zeroInit));
     if (nullptr != fSwizzler.get()) {
         return kSuccess;
     }
@@ -585,20 +584,9 @@ SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return result;
     }
 
-    // Check to see if scaling was requested.
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-        if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-            return gif_error("Scaling not supported.\n", SkCodec::kInvalidScale);
-        }
-    }
-
     // Initialize the swizzler
     if (fFrameIsSubset) {
-        int sampleX;
-        SkScaledCodec::ComputeSampleSize(dstInfo, this->getInfo(), &sampleX, NULL);
-        const SkImageInfo subsetDstInfo = dstInfo.makeWH(
-                    get_scaled_dimension(fFrameDims.width(), sampleX),
-                    fFrameDims.height());
+        const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameDims.width(), fFrameDims.height());
         if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts.fZeroInitialized)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
         }

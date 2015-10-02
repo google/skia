@@ -45,6 +45,7 @@ protected:
 private:
 
     bool initializeSwizzler(const SkImageInfo& dstInfo);
+    SkSampler* getSampler() override { return fMaskSwizzler; }
 
     Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
                       const Options& opts) override;

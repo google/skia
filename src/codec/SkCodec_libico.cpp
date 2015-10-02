@@ -206,10 +206,6 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     // We set the dimensions to the largest candidate image by default.
     // Regardless of the scale request, this is the largest image that we
     // will decode.
-    if (desiredScale >= 1.0) {
-        return this->getInfo().dimensions();
-    }
-
     int origWidth = this->getInfo().width();
     int origHeight = this->getInfo().height();
     float desiredSize = desiredScale * origWidth * origHeight;
@@ -228,6 +224,17 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     SkASSERT(minIndex >= 0);
 
     return fEmbeddedCodecs->operator[](minIndex)->getInfo().dimensions();
+}
+
+bool SkIcoCodec::onDimensionsSupported(const SkISize& dim) {
+    // FIXME: Cache the index from onGetScaledDimensions?
+    for (int32_t i = 0; i < fEmbeddedCodecs->count(); i++) {
+        if (fEmbeddedCodecs->operator[](i)->getInfo().dimensions() == dim) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /*
@@ -286,6 +293,9 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
     }
 
+    // This should never be reached, since onDimensionsSupported should have rejected the
+    // dimensions sooner.
+    SkASSERT(false);
     SkCodecPrintf("Error: No matching candidate image in ico.\n");
     return result;
 }

@@ -22,23 +22,7 @@ public:
 
     virtual ~SkScaledCodec();
 
-    /**
-     * returns whether a destination's dimensions are supported for down sampling
-     */
-    static bool DimensionsSupportedForSampling(const SkImageInfo& srcInfo, 
-                                               const SkImageInfo& dstInfo) {
-        // heights must be equal as no native y sampling is supported
-        if (dstInfo.height() != srcInfo.height()) {
-            return false;
-        }
-        // only support down sampling, dstWidth cannot be larger that srcWidth
-        if(dstInfo.width() > srcInfo.width()) {
-            return false;
-        }
-        return true;   
-    }
-
-    static void ComputeSampleSize(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
+    static void ComputeSampleSize(const SkISize& dstDim, const SkISize& srcDim,
                                   int* sampleSizeX, int* sampleSizeY);
 
 protected:
@@ -46,6 +30,7 @@ protected:
      * Recommend a set of destination dimensions given a requested scale
      */
     SkISize onGetScaledDimensions(float desiredScale) const override;
+    bool onDimensionsSupported(const SkISize&) override;
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
             override;

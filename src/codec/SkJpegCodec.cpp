@@ -155,14 +155,28 @@ static int get_row_bytes(const j_decompress_ptr dinfo) {
     return dinfo->output_width * colorBytes;
 
 }
+
+/*
+ *  Calculate output dimensions based on the provided factors.
+ *
+ *  Not to be used on the actual jpeg_decompress_struct used for decoding, since it will
+ *  incorrectly modify num_components.
+ */
+void calc_output_dimensions(jpeg_decompress_struct* dinfo, unsigned int num, unsigned int denom) {
+    dinfo->num_components = 0;
+    dinfo->scale_num = num;
+    dinfo->scale_denom = denom;
+    jpeg_calc_output_dimensions(dinfo);
+}
+
 /*
  * Return a valid set of output dimensions for this decoder, given an input scale
  */
 SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
     // libjpeg-turbo supports scaling by 1/8, 1/4, 3/8, 1/2, 5/8, 3/4, 7/8, and 1/1, so we will
     // support these as well
-    long num;
-    long denom = 8;
+    unsigned int num;
+    unsigned int denom = 8;
     if (desiredScale > 0.875f) {
         num = 8;
     } else if (desiredScale > 0.75f) {
@@ -187,10 +201,7 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
     dinfo.image_width = this->getInfo().width();
     dinfo.image_height = this->getInfo().height();
     dinfo.global_state = fReadyState;
-    dinfo.num_components = 0;
-    dinfo.scale_num = num;
-    dinfo.scale_denom = denom;
-    jpeg_calc_output_dimensions(&dinfo);
+    calc_output_dimensions(&dinfo, num, denom);
 
     // Return the calculated output dimensions for the given scale
     return SkISize::Make(dinfo.output_width, dinfo.output_height);
@@ -272,28 +283,40 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
  * Checks if we can natively scale to the requested dimensions and natively scales the 
  * dimensions if possible
  */
-bool SkJpegCodec::nativelyScaleToDimensions(uint32_t dstWidth, uint32_t dstHeight) {
+bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
+        return fDecoderMgr->returnFalse("onDimensionsSupported/setjmp");
+    }
+
+    const unsigned int dstWidth = size.width();
+    const unsigned int dstHeight = size.height();
+
+    // Set up a fake decompress struct in order to use libjpeg to calculate output dimensions
+    // FIXME: Why is this necessary?
+    jpeg_decompress_struct dinfo;
+    sk_bzero(&dinfo, sizeof(dinfo));
+    dinfo.image_width = this->getInfo().width();
+    dinfo.image_height = this->getInfo().height();
+    dinfo.global_state = fReadyState;
+
     // libjpeg-turbo can scale to 1/8, 1/4, 3/8, 1/2, 5/8, 3/4, 7/8, and 1/1
-    fDecoderMgr->dinfo()->scale_denom = 8;
-    fDecoderMgr->dinfo()->scale_num = 8;
-    jpeg_calc_output_dimensions(fDecoderMgr->dinfo());
-    while (fDecoderMgr->dinfo()->output_width != dstWidth ||
-            fDecoderMgr->dinfo()->output_height != dstHeight) {
+    unsigned int num = 8;
+    const unsigned int denom = 8;
+    calc_output_dimensions(&dinfo, num, denom);
+    while (dinfo.output_width != dstWidth || dinfo.output_height != dstHeight) {
 
         // Return a failure if we have tried all of the possible scales
-        if (1 == fDecoderMgr->dinfo()->scale_num ||
-                dstWidth > fDecoderMgr->dinfo()->output_width ||
-                dstHeight > fDecoderMgr->dinfo()->output_height) {
-            // reset native scale settings on failure because this may be supported by the swizzler 
-            this->fDecoderMgr->dinfo()->scale_num = 8;
-            jpeg_calc_output_dimensions(this->fDecoderMgr->dinfo());
+        if (1 == num || dstWidth > dinfo.output_width || dstHeight > dinfo.output_height) {
             return false;
         }
 
         // Try the next scale
-        fDecoderMgr->dinfo()->scale_num -= 1;
-        jpeg_calc_output_dimensions(fDecoderMgr->dinfo());
+        num -= 1;
+        calc_output_dimensions(&dinfo, num, denom);
     }
+
+    fDecoderMgr->dinfo()->scale_num = num;
+    fDecoderMgr->dinfo()->scale_denom = denom;
     return true;
 }
 
@@ -319,11 +342,6 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
         return fDecoderMgr->returnFailure("conversion_possible", kInvalidConversion);
-    }
-
-    // Perform the necessary scaling
-    if (!this->nativelyScaleToDimensions(dstInfo.width(), dstInfo.height())) {
-        return fDecoderMgr->returnFailure("cannot scale to requested dims", kInvalidScale);
     }
 
     // Now, given valid output dimensions, we can start the decompress
@@ -376,7 +394,13 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-SkCodec::Result SkJpegCodec::initializeSwizzler(const SkImageInfo& info, const Options& options) {
+SkSampler* SkJpegCodec::getSampler() {
+    if (fSwizzler) {
+        SkASSERT(fSrcRow && static_cast<uint8_t*>(fStorage.get()) == fSrcRow);
+        return fSwizzler;
+    }
+
+    const SkImageInfo& info = this->dstInfo();
     SkSwizzler::SrcConfig srcConfig;
     switch (info.colorType()) {
         case kGray_8_SkColorType:
@@ -396,13 +420,15 @@ SkCodec::Result SkJpegCodec::initializeSwizzler(const SkImageInfo& info, const O
             SkASSERT(false);
     }
 
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, info, options.fZeroInitialized, 
-                                               this->getInfo()));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, info,
+                                               this->options().fZeroInitialized));
     if (!fSwizzler) {
-        return SkCodec::kUnimplemented;
+        return nullptr;
     }
 
-    return kSuccess;
+    fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
+    fSrcRow = static_cast<uint8_t*>(fStorage.get());
+    return fSwizzler;
 }
 
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
@@ -418,25 +444,10 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidConversion;
     }
 
-    // Perform the necessary scaling
-    if (!this->nativelyScaleToDimensions(dstInfo.width(), dstInfo.height())) {
-        // full native scaling to dstInfo dimensions not supported
-
-        if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-            return kInvalidScale;
-        }
-        // create swizzler for sampling
-        Result result = this->initializeSwizzler(dstInfo, options);
-        if (kSuccess != result) {
-            SkCodecPrintf("failed to initialize the swizzler.\n");
-            return result;
-        }
-        fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
-        fSrcRow = static_cast<uint8_t*>(fStorage.get());
-    } else {
-        fSrcRow = nullptr;
-        fSwizzler.reset(nullptr);
-    }
+    // Remove objects used for sampling.
+    fSwizzler.reset(nullptr);
+    fSrcRow = nullptr;
+    fStorage.free();
 
     // Now, given valid output dimensions, we can start the decompress
     if (!jpeg_start_decompress(fDecoderMgr->dinfo())) {

@@ -9,7 +9,6 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
-#include "SkScaledCodec.h"
 #include "SkStream.h"
 #include "SkCodec_wbmp.h"
 
@@ -79,11 +78,12 @@ SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
         case kN32_SkColorType:
         case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
-            return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts.fZeroInitialized, 
-                                              this->getInfo());
+            break;
         default:
             return nullptr;
     }
+    return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info,
+                                      opts.fZeroInitialized);
 }
 
 SkCodec::Result SkWbmpCodec::readRow(uint8_t* row) {
@@ -114,9 +114,6 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         // Subsets are not supported.
         return kUnimplemented;
     }
-    if (info.dimensions() != this->getInfo().dimensions()) {
-        return kInvalidScale;
-    }
 
     if (!valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
         return kInvalidConversion;
@@ -124,7 +121,6 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
 
     // Prepare a color table if necessary
     setup_color_table(info.colorType(), ctable, ctableCount);
-
 
     // Initialize the swizzler
     SkAutoTDelete<SkSwizzler> swizzler(this->initializeSwizzler(info, ctable, options));
@@ -180,11 +176,6 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
-    }
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-        if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-                return kInvalidScale;
-        }
     }
 
     if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {

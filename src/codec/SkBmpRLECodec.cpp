@@ -43,10 +43,6 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
         // Subsets are not supported.
         return kUnimplemented;
     }
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-        SkCodecPrintf("Error: scaling not supported.\n");
-        return kInvalidScale;
-    }
     if (!conversion_possible(dstInfo, this->getInfo())) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;
@@ -253,6 +249,9 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
 
 SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    // Reset fSampleX. If it needs to be a value other than 1, it will get modified by
+    // the sampler.
+    fSampleX = 1;
     // Create the color table if necessary and prepare the stream for decode
     // Note that if it is non-NULL, inputColorCount will be modified
     if (!this->createColorTable(inputColorCount)) {
@@ -269,8 +268,6 @@ SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
         return SkCodec::kInvalidConversion;
     }
 
-    SkScaledCodec::ComputeSampleSize(dstInfo, this->getInfo(), &fSampleX, NULL);
-
     return SkCodec::kSuccess;
 }
 
@@ -278,7 +275,7 @@ SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
  * Performs the bitmap decoding for RLE input format
  * RLE decoding is performed all at once, rather than a one row at a time
  */
-SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& dstInfo,
+SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
                                           void* dst, size_t dstRowBytes,
                                           const Options& opts) {
     // Set RLE flags
@@ -289,7 +286,10 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& dstInfo,
 
     // Set constant values
     const int width = this->getInfo().width();
-    const int height = dstInfo.height();
+    const int height = info.height();
+
+    // Account for sampling.
+    SkImageInfo dstInfo = info.makeWH(get_scaled_dimension(width, fSampleX), height);
 
     // Destination parameters
     int x = 0;
@@ -465,4 +465,34 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& dstInfo,
             }
         }
     }
+}
+
+class SkBmpRLESampler : public SkSampler {
+public:
+    SkBmpRLESampler(SkBmpRLECodec* codec)
+        : fCodec(codec)
+    {
+        SkASSERT(fCodec);
+    }
+
+private:
+    int onSetSampleX(int sampleX) {
+        return fCodec->setSampleX(sampleX);
+    }
+
+    // Unowned pointer. fCodec will delete this class in its destructor.
+    SkBmpRLECodec* fCodec;
+};
+
+SkSampler* SkBmpRLECodec::getSampler() {
+    if (!fSampler) {
+        fSampler.reset(new SkBmpRLESampler(this));
+    }
+
+    return fSampler;
+}
+
+int SkBmpRLECodec::setSampleX(int sampleX) {
+    fSampleX = sampleX;
+    return get_scaled_dimension(this->getInfo().width(), sampleX);
 }

@@ -436,7 +436,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo,
-                    options.fZeroInitialized, this->getInfo()));
+                                               options.fZeroInitialized));
     if (!fSwizzler) {
         // FIXME: CreateSwizzler could fail for another reason.
         return kUnimplemented;
@@ -473,9 +473,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
-    }
-    if (requestedInfo.dimensions() != this->getInfo().dimensions()) {
-        return kInvalidScale;
     }
 
     // Note that ctable and ctableCount may be modified if there is a color table
@@ -593,13 +590,6 @@ public:
             return kInvalidConversion;
         }
 
-        // Check to see if scaling was requested.
-        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-                return kInvalidScale;   
-            }
-        }
-
         const Result result = this->initializeSwizzler(dstInfo, options, ctable,
                                                        ctableCount);
         if (result != kSuccess) {
@@ -687,16 +677,9 @@ public:
             return kInvalidConversion;    
         }
 
-        // Check to see if scaling was requested.
-        if (dstInfo.dimensions() != this->getInfo().dimensions()) {
-            if (!SkScaledCodec::DimensionsSupportedForSampling(this->getInfo(), dstInfo)) {
-                return kInvalidScale;
-            }
-        }
-
-        const Result result = this->initializeSwizzler(dstInfo, options, ctable,
-                                                       ctableCount);
-        if (result != kSuccess) {
+        const SkCodec::Result result = this->initializeSwizzler(dstInfo, options, ctable,
+                                                                ctableCount);
+        if (result != SkCodec::kSuccess) {
             return result;
         }
 

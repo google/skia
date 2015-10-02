@@ -54,6 +54,8 @@ protected:
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) override;
 
+    SkSampler* getSampler() override { return fSwizzler; }
+
 private:
 
     /*

@@ -516,8 +516,7 @@ static bool swizzle_rgba_to_n32_unpremul_skipZ(void* SK_RESTRICT dstRow,
 SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkPMColor* ctable,
                                        const SkImageInfo& dstInfo, 
-                                       SkCodec::ZeroInitialized zeroInit, 
-                                       const SkImageInfo& srcInfo) {
+                                       SkCodec::ZeroInitialized zeroInit) {
     if (dstInfo.colorType() == kUnknown_SkColorType || kUnknown == sc) {
         return nullptr;
     }
@@ -688,29 +687,35 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
     // Store deltaSrc in bytes if it is an even multiple, otherwise use bits
     int deltaSrc = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) : BitsPerPixel(sc);
 
-    // get sampleX based on srcInfo and dstInfo dimensions
-    int sampleX;
-    SkScaledCodec::ComputeSampleSize(dstInfo, srcInfo, &sampleX, nullptr);
-
-    return new SkSwizzler(proc, ctable, deltaSrc, dstInfo, sampleX);
+    return new SkSwizzler(proc, ctable, deltaSrc, dstInfo.width());
 }
 
 SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable,
-                       int deltaSrc, const SkImageInfo& info, int sampleX)
+                       int deltaSrc, int srcWidth)
     : fRowProc(proc)
     , fColorTable(ctable)
     , fDeltaSrc(deltaSrc)
-    , fDstInfo(info)
-    , fSampleX(sampleX)
-    , fX0(get_start_coord(sampleX))
-{
+    , fSrcWidth(srcWidth)
+    , fDstWidth(srcWidth)
+    , fSampleX(1)
+    , fX0(0)
+{}
+
+int SkSwizzler::onSetSampleX(int sampleX) {
+    SkASSERT(sampleX > 0); // Surely there is an upper limit? Should there be
+                           // way to report failure?
+    fSampleX = sampleX;
+    fX0 = get_start_coord(sampleX);
+    fDstWidth = get_scaled_dimension(fSrcWidth, sampleX);
+
     // check that fX0 is less than original width
-    SkASSERT(fX0 >= 0 && fX0 < fDstInfo.width() * fSampleX);
+    SkASSERT(fX0 >= 0 && fX0 < fSrcWidth);
+    return fDstWidth;
 }
 
 SkSwizzler::ResultAlpha SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
     SkASSERT(nullptr != dst && nullptr != src);
-    return fRowProc(dst, src, fDstInfo.width(), fDeltaSrc, fSampleX * fDeltaSrc,
+    return fRowProc(dst, src, fDstWidth, fDeltaSrc, fSampleX * fDeltaSrc,
             fX0 * fDeltaSrc, fColorTable);
 }
 
