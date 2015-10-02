@@ -95,8 +95,6 @@ private:
      */
     SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream, JpegDecoderMgr* decoderMgr);
 
-    ~SkJpegCodec() override;
-
     /*
      * Checks if the conversion between the input image and the requested output
      * image has been implemented

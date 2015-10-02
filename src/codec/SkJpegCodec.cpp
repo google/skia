@@ -373,11 +373,6 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
             SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, dstHeight - y,
                     SK_ColorBLACK, nullptr, options.fZeroInitialized);
 
-            // Prevent libjpeg from failing on incomplete decode
-            dinfo->output_scanline = dstHeight;
-
-            // Finish the decode and indicate that the input was incomplete.
-            jpeg_finish_decompress(dinfo);
             return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
         }
 
@@ -389,7 +384,6 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         // Move to the next row
         dstRow = SkTAddOffset<JSAMPLE>(dstRow, dstRowBytes);
     }
-    jpeg_finish_decompress(dinfo);
 
     return kSuccess;
 }
@@ -456,20 +450,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     }
 
     return kSuccess;
-}
-
-SkJpegCodec::~SkJpegCodec() {
-    // FIXME: This probably does not need to be called after a full decode
-    // FIXME: Is it safe to call when it doesn't need to be called?
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
-        SkCodecPrintf("setjmp: Error in libjpeg finish_decompress\n");
-        return;
-    }
-
-    // We may not have decoded the entire image.  Prevent libjpeg-turbo from failing on a
-    // partial decode.
-    fDecoderMgr->dinfo()->output_scanline = this->getInfo().height();
-    jpeg_finish_decompress(fDecoderMgr->dinfo());
 }
 
 SkCodec::Result SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
