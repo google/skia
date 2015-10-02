@@ -430,7 +430,6 @@ private:
         void abandon();
         bool abandoned() const { return NULL == fDrawTarget; }
 
-        void purgeResources();
         void reset();
         void flush();
 

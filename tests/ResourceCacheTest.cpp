@@ -18,6 +18,7 @@
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
+#include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "SkCanvas.h"
 #include "SkGr.h"

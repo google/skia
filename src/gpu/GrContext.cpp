@@ -87,12 +87,6 @@ void GrContext::DrawingMgr::abandon() {
     }
 }
 
-void GrContext::DrawingMgr::purgeResources() {
-    if (fDrawTarget) {
-        fDrawTarget->purgeResources();
-    }
-}
-
 void GrContext::DrawingMgr::reset() {
     if (fDrawTarget) {
         fDrawTarget->reset();
@@ -242,8 +236,6 @@ void GrContext::resetContext(uint32_t state) {
 
 void GrContext::freeGpuResources() {
     this->flush();
-
-    fDrawingMgr.purgeResources();
 
     fBatchFontCache->freeAll();
     fLayerCache->freeAll();

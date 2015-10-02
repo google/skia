@@ -7,7 +7,6 @@
 #ifndef GrClipMaskManager_DEFINED
 #define GrClipMaskManager_DEFINED
 
-#include "GrClipMaskCache.h"
 #include "GrPipelineBuilder.h"
 #include "GrReducedClip.h"
 #include "GrStencil.h"
@@ -48,12 +47,6 @@ public:
                        GrPipelineBuilder::AutoRestoreStencil*,
                        GrScissorState*,
                        const SkRect* devBounds);
-
-    /**
-     * Purge resources to free up memory. TODO: This class shouldn't hold any long lived refs
-     * which will allow GrResourceCache to automatically purge anything this class has created.
-     */
-    void purgeResources();
 
     bool isClipInStencil() const {
         return kStencil_ClipMaskType == fCurrClipMaskType;
@@ -113,17 +106,7 @@ private:
                                       const SkVector& clipToMaskOffset,
                                       const SkIRect& clipSpaceIBounds);
 
-    // Returns the cached mask texture if it matches the elementsGenID and the clipSpaceIBounds.
-    // Returns nullptr if not found.
-    GrTexture* getCachedMaskTexture(int32_t elementsGenID, const SkIRect& clipSpaceIBounds);
-
-    // Handles allocation (if needed) of a clip alpha-mask texture for both the sw-upload
-    // or gpu-rendered cases.
-    GrTexture* allocMaskTexture(int32_t elementsGenID,
-                                const SkIRect& clipSpaceIBounds,
-                                bool willUpload);
-
-    bool useSWOnlyPath(const GrPipelineBuilder&,
+   bool useSWOnlyPath(const GrPipelineBuilder&,
                        const SkVector& clipToMaskOffset,
                        const GrReducedClip::ElementList& elements);
 
@@ -153,8 +136,6 @@ private:
 
     GrTexture* createTempMask(int width, int height);
 
-    void setupCache(const SkClipStack& clip,
-                    const SkIRect& bounds);
     /**
      * Called prior to return control back the GrGpu in setupClipping. It updates the
      * GrPipelineBuilder with stencil settings that account for stencil-based clipping.
@@ -170,6 +151,8 @@ private:
                              StencilClipMode mode,
                              int stencilBitCnt);
 
+    GrTexture* createCachedMask(int width, int height, const GrUniqueKey& key, bool renderTarget);
+
     /**
      * We may represent the clip as a mask in the stencil buffer or as an alpha
      * texture. It may be neither because the scissor rect suffices or we
@@ -181,7 +164,6 @@ private:
         kAlpha_ClipMaskType,
     } fCurrClipMaskType;
 
-    GrClipMaskCache fAACache;       // cache for the AA path
     GrDrawTarget*   fDrawTarget;    // This is our owning draw target.
     StencilClipMode fClipMode;
 

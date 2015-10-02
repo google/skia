@@ -14,6 +14,7 @@
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
+#include "GrResourceProvider.h"
 #include "GrStencilAndCoverTextContext.h"
 
 #include "batches/GrBatch.h"

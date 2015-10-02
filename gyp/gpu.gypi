@@ -78,8 +78,6 @@
       '<(skia_src_path)/gpu/GrBufferAllocPool.h',
       '<(skia_src_path)/gpu/GrCaps.cpp',
       '<(skia_src_path)/gpu/GrClip.cpp',
-      '<(skia_src_path)/gpu/GrClipMaskCache.h',
-      '<(skia_src_path)/gpu/GrClipMaskCache.cpp',
       '<(skia_src_path)/gpu/GrClipMaskManager.h',
       '<(skia_src_path)/gpu/GrClipMaskManager.cpp',
       '<(skia_src_path)/gpu/GrContext.cpp',

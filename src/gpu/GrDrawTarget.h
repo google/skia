@@ -20,6 +20,8 @@
 #include "GrVertexBuffer.h"
 #include "GrXferProcessor.h"
 
+#include "batches/GrDrawBatch.h"
+
 #include "SkClipStack.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -34,7 +36,6 @@ class GrBatch;
 class GrClip;
 class GrCaps;
 class GrPath;
-class GrDrawBatch;
 class GrDrawPathBatchBase;
 class GrPathRangeDraw;
 
@@ -170,15 +171,6 @@ public:
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
-    /**
-     * Release any resources that are cached but not currently in use. This
-     * is intended to give an application some recourse when resources are low.
-     * TODO: Stop holding on to resources.
-     */
-    virtual void purgeResources() {
-        // The clip mask manager can rebuild all its clip masks so just get rid of them all.
-        fClipMaskManager->purgeResources();
-    };
 
     bool programUnitTest(GrContext* owner, int maxStages);
 

@@ -90,6 +90,7 @@ public:
 
     using GrTextureProvider::assignUniqueKeyToResource;
     using GrTextureProvider::findAndRefResourceByUniqueKey;
+    using GrTextureProvider::findAndRefTextureByUniqueKey;
     using GrTextureProvider::abandon;
 
     enum Flags {
@@ -141,6 +142,8 @@ public:
      * attach one.
      */
     GrStencilAttachment* attachStencilAttachment(GrRenderTarget* rt);
+
+    const GrCaps* caps() { return this->gpu()->caps(); }
 
 private:
     const GrIndexBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
