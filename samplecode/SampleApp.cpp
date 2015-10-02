@@ -800,10 +800,12 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #endif
 
     fDeviceType = kRaster_DeviceType;
+#if SK_SUPPORT_GPU
     if (FLAGS_gpu) {
         fDeviceType = kGPU_DeviceType;
     }
-
+#endif
+        
 #if DEFAULT_TO_GPU
     fDeviceType = kGPU_DeviceType;
 #endif
