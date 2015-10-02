@@ -755,6 +755,14 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(PushDebugGroup, KHR);
         GET_PROC_SUFFIX(PopDebugGroup, KHR);
         GET_PROC_SUFFIX(ObjectLabel, KHR);
+        // In general we have a policy against removing extension strings when the driver does
+        // not provide function pointers for an advertised extension. However, because there is a
+        // known device that advertises GL_KHR_debug but fails to provide the functions and this is
+        // a debugging- only extension we've made an exception. This also can happen when using
+        // APITRACE.
+        if (!interface->fFunctions.fDebugMessageControl) {
+            extensions.remove("GL_KHR_debug");
+        }
     }
 
     interface->fStandard = kGLES_GrGLStandard;
