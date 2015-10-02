@@ -110,7 +110,7 @@ GrGLuint GLBench::SetupFramebuffer(const GrGLInterface* gl, int screenWidth, int
     //Setup framebuffer
     GrGLuint texture;
     GR_GL_CALL(gl, GenTextures(1, &texture));
-    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE15));
+    GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE7));
     GR_GL_CALL(gl, BindTexture(GR_GL_TEXTURE_2D, texture));
     GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
     GR_GL_CALL(gl, TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
