@@ -35,8 +35,9 @@
 GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
+    , fFlushState(fGpu, fResourceProvider, 0)
     , fFlushing(false)
-    , fLastFlushToken(0) {
+    , fFirstUnpreparedBatch(0) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
@@ -117,29 +118,29 @@ void GrDrawTarget::flush() {
     }
     fFlushing = true;
 
-    GrBatchFlushState flushState(fGpu, fResourceProvider, fLastFlushToken);
-
     // Loop over all batches and generate geometry
-    for (int i = 0; i < fBatches.count(); ++i) {
-        fBatches[i]->prepare(&flushState);
+    for (; fFirstUnpreparedBatch < fBatches.count(); ++fFirstUnpreparedBatch) {
+        fBatches[fFirstUnpreparedBatch]->prepare(&fFlushState);
     }
 
     // Upload all data to the GPU
-    flushState.preIssueDraws();
+    fFlushState.preIssueDraws();
 
     // Draw all the generated geometry.
     for (int i = 0; i < fBatches.count(); ++i) {
-        fBatches[i]->draw(&flushState);
+        fBatches[i]->draw(&fFlushState);
     }
 
-    fLastFlushToken = flushState.lastFlushedToken();
+    SkASSERT(fFlushState.lastFlushedToken() == fFlushState.currentToken());
+    this->reset();
 
     fFlushing = false;
-    this->reset();
 }
 
 void GrDrawTarget::reset() {
+    fFirstUnpreparedBatch = 0;
     fBatches.reset();
+    fFlushState.reset();
 }
 
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch) {
@@ -434,6 +435,10 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
         GrBATCH_INFO("\t\tFirstBatch\n");
     }
     fBatches.push_back().reset(SkRef(batch));
+    if (fBatches.count() > kMaxLookback) {
+        SkASSERT(fBatches.count() - kMaxLookback - fFirstUnpreparedBatch == 1);
+        fBatches[fFirstUnpreparedBatch++]->prepare(&fFlushState);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

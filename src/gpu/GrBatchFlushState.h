@@ -46,7 +46,7 @@ class GrBatchFlushState {
 public:
     GrBatchFlushState(GrGpu*, GrResourceProvider*, GrBatchToken lastFlushedToken);
 
-    ~GrBatchFlushState() { SkASSERT(fLastFlushedToken == fCurrentToken); }
+    ~GrBatchFlushState() { this->reset(); }
 
     void advanceToken() { ++fCurrentToken; }
 
@@ -98,6 +98,11 @@ public:
     GrBatchUploader::TextureUploader* uploader() { return &fUploader; }
 
     GrGpu* gpu() { return fGpu; }
+
+    void reset() {
+        fVertexPool.reset();
+        fIndexPool.reset();
+    }
 
 private:
     GrGpu*                                          fGpu;
