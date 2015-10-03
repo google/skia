@@ -58,18 +58,8 @@ bool GrStencilAndCoverTextContext::canDraw(const GrRenderTarget* rt,
             return false;
         }
     }
-
-    // No hairlines unless we can map the 1 px width to the object space.
-    if (skPaint.getStyle() == SkPaint::kStroke_Style
-        && skPaint.getStrokeWidth() == 0
-        && viewMatrix.hasPerspective()) {
-        return false;
-    }
-
-    // No color bitmap fonts.
-    SkScalerContext::Rec    rec;
-    SkScalerContext::MakeRec(skPaint, &fSurfaceProps, nullptr, &rec);
-    return rec.getFormat() != SkMask::kARGB32_Format;
+    // No hairlines. They would require new paths with customized strokes for every new draw matrix.
+    return SkPaint::kStroke_Style != skPaint.getStyle() || 0 != skPaint.getStrokeWidth();
 }
 
 void GrStencilAndCoverTextContext::onDrawText(GrDrawContext* dc, GrRenderTarget* rt,
@@ -87,31 +77,7 @@ void GrStencilAndCoverTextContext::onDrawText(GrDrawContext* dc, GrRenderTarget*
         return;
     }
 
-    // This is the slow path, mainly used by Skia unit tests.  The other
-    // backends (8888, gpu, ...) use device-space dependent glyph caches. In
-    // order to match the glyph positions that the other code paths produce, we
-    // must also use device-space dependent glyph cache. This has the
-    // side-effect that the glyph shape outline will be in device-space,
-    // too. This in turn has the side-effect that NVPR can not stroke the paths,
-    // as the stroke in NVPR is defined in object-space.
-    // NOTE: here we have following coincidence that works at the moment:
-    // - When using the device-space glyphs, the transforms we pass to NVPR
-    // instanced drawing are the global transforms, and the view transform is
-    // identity. NVPR can not use non-affine transforms in the instanced
-    // drawing. This is taken care of by SkDraw::ShouldDrawTextAsPaths since it
-    // will turn off the use of device-space glyphs when perspective transforms
-    // are in use.
-
-    this->init(rt, clip, paint, skPaint, byteLength, kMaxAccuracy_RenderMode, viewMatrix,
-               regionClipBounds);
-
-    // Transform our starting point.
-    if (fUsingDeviceSpaceGlyphs) {
-        SkPoint loc;
-        fContextInitialMatrix.mapXY(x, y, &loc);
-        x = loc.fX;
-        y = loc.fY;
-    }
+    this->init(rt, clip, paint, skPaint, byteLength, viewMatrix, regionClipBounds);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -184,16 +150,7 @@ void GrStencilAndCoverTextContext::onDrawPosText(GrDrawContext* dc, GrRenderTarg
         return;
     }
 
-    // This is the fast path.  Here we do not bake in the device-transform to
-    // the glyph outline or the advances. This is because we do not need to
-    // position the glyphs at all, since the caller has done the positioning.
-    // The positioning is based on SkPaint::measureText of individual
-    // glyphs. That already uses glyph cache without device transforms. Device
-    // transform is not part of SkPaint::measureText API, and thus we use the
-    // same glyphs as what were measured.
-
-    this->init(rt, clip, paint, skPaint, byteLength, kMaxPerformance_RenderMode, viewMatrix,
-               regionClipBounds);
+    this->init(rt, clip, paint, skPaint, byteLength, viewMatrix, regionClipBounds);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -251,7 +208,6 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
                                         const GrPaint& paint,
                                         const SkPaint& skPaint,
                                         size_t textByteLength,
-                                        RenderMode renderMode,
                                         const SkMatrix& viewMatrix,
                                         const SkIRect& regionClipBounds) {
     fClip = clip;
@@ -264,147 +220,69 @@ void GrStencilAndCoverTextContext::init(GrRenderTarget* rt,
     fPaint = paint;
     fSkPaint = skPaint;
 
-    fContextInitialMatrix = viewMatrix;
-    fViewMatrix = viewMatrix;
-    fLocalMatrix = SkMatrix::I();
+    // Don't bake strokes into the glyph outlines. We will stroke the glyphs using the GPU instead.
+    fStroke = GrStrokeInfo(fSkPaint);
+    fSkPaint.setStyle(SkPaint::kFill_Style);
 
-    const bool otherBackendsWillDrawAsPaths =
-        SkDraw::ShouldDrawTextAsPaths(skPaint, fContextInitialMatrix);
+    SkASSERT(!fStroke.isHairlineStyle()); // Hairlines are not supported.
 
-    fUsingDeviceSpaceGlyphs = !otherBackendsWillDrawAsPaths &&
-                              kMaxAccuracy_RenderMode == renderMode &&
-                              SkToBool(fContextInitialMatrix.getType() &
-                                       (SkMatrix::kScale_Mask | SkMatrix::kAffine_Mask));
+    if (fSkPaint.isFakeBoldText() && SkStrokeRec::kStroke_Style != fStroke.getStyle()) {
+        // Instead of baking fake bold into the glyph outlines, do it with the GPU stroke.
+        SkScalar fakeBoldScale = SkScalarInterpFunc(fSkPaint.getTextSize(),
+                                                    kStdFakeBoldInterpKeys,
+                                                    kStdFakeBoldInterpValues,
+                                                    kStdFakeBoldInterpLength);
+        SkScalar extra = SkScalarMul(fSkPaint.getTextSize(), fakeBoldScale);
+        fStroke.setStrokeStyle(fStroke.needToApply() ? fStroke.getWidth() + extra : extra,
+                               true /*strokeAndFill*/);
 
-    if (fUsingDeviceSpaceGlyphs) {
-        // SkDraw::ShouldDrawTextAsPaths takes care of perspective transforms.
-        SkASSERT(!fContextInitialMatrix.hasPerspective());
+        fSkPaint.setFakeBoldText(false);
+    }
 
-        // The whole shape (including stroke) will be baked into the glyph outlines. Make
-        // NVPR just fill the baked shapes.
-        fStroke = GrStrokeInfo(SkStrokeRec::kFill_InitStyle);
+    bool canUseRawPaths;
+    if (!fStroke.isDashed()) {
+        // We can draw the glyphs from canonically sized paths.
+        fTextRatio = fSkPaint.getTextSize() / SkPaint::kCanonicalTextSizeForPaths;
+        fTextInverseRatio = SkPaint::kCanonicalTextSizeForPaths / fSkPaint.getTextSize();
 
+        // Compensate for the glyphs being scaled by fTextRatio.
+        if (!fStroke.isFillStyle()) {
+            fStroke.setStrokeStyle(fStroke.getWidth() / fTextRatio,
+                                   SkStrokeRec::kStrokeAndFill_Style == fStroke.getStyle());
+        }
+
+        fSkPaint.setLinearText(true);
+        fSkPaint.setLCDRenderText(false);
+        fSkPaint.setAutohinted(false);
+        fSkPaint.setHinting(SkPaint::kNo_Hinting);
+        fSkPaint.setSubpixelText(true);
+        fSkPaint.setTextSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
+
+        canUseRawPaths = SK_Scalar1 == fSkPaint.getTextScaleX() &&
+                         0 == fSkPaint.getTextSkewX() &&
+                         !fSkPaint.isFakeBoldText() &&
+                         !fSkPaint.isVerticalText();
+    } else {
         fTextRatio = fTextInverseRatio = 1.0f;
+        canUseRawPaths = false;
+    }
 
-        // Glyphs loaded by GPU path rendering have an inverted y-direction.
-        SkMatrix m;
-        m.setScale(1, -1);
-        fViewMatrix = m;
+    fViewMatrix = viewMatrix;
+    fViewMatrix.preScale(fTextRatio, fTextRatio);
+    fLocalMatrix.setScale(fTextRatio, fTextRatio);
 
-        // Post-flip the initial matrix so we're left with just the flip after
-        // the paint preConcats the inverse.
-        m = fContextInitialMatrix;
-        m.postScale(1, -1);
-        if (!m.invert(&fLocalMatrix)) {
-            SkDebugf("Not invertible!\n");
-            return;
-        }
-
-        fGlyphCache = fSkPaint.detachCache(&fSurfaceProps, &fContextInitialMatrix,
-                                           true /*ignoreGamma*/);
-        fGlyphs = get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),
+    fGlyphCache = fSkPaint.detachCache(&fSurfaceProps, nullptr, true /*ignoreGamma*/);
+    fGlyphs = canUseRawPaths ?
+                  get_gr_glyphs(fContext, fSkPaint.getTypeface(), nullptr, fStroke) :
+                  get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),
                                 &fGlyphCache->getDescriptor(), fStroke);
-    } else {
-        // Don't bake strokes into the glyph outlines. We will stroke the glyphs
-        // using the GPU instead. This is the fast path.
-        fStroke = GrStrokeInfo(fSkPaint);
-        fSkPaint.setStyle(SkPaint::kFill_Style);
-
-        if (fStroke.isHairlineStyle()) {
-            // Approximate hairline stroke.
-            SkScalar strokeWidth = SK_Scalar1 /
-                (SkVector::Make(fContextInitialMatrix.getScaleX(),
-                                fContextInitialMatrix.getSkewY()).length());
-            fStroke.setStrokeStyle(strokeWidth, false /*strokeAndFill*/);
-
-        } else if (fSkPaint.isFakeBoldText() &&
-#ifdef SK_USE_FREETYPE_EMBOLDEN
-                   kMaxPerformance_RenderMode == renderMode &&
-#endif
-                   SkStrokeRec::kStroke_Style != fStroke.getStyle()) {
-
-            // Instead of baking fake bold into the glyph outlines, do it with the GPU stroke.
-            SkScalar fakeBoldScale = SkScalarInterpFunc(fSkPaint.getTextSize(),
-                                                        kStdFakeBoldInterpKeys,
-                                                        kStdFakeBoldInterpValues,
-                                                        kStdFakeBoldInterpLength);
-            SkScalar extra = SkScalarMul(fSkPaint.getTextSize(), fakeBoldScale);
-            fStroke.setStrokeStyle(fStroke.needToApply() ? fStroke.getWidth() + extra : extra,
-                                   true /*strokeAndFill*/);
-
-            fSkPaint.setFakeBoldText(false);
-        }
-
-        bool canUseRawPaths;
-        if (!fStroke.isDashed() && (otherBackendsWillDrawAsPaths ||
-                                    kMaxPerformance_RenderMode == renderMode)) {
-            // We can draw the glyphs from canonically sized paths.
-            fTextRatio = fSkPaint.getTextSize() / SkPaint::kCanonicalTextSizeForPaths;
-            fTextInverseRatio = SkPaint::kCanonicalTextSizeForPaths / fSkPaint.getTextSize();
-
-            // Compensate for the glyphs being scaled by fTextRatio.
-            if (!fStroke.isFillStyle()) {
-                fStroke.setStrokeStyle(fStroke.getWidth() / fTextRatio,
-                                       SkStrokeRec::kStrokeAndFill_Style == fStroke.getStyle());
-            }
-
-            fSkPaint.setLinearText(true);
-            fSkPaint.setLCDRenderText(false);
-            fSkPaint.setAutohinted(false);
-            fSkPaint.setHinting(SkPaint::kNo_Hinting);
-            fSkPaint.setSubpixelText(true);
-            fSkPaint.setTextSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
-
-            canUseRawPaths = SK_Scalar1 == fSkPaint.getTextScaleX() &&
-                             0 == fSkPaint.getTextSkewX() &&
-                             !fSkPaint.isFakeBoldText() &&
-                             !fSkPaint.isVerticalText();
-        } else {
-            fTextRatio = fTextInverseRatio = 1.0f;
-            canUseRawPaths = false;
-        }
-
-        SkMatrix textMatrix;
-        // Glyphs loaded by GPU path rendering have an inverted y-direction.
-        textMatrix.setScale(fTextRatio, -fTextRatio);
-        fViewMatrix.preConcat(textMatrix);
-        fLocalMatrix = textMatrix;
-
-        fGlyphCache = fSkPaint.detachCache(&fSurfaceProps, nullptr, true /*ignoreGamma*/);
-        fGlyphs = canUseRawPaths ?
-                      get_gr_glyphs(fContext, fSkPaint.getTypeface(), nullptr, fStroke) :
-                      get_gr_glyphs(fContext, fGlyphCache->getScalerContext()->getTypeface(),
-                                    &fGlyphCache->getDescriptor(), fStroke);
-    }
-
-}
-
-bool GrStencilAndCoverTextContext::mapToFallbackContext(SkMatrix* inverse) {
-    // The current view matrix is flipped because GPU path rendering glyphs have an
-    // inverted y-direction. Unflip the view matrix for the fallback context. If using
-    // device-space glyphs, we'll also need to restore the original view matrix since
-    // we moved that transfomation into our local glyph cache for this scenario. Also
-    // track the inverse operation so the caller can unmap the paint and glyph positions.
-    if (fUsingDeviceSpaceGlyphs) {
-        fViewMatrix = fContextInitialMatrix;
-        if (!fContextInitialMatrix.invert(inverse)) {
-            return false;
-        }
-        inverse->preScale(1, -1);
-    } else {
-        inverse->setScale(1, -1);
-        const SkMatrix& unflip = *inverse; // unflip is equal to its own inverse.
-        fViewMatrix.preConcat(unflip);
-    }
-    return true;
 }
 
 inline void GrStencilAndCoverTextContext::appendGlyph(const SkGlyph& glyph, const SkPoint& pos) {
     // Stick the glyphs we can't draw into the fallback arrays.
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
         fFallbackIndices.push_back(glyph.getGlyphID());
-        fFallbackPositions.push_back().set(fTextInverseRatio * pos.x(),
-                                           -fTextInverseRatio * pos.y());
+        fFallbackPositions.push_back(pos);
     } else {
         // TODO: infer the reserve count from the text length.
         if (!fDraw) {
@@ -412,16 +290,9 @@ inline void GrStencilAndCoverTextContext::appendGlyph(const SkGlyph& glyph, cons
                                             GrPathRendering::kTranslate_PathTransformType,
                                             64);
         }
-        float translate[] = { fTextInverseRatio * pos.x(), -fTextInverseRatio * pos.y() };
+        float translate[] = { fTextInverseRatio * pos.x(), fTextInverseRatio * pos.y() };
         fDraw->append(glyph.getGlyphID(), translate);
     }
-}
-
-static const SkScalar* get_xy_scalar_array(const SkPoint* pointArray) {
-    GR_STATIC_ASSERT(2 * sizeof(SkScalar) == sizeof(SkPoint));
-    GR_STATIC_ASSERT(0 == offsetof(SkPoint, fX));
-
-    return &pointArray[0].fX;
 }
 
 void GrStencilAndCoverTextContext::flush(GrDrawContext* dc) {
@@ -452,25 +323,27 @@ void GrStencilAndCoverTextContext::flush(GrDrawContext* dc) {
 
     if (fFallbackIndices.count()) {
         SkASSERT(fFallbackPositions.count() == fFallbackIndices.count());
-        GrPaint paintFallback(fPaint);
 
-        SkPaint skPaintFallback(fSkPaint);
-        if (!fUsingDeviceSpaceGlyphs) {
-            fStroke.applyToPaint(&skPaintFallback);
+        SkPaint fallbackSkPaint(fSkPaint);
+        fStroke.applyToPaint(&fallbackSkPaint);
+        if (!fStroke.isFillStyle()) {
+            fallbackSkPaint.setStrokeWidth(fStroke.getWidth() * fTextRatio);
         }
-        skPaintFallback.setTextAlign(SkPaint::kLeft_Align); // Align has already been accounted for.
-        skPaintFallback.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        fallbackSkPaint.setTextAlign(SkPaint::kLeft_Align); // Align has already been accounted for.
+        fallbackSkPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        // No need for subpixel positioning with bitmap glyphs. TODO: revisit if non-bitmap color
+        // glyphs show up and https://code.google.com/p/skia/issues/detail?id=4408 gets resolved.
+        fallbackSkPaint.setSubpixelText(false);
+        fallbackSkPaint.setTextSize(fSkPaint.getTextSize() * fTextRatio);
 
-        SkMatrix inverse;
-        if (this->mapToFallbackContext(&inverse)) {
-            inverse.mapPoints(fFallbackPositions.begin(), fFallbackPositions.count());
-        }
+        SkMatrix fallbackMatrix(fViewMatrix);
+        fallbackMatrix.preScale(fTextInverseRatio, fTextInverseRatio);
 
-        fFallbackTextContext->drawPosText(dc, fRenderTarget, fClip, paintFallback, skPaintFallback,
-                                          fViewMatrix, (char*)fFallbackIndices.begin(),
+        fFallbackTextContext->drawPosText(dc, fRenderTarget, fClip, fPaint, fallbackSkPaint,
+                                          fallbackMatrix, (char*)fFallbackIndices.begin(),
                                           sizeof(uint16_t) * fFallbackIndices.count(),
-                                          get_xy_scalar_array(fFallbackPositions.begin()),
-                                          2, SkPoint::Make(0, 0), fRegionClipBounds);
+                                          fFallbackPositions[0].asScalars(), 2, SkPoint::Make(0, 0),
+                                          fRegionClipBounds);
         fFallbackIndices.reset();
         fFallbackPositions.reset();
     }
@@ -488,6 +361,4 @@ void GrStencilAndCoverTextContext::finish(GrDrawContext* dc) {
 
     SkGlyphCache::AttachCache(fGlyphCache);
     fGlyphCache = nullptr;
-
-    fViewMatrix = fContextInitialMatrix;
 }

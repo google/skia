@@ -19,9 +19,7 @@ public:
 #ifdef SK_DEBUG
         , fDesc(desc.copy())
 #endif
-    {
-        fFlipMatrix.setScale(1, -1);
-    }
+    {}
 
     virtual ~GlyphGenerator() {
 #ifdef SK_DEBUG
@@ -39,7 +37,6 @@ public:
         fScalerContext->getMetrics(&skGlyph);
 
         fScalerContext->getPath(skGlyph, out);
-        out->transform(fFlipMatrix); // Load glyphs with the inverted y-direction.
     }
 #ifdef SK_DEBUG
     bool isEqualTo(const SkDescriptor& desc) const override {
@@ -48,7 +45,6 @@ public:
 #endif
 private:
     const SkAutoTDelete<SkScalerContext> fScalerContext;
-    SkMatrix fFlipMatrix;
 #ifdef SK_DEBUG
     SkDescriptor* const fDesc;
 #endif
