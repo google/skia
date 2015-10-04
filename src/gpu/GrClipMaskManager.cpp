@@ -308,7 +308,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
 
     // If MSAA is enabled we can do everything in the stencil buffer.
     if (0 == rt->numStencilSamples() && requiresAA) {
-        GrTexture* result = nullptr;
+        SkAutoTUnref<GrTexture> result;
 
         // The top-left of the mask corresponds to the top-left corner of the bounds.
         SkVector clipToMaskOffset = {
@@ -319,17 +319,17 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         if (this->useSWOnlyPath(pipelineBuilder, clipToMaskOffset, elements)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
-            result = this->createSoftwareClipMask(genID,
-                                                  initialState,
-                                                  elements,
-                                                  clipToMaskOffset,
-                                                  clipSpaceIBounds);
+            result.reset(this->createSoftwareClipMask(genID,
+                                                      initialState,
+                                                      elements,
+                                                      clipToMaskOffset,
+                                                      clipSpaceIBounds));
         } else {
-            result = this->createAlphaClipMask(genID,
-                                               initialState,
-                                               elements,
-                                               clipToMaskOffset,
-                                               clipSpaceIBounds);
+            result.reset(this->createAlphaClipMask(genID,
+                                                   initialState,
+                                                   elements,
+                                                   clipToMaskOffset,
+                                                   clipSpaceIBounds));
         }
 
         if (result) {
