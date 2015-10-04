@@ -677,7 +677,7 @@ void OutputRectBlurProfileLookup(GrGLFragmentBuilder* fsBuilder,
                                  const char *sharp_width) {
     fsBuilder->codeAppendf("\tfloat %s;\n", output);
     fsBuilder->codeAppendf("\t\t{\n");
-    fsBuilder->codeAppendf("\t\t\tfloat coord = (0.5 * (abs(2.0*%s - %s) - %s))/%s;\n",
+    fsBuilder->codeAppendf("\t\t\tfloat coord = (0.5 * (abs(2.0*%s - %s) - %s) + 0.5)/%s;\n",
                            loc, blurred_width, sharp_width, profileSize);
     fsBuilder->codeAppendf("\t\t\t%s = ", output);
     fsBuilder->appendTextureLookup(sampler, "vec2(coord,0.5)");
@@ -769,7 +769,7 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
 GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile)
     : fRect(rect)
     , fSigma(sigma)
-    , fBlurProfileAccess(blurProfile) {
+    , fBlurProfileAccess(blurProfile, GrTextureParams::kBilerp_FilterMode) {
     this->initClassID<GrRectBlurEffect>();
     this->addTextureAccess(&fBlurProfileAccess);
     this->setWillReadFragmentPosition();
