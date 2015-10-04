@@ -20,26 +20,10 @@ enum {
 
 class SkImage_Base : public SkImage {
 public:
-    SkImage_Base(int width, int height, uint32_t uniqueID, const SkSurfaceProps* props);
+    SkImage_Base(int width, int height, uint32_t uniqueID);
     virtual ~SkImage_Base();
 
-    /**
-     *  If the props weren't know at constructor time, call this but only before the image is
-     *  ever released into the wild (since the props field must appear to be immutable).
-     */
-    void initWithProps(const SkSurfaceProps& props) {
-        SkASSERT(this->unique());   // only viewed by one thread
-        SkSurfaceProps* mutableProps = const_cast<SkSurfaceProps*>(&fProps);
-        SkASSERT(mutableProps != &props);   // check for self-assignment
-        mutableProps->~SkSurfaceProps();
-        new (mutableProps) SkSurfaceProps(props);
-    }
-
-    const SkSurfaceProps& props() const { return fProps; }
-
-    virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const {
-        return nullptr;
-    }
+    virtual const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const { return nullptr; }
 
     // Default impl calls onDraw
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
@@ -69,8 +53,6 @@ public:
     }
 
 private:
-    const SkSurfaceProps fProps;
-
     // Set true by caches when they cache content that's derived from the current pixels.
     mutable SkAtomic<bool> fAddedToCache;
 

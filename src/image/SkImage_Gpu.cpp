@@ -19,7 +19,7 @@
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
                          SkSurface::Budgeted budgeted)
-    : INHERITED(w, h, uniqueID, nullptr)
+    : INHERITED(w, h, uniqueID)
     , fTexture(SkRef(tex))
     , fAlphaType(at)
     , fBudgeted(budgeted)

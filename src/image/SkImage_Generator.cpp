@@ -17,7 +17,7 @@
 class SkImage_Generator : public SkImage_Base {
 public:
     SkImage_Generator(SkImageCacherator* cache)
-        : INHERITED(cache->info().width(), cache->info().height(), cache->uniqueID(), NULL)
+        : INHERITED(cache->info().width(), cache->info().height(), cache->uniqueID())
         , fCache(cache) // take ownership
     {}
 

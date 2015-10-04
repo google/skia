@@ -85,9 +85,6 @@ SkImage* SkSurface_Gpu::onNewImageSnapshot(Budgeted budgeted) {
         image = new SkImage_Gpu(info.width(), info.height(), kNeedNewImageUniqueID,
                                 info.alphaType(), tex, budgeted);
     }
-    if (image) {
-        as_IB(image)->initWithProps(this->props());
-    }
     return image;
 }
 

@@ -24,7 +24,6 @@ class SkPicture;
 class SkPixelSerializer;
 class SkString;
 class SkSurface;
-class SkSurfaceProps;
 class GrContext;
 class GrTexture;
 

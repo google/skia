@@ -198,15 +198,10 @@ static bool raster_canvas_supports(const SkImageInfo& info) {
     return false;
 }
 
-static SkSurfaceProps copy_or_safe_defaults(const SkSurfaceProps* props) {
-    return props ? *props : SkSurfaceProps(0, kUnknown_SkPixelGeometry);
-}
-
-SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID, const SkSurfaceProps* props)
+SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID)
     : INHERITED(width, height, uniqueID)
-    , fProps(copy_or_safe_defaults(props))
     , fAddedToCache(false)
-{ }
+{}
 
 SkImage_Base::~SkImage_Base() {
     if (fAddedToCache.load()) {
@@ -276,7 +271,7 @@ SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
 #endif
 
     // This will check for immutable (share or copy)
-    return SkNewImageFromRasterBitmap(bm, nullptr);
+    return SkNewImageFromRasterBitmap(bm);
 }
 
 bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
