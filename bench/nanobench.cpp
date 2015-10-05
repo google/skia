@@ -790,8 +790,9 @@ public:
             }
         }
 
-
         for (; fCurrentCodec < fImages.count(); fCurrentCodec++) {
+            fSourceType = "image";
+            fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
             SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
             SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
@@ -845,6 +846,8 @@ public:
 
         // Run the DecodingBenches
         while (fCurrentImage < fImages.count()) {
+            fSourceType = "image";
+            fBenchType = "skimagedecoder";
             while (fCurrentColorType < fColorTypes.count()) {
                 const SkString& path = fImages[fCurrentImage];
                 SkColorType colorType = fColorTypes[fCurrentColorType];
@@ -866,6 +869,8 @@ public:
         bool useCodecOpts[] = { true, false };
         while (fUseCodec < 2) {
             bool useCodec = useCodecOpts[fUseCodec];
+            fSourceType = "image";
+            fBenchType = useCodec ? "skcodec" : "skimagedecoder";
             while (fCurrentSubsetImage < fImages.count()) {
                 while (fCurrentColorType < fColorTypes.count()) {
                     const SkString& path = fImages[fCurrentSubsetImage];
@@ -914,9 +919,12 @@ public:
 
         // Run the BRDBenches
         // We will benchmark multiple BRD strategies.
-        const SkBitmapRegionDecoderInterface::Strategy strategies[] = {
-                SkBitmapRegionDecoderInterface::kOriginal_Strategy,
-                SkBitmapRegionDecoderInterface::kCanvas_Strategy,
+        static const struct {
+            SkBitmapRegionDecoderInterface::Strategy    fStrategy;
+            const char*                                 fName;
+        } strategies[] = {
+            { SkBitmapRegionDecoderInterface::kOriginal_Strategy,   "BRD" },
+            { SkBitmapRegionDecoderInterface::kCanvas_Strategy,     "BRD_canvas" },
         };
 
         // We intend to create benchmarks that model the use cases in
@@ -937,12 +945,14 @@ public:
         const uint32_t minOutputSize = 512;
         while (fCurrentBRDImage < fImages.count()) {
             while (fCurrentBRDStrategy < (int) SK_ARRAY_COUNT(strategies)) {
+                fSourceType = "image";
+                fBenchType = strategies[fCurrentBRDStrategy].fName;
                 while (fCurrentColorType < fColorTypes.count()) {
                     while (fCurrentBRDSampleSize < (int) SK_ARRAY_COUNT(sampleSizes)) {
                         while (fCurrentSubsetType <= kLastSingle_SubsetType) {
                             const SkString& path = fImages[fCurrentBRDImage];
                             const SkBitmapRegionDecoderInterface::Strategy strategy =
-                                    strategies[fCurrentBRDStrategy];
+                                    strategies[fCurrentBRDStrategy].fStrategy;
                             SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
                             const SkColorType colorType = fColorTypes[fCurrentColorType];
                             uint32_t sampleSize = sampleSizes[fCurrentBRDSampleSize];
