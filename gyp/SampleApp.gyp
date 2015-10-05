@@ -98,6 +98,7 @@
         '../samplecode/SampleRepeatTile.cpp',
         '../samplecode/SampleShaders.cpp',
         '../samplecode/SampleShaderText.cpp',
+        '../samplecode/SampleShip.cpp',
         '../samplecode/SampleSkLayer.cpp',
         '../samplecode/SampleSlides.cpp',
         '../samplecode/SampleStringArt.cpp',
