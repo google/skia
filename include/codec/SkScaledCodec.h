@@ -26,6 +26,8 @@ public:
                                   int* sampleSizeX, int* sampleSizeY);
 
 protected:
+    bool onRewind() override;
+
     /**
      * Recommend a set of destination dimensions given a requested scale
      */

@@ -74,39 +74,20 @@ SkIRect generate_random_subset(SkRandom* rand, int w, int h) {
     return rect;
 }
 
-static void check(skiatest::Reporter* r,
-                  const char path[],
-                  SkISize size,
-                  bool supportsScanlineDecoding,
-                  bool supportsSubsetDecoding,
-                  bool supports565 = true) {
-    SkAutoTDelete<SkStream> stream(resource(path));
-    if (!stream) {
-        SkDebugf("Missing resource '%s'\n", path);
-        return;
-    }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
-    if (!codec) {
-        ERRORF(r, "Unable to decode '%s'", path);
-        return;
-    }
-
-    // This test is used primarily to verify rewinding works properly.  Using kN32 allows
-    // us to test this without the added overhead of creating different bitmaps depending
-    // on the color type (ex: building a color table for kIndex8).  DM is where we test
-    // decodes to all possible destination color types.
-    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, const SkImageInfo& info,
+        const SkISize& size, bool supports565, SkMD5::Digest* digest,
+        const SkMD5::Digest* goodDigest) {
     REPORTER_ASSERT(r, info.dimensions() == size);
-
-    SkBitmap bm;
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
-    SkCodec::Result result =
-        codec->getPixels(info, bm.getPixels(), bm.rowBytes(), nullptr, nullptr, nullptr);
+
+    SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
-    SkMD5::Digest digest;
-    md5(bm, &digest);
+    md5(bm, digest);
+    if (goodDigest) {
+        REPORTER_ASSERT(r, *digest == *goodDigest);
+    }
 
     {
         // Test decoding to 565
@@ -120,7 +101,7 @@ static void check(skiatest::Reporter* r,
     // a decode to 565, since choosing to decode to 565 may result in some of the decode
     // options being modified.  These options should return to their defaults on another
     // decode to kN32, so the new digest should match the old digest.
-    test_info(r, codec, info, SkCodec::kSuccess, &digest);
+    test_info(r, codec, info, SkCodec::kSuccess, digest);
 
     {
         // Check alpha type conversions
@@ -143,10 +124,34 @@ static void check(skiatest::Reporter* r,
             test_info(r, codec, info.makeAlphaType(otherAt), SkCodec::kSuccess, nullptr);
         }
     }
+}
+
+static void check(skiatest::Reporter* r,
+                  const char path[],
+                  SkISize size,
+                  bool supportsScanlineDecoding,
+                  bool supportsSubsetDecoding,
+                  bool supports565 = true) {
+
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    if (!codec) {
+        ERRORF(r, "Unable to decode '%s'", path);
+        return;
+    }
+
+    // Test full image decodes with SkCodec
+    SkMD5::Digest codecDigest;
+    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap bm;
+    test_codec(r, codec, bm, info, size, supports565, &codecDigest, nullptr);
 
     // Scanline decoding follows.
-
-    // Need to call start() first.
+    // Need to call startScanlineDecode() first.
     REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
             == SkCodec::kScanlineDecodingNotStarted);
     REPORTER_ASSERT(r, codec->skipScanlines(1)
@@ -159,12 +164,12 @@ static void check(skiatest::Reporter* r,
         REPORTER_ASSERT(r, startResult == SkCodec::kSuccess);
 
         for (int y = 0; y < info.height(); y++) {
-            result = codec->getScanlines(bm.getAddr(0, y), 1, 0);
+            SkCodec::Result result = codec->getScanlines(bm.getAddr(0, y), 1, 0);
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
         }
         // verify that scanline decoding gives the same result.
         if (SkCodec::kTopDown_SkScanlineOrder == codec->getScanlineOrder()) {
-            compare_to_good_digest(r, digest, bm);
+            compare_to_good_digest(r, codecDigest, bm);
         }
 
         // Cannot continue to decode scanlines beyond the end
@@ -219,6 +224,24 @@ static void check(skiatest::Reporter* r,
             // No subsets will work.
             REPORTER_ASSERT(r, result == SkCodec::kUnimplemented);
         }
+    }
+
+    // SkScaledCodec tests
+    if (supportsScanlineDecoding || supportsSubsetDecoding){
+        SkAutoTDelete<SkStream> stream(resource(path));
+        if (!stream) {
+            SkDebugf("Missing resource '%s'\n", path);
+            return;
+        }
+        SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromStream(stream.detach()));
+        if (!codec) {
+            ERRORF(r, "Unable to decode '%s'", path);
+            return;
+        }
+
+        SkBitmap bm;
+        SkMD5::Digest scaledCodecDigest;
+        test_codec(r, codec, bm, info, size, supports565, &scaledCodecDigest, &codecDigest);
     }
 }
 

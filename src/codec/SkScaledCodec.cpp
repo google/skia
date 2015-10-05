@@ -44,6 +44,10 @@ SkScaledCodec::SkScaledCodec(SkCodec* codec)
 
 SkScaledCodec::~SkScaledCodec() {}
 
+bool SkScaledCodec::onRewind() {
+    return fCodec->onRewind();
+}
+
 static SkISize best_scaled_dimensions(const SkISize& origDims, const SkISize& nativeDims,
                                       const SkISize& scaledCodecDims, float desiredScale) {
     if (nativeDims == scaledCodecDims) {
