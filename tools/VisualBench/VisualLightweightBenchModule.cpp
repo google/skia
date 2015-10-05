@@ -163,10 +163,11 @@ void VisualLightweightBenchModule::draw(SkCanvas* canvas) {
                 fTSM.nextBenchmark(canvas, fBenchmark);
                 fCurrentSample = 0;
                 fBenchmark.reset(nullptr);
+            } else {
+                fTSM.nextSampleWithPrewarm();
             }
             break;
     }
-
 }
 
 bool VisualLightweightBenchModule::onHandleChar(SkUnichar c) {

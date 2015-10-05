@@ -100,19 +100,11 @@ void TimingStateMachine::recordMeasurement() {
     fLastMeasurement = this->elapsed() / (FLAGS_frames * fLoops);
 }
 
-void TimingStateMachine::nextBenchmark(SkCanvas* canvas, Benchmark* benchmark) {
-    benchmark->postDraw(canvas);
-    benchmark->perCanvasPostDraw(canvas);
-    fLoops = 1;
-    this->nextState(kPreWarmLoopsPerCanvasPreDraw_State);
-}
-
 inline TimingStateMachine::ParentEvents TimingStateMachine::timing(SkCanvas* canvas,
                                                                    Benchmark* benchmark) {
     if (fCurrentFrame >= FLAGS_frames) {
         this->recordMeasurement();
         this->resetTimingState();
-        this->nextState(kPreWarmTimingPerCanvasPreDraw_State);
         return kTimingFinished_ParentEvents;
     } else {
         fCurrentFrame++;
@@ -120,3 +112,17 @@ inline TimingStateMachine::ParentEvents TimingStateMachine::timing(SkCanvas* can
     }
 }
 
+void TimingStateMachine::nextBenchmark(SkCanvas* canvas, Benchmark* benchmark) {
+    benchmark->postDraw(canvas);
+    benchmark->perCanvasPostDraw(canvas);
+    fLoops = 1;
+    this->nextState(kPreWarmLoopsPerCanvasPreDraw_State);
+}
+
+void TimingStateMachine::nextSampleWithPrewarm() {
+    this->nextState(kPreWarmTimingPerCanvasPreDraw_State);
+}
+
+void TimingStateMachine::nextSample() {
+    fTimer.start();
+}

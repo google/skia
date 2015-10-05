@@ -39,6 +39,12 @@ public:
     ParentEvents nextFrame(SkCanvas* canvas, Benchmark* benchmark);
 
     /*
+     * Before taking another sample, the owner can choose to prewarm or not
+     */
+    void nextSampleWithPrewarm();
+    void nextSample();
+
+    /*
      * The caller should call this when they are ready to move to the next benchmark.  The caller
      * must call this with the *last* benchmark so post draw hooks can be invoked
      */
