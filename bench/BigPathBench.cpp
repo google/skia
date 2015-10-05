@@ -8,11 +8,7 @@
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
-#include "SkString.h"
-
-static void make_path(SkPath& path) {
-    #include "BigPathBench.inc"
-}
+#include "sk_tool_utils.h"
 
 enum Align {
     kLeft_Align,
@@ -47,7 +43,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        make_path(fPath);
+        sk_tool_utils::make_big_path(fPath);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {

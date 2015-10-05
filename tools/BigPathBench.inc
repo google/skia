@@ -1,3 +1,4 @@
+// Inspired by crbug.com/455429
 path.moveTo(-1113, 81);
 path.lineTo(-1113, 83);
 path.lineTo(-1113, 82);

@@ -10,8 +10,10 @@
 #include "CpuWrappedBenchmark.h"
 #include "GMBench.h"
 #include "SkOSFile.h"
+#include "SkPath.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
+#include "sk_tool_utils.h"
 #include "VisualSKPBench.h"
 
 DEFINE_bool(cpu, false, "Run in CPU mode?");
@@ -26,12 +28,41 @@ DEFINE_string2(match, m, nullptr,
                "it is skipped unless some list entry starts with ~");
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
+// We draw a big nonAA path to warmup the gpu / cpu
+#include "SkPerlinNoiseShader.h"
+class WarmupBench : public Benchmark {
+public:
+    WarmupBench() {
+        sk_tool_utils::make_big_path(fPath);
+    }
+private:
+    const char* onGetName() override { return "warmupbench"; }
+    void onDraw(int loops, SkCanvas* canvas) override {
+        // We draw a big path to warm up the cpu, and then use perlin noise shader to warm up the
+        // gpu
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2);
+
+        SkPaint perlinPaint;
+        perlinPaint.setShader(SkPerlinNoiseShader::CreateTurbulence(0.1f, 0.1f, 1, 0,
+                                                                    nullptr))->unref();
+        SkRect rect = SkRect::MakeLTRB(0., 0., 400., 400.);
+        for (int i = 0; i < loops; i++) {
+            canvas->drawPath(fPath, paint);
+            canvas->drawRect(rect, perlinPaint);
+        }
+    }
+    SkPath fPath;
+};
+
 VisualBenchmarkStream::VisualBenchmarkStream()
     : fBenches(BenchRegistry::Head())
     , fGMs(skiagm::GMRegistry::Head())
     , fSourceType(nullptr)
     , fBenchType(nullptr)
-    , fCurrentSKP(0) {
+    , fCurrentSKP(0)
+    , fIsWarmedUp(false) {
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
             fSKPs.push_back() = FLAGS_skps[i];
@@ -67,7 +98,13 @@ bool VisualBenchmarkStream::ReadPicture(const char* path, SkAutoTUnref<SkPicture
 }
 
 Benchmark* VisualBenchmarkStream::next() {
+    if (!fIsWarmedUp) {
+        fIsWarmedUp = true;
+        return new WarmupBench;
+    }
+
     Benchmark* bench;
+
     // skips non matching benches
     while ((bench = this->innerNext()) &&
            (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName()) ||

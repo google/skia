@@ -17,6 +17,7 @@
 class SkBitmap;
 class SkCanvas;
 class SkPaint;
+class SkPath;
 class SkShader;
 class SkTestFont;
 class SkTextBlobBuilder;
@@ -133,6 +134,7 @@ namespace sk_tool_utils {
 
     void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
 
+    void make_big_path(SkPath& path);
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

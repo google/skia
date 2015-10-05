@@ -345,4 +345,8 @@ void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst) {
     }
 }
 
+void make_big_path(SkPath& path) {
+    #include "BigPathBench.inc"
+}
+
 }  // namespace sk_tool_utils

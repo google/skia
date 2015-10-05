@@ -34,6 +34,7 @@ private:
     const char* fSourceType;  // What we're benching: bench, GM, SKP, ...
     const char* fBenchType;   // How we bench it: micro, playback, ...
     int fCurrentSKP;
+    bool fIsWarmedUp;
 };
 
 #endif
