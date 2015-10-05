@@ -108,6 +108,8 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
                     return;
             }
         }
+        // This should make SkPath::getBounds() queries threadsafe.
+        path->updateBoundsCache();
         fPaths[index] = path;
     }
 }
