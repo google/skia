@@ -47,6 +47,7 @@ private:
     SkAutoTUnref<Benchmark> fBenchmark;
     TimingStateMachine fTSM;
     bool fAdvance;
+    bool fHasBeenReset;
 
     // support framework
     SkAutoTUnref<VisualBench> fOwner;

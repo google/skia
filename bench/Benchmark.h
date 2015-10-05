@@ -111,6 +111,19 @@ public:
      */
     virtual bool isVisual() { return false; }
 
+    /*
+     * VisualBench frequently resets the canvas.  As a result we need to bulk call all of the hooks
+     */
+    void preTimingHooks(SkCanvas* canvas) {
+        this->perCanvasPreDraw(canvas);
+        this->preDraw(canvas);
+    }
+
+    void postTimingHooks(SkCanvas* canvas)  {
+        this->postDraw(canvas);
+        this->perCanvasPostDraw(canvas);
+    }
+
 protected:
     virtual void setupPaint(SkPaint* paint);
 

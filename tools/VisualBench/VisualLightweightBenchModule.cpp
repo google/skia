@@ -44,6 +44,7 @@ static SkString humanize(double ms) {
 
 VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
     : fCurrentSample(0)
+    , fHasBeenReset(false)
     , fOwner(SkRef(owner))
     , fResults(new ResultsWriter) {
     fBenchmarkStream.reset(new VisualBenchmarkStream);
@@ -132,12 +133,14 @@ bool VisualLightweightBenchModule::advanceRecordIfNecessary(SkCanvas* canvas) {
 
     fOwner->clear(canvas, SK_ColorWHITE, 2);
 
-    fBenchmark->delayedSetup();
     fRecords.push_back();
 
     // Log bench name
     fResults->bench(fBenchmark->getUniqueName(), fBenchmark->getSize().fX,
                     fBenchmark->getSize().fY);
+
+    fBenchmark->delayedSetup();
+    fBenchmark->preTimingHooks(canvas);
     return true;
 }
 
@@ -147,15 +150,24 @@ void VisualLightweightBenchModule::draw(SkCanvas* canvas) {
         fOwner->closeWindow();
         return;
     }
+
+    if (fHasBeenReset) {
+        fHasBeenReset = false;
+        fBenchmark->preTimingHooks(canvas);
+    }
+
     this->renderFrame(canvas);
-    TimingStateMachine::ParentEvents event = fTSM.nextFrame(canvas, fBenchmark);
+    TimingStateMachine::ParentEvents event = fTSM.nextFrame(true);
     switch (event) {
         case TimingStateMachine::kReset_ParentEvents:
+            fBenchmark->postTimingHooks(canvas);
             fOwner->reset();
+            fHasBeenReset = true;
             break;
         case TimingStateMachine::kTiming_ParentEvents:
             break;
         case TimingStateMachine::kTimingFinished_ParentEvents:
+            fBenchmark->postTimingHooks(canvas);
             fOwner->reset();
             fRecords.back().fMeasurements.push_back(fTSM.lastMeasurement());
             if (++fCurrentSample > FLAGS_samples) {
@@ -164,7 +176,7 @@ void VisualLightweightBenchModule::draw(SkCanvas* canvas) {
                 fCurrentSample = 0;
                 fBenchmark.reset(nullptr);
             } else {
-                fTSM.nextSampleWithPrewarm();
+                fHasBeenReset = true;
             }
             break;
     }

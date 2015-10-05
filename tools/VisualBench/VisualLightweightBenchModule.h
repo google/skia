@@ -47,6 +47,7 @@ private:
     SkAutoTDelete<VisualBenchmarkStream> fBenchmarkStream;
     SkAutoTUnref<Benchmark> fBenchmark;
     TimingStateMachine fTSM;
+    bool fHasBeenReset;
 
     // support framework
     SkAutoTUnref<VisualBench> fOwner;

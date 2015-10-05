@@ -27,6 +27,7 @@ VisualInteractiveModule::VisualInteractiveModule(VisualBench* owner)
     : fCurrentMeasurement(0)
     , fBenchmark(nullptr)
     , fAdvance(false)
+    , fHasBeenReset(false)
     , fOwner(SkRef(owner)) {
     fBenchmarkStream.reset(new VisualBenchmarkStream);
 
@@ -93,7 +94,7 @@ bool VisualInteractiveModule::advanceRecordIfNecessary(SkCanvas* canvas) {
     fOwner->clear(canvas, SK_ColorWHITE, 2);
 
     fBenchmark->delayedSetup();
-
+    fBenchmark->preTimingHooks(canvas);
     return true;
 }
 #include "GrGpu.h"
@@ -104,10 +105,18 @@ void VisualInteractiveModule::draw(SkCanvas* canvas) {
         fOwner->closeWindow();
         return;
     }
+
+    if (fHasBeenReset) {
+        fHasBeenReset = false;
+        fBenchmark->preTimingHooks(canvas);
+    }
+
     this->renderFrame(canvas);
-    TimingStateMachine::ParentEvents event = fTSM.nextFrame(canvas, fBenchmark);
+    TimingStateMachine::ParentEvents event = fTSM.nextFrame(false);
     switch (event) {
         case TimingStateMachine::kReset_ParentEvents:
+            fBenchmark->postTimingHooks(canvas);
+            fHasBeenReset = true;
             fOwner->reset();
             break;
         case TimingStateMachine::kTiming_ParentEvents:
@@ -121,10 +130,10 @@ void VisualInteractiveModule::draw(SkCanvas* canvas) {
             if (fAdvance) {
                 fAdvance = false;
                 fTSM.nextBenchmark(canvas, fBenchmark);
+                fBenchmark->postTimingHooks(canvas);
                 fBenchmark.reset(nullptr);
                 fOwner->reset();
-            } else {
-                fTSM.nextSample();
+                fHasBeenReset = true;
             }
             break;
     }
