@@ -15,7 +15,6 @@
 class GrTextStrike;
 class GrPath;
 class GrPathRange;
-class GrPathRangeDraw;
 class SkSurfaceProps;
 
 /*
@@ -30,25 +29,6 @@ public:
     virtual ~GrStencilAndCoverTextContext();
 
 private:
-    SkScalar                                            fTextRatio;
-    float                                               fTextInverseRatio;
-    SkGlyphCache*                                       fGlyphCache;
-
-    GrPathRange*                                        fGlyphs;
-    GrPathRangeDraw*                                    fDraw;
-    GrStrokeInfo                                        fStroke;
-    SkSTArray<32, uint16_t, true>                       fFallbackIndices;
-    SkSTArray<32, SkPoint, true>                        fFallbackPositions;
-
-    SkMatrix                                            fViewMatrix;
-    SkMatrix                                            fLocalMatrix;
-    SkAutoTUnref<GrRenderTarget>                        fRenderTarget;
-    GrClip                                              fClip;
-    SkIRect                                             fClipRect;
-    SkIRect                                             fRegionClipBounds;
-    GrPaint                                             fPaint;
-    SkPaint                                             fSkPaint;
-
     GrStencilAndCoverTextContext(GrContext*, const SkSurfaceProps&);
 
     bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
@@ -65,11 +45,37 @@ private:
                        const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset, const SkIRect& regionClipBounds) override;
 
-    void init(GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&, size_t textByteLength,
-              const SkMatrix& viewMatrix, const SkIRect& regionClipBounds);
-    void appendGlyph(const SkGlyph&, const SkPoint&);
-    void flush(GrDrawContext* dc);
-    void finish(GrDrawContext* dc);
+    class TextRun {
+    public:
+        TextRun(const SkPaint& fontAndStroke);
+        ~TextRun();
+
+        void setText(const char text[], size_t byteLength, SkScalar x, SkScalar y,
+                     GrContext*, const SkSurfaceProps*);
+
+        void setPosText(const char text[], size_t byteLength,
+                        const SkScalar pos[], int scalarsPerPosition, const SkPoint& offset,
+                        GrContext*, const SkSurfaceProps*);
+
+        void draw(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&, const SkMatrix&,
+                  const SkIRect& regionClipBounds, GrTextContext* fallbackTextContext,
+                  const SkPaint& originalSkPaint) const;
+
+    private:
+        GrPathRange* createGlyphs(GrContext*, SkGlyphCache*);
+
+        void appendGlyph(const SkGlyph&, const SkPoint&);
+
+        GrStrokeInfo                     fStroke;
+        SkPaint                          fFont;
+        SkScalar                         fTextRatio;
+        float                            fTextInverseRatio;
+        SkMatrix                         fLocalMatrix;
+        bool                             fUsingRawGlyphPaths;
+        SkAutoTUnref<GrPathRangeDraw>    fDraw;
+        SkSTArray<32, uint16_t, true>    fFallbackIndices;
+        SkSTArray<32, SkPoint, true>     fFallbackPositions;
+    };
 
     typedef GrTextContext INHERITED;
 };
