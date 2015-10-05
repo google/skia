@@ -17,15 +17,27 @@
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
+#include "SkGrPriv.h"
 #include "SkPath.h"
 #include "SkTextMapStateProc.h"
 #include "SkTextFormatParams.h"
 
 #include "batches/GrDrawPathBatch.h"
 
+template<typename Key, typename Val> static void delete_hash_map_entry(const Key&, Val* val) {
+    SkASSERT(*val);
+    delete *val;
+}
+
+template<typename T> static void delete_hash_table_entry(T* val) {
+    SkASSERT(*val);
+    delete *val;
+}
+
 GrStencilAndCoverTextContext::GrStencilAndCoverTextContext(GrContext* context,
                                                            const SkSurfaceProps& surfaceProps)
-    : INHERITED(context, surfaceProps) {
+    : INHERITED(context, surfaceProps),
+      fCacheSize(0) {
 }
 
 GrStencilAndCoverTextContext*
@@ -38,13 +50,11 @@ GrStencilAndCoverTextContext::Create(GrContext* context, const SkSurfaceProps& s
 }
 
 GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
+    fBlobIdCache.foreach(delete_hash_map_entry<uint32_t, TextBlob*>);
+    fBlobKeyCache.foreach(delete_hash_table_entry<TextBlob*>);
 }
 
-bool GrStencilAndCoverTextContext::canDraw(const GrRenderTarget* rt,
-                                           const GrClip& clip,
-                                           const GrPaint& paint,
-                                           const SkPaint& skPaint,
-                                           const SkMatrix& viewMatrix) {
+bool GrStencilAndCoverTextContext::internalCanDraw(const SkPaint& skPaint) {
     if (skPaint.getRasterizer()) {
         return false;
     }
@@ -68,10 +78,12 @@ void GrStencilAndCoverTextContext::onDrawText(GrDrawContext* dc, GrRenderTarget*
                                               const char text[],
                                               size_t byteLength,
                                               SkScalar x, SkScalar y,
-                                              const SkIRect& regionClipBounds) {
+                                              const SkIRect& clipBounds) {
     TextRun run(skPaint);
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     run.setText(text, byteLength, x, y, fContext, &fSurfaceProps);
-    run.draw(dc, rt, clip, paint, viewMatrix, regionClipBounds, fFallbackTextContext, skPaint);
+    run.draw(dc, &pipelineBuilder, paint.getColor(), viewMatrix, 0, 0, clipBounds,
+             fFallbackTextContext, skPaint);
 }
 
 void GrStencilAndCoverTextContext::onDrawPosText(GrDrawContext* dc, GrRenderTarget* rt,
@@ -84,10 +96,137 @@ void GrStencilAndCoverTextContext::onDrawPosText(GrDrawContext* dc, GrRenderTarg
                                                  const SkScalar pos[],
                                                  int scalarsPerPosition,
                                                  const SkPoint& offset,
-                                                 const SkIRect& regionClipBounds) {
+                                                 const SkIRect& clipBounds) {
     TextRun run(skPaint);
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
     run.setPosText(text, byteLength, pos, scalarsPerPosition, offset, fContext, &fSurfaceProps);
-    run.draw(dc, rt, clip, paint, viewMatrix, regionClipBounds, fFallbackTextContext, skPaint);
+    run.draw(dc, &pipelineBuilder, paint.getColor(), viewMatrix, 0, 0, clipBounds,
+             fFallbackTextContext, skPaint);
+}
+
+void GrStencilAndCoverTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
+                                                const GrClip& clip, const SkPaint& skPaint,
+                                                const SkMatrix& viewMatrix,
+                                                const SkTextBlob* skBlob, SkScalar x, SkScalar y,
+                                                SkDrawFilter* drawFilter,
+                                                const SkIRect& clipBounds) {
+    if (!this->internalCanDraw(skPaint)) {
+        fFallbackTextContext->drawTextBlob(dc, rt, clip, skPaint, viewMatrix, skBlob, x, y,
+                                           drawFilter, clipBounds);
+        return;
+    }
+
+    if (drawFilter || skPaint.getPathEffect()) {
+        // This draw can't be cached.
+        INHERITED::drawTextBlob(dc, rt, clip, skPaint, viewMatrix, skBlob, x, y, drawFilter,
+                                clipBounds);
+        return;
+    }
+
+    if (fContext->abandoned()) {
+        return;
+    }
+
+    GrPaint paint;
+    if (!SkPaintToGrPaint(fContext, skPaint, viewMatrix, &paint)) {
+        return;
+    }
+
+    const TextBlob& blob = this->findOrCreateTextBlob(skBlob, skPaint);
+    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+
+    TextBlob::Iter iter(blob);
+    for (TextRun* run = iter.get(); run; run = iter.next()) {
+        run->draw(dc, &pipelineBuilder, paint.getColor(), viewMatrix, x, y, clipBounds,
+                  fFallbackTextContext, skPaint);
+    }
+}
+
+const GrStencilAndCoverTextContext::TextBlob&
+GrStencilAndCoverTextContext::findOrCreateTextBlob(const SkTextBlob* skBlob,
+                                                   const SkPaint& skPaint) {
+    // The font-related parameters are baked into the text blob and will override this skPaint, so
+    // the only remaining properties that can affect a TextBlob are the ones related to stroke.
+    if (SkPaint::kFill_Style == skPaint.getStyle()) { // Fast path.
+        if (TextBlob** found = fBlobIdCache.find(skBlob->uniqueID())) {
+            fLRUList.remove(*found);
+            fLRUList.addToTail(*found);
+            return **found;
+        }
+        TextBlob* blob = new TextBlob(skBlob->uniqueID(), skBlob, skPaint, fContext,
+                                      &fSurfaceProps);
+        this->purgeToFit(*blob);
+        fBlobIdCache.set(skBlob->uniqueID(), blob);
+        fLRUList.addToTail(blob);
+        fCacheSize += blob->cpuMemorySize();
+        return *blob;
+    } else {
+        GrStrokeInfo stroke(skPaint);
+        SkSTArray<4, uint32_t, true> key;
+        key.reset(1 + stroke.computeUniqueKeyFragmentData32Cnt());
+        key[0] = skBlob->uniqueID();
+        stroke.asUniqueKeyFragment(&key[1]);
+        if (TextBlob** found = fBlobKeyCache.find(key)) {
+            fLRUList.remove(*found);
+            fLRUList.addToTail(*found);
+            return **found;
+        }
+        TextBlob* blob = new TextBlob(key, skBlob, skPaint, fContext, &fSurfaceProps);
+        this->purgeToFit(*blob);
+        fBlobKeyCache.set(blob);
+        fLRUList.addToTail(blob);
+        fCacheSize += blob->cpuMemorySize();
+        return *blob;
+    }
+}
+
+void GrStencilAndCoverTextContext::purgeToFit(const TextBlob& blob) {
+    static const int maxCacheSize = 4 * 1024 * 1024; // Allow up to 4 MB for caching text blobs.
+
+    int maxSizeForNewBlob = maxCacheSize - blob.cpuMemorySize();
+    while (fCacheSize && fCacheSize > maxSizeForNewBlob) {
+        TextBlob* lru = fLRUList.head();
+        if (1 == lru->key().count()) {
+            // 1-length keys are unterstood to be the blob id.
+            fBlobIdCache.remove(lru->key()[0]);
+        } else {
+            fBlobKeyCache.remove(lru->key());
+        }
+        fLRUList.remove(lru);
+        fCacheSize -= lru->cpuMemorySize();
+        delete lru;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GrStencilAndCoverTextContext::TextBlob::init(const SkTextBlob* skBlob, const SkPaint& skPaint,
+                                                  GrContext* ctx, const SkSurfaceProps* props) {
+    fCpuMemorySize = sizeof(TextBlob);
+    SkPaint runPaint(skPaint);
+    for (SkTextBlob::RunIterator iter(skBlob); !iter.done(); iter.next()) {
+        iter.applyFontToPaint(&runPaint); // No need to re-seed the paint.
+        TextRun* run = SkNEW_INSERT_AT_LLIST_TAIL(this, TextRun, (runPaint));
+
+        const char* text = reinterpret_cast<const char*>(iter.glyphs());
+        size_t byteLength = sizeof(uint16_t) * iter.glyphCount();
+        const SkPoint& runOffset = iter.offset();
+
+        switch (iter.positioning()) {
+            case SkTextBlob::kDefault_Positioning:
+                run->setText(text, byteLength, runOffset.fX, runOffset.fY, ctx, props);
+                break;
+            case SkTextBlob::kHorizontal_Positioning:
+                run->setPosText(text, byteLength, iter.pos(), 1, SkPoint::Make(0, runOffset.fY),
+                                ctx, props);
+                break;
+            case SkTextBlob::kFull_Positioning:
+                run->setPosText(text, byteLength, iter.pos(), 2, SkPoint::Make(0, 0), ctx, props);
+                break;
+        }
+
+        fCpuMemorySize += run->cpuMemorySize();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +259,8 @@ private:
 
 GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
     : fStroke(fontAndStroke),
-      fFont(fontAndStroke) {
+      fFont(fontAndStroke),
+      fTotalGlyphCount(0) {
     SkASSERT(!fStroke.isHairlineStyle()); // Hairlines are not supported.
 
     // Setting to "fill" ensures that no strokes get baked into font outlines. (We use the GPU path
@@ -168,7 +308,7 @@ GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
     }
 
     // When drawing from canonically sized paths, the actual local coords are fTextRatio * coords.
-    fLocalMatrix.setScale(fTextRatio, fTextRatio);
+    fLocalMatrixTemplate.setScale(fTextRatio, fTextRatio);
 }
 
 GrStencilAndCoverTextContext::TextRun::~TextRun() {
@@ -182,9 +322,10 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
     SkAutoGlyphCacheNoGamma autoGlyphCache(fFont, surfaceProps, nullptr);
     SkGlyphCache* glyphCache = autoGlyphCache.getCache();
 
+    fTotalGlyphCount = fFont.countText(text, byteLength);
     fDraw.reset(GrPathRangeDraw::Create(this->createGlyphs(ctx, glyphCache),
                                         GrPathRendering::kTranslate_PathTransformType,
-                                        fFont.countText(text, byteLength)));
+                                        fTotalGlyphCount));
 
     SkDrawCacheProc glyphCacheProc = fFont.getDrawCacheProc();
 
@@ -250,9 +391,10 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     SkAutoGlyphCacheNoGamma autoGlyphCache(fFont, surfaceProps, nullptr);
     SkGlyphCache* glyphCache = autoGlyphCache.getCache();
 
+    fTotalGlyphCount = fFont.countText(text, byteLength);
     fDraw.reset(GrPathRangeDraw::Create(this->createGlyphs(ctx, glyphCache),
                                         GrPathRendering::kTranslate_PathTransformType,
-                                        fFont.countText(text, byteLength)));
+                                        fTotalGlyphCount));
 
     SkDrawCacheProc glyphCacheProc = fFont.getDrawCacheProc();
 
@@ -323,19 +465,19 @@ inline void GrStencilAndCoverTextContext::TextRun::appendGlyph(const SkGlyph& gl
 }
 
 void GrStencilAndCoverTextContext::TextRun::draw(GrDrawContext* dc,
-                                                 GrRenderTarget* rt,
-                                                 const GrClip& clip,
-                                                 const GrPaint& paint,
+                                                 GrPipelineBuilder* pipelineBuilder,
+                                                 GrColor color,
                                                  const SkMatrix& viewMatrix,
-                                                 const SkIRect& regionClipBounds,
+                                                 SkScalar x, SkScalar y,
+                                                 const SkIRect& clipBounds,
                                                  GrTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
     SkASSERT(fDraw);
+    SkASSERT(pipelineBuilder->getRenderTarget()->isStencilBufferMultisampled() ||
+             !fFont.isAntiAlias());
 
     if (fDraw->count()) {
-        GrPipelineBuilder pipelineBuilder(paint, rt, clip);
-        SkASSERT(rt->isStencilBufferMultisampled() || !paint.isAntiAlias());
-        pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, paint.isAntiAlias());
+        pipelineBuilder->setState(GrPipelineBuilder::kHWAntialias_Flag, fFont.isAntiAlias());
 
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
                                      kZero_StencilOp,
@@ -345,12 +487,17 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrDrawContext* dc,
                                      0x0000,
                                      0xffff);
 
-        *pipelineBuilder.stencil() = kStencilPass;
+        *pipelineBuilder->stencil() = kStencilPass;
 
         SkMatrix drawMatrix(viewMatrix);
+        drawMatrix.preTranslate(x, y);
         drawMatrix.preScale(fTextRatio, fTextRatio);
 
-        dc->drawPathsFromRange(&pipelineBuilder, drawMatrix, fLocalMatrix, paint.getColor(), fDraw,
+        SkMatrix& localMatrix = fLocalMatrixTemplate;
+        localMatrix.setTranslateX(x);
+        localMatrix.setTranslateY(y);
+
+        dc->drawPathsFromRange(pipelineBuilder, drawMatrix, localMatrix, color, fDraw,
                                GrPathRendering::kWinding_FillType);
     }
 
@@ -361,9 +508,21 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrDrawContext* dc,
             fallbackSkPaint.setStrokeWidth(fStroke.getWidth() * fTextRatio);
         }
 
-        fallbackTextContext->drawTextBlob(dc, rt, clip, fallbackSkPaint, viewMatrix,
-                                          fFallbackTextBlob, 0, 0, nullptr, regionClipBounds);
+        fallbackTextContext->drawTextBlob(dc, pipelineBuilder->getRenderTarget(),
+                                          pipelineBuilder->clip(), fallbackSkPaint, viewMatrix,
+                                          fFallbackTextBlob, x, y, nullptr, clipBounds);
     }
+}
+
+int GrStencilAndCoverTextContext::TextRun::cpuMemorySize() const {
+    int size = sizeof(TextRun) + fTotalGlyphCount * (sizeof(uint16_t) + 2 * sizeof(float));
+    if (fDraw) {
+        size += sizeof(GrPathRangeDraw);
+    }
+    if (fFallbackTextBlob) {
+        size += sizeof(SkTextBlob);
+    }
+    return size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -93,6 +93,7 @@ private:
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
     friend class GrAtlasTextContext;
+    friend class GrStencilAndCoverTextContext;
     friend class GrTextBlobCache;
     friend class GrTextContext;
     friend class SkBaseDevice;
