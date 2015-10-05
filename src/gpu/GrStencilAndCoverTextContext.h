@@ -45,6 +45,8 @@ private:
                        const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset, const SkIRect& regionClipBounds) override;
 
+    class FallbackBlobBuilder;
+
     class TextRun {
     public:
         TextRun(const SkPaint& fontAndStroke);
@@ -64,7 +66,7 @@ private:
     private:
         GrPathRange* createGlyphs(GrContext*, SkGlyphCache*);
 
-        void appendGlyph(const SkGlyph&, const SkPoint&);
+        void appendGlyph(const SkGlyph&, const SkPoint&, FallbackBlobBuilder*);
 
         GrStrokeInfo                     fStroke;
         SkPaint                          fFont;
@@ -73,8 +75,7 @@ private:
         SkMatrix                         fLocalMatrix;
         bool                             fUsingRawGlyphPaths;
         SkAutoTUnref<GrPathRangeDraw>    fDraw;
-        SkSTArray<32, uint16_t, true>    fFallbackIndices;
-        SkSTArray<32, SkPoint, true>     fFallbackPositions;
+        SkAutoTUnref<const SkTextBlob>   fFallbackTextBlob;
     };
 
     typedef GrTextContext INHERITED;

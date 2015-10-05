@@ -92,6 +92,32 @@ void GrStencilAndCoverTextContext::onDrawPosText(GrDrawContext* dc, GrRenderTarg
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class GrStencilAndCoverTextContext::FallbackBlobBuilder {
+public:
+    FallbackBlobBuilder() : fBuffIdx(0) {}
+
+    bool isInitialized() const { return SkToBool(fBuilder); }
+
+    void init(const SkPaint& font, SkScalar textRatio);
+
+    void appendGlyph(uint16_t glyphId, const SkPoint& pos);
+
+    const SkTextBlob* buildIfInitialized();
+
+private:
+    enum { kWriteBufferSize = 1024 };
+
+    void flush();
+
+    SkAutoTDelete<SkTextBlobBuilder>   fBuilder;
+    SkPaint                            fFont;
+    int                                fBuffIdx;
+    uint16_t                           fGlyphIds[kWriteBufferSize];
+    SkPoint                            fPositions[kWriteBufferSize];
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
     : fStroke(fontAndStroke),
       fFont(fontAndStroke) {
@@ -198,16 +224,20 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
 
     SkFixed fx = SkScalarToFixed(x);
     SkFixed fy = SkScalarToFixed(y);
+    FallbackBlobBuilder fallback;
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(glyphCache, &text, 0, 0);
         fx += SkFixedMul(autokern.adjust(glyph), fixedSizeRatio);
         if (glyph.fWidth) {
-            this->appendGlyph(glyph, SkPoint::Make(SkFixedToScalar(fx), SkFixedToScalar(fy)));
+            this->appendGlyph(glyph, SkPoint::Make(SkFixedToScalar(fx), SkFixedToScalar(fy)),
+                              &fallback);
         }
 
         fx += SkFixedMul(glyph.fAdvanceX, fixedSizeRatio);
         fy += SkFixedMul(glyph.fAdvanceY, fixedSizeRatio);
     }
+
+    fFallbackTextBlob.reset(fallback.buildIfInitialized());
 }
 
 void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t byteLength,
@@ -230,6 +260,7 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
 
     SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
     SkTextAlignProc alignProc(fFont.getTextAlign());
+    FallbackBlobBuilder fallback;
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(glyphCache, &text, 0, 0);
         if (glyph.fWidth) {
@@ -238,10 +269,12 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
             SkPoint loc;
             alignProc(tmsLoc, glyph, &loc);
 
-            this->appendGlyph(glyph, loc);
+            this->appendGlyph(glyph, loc, &fallback);
         }
         pos += scalarsPerPosition;
     }
+
+    fFallbackTextBlob.reset(fallback.buildIfInitialized());
 }
 
 GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(GrContext* ctx,
@@ -275,11 +308,14 @@ GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(GrContext* ctx,
 }
 
 inline void GrStencilAndCoverTextContext::TextRun::appendGlyph(const SkGlyph& glyph,
-                                                               const SkPoint& pos) {
-    // Stick the glyphs we can't draw into the fallback arrays.
+                                                               const SkPoint& pos,
+                                                               FallbackBlobBuilder* fallback) {
+    // Stick the glyphs we can't draw into the fallback text blob.
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
-        fFallbackIndices.push_back(glyph.getGlyphID());
-        fFallbackPositions.push_back(pos);
+        if (!fallback->isInitialized()) {
+            fallback->init(fFont, fTextRatio);
+        }
+        fallback->appendGlyph(glyph.getGlyphID(), pos);
     } else {
         float translate[] = { fTextInverseRatio * pos.x(), fTextInverseRatio * pos.y() };
         fDraw->append(glyph.getGlyphID(), translate);
@@ -318,31 +354,62 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrDrawContext* dc,
                                GrPathRendering::kWinding_FillType);
     }
 
-    if (fFallbackIndices.count()) {
-        SkASSERT(fFallbackPositions.count() == fFallbackIndices.count());
-
-        enum { kPreservedFlags = SkPaint::kFakeBoldText_Flag | SkPaint::kLinearText_Flag |
-                                 SkPaint::kLCDRenderText_Flag | SkPaint::kAutoHinting_Flag };
-
+    if (fFallbackTextBlob) {
         SkPaint fallbackSkPaint(originalSkPaint);
         fStroke.applyToPaint(&fallbackSkPaint);
         if (!fStroke.isFillStyle()) {
             fallbackSkPaint.setStrokeWidth(fStroke.getWidth() * fTextRatio);
         }
-        fallbackSkPaint.setTextAlign(SkPaint::kLeft_Align); // Align has already been accounted for.
-        fallbackSkPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        fallbackSkPaint.setHinting(fFont.getHinting());
-        fallbackSkPaint.setFlags((fFont.getFlags() & kPreservedFlags) |
-                                 (originalSkPaint.getFlags() & ~kPreservedFlags));
-        // No need for subpixel positioning with bitmap glyphs. TODO: revisit if non-bitmap color
-        // glyphs show up and https://code.google.com/p/skia/issues/detail?id=4408 gets resolved.
-        fallbackSkPaint.setSubpixelText(false);
-        fallbackSkPaint.setTextSize(fFont.getTextSize() * fTextRatio);
 
-        fallbackTextContext->drawPosText(dc, rt, clip, paint, fallbackSkPaint, viewMatrix,
-                                         (char*)fFallbackIndices.begin(),
-                                         sizeof(uint16_t) * fFallbackIndices.count(),
-                                         fFallbackPositions[0].asScalars(), 2, SkPoint::Make(0, 0),
-                                         regionClipBounds);
+        fallbackTextContext->drawTextBlob(dc, rt, clip, fallbackSkPaint, viewMatrix,
+                                          fFallbackTextBlob, 0, 0, nullptr, regionClipBounds);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GrStencilAndCoverTextContext::FallbackBlobBuilder::init(const SkPaint& font,
+                                                             SkScalar textRatio) {
+    SkASSERT(!this->isInitialized());
+    fBuilder.reset(new SkTextBlobBuilder);
+    fFont = font;
+    fFont.setTextAlign(SkPaint::kLeft_Align); // The glyph positions will already account for align.
+    fFont.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    // No need for subpixel positioning with bitmap glyphs. TODO: revisit if non-bitmap color glyphs
+    // show up and https://code.google.com/p/skia/issues/detail?id=4408 gets resolved.
+    fFont.setSubpixelText(false);
+    fFont.setTextSize(fFont.getTextSize() * textRatio);
+    fBuffIdx = 0;
+}
+
+void GrStencilAndCoverTextContext::FallbackBlobBuilder::appendGlyph(uint16_t glyphId,
+                                                                    const SkPoint& pos) {
+    SkASSERT(this->isInitialized());
+    if (fBuffIdx >= kWriteBufferSize) {
+        this->flush();
+    }
+    fGlyphIds[fBuffIdx] = glyphId;
+    fPositions[fBuffIdx] = pos;
+    fBuffIdx++;
+}
+
+void GrStencilAndCoverTextContext::FallbackBlobBuilder::flush() {
+    SkASSERT(this->isInitialized());
+    SkASSERT(fBuffIdx <= kWriteBufferSize);
+    if (!fBuffIdx) {
+        return;
+    }
+    // This will automatically merge with previous runs since we use the same font.
+    const SkTextBlobBuilder::RunBuffer& buff = fBuilder->allocRunPos(fFont, fBuffIdx);
+    memcpy(buff.glyphs, fGlyphIds, fBuffIdx * sizeof(uint16_t));
+    memcpy(buff.pos, fPositions[0].asScalars(), fBuffIdx * 2 * sizeof(SkScalar));
+    fBuffIdx = 0;
+}
+
+const SkTextBlob* GrStencilAndCoverTextContext::FallbackBlobBuilder::buildIfInitialized() {
+    if (!this->isInitialized()) {
+        return nullptr;
+    }
+    this->flush();
+    return fBuilder->build();
 }
