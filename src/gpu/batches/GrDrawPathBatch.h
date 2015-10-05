@@ -115,6 +115,10 @@ public:
 
     const GrPathRange* range() const { return fPathRange.get(); }
 
+    void loadGlyphPathsIfNeeded() {
+        fPathRange.get()->loadPathsIfNeeded<uint16_t>(fIndices.begin(), fIndices.count());
+    }
+
     static bool CanMerge(const GrPathRangeDraw& a, const GrPathRangeDraw& b) {
         return a.transformType() == b.transformType() && a.range() == b.range();
     }

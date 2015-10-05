@@ -179,7 +179,9 @@ public:
         if (GrXferBarrierType barrierType = args.fPipeline->xferBarrierType(*fGpu->caps())) {
             fGpu->xferBarrier(args.fPipeline->getRenderTarget(), barrierType);
         }
-        pathRange->willDrawPaths(indices, indexType, count);
+#ifdef SK_DEBUG
+        pathRange->assertPathsLoaded(indices, indexType, count);
+#endif
         this->onDrawPaths(args, pathRange, indices, indexType, transformValues, transformType,
                           count);
     }

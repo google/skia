@@ -9,10 +9,10 @@
 #define GrPathRange_DEFINED
 
 #include "GrGpuResource.h"
+#include "SkPath.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
-class SkPath;
 class SkDescriptor;
 
 /**
@@ -70,7 +70,67 @@ public:
     int getNumPaths() const { return fNumPaths; }
     const PathGenerator* getPathGenerator() const { return fPathGenerator.get(); }
 
+    void loadPathsIfNeeded(const void* indices, PathIndexType, int count) const;
+
+    template<typename IndexType> void loadPathsIfNeeded(const void* indices, int count) const {
+        if (!fPathGenerator) {
+            return;
+        }
+
+        const IndexType* indexArray = reinterpret_cast<const IndexType*>(indices);
+        bool didLoadPaths = false;
+
+        for (int i = 0; i < count; ++i) {
+            SkASSERT(indexArray[i] < static_cast<uint32_t>(fNumPaths));
+
+            const int groupIndex = indexArray[i] / kPathsPerGroup;
+            const int groupByte = groupIndex / 8;
+            const uint8_t groupBit = 1 << (groupIndex % 8);
+
+            const bool hasPath = SkToBool(fGeneratedPaths[groupByte] & groupBit);
+            if (!hasPath) {
+                // We track which paths are loaded in groups of kPathsPerGroup. To
+                // mark a path as loaded we need to load the entire group.
+                const int groupFirstPath = groupIndex * kPathsPerGroup;
+                const int groupLastPath = SkTMin(groupFirstPath + kPathsPerGroup, fNumPaths) - 1;
+
+                SkPath path;
+                for (int pathIdx = groupFirstPath; pathIdx <= groupLastPath; ++pathIdx) {
+                    fPathGenerator->generatePath(pathIdx, &path);
+                    this->onInitPath(pathIdx, path);
+                }
+
+                fGeneratedPaths[groupByte] |= groupBit;
+                didLoadPaths = true;
+            }
+        }
+
+        if (didLoadPaths) {
+            this->didChangeGpuMemorySize();
+        }
+    }
+
 #ifdef SK_DEBUG
+    void assertPathsLoaded(const void* indices, PathIndexType, int count) const;
+
+    template<typename IndexType> void assertPathsLoaded(const void* indices, int count) const {
+        if (!fPathGenerator) {
+            return;
+        }
+
+        const IndexType* indexArray = reinterpret_cast<const IndexType*>(indices);
+
+        for (int i = 0; i < count; ++i) {
+            SkASSERT(indexArray[i] < static_cast<uint32_t>(fNumPaths));
+
+            const int groupIndex = indexArray[i] / kPathsPerGroup;
+            const int groupByte = groupIndex / 8;
+            const uint8_t groupBit = 1 << (groupIndex % 8);
+
+            SkASSERT(fGeneratedPaths[groupByte] & groupBit);
+        }
+    }
+
     virtual bool isEqualTo(const SkDescriptor& desc) const {
         return nullptr != fPathGenerator.get() && fPathGenerator->isEqualTo(desc);
     }
@@ -82,10 +142,9 @@ protected:
     virtual void onInitPath(int index, const SkPath&) const = 0;
 
 private:
-    // Notify when paths will be drawn in case this is a lazy-loaded path range.
-    friend class GrPathRendering;
-    void willDrawPaths(const void* indices, PathIndexType, int count) const;
-    template<typename IndexType> void willDrawPaths(const void* indices, int count) const;
+    enum {
+        kPathsPerGroup = 16 // Paths get tracked in groups of 16 for lazy loading.
+    };
 
     mutable SkAutoTUnref<PathGenerator> fPathGenerator;
     mutable SkTArray<uint8_t, true /*MEM_COPY*/> fGeneratedPaths;

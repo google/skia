@@ -378,6 +378,8 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
         fy += SkFixedMul(glyph.fAdvanceY, fixedSizeRatio);
     }
 
+    fDraw->loadGlyphPathsIfNeeded();
+
     fFallbackTextBlob.reset(fallback.buildIfInitialized());
 }
 
@@ -415,6 +417,8 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
         }
         pos += scalarsPerPosition;
     }
+
+    fDraw->loadGlyphPathsIfNeeded();
 
     fFallbackTextBlob.reset(fallback.buildIfInitialized());
 }
