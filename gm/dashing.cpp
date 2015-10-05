@@ -54,7 +54,7 @@ protected:
         return SkString("dashing");
     }
 
-    SkISize onISize() { return SkISize::Make(640, 300); }
+    SkISize onISize() { return SkISize::Make(640, 340); }
 
     virtual void onDraw(SkCanvas* canvas) {
         static const struct {
@@ -90,6 +90,10 @@ protected:
         show_giant_dash(canvas);
         canvas->translate(0, SkIntToScalar(20));
         show_zero_len_dash(canvas);
+        canvas->translate(0, SkIntToScalar(20));
+        // Draw 0 on, 0 off dashed line
+        paint.setStrokeWidth(SkIntToScalar(8));
+        drawline(canvas, 0, 0, paint);
     }
 };
 

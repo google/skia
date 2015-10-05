@@ -9,6 +9,15 @@
 #include "GrResourceKey.h"
 #include "SkDashPathPriv.h"
 
+bool all_dash_intervals_zero(const SkScalar* intervals, int count) {
+    for (int i = 0 ; i < count; ++i) {
+        if (intervals[i] != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool GrStrokeInfo::applyDashToPath(SkPath* dst, GrStrokeInfo* dstStrokeInfo,
                                    const SkPath& src) const {
     if (this->isDashed()) {
@@ -17,6 +26,13 @@ bool GrStrokeInfo::applyDashToPath(SkPath* dst, GrStrokeInfo* dstStrokeInfo,
         info.fCount = fIntervals.count();
         info.fPhase = fDashPhase;
         GrStrokeInfo filteredStroke(*this, false);
+        // Handle the case where all intervals are 0 and we simply drop the dash effect
+        if (all_dash_intervals_zero(fIntervals.get(), fIntervals.count())) {
+            *dstStrokeInfo = filteredStroke;
+            *dst = src;
+            return true;
+        }
+        // See if we can filter the dash into a path on cpu
         if (SkDashPath::FilterDashPath(dst, src, &filteredStroke, nullptr, info)) {
             *dstStrokeInfo = filteredStroke;
             return true;
