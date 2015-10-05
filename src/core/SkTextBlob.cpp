@@ -157,7 +157,7 @@ public:
             + StorageSize(run->glyphCount(), run->positioning()));
     }
 
-    void validate(uint8_t* storageTop) const {
+    void validate(const uint8_t* storageTop) const {
         SkASSERT(kRunRecordMagic == fMagic);
         SkASSERT((uint8_t*)Next(this) <= storageTop);
         SkASSERT(glyphBuffer() + fCount <= (uint16_t*)posBuffer());
@@ -583,20 +583,19 @@ const SkTextBlob* SkTextBlobBuilder::build() {
         fStorage.realloc(fStorageUsed);
     }
 
+    const SkTextBlob* blob = new (fStorage.detach()) SkTextBlob(fRunCount, fBounds);
+    SkDEBUGCODE(const_cast<SkTextBlob*>(blob)->fStorageSize = fStorageSize;)
+
     SkDEBUGCODE(
         size_t validateSize = sizeof(SkTextBlob);
-        const SkTextBlob::RunRecord* run =
-            SkTextBlob::RunRecord::First(reinterpret_cast<const SkTextBlob*>(fStorage.get()));
+        const SkTextBlob::RunRecord* run = SkTextBlob::RunRecord::First(blob);
         for (int i = 0; i < fRunCount; ++i) {
             validateSize += SkTextBlob::RunRecord::StorageSize(run->fCount, run->fPositioning);
-            run->validate(fStorage.get() + fStorageUsed);
+            run->validate(reinterpret_cast<const uint8_t*>(blob) + fStorageUsed);
             run = SkTextBlob::RunRecord::Next(run);
         }
         SkASSERT(validateSize == fStorageUsed);
     )
-
-    const SkTextBlob* blob = new (fStorage.detach()) SkTextBlob(fRunCount, fBounds);
-    SkDEBUGCODE(const_cast<SkTextBlob*>(blob)->fStorageSize = fStorageSize;)
 
     fStorageUsed = 0;
     fStorageSize = 0;
