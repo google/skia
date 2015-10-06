@@ -113,7 +113,7 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
         static const SkDropShadowImageFilter::ShadowMode kBoth =
                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode;
 
-        SkAutoTUnref<SkDropShadowImageFilter> dsif(
+        SkAutoTUnref<SkImageFilter> dsif(
             SkDropShadowImageFilter::Create(10.0f, 10.0f,
                                             3.0f, 3.0f,
                                             SK_ColorRED, kBoth,
@@ -123,7 +123,7 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
     }
 
     {
-        SkAutoTUnref<SkDropShadowImageFilter> dsif(
+        SkAutoTUnref<SkImageFilter> dsif(
             SkDropShadowImageFilter::Create(27.0f, 27.0f,
                                             3.0f, 3.0f,
                                             SK_ColorRED,
@@ -134,13 +134,13 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
     }
 
     {
-        SkAutoTUnref<SkBlurImageFilter> bif(SkBlurImageFilter::Create(3, 3, source));
+        SkAutoTUnref<SkImageFilter> bif(SkBlurImageFilter::Create(3, 3, source));
 
         add_paint(bif, paints);
     }
 
     {
-        SkAutoTUnref<SkOffsetImageFilter> oif(SkOffsetImageFilter::Create(15, 15, source));
+        SkAutoTUnref<SkImageFilter> oif(SkOffsetImageFilter::Create(15, 15, source));
 
         add_paint(oif, paints);
     }
@@ -246,7 +246,7 @@ protected:
             pic.reset(rec.endRecording());
         }
 
-        SkAutoTUnref<SkPictureImageFilter> pif(SkPictureImageFilter::Create(pic));
+        SkAutoTUnref<SkImageFilter> pif(SkPictureImageFilter::Create(pic));
 
         SkTArray<SkPaint> pifPaints;
         create_paints(pif, &pifPaints);

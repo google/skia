@@ -57,16 +57,16 @@ protected:
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
             SkRect emptyRect = SkRect::MakeXYWH(20, 20, 0, 0);
             SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
-            SkAutoTUnref<SkPictureImageFilter> pictureSource(
+            SkAutoTUnref<SkImageFilter> pictureSource(
                 SkPictureImageFilter::Create(fPicture));
-            SkAutoTUnref<SkPictureImageFilter> pictureSourceSrcRect(
+            SkAutoTUnref<SkImageFilter> pictureSourceSrcRect(
                 SkPictureImageFilter::Create(fPicture, srcRect));
-            SkAutoTUnref<SkPictureImageFilter> pictureSourceEmptyRect(
+            SkAutoTUnref<SkImageFilter> pictureSourceEmptyRect(
                 SkPictureImageFilter::Create(fPicture, emptyRect));
-            SkAutoTUnref<SkPictureImageFilter> pictureSourceResampled(
+            SkAutoTUnref<SkImageFilter> pictureSourceResampled(
                 SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
                     kLow_SkFilterQuality));
-            SkAutoTUnref<SkPictureImageFilter> pictureSourcePixelated(
+            SkAutoTUnref<SkImageFilter> pictureSourcePixelated(
                 SkPictureImageFilter::CreateForLocalSpace(fPicture, fPicture->cullRect(),
                     kNone_SkFilterQuality));
 

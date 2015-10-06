@@ -20,11 +20,9 @@ public:
 
     static const int kShadowModeCount = kLast_ShadowMode+1;
 
-    static SkDropShadowImageFilter* Create(SkScalar dx, SkScalar dy,
-                                           SkScalar sigmaX, SkScalar sigmaY, SkColor color,
-                                           ShadowMode shadowMode,
-                                           SkImageFilter* input = NULL,
-                                           const CropRect* cropRect = NULL) {
+    static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY,
+                                 SkColor color, ShadowMode shadowMode, SkImageFilter* input = NULL,
+                                 const CropRect* cropRect = NULL) {
         return new SkDropShadowImageFilter(dx, dy, sigmaX, sigmaY, color, shadowMode, input,
                                            cropRect);
     }
@@ -34,16 +32,18 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
 
 protected:
-    SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
-                            ShadowMode shadowMode, SkImageFilter* input, const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result, SkIPoint* loc) const override;
-    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
-                                SkIRect* dst) const override;
+    bool onFilterImage(Proxy*, const SkBitmap& source, const Context&, SkBitmap* result,
+                       SkIPoint* loc) const override;
+    bool onFilterBounds(const SkIRect& src, const SkMatrix&, SkIRect* dst) const override;
 
 private:
+    SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor,
+                            ShadowMode shadowMode, SkImageFilter* input, const CropRect* cropRect);
+
     SkScalar fDx, fDy, fSigmaX, fSigmaY;
     SkColor fColor;
     ShadowMode fShadowMode;
+
     typedef SkImageFilter INHERITED;
 };
