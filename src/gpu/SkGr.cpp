@@ -703,8 +703,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             shaderFP = *shaderProcessor;
         } else if (const SkShader* shader = skPaint.getShader()) {
             aufp.reset(shader->asFragmentProcessor(context, viewM, nullptr,
-                                                   skPaint.getFilterQuality(),
-                                                   grPaint->getProcessorDataManager()));
+                                                   skPaint.getFilterQuality()));
             shaderFP = aufp;
             if (!shaderFP) {
                 return false;
@@ -792,7 +791,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             grPaint->setColor(SkColorToPremulGrColor(colorFilter->filterColor(skPaint.getColor())));
         } else {
             SkAutoTUnref<const GrFragmentProcessor> cfFP(
-                colorFilter->asFragmentProcessor(context, grPaint->getProcessorDataManager()));
+                colorFilter->asFragmentProcessor(context));
             if (cfFP) {
                 grPaint->addColorFragmentProcessor(cfFP);
             } else {

@@ -14,7 +14,6 @@
 #include "SkColor.h"
 
 class GrFragmentProcessor;
-class GrProcessorDataManager;
 class GrTexture;
 class GrXPFactory;
 class SkString;
@@ -201,7 +200,7 @@ public:
         It is legal for the function to succeed but return a null output. This indicates that
         the output of the blend is simply the src color.
      */
-    virtual bool asFragmentProcessor(const GrFragmentProcessor** output, GrProcessorDataManager*,
+    virtual bool asFragmentProcessor(const GrFragmentProcessor** output,
                                      const GrFragmentProcessor* dst) const;
 
     /** A subclass may implement this factory function to work with the GPU backend. It is legal

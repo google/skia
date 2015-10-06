@@ -204,9 +204,7 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 const GrFragmentProcessor* SkComposeShader::asFragmentProcessor(GrContext* context,
                                                             const SkMatrix& viewM,
                                                             const SkMatrix* localMatrix,
-                                                            SkFilterQuality fq,
-                                                            GrProcessorDataManager* procDataManager
-                                                            ) const {
+                                                            SkFilterQuality fq) const {
     // Fragment processor will only support SkXfermode::Mode modes currently.
     SkXfermode::Mode mode;
     if (!(SkXfermode::AsMode(fMode, &mode))) {
@@ -219,19 +217,19 @@ const GrFragmentProcessor* SkComposeShader::asFragmentProcessor(GrContext* conte
                                                  GrConstColorProcessor::kIgnore_InputMode);
             break;
         case SkXfermode::kSrc_Mode:
-            return fShaderB->asFragmentProcessor(context, viewM, localMatrix, fq, procDataManager);
+            return fShaderB->asFragmentProcessor(context, viewM, localMatrix, fq);
             break;
         case SkXfermode::kDst_Mode:
-            return fShaderA->asFragmentProcessor(context, viewM, localMatrix, fq, procDataManager);
+            return fShaderA->asFragmentProcessor(context, viewM, localMatrix, fq);
             break;
         default:
             SkAutoTUnref<const GrFragmentProcessor> fpA(fShaderA->asFragmentProcessor(context,
-                                                        viewM, localMatrix, fq, procDataManager));
+                                                        viewM, localMatrix, fq));
             if (!fpA.get()) {
                 return nullptr;
             }
             SkAutoTUnref<const GrFragmentProcessor> fpB(fShaderB->asFragmentProcessor(context,
-                                                        viewM, localMatrix, fq, procDataManager));
+                                                        viewM, localMatrix, fq));
             if (!fpB.get()) {
                 return nullptr;
             }

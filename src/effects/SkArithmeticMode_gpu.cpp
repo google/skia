@@ -94,8 +94,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrArithmeticFP::GrArithmeticFP(GrProcessorDataManager*, float k1, float k2, float k3, float k4,
-                               bool enforcePMColor, const GrFragmentProcessor* dst)
+GrArithmeticFP::GrArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                               const GrFragmentProcessor* dst)
   : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrArithmeticFP>();
 
@@ -136,7 +136,7 @@ const GrFragmentProcessor* GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
     bool enforcePMColor = d->fRandom->nextBool();
 
     SkAutoTUnref<const GrFragmentProcessor> dst(GrProcessorUnitTest::CreateChildFP(d));
-    return new GrArithmeticFP(d->fProcDataManager, k1, k2, k3, k4, enforcePMColor, dst);
+    return new GrArithmeticFP(k1, k2, k3, k4, enforcePMColor, dst);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);

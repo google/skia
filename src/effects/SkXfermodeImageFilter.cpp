@@ -124,7 +124,7 @@ void SkXfermodeImageFilter::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 
 bool SkXfermodeImageFilter::canFilterImageGPU() const {
-    return fMode && fMode->asFragmentProcessor(nullptr, nullptr, nullptr) && !cropRectIsSet();
+    return fMode && fMode->asFragmentProcessor(nullptr, nullptr) && !cropRectIsSet();
 }
 
 bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
@@ -170,8 +170,8 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     SkMatrix bgMatrix;
     bgMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
     SkAutoTUnref<const GrFragmentProcessor> bgFP(
-        GrSimpleTextureEffect::Create(paint.getProcessorDataManager(), backgroundTex, bgMatrix));
-    if (!fMode || !fMode->asFragmentProcessor(&xferFP, paint.getProcessorDataManager(), bgFP)) {
+        GrSimpleTextureEffect::Create(backgroundTex, bgMatrix));
+    if (!fMode || !fMode->asFragmentProcessor(&xferFP, bgFP)) {
         // canFilterImageGPU() should've taken care of this
         SkASSERT(false);
         return false;
@@ -186,7 +186,6 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     src.getBounds(&srcRect);
 
     SkAutoTUnref<GrFragmentProcessor> foregroundDomain(GrTextureDomainEffect::Create(
-        paint.getProcessorDataManager(),
         foregroundTex, foregroundMatrix,
         GrTextureDomain::MakeTexelDomain(foregroundTex, foreground.bounds()),
         GrTextureDomain::kDecal_Mode,

@@ -69,10 +69,9 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext* context,
-                                                   GrProcessorDataManager* pdm) const override {
-        SkAutoTUnref<const GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context, pdm));
-        SkAutoTUnref<const GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context, pdm));
+    const GrFragmentProcessor* asFragmentProcessor(GrContext* context) const override {
+        SkAutoTUnref<const GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context));
+        SkAutoTUnref<const GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context));
         if (!innerFP || !outerFP) {
             return nullptr;
         }

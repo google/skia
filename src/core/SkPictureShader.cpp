@@ -318,8 +318,7 @@ const GrFragmentProcessor* SkPictureShader::asFragmentProcessor(
                                                     GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
-                                                    SkFilterQuality fq,
-                                                    GrProcessorDataManager* procDataManager) const {
+                                                    SkFilterQuality fq) const {
     int maxTextureSize = 0;
     if (context) {
         maxTextureSize = context->caps()->maxTextureSize();
@@ -328,6 +327,6 @@ const GrFragmentProcessor* SkPictureShader::asFragmentProcessor(
     if (!bitmapShader) {
         return nullptr;
     }
-    return bitmapShader->asFragmentProcessor(context, viewM, nullptr, fq, procDataManager);
+    return bitmapShader->asFragmentProcessor(context, viewM, nullptr, fq);
 }
 #endif

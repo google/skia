@@ -122,8 +122,7 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
 
     GrPaint paint;
     SkAutoTUnref<GrFragmentProcessor> yuvToRgbProcessor(
-                                        GrYUVtoRGBEffect::Create(paint.getProcessorDataManager(),
-                                                                 yuvTextures[0],
+                                        GrYUVtoRGBEffect::Create(yuvTextures[0],
                                                                  yuvTextures[1],
                                                                  yuvTextures[2],
                                                                  yuvInfo.fSize,

@@ -117,8 +117,7 @@ protected:
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPipelineBuilder pipelineBuilder;
                     SkAutoTUnref<GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Create(pipelineBuilder.getProcessorDataManager(),
-                                                      texture, textureMatrices[tm],
+                        GrTextureDomainEffect::Create(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
                                                                                 texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));

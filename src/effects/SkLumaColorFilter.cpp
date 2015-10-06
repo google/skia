@@ -108,8 +108,7 @@ private:
     }
 };
 
-const GrFragmentProcessor* SkLumaColorFilter::asFragmentProcessor(GrContext*,
-                                                                  GrProcessorDataManager*) const {
+const GrFragmentProcessor* SkLumaColorFilter::asFragmentProcessor(GrContext*) const {
 
     return LumaColorFilterEffect::Create();
 }

@@ -360,8 +360,7 @@ void SkBitmapProcShader::toString(SkString* str) const {
 
 const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* context,
                                              const SkMatrix& viewM, const SkMatrix* localMatrix,
-                                             SkFilterQuality filterQuality,
-                                             GrProcessorDataManager* procDataManager) const {
+                                             SkFilterQuality filterQuality) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
@@ -402,9 +401,9 @@ const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* co
 
     SkAutoTUnref<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner.reset(GrBicubicEffect::Create(procDataManager, texture, matrix, tm));
+        inner.reset(GrBicubicEffect::Create(texture, matrix, tm));
     } else {
-        inner.reset(GrSimpleTextureEffect::Create(procDataManager, texture, matrix, params));
+        inner.reset(GrSimpleTextureEffect::Create(texture, matrix, params));
     }
 
     if (kAlpha_8_SkColorType == fRawBitmap.colorType()) {

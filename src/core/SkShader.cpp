@@ -211,8 +211,7 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
 }
 
 const GrFragmentProcessor* SkShader::asFragmentProcessor(GrContext*, const SkMatrix&,
-                                                         const SkMatrix*, SkFilterQuality,
-                                                         GrProcessorDataManager*)  const {
+                                                         const SkMatrix*, SkFilterQuality)  const {
     return nullptr;
 }
 
@@ -333,8 +332,8 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
 const GrFragmentProcessor* SkColorShader::asFragmentProcessor(GrContext*, const SkMatrix&,
-                                                              const SkMatrix*, SkFilterQuality,
-                                                              GrProcessorDataManager*) const {
+                                                              const SkMatrix*,
+                                                              SkFilterQuality) const {
     GrColor color = SkColorToPremulGrColor(fColor);
     return GrConstColorProcessor::Create(color, GrConstColorProcessor::kModulateA_InputMode);
 }

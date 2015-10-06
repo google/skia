@@ -387,8 +387,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         textureMatrix.setIDiv(tempTexture->width(), tempTexture->height());
         GrPaint paint;
         if (applyPremulToSrc) {
-            fp.reset(this->createUPMToPMEffect(paint.getProcessorDataManager(), tempTexture,
-                                               tempDrawInfo.fSwapRAndB, textureMatrix));
+            fp.reset(this->createUPMToPMEffect(tempTexture, tempDrawInfo.fSwapRAndB,
+                                               textureMatrix));
             // If premultiplying was the only reason for the draw, fall back to a straight write.
             if (!fp) {
                 if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
@@ -400,8 +400,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         }
         if (tempTexture) {
             if (!fp) {
-                fp.reset(GrConfigConversionEffect::Create(
-                    paint.getProcessorDataManager(), tempTexture, tempDrawInfo.fSwapRAndB,
+                fp.reset(GrConfigConversionEffect::Create(tempTexture, tempDrawInfo.fSwapRAndB,
                     GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
                 if (!fp) {
                     return false;
@@ -525,8 +524,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             GrPaint paint;
             SkAutoTUnref<const GrFragmentProcessor> fp;
             if (unpremul) {
-                fp.reset(this->createPMToUPMEffect(
-                    paint.getProcessorDataManager(), src->asTexture(), tempDrawInfo.fSwapRAndB,
+                fp.reset(this->createPMToUPMEffect(src->asTexture(), tempDrawInfo.fSwapRAndB,
                     textureMatrix));
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
@@ -537,8 +535,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 }
             }
             if (!fp && temp) {
-                fp.reset(GrConfigConversionEffect::Create(
-                    paint.getProcessorDataManager(), src->asTexture(), tempDrawInfo.fSwapRAndB,
+                fp.reset(GrConfigConversionEffect::Create(src->asTexture(), tempDrawInfo.fSwapRAndB,
                     GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
             }
             if (fp) {
@@ -714,8 +711,7 @@ void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     }
 }
 
-const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrProcessorDataManager* procDataManager,
-                                                          GrTexture* texture,
+const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrTexture* texture,
                                                           bool swapRAndB,
                                                           const SkMatrix& matrix) const {
     // We should have already called this->testPMConversionsIfNecessary().
@@ -723,15 +719,13 @@ const GrFragmentProcessor* GrContext::createPMToUPMEffect(GrProcessorDataManager
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Create(procDataManager, texture, swapRAndB, pmToUPM,
-                                                matrix);
+        return GrConfigConversionEffect::Create(texture, swapRAndB, pmToUPM, matrix);
     } else {
         return nullptr;
     }
 }
 
-const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrProcessorDataManager* procDataManager,
-                                                          GrTexture* texture,
+const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrTexture* texture,
                                                           bool swapRAndB,
                                                           const SkMatrix& matrix) const {
     // We should have already called this->testPMConversionsIfNecessary().
@@ -739,8 +733,7 @@ const GrFragmentProcessor* GrContext::createUPMToPMEffect(GrProcessorDataManager
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
-        return GrConfigConversionEffect::Create(procDataManager, texture, swapRAndB, upmToPM,
-                                                matrix);
+        return GrConfigConversionEffect::Create(texture, swapRAndB, upmToPM, matrix);
     } else {
         return nullptr;
     }

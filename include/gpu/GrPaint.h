@@ -11,7 +11,6 @@
 #define GrPaint_DEFINED
 
 #include "GrColor.h"
-#include "GrProcessorDataManager.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "GrFragmentProcessor.h"
@@ -141,10 +140,6 @@ public:
      */
     bool isConstantBlendedColor(GrColor* constantColor) const;
 
-    GrProcessorDataManager* getProcessorDataManager() { return &fProcDataManager; }
-
-    const GrProcessorDataManager* processorDataManager() const { return &fProcDataManager; }
-
 private:
     void resetFragmentProcessors() {
         for (int i = 0; i < fColorFragmentProcessors.count(); ++i) {
@@ -164,7 +159,6 @@ private:
     bool                                            fAntiAlias;
 
     GrColor                                         fColor;
-    GrProcessorDataManager                          fProcDataManager;
 };
 
 #endif

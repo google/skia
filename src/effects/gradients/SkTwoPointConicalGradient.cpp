@@ -364,13 +364,11 @@ const GrFragmentProcessor* SkTwoPointConicalGradient::asFragmentProcessor(
                                                   GrContext* context,
                                                   const SkMatrix& viewM,
                                                   const SkMatrix* localMatrix,
-                                                  SkFilterQuality,
-                                                  GrProcessorDataManager* procDataManager) const {
+                                                  SkFilterQuality) const {
     SkASSERT(context);
     SkASSERT(fPtsToUnit.isIdentity());
     SkAutoTUnref<const GrFragmentProcessor> inner(
-        Gr2PtConicalGradientEffect::Create(context, procDataManager, *this, fTileMode,
-                                            localMatrix));
+        Gr2PtConicalGradientEffect::Create(context, *this, fTileMode, localMatrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 

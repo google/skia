@@ -16,7 +16,6 @@
 #include "SkSurfaceProps.h"
 
 class GrFragmentProcessor;
-class GrProcessorDataManager;
 class GrTexture;
 class SkBaseDevice;
 class SkBitmap;
@@ -363,8 +362,8 @@ protected:
      *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
      *  so returning "true" indicates support for all possible matrices.
      */
-    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrProcessorDataManager*, GrTexture*,
-                                     const SkMatrix&, const SkIRect& bounds) const;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
+                                     const SkIRect& bounds) const;
 
     /**
      * Returns true if this filter can cause transparent black pixels to become

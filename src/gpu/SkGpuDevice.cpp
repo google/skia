@@ -996,12 +996,9 @@ static void draw_aa_bitmap(GrDrawContext* drawContext, GrContext* context,
     // Create and insert texture effect
     SkAutoTUnref<const GrFragmentProcessor> fp;
     if (doBicubic) {
-        fp.reset(GrBicubicEffect::Create(grPaint.getProcessorDataManager(), texture,
-                                         SkMatrix::I(),
-                                         tm));
+        fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tm));
     } else {
-        fp.reset(GrSimpleTextureEffect::Create(grPaint.getProcessorDataManager(), texture,
-                                               SkMatrix::I(), params));
+        fp.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
     }
 
     if (kAlpha_8_SkColorType == bitmapPtr->colorType()) {
@@ -1330,11 +1327,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            fp.reset(GrBicubicEffect::Create(grPaint.getProcessorDataManager(), texture,
-                                             SkMatrix::I(), textureDomain));
+            fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), textureDomain));
         } else {
-            fp.reset(GrTextureDomainEffect::Create(grPaint.getProcessorDataManager(),
-                                                   texture,
+            fp.reset(GrTextureDomainEffect::Create(texture,
                                                    SkMatrix::I(),
                                                    textureDomain,
                                                    GrTextureDomain::kClamp_Mode,
@@ -1343,11 +1338,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp.reset(GrBicubicEffect::Create(grPaint.getProcessorDataManager(), texture, SkMatrix::I(),
-                                         tileModes));
+        fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tileModes));
     } else {
-        fp.reset(GrSimpleTextureEffect::Create(grPaint.getProcessorDataManager(), texture,
-                                               SkMatrix::I(), params));
+        fp.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
     }
 
     if (kAlpha_8_SkColorType == bitmap.colorType()) {
@@ -1432,7 +1425,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrPaint grPaint;
     SkAutoTUnref<const GrFragmentProcessor> fp(
-        GrSimpleTextureEffect::Create(grPaint.getProcessorDataManager(), texture, SkMatrix::I()));
+        GrSimpleTextureEffect::Create(texture, SkMatrix::I()));
     if (alphaOnly) {
         fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
     } else {
@@ -1551,7 +1544,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
 
     GrPaint grPaint;
     SkAutoTUnref<const GrFragmentProcessor> fp(
-        GrSimpleTextureEffect::Create(grPaint.getProcessorDataManager(), devTex, SkMatrix::I()));
+        GrSimpleTextureEffect::Create(devTex, SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(devTex->config())) {
         // Can this happen?
         fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));

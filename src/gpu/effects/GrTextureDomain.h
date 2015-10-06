@@ -160,8 +160,7 @@ protected:
 class GrTextureDomainEffect : public GrSingleTextureEffect {
 
 public:
-    static GrFragmentProcessor* Create(GrProcessorDataManager*,
-                                       GrTexture*,
+    static GrFragmentProcessor* Create(GrTexture*,
                                        const SkMatrix&,
                                        const SkRect& domain,
                                        GrTextureDomain::Mode,
@@ -178,8 +177,7 @@ protected:
     GrTextureDomain fTextureDomain;
 
 private:
-    GrTextureDomainEffect(GrProcessorDataManager*,
-                          GrTexture*,
+    GrTextureDomainEffect(GrTexture*,
                           const SkMatrix&,
                           const SkRect& domain,
                           GrTextureDomain::Mode,

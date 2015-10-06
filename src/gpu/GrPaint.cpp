@@ -22,26 +22,24 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
-                                                                  matrix))->unref();
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
-                                                                     matrix))->unref();
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& params) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture,
                                                                   matrix, params))->unref();
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
                                           const GrTextureParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture,
                                                                      matrix, params))->unref();
 }
 

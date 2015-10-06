@@ -21,27 +21,23 @@ class GrConvolutionEffect : public Gr1DKernelEffect {
 public:
 
     /// Convolve with an arbitrary user-specified kernel
-    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
-                                       GrTexture* tex,
+    static GrFragmentProcessor* Create(GrTexture* tex,
                                        Direction dir,
                                        int halfWidth,
                                        const float* kernel,
                                        bool useBounds,
                                        float bounds[2]) {
-        return new GrConvolutionEffect(procDataManager, tex, dir, halfWidth, kernel, useBounds,
-                                       bounds);
+        return new GrConvolutionEffect(tex, dir, halfWidth, kernel, useBounds, bounds);
     }
 
     /// Convolve with a Gaussian kernel
-    static GrFragmentProcessor* CreateGaussian(GrProcessorDataManager* procDataManager,
-                                               GrTexture* tex,
+    static GrFragmentProcessor* CreateGaussian(GrTexture* tex,
                                                Direction dir,
                                                int halfWidth,
                                                float gaussianSigma,
                                                bool useBounds,
                                                float bounds[2]) {
-        return new GrConvolutionEffect(procDataManager, tex, dir, halfWidth, gaussianSigma,
-                                       useBounds, bounds);
+        return new GrConvolutionEffect(tex, dir, halfWidth, gaussianSigma, useBounds, bounds);
     }
 
     virtual ~GrConvolutionEffect();
@@ -71,16 +67,14 @@ protected:
     float fBounds[2];
 
 private:
-    GrConvolutionEffect(GrProcessorDataManager*,
-                        GrTexture*, Direction,
+    GrConvolutionEffect(GrTexture*, Direction,
                         int halfWidth,
                         const float* kernel,
                         bool useBounds,
                         float bounds[2]);
 
     /// Convolve with a Gaussian kernel
-    GrConvolutionEffect(GrProcessorDataManager*,
-                        GrTexture*, Direction,
+    GrConvolutionEffect(GrTexture*, Direction,
                         int halfWidth,
                         float gaussianSigma,
                         bool useBounds,

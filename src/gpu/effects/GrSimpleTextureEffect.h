@@ -21,29 +21,25 @@ class GrInvariantOutput;
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
-    static const GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
-                                             GrTexture* tex,
+    static const GrFragmentProcessor* Create(GrTexture* tex,
                                              const SkMatrix& matrix,
                                              GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(procDataManager, tex, matrix,
-                                         GrTextureParams::kNone_FilterMode, coordSet);
+        return new GrSimpleTextureEffect(tex, matrix, GrTextureParams::kNone_FilterMode, coordSet);
     }
 
     /* clamp mode */
-    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
-                                       GrTexture* tex,
+    static GrFragmentProcessor* Create(GrTexture* tex,
                                        const SkMatrix& matrix,
                                        GrTextureParams::FilterMode filterMode,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(procDataManager, tex, matrix, filterMode, coordSet);
+        return new GrSimpleTextureEffect(tex, matrix, filterMode, coordSet);
     }
 
-    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
-                                       GrTexture* tex,
+    static GrFragmentProcessor* Create(GrTexture* tex,
                                        const SkMatrix& matrix,
                                        const GrTextureParams& p,
                                        GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return new GrSimpleTextureEffect(procDataManager, tex, matrix, p, coordSet);
+        return new GrSimpleTextureEffect(tex, matrix, p, coordSet);
     }
 
     virtual ~GrSimpleTextureEffect() {}
@@ -51,21 +47,19 @@ public:
     const char* name() const override { return "SimpleTexture"; }
 
 private:
-    GrSimpleTextureEffect(GrProcessorDataManager* procDataManager,
-                          GrTexture* texture,
+    GrSimpleTextureEffect(GrTexture* texture,
                           const SkMatrix& matrix,
                           GrTextureParams::FilterMode filterMode,
                           GrCoordSet coordSet)
-        : GrSingleTextureEffect(procDataManager, texture, matrix, filterMode, coordSet) {
+        : GrSingleTextureEffect(texture, matrix, filterMode, coordSet) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
-    GrSimpleTextureEffect(GrProcessorDataManager* procDataManager,
-                          GrTexture* texture,
+    GrSimpleTextureEffect(GrTexture* texture,
                           const SkMatrix& matrix,
                           const GrTextureParams& params,
                           GrCoordSet coordSet)
-        : GrSingleTextureEffect(procDataManager, texture, matrix, params, coordSet) {
+        : GrSingleTextureEffect(texture, matrix, params, coordSet) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 

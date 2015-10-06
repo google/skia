@@ -37,8 +37,7 @@ public:
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
-                                                   SkFilterQuality,
-                                                   GrProcessorDataManager*) const override;
+                                                   SkFilterQuality) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
@@ -58,7 +57,7 @@ SkFlattenable* DCShader::CreateProc(SkReadBuffer& buf) {
 
 class DCFP : public GrFragmentProcessor {
 public:
-    DCFP(GrProcessorDataManager*, const SkMatrix& m) : fDeviceTransform(kDevice_GrCoordSet, m) {
+    DCFP(const SkMatrix& m) : fDeviceTransform(kDevice_GrCoordSet, m) {
         this->addCoordTransform(&fDeviceTransform);
         this->initClassID<DCFP>();
     }
@@ -97,13 +96,11 @@ private:
     GrCoordTransform fDeviceTransform;
 };
 
-const GrFragmentProcessor* DCShader::asFragmentProcessor(
-                                                 GrContext*,
-                                                 const SkMatrix& viewM,
-                                                 const SkMatrix* localMatrix,
-                                                 SkFilterQuality,
-                                                 GrProcessorDataManager* procDataManager) const {
-    SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(procDataManager, fDeviceMatrix));
+const GrFragmentProcessor* DCShader::asFragmentProcessor(GrContext*,
+                                                         const SkMatrix& viewM,
+                                                         const SkMatrix* localMatrix,
+                                                         SkFilterQuality) const {
+    SkAutoTUnref<const GrFragmentProcessor> inner(new DCFP(fDeviceMatrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 

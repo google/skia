@@ -41,19 +41,16 @@ const GrFragmentProcessor* CreateChildFP(GrProcessorTestData*);
 struct GrProcessorTestData {
     GrProcessorTestData(SkRandom* random,
                         GrContext* context,
-                        GrProcessorDataManager* procDataManager,
                         const GrCaps* caps,
                         GrTexture* textures[2])
         : fRandom(random)
         , fContext(context)
-        , fProcDataManager(procDataManager)
         , fCaps(caps) {
         fTextures[0] = textures[0];
         fTextures[1] = textures[1];
     }
     SkRandom* fRandom;
     GrContext* fContext;
-    GrProcessorDataManager* fProcDataManager;
     const GrCaps* fCaps;
     GrTexture* fTextures[2];
 };

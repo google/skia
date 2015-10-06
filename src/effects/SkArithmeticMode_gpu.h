@@ -31,10 +31,9 @@ class GrGLArtithmeticFP;
 
 class GrArithmeticFP : public GrFragmentProcessor {
 public:
-    static const GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
-                                             float k1, float k2, float k3, float k4,
+    static const GrFragmentProcessor* Create(float k1, float k2, float k3, float k4,
                                              bool enforcePMColor, const GrFragmentProcessor* dst) {
-        return new GrArithmeticFP(procDataManager, k1, k2, k3, k4, enforcePMColor, dst);
+        return new GrArithmeticFP(k1, k2, k3, k4, enforcePMColor, dst);
     }
 
     ~GrArithmeticFP() override {};
@@ -56,8 +55,8 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    GrArithmeticFP(GrProcessorDataManager*, float k1, float k2, float k3, float k4,
-                   bool enforcePMColor, const GrFragmentProcessor* dst);
+    GrArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
+                   const GrFragmentProcessor* dst);
 
     float                       fK1, fK2, fK3, fK4;
     bool                        fEnforcePMColor;

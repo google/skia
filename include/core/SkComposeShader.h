@@ -40,8 +40,7 @@ public:
     const GrFragmentProcessor*  asFragmentProcessor(GrContext*,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
-                                                    SkFilterQuality,
-                                                    GrProcessorDataManager*) const override;
+                                                    SkFilterQuality) const override;
 #endif
 
     class ComposeShaderContext : public SkShader::Context {

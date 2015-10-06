@@ -70,8 +70,7 @@ SkFlattenable* SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 #include "effects/GrConstColorProcessor.h"
 #include "SkGr.h"
 
-const GrFragmentProcessor* SkModeColorFilter::asFragmentProcessor(GrContext*,
-                                                                  GrProcessorDataManager*) const {
+const GrFragmentProcessor* SkModeColorFilter::asFragmentProcessor(GrContext*) const {
     if (SkXfermode::kDst_Mode == fMode) {
         return nullptr;
     }

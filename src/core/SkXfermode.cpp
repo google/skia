@@ -651,7 +651,7 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asFragmentProcessor(const GrFragmentProcessor**, GrProcessorDataManager*,
+bool SkXfermode::asFragmentProcessor(const GrFragmentProcessor**,
                                      const GrFragmentProcessor*) const {
     return false;
 }
@@ -923,11 +923,9 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 bool SkProcCoeffXfermode::asFragmentProcessor(const GrFragmentProcessor** fp,
-                                              GrProcessorDataManager* procDataManager,
                                               const GrFragmentProcessor* dst) const {
     if (fp) {
         SkASSERT(dst);
-        SkASSERT(procDataManager);
         *fp = GrXfermodeFragmentProcessor::CreateFromDstProcessor(dst, fMode);
         SkASSERT(*fp || kSrc_Mode == fMode);
     }

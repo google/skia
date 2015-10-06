@@ -85,8 +85,7 @@ void SkImageShader::toString(SkString* str) const {
 const GrFragmentProcessor* SkImageShader::asFragmentProcessor(GrContext* context,
                                                               const SkMatrix& viewM,
                                                               const SkMatrix* localMatrix,
-                                                              SkFilterQuality filterQuality,
-                                                              GrProcessorDataManager* mgr) const {
+                                                              SkFilterQuality filterQuality) const {
     SkMatrix matrix;
     matrix.setIDiv(fImage->width(), fImage->height());
 
@@ -130,9 +129,9 @@ const GrFragmentProcessor* SkImageShader::asFragmentProcessor(GrContext* context
 
     SkAutoTUnref<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner.reset(GrBicubicEffect::Create(mgr, texture, matrix, tm));
+        inner.reset(GrBicubicEffect::Create(texture, matrix, tm));
     } else {
-        inner.reset(GrSimpleTextureEffect::Create(mgr, texture, matrix, params));
+        inner.reset(GrSimpleTextureEffect::Create(texture, matrix, params));
     }
 
     if (GrPixelConfigIsAlphaOnly(texture->config())) {

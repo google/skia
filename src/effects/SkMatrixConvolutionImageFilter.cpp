@@ -347,7 +347,6 @@ static GrTextureDomain::Mode convert_tilemodes(
 }
 
 bool SkMatrixConvolutionImageFilter::asFragmentProcessor(GrFragmentProcessor** fp,
-                                                         GrProcessorDataManager* procDataManager,
                                                          GrTexture* texture,
                                                          const SkMatrix&,
                                                          const SkIRect& bounds) const {
@@ -355,8 +354,7 @@ bool SkMatrixConvolutionImageFilter::asFragmentProcessor(GrFragmentProcessor** f
         return fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     }
     SkASSERT(fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE);
-    *fp = GrMatrixConvolutionEffect::Create(procDataManager,
-                                            texture,
+    *fp = GrMatrixConvolutionEffect::Create(texture,
                                             bounds,
                                             fKernelSize,
                                             fKernel,

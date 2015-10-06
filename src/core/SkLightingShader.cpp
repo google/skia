@@ -76,8 +76,7 @@ public:
     const GrFragmentProcessor* asFragmentProcessor(GrContext*,
                                                    const SkMatrix& viewM,
                                                    const SkMatrix* localMatrix,
-                                                   SkFilterQuality,
-                                                   GrProcessorDataManager*) const override;
+                                                   SkFilterQuality) const override;
 #endif
 
     size_t contextSize() const override;
@@ -137,10 +136,10 @@ private:
 
 class LightingFP : public GrFragmentProcessor {
 public:
-    LightingFP(GrProcessorDataManager* pdm, GrTexture* diffuse, GrTexture* normal,
-               const SkMatrix& diffMatrix, const SkMatrix& normMatrix,
-               const GrTextureParams& diffParams, const GrTextureParams& normParams,
-               const SkLightingShader::Lights* lights, const SkVector& invNormRotation)
+    LightingFP(GrTexture* diffuse, GrTexture* normal, const SkMatrix& diffMatrix,
+               const SkMatrix& normMatrix, const GrTextureParams& diffParams,
+               const GrTextureParams& normParams, const SkLightingShader::Lights* lights,
+               const SkVector& invNormRotation)
         : fDiffDeviceTransform(kLocal_GrCoordSet, diffMatrix, diffuse, diffParams.filterMode())
         , fNormDeviceTransform(kLocal_GrCoordSet, normMatrix, normal, normParams.filterMode())
         , fDiffuseTextureAccess(diffuse, diffParams)
@@ -349,8 +348,7 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
                                                              GrContext* context,
                                                              const SkMatrix& viewM,
                                                              const SkMatrix* localMatrix,
-                                                             SkFilterQuality filterQuality,
-                                                             GrProcessorDataManager* pdm) const {
+                                                             SkFilterQuality filterQuality) const {
     // we assume diffuse and normal maps have same width and height
     // TODO: support different sizes
     SkASSERT(fDiffuseMap.width() == fNormalMap.width() &&
@@ -398,8 +396,8 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
     }
 
     SkAutoTUnref<const GrFragmentProcessor> inner (
-        new LightingFP(pdm, diffuseTexture, normalTexture, diffM, normM, diffParams, normParams,
-                       fLights, fInvNormRotation));
+        new LightingFP(diffuseTexture, normalTexture, diffM, normM, diffParams, normParams, fLights,
+                       fInvNormRotation));
     return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 

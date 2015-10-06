@@ -48,8 +48,7 @@ public:
     SkColorFilter* newComposed(const SkColorFilter* inner) const override;
 
 #if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*,
-                                                   GrProcessorDataManager*) const override;
+    const GrFragmentProcessor* asFragmentProcessor(GrContext*) const override;
 #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
@@ -564,13 +563,12 @@ const GrFragmentProcessor* ColorTableEffect::TestCreate(GrProcessorTestData* d) 
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
 
-    const GrFragmentProcessor* fp = filter->asFragmentProcessor(d->fContext, d->fProcDataManager);
+    const GrFragmentProcessor* fp = filter->asFragmentProcessor(d->fContext);
     SkASSERT(fp);
     return fp;
 }
 
-const GrFragmentProcessor* SkTable_ColorFilter::asFragmentProcessor(GrContext* context,
-                                                                    GrProcessorDataManager*) const {
+const GrFragmentProcessor* SkTable_ColorFilter::asFragmentProcessor(GrContext* context) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
 

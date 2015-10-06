@@ -470,13 +470,13 @@ private:
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL.
      */
-    const GrFragmentProcessor* createPMToUPMEffect(GrProcessorDataManager*, GrTexture*,
-                                                   bool swapRAndB, const SkMatrix&) const;
-    const GrFragmentProcessor* createUPMToPMEffect(GrProcessorDataManager*, GrTexture*,
-                                                   bool swapRAndB, const SkMatrix&) const;
+    const GrFragmentProcessor* createPMToUPMEffect(GrTexture*, bool swapRAndB,
+                                                   const SkMatrix&) const;
+    const GrFragmentProcessor* createUPMToPMEffect(GrTexture*, bool swapRAndB,
+                                                   const SkMatrix&) const;
     /** Called before either of the above two functions to determine the appropriate fragment
-        processors for conversions. This must be called by readSurfacePixels befor a mutex is taken,
-        since testingvPM conversions itself will call readSurfacePixels */
+        processors for conversions. This must be called by readSurfacePixels before a mutex is
+        taken, since testingvPM conversions itself will call readSurfacePixels */
     void testPMConversionsIfNecessary(uint32_t flags);
     /** Returns true if we've already determined that createPMtoUPMEffect and createUPMToPMEffect
         will fail. In such cases fall back to SW conversion. */

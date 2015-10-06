@@ -17,9 +17,9 @@ namespace {
 
 class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager, GrTexture* yTexture,
-                                       GrTexture* uTexture, GrTexture* vTexture,
-                                       const SkISize sizes[3], SkYUVColorSpace colorSpace) {
+    static GrFragmentProcessor* Create(GrTexture* yTexture, GrTexture* uTexture,
+                                       GrTexture* vTexture, const SkISize sizes[3],
+                                       SkYUVColorSpace colorSpace) {
         SkScalar w[3], h[3];
         w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
         h[0] = SkIntToScalar(sizes[0].fHeight) / SkIntToScalar(yTexture->height());
@@ -40,8 +40,8 @@ public:
              (sizes[2].fHeight != sizes[0].fHeight)) ?
             GrTextureParams::kBilerp_FilterMode :
             GrTextureParams::kNone_FilterMode;
-        return new YUVtoRGBEffect(procDataManager, yTexture, uTexture, vTexture, yuvMatrix,
-                                  uvFilterMode, colorSpace);
+        return new YUVtoRGBEffect(yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode,
+                                  colorSpace);
     }
 
     const char* name() const override { return "YUV to RGB"; }
@@ -104,9 +104,9 @@ public:
     };
 
 private:
-    YUVtoRGBEffect(GrProcessorDataManager*, GrTexture* yTexture, GrTexture* uTexture,
-                   GrTexture* vTexture, const SkMatrix yuvMatrix[3],
-                   GrTextureParams::FilterMode uvFilterMode, SkYUVColorSpace colorSpace)
+    YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
+                   const SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
+                   SkYUVColorSpace colorSpace)
     : fYTransform(kLocal_GrCoordSet, yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
     , fYAccess(yTexture)
     , fUTransform(kLocal_GrCoordSet, yuvMatrix[1], uTexture, uvFilterMode)
@@ -172,9 +172,8 @@ const GrGLfloat YUVtoRGBEffect::GLProcessor::kRec709ConversionMatrix[16] = {
 //////////////////////////////////////////////////////////////////////////////
 
 GrFragmentProcessor*
-GrYUVtoRGBEffect::Create(GrProcessorDataManager* procDataManager, GrTexture* yTexture,
-                         GrTexture* uTexture, GrTexture* vTexture, const SkISize sizes[3],
-                         SkYUVColorSpace colorSpace) {
-    SkASSERT(procDataManager && yTexture && uTexture && vTexture && sizes);
-    return YUVtoRGBEffect::Create(procDataManager, yTexture, uTexture, vTexture, sizes, colorSpace);
+GrYUVtoRGBEffect::Create(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
+                         const SkISize sizes[3], SkYUVColorSpace colorSpace) {
+    SkASSERT(yTexture && uTexture && vTexture && sizes);
+    return YUVtoRGBEffect::Create(yTexture, uTexture, vTexture, sizes, colorSpace);
 }

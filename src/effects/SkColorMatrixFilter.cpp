@@ -536,8 +536,7 @@ const GrFragmentProcessor* ColorMatrixEffect::TestCreate(GrProcessorTestData* d)
     return ColorMatrixEffect::Create(colorMatrix);
 }
 
-const GrFragmentProcessor* SkColorMatrixFilter::asFragmentProcessor(GrContext*,
-                                                                    GrProcessorDataManager*) const {
+const GrFragmentProcessor* SkColorMatrixFilter::asFragmentProcessor(GrContext*) const {
     return ColorMatrixEffect::Create(fMatrix);
 }
 

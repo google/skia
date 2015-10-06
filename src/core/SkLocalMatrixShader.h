@@ -29,13 +29,13 @@ public:
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* asFragmentProcessor(GrContext* context, const SkMatrix& viewM,
-                                        const SkMatrix* localMatrix, SkFilterQuality fq,
-                                        GrProcessorDataManager* procDataManager) const override {
+                                                   const SkMatrix* localMatrix,
+                                                   SkFilterQuality fq) const override {
         SkMatrix tmp = this->getLocalMatrix();
         if (localMatrix) {
             tmp.preConcat(*localMatrix);
         }
-        return fProxyShader->asFragmentProcessor(context, viewM, &tmp, fq, procDataManager);
+        return fProxyShader->asFragmentProcessor(context, viewM, &tmp, fq);
     }
 #endif
 

@@ -23,8 +23,7 @@ public:
 
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* asFragmentProcessor(GrContext*, const SkMatrix& viewM,
-                                                   const SkMatrix*, SkFilterQuality,
-                                                   GrProcessorDataManager*) const override;
+                                                   const SkMatrix*, SkFilterQuality) const override;
 #endif
 
 protected:

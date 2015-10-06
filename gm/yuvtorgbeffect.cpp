@@ -113,8 +113,7 @@ protected:
             for (int i = 0; i < 6; ++i) {
                 GrPipelineBuilder pipelineBuilder;
                 SkAutoTUnref<GrFragmentProcessor> fp(
-                            GrYUVtoRGBEffect::Create(pipelineBuilder.getProcessorDataManager(),
-                                                     texture[indices[i][0]],
+                            GrYUVtoRGBEffect::Create(texture[indices[i][0]],
                                                      texture[indices[i][1]],
                                                      texture[indices[i][2]],
                                                      sizes,

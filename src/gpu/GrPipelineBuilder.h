@@ -13,7 +13,6 @@
 #include "GrClip.h"
 #include "GrGpuResourceRef.h"
 #include "GrProcOptInfo.h"
-#include "GrProcessorDataManager.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
 #include "GrXferProcessor.h"
@@ -80,34 +79,30 @@ public:
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
-                                                                      matrix))->unref();
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
-                                                                         matrix))->unref();
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix))->unref();
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrTextureParams& params) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
-                                                                      matrix,
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix,
                                                                       params))->unref();
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrTextureParams& params) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(&fProcDataManager, texture,
-                                                                         matrix, params))->unref();
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Create(texture, matrix,
+                                                                         params))->unref();
     }
 
     /**
      * When this object is destroyed it will remove any color/coverage FPs from the pipeline builder
-     * and also remove any additions to the GrProcessorDataManager that were added after its
-     * constructor.
+     * that were added after its constructor.
      * This class can transiently modify its "const" GrPipelineBuilder object but will restore it
      * when done - so it is notionally "const" correct.
      */
@@ -131,12 +126,8 @@ public:
 
         bool isSet() const { return SkToBool(fPipelineBuilder); }
 
-        GrProcessorDataManager* getProcessorDataManager() {
-            SkASSERT(this->isSet());
-            return fPipelineBuilder->getProcessorDataManager();
-        }
-
-        const GrFragmentProcessor* addCoverageFragmentProcessor(const GrFragmentProcessor* processor) {
+        const GrFragmentProcessor* addCoverageFragmentProcessor(
+            const GrFragmentProcessor* processor) {
             SkASSERT(this->isSet());
             return fPipelineBuilder->addCoverageFragmentProcessor(processor);
         }
@@ -389,9 +380,6 @@ public:
     void setClip(const GrClip& clip) { fClip = clip; }
     const GrClip& clip() const { return fClip; }
 
-    GrProcessorDataManager* getProcessorDataManager() { return &fProcDataManager; }
-    const GrProcessorDataManager* processorDataManager() const { return &fProcDataManager; }
-
 private:
     // Calculating invariant color / coverage information is expensive, so we partially cache the
     // results.
@@ -412,7 +400,6 @@ private:
 
     typedef SkSTArray<4, const GrFragmentProcessor*, true> FragmentProcessorArray;
 
-    GrProcessorDataManager                  fProcDataManager;
     SkAutoTUnref<GrRenderTarget>            fRenderTarget;
     uint32_t                                fFlags;
     GrStencilSettings                       fStencilSettings;

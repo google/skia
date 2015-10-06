@@ -191,9 +191,9 @@ private:
 
 class GrSweepGradient : public GrGradientEffect {
 public:
-    static GrFragmentProcessor* Create(GrContext* ctx, GrProcessorDataManager* procDataManager,
-                                       const SkSweepGradient& shader, const SkMatrix& m) {
-        return new GrSweepGradient(ctx, procDataManager, shader, m);
+    static GrFragmentProcessor* Create(GrContext* ctx, const SkSweepGradient& shader,
+                                       const SkMatrix& m) {
+        return new GrSweepGradient(ctx, shader, m);
     }
     virtual ~GrSweepGradient() { }
 
@@ -201,10 +201,9 @@ public:
 
 private:
     GrSweepGradient(GrContext* ctx,
-                    GrProcessorDataManager* procDataManager,
                     const SkSweepGradient& shader,
                     const SkMatrix& matrix)
-    : INHERITED(ctx, procDataManager, shader, matrix, SkShader::kClamp_TileMode) {
+    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) {
         this->initClassID<GrSweepGradient>();
     }
 
@@ -238,8 +237,7 @@ const GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
                                                                 colors, stops, colorCount));
     const GrFragmentProcessor* fp = shader->asFragmentProcessor(d->fContext,
                                                                 GrTest::TestMatrix(d->fRandom),
-                                                                NULL, kNone_SkFilterQuality,
-                                                                d->fProcDataManager);
+                                                                NULL, kNone_SkFilterQuality);
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -273,8 +271,7 @@ const GrFragmentProcessor* SkSweepGradient::asFragmentProcessor(
                                                     GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* localMatrix,
-                                                    SkFilterQuality,
-                                                    GrProcessorDataManager* procDataManager) const {
+                                                    SkFilterQuality) const {
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
@@ -290,7 +287,7 @@ const GrFragmentProcessor* SkSweepGradient::asFragmentProcessor(
     matrix.postConcat(fPtsToUnit);
 
     SkAutoTUnref<const GrFragmentProcessor> inner(
-        GrSweepGradient::Create(context, procDataManager, *this, matrix));
+        GrSweepGradient::Create(context, *this, matrix));
     return GrFragmentProcessor::MulOutputByInputAlpha(inner);
 }
 

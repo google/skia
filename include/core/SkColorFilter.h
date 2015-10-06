@@ -15,7 +15,6 @@
 
 class GrContext;
 class GrFragmentProcessor;
-class GrProcessorDataManager;
 class SkBitmap;
 
 /**
@@ -132,8 +131,7 @@ public:
      *
      *  A null return indicates that the color filter isn't implemented for the GPU backend.
      */
-    virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*,
-                                                           GrProcessorDataManager*) const {
+    virtual const GrFragmentProcessor* asFragmentProcessor(GrContext*) const {
         return nullptr;
     }
 

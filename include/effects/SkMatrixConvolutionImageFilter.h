@@ -83,8 +83,8 @@ protected:
 
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**, GrProcessorDataManager*, GrTexture*,
-                             const SkMatrix&, const SkIRect& bounds) const override;
+    bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
+                             const SkIRect& bounds) const override;
 #endif
 
 private:

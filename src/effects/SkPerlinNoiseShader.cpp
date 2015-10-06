@@ -510,13 +510,12 @@ private:
 
 class GrPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(GrProcessorDataManager* procDataManager,
-                                       SkPerlinNoiseShader::Type type,
+    static GrFragmentProcessor* Create(SkPerlinNoiseShader::Type type,
                                        int numOctaves, bool stitchTiles,
                                        SkPerlinNoiseShader::PaintingData* paintingData,
                                        GrTexture* permutationsTexture, GrTexture* noiseTexture,
                                        const SkMatrix& matrix) {
-        return new GrPerlinNoiseEffect(procDataManager, type, numOctaves, stitchTiles, paintingData,
+        return new GrPerlinNoiseEffect(type, numOctaves, stitchTiles, paintingData,
                                        permutationsTexture, noiseTexture, matrix);
     }
 
@@ -555,7 +554,7 @@ private:
         inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
     }
 
-    GrPerlinNoiseEffect(GrProcessorDataManager*, SkPerlinNoiseShader::Type type,
+    GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type,
                         int numOctaves, bool stitchTiles,
                         SkPerlinNoiseShader::PaintingData* paintingData,
                         GrTexture* permutationsTexture, GrTexture* noiseTexture,
@@ -610,8 +609,7 @@ const GrFragmentProcessor* GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
     GrPaint grPaint;
     return shader->asFragmentProcessor(d->fContext,
                                        GrTest::TestMatrix(d->fRandom), nullptr,
-                                       kNone_SkFilterQuality,
-                                       grPaint.getProcessorDataManager());
+                                       kNone_SkFilterQuality);
 }
 
 GrGLPerlinNoise::GrGLPerlinNoise(const GrProcessor& processor)
@@ -916,8 +914,7 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
                                                     GrContext* context,
                                                     const SkMatrix& viewM,
                                                     const SkMatrix* externalLocalMatrix,
-                                                    SkFilterQuality,
-                                                    GrProcessorDataManager* procDataManager) const {
+                                                    SkFilterQuality) const {
     SkASSERT(context);
 
     SkMatrix localMatrix = this->getLocalMatrix();
@@ -955,8 +952,7 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
     if ((permutationsTexture) && (noiseTexture)) {
         SkAutoTUnref<GrFragmentProcessor> inner(
-            GrPerlinNoiseEffect::Create(procDataManager,
-                                        fType,
+            GrPerlinNoiseEffect::Create(fType,
                                         fNumOctaves,
                                         fStitchTiles,
                                         paintingData,

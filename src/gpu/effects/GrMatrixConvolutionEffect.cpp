@@ -129,8 +129,7 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLProgramDataManager& pdman,
     fDomain.setData(pdman, conv.domain(), texture.origin());
 }
 
-GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrProcessorDataManager* procDataManager,
-                                                     GrTexture* texture,
+GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
                                                      const SkIRect& bounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -139,7 +138,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrProcessorDataManager* pro
                                                      const SkIPoint& kernelOffset,
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha)
-  : INHERITED(procDataManager, texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture)),
+  : INHERITED(texture, GrCoordTransform::MakeDivByTextureWHMatrix(texture)),
     fKernelSize(kernelSize),
     fGain(SkScalarToFloat(gain)),
     fBias(SkScalarToFloat(bias) / 255.0f),
@@ -179,8 +178,7 @@ bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) cons
 
 // Static function to create a 2D convolution
 GrFragmentProcessor*
-GrMatrixConvolutionEffect::CreateGaussian(GrProcessorDataManager* procDataManager,
-                                          GrTexture* texture,
+GrMatrixConvolutionEffect::CreateGaussian(GrTexture* texture,
                                           const SkIRect& bounds,
                                           const SkISize& kernelSize,
                                           SkScalar gain,
@@ -216,8 +214,8 @@ GrMatrixConvolutionEffect::CreateGaussian(GrProcessorDataManager* procDataManage
     for (int i = 0; i < width * height; ++i) {
         kernel[i] *= scale;
     }
-    return new GrMatrixConvolutionEffect(procDataManager, texture, bounds, kernelSize, kernel, gain,
-                                         bias, kernelOffset, tileMode, convolveAlpha);
+    return new GrMatrixConvolutionEffect(texture, bounds, kernelSize, kernel, gain, bias,
+                                         kernelOffset, tileMode, convolveAlpha);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
@@ -243,8 +241,7 @@ const GrFragmentProcessor* GrMatrixConvolutionEffect::TestCreate(GrProcessorTest
     GrTextureDomain::Mode tileMode =
             static_cast<GrTextureDomain::Mode>(d->fRandom->nextRangeU(0, 2));
     bool convolveAlpha = d->fRandom->nextBool();
-    return GrMatrixConvolutionEffect::Create(d->fProcDataManager,
-                                             d->fTextures[texIdx],
+    return GrMatrixConvolutionEffect::Create(d->fTextures[texIdx],
                                              bounds,
                                              kernelSize,
                                              kernel.get(),
