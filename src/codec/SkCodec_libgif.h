@@ -84,13 +84,18 @@ private:
 
      /*
       * A gif may contain many image frames, all of different sizes.
-      * This function checks if the frame dimensions are valid and corrects
-      * them if necessary.  It then sets fFrameDims to the corrected
-      * dimensions.
+      * This function checks if the gif dimensions are valid, based on the frame
+      * dimensions, and corrects the gif dimensions if necessary.
       *
-      * @param desc The image frame descriptor
+      * @param gif       Pointer to the library type that manages the gif decode
+      * @param size      Size of the image that we will decode.
+      *                  Will be set by this function if the return value is true.
+      * @param frameRect Contains the dimenions and offset of the first image frame.
+      *                  Will be set by this function if the return value is true.
+      *
+      * @return true on success, false otherwise
       */
-     bool setFrameDimensions(const GifImageDesc& desc);
+     static bool GetDimensions(GifFileType* gif, SkISize* size, SkIRect* frameRect);
 
     /*
      * Initializes the color table that we will use for decoding.
@@ -164,14 +169,15 @@ private:
      * @param transIndex  The transparent index.  An invalid value
      *            indicates that there is no transparent index.
      */
-    SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif, uint32_t transIndex);
+    SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif, uint32_t transIndex,
+            const SkIRect& frameRect, bool frameIsSubset);
 
     SkAutoTCallVProc<GifFileType, CloseGif> fGif; // owned
     SkAutoTDeleteArray<uint8_t>             fSrcBuffer;
-    SkIRect                                 fFrameDims;
+    const SkIRect                           fFrameRect;
     const uint32_t                          fTransIndex;
     uint32_t                                fFillIndex;
-    bool                                    fFrameIsSubset;
+    const bool                              fFrameIsSubset;
     SkAutoTDelete<SkSwizzler>               fSwizzler;
     SkAutoTUnref<SkColorTable>              fColorTable;
 

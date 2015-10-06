@@ -185,13 +185,12 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
     SkASSERT(gif->ImageCount >= 1);
 
     if (nullptr != codecOut) {
-        // Get fields from header
-        const int32_t width = gif->SWidth;
-        const int32_t height = gif->SHeight;
-        if (width <= 0 || height <= 0) {
-            gif_error("Invalid dimensions.\n");
-            return false;
+        SkISize size;
+        SkIRect frameRect;
+        if (!GetDimensions(gif, &size, &frameRect)) {
+            gif_error("Invalid gif size.\n");
         }
+        bool frameIsSubset = (size != frameRect.size());
 
         // Determine the recommended alpha type.  The transIndex might be valid if it less
         // than 256.  We are not certain that the index is valid until we process the color
@@ -208,9 +207,10 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
         // Return the codec
         // kIndex is the most natural color type for gifs, so we set this as
         // the default.
-        const SkImageInfo& imageInfo = SkImageInfo::Make(width, height,
-                kIndex_8_SkColorType, alphaType);
-        *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach(), transIndex);
+        SkImageInfo imageInfo = SkImageInfo::Make(size.width(), size.height(), kIndex_8_SkColorType,
+                alphaType);
+        *codecOut = new SkGifCodec(imageInfo, streamDeleter.detach(), gif.detach(), transIndex,
+                frameRect, frameIsSubset);
     } else {
         SkASSERT(nullptr != gifOut);
         streamDeleter.detach();
@@ -233,7 +233,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
 }
 
 SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType* gif,
-        uint32_t transIndex)
+        uint32_t transIndex, const SkIRect& frameRect, bool frameIsSubset)
     : INHERITED(srcInfo, stream)
     , fGif(gif)
     , fSrcBuffer(new uint8_t[this->getInfo().width()])
@@ -244,8 +244,8 @@ SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType
     // Default fFillIndex is 0.  We will overwrite this if fTransIndex is valid, or if
     // there is a valid background color.
     , fFillIndex(0)
-    , fFrameDims(SkIRect::MakeEmpty())
-    , fFrameIsSubset(false)
+    , fFrameRect(frameRect)
+    , fFrameIsSubset(frameIsSubset)
     , fColorTable(NULL)
     , fSwizzler(NULL)
 {}
@@ -283,6 +283,7 @@ SkCodec::Result SkGifCodec::ReadUpToFirstImage(GifFileType* gif, uint32_t* trans
         switch (recordType) {
             case IMAGE_DESC_RECORD_TYPE: {
                 *transIndex = find_trans_index(saveExt);
+
                 // FIXME: Gif files may have multiple images stored in a single
                 //        file.  This is most commonly used to enable
                 //        animations.  Since we are leaving animated gifs as a
@@ -346,53 +347,31 @@ SkCodec::Result SkGifCodec::ReadUpToFirstImage(GifFileType* gif, uint32_t* trans
     return gif_error("Could not find any images to decode in gif file.\n", kInvalidInput);
 }
 
-/*
- * A gif may contain many image frames, all of different sizes.
- * This function checks if the frame dimensions are valid and corrects them if
- * necessary.
- */
-bool SkGifCodec::setFrameDimensions(const GifImageDesc& desc) {
-    // Fail on non-positive dimensions
-    int32_t frameLeft = desc.Left;
-    int32_t frameTop = desc.Top;
-    int32_t frameWidth = desc.Width;
-    int32_t frameHeight = desc.Height;
-    int32_t height = this->getInfo().height();
-    int32_t width = this->getInfo().width();
-    if (frameWidth <= 0 || frameHeight <= 0) {
+bool SkGifCodec::GetDimensions(GifFileType* gif, SkISize* size, SkIRect* frameRect) {
+    // Get the encoded dimension values
+    SavedImage* image = &gif->SavedImages[gif->ImageCount - 1];
+    const GifImageDesc& desc = image->ImageDesc;
+    int frameLeft = desc.Left;
+    int frameTop = desc.Top;
+    int frameWidth = desc.Width;
+    int frameHeight = desc.Height;
+    int width = gif->SWidth;
+    int height = gif->SHeight;
+
+    // Ensure that the decode dimensions are large enough to contain the frame
+    width = SkTMax(width, frameWidth + frameLeft);
+    height = SkTMax(height, frameHeight + frameTop);
+
+    // All of these dimensions should be positive, as they are encoded as unsigned 16-bit integers.
+    // It is unclear why giflib casts them to ints.  We will go ahead and check that they are
+    // in fact positive.
+    if (frameLeft < 0 || frameTop < 0 || frameWidth < 0 || frameHeight < 0 || width <= 0 ||
+            height <= 0) {
         return false;
     }
 
-    // Treat the following cases as warnings and try to fix
-    if (frameWidth > width) {
-        gif_warning("Image frame too wide, shrinking.\n");
-        frameWidth = width;
-        frameLeft = 0;
-    } else if (frameLeft + frameWidth > width) {
-        gif_warning("Shifting image frame to left to fit.\n");
-        frameLeft = width - frameWidth;
-    } else if (frameLeft < 0) {
-        gif_warning("Shifting image frame to right to fit\n");
-        frameLeft = 0;
-    }
-    if (frameHeight > height) {
-        gif_warning("Image frame too tall, shrinking.\n");
-        frameHeight = height;
-        frameTop = 0;
-    } else if (frameTop + frameHeight > height) {
-        gif_warning("Shifting image frame up to fit.\n");
-        frameTop = height - frameHeight;
-    } else if (frameTop < 0) {
-        gif_warning("Shifting image frame down to fit\n");
-        frameTop = 0;
-    }
-    fFrameDims.setXYWH(frameLeft, frameTop, frameWidth, frameHeight);
-
-    // Indicate if the frame dimensions do not match the header dimensions
-    if (this->getInfo().dimensions() != fFrameDims.size()) {
-        fFrameIsSubset = true;
-    }
-
+    frameRect->setXYWH(frameLeft, frameTop, frameWidth, frameHeight);
+    size->set(width, height);
     return true;
 }
 
@@ -465,16 +444,6 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
                 kInvalidConversion);
     }
 
-
-    // We have asserted that the image count is at least one in ReadHeader().
-    SavedImage* image = &fGif->SavedImages[fGif->ImageCount - 1];
-    const GifImageDesc& desc = image->ImageDesc;
-
-    // Check that the frame dimensions are valid and set them
-    if(!this->setFrameDimensions(desc)) {
-        return gif_error("Invalid dimensions for image frame.\n", kInvalidInput);
-    }
-
     // Initialize color table and copy to the client if necessary
     this->initializeColorTable(dstInfo, inputColorPtr, inputColorCount);
     return kSuccess;
@@ -492,7 +461,7 @@ SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo,
 }
 
 SkCodec::Result SkGifCodec::readRow() {
-    if (GIF_ERROR == DGifGetLine(fGif, fSrcBuffer.get(), fFrameDims.width())) {
+    if (GIF_ERROR == DGifGetLine(fGif, fSrcBuffer.get(), fFrameRect.width())) {
         return kIncompleteInput;
     }
     return kSuccess;
@@ -517,7 +486,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
     // Initialize the swizzler
     if (fFrameIsSubset) {
-        const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameDims.width(), fFrameDims.height());
+        const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameRect.width(), fFrameRect.height());
         if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts.fZeroInitialized)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
         }
@@ -529,8 +498,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Modify the dst pointer
         const int32_t dstBytesPerPixel = SkColorTypeBytesPerPixel(dstInfo.colorType());
-        dst = SkTAddOffset<void*>(dst, dstRowBytes * fFrameDims.top() +
-                dstBytesPerPixel * fFrameDims.left());
+        dst = SkTAddOffset<void*>(dst, dstRowBytes * fFrameRect.top() +
+                dstBytesPerPixel * fFrameRect.left());
     } else {
         if (kSuccess != this->initializeSwizzler(dstInfo, opts.fZeroInitialized)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
@@ -538,8 +507,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Check the interlace flag and iterate over rows of the input
-    uint32_t width = fFrameDims.width();
-    uint32_t height = fFrameDims.height();
+    uint32_t width = fFrameRect.width();
+    uint32_t height = fFrameRect.height();
     if (fGif->Image.Interlace) {
         // In interlace mode, the rows of input are rearranged in
         // the output image.  We a helper function to help us
@@ -586,7 +555,7 @@ SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
     // Initialize the swizzler
     if (fFrameIsSubset) {
-        const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameDims.width(), fFrameDims.height());
+        const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameRect.width(), fFrameRect.height());
         if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts.fZeroInitialized)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
         }
@@ -607,37 +576,32 @@ SkCodec::Result SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes
                          colorPtr, this->options().fZeroInitialized);
 
         // Do nothing for rows before the image frame
-        // FIXME: nextScanline is not virtual, so using "INHERITED" does not change
-        // behavior. Was the intent to call this->INHERITED::onNextScanline()? Same
-        // for the next call down below.
-        int rowsBeforeFrame = fFrameDims.top() - this->INHERITED::nextScanline();
-        if (rowsBeforeFrame > 0) {
-            count = SkTMin(0, count - rowsBeforeFrame);
-            dst = SkTAddOffset<void>(dst, rowBytes * rowsBeforeFrame);
-        }
+        int rowsBeforeFrame = SkTMax(0, fFrameRect.top() - this->INHERITED::onNextScanline());
+        count = SkTMax(0, count - rowsBeforeFrame);
+        dst = SkTAddOffset<void>(dst, rowBytes * rowsBeforeFrame);
 
         // Do nothing for rows after the image frame
-        int rowsAfterFrame = this->INHERITED::nextScanline() + count - fFrameDims.bottom();
-        if (rowsAfterFrame > 0) {
-            count = SkTMin(0, count - rowsAfterFrame);
-        }
+        int rowsAfterFrame = SkTMax(0,
+                this->INHERITED::onNextScanline() + count - fFrameRect.bottom());
+        count = SkTMax(0, count - rowsAfterFrame);
 
-            // Adjust dst pointer for left offset
-        int bpp = SkColorTypeBytesPerPixel(this->dstInfo().colorType()) * fFrameDims.left();
-        dst = SkTAddOffset<void>(dst, bpp);
+        // Adjust dst pointer for left offset
+        int offset = SkColorTypeBytesPerPixel(this->dstInfo().colorType()) * fFrameRect.left();
+        dst = SkTAddOffset<void>(dst, offset);
     }
 
     for (int i = 0; i < count; i++) {
         if (kSuccess != this->readRow()) {
             const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-            SkSwizzler::Fill(dst, this->dstInfo(), rowBytes, count - i, fFillIndex, colorPtr,
-                             this->options().fZeroInitialized);
-            return gif_error("Could not decode line\n", SkCodec::kIncompleteInput);
+            SkSwizzler::Fill(dst, this->dstInfo().makeWH(fFrameRect.width(),
+                    this->dstInfo().height()), rowBytes, count - i, fFillIndex, colorPtr,
+                    this->options().fZeroInitialized);
+            return kIncompleteInput;
         }
         fSwizzler->swizzle(dst, fSrcBuffer.get());
         dst = SkTAddOffset<void>(dst, rowBytes);
     }
-    return SkCodec::kSuccess;
+    return kSuccess;
 }
 
 SkCodec::SkScanlineOrder SkGifCodec::onGetScanlineOrder() const {
@@ -649,10 +613,13 @@ SkCodec::SkScanlineOrder SkGifCodec::onGetScanlineOrder() const {
 }
 
 int SkGifCodec::onNextScanline() const {
+    int nextScanline = this->INHERITED::onNextScanline();
     if (fGif->Image.Interlace) {
-        return get_output_row_interlaced(this->INHERITED::onNextScanline(), this->dstInfo().height());
-    } else {
-        return this->INHERITED::onNextScanline();
+        if (nextScanline < fFrameRect.top() || nextScanline >= fFrameRect.bottom()) {
+            return nextScanline;
+        }
+        return get_output_row_interlaced(nextScanline - fFrameRect.top(), fFrameRect.height());
     }
+    return nextScanline;
 }
 
