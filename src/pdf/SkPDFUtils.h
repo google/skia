@@ -46,7 +46,11 @@ public:
                             SkScalar dstX, SkScalar dstY, SkWStream* content);
     static void AppendRectangle(const SkRect& rect, SkWStream* content);
     static void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                         SkWStream* content);
+                         bool doConsumeDegerates, SkWStream* content);
+    static void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
+                         SkWStream* content) {
+        SkPDFUtils::EmitPath(path, paintStyle, true, content);
+    }
     static void ClosePath(SkWStream* content);
     static void PaintPath(SkPaint::Style style, SkPath::FillType fill,
                           SkWStream* content);

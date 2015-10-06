@@ -1035,7 +1035,12 @@ void SkPDFDevice::drawPath(const SkDraw& d,
     if (!content.entry()) {
         return;
     }
+    bool consumeDegeratePathSegments =
+           paint.getStyle() == SkPaint::kFill_Style ||
+           (paint.getStrokeCap() != SkPaint::kRound_Cap &&
+            paint.getStrokeCap() != SkPaint::kSquare_Cap);
     SkPDFUtils::EmitPath(*pathPtr, paint.getStyle(),
+                         consumeDegeratePathSegments,
                          &content.entry()->fContent);
     SkPDFUtils::PaintPath(paint.getStyle(), pathPtr->getFillType(),
                           &content.entry()->fContent);
