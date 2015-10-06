@@ -63,7 +63,7 @@ protected:
             r.offset(fRadius, fRadius);
 
             if (fRadius > 0) {
-                SkMorphologyImageFilter* mf = nullptr;
+                SkImageFilter* mf = nullptr;
                 switch (fStyle) {
                 case kDilate_MT:
                     mf = SkDilateImageFilter::Create(SkScalarFloorToInt(fRadius),
