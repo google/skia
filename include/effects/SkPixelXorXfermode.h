@@ -17,18 +17,19 @@
 */
 class SK_API SkPixelXorXfermode : public SkXfermode {
 public:
-    static SkXfermode* Create(SkColor opColor) { return new SkPixelXorXfermode(opColor); }
+    static SkPixelXorXfermode* Create(SkColor opColor) { return new SkPixelXorXfermode(opColor); }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPixelXorXfermode)
 
 protected:
+    explicit SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
     void flatten(SkWriteBuffer&) const override;
+
+    // override from SkXfermode
     SkPMColor xferColor(SkPMColor src, SkPMColor dst) const override;
 
 private:
-    explicit SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
-
     SkColor fOpColor;
 
     typedef SkXfermode INHERITED;

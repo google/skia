@@ -354,11 +354,16 @@ static SkBitmap make_gradient_circle(int width, int height) {
 static void test_negative_blur_sigma(SkImageFilter::Proxy* proxy, skiatest::Reporter* reporter) {
     // Check that SkBlurImageFilter will accept a negative sigma, either in
     // the given arguments or after CTM application.
-    const int width = 32, height = 32;
-    const SkScalar five = SkIntToScalar(5);
+    int width = 32, height = 32;
+    SkScalar five = SkIntToScalar(5);
 
-    SkAutoTUnref<SkImageFilter> positiveFilter(SkBlurImageFilter::Create(five, five));
-    SkAutoTUnref<SkImageFilter> negativeFilter(SkBlurImageFilter::Create(-five, five));
+    SkAutoTUnref<SkBlurImageFilter> positiveFilter(
+        SkBlurImageFilter::Create(five, five)
+    );
+
+    SkAutoTUnref<SkBlurImageFilter> negativeFilter(
+        SkBlurImageFilter::Create(-five, five)
+    );
 
     SkBitmap gradient = make_gradient_circle(width, height);
     SkBitmap positiveResult1, negativeResult1;
@@ -417,9 +422,9 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
         SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
         SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
     };
-    const SkISize kernelSize = SkISize::Make(3, 3);
-    const SkScalar gain = SK_Scalar1, bias = 0;
-    const SkScalar five = SkIntToScalar(5);
+    SkISize kernelSize = SkISize::Make(3, 3);
+    SkScalar gain = SK_Scalar1, bias = 0;
+    SkScalar five = SkIntToScalar(5);
 
     SkAutoTUnref<SkImage> gradientImage(SkImage::NewFromBitmap(make_gradient_circle(64, 64)));
     SkAutoTUnref<SkImageFilter> gradientSource(SkImageSource::Create(gradientImage));
@@ -484,7 +489,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     };
 
     SkBitmap untiledResult, tiledResult;
-    const int width = 64, height = 64;
+    int width = 64, height = 64;
     untiledResult.allocN32Pixels(width, height);
     tiledResult.allocN32Pixels(width, height);
     SkCanvas tiledCanvas(tiledResult);

@@ -13,8 +13,10 @@
 
 class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
-    static SkImageFilter* Create(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input = NULL,
-                                 const CropRect* cropRect = NULL) {
+    static SkBlurImageFilter* Create(SkScalar sigmaX,
+                                     SkScalar sigmaY,
+                                     SkImageFilter* input = NULL,
+                                     const CropRect* cropRect = NULL) {
         return new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect);
     }
 
@@ -24,20 +26,22 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
 
 protected:
-    void flatten(SkWriteBuffer&) const override;
-    bool onFilterImage(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
-                       SkIPoint* offset) const override;
-    bool onFilterBounds(const SkIRect& src, const SkMatrix&, SkIRect* dst) const override;
-    bool canFilterImageGPU() const override { return true; }
-    bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx, SkBitmap* result,
-                        SkIPoint* offset) const override;
-
-private:
     SkBlurImageFilter(SkScalar sigmaX,
                       SkScalar sigmaY,
                       SkImageFilter* input,
                       const CropRect* cropRect);
+    void flatten(SkWriteBuffer&) const override;
 
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
+                               SkBitmap* result, SkIPoint* offset) const override;
+    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
+                                SkIRect* dst) const override;
+
+    bool canFilterImageGPU() const override { return true; }
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
+                                SkBitmap* result, SkIPoint* offset) const override;
+
+private:
     SkSize   fSigma;
     typedef SkImageFilter INHERITED;
 };

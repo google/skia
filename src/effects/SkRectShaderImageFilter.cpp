@@ -13,7 +13,7 @@
 #include "SkWriteBuffer.h"
 #include "SkShader.h"
 
-SkImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRect& rect) {
+SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRect& rect) {
     SkASSERT(s);
     uint32_t flags = CropRect::kHasAll_CropEdge;
     if (rect.width() == 0 || rect.height() == 0) {
@@ -23,7 +23,7 @@ SkImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRect& rect) 
     return s ? new SkRectShaderImageFilter(s, &cropRect) : nullptr;
 }
 
-SkImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const CropRect* cropRect) {
+SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const CropRect* cropRect) {
     SkASSERT(s);
     return s ? new SkRectShaderImageFilter(s, cropRect) : nullptr;
 }

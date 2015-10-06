@@ -18,6 +18,8 @@
  */
 class SK_API SkTableMaskFilter : public SkMaskFilter {
 public:
+    virtual ~SkTableMaskFilter();
+
     /** Utility that sets the gamma table
      */
     static void MakeGammaTable(uint8_t table[256], SkScalar gamma);
@@ -27,37 +29,35 @@ public:
      */
     static void MakeClipTable(uint8_t table[256], uint8_t min, uint8_t max);
 
-    static SkMaskFilter* Create(const uint8_t table[256]) {
+    static SkTableMaskFilter* Create(const uint8_t table[256]) {
         return new SkTableMaskFilter(table);
     }
 
-    static SkMaskFilter* CreateGamma(SkScalar gamma) {
+    static SkTableMaskFilter* CreateGamma(SkScalar gamma) {
         uint8_t table[256];
         MakeGammaTable(table, gamma);
         return new SkTableMaskFilter(table);
     }
 
-    static SkMaskFilter* CreateClip(uint8_t min, uint8_t max) {
+    static SkTableMaskFilter* CreateClip(uint8_t min, uint8_t max) {
         uint8_t table[256];
         MakeClipTable(table, min, max);
         return new SkTableMaskFilter(table);
     }
 
     SkMask::Format getFormat() const override;
-    bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*) const override;
+    virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&,
+                            SkIPoint*) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
 
 protected:
-    virtual ~SkTableMaskFilter();
-
+    SkTableMaskFilter();
+    explicit SkTableMaskFilter(const uint8_t table[256]);
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    SkTableMaskFilter();
-    explicit SkTableMaskFilter(const uint8_t table[256]);
-
     uint8_t fTable[256];
 
     typedef SkMaskFilter INHERITED;

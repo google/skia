@@ -56,7 +56,7 @@ protected:
 
             SkRect bound = SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
             SkAutoTUnref<SkImageFilter> imageSource(SkImageSource::Create(fRedImage));
-            SkAutoTUnref<SkImageFilter> tif(SkTileImageFilter::Create(
+            SkAutoTUnref<SkTileImageFilter> tif(SkTileImageFilter::Create(
                             SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
                             SkRect::MakeWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight)),
                             imageSource));
@@ -71,7 +71,7 @@ protected:
 
             SkRect bound2 = SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize));
 
-            SkAutoTUnref<SkImageFilter> tif2(SkTileImageFilter::Create(
+            SkAutoTUnref<SkTileImageFilter> tif2(SkTileImageFilter::Create(
                             SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
                             SkRect::MakeWH(SkIntToScalar(kBitmapSize), SkIntToScalar(kBitmapSize)),
                             nullptr));
