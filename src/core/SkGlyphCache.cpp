@@ -118,40 +118,40 @@ int SkGlyphCache::countCachedGlyphs() const {
 
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
-    return *this->lookupByChar(charCode);
+    return *this->lookupByChar(charCode, kJustAdvance_MetricsType);
 }
 
 const SkGlyph& SkGlyphCache::getGlyphIDAdvance(uint16_t glyphID) {
     VALIDATE();
     PackedGlyphID packedGlyphID = SkGlyph::MakeID(glyphID);
-    return *this->lookupByPackedGlyphID(packedGlyphID);
+    return *this->lookupByPackedGlyphID(packedGlyphID, kJustAdvance_MetricsType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode) {
     VALIDATE();
-    return *this->lookupByChar(charCode);
+    return *this->lookupByChar(charCode, kFull_MetricsType);
 }
 
 const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode, SkFixed x, SkFixed y) {
     VALIDATE();
-    return *this->lookupByChar(charCode, x, y);
+    return *this->lookupByChar(charCode, kFull_MetricsType, x, y);
 }
 
 const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID) {
     VALIDATE();
     PackedGlyphID packedGlyphID = SkGlyph::MakeID(glyphID);
-    return *this->lookupByPackedGlyphID(packedGlyphID);
+    return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
 }
 
 const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFixed y) {
     VALIDATE();
     PackedGlyphID packedGlyphID = SkGlyph::MakeID(glyphID, x, y);
-    return *this->lookupByPackedGlyphID(packedGlyphID);
+    return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
 }
 
-SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, SkFixed x, SkFixed y) {
+SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, MetricsType type, SkFixed x, SkFixed y) {
     PackedUnicharID id = SkGlyph::MakeID(charCode, x, y);
     CharGlyphRec* rec = this->getCharGlyphRec(id);
     if (rec->fPackedUnicharID != id) {
@@ -160,21 +160,26 @@ SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, SkFixed x, SkFixed y) {
         // this ID is based on the glyph index
         PackedGlyphID combinedID = SkGlyph::MakeID(fScalerContext->charToGlyphID(charCode), x, y);
         rec->fPackedGlyphID = combinedID;
-        return this->lookupByPackedGlyphID(combinedID);
+        return this->lookupByPackedGlyphID(combinedID, type);
     } else {
-        return this->lookupByPackedGlyphID(rec->fPackedGlyphID);
+        return this->lookupByPackedGlyphID(rec->fPackedGlyphID, type);
     }
 }
 
-SkGlyph* SkGlyphCache::lookupByPackedGlyphID(PackedGlyphID packedGlyphID) {
+SkGlyph* SkGlyphCache::lookupByPackedGlyphID(PackedGlyphID packedGlyphID, MetricsType type) {
     SkGlyph* glyph = fGlyphMap.find(packedGlyphID);
+
     if (nullptr == glyph) {
-        glyph = this->allocateNewGlyph(packedGlyphID);
+        glyph = this->allocateNewGlyph(packedGlyphID, type);
+    } else {
+        if (type == kFull_MetricsType && glyph->isJustAdvance()) {
+           fScalerContext->getMetrics(glyph);
+        }
     }
     return glyph;
 }
 
-SkGlyph* SkGlyphCache::allocateNewGlyph(PackedGlyphID packedGlyphID) {
+SkGlyph* SkGlyphCache::allocateNewGlyph(PackedGlyphID packedGlyphID, MetricsType mtype) {
     fMemoryUsed += sizeof(SkGlyph);
 
     SkGlyph* glyphPtr;
@@ -183,7 +188,13 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(PackedGlyphID packedGlyphID) {
         glyph.initGlyphFromCombinedID(packedGlyphID);
         glyphPtr = fGlyphMap.set(glyph);
     }
-    fScalerContext->getMetrics(glyphPtr);
+
+    if (kJustAdvance_MetricsType == mtype) {
+        fScalerContext->getAdvance(glyphPtr);
+    } else {
+        SkASSERT(kFull_MetricsType == mtype);
+        fScalerContext->getMetrics(glyphPtr);
+    }
 
     SkASSERT(glyphPtr->fID != SkGlyph::kImpossibleID);
     return glyphPtr;
