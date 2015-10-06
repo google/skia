@@ -48,8 +48,8 @@ TimingStateMachine::ParentEvents TimingStateMachine::nextFrame(bool preWarmBetwe
                             fLoops *= 2;
                         } else {
                             fInnerState = kTiming_InnerState;
-                            fState = kPreWarm_State;
                         }
+                        fState = kPreWarm_State;
                         this->resetTimingState();
                         parentEvent = kReset_ParentEvents;
                     }
