@@ -402,6 +402,7 @@
     "~tabl_mozilla_0", 
     "~desk_yahoonews_0", 
     "~imagefiltersclipped", 
+    "~imagefilterscropexpand", 
     "~scaled_tilemodes_npot", 
     "~bleed_image", 
     "~ReadPixels"
