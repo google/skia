@@ -16,6 +16,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"
 #include "GrStencilAndCoverTextContext.h"
+#include "SkSurfacePriv.h"
 
 #include "batches/GrBatch.h"
 #include "batches/GrDrawAtlasBatch.h"
@@ -23,9 +24,9 @@
 #include "batches/GrRectBatchFactory.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fContext)
-#define RETURN_IF_ABANDONED        if (!fDrawTarget) { return; }
-#define RETURN_FALSE_IF_ABANDONED  if (!fDrawTarget) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (!fDrawTarget) { return nullptr; }
+#define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED  if (fContext->abandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED   if (fContext->abandoned()) { return nullptr; }
 
 class AutoCheckFlush {
 public:
@@ -38,20 +39,21 @@ private:
 
 GrDrawContext::GrDrawContext(GrContext* context,
                              GrDrawTarget* drawTarget,
-                             const SkSurfaceProps& surfaceProps)
+                             const SkSurfaceProps* surfaceProps)
     : fContext(context)
     , fDrawTarget(SkRef(drawTarget))
     , fTextContext(nullptr)
-    , fSurfaceProps(surfaceProps) {
+    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
 }
 
 GrDrawContext::~GrDrawContext() {
     SkSafeUnref(fDrawTarget);
-    delete fTextContext;
 }
 
 void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) {
+    RETURN_IF_ABANDONED
+
     if (!this->prepareToDraw(dst)) {
         return;
     }
@@ -59,28 +61,16 @@ void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
     fDrawTarget->copySurface(dst, src, srcRect, dstPoint);
 }
 
-GrTextContext* GrDrawContext::createTextContext(GrRenderTarget* renderTarget,
-                                                const SkSurfaceProps& surfaceProps) {
-    if (fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        renderTarget->isStencilBufferMultisampled() &&
-        fSurfaceProps.isUseDeviceIndependentFonts()) {
-        GrStencilAttachment* sb =
-            fContext->resourceProvider()->attachStencilAttachment(renderTarget);
-        if (sb) {
-            return GrStencilAndCoverTextContext::Create(fContext, surfaceProps);
-        }
-    } 
-
-    return GrAtlasTextContext::Create(fContext, surfaceProps);
-}
 
 void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
                              const SkPaint& skPaint,
                              const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
+    RETURN_IF_ABANDONED
+
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, fSurfaceProps);
+        fTextContext = fContext->textContext(fSurfaceProps, rt);
     }
 
     fTextContext->drawText(this, rt, clip, grPaint, skPaint, viewMatrix,
@@ -93,8 +83,10 @@ void GrDrawContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const Gr
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset, const SkIRect& clipBounds) {
+    RETURN_IF_ABANDONED
+
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, fSurfaceProps);
+        fTextContext = fContext->textContext(fSurfaceProps, rt);
     }
 
     fTextContext->drawPosText(this, rt, clip, grPaint, skPaint, viewMatrix, text, byteLength,
@@ -105,8 +97,10 @@ void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const S
                                  const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                  SkScalar x, SkScalar y,
                                  SkDrawFilter* filter, const SkIRect& clipBounds) {
+    RETURN_IF_ABANDONED
+
     if (!fTextContext) {
-        fTextContext = this->createTextContext(rt, fSurfaceProps);
+        fTextContext = fContext->textContext(fSurfaceProps, rt);
     }
 
     fTextContext->drawTextBlob(this, rt,
@@ -119,6 +113,8 @@ void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
                                        GrColor color,
                                        GrPathRangeDraw* draw,
                                        int /*GrPathRendering::FillType*/ fill) {
+    RETURN_IF_ABANDONED
+
     fDrawTarget->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color, draw,
                                     (GrPathRendering::FillType) fill);
 }
@@ -761,5 +757,7 @@ bool GrDrawContext::prepareToDraw(GrRenderTarget* rt) {
 }
 
 void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch) {
+    RETURN_IF_ABANDONED
+
     fDrawTarget->drawBatch(*pipelineBuilder, batch);
 }

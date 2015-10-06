@@ -27,7 +27,9 @@ GrTextContext::GrTextContext(GrContext* context, const SkSurfaceProps& surfacePr
     , fSurfaceProps(surfaceProps) {
 }
 
-GrTextContext::~GrTextContext() { delete fFallbackTextContext; }
+GrTextContext::~GrTextContext() {
+    delete fFallbackTextContext;
+}
 
 void GrTextContext::drawText(GrDrawContext* dc, GrRenderTarget* rt,
                              const GrClip& clip, const GrPaint& paint,

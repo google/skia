@@ -183,6 +183,10 @@ public:
         return fDrawingMgr.drawContext(surfaceProps);
     }
 
+    GrTextContext* textContext(const SkSurfaceProps& surfaceProps, GrRenderTarget* rt) {
+        return fDrawingMgr.textContext(surfaceProps, rt);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
@@ -410,17 +414,19 @@ private:
     GrContext(); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
 
-    // Currently the DrawingMgr stores a separate GrDrawContext for each
+    // Currently the DrawingMgr creates a separate GrTextContext for each
     // combination of text drawing options (pixel geometry x DFT use)
-    // and hands the appropriate one back given the user's request.
-    // All of the GrDrawContexts still land in the same GrDrawTarget!
+    // and hands the appropriate one back given the DrawContext's request.
+    //
+    // It allocates a new GrDrawContext for each GrRenderTarget
+    // but all of them still land in the same GrDrawTarget!
     //
     // In the future this class will allocate a new GrDrawContext for
     // each GrRenderTarget/GrDrawTarget and manage the DAG.
     class DrawingMgr {
     public:
-        DrawingMgr() : fDrawTarget(NULL) {
-            sk_bzero(fDrawContext, sizeof(fDrawContext));
+        DrawingMgr() : fDrawTarget(nullptr), fNVPRTextContext(nullptr) {
+            sk_bzero(fTextContexts, sizeof(fTextContexts));
         }
 
         ~DrawingMgr();
@@ -433,9 +439,11 @@ private:
         void reset();
         void flush();
 
-        // Callers should take a ref if they rely on the GrDrawContext sticking around.
+        // Callers assume the creation ref of the drawContext!
         // NULL will be returned if the context has been abandoned.
         GrDrawContext* drawContext(const SkSurfaceProps* surfaceProps);
+
+        GrTextContext* textContext(const SkSurfaceProps& props, GrRenderTarget* rt);
 
     private:
         void cleanup();
@@ -448,7 +456,8 @@ private:
         GrContext*        fContext;
         GrDrawTarget*     fDrawTarget;
 
-        GrDrawContext*    fDrawContext[kNumPixelGeometries][kNumDFTOptions];
+        GrTextContext*    fNVPRTextContext;
+        GrTextContext*    fTextContexts[kNumPixelGeometries][kNumDFTOptions];
     };
 
     DrawingMgr                      fDrawingMgr;

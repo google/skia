@@ -263,9 +263,7 @@ private:
     friend class GrAtlasTextContext; // for access to drawBatch
     friend class GrContext; // for ctor
 
-    GrDrawContext(GrContext*, GrDrawTarget*, const SkSurfaceProps&);
-
-    GrTextContext* createTextContext(GrRenderTarget*, const SkSurfaceProps&);
+    GrDrawContext(GrContext*, GrDrawTarget*, const SkSurfaceProps* surfaceProps);
 
     // Checks if the context has been abandoned and if the rendertarget is owned by this context
     bool prepareToDraw(GrRenderTarget* rt);
@@ -284,7 +282,7 @@ private:
 
     GrContext*          fContext;     // owning context -> no ref
     GrDrawTarget*       fDrawTarget;
-    GrTextContext*      fTextContext; // lazily created
+    GrTextContext*      fTextContext; // lazily gotten from GrContext::DrawingMgr
 
     SkSurfaceProps      fSurfaceProps;
 };

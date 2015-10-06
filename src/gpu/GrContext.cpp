@@ -28,6 +28,7 @@
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
+#include "GrStencilAndCoverTextContext.h"
 #include "GrStrokeInfo.h"
 #include "GrSurfacePriv.h"
 #include "GrTextBlobCache.h"
@@ -43,6 +44,7 @@
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTraceEvent.h"
+
 
 #include "batches/GrBatch.h"
 
@@ -65,9 +67,13 @@ void GrContext::DrawingMgr::init(GrContext* context) {
 
 void GrContext::DrawingMgr::cleanup() {
     SkSafeSetNull(fDrawTarget);
+    delete fNVPRTextContext;
+    fNVPRTextContext = nullptr;
     for (int i = 0; i < kNumPixelGeometries; ++i) {
-        SkSafeSetNull(fDrawContext[i][0]);
-        SkSafeSetNull(fDrawContext[i][1]);
+        delete fTextContexts[i][0];
+        fTextContexts[i][0] = nullptr;
+        delete fTextContexts[i][1];
+        fTextContexts[i][1] = nullptr;
     }
 }
 
@@ -76,15 +82,7 @@ GrContext::DrawingMgr::~DrawingMgr() {
 }
 
 void GrContext::DrawingMgr::abandon() {
-    SkSafeSetNull(fDrawTarget);
-    for (int i = 0; i < kNumPixelGeometries; ++i) {
-        for (int j = 0; j < kNumDFTOptions; ++j) {
-            if (fDrawContext[i][j]) {
-                SkSafeSetNull(fDrawContext[i][j]->fDrawTarget);
-                SkSafeSetNull(fDrawContext[i][j]);
-            }
-        }
-    }
+    this->cleanup();
 }
 
 void GrContext::DrawingMgr::reset() {
@@ -99,21 +97,40 @@ void GrContext::DrawingMgr::flush() {
     }
 }
 
+GrTextContext* GrContext::DrawingMgr::textContext(const SkSurfaceProps& props,
+                                                  GrRenderTarget* rt) {
+    if (this->abandoned()) {
+        return nullptr;
+    }
+
+    SkASSERT(props.pixelGeometry() < kNumPixelGeometries);
+    bool useDIF = props.isUseDeviceIndependentFonts();
+
+    if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
+        rt->isStencilBufferMultisampled()) {
+        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
+        if (sb) {
+            if (!fNVPRTextContext) {
+                fNVPRTextContext = GrStencilAndCoverTextContext::Create(fContext, props);
+            }
+
+            return fNVPRTextContext;
+        }
+    }
+
+    if (!fTextContexts[props.pixelGeometry()][useDIF]) {
+        fTextContexts[props.pixelGeometry()][useDIF] = GrAtlasTextContext::Create(fContext, props);
+    }
+
+    return fTextContexts[props.pixelGeometry()][useDIF];
+}
+
 GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
     }
 
-    const SkSurfaceProps props(SkSurfacePropsCopyOrDefault(surfaceProps));
-
-    SkASSERT(props.pixelGeometry() < kNumPixelGeometries);
-    if (!fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]) {
-        fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()] =
-                new GrDrawContext(fContext, fDrawTarget, props);
-    }
-
-    // For now, everyone gets a faux creation ref
-    return SkRef(fDrawContext[props.pixelGeometry()][props.isUseDeviceIndependentFonts()]);
+    return new GrDrawContext(fContext, fDrawTarget, surfaceProps);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
