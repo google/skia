@@ -293,9 +293,6 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
     }
 
-    // This should never be reached, since onDimensionsSupported should have rejected the
-    // dimensions sooner.
-    SkASSERT(false);
     SkCodecPrintf("Error: No matching candidate image in ico.\n");
     return result;
 }
