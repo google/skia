@@ -100,10 +100,13 @@ void xlate_and_scale_to_bounds(SkCanvas* canvas, const SkRect& bounds) {
 
 void render_path(SkCanvas* canvas, const SkPath& path) {
     canvas->clear(0xFFFFFFFF);
-    canvas->save();
 
     const SkRect& bounds = path.getBounds();
+    if (bounds.isEmpty()) {
+        return;
+    }
 
+    SkAutoCanvasRestore acr(canvas, true);
     xlate_and_scale_to_bounds(canvas, bounds);
 
     SkPaint p;
@@ -111,7 +114,6 @@ void render_path(SkCanvas* canvas, const SkPath& path) {
     p.setStyle(SkPaint::kStroke_Style);
 
     canvas->drawPath(path, p);
-    canvas->restore();
 }
 
 void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRect = nullptr) {
