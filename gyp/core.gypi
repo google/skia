@@ -210,7 +210,7 @@
         '<(skia_src_path)/core/SkRecords.cpp',
         '<(skia_src_path)/core/SkRecordDraw.cpp',
         '<(skia_src_path)/core/SkRecordOpts.cpp',
-        '<(skia_src_path)/core/SkRecordOpts.cpp',
+        '<(skia_src_path)/core/SkRecordOpts.h',
         '<(skia_src_path)/core/SkRecordPattern.h',
         '<(skia_src_path)/core/SkRecorder.cpp',
         '<(skia_src_path)/core/SkRect.cpp',
