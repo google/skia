@@ -42,43 +42,44 @@ T sk_atomic_exchange(T*, T, sk_memory_order = sk_memory_order_seq_cst);
 
 // A little wrapper class for small T (think, builtins: int, float, void*) to
 // ensure they're always used atomically.  This is our stand-in for std::atomic<T>.
-template <typename T>
+// !!! Please _really_ know what you're doing if you change default_memory_order. !!!
+template <typename T, sk_memory_order default_memory_order = sk_memory_order_seq_cst>
 class SkAtomic : SkNoncopyable {
 public:
     SkAtomic() {}
     explicit SkAtomic(const T& val) : fVal(val) {}
 
     // It is essential we return by value rather than by const&.  fVal may change at any time.
-    T load(sk_memory_order mo = sk_memory_order_seq_cst) const {
+    T load(sk_memory_order mo = default_memory_order) const {
         return sk_atomic_load(&fVal, mo);
     }
 
-    void store(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
+    void store(const T& val, sk_memory_order mo = default_memory_order) {
         sk_atomic_store(&fVal, val, mo);
     }
 
-    // Alias for .load(sk_memory_order_seq_cst).
+    // Alias for .load(default_memory_order).
     operator T() const {
         return this->load();
     }
 
-    // Alias for .store(v, sk_memory_order_seq_cst).
+    // Alias for .store(v, default_memory_order).
     T operator=(const T& v) {
         this->store(v);
         return v;
     }
 
-    T fetch_add(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
+    T fetch_add(const T& val, sk_memory_order mo = default_memory_order) {
         return sk_atomic_fetch_add(&fVal, val, mo);
     }
 
-    T fetch_sub(const T& val, sk_memory_order mo = sk_memory_order_seq_cst) {
+    T fetch_sub(const T& val, sk_memory_order mo = default_memory_order) {
         return sk_atomic_fetch_sub(&fVal, val, mo);
     }
 
     bool compare_exchange(T* expected, const T& desired,
-                          sk_memory_order success = sk_memory_order_seq_cst,
-                          sk_memory_order failure = sk_memory_order_seq_cst) {
+                          sk_memory_order success = default_memory_order,
+                          sk_memory_order failure = default_memory_order) {
         return sk_atomic_compare_exchange(&fVal, expected, desired, success, failure);
     }
 private:
