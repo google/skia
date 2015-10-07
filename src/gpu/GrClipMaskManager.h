@@ -67,14 +67,6 @@ public:
                        const SkRect* devBounds,
                        GrAppliedClip*);
 
-    bool isClipInStencil() const {
-        return kStencil_ClipMaskType == fCurrClipMaskType;
-    }
-
-    bool isClipInAlpha() const {
-        return kAlpha_ClipMaskType == fCurrClipMaskType;
-    }
-
     void adjustPathStencilParams(const GrStencilAttachment*, GrStencilSettings*);
 
 private:
@@ -169,17 +161,6 @@ private:
                              int stencilBitCnt);
 
     GrTexture* createCachedMask(int width, int height, const GrUniqueKey& key, bool renderTarget);
-
-    /**
-     * We may represent the clip as a mask in the stencil buffer or as an alpha
-     * texture. It may be neither because the scissor rect suffices or we
-     * haven't yet examined the clip.
-     */
-    enum ClipMaskType {
-        kNone_ClipMaskType,
-        kStencil_ClipMaskType,
-        kAlpha_ClipMaskType,
-    } fCurrClipMaskType;
 
     static const int kMaxAnalyticElements = 4;
 

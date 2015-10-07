@@ -68,8 +68,7 @@ static bool path_needs_SW_renderer(GrContext* context,
 }
 
 GrClipMaskManager::GrClipMaskManager(GrDrawTarget* drawTarget)
-    : fCurrClipMaskType(kNone_ClipMaskType)
-    , fDrawTarget(drawTarget)
+    : fDrawTarget(drawTarget)
     , fClipMode(kIgnoreClip_StencilClipMode) {
 }
 
@@ -209,7 +208,6 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
                                       GrScissorState* scissorState,
                                       const SkRect* devBounds,
                                       GrAppliedClip* out) {
-    fCurrClipMaskType = kNone_ClipMaskType;
     if (kRespectClip_StencilClipMode == fClipMode) {
         fClipMode = kIgnoreClip_StencilClipMode;
     }
@@ -535,12 +533,10 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                                   const GrReducedClip::ElementList& elements,
                                                   const SkVector& clipToMaskOffset,
                                                   const SkIRect& clipSpaceIBounds) {
-    SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
     GrResourceProvider* resourceProvider = fDrawTarget->cmmAccess().resourceProvider();
     GrUniqueKey key;
     GetClipMaskKey(elementsGenID, clipSpaceIBounds, &key);
     if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
-        fCurrClipMaskType = kAlpha_ClipMaskType;
         return texture;
     }
 
@@ -678,7 +674,6 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
         }
     }
 
-    fCurrClipMaskType = kAlpha_ClipMaskType;
     return texture.detach();
 }
 
@@ -691,7 +686,6 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                                               const GrReducedClip::ElementList& elements,
                                               const SkIRect& clipSpaceIBounds,
                                               const SkIPoint& clipSpaceToStencilOffset) {
-    SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
     SkASSERT(rt);
 
     GrStencilAttachment* stencilAttachment =
@@ -871,9 +865,6 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             }
         }
     }
-    // set this last because recursive draws may overwrite it back to kNone.
-    SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
-    fCurrClipMaskType = kStencil_ClipMaskType;
     fClipMode = kRespectClip_StencilClipMode;
     return true;
 }
@@ -999,8 +990,6 @@ void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
         if (func >= kBasicStencilFuncCount) {
             int respectClip = kRespectClip_StencilClipMode == mode;
             if (respectClip) {
-                // The GrGpu class should have checked this
-                SkASSERT(this->isClipInStencil());
                 switch (func) {
                     case kAlwaysIfInClip_StencilFunc:
                         funcMask = clipBit;
@@ -1055,7 +1044,6 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
                                                      const GrReducedClip::ElementList& elements,
                                                      const SkVector& clipToMaskOffset,
                                                      const SkIRect& clipSpaceIBounds) {
-    SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
     GrUniqueKey key;
     GetClipMaskKey(elementsGenID, clipSpaceIBounds, &key);
     GrResourceProvider* resourceProvider = fDrawTarget->cmmAccess().resourceProvider();
@@ -1118,7 +1106,6 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
     }
     helper.toTexture(result);
 
-    fCurrClipMaskType = kAlpha_ClipMaskType;
     return result;
 }
 
