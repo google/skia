@@ -20,11 +20,34 @@ static const int kGrid = 100;
 static const int kWidth = 960;
 static const int kHeight = 640;
 
-class DrawShipView : public SampleView {
-    const char*         fName;
+typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRect[],
+const SkColor[], int, const SkRect*, const SkPaint*);
 
+static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
+                       const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+                       const SkPaint* paint) {
+    canvas->drawAtlas(atlas, xform, tex, colors, count, SkXfermode::kModulate_Mode, cull, paint);
+}
+
+static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
+                           const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+                           const SkPaint* paint) {
+    for (int i = 0; i < count; ++i) {
+        SkMatrix matrix;
+        matrix.setRSXform(xform[i]);
+        
+        canvas->save();
+        canvas->concat(matrix);
+        canvas->drawImageRect(atlas, tex[i], tex[i].makeOffset(-tex[i].x(), -tex[i].y()), paint,
+                              SkCanvas::kFast_SrcRectConstraint);
+        canvas->restore();
+    }
+}
+
+
+class DrawShipView : public SampleView {
 public:
-    DrawShipView(const char name[]) : fName(name) {
+    DrawShipView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) {
         fAtlas.reset(GetResourceAsImage("ship.png"));
         if (!fAtlas) {
             SkDebugf("\nCould not decode file ship.png. Falling back to penguin mode.\n");
@@ -123,8 +146,7 @@ protected:
             fXform[i].fTy += dy;
         }
         
-        canvas->drawAtlas(fAtlas, fXform, fTex, nullptr, kGrid*kGrid+1, SkXfermode::kSrcOver_Mode,
-                          nullptr, &paint);
+        fProc(canvas, fAtlas, fXform, fTex, nullptr, kGrid*kGrid+1, nullptr, &paint);
         canvas->drawText(outString.c_str(), outString.size(), 100.f, 100.f, paint);
 
         this->inval(nullptr);
@@ -140,6 +162,9 @@ protected:
 #endif
 
 private:
+    const char*         fName;
+    DrawAtlasProc       fProc;
+    
     SkAutoTUnref<SkImage> fAtlas;
     SkRSXform   fXform[kGrid*kGrid+1];
     SkRect      fTex[kGrid*kGrid+1];
@@ -153,4 +178,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new DrawShipView("DrawShip"); )
+DEF_SAMPLE( return new DrawShipView("DrawShip", draw_atlas); )
+DEF_SAMPLE( return new DrawShipView("DrawShipSim", draw_atlas_sim); )
