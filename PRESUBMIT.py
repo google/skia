@@ -44,6 +44,11 @@ PATH_PREFIX_TO_EXTRA_TRYBOTS = {
     # pylint: disable=line-too-long
     'src/opts/': 'client.skia:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD-Trybot',
 
+    'include/private/SkAtomics.h': ('client.skia:'
+      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN-Trybot,'
+      'Test-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-TSAN-Trybot'
+    ),
+
     # Below are examples to show what is possible with this feature.
     # 'src/svg/': 'master1:abc;master2:def',
     # 'src/svg/parser/': 'master3:ghi,jkl;master4:mno',
