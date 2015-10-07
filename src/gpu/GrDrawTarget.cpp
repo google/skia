@@ -146,11 +146,16 @@ void GrDrawTarget::reset() {
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch) {
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, &arfps, &ars, &scissorState,
-                                         &batch->bounds())) {
+    GrAppliedClip clip;
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &scissorState, &batch->bounds(),
+                                         &clip)) {
         return;
+    }
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
+    if (clip.clipCoverageFragmentProcessor()) {
+        arfps.set(&pipelineBuilder);
+        arfps.addCoverageFragmentProcessor(clip.clipCoverageFragmentProcessor());
     }
 
     GrPipeline::CreateArgs args;
@@ -206,11 +211,16 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
     // Setup clip
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, &arfps, &ars, &scissorState, nullptr)) {
+    GrAppliedClip clip;
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &scissorState, nullptr, &clip)) {
         return;
+    }
+
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
+    if (clip.clipCoverageFragmentProcessor()) {
+        arfps.set(&pipelineBuilder);
+        arfps.addCoverageFragmentProcessor(clip.clipCoverageFragmentProcessor());
     }
 
     // set stencil settings for path
@@ -261,11 +271,17 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     // batches.
 
     GrScissorState scissorState;
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
     GrPipelineBuilder::AutoRestoreStencil ars;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, &arfps, &ars, &scissorState,
-                                         &batch->bounds())) {
+    GrAppliedClip clip;
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &scissorState, &batch->bounds(),
+                                         &clip)) {
         return;
+    }
+
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
+    if (clip.clipCoverageFragmentProcessor()) {
+        arfps.set(&pipelineBuilder);
+        arfps.addCoverageFragmentProcessor(clip.clipCoverageFragmentProcessor());
     }
 
     // Ensure the render target has a stencil buffer and get the stencil settings.

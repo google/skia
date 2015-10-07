@@ -185,7 +185,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     SkRect srcRect;
     src.getBounds(&srcRect);
 
-    SkAutoTUnref<GrFragmentProcessor> foregroundDomain(GrTextureDomainEffect::Create(
+    SkAutoTUnref<const GrFragmentProcessor> foregroundDomain(GrTextureDomainEffect::Create(
         foregroundTex, foregroundMatrix,
         GrTextureDomain::MakeTexelDomain(foregroundTex, foreground.bounds()),
         GrTextureDomain::kDecal_Mode,

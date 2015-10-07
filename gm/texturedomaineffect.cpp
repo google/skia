@@ -116,7 +116,7 @@ protected:
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPipelineBuilder pipelineBuilder;
-                    SkAutoTUnref<GrFragmentProcessor> fp(
+                    SkAutoTUnref<const GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Create(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
                                                                                 texelDomains[d]),

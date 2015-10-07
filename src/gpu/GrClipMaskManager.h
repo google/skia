@@ -23,6 +23,25 @@ class GrPathRenderer;
 class GrPathRendererChain;
 class GrTexture;
 class SkPath;
+
+/**
+ * Produced by GrClipMaskManager. It provides a set of modifications to the drawing state that
+ * are used to create the final GrPipeline for a GrBatch. This is a work in progress. It will
+ * eventually encapsulate all mechanisms for modifying the scissor, shaders, and stencil state
+ * to implement clipping.
+ */
+class GrAppliedClip : public SkNoncopyable {
+public:
+    GrAppliedClip() {}
+    const GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP; }
+
+private:
+    SkAutoTUnref<const GrFragmentProcessor> fClipCoverageFP;
+    friend class GrClipMaskManager;
+
+    typedef SkNoncopyable INHERITED;
+};
+
 /**
  * The clip mask creator handles the generation of the clip mask. If anti
  * aliasing is requested it will (in the future) generate a single channel
@@ -43,10 +62,10 @@ public:
      * clip. devBounds is optional but can help optimize clipping.
      */
     bool setupClipping(const GrPipelineBuilder&,
-                       GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
                        GrPipelineBuilder::AutoRestoreStencil*,
                        GrScissorState*,
-                       const SkRect* devBounds);
+                       const SkRect* devBounds,
+                       GrAppliedClip*);
 
     bool isClipInStencil() const {
         return kStencil_ClipMaskType == fCurrClipMaskType;
@@ -77,11 +96,9 @@ private:
 
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
     // whether the element list was successfully converted to effects.
-    bool installClipEffects(const GrPipelineBuilder&,
-                            GrPipelineBuilder::AutoRestoreFragmentProcessorState*,
-                            const GrReducedClip::ElementList&,
-                            const SkVector& clipOffset,
-                            const SkRect* devBounds);
+    const GrFragmentProcessor* getAnalyticClipProcessor(const GrReducedClip::ElementList&,
+                                                        const SkVector& clipOffset,
+                                                        const SkRect* devBounds);
 
     // Draws the clip into the stencil buffer
     bool createStencilClipMask(GrRenderTarget*,
@@ -163,6 +180,8 @@ private:
         kStencil_ClipMaskType,
         kAlpha_ClipMaskType,
     } fCurrClipMaskType;
+
+    static const int kMaxAnalyticElements = 4;
 
     GrDrawTarget*   fDrawTarget;    // This is our owning draw target.
     StencilClipMode fClipMode;

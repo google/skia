@@ -208,7 +208,7 @@ GrTexture* GaussianBlur(GrContext* context,
             matrix.mapRect(&domain, rect);
             domain.inset(i < scaleFactorX ? SK_ScalarHalf / srcTexture->width() : 0.0f,
                          i < scaleFactorY ? SK_ScalarHalf / srcTexture->height() : 0.0f);
-            SkAutoTUnref<GrFragmentProcessor> fp(GrTextureDomainEffect::Create(
+            SkAutoTUnref<const GrFragmentProcessor> fp(GrTextureDomainEffect::Create(
                 srcTexture,
                 matrix,
                 domain,

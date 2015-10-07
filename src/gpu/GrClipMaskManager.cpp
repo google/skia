@@ -27,16 +27,9 @@
 typedef SkClipStack::Element Element;
 
 ////////////////////////////////////////////////////////////////////////////////
-namespace {
 // set up the draw state to enable the aa clipping mask. Besides setting up the
 // stage matrix this also alters the vertex layout
-void setup_drawstate_aaclip(const GrPipelineBuilder& pipelineBuilder,
-                            GrTexture* result,
-                            GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
-                            const SkIRect &devBound) {
-    SkASSERT(arfps);
-    arfps->set(&pipelineBuilder);
-
+static const GrFragmentProcessor* create_fp_for_mask(GrTexture* result, const SkIRect &devBound) {
     SkMatrix mat;
     // We use device coords to compute the texture coordinates. We set our matrix to be a
     // translation to the devBound, and then a scaling matrix to normalized coords.
@@ -45,23 +38,21 @@ void setup_drawstate_aaclip(const GrPipelineBuilder& pipelineBuilder,
                      SkIntToScalar(-devBound.fTop));
 
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    // This could be a long-lived effect that is cached with the alpha-mask.
-    arfps->addCoverageFragmentProcessor(
-        GrTextureDomainEffect::Create(result,
-                                      mat,
-                                      GrTextureDomain::MakeTexelDomain(result, domainTexels),
-                                      GrTextureDomain::kDecal_Mode,
-                                      GrTextureParams::kNone_FilterMode,
-                                      kDevice_GrCoordSet))->unref();
+    return GrTextureDomainEffect::Create(result,
+                                         mat,
+                                         GrTextureDomain::MakeTexelDomain(result, domainTexels),
+                                         GrTextureDomain::kDecal_Mode,
+                                         GrTextureParams::kNone_FilterMode,
+                                         kDevice_GrCoordSet);
 }
 
-bool path_needs_SW_renderer(GrContext* context,
-                            const GrDrawTarget* gpu,
-                            const GrPipelineBuilder& pipelineBuilder,
-                            const SkMatrix& viewMatrix,
-                            const SkPath& origPath,
-                            const GrStrokeInfo& stroke,
-                            bool doAA) {
+static bool path_needs_SW_renderer(GrContext* context,
+                                   const GrDrawTarget* gpu,
+                                   const GrPipelineBuilder& pipelineBuilder,
+                                   const SkMatrix& viewMatrix,
+                                   const SkPath& origPath,
+                                   const GrStrokeInfo& stroke,
+                                   bool doAA) {
     // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
     SkTCopyOnFirstWrite<SkPath> path(origPath);
     if (path->isInverseFillType()) {
@@ -74,7 +65,6 @@ bool path_needs_SW_renderer(GrContext* context,
 
     return nullptr == context->getPathRenderer(gpu, &pipelineBuilder, viewMatrix, *path, stroke,
                                             false, type);
-}
 }
 
 GrClipMaskManager::GrClipMaskManager(GrDrawTarget* drawTarget)
@@ -119,20 +109,21 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
     return false;
 }
 
-bool GrClipMaskManager::installClipEffects(
-        const GrPipelineBuilder& pipelineBuilder,
-        GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
-        const GrReducedClip::ElementList& elements,
-        const SkVector& clipToRTOffset,
-        const SkRect* drawBounds) {
+const GrFragmentProcessor* GrClipMaskManager::getAnalyticClipProcessor(
+                                                        const GrReducedClip::ElementList& elements,
+                                                        const SkVector& clipToRTOffset,
+                                                        const SkRect* drawBounds) {
     SkRect boundsInClipSpace;
     if (drawBounds) {
         boundsInClipSpace = *drawBounds;
         boundsInClipSpace.offset(-clipToRTOffset.fX, -clipToRTOffset.fY);
     }
-
-    arfps->set(&pipelineBuilder);
-    GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
+    SkASSERT(elements.count() <= kMaxAnalyticElements);
+    const GrFragmentProcessor* fps[kMaxAnalyticElements];
+    for (int i = 0; i < kMaxAnalyticElements; ++i) {
+        fps[i] = nullptr;
+    }
+    int fpCnt = 0;
     GrReducedClip::ElementList::Iter iter(elements);
     bool failed = false;
     while (iter.get()) {
@@ -165,62 +156,59 @@ bool GrClipMaskManager::installClipEffects(
         if (!skip) {
             GrPrimitiveEdgeType edgeType;
             if (iter.get()->isAA()) {
-                if (rt->isUnifiedMultisampled()) {
-                    // Coverage based AA clips don't place nicely with MSAA.
-                    failed = true;
-                    break;
-                }
                 edgeType =
-                        invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
+                    invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
             } else {
-                edgeType = invert ? kInverseFillBW_GrProcessorEdgeType :
-                                    kFillBW_GrProcessorEdgeType;
+                edgeType =
+                    invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
             }
-            SkAutoTUnref<GrFragmentProcessor> fp;
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
-                    fp.reset(GrConvexPolyEffect::Create(edgeType, iter.get()->getPath(),
-                                                        &clipToRTOffset));
+                    fps[fpCnt] = GrConvexPolyEffect::Create(edgeType, iter.get()->getPath(),
+                                                            &clipToRTOffset);
                     break;
                 case SkClipStack::Element::kRRect_Type: {
                     SkRRect rrect = iter.get()->getRRect();
                     rrect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
-                    fp.reset(GrRRectEffect::Create(edgeType, rrect));
+                    fps[fpCnt] = GrRRectEffect::Create(edgeType, rrect);
                     break;
                 }
                 case SkClipStack::Element::kRect_Type: {
                     SkRect rect = iter.get()->getRect();
                     rect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
-                    fp.reset(GrConvexPolyEffect::Create(edgeType, rect));
+                    fps[fpCnt] = GrConvexPolyEffect::Create(edgeType, rect);
                     break;
                 }
                 default:
                     break;
             }
-            if (fp) {
-                arfps->addCoverageFragmentProcessor(fp);
-            } else {
+            if (!fps[fpCnt]) {
                 failed = true;
                 break;
             }
+            fpCnt++;
         }
         iter.next();
     }
 
-    if (failed) {
-        arfps->set(nullptr);
+    const GrFragmentProcessor* resultFP = nullptr;
+    if (!failed) {
+        resultFP = GrFragmentProcessor::RunInSeries(fps, fpCnt);
     }
-    return !failed;
+    for (int i = 0; i < fpCnt; ++i) {
+        fps[i]->unref();
+    }
+    return resultFP;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
-                                      GrPipelineBuilder::AutoRestoreFragmentProcessorState* arfps,
                                       GrPipelineBuilder::AutoRestoreStencil* ars,
                                       GrScissorState* scissorState,
-                                      const SkRect* devBounds) {
+                                      const SkRect* devBounds,
+                                      GrAppliedClip* out) {
     fCurrClipMaskType = kNone_ClipMaskType;
     if (kRespectClip_StencilClipMode == fClipMode) {
         fClipMode = kIgnoreClip_StencilClipMode;
@@ -288,12 +276,16 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     // when drawing rounded div borders. This could probably be tuned based on a
     // configuration's relative costs of switching RTs to generate a mask vs
     // longer shaders.
-    if (elements.count() <= 4) {
+    if (elements.count() <= kMaxAnalyticElements) {
         SkVector clipToRTOffset = { SkIntToScalar(-clip.origin().fX),
                                     SkIntToScalar(-clip.origin().fY) };
+        // When there are multiple color samples we want to do per-sample clipping, not compute
+        // a fractional pixel coverage.
+        bool disallowAnalyticAA = pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
+        const GrFragmentProcessor* clipFP = nullptr;
         if (elements.isEmpty() ||
-            (requiresAA && this->installClipEffects(pipelineBuilder, arfps, elements, clipToRTOffset,
-                                                    devBounds))) {
+            (requiresAA && !disallowAnalyticAA &&
+             SkToBool(clipFP = this->getAnalyticClipProcessor(elements, clipToRTOffset, devBounds)))) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
             if (nullptr == devBounds ||
@@ -301,6 +293,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
                 scissorState->set(scissorSpaceIBounds);
             }
             this->setPipelineBuilderStencil(pipelineBuilder, ars);
+            out->fClipCoverageFP.reset(clipFP);
             return true;
         }
     }
@@ -332,12 +325,11 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         }
 
         if (result) {
-            arfps->set(&pipelineBuilder);
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = clipSpaceIBounds;
             rtSpaceMaskBounds.offset(-clip.origin());
-            setup_drawstate_aaclip(pipelineBuilder, result, arfps, rtSpaceMaskBounds);
+            out->fClipCoverageFP.reset(create_fp_for_mask(result, rtSpaceMaskBounds));
             this->setPipelineBuilderStencil(pipelineBuilder, ars);
             return true;
         }

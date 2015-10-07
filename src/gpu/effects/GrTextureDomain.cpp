@@ -215,12 +215,12 @@ void GrGLTextureDomainEffect::GenKey(const GrProcessor& processor, const GrGLSLC
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor* GrTextureDomainEffect::Create(GrTexture* texture,
-                                                   const SkMatrix& matrix,
-                                                   const SkRect& domain,
-                                                   GrTextureDomain::Mode mode,
-                                                   GrTextureParams::FilterMode filterMode,
-                                                   GrCoordSet coordSet) {
+const GrFragmentProcessor* GrTextureDomainEffect::Create(GrTexture* texture,
+                                                         const SkMatrix& matrix,
+                                                         const SkRect& domain,
+                                                         GrTextureDomain::Mode mode,
+                                                         GrTextureParams::FilterMode filterMode,
+                                                         GrCoordSet coordSet) {
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && domain.contains(kFullRect))) {
@@ -243,12 +243,10 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
     this->initClassID<GrTextureDomainEffect>();
 }
 
-GrTextureDomainEffect::~GrTextureDomainEffect() {
-
-}
+GrTextureDomainEffect::~GrTextureDomainEffect() {}
 
 void GrTextureDomainEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                              GrProcessorKeyBuilder* b) const {
+                                                GrProcessorKeyBuilder* b) const {
     GrGLTextureDomainEffect::GenKey(*this, caps, b);
 }
 
@@ -290,10 +288,11 @@ const GrFragmentProcessor* GrTextureDomainEffect::TestCreate(GrProcessorTestData
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? d->fRandom->nextBool() : false;
     GrCoordSet coords = d->fRandom->nextBool() ? kLocal_GrCoordSet : kDevice_GrCoordSet;
-    return GrTextureDomainEffect::Create(d->fTextures[texIdx],
-                                         matrix,
-                                         domain,
-                                         mode,
-                                         bilerp ? GrTextureParams::kBilerp_FilterMode : GrTextureParams::kNone_FilterMode,
-                                         coords);
+    return GrTextureDomainEffect::Create(
+        d->fTextures[texIdx],
+        matrix,
+        domain,
+        mode,
+        bilerp ? GrTextureParams::kBilerp_FilterMode : GrTextureParams::kNone_FilterMode,
+        coords);
 }

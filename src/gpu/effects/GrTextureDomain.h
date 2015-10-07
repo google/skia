@@ -160,12 +160,12 @@ protected:
 class GrTextureDomainEffect : public GrSingleTextureEffect {
 
 public:
-    static GrFragmentProcessor* Create(GrTexture*,
-                                       const SkMatrix&,
-                                       const SkRect& domain,
-                                       GrTextureDomain::Mode,
-                                       GrTextureParams::FilterMode filterMode,
-                                       GrCoordSet = kLocal_GrCoordSet);
+    static const GrFragmentProcessor* Create(GrTexture*,
+                                             const SkMatrix&,
+                                             const SkRect& domain,
+                                             GrTextureDomain::Mode,
+                                             GrTextureParams::FilterMode filterMode,
+                                             GrCoordSet = kLocal_GrCoordSet);
 
     virtual ~GrTextureDomainEffect();
 
