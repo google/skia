@@ -29,9 +29,6 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
   args = []
 
-  # Temporarily disable image benchmarking.
-  args.append('--images')
-
   if 'Appurify' not in bot:
     args.extend(['--scales', '1.0', '1.1'])
 
