@@ -1,5 +1,6 @@
 {
   "Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release": [
+    "--images", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -17,6 +18,7 @@
     "~desk_unicodetable"
   ], 
   "Perf-Android-Nexus7-Tegra3-Arm7-Release": [
+    "--images", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -35,6 +37,7 @@
     "~desk_carsvg"
   ], 
   "Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release": [
+    "--images", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -52,6 +55,7 @@
     "~GLInstancedArraysBench"
   ], 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": [
+    "--images", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -70,6 +74,7 @@
     "1"
   ], 
   "Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE": [
+    "--images", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -91,6 +96,7 @@
     "~etc1bitmap"
   ], 
   "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug": [
+    "--images", 
     "--scales", 
     "1.0", 
     "1.1", 
