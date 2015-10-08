@@ -111,11 +111,12 @@ void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
                                        const SkMatrix& viewMatrix,
                                        const SkMatrix& localMatrix,
                                        GrColor color,
+                                       GrPathRange* range,
                                        GrPathRangeDraw* draw,
                                        int /*GrPathRendering::FillType*/ fill) {
     RETURN_IF_ABANDONED
 
-    fDrawTarget->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color, draw,
+    fDrawTarget->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color, range, draw,
                                     (GrPathRendering::FillType) fill);
 }
 

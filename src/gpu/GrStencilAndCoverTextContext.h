@@ -17,7 +17,6 @@
 
 class GrTextStrike;
 class GrPath;
-class GrPathRange;
 class SkSurfaceProps;
 
 /*
@@ -60,22 +59,22 @@ private:
         TextRun(const SkPaint& fontAndStroke);
         ~TextRun();
 
-        void setText(const char text[], size_t byteLength, SkScalar x, SkScalar y,
-                     GrContext*, const SkSurfaceProps*);
+        void setText(const char text[], size_t byteLength, SkScalar x, SkScalar y);
 
-        void setPosText(const char text[], size_t byteLength,
-                        const SkScalar pos[], int scalarsPerPosition, const SkPoint& offset,
-                        GrContext*, const SkSurfaceProps*);
+        void setPosText(const char text[], size_t byteLength, const SkScalar pos[],
+                        int scalarsPerPosition, const SkPoint& offset);
 
-        void draw(GrDrawContext*, GrPipelineBuilder*, GrColor, const SkMatrix&,
+        void draw(GrContext*, GrDrawContext*, GrPipelineBuilder*, GrColor, const SkMatrix&,
                   SkScalar x, SkScalar y, const SkIRect& clipBounds,
                   GrTextContext* fallbackTextContext, const SkPaint& originalSkPaint) const;
 
-        int cpuMemorySize() const;
+        void releaseGlyphCache() const;
+
+        size_t computeSizeInCache() const;
 
     private:
-        GrPathRange* createGlyphs(GrContext*, SkGlyphCache*);
-
+        SkGlyphCache* getGlyphCache() const;
+        GrPathRange* createGlyphs(GrContext*) const;
         void appendGlyph(const SkGlyph&, const SkPoint&, FallbackBlobBuilder*);
 
         GrStrokeInfo                     fStroke;
@@ -83,9 +82,12 @@ private:
         SkScalar                         fTextRatio;
         float                            fTextInverseRatio;
         bool                             fUsingRawGlyphPaths;
+        GrUniqueKey                      fGlyphPathsKey;
         int                              fTotalGlyphCount;
         SkAutoTUnref<GrPathRangeDraw>    fDraw;
         SkAutoTUnref<const SkTextBlob>   fFallbackTextBlob;
+        mutable SkGlyphCache*            fDetachedGlyphCache;
+        mutable uint32_t                 fLastDrawnGlyphsID;
         mutable SkMatrix                 fLocalMatrixTemplate;
     };
 
@@ -102,27 +104,25 @@ private:
             return SkChecksum::Murmur3(key.begin(), sizeof(uint32_t) * key.count());
         }
 
-        TextBlob(uint32_t blobId, const SkTextBlob* skBlob, const SkPaint& skPaint,
-                 GrContext* ctx, const SkSurfaceProps* props)
-            : fKey(&blobId, 1) { this->init(skBlob, skPaint, ctx, props); }
+        TextBlob(uint32_t blobId, const SkTextBlob* skBlob, const SkPaint& skPaint)
+            : fKey(&blobId, 1) { this->init(skBlob, skPaint); }
 
-        TextBlob(const Key& key, const SkTextBlob* skBlob, const SkPaint& skPaint,
-                 GrContext* ctx, const SkSurfaceProps* props)
+        TextBlob(const Key& key, const SkTextBlob* skBlob, const SkPaint& skPaint)
             : fKey(key) {
             // 1-length keys are unterstood to be the blob id and must use the other constructor.
             SkASSERT(fKey.count() > 1);
-            this->init(skBlob, skPaint, ctx, props);
+            this->init(skBlob, skPaint);
         }
 
         const Key& key() const { return fKey; }
 
-        int cpuMemorySize() const { return fCpuMemorySize; }
+        size_t cpuMemorySize() const { return fCpuMemorySize; }
 
     private:
-        void init(const SkTextBlob*, const SkPaint&, GrContext*, const SkSurfaceProps*);
+        void init(const SkTextBlob*, const SkPaint&);
 
         const SkSTArray<1, uint32_t, true>   fKey;
-        int                                  fCpuMemorySize;
+        size_t                               fCpuMemorySize;
 
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(TextBlob);
     };
@@ -133,7 +133,7 @@ private:
     SkTHashMap<uint32_t, TextBlob*>                           fBlobIdCache;
     SkTHashTable<TextBlob*, const TextBlob::Key&, TextBlob>   fBlobKeyCache;
     SkTInternalLList<TextBlob>                                fLRUList;
-    int                                                       fCacheSize;
+    size_t                                                    fCacheSize;
 
     typedef GrTextContext INHERITED;
 };

@@ -18,6 +18,7 @@ class GrDrawBatch;
 class GrDrawTarget;
 class GrPaint;
 class GrPathProcessor;
+class GrPathRange;
 class GrPathRangeDraw;
 class GrPipelineBuilder;
 class GrRenderTarget;
@@ -67,6 +68,7 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkMatrix& localMatrix,
                             GrColor color,
+                            GrPathRange* range,
                             GrPathRangeDraw* draw,
                             int /*GrPathRendering::FillType*/ fill);
 

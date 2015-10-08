@@ -56,13 +56,14 @@ bool GrDrawPathRangeBatch::isWinding() const {
 }
 
 GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-                                           GrColor color, GrPathRangeDraw* pathRangeDraw)
+                                           GrColor color, GrPathRange* range, GrPathRangeDraw* draw)
     : INHERITED(ClassID(), viewMatrix, color)
+    , fPathRange(range)
     , fDraws(4)
     , fLocalMatrix(localMatrix) {
-    SkDEBUGCODE(pathRangeDraw->fUsedInBatch = true;)
-    fDraws.addToHead(SkRef(pathRangeDraw));
-    fTotalPathCount = pathRangeDraw->count();
+    SkDEBUGCODE(draw->fUsedInBatch = true;)
+    fDraws.addToHead(SkRef(draw));
+    fTotalPathCount = draw->count();
     // Don't compute a bounding box. For dst copy texture, we'll opt instead for it to just copy
     // the entire dst. Realistically this is a moot point, because any context that supports
     // NV_path_rendering will also support NV_blend_equation_advanced.
@@ -72,6 +73,9 @@ GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkM
 
 bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     GrDrawPathRangeBatch* that = t->cast<GrDrawPathRangeBatch>();
+    if (this->fPathRange.get() != that->fPathRange.get()) {
+        return false;
+    }
     if (!GrPathRangeDraw::CanMerge(**this->fDraws.head(), **that->fDraws.head())) {
         return false;
     }
@@ -116,13 +120,12 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
                                         &desc, &this->stencilSettings());
     if (fDraws.count() == 1) {
         const GrPathRangeDraw& draw = **fDraws.head();
-        state->gpu()->pathRendering()->drawPaths(args, draw.range(), draw.indices(),
+        state->gpu()->pathRendering()->drawPaths(args, fPathRange.get(), draw.indices(),
             GrPathRange::kU16_PathIndexType, draw.transforms(), draw.transformType(),
             draw.count());
         return;
     }
 
-    const GrPathRange* range = (*fDraws.head())->range();
     GrPathRendering::PathTransformType transformType = (*fDraws.head())->transformType();
     int floatsPerTransform = GrPathRendering::PathTransformSize(transformType);
     SkAutoSTMalloc<512, float> transformStorage(floatsPerTransform * fTotalPathCount);
@@ -131,7 +134,6 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
     float* transforms = transformStorage.get();
     for (DrawList::Iter iter(fDraws); iter.get(); iter.next()) {
         SkASSERT((*iter.get())->transformType() == transformType);
-        SkASSERT((*iter.get())->range() == range);
         int cnt = (*iter.get())->count();
         memcpy(indices, (*iter.get())->indices(), cnt * sizeof(uint16_t));
         indices += cnt;
@@ -139,7 +141,7 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
         transforms += cnt * floatsPerTransform;
     }
     SkASSERT(indices - indexStorage.get() == fTotalPathCount);
-    state->gpu()->pathRendering()->drawPaths(args, range, indexStorage.get(),
+    state->gpu()->pathRendering()->drawPaths(args, fPathRange.get(), indexStorage.get(),
         GrPathRange::kU16_PathIndexType, transformStorage.get(), transformType,
         fTotalPathCount);
 }

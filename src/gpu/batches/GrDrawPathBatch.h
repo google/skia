@@ -95,9 +95,8 @@ class GrPathRangeDraw : public GrNonAtomicRef {
 public:
     typedef GrPathRendering::PathTransformType TransformType;
 
-    static GrPathRangeDraw* Create(GrPathRange* range, TransformType transformType,
-        int reserveCnt) {
-        return new GrPathRangeDraw(range, transformType, reserveCnt);
+    static GrPathRangeDraw* Create(TransformType transformType, int reserveCnt) {
+        return new GrPathRangeDraw(transformType, reserveCnt);
     }
 
     void append(uint16_t index, float transform[]) {
@@ -113,20 +112,13 @@ public:
 
     const uint16_t* indices() const { return fIndices.begin(); }
 
-    const GrPathRange* range() const { return fPathRange.get(); }
-
-    void loadGlyphPathsIfNeeded() {
-        fPathRange.get()->loadPathsIfNeeded<uint16_t>(fIndices.begin(), fIndices.count());
-    }
-
     static bool CanMerge(const GrPathRangeDraw& a, const GrPathRangeDraw& b) {
-        return a.transformType() == b.transformType() && a.range() == b.range();
+        return a.transformType() == b.transformType();
     }
 
 private:
-    GrPathRangeDraw(GrPathRange* range, TransformType transformType, int reserveCnt)
-        : fPathRange(range)
-        , fTransformType(transformType)
+    GrPathRangeDraw(TransformType transformType, int reserveCnt)
+        : fTransformType(transformType)
         , fIndices(reserveCnt)
         , fTransforms(reserveCnt * GrPathRendering::PathTransformSize(transformType)) {
         SkDEBUGCODE(fUsedInBatch = false;)
@@ -136,7 +128,6 @@ private:
     static const int kIndexReserveCnt = 64;
     static const int kTransformBufferReserveCnt = 2 * 64;
 
-    GrPendingIOResource<const GrPathRange, kRead_GrIOType> fPathRange;
     GrPathRendering::PathTransformType                     fTransformType;
     SkSTArray<kIndexReserveCnt, uint16_t, true>            fIndices;
     SkSTArray<kTransformBufferReserveCnt, float, true>     fTransforms;
@@ -157,8 +148,8 @@ public:
 
     // This can't return a more abstract type because we install the stencil settings late :(
     static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-                                       GrColor color, GrPathRangeDraw* pathRangeDraw) {
-        return new GrDrawPathRangeBatch(viewMatrix, localMatrix, color, pathRangeDraw);
+                                       GrColor color, GrPathRange* range, GrPathRangeDraw* draw) {
+        return new GrDrawPathRangeBatch(viewMatrix, localMatrix, color, range, draw);
     }
 
     ~GrDrawPathRangeBatch() override;
@@ -171,7 +162,7 @@ private:
     inline bool isWinding() const;
 
     GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix, GrColor color,
-                         GrPathRangeDraw* pathRangeDraw);
+                         GrPathRange* range, GrPathRangeDraw* draw);
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
 
@@ -179,10 +170,12 @@ private:
 
     void onDraw(GrBatchFlushState* state) override;
 
+    typedef GrPendingIOResource<const GrPathRange, kRead_GrIOType> PendingPathRange;
     typedef SkTLList<GrPathRangeDraw*> DrawList;
-    DrawList    fDraws;
-    int         fTotalPathCount;
-    SkMatrix    fLocalMatrix;
+    PendingPathRange    fPathRange;
+    DrawList            fDraws;
+    int                 fTotalPathCount;
+    SkMatrix            fLocalMatrix;
 
     typedef GrDrawPathBatchBase INHERITED;
 };

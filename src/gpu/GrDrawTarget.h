@@ -92,7 +92,7 @@ public:
      *
      * TODO: Remove this function and construct the batch outside GrDrawTarget.
      *
-     * @param draw            The range, transforms, and indices for the draw.
+     * @param draw            The transforms and indices for the draw.
      *                        This object must only be drawn once. The draw
      *                        may modify its contents.
      * @param fill            Fill type for drawing all the paths
@@ -101,6 +101,7 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkMatrix& localMatrix,
                             GrColor color,
+                            GrPathRange* range,
                             GrPathRangeDraw* draw,
                             GrPathRendering::FillType fill);
 

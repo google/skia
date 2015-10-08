@@ -8,7 +8,6 @@
 #include "GrPathRange.h"
 #include "SkPath.h"
 
-
 GrPathRange::GrPathRange(GrGpu* gpu,
                          PathGenerator* pathGenerator)
     : INHERITED(gpu, kCached_LifeCycle),
@@ -27,10 +26,14 @@ GrPathRange::GrPathRange(GrGpu* gpu,
 
 void GrPathRange::loadPathsIfNeeded(const void* indices, PathIndexType indexType, int count) const {
     switch (indexType) {
-        case kU8_PathIndexType: return this->loadPathsIfNeeded<uint8_t>(indices, count);
-        case kU16_PathIndexType: return this->loadPathsIfNeeded<uint16_t>(indices, count);
-        case kU32_PathIndexType: return this->loadPathsIfNeeded<uint32_t>(indices, count);
-        default: SkFAIL("Unknown path index type");
+        case kU8_PathIndexType:
+            return this->loadPathsIfNeeded(reinterpret_cast<const uint8_t*>(indices), count);
+        case kU16_PathIndexType:
+            return this->loadPathsIfNeeded(reinterpret_cast<const uint16_t*>(indices), count);
+        case kU32_PathIndexType:
+            return this->loadPathsIfNeeded(reinterpret_cast<const uint32_t*>(indices), count);
+        default:
+            SkFAIL("Unknown path index type");
     }
 }
 
@@ -38,10 +41,14 @@ void GrPathRange::loadPathsIfNeeded(const void* indices, PathIndexType indexType
 
 void GrPathRange::assertPathsLoaded(const void* indices, PathIndexType indexType, int count) const {
     switch (indexType) {
-        case kU8_PathIndexType: return this->assertPathsLoaded<uint8_t>(indices, count);
-        case kU16_PathIndexType: return this->assertPathsLoaded<uint16_t>(indices, count);
-        case kU32_PathIndexType: return this->assertPathsLoaded<uint32_t>(indices, count);
-        default: SkFAIL("Unknown path index type");
+        case kU8_PathIndexType:
+            return this->assertPathsLoaded(reinterpret_cast<const uint8_t*>(indices), count);
+        case kU16_PathIndexType:
+            return this->assertPathsLoaded(reinterpret_cast<const uint16_t*>(indices), count);
+        case kU32_PathIndexType:
+            return this->assertPathsLoaded(reinterpret_cast<const uint32_t*>(indices), count);
+        default:
+            SkFAIL("Unknown path index type");
     }
 }
 
