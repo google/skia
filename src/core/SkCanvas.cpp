@@ -1285,35 +1285,6 @@ bool SkAutoROCanvasPixels::asROBitmap(SkBitmap* bitmap) const {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
-                                const SkMatrix& matrix, const SkPaint* paint) {
-    if (bitmap.drawsNothing()) {
-        return;
-    }
-
-    SkLazyPaint lazy;
-    if (nullptr == paint) {
-        paint = lazy.init();
-    }
-
-    SkDEBUGCODE(bitmap.validate();)
-
-    SkRect storage;
-    const SkRect* bounds = nullptr;
-    if (paint && paint->canComputeFastBounds()) {
-        bitmap.getBounds(&storage);
-        matrix.mapRect(&storage);
-        bounds = &paint->computeFastBounds(storage, &storage);
-    }
-
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
-
-    while (iter.next()) {
-        iter.fDevice->drawBitmap(iter, bitmap, matrix, looper.paint());
-    }
-
-    LOOPER_END
-}
 
 void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
                                   const SkPaint* paint, bool deviceIsBitmapDevice) {
@@ -2196,23 +2167,35 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmap()");
     SkDEBUGCODE(bitmap.validate();)
 
-    if (nullptr == paint || paint->canComputeFastBounds()) {
-        SkRect bounds = {
-            x, y,
-            x + SkIntToScalar(bitmap.width()),
-            y + SkIntToScalar(bitmap.height())
-        };
-        if (paint) {
-            (void)paint->computeFastBounds(bounds, &bounds);
-        }
-        if (this->quickReject(bounds)) {
+    if (bitmap.drawsNothing()) {
+        return;
+    }
+
+    SkLazyPaint lazy;
+    if (nullptr == paint) {
+        paint = lazy.init();
+    }
+
+    const SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+
+    SkRect storage;
+    const SkRect* bounds = nullptr;
+    if (paint->canComputeFastBounds()) {
+        bitmap.getBounds(&storage);
+        matrix.mapRect(&storage);
+        bounds = &paint->computeFastBounds(storage, &storage);
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
 
-    SkMatrix matrix;
-    matrix.setTranslate(x, y);
-    this->internalDrawBitmap(bitmap, matrix, paint);
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
+
+    while (iter.next()) {
+        iter.fDevice->drawBitmap(iter, bitmap, matrix, looper.paint());
+    }
+    
+    LOOPER_END
 }
 
 // this one is non-virtual, so it can be called safely by other canvas apis

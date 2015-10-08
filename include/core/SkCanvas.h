@@ -1402,9 +1402,6 @@ private:
     SkISize getTopLayerSize() const;
     SkIPoint getTopLayerOrigin() const;
 
-    // internal methods are not virtual, so they can safely be called by other
-    // canvas apis, without confusing subclasses (like SkPictureRecording)
-    void internalDrawBitmap(const SkBitmap&, const SkMatrix& m, const SkPaint* paint);
     void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                 const SkRect& dst, const SkPaint* paint,
                                 SrcRectConstraint);
