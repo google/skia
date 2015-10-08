@@ -62,14 +62,20 @@ void SubsetZoomBench::onDraw(int n, SkCanvas* canvas) {
         for (int count = 0; count < n; count++) {
             SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(fStream->duplicate()));
             const SkImageInfo info = codec->getInfo().makeColorType(fColorType);
-            SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-            codec->startScanlineDecode(info, nullptr, colors, &colorCount);
+            SkAutoTDeleteArray<uint8_t> row(nullptr);
+            if (codec->getScanlineOrder() == SkCodec::kTopDown_SkScanlineOrder) {
+                row.reset(new uint8_t[info.minRowBytes()]);
+            }
 
             const int centerX = info.width() / 2;
             const int centerY = info.height() / 2;
             int w = fSubsetWidth;
             int h = fSubsetHeight;
             do {
+                SkDEBUGCODE(SkCodec::Result result = )
+                codec->startScanlineDecode(info, nullptr, colors, &colorCount);
+                SkASSERT(SkCodec::kSuccess == result);
+
                 const int subsetStartX = SkTMax(0, centerX - w / 2);
                 const int subsetStartY = SkTMax(0, centerY - h / 2);
                 const int subsetWidth = SkTMin(w, info.width() - subsetStartX);
@@ -81,12 +87,44 @@ void SubsetZoomBench::onDraw(int n, SkCanvas* canvas) {
                 alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
                 uint32_t bpp = info.bytesPerPixel();
-                codec->skipScanlines(subsetStartY);
-                for (int y = 0; y < subsetHeight; y++) {
-                    codec->getScanlines(row.get(), 1, 0);
-                    memcpy(bitmap.getAddr(0, y), row.get() + subsetStartX * bpp,
-                            subsetWidth * bpp);
+
+                SkDEBUGCODE(result = ) codec->skipScanlines(subsetStartY);
+                SkASSERT(SkCodec::kSuccess == result);
+
+                switch (codec->getScanlineOrder()) {
+                    case SkCodec::kTopDown_SkScanlineOrder:
+                        for (int y = 0; y < subsetHeight; y++) {
+                            SkDEBUGCODE(result = ) codec->getScanlines(row.get(), 1, 0);
+                            SkASSERT(SkCodec::kSuccess == result);
+
+                            memcpy(bitmap.getAddr(0, y), row.get() + subsetStartX * bpp,
+                                    subsetWidth * bpp);
+                        }
+                        break;
+                    case SkCodec::kNone_SkScanlineOrder: {
+                        // decode all scanlines that intersect the subset, and copy the subset
+                        // into the output.
+                        SkImageInfo stripeInfo = info.makeWH(info.width(), subsetHeight);
+                        SkBitmap stripeBm;
+                        alloc_pixels(&stripeBm, stripeInfo, colors, colorCount);
+
+                        SkDEBUGCODE(result = ) codec->getScanlines(stripeBm.getPixels(),
+                                subsetHeight, stripeBm.rowBytes());
+                        SkASSERT(SkCodec::kSuccess == result);
+
+                        for (int y = 0; y < subsetHeight; y++) {
+                            memcpy(bitmap.getAddr(0, y),
+                                   stripeBm.getAddr(subsetStartX, y),
+                                   subsetWidth * bpp);
+                        }
+                        break;
+                    }
+                    default:
+                        // We currently are only testing kTopDown and kNone, which are the only
+                        // two used by the subsets we care about. skbug.com/4428
+                        SkASSERT(false);
                 }
+
                 w <<= 1;
                 h <<= 1;
             } while (w < 2 * info.width() || h < 2 * info.height());
@@ -95,7 +133,7 @@ void SubsetZoomBench::onDraw(int n, SkCanvas* canvas) {
         for (int count = 0; count < n; count++) {
             int width, height;
             SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(fStream));
-            decoder->buildTileIndex(fStream->duplicate(), &width, &height);
+            SkAssertResult(decoder->buildTileIndex(fStream->duplicate(), &width, &height));
 
             const int centerX = width / 2;
             const int centerY = height / 2;
@@ -109,7 +147,7 @@ void SubsetZoomBench::onDraw(int n, SkCanvas* canvas) {
                 SkBitmap bitmap;
                 SkIRect rect = SkIRect::MakeXYWH(subsetStartX, subsetStartY, subsetWidth,
                         subsetHeight);
-                decoder->decodeSubset(&bitmap, rect, fColorType);
+                SkAssertResult(decoder->decodeSubset(&bitmap, rect, fColorType));
                 w <<= 1;
                 h <<= 1;
             } while (w < 2 * width || h < 2 * height);

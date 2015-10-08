@@ -501,6 +501,27 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 }
 
 /*
+ * We only run our subset benches on files that are supported by BitmapRegionDecoder:
+ * i.e. PNG, JPEG, and WEBP. We do *not* test WEBP when using codec, since we do not
+ * have a scanline decoder for WEBP, which is necessary for running the subset bench.
+ * (Another bench must be used to test WEBP, which decodes subsets natively.)
+ */
+static bool run_subset_bench(const SkString& path, bool useCodec) {
+    static const char* const exts[] = {
+        "jpg", "jpeg", "png",
+        "JPG", "JPEG", "PNG",
+    };
+
+    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
+        if (path.endsWith(exts[i])) {
+            return true;
+        }
+    }
+
+    return !useCodec && (path.endsWith("webp") || path.endsWith("WEBP"));
+}
+
+/*
  * Returns true if set up for a subset decode succeeds, false otherwise
  * If the set-up succeeds, the width and height parameters will be set
  */
@@ -872,8 +893,12 @@ public:
             fSourceType = "image";
             fBenchType = useCodec ? "skcodec" : "skimagedecoder";
             while (fCurrentSubsetImage < fImages.count()) {
+                const SkString& path = fImages[fCurrentSubsetImage];
+                if (!run_subset_bench(path, useCodec)) {
+                    fCurrentSubsetImage++;
+                    continue;
+                }
                 while (fCurrentColorType < fColorTypes.count()) {
-                    const SkString& path = fImages[fCurrentSubsetImage];
                     SkColorType colorType = fColorTypes[fCurrentColorType];
                     while (fCurrentSubsetType <= kLast_SubsetType) {
                         int width = 0;
