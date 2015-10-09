@@ -8,6 +8,7 @@
 
 #include "VisualBench.h"
 
+#include "GrContext.h"
 #include "ProcStats.h"
 #include "SkApplication.h"
 #include "SkCanvas.h"

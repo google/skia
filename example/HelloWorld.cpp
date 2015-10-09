@@ -10,6 +10,7 @@
 #include "HelloWorld.h"
 
 #include "gl/GrGLInterface.h"
+#include "GrContext.h"
 #include "SkApplication.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"

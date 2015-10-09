@@ -37,7 +37,7 @@
 #include "GrVertices.h"
 #include "SkDashPathPriv.h"
 #include "SkConfig8888.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkSurfacePriv.h"

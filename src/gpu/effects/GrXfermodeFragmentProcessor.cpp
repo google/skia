@@ -11,7 +11,7 @@
 #include "effects/GrConstColorProcessor.h"
 #include "gl/GrGLSLBlend.h"
 #include "gl/builders/GrGLProgramBuilder.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 
 class ComposeTwoFragmentProcessor : public GrFragmentProcessor {
 public:

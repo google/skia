@@ -6,6 +6,7 @@
  */
 
 #include "SkWindow.h"
+#include "GrContext.h"
 #include "SkCanvas.h"
 #include "SkOSMenu.h"
 #include "SkSurface.h"

@@ -9,6 +9,7 @@
 #define SkGrPriv_DEFINED
 
 #include "GrTypes.h"
+#include "GrBlend.h"
 #include "GrTextureAccess.h"
 #include "SkImageInfo.h"
 #include "SkXfermode.h"
@@ -17,6 +18,7 @@ class GrCaps;
 class GrContext;
 class GrFragmentProcessor;
 class GrPaint;
+class GrTexture;
 class GrUniqueKey;
 class SkPaint;
 class SkMatrix;
@@ -94,6 +96,48 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint
                                         false, grPaint);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
 bool GrTextureUsageSupported(const GrCaps&, int width, int height, SkImageUsageType);
+
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
+
+bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
+
+/**
+*  If the compressed data in the SkData is supported (as a texture format, this returns
+*  the pixel-config that should be used, and sets outStartOfDataToUpload to the ptr into
+*  the data where the actual raw data starts (skipping any header bytes).
+*
+*  If the compressed data is not supported, this returns kUnknown_GrPixelConfig, and
+*  ignores outStartOfDataToUpload.
+*/
+GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
+                                                 int expectedW, int expectedH,
+                                                 const void** outStartOfDataToUpload);
+
+bool GrIsImageInCache(const GrContext* ctx, uint32_t imageID, const SkIRect& subset,
+                      GrTexture* nativeTexture, const GrTextureParams*);
+
+GrTexture* GrCreateTextureForPixels(GrContext*, const GrUniqueKey& optionalKey, GrSurfaceDesc,
+                                    SkPixelRef* pixelRefForInvalidationNotificationOrNull,
+                                    const void* pixels, size_t rowBytesOrZero);
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+GR_STATIC_ASSERT((int)kZero_GrBlendCoeff == (int)SkXfermode::kZero_Coeff);
+GR_STATIC_ASSERT((int)kOne_GrBlendCoeff == (int)SkXfermode::kOne_Coeff);
+GR_STATIC_ASSERT((int)kSC_GrBlendCoeff == (int)SkXfermode::kSC_Coeff);
+GR_STATIC_ASSERT((int)kISC_GrBlendCoeff == (int)SkXfermode::kISC_Coeff);
+GR_STATIC_ASSERT((int)kDC_GrBlendCoeff == (int)SkXfermode::kDC_Coeff);
+GR_STATIC_ASSERT((int)kIDC_GrBlendCoeff == (int)SkXfermode::kIDC_Coeff);
+GR_STATIC_ASSERT((int)kSA_GrBlendCoeff == (int)SkXfermode::kSA_Coeff);
+GR_STATIC_ASSERT((int)kISA_GrBlendCoeff == (int)SkXfermode::kISA_Coeff);
+GR_STATIC_ASSERT((int)kDA_GrBlendCoeff == (int)SkXfermode::kDA_Coeff);
+GR_STATIC_ASSERT((int)kIDA_GrBlendCoeff == (int)SkXfermode::kIDA_Coeff);
+GR_STATIC_ASSERT(SkXfermode::kCoeffCount == 10);
+
+#define SkXfermodeCoeffToGrBlendCoeff(X) ((GrBlendCoeff)(X))
 
 #endif

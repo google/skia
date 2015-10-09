@@ -10,6 +10,7 @@
 #include "SkGr.h"
 
 #include "GrCaps.h"
+#include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"

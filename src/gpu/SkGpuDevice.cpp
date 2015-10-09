@@ -23,6 +23,7 @@
 #include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
 #include "SkGrTexturePixelRef.h"
+#include "SkGr.h"
 #include "SkGrPriv.h"
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"

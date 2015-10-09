@@ -15,6 +15,7 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
+#include "SkGrPriv.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #endif

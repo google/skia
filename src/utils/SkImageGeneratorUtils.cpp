@@ -47,7 +47,7 @@ SkImageGenerator* SkImageGeneratorUtils::NewFromBitmap(const SkBitmap& bm) {
 
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 
 class GeneratorFromTexture : public SkImageGenerator {
 public:

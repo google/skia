@@ -133,6 +133,7 @@ private:
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
+#include "SkGrPriv.h"
 
 class LightingFP : public GrFragmentProcessor {
 public:

@@ -5,13 +5,14 @@
 * found in the LICENSE file.
 */
 
-#include "SkBitmap.h"
 #include "SkTableColorFilter.h"
+
+#include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkUnPreMultiply.h"
 #include "SkString.h"
+#include "SkUnPreMultiply.h"
+#include "SkWriteBuffer.h"
 
 class SkTable_ColorFilter : public SkColorFilter {
 public:

@@ -11,6 +11,7 @@
 
 #include "GrBlend.h"
 #include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkRandom.h"
 #include "SkXfermode.h"
 

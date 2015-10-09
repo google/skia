@@ -6,10 +6,11 @@
  */
 
 #include "GrSurface.h"
+#include "GrContext.h"
 #include "GrSurfacePriv.h"
 
 #include "SkBitmap.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkImageEncoder.h"
 #include <stdio.h>
 
