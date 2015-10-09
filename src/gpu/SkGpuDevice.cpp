@@ -1301,6 +1301,16 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                       SkScalarMul(srcRect.fRight,  wInv),
                       SkScalarMul(srcRect.fBottom, hInv));
 
+    SkMatrix texMatrix;
+    texMatrix.reset();
+    if (kAlpha_8_SkColorType == bitmap.colorType() && paint.getShader()) {
+        // In cases where we are doing an A8 bitmap draw with a shader installed, we cannot use
+        // local coords with the bitmap draw since it may mess up texture look ups for the shader.
+        // Thus we need to pass in the transform matrix directly to the texture processor used for
+        // the bitmap draw.
+        texMatrix.setScale(wInv, hInv);
+    }
+
     SkRect textureDomain = SkRect::MakeEmpty();
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
@@ -1327,10 +1337,10 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         }
         textureDomain.setLTRB(left, top, right, bottom);
         if (bicubic) {
-            fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), textureDomain));
+            fp.reset(GrBicubicEffect::Create(texture, texMatrix, textureDomain));
         } else {
             fp.reset(GrTextureDomainEffect::Create(texture,
-                                                   SkMatrix::I(),
+                                                   texMatrix,
                                                    textureDomain,
                                                    GrTextureDomain::kClamp_Mode,
                                                    params.filterMode()));
@@ -1338,13 +1348,27 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     } else if (bicubic) {
         SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tileModes));
+        fp.reset(GrBicubicEffect::Create(texture, texMatrix, tileModes));
     } else {
-        fp.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
+        fp.reset(GrSimpleTextureEffect::Create(texture, texMatrix, params));
     }
 
+    SkAutoTUnref<const GrFragmentProcessor> shaderFP;
+
     if (kAlpha_8_SkColorType == bitmap.colorType()) {
-        fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        if (const SkShader* shader = paint.getShader()) {
+            shaderFP.reset(shader->asFragmentProcessor(this->context(),
+                                                       viewMatrix,
+                                                       nullptr,
+                                                       paint.getFilterQuality()));
+            if (!shaderFP) {
+                return;
+            }
+            const GrFragmentProcessor* fpSeries[] = { shaderFP.get(), fp.get() };
+            fp.reset(GrFragmentProcessor::RunInSeries(fpSeries, 2));
+        } else {
+            fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        }
     } else {
         fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
     }
@@ -1353,8 +1377,14 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         return;
     }
 
-    fDrawContext->drawNonAARectToRect(fRenderTarget, fClip, grPaint, viewMatrix, dstRect,
-                                      paintRect);
+    if (kAlpha_8_SkColorType == bitmap.colorType() && paint.getShader()) {
+        // We don't have local coords in this case and have previously set the transform
+        // matrices directly on the texture processor.
+        fDrawContext->drawRect(fRenderTarget, fClip, grPaint, viewMatrix, dstRect);
+    } else {
+        fDrawContext->drawNonAARectToRect(fRenderTarget, fClip, grPaint, viewMatrix, dstRect,
+                                          paintRect);
+    }
 }
 
 bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
