@@ -12,22 +12,25 @@
 
 
 SkCodec* SkScaledCodec::NewFromStream(SkStream* stream) {
-    bool isWebp = SkWebpCodec::IsWebp(stream);
-    if (!stream->rewind()) {
-        return nullptr;
-    }
-    if (isWebp) {
-        // Webp codec supports scaling and subsetting natively
-        return SkWebpCodec::NewFromStream(stream);  
-    }
-
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream));
     if (nullptr == codec) {
         return nullptr;
     }
 
-    // wrap in new SkScaledCodec
-    return new SkScaledCodec(codec.detach());
+    switch (codec->getEncodedFormat()) {
+        case kWEBP_SkEncodedFormat:
+            // Webp codec supports scaling and subsetting natively
+            return codec.detach();
+        case kPNG_SkEncodedFormat:
+        case kJPEG_SkEncodedFormat:
+            // wrap in new SkScaledCodec
+            return new SkScaledCodec(codec.detach());
+        default:
+            // FIXME: SkScaledCodec is temporarily disabled for other formats
+            // while focusing on the formats that are supported by
+            // BitmapRegionDecoder.
+            return nullptr;
+    }
 }
 
 SkCodec* SkScaledCodec::NewFromData(SkData* data) {

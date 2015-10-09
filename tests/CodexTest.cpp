@@ -126,6 +126,22 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
     }
 }
 
+// FIXME: SkScaledCodec is currently only supported for types used by BRD
+// skbug.com/4428
+static bool supports_scaled_codec(const char path[]) {
+    static const char* const exts[] = {
+        "jpg", "jpeg", "png", "webp"
+        "JPG", "JPEG", "PNG", "WEBP"
+    };
+
+    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
+        if (SkStrEndsWith(path, exts[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void check(skiatest::Reporter* r,
                   const char path[],
                   SkISize size,
@@ -227,7 +243,8 @@ static void check(skiatest::Reporter* r,
     }
 
     // SkScaledCodec tests
-    if (supportsScanlineDecoding || supportsSubsetDecoding){
+    if ((supportsScanlineDecoding || supportsSubsetDecoding) && supports_scaled_codec(path)) {
+
         SkAutoTDelete<SkStream> stream(resource(path));
         if (!stream) {
             SkDebugf("Missing resource '%s'\n", path);
@@ -385,8 +402,11 @@ DEF_TEST(Codec_stripes, r) {
 }
 
 static void test_invalid_stream(skiatest::Reporter* r, const void* stream, size_t len) {
+    // Neither of these calls should return a codec. Bots should catch us if we leaked anything.
     SkCodec* codec = SkCodec::NewFromStream(new SkMemoryStream(stream, len, false));
-    // We should not have gotten a codec. Bots should catch us if we leaked anything.
+    REPORTER_ASSERT(r, !codec);
+
+    codec = SkScaledCodec::NewFromStream(new SkMemoryStream(stream, len, false));
     REPORTER_ASSERT(r, !codec);
 }
 
@@ -411,6 +431,16 @@ DEF_TEST(Codec_leaks, r) {
     test_invalid_stream(r, emptyBmp, sizeof(emptyBmp));
     test_invalid_stream(r, emptyIco, sizeof(emptyIco));
     test_invalid_stream(r, emptyGif, sizeof(emptyGif));
+}
+
+DEF_TEST(Codec_null, r) {
+    // Attempting to create an SkCodec or an SkScaledCodec with null should not
+    // crash.
+    SkCodec* codec = SkCodec::NewFromStream(nullptr);
+    REPORTER_ASSERT(r, !codec);
+
+    codec = SkScaledCodec::NewFromStream(nullptr);
+    REPORTER_ASSERT(r, !codec);
 }
 
 static void test_dimensions(skiatest::Reporter* r, const char path[]) {
