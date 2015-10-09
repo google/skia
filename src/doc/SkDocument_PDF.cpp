@@ -13,6 +13,7 @@
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
+#include "SkPDFMetadata.h"
 
 class SkPDFDict;
 
@@ -30,15 +31,18 @@ static void emit_pdf_footer(SkWStream* stream,
                             SkPDFObject* docCatalog,
                             int64_t objCount,
                             int32_t xRefFileOffset,
-                            SkPDFDict* info) {
+                            SkPDFObject* info /* take ownership */,
+                            SkPDFObject* id /* take ownership */) {
     SkPDFDict trailerDict;
-    // TODO(vandebo): Linearized format will take a Prev entry too.
-    // TODO(vandebo): PDF/A requires an ID entry.
+    // TODO(http://crbug.com/80908): Linearized format will take a
+    //                               Prev entry too.
     trailerDict.insertInt("Size", int(objCount));
     trailerDict.insertObjRef("Root", SkRef(docCatalog));
     SkASSERT(info);
-    trailerDict.insertObjRef("Info", SkRef(info));
-
+    trailerDict.insertObjRef("Info", info);
+    if (id) {
+        trailerDict.insertObject("ID", id);
+    }
     stream->writeText("trailer\n");
     trailerDict.emitObject(stream, objNumMap, substitutes);
     stream->writeText("\nstartxref\n");
@@ -162,49 +166,8 @@ static void generate_page_tree(const SkTDArray<SkPDFDict*>& pages,
     }
 }
 
-struct Metadata {
-    SkTArray<SkDocument::Attribute> fInfo;
-    SkAutoTDelete<const SkTime::DateTime> fCreation;
-    SkAutoTDelete<const SkTime::DateTime> fModified;
-};
-
-static SkString pdf_date(const SkTime::DateTime& dt) {
-    int timeZoneMinutes = SkToInt(dt.fTimeZoneMinutes);
-    char timezoneSign = timeZoneMinutes >= 0 ? '+' : '-';
-    int timeZoneHours = SkTAbs(timeZoneMinutes) / 60;
-    timeZoneMinutes = SkTAbs(timeZoneMinutes) % 60;
-    return SkStringPrintf(
-            "D:%04u%02u%02u%02u%02u%02u%c%02d'%02d'",
-            static_cast<unsigned>(dt.fYear), static_cast<unsigned>(dt.fMonth),
-            static_cast<unsigned>(dt.fDay), static_cast<unsigned>(dt.fHour),
-            static_cast<unsigned>(dt.fMinute),
-            static_cast<unsigned>(dt.fSecond), timezoneSign, timeZoneHours,
-            timeZoneMinutes);
-}
-
-SkPDFDict* create_document_information_dict(const Metadata& metadata) {
-    SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
-    static const char* keys[] = {
-        "Title", "Author", "Subject", "Keywords", "Creator" };
-    for (const char* key : keys) {
-        for (const SkDocument::Attribute& keyValue : metadata.fInfo) {
-            if (keyValue.fKey.equals(key)) {
-                dict->insertString(key, keyValue.fValue);
-            }
-        }
-    }
-    dict->insertString("Producer", "Skia/PDF");
-    if (metadata.fCreation) {
-        dict->insertString("CreationDate", pdf_date(*metadata.fCreation.get()));
-    }
-    if (metadata.fModified) {
-        dict->insertString("ModDate", pdf_date(*metadata.fModified.get()));
-    }
-    return dict.detach();
-}
-
 static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
-                              const Metadata& metadata,
+                              const SkPDFMetadata& metadata,
                               SkWStream* stream) {
     if (pageDevices.isEmpty()) {
         return false;
@@ -222,9 +185,37 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
         pages.push(page.detach());
     }
 
-    SkTDArray<SkPDFDict*> pageTree;
     SkAutoTUnref<SkPDFDict> docCatalog(new SkPDFDict("Catalog"));
 
+    SkAutoTUnref<SkPDFObject> infoDict(
+            metadata.createDocumentInformationDict());
+
+    SkAutoTUnref<SkPDFObject> id, xmp;
+#ifdef SK_PDF_GENERATE_PDFA
+    SkPDFMetadata::UUID uuid = metadata.uuid();
+    // We use the same UUID for Document ID and Instance ID since this
+    // is the first revision of this document (and Skia does not
+    // support revising existing PDF documents).
+    // If we are not in PDF/A mode, don't use a UUID since testing
+    // works best with reproducible outputs.
+    id.reset(SkPDFMetadata::CreatePdfId(uuid, uuid));
+    xmp.reset(metadata.createXMPObject(uuid, uuid));
+    docCatalog->insertObjRef("Metadata", xmp.detach());
+
+    // sRGB is specified by HTML, CSS, and SVG.
+    SkAutoTUnref<SkPDFDict> outputIntent(new SkPDFDict("OutputIntent"));
+    outputIntent->insertName("S", "GTS_PDFA1");
+    outputIntent->insertString("RegistryName", "http://www.color.org");
+    outputIntent->insertString("OutputConditionIdentifier",
+                               "sRGB IEC61966-2.1");
+    SkAutoTUnref<SkPDFArray> intentArray(new SkPDFArray);
+    intentArray->appendObject(outputIntent.detach());
+    // Don't specify OutputIntents if we are not in PDF/A mode since
+    // no one has ever asked for this feature.
+    docCatalog->insertObject("OutputIntents", intentArray.detach());
+#endif
+
+    SkTDArray<SkPDFDict*> pageTree;
     SkPDFDict* pageTreeRoot;
     generate_page_tree(pages, &pageTree, &pageTreeRoot);
     docCatalog->insertObjRef("Pages", SkRef(pageTreeRoot));
@@ -233,28 +224,13 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
         docCatalog->insertObjRef("Dests", dests.detach());
     }
 
-    /* TODO(vandebo): output intent
-    SkAutoTUnref<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
-    outputIntent->insertName("S", "GTS_PDFA1");
-    outputIntent->insertString("OutputConditionIdentifier", "sRGB");
-    SkAutoTUnref<SkPDFArray> intentArray(new SkPDFArray);
-    intentArray->appendObject(SkRef(outputIntent.get()));
-    docCatalog->insertObject("OutputIntent", intentArray.detach());
-    */
-
     // Build font subsetting info before proceeding.
     SkPDFSubstituteMap substitutes;
     perform_font_subsetting(pageDevices, &substitutes);
 
-    SkAutoTUnref<SkPDFDict> infoDict(
-            create_document_information_dict(metadata));
     SkPDFObjNumMap objNumMap;
-    if (objNumMap.addObject(infoDict)) {
-        infoDict->addResources(&objNumMap, substitutes);
-    }
-    if (objNumMap.addObject(docCatalog.get())) {
-        docCatalog->addResources(&objNumMap, substitutes);
-    }
+    objNumMap.addObjectRecursively(infoDict, substitutes);
+    objNumMap.addObjectRecursively(docCatalog.get(), substitutes);
     size_t baseOffset = stream->bytesWritten();
     emit_pdf_header(stream);
     SkTDArray<int32_t> offsets;
@@ -286,7 +262,7 @@ static bool emit_pdf_document(const SkTDArray<const SkPDFDevice*>& pageDevices,
         stream->writeText(" 00000 n \n");
     }
     emit_pdf_footer(stream, objNumMap, substitutes, docCatalog.get(), objCount,
-                    xRefFileOffset, infoDict);
+                    xRefFileOffset, infoDict.detach(), id.detach());
 
     // The page tree has both child and parent pointers, so it creates a
     // reference cycle.  We must clear that cycle to properly reclaim memory.
@@ -404,7 +380,7 @@ private:
     SkTDArray<const SkPDFDevice*> fPageDevices;
     SkAutoTUnref<SkCanvas> fCanvas;
     SkScalar fRasterDpi;
-    Metadata fMetadata;
+    SkPDFMetadata fMetadata;
 };
 }  // namespace
 ///////////////////////////////////////////////////////////////////////////////

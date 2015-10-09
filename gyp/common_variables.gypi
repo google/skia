@@ -225,6 +225,7 @@
     'skia_win_ltcg%': 1,
     'skia_osx_deployment_target%': '<(skia_osx_deployment_target)',
     'skia_pdf%': '<(skia_pdf)',
+    'skia_pdf_generate_pdfa%': 0,  # emit larger PDF/A-2b file
     'skia_profile_enabled%': '<(skia_profile_enabled)',
     'skia_shared_lib%': '<(skia_shared_lib)',
     'skia_opencl%': '<(skia_opencl)',
