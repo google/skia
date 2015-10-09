@@ -364,17 +364,19 @@ private:
 namespace {
 class PDFDefaultBitmap : public SkPDFObject {
 public:
-    void emitObject(SkWStream* stream,
+    void emitObject(SkWStream*  stream,
                     const SkPDFObjNumMap& objNumMap,
-                    const SkPDFSubstituteMap& subs) const override {
-        emit_image_xobject(stream, fImage, false, fSMask, objNumMap, subs);
+                    const SkPDFSubstituteMap& substitutes) const override {
+        emit_image_xobject(stream, fImage, false, fSMask, objNumMap, substitutes);
     }
     void addResources(SkPDFObjNumMap* catalog,
-                      const SkPDFSubstituteMap& subs) const override {
+                      const SkPDFSubstituteMap& substitutes) const override {
         if (fSMask.get()) {
-            SkPDFObject* obj = subs.getSubstitute(fSMask.get());
+            SkPDFObject* obj = substitutes.getSubstitute(fSMask.get());
             SkASSERT(obj);
-            catalog->addObjectRecursively(obj, subs);
+            if (catalog->addObject(obj)) {
+                obj->addResources(catalog, substitutes);
+            }
         }
     }
     PDFDefaultBitmap(const SkImage* image, SkPDFObject* smask)
