@@ -126,7 +126,7 @@ public:
     // The cache is initialized on-demand when getCache16/32 is called.
     class GradientShaderCache : public SkRefCnt {
     public:
-        GradientShaderCache(U8CPU alpha, const SkGradientShaderBase& shader);
+        GradientShaderCache(U8CPU alpha, bool dither, const SkGradientShaderBase& shader);
         ~GradientShaderCache();
 
         const uint16_t*     getCache16();
@@ -135,6 +135,7 @@ public:
         SkMallocPixelRef* getCache32PixelRef() const { return fCache32PixelRef; }
 
         unsigned getAlpha() const { return fCacheAlpha; }
+        bool getDither() const { return fCacheDither; }
 
     private:
         // Working pointers. If either is nullptr, we need to recompute the corresponding cache values.
@@ -146,6 +147,7 @@ public:
         const unsigned    fCacheAlpha;        // The alpha value we used when we computed the cache.
                                               // Larger than 8bits so we can store uninitialized
                                               // value.
+        const bool        fCacheDither;       // The dither flag used when we computed the cache.
 
         const SkGradientShaderBase& fShader;
 
@@ -156,9 +158,9 @@ public:
         static void initCache16(GradientShaderCache* cache);
         static void initCache32(GradientShaderCache* cache);
 
-        static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
+        static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count, bool dither);
         static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
-                                    U8CPU alpha, uint32_t gradFlags);
+                                    U8CPU alpha, uint32_t gradFlags, bool dither);
     };
 
     class GradientShaderBaseContext : public SkShader::Context {
@@ -172,6 +174,7 @@ public:
         SkMatrix::MapXYProc fDstToIndexProc;
         uint8_t     fDstToIndexClass;
         uint8_t     fFlags;
+        bool        fDither;
 
         SkAutoTUnref<GradientShaderCache> fCache;
 
@@ -260,7 +263,7 @@ private:
     SkScalar*   fOrigPos;   // original positions
     bool        fColorsAreOpaque;
 
-    GradientShaderCache* refCache(U8CPU alpha) const;
+    GradientShaderCache* refCache(U8CPU alpha, bool dither) const;
     mutable SkMutex                           fCacheMutex;
     mutable SkAutoTUnref<GradientShaderCache> fCache;
 

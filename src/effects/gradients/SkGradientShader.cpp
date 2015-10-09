@@ -290,10 +290,17 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
     return true;
 }
 
+#define SK_SUPPORT_LEGACY_GRADIENT_DITHERING
+
 SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
         const SkGradientShaderBase& shader, const ContextRec& rec)
     : INHERITED(shader, rec)
-    , fCache(shader.refCache(getPaintAlpha()))
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_DITHERING
+    , fDither(true)
+#else
+    , fDither(rec.fPaint->isDither())
+#endif
+    , fCache(shader.refCache(getPaintAlpha(), fDither))
 {
     const SkMatrix& inverse = this->getTotalInverse();
 
@@ -317,8 +324,9 @@ SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
 }
 
 SkGradientShaderBase::GradientShaderCache::GradientShaderCache(
-        U8CPU alpha, const SkGradientShaderBase& shader)
+        U8CPU alpha, bool dither, const SkGradientShaderBase& shader)
     : fCacheAlpha(alpha)
+    , fCacheDither(dither)
     , fShader(shader)
     , fCache16Inited(false)
     , fCache32Inited(false)
@@ -342,7 +350,7 @@ SkGradientShaderBase::GradientShaderCache::~GradientShaderCache() {
     paint specifies a non-opaque alpha.
 */
 void SkGradientShaderBase::GradientShaderCache::Build16bitCache(
-        uint16_t cache[], SkColor c0, SkColor c1, int count) {
+        uint16_t cache[], SkColor c0, SkColor c1, int count, bool dither) {
     SkASSERT(count > 1);
     SkASSERT(SkColorGetA(c0) == 0xFF);
     SkASSERT(SkColorGetA(c1) == 0xFF);
@@ -359,17 +367,31 @@ void SkGradientShaderBase::GradientShaderCache::Build16bitCache(
     g = SkIntToFixed(g) + 0x8000;
     b = SkIntToFixed(b) + 0x8000;
 
-    do {
-        unsigned rr = r >> 16;
-        unsigned gg = g >> 16;
-        unsigned bb = b >> 16;
-        cache[0] = SkPackRGB16(SkR32ToR16(rr), SkG32ToG16(gg), SkB32ToB16(bb));
-        cache[kCache16Count] = SkDitherPack888ToRGB16(rr, gg, bb);
-        cache += 1;
-        r += dr;
-        g += dg;
-        b += db;
-    } while (--count != 0);
+    if (dither) {
+        do {
+            unsigned rr = r >> 16;
+            unsigned gg = g >> 16;
+            unsigned bb = b >> 16;
+            cache[0] = SkPackRGB16(SkR32ToR16(rr), SkG32ToG16(gg), SkB32ToB16(bb));
+            cache[kCache16Count] = SkDitherPack888ToRGB16(rr, gg, bb);
+            cache += 1;
+            r += dr;
+            g += dg;
+            b += db;
+        } while (--count != 0);
+    } else {
+        do {
+            unsigned rr = r >> 16;
+            unsigned gg = g >> 16;
+            unsigned bb = b >> 16;
+            cache[0] = SkPackRGB16(SkR32ToR16(rr), SkG32ToG16(gg), SkB32ToB16(bb));
+            cache[kCache16Count] = cache[0];
+            cache += 1;
+            r += dr;
+            g += dg;
+            b += db;
+        } while (--count != 0);
+    }
 }
 
 /*
@@ -392,7 +414,7 @@ typedef uint32_t SkUFixed;
 
 void SkGradientShaderBase::GradientShaderCache::Build32bitCache(
         SkPMColor cache[], SkColor c0, SkColor c1,
-        int count, U8CPU paintAlpha, uint32_t gradFlags) {
+        int count, U8CPU paintAlpha, uint32_t gradFlags, bool dither) {
     SkASSERT(count > 1);
 
     // need to apply paintAlpha to our two endpoints
@@ -432,10 +454,15 @@ void SkGradientShaderBase::GradientShaderCache::Build32bitCache(
         With this trick, we can add 0 for the first (no-op) and just adjust the
         others.
      */
-    SkUFixed a = SkIntToFixed(a0) + 0x2000;
-    SkUFixed r = SkIntToFixed(r0) + 0x2000;
-    SkUFixed g = SkIntToFixed(g0) + 0x2000;
-    SkUFixed b = SkIntToFixed(b0) + 0x2000;
+    const SkUFixed bias0 = dither ? 0x2000 : 0x8000;
+    const SkUFixed bias1 = dither ? 0x8000 : 0;
+    const SkUFixed bias2 = dither ? 0xC000 : 0;
+    const SkUFixed bias3 = dither ? 0x4000 : 0;
+
+    SkUFixed a = SkIntToFixed(a0) + bias0;
+    SkUFixed r = SkIntToFixed(r0) + bias0;
+    SkUFixed g = SkIntToFixed(g0) + bias0;
+    SkUFixed b = SkIntToFixed(b0) + bias0;
 
     /*
      *  Our dither-cell (spatially) is
@@ -450,18 +477,18 @@ void SkGradientShaderBase::GradientShaderCache::Build32bitCache(
 
     if (0xFF == a0 && 0 == da) {
         do {
-            cache[kCache32Count*0] = SkPackARGB32(0xFF, (r + 0     ) >> 16,
-                                                        (g + 0     ) >> 16,
-                                                        (b + 0     ) >> 16);
-            cache[kCache32Count*1] = SkPackARGB32(0xFF, (r + 0x8000) >> 16,
-                                                        (g + 0x8000) >> 16,
-                                                        (b + 0x8000) >> 16);
-            cache[kCache32Count*2] = SkPackARGB32(0xFF, (r + 0xC000) >> 16,
-                                                        (g + 0xC000) >> 16,
-                                                        (b + 0xC000) >> 16);
-            cache[kCache32Count*3] = SkPackARGB32(0xFF, (r + 0x4000) >> 16,
-                                                        (g + 0x4000) >> 16,
-                                                        (b + 0x4000) >> 16);
+            cache[kCache32Count*0] = SkPackARGB32(0xFF, (r + 0    ) >> 16,
+                                                        (g + 0    ) >> 16,
+                                                        (b + 0    ) >> 16);
+            cache[kCache32Count*1] = SkPackARGB32(0xFF, (r + bias1) >> 16,
+                                                        (g + bias1) >> 16,
+                                                        (b + bias1) >> 16);
+            cache[kCache32Count*2] = SkPackARGB32(0xFF, (r + bias2) >> 16,
+                                                        (g + bias2) >> 16,
+                                                        (b + bias2) >> 16);
+            cache[kCache32Count*3] = SkPackARGB32(0xFF, (r + bias3) >> 16,
+                                                        (g + bias3) >> 16,
+                                                        (b + bias3) >> 16);
             cache += 1;
             r += dr;
             g += dg;
@@ -469,22 +496,22 @@ void SkGradientShaderBase::GradientShaderCache::Build32bitCache(
         } while (--count != 0);
     } else if (interpInPremul) {
         do {
-            cache[kCache32Count*0] = SkPackARGB32((a + 0     ) >> 16,
-                                                  (r + 0     ) >> 16,
-                                                  (g + 0     ) >> 16,
-                                                  (b + 0     ) >> 16);
-            cache[kCache32Count*1] = SkPackARGB32((a + 0x8000) >> 16,
-                                                  (r + 0x8000) >> 16,
-                                                  (g + 0x8000) >> 16,
-                                                  (b + 0x8000) >> 16);
-            cache[kCache32Count*2] = SkPackARGB32((a + 0xC000) >> 16,
-                                                  (r + 0xC000) >> 16,
-                                                  (g + 0xC000) >> 16,
-                                                  (b + 0xC000) >> 16);
-            cache[kCache32Count*3] = SkPackARGB32((a + 0x4000) >> 16,
-                                                  (r + 0x4000) >> 16,
-                                                  (g + 0x4000) >> 16,
-                                                  (b + 0x4000) >> 16);
+            cache[kCache32Count*0] = SkPackARGB32((a + 0    ) >> 16,
+                                                  (r + 0    ) >> 16,
+                                                  (g + 0    ) >> 16,
+                                                  (b + 0    ) >> 16);
+            cache[kCache32Count*1] = SkPackARGB32((a + bias1) >> 16,
+                                                  (r + bias1) >> 16,
+                                                  (g + bias1) >> 16,
+                                                  (b + bias1) >> 16);
+            cache[kCache32Count*2] = SkPackARGB32((a + bias2) >> 16,
+                                                  (r + bias2) >> 16,
+                                                  (g + bias2) >> 16,
+                                                  (b + bias2) >> 16);
+            cache[kCache32Count*3] = SkPackARGB32((a + bias3) >> 16,
+                                                  (r + bias3) >> 16,
+                                                  (g + bias3) >> 16,
+                                                  (b + bias3) >> 16);
             cache += 1;
             a += da;
             r += dr;
@@ -497,18 +524,18 @@ void SkGradientShaderBase::GradientShaderCache::Build32bitCache(
                                                              (r + 0     ) >> 16,
                                                              (g + 0     ) >> 16,
                                                              (b + 0     ) >> 16);
-            cache[kCache32Count*1] = SkPremultiplyARGBInline((a + 0x8000) >> 16,
-                                                             (r + 0x8000) >> 16,
-                                                             (g + 0x8000) >> 16,
-                                                             (b + 0x8000) >> 16);
-            cache[kCache32Count*2] = SkPremultiplyARGBInline((a + 0xC000) >> 16,
-                                                             (r + 0xC000) >> 16,
-                                                             (g + 0xC000) >> 16,
-                                                             (b + 0xC000) >> 16);
-            cache[kCache32Count*3] = SkPremultiplyARGBInline((a + 0x4000) >> 16,
-                                                             (r + 0x4000) >> 16,
-                                                             (g + 0x4000) >> 16,
-                                                             (b + 0x4000) >> 16);
+            cache[kCache32Count*1] = SkPremultiplyARGBInline((a + bias1) >> 16,
+                                                             (r + bias1) >> 16,
+                                                             (g + bias1) >> 16,
+                                                             (b + bias1) >> 16);
+            cache[kCache32Count*2] = SkPremultiplyARGBInline((a + bias2) >> 16,
+                                                             (r + bias2) >> 16,
+                                                             (g + bias2) >> 16,
+                                                             (b + bias2) >> 16);
+            cache[kCache32Count*3] = SkPremultiplyARGBInline((a + bias3) >> 16,
+                                                             (r + bias3) >> 16,
+                                                             (g + bias3) >> 16,
+                                                             (b + bias3) >> 16);
             cache += 1;
             a += da;
             r += dr;
@@ -540,7 +567,7 @@ void SkGradientShaderBase::GradientShaderCache::initCache16(GradientShaderCache*
     cache->fCache16 = cache->fCache16Storage;
     if (cache->fShader.fColorCount == 2) {
         Build16bitCache(cache->fCache16, cache->fShader.fOrigColors[0],
-                        cache->fShader.fOrigColors[1], kCache16Count);
+                        cache->fShader.fOrigColors[1], kCache16Count, cache->fCacheDither);
     } else {
         Rec* rec = cache->fShader.fRecs;
         int prevIndex = 0;
@@ -550,7 +577,8 @@ void SkGradientShaderBase::GradientShaderCache::initCache16(GradientShaderCache*
 
             if (nextIndex > prevIndex)
                 Build16bitCache(cache->fCache16 + prevIndex, cache->fShader.fOrigColors[i-1],
-                                cache->fShader.fOrigColors[i], nextIndex - prevIndex + 1);
+                                cache->fShader.fOrigColors[i], nextIndex - prevIndex + 1,
+                                cache->fCacheDither);
             prevIndex = nextIndex;
         }
     }
@@ -573,7 +601,7 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
     if (cache->fShader.fColorCount == 2) {
         Build32bitCache(cache->fCache32, cache->fShader.fOrigColors[0],
                         cache->fShader.fOrigColors[1], kCache32Count, cache->fCacheAlpha,
-                        cache->fShader.fGradFlags);
+                        cache->fShader.fGradFlags, cache->fCacheDither);
     } else {
         Rec* rec = cache->fShader.fRecs;
         int prevIndex = 0;
@@ -584,7 +612,7 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
             if (nextIndex > prevIndex)
                 Build32bitCache(cache->fCache32 + prevIndex, cache->fShader.fOrigColors[i-1],
                                 cache->fShader.fOrigColors[i], nextIndex - prevIndex + 1,
-                                cache->fCacheAlpha, cache->fShader.fGradFlags);
+                                cache->fCacheAlpha, cache->fShader.fGradFlags, cache->fCacheDither);
             prevIndex = nextIndex;
         }
     }
@@ -594,10 +622,11 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
  *  The gradient holds a cache for the most recent value of alpha. Successive
  *  callers with the same alpha value will share the same cache.
  */
-SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU alpha) const {
+SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU alpha,
+                                                                          bool dither) const {
     SkAutoMutexAcquire ama(fCacheMutex);
-    if (!fCache || fCache->getAlpha() != alpha) {
-        fCache.reset(new GradientShaderCache(alpha, *this));
+    if (!fCache || fCache->getAlpha() != alpha || fCache->getDither() != dither) {
+        fCache.reset(new GradientShaderCache(alpha, dither, *this));
     }
     // Increment the ref counter inside the mutex to ensure the returned pointer is still valid.
     // Otherwise, the pointer may have been overwritten on a different thread before the object's
@@ -618,7 +647,7 @@ SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
 void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
     // our caller assumes no external alpha, so we ensure that our cache is
     // built with 0xFF
-    SkAutoTUnref<GradientShaderCache> cache(this->refCache(0xFF));
+    SkAutoTUnref<GradientShaderCache> cache(this->refCache(0xFF, true));
 
     // build our key: [numColors + colors[] + {positions[]} + flags ]
     int count = 1 + fColorCount + 1;
