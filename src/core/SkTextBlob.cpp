@@ -367,12 +367,44 @@ SkTextBlobBuilder::~SkTextBlobBuilder() {
 }
 
 SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
-    SkASSERT(SkTextBlob::kDefault_Positioning == run.positioning());
-
     SkRect bounds;
     SkPaint paint;
     run.font().applyToPaint(&paint);
-    paint.measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t), &bounds);
+
+    if (SkTextBlob::kDefault_Positioning == run.positioning()) {
+        paint.measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t), &bounds);
+        return bounds.makeOffset(run.offset().x(), run.offset().y());
+    }
+
+    SkAutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
+    paint.getTextWidths(run.glyphBuffer(),
+                        run.glyphCount() * sizeof(uint16_t),
+                        NULL,
+                        glyphBounds.get());
+
+    SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
+             SkTextBlob::kHorizontal_Positioning == run.positioning());
+    // kFull_Positioning       => [ x, y, x, y... ]
+    // kHorizontal_Positioning => [ x, x, x... ]
+    //                            (const y applied by runBounds.offset(run->offset()) later)
+    const SkScalar horizontalConstY = 0;
+    const SkScalar* glyphPosX = run.posBuffer();
+    const SkScalar* glyphPosY = (run.positioning() == SkTextBlob::kFull_Positioning) ?
+                                                      glyphPosX + 1 : &horizontalConstY;
+    const unsigned posXInc = SkTextBlob::ScalarsPerGlyph(run.positioning());
+    const unsigned posYInc = (run.positioning() == SkTextBlob::kFull_Positioning) ?
+                                                   posXInc : 0;
+
+    bounds.setEmpty();
+    for (unsigned i = 0; i < run.glyphCount(); ++i) {
+        bounds.join(glyphBounds[i].makeOffset(*glyphPosX, *glyphPosY));
+        glyphPosX += posXInc;
+        glyphPosY += posYInc;
+    }
+
+    SkASSERT((void*)glyphPosX <= SkTextBlob::RunRecord::Next(&run));
+    SkASSERT(run.positioning() == SkTextBlob::kHorizontal_Positioning ||
+             (void*)glyphPosY <= SkTextBlob::RunRecord::Next(&run));
 
     return bounds.makeOffset(run.offset().x(), run.offset().y());
 }
@@ -382,7 +414,16 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
     SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
              SkTextBlob::kHorizontal_Positioning == run.positioning());
 
-    // First, compute the glyph position bbox.
+    SkPaint paint;
+    run.font().applyToPaint(&paint);
+    const SkRect fontBounds = paint.getFontBounds();
+    if (fontBounds.isEmpty()) {
+        // Empty font bounds are likely a font bug.  TightBounds has a better chance of
+        // producing useful results in this case.
+        return TightRunBounds(run);
+    }
+
+    // Compute the glyph position bbox.
     SkRect bounds;
     switch (run.positioning()) {
     case SkTextBlob::kHorizontal_Positioning: {
@@ -410,9 +451,6 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
     }
 
     // Expand by typeface glyph bounds.
-    SkPaint paint;
-    run.font().applyToPaint(&paint);
-    const SkRect fontBounds = paint.getFontBounds();
     bounds.fLeft   += fontBounds.left();
     bounds.fTop    += fontBounds.top();
     bounds.fRight  += fontBounds.right();
