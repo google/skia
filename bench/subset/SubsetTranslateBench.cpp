@@ -140,7 +140,7 @@ void SubsetTranslateBench::onDraw(int n, SkCanvas* canvas) {
         // We create a color table here to satisfy allocPixels() when the output
         // type is kIndex8.  It's okay that this is uninitialized since we never
         // use it.
-        SkColorTable* colorTable = new SkColorTable(colors, 0);
+        SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colors, 0));
         for (int count = 0; count < n; count++) {
             int width, height;
             SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(fStream));

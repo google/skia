@@ -13,6 +13,7 @@
 
 SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(
         SkStreamRewindable* stream, Strategy strategy) {
+    SkAutoTDelete<SkStreamRewindable> streamDeleter(stream);
     switch (strategy) {
         case kOriginal_Strategy: {
             SkImageDecoder* decoder = SkImageDecoder::Factory(stream);
@@ -21,7 +22,7 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
                 SkDebugf("Error: Could not create image decoder.\n");
                 return nullptr;
             }
-            if (!decoder->buildTileIndex(stream, &width, &height)) {
+            if (!decoder->buildTileIndex(streamDeleter.detach(), &width, &height)) {
                 SkDebugf("Error: Could not build tile index.\n");
                 delete decoder;
                 return nullptr;
@@ -29,7 +30,7 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
             return new SkBitmapRegionSampler(decoder, width, height);
         }
         case kCanvas_Strategy: {
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream));
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(streamDeleter.detach()));
             if (nullptr == codec) {
                 SkDebugf("Error: Failed to create decoder.\n");
                 return nullptr;
