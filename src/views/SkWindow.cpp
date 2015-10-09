@@ -6,7 +6,6 @@
  */
 
 #include "SkWindow.h"
-#include "GrContext.h"
 #include "SkCanvas.h"
 #include "SkOSMenu.h"
 #include "SkSurface.h"
@@ -317,6 +316,7 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
 
 #if SK_SUPPORT_GPU
 
+#include "GrContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
 #include "SkGr.h"
