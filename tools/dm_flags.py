@@ -112,6 +112,27 @@ def get_args(bot):
   # New ico files that fail on SkImageDecoder
   blacklist.extend('_ image decode Hopstarter-Mac-Folders-Apple.ico'.split(' '))
 
+  # Incomplete image tests that fail on SkImageDecoder
+  blacklist.extend('_ image decode inc0.gif'.split(' '))
+  blacklist.extend('_ image decode inc1.gif'.split(' '))
+  blacklist.extend('_ image decode incInterlaced.gif'.split(' '))
+  blacklist.extend('_ image decode inc0.jpg'.split(' '))
+  blacklist.extend('_ image decode incGray.jpg'.split(' '))
+  blacklist.extend('_ image decode inc0.wbmp'.split(' '))
+  blacklist.extend('_ image decode inc1.wbmp'.split(' '))
+  blacklist.extend('_ image decode inc0.webp'.split(' '))
+  blacklist.extend('_ image decode inc1.webp'.split(' '))
+  blacklist.extend('_ image decode inc0.ico'.split(' '))
+  blacklist.extend('_ image decode inc1.ico'.split(' '))
+  blacklist.extend('_ image decode inc0.png'.split(' '))
+  blacklist.extend('_ image decode inc1.png'.split(' '))
+  blacklist.extend('_ image decode inc2.png'.split(' '))
+  blacklist.extend('_ image decode inc12.png'.split(' '))
+  blacklist.extend('_ image decode inc13.png'.split(' '))
+  blacklist.extend('_ image decode inc14.png'.split(' '))
+  blacklist.extend('_ image subset inc0.webp'.split(' '))
+  blacklist.extend('_ image subset inc1.webp'.split(' '))
+
   # Leon doesn't care about this, so why run it?
   if 'Win' in bot:
     blacklist.extend('_ image decode _'.split(' '))

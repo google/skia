@@ -36,7 +36,8 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
                                         const Options& opts,
                                         SkPMColor* inputColorPtr,
-                                        int* inputColorCount) {
+                                        int* inputColorCount,
+                                        int* rowsDecoded) {
     if (opts.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -54,9 +55,10 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
     if (kSuccess != result) {
         return result;
     }
-    result = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
-    if (kSuccess != result) {
-        return result;
+    uint32_t rows = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
+    if (rows != dstInfo.height()) {
+        *rowsDecoded = rows;
+        return kIncompleteInput;
     }
     if (fInIco) {
         return this->decodeIcoMask(dstInfo, dst, dstRowBytes);
@@ -227,7 +229,7 @@ SkCodec::Result SkBmpStandardCodec::prepareToDecode(const SkImageInfo& dstInfo,
 /*
  * Performs the bitmap decoding for standard input format
  */
-SkCodec::Result SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo,
+int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo,
                                                void* dst, size_t dstRowBytes,
                                                const Options& opts) {
     // Iterate over rows of the image
@@ -236,13 +238,7 @@ SkCodec::Result SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo,
         // Read a row of the input
         if (this->stream()->read(fSrcBuffer.get(), fSrcRowBytes) != fSrcRowBytes) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
-            // Fill the destination image on failure
-            void* dstStart = this->getDstStartRow(dst, dstRowBytes, y);
-            const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-            uint32_t fillColorOrIndex = get_fill_color_or_index(dstInfo.alphaType());
-            SkSwizzler::Fill(dstStart, dstInfo, dstRowBytes, dstInfo.height() - y,
-                    fillColorOrIndex, colorPtr, opts.fZeroInitialized);
-            return kIncompleteInput;
+            return y;
         }
 
         // Decode the row in destination format
@@ -253,7 +249,7 @@ SkCodec::Result SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo,
     }
 
     // Finished decoding the entire image
-    return kSuccess;
+    return height;
 }
 
 // TODO (msarett): This function will need to be modified in order to perform row by row decodes
@@ -293,4 +289,12 @@ SkCodec::Result SkBmpStandardCodec::decodeIcoMask(const SkImageInfo& dstInfo,
         }
     }
     return kSuccess;
+}
+
+uint32_t SkBmpStandardCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+    if (colorPtr) {
+        return get_color_table_fill_value(colorType, colorPtr, 0);
+    }
+    return INHERITED::onGetFillValue(colorType, alphaType);
 }

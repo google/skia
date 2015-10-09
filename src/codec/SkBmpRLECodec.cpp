@@ -38,7 +38,8 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
                                            void* dst, size_t dstRowBytes,
                                            const Options& opts,
                                            SkPMColor* inputColorPtr,
-                                           int* inputColorCount) {
+                                           int* inputColorCount,
+                                           int* rowsDecoded) {
     if (opts.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -54,7 +55,16 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Perform the decode
-    return this->decodeRows(dstInfo, dst, dstRowBytes, opts);
+    uint32_t rows = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
+    if (rows != dstInfo.height()) {
+        // We set rowsDecoded equal to the height because the background has already
+        // been filled.  RLE encodings sometimes skip pixels, so we always start by
+        // filling the background.
+        *rowsDecoded = dstInfo.height();
+        return kIncompleteInput;
+    }
+
+    return kSuccess;
 }
 
 /*
@@ -275,9 +285,8 @@ SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
  * Performs the bitmap decoding for RLE input format
  * RLE decoding is performed all at once, rather than a one row at a time
  */
-SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
-                                          void* dst, size_t dstRowBytes,
-                                          const Options& opts) {
+int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowBytes,
+        const Options& opts) {
     // Set RLE flags
     static const uint8_t RLE_ESCAPE = 0;
     static const uint8_t RLE_EOL = 0;
@@ -300,24 +309,23 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
     // Because of the need for transparent pixels, kN32 is the only color
     // type that makes sense for the destination format.
     SkASSERT(kN32_SkColorType == dstInfo.colorType());
-    SkSwizzler::Fill(dst, dstInfo, dstRowBytes, height, SK_ColorTRANSPARENT,
-            NULL, opts.fZeroInitialized);
+    SkSampler::Fill(dstInfo, dst, dstRowBytes, SK_ColorTRANSPARENT, opts.fZeroInitialized);
 
     while (true) {
         // If we have reached a row that is beyond the requested height, we have
         // succeeded.
         if (y >= height) {
-            // It would be better to check for the EOF marker before returning
+            // It would be better to check for the EOF marker before indicating
             // success, but we may be performing a scanline decode, which
-            // may require us to stop before decoding the full height.
-            return kSuccess;
+            // would require us to stop before decoding the full height.
+            return height;
         }
 
         // Every entry takes at least two bytes
         if ((int) fRLEBytes - fCurrRLEByte < 2) {
             SkCodecPrintf("Warning: might be incomplete RLE input.\n");
             if (this->checkForMoreData() < 2) {
-                return kIncompleteInput;
+                return y;
             }
         }
 
@@ -342,7 +350,7 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
                     if ((int) fRLEBytes - fCurrRLEByte < 2) {
                         SkCodecPrintf("Warning: might be incomplete RLE input.\n");
                         if (this->checkForMoreData() < 2) {
-                            return kIncompleteInput;
+                            return y;
                         }
                     }
                     // Modify x and y
@@ -352,7 +360,7 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
                     y += dy;
                     if (x > width || y > height) {
                         SkCodecPrintf("Warning: invalid RLE input.\n");
-                        return kInvalidInput;
+                        return y - dy;
                     }
                     break;
                 }
@@ -368,14 +376,14 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
                     // image.
                     if (x + numPixels > width) {
                         SkCodecPrintf("Warning: invalid RLE input.\n");
-                        return kInvalidInput;
+                        return y;
                     }
                     // Also abort if there are not enough bytes
                     // remaining in the stream to set numPixels.
                     if ((int) fRLEBytes - fCurrRLEByte < SkAlign2(rowBytes)) {
                         SkCodecPrintf("Warning: might be incomplete RLE input.\n");
                         if (this->checkForMoreData() < SkAlign2(rowBytes)) {
-                            return kIncompleteInput;
+                            return y;
                         }
                     }
                     // Set numPixels number of pixels
@@ -411,7 +419,7 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
                             }
                             default:
                                 SkASSERT(false);
-                                return kInvalidInput;
+                                return y;
                         }
                     }
                     // Skip a byte if necessary to maintain alignment
@@ -434,7 +442,7 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
                 if ((int) fRLEBytes - fCurrRLEByte < 2) {
                     SkCodecPrintf("Warning: might be incomplete RLE input.\n");
                     if (this->checkForMoreData() < 2) {
-                        return kIncompleteInput;
+                        return y;
                     }
                 }
 
@@ -467,6 +475,9 @@ SkCodec::Result SkBmpRLECodec::decodeRows(const SkImageInfo& info,
     }
 }
 
+// FIXME: Make SkBmpRLECodec have no knowledge of sampling.
+//        Or it should do all sampling natively.
+//        It currently is a hybrid that needs to know what SkScaledCodec is doing.
 class SkBmpRLESampler : public SkSampler {
 public:
     SkBmpRLESampler(SkBmpRLECodec* codec)
@@ -476,7 +487,7 @@ public:
     }
 
 private:
-    int onSetSampleX(int sampleX) {
+    int onSetSampleX(int sampleX) override {
         return fCodec->setSampleX(sampleX);
     }
 
@@ -484,15 +495,15 @@ private:
     SkBmpRLECodec* fCodec;
 };
 
-SkSampler* SkBmpRLECodec::getSampler() {
-    if (!fSampler) {
+SkSampler* SkBmpRLECodec::getSampler(bool createIfNecessary) {
+    if (!fSampler && createIfNecessary) {
         fSampler.reset(new SkBmpRLESampler(this));
     }
 
     return fSampler;
 }
 
-int SkBmpRLECodec::setSampleX(int sampleX) {
+int SkBmpRLECodec::setSampleX(int sampleX){
     fSampleX = sampleX;
     return get_scaled_dimension(this->getInfo().width(), sampleX);
 }

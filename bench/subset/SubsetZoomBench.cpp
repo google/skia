@@ -88,14 +88,14 @@ void SubsetZoomBench::onDraw(int n, SkCanvas* canvas) {
 
                 uint32_t bpp = info.bytesPerPixel();
 
-                SkDEBUGCODE(result = ) codec->skipScanlines(subsetStartY);
-                SkASSERT(SkCodec::kSuccess == result);
+                SkDEBUGCODE(int lines = ) codec->skipScanlines(subsetStartY);
+                SkASSERT(subsetStartY == lines);
 
                 switch (codec->getScanlineOrder()) {
                     case SkCodec::kTopDown_SkScanlineOrder:
                         for (int y = 0; y < subsetHeight; y++) {
-                            SkDEBUGCODE(result = ) codec->getScanlines(row.get(), 1, 0);
-                            SkASSERT(SkCodec::kSuccess == result);
+                            SkDEBUGCODE(lines = ) codec->getScanlines(row.get(), 1, 0);
+                            SkASSERT(1 == lines);
 
                             memcpy(bitmap.getAddr(0, y), row.get() + subsetStartX * bpp,
                                     subsetWidth * bpp);
@@ -108,9 +108,9 @@ void SubsetZoomBench::onDraw(int n, SkCanvas* canvas) {
                         SkBitmap stripeBm;
                         alloc_pixels(&stripeBm, stripeInfo, colors, colorCount);
 
-                        SkDEBUGCODE(result = ) codec->getScanlines(stripeBm.getPixels(),
+                        SkDEBUGCODE(lines = ) codec->getScanlines(stripeBm.getPixels(),
                                 subsetHeight, stripeBm.rowBytes());
-                        SkASSERT(SkCodec::kSuccess == result);
+                        SkASSERT(subsetHeight == lines);
 
                         for (int y = 0; y < subsetHeight; y++) {
                             memcpy(bitmap.getAddr(0, y),

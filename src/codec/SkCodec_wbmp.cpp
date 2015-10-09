@@ -86,11 +86,8 @@ SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
                                       opts.fZeroInitialized);
 }
 
-SkCodec::Result SkWbmpCodec::readRow(uint8_t* row) {
-    if (this->stream()->read(row, fSrcRowBytes) != fSrcRowBytes) {
-        return kIncompleteInput;
-    }
-    return kSuccess;
+bool SkWbmpCodec::readRow(uint8_t* row) {
+    return this->stream()->read(row, fSrcRowBytes) == fSrcRowBytes;
 }
 
 SkWbmpCodec::SkWbmpCodec(const SkImageInfo& info, SkStream* stream)
@@ -109,7 +106,8 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
                                          size_t rowBytes,
                                          const Options& options,
                                          SkPMColor ctable[],
-                                         int* ctableCount) {
+                                         int* ctableCount,
+                                         int* rowsDecoded) {
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -133,9 +131,9 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
     SkAutoTMalloc<uint8_t> src(fSrcRowBytes);
     void* dstRow = dst;
     for (int y = 0; y < size.height(); ++y) {
-        Result rowResult = this->readRow(src.get());
-        if (kSuccess != rowResult) {
-            return rowResult;
+        if (!this->readRow(src.get())) {
+            *rowsDecoded = y;
+            return kIncompleteInput;
         }
         swizzler->swizzle(dstRow, src.get());
         dstRow = SkTAddOffset<void>(dstRow, rowBytes);
@@ -158,17 +156,16 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     return new SkWbmpCodec(info, streamDeleter.detach());
 }
 
-SkCodec::Result SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
+int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
     void* dstRow = dst;
     for (int y = 0; y < count; ++y) {
-        Result rowResult = this->readRow(fSrcBuffer.get());
-        if (kSuccess != rowResult) {
-            return rowResult;
+        if (!this->readRow(fSrcBuffer.get())) {
+            return y;
         }
         fSwizzler->swizzle(dstRow, fSrcBuffer.get());
         dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
     }
-    return kSuccess;
+    return count;
 }
 
 SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
@@ -201,4 +198,3 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
     return kSuccess;
 }
-

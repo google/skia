@@ -75,8 +75,8 @@ void SubsetSingleBench::onDraw(int n, SkCanvas* canvas) {
             SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);
             alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
-            SkDEBUGCODE(result = ) codec->skipScanlines(fOffsetTop);
-            SkASSERT(result == SkCodec::kSuccess);
+            SkDEBUGCODE(int lines = ) codec->skipScanlines(fOffsetTop);
+            SkASSERT((uint32_t) lines == fOffsetTop);
 
             const uint32_t bpp = info.bytesPerPixel();
 
@@ -84,8 +84,8 @@ void SubsetSingleBench::onDraw(int n, SkCanvas* canvas) {
                 case SkCodec::kTopDown_SkScanlineOrder: {
                     SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
                     for (uint32_t y = 0; y < fSubsetHeight; y++) {
-                        SkDEBUGCODE(result = ) codec->getScanlines(row.get(), 1, 0);
-                        SkASSERT(result == SkCodec::kSuccess);
+                        SkDEBUGCODE(lines = ) codec->getScanlines(row.get(), 1, 0);
+                        SkASSERT(lines == 1);
 
                         memcpy(bitmap.getAddr(0, y), row.get() + fOffsetLeft * bpp,
                                 fSubsetWidth * bpp);
@@ -99,9 +99,9 @@ void SubsetSingleBench::onDraw(int n, SkCanvas* canvas) {
                     SkBitmap stripeBm;
                     alloc_pixels(&stripeBm, stripeInfo, colors, colorCount);
 
-                    SkDEBUGCODE(result = ) codec->getScanlines(stripeBm.getPixels(), fSubsetHeight,
+                    SkDEBUGCODE(lines = ) codec->getScanlines(stripeBm.getPixels(), fSubsetHeight,
                                                                stripeBm.rowBytes());
-                    SkASSERT(result == SkCodec::kSuccess);
+                    SkASSERT((uint32_t) lines == fSubsetHeight);
 
                     for (uint32_t y = 0; y < fSubsetHeight; y++) {
                         memcpy(bitmap.getAddr(0, y), stripeBm.getAddr(fOffsetLeft, y),

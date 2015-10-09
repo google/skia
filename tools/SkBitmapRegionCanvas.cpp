@@ -128,22 +128,13 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     }
 
     // Skip the unneeded rows
-    if (SkCodec::kSuccess != fDecoder->skipScanlines(imageSubsetY)) {
+    if (!fDecoder->skipScanlines(imageSubsetY)) {
         SkDebugf("Error: Failed to skip scanlines.\n");
         return nullptr;
     }
 
     // Decode the necessary rows
-    SkCodec::Result result = fDecoder->getScanlines(tmp.getAddr(0, 0), imageSubsetHeight,
-            tmp.rowBytes());
-    switch (result) {
-        case SkCodec::kSuccess:
-        case SkCodec::kIncompleteInput:
-            break;
-        default:
-            SkDebugf("Error: Failed to get scanlines.\n");
-            return nullptr;
-    }
+    fDecoder->getScanlines(tmp.getAddr(0, 0), imageSubsetHeight, tmp.rowBytes());
 
     // Calculate the size of the output
     const int outWidth = get_scaled_dimension(inputWidth, sampleSize);

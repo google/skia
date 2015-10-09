@@ -60,7 +60,8 @@
         '../tools/SkBitmapRegionSampler.cpp',
       ],
       'include_dirs': [
-        '../include/private'
+        '../include/private',
+        '../src/codec',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',

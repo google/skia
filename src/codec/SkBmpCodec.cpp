@@ -550,18 +550,6 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
 }
 
 /*
- * Get the destination row to start filling from
- * Used to fill the remainder of the image on incomplete input for bmps
- * This is tricky since bmps may be kTopDown or kBottomUp.  For kTopDown,
- * we start filling from where we left off, but for kBottomUp we start
- * filling at the top of the image.
- */
-void* SkBmpCodec::getDstStartRow(void* dst, size_t dstRowBytes, int32_t y) const {
-    return (SkCodec::kTopDown_SkScanlineOrder == fRowOrder) ?
-            SkTAddOffset<void*>(dst, y * dstRowBytes) : dst;
-}
-
-/*
  * Compute the number of colors in the color table
  */
 uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
@@ -588,14 +576,10 @@ SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     return prepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
 }
 
-SkCodec::Result SkBmpCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
+int SkBmpCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
     // Create a new image info representing the portion of the image to decode
     SkImageInfo rowInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
 
     // Decode the requested rows
     return this->decodeRows(rowInfo, dst, rowBytes, this->options());
-}
-
-int SkBmpCodec::onNextScanline() const {
-    return this->getDstRow(this->INHERITED::onNextScanline(), this->dstInfo().height());
 }

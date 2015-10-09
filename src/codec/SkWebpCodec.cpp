@@ -158,7 +158,8 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 }
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
-                                         const Options& options, SkPMColor*, int*) {
+                                         const Options& options, SkPMColor*, int*,
+                                         int* rowsDecoded) {
     if (!webp_conversion_possible(dstInfo, this->getInfo())) {
         return kInvalidConversion;
     }
@@ -234,10 +235,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     while (true) {
         const size_t bytesRead = stream()->read(buffer, BUFFER_SIZE);
         if (0 == bytesRead) {
-            // FIXME: Maybe this is an incomplete image? How to decide? Based
-            // on the number of rows decoded? We can know the number of rows
-            // decoded using WebPIDecGetRGB.
-            return kInvalidInput;
+            WebPIDecGetRGB(idec, rowsDecoded, NULL, NULL, NULL);
+            return kIncompleteInput;
         }
 
         switch (WebPIAppend(idec, buffer, bytesRead)) {

@@ -95,14 +95,14 @@ static uint32_t find_trans_index(const SavedImage& image) {
     return SK_MaxU32;
 }
 
-static inline uint32_t ceil_div(uint32_t a, uint32_t b) {
+inline uint32_t ceil_div(uint32_t a, uint32_t b) {
     return (a + b - 1) / b;
 }
 
 /*
  * Gets the output row corresponding to the encoded row for interlaced gifs
  */
-static uint32_t get_output_row_interlaced(uint32_t encodedRow, uint32_t height) {
+inline uint32_t get_output_row_interlaced(uint32_t encodedRow, uint32_t height) {
     SkASSERT(encodedRow < height);
     // First pass
     if (encodedRow * 8 < height) {
@@ -460,11 +460,8 @@ SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo,
     return kUnimplemented;
 }
 
-SkCodec::Result SkGifCodec::readRow() {
-    if (GIF_ERROR == DGifGetLine(fGif, fSrcBuffer.get(), fFrameRect.width())) {
-        return kIncompleteInput;
-    }
-    return kSuccess;
+bool SkGifCodec::readRow() {
+    return GIF_ERROR != DGifGetLine(fGif, fSrcBuffer.get(), fFrameRect.width());
 }
 
 /*
@@ -474,7 +471,8 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
                                         const Options& opts,
                                         SkPMColor* inputColorPtr,
-                                        int* inputColorCount) {
+                                        int* inputColorCount,
+                                        int* rowsDecoded) {
     Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
     if (kSuccess != result) {
         return result;
@@ -492,9 +490,9 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         // Fill the background
-        const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-        SkSwizzler::Fill(dst, dstInfo, dstRowBytes, this->getInfo().height(),
-                fFillIndex, colorPtr, opts.fZeroInitialized);
+        SkSampler::Fill(dstInfo, dst, dstRowBytes,
+                this->getFillValue(dstInfo.colorType(), dstInfo.alphaType()),
+                opts.fZeroInitialized);
 
         // Modify the dst pointer
         const int32_t dstBytesPerPixel = SkColorTypeBytesPerPixel(dstInfo.colorType());
@@ -506,49 +504,30 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
     }
 
-    // Check the interlace flag and iterate over rows of the input
-    uint32_t width = fFrameRect.width();
+    // Iterate over rows of the input
     uint32_t height = fFrameRect.height();
-    if (fGif->Image.Interlace) {
-        // In interlace mode, the rows of input are rearranged in
-        // the output image.  We a helper function to help us
-        // rearrange the decoded rows.
-        for (uint32_t y = 0; y < height; y++) {
-            if (kSuccess != this->readRow()) {
-                // Recover from error by filling remainder of image
-                memset(fSrcBuffer.get(), fFillIndex, width);
-                for (; y < height; y++) {
-                    void* dstRow = SkTAddOffset<void>(dst,
-                            dstRowBytes * get_output_row_interlaced(y, height));
-                    fSwizzler->swizzle(dstRow, fSrcBuffer.get());
-                }
-                return gif_error("Could not decode line.\n", kIncompleteInput);
-            }
-            void* dstRow = SkTAddOffset<void>(dst,
-                    dstRowBytes * get_output_row_interlaced(y, height));
-            fSwizzler->swizzle(dstRow, fSrcBuffer.get());
+    for (uint32_t y = 0; y < height; y++) {
+        if (!this->readRow()) {
+            *rowsDecoded = y;
+            return gif_error("Could not decode line.\n", kIncompleteInput);
         }
-    } else {
-        // Standard mode
-        void* dstRow = dst;
-        for (uint32_t y = 0; y < height; y++) {
-            if (kSuccess != this->readRow()) {
-                const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-                SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes,
-                        height - y, fFillIndex, colorPtr, opts.fZeroInitialized);
-                return gif_error("Could not decode line\n", kIncompleteInput);
-            }
-            fSwizzler->swizzle(dstRow, fSrcBuffer.get());
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-        }
+        void* dstRow = SkTAddOffset<void>(dst, dstRowBytes * this->outputScanline(y));
+        fSwizzler->swizzle(dstRow, fSrcBuffer.get());
     }
     return kSuccess;
 }
 
+// FIXME: This is similar to the implementation for bmp and png.  Can we share more code or
+//        possibly make this non-virtual?
+uint32_t SkGifCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+    return get_color_table_fill_value(colorType, colorPtr, fFillIndex);
+}
+
 SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& opts, SkPMColor inputColorPtr[], int* inputColorCount) {
-    Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount,
-                                          this->options());
+
+    Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, this->options());
     if (kSuccess != result) {
         return result;
     }
@@ -568,58 +547,56 @@ SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-SkCodec::Result SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
+int SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
+    int rowsBeforeFrame = 0;
+    int rowsAfterFrame = 0;
+    int rowsInFrame = count;
     if (fFrameIsSubset) {
         // Fill the requested rows
-        const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-        SkSwizzler::Fill(dst, this->dstInfo(), rowBytes, count, fFillIndex,
-                         colorPtr, this->options().fZeroInitialized);
+        SkImageInfo fillInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
+        uint32_t fillValue = this->onGetFillValue(this->dstInfo().colorType(),
+                this->dstInfo().alphaType());
+        SkSampler::Fill(fillInfo, dst, rowBytes, fillValue, this->options().fZeroInitialized);
 
         // Do nothing for rows before the image frame
-        int rowsBeforeFrame = SkTMax(0, fFrameRect.top() - this->INHERITED::onNextScanline());
-        count = SkTMax(0, count - rowsBeforeFrame);
+        rowsBeforeFrame = SkTMax(0, fFrameRect.top() - this->INHERITED::nextScanline());
+        rowsInFrame = SkTMax(0, rowsInFrame - rowsBeforeFrame);
         dst = SkTAddOffset<void>(dst, rowBytes * rowsBeforeFrame);
 
         // Do nothing for rows after the image frame
-        int rowsAfterFrame = SkTMax(0,
-                this->INHERITED::onNextScanline() + count - fFrameRect.bottom());
-        count = SkTMax(0, count - rowsAfterFrame);
+        rowsAfterFrame = SkTMax(0,
+                this->INHERITED::nextScanline() + rowsInFrame - fFrameRect.bottom());
+        rowsInFrame = SkTMax(0, rowsInFrame - rowsAfterFrame);
 
         // Adjust dst pointer for left offset
         int offset = SkColorTypeBytesPerPixel(this->dstInfo().colorType()) * fFrameRect.left();
         dst = SkTAddOffset<void>(dst, offset);
     }
 
-    for (int i = 0; i < count; i++) {
-        if (kSuccess != this->readRow()) {
-            const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-            SkSwizzler::Fill(dst, this->dstInfo().makeWH(fFrameRect.width(),
-                    this->dstInfo().height()), rowBytes, count - i, fFillIndex, colorPtr,
-                    this->options().fZeroInitialized);
-            return kIncompleteInput;
+    for (int i = 0; i < rowsInFrame; i++) {
+        if (!this->readRow()) {
+            return i + rowsBeforeFrame;
         }
         fSwizzler->swizzle(dst, fSrcBuffer.get());
         dst = SkTAddOffset<void>(dst, rowBytes);
     }
-    return kSuccess;
+
+    return count;
 }
 
 SkCodec::SkScanlineOrder SkGifCodec::onGetScanlineOrder() const {
     if (fGif->Image.Interlace) {
         return kOutOfOrder_SkScanlineOrder;
-    } else {
-        return kTopDown_SkScanlineOrder;
     }
+    return kTopDown_SkScanlineOrder;
 }
 
-int SkGifCodec::onNextScanline() const {
-    int nextScanline = this->INHERITED::onNextScanline();
+int SkGifCodec::onOutputScanline(int inputScanline) const {
     if (fGif->Image.Interlace) {
-        if (nextScanline < fFrameRect.top() || nextScanline >= fFrameRect.bottom()) {
-            return nextScanline;
+        if (inputScanline < fFrameRect.top() || inputScanline >= fFrameRect.bottom()) {
+            return inputScanline;
         }
-        return get_output_row_interlaced(nextScanline - fFrameRect.top(), fFrameRect.height());
+        return get_output_row_interlaced(inputScanline - fFrameRect.top(), fFrameRect.height());
     }
-    return nextScanline;
+    return inputScanline;
 }
-

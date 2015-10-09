@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
+#include "SkData.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
 #include "SkScaledCodec.h"
@@ -75,14 +76,15 @@ SkIRect generate_random_subset(SkRandom* rand, int w, int h) {
 }
 
 static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, const SkImageInfo& info,
-        const SkISize& size, bool supports565, SkMD5::Digest* digest,
-        const SkMD5::Digest* goodDigest) {
+        const SkISize& size, bool supports565, SkCodec::Result expectedResult,
+        SkMD5::Digest* digest, const SkMD5::Digest* goodDigest) {
+
     REPORTER_ASSERT(r, info.dimensions() == size);
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
 
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
-    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, result == expectedResult);
 
     md5(bm, digest);
     if (goodDigest) {
@@ -92,16 +94,16 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
     {
         // Test decoding to 565
         SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
-        SkCodec::Result expected = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
-                SkCodec::kSuccess : SkCodec::kInvalidConversion;
-        test_info(r, codec, info565, expected, nullptr);
+        SkCodec::Result expected565 = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
+                expectedResult : SkCodec::kInvalidConversion;
+        test_info(r, codec, info565, expected565, nullptr);
     }
 
     // Verify that re-decoding gives the same result.  It is interesting to check this after
     // a decode to 565, since choosing to decode to 565 may result in some of the decode
     // options being modified.  These options should return to their defaults on another
     // decode to kN32, so the new digest should match the old digest.
-    test_info(r, codec, info, SkCodec::kSuccess, digest);
+    test_info(r, codec, info, expectedResult, digest);
 
     {
         // Check alpha type conversions
@@ -121,7 +123,7 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
                 otherAt = kPremul_SkAlphaType;
             }
             // The other non-opaque alpha type should always succeed, but not match.
-            test_info(r, codec, info.makeAlphaType(otherAt), SkCodec::kSuccess, nullptr);
+            test_info(r, codec, info.makeAlphaType(otherAt), expectedResult, nullptr);
         }
     }
 }
@@ -147,14 +149,24 @@ static void check(skiatest::Reporter* r,
                   SkISize size,
                   bool supportsScanlineDecoding,
                   bool supportsSubsetDecoding,
-                  bool supports565 = true) {
+                  bool supports565 = true,
+                  bool supportsIncomplete = true) {
 
     SkAutoTDelete<SkStream> stream(resource(path));
     if (!stream) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+
+    SkAutoTDelete<SkCodec> codec(nullptr);
+    bool isIncomplete = supportsIncomplete;
+    if (isIncomplete) {
+        size_t size = stream->getLength();
+        SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
+        codec.reset(SkCodec::NewFromData(data));
+    } else {
+        codec.reset(SkCodec::NewFromStream(stream.detach()));
+    }
     if (!codec) {
         ERRORF(r, "Unable to decode '%s'", path);
         return;
@@ -164,14 +176,15 @@ static void check(skiatest::Reporter* r,
     SkMD5::Digest codecDigest;
     SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     SkBitmap bm;
-    test_codec(r, codec, bm, info, size, supports565, &codecDigest, nullptr);
+    SkCodec::Result expectedResult = isIncomplete ? SkCodec::kIncompleteInput : SkCodec::kSuccess;
+    test_codec(r, codec, bm, info, size, supports565, expectedResult, &codecDigest, nullptr);
 
     // Scanline decoding follows.
     // Need to call startScanlineDecode() first.
     REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
-            == SkCodec::kScanlineDecodingNotStarted);
+            == 0);
     REPORTER_ASSERT(r, codec->skipScanlines(1)
-            == SkCodec::kScanlineDecodingNotStarted);
+            == 0);
 
     const SkCodec::Result startResult = codec->startScanlineDecode(info);
     if (supportsScanlineDecoding) {
@@ -180,8 +193,10 @@ static void check(skiatest::Reporter* r,
         REPORTER_ASSERT(r, startResult == SkCodec::kSuccess);
 
         for (int y = 0; y < info.height(); y++) {
-            SkCodec::Result result = codec->getScanlines(bm.getAddr(0, y), 1, 0);
-            REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+            const int lines = codec->getScanlines(bm.getAddr(0, y), 1, 0);
+            if (!isIncomplete) {
+                REPORTER_ASSERT(r, 1 == lines);
+            }
         }
         // verify that scanline decoding gives the same result.
         if (SkCodec::kTopDown_SkScanlineOrder == codec->getScanlineOrder()) {
@@ -190,19 +205,21 @@ static void check(skiatest::Reporter* r,
 
         // Cannot continue to decode scanlines beyond the end
         REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
-                == SkCodec::kInvalidParameters);
+                == 0);
 
         // Interrupting a scanline decode with a full decode starts from
         // scratch
         REPORTER_ASSERT(r, codec->startScanlineDecode(info) == SkCodec::kSuccess);
-        REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
-                == SkCodec::kSuccess);
+        const int lines = codec->getScanlines(bm.getAddr(0, 0), 1, 0);
+        if (!isIncomplete) {
+            REPORTER_ASSERT(r, lines == 1);
+        }
         REPORTER_ASSERT(r, codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes())
-                == SkCodec::kSuccess);
+                == expectedResult);
         REPORTER_ASSERT(r, codec->getScanlines(bm.getAddr(0, 0), 1, 0)
-                == SkCodec::kScanlineDecodingNotStarted);
+                == 0);
         REPORTER_ASSERT(r, codec->skipScanlines(1)
-                == SkCodec::kScanlineDecodingNotStarted);
+                == 0);
     } else {
         REPORTER_ASSERT(r, startResult == SkCodec::kUnimplemented);
     }
@@ -232,7 +249,7 @@ static void check(skiatest::Reporter* r,
                                                         &opts, nullptr, nullptr);
 
         if (supportsSubsetDecoding) {
-            REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+            REPORTER_ASSERT(r, result == expectedResult);
             // Webp is the only codec that supports subsets, and it will have modified the subset
             // to have even left/top.
             REPORTER_ASSERT(r, SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
@@ -250,7 +267,15 @@ static void check(skiatest::Reporter* r,
             SkDebugf("Missing resource '%s'\n", path);
             return;
         }
-        SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromStream(stream.detach()));
+
+        SkAutoTDelete<SkCodec> codec(nullptr);
+        if (isIncomplete) {
+            size_t size = stream->getLength();
+            SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
+            codec.reset(SkScaledCodec::NewFromData(data));
+        } else {
+            codec.reset(SkScaledCodec::NewFromStream(stream.detach()));
+        }
         if (!codec) {
             ERRORF(r, "Unable to decode '%s'", path);
             return;
@@ -258,7 +283,13 @@ static void check(skiatest::Reporter* r,
 
         SkBitmap bm;
         SkMD5::Digest scaledCodecDigest;
-        test_codec(r, codec, bm, info, size, supports565, &scaledCodecDigest, &codecDigest);
+        test_codec(r, codec, bm, info, size, supports565, expectedResult, &scaledCodecDigest,
+                &codecDigest);
+    }
+
+    // If we've just tested incomplete decodes, let's run the same test again on full decodes.
+    if (isIncomplete) {
+        check(r, path, size, supportsScanlineDecoding, supportsSubsetDecoding, supports565, false);
     }
 }
 
@@ -275,39 +306,45 @@ DEF_TEST(Codec, r) {
     check(r, "randPixels.bmp", SkISize::Make(8, 8), true, false);
 
     // ICO
+    // FIXME: We are not ready to test incomplete ICOs
     // These two tests examine interestingly different behavior:
     // Decodes an embedded BMP image
-    check(r, "color_wheel.ico", SkISize::Make(128, 128), false, false);
+    check(r, "color_wheel.ico", SkISize::Make(128, 128), false, false, true, false);
     // Decodes an embedded PNG image
-    check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false);
+    check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false, true, false);
 
     // GIF
-    check(r, "box.gif", SkISize::Make(200, 55), true, false);
-    check(r, "color_wheel.gif", SkISize::Make(128, 128), true, false);
-    check(r, "randPixels.gif", SkISize::Make(8, 8), true, false);
+    // FIXME: We are not ready to test incomplete GIFs
+    check(r, "box.gif", SkISize::Make(200, 55), true, false, true, false);
+    check(r, "color_wheel.gif", SkISize::Make(128, 128), true, false, true, false);
+    // randPixels.gif is too small to test incomplete
+    check(r, "randPixels.gif", SkISize::Make(8, 8), true, false, true, false);
 
     // JPG
     check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, false);
     check(r, "color_wheel.jpg", SkISize::Make(128, 128), true, false);
-    check(r, "grayscale.jpg", SkISize::Make(128, 128), true, false);
+    // grayscale.jpg is too small to test incomplete
+    check(r, "grayscale.jpg", SkISize::Make(128, 128), true, false, true, false);
     check(r, "mandrill_512_q075.jpg", SkISize::Make(512, 512), true, false);
-    check(r, "randPixels.jpg", SkISize::Make(8, 8), true, false);
+    // randPixels.jpg is too small to test incomplete
+    check(r, "randPixels.jpg", SkISize::Make(8, 8), true, false, true, false);
 
     // PNG
-    check(r, "arrow.png", SkISize::Make(187, 312), true, false);
-    check(r, "baby_tux.png", SkISize::Make(240, 246), true, false);
-    check(r, "color_wheel.png", SkISize::Make(128, 128), true, false);
-    check(r, "half-transparent-white-pixel.png", SkISize::Make(1, 1), true, false);
-    check(r, "mandrill_128.png", SkISize::Make(128, 128), true, false);
-    check(r, "mandrill_16.png", SkISize::Make(16, 16), true, false);
-    check(r, "mandrill_256.png", SkISize::Make(256, 256), true, false);
-    check(r, "mandrill_32.png", SkISize::Make(32, 32), true, false);
-    check(r, "mandrill_512.png", SkISize::Make(512, 512), true, false);
-    check(r, "mandrill_64.png", SkISize::Make(64, 64), true, false);
-    check(r, "plane.png", SkISize::Make(250, 126), true, false);
-    check(r, "plane_interlaced.png", SkISize::Make(250, 126), true, false);
-    check(r, "randPixels.png", SkISize::Make(8, 8), true, false);
-    check(r, "yellow_rose.png", SkISize::Make(400, 301), true, false);
+    check(r, "arrow.png", SkISize::Make(187, 312), true, false, true, false);
+    check(r, "baby_tux.png", SkISize::Make(240, 246), true, false, true, false);
+    check(r, "color_wheel.png", SkISize::Make(128, 128), true, false, true, false);
+    check(r, "half-transparent-white-pixel.png", SkISize::Make(1, 1), true, false, true, false);
+    check(r, "mandrill_128.png", SkISize::Make(128, 128), true, false, true, false);
+    check(r, "mandrill_16.png", SkISize::Make(16, 16), true, false, true, false);
+    check(r, "mandrill_256.png", SkISize::Make(256, 256), true, false, true, false);
+    check(r, "mandrill_32.png", SkISize::Make(32, 32), true, false, true, false);
+    check(r, "mandrill_512.png", SkISize::Make(512, 512), true, false, true, false);
+    check(r, "mandrill_64.png", SkISize::Make(64, 64), true, false, true, false);
+    check(r, "plane.png", SkISize::Make(250, 126), true, false, true, false);
+    // FIXME: We are not ready to test incomplete interlaced pngs
+    check(r, "plane_interlaced.png", SkISize::Make(250, 126), true, false, true, false);
+    check(r, "randPixels.png", SkISize::Make(8, 8), true, false, true, false);
+    check(r, "yellow_rose.png", SkISize::Make(400, 301), true, false, true, false);
 }
 
 // Test interlaced PNG in stripes, similar to DM's kStripe_Mode
@@ -361,12 +398,12 @@ DEF_TEST(Codec_stripes, r) {
     // Odd stripes
     for (int i = 1; i < numStripes; i += 2) {
         // Skip the even stripes
-        result = codec->skipScanlines(stripeHeight);
-        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        bool skipResult = codec->skipScanlines(stripeHeight);
+        REPORTER_ASSERT(r, skipResult);
 
-        result = codec->getScanlines(bm.getAddr(0, i * stripeHeight), stripeHeight,
+        int linesDecoded = codec->getScanlines(bm.getAddr(0, i * stripeHeight), stripeHeight,
                                      bm.rowBytes());
-        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        REPORTER_ASSERT(r, linesDecoded == stripeHeight);
     }
 
     // Even stripes
@@ -374,14 +411,14 @@ DEF_TEST(Codec_stripes, r) {
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
     for (int i = 0; i < numStripes; i += 2) {
-        result = codec->getScanlines(bm.getAddr(0, i * stripeHeight), stripeHeight,
+        int linesDecoded = codec->getScanlines(bm.getAddr(0, i * stripeHeight), stripeHeight,
                                      bm.rowBytes());
-        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        REPORTER_ASSERT(r, linesDecoded == stripeHeight);
 
         // Skip the odd stripes
         if (i + 1 < numStripes) {
-            result = codec->skipScanlines(stripeHeight);
-            REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+            bool skipResult = codec->skipScanlines(stripeHeight);
+            REPORTER_ASSERT(r, skipResult);
         }
     }
 
@@ -390,12 +427,12 @@ DEF_TEST(Codec_stripes, r) {
         result = codec->startScanlineDecode(info);
         REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
-        result = codec->skipScanlines(height - remainingLines);
-        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        bool skipResult = codec->skipScanlines(height - remainingLines);
+        REPORTER_ASSERT(r, skipResult);
 
-        result = codec->getScanlines(bm.getAddr(0, height - remainingLines),
+        int linesDecoded = codec->getScanlines(bm.getAddr(0, height - remainingLines),
                                      remainingLines, bm.rowBytes());
-        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        REPORTER_ASSERT(r, linesDecoded == remainingLines);
     }
 
     compare_to_good_digest(r, digest, bm);

@@ -46,7 +46,7 @@ protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
                        size_t dstRowBytes, const Options&, SkPMColor*,
-                       int*) override;
+                       int*, int*) override;
 
     SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
@@ -84,10 +84,10 @@ private:
                      const SkImageInfo& dstInfo, uint32_t x, uint32_t y,
                      uint8_t red, uint8_t green, uint8_t blue);
 
-    Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
-                      const Options& opts) override;
+    int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+            const Options& opts) override;
 
-    SkSampler* getSampler() override;
+    SkSampler* getSampler(bool createIfNecessary) override;
 
     SkAutoTUnref<SkColorTable>          fColorTable;    // owned
     const uint32_t                      fNumColors;

@@ -34,7 +34,7 @@ protected:
     SkISize onGetScaledDimensions(float desiredScale) const override;
     bool onDimensionsSupported(const SkISize&) override;
 
-    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
+    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;
     SkEncodedFormat onGetEncodedFormat() const override {
         return fCodec->getEncodedFormat();
@@ -43,6 +43,10 @@ protected:
     bool onReallyHasAlpha() const override {
         return fCodec->reallyHasAlpha();
     }
+
+    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
+
+    SkScanlineOrder onGetScanlineOrder() const override;
 
 private:
 

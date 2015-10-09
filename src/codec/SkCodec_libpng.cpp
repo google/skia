@@ -466,7 +466,8 @@ bool SkPngCodec::onRewind() {
 
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
                                         size_t dstRowBytes, const Options& options,
-                                        SkPMColor ctable[], int* ctableCount) {
+                                        SkPMColor ctable[], int* ctableCount,
+                                        int* rowsDecoded) {
     if (!conversion_possible(requestedInfo, this->getInfo())) {
         return kInvalidConversion;
     }
@@ -483,14 +484,32 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     }
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
+    int row = 0;
+    // This must be declared above the call to setjmp to avoid memory leaks on incomplete images.
+    SkAutoMalloc storage;
     if (setjmp(png_jmpbuf(fPng_ptr))) {
-        SkCodecPrintf("setjmp long jump!\n");
-        return kInvalidInput;
+        // Assume that any error that occurs while reading rows is caused by an incomplete input.
+        if (fNumberPasses > 1) {
+            // FIXME (msarett): Handle incomplete interlaced pngs.
+            return kInvalidInput;
+        }
+        // FIXME: We do a poor job on incomplete pngs compared to other decoders (ex: Chromium,
+        // Ubuntu Image Viewer).  This is because we use the default buffer size in libpng (8192
+        // bytes), and if we can't fill the buffer, we immediately fail.
+        // For example, if we try to read 8192 bytes, and the image (incorrectly) only contains
+        // half that, which may have been enough to contain a non-zero number of lines, we fail
+        // when we could have decoded a few more lines and then failed.
+        // The read function that we provide for libpng has no way of indicating that we have
+        // made a partial read.
+        // Making our buffer size smaller improves our incomplete decodes, but what impact does
+        // it have on regular decode performance?  Should we investigate using a different API
+        // instead of png_read_row(s)?  Chromium uses png_process_data.
+        *rowsDecoded = row;
+        return kIncompleteInput;
     }
 
     bool hasAlpha = false;
     // FIXME: We could split these out based on subclass.
-    SkAutoMalloc storage;
     void* dstRow = dst;
     if (fNumberPasses > 1) {
         const int width = requestedInfo.width();
@@ -520,7 +539,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     } else {
         storage.reset(requestedInfo.width() * SkSwizzler::BytesPerPixel(fSrcConfig));
         uint8_t* srcRow = static_cast<uint8_t*>(storage.get());
-        for (int y = 0; y < requestedInfo.height(); y++) {
+        for (; row < requestedInfo.height(); row++) {
             png_read_rows(fPng_ptr, &srcRow, png_bytepp_NULL, 1);
             // FIXME: Only call IsOpaque once, outside the loop. Same for onGetScanlines.
             hasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->swizzle(dstRow, srcRow));
@@ -547,6 +566,14 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     png_read_end(fPng_ptr, fInfo_ptr);
 
     return kSuccess;
+}
+
+uint32_t SkPngCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+    if (colorPtr) {
+        return get_color_table_fill_value(colorType, colorPtr, 0);
+    }
+    return INHERITED::onGetFillValue(colorType, alphaType);
 }
 
 bool SkPngCodec::onReallyHasAlpha() const {
@@ -603,15 +630,17 @@ public:
         return kSuccess;
     }
 
-    Result onGetScanlines(void* dst, int count, size_t rowBytes) override {
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override {
+        // Assume that an error in libpng indicates an incomplete input.
+        int row = 0;
         if (setjmp(png_jmpbuf(this->png_ptr()))) {
             SkCodecPrintf("setjmp long jump!\n");
-            return kInvalidInput;
+            return row;
         }
 
         void* dstRow = dst;
         bool hasAlpha = false;
-        for (int i = 0; i < count; i++) {
+        for (; row < count; row++) {
             png_read_rows(this->png_ptr(), &fSrcRow, png_bytepp_NULL, 1);
             hasAlpha |= !SkSwizzler::IsOpaque(this->swizzler()->swizzle(dstRow, fSrcRow));
             dstRow = SkTAddOffset<void>(dstRow, rowBytes);
@@ -626,23 +655,22 @@ public:
             // Otherwise, the AlphaState is unchanged.
         }
 
-        return kSuccess;
+        return row;
     }
 
-    Result onSkipScanlines(int count) override {
-        // FIXME: Could we use the return value of setjmp to specify the type of
-        // error?
+    bool onSkipScanlines(int count) override {
+        // Assume that an error in libpng indicates an incomplete input.
         if (setjmp(png_jmpbuf(this->png_ptr()))) {
             SkCodecPrintf("setjmp long jump!\n");
-            return kInvalidInput;
+            return false;
         }
         //there is a potential tradeoff of memory vs speed created by putting this in a loop. 
         //calling png_read_rows in a loop is insignificantly slower than calling it once with count 
         //as png_read_rows has it's own loop which calls png_read_row count times.
-        for (int i = 0; i < count; i++) {
+        for (int row = 0; row < count; row++) {
             png_read_rows(this->png_ptr(), &fSrcRow, png_bytepp_NULL, 1);
         }
-        return SkCodec::kSuccess;
+        return true;
     }
 
     AlphaState alphaInScanlineDecode() const override {
@@ -694,7 +722,7 @@ public:
         return SkCodec::kSuccess;
     }
 
-    Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
+    int onGetScanlines(void* dst, int count, size_t dstRowBytes) override {
         // rewind stream if have previously called onGetScanlines,
         // since we need entire progressive image to get scanlines
         if (fCanSkipRewind) {
@@ -707,7 +735,7 @@ public:
             // decoding is the exception, since it needs to rewind between
             // calls to getScanlines. Keep track of fCurrScanline, to undo the
             // reset.
-            const int currScanline = this->onNextScanline();
+            const int currScanline = this->nextScanline();
             // This method would never be called if currScanline is -1
             SkASSERT(currScanline != -1);
 
@@ -719,12 +747,15 @@ public:
 
         if (setjmp(png_jmpbuf(this->png_ptr()))) {
             SkCodecPrintf("setjmp long jump!\n");
-            return kInvalidInput;
+            // FIXME (msarett): Returning 0 is pessimistic.  If we can complete a single pass,
+            // we may be able to report that all of the memory has been initialized.  Even if we
+            // fail on the first pass, we can still report than some scanlines are initialized.
+            return 0;
         }
         SkAutoMalloc storage(count * fSrcRowBytes);
         uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
         uint8_t* srcRow;
-        const int startRow = this->onNextScanline();
+        const int startRow = this->nextScanline();
         for (int i = 0; i < this->numberPasses(); i++) {
             // read rows we planned to skip into garbage row
             for (int y = 0; y < startRow; y++){
@@ -760,12 +791,12 @@ public:
             // Otherwise, the AlphaState is unchanged.
         }
 
-        return kSuccess;
+        return count;
     }
 
-    SkCodec::Result onSkipScanlines(int count) override {
+    bool onSkipScanlines(int count) override {
         // The non-virtual version will update fCurrScanline.
-        return SkCodec::kSuccess;
+        return true;
     }
 
     AlphaState alphaInScanlineDecode() const override {

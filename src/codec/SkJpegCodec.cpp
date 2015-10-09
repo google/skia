@@ -325,7 +325,8 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
  */
 SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
                                          void* dst, size_t dstRowBytes,
-                                         const Options& options, SkPMColor*, int*) {
+                                         const Options& options, SkPMColor*, int*,
+                                         int* rowsDecoded) {
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -358,20 +359,11 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     JSAMPLE* dstRow = (JSAMPLE*) dst;
     for (uint32_t y = 0; y < dstHeight; y++) {
         // Read rows of the image
-        uint32_t rowsDecoded = jpeg_read_scanlines(dinfo, &dstRow, 1);
+        uint32_t lines = jpeg_read_scanlines(dinfo, &dstRow, 1);
 
         // If we cannot read enough rows, assume the input is incomplete
-        if (rowsDecoded != 1) {
-            // Fill the remainder of the image with black. This error handling
-            // behavior is unspecified but SkCodec consistently uses black as
-            // the fill color for opaque images.  If the destination is kGray,
-            // the low 8 bits of SK_ColorBLACK will be used.  Conveniently,
-            // these are zeros, which is the representation for black in kGray.
-            // If the destination is kRGB_565, the low 16 bits of SK_ColorBLACK
-            // will be used.  Conveniently, these are zeros, which is the
-            // representation for black in kRGB_565.
-            SkSwizzler::Fill(dstRow, dstInfo, dstRowBytes, dstHeight - y,
-                    SK_ColorBLACK, nullptr, options.fZeroInitialized);
+        if (lines != 1) {
+            *rowsDecoded = y;
 
             return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
         }
@@ -388,9 +380,9 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-SkSampler* SkJpegCodec::getSampler() {
-    if (fSwizzler) {
-        SkASSERT(fSrcRow && static_cast<uint8_t*>(fStorage.get()) == fSrcRow);
+SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
+    if (!createIfNecessary || fSwizzler) {
+        SkASSERT(!fSwizzler || (fSrcRow && static_cast<uint8_t*>(fStorage.get()) == fSrcRow));
         return fSwizzler;
     }
 
@@ -452,7 +444,7 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-SkCodec::Result SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
+int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
     // Set the jump location for libjpeg errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
@@ -471,10 +463,8 @@ SkCodec::Result SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowByte
         // Read row of the image
         uint32_t rowsDecoded = jpeg_read_scanlines(fDecoderMgr->dinfo(), &dstRow, 1);
         if (rowsDecoded != 1) {
-            SkSwizzler::Fill(dstRow, this->dstInfo(), rowBytes, count - y,
-                        SK_ColorBLACK, nullptr, this->options().fZeroInitialized);
             fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();
-            return kIncompleteInput;
+            return y;
         }
 
         // Convert to RGBA if necessary
@@ -490,7 +480,7 @@ SkCodec::Result SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowByte
             dstRow = SkTAddOffset<JSAMPLE>(dstRow, rowBytes);
         }
     }
-    return kSuccess;
+    return count;
 }
 
 #ifndef TURBO_HAS_SKIP
@@ -504,14 +494,11 @@ SkCodec::Result SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowByte
     }
 #endif
 
-SkCodec::Result SkJpegCodec::onSkipScanlines(int count) {
+bool SkJpegCodec::onSkipScanlines(int count) {
     // Set the jump location for libjpeg errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
-        return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
+        return fDecoderMgr->returnFalse("setjmp");
     }
 
-    jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
-
-    return kSuccess;
+    return count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
 }
-

@@ -130,44 +130,6 @@ public:
                                       const SkImageInfo& dstInfo, SkCodec::ZeroInitialized);
 
     /**
-     * Fill the remainder of the destination with a single color
-     *
-     * @param dstStartRow
-     * The destination row to fill from.
-     *
-     * @param numRows
-     * The number of rows to fill.
-     *
-     * @param colorOrIndex
-     * @param colorTable
-     * If dstInfo.colorType() is kIndex8, colorOrIndex is assumed to be a uint8_t
-     * index, and colorTable is ignored. Each 8-bit pixel will be set to (uint8_t)
-     * index.
-     *
-     * If dstInfo.colorType() is kN32, colorOrIndex is treated differently depending on
-     * whether colorTable is nullptr:
-     *
-     * A nullptr colorTable means colorOrIndex is treated as an SkPMColor (premul or
-     * unpremul, depending on dstInfo.alphaType()). Each 4-byte pixel will be set to
-     * colorOrIndex.
-
-     * A non-nullptr colorTable means colorOrIndex is treated as a uint8_t index into
-     * the colorTable. i.e. each 4-byte pixel will be set to
-     * colorTable[(uint8_t) colorOrIndex].
-     *
-     * If dstInfo.colorType() is kGray, colorOrIndex is always treated as an 8-bit color.
-     *
-     * Other SkColorTypes are not supported.
-     *
-     * @param zeroInit
-     * Indicates whether memory is already zero initialized.
-     *
-     */
-    static void Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstRowBytes,
-            uint32_t numRows, uint32_t colorOrIndex, const SkPMColor* colorTable,
-            SkCodec::ZeroInitialized zeroInit);
-
-    /**
      *  Swizzle a line. Generally this will be called height times, once
      *  for each row of source.
      *  By allowing the caller to pass in the dst pointer, we give the caller
@@ -180,6 +142,15 @@ public:
      *          transparent, or neither
      */
     ResultAlpha swizzle(void* dst, const uint8_t* SK_RESTRICT src);
+
+    /**
+     * Implement fill using a custom width.
+     */
+    void fill(const SkImageInfo& info, void* dst, size_t rowBytes, uint32_t colorOrIndex,
+            SkCodec::ZeroInitialized zeroInit) override {
+        const SkImageInfo fillInfo = info.makeWH(fDstWidth, info.height());
+        SkSampler::Fill(fillInfo, dst, rowBytes, colorOrIndex, zeroInit);
+    }
 
 private:
 
@@ -214,5 +185,6 @@ private:
     SkSwizzler(RowProc proc, const SkPMColor* ctable, int deltaSrc, int srcWidth);
 
     int onSetSampleX(int) override;
+
 };
 #endif // SkSwizzler_DEFINED

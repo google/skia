@@ -44,7 +44,7 @@ protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
                        size_t dstRowBytes, const Options&, SkPMColor*,
-                       int*) override;
+                       int*, int*) override;
 
     bool onInIco() const override {
         return fInIco;
@@ -54,7 +54,13 @@ protected:
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) override;
 
-    SkSampler* getSampler() override { return fSwizzler; }
+
+    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
+
+    SkSampler* getSampler(bool createIfNecessary) override {
+        SkASSERT(fSwizzler);
+        return fSwizzler;
+    }
 
 private:
 
@@ -66,8 +72,8 @@ private:
 
     bool initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
 
-    Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
-                      const Options& opts) override;
+    int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+            const Options& opts) override;
 
     Result decodeIcoMask(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
 

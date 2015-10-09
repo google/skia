@@ -113,7 +113,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     for (uint32_t i = 0; i < numImages; i++) {
         uint32_t offset = directoryEntries.get()[i].offset;
         uint32_t size = directoryEntries.get()[i].size;
-        
+
         // Ensure that the offset is valid
         if (offset < bytesRead) {
             SkCodecPrintf("Warning: invalid ico offset.\n");
@@ -242,8 +242,8 @@ bool SkIcoCodec::onDimensionsSupported(const SkISize& dim) {
  */
 SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
-                                        const Options& opts, SkPMColor* ct,
-                                        int* ptr) {
+                                        const Options& opts, SkPMColor* colorTable,
+                                        int* colorCount, int* rowsDecoded) {
     if (opts.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -279,7 +279,11 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
                     break;
             }
             SkImageInfo info = dstInfo.makeAlphaType(embeddedAlpha);
-            result = embeddedCodec->getPixels(info, dst, dstRowBytes, &opts, ct, ptr);
+            result = embeddedCodec->getPixels(info, dst, dstRowBytes, &opts, colorTable,
+                    colorCount);
+            // The embedded codec will handle filling incomplete images, so we will indicate
+            // that all of the rows are initialized.
+            *rowsDecoded = info.height();
 
             // On a fatal error, keep trying to find an image to decode
             if (kInvalidConversion == result || kInvalidInput == result ||

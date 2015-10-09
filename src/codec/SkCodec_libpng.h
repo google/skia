@@ -32,16 +32,20 @@ public:
     virtual ~SkPngCodec();
 
 protected:
-    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*)
+    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
     bool onRewind() override;
+    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
     bool onReallyHasAlpha() const final;
 
     // Helper to set up swizzler and color table. Also calls png_read_update_info.
     Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
                               SkPMColor*, int* ctableCount);
-    SkSampler* getSampler() override { return fSwizzler; }
+    SkSampler* getSampler(bool createIfNecessary) override {
+        SkASSERT(fSwizzler);
+        return fSwizzler;
+    }
 
     SkPngCodec(const SkImageInfo&, SkStream*, png_structp, png_infop, int, int);
 

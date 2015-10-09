@@ -91,8 +91,8 @@ void SubsetTranslateBench::onDraw(int n, SkCanvas* canvas) {
                     codec->startScanlineDecode(info, nullptr, get_colors(&bitmap), &colorCount);
                     SkASSERT(SkCodec::kSuccess == result);
 
-                    SkDEBUGCODE(result =) codec->skipScanlines(y);
-                    SkASSERT(SkCodec::kSuccess == result);
+                    SkDEBUGCODE(int lines =) codec->skipScanlines(y);
+                    SkASSERT(y == lines);
 
                     const uint32_t currSubsetWidth =
                             x + (int) fSubsetWidth > info.width() ?
@@ -104,8 +104,8 @@ void SubsetTranslateBench::onDraw(int n, SkCanvas* canvas) {
                     switch (codec->getScanlineOrder()) {
                         case SkCodec::kTopDown_SkScanlineOrder:
                             for (uint32_t y = 0; y < currSubsetHeight; y++) {
-                                SkDEBUGCODE(result =) codec->getScanlines(row.get(), 1, 0);
-                                SkASSERT(SkCodec::kSuccess == result);
+                                SkDEBUGCODE(lines =) codec->getScanlines(row.get(), 1, 0);
+                                SkASSERT(1 == lines);
 
                                 memcpy(bitmap.getAddr(0, y), row.get() + x * bpp,
                                         currSubsetWidth * bpp);
@@ -118,9 +118,9 @@ void SubsetTranslateBench::onDraw(int n, SkCanvas* canvas) {
                             SkBitmap stripeBm;
                             alloc_pixels(&stripeBm, stripeInfo, colors, colorCount);
 
-                            SkDEBUGCODE(result =) codec->getScanlines(stripeBm.getPixels(),
+                            SkDEBUGCODE(lines =) codec->getScanlines(stripeBm.getPixels(),
                                     currSubsetHeight, stripeBm.rowBytes());
-                            SkASSERT(SkCodec::kSuccess == result);
+                            SkASSERT(currSubsetHeight == (uint32_t) lines);
 
                             for (uint32_t subsetY = 0; subsetY < currSubsetHeight; subsetY++) {
                                 memcpy(bitmap.getAddr(0, subsetY), stripeBm.getAddr(x, subsetY),

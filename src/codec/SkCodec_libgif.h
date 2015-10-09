@@ -60,13 +60,17 @@ protected:
      * Performs the full gif decode
      */
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&,
-            SkPMColor*, int32_t*) override;
+            SkPMColor*, int*, int*) override;
 
     SkEncodedFormat onGetEncodedFormat() const override {
         return kGIF_SkEncodedFormat;
     }
 
     bool onRewind() override;
+
+    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
+
+    int onOutputScanline(int inputScanline) const;
 
 private:
 
@@ -129,22 +133,22 @@ private:
      */
     Result initializeSwizzler(const SkImageInfo& dstInfo, ZeroInitialized zeroInit);
 
-    SkSampler* getSampler() override { return fSwizzler; }
+    SkSampler* getSampler(bool createIfNecessary) override {
+        SkASSERT(fSwizzler);
+        return fSwizzler;
+    }
 
     /*
-     * @return kSuccess if the read is successful and kIncompleteInput if the
-     *         read fails.
+     * @return true if the read is successful and false if the read fails.
      */
-    Result readRow();
+    bool readRow();
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& opts,
                    SkPMColor inputColorPtr[], int* inputColorCount) override;
 
-    Result onGetScanlines(void* dst, int count, size_t rowBytes) override;
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
 
     SkScanlineOrder onGetScanlineOrder() const override;
-
-    int onNextScanline() const override;
 
     /*
      * This function cleans up the gif object after the decode completes

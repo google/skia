@@ -40,9 +40,8 @@ protected:
     /*
      * Initiates the Ico decode
      */
-    Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
-                       size_t dstRowBytes, const Options&, SkPMColor*, int*)
-                       override;
+    Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
+            SkPMColor*, int*, int*) override;
 
     SkEncodedFormat onGetEncodedFormat() const override {
         return kICO_SkEncodedFormat;

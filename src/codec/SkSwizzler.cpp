@@ -10,7 +10,6 @@
 #include "SkScaledCodec.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
-#include "SkUtils.h"
 
 SkSwizzler::ResultAlpha SkSwizzler::GetResult(uint8_t zeroAlpha,
                                               uint8_t maxAlpha) {
@@ -717,82 +716,4 @@ SkSwizzler::ResultAlpha SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRIC
     SkASSERT(nullptr != dst && nullptr != src);
     return fRowProc(dst, src, fDstWidth, fDeltaSrc, fSampleX * fDeltaSrc,
             fX0 * fDeltaSrc, fColorTable);
-}
-
-void SkSwizzler::Fill(void* dstStartRow, const SkImageInfo& dstInfo, size_t dstRowBytes,
-        uint32_t numRows, uint32_t colorOrIndex, const SkPMColor* colorTable,
-        SkCodec::ZeroInitialized zeroInit) {
-    SkASSERT(dstStartRow != nullptr);
-    SkASSERT(numRows <= (uint32_t) dstInfo.height());
-
-    // Calculate bytes to fill.  We use getSafeSize since the last row may not be padded.
-    const size_t bytesToFill = dstInfo.makeWH(dstInfo.width(), numRows).getSafeSize(dstRowBytes);
-
-    // Use the proper memset routine to fill the remaining bytes
-    switch(dstInfo.colorType()) {
-        case kN32_SkColorType:
-            // Assume input is an index if we have a color table
-            uint32_t color;
-            if (nullptr != colorTable) {
-                color = colorTable[(uint8_t) colorOrIndex];
-            // Otherwise, assume the input is a color
-            } else {
-                color = colorOrIndex;
-            }
-
-            // If memory is zero initialized, we may not need to fill
-            if (SkCodec::kYes_ZeroInitialized == zeroInit && 0 == color) {
-                return;
-            }
-
-            // We must fill row by row in the case of unaligned row bytes
-            if (SkIsAlign4((size_t) dstStartRow) && SkIsAlign4(dstRowBytes)) {
-                sk_memset32((uint32_t*) dstStartRow, color,
-                        (uint32_t) bytesToFill / sizeof(SkPMColor));
-            } else {
-                // This is an unlikely, slow case
-                SkCodecPrintf("Warning: Strange number of row bytes, fill will be slow.\n");
-                uint32_t* dstRow = (uint32_t*) dstStartRow;
-                for (uint32_t row = 0; row < numRows; row++) {
-                    for (int32_t col = 0; col < dstInfo.width(); col++) {
-                        dstRow[col] = color;
-                    }
-                    dstRow = SkTAddOffset<uint32_t>(dstRow, dstRowBytes);
-                }
-            }
-            break;
-        case kRGB_565_SkColorType:
-            // If the destination is k565, the caller passes in a 16-bit color.
-            // We will not assert that the high bits of colorOrIndex must be zeroed.
-            // This allows us to take advantage of the fact that the low 16 bits of an
-            // SKPMColor may be a valid a 565 color.  For example, the low 16
-            // bits of SK_ColorBLACK are identical to the 565 representation
-            // for black.
-            // If we ever want to fill with colorOrIndex != 0, we will probably need
-            // to implement this with sk_memset16().
-            SkASSERT((uint16_t) colorOrIndex == (uint8_t) colorOrIndex);
-            // Fall through
-        case kIndex_8_SkColorType:
-            // On an index destination color type, always assume the input is an index.
-            // Fall through
-        case kGray_8_SkColorType:
-            // If the destination is kGray, the caller passes in an 8-bit color.
-            // We will not assert that the high bits of colorOrIndex must be zeroed.
-            // This allows us to take advantage of the fact that the low 8 bits of an
-            // SKPMColor may be a valid a grayscale color.  For example, the low 8
-            // bits of SK_ColorBLACK are identical to the grayscale representation
-            // for black.
-
-            // If memory is zero initialized, we may not need to fill
-            if (SkCodec::kYes_ZeroInitialized == zeroInit && 0 == (uint8_t) colorOrIndex) {
-                return;
-            }
-
-            memset(dstStartRow, (uint8_t) colorOrIndex, bytesToFill);
-            break;
-        default:
-            SkCodecPrintf("Error: Unsupported dst color type for fill().  Doing nothing.\n");
-            SkASSERT(false);
-            break;
-    }
 }

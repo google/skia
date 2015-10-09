@@ -201,7 +201,8 @@ void SkScaledCodec::ComputeSampleSize(const SkISize& dstDim, const SkISize& srcD
 
 SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
                                            size_t rowBytes, const Options& options,
-                                           SkPMColor ctable[], int* ctableCount) {
+                                           SkPMColor ctable[], int* ctableCount,
+                                           int* rowsDecoded) {
 
     if (options.fSubset) {
         // Subsets are not supported.
@@ -209,6 +210,9 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
     }
 
     if (fCodec->dimensionsSupported(requestedInfo.dimensions())) {
+        // Make sure that the parent class does not fill on an incomplete decode, since
+        // fCodec will take care of filling the uninitialized lines.
+        *rowsDecoded = requestedInfo.height();
         return fCodec->getPixels(requestedInfo, dst, rowBytes, &options, ctable, ctableCount);
     }
 
@@ -237,7 +241,7 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
         return result;
     }
 
-    SkSampler* sampler = fCodec->getSampler();
+    SkSampler* sampler = fCodec->getSampler(true);
     if (!sampler) {
         return kUnimplemented;
     }
@@ -248,61 +252,97 @@ SkCodec::Result SkScaledCodec::onGetPixels(const SkImageInfo& requestedInfo, voi
 
     switch(fCodec->getScanlineOrder()) {
         case SkCodec::kTopDown_SkScanlineOrder: {
-            result = fCodec->skipScanlines(Y0);
-            if (kSuccess != result && kIncompleteInput != result) {
-                return result;
+            if (!fCodec->skipScanlines(Y0)) {
+                *rowsDecoded = 0;
+                return kIncompleteInput;
             }
             for (int y = 0; y < dstHeight; y++) {
-                result = fCodec->getScanlines(dst, 1, rowBytes);
-                if (kSuccess != result && kIncompleteInput != result) {
-                    return result;
+                if (1 != fCodec->getScanlines(dst, 1, rowBytes)) {
+                    // The failed call to getScanlines() will take care of
+                    // filling the failed row, so we indicate that we have
+                    // decoded (y + 1) rows.
+                    *rowsDecoded = y + 1;
+                    return kIncompleteInput;
                 }
                 if (y < dstHeight - 1) {
-                    result = fCodec->skipScanlines(sampleY - 1);
-                    if (kSuccess != result && kIncompleteInput != result) {
-                        return result;
+                    if (!fCodec->skipScanlines(sampleY - 1)) {
+                        *rowsDecoded = y + 1;
+                        return kIncompleteInput;
                     }
                 }
                 dst = SkTAddOffset<void>(dst, rowBytes);
             }
-            return result;
+            return kSuccess;
         }
         case SkCodec::kBottomUp_SkScanlineOrder:
         case SkCodec::kOutOfOrder_SkScanlineOrder: {
-            for (int y = 0; y < srcHeight; y++) {
+            Result result = kSuccess;
+            int y;
+            for (y = 0; y < srcHeight; y++) {
                 int srcY = fCodec->nextScanline();
                 if (is_coord_necessary(srcY, sampleY, dstHeight)) {
                     void* dstPtr = SkTAddOffset<void>(dst, rowBytes * get_dst_coord(srcY, sampleY));
-                    result = fCodec->getScanlines(dstPtr, 1, rowBytes);
-                    if (kSuccess != result && kIncompleteInput != result) {
-                        return result;
+                    if (1 != fCodec->getScanlines(dstPtr, 1, rowBytes)) {
+                        result = kIncompleteInput;
+                        break;
                     }
                 } else {
-                    result = fCodec->skipScanlines(1);
-                    if (kSuccess != result && kIncompleteInput != result) {
-                        return result;
+                    if (!fCodec->skipScanlines(1)) {
+                        result = kIncompleteInput;
+                        break;
                     }
                 }
+            }
+
+            // We handle filling uninitialized memory here instead of in the parent class.
+            // The parent class does not know that we are sampling.
+            if (kIncompleteInput == result) {
+                const uint32_t fillValue = fCodec->getFillValue(requestedInfo.colorType(),
+                        requestedInfo.alphaType());
+                for (; y < srcHeight; y++) {
+                    int srcY = fCodec->outputScanline(y);
+                    if (is_coord_necessary(srcY, sampleY, dstHeight)) {
+                        void* dstRow = SkTAddOffset<void>(dst,
+                                rowBytes * get_dst_coord(srcY, sampleY));
+                        SkSampler::Fill(requestedInfo.makeWH(requestedInfo.width(), 1), dstRow,
+                                rowBytes, fillValue, options.fZeroInitialized);
+                    }
+                }
+                *rowsDecoded = dstHeight;
             }
             return result;
         }
         case SkCodec::kNone_SkScanlineOrder: {
             SkAutoMalloc storage(srcHeight * rowBytes);
             uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
-            result = fCodec->getScanlines(storagePtr, srcHeight, rowBytes);
-            if (kSuccess != result && kIncompleteInput != result) {
-                return result;
-            }
+            int scanlines = fCodec->getScanlines(storagePtr, srcHeight, rowBytes);
             storagePtr += Y0 * rowBytes;
-            for (int y = 0; y < dstHeight; y++) {
+            scanlines -= Y0;
+            int y = 0;
+            while (y < dstHeight && scanlines > 0) {
                 memcpy(dst, storagePtr, rowBytes);
                 storagePtr += sampleY * rowBytes;
                 dst = SkTAddOffset<void>(dst, rowBytes);
+                scanlines -= sampleY;
+                y++;
             }
-            return result;
+            if (y < dstHeight) {
+                // fCodec has already handled filling uninitialized memory.
+                *rowsDecoded = dstHeight;
+                return kIncompleteInput;
+            }
+            return kSuccess;
         }
         default:
             SkASSERT(false);
             return kUnimplemented;
     }
+}
+
+uint32_t SkScaledCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+    return fCodec->onGetFillValue(colorType, alphaType);
+}
+
+SkCodec::SkScanlineOrder SkScaledCodec::onGetScanlineOrder() const {
+    return fCodec->onGetScanlineOrder();
 }

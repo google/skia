@@ -50,7 +50,7 @@ protected:
      * Initiates the jpeg decode
      */
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
-            SkPMColor*, int*) override;
+            SkPMColor*, int*, int*) override;
 
     SkEncodedFormat onGetEncodedFormat() const override {
         return kJPEG_SkEncodedFormat;
@@ -103,11 +103,11 @@ private:
     bool setOutputColorSpace(const SkImageInfo& dst);
 
     // scanline decoding
-    SkSampler* getSampler() override;
+    SkSampler* getSampler(bool createIfNecessary) override;
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
                    SkPMColor ctable[], int* ctableCount) override;
-    Result onGetScanlines(void* dst, int count, size_t rowBytes) override;
-    Result onSkipScanlines(int count) override;
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
+    bool onSkipScanlines(int count) override;
 
     SkAutoTDelete<JpegDecoderMgr> fDecoderMgr;
     // We will save the state of the decompress struct after reading the header.

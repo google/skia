@@ -8,6 +8,7 @@
 #ifndef SkCodecPriv_DEFINED
 #define SkCodecPriv_DEFINED
 
+#include "SkColorPriv.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
@@ -34,7 +35,7 @@
  * returns a scaled dimension based on the original dimension and the sampleSize
  * NOTE: we round down here for scaled dimension to match the behavior of SkImageDecoder
  */
-static int get_scaled_dimension(int srcDimension, int sampleSize) {
+inline int get_scaled_dimension(int srcDimension, int sampleSize) {
     if (sampleSize > srcDimension) {
         return 1;
     }
@@ -47,7 +48,7 @@ static int get_scaled_dimension(int srcDimension, int sampleSize) {
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
+inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
 
 /*
  * Given a coordinate in the original image, this returns the corresponding
@@ -57,7 +58,7 @@ static int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
+inline int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
 
 /*
  * When scaling, we will discard certain y-coordinates (rows) and
@@ -67,7 +68,7 @@ static int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sam
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
+inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
     // Get the first coordinate that we want to keep
     int startCoord = get_start_coord(sampleFactor);
 
@@ -80,7 +81,7 @@ static bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
     return ((srcCoord - startCoord) % sampleFactor) == 0;
 }
 
-static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
+inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
     // Check for supported alpha types
     if (srcAlpha != dstAlpha) {
         if (kOpaque_SkAlphaType == srcAlpha) {
@@ -110,7 +111,7 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
  * - always support N32
  * - otherwise match the src color type
  */
-static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
     if (dst.profileType() != src.profileType()) {
         return false;
     }
@@ -134,15 +135,34 @@ static bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) 
 /*
  * If there is a color table, get a pointer to the colors, otherwise return nullptr
  */
-static const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
+inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
      return nullptr != colorTable ? colorTable->readColors() : nullptr;
+}
+
+/*
+ * Given that the encoded image uses a color table, return the fill value
+ */
+inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColor* colorPtr,
+        uint8_t fillIndex) {
+    SkASSERT(nullptr != colorPtr);
+    switch (colorType) {
+        case kN32_SkColorType:
+            return colorPtr[fillIndex];
+        case kRGB_565_SkColorType:
+            return SkPixel32ToPixel16(colorPtr[fillIndex]);
+        case kIndex_8_SkColorType:
+            return fillIndex;
+        default:
+            SkASSERT(false);
+            return 0;
+    }
 }
 
 /*
  *
  * Copy the codec color table back to the client when kIndex8 color type is requested
  */
-static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTable,
+inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTable,
         SkPMColor* inputColorPtr, int* inputColorCount) {
     if (kIndex_8_SkColorType == dstInfo.colorType()) {
         SkASSERT(nullptr != inputColorPtr);
@@ -155,21 +175,21 @@ static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* co
 /*
  * Compute row bytes for an image using pixels per byte
  */
-static inline size_t compute_row_bytes_ppb(int width, uint32_t pixelsPerByte) {
+inline size_t compute_row_bytes_ppb(int width, uint32_t pixelsPerByte) {
     return (width + pixelsPerByte - 1) / pixelsPerByte;
 }
 
 /*
  * Compute row bytes for an image using bytes per pixel
  */
-static inline size_t compute_row_bytes_bpp(int width, uint32_t bytesPerPixel) {
+inline size_t compute_row_bytes_bpp(int width, uint32_t bytesPerPixel) {
     return width * bytesPerPixel;
 }
 
 /*
  * Compute row bytes for an image
  */
-static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
+inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
     if (bitsPerPixel < 16) {
         SkASSERT(0 == 8 % bitsPerPixel);
         const uint32_t pixelsPerByte = 8 / bitsPerPixel;
@@ -182,27 +202,10 @@ static inline size_t compute_row_bytes(int width, uint32_t bitsPerPixel) {
 }
 
 /*
- * On incomplete images, get the color to fill with
- */
-static inline SkPMColor get_fill_color_or_index(SkAlphaType alphaType) {
-    // This condition works properly for all supported output color types.
-    // kIndex8: The low 8-bits of both possible return values is 0, which is
-    //          our desired default index.
-    // kGray8:  The low 8-bits of both possible return values is 0, which is
-    //          black, our desired fill value.
-    // kRGB565: The low 16-bits of both possible return values is 0, which is
-    //          black, our desired fill value.
-    // kN32:    Return black for opaque images and transparent for non-opaque
-    //          images.
-    return kOpaque_SkAlphaType == alphaType ?
-            SK_ColorBLACK : SK_ColorTRANSPARENT;
-}
-
-/*
  * Get a byte from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-static inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
+inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
     return buffer[i];
 }
 
@@ -210,7 +213,7 @@ static inline uint8_t get_byte(uint8_t* buffer, uint32_t i) {
  * Get a short from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-static inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
+inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
     uint16_t result;
     memcpy(&result, &(buffer[i]), 2);
 #ifdef SK_CPU_BENDIAN
@@ -224,7 +227,7 @@ static inline uint16_t get_short(uint8_t* buffer, uint32_t i) {
  * Get an int from a buffer
  * This method is unsafe, the caller is responsible for performing a check
  */
-static inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
+inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
     uint32_t result;
     memcpy(&result, &(buffer[i]), 4);
 #ifdef SK_CPU_BENDIAN

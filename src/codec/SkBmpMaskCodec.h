@@ -36,7 +36,7 @@ protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
                        size_t dstRowBytes, const Options&, SkPMColor*,
-                       int*) override;
+                       int*, int*) override;
 
     SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
@@ -45,10 +45,13 @@ protected:
 private:
 
     bool initializeSwizzler(const SkImageInfo& dstInfo);
-    SkSampler* getSampler() override { return fMaskSwizzler; }
+    SkSampler* getSampler(bool createIfNecessary) override {
+        SkASSERT(fMaskSwizzler);
+        return fMaskSwizzler;
+    }
 
-    Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
-                      const Options& opts) override;
+    int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+            const Options& opts) override;
 
     SkAutoTDelete<SkMasks>              fMasks;        // owned
     SkAutoTDelete<SkMaskSwizzler>       fMaskSwizzler;

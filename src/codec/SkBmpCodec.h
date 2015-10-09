@@ -81,15 +81,6 @@ protected:
     int32_t getDstRow(int32_t y, int32_t height) const;
 
     /*
-     * Get the destination row to start filling from
-     * Used to fill the remainder of the image on incomplete input for bmps
-     * This is tricky since bmps may be kTopDown or kBottomUp.  For kTopDown,
-     * we start filling from where we left off, but for kBottomUp we start
-     * filling at the top of the image.
-     */
-    void* getDstStartRow(void* dst, size_t dstRowBytes, int32_t y) const;
-
-    /*
      * Compute the number of colors in the color table
      */
     uint32_t computeNumColors(uint32_t numColors);
@@ -140,16 +131,15 @@ private:
      *                    number of rows to decode at this time.
      * @param dst         Memory location to store output pixels
      * @param dstRowBytes Bytes in a row of the destination
+     * @return            Number of rows successfully decoded
      */
-    virtual Result decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
+    virtual int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) = 0;
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options&,
             SkPMColor inputColorPtr[], int* inputColorCount) override;
 
-    Result onGetScanlines(void* dst, int count, size_t rowBytes) override;
-
-    int onNextScanline() const override;
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
 
     // TODO(msarett): Override default skipping with something more clever.
 

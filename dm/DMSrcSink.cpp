@@ -28,6 +28,8 @@
 #include "SkStream.h"
 #include "SkTLogic.h"
 #include "SkXMLWriter.h"
+#include "SkScaledCodec.h"
+#include "SkSwizzler.h"
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
@@ -340,36 +342,30 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 return Error::Nonfatal("Could not start scanline decoder");
             }
 
-            SkCodec::Result result = SkCodec::kUnimplemented;
+            void* dst = bitmap.getAddr(0, 0);
+            size_t rowBytes = bitmap.rowBytes();
+            uint32_t height = decodeInfo.height();
             switch (codec->getScanlineOrder()) {
                 case SkCodec::kTopDown_SkScanlineOrder:
                 case SkCodec::kBottomUp_SkScanlineOrder:
                 case SkCodec::kNone_SkScanlineOrder:
-                    result = codec->getScanlines(bitmap.getAddr(0, 0),
-                            decodeInfo.height(), bitmap.rowBytes());
+                    // We do not need to check the return value.  On an incomplete
+                    // image, memory will be filled with a default value.
+                    codec->getScanlines(dst, height, rowBytes);
                     break;
                 case SkCodec::kOutOfOrder_SkScanlineOrder: {
                     for (int y = 0; y < decodeInfo.height(); y++) {
-                        int dstY = codec->nextScanline();
+                        int dstY = codec->outputScanline(y);
                         void* dstPtr = bitmap.getAddr(0, dstY);
-                        result = codec->getScanlines(dstPtr, 1, bitmap.rowBytes());
-                        if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
-                            return SkStringPrintf("%s failed with error message %d",
-                                                  fPath.c_str(), (int) result);
-                        }
+                        // We complete the loop, even if this call begins to fail
+                        // due to an incomplete image.  This ensures any uninitialized
+                        // memory will be filled with the proper value.
+                        codec->getScanlines(dstPtr, 1, bitmap.rowBytes());
                     }
                     break;
                 }
             }
 
-            switch (result) {
-                case SkCodec::kSuccess:
-                case SkCodec::kIncompleteInput:
-                    break;
-                default:
-                    return SkStringPrintf("%s failed with error message %d",
-                                          fPath.c_str(), (int) result);
-            }
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -429,41 +425,21 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                             return "Error scanline decoder is nullptr";
                         }
                     }
-                    //skip to first line of subset
-                    const SkCodec::Result skipResult = codec->skipScanlines(y);
-                    switch (skipResult) {
-                        case SkCodec::kSuccess:
-                        case SkCodec::kIncompleteInput:
-                            break;
-                        default:
-                            return SkStringPrintf("%s failed after attempting to skip %d scanlines"
-                                    "with error message %d", fPath.c_str(), y, (int) skipResult);
-                    }
+                    // Skip to the first line of subset.  We ignore the result value here.
+                    // If the skip value fails, this will indicate an incomplete image.
+                    // This means that the call to getScanlines() will also fail, but it
+                    // will fill the buffer with a default value, so we can still draw the
+                    // image.
+                    codec->skipScanlines(y);
+
                     //create and set size of subsetBm
                     SkBitmap subsetBm;
                     SkIRect bounds = SkIRect::MakeWH(currentSubsetWidth, currentSubsetHeight);
                     SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
                     SkAutoLockPixels autlockSubsetBm(subsetBm, true);
-                    const SkCodec::Result subsetResult =
-                            codec->getScanlines(buffer, currentSubsetHeight, rowBytes);
-                    switch (subsetResult) {
-                        case SkCodec::kSuccess:
-                        case SkCodec::kIncompleteInput:
-                            break;
-                        default:
-                            return SkStringPrintf("%s failed with error message %d",
-                                    fPath.c_str(), (int) subsetResult);
-                    }
+                    codec->getScanlines(buffer, currentSubsetHeight, rowBytes);
+
                     const size_t bpp = decodeInfo.bytesPerPixel();
-                    /*
-                     * we copy all the lines at once becuase when calling getScanlines for
-                     * interlaced pngs the entire image must be read regardless of the number
-                     * of lines requested.  Reading an interlaced png in a loop, line-by-line, would
-                     * decode the entire image height times, which is very slow
-                     * it is aknowledged that copying each line as you read it in a loop
-                     * may be faster for other types of images.  Since this is a correctness test
-                     * that's okay.
-                    */
                     char* bufferRow = buffer;
                     for (int subsetY = 0; subsetY < currentSubsetHeight; ++subsetY) {
                         memcpy(subsetBm.getAddr(0, subsetY), bufferRow + x*bpp,
@@ -493,31 +469,17 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 // to run this test for image types that do not have this scanline ordering.
                 return Error::Nonfatal("Could not start top-down scanline decoder");
             }
+
             for (int i = 0; i < numStripes; i += 2) {
                 // Skip a stripe
                 const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
-                SkCodec::Result result = codec->skipScanlines(linesToSkip);
-                switch (result) {
-                    case SkCodec::kSuccess:
-                    case SkCodec::kIncompleteInput:
-                        break;
-                    default:
-                        return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());
-                }
+                codec->skipScanlines(linesToSkip);
 
                 // Read a stripe
                 const int startY = (i + 1) * stripeHeight;
                 const int linesToRead = SkTMin(stripeHeight, height - startY);
                 if (linesToRead > 0) {
-                    result = codec->getScanlines(bitmap.getAddr(0, startY),
-                            linesToRead, bitmap.rowBytes());
-                    switch (result) {
-                        case SkCodec::kSuccess:
-                        case SkCodec::kIncompleteInput:
-                            break;
-                        default:
-                            return SkStringPrintf("Cannot get scanlines for %s.", fPath.c_str());
-                    }
+                    codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
                 }
             }
 
@@ -531,27 +493,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 // Read a stripe
                 const int startY = i * stripeHeight;
                 const int linesToRead = SkTMin(stripeHeight, height - startY);
-                SkCodec::Result result = codec->getScanlines(bitmap.getAddr(0, startY),
-                        linesToRead, bitmap.rowBytes());
-                switch (result) {
-                    case SkCodec::kSuccess:
-                    case SkCodec::kIncompleteInput:
-                        break;
-                    default:
-                        return SkStringPrintf("Cannot get scanlines for %s.", fPath.c_str());
-                }
+                codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
 
                 // Skip a stripe
                 const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
                 if (linesToSkip > 0) {
-                    result = codec->skipScanlines(linesToSkip);
-                    switch (result) {
-                        case SkCodec::kSuccess:
-                        case SkCodec::kIncompleteInput:
-                            break;
-                        default:
-                            return SkStringPrintf("Cannot skip scanlines for %s.", fPath.c_str());
-                    }
+                    codec->skipScanlines(linesToSkip);
                 }
             }
             canvas->drawBitmap(bitmap, 0, 0);
@@ -592,8 +539,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     // And scale
                     // FIXME: Should we have a version of getScaledDimensions that takes a subset
                     // into account?
-                    decodeInfo = decodeInfo.makeWH(SkScalarRoundToInt(preScaleW * fScale),
-                                                   SkScalarRoundToInt(preScaleH * fScale));
+                    decodeInfo = decodeInfo.makeWH(
+                            SkTMax(1, SkScalarRoundToInt(preScaleW * fScale)),
+                            SkTMax(1, SkScalarRoundToInt(preScaleH * fScale)));
                     size_t rowBytes = decodeInfo.minRowBytes();
                     if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes, colorTable.get(),
                                                 nullptr, nullptr)) {

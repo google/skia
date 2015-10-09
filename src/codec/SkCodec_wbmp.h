@@ -25,7 +25,7 @@ public:
 protected:
     SkEncodedFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo&, void*, size_t,
-                       const Options&, SkPMColor[], int*) override;
+                       const Options&, SkPMColor[], int*, int*) override;
     bool onRewind() override;
 private:
     /*
@@ -33,24 +33,27 @@ private:
      */
     SkSwizzler* initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
                                    const Options& opts);
-    SkSampler* getSampler() override { return fSwizzler; }
+    SkSampler* getSampler(bool createIfNecessary) override {
+        SkASSERT(fSwizzler || !createIfNecessary);
+        return fSwizzler;
+    }
 
     /*
      * Read a src row from the encoded stream
      */
-    Result readRow(uint8_t* row);
+    bool readRow(uint8_t* row);
 
     SkWbmpCodec(const SkImageInfo&, SkStream*);
 
-    const size_t fSrcRowBytes;
+    const size_t                 fSrcRowBytes;
 
     // Used for scanline decodes:
-    SkAutoTUnref<SkColorTable>   fColorTable;
     SkAutoTDelete<SkSwizzler>    fSwizzler;
+    SkAutoTUnref<SkColorTable>   fColorTable;
     SkAutoTMalloc<uint8_t>       fSrcBuffer;
 
     // FIXME: Override onSkipScanlines to avoid swizzling.
-    Result onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
+    int onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor inputColorTable[], int* inputColorCount) override;
 

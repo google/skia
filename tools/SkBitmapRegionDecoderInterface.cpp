@@ -29,12 +29,12 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
             return new SkBitmapRegionSampler(decoder, width, height);
         }
         case kCanvas_Strategy: {
-            SkCodec* decoder = SkCodec::NewFromStream(stream);
-            if (nullptr == decoder) {
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream));
+            if (nullptr == codec) {
                 SkDebugf("Error: Failed to create decoder.\n");
                 return nullptr;
             }
-            switch (decoder->getScanlineOrder()) {
+            switch (codec->getScanlineOrder()) {
                 case SkCodec::kTopDown_SkScanlineOrder:
                 case SkCodec::kNone_SkScanlineOrder:
                     break;
@@ -42,7 +42,7 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
                     SkDebugf("Error: Scanline ordering not supported.\n");
                     return nullptr;
             }
-            return new SkBitmapRegionCanvas(decoder);
+            return new SkBitmapRegionCanvas(codec.detach());
         }
         default:
             SkASSERT(false);
