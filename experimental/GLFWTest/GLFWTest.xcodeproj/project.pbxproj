@@ -1,0 +1,411 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AF48715A1BBB21990090FF83 /* glfw_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4871591BBB21990090FF83 /* glfw_main.cpp */; };
+		AF48715C1BBB255E0090FF83 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF48715B1BBB255E0090FF83 /* libglfw3.a */; };
+		AF4872741BBB26770090FF83 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF4872701BBB26770090FF83 /* Cocoa.framework */; };
+		AF4872751BBB26770090FF83 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF4872711BBB26770090FF83 /* CoreVideo.framework */; };
+		AF4872761BBB26770090FF83 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF4872721BBB26770090FF83 /* IOKit.framework */; };
+		AF4872771BBB26770090FF83 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF4872731BBB26770090FF83 /* OpenGL.framework */; };
+		AFE840981BBC3B46008D1091 /* libskia_skgpu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840971BBC3B46008D1091 /* libskia_skgpu.a */; };
+		AFE8409B1BBC3B7A008D1091 /* libskia_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE8409A1BBC3B7A008D1091 /* libskia_core.a */; settings = {ATTRIBUTES = (Required, ); }; };
+		AFE8409D1BBC3B88008D1091 /* libskia_utils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE8409C1BBC3B88008D1091 /* libskia_utils.a */; };
+		AFE840A31BBC3C4D008D1091 /* libskia_ports.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840A21BBC3C4D008D1091 /* libskia_ports.a */; };
+		AFE840A51BBC3C6D008D1091 /* libskia_images.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840A41BBC3C6C008D1091 /* libskia_images.a */; };
+		AFE840A71BBC3C9E008D1091 /* libskia_opts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840A61BBC3C9E008D1091 /* libskia_opts.a */; };
+		AFE840A91BBC3CBC008D1091 /* libskia_opts_ssse3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840A81BBC3CBC008D1091 /* libskia_opts_ssse3.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		AFE840AD1BBC3CD3008D1091 /* libskia_opts_sse41.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840AC1BBC3CD3008D1091 /* libskia_opts_sse41.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		AFE840AF1BBC3CFB008D1091 /* libskia_effects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840AE1BBC3CFB008D1091 /* libskia_effects.a */; };
+		AFE840B11BBC3D55008D1091 /* libSkKTX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840B01BBC3D55008D1091 /* libSkKTX.a */; };
+		AFE840B31BBC3D66008D1091 /* libetc1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840B21BBC3D66008D1091 /* libetc1.a */; };
+		AFE840B51BBC3D92008D1091 /* libskia_sfnt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840B41BBC3D92008D1091 /* libskia_sfnt.a */; };
+		AFE840B71BBC5A5F008D1091 /* libtimer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE840B61BBC5A5F008D1091 /* libtimer.a */; };
+		AFE840B91BBC5AC9008D1091 /* ship.png in Resources */ = {isa = PBXBuildFile; fileRef = AFE840B81BBC5AC9008D1091 /* ship.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AF4871311BBB21290090FF83 /* GLFWTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GLFWTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF4871571BBB218D0090FF83 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
+		AF4871591BBB21990090FF83 /* glfw_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glfw_main.cpp; sourceTree = SOURCE_ROOT; };
+		AF48715B1BBB255E0090FF83 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = "glfw-3.1.1/src/libglfw3.a"; sourceTree = SOURCE_ROOT; };
+		AF4872701BBB26770090FF83 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../../../../System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
+		AF4872711BBB26770090FF83 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = ../../../../../../../../System/Library/Frameworks/CoreVideo.framework; sourceTree = "<group>"; };
+		AF4872721BBB26770090FF83 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
+		AF4872731BBB26770090FF83 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = ../../../../../../../../System/Library/Frameworks/OpenGL.framework; sourceTree = "<group>"; };
+		AFE840971BBC3B46008D1091 /* libskia_skgpu.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_skgpu.a; path = ../../../out/Release/libskia_skgpu.a; sourceTree = "<group>"; };
+		AFE8409A1BBC3B7A008D1091 /* libskia_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_core.a; path = ../../../out/Release/libskia_core.a; sourceTree = "<group>"; };
+		AFE8409C1BBC3B88008D1091 /* libskia_utils.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_utils.a; path = ../../../out/Release/libskia_utils.a; sourceTree = "<group>"; };
+		AFE840A21BBC3C4D008D1091 /* libskia_ports.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_ports.a; path = ../../../out/Release/libskia_ports.a; sourceTree = "<group>"; };
+		AFE840A41BBC3C6C008D1091 /* libskia_images.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_images.a; path = ../../../out/Release/libskia_images.a; sourceTree = "<group>"; };
+		AFE840A61BBC3C9E008D1091 /* libskia_opts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_opts.a; path = ../../../out/Release/libskia_opts.a; sourceTree = "<group>"; };
+		AFE840A81BBC3CBC008D1091 /* libskia_opts_ssse3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_opts_ssse3.a; path = ../../../out/Release/libskia_opts_ssse3.a; sourceTree = "<group>"; };
+		AFE840AA1BBC3CCC008D1091 /* libskia_opts_sse4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_opts_sse4.a; path = ../../../out/Release/libskia_opts_sse4.a; sourceTree = "<group>"; };
+		AFE840AC1BBC3CD3008D1091 /* libskia_opts_sse41.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_opts_sse41.a; path = ../../../out/Release/libskia_opts_sse41.a; sourceTree = "<group>"; };
+		AFE840AE1BBC3CFB008D1091 /* libskia_effects.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_effects.a; path = ../../../out/Release/libskia_effects.a; sourceTree = "<group>"; };
+		AFE840B01BBC3D55008D1091 /* libSkKTX.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSkKTX.a; path = ../../../out/Release/libSkKTX.a; sourceTree = "<group>"; };
+		AFE840B21BBC3D66008D1091 /* libetc1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libetc1.a; path = ../../../out/Release/libetc1.a; sourceTree = "<group>"; };
+		AFE840B41BBC3D92008D1091 /* libskia_sfnt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libskia_sfnt.a; path = ../../../out/Release/libskia_sfnt.a; sourceTree = "<group>"; };
+		AFE840B61BBC5A5F008D1091 /* libtimer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtimer.a; path = ../../../out/Debug/libtimer.a; sourceTree = "<group>"; };
+		AFE840B81BBC5AC9008D1091 /* ship.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ship.png; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AF48712E1BBB21290090FF83 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFE8409B1BBC3B7A008D1091 /* libskia_core.a in Frameworks */,
+				AFE840981BBC3B46008D1091 /* libskia_skgpu.a in Frameworks */,
+				AF4872741BBB26770090FF83 /* Cocoa.framework in Frameworks */,
+				AF48715C1BBB255E0090FF83 /* libglfw3.a in Frameworks */,
+				AFE840B11BBC3D55008D1091 /* libSkKTX.a in Frameworks */,
+				AFE840A31BBC3C4D008D1091 /* libskia_ports.a in Frameworks */,
+				AF4872751BBB26770090FF83 /* CoreVideo.framework in Frameworks */,
+				AFE8409D1BBC3B88008D1091 /* libskia_utils.a in Frameworks */,
+				AFE840B31BBC3D66008D1091 /* libetc1.a in Frameworks */,
+				AFE840B51BBC3D92008D1091 /* libskia_sfnt.a in Frameworks */,
+				AFE840AD1BBC3CD3008D1091 /* libskia_opts_sse41.a in Frameworks */,
+				AFE840A71BBC3C9E008D1091 /* libskia_opts.a in Frameworks */,
+				AF4872771BBB26770090FF83 /* OpenGL.framework in Frameworks */,
+				AFE840B71BBC5A5F008D1091 /* libtimer.a in Frameworks */,
+				AF4872761BBB26770090FF83 /* IOKit.framework in Frameworks */,
+				AFE840AF1BBC3CFB008D1091 /* libskia_effects.a in Frameworks */,
+				AFE840A51BBC3C6D008D1091 /* libskia_images.a in Frameworks */,
+				AFE840A91BBC3CBC008D1091 /* libskia_opts_ssse3.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AF4871281BBB21290090FF83 = {
+			isa = PBXGroup;
+			children = (
+				AF4871331BBB21290090FF83 /* GLFWTest */,
+				AF4871321BBB21290090FF83 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AF4871321BBB21290090FF83 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AF4871311BBB21290090FF83 /* GLFWTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AF4871331BBB21290090FF83 /* GLFWTest */ = {
+			isa = PBXGroup;
+			children = (
+				AF4871591BBB21990090FF83 /* glfw_main.cpp */,
+				AFE840991BBC3B61008D1091 /* Skia */,
+				AF48726F1BBB25A40090FF83 /* Frameworks */,
+				AF4871341BBB212A0090FF83 /* Supporting Files */,
+			);
+			path = GLFWTest;
+			sourceTree = "<group>";
+		};
+		AF4871341BBB212A0090FF83 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				AFE840B81BBC5AC9008D1091 /* ship.png */,
+				AF4871571BBB218D0090FF83 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		AF48726F1BBB25A40090FF83 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AF48715B1BBB255E0090FF83 /* libglfw3.a */,
+				AF4872701BBB26770090FF83 /* Cocoa.framework */,
+				AF4872711BBB26770090FF83 /* CoreVideo.framework */,
+				AF4872721BBB26770090FF83 /* IOKit.framework */,
+				AF4872731BBB26770090FF83 /* OpenGL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AFE840991BBC3B61008D1091 /* Skia */ = {
+			isa = PBXGroup;
+			children = (
+				AFE8409A1BBC3B7A008D1091 /* libskia_core.a */,
+				AFE840AE1BBC3CFB008D1091 /* libskia_effects.a */,
+				AFE840B21BBC3D66008D1091 /* libetc1.a */,
+				AFE840B01BBC3D55008D1091 /* libSkKTX.a */,
+				AFE840A41BBC3C6C008D1091 /* libskia_images.a */,
+				AFE840A61BBC3C9E008D1091 /* libskia_opts.a */,
+				AFE840A81BBC3CBC008D1091 /* libskia_opts_ssse3.a */,
+				AFE840AA1BBC3CCC008D1091 /* libskia_opts_sse4.a */,
+				AFE840AC1BBC3CD3008D1091 /* libskia_opts_sse41.a */,
+				AFE840A21BBC3C4D008D1091 /* libskia_ports.a */,
+				AFE840B41BBC3D92008D1091 /* libskia_sfnt.a */,
+				AFE8409C1BBC3B88008D1091 /* libskia_utils.a */,
+				AFE840971BBC3B46008D1091 /* libskia_skgpu.a */,
+				AFE840B61BBC5A5F008D1091 /* libtimer.a */,
+			);
+			name = Skia;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AF4871301BBB21290090FF83 /* GLFWTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF4871511BBB212A0090FF83 /* Build configuration list for PBXNativeTarget "GLFWTest" */;
+			buildPhases = (
+				AF48712D1BBB21290090FF83 /* Sources */,
+				AF48712E1BBB21290090FF83 /* Frameworks */,
+				AF48712F1BBB21290090FF83 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GLFWTest;
+			productName = GLFWTest;
+			productReference = AF4871311BBB21290090FF83 /* GLFWTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AF4871291BBB21290090FF83 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = "Jim Van Verth";
+				TargetAttributes = {
+					AF4871301BBB21290090FF83 = {
+						CreatedOnToolsVersion = 6.3.2;
+					};
+				};
+			};
+			buildConfigurationList = AF48712C1BBB21290090FF83 /* Build configuration list for PBXProject "GLFWTest" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AF4871281BBB21290090FF83;
+			productRefGroup = AF4871321BBB21290090FF83 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AF4871301BBB21290090FF83 /* GLFWTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AF48712F1BBB21290090FF83 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFE840B91BBC5AC9008D1091 /* ship.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AF48712D1BBB21290090FF83 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF48715A1BBB21990090FF83 /* glfw_main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AF48714F1BBB212A0090FF83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../include/gpu,
+					../../include/utils,
+					../../include/config,
+					../../include/core,
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		AF4871501BBB212A0090FF83 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../include/gpu,
+					../../include/utils,
+					../../include/config,
+					../../include/core,
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		AF4871521BBB212A0090FF83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					../../include/gpu,
+					../../include/utils,
+					../../include/config,
+					../../include/core,
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					../../tools/timer,
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/../../out/Debug",
+					"$(PROJECT_DIR)/../../third_party/externals/glfw/src",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../third_party/externals/glfw/include";
+			};
+			name = Debug;
+		};
+		AF4871531BBB212A0090FF83 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					../../include/gpu,
+					../../include/utils,
+					../../include/config,
+					../../include/core,
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					../../tools/timer,
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					../../include/gpu,
+					../../include/utils,
+					../../include/config,
+					../../include/core,
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					../../tools/timer,
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/../../out/Release",
+					"$(PROJECT_DIR)/../../third_party/externals/glfw/src",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../third_party/externals/glfw/include";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AF48712C1BBB21290090FF83 /* Build configuration list for PBXProject "GLFWTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF48714F1BBB212A0090FF83 /* Debug */,
+				AF4871501BBB212A0090FF83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF4871511BBB212A0090FF83 /* Build configuration list for PBXNativeTarget "GLFWTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF4871521BBB212A0090FF83 /* Debug */,
+				AF4871531BBB212A0090FF83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AF4871291BBB21290090FF83 /* Project object */;
+}
