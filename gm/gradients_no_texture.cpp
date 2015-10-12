@@ -80,13 +80,16 @@ static const GradMaker gGradMakers[] = {
 
 class GradientsNoTextureGM : public GM {
 public:
-    GradientsNoTextureGM() {
+    GradientsNoTextureGM(bool dither) : fDither(dither) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
 
-    SkString onShortName() override { return SkString("gradients_no_texture"); }
+    SkString onShortName() override {
+        return SkString(fDither ? "gradients_no_texture" : "gradients_no_texture_nodither");
+    }
+
     SkISize onISize() override { return SkISize::Make(640, 615); }
 
     void onDraw(SkCanvas* canvas) override {
@@ -96,6 +99,7 @@ protected:
         SkRect kRect = { 0, 0, SkIntToScalar(50), SkIntToScalar(50) };
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         static const uint8_t kAlphas[] = { 0xff, 0x40 };
@@ -116,6 +120,8 @@ protected:
     }
 
 private:
+    bool fDither;
+
     typedef GM INHERITED;
 };
 
@@ -205,11 +211,14 @@ class GradientsManyColorsGM : public GM {
 
     typedef void (*Proc)(ColorPos*);
 public:
-    GradientsManyColorsGM() {}
+    GradientsManyColorsGM(bool dither) : fDither(dither) {}
 
 protected:
 
-    SkString onShortName() override { return SkString("gradients_many"); }
+    SkString onShortName() override {
+        return SkString(fDither ? "gradients_many" : "gradients_many_nodither");
+    }
+
     SkISize onISize() override { return SkISize::Make(850, 100); }
 
     void onDraw(SkCanvas* canvas) override {
@@ -223,6 +232,7 @@ protected:
         const SkRect r = SkRect::MakeWH(SkIntToScalar(W), 30);
 
         SkPaint paint;
+        paint.setDither(fDither);
 
         canvas->translate(20, 20);
 
@@ -243,10 +253,14 @@ protected:
     }
 
 private:
+    bool fDither;
+
     typedef GM INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new GradientsNoTextureGM);
-DEF_GM(return new GradientsManyColorsGM);
+DEF_GM(return new GradientsNoTextureGM(true);)
+DEF_GM(return new GradientsNoTextureGM(false);)
+DEF_GM(return new GradientsManyColorsGM(true);)
+DEF_GM(return new GradientsManyColorsGM(false);)

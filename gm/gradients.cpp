@@ -100,14 +100,14 @@ static const GradMaker gGradMakers[] = {
 
 class GradientsGM : public GM {
 public:
-    GradientsGM() {
+    GradientsGM(bool dither) : fDither(dither) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
 
     SkString onShortName() {
-        return SkString("gradients");
+        return SkString(fDither ? "gradients" : "gradients_nodither");
     }
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
@@ -122,6 +122,7 @@ protected:
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
@@ -146,23 +147,28 @@ protected:
         }
     }
 
+protected:
+    bool fDither;
+
 private:
     typedef GM INHERITED;
 };
-DEF_GM( return new GradientsGM; )
+DEF_GM( return new GradientsGM(true); )
+DEF_GM( return new GradientsGM(false); )
 
 // Based on the original gradient slide, but with perspective applied to the
 // gradient shaders' local matrices
 class GradientsLocalPerspectiveGM : public GM {
 public:
-    GradientsLocalPerspectiveGM() {
+    GradientsLocalPerspectiveGM(bool dither) : fDither(dither) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
 
     SkString onShortName() {
-        return SkString("gradients_local_perspective");
+        return SkString(fDither ? "gradients_local_perspective" :
+                                  "gradients_local_perspective_nodither");
     }
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
@@ -177,6 +183,7 @@ protected:
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
@@ -201,16 +208,23 @@ protected:
     }
 
 private:
+    bool fDither;
+
     typedef GM INHERITED;
 };
-DEF_GM( return new GradientsLocalPerspectiveGM; )
+DEF_GM( return new GradientsLocalPerspectiveGM(true); )
+DEF_GM( return new GradientsLocalPerspectiveGM(false); )
 
 // Based on the original gradient slide, but with perspective applied to
 // the view matrix
 class GradientsViewPerspectiveGM : public GradientsGM {
+public:
+    GradientsViewPerspectiveGM(bool dither) : INHERITED(dither) { }
+
 protected:
     SkString onShortName() {
-        return SkString("gradients_view_perspective");
+        return SkString(fDither ? "gradients_view_perspective" :
+                                  "gradients_view_perspective_nodither");
     }
 
     virtual SkISize onISize() { return SkISize::Make(840, 500); }
@@ -227,7 +241,8 @@ protected:
 private:
     typedef GradientsGM INHERITED;
 };
-DEF_GM( return new GradientsViewPerspectiveGM; )
+DEF_GM( return new GradientsViewPerspectiveGM(true); )
+DEF_GM( return new GradientsViewPerspectiveGM(false); )
 
 /*
  Inspired by this <canvas> javascript, where we need to detect that we are not
@@ -247,11 +262,11 @@ DEF_GM( return new GradientsViewPerspectiveGM; )
  */
 class GradientsDegenrate2PointGM : public GM {
 public:
-    GradientsDegenrate2PointGM() {}
+    GradientsDegenrate2PointGM(bool dither) : fDither(dither) {}
 
 protected:
     SkString onShortName() {
-        return SkString("gradients_degenerate_2pt");
+        return SkString(fDither ? "gradients_degenerate_2pt" : "gradients_degenerate_2pt_nodither");
     }
 
     virtual SkISize onISize() { return SkISize::Make(320, 320); }
@@ -275,23 +290,29 @@ protected:
                                                               pos, SK_ARRAY_COUNT(pos),
                                                               SkShader::kClamp_TileMode);
         SkPaint paint;
+        paint.setDither(fDither);
         paint.setShader(s)->unref();
         canvas->drawPaint(paint);
     }
 
 private:
+    bool fDither;
+
     typedef GM INHERITED;
 };
-DEF_GM( return new GradientsDegenrate2PointGM; )
+DEF_GM( return new GradientsDegenrate2PointGM(true); )
+DEF_GM( return new GradientsDegenrate2PointGM(false); )
 
 /// Tests correctness of *optimized* codepaths in gradients.
 
 class ClampedGradientsGM : public GM {
 public:
-    ClampedGradientsGM() {}
+    ClampedGradientsGM(bool dither) : fDither(dither) {}
 
 protected:
-    SkString onShortName() { return SkString("clamped_gradients"); }
+    SkString onShortName() {
+        return SkString(fDither ? "clamped_gradients" : "clamped_gradients_nodither");
+    }
 
     virtual SkISize onISize() { return SkISize::Make(640, 510); }
 
@@ -304,6 +325,7 @@ protected:
 
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(300) };
         SkPaint paint;
+        paint.setDither(fDither);
         paint.setAntiAlias(true);
 
         SkPoint center;
@@ -319,9 +341,12 @@ protected:
     }
 
 private:
+    bool fDither;
+
     typedef GM INHERITED;
 };
-DEF_GM( return new ClampedGradientsGM; )
+DEF_GM( return new ClampedGradientsGM(true); )
+DEF_GM( return new ClampedGradientsGM(false); )
 
 /// Checks quality of large radial gradients, which may display
 /// some banding.
@@ -368,11 +393,14 @@ DEF_GM( return new RadialGradientGM; )
 
 class RadialGradient2GM : public GM {
 public:
-    RadialGradient2GM() {}
+    RadialGradient2GM(bool dither) : fDither(dither) {}
 
 protected:
 
-    SkString onShortName() override { return SkString("radial_gradient2"); }
+    SkString onShortName() override {
+        return SkString(fDither ? "radial_gradient2" : "radial_gradient2_nodither");
+    }
+
     SkISize onISize() override { return SkISize::Make(800, 400); }
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
@@ -414,8 +442,11 @@ protected:
                                                    SkShader::kClamp_TileMode,
                                                    flags[i], nullptr));
             paint1.setShader(sweep);
+            paint1.setDither(fDither);
             paint2.setShader(radial1);
+            paint2.setDither(fDither);
             paint3.setShader(radial2);
+            paint3.setDither(fDither);
 
             canvas->drawCircle(cx, cy, radius, paint1);
             canvas->drawCircle(cx, cy, radius, paint3);
@@ -426,16 +457,22 @@ protected:
     }
 
 private:
+    bool fDither;
+
     typedef GM INHERITED;
 };
-DEF_GM( return new RadialGradient2GM; )
+DEF_GM( return new RadialGradient2GM(true); )
+DEF_GM( return new RadialGradient2GM(false); )
 
 // Shallow radial (shows banding on raster)
 class RadialGradient3GM : public GM {
-    SkAutoTUnref<SkShader> fShader;
+public:
+    RadialGradient3GM(bool dither) : fDither(dither) { }
 
 protected:
-    SkString onShortName() override { return SkString("radial_gradient3"); }
+    SkString onShortName() override {
+        return SkString(fDither ? "radial_gradient3" : "radial_gradient3_nodither");
+    }
 
     SkISize onISize() override { return SkISize::Make(500, 500); }
 
@@ -452,19 +489,27 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setShader(fShader);
+        paint.setDither(fDither);
         canvas->drawRect(SkRect::MakeWH(500, 500), paint);
     }
     
 private:
+    SkAutoTUnref<SkShader> fShader;
+    bool fDither;
+
     typedef GM INHERITED;
 };
-DEF_GM( return new RadialGradient3GM; )
+DEF_GM( return new RadialGradient3GM(true); )
+DEF_GM( return new RadialGradient3GM(false); )
 
 class RadialGradient4GM : public GM {
-    SkAutoTUnref<SkShader> fShader;
+public:
+    RadialGradient4GM(bool dither) : fDither(dither) { }
 
 protected:
-    SkString onShortName() override { return SkString("radial_gradient4"); }
+    SkString onShortName() override {
+        return SkString(fDither ? "radial_gradient4" : "radial_gradient4_nodither");
+    }
 
     SkISize onISize() override { return SkISize::Make(500, 500); }
 
@@ -481,20 +526,29 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setDither(fDither);
         paint.setShader(fShader);
         canvas->drawRect(SkRect::MakeWH(500, 500), paint);
     }
     
 private:
+    SkAutoTUnref<SkShader> fShader;
+    bool fDither;
+
     typedef GM INHERITED;
 };
-DEF_GM( return new RadialGradient4GM; )
+DEF_GM( return new RadialGradient4GM(true); )
+DEF_GM( return new RadialGradient4GM(false); )
 
 class LinearGradientGM : public GM {
-    SkAutoTUnref<SkShader> fShader[100];
+public:
+    LinearGradientGM(bool dither) : fDither(dither) { }
 
 protected:
-    SkString onShortName() override { return SkString("linear_gradient"); }
+    SkString onShortName() override {
+        return SkString(fDither ? "linear_gradient" : "linear_gradient_nodither");
+    }
+
     const SkScalar kWidthBump = 30.f;
     const SkScalar kHeight = 5.f;
     const SkScalar kMinWidth = 540.f;
@@ -521,6 +575,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setDither(fDither);
         for (int index = 0; index < (int) SK_ARRAY_COUNT(fShader); ++index) {
             paint.setShader(fShader[index]);
             canvas->drawRect(SkRect::MakeLTRB(0, index * kHeight, kMinWidth + index * kWidthBump,
@@ -529,8 +584,12 @@ protected:
     }
     
 private:
+    SkAutoTUnref<SkShader> fShader[100];
+    bool fDither;
+
     typedef GM INHERITED;
 };
-DEF_GM( return new LinearGradientGM; )
+DEF_GM( return new LinearGradientGM(true); )
+DEF_GM( return new LinearGradientGM(false); )
 
 }

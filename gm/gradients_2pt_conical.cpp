@@ -305,10 +305,12 @@ enum GradCaseType { // these must match the order in gGradCases
 
 class ConicalGradientsGM : public GM {
 public:
-    ConicalGradientsGM(GradCaseType gradCaseType) {
+    ConicalGradientsGM(GradCaseType gradCaseType, bool dither)
+        : fGradCaseType(gradCaseType)
+        , fDither(dither) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-        fName.printf("gradients_2pt_conical_%s", gGradCases[gradCaseType].fName);
-        fGradCaseType = gradCaseType;
+        fName.printf("gradients_2pt_conical_%s%s", gGradCases[gradCaseType].fName,
+                     fDither ? "" : "_nodither");
     }
 
 protected:
@@ -328,6 +330,7 @@ protected:
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
@@ -360,15 +363,16 @@ private:
 
     GradCaseType fGradCaseType;
     SkString fName;
+    bool fDither;
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory1(void*) { return new ConicalGradientsGM(kInside_GradCaseType); }
-static GMRegistry reg1(MyFactory1);
+DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, true); )
+DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, true); )
+DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, true); )
 
-static GM* MyFactory2(void*) { return new ConicalGradientsGM(kOutside_GradCaseType); }
-static GMRegistry reg2(MyFactory2);
+DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, false); )
+DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, false); )
+DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, false); )
 
-static GM* MyFactory3(void*) { return new ConicalGradientsGM(kEdge_GradCaseType); }
-static GMRegistry reg3(MyFactory3);
 }

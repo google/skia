@@ -37,7 +37,9 @@ static SkShader* shader_sweep(const SkColor colors[], int count, const SkSize& s
 
 class ShallowGradientGM : public skiagm::GM {
 public:
-    ShallowGradientGM(MakeShaderProc proc, const char name[]) : fProc(proc) {
+    ShallowGradientGM(MakeShaderProc proc, const char name[], bool dither)
+        : fProc(proc)
+        , fDither(dither) {
         fName.printf("shallow_gradient_%s", name);
     }
 
@@ -61,19 +63,26 @@ protected:
 
         SkPaint paint;
         paint.setShader(fProc(colors, colorCount, size))->unref();
+        paint.setDither(fDither);
         canvas->drawRect(r, paint);
     }
 
 private:
     MakeShaderProc fProc;
     SkString fName;
+    bool fDither;
 
     typedef skiagm::GM INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new ShallowGradientGM(shader_linear, "linear"); )
-DEF_GM( return new ShallowGradientGM(shader_radial, "radial"); )
-DEF_GM( return new ShallowGradientGM(shader_conical, "conical"); )
-DEF_GM( return new ShallowGradientGM(shader_sweep, "sweep"); )
+DEF_GM( return new ShallowGradientGM(shader_linear, "linear", true); )
+DEF_GM( return new ShallowGradientGM(shader_radial, "radial", true); )
+DEF_GM( return new ShallowGradientGM(shader_conical, "conical", true); )
+DEF_GM( return new ShallowGradientGM(shader_sweep, "sweep", true); )
+
+DEF_GM( return new ShallowGradientGM(shader_linear, "linear_nodither", false); )
+DEF_GM( return new ShallowGradientGM(shader_radial, "radial_nodither", false); )
+DEF_GM( return new ShallowGradientGM(shader_conical, "conical_nodither", false); )
+DEF_GM( return new ShallowGradientGM(shader_sweep, "sweep_nodither", false); )

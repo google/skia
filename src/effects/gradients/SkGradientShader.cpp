@@ -290,8 +290,6 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
     return true;
 }
 
-#define SK_SUPPORT_LEGACY_GRADIENT_DITHERING
-
 SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
         const SkGradientShaderBase& shader, const ContextRec& rec)
     : INHERITED(shader, rec)
