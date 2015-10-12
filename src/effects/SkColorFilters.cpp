@@ -166,7 +166,7 @@ SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color, SkXfermode::Mode m
         case SkXfermode::kSrcOver_Mode:
             return new SrcOver_SkModeColorFilter(color);
         default:
-            return new SkModeColorFilter(color, mode);
+            return SkModeColorFilter::Create(color, mode);
     }
 }
 

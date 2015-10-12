@@ -15,8 +15,8 @@
 #include "SkTableColorFilter.h"
 #include "SkWriteBuffer.h"
 
-SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
-        SkImageFilter* input, const CropRect* cropRect) {
+SkImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf, SkImageFilter* input,
+                                                const CropRect* cropRect) {
     if (nullptr == cf) {
         return nullptr;
     }

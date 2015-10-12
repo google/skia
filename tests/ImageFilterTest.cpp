@@ -904,7 +904,7 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
 
     SkAutoTUnref<SkColorFilter> green(
         SkColorFilter::CreateModeFilter(SK_ColorGREEN, SkXfermode::kSrc_Mode));
-    SkAutoTUnref<SkColorFilterImageFilter> imageFilter(
+    SkAutoTUnref<SkImageFilter> imageFilter(
         SkColorFilterImageFilter::Create(green.get()));
     SkPaint imageFilterPaint;
     imageFilterPaint.setImageFilter(imageFilter.get());
@@ -1027,10 +1027,9 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
 
     SkAutoTUnref<SkColorFilter> green(
         SkColorFilter::CreateModeFilter(SK_ColorGREEN, SkXfermode::kSrcIn_Mode));
-    SkAutoTUnref<SkColorFilterImageFilter> greenFilter(
-        SkColorFilterImageFilter::Create(green.get()));
+    SkAutoTUnref<SkImageFilter> greenFilter(SkColorFilterImageFilter::Create(green.get()));
     SkImageFilter::CropRect cropRect(SkRect::MakeEmpty());
-    SkAutoTUnref<SkColorFilterImageFilter> croppedOut(
+    SkAutoTUnref<SkImageFilter> croppedOut(
         SkColorFilterImageFilter::Create(green.get(), nullptr, &cropRect));
 
     // Check that an xfermode image filter whose input has been cropped out still draws the other

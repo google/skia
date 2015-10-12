@@ -15,11 +15,9 @@
 
 class SkModeColorFilter : public SkColorFilter {
 public:
-    SkModeColorFilter(SkColor color, SkXfermode::Mode mode) {
-        fColor = color;
-        fMode = mode;
-        this->updateCache();
-    };
+    static SkColorFilter* Create(SkColor color, SkXfermode::Mode mode) {
+        return new SkModeColorFilter(color, mode);
+    }
 
     SkColor getColor() const { return fColor; }
     SkXfermode::Mode getMode() const { return fMode; }
@@ -44,6 +42,12 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 
 protected:
+    SkModeColorFilter(SkColor color, SkXfermode::Mode mode) {
+        fColor = color;
+        fMode = mode;
+        this->updateCache();
+    };
+
     void flatten(SkWriteBuffer&) const override;
 
 private:
