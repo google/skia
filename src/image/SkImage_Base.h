@@ -14,6 +14,8 @@
 
 #include <new>
 
+class GrTextureParams;
+
 enum {
     kNeedNewImageUniqueID = 0
 };
@@ -36,7 +38,7 @@ public:
     virtual bool getROPixels(SkBitmap*) const = 0;
 
     // Caller must call unref when they are done.
-    virtual GrTexture* asTextureRef(GrContext*, SkImageUsageType) const = 0;
+    virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const = 0;
 
     virtual SkImage* onNewSubset(const SkIRect&) const = 0;
 

@@ -22,7 +22,7 @@ protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
                      int* ctableCount) override;
 #if SK_SUPPORT_GPU
-    GrTexture* onGenerateTexture(GrContext*, SkImageUsageType, const SkIRect*) override;
+    GrTexture* onGenerateTexture(GrContext*, const GrTextureParams&, const SkIRect*) override;
 #endif
 
 private:
@@ -88,7 +88,7 @@ SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const Sk
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 
-GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, SkImageUsageType usage,
+GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const GrTextureParams&,
                                                       const SkIRect* subset) {
     const SkImageInfo& info = this->getInfo();
     SkImageInfo surfaceInfo = subset ? info.makeWH(subset->width(), subset->height()) : info;

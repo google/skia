@@ -133,6 +133,7 @@
         '<(skia_src_path)/core/SkHalf.h',
         '<(skia_src_path)/core/SkImageFilter.cpp',
         '<(skia_src_path)/core/SkImageInfo.cpp',
+        '<(skia_src_path)/core/SkImageCacherator.h',
         '<(skia_src_path)/core/SkImageCacherator.cpp',
         '<(skia_src_path)/core/SkImageGenerator.cpp',
         '<(skia_src_path)/core/SkImageGeneratorPriv.h',

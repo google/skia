@@ -13,9 +13,10 @@
 #include "SkImageInfo.h"
 
 class GrContext;
+class GrTexture;
+class GrTextureParams;
 class SkBitmap;
 class SkData;
-class GrTexture;
 class SkImageGenerator;
 class SkMatrix;
 class SkPaint;
@@ -142,14 +143,14 @@ public:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
      *
-     *  Regarding the SkImageUsageType parameter:
+     *  Regarding the GrTextureParams parameter:
      *
      *  If the context (the provided one or the generator's intrinsic one) determines that to
      *  support the specified usage, it must return a different sized texture it may,
      *  so the caller must inspect the texture's width/height and compare them to the generator's
-     *  getInfo() width/height.
+     *  getInfo() width/height. For readback usage use GrTextureParams::ClampNoFilter()
      */
-    GrTexture* generateTexture(GrContext*, SkImageUsageType, const SkIRect* subset = nullptr);
+    GrTexture* generateTexture(GrContext*, const GrTextureParams&, const SkIRect* subset = nullptr);
 
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
@@ -194,7 +195,7 @@ protected:
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);
 
-    virtual GrTexture* onGenerateTexture(GrContext*, SkImageUsageType, const SkIRect*) {
+    virtual GrTexture* onGenerateTexture(GrContext*, const GrTextureParams&, const SkIRect*) {
         return nullptr;
     }
 

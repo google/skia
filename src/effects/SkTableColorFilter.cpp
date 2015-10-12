@@ -475,8 +475,7 @@ const GrFragmentProcessor* ColorTableEffect::Create(GrContext* context, SkBitmap
     SkAutoTUnref<GrTexture> texture;
     if (-1 == row) {
         atlas = nullptr;
-        // Passing params=nullptr because this effect does no tiling or filtering.
-        texture.reset(GrRefCachedBitmapTexture(context, bitmap, nullptr));
+        texture.reset(GrRefCachedBitmapTexture(context, bitmap, GrTextureParams::ClampNoFilter()));
     } else {
         texture.reset(SkRef(atlas->getTexture()));
     }

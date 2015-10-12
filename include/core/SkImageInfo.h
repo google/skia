@@ -16,23 +16,7 @@ class SkReadBuffer;
 class SkWriteBuffer;
 
 /**
- *  This enum provides information about "how" an image will be used. For older GPUs that do not
- *  support non-power-of-2 tiling, some routines need to know this information before they create
- *  a texture.
- */
-enum SkImageUsageType {
-    /* Image will not be tiled (regardless of filtering) */
-    kUntiled_SkImageUsageType,
-
-    /* Image will be tiled, but not filtered */
-    kTiled_Unfiltered_SkImageUsageType,
-
-    /* Image will be tiled and filtered */
-    kTiled_Filtered_SkImageUsageType,
-};
-
-/**
- *  Describes how to interpret the alpha compoent of a pixel.
+ *  Describes how to interpret the alpha component of a pixel.
  */
 enum SkAlphaType {
     kUnknown_SkAlphaType,

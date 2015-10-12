@@ -13,6 +13,7 @@
 #include "SkTemplates.h"
 
 class GrContext;
+class GrTextureParams; 
 class SkBitmap;
 class SkImage;
 
@@ -45,7 +46,7 @@ public:
      *
      *  The caller is responsible for calling texture->unref() when they are done.
      */
-    GrTexture* lockAsTexture(GrContext*, SkImageUsageType, const SkImage* client);
+    GrTexture* lockAsTexture(GrContext*, const GrTextureParams&, const SkImage* client);
 
     /**
      *  If the underlying src naturally is represented by an encoded blob (in SkData), this returns
@@ -59,7 +60,7 @@ private:
     bool generateBitmap(SkBitmap*);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*);
 #if SK_SUPPORT_GPU
-    GrTexture* lockUnstretchedTexture(GrContext*, SkImageUsageType, const SkImage* client);
+    GrTexture* lockUnstretchedTexture(GrContext*, const GrTextureParams&, const SkImage* client);
 #endif
 
     class ScopedGenerator {

@@ -382,7 +382,7 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
     // TODO: support other tile modes
     GrTextureParams diffParams(kClamp_TileMode, diffFilterMode);
     SkAutoTUnref<GrTexture> diffuseTexture(GrRefCachedBitmapTexture(context,
-                                                                    fDiffuseMap, &diffParams));
+                                                                    fDiffuseMap, diffParams));
     if (!diffuseTexture) {
         SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
         return nullptr;
@@ -390,7 +390,7 @@ const GrFragmentProcessor* SkLightingShaderImpl::asFragmentProcessor(
 
     GrTextureParams normParams(kClamp_TileMode, normFilterMode);
     SkAutoTUnref<GrTexture> normalTexture(GrRefCachedBitmapTexture(context,
-                                                                   fNormalMap, &normParams));
+                                                                   fNormalMap, normParams));
     if (!normalTexture) {
         SkErrorInternals::SetError(kInternalError_SkError, "Couldn't convert bitmap to texture.");
         return nullptr;

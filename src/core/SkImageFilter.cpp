@@ -464,7 +464,8 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
                 if (kUnknown_SkColorType == info.colorType()) {
                     return false;
                 }
-                SkAutoTUnref<GrTexture> resultTex(GrRefCachedBitmapTexture(context, *result, nullptr));
+                SkAutoTUnref<GrTexture> resultTex(
+                    GrRefCachedBitmapTexture(context, *result,GrTextureParams::ClampNoFilter()));
                 result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
             }
             return true;

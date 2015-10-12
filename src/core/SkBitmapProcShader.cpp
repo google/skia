@@ -392,7 +392,7 @@ const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* co
             GrSkFilterQualityToGrFilterMode(filterQuality, viewM, this->getLocalMatrix(),
                                             &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, &params));
+    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fRawBitmap, params));
 
     if (!texture) {
         SkErrorInternals::SetError( kInternalError_SkError,

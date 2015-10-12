@@ -220,7 +220,8 @@ public:
         fTexture.reset(SkRef(image->getTexture()));
     }
 protected:
-    GrTexture* onGenerateTexture(GrContext* ctx, SkImageUsageType, const SkIRect* subset) override {
+    GrTexture* onGenerateTexture(GrContext* ctx, const GrTextureParams& params,
+                                 const SkIRect* subset) override {
         if (ctx) {
             SkASSERT(ctx == fCtx.get());
         }
@@ -310,7 +311,7 @@ protected:
     static void draw_as_tex(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
         SkAutoTUnref<GrTexture> texture(cache->lockAsTexture(canvas->getGrContext(),
-                                                             kUntiled_SkImageUsageType,
+                                                             GrTextureParams::ClampBilerp(),
                                                              nullptr));
         if (!texture) {
             // show placeholder if we have no texture

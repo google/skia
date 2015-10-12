@@ -1132,7 +1132,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
             fCoordTransform.reset(kCoordSet, matrix, fAtlas->getTexture(), params.filterMode());
             fTextureAccess.reset(fAtlas->getTexture(), params);
         } else {
-            SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(ctx, bitmap, &params));
+            SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(ctx, bitmap, params));
             if (!texture) {
                 return;
             }

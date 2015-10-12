@@ -10,8 +10,8 @@
 
 #include "GrTypes.h"
 #include "GrBlend.h"
-#include "GrTextureAccess.h"
 #include "SkImageInfo.h"
+#include "SkMatrix.h"
 #include "SkXfermode.h"
 
 class GrCaps;
@@ -19,9 +19,11 @@ class GrContext;
 class GrFragmentProcessor;
 class GrPaint;
 class GrTexture;
+class GrTextureParams;
 class GrUniqueKey;
+class SkData;
 class SkPaint;
-class SkMatrix;
+class SkPixelRef;
 struct SkIRect;
 
 struct SkGrStretch {
@@ -33,8 +35,6 @@ struct SkGrStretch {
     int fWidth;
     int fHeight;
 };
-
-GrTextureParams GrImageUsageToTextureParams(SkImageUsageType);
 
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()
@@ -48,7 +48,7 @@ GrTextureParams GrImageUsageToTextureParams(SkImageUsageType);
  *  Note: width/height must fit in 16bits for this impl.
  */
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds,
-                          const GrCaps&, SkImageUsageType);
+                          const GrCaps&, const GrTextureParams&);
 
 /**
  *  Given an "unstretched" key, and a stretch rec, produce a stretched key.
@@ -98,8 +98,6 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrTextureUsageSupported(const GrCaps&, int width, int height, SkImageUsageType);
-
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
 
 bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
@@ -117,7 +115,7 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
                                                  const void** outStartOfDataToUpload);
 
 bool GrIsImageInCache(const GrContext* ctx, uint32_t imageID, const SkIRect& subset,
-                      GrTexture* nativeTexture, const GrTextureParams*);
+                      GrTexture* nativeTexture, const GrTextureParams&);
 
 GrTexture* GrCreateTextureForPixels(GrContext*, const GrUniqueKey& optionalKey, GrSurfaceDesc,
                                     SkPixelRef* pixelRefForInvalidationNotificationOrNull,

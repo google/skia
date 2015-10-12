@@ -70,7 +70,7 @@ public:
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkData* onRefEncoded() const override;
     bool getROPixels(SkBitmap*) const override;
-    GrTexture* asTextureRef(GrContext*, SkImageUsageType) const override;
+    GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
     SkImage* onNewSubset(const SkIRect&) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
@@ -167,7 +167,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
     return true;
 }
 
-GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
+GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
 #if SK_SUPPORT_GPU
     if (!ctx) {
         return nullptr;
@@ -182,12 +182,12 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, SkImageUsageType usage) 
     GrUniqueKey key;
     GrMakeKeyFromImageID(&key, fBitmap.getGenerationID(),
                          SkIRect::MakeWH(fBitmap.width(), fBitmap.height()),
-                         *ctx->caps(), usage);
+                         *ctx->caps(), params);
 
     if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
         return tex;
     }
-    return GrRefCachedBitmapTexture(ctx, fBitmap, usage);
+    return GrRefCachedBitmapTexture(ctx, fBitmap, params);
 #endif
     
     return nullptr;

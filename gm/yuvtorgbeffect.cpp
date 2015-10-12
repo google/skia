@@ -85,9 +85,12 @@ protected:
         }
 
         SkAutoTUnref<GrTexture> texture[3];
-        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0], nullptr));
-        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1], nullptr));
-        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[2], nullptr));
+        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0],
+                                                  GrTextureParams::ClampBilerp()));
+        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1],
+                                                  GrTextureParams::ClampBilerp()));
+        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[2],
+                                                  GrTextureParams::ClampBilerp()));
 
         if (!texture[0] || !texture[1] || !texture[2]) {
             return;

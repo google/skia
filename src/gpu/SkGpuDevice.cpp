@@ -90,7 +90,7 @@ public:
 
     AutoBitmapTexture(GrContext* context,
                       const SkBitmap& bitmap,
-                      const GrTextureParams* params,
+                      const GrTextureParams& params,
                       GrTexture** texture) {
         SkASSERT(texture);
         *texture = this->set(context, bitmap, params);
@@ -98,7 +98,7 @@ public:
 
     GrTexture* set(GrContext* context,
                    const SkBitmap& bitmap,
-                   const GrTextureParams* params) {
+                   const GrTextureParams& params) {
         // Either get the texture directly from the bitmap, or else use the cache and
         // remember to unref it.
         if (GrTexture* bmpTexture = bitmap.getTexture()) {
@@ -765,7 +765,7 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
     }
 
     // if the entire image/bitmap is already in our cache then no reason to tile it
-    if (GrIsImageInCache(fContext, imageID, imageRect, nullptr, &params)) {
+    if (GrIsImageInCache(fContext, imageID, imageRect, nullptr, params)) {
         return false;
     }
 
@@ -983,7 +983,7 @@ static void draw_aa_bitmap(GrDrawContext* drawContext, GrContext* context,
 
     // Setup texture to wrap bitmap
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, *bitmapPtr, &params));
+    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, *bitmapPtr, params));
 
     if (!texture) {
         SkErrorInternals::SetError(kInternalError_SkError,
@@ -1288,7 +1288,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
              bitmap.height() <= fContext->caps()->maxTextureSize());
 
     GrTexture* texture;
-    AutoBitmapTexture abt(fContext, bitmap, &params, &texture);
+    AutoBitmapTexture abt(fContext, bitmap, params, &texture);
     if (nullptr == texture) {
         return;
     }
@@ -1419,8 +1419,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     int h = bitmap.height();
 
     GrTexture* texture;
-    // draw sprite uses the default texture params
-    AutoBitmapTexture abt(fContext, bitmap, nullptr, &texture);
+    // draw sprite neither filters nor tiles.
+    AutoBitmapTexture abt(fContext, bitmap, GrTextureParams::ClampNoFilter(), &texture);
     if (!texture) {
         return;
     }
@@ -1621,7 +1621,7 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
     GrTexture* texture;
     // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
     // must be pushed upstack.
-    AutoBitmapTexture abt(fContext, src, nullptr, &texture);
+    AutoBitmapTexture abt(fContext, src, GrTextureParams::ClampNoFilter(), &texture);
     if (!texture) {
         return false;
     }
@@ -1631,7 +1631,8 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
 }
 
 static bool wrap_as_bm(GrContext* ctx, const SkImage* image, SkBitmap* bm) {
-    SkAutoTUnref<GrTexture> tex(as_IB(image)->asTextureRef(ctx, kUntiled_SkImageUsageType));
+    // TODO: It is wrong to assume these texture params here.
+    SkAutoTUnref<GrTexture> tex(as_IB(image)->asTextureRef(ctx, GrTextureParams::ClampNoFilter()));
     if (tex) {
         GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), bm);
         return true;

@@ -943,9 +943,11 @@ const GrFragmentProcessor* SkPerlinNoiseShader::asFragmentProcessor(
     SkPerlinNoiseShader::PaintingData* paintingData =
             new PaintingData(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix);
     SkAutoTUnref<GrTexture> permutationsTexture(
-        GrRefCachedBitmapTexture(context, paintingData->getPermutationsBitmap(), nullptr));
+        GrRefCachedBitmapTexture(context, paintingData->getPermutationsBitmap(),
+                                 GrTextureParams::ClampNoFilter()));
     SkAutoTUnref<GrTexture> noiseTexture(
-        GrRefCachedBitmapTexture(context, paintingData->getNoiseBitmap(), nullptr));
+        GrRefCachedBitmapTexture(context, paintingData->getNoiseBitmap(),
+                                 GrTextureParams::ClampNoFilter()));
 
     SkMatrix m = viewM;
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);

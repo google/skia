@@ -113,17 +113,7 @@ const GrFragmentProcessor* SkImageShader::asFragmentProcessor(GrContext* context
     GrTextureParams::FilterMode textureFilterMode =
     GrSkFilterQualityToGrFilterMode(filterQuality, viewM, this->getLocalMatrix(), &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-
-    SkImageUsageType usageType;
-    if (kClamp_TileMode == fTileModeX && kClamp_TileMode == fTileModeY) {
-        usageType = kUntiled_SkImageUsageType;
-    } else if (GrTextureParams::kNone_FilterMode == textureFilterMode) {
-        usageType = kTiled_Unfiltered_SkImageUsageType;
-    } else {
-        usageType = kTiled_Filtered_SkImageUsageType;
-    }
-
-    SkAutoTUnref<GrTexture> texture(as_IB(fImage)->asTextureRef(context, usageType));
+    SkAutoTUnref<GrTexture> texture(as_IB(fImage)->asTextureRef(context, params));
     if (!texture) {
         return nullptr;
     }

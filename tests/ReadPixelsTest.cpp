@@ -576,7 +576,7 @@ DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
 
     // ... one from a texture-subset
     SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(ctx, bitmap,
-                                                            kUntiled_SkImageUsageType));
+                                                            GrTextureParams::ClampNoFilter()));
     SkBitmap tx_full;
     GrWrapTextureInBitmap(fullTx, bitmap.width(), bitmap.height(), true, &tx_full);
     tx_full.extractSubset(&tx_subset, subset);
@@ -585,7 +585,7 @@ DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
     SkBitmap tmp_subset;
     bitmap.extractSubset(&tmp_subset, subset);
     SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(ctx, tmp_subset,
-                                                              kUntiled_SkImageUsageType));
+                                                              GrTextureParams::ClampNoFilter()));
     GrWrapTextureInBitmap(subsetTx, tmp_subset.width(), tmp_subset.height(), true, &bm_subset);
 
     // did we get the same subset?

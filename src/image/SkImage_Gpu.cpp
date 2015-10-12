@@ -109,8 +109,8 @@ private:
     typedef GrTextureMaker INHERITED;
 };
 
-GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, SkImageUsageType usage) const {
-    return Texture_GrTextureMaker(this, fTexture).refCachedTexture(ctx, usage);
+GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
+    return Texture_GrTextureMaker(this, fTexture).refCachedTexture(ctx, params);
 }
 
 bool SkImage_Gpu::isOpaque() const {

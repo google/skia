@@ -36,7 +36,7 @@ public:
     }
 
     bool getROPixels(SkBitmap*) const override;
-    GrTexture* asTextureRef(GrContext* ctx, SkImageUsageType usage) const override;
+    GrTexture* asTextureRef(GrContext* ctx, const GrTextureParams& params) const override;
     SkImage* onNewSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture; }

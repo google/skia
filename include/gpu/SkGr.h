@@ -66,9 +66,8 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams*);
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, SkImageUsageType);
-
+GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&);
+    
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
 GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, SkColorProfileType);
 

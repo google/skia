@@ -36,6 +36,7 @@
       '<(skia_include_path)/gpu/GrShaderVar.h',
       '<(skia_include_path)/gpu/GrSurface.h',
       '<(skia_include_path)/gpu/GrTexture.h',
+      '<(skia_include_path)/gpu/GrTextureParams.h',
       '<(skia_include_path)/gpu/GrTextureProvider.h',
       '<(skia_include_path)/gpu/GrTextureAccess.h',
       '<(skia_include_path)/gpu/GrTestUtils.h',

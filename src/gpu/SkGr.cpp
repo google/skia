@@ -38,33 +38,6 @@
 #  include "etc1.h"
 #endif
 
-bool GrTextureUsageSupported(const GrCaps& caps, int width, int height, SkImageUsageType usage) {
-    if (caps.npotTextureTileSupport()) {
-        return true;
-    }
-    const bool is_pow2 = SkIsPow2(width) && SkIsPow2(height);
-    return is_pow2 || kUntiled_SkImageUsageType == usage;
-}
-
-GrTextureParams GrImageUsageToTextureParams(SkImageUsageType usage) {
-    // Just need a params that will trigger the correct cache key / etc, since the usage doesn't
-    // tell us the specifics about filter level or specific tiling.
-
-    const SkShader::TileMode tiles[] = {
-        SkShader::kClamp_TileMode,      // kUntiled_SkImageUsageType
-        SkShader::kRepeat_TileMode,     // kTiled_Unfiltered_SkImageUsageType
-        SkShader::kRepeat_TileMode,     // kTiled_Filtered_SkImageUsageType
-    };
-
-    const GrTextureParams::FilterMode filters[] = {
-        GrTextureParams::kNone_FilterMode,      // kUntiled_SkImageUsageType
-        GrTextureParams::kNone_FilterMode,      // kTiled_Unfiltered_SkImageUsageType
-        GrTextureParams::kBilerp_FilterMode,    // kTiled_Filtered_SkImageUsageType
-    };
-
-    return GrTextureParams(tiles[usage], filters[usage]);
-}
-
 /*  Fill out buffer with the compressed format Ganesh expects from a colortable
  based bitmap. [palette (colortable) + indices].
 
@@ -124,35 +97,31 @@ static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void get_stretch(const GrContext* ctx, int width, int height,
-                        const GrTextureParams* params, SkGrStretch* stretch) {
+static void get_stretch(const GrCaps& caps, int width, int height,
+                        const GrTextureParams& params, SkGrStretch* stretch) {
     stretch->fType = SkGrStretch::kNone_Type;
     bool doStretch = false;
-    if (params && params->isTiled() && !ctx->caps()->npotTextureTileSupport() &&
+    if (params.isTiled() && !caps.npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
         doStretch = true;
-        stretch->fWidth  = GrNextPow2(SkTMax(width, ctx->caps()->minTextureSize()));
-        stretch->fHeight = GrNextPow2(SkTMax(height, ctx->caps()->minTextureSize()));
-    } else if (width < ctx->caps()->minTextureSize() || height < ctx->caps()->minTextureSize()) {
+        stretch->fWidth  = GrNextPow2(SkTMax(width, caps.minTextureSize()));
+        stretch->fHeight = GrNextPow2(SkTMax(height, caps.minTextureSize()));
+    } else if (width < caps.minTextureSize() || height < caps.minTextureSize()) {
         // The small texture issues appear to be with tiling. Hence it seems ok to scale them
         // up using the GPU. If issues persist we may need to CPU-stretch.
         doStretch = true;
-        stretch->fWidth = SkTMax(width, ctx->caps()->minTextureSize());
-        stretch->fHeight = SkTMax(height, ctx->caps()->minTextureSize());
+        stretch->fWidth = SkTMax(width, caps.minTextureSize());
+        stretch->fHeight = SkTMax(height, caps.minTextureSize());
     }
     if (doStretch) {
-        if (params) {
-            switch(params->filterMode()) {
-                case GrTextureParams::kNone_FilterMode:
-                    stretch->fType = SkGrStretch::kNearest_Type;
-                    break;
-                case GrTextureParams::kBilerp_FilterMode:
-                case GrTextureParams::kMipMap_FilterMode:
-                    stretch->fType = SkGrStretch::kBilerp_Type;
-                    break;
-            }
-        } else {
-            stretch->fType = SkGrStretch::kBilerp_Type;
+        switch(params.filterMode()) {
+            case GrTextureParams::kNone_FilterMode:
+                stretch->fType = SkGrStretch::kNearest_Type;
+                break;
+            case GrTextureParams::kBilerp_FilterMode:
+            case GrTextureParams::kMipMap_FilterMode:
+                stretch->fType = SkGrStretch::kBilerp_Type;
+                break;
         }
     } else {
         stretch->fWidth  = -1;
@@ -190,26 +159,16 @@ static void make_unstretched_key(GrUniqueKey* key, uint32_t imageID, const SkIRe
 }
 
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& subset,
-                          const GrCaps& caps, SkImageUsageType usage) {
-    const SkGrStretch::Type stretches[] = {
-        SkGrStretch::kNone_Type,        // kUntiled_SkImageUsageType
-        SkGrStretch::kNearest_Type,     // kTiled_Unfiltered_SkImageUsageType
-        SkGrStretch::kBilerp_Type,      // kTiled_Filtered_SkImageUsageType
-    };
-
-    if (!GrTextureUsageSupported(caps, subset.width(), subset.height(), usage)) {
+                          const GrCaps& caps, const GrTextureParams& params) {
+    SkGrStretch stretch;
+    get_stretch(caps, subset.width(), subset.height(), params, &stretch);
+    if (SkGrStretch::kNone_Type != stretch.fType) {
         GrUniqueKey tmpKey;
         make_unstretched_key(&tmpKey, imageID, subset);
-
-        SkGrStretch stretch;
-        stretch.fType = stretches[usage];
-        stretch.fWidth = SkNextPow2(subset.width());
-        stretch.fHeight = SkNextPow2(subset.height());
         if (!GrMakeStretchedKey(tmpKey, stretch, key)) {
-            goto UNSTRETCHED;
+            *key = tmpKey;
         }
     } else {
-        UNSTRETCHED:
         make_unstretched_key(key, imageID, subset);
     }
 }
@@ -519,9 +478,9 @@ static SkBitmap stretch_on_cpu(const SkBitmap& bmp, const SkGrStretch& stretch) 
 }
 
 bool GrIsImageInCache(const GrContext* ctx, uint32_t imageID, const SkIRect& subset,
-                      GrTexture* nativeTexture, const GrTextureParams* params) {
+                      GrTexture* nativeTexture, const GrTextureParams& params) {
     SkGrStretch stretch;
-    get_stretch(ctx, subset.width(), subset.height(), params, &stretch);
+    get_stretch(*ctx->caps(), subset.width(), subset.height(), params, &stretch);
 
     // Handle the case where the bitmap/image is explicitly texture backed.
     if (nativeTexture) {
@@ -593,17 +552,8 @@ private:
 };
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                    const GrTextureParams* params) {
+                                    const GrTextureParams& params) {
     return Bitmap_GrTextureMaker(bitmap).refCachedTexture(ctx, params);
-}
-
-// TODO: make this be the canonical signature, and turn the version that takes GrTextureParams*
-//       into a wrapper that contains the inverse of these tables.
-GrTexture* GrRefCachedBitmapTexture(GrContext* ctx,
-                                    const SkBitmap& bitmap,
-                                    SkImageUsageType usage) {
-    GrTextureParams params = GrImageUsageToTextureParams(usage);
-    return GrRefCachedBitmapTexture(ctx, bitmap, &params);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -928,14 +878,9 @@ GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrTextureMaker::refCachedTexture(GrContext* ctx, SkImageUsageType usage) {
-    GrTextureParams params = GrImageUsageToTextureParams(usage);
-    return this->refCachedTexture(ctx, &params);
-}
-
-GrTexture* GrTextureMaker::refCachedTexture(GrContext* ctx, const GrTextureParams* params) {
+GrTexture* GrTextureMaker::refCachedTexture(GrContext* ctx, const GrTextureParams& params) {
     SkGrStretch stretch;
-    get_stretch(ctx, this->width(), this->height(), params, &stretch);
+    get_stretch(*ctx->caps(), this->width(), this->height(), params, &stretch);
 
     if (SkGrStretch::kNone_Type == stretch.fType) {
         return this->onRefUnstretchedTexture(ctx);
