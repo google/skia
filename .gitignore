@@ -1,3 +1,6 @@
+!out
+out/*
+!out/gyp
 *.pyc
 *.swp
 *.iml
@@ -14,7 +17,7 @@ TAGS
 bower_components
 common
 gyp/build
-out
+
 platform_tools/android/apps/build
 platform_tools/android/apps/*.properties
 platform_tools/android/apps/*/build
