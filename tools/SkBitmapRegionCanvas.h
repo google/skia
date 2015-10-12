@@ -34,6 +34,8 @@ public:
     SkBitmap* decodeRegion(int start_x, int start_y, int width, int height,
                            int sampleSize, SkColorType prefColorType) override;
 
+    bool conversionSupported(SkColorType colorType) override;
+
 private:
 
     SkAutoTDelete<SkCodec> fDecoder;

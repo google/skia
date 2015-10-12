@@ -114,6 +114,10 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal(SkStringPrintf("Could not create brd for %s.", fPath.c_str()));
     }
 
+    if (!brd->conversionSupported(colorType)) {
+        return Error::Nonfatal("Cannot convert to color type.\n");
+    }
+
     const uint32_t width = brd->width();
     const uint32_t height = brd->height();
     // Visually inspecting very small output images is not necessary.

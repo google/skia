@@ -9,6 +9,7 @@
 #include "SkBitmapRegionDecoderInterface.h"
 #include "SkBitmapRegionSampler.h"
 #include "SkCodec.h"
+#include "SkCodecPriv.h"
 #include "SkImageDecoder.h"
 
 SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(
@@ -19,11 +20,11 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
             SkImageDecoder* decoder = SkImageDecoder::Factory(stream);
             int width, height;
             if (nullptr == decoder) {
-                SkDebugf("Error: Could not create image decoder.\n");
+                SkCodecPrintf("Error: Could not create image decoder.\n");
                 return nullptr;
             }
             if (!decoder->buildTileIndex(streamDeleter.detach(), &width, &height)) {
-                SkDebugf("Error: Could not build tile index.\n");
+                SkCodecPrintf("Error: Could not build tile index.\n");
                 delete decoder;
                 return nullptr;
             }
@@ -32,7 +33,7 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
         case kCanvas_Strategy: {
             SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(streamDeleter.detach()));
             if (nullptr == codec) {
-                SkDebugf("Error: Failed to create decoder.\n");
+                SkCodecPrintf("Error: Failed to create decoder.\n");
                 return nullptr;
             }
             switch (codec->getScanlineOrder()) {
@@ -40,7 +41,7 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
                 case SkCodec::kNone_SkScanlineOrder:
                     break;
                 default:
-                    SkDebugf("Error: Scanline ordering not supported.\n");
+                    SkCodecPrintf("Error: Scanline ordering not supported.\n");
                     return nullptr;
             }
             return new SkBitmapRegionCanvas(codec.detach());

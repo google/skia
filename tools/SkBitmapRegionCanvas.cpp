@@ -7,6 +7,8 @@
 
 #include "SkBitmapRegionCanvas.h"
 #include "SkCanvas.h"
+#include "SkCodecPriv.h"
+#include "SkCodecTools.h"
 
 SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkCodec* decoder)
     : INHERITED(decoder->getInfo().width(), decoder->getInfo().height())
@@ -15,8 +17,11 @@ SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkCodec* decoder)
 
 /*
  * Chooses the correct image subset offsets and dimensions for the partial decode.
+ *
+ * @return true if the subset is completely contained within the image
+ *         false otherwise
  */
-static inline void set_subset_region(int inputOffset, int inputDimension,
+static bool set_subset_region(int inputOffset, int inputDimension,
         int imageOriginalDimension, int* imageSubsetOffset, int* outOffset,
         int* imageSubsetDimension) {
 
@@ -30,17 +35,8 @@ static inline void set_subset_region(int inputOffset, int inputDimension,
     // Use outOffset to make sure we don't decode pixels past the edge of the region.
     *imageSubsetDimension = SkTMin(imageOriginalDimension - *imageSubsetOffset,
             inputDimension - *outOffset);
-}
 
-/*
- * Returns a scaled dimension based on the original dimension and the sample size.
- * TODO: Share this implementation with SkScaledCodec.
- */
-static int get_scaled_dimension(int srcDimension, int sampleSize) {
-    if (sampleSize > srcDimension) {
-        return 1;
-    }
-    return srcDimension / sampleSize;
+    return (*outOffset == 0) && (*imageSubsetDimension == inputDimension);
 }
 
 /*
@@ -56,7 +52,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
                                              SkColorType dstColorType) {
     // Reject color types not supported by this method
     if (kIndex_8_SkColorType == dstColorType || kGray_8_SkColorType == dstColorType) {
-        SkDebugf("Error: Color type not supported.\n");
+        SkCodecPrintf("Error: Color type not supported.\n");
         return nullptr;
     }
 
@@ -79,7 +75,8 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // bitmap.  If the region is not fully contained within the image, this
     // will not be the same as inputWidth.
     int imageSubsetWidth;
-    set_subset_region(inputX, inputWidth, this->width(), &imageSubsetX, &outX, &imageSubsetWidth);
+    bool imageContainsEntireSubset = set_subset_region(inputX, inputWidth, this->width(),
+            &imageSubsetX, &outX, &imageSubsetWidth);
 
     // The top offset of the portion of the image we want, where zero
     // indicates the top edge of the image.
@@ -96,11 +93,11 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // bitmap.  If the region is not fully contained within the image, this
     // will not be the same as inputHeight.
     int imageSubsetHeight;
-    set_subset_region(inputY, inputHeight, this->height(), &imageSubsetY, &outY,
-            &imageSubsetHeight);
+    imageContainsEntireSubset &= set_subset_region(inputY, inputHeight, this->height(),
+            &imageSubsetY, &outY, &imageSubsetHeight);
 
     if (imageSubsetWidth <= 0 || imageSubsetHeight <= 0) {
-        SkDebugf("Error: Region must intersect part of the image.\n");
+        SkCodecPrintf("Error: Region must intersect part of the image.\n");
         return nullptr;
     }
 
@@ -115,7 +112,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // Start the scanline decoder
     SkCodec::Result r = fDecoder->startScanlineDecode(decodeInfo);
     if (SkCodec::kSuccess != r) {
-        SkDebugf("Error: Could not start scanline decoder.\n");
+        SkCodecPrintf("Error: Could not start scanline decoder.\n");
         return nullptr;
     }
 
@@ -123,13 +120,13 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     SkBitmap tmp;
     SkImageInfo tmpInfo = decodeInfo.makeWH(this->width(), imageSubsetHeight);
     if (!tmp.tryAllocPixels(tmpInfo)) {
-        SkDebugf("Error: Could not allocate pixels.\n");
+        SkCodecPrintf("Error: Could not allocate pixels.\n");
         return nullptr;
     }
 
     // Skip the unneeded rows
     if (!fDecoder->skipScanlines(imageSubsetY)) {
-        SkDebugf("Error: Failed to skip scanlines.\n");
+        SkCodecPrintf("Error: Failed to skip scanlines.\n");
         return nullptr;
     }
 
@@ -144,7 +141,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());
     SkImageInfo dstInfo = decodeInfo.makeWH(outWidth, outHeight);
     if (!bitmap->tryAllocPixels(dstInfo)) {
-        SkDebugf("Error: Could not allocate pixels.\n");
+        SkCodecPrintf("Error: Could not allocate pixels.\n");
         return nullptr;
     }
 
@@ -155,9 +152,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // TODO (msarett): This could be skipped if memory is zero initialized.
     //                 This would matter if this code is moved to Android and
     //                 uses Android bitmaps.
-    if (0 != outX || 0 != outY ||
-            inputX + inputWidth > this->width() ||
-            inputY + inputHeight > this->height()) {
+    if (imageContainsEntireSubset) {
         bitmap->eraseColor(0);
     }
 
@@ -176,4 +171,16 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     canvas.drawBitmapRect(tmp, src, dst, &paint);
 
     return bitmap.detach();
+}
+
+bool SkBitmapRegionCanvas::conversionSupported(SkColorType colorType) {
+    // SkCanvas does not draw to these color types.
+    if (kIndex_8_SkColorType == colorType || kGray_8_SkColorType == colorType) {
+        return false;
+    }
+
+    // FIXME: Call virtual function when it lands.
+    SkImageInfo info = SkImageInfo::Make(0, 0, colorType, fDecoder->getInfo().alphaType(),
+            fDecoder->getInfo().profileType());
+    return conversion_possible(info, fDecoder->getInfo());
 }

@@ -32,6 +32,14 @@ public:
     SkBitmap* decodeRegion(int start_x, int start_y, int width, int height,
                            int sampleSize, SkColorType prefColorType) override;
 
+    bool conversionSupported(SkColorType colorType) override {
+        // SkBitmapRegionSampler does not allow the client to check if the conversion
+        // is supported.  We will return true as a default.  If the conversion is in
+        // fact not supported, decodeRegion() will ignore the prefColorType and choose
+        // its own color type.  We catch this and fail non-fatally in our test code.
+        return true;
+    }
+
 private:
 
     SkAutoTDelete<SkImageDecoder> fDecoder;

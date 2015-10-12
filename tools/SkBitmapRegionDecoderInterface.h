@@ -56,6 +56,11 @@ public:
     virtual SkBitmap* decodeRegion(int start_x, int start_y, int width,
                                    int height, int sampleSize,
                                    SkColorType colorType) = 0;
+    /*
+     * @param  Requested destination color type
+     * @return true if we support the requested color type and false otherwise
+     */
+    virtual bool conversionSupported(SkColorType colorType) = 0;
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }

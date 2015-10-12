@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmapRegionSampler.h"
+#include "SkCodecPriv.h"
 
 SkBitmapRegionSampler::SkBitmapRegionSampler(SkImageDecoder* decoder, int width, 
                                              int height)
@@ -43,7 +44,7 @@ SkBitmap* SkBitmapRegionSampler::decodeRegion(int start_x, int start_y,
 
     SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());
     if (!fDecoder->decodeSubset(bitmap.get(), region, prefColorType)) {
-        SkDebugf("Error: decodeRegion failed.\n");
+        SkCodecPrintf("Error: decodeRegion failed.\n");
         return nullptr;
     }
     return bitmap.detach();
