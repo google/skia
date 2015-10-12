@@ -78,6 +78,8 @@ public:
     void addPDFBitmap(uint32_t imageUniqueID, SkPDFObject*);
     const SkImage* bitmapToImage(const SkBitmap&);
 
+    SkTHashMap<uint32_t, bool> fCanEmbedTypeface;
+
 private:
     struct FontRec {
         SkPDFFont* fFont;

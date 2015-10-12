@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
@@ -14,6 +15,7 @@
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
+#include "SkPDFFont.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkReadBuffer.h"
@@ -21,6 +23,7 @@
 #include "SkStream.h"
 #include "SkTypes.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 #define DUMMY_TEXT "DCT compessed stream."
 
@@ -414,4 +417,21 @@ DEF_TEST(PDFImageFilter, reporter) {
 
     // Filter was used in rendering; should be visited.
     REPORTER_ASSERT(reporter, filter->visited());
+}
+
+// Check that PDF rendering of image filters successfully falls back to
+// CPU rasterization.
+DEF_TEST(PDFFontCanEmbedTypeface, reporter) {
+    SkPDFCanon canon;
+
+    const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
+    SkAutoTUnref<SkTypeface> noEmbedTypeface(GetResourceAsTypeface(resource));
+    if (noEmbedTypeface) {
+        REPORTER_ASSERT(reporter,
+                        !SkPDFFont::CanEmbedTypeface(noEmbedTypeface, &canon));
+    }
+    SkAutoTUnref<SkTypeface> portableTypeface(
+            sk_tool_utils::create_portable_typeface(NULL, SkTypeface::kNormal));
+    REPORTER_ASSERT(reporter,
+                    SkPDFFont::CanEmbedTypeface(portableTypeface, &canon));
 }

@@ -1231,8 +1231,57 @@ static SkString format_wide_string(const uint16_t* input,
     }
 }
 
+static void draw_transparent_text(SkPDFDevice* device,
+                                  const SkDraw& d,
+                                  const void* text, size_t len,
+                                  SkScalar x, SkScalar y,
+                                  const SkPaint& srcPaint) {
+
+    SkPaint transparent;
+    if (!SkPDFFont::CanEmbedTypeface(transparent.getTypeface(),
+                                     device->getCanon())) {
+        SkDEBUGFAIL("default typeface should be embeddable");
+        return;  // Avoid infinite loop in release.
+    }
+    transparent.setTextSize(srcPaint.getTextSize());
+    transparent.setColor(SK_ColorTRANSPARENT);
+    switch (srcPaint.getTextEncoding()) {
+        case SkPaint::kGlyphID_TextEncoding: {
+            // Since a glyphId<->Unicode mapping is typeface-specific,
+            // map back to Unicode first.
+            size_t glyphCount = len / 2;
+            SkAutoTMalloc<SkUnichar> unichars(glyphCount);
+            srcPaint.glyphsToUnichars(
+                    (const uint16_t*)text, SkToInt(glyphCount), &unichars[0]);
+            transparent.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+            device->drawText(d, &unichars[0],
+                             glyphCount * sizeof(SkUnichar),
+                             x, y, transparent);
+            break;
+        }
+        case SkPaint::kUTF8_TextEncoding:
+        case SkPaint::kUTF16_TextEncoding:
+        case SkPaint::kUTF32_TextEncoding:
+            transparent.setTextEncoding(srcPaint.getTextEncoding());
+            device->drawText(d, text, len, x, y, transparent);
+            break;
+        default:
+            SkFAIL("unknown text encoding");
+    }
+}
+
+
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& srcPaint) {
+    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
+        // http://skbug.com/3866
+        SkPath path;
+        srcPaint.getTextPath(text, len, x, y, &path);
+        this->drawPath(d, path, srcPaint, &SkMatrix::I(), true);
+        // Draw text transparently to make it copyable/searchable/accessable.
+        draw_transparent_text(this, d, text, len, x, y, srcPaint);
+        return;
+    }
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
 
@@ -1285,6 +1334,29 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& srcPaint) {
+    if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
+        const SkPoint* positions = reinterpret_cast<const SkPoint*>(pos);
+        SkAutoTMalloc<SkPoint> positionsBuffer;
+        if (2 != scalarsPerPos) {
+            int glyphCount = srcPaint.textToGlyphs(text, len, NULL);
+            positionsBuffer.reset(glyphCount);
+            for (int  i = 0; i < glyphCount; ++i) {
+                positionsBuffer[i].set(pos[i], 0.0f);
+            }
+            positions = &positionsBuffer[0];
+        }
+        SkPath path;
+        srcPaint.getPosTextPath(text, len, positions, &path);
+        SkMatrix matrix;
+        matrix.setTranslate(offset);
+        this->drawPath(d, path, srcPaint, &matrix, true);
+        // Draw text transparently to make it copyable/searchable/accessable.
+        draw_transparent_text(
+                this, d, text, len, offset.x() + positions[0].x(),
+                offset.y() + positions[0].y(), srcPaint);
+        return;
+    }
+
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
 

@@ -149,6 +149,12 @@ public:
                          uint32_t searchFontID,
                          uint16_t searchGlyphID);
 
+    /**
+     *  Return false iff the typeface has its NotEmbeddable flag set.
+     *  If typeface is NULL, the default typeface is checked.
+     */
+    static bool CanEmbedTypeface(SkTypeface*, SkPDFCanon*);
+
 protected:
     // Common constructor to handle common members.
     SkPDFFont(const SkAdvancedTypefaceMetrics* fontInfo,

@@ -1051,10 +1051,7 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
         this->insertObjRef("FontDescriptor", descriptor.detach());
         return false;
     }
-    if (!canEmbed()) {
-        this->insertObjRef("FontDescriptor", descriptor.detach());
-        return true;
-    }
+    SkASSERT(this->canEmbed());
 
     switch (getType()) {
         case SkAdvancedTypefaceMetrics::kTrueType_Font: {
@@ -1222,13 +1219,12 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     if (fontData.get() == nullptr) {
         return false;
     }
-    if (canEmbed()) {
-        SkAutoTUnref<SkPDFStream> fontStream(new SkPDFStream(fontData.get()));
-        fontStream->insertInt("Length1", header);
-        fontStream->insertInt("Length2", data);
-        fontStream->insertInt("Length3", trailer);
-        descriptor->insertObjRef("FontFile", fontStream.detach());
-    }
+    SkASSERT(this->canEmbed());
+    SkAutoTUnref<SkPDFStream> fontStream(new SkPDFStream(fontData.get()));
+    fontStream->insertInt("Length1", header);
+    fontStream->insertInt("Length2", data);
+    fontStream->insertInt("Length3", trailer);
+    descriptor->insertObjRef("FontFile", fontStream.detach());
 
     this->insertObjRef("FontDescriptor", descriptor.detach());
 
@@ -1417,4 +1413,23 @@ SkPDFFont::Match SkPDFFont::IsMatch(SkPDFFont* existingFont,
     }
     return (existingGlyphID == searchGlyphID) ? SkPDFFont::kExact_Match
                                               : SkPDFFont::kRelated_Match;
+}
+
+//  Since getAdvancedTypefaceMetrics is expensive, cache the result.
+bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFCanon* canon) {
+    SkAutoResolveDefaultTypeface face(typeface);
+    uint32_t id = face->uniqueID();
+    if (bool* value = canon->fCanEmbedTypeface.find(id)) {
+        return *value;
+    }
+    bool canEmbed = true;
+    SkAutoTUnref<const SkAdvancedTypefaceMetrics> fontMetrics(
+            face->getAdvancedTypefaceMetrics(
+                    SkTypeface::kNo_PerGlyphInfo, nullptr, 0));
+    if (fontMetrics) {
+        canEmbed = !SkToBool(
+                fontMetrics->fFlags &
+                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
+    }
+    return *canon->fCanEmbedTypeface.set(id, canEmbed);
 }

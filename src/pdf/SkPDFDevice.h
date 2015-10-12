@@ -189,9 +189,7 @@ public:
         return *(fFontGlyphUsage.get());
     }
 
-#ifdef SK_DEBUG
     SkPDFCanon* getCanon() const { return fCanon; }
-#endif  // SK_DEBUG
 
 protected:
     const SkBitmap& onAccessBitmap() override {
