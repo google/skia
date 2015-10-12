@@ -346,6 +346,12 @@ public:
      */
     bool addObject(SkPDFObject* obj);
 
+    /** Add the passed object to the catalog, as well as all its dependencies.
+     *  @param obj   The object to add.  If nullptr, this is a noop.
+     *  @param subs  Will be passed to obj->addResources().
+     */
+    void addObjectRecursively(SkPDFObject* obj, const SkPDFSubstituteMap& subs);
+
     /** Get the object number for the passed object.
      *  @param obj         The object of interest.
      */

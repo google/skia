@@ -177,9 +177,7 @@ void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap,
             return;  // These have no resources.
         case Type::kObjRef: {
             SkPDFObject* obj = substituteMap.getSubstitute(fObject);
-            if (objNumMap->addObject(obj)) {
-                obj->addResources(objNumMap, substituteMap);
-            }
+            objNumMap->addObjectRecursively(obj, substituteMap);
             return;
         }
         case Type::kObject:
@@ -498,6 +496,13 @@ bool SkPDFObjNumMap::addObject(SkPDFObject* obj) {
     fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
     fObjects.push(obj);
     return true;
+}
+
+void SkPDFObjNumMap::addObjectRecursively(SkPDFObject* obj,
+                                          const SkPDFSubstituteMap& subs) {
+    if (obj && this->addObject(obj)) {
+        obj->addResources(this, subs);
+    }
 }
 
 int32_t SkPDFObjNumMap::getObjectNumber(SkPDFObject* obj) const {
