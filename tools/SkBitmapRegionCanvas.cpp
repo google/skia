@@ -152,7 +152,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // TODO (msarett): This could be skipped if memory is zero initialized.
     //                 This would matter if this code is moved to Android and
     //                 uses Android bitmaps.
-    if (imageContainsEntireSubset) {
+    if (!imageContainsEntireSubset) {
         bitmap->eraseColor(0);
     }
 
