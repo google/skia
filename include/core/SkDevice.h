@@ -372,7 +372,7 @@ private:
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
-    friend class SkImageFilter::Proxy;
+    friend class SkImageFilter::DeviceProxy;
     friend class SkNoPixelsBitmapDevice;
 
     friend class SkSurface_Raster;

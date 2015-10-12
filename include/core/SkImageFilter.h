@@ -95,19 +95,31 @@ public:
 
     class Proxy {
     public:
-        Proxy(SkBaseDevice* device) : fDevice(device) { }
+        virtual ~Proxy() {}
 
-        SkBaseDevice* createDevice(int width, int height);
+        virtual SkBaseDevice* createDevice(int width, int height) = 0;
+
+        // Returns true if the proxy handled the filter itself. If this returns
+        // false then the filter's code will be called.
+        virtual bool filterImage(const SkImageFilter*, const SkBitmap& src,
+                                 const SkImageFilter::Context&,
+                                 SkBitmap* result, SkIPoint* offset) = 0;
+    };
+
+    class DeviceProxy : public Proxy {
+    public:
+        DeviceProxy(SkBaseDevice* device) : fDevice(device) {}
+
+        SkBaseDevice* createDevice(int width, int height) override;
 
         // Returns true if the proxy handled the filter itself. If this returns
         // false then the filter's code will be called.
         bool filterImage(const SkImageFilter*, const SkBitmap& src, const SkImageFilter::Context&,
-                         SkBitmap* result, SkIPoint* offset);
+                                 SkBitmap* result, SkIPoint* offset) override;
 
     private:
         SkBaseDevice* fDevice;
     };
-
 
     /**
      *  Request a new (result) image to be created from the src image.

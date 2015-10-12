@@ -38,6 +38,10 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
     }
 }
 
+static SkImageInfo make_info(int w, int h, bool isOpaque) {
+    return SkImageInfo::MakeN32(w, h, isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+}
+
 bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
@@ -46,8 +50,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
         return true;
     }
 
-    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    if (!dst->tryAllocPixels(SkImageInfo::MakeN32(this->width(), this->height(), at))) {
+    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->isOpaque()))) {
         return false;
     }
     if (!fTexture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
@@ -179,6 +182,69 @@ SkImage* SkImage_Gpu::onNewSubset(const SkIRect& subset) const {
     ctx->copySurface(subTx, fTexture, subset, SkIPoint::Make(0, 0));
     return new SkImage_Gpu(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID, fAlphaType, subTx,
                            fBudgeted);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkBitmapDevice.h"
+#include "SkGrPixelRef.h"
+#include "SkImageFilter.h"
+
+class SkGpuImageFilterProxy : public SkImageFilter::Proxy {
+    GrContext* fCtx;
+
+public:
+    SkGpuImageFilterProxy(GrContext* ctx) : fCtx(ctx) {}
+
+    SkBaseDevice* createDevice(int width, int height) override {
+        GrSurfaceDesc desc;
+        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fWidth = width;
+        desc.fHeight = height;
+        desc.fSampleCnt = 0;
+
+        SkAutoTUnref<GrTexture> texture(fCtx->textureProvider()->createTexture(desc, true));
+
+        if (texture) {
+            SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+            return SkGpuDevice::Create(texture->asRenderTarget(), width, height, &props,
+                                       SkGpuDevice::kClear_InitContents);
+        } else {
+            return nullptr;
+        }
+    }
+
+    bool filterImage(const SkImageFilter*, const SkBitmap&, const SkImageFilter::Context&,
+                     SkBitmap*, SkIPoint*) override {
+        return false;
+    }
+};
+
+SkImage* SkImage_Gpu::onApplyFilter(SkImageFilter* filter, SkIPoint* offsetResult,
+                                    bool forceResultToOriginalSize) const {
+    if (!forceResultToOriginalSize || !filter->canFilterImageGPU()) {
+        return this->INHERITED::onApplyFilter(filter, offsetResult, forceResultToOriginalSize);
+    }
+
+    const SkImageInfo info = make_info(this->width(), this->height(), this->isOpaque());
+    SkAutoTUnref<SkGrPixelRef> pr(new SkGrPixelRef(info, fTexture));
+    SkBitmap src;
+    src.setInfo(info);
+    src.setPixelRef(pr, 0, 0);
+
+    GrContext* context = fTexture->getContext();
+    SkGpuImageFilterProxy proxy(context);
+    SkImageFilter::Context ctx(SkMatrix::I(),
+                               SkIRect::MakeWH(this->width(), this->height()),
+                               SkImageFilter::Cache::Get());
+
+    SkBitmap dst;
+    if (filter->filterImageGPU(&proxy, src, ctx, &dst, offsetResult)) {
+        return new SkImage_Gpu(dst.width(), dst.height(), kNeedNewImageUniqueID, info.alphaType(),
+                               dst.getTexture(), SkSurface::kNo_Budgeted);
+    }
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

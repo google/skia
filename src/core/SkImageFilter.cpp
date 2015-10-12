@@ -578,7 +578,7 @@ void SkImageFilter::PurgeCache() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBaseDevice* SkImageFilter::Proxy::createDevice(int w, int h) {
+SkBaseDevice* SkImageFilter::DeviceProxy::createDevice(int w, int h) {
     SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
                                    SkBaseDevice::kNever_TileUsage,
                                    kUnknown_SkPixelGeometry,
@@ -592,7 +592,7 @@ SkBaseDevice* SkImageFilter::Proxy::createDevice(int w, int h) {
     return dev;
 }
 
-bool SkImageFilter::Proxy::filterImage(const SkImageFilter* filter, const SkBitmap& src,
+bool SkImageFilter::DeviceProxy::filterImage(const SkImageFilter* filter, const SkBitmap& src,
                                        const SkImageFilter::Context& ctx,
                                        SkBitmap* result, SkIPoint* offset) {
     return fDevice->filterImage(filter, src, ctx, result, offset);

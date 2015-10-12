@@ -1395,7 +1395,7 @@ bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
                                 SkBitmap* result, SkIPoint* offset) {
     SkASSERT(filter);
 
-    SkImageFilter::Proxy proxy(this);
+    SkImageFilter::DeviceProxy proxy(this);
 
     if (filter->canFilterImageGPU()) {
         return filter->filterImageGPU(&proxy, wrap_texture(texture, width, height),

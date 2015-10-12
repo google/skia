@@ -313,7 +313,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kDefaultCacheSize));
     SkImageFilter::Context filterContext(totMat, clipBounds, cache);
 
-    SkImageFilter::Proxy proxy(device);
+    SkImageFilter::DeviceProxy proxy(device);
     const SkBitmap src = wrap_texture(layer->texture());
 
     if (!layer->filter()->filterImage(&proxy, src, filterContext, &filteredBitmap, &offset)) {

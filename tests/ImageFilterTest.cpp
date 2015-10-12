@@ -400,7 +400,7 @@ DEF_TEST(TestNegativeBlurSigma, reporter) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkBaseDevice> device(SkBitmapDevice::Create(info, props));
-    SkImageFilter::Proxy proxy(device);
+    SkImageFilter::DeviceProxy proxy(device);
 
     test_negative_blur_sigma(&proxy, reporter);
 }
@@ -773,7 +773,7 @@ DEF_TEST(ImageFilterCropRect, reporter) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkBaseDevice> device(SkBitmapDevice::Create(info, props));
-    SkImageFilter::Proxy proxy(device);
+    SkImageFilter::DeviceProxy proxy(device);
 
     test_crop_rects(&proxy, reporter);
 }
@@ -887,7 +887,7 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
     bitmap.allocN32Pixels(2, 2);
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkBitmapDevice device(bitmap, props);
-    SkImageFilter::Proxy proxy(&device);
+    SkImageFilter::DeviceProxy proxy(&device);
     REPORTER_ASSERT(reporter, !imageFilter->filterImage(&proxy, bitmap, ctx, &result, &offset));
 }
 
@@ -1125,7 +1125,7 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
     bitmap.eraseARGB(0, 0, 0, 0);
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkBitmapDevice device(bitmap, props);
-    SkImageFilter::Proxy proxy(&device);
+    SkImageFilter::DeviceProxy proxy(&device);
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(1, 0, 20, 20));
     SkAutoTUnref<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
@@ -1144,7 +1144,7 @@ DEF_TEST(PartialCropRect, reporter) {
     bitmap.eraseARGB(0, 0, 0, 0);
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
     SkBitmapDevice device(bitmap, props);
-    SkImageFilter::Proxy proxy(&device);
+    SkImageFilter::DeviceProxy proxy(&device);
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(100, 0, 20, 30),
         SkImageFilter::CropRect::kHasWidth_CropEdge | SkImageFilter::CropRect::kHasHeight_CropEdge);
@@ -1251,7 +1251,7 @@ DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
                                                          0,
                                                          &props,
                                                          SkGpuDevice::kUninit_InitContents));
-    SkImageFilter::Proxy proxy(device);
+    SkImageFilter::DeviceProxy proxy(device);
 
     test_crop_rects(&proxy, reporter);
 }
@@ -1305,7 +1305,7 @@ DEF_GPUTEST(TestNegativeBlurSigmaGPU, reporter, factory) {
                                                          0,
                                                          &props,
                                                          SkGpuDevice::kUninit_InitContents));
-    SkImageFilter::Proxy proxy(device);
+    SkImageFilter::DeviceProxy proxy(device);
 
     test_negative_blur_sigma(&proxy, reporter);
 }
