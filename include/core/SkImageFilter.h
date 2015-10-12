@@ -115,7 +115,7 @@ public:
         // Returns true if the proxy handled the filter itself. If this returns
         // false then the filter's code will be called.
         bool filterImage(const SkImageFilter*, const SkBitmap& src, const SkImageFilter::Context&,
-                                 SkBitmap* result, SkIPoint* offset) override;
+                         SkBitmap* result, SkIPoint* offset) override;
 
     private:
         SkBaseDevice* fDevice;

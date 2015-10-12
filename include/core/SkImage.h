@@ -315,10 +315,10 @@ public:
      *
      *  e.g.
      *      If the filter makes the result larger by a margin of 4 the output would be:
-     *          result->width() = this->width + 8
-     *          result->height() = this->height + 8
-     *          offset.x() == -4
-     *          offset.y() == -4
+     *          result->width()  == this->width + 8
+     *          result->height() == this->height + 8
+     *          offset.x()       == -4
+     *          offset.y()       == -4
      *
      *  If the filter fails to create a resulting image, null is returned, and the offset parameter
      *  (if specified) will be undefined.

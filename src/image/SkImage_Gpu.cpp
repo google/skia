@@ -186,7 +186,6 @@ SkImage* SkImage_Gpu::onNewSubset(const SkIRect& subset) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkBitmapDevice.h"
 #include "SkGrPixelRef.h"
 #include "SkImageFilter.h"
 
@@ -227,11 +226,8 @@ SkImage* SkImage_Gpu::onApplyFilter(SkImageFilter* filter, SkIPoint* offsetResul
         return this->INHERITED::onApplyFilter(filter, offsetResult, forceResultToOriginalSize);
     }
 
-    const SkImageInfo info = make_info(this->width(), this->height(), this->isOpaque());
-    SkAutoTUnref<SkGrPixelRef> pr(new SkGrPixelRef(info, fTexture));
     SkBitmap src;
-    src.setInfo(info);
-    src.setPixelRef(pr, 0, 0);
+    GrWrapTextureInBitmap(fTexture, this->width(), this->height(), this->isOpaque(), &src);
 
     GrContext* context = fTexture->getContext();
     SkGpuImageFilterProxy proxy(context);
@@ -241,7 +237,7 @@ SkImage* SkImage_Gpu::onApplyFilter(SkImageFilter* filter, SkIPoint* offsetResul
 
     SkBitmap dst;
     if (filter->filterImageGPU(&proxy, src, ctx, &dst, offsetResult)) {
-        return new SkImage_Gpu(dst.width(), dst.height(), kNeedNewImageUniqueID, info.alphaType(),
+        return new SkImage_Gpu(dst.width(), dst.height(), kNeedNewImageUniqueID, dst.alphaType(),
                                dst.getTexture(), SkSurface::kNo_Budgeted);
     }
     return nullptr;
