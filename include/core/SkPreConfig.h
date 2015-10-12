@@ -186,7 +186,7 @@
 #endif
 
 // Disable ARM64 optimizations for iOS due to complications regarding gyp and iOS.
-#if defined(__aarch64__) && !defined(SK_BUILD_FOR_IOS)
+#if defined(__aarch64__) /*&& !defined(SK_BUILD_FOR_IOS) */
     #define SK_CPU_ARM64
 #endif
 

@@ -381,10 +381,12 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
 #else // #ifdef SK_CPU_ARM32
 
 void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
-                           const SkPMColor* SK_RESTRICT src, int count,
+                           const SkPMColor* SK_RESTRICT src, int count32,
                            U8CPU alpha, int /*x*/, int /*y*/) {
     SkASSERT(255 == alpha);
 
+    int64_t count = count32;
+    
     if (count >= 16) {
         asm (
             "movi    v4.8h, #0x80                   \t\n"
