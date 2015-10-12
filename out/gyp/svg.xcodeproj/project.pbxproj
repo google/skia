@@ -1,0 +1,1059 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		6DBA03D032F9CE44A04293BA /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 0F8462A925C5B3FCB70D97FD /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				8F9FAB5FB162C74E730CD6BA /* PBXTargetDependency */,
+				214310D87E9958A32D11532F /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		00F212F1633B45A5059D7962 /* SkSVGElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1714184FCF47C0729EC4B095 /* SkSVGElements.cpp */; };
+		03DBA455D64643B3A53531E0 /* SkSVGGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA73842F3BB85466925DF4BB /* SkSVGGroup.cpp */; };
+		08367EF5A843263A6C8281B7 /* SkSVGMetadata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D5D343E4A1DBC3BE87E4E12 /* SkSVGMetadata.cpp */; };
+		134DB783DBA86CC829F863BD /* SkSVGDefs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 492B887975D25A3644CB90BF /* SkSVGDefs.cpp */; };
+		1D971307FB5A90326AA4E8EA /* SkSVGEllipse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D726708D4B420D785966577 /* SkSVGEllipse.cpp */; };
+		2729F3031ABE484520131829 /* SkSVGG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C642E289C64E19DB2E875 /* SkSVGG.cpp */; };
+		2AA4245703B450BB352268DE /* SkSVGCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2E34356DFF86292C2073569 /* SkSVGCanvas.cpp */; };
+		2FFF73FA33D01A76F11FED58 /* SkSVGFeColorMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 598D71803F266D1BD260A6EB /* SkSVGFeColorMatrix.cpp */; };
+		34C2642E0803BAD3D6A61BBA /* SkSVGParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 988E9C15BB795990FB4F0DE8 /* SkSVGParser.cpp */; };
+		36133ECBD91EA68F1A126983 /* SkSVGStop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C8AE9B39BB1EAED4FABAA2E /* SkSVGStop.cpp */; };
+		4D517E36DA6B6D0554A5F8EB /* SkSVGRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AE0230EDA01A1B2D38BACBEF /* SkSVGRect.cpp */; };
+		5D8D4E252C2AB8EA9A737923 /* SkSVGClipPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E4E508A67CAD27369DF1FFE /* SkSVGClipPath.cpp */; };
+		749A8378D73647B836A683C3 /* SkSVGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE577D10CED0D13C44CC8782 /* SkSVGImage.cpp */; };
+		76DD4E8E85275FA743399AA6 /* SkSVGLinearGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F7411E74F615443B0A7FBC47 /* SkSVGLinearGradient.cpp */; };
+		7BB892EDDF9844CB753DC6B8 /* SkSVGMask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAB7422D0914C95B3B359538 /* SkSVGMask.cpp */; };
+		85F1E4891212264452ECC8A9 /* SkSVGPaintState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A789C0FD4783D190C699336 /* SkSVGPaintState.cpp */; };
+		8AD85AF1027E3B793058BCC9 /* SkSVGDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D8A1D218A8B2A66CB26E9D /* SkSVGDevice.cpp */; };
+		945CF8B6BB0CE628EDE5F147 /* SkSVGSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B23F1B9AFC6827A5C42E084 /* SkSVGSVG.cpp */; };
+		9A42F3C76753C03E9FF4265F /* SkSVGGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C74F5324DCD5C6F935962A47 /* SkSVGGradient.cpp */; };
+		9AFCFE9C6DB43C36C09BF901 /* SkSVGPolygon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 189602ADBBE1561365719565 /* SkSVGPolygon.cpp */; };
+		A1899035D8917A1080649121 /* SkSVGUse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF2CE1A0811AD70D32A28493 /* SkSVGUse.cpp */; };
+		ADB27BFB8D7565BAA3E1335A /* SkSVGSymbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AE8FD28C5988D2624709B847 /* SkSVGSymbol.cpp */; };
+		B6AEEAF72504BF1AC8DC1C31 /* SkSVGCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1D26E9141638524727BB5CF3 /* SkSVGCircle.cpp */; };
+		C39C301159E9EAE76F376B56 /* SkSVGRadialGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7064695E446F18E68A2C94D6 /* SkSVGRadialGradient.cpp */; };
+		D8CCC12076587A992E907DCE /* SkSVGFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7149CE2227B143A8E606C252 /* SkSVGFilter.cpp */; };
+		EC75E25DB69A57AEACA674B1 /* SkSVGPolyline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FD34AE2F2F60F7EAD2D503 /* SkSVGPolyline.cpp */; };
+		F10A36C4A354E2901C7E7B46 /* SkSVGLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D70EBDE5FDEABA0495396FFD /* SkSVGLine.cpp */; };
+		F7DDEC7D10EDA83877651B02 /* SkSVGText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D788C305FF96F9A96DBB895 /* SkSVGText.cpp */; };
+		FBFBC99FC86DEC74708D2C71 /* SkSVGPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1E13D80B031FE3B09119F901 /* SkSVGPath.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		31975B93FEE969BD7174A337 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2D489D63D11EDBC12BCB5AB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0B2E385A2EF973EA3476322D;
+			remoteInfo = svg;
+		};
+		4EE0B7C2BFB17605DE6BB614 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2D489D63D11EDBC12BCB5AB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BC1DC4C07664FF3F6A403622;
+			remoteInfo = svg_parser;
+		};
+		551A87708621A5B72AEC7273 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 20E4292D3C4C8048E0FA37B0 /* skia_lib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FAACAD0576FEAB6DC6993FBC;
+			remoteInfo = skia_lib;
+		};
+		FBB4E1ABF17DC023E7617682 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 20E4292D3C4C8048E0FA37B0 /* skia_lib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FAACAD0576FEAB6DC6993FBC;
+			remoteInfo = skia_lib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		05B522B6A6CEC458180E3C75 /* SkSVGTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGTypes.h; sourceTree = "<group>"; };
+		08FD34AE2F2F60F7EAD2D503 /* SkSVGPolyline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGPolyline.cpp; sourceTree = "<group>"; };
+		0B0A15858CAC49C041B857AB /* SkSVGDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGDefs.h; sourceTree = "<group>"; };
+		0E8AAF348F0782D517126FE0 /* SkSVGElements.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGElements.h; sourceTree = "<group>"; };
+		12B4FFA5507473375B715493 /* SkSVGGradient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGGradient.h; sourceTree = "<group>"; };
+		1714184FCF47C0729EC4B095 /* SkSVGElements.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGElements.cpp; sourceTree = "<group>"; };
+		189602ADBBE1561365719565 /* SkSVGPolygon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGPolygon.cpp; sourceTree = "<group>"; };
+		1D26E9141638524727BB5CF3 /* SkSVGCircle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGCircle.cpp; sourceTree = "<group>"; };
+		1E02667A41185D565A426115 /* SkSVGImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGImage.h; sourceTree = "<group>"; };
+		1E13D80B031FE3B09119F901 /* SkSVGPath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGPath.cpp; sourceTree = "<group>"; };
+		2065716F2A52EE9DFD083D46 /* SkSVGAttribute.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGAttribute.h; sourceTree = "<group>"; };
+		20E4292D3C4C8048E0FA37B0 /* skia_lib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia_lib.xcodeproj; path = ../out/gyp/skia_lib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		2265495963487B7EA83E99B7 /* SkSVGMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGMetadata.h; sourceTree = "<group>"; };
+		2A6AF96BA878F6C76C7D41F4 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		2A789C0FD4783D190C699336 /* SkSVGPaintState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGPaintState.cpp; sourceTree = "<group>"; };
+		2D788C305FF96F9A96DBB895 /* SkSVGText.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGText.cpp; sourceTree = "<group>"; };
+		37CA3BF635233D7A3F5B0383 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		38EC8A5F0F21A045453B0081 /* SkSVGCircle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGCircle.h; sourceTree = "<group>"; };
+		3BB09BC277008C0D69A264D6 /* SkSVGRadialGradient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGRadialGradient.h; sourceTree = "<group>"; };
+		3C8AE9B39BB1EAED4FABAA2E /* SkSVGStop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGStop.cpp; sourceTree = "<group>"; };
+		43341440C0AE0138A9DB3D84 /* SkSVGFeColorMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGFeColorMatrix.h; sourceTree = "<group>"; };
+		46EDE8AF8E698A5CDB631FC8 /* SkSVGPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGPath.h; sourceTree = "<group>"; };
+		492B887975D25A3644CB90BF /* SkSVGDefs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGDefs.cpp; sourceTree = "<group>"; };
+		5128BDF5A7073BDBA9CAB5BB /* SkSVGLine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGLine.h; sourceTree = "<group>"; };
+		523F3928FC87B7A149B925C0 /* SkSVGText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGText.h; sourceTree = "<group>"; };
+		5535D19E47D5C22866757DFE /* SkSVGG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGG.h; sourceTree = "<group>"; };
+		598D71803F266D1BD260A6EB /* SkSVGFeColorMatrix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGFeColorMatrix.cpp; sourceTree = "<group>"; };
+		6289FD76E317508C33EACC47 /* SkSVGStop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGStop.h; sourceTree = "<group>"; };
+		62A1DEA96614BEAB65361A28 /* SkSVGPolyline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGPolyline.h; sourceTree = "<group>"; };
+		62B50C9E14CD9F71DC64258D /* SkSVGDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGDevice.h; sourceTree = "<group>"; };
+		7064695E446F18E68A2C94D6 /* SkSVGRadialGradient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGRadialGradient.cpp; sourceTree = "<group>"; };
+		7149CE2227B143A8E606C252 /* SkSVGFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGFilter.cpp; sourceTree = "<group>"; };
+		74F802C0122C2EF294F6ED4F /* svg.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = svg.gyp; sourceTree = "<group>"; };
+		7D726708D4B420D785966577 /* SkSVGEllipse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGEllipse.cpp; sourceTree = "<group>"; };
+		8632A04317B8057AE7A0094F /* SkSVGGroup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGGroup.h; sourceTree = "<group>"; };
+		87A61A74543040B56258A116 /* SkSVGClipPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGClipPath.h; sourceTree = "<group>"; };
+		8B23F1B9AFC6827A5C42E084 /* SkSVGSVG.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGSVG.cpp; sourceTree = "<group>"; };
+		8E4E508A67CAD27369DF1FFE /* SkSVGClipPath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGClipPath.cpp; sourceTree = "<group>"; };
+		92ED3FBB98DC69BE90D18544 /* SkSVGLinearGradient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGLinearGradient.h; sourceTree = "<group>"; };
+		97C7CB8DE46F9AAB85B1AAF5 /* SkSVGEllipse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGEllipse.h; sourceTree = "<group>"; };
+		988E9C15BB795990FB4F0DE8 /* SkSVGParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGParser.cpp; sourceTree = "<group>"; };
+		9D5D343E4A1DBC3BE87E4E12 /* SkSVGMetadata.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGMetadata.cpp; sourceTree = "<group>"; };
+		9D7C642E289C64E19DB2E875 /* SkSVGG.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGG.cpp; sourceTree = "<group>"; };
+		A1D8A1D218A8B2A66CB26E9D /* SkSVGDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGDevice.cpp; sourceTree = "<group>"; };
+		A2E34356DFF86292C2073569 /* SkSVGCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGCanvas.cpp; sourceTree = "<group>"; };
+		A9CF633427037D97585250C7 /* SkSVGBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGBase.h; sourceTree = "<group>"; };
+		AB4A947D97EDC370E835CECA /* libskia_svg.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_svg.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		ACC0C07C7318BBB3399766E3 /* libskia_svg_parser.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_svg_parser.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE0230EDA01A1B2D38BACBEF /* SkSVGRect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGRect.cpp; sourceTree = "<group>"; };
+		AE8FD28C5988D2624709B847 /* SkSVGSymbol.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGSymbol.cpp; sourceTree = "<group>"; };
+		AF2CE1A0811AD70D32A28493 /* SkSVGUse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGUse.cpp; sourceTree = "<group>"; };
+		B163C03759F70800B4B1D7BE /* SkSVGSVG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGSVG.h; sourceTree = "<group>"; };
+		B24DF831F46B99E204263483 /* SkSVGMask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGMask.h; sourceTree = "<group>"; };
+		C66571AB771CF0726CDFD5BB /* SkSVGPolygon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGPolygon.h; sourceTree = "<group>"; };
+		C74F5324DCD5C6F935962A47 /* SkSVGGradient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGGradient.cpp; sourceTree = "<group>"; };
+		C8DC4FB18358B0A171362219 /* SkSVGParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGParser.h; sourceTree = "<group>"; };
+		C911067A31635560F957B85B /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		CE577D10CED0D13C44CC8782 /* SkSVGImage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGImage.cpp; sourceTree = "<group>"; };
+		CEFBE477E80DC01755E5CF3F /* SkSVGPaintState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGPaintState.h; sourceTree = "<group>"; };
+		D15824F0160EF92485B3771C /* SkSVGSymbol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGSymbol.h; sourceTree = "<group>"; };
+		D70EBDE5FDEABA0495396FFD /* SkSVGLine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGLine.cpp; sourceTree = "<group>"; };
+		DB8B33DF037677B944F93E8E /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		E7BEBD8BCB9AC22DC54F2A5B /* SkSVGCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGCanvas.h; sourceTree = "<group>"; };
+		E8CDBDA86D4778C88AD10B0A /* SkSVGRect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGRect.h; sourceTree = "<group>"; };
+		EA73842F3BB85466925DF4BB /* SkSVGGroup.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGGroup.cpp; sourceTree = "<group>"; };
+		EAB7422D0914C95B3B359538 /* SkSVGMask.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGMask.cpp; sourceTree = "<group>"; };
+		F6A9494384AC331664722712 /* SkSVGFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSVGFilter.h; sourceTree = "<group>"; };
+		F7411E74F615443B0A7FBC47 /* SkSVGLinearGradient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSVGLinearGradient.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		60117C9E7137CCC0274D6DB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B73EFF4BC7C3EDC01F058901 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		06EFEB4AB0D1DB80DF42545B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AB4A947D97EDC370E835CECA /* libskia_svg.a */,
+				ACC0C07C7318BBB3399766E3 /* libskia_svg_parser.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		10812C7724138E3BBDA12504 /* parser */ = {
+			isa = PBXGroup;
+			children = (
+				2065716F2A52EE9DFD083D46 /* SkSVGAttribute.h */,
+				A9CF633427037D97585250C7 /* SkSVGBase.h */,
+				CEFBE477E80DC01755E5CF3F /* SkSVGPaintState.h */,
+				C8DC4FB18358B0A171362219 /* SkSVGParser.h */,
+				05B522B6A6CEC458180E3C75 /* SkSVGTypes.h */,
+			);
+			path = parser;
+			sourceTree = "<group>";
+		};
+		11328C7B5D8FCEE8E63D41E5 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				2A6AF96BA878F6C76C7D41F4 /* common.gypi */,
+				37CA3BF635233D7A3F5B0383 /* common_conditions.gypi */,
+				DB8B33DF037677B944F93E8E /* common_variables.gypi */,
+				C911067A31635560F957B85B /* skia_for_android_framework_defines.gypi */,
+				74F802C0122C2EF294F6ED4F /* svg.gyp */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		49A1F8C737737A3B62F7941C = {
+			isa = PBXGroup;
+			children = (
+				B3CCA993BA2F3C435D738F71 /* Source */,
+				6D275B8ECF37177193DAA629 /* Projects */,
+				06EFEB4AB0D1DB80DF42545B /* Products */,
+				11328C7B5D8FCEE8E63D41E5 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		6D275B8ECF37177193DAA629 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				20E4292D3C4C8048E0FA37B0 /* skia_lib.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		8E680FC80600999C46A890C8 /* parser */ = {
+			isa = PBXGroup;
+			children = (
+				1D26E9141638524727BB5CF3 /* SkSVGCircle.cpp */,
+				38EC8A5F0F21A045453B0081 /* SkSVGCircle.h */,
+				8E4E508A67CAD27369DF1FFE /* SkSVGClipPath.cpp */,
+				87A61A74543040B56258A116 /* SkSVGClipPath.h */,
+				492B887975D25A3644CB90BF /* SkSVGDefs.cpp */,
+				0B0A15858CAC49C041B857AB /* SkSVGDefs.h */,
+				1714184FCF47C0729EC4B095 /* SkSVGElements.cpp */,
+				0E8AAF348F0782D517126FE0 /* SkSVGElements.h */,
+				7D726708D4B420D785966577 /* SkSVGEllipse.cpp */,
+				97C7CB8DE46F9AAB85B1AAF5 /* SkSVGEllipse.h */,
+				598D71803F266D1BD260A6EB /* SkSVGFeColorMatrix.cpp */,
+				43341440C0AE0138A9DB3D84 /* SkSVGFeColorMatrix.h */,
+				7149CE2227B143A8E606C252 /* SkSVGFilter.cpp */,
+				F6A9494384AC331664722712 /* SkSVGFilter.h */,
+				9D7C642E289C64E19DB2E875 /* SkSVGG.cpp */,
+				5535D19E47D5C22866757DFE /* SkSVGG.h */,
+				C74F5324DCD5C6F935962A47 /* SkSVGGradient.cpp */,
+				12B4FFA5507473375B715493 /* SkSVGGradient.h */,
+				EA73842F3BB85466925DF4BB /* SkSVGGroup.cpp */,
+				8632A04317B8057AE7A0094F /* SkSVGGroup.h */,
+				CE577D10CED0D13C44CC8782 /* SkSVGImage.cpp */,
+				1E02667A41185D565A426115 /* SkSVGImage.h */,
+				D70EBDE5FDEABA0495396FFD /* SkSVGLine.cpp */,
+				5128BDF5A7073BDBA9CAB5BB /* SkSVGLine.h */,
+				F7411E74F615443B0A7FBC47 /* SkSVGLinearGradient.cpp */,
+				92ED3FBB98DC69BE90D18544 /* SkSVGLinearGradient.h */,
+				EAB7422D0914C95B3B359538 /* SkSVGMask.cpp */,
+				B24DF831F46B99E204263483 /* SkSVGMask.h */,
+				9D5D343E4A1DBC3BE87E4E12 /* SkSVGMetadata.cpp */,
+				2265495963487B7EA83E99B7 /* SkSVGMetadata.h */,
+				2A789C0FD4783D190C699336 /* SkSVGPaintState.cpp */,
+				988E9C15BB795990FB4F0DE8 /* SkSVGParser.cpp */,
+				1E13D80B031FE3B09119F901 /* SkSVGPath.cpp */,
+				46EDE8AF8E698A5CDB631FC8 /* SkSVGPath.h */,
+				189602ADBBE1561365719565 /* SkSVGPolygon.cpp */,
+				C66571AB771CF0726CDFD5BB /* SkSVGPolygon.h */,
+				08FD34AE2F2F60F7EAD2D503 /* SkSVGPolyline.cpp */,
+				62A1DEA96614BEAB65361A28 /* SkSVGPolyline.h */,
+				7064695E446F18E68A2C94D6 /* SkSVGRadialGradient.cpp */,
+				3BB09BC277008C0D69A264D6 /* SkSVGRadialGradient.h */,
+				AE0230EDA01A1B2D38BACBEF /* SkSVGRect.cpp */,
+				E8CDBDA86D4778C88AD10B0A /* SkSVGRect.h */,
+				8B23F1B9AFC6827A5C42E084 /* SkSVGSVG.cpp */,
+				B163C03759F70800B4B1D7BE /* SkSVGSVG.h */,
+				3C8AE9B39BB1EAED4FABAA2E /* SkSVGStop.cpp */,
+				6289FD76E317508C33EACC47 /* SkSVGStop.h */,
+				AE8FD28C5988D2624709B847 /* SkSVGSymbol.cpp */,
+				D15824F0160EF92485B3771C /* SkSVGSymbol.h */,
+				2D788C305FF96F9A96DBB895 /* SkSVGText.cpp */,
+				523F3928FC87B7A149B925C0 /* SkSVGText.h */,
+				AF2CE1A0811AD70D32A28493 /* SkSVGUse.cpp */,
+			);
+			path = parser;
+			sourceTree = "<group>";
+		};
+		A27C398127B66D887CBFDFB8 /* src/svg */ = {
+			isa = PBXGroup;
+			children = (
+				8E680FC80600999C46A890C8 /* parser */,
+				A2E34356DFF86292C2073569 /* SkSVGCanvas.cpp */,
+				A1D8A1D218A8B2A66CB26E9D /* SkSVGDevice.cpp */,
+				62B50C9E14CD9F71DC64258D /* SkSVGDevice.h */,
+			);
+			path = src/svg;
+			sourceTree = "<group>";
+		};
+		A3D83DEEAED51360EEEE9BB8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B3CCA993BA2F3C435D738F71 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				DE68C96153FD2D5DC97F748C /* include/svg */,
+				A27C398127B66D887CBFDFB8 /* src/svg */,
+			);
+			name = Source;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		DE68C96153FD2D5DC97F748C /* include/svg */ = {
+			isa = PBXGroup;
+			children = (
+				10812C7724138E3BBDA12504 /* parser */,
+				E7BEBD8BCB9AC22DC54F2A5B /* SkSVGCanvas.h */,
+			);
+			path = include/svg;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0B2E385A2EF973EA3476322D /* svg */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7BD681D36956EF0D87DFEF11 /* Build configuration list for PBXNativeTarget "svg" */;
+			buildPhases = (
+				5DFF39DC8DE359BCBFBED81D /* Sources */,
+				60117C9E7137CCC0274D6DB0 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				88AE96611021455B330CEE9F /* PBXTargetDependency */,
+			);
+			name = svg;
+			productName = skia_svg;
+			productReference = AB4A947D97EDC370E835CECA /* libskia_svg.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		BC1DC4C07664FF3F6A403622 /* svg_parser */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3063D58F667AACB8D0D0033B /* Build configuration list for PBXNativeTarget "svg_parser" */;
+			buildPhases = (
+				D38BD4BCA4C868797F1DBB9A /* Sources */,
+				B73EFF4BC7C3EDC01F058901 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				43D06CA0384A822D4DA60AD0 /* PBXTargetDependency */,
+			);
+			name = svg_parser;
+			productName = skia_svg_parser;
+			productReference = ACC0C07C7318BBB3399766E3 /* libskia_svg_parser.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2D489D63D11EDBC12BCB5AB1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = EB3DAD0508E83A9EE21D87B2 /* Build configuration list for PBXProject "svg" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = 49A1F8C737737A3B62F7941C;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = A3D83DEEAED51360EEEE9BB8 /* Products */;
+					ProjectRef = 20E4292D3C4C8048E0FA37B0 /* skia_lib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				6DBA03D032F9CE44A04293BA /* All */,
+				0B2E385A2EF973EA3476322D /* svg */,
+				BC1DC4C07664FF3F6A403622 /* svg_parser */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5DFF39DC8DE359BCBFBED81D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AA4245703B450BB352268DE /* SkSVGCanvas.cpp in Sources */,
+				8AD85AF1027E3B793058BCC9 /* SkSVGDevice.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D38BD4BCA4C868797F1DBB9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6AEEAF72504BF1AC8DC1C31 /* SkSVGCircle.cpp in Sources */,
+				5D8D4E252C2AB8EA9A737923 /* SkSVGClipPath.cpp in Sources */,
+				134DB783DBA86CC829F863BD /* SkSVGDefs.cpp in Sources */,
+				00F212F1633B45A5059D7962 /* SkSVGElements.cpp in Sources */,
+				1D971307FB5A90326AA4E8EA /* SkSVGEllipse.cpp in Sources */,
+				2FFF73FA33D01A76F11FED58 /* SkSVGFeColorMatrix.cpp in Sources */,
+				D8CCC12076587A992E907DCE /* SkSVGFilter.cpp in Sources */,
+				2729F3031ABE484520131829 /* SkSVGG.cpp in Sources */,
+				9A42F3C76753C03E9FF4265F /* SkSVGGradient.cpp in Sources */,
+				03DBA455D64643B3A53531E0 /* SkSVGGroup.cpp in Sources */,
+				749A8378D73647B836A683C3 /* SkSVGImage.cpp in Sources */,
+				F10A36C4A354E2901C7E7B46 /* SkSVGLine.cpp in Sources */,
+				76DD4E8E85275FA743399AA6 /* SkSVGLinearGradient.cpp in Sources */,
+				7BB892EDDF9844CB753DC6B8 /* SkSVGMask.cpp in Sources */,
+				08367EF5A843263A6C8281B7 /* SkSVGMetadata.cpp in Sources */,
+				85F1E4891212264452ECC8A9 /* SkSVGPaintState.cpp in Sources */,
+				34C2642E0803BAD3D6A61BBA /* SkSVGParser.cpp in Sources */,
+				FBFBC99FC86DEC74708D2C71 /* SkSVGPath.cpp in Sources */,
+				9AFCFE9C6DB43C36C09BF901 /* SkSVGPolygon.cpp in Sources */,
+				EC75E25DB69A57AEACA674B1 /* SkSVGPolyline.cpp in Sources */,
+				C39C301159E9EAE76F376B56 /* SkSVGRadialGradient.cpp in Sources */,
+				4D517E36DA6B6D0554A5F8EB /* SkSVGRect.cpp in Sources */,
+				36133ECBD91EA68F1A126983 /* SkSVGStop.cpp in Sources */,
+				945CF8B6BB0CE628EDE5F147 /* SkSVGSVG.cpp in Sources */,
+				ADB27BFB8D7565BAA3E1335A /* SkSVGSymbol.cpp in Sources */,
+				F7DDEC7D10EDA83877651B02 /* SkSVGText.cpp in Sources */,
+				A1899035D8917A1080649121 /* SkSVGUse.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		214310D87E9958A32D11532F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BC1DC4C07664FF3F6A403622 /* svg_parser */;
+			targetProxy = 4EE0B7C2BFB17605DE6BB614 /* PBXContainerItemProxy */;
+		};
+		43D06CA0384A822D4DA60AD0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia_lib;
+			targetProxy = FBB4E1ABF17DC023E7617682 /* PBXContainerItemProxy */;
+		};
+		88AE96611021455B330CEE9F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia_lib;
+			targetProxy = 551A87708621A5B72AEC7273 /* PBXContainerItemProxy */;
+		};
+		8F9FAB5FB162C74E730CD6BA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0B2E385A2EF973EA3476322D /* svg */;
+			targetProxy = 31975B93FEE969BD7174A337 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		037FF8368473817D6377D9BE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		2499FF57CE62888DC1B954AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../include/svg,
+					../src/core,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		2A3072F8B73C95A6BE335D71 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		66765BF33DD87127EF8D6A1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/svg/parser,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg_parser;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		6A1BE43D03DB657AD47A9768 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Coverage;
+		};
+		714ECA06391653547F626603 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		80C34DA3470361B86BF53FD0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../include/svg,
+					../src/core,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		93695EE1FCDFC8D16C620A52 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/svg/parser,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg_parser;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		AA9705DF6738D8D7B7DB95E7 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../include/svg,
+					../src/core,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		BFF5F1130D6669D5EC606795 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		C5096B9A783BDC1B28609D7B /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release_Developer;
+		};
+		CA3CBDD134884DE5767D8935 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../include/svg,
+					../src/core,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		E15EF0ED262780CB5B888742 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
+		E5229D2F56E67151235C4CA3 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		E9FF99F8667426E891FA9ECF /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/svg/parser,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg_parser;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		F6FE8559C04E02B61AEC2FBD /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/svg/parser,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_svg_parser;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0F8462A925C5B3FCB70D97FD /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6A1BE43D03DB657AD47A9768 /* Coverage */,
+				037FF8368473817D6377D9BE /* Debug */,
+				E15EF0ED262780CB5B888742 /* Release */,
+				C5096B9A783BDC1B28609D7B /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		3063D58F667AACB8D0D0033B /* Build configuration list for PBXNativeTarget "svg_parser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9FF99F8667426E891FA9ECF /* Coverage */,
+				93695EE1FCDFC8D16C620A52 /* Debug */,
+				66765BF33DD87127EF8D6A1A /* Release */,
+				F6FE8559C04E02B61AEC2FBD /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		7BD681D36956EF0D87DFEF11 /* Build configuration list for PBXNativeTarget "svg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA3CBDD134884DE5767D8935 /* Coverage */,
+				80C34DA3470361B86BF53FD0 /* Debug */,
+				2499FF57CE62888DC1B954AB /* Release */,
+				AA9705DF6738D8D7B7DB95E7 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		EB3DAD0508E83A9EE21D87B2 /* Build configuration list for PBXProject "svg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E5229D2F56E67151235C4CA3 /* Coverage */,
+				2A3072F8B73C95A6BE335D71 /* Debug */,
+				714ECA06391653547F626603 /* Release */,
+				BFF5F1130D6669D5EC606795 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2D489D63D11EDBC12BCB5AB1 /* Project object */;
+}

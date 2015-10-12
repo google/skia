@@ -1,0 +1,1263 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		77250EC3654E86F894D8792B /* libpng */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 0731E80EFD12F6E939A81F4F /* Build configuration list for PBXAggregateTarget "libpng" */;
+			buildPhases = (
+			);
+			dependencies = (
+				0607DCD9D172D919E3285121 /* PBXTargetDependency */,
+			);
+			name = libpng;
+			productName = libpng;
+		};
+		AF5FFF757A3574EFF5DDD663 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D23E9582D4B2A808CDF28AFF /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				D5113D155A5B21564FAA2E7B /* PBXTargetDependency */,
+				46AE622762D860298B94936C /* PBXTargetDependency */,
+				7895827E0DC3C0B324BAEF62 /* PBXTargetDependency */,
+				41428C820D9D8CE81E768B0F /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+		EDFC1F06D2B8066668558FF9 /* libpng_static_when_possible */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 685E727BC893FB44851631E3 /* Build configuration list for PBXAggregateTarget "libpng_static_when_possible" */;
+			buildPhases = (
+			);
+			dependencies = (
+				42039B22CA5736B9AF32FBE2 /* PBXTargetDependency */,
+			);
+			name = libpng_static_when_possible;
+			productName = libpng_static_when_possible;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		033DD0FDDED440B92CC3CE7E /* filter_neon.S in Sources */ = {isa = PBXBuildFile; fileRef = 45D50F3CFE94543199C4A569 /* filter_neon.S */; };
+		39CAD8E998B82D33E1BDE124 /* pngget.c in Sources */ = {isa = PBXBuildFile; fileRef = EDD6F25A04318F2EF0D50E2D /* pngget.c */; };
+		3E4F23A45A57129CF968815B /* pngpread.c in Sources */ = {isa = PBXBuildFile; fileRef = 28216EBAFF6A15D525C7EB3E /* pngpread.c */; };
+		4CB25F105A750E801CDBD863 /* pngrtran.c in Sources */ = {isa = PBXBuildFile; fileRef = 8E2E8A849943EDE2BC8276C7 /* pngrtran.c */; };
+		6609214D92D4609731FD9DCF /* pngwrite.c in Sources */ = {isa = PBXBuildFile; fileRef = 4D479C610412EFABA8E0A8FA /* pngwrite.c */; };
+		6CED8E5D90248CF4C9444B06 /* png.c in Sources */ = {isa = PBXBuildFile; fileRef = 1475E4AED2FCB1F550AA5363 /* png.c */; };
+		8E05AC27F1324865DB3226ED /* pngwtran.c in Sources */ = {isa = PBXBuildFile; fileRef = 9AEAB1A9AEC107503F583CBF /* pngwtran.c */; };
+		99E5F29FF7178564E10F048F /* filter_neon_intrinsics.c in Sources */ = {isa = PBXBuildFile; fileRef = 93C41821DDE8F29C7FBAAC77 /* filter_neon_intrinsics.c */; };
+		9DEEAE2202DC98A7BF6BA75B /* pngmem.c in Sources */ = {isa = PBXBuildFile; fileRef = E899D0BB3F176D92F9492D31 /* pngmem.c */; };
+		9FB23C55178C364B8A5C24E7 /* pngwio.c in Sources */ = {isa = PBXBuildFile; fileRef = B7FB7D92A5049492CB20B1F8 /* pngwio.c */; };
+		B4B34007F4D84FB05586C3DD /* pngrio.c in Sources */ = {isa = PBXBuildFile; fileRef = 5C3957CB9F99DFC3A5D6F3C1 /* pngrio.c */; };
+		B65AEF2C8B6C0ABFB44D2100 /* pngset.c in Sources */ = {isa = PBXBuildFile; fileRef = 19E0213A627914DA0649953F /* pngset.c */; };
+		CBACEA43DCEBD40553753464 /* pngrutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7227A4182808DFED691E4 /* pngrutil.c */; };
+		DB0783E0753060D3AA2F1D91 /* pngerror.c in Sources */ = {isa = PBXBuildFile; fileRef = 61449956E2FDE9ADE7B6EA51 /* pngerror.c */; };
+		E171E1BACEF9C37EFBC4165B /* arm_init.c in Sources */ = {isa = PBXBuildFile; fileRef = EF934119DAE3ED91BE36C8C9 /* arm_init.c */; };
+		E1D3AB65050DD108939CB5B2 /* pngread.c in Sources */ = {isa = PBXBuildFile; fileRef = EEAB6ED089B60785BB4A1D16 /* pngread.c */; };
+		E78919817143C2DC047E0C4B /* pngtrans.c in Sources */ = {isa = PBXBuildFile; fileRef = 53D423E28B2DB52A15594599 /* pngtrans.c */; };
+		EEC4033BD7FF28901B7035B2 /* pngwutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 39D7E552E1FF67AF995BAB04 /* pngwutil.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0EE56192A5D646C917E4A568 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EE1EA893C320976E179B0FC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8ED0FBBBD08C4B5967CE24C3;
+			remoteInfo = libpng_static;
+		};
+		29D09F6DD90C7BDE8AF0BC59 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 77FBA864ABB0FCB6E0D1322C /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A71B123CCCF6236C721BA89;
+			remoteInfo = zlib;
+		};
+		3D2C4E7B4250028773293203 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EE1EA893C320976E179B0FC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 77250EC3654E86F894D8792B;
+			remoteInfo = libpng;
+		};
+		522702AE2969805BDD8E139A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EE1EA893C320976E179B0FC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8ED0FBBBD08C4B5967CE24C3;
+			remoteInfo = libpng_static;
+		};
+		7B76ACB16471A3F8CC17C90C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EE1EA893C320976E179B0FC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EDFC1F06D2B8066668558FF9;
+			remoteInfo = libpng_static_when_possible;
+		};
+		81F08251FB0A99E1BBC92D49 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EE1EA893C320976E179B0FC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 38F1310736187174242F72CE;
+			remoteInfo = libpng_static_neon;
+		};
+		A7D232E159A3D2CF09B922C8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 77FBA864ABB0FCB6E0D1322C /* zlib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AB2A2848CDD879230450649F;
+			remoteInfo = zlib_x86_simd;
+		};
+		B55733F143014D989024710B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 77FBA864ABB0FCB6E0D1322C /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A71B123CCCF6236C721BA89;
+			remoteInfo = zlib;
+		};
+		E8087047FD1693DD65969F7A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EE1EA893C320976E179B0FC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8ED0FBBBD08C4B5967CE24C3;
+			remoteInfo = libpng_static;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1475E4AED2FCB1F550AA5363 /* png.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = png.c; sourceTree = "<group>"; };
+		19E0213A627914DA0649953F /* pngset.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngset.c; sourceTree = "<group>"; };
+		28216EBAFF6A15D525C7EB3E /* pngpread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngpread.c; sourceTree = "<group>"; };
+		38C93DA587B11DC336EF38CF /* libpng.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = libpng.gyp; sourceTree = "<group>"; };
+		39D7E552E1FF67AF995BAB04 /* pngwutil.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngwutil.c; sourceTree = "<group>"; };
+		45D50F3CFE94543199C4A569 /* filter_neon.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = filter_neon.S; sourceTree = "<group>"; };
+		4D479C610412EFABA8E0A8FA /* pngwrite.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngwrite.c; sourceTree = "<group>"; };
+		53D423E28B2DB52A15594599 /* pngtrans.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngtrans.c; sourceTree = "<group>"; };
+		5C3957CB9F99DFC3A5D6F3C1 /* pngrio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngrio.c; sourceTree = "<group>"; };
+		61449956E2FDE9ADE7B6EA51 /* pngerror.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngerror.c; sourceTree = "<group>"; };
+		6BF7227A4182808DFED691E4 /* pngrutil.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngrutil.c; sourceTree = "<group>"; };
+		77FBA864ABB0FCB6E0D1322C /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = ../out/gyp/zlib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		7E24AB523F90BC4302E6A553 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		83CA1A8E501B61D334CC6E7D /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		8E2E8A849943EDE2BC8276C7 /* pngrtran.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngrtran.c; sourceTree = "<group>"; };
+		93C41821DDE8F29C7FBAAC77 /* filter_neon_intrinsics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = filter_neon_intrinsics.c; sourceTree = "<group>"; };
+		95D526BA7A7A4D4C2E2E0B16 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		9AEAB1A9AEC107503F583CBF /* pngwtran.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngwtran.c; sourceTree = "<group>"; };
+		AC0D00ED9E964FE7716731B4 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		B7FB7D92A5049492CB20B1F8 /* pngwio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngwio.c; sourceTree = "<group>"; };
+		E39C49F89C198F5DCCBEC9D6 /* libpng_static_neon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpng_static_neon.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E899D0BB3F176D92F9492D31 /* pngmem.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngmem.c; sourceTree = "<group>"; };
+		EDD6F25A04318F2EF0D50E2D /* pngget.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngget.c; sourceTree = "<group>"; };
+		EEAB6ED089B60785BB4A1D16 /* pngread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pngread.c; sourceTree = "<group>"; };
+		EF934119DAE3ED91BE36C8C9 /* arm_init.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = arm_init.c; sourceTree = "<group>"; };
+		F7809684C4703FEA247919D7 /* libpng_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpng_static.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		61D297EADF5666BF32EF33DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		902C7531770380258BEA0C81 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00085AE2AB4A75CA3C5D6C05 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F7809684C4703FEA247919D7 /* libpng_static.a */,
+				E39C49F89C198F5DCCBEC9D6 /* libpng_static_neon.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0F912EDE792DE153213BA9F6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				147834ADAD72737D9F8432E6 /* libzlib_x86_simd.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		17764EB7C507299B5D7B3D44 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				77FBA864ABB0FCB6E0D1322C /* zlib.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		4AAFD044FD2442290A078E20 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				B656C3DFE307518BF95F1463 /* arm */,
+				1475E4AED2FCB1F550AA5363 /* png.c */,
+				61449956E2FDE9ADE7B6EA51 /* pngerror.c */,
+				EDD6F25A04318F2EF0D50E2D /* pngget.c */,
+				E899D0BB3F176D92F9492D31 /* pngmem.c */,
+				28216EBAFF6A15D525C7EB3E /* pngpread.c */,
+				EEAB6ED089B60785BB4A1D16 /* pngread.c */,
+				5C3957CB9F99DFC3A5D6F3C1 /* pngrio.c */,
+				8E2E8A849943EDE2BC8276C7 /* pngrtran.c */,
+				6BF7227A4182808DFED691E4 /* pngrutil.c */,
+				19E0213A627914DA0649953F /* pngset.c */,
+				53D423E28B2DB52A15594599 /* pngtrans.c */,
+				B7FB7D92A5049492CB20B1F8 /* pngwio.c */,
+				4D479C610412EFABA8E0A8FA /* pngwrite.c */,
+				9AEAB1A9AEC107503F583CBF /* pngwtran.c */,
+				39D7E552E1FF67AF995BAB04 /* pngwutil.c */,
+			);
+			name = Source;
+			path = ../third_party/externals/libpng;
+			sourceTree = "<group>";
+		};
+		85780A0C5505BC9FA47640C5 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				83CA1A8E501B61D334CC6E7D /* common.gypi */,
+				7E24AB523F90BC4302E6A553 /* common_conditions.gypi */,
+				AC0D00ED9E964FE7716731B4 /* common_variables.gypi */,
+				38C93DA587B11DC336EF38CF /* libpng.gyp */,
+				95D526BA7A7A4D4C2E2E0B16 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		B656C3DFE307518BF95F1463 /* arm */ = {
+			isa = PBXGroup;
+			children = (
+				EF934119DAE3ED91BE36C8C9 /* arm_init.c */,
+				45D50F3CFE94543199C4A569 /* filter_neon.S */,
+				93C41821DDE8F29C7FBAAC77 /* filter_neon_intrinsics.c */,
+			);
+			path = arm;
+			sourceTree = "<group>";
+		};
+		D971C89D6F924FD4FA11FCEA = {
+			isa = PBXGroup;
+			children = (
+				4AAFD044FD2442290A078E20 /* Source */,
+				17764EB7C507299B5D7B3D44 /* Projects */,
+				00085AE2AB4A75CA3C5D6C05 /* Products */,
+				85780A0C5505BC9FA47640C5 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		38F1310736187174242F72CE /* libpng_static_neon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A353150B206B4BDFF9A7A2F /* Build configuration list for PBXNativeTarget "libpng_static_neon" */;
+			buildPhases = (
+				6F8D5841F4AF5188714888E9 /* Sources */,
+				902C7531770380258BEA0C81 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				960BEB7848F73CF360C44DB8 /* PBXTargetDependency */,
+			);
+			name = libpng_static_neon;
+			productName = png_static_neon;
+			productReference = E39C49F89C198F5DCCBEC9D6 /* libpng_static_neon.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		8ED0FBBBD08C4B5967CE24C3 /* libpng_static */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D1F92A5A6A92E2CD3F1A0D3F /* Build configuration list for PBXNativeTarget "libpng_static" */;
+			buildPhases = (
+				C51A293A670406F2F0E84F4C /* Sources */,
+				61D297EADF5666BF32EF33DA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8B136EFD9943A23F659086E8 /* PBXTargetDependency */,
+			);
+			name = libpng_static;
+			productName = png_static;
+			productReference = F7809684C4703FEA247919D7 /* libpng_static.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EE1EA893C320976E179B0FC9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 0B5A92A1164BF4A488741493 /* Build configuration list for PBXProject "libpng" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = D971C89D6F924FD4FA11FCEA;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = 0F912EDE792DE153213BA9F6 /* Products */;
+					ProjectRef = 77FBA864ABB0FCB6E0D1322C /* zlib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				AF5FFF757A3574EFF5DDD663 /* All */,
+				77250EC3654E86F894D8792B /* libpng */,
+				EDFC1F06D2B8066668558FF9 /* libpng_static_when_possible */,
+				8ED0FBBBD08C4B5967CE24C3 /* libpng_static */,
+				38F1310736187174242F72CE /* libpng_static_neon */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		147834ADAD72737D9F8432E6 /* libzlib_x86_simd.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libzlib_x86_simd.a;
+			remoteRef = A7D232E159A3D2CF09B922C8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6F8D5841F4AF5188714888E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E171E1BACEF9C37EFBC4165B /* arm_init.c in Sources */,
+				033DD0FDDED440B92CC3CE7E /* filter_neon.S in Sources */,
+				99E5F29FF7178564E10F048F /* filter_neon_intrinsics.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C51A293A670406F2F0E84F4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CED8E5D90248CF4C9444B06 /* png.c in Sources */,
+				DB0783E0753060D3AA2F1D91 /* pngerror.c in Sources */,
+				39CAD8E998B82D33E1BDE124 /* pngget.c in Sources */,
+				9DEEAE2202DC98A7BF6BA75B /* pngmem.c in Sources */,
+				3E4F23A45A57129CF968815B /* pngpread.c in Sources */,
+				E1D3AB65050DD108939CB5B2 /* pngread.c in Sources */,
+				B4B34007F4D84FB05586C3DD /* pngrio.c in Sources */,
+				4CB25F105A750E801CDBD863 /* pngrtran.c in Sources */,
+				CBACEA43DCEBD40553753464 /* pngrutil.c in Sources */,
+				B65AEF2C8B6C0ABFB44D2100 /* pngset.c in Sources */,
+				E78919817143C2DC047E0C4B /* pngtrans.c in Sources */,
+				9FB23C55178C364B8A5C24E7 /* pngwio.c in Sources */,
+				6609214D92D4609731FD9DCF /* pngwrite.c in Sources */,
+				8E05AC27F1324865DB3226ED /* pngwtran.c in Sources */,
+				EEC4033BD7FF28901B7035B2 /* pngwutil.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0607DCD9D172D919E3285121 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8ED0FBBBD08C4B5967CE24C3 /* libpng_static */;
+			targetProxy = E8087047FD1693DD65969F7A /* PBXContainerItemProxy */;
+		};
+		41428C820D9D8CE81E768B0F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 38F1310736187174242F72CE /* libpng_static_neon */;
+			targetProxy = 81F08251FB0A99E1BBC92D49 /* PBXContainerItemProxy */;
+		};
+		42039B22CA5736B9AF32FBE2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8ED0FBBBD08C4B5967CE24C3 /* libpng_static */;
+			targetProxy = 0EE56192A5D646C917E4A568 /* PBXContainerItemProxy */;
+		};
+		46AE622762D860298B94936C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EDFC1F06D2B8066668558FF9 /* libpng_static_when_possible */;
+			targetProxy = 7B76ACB16471A3F8CC17C90C /* PBXContainerItemProxy */;
+		};
+		7895827E0DC3C0B324BAEF62 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8ED0FBBBD08C4B5967CE24C3 /* libpng_static */;
+			targetProxy = 522702AE2969805BDD8E139A /* PBXContainerItemProxy */;
+		};
+		8B136EFD9943A23F659086E8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = B55733F143014D989024710B /* PBXContainerItemProxy */;
+		};
+		960BEB7848F73CF360C44DB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = 29D09F6DD90C7BDE8AF0BC59 /* PBXContainerItemProxy */;
+		};
+		D5113D155A5B21564FAA2E7B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 77250EC3654E86F894D8792B /* libpng */;
+			targetProxy = 3D2C4E7B4250028773293203 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0599F0AB4265BD5BFD5E106D /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng_static_when_possible;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		06368DCEFF8FCEEA4B4F788C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		0BC47189AE8C5524B3F671CA /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		0F3AAA566238EA831E78D8CE /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		1925221912FC63412C8448C7 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release_Developer;
+		};
+		1CFC833B563E90792ABA2654 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		1DB23FFE4390F0255B79C4C8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng_static_when_possible;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		1E562598AC206FCEDB18FEF2 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		21BB12A087BF038245EF9E62 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		221A4CD51306BF01E900C908 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		3C4AE65F0B533E67B1FF9053 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		416ECF3C3C365D3F18C75E1D /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		6E01AEE0F92CDBE8F0EBB165 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		7BC0A9E6DA0620BA1A102B20 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng_static_when_possible;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		82B9CDADFA79BFEE67605A10 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		88E865B41609A3193040CBB5 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		9C8E5FCCDB3016947FCACA4A /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		9CA31177090F64882F03A3FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		BCD974D0CBDBFC7753917815 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		C34800C05E8C4A13CEA8D909 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					SKIA_PNG_PREFIXED,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libpng,
+					../third_party/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libpng_static_when_possible;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		DB6F2E0F014F3B6847C74901 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
+		EE6632AECA61278AA7638E2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/libpng,
+					../third_party/externals/libpng,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = png_static;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		F36F1CF6916632071E92E195 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		F75FE7F0121782C5ABDCEA47 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Coverage;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0731E80EFD12F6E939A81F4F /* Build configuration list for PBXAggregateTarget "libpng" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0BC47189AE8C5524B3F671CA /* Coverage */,
+				06368DCEFF8FCEEA4B4F788C /* Debug */,
+				3C4AE65F0B533E67B1FF9053 /* Release */,
+				88E865B41609A3193040CBB5 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		0B5A92A1164BF4A488741493 /* Build configuration list for PBXProject "libpng" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9C8E5FCCDB3016947FCACA4A /* Coverage */,
+				1CFC833B563E90792ABA2654 /* Debug */,
+				F36F1CF6916632071E92E195 /* Release */,
+				1E562598AC206FCEDB18FEF2 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		2A353150B206B4BDFF9A7A2F /* Build configuration list for PBXNativeTarget "libpng_static_neon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0F3AAA566238EA831E78D8CE /* Coverage */,
+				82B9CDADFA79BFEE67605A10 /* Debug */,
+				6E01AEE0F92CDBE8F0EBB165 /* Release */,
+				416ECF3C3C365D3F18C75E1D /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		685E727BC893FB44851631E3 /* Build configuration list for PBXAggregateTarget "libpng_static_when_possible" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C34800C05E8C4A13CEA8D909 /* Coverage */,
+				1DB23FFE4390F0255B79C4C8 /* Debug */,
+				7BC0A9E6DA0620BA1A102B20 /* Release */,
+				0599F0AB4265BD5BFD5E106D /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		D1F92A5A6A92E2CD3F1A0D3F /* Build configuration list for PBXNativeTarget "libpng_static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21BB12A087BF038245EF9E62 /* Coverage */,
+				EE6632AECA61278AA7638E2A /* Debug */,
+				9CA31177090F64882F03A3FB /* Release */,
+				BCD974D0CBDBFC7753917815 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		D23E9582D4B2A808CDF28AFF /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F75FE7F0121782C5ABDCEA47 /* Coverage */,
+				221A4CD51306BF01E900C908 /* Debug */,
+				DB6F2E0F014F3B6847C74901 /* Release */,
+				1925221912FC63412C8448C7 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EE1EA893C320976E179B0FC9 /* Project object */;
+}

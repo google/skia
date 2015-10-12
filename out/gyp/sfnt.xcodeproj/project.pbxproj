@@ -1,0 +1,461 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		75BE7FCFE765673C04248DF4 /* SkOTTable_name.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087E21D5F7E46082BCB9D59 /* SkOTTable_name.cpp */; };
+		B7830B2CA2F67D4DEED11D0E /* SkOTUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0B9D67C3265CDEE60F3BF1F /* SkOTUtils.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		00381940D34A9AA0AE8BDF2A /* SkOTTable_maxp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_maxp.h; sourceTree = "<group>"; };
+		02BDDA3482F35C500DF7B0D4 /* SkOTTable_OS_2_V2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_OS_2_V2.h; sourceTree = "<group>"; };
+		0536368964DD7AD8CBDFA089 /* SkSFNTHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSFNTHeader.h; sourceTree = "<group>"; };
+		0C55D63FAD74922D2741E7B7 /* SkOTTable_OS_2_V3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_OS_2_V3.h; sourceTree = "<group>"; };
+		1E64C131213F79FDA5B6C71A /* SkOTTable_maxp_CFF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_maxp_CFF.h; sourceTree = "<group>"; };
+		2CAAE8F35E7A4821F1CF9557 /* SkOTTable_OS_2_V1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_OS_2_V1.h; sourceTree = "<group>"; };
+		391DB833E73D0615FDCE6A99 /* SkOTTableTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTableTypes.h; sourceTree = "<group>"; };
+		3BF1D7EAC16E0599EC448E7F /* sfnt.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = sfnt.gyp; sourceTree = "<group>"; };
+		44839178DF32F180A06C6033 /* SkOTTable_glyf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_glyf.h; sourceTree = "<group>"; };
+		559809DE3EC572CA9A6B401D /* SkTypedEnum.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTypedEnum.h; sourceTree = "<group>"; };
+		603B0D8199DBB579D4FE731B /* SkOTTable_hhea.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_hhea.h; sourceTree = "<group>"; };
+		776E55FADCA0DB9FCCBC66A0 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		780B6C4D2030E43A55B0B40B /* SkOTTable_gasp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_gasp.h; sourceTree = "<group>"; };
+		7A38503FA9DE6C5A1D500580 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		7F0AAFFA7CB19253F030947D /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		86513E88DD5247137BE7AC68 /* SkOTTable_post.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_post.h; sourceTree = "<group>"; };
+		89A406BD619AC8568BCACAB2 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		8CCBDF0CC9521ADAD7E81485 /* SkOTTable_EBSC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_EBSC.h; sourceTree = "<group>"; };
+		92F17E2593027B5AA41147BD /* SkTTCFHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTTCFHeader.h; sourceTree = "<group>"; };
+		967FD6F756BE36A47081C5F6 /* SkOTTable_maxp_TT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_maxp_TT.h; sourceTree = "<group>"; };
+		9D5C07682BB46D8E81FEE819 /* SkOTTable_loca.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_loca.h; sourceTree = "<group>"; };
+		9D7E8B28EB996DB7D040F2B8 /* SkOTTable_OS_2_V0.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_OS_2_V0.h; sourceTree = "<group>"; };
+		A00C08AD2E81FE7D7B668852 /* SkOTTable_head.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_head.h; sourceTree = "<group>"; };
+		AAB0516CB8202716AA8CBED5 /* SkIBMFamilyClass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkIBMFamilyClass.h; sourceTree = "<group>"; };
+		B087E21D5F7E46082BCB9D59 /* SkOTTable_name.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOTTable_name.cpp; sourceTree = "<group>"; };
+		B9B192D874C0DAEB3356CB21 /* libskia_sfnt.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_sfnt.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB78CDB1F7C01FDBED811B90 /* SkOTTable_name.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_name.h; sourceTree = "<group>"; };
+		CCF6CDB71DCC4EF28675B372 /* SkOTTable_EBDT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_EBDT.h; sourceTree = "<group>"; };
+		CF9A27D26188C6E1BC7B9EC9 /* SkPanose.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPanose.h; sourceTree = "<group>"; };
+		D8984FF9FDD01C8DEAEA5456 /* SkOTUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTUtils.h; sourceTree = "<group>"; };
+		DEB642E1FBECF934AAF0EA74 /* SkOTTable_OS_2_V4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_OS_2_V4.h; sourceTree = "<group>"; };
+		E181112EA558D5F62E996205 /* SkOTTable_OS_2_VA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_OS_2_VA.h; sourceTree = "<group>"; };
+		E579A79FB4D77809AC7A8252 /* SkOTTable_OS_2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_OS_2.h; sourceTree = "<group>"; };
+		EB85E4A9B4D4D7E1D8263CFE /* SkPreprocessorSeq.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPreprocessorSeq.h; sourceTree = "<group>"; };
+		F0B9D67C3265CDEE60F3BF1F /* SkOTUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOTUtils.cpp; sourceTree = "<group>"; };
+		F0DFF59D45B1D4B5FD997C17 /* SkOTTable_EBLC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOTTable_EBLC.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		26A3FEB907CCB39E7861ACCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		24E582D05E85D8E9D0DF387F /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				7F0AAFFA7CB19253F030947D /* common.gypi */,
+				89A406BD619AC8568BCACAB2 /* common_conditions.gypi */,
+				7A38503FA9DE6C5A1D500580 /* common_variables.gypi */,
+				3BF1D7EAC16E0599EC448E7F /* sfnt.gyp */,
+				776E55FADCA0DB9FCCBC66A0 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		386B4C9EED6DC95705902D63 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B9B192D874C0DAEB3356CB21 /* libskia_sfnt.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A50F3A6A46334318CA9FC013 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				AAB0516CB8202716AA8CBED5 /* SkIBMFamilyClass.h */,
+				391DB833E73D0615FDCE6A99 /* SkOTTableTypes.h */,
+				CCF6CDB71DCC4EF28675B372 /* SkOTTable_EBDT.h */,
+				F0DFF59D45B1D4B5FD997C17 /* SkOTTable_EBLC.h */,
+				8CCBDF0CC9521ADAD7E81485 /* SkOTTable_EBSC.h */,
+				E579A79FB4D77809AC7A8252 /* SkOTTable_OS_2.h */,
+				9D7E8B28EB996DB7D040F2B8 /* SkOTTable_OS_2_V0.h */,
+				2CAAE8F35E7A4821F1CF9557 /* SkOTTable_OS_2_V1.h */,
+				02BDDA3482F35C500DF7B0D4 /* SkOTTable_OS_2_V2.h */,
+				0C55D63FAD74922D2741E7B7 /* SkOTTable_OS_2_V3.h */,
+				DEB642E1FBECF934AAF0EA74 /* SkOTTable_OS_2_V4.h */,
+				E181112EA558D5F62E996205 /* SkOTTable_OS_2_VA.h */,
+				780B6C4D2030E43A55B0B40B /* SkOTTable_gasp.h */,
+				44839178DF32F180A06C6033 /* SkOTTable_glyf.h */,
+				A00C08AD2E81FE7D7B668852 /* SkOTTable_head.h */,
+				603B0D8199DBB579D4FE731B /* SkOTTable_hhea.h */,
+				9D5C07682BB46D8E81FEE819 /* SkOTTable_loca.h */,
+				00381940D34A9AA0AE8BDF2A /* SkOTTable_maxp.h */,
+				1E64C131213F79FDA5B6C71A /* SkOTTable_maxp_CFF.h */,
+				967FD6F756BE36A47081C5F6 /* SkOTTable_maxp_TT.h */,
+				B087E21D5F7E46082BCB9D59 /* SkOTTable_name.cpp */,
+				CB78CDB1F7C01FDBED811B90 /* SkOTTable_name.h */,
+				86513E88DD5247137BE7AC68 /* SkOTTable_post.h */,
+				F0B9D67C3265CDEE60F3BF1F /* SkOTUtils.cpp */,
+				D8984FF9FDD01C8DEAEA5456 /* SkOTUtils.h */,
+				CF9A27D26188C6E1BC7B9EC9 /* SkPanose.h */,
+				EB85E4A9B4D4D7E1D8263CFE /* SkPreprocessorSeq.h */,
+				0536368964DD7AD8CBDFA089 /* SkSFNTHeader.h */,
+				92F17E2593027B5AA41147BD /* SkTTCFHeader.h */,
+				559809DE3EC572CA9A6B401D /* SkTypedEnum.h */,
+			);
+			name = Source;
+			path = ../src/sfnt;
+			sourceTree = "<group>";
+		};
+		F6B62D6CECFB7DE29F10C8B7 = {
+			isa = PBXGroup;
+			children = (
+				A50F3A6A46334318CA9FC013 /* Source */,
+				386B4C9EED6DC95705902D63 /* Products */,
+				24E582D05E85D8E9D0DF387F /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		57EFBE15E8815D5865F6D5C7 /* sfnt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 91F6DE90B702F25CCB493F67 /* Build configuration list for PBXNativeTarget "sfnt" */;
+			buildPhases = (
+				5211CC18C4BAB1E7E586397D /* Sources */,
+				26A3FEB907CCB39E7861ACCD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = sfnt;
+			productName = skia_sfnt;
+			productReference = B9B192D874C0DAEB3356CB21 /* libskia_sfnt.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C4B2B7FD93531C0427DD3581 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 62799055B154BD5F3E4D106F /* Build configuration list for PBXProject "sfnt" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = F6B62D6CECFB7DE29F10C8B7;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				57EFBE15E8815D5865F6D5C7 /* sfnt */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5211CC18C4BAB1E7E586397D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75BE7FCFE765673C04248DF4 /* SkOTTable_name.cpp in Sources */,
+				B7830B2CA2F67D4DEED11D0E /* SkOTUtils.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		226F953C1EFF02C432AD284B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		2888F5FA9AADD3D82879CDF6 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		4943FBB90318DA0111E553E9 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/sfnt,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_sfnt;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		733C9BB35E3792A6536D3CA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		A42E0A31D199FB0247A57AB3 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/sfnt,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_sfnt;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		E0376D38FB7459A5F455EDCF /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		E0B1AC79312981B56CC83DEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/sfnt,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_sfnt;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		EA2BD81A49924294ABC02B13 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/sfnt,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_sfnt;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		62799055B154BD5F3E4D106F /* Build configuration list for PBXProject "sfnt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2888F5FA9AADD3D82879CDF6 /* Coverage */,
+				733C9BB35E3792A6536D3CA3 /* Debug */,
+				226F953C1EFF02C432AD284B /* Release */,
+				E0376D38FB7459A5F455EDCF /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		91F6DE90B702F25CCB493F67 /* Build configuration list for PBXNativeTarget "sfnt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A42E0A31D199FB0247A57AB3 /* Coverage */,
+				E0B1AC79312981B56CC83DEF /* Debug */,
+				EA2BD81A49924294ABC02B13 /* Release */,
+				4943FBB90318DA0111E553E9 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C4B2B7FD93531C0427DD3581 /* Project object */;
+}

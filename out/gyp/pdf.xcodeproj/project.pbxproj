@@ -1,0 +1,1012 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		533BB45F3EB618A2A92F5189 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 908310A74AB03D1DE3717770 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				6CEF4843814ACA55A510A14D /* PBXTargetDependency */,
+				0A525A90B3BC8DC61FB89866 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		022D2351D18A8DEF39F9B932 /* SkDeflate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CAFEDFFA2163965AE1284485 /* SkDeflate.cpp */; };
+		03BF06FEFC44E140B3F1674E /* SkPDFUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27DDA8EF533273360BE11BE5 /* SkPDFUtils.cpp */; };
+		2B647F84CB5F8183DD2C191E /* SkPDFResourceDict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB1A4BC306006FAFFE4C0415 /* SkPDFResourceDict.cpp */; };
+		3C4F3A89C257821DB58C0E29 /* SkPDFFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F103990B8B89934E5B3BA86 /* SkPDFFont.cpp */; };
+		40E4F23DE85D01A21822D8B5 /* SkPDFTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4339F14F3EEF779CADA2278C /* SkPDFTypes.cpp */; };
+		4D099912336F6CD653979DA8 /* SkPDFShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADFE6883FC9D29B104AF20E0 /* SkPDFShader.cpp */; };
+		5038DB79A877AA3B1A71C782 /* SkPDFDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52AC68FD50B97F168DE82022 /* SkPDFDevice.cpp */; };
+		52B9B7238CE3CCC20461F0D6 /* SkJpegInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5DEFE251B1A50434CF77F835 /* SkJpegInfo.cpp */; };
+		5E724A17FA5EBE1F6CB3B78C /* SkDocument_PDF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDAF90CC19973BA7F0E4DFA2 /* SkDocument_PDF.cpp */; };
+		6278DC4BA31ED2DB5CD173A9 /* SkPDFBitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FB00A9CACB06544D5BD717A /* SkPDFBitmap.cpp */; };
+		6709113C3BC0573F91C1F45E /* SkDocument_PDF_None.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20ADFBF7233CC43B308D8252 /* SkDocument_PDF_None.cpp */; };
+		7847D8D853361C36087D5761 /* SkPDFFormXObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79C4373EC62076269CE89F46 /* SkPDFFormXObject.cpp */; };
+		A3E9B59754A4139EED09BD93 /* SkPDFStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3C904ADE87340EF7A3E456A /* SkPDFStream.cpp */; };
+		B9D6084F7D74291023760AB6 /* SkPDFGraphicState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 218982D863A17E4407BB7434 /* SkPDFGraphicState.cpp */; };
+		C93B974E683E6FD85739C803 /* SkPDFCanon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27F770A88042F56C84E7DB1 /* SkPDFCanon.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4B5FCB98B604B9BC71B3A9BA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A379210F80D48A7E2A5D6E3 /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A71B123CCCF6236C721BA89;
+			remoteInfo = zlib;
+		};
+		5A78A0ECB22C087B8963C031 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D1192545FC4F395941439F58 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C37161A72930D0F121229C3F;
+			remoteInfo = pdf;
+		};
+		5C3D1183D05298E6881A5841 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A3BED854BEB8CED4B1EE660D /* skia_lib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FAACAD0576FEAB6DC6993FBC;
+			remoteInfo = skia_lib;
+		};
+		60FAE7449E0A03FB445BC98E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A3BED854BEB8CED4B1EE660D /* skia_lib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FAACAD0576FEAB6DC6993FBC;
+			remoteInfo = skia_lib;
+		};
+		61C97B57AB8EE204EA8C2D6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A379210F80D48A7E2A5D6E3 /* zlib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AB2A2848CDD879230450649F;
+			remoteInfo = zlib_x86_simd;
+		};
+		BEF8025AC63B809FF652FEEE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D1192545FC4F395941439F58 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 401A7B534B454AC8A3D44B3D;
+			remoteInfo = nopdf;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0DC15EA4ADE06EC812B0409E /* libskia_pdf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_pdf.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1660EA2B518BABB1329E17DF /* SkPDFFormXObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFFormXObject.h; sourceTree = "<group>"; };
+		20ADFBF7233CC43B308D8252 /* SkDocument_PDF_None.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDocument_PDF_None.cpp; sourceTree = "<group>"; };
+		218982D863A17E4407BB7434 /* SkPDFGraphicState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFGraphicState.cpp; sourceTree = "<group>"; };
+		2776489D89C82AD7BFFDA4EA /* pdf.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = pdf.gypi; sourceTree = "<group>"; };
+		27DDA8EF533273360BE11BE5 /* SkPDFUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFUtils.cpp; sourceTree = "<group>"; };
+		2A379210F80D48A7E2A5D6E3 /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = ../out/gyp/zlib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		3A02C541C05E5EC75F04F50A /* SkPDFBitmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFBitmap.h; sourceTree = "<group>"; };
+		3F103990B8B89934E5B3BA86 /* SkPDFFont.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFFont.cpp; sourceTree = "<group>"; };
+		4339F14F3EEF779CADA2278C /* SkPDFTypes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFTypes.cpp; sourceTree = "<group>"; };
+		4540A0C4F1B62BE95960DF79 /* SkDeflate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDeflate.h; sourceTree = "<group>"; };
+		52AC68FD50B97F168DE82022 /* SkPDFDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFDevice.cpp; sourceTree = "<group>"; };
+		56AD5EC98E259AD6D2849585 /* pdf.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = pdf.gyp; sourceTree = "<group>"; };
+		5CA9587639A85E307333E84A /* pdf.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = pdf.gypi; sourceTree = "<group>"; };
+		5DEFE251B1A50434CF77F835 /* SkJpegInfo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkJpegInfo.cpp; sourceTree = "<group>"; };
+		5FB00A9CACB06544D5BD717A /* SkPDFBitmap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFBitmap.cpp; sourceTree = "<group>"; };
+		61C63416B70FE727B14AD83E /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		7584B7E31FB6EAF79D77BB4D /* SkPDFResourceDict.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFResourceDict.h; sourceTree = "<group>"; };
+		774E3F3B9E9DF4C60262CC10 /* SkPDFShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFShader.h; sourceTree = "<group>"; };
+		79C4373EC62076269CE89F46 /* SkPDFFormXObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFFormXObject.cpp; sourceTree = "<group>"; };
+		929452BCB7CCAAD11CC1835D /* libnopdf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnopdf.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9403C1B62D02CF0CDA3FD2D5 /* SkPDFCanon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFCanon.h; sourceTree = "<group>"; };
+		A0D2ED09A0A178F760087EFE /* SkPDFGraphicState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFGraphicState.h; sourceTree = "<group>"; };
+		A3BED854BEB8CED4B1EE660D /* skia_lib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia_lib.xcodeproj; path = ../out/gyp/skia_lib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		ADFE6883FC9D29B104AF20E0 /* SkPDFShader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFShader.cpp; sourceTree = "<group>"; };
+		B7981D167B055430B28FA65D /* SkPDFFontImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFFontImpl.h; sourceTree = "<group>"; };
+		BB1A4BC306006FAFFE4C0415 /* SkPDFResourceDict.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFResourceDict.cpp; sourceTree = "<group>"; };
+		C92586B312582969CC02D38F /* SkJpegInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkJpegInfo.h; sourceTree = "<group>"; };
+		CAFEDFFA2163965AE1284485 /* SkDeflate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDeflate.cpp; sourceTree = "<group>"; };
+		CB7A1ED93F0B9F7FC183725D /* SkPDFStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFStream.h; sourceTree = "<group>"; };
+		D18B4E1CA3BC2C4BC4118AE9 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		D36440E531D5C9B2B024310F /* SkPDFDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFDevice.h; sourceTree = "<group>"; };
+		DCC1E585039D4AFB894D27D2 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		ED39EBF87A99AF71228A70F1 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		EDAF90CC19973BA7F0E4DFA2 /* SkDocument_PDF.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDocument_PDF.cpp; sourceTree = "<group>"; };
+		EF2FDC9777FF2BDBA58CD8B2 /* SkPDFTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFTypes.h; sourceTree = "<group>"; };
+		F0E16CA71EA6D24231F18872 /* SkPDFFont.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFFont.h; sourceTree = "<group>"; };
+		F27F770A88042F56C84E7DB1 /* SkPDFCanon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFCanon.cpp; sourceTree = "<group>"; };
+		F3C904ADE87340EF7A3E456A /* SkPDFStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPDFStream.cpp; sourceTree = "<group>"; };
+		F6F7B542DB76773924441F84 /* SkPDFUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPDFUtils.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1E11B7B8C8ECF6165F8E75DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D1D44D794ED25209C7F0918 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6D146453E0A45B4DD01166C5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				929452BCB7CCAAD11CC1835D /* libnopdf.a */,
+				0DC15EA4ADE06EC812B0409E /* libskia_pdf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6EF6993FE849B7D43435F2CD /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				DCC1E585039D4AFB894D27D2 /* common.gypi */,
+				61C63416B70FE727B14AD83E /* common_conditions.gypi */,
+				D18B4E1CA3BC2C4BC4118AE9 /* common_variables.gypi */,
+				56AD5EC98E259AD6D2849585 /* pdf.gyp */,
+				2776489D89C82AD7BFFDA4EA /* pdf.gypi */,
+				ED39EBF87A99AF71228A70F1 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		9DBBADAAFFFA34768711136E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B7ABCE95BD00484CD9621676 /* libzlib_x86_simd.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA73D4D2CABC422197C7B6BE = {
+			isa = PBXGroup;
+			children = (
+				DDFDAC36B35BD5D04A7F3E70 /* Source */,
+				FEC4D46DCE893924243517F7 /* Projects */,
+				6D146453E0A45B4DD01166C5 /* Products */,
+				6EF6993FE849B7D43435F2CD /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		AC6FCEB32BFADBDCD8B90288 /* ../src */ = {
+			isa = PBXGroup;
+			children = (
+				AE5BEA22E6F841427B017B88 /* doc */,
+				CA615B397055D64F58D9C21D /* pdf */,
+			);
+			path = ../src;
+			sourceTree = "<group>";
+		};
+		AE5BEA22E6F841427B017B88 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				EDAF90CC19973BA7F0E4DFA2 /* SkDocument_PDF.cpp */,
+				20ADFBF7233CC43B308D8252 /* SkDocument_PDF_None.cpp */,
+			);
+			path = doc;
+			sourceTree = "<group>";
+		};
+		CA615B397055D64F58D9C21D /* pdf */ = {
+			isa = PBXGroup;
+			children = (
+				CAFEDFFA2163965AE1284485 /* SkDeflate.cpp */,
+				4540A0C4F1B62BE95960DF79 /* SkDeflate.h */,
+				5DEFE251B1A50434CF77F835 /* SkJpegInfo.cpp */,
+				C92586B312582969CC02D38F /* SkJpegInfo.h */,
+				5FB00A9CACB06544D5BD717A /* SkPDFBitmap.cpp */,
+				3A02C541C05E5EC75F04F50A /* SkPDFBitmap.h */,
+				F27F770A88042F56C84E7DB1 /* SkPDFCanon.cpp */,
+				9403C1B62D02CF0CDA3FD2D5 /* SkPDFCanon.h */,
+				52AC68FD50B97F168DE82022 /* SkPDFDevice.cpp */,
+				D36440E531D5C9B2B024310F /* SkPDFDevice.h */,
+				3F103990B8B89934E5B3BA86 /* SkPDFFont.cpp */,
+				F0E16CA71EA6D24231F18872 /* SkPDFFont.h */,
+				B7981D167B055430B28FA65D /* SkPDFFontImpl.h */,
+				79C4373EC62076269CE89F46 /* SkPDFFormXObject.cpp */,
+				1660EA2B518BABB1329E17DF /* SkPDFFormXObject.h */,
+				218982D863A17E4407BB7434 /* SkPDFGraphicState.cpp */,
+				A0D2ED09A0A178F760087EFE /* SkPDFGraphicState.h */,
+				BB1A4BC306006FAFFE4C0415 /* SkPDFResourceDict.cpp */,
+				7584B7E31FB6EAF79D77BB4D /* SkPDFResourceDict.h */,
+				ADFE6883FC9D29B104AF20E0 /* SkPDFShader.cpp */,
+				774E3F3B9E9DF4C60262CC10 /* SkPDFShader.h */,
+				F3C904ADE87340EF7A3E456A /* SkPDFStream.cpp */,
+				CB7A1ED93F0B9F7FC183725D /* SkPDFStream.h */,
+				4339F14F3EEF779CADA2278C /* SkPDFTypes.cpp */,
+				EF2FDC9777FF2BDBA58CD8B2 /* SkPDFTypes.h */,
+				27DDA8EF533273360BE11BE5 /* SkPDFUtils.cpp */,
+				F6F7B542DB76773924441F84 /* SkPDFUtils.h */,
+			);
+			path = pdf;
+			sourceTree = "<group>";
+		};
+		DDFDAC36B35BD5D04A7F3E70 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				AC6FCEB32BFADBDCD8B90288 /* ../src */,
+				5CA9587639A85E307333E84A /* pdf.gypi */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		EABBC3982B000C566CF3B284 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FEC4D46DCE893924243517F7 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				A3BED854BEB8CED4B1EE660D /* skia_lib.xcodeproj */,
+				2A379210F80D48A7E2A5D6E3 /* zlib.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		401A7B534B454AC8A3D44B3D /* nopdf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A61F3B2BFAA651A7831AB2AC /* Build configuration list for PBXNativeTarget "nopdf" */;
+			buildPhases = (
+				5431E769D03D7D92C35C17DA /* Sources */,
+				6D1D44D794ED25209C7F0918 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6908434AA6424B9051FA69DB /* PBXTargetDependency */,
+			);
+			name = nopdf;
+			productName = nopdf;
+			productReference = 929452BCB7CCAAD11CC1835D /* libnopdf.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		C37161A72930D0F121229C3F /* pdf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17AF88577F8ABD60736F5ABE /* Build configuration list for PBXNativeTarget "pdf" */;
+			buildPhases = (
+				32D637CB627043B9785B4C16 /* Sources */,
+				1E11B7B8C8ECF6165F8E75DE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				760ACF61BB483F3BB002C588 /* PBXTargetDependency */,
+				0C05AAE6B9A169C65D9A65B6 /* PBXTargetDependency */,
+			);
+			name = pdf;
+			productName = skia_pdf;
+			productReference = 0DC15EA4ADE06EC812B0409E /* libskia_pdf.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D1192545FC4F395941439F58 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = C6CE0C80B327AF097EE16AB3 /* Build configuration list for PBXProject "pdf" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = AA73D4D2CABC422197C7B6BE;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = EABBC3982B000C566CF3B284 /* Products */;
+					ProjectRef = A3BED854BEB8CED4B1EE660D /* skia_lib.xcodeproj */;
+				},
+				{
+					ProductGroup = 9DBBADAAFFFA34768711136E /* Products */;
+					ProjectRef = 2A379210F80D48A7E2A5D6E3 /* zlib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				533BB45F3EB618A2A92F5189 /* All */,
+				401A7B534B454AC8A3D44B3D /* nopdf */,
+				C37161A72930D0F121229C3F /* pdf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		B7ABCE95BD00484CD9621676 /* libzlib_x86_simd.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libzlib_x86_simd.a;
+			remoteRef = 61C97B57AB8EE204EA8C2D6A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		32D637CB627043B9785B4C16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5E724A17FA5EBE1F6CB3B78C /* SkDocument_PDF.cpp in Sources */,
+				022D2351D18A8DEF39F9B932 /* SkDeflate.cpp in Sources */,
+				52B9B7238CE3CCC20461F0D6 /* SkJpegInfo.cpp in Sources */,
+				6278DC4BA31ED2DB5CD173A9 /* SkPDFBitmap.cpp in Sources */,
+				C93B974E683E6FD85739C803 /* SkPDFCanon.cpp in Sources */,
+				5038DB79A877AA3B1A71C782 /* SkPDFDevice.cpp in Sources */,
+				3C4F3A89C257821DB58C0E29 /* SkPDFFont.cpp in Sources */,
+				7847D8D853361C36087D5761 /* SkPDFFormXObject.cpp in Sources */,
+				B9D6084F7D74291023760AB6 /* SkPDFGraphicState.cpp in Sources */,
+				2B647F84CB5F8183DD2C191E /* SkPDFResourceDict.cpp in Sources */,
+				4D099912336F6CD653979DA8 /* SkPDFShader.cpp in Sources */,
+				A3E9B59754A4139EED09BD93 /* SkPDFStream.cpp in Sources */,
+				40E4F23DE85D01A21822D8B5 /* SkPDFTypes.cpp in Sources */,
+				03BF06FEFC44E140B3F1674E /* SkPDFUtils.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5431E769D03D7D92C35C17DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6709113C3BC0573F91C1F45E /* SkDocument_PDF_None.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0A525A90B3BC8DC61FB89866 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C37161A72930D0F121229C3F /* pdf */;
+			targetProxy = 5A78A0ECB22C087B8963C031 /* PBXContainerItemProxy */;
+		};
+		0C05AAE6B9A169C65D9A65B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = 4B5FCB98B604B9BC71B3A9BA /* PBXContainerItemProxy */;
+		};
+		6908434AA6424B9051FA69DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia_lib;
+			targetProxy = 60FAE7449E0A03FB445BC98E /* PBXContainerItemProxy */;
+		};
+		6CEF4843814ACA55A510A14D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 401A7B534B454AC8A3D44B3D /* nopdf */;
+			targetProxy = BEF8025AC63B809FF652FEEE /* PBXContainerItemProxy */;
+		};
+		760ACF61BB483F3BB002C588 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia_lib;
+			targetProxy = 5C3D1183D05298E6881A5841 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		044C6974FA059DA4B995A397 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SFNTLY_SUBSETTER=\\\"font_subsetter.h\\\"",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/pdf,
+					../src/image,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../include/gpu,
+					../third_party/externals/sfntly/sample/chromium,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_pdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		0D7A52BED247EB4E90AFA9E3 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SUPPORT_PDF=0",
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = nopdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		0F3CEA7FAE07A2C030E468E1 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		1C7295A61243E29DF4A2D49C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SUPPORT_PDF=0",
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = nopdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		21187E9A2241A7C4955F3339 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SFNTLY_SUBSETTER=\\\"font_subsetter.h\\\"",
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/pdf,
+					../src/image,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../include/gpu,
+					../third_party/externals/sfntly/sample/chromium,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_pdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		29CBA1971D6C48296914C789 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SUPPORT_PDF=0",
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = nopdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		2E09438CDB997ECCDD3E1758 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SFNTLY_SUBSETTER=\\\"font_subsetter.h\\\"",
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/pdf,
+					../src/image,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../include/gpu,
+					../third_party/externals/sfntly/sample/chromium,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_pdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		3BC3157619EF04E047823AC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
+		65DC6EEFC5B5D0895F6E8B32 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		685863A2246F54405F4933CA /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Coverage;
+		};
+		ABF484E13487B4969EE98385 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		B7EE8B580F1FA4B70D8CDB8A /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release_Developer;
+		};
+		C9161ECB3EFE2F54DC5FC029 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		E6E2E9E7175B706294AC22B3 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SUPPORT_PDF=0",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = nopdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		F15EF6AA5E197A44B2ABEF23 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_SFNTLY_SUBSETTER=\\\"font_subsetter.h\\\"",
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/pdf,
+					../src/image,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../include/gpu,
+					../third_party/externals/sfntly/sample/chromium,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_pdf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		FE852A233393FFD2A118D946 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		17AF88577F8ABD60736F5ABE /* Build configuration list for PBXNativeTarget "pdf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				044C6974FA059DA4B995A397 /* Coverage */,
+				21187E9A2241A7C4955F3339 /* Debug */,
+				F15EF6AA5E197A44B2ABEF23 /* Release */,
+				2E09438CDB997ECCDD3E1758 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		908310A74AB03D1DE3717770 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				685863A2246F54405F4933CA /* Coverage */,
+				ABF484E13487B4969EE98385 /* Debug */,
+				3BC3157619EF04E047823AC3 /* Release */,
+				B7EE8B580F1FA4B70D8CDB8A /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		A61F3B2BFAA651A7831AB2AC /* Build configuration list for PBXNativeTarget "nopdf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E6E2E9E7175B706294AC22B3 /* Coverage */,
+				29CBA1971D6C48296914C789 /* Debug */,
+				1C7295A61243E29DF4A2D49C /* Release */,
+				0D7A52BED247EB4E90AFA9E3 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		C6CE0C80B327AF097EE16AB3 /* Build configuration list for PBXProject "pdf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0F3CEA7FAE07A2C030E468E1 /* Coverage */,
+				C9161ECB3EFE2F54DC5FC029 /* Debug */,
+				FE852A233393FFD2A118D946 /* Release */,
+				65DC6EEFC5B5D0895F6E8B32 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D1192545FC4F395941439F58 /* Project object */;
+}

@@ -1,0 +1,3873 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		2A342B6CE3A16EC9AAC325E8 /* generate_files */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4C2AD73A7F40A3CFB6F513A2 /* Build configuration list for PBXAggregateTarget "generate_files" */;
+			buildPhases = (
+				9591A6291CDB08B09D4F194B /* Action "generate_x86_insn" */,
+				1BDA5811EB173CB3D84BB9EF /* Action "generate_version" */,
+				17643966799E5C48ACBBC76C /* Rule "generate_gperf" */,
+			);
+			dependencies = (
+				D20949E0FA7FE06292EB106A /* PBXTargetDependency */,
+				461C1DB376CAFDA3CCD233A1 /* PBXTargetDependency */,
+			);
+			name = generate_files;
+			productName = generate_files;
+		};
+		4907CF228CDD6F555610B572 /* config_sources */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = AC4F345D9F3F4EBE456EF96A /* Build configuration list for PBXAggregateTarget "config_sources" */;
+			buildPhases = (
+			);
+			dependencies = (
+			);
+			name = config_sources;
+			productName = config_sources;
+		};
+		B406ECD0D032D755C9AA7638 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 650F7C8308AE81B660380985 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				B85D167A85A45903A8B78C4E /* PBXTargetDependency */,
+				AF0F31D0240B98E2F80939C1 /* PBXTargetDependency */,
+				8001B251B7831856F471DF28 /* PBXTargetDependency */,
+				465EDCEB4709134BA8C690A3 /* PBXTargetDependency */,
+				7D915CDCDBE3B8BFAFBB9F29 /* PBXTargetDependency */,
+				E89B3484904D0A72A782E413 /* PBXTargetDependency */,
+				08C19F95B59270A52A2EFAE0 /* PBXTargetDependency */,
+				340F6ED70184A135F751DADB /* PBXTargetDependency */,
+				434AB6C9A7FA808D6D0CF6BA /* PBXTargetDependency */,
+				6AD9FF274FBEA5E0DE4C8D4B /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+		D65C2B6678D4D61C3D2BEE7C /* yasm Support */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 54D7F8B0C0AC9D0A4EF593C0 /* Build configuration list for PBXAggregateTarget "yasm Support" */;
+			buildPhases = (
+				A2F567F018DD204B8BCFA437 /* Action "generate_nasm_macros" */,
+				3937A11BD5C42257B7C9B154 /* Action "generate_nasm_version" */,
+				4A871E15A1D6E4BDBBE87924 /* Action "generate_win64_gas" */,
+				2A19B1011740A2642F60EA3E /* Action "generate_win64_nasm" */,
+				EA7C9BA8C1F7FF267024E4E8 /* Action "generate_license" */,
+				DEA25709CE70D4B845C2C262 /* Action "generate_lc3b_token" */,
+				B81CB52F3E1AEFB26D03FCAC /* Action "generate_module" */,
+				01D2B874063C3CD35D7BB021 /* Rule "generate_gperf" */,
+				78F98A3A8E7B6F2F3A9E27E4 /* Rule "generate_re2c" */,
+			);
+			dependencies = (
+				500A682F16935FCAE6309A61 /* PBXTargetDependency */,
+				1D94D4782CBC95432540705A /* PBXTargetDependency */,
+				308D1CAD3AB768B7CA9EDC71 /* PBXTargetDependency */,
+				D121C3C4037CCFD0CC81FCE0 /* PBXTargetDependency */,
+				A51FB64CBC6BF7A4F8F11909 /* PBXTargetDependency */,
+				5552C96874D22B1F9A1AFB90 /* PBXTargetDependency */,
+				10EE9E8B45AFC4BDFE8CBD9C /* PBXTargetDependency */,
+				C5BF1ED7D1FA56070F8FE597 /* PBXTargetDependency */,
+			);
+			name = "yasm Support";
+			productName = "yasm Support";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		002943E6D5D0C6A8F7BD14D9 /* gas-parse.c in Sources */ = {isa = PBXBuildFile; fileRef = 5899059DE5122EF7CAB26EBB /* gas-parse.c */; };
+		015722FDFCDE36B59D18058D /* elf-x86-amd64.c in Sources */ = {isa = PBXBuildFile; fileRef = 03A9ACF06081FE31EC742831 /* elf-x86-amd64.c */; };
+		0375C6ECB75487E4024220ED /* bc-org.c in Sources */ = {isa = PBXBuildFile; fileRef = 1B1B612A38F82A348A27ECA9 /* bc-org.c */; };
+		09871DB036BF9BF0BDA037E3 /* nasm-macros.c in Sources */ = {isa = PBXBuildFile; fileRef = 51845BB2E35D8E840D3C0CFB /* nasm-macros.c */; };
+		0ABA98970EAD01A7060A8264 /* mbo_getopt.c in Sources */ = {isa = PBXBuildFile; fileRef = FA351D5EF0D15D1A4C360D8F /* mbo_getopt.c */; };
+		0B31F52797F165D600FA0D06 /* lc3barch.c in Sources */ = {isa = PBXBuildFile; fileRef = 96FDB0999B636B4C4DAA55CC /* lc3barch.c */; };
+		0BF435949E495133FF34942E /* dwarf2-aranges.c in Sources */ = {isa = PBXBuildFile; fileRef = 305827230135697817CFB7DA /* dwarf2-aranges.c */; };
+		0C0CF42FF7BA9CB4EAF90994 /* stabs-dbgfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = E16FFFB6FE3249018FC89C91 /* stabs-dbgfmt.c */; };
+		0D9D5781EF89863246A81F57 /* nasm-token.c in Sources */ = {isa = PBXBuildFile; fileRef = 0F1D9B6634C3E14E6AF0883C /* nasm-token.c */; };
+		11B844A8CA0ECF11ACA16CDC /* xmalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 42ABB5F670D9E56A01974799 /* xmalloc.c */; };
+		154148BAC57448EFEB0C5D29 /* mergesort.c in Sources */ = {isa = PBXBuildFile; fileRef = 4364660C27FA5EB3D7C60D99 /* mergesort.c */; };
+		15985A401D7CFE448FE34E07 /* cv-symline.c in Sources */ = {isa = PBXBuildFile; fileRef = A5855906D06E21972FA35CBF /* cv-symline.c */; };
+		15F51B7723A47F8153E02650 /* dbg-objfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = 8669865F1F66FEEF90354869 /* dbg-objfmt.c */; };
+		1650D228E72675E730F4B15E /* x86cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 92EE4883450FBD5D92AD24DD /* x86cpu.c */; };
+		177905BE57614FF3CAB1B5DB /* xstrdup.c in Sources */ = {isa = PBXBuildFile; fileRef = 76C53415158F6846CC314E5E /* xstrdup.c */; };
+		1EFF5E6A762FC38179443123 /* nasm-eval.c in Sources */ = {isa = PBXBuildFile; fileRef = 1D7A4BA4343B86FC2BA9B6A2 /* nasm-eval.c */; };
+		23EC2CCB6EF97D61CDE3F6B0 /* bc-reserve.c in Sources */ = {isa = PBXBuildFile; fileRef = 7DEB5C5507E30663F3261AA7 /* bc-reserve.c */; };
+		26FC10312E22C9F7698B3DF4 /* phash.c in Sources */ = {isa = PBXBuildFile; fileRef = E942DBF3C5BAE730B23F94DB /* phash.c */; };
+		27DDBEC1C74FAB9D3481A37B /* raw-preproc.c in Sources */ = {isa = PBXBuildFile; fileRef = 1226F2501A3B23CA704A877E /* raw-preproc.c */; };
+		295EE198E75B546425AEDE41 /* bin-objfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = F3EB3657F71CBA2A34579377 /* bin-objfmt.c */; };
+		2CE3794D4900553071601FD5 /* nasm-parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B8B0FC2E7AED6A8AA680CAC /* nasm-parser.c */; };
+		30A27A418AC5D47395295F45 /* hamt.c in Sources */ = {isa = PBXBuildFile; fileRef = 9965CB54EB55A485827CA1B8 /* hamt.c */; };
+		32F941FF659B2DF5233CDD02 /* nasm-pp.c in Sources */ = {isa = PBXBuildFile; fileRef = F96B540178BB644DBE0D10D8 /* nasm-pp.c */; };
+		374ACEE926360D0BD5C72BC2 /* expr.c in Sources */ = {isa = PBXBuildFile; fileRef = 146FC269FFFF037DB0B3FCA2 /* expr.c */; };
+		39E1045BFEF6CF2B1C600E30 /* genstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 8669EEADE9A0EA225FE832A0 /* genstring.c */; };
+		41A4E4A6F4E6647A4E33E937 /* bc-incbin.c in Sources */ = {isa = PBXBuildFile; fileRef = 06EF74EC08718DC95D38646D /* bc-incbin.c */; };
+		41E6572697537DBA5338CB36 /* cv-type.c in Sources */ = {isa = PBXBuildFile; fileRef = C5F1CC0B1B6A9D6AA86A231A /* cv-type.c */; };
+		42520100E690F8AB78D3BE0D /* libgenperf_libs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 409E99D7C44751B2B82733E8 /* libgenperf_libs.a */; };
+		42914DB1D7C3BB3645FDF0EC /* perfect.c in Sources */ = {isa = PBXBuildFile; fileRef = 5B318002E1D5F945362A87E8 /* perfect.c */; };
+		469414641F8ABDFE4A808F4B /* x86id.c in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FCA0270974E239201AA66 /* x86id.c */; };
+		49C62AD36B1E0651576AFC50 /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = 5AF00073BCF0871AEF54BA99 /* md5.c */; };
+		4A005597FE586970C8403479 /* rdf-objfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = 6734DCAF3C89DC7CD05DECB6 /* rdf-objfmt.c */; };
+		4D696240DED25536AE2129A7 /* win64-except.c in Sources */ = {isa = PBXBuildFile; fileRef = 04C0EE91B9FEF25FA33D9C41 /* win64-except.c */; };
+		502BAE85B126A8F654700513 /* xdf-objfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = 7860646232EDB9239DBD4C15 /* xdf-objfmt.c */; };
+		5308D8930D5D6C43233FBC43 /* floatnum.c in Sources */ = {isa = PBXBuildFile; fileRef = 808B85501E80B9AF1E66B58A /* floatnum.c */; };
+		5679A5C4A7F334CD607D954A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 106AB1639CC03152BDE045CE /* main.c */; };
+		56D832B2B261048E8479CBC2 /* section.c in Sources */ = {isa = PBXBuildFile; fileRef = C5BF424002B7244397120D64 /* section.c */; };
+		58A7C38A5F6B506325EF379A /* genmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FC2DD824574721CA0480143 /* genmodule.c */; };
+		590745D943F2F15AFF85E7EE /* nasm-listfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = 0343C2C10D184B96F12B0DAE /* nasm-listfmt.c */; };
+		5BE5A48C8CD19A74FF9341E9 /* coff-objfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2302355322E022CCEB8A9B7D /* coff-objfmt.c */; };
+		5E1439E5EB631D49A7034CCA /* yasm.c in Sources */ = {isa = PBXBuildFile; fileRef = 88824B9E221A171FEAE8F58B /* yasm.c */; };
+		6293B074C448B18B37F16B08 /* actions.c in Sources */ = {isa = PBXBuildFile; fileRef = 1ECB2A20948B985FE2B920AF /* actions.c */; };
+		64997E95105F0A460A5BFB36 /* strsep.c in Sources */ = {isa = PBXBuildFile; fileRef = 3F5046217B80B0623E3AA9DB /* strsep.c */; };
+		678FA1D44B8455687F858D04 /* elf.c in Sources */ = {isa = PBXBuildFile; fileRef = 59C87DA639E7C62C95FA300B /* elf.c */; };
+		6C9BF001E5F8E6CC0CD16707 /* dwarf2-info.c in Sources */ = {isa = PBXBuildFile; fileRef = 7A9AE52A3FDCAA611B11DC62 /* dwarf2-info.c */; };
+		6EFA977ED12A756A9E42C540 /* nasmlib.c in Sources */ = {isa = PBXBuildFile; fileRef = D525A25E8F87B646546B407B /* nasmlib.c */; };
+		6F48F4EC94ED57CC0D22CB36 /* intnum.c in Sources */ = {isa = PBXBuildFile; fileRef = 6E82FE919C891EEDD78B3A5F /* intnum.c */; };
+		7AA2DFFF001BFD4126B43811 /* valparam.c in Sources */ = {isa = PBXBuildFile; fileRef = 67212CEF175B78E448F068B0 /* valparam.c */; };
+		7BD5DECACBA5DFDCDC33A29F /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = A4B44E8A8672F545D04C52E8 /* file.c */; };
+		7FF50C6DE00EFFA1607FE88A /* macho-objfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = 52D50CCE1D7420C5A7896ABE /* macho-objfmt.c */; };
+		827DE043D57EF0869D29291D /* lc3bbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 22DF633A1F70CA9C20D95128 /* lc3bbc.c */; };
+		8315DE5A5FEF79E65E8032B2 /* genperf.c in Sources */ = {isa = PBXBuildFile; fileRef = 51E2ED586F7AE641D170A38E /* genperf.c */; };
+		8357DB9D8C3B8FCBE7A140D7 /* elf-objfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = B99D451E200C4E27717F99FD /* elf-objfmt.c */; };
+		8FEEE891DD8DC675B5EABCB7 /* cpp-preproc.c in Sources */ = {isa = PBXBuildFile; fileRef = 460543FBB64EEEF6A7909129 /* cpp-preproc.c */; };
+		90949E3EAB5E6F87B646ED41 /* code.c in Sources */ = {isa = PBXBuildFile; fileRef = B37AA640E90EF001D81C6E1A /* code.c */; };
+		91C6176CBCDE151EF5358A15 /* scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B8FE417D4F303FA38F04776 /* scanner.c */; };
+		9233D1464DCB83B4DACCC035 /* nasm-preproc.c in Sources */ = {isa = PBXBuildFile; fileRef = A1DB6702CFEBADDB1D9DBEF2 /* nasm-preproc.c */; };
+		98FEFF0252D265EC4239772B /* gas-token.c in Sources */ = {isa = PBXBuildFile; fileRef = 555A052236AF314DE3C18B0A /* gas-token.c */; };
+		9A5E1E842B9A194883508BB3 /* dwarf2-line.c in Sources */ = {isa = PBXBuildFile; fileRef = F8D2895C69085CE8C8F37D10 /* dwarf2-line.c */; };
+		9E06BBBFA3C63B5BD08B3BED /* errwarn.c in Sources */ = {isa = PBXBuildFile; fileRef = B2224018324665E2293FC52B /* errwarn.c */; };
+		A0074870B88F1F462C948343 /* x86regtmod.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F00AB71EEADCAFAD777250B /* x86regtmod.c */; };
+		A213A2D6ECFA6F108ABAE6EF /* yasm-options.c in Sources */ = {isa = PBXBuildFile; fileRef = AC2E1A8D241F78F6E884F9F7 /* yasm-options.c */; };
+		A3114024FA3F44403699167C /* substr.c in Sources */ = {isa = PBXBuildFile; fileRef = 51D416D0D72D6558FFAF262A /* substr.c */; };
+		A3F300D82DC37E438366AC67 /* dwarf2-dbgfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = ACFFD8738C647139BD86AE6B /* dwarf2-dbgfmt.c */; };
+		A4D0D639D2BD45C7257921F1 /* parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 172112ADAC5E112E907FC858 /* parser.c */; };
+		A84AB260B096AEA095CF316B /* module.c in Sources */ = {isa = PBXBuildFile; fileRef = 81B018F26106BD9C53A5E4CB /* module.c */; };
+		ABAF933FFCFAF93C540FB328 /* insn.c in Sources */ = {isa = PBXBuildFile; fileRef = ABC34BF328BC855A3FFCF336 /* insn.c */; };
+		B05C6D113348E0ED29E6758C /* assocdat.c in Sources */ = {isa = PBXBuildFile; fileRef = 4CBB9938CA85DD3505CB3948 /* assocdat.c */; };
+		B3C56354E5E8AF44062EF05B /* elf-x86-x86.c in Sources */ = {isa = PBXBuildFile; fileRef = CFD2A4A9E8367930A06CF0EC /* elf-x86-x86.c */; };
+		BEE695D169825B2E5D1FCF2D /* null-dbgfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = F2FD3D8350DADCB2DEF2EE41 /* null-dbgfmt.c */; };
+		C0E93099E10F04FFD44781BD /* cv-dbgfmt.c in Sources */ = {isa = PBXBuildFile; fileRef = D5F244B2642DEE59E5EF559E /* cv-dbgfmt.c */; };
+		C42052F15FFD08A97EB4E241 /* translate.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F4557654E334092163A03F /* translate.c */; };
+		C42D445E38FB0AA5C7BAAE43 /* bytecode.c in Sources */ = {isa = PBXBuildFile; fileRef = 5AD8A7AC5331C9F1E941BE30 /* bytecode.c */; };
+		C6C0D3FB2B6CF29B7E544F35 /* bc-data.c in Sources */ = {isa = PBXBuildFile; fileRef = FC54C7D83B21412059C3599F /* bc-data.c */; };
+		CC07CB17D2CC1F869AD10CC4 /* genmacro.c in Sources */ = {isa = PBXBuildFile; fileRef = 779488690BE236A5B345A287 /* genmacro.c */; };
+		CF2C000AA6DB018C400D81F1 /* linemap.c in Sources */ = {isa = PBXBuildFile; fileRef = 9876767B58B15FA9A3EDA1FA /* linemap.c */; };
+		D1750B2A6BEECE04B6DD8472 /* genversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 06454BF045390A6C806D914B /* genversion.c */; };
+		D7194F15BAAA1C235C312E7C /* libgenperf_libs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 409E99D7C44751B2B82733E8 /* libgenperf_libs.a */; };
+		D884DD8D3938FC7EE8FE4553 /* bitvect.c in Sources */ = {isa = PBXBuildFile; fileRef = 512E19312D86CFDF2329CD76 /* bitvect.c */; };
+		D947C0815B4206677F64328C /* x86arch.c in Sources */ = {isa = PBXBuildFile; fileRef = A77A59C2E6E7FCD76CCCC0AD /* x86arch.c */; };
+		DC09E4C3EEEC08443D8A1A80 /* strcasecmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 785D9B2A4892595EF37F8E8C /* strcasecmp.c */; };
+		E7A312D01835281CD36A779A /* x86expr.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F633988BFEC358B24AD1D91 /* x86expr.c */; };
+		E8C66C2A7F6ED26399898368 /* nasm-parse.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B184D892775AD267E2FD7A4 /* nasm-parse.c */; };
+		EC97FF7A2634014E1299B8E1 /* x86bc.c in Sources */ = {isa = PBXBuildFile; fileRef = 0107B0AE2E80564AC2C1A9BC /* x86bc.c */; };
+		ECBAD19082342596E955DBF9 /* symrec.c in Sources */ = {isa = PBXBuildFile; fileRef = 6D2D4793E6DE5CC7911EEE59 /* symrec.c */; };
+		ECEB3F73D3132B3CB7D30A78 /* dfa.c in Sources */ = {isa = PBXBuildFile; fileRef = C4C823C55923C77FC81CC8D6 /* dfa.c */; };
+		F52FAB6AC6263A1A6DF5DFAD /* lc3bid.c in Sources */ = {isa = PBXBuildFile; fileRef = FE94CA9E4258ACE814CBBEAD /* lc3bid.c */; };
+		F5596BA73738E2CBE89B197F /* gas-parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 6F4DD707E08B48FFB061A7CF /* gas-parser.c */; };
+		F58DBA803604D753AEA627AC /* bc-align.c in Sources */ = {isa = PBXBuildFile; fileRef = C7899816E44F5CA311581E72 /* bc-align.c */; };
+		F8699770B498C3B090D950C9 /* gas-parse-intel.c in Sources */ = {isa = PBXBuildFile; fileRef = F2D756E1F279EB73802F9F8C /* gas-parse-intel.c */; };
+		FA10582CCB85577187358E8E /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = C27AF3A589C819F68F8CEB8B /* value.c */; };
+		FB61F1FA9273370051448DE0 /* inttree.c in Sources */ = {isa = PBXBuildFile; fileRef = 654A4E3F0798C668C258FD24 /* inttree.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		05E3C3ABC1D9E6CF20BFBCCE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C152D26398B05ADFAA310FBC;
+			remoteInfo = re2c;
+		};
+		0EEAE3998FD38365DF5E4A6F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 89B630935CC8C8F4CC52A56A;
+			remoteInfo = genmacro;
+		};
+		12EF1AA146D9AD2C12CA4863 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F917BEE868E15DE64D0AE684;
+			remoteInfo = genstring;
+		};
+		143E9950D18AB31778B0250E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		18841051965370F20AC26E44 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F917BEE868E15DE64D0AE684;
+			remoteInfo = genstring;
+		};
+		270BEC5BD4CC9DA8BE2169CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 754B8D62EE1A4806BCAB1B58;
+			remoteInfo = genperf_libs;
+		};
+		2FD19BA0ADC79E58B05F2FF7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F917BEE868E15DE64D0AE684;
+			remoteInfo = genstring;
+		};
+		375F1C5AD445773D6FC35BAC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		3A9A609C010A3C0C55547A7E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C152D26398B05ADFAA310FBC;
+			remoteInfo = re2c;
+		};
+		3B8503FCD718D69648335BFE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0C36DF2CEE38667B8A4AF0EB;
+			remoteInfo = genversion;
+		};
+		4827E5DC3221C644200D51C4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		523D86CED665436CDE127E8B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A342B6CE3A16EC9AAC325E8;
+			remoteInfo = generate_files;
+		};
+		84EAAAC5F01475A12CEF0DFD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7EC98B9251261F1670CC5F56;
+			remoteInfo = genperf;
+		};
+		8FD44A8B0147AD52EBBA23F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ECB3AB78926152B6842F9BFB;
+			remoteInfo = genmodule;
+		};
+		9255FA93D265904F2EA39CDB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 89B630935CC8C8F4CC52A56A;
+			remoteInfo = genmacro;
+		};
+		99C054D7CA34478986871A86 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		A055E508030C47037FA18CEA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		AB8A68006EBFF587DC0FF4DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ECB3AB78926152B6842F9BFB;
+			remoteInfo = genmodule;
+		};
+		C36B049D0FE2379B3C84A8AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		CBD787581B2E6F7E60D03556 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 754B8D62EE1A4806BCAB1B58;
+			remoteInfo = genperf_libs;
+		};
+		CF85BBF9B49DB4F2BC507AED /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A342B6CE3A16EC9AAC325E8;
+			remoteInfo = generate_files;
+		};
+		DB37AF695EE0255949313143 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7EC98B9251261F1670CC5F56;
+			remoteInfo = genperf;
+		};
+		DC972EBCE53C7F6BE8908BD7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 754B8D62EE1A4806BCAB1B58;
+			remoteInfo = genperf_libs;
+		};
+		E2C295C46973F52DD879E084 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0C36DF2CEE38667B8A4AF0EB;
+			remoteInfo = genversion;
+		};
+		E5ABE9348270B96ABEAEEC3B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 89B630935CC8C8F4CC52A56A;
+			remoteInfo = genmacro;
+		};
+		E99FCD0A276649B43A2D028D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B09C3D1CD1860F45C63F4A88;
+			remoteInfo = yasm;
+		};
+		E9F16560FB7E6CBECCF90EF4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		EC01DD25566EA8125B69D3EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ECB3AB78926152B6842F9BFB;
+			remoteInfo = genmodule;
+		};
+		EEA127BF0A4037F319ABB0AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A342B6CE3A16EC9AAC325E8;
+			remoteInfo = generate_files;
+		};
+		F149446D7483B36143E66C0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D65C2B6678D4D61C3D2BEE7C;
+			remoteInfo = "yasm Support";
+		};
+		F196A766E322AE6DC35E41BE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C152D26398B05ADFAA310FBC;
+			remoteInfo = re2c;
+		};
+		F36F954630B32C181581C573 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7EC98B9251261F1670CC5F56;
+			remoteInfo = genperf;
+		};
+		F4861D691DB02D6CC5528327 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		F5201B99A80D0B75AE5969D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+		F550F695C5F044D49278AC9E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 754B8D62EE1A4806BCAB1B58;
+			remoteInfo = genperf_libs;
+		};
+		F56F0BAB48A3CBD413B1C688 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7EC98B9251261F1670CC5F56;
+			remoteInfo = genperf;
+		};
+		F97ECB8152F6F5307C597C53 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907CF228CDD6F555610B572;
+			remoteInfo = config_sources;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0107B0AE2E80564AC2C1A9BC /* x86bc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86bc.c; sourceTree = "<group>"; };
+		0343C2C10D184B96F12B0DAE /* nasm-listfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-listfmt.c"; sourceTree = "<group>"; };
+		03A9ACF06081FE31EC742831 /* elf-x86-amd64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "elf-x86-amd64.c"; sourceTree = "<group>"; };
+		04C0EE91B9FEF25FA33D9C41 /* win64-except.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "win64-except.c"; sourceTree = "<group>"; };
+		04F4557654E334092163A03F /* translate.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = translate.c; sourceTree = "<group>"; };
+		06454BF045390A6C806D914B /* genversion.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = genversion.c; sourceTree = "<group>"; };
+		06EF74EC08718DC95D38646D /* bc-incbin.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "bc-incbin.c"; sourceTree = "<group>"; };
+		078801E2670631ACDF55DB11 /* gen_x86_insn.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = gen_x86_insn.py; sourceTree = "<group>"; };
+		0AA7991A727CAC4C9F3E7817 /* re2c */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = re2c; sourceTree = BUILT_PRODUCTS_DIR; };
+		0F1D9B6634C3E14E6AF0883C /* nasm-token.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-token.c"; sourceTree = "<group>"; };
+		106AB1639CC03152BDE045CE /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		1226F2501A3B23CA704A877E /* raw-preproc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "raw-preproc.c"; sourceTree = "<group>"; };
+		146FC269FFFF037DB0B3FCA2 /* expr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = expr.c; sourceTree = "<group>"; };
+		15742B18944650B25B975636 /* version.mac */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.mac; sourceTree = "<group>"; };
+		16FAF363BB206A4DD9C28688 /* module.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = module.in; sourceTree = "<group>"; };
+		172112ADAC5E112E907FC858 /* parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parser.c; sourceTree = "<group>"; };
+		19FC5DDBA87B5064601ECBE9 /* x86insn_nasm.gperf */ = {isa = PBXFileReference; lastKnownFileType = text; path = x86insn_nasm.gperf; sourceTree = "<group>"; };
+		1B1B612A38F82A348A27ECA9 /* bc-org.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "bc-org.c"; sourceTree = "<group>"; };
+		1CD3105B0CC6850951ACB14C /* yasm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = yasm; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D7A4BA4343B86FC2BA9B6A2 /* nasm-eval.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-eval.c"; sourceTree = "<group>"; };
+		1ECB2A20948B985FE2B920AF /* actions.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = actions.c; sourceTree = "<group>"; };
+		22DF633A1F70CA9C20D95128 /* lc3bbc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lc3bbc.c; sourceTree = "<group>"; };
+		2302355322E022CCEB8A9B7D /* coff-objfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "coff-objfmt.c"; sourceTree = "<group>"; };
+		2BEBAABA480943A355C00C6C /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		2C7B974D2B2F8F56ABAB7B3C /* x86cpu.gperf */ = {isa = PBXFileReference; lastKnownFileType = text; path = x86cpu.gperf; sourceTree = "<group>"; };
+		305827230135697817CFB7DA /* dwarf2-aranges.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "dwarf2-aranges.c"; sourceTree = "<group>"; };
+		33358FD75E30942556DB76CA /* genperf */ = {isa = PBXFileReference; lastKnownFileType = text; path = genperf; sourceTree = "<group>"; };
+		3F5046217B80B0623E3AA9DB /* strsep.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = strsep.c; sourceTree = "<group>"; };
+		409E99D7C44751B2B82733E8 /* libgenperf_libs.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgenperf_libs.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		42ABB5F670D9E56A01974799 /* xmalloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = xmalloc.c; sourceTree = "<group>"; };
+		4364660C27FA5EB3D7C60D99 /* mergesort.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mergesort.c; sourceTree = "<group>"; };
+		460543FBB64EEEF6A7909129 /* cpp-preproc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "cpp-preproc.c"; sourceTree = "<group>"; };
+		49F7AF813B3AEBB340EC2AA6 /* libyasm-stdint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "libyasm-stdint.h"; sourceTree = "<group>"; };
+		4BE5C0FF1EE57DDD7E318BD3 /* genmodule */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genmodule; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CBB9938CA85DD3505CB3948 /* assocdat.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = assocdat.c; sourceTree = "<group>"; };
+		4F00AB71EEADCAFAD777250B /* x86regtmod.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86regtmod.c; sourceTree = "<group>"; };
+		4FC2DD824574721CA0480143 /* genmodule.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = genmodule.c; sourceTree = "<group>"; };
+		512E19312D86CFDF2329CD76 /* bitvect.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bitvect.c; sourceTree = "<group>"; };
+		51845BB2E35D8E840D3C0CFB /* nasm-macros.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-macros.c"; sourceTree = "<group>"; };
+		51D416D0D72D6558FFAF262A /* substr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = substr.c; sourceTree = "<group>"; };
+		51E2ED586F7AE641D170A38E /* genperf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = genperf.c; sourceTree = "<group>"; };
+		52D50CCE1D7420C5A7896ABE /* macho-objfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "macho-objfmt.c"; sourceTree = "<group>"; };
+		555A052236AF314DE3C18B0A /* gas-token.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "gas-token.c"; sourceTree = "<group>"; };
+		5705D31E7450BA91B998F9F3 /* nasm-token.re */ = {isa = PBXFileReference; lastKnownFileType = text; path = "nasm-token.re"; sourceTree = "<group>"; };
+		5899059DE5122EF7CAB26EBB /* gas-parse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "gas-parse.c"; sourceTree = "<group>"; };
+		59C87DA639E7C62C95FA300B /* elf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = elf.c; sourceTree = "<group>"; };
+		5AD8A7AC5331C9F1E941BE30 /* bytecode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bytecode.c; sourceTree = "<group>"; };
+		5AF00073BCF0871AEF54BA99 /* md5.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = md5.c; sourceTree = "<group>"; };
+		5B318002E1D5F945362A87E8 /* perfect.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = perfect.c; sourceTree = "<group>"; };
+		654A4E3F0798C668C258FD24 /* inttree.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = inttree.c; sourceTree = "<group>"; };
+		67212CEF175B78E448F068B0 /* valparam.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = valparam.c; sourceTree = "<group>"; };
+		6734DCAF3C89DC7CD05DECB6 /* rdf-objfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "rdf-objfmt.c"; sourceTree = "<group>"; };
+		6A7C0E1AA7EFFAC3E4771602 /* win64-nasm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "win64-nasm.c"; sourceTree = "<group>"; };
+		6B61FB2763EAB91B10F0AB16 /* nasm-version.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-version.c"; sourceTree = "<group>"; };
+		6D2D4793E6DE5CC7911EEE59 /* symrec.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = symrec.c; sourceTree = "<group>"; };
+		6E82FE919C891EEDD78B3A5F /* intnum.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = intnum.c; sourceTree = "<group>"; };
+		6F4DD707E08B48FFB061A7CF /* gas-parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "gas-parser.c"; sourceTree = "<group>"; };
+		71E54965BA18650BD3D9DA4D /* x86regtmod.gperf */ = {isa = PBXFileReference; lastKnownFileType = text; path = x86regtmod.gperf; sourceTree = "<group>"; };
+		72A2269A64344EC3BED5E049 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		73705F5003D3FFF2573126AC /* license.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = license.c; sourceTree = "<group>"; };
+		742137A2AFAF638F5516AB44 /* lc3bid.re */ = {isa = PBXFileReference; lastKnownFileType = text; path = lc3bid.re; sourceTree = "<group>"; };
+		749D0BAB9D65E3683E477DD8 /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		76C53415158F6846CC314E5E /* xstrdup.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = xstrdup.c; sourceTree = "<group>"; };
+		779488690BE236A5B345A287 /* genmacro.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = genmacro.c; sourceTree = "<group>"; };
+		785D9B2A4892595EF37F8E8C /* strcasecmp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = strcasecmp.c; sourceTree = "<group>"; };
+		7860646232EDB9239DBD4C15 /* xdf-objfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "xdf-objfmt.c"; sourceTree = "<group>"; };
+		7A9AE52A3FDCAA611B11DC62 /* dwarf2-info.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "dwarf2-info.c"; sourceTree = "<group>"; };
+		7B184D892775AD267E2FD7A4 /* nasm-parse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-parse.c"; sourceTree = "<group>"; };
+		7B8FE417D4F303FA38F04776 /* scanner.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = scanner.c; sourceTree = "<group>"; };
+		7C1FCA0270974E239201AA66 /* x86id.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86id.c; sourceTree = "<group>"; };
+		7DEB5C5507E30663F3261AA7 /* bc-reserve.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "bc-reserve.c"; sourceTree = "<group>"; };
+		808B85501E80B9AF1E66B58A /* floatnum.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = floatnum.c; sourceTree = "<group>"; };
+		81B018F26106BD9C53A5E4CB /* module.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = module.c; sourceTree = "<group>"; };
+		8669865F1F66FEEF90354869 /* dbg-objfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "dbg-objfmt.c"; sourceTree = "<group>"; };
+		8669EEADE9A0EA225FE832A0 /* genstring.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = genstring.c; sourceTree = "<group>"; };
+		8779CA592C02B67DDF1EC85C /* nasm-std.mac */ = {isa = PBXFileReference; lastKnownFileType = text; path = "nasm-std.mac"; sourceTree = "<group>"; };
+		88824B9E221A171FEAE8F58B /* yasm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = yasm.c; sourceTree = "<group>"; };
+		8B8B0FC2E7AED6A8AA680CAC /* nasm-parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-parser.c"; sourceTree = "<group>"; };
+		8F633988BFEC358B24AD1D91 /* x86expr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86expr.c; sourceTree = "<group>"; };
+		915804D39D9CA64DFDA3D3B2 /* yasm.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = yasm.gyp; sourceTree = "<group>"; };
+		92EE4883450FBD5D92AD24DD /* x86cpu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86cpu.c; sourceTree = "<group>"; };
+		96FDB0999B636B4C4DAA55CC /* lc3barch.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lc3barch.c; sourceTree = "<group>"; };
+		9876767B58B15FA9A3EDA1FA /* linemap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = linemap.c; sourceTree = "<group>"; };
+		9965CB54EB55A485827CA1B8 /* hamt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hamt.c; sourceTree = "<group>"; };
+		9DB2EAA39B6DA45B284428F1 /* genmacro */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genmacro; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E47A5965BD0DCF7DB42B8FC /* genperf */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genperf; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1DB6702CFEBADDB1D9DBEF2 /* nasm-preproc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-preproc.c"; sourceTree = "<group>"; };
+		A4B44E8A8672F545D04C52E8 /* file.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = file.c; sourceTree = "<group>"; };
+		A4C9FBF17A6E1121DE4AFEC6 /* win64-gas.mac */ = {isa = PBXFileReference; lastKnownFileType = text; path = "win64-gas.mac"; sourceTree = "<group>"; };
+		A5855906D06E21972FA35CBF /* cv-symline.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "cv-symline.c"; sourceTree = "<group>"; };
+		A77A59C2E6E7FCD76CCCC0AD /* x86arch.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86arch.c; sourceTree = "<group>"; };
+		A8CB61C1EEE5F81A23135F20 /* gas-token.re */ = {isa = PBXFileReference; lastKnownFileType = text; path = "gas-token.re"; sourceTree = "<group>"; };
+		ABC34BF328BC855A3FFCF336 /* insn.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = insn.c; sourceTree = "<group>"; };
+		AC2E1A8D241F78F6E884F9F7 /* yasm-options.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "yasm-options.c"; sourceTree = "<group>"; };
+		ACFFD8738C647139BD86AE6B /* dwarf2-dbgfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "dwarf2-dbgfmt.c"; sourceTree = "<group>"; };
+		ADE64189B30660C41E148D27 /* x86insn_gas.gperf */ = {isa = PBXFileReference; lastKnownFileType = text; path = x86insn_gas.gperf; sourceTree = "<group>"; };
+		B0ED03C224298DF739204A5F /* x86insns.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86insns.c; sourceTree = "<group>"; };
+		B2224018324665E2293FC52B /* errwarn.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = errwarn.c; sourceTree = "<group>"; };
+		B37AA640E90EF001D81C6E1A /* code.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = code.c; sourceTree = "<group>"; };
+		B99D451E200C4E27717F99FD /* elf-objfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "elf-objfmt.c"; sourceTree = "<group>"; };
+		C27AF3A589C819F68F8CEB8B /* value.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
+		C4C823C55923C77FC81CC8D6 /* dfa.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dfa.c; sourceTree = "<group>"; };
+		C5BF424002B7244397120D64 /* section.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = section.c; sourceTree = "<group>"; };
+		C5F1CC0B1B6A9D6AA86A231A /* cv-type.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "cv-type.c"; sourceTree = "<group>"; };
+		C7899816E44F5CA311581E72 /* bc-align.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "bc-align.c"; sourceTree = "<group>"; };
+		CFD2A4A9E8367930A06CF0EC /* elf-x86-x86.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "elf-x86-x86.c"; sourceTree = "<group>"; };
+		D0186125C0873AF692668790 /* genstring */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genstring; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3015B86C15A40ADD0F626C4 /* genversion */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genversion; sourceTree = BUILT_PRODUCTS_DIR; };
+		D525A25E8F87B646546B407B /* nasmlib.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = nasmlib.c; sourceTree = "<group>"; };
+		D5F244B2642DEE59E5EF559E /* cv-dbgfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "cv-dbgfmt.c"; sourceTree = "<group>"; };
+		DD43915617050B59FADEF84C /* x86insn_nasm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86insn_nasm.c; sourceTree = "<group>"; };
+		E16FFFB6FE3249018FC89C91 /* stabs-dbgfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "stabs-dbgfmt.c"; sourceTree = "<group>"; };
+		E30A5BE23582E0BCABA4C62D /* COPYING */ = {isa = PBXFileReference; lastKnownFileType = text; path = COPYING; sourceTree = "<group>"; };
+		E3F844D9847C4909204E4288 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		E4DB17CE6B83CDCCC11CCD9C /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile; sourceTree = "<group>"; };
+		E4F9EBBEBF5B47ED2FB49911 /* win64-nasm.mac */ = {isa = PBXFileReference; lastKnownFileType = text; path = "win64-nasm.mac"; sourceTree = "<group>"; };
+		E6A028B66629D70CF86E551B /* win64-gas.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "win64-gas.c"; sourceTree = "<group>"; };
+		E942DBF3C5BAE730B23F94DB /* phash.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = phash.c; sourceTree = "<group>"; };
+		EAD4D13F54E5E1B37E678738 /* x86insn_gas.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86insn_gas.c; sourceTree = "<group>"; };
+		ECBB243258AC0F1C28913C63 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		F2D756E1F279EB73802F9F8C /* gas-parse-intel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "gas-parse-intel.c"; sourceTree = "<group>"; };
+		F2FD3D8350DADCB2DEF2EE41 /* null-dbgfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "null-dbgfmt.c"; sourceTree = "<group>"; };
+		F3EB3657F71CBA2A34579377 /* bin-objfmt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "bin-objfmt.c"; sourceTree = "<group>"; };
+		F8D2895C69085CE8C8F37D10 /* dwarf2-line.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "dwarf2-line.c"; sourceTree = "<group>"; };
+		F96B540178BB644DBE0D10D8 /* nasm-pp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "nasm-pp.c"; sourceTree = "<group>"; };
+		FA351D5EF0D15D1A4C360D8F /* mbo_getopt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mbo_getopt.c; sourceTree = "<group>"; };
+		FBB4FC48B048FADBB9F12B9F /* re2c */ = {isa = PBXFileReference; lastKnownFileType = text; path = re2c; sourceTree = "<group>"; };
+		FC54C7D83B21412059C3599F /* bc-data.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "bc-data.c"; sourceTree = "<group>"; };
+		FE94CA9E4258ACE814CBBEAD /* lc3bid.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lc3bid.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		008654D23E4B9A1B36573DEE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08B3557695E707FD0ACF19F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1D8E53D01E3A64315A411803 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CFBC20291D81E0ABB0B1367 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B681437594E3038D04CF2AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42520100E690F8AB78D3BE0D /* libgenperf_libs.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5EF86741E69F431C3FA0ECAC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A5F5D0D7459D59C487BCA1CA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB267364CE5F58B1B2789FB3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7194F15BAAA1C235C312E7C /* libgenperf_libs.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0233D817BB586A267CA7CE99 /* cpp */ = {
+			isa = PBXGroup;
+			children = (
+				460543FBB64EEEF6A7909129 /* cpp-preproc.c */,
+			);
+			path = cpp;
+			sourceTree = "<group>";
+		};
+		0E0BFA0F2BABC741C6BED442 /* raw */ = {
+			isa = PBXGroup;
+			children = (
+				1226F2501A3B23CA704A877E /* raw-preproc.c */,
+			);
+			path = raw;
+			sourceTree = "<group>";
+		};
+		103874D4FFE076C7CA7104F9 /* arch */ = {
+			isa = PBXGroup;
+			children = (
+				3D06EE7E4912B90E802C6810 /* lc3b */,
+				5C40F6684A200E7F93DC0A97 /* x86 */,
+			);
+			path = arch;
+			sourceTree = "<group>";
+		};
+		19736023D8CA1E0D2BEFFD61 /* yasm/config/mac */ = {
+			isa = PBXGroup;
+			children = (
+				E4DB17CE6B83CDCCC11CCD9C /* Makefile */,
+				749D0BAB9D65E3683E477DD8 /* config.h */,
+				49F7AF813B3AEBB340EC2AA6 /* libyasm-stdint.h */,
+			);
+			path = yasm/config/mac;
+			sourceTree = "<group>";
+		};
+		267FA4DA7766C9D3E63BB5B8 /* null */ = {
+			isa = PBXGroup;
+			children = (
+				F2FD3D8350DADCB2DEF2EE41 /* null-dbgfmt.c */,
+			);
+			path = null;
+			sourceTree = "<group>";
+		};
+		29E25699C7CDBD40582D7040 /* genmacro */ = {
+			isa = PBXGroup;
+			children = (
+				779488690BE236A5B345A287 /* genmacro.c */,
+			);
+			path = genmacro;
+			sourceTree = "<group>";
+		};
+		3D06EE7E4912B90E802C6810 /* lc3b */ = {
+			isa = PBXGroup;
+			children = (
+				96FDB0999B636B4C4DAA55CC /* lc3barch.c */,
+				22DF633A1F70CA9C20D95128 /* lc3bbc.c */,
+				742137A2AFAF638F5516AB44 /* lc3bid.re */,
+			);
+			path = lc3b;
+			sourceTree = "<group>";
+		};
+		3E36497B79192A5CA14B3D52 /* preprocs */ = {
+			isa = PBXGroup;
+			children = (
+				0233D817BB586A267CA7CE99 /* cpp */,
+				4D46AFAE978C8F9BA6435D17 /* nasm */,
+				0E0BFA0F2BABC741C6BED442 /* raw */,
+			);
+			path = preprocs;
+			sourceTree = "<group>";
+		};
+		4158EA674BFCF9CDF5B315EB /* stabs */ = {
+			isa = PBXGroup;
+			children = (
+				E16FFFB6FE3249018FC89C91 /* stabs-dbgfmt.c */,
+			);
+			path = stabs;
+			sourceTree = "<group>";
+		};
+		43AF2977A35BD1589F3D2356 /* SHARED_INTERMEDIATE_DIR */ = {
+			isa = PBXGroup;
+			children = (
+				15742B18944650B25B975636 /* version.mac */,
+				92EE4883450FBD5D92AD24DD /* x86cpu.c */,
+				ADE64189B30660C41E148D27 /* x86insn_gas.gperf */,
+				19FC5DDBA87B5064601ECBE9 /* x86insn_nasm.gperf */,
+				B0ED03C224298DF739204A5F /* x86insns.c */,
+				4F00AB71EEADCAFAD777250B /* x86regtmod.c */,
+			);
+			name = SHARED_INTERMEDIATE_DIR;
+			path = third_party/yasm;
+			sourceTree = SHARED_INTERMEDIATE_DIR;
+		};
+		46FE237FFDAC1CBFE0B45F4D /* re2c */ = {
+			isa = PBXGroup;
+			children = (
+				1ECB2A20948B985FE2B920AF /* actions.c */,
+				B37AA640E90EF001D81C6E1A /* code.c */,
+				C4C823C55923C77FC81CC8D6 /* dfa.c */,
+				106AB1639CC03152BDE045CE /* main.c */,
+				FA351D5EF0D15D1A4C360D8F /* mbo_getopt.c */,
+				172112ADAC5E112E907FC858 /* parser.c */,
+				7B8FE417D4F303FA38F04776 /* scanner.c */,
+				51D416D0D72D6558FFAF262A /* substr.c */,
+				04F4557654E334092163A03F /* translate.c */,
+			);
+			path = re2c;
+			sourceTree = "<group>";
+		};
+		4802FF6B03F14C7DB42AF8E1 /* Intermediates */ = {
+			isa = PBXGroup;
+			children = (
+				AF81A7178F97F0DE62706C55 /* INTERMEDIATE_DIR */,
+				43AF2977A35BD1589F3D2356 /* SHARED_INTERMEDIATE_DIR */,
+			);
+			name = Intermediates;
+			sourceTree = "<group>";
+		};
+		4A5F2E936E4734EAAECFC36F /* nasm */ = {
+			isa = PBXGroup;
+			children = (
+				7B184D892775AD267E2FD7A4 /* nasm-parse.c */,
+				8B8B0FC2E7AED6A8AA680CAC /* nasm-parser.c */,
+				8779CA592C02B67DDF1EC85C /* nasm-std.mac */,
+				5705D31E7450BA91B998F9F3 /* nasm-token.re */,
+			);
+			path = nasm;
+			sourceTree = "<group>";
+		};
+		4BDA0C95809AA782EB4F31E1 /* elf */ = {
+			isa = PBXGroup;
+			children = (
+				B99D451E200C4E27717F99FD /* elf-objfmt.c */,
+				03A9ACF06081FE31EC742831 /* elf-x86-amd64.c */,
+				CFD2A4A9E8367930A06CF0EC /* elf-x86-x86.c */,
+				59C87DA639E7C62C95FA300B /* elf.c */,
+			);
+			path = elf;
+			sourceTree = "<group>";
+		};
+		4D46AFAE978C8F9BA6435D17 /* nasm */ = {
+			isa = PBXGroup;
+			children = (
+				06454BF045390A6C806D914B /* genversion.c */,
+				1D7A4BA4343B86FC2BA9B6A2 /* nasm-eval.c */,
+				F96B540178BB644DBE0D10D8 /* nasm-pp.c */,
+				A1DB6702CFEBADDB1D9DBEF2 /* nasm-preproc.c */,
+				D525A25E8F87B646546B407B /* nasmlib.c */,
+			);
+			path = nasm;
+			sourceTree = "<group>";
+		};
+		4EEE39F4B3EAFB1BA599FDC8 /* macho */ = {
+			isa = PBXGroup;
+			children = (
+				52D50CCE1D7420C5A7896ABE /* macho-objfmt.c */,
+			);
+			path = macho;
+			sourceTree = "<group>";
+		};
+		5281420DAD64AB55D213328E = {
+			isa = PBXGroup;
+			children = (
+				6B41665F98BA2E8DDD616846 /* Source */,
+				4802FF6B03F14C7DB42AF8E1 /* Intermediates */,
+				6AB082A455E625BBED63AF41 /* Products */,
+				8937C5EEE72035E199D876D8 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		54740AAA701DB77CED341209 /* rdf */ = {
+			isa = PBXGroup;
+			children = (
+				6734DCAF3C89DC7CD05DECB6 /* rdf-objfmt.c */,
+			);
+			path = rdf;
+			sourceTree = "<group>";
+		};
+		5C40F6684A200E7F93DC0A97 /* x86 */ = {
+			isa = PBXGroup;
+			children = (
+				078801E2670631ACDF55DB11 /* gen_x86_insn.py */,
+				A77A59C2E6E7FCD76CCCC0AD /* x86arch.c */,
+				0107B0AE2E80564AC2C1A9BC /* x86bc.c */,
+				2C7B974D2B2F8F56ABAB7B3C /* x86cpu.gperf */,
+				8F633988BFEC358B24AD1D91 /* x86expr.c */,
+				7C1FCA0270974E239201AA66 /* x86id.c */,
+				71E54965BA18650BD3D9DA4D /* x86regtmod.gperf */,
+			);
+			path = x86;
+			sourceTree = "<group>";
+		};
+		601D93F56242CF65B2051A79 /* xdf */ = {
+			isa = PBXGroup;
+			children = (
+				7860646232EDB9239DBD4C15 /* xdf-objfmt.c */,
+			);
+			path = xdf;
+			sourceTree = "<group>";
+		};
+		6A27F88F1D17889B4EC6E2A2 /* coff */ = {
+			isa = PBXGroup;
+			children = (
+				2302355322E022CCEB8A9B7D /* coff-objfmt.c */,
+				04C0EE91B9FEF25FA33D9C41 /* win64-except.c */,
+				A4C9FBF17A6E1121DE4AFEC6 /* win64-gas.mac */,
+				E4F9EBBEBF5B47ED2FB49911 /* win64-nasm.mac */,
+			);
+			path = coff;
+			sourceTree = "<group>";
+		};
+		6AB082A455E625BBED63AF41 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1CD3105B0CC6850951ACB14C /* yasm */,
+				409E99D7C44751B2B82733E8 /* libgenperf_libs.a */,
+				D0186125C0873AF692668790 /* genstring */,
+				9E47A5965BD0DCF7DB42B8FC /* genperf */,
+				9DB2EAA39B6DA45B284428F1 /* genmacro */,
+				D3015B86C15A40ADD0F626C4 /* genversion */,
+				0AA7991A727CAC4C9F3E7817 /* re2c */,
+				4BE5C0FF1EE57DDD7E318BD3 /* genmodule */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6B41665F98BA2E8DDD616846 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				92FED72C8E9F5126205B4615 /* ../third_party */,
+				A6AE9BF50A6962819BFAEC58 /* BUILT_PRODUCTS_DIR */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		71E243DBB3C9B5FFF21472EA /* modules */ = {
+			isa = PBXGroup;
+			children = (
+				103874D4FFE076C7CA7104F9 /* arch */,
+				D22AAABCE5C74F61615AE11B /* dbgfmts */,
+				F718B8A9D194F570DE3908B5 /* listfmts/nasm */,
+				AB0CD1DEDFFF2F164613B281 /* objfmts */,
+				CAE5B64D999877943FA70F54 /* parsers */,
+				3E36497B79192A5CA14B3D52 /* preprocs */,
+			);
+			path = modules;
+			sourceTree = "<group>";
+		};
+		85D60634C603930CAB148AE0 /* frontends/yasm */ = {
+			isa = PBXGroup;
+			children = (
+				AC2E1A8D241F78F6E884F9F7 /* yasm-options.c */,
+				88824B9E221A171FEAE8F58B /* yasm.c */,
+			);
+			path = frontends/yasm;
+			sourceTree = "<group>";
+		};
+		87B04BE4D7DA7087A850CBF8 /* externals/yasm/source/patched-yasm */ = {
+			isa = PBXGroup;
+			children = (
+				85D60634C603930CAB148AE0 /* frontends/yasm */,
+				BC29348AF5FF8FAEC08E7E3E /* libyasm */,
+				71E243DBB3C9B5FFF21472EA /* modules */,
+				BE7A6F35896247A3B92686B7 /* tools */,
+				E30A5BE23582E0BCABA4C62D /* COPYING */,
+				8669EEADE9A0EA225FE832A0 /* genstring.c */,
+			);
+			path = "externals/yasm/source/patched-yasm";
+			sourceTree = "<group>";
+		};
+		8937C5EEE72035E199D876D8 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				ECBB243258AC0F1C28913C63 /* common.gypi */,
+				72A2269A64344EC3BED5E049 /* common_conditions.gypi */,
+				2BEBAABA480943A355C00C6C /* common_variables.gypi */,
+				E3F844D9847C4909204E4288 /* skia_for_android_framework_defines.gypi */,
+				915804D39D9CA64DFDA3D3B2 /* yasm.gyp */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		90C16EA03633561A9EA8466A /* codeview */ = {
+			isa = PBXGroup;
+			children = (
+				D5F244B2642DEE59E5EF559E /* cv-dbgfmt.c */,
+				A5855906D06E21972FA35CBF /* cv-symline.c */,
+				C5F1CC0B1B6A9D6AA86A231A /* cv-type.c */,
+			);
+			path = codeview;
+			sourceTree = "<group>";
+		};
+		92FED72C8E9F5126205B4615 /* ../third_party */ = {
+			isa = PBXGroup;
+			children = (
+				87B04BE4D7DA7087A850CBF8 /* externals/yasm/source/patched-yasm */,
+				19736023D8CA1E0D2BEFFD61 /* yasm/config/mac */,
+			);
+			path = ../third_party;
+			sourceTree = "<group>";
+		};
+		949331926F511BFF1C1B3FFB /* dbg */ = {
+			isa = PBXGroup;
+			children = (
+				8669865F1F66FEEF90354869 /* dbg-objfmt.c */,
+			);
+			path = dbg;
+			sourceTree = "<group>";
+		};
+		988D5A65A83C7EE352FD30D1 /* bin */ = {
+			isa = PBXGroup;
+			children = (
+				F3EB3657F71CBA2A34579377 /* bin-objfmt.c */,
+			);
+			path = bin;
+			sourceTree = "<group>";
+		};
+		A6AE9BF50A6962819BFAEC58 /* BUILT_PRODUCTS_DIR */ = {
+			isa = PBXGroup;
+			children = (
+				33358FD75E30942556DB76CA /* genperf */,
+				FBB4FC48B048FADBB9F12B9F /* re2c */,
+			);
+			name = BUILT_PRODUCTS_DIR;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AA152B22A27A6083DB6B5DBF /* gas */ = {
+			isa = PBXGroup;
+			children = (
+				F2D756E1F279EB73802F9F8C /* gas-parse-intel.c */,
+				5899059DE5122EF7CAB26EBB /* gas-parse.c */,
+				6F4DD707E08B48FFB061A7CF /* gas-parser.c */,
+				A8CB61C1EEE5F81A23135F20 /* gas-token.re */,
+			);
+			path = gas;
+			sourceTree = "<group>";
+		};
+		AB0CD1DEDFFF2F164613B281 /* objfmts */ = {
+			isa = PBXGroup;
+			children = (
+				988D5A65A83C7EE352FD30D1 /* bin */,
+				6A27F88F1D17889B4EC6E2A2 /* coff */,
+				949331926F511BFF1C1B3FFB /* dbg */,
+				4BDA0C95809AA782EB4F31E1 /* elf */,
+				4EEE39F4B3EAFB1BA599FDC8 /* macho */,
+				54740AAA701DB77CED341209 /* rdf */,
+				601D93F56242CF65B2051A79 /* xdf */,
+			);
+			path = objfmts;
+			sourceTree = "<group>";
+		};
+		AF81A7178F97F0DE62706C55 /* INTERMEDIATE_DIR */ = {
+			isa = PBXGroup;
+			children = (
+				555A052236AF314DE3C18B0A /* gas-token.c */,
+				FE94CA9E4258ACE814CBBEAD /* lc3bid.c */,
+				73705F5003D3FFF2573126AC /* license.c */,
+				81B018F26106BD9C53A5E4CB /* module.c */,
+				51845BB2E35D8E840D3C0CFB /* nasm-macros.c */,
+				0F1D9B6634C3E14E6AF0883C /* nasm-token.c */,
+				6B61FB2763EAB91B10F0AB16 /* nasm-version.c */,
+				E6A028B66629D70CF86E551B /* win64-gas.c */,
+				6A7C0E1AA7EFFAC3E4771602 /* win64-nasm.c */,
+				EAD4D13F54E5E1B37E678738 /* x86insn_gas.c */,
+				DD43915617050B59FADEF84C /* x86insn_nasm.c */,
+			);
+			name = INTERMEDIATE_DIR;
+			path = third_party/yasm;
+			sourceTree = INTERMEDIATE_DIR;
+		};
+		BC29348AF5FF8FAEC08E7E3E /* libyasm */ = {
+			isa = PBXGroup;
+			children = (
+				4CBB9938CA85DD3505CB3948 /* assocdat.c */,
+				C7899816E44F5CA311581E72 /* bc-align.c */,
+				FC54C7D83B21412059C3599F /* bc-data.c */,
+				06EF74EC08718DC95D38646D /* bc-incbin.c */,
+				1B1B612A38F82A348A27ECA9 /* bc-org.c */,
+				7DEB5C5507E30663F3261AA7 /* bc-reserve.c */,
+				512E19312D86CFDF2329CD76 /* bitvect.c */,
+				5AD8A7AC5331C9F1E941BE30 /* bytecode.c */,
+				B2224018324665E2293FC52B /* errwarn.c */,
+				146FC269FFFF037DB0B3FCA2 /* expr.c */,
+				A4B44E8A8672F545D04C52E8 /* file.c */,
+				808B85501E80B9AF1E66B58A /* floatnum.c */,
+				4FC2DD824574721CA0480143 /* genmodule.c */,
+				9965CB54EB55A485827CA1B8 /* hamt.c */,
+				ABC34BF328BC855A3FFCF336 /* insn.c */,
+				6E82FE919C891EEDD78B3A5F /* intnum.c */,
+				654A4E3F0798C668C258FD24 /* inttree.c */,
+				9876767B58B15FA9A3EDA1FA /* linemap.c */,
+				5AF00073BCF0871AEF54BA99 /* md5.c */,
+				4364660C27FA5EB3D7C60D99 /* mergesort.c */,
+				16FAF363BB206A4DD9C28688 /* module.in */,
+				E942DBF3C5BAE730B23F94DB /* phash.c */,
+				C5BF424002B7244397120D64 /* section.c */,
+				785D9B2A4892595EF37F8E8C /* strcasecmp.c */,
+				3F5046217B80B0623E3AA9DB /* strsep.c */,
+				6D2D4793E6DE5CC7911EEE59 /* symrec.c */,
+				67212CEF175B78E448F068B0 /* valparam.c */,
+				C27AF3A589C819F68F8CEB8B /* value.c */,
+				42ABB5F670D9E56A01974799 /* xmalloc.c */,
+				76C53415158F6846CC314E5E /* xstrdup.c */,
+			);
+			path = libyasm;
+			sourceTree = "<group>";
+		};
+		BE7A6F35896247A3B92686B7 /* tools */ = {
+			isa = PBXGroup;
+			children = (
+				29E25699C7CDBD40582D7040 /* genmacro */,
+				EF88DF889AB19F35CF30DC33 /* genperf */,
+				46FE237FFDAC1CBFE0B45F4D /* re2c */,
+			);
+			path = tools;
+			sourceTree = "<group>";
+		};
+		CAE5B64D999877943FA70F54 /* parsers */ = {
+			isa = PBXGroup;
+			children = (
+				AA152B22A27A6083DB6B5DBF /* gas */,
+				4A5F2E936E4734EAAECFC36F /* nasm */,
+			);
+			path = parsers;
+			sourceTree = "<group>";
+		};
+		D22AAABCE5C74F61615AE11B /* dbgfmts */ = {
+			isa = PBXGroup;
+			children = (
+				90C16EA03633561A9EA8466A /* codeview */,
+				F5FD50D17A8AE0E644ED5533 /* dwarf2 */,
+				267FA4DA7766C9D3E63BB5B8 /* null */,
+				4158EA674BFCF9CDF5B315EB /* stabs */,
+			);
+			path = dbgfmts;
+			sourceTree = "<group>";
+		};
+		EF88DF889AB19F35CF30DC33 /* genperf */ = {
+			isa = PBXGroup;
+			children = (
+				51E2ED586F7AE641D170A38E /* genperf.c */,
+				5B318002E1D5F945362A87E8 /* perfect.c */,
+			);
+			path = genperf;
+			sourceTree = "<group>";
+		};
+		F5FD50D17A8AE0E644ED5533 /* dwarf2 */ = {
+			isa = PBXGroup;
+			children = (
+				305827230135697817CFB7DA /* dwarf2-aranges.c */,
+				ACFFD8738C647139BD86AE6B /* dwarf2-dbgfmt.c */,
+				7A9AE52A3FDCAA611B11DC62 /* dwarf2-info.c */,
+				F8D2895C69085CE8C8F37D10 /* dwarf2-line.c */,
+			);
+			path = dwarf2;
+			sourceTree = "<group>";
+		};
+		F718B8A9D194F570DE3908B5 /* listfmts/nasm */ = {
+			isa = PBXGroup;
+			children = (
+				0343C2C10D184B96F12B0DAE /* nasm-listfmt.c */,
+			);
+			path = listfmts/nasm;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0C36DF2CEE38667B8A4AF0EB /* genversion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C98142EFCD850BF62F5DF59A /* Build configuration list for PBXNativeTarget "genversion" */;
+			buildPhases = (
+				B8FECEEDE3EC6160C264ECD5 /* Sources */,
+				1D8E53D01E3A64315A411803 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C3FBB1100505F6682DDDF51E /* PBXTargetDependency */,
+			);
+			name = genversion;
+			productName = genversion;
+			productReference = D3015B86C15A40ADD0F626C4 /* genversion */;
+			productType = "com.apple.product-type.tool";
+		};
+		754B8D62EE1A4806BCAB1B58 /* genperf_libs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5DEAB76D7CA4A289CD624F56 /* Build configuration list for PBXNativeTarget "genperf_libs" */;
+			buildPhases = (
+				D90BC6B7D4258F543A43290F /* Sources */,
+				008654D23E4B9A1B36573DEE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2D973706376C67CD67F33715 /* PBXTargetDependency */,
+			);
+			name = genperf_libs;
+			productName = genperf_libs;
+			productReference = 409E99D7C44751B2B82733E8 /* libgenperf_libs.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		7EC98B9251261F1670CC5F56 /* genperf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 75B7D968769883AC128A9830 /* Build configuration list for PBXNativeTarget "genperf" */;
+			buildPhases = (
+				B8F495D21D7831CB5C750CC7 /* Sources */,
+				5B681437594E3038D04CF2AF /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				360E6A1A7913A891B3AA6E2D /* PBXTargetDependency */,
+				F52233D557A6539D00639BB1 /* PBXTargetDependency */,
+			);
+			name = genperf;
+			productName = genperf;
+			productReference = 9E47A5965BD0DCF7DB42B8FC /* genperf */;
+			productType = "com.apple.product-type.tool";
+		};
+		89B630935CC8C8F4CC52A56A /* genmacro */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4821233373576D2035CC435E /* Build configuration list for PBXNativeTarget "genmacro" */;
+			buildPhases = (
+				281CDCDC6FE8449E49D3D7F6 /* Sources */,
+				A5F5D0D7459D59C487BCA1CA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6327B9E1D31B15FE10B76051 /* PBXTargetDependency */,
+			);
+			name = genmacro;
+			productName = genmacro;
+			productReference = 9DB2EAA39B6DA45B284428F1 /* genmacro */;
+			productType = "com.apple.product-type.tool";
+		};
+		B09C3D1CD1860F45C63F4A88 /* yasm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 25CE45489E12A19412E02B4D /* Build configuration list for PBXNativeTarget "yasm" */;
+			buildPhases = (
+				7D06C110AD35C0D6307D4D37 /* Sources */,
+				AB267364CE5F58B1B2789FB3 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FA064DCF18A357C849A035BD /* PBXTargetDependency */,
+				8B10A8848DEEEF33CB711BE5 /* PBXTargetDependency */,
+				5305EC8743283D0B63D70029 /* PBXTargetDependency */,
+				A9C189BAB804EF66F1CBC62D /* PBXTargetDependency */,
+				B52F8857B0E2711E7375794D /* PBXTargetDependency */,
+				7A2CB05ECF1CA0744958F845 /* PBXTargetDependency */,
+				55024F78E5C9619D0D4B8340 /* PBXTargetDependency */,
+				67CBEE719A41E336042218CF /* PBXTargetDependency */,
+				3328576A5B00683BC2287AE7 /* PBXTargetDependency */,
+			);
+			name = yasm;
+			productName = yasm;
+			productReference = 1CD3105B0CC6850951ACB14C /* yasm */;
+			productType = "com.apple.product-type.tool";
+		};
+		C152D26398B05ADFAA310FBC /* re2c */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 607B2E91879373FB8B1CFA3F /* Build configuration list for PBXNativeTarget "re2c" */;
+			buildPhases = (
+				F0451D00A455B9864E5CDCE8 /* Sources */,
+				3CFBC20291D81E0ABB0B1367 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7D84E00D21E4604F4323DE23 /* PBXTargetDependency */,
+			);
+			name = re2c;
+			productName = re2c;
+			productReference = 0AA7991A727CAC4C9F3E7817 /* re2c */;
+			productType = "com.apple.product-type.tool";
+		};
+		ECB3AB78926152B6842F9BFB /* genmodule */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FEE5CA38485D597B3D471653 /* Build configuration list for PBXNativeTarget "genmodule" */;
+			buildPhases = (
+				477B4420ED180EB0898D5C3E /* Sources */,
+				5EF86741E69F431C3FA0ECAC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D746012F587C6A4171C4EF98 /* PBXTargetDependency */,
+			);
+			name = genmodule;
+			productName = genmodule;
+			productReference = 4BE5C0FF1EE57DDD7E318BD3 /* genmodule */;
+			productType = "com.apple.product-type.tool";
+		};
+		F917BEE868E15DE64D0AE684 /* genstring */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DBF0E7841E2790799F863237 /* Build configuration list for PBXNativeTarget "genstring" */;
+			buildPhases = (
+				B557E14197B0A2B0A2EB6375 /* Sources */,
+				08B3557695E707FD0ACF19F5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				10CFBAF6C9BE62D9967CECA4 /* PBXTargetDependency */,
+			);
+			name = genstring;
+			productName = genstring;
+			productReference = D0186125C0873AF692668790 /* genstring */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		907ECAFEB6C437CFE4EBC27F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = EAC22B3DD329FEF5BE0796A2 /* Build configuration list for PBXProject "yasm" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = 5281420DAD64AB55D213328E;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				B406ECD0D032D755C9AA7638 /* All */,
+				B09C3D1CD1860F45C63F4A88 /* yasm */,
+				D65C2B6678D4D61C3D2BEE7C /* yasm Support */,
+				4907CF228CDD6F555610B572 /* config_sources */,
+				2A342B6CE3A16EC9AAC325E8 /* generate_files */,
+				754B8D62EE1A4806BCAB1B58 /* genperf_libs */,
+				F917BEE868E15DE64D0AE684 /* genstring */,
+				7EC98B9251261F1670CC5F56 /* genperf */,
+				89B630935CC8C8F4CC52A56A /* genmacro */,
+				0C36DF2CEE38667B8A4AF0EB /* genversion */,
+				C152D26398B05ADFAA310FBC /* re2c */,
+				ECB3AB78926152B6842F9BFB /* genmodule */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		01D2B874063C3CD35D7BB021 /* Rule "generate_gperf" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Rule \"generate_gperf\"";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "JOB_COUNT=\"$(/usr/sbin/sysctl -n hw.ncpu)\"\nif [ \"${JOB_COUNT}\" -gt 4 ]; then\n  JOB_COUNT=4\nfi\nexec xcrun make -f \"${PROJECT_FILE_PATH}/yasm_generate_gperf.make\" -j \"${JOB_COUNT}\"\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		17643966799E5C48ACBBC76C /* Rule "generate_gperf" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Rule \"generate_gperf\"";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "JOB_COUNT=\"$(/usr/sbin/sysctl -n hw.ncpu)\"\nif [ \"${JOB_COUNT}\" -gt 4 ]; then\n  JOB_COUNT=4\nfi\nexec xcrun make -f \"${PROJECT_FILE_PATH}/generate_files_generate_gperf.make\" -j \"${JOB_COUNT}\"\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		1BDA5811EB173CB3D84BB9EF /* Action "generate_version" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/genversion",
+			);
+			name = "Action \"generate_version\"";
+			outputPaths = (
+				"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm/version.mac",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"Generating yasm version file: ${SHARED_INTERMEDIATE_DIR}/third_party/yasm/version.mac\"\nexec \"${BUILT_PRODUCTS_DIR}/genversion\" \"${SHARED_INTERMEDIATE_DIR}/third_party/yasm/version.mac\"\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		2A19B1011740A2642F60EA3E /* Action "generate_win64_nasm" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/genmacro",
+				"../third_party/externals/yasm/source/patched-yasm/modules/objfmts/coff/win64-nasm.mac",
+			);
+			name = "Action \"generate_win64_nasm\"";
+			outputPaths = (
+				"$(INTERMEDIATE_DIR)/third_party/yasm/win64-nasm.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"yasm genmacro for ../third_party/externals/yasm/source/patched-yasm/modules/objfmts/coff/win64-nasm.mac\"\nexec \"${BUILT_PRODUCTS_DIR}/genmacro\" \"${INTERMEDIATE_DIR}/third_party/yasm/win64-nasm.c\" win64_nasm_stdmac ../third_party/externals/yasm/source/patched-yasm/modules/objfmts/coff/win64-nasm.mac\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		3937A11BD5C42257B7C9B154 /* Action "generate_nasm_version" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/genmacro",
+				"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm/version.mac",
+			);
+			name = "Action \"generate_nasm_version\"";
+			outputPaths = (
+				"$(INTERMEDIATE_DIR)/third_party/yasm/nasm-version.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"yasm genmacro for ${SHARED_INTERMEDIATE_DIR}/third_party/yasm/version.mac\"\nexec \"${BUILT_PRODUCTS_DIR}/genmacro\" \"${INTERMEDIATE_DIR}/third_party/yasm/nasm-version.c\" nasm_version_mac \"${SHARED_INTERMEDIATE_DIR}/third_party/yasm/version.mac\"\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		4A871E15A1D6E4BDBBE87924 /* Action "generate_win64_gas" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/genmacro",
+				"../third_party/externals/yasm/source/patched-yasm/modules/objfmts/coff/win64-gas.mac",
+			);
+			name = "Action \"generate_win64_gas\"";
+			outputPaths = (
+				"$(INTERMEDIATE_DIR)/third_party/yasm/win64-gas.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"yasm genmacro for ../third_party/externals/yasm/source/patched-yasm/modules/objfmts/coff/win64-gas.mac\"\nexec \"${BUILT_PRODUCTS_DIR}/genmacro\" \"${INTERMEDIATE_DIR}/third_party/yasm/win64-gas.c\" win64_gas_stdmac ../third_party/externals/yasm/source/patched-yasm/modules/objfmts/coff/win64-gas.mac\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		78F98A3A8E7B6F2F3A9E27E4 /* Rule "generate_re2c" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Rule \"generate_re2c\"";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "JOB_COUNT=\"$(/usr/sbin/sysctl -n hw.ncpu)\"\nif [ \"${JOB_COUNT}\" -gt 4 ]; then\n  JOB_COUNT=4\nfi\nexec xcrun make -f \"${PROJECT_FILE_PATH}/yasm_generate_re2c.make\" -j \"${JOB_COUNT}\"\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		9591A6291CDB08B09D4F194B /* Action "generate_x86_insn" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"../third_party/externals/yasm/source/patched-yasm/modules/arch/x86/gen_x86_insn.py",
+			);
+			name = "Action \"generate_x86_insn\"";
+			outputPaths = (
+				"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm/x86insns.c",
+				"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm/x86insn_gas.gperf",
+				"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm/x86insn_nasm.gperf",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"Running ../third_party/externals/yasm/source/patched-yasm/modules/arch/x86/gen_x86_insn.py\"\nexec python ../third_party/externals/yasm/source/patched-yasm/modules/arch/x86/gen_x86_insn.py \"${SHARED_INTERMEDIATE_DIR}/third_party/yasm\"\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		A2F567F018DD204B8BCFA437 /* Action "generate_nasm_macros" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/genmacro",
+				"../third_party/externals/yasm/source/patched-yasm/modules/parsers/nasm/nasm-std.mac",
+			);
+			name = "Action \"generate_nasm_macros\"";
+			outputPaths = (
+				"$(INTERMEDIATE_DIR)/third_party/yasm/nasm-macros.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"yasm genmacro for ../third_party/externals/yasm/source/patched-yasm/modules/parsers/nasm/nasm-std.mac\"\nexec \"${BUILT_PRODUCTS_DIR}/genmacro\" \"${INTERMEDIATE_DIR}/third_party/yasm/nasm-macros.c\" nasm_standard_mac ../third_party/externals/yasm/source/patched-yasm/modules/parsers/nasm/nasm-std.mac\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		B81CB52F3E1AEFB26D03FCAC /* Action "generate_module" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/genmodule",
+				"../third_party/externals/yasm/source/patched-yasm/libyasm/module.in",
+				../third_party/yasm/config/mac/Makefile,
+			);
+			name = "Action \"generate_module\"";
+			outputPaths = (
+				"$(INTERMEDIATE_DIR)/third_party/yasm/module.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"Generating yasm module information\"\nexec \"${BUILT_PRODUCTS_DIR}/genmodule\" ../third_party/externals/yasm/source/patched-yasm/libyasm/module.in ../third_party/yasm/config/mac/Makefile \"${INTERMEDIATE_DIR}/third_party/yasm/module.c\"\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		DEA25709CE70D4B845C2C262 /* Action "generate_lc3b_token" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/re2c",
+				"../third_party/externals/yasm/source/patched-yasm/modules/arch/lc3b/lc3bid.re",
+			);
+			name = "Action \"generate_lc3b_token\"";
+			outputPaths = (
+				"$(INTERMEDIATE_DIR)/third_party/yasm/lc3bid.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"Generating yasm tokens for lc3b\"\nexec \"${BUILT_PRODUCTS_DIR}/re2c\" -s -o \"${INTERMEDIATE_DIR}/third_party/yasm/lc3bid.c\" ../third_party/externals/yasm/source/patched-yasm/modules/arch/lc3b/lc3bid.re\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+		EA7C9BA8C1F7FF267024E4E8 /* Action "generate_license" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/genstring",
+				"../third_party/externals/yasm/source/patched-yasm/COPYING",
+			);
+			name = "Action \"generate_license\"";
+			outputPaths = (
+				"$(INTERMEDIATE_DIR)/third_party/yasm/license.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo note: \"Generating yasm embeddable license\"\nexec \"${BUILT_PRODUCTS_DIR}/genstring\" license_msg \"${INTERMEDIATE_DIR}/third_party/yasm/license.c\" ../third_party/externals/yasm/source/patched-yasm/COPYING\nexit 1\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		281CDCDC6FE8449E49D3D7F6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC07CB17D2CC1F869AD10CC4 /* genmacro.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		477B4420ED180EB0898D5C3E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				58A7C38A5F6B506325EF379A /* genmodule.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7D06C110AD35C0D6307D4D37 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				09871DB036BF9BF0BDA037E3 /* nasm-macros.c in Sources */,
+				F52FAB6AC6263A1A6DF5DFAD /* lc3bid.c in Sources */,
+				A84AB260B096AEA095CF316B /* module.c in Sources */,
+				98FEFF0252D265EC4239772B /* gas-token.c in Sources */,
+				0D9D5781EF89863246A81F57 /* nasm-token.c in Sources */,
+				A213A2D6ECFA6F108ABAE6EF /* yasm-options.c in Sources */,
+				5E1439E5EB631D49A7034CCA /* yasm.c in Sources */,
+				B05C6D113348E0ED29E6758C /* assocdat.c in Sources */,
+				F58DBA803604D753AEA627AC /* bc-align.c in Sources */,
+				C6C0D3FB2B6CF29B7E544F35 /* bc-data.c in Sources */,
+				41A4E4A6F4E6647A4E33E937 /* bc-incbin.c in Sources */,
+				0375C6ECB75487E4024220ED /* bc-org.c in Sources */,
+				23EC2CCB6EF97D61CDE3F6B0 /* bc-reserve.c in Sources */,
+				D884DD8D3938FC7EE8FE4553 /* bitvect.c in Sources */,
+				C42D445E38FB0AA5C7BAAE43 /* bytecode.c in Sources */,
+				9E06BBBFA3C63B5BD08B3BED /* errwarn.c in Sources */,
+				374ACEE926360D0BD5C72BC2 /* expr.c in Sources */,
+				7BD5DECACBA5DFDCDC33A29F /* file.c in Sources */,
+				5308D8930D5D6C43233FBC43 /* floatnum.c in Sources */,
+				30A27A418AC5D47395295F45 /* hamt.c in Sources */,
+				ABAF933FFCFAF93C540FB328 /* insn.c in Sources */,
+				6F48F4EC94ED57CC0D22CB36 /* intnum.c in Sources */,
+				FB61F1FA9273370051448DE0 /* inttree.c in Sources */,
+				CF2C000AA6DB018C400D81F1 /* linemap.c in Sources */,
+				49C62AD36B1E0651576AFC50 /* md5.c in Sources */,
+				154148BAC57448EFEB0C5D29 /* mergesort.c in Sources */,
+				56D832B2B261048E8479CBC2 /* section.c in Sources */,
+				DC09E4C3EEEC08443D8A1A80 /* strcasecmp.c in Sources */,
+				64997E95105F0A460A5BFB36 /* strsep.c in Sources */,
+				ECBAD19082342596E955DBF9 /* symrec.c in Sources */,
+				7AA2DFFF001BFD4126B43811 /* valparam.c in Sources */,
+				FA10582CCB85577187358E8E /* value.c in Sources */,
+				0B31F52797F165D600FA0D06 /* lc3barch.c in Sources */,
+				827DE043D57EF0869D29291D /* lc3bbc.c in Sources */,
+				D947C0815B4206677F64328C /* x86arch.c in Sources */,
+				EC97FF7A2634014E1299B8E1 /* x86bc.c in Sources */,
+				E7A312D01835281CD36A779A /* x86expr.c in Sources */,
+				469414641F8ABDFE4A808F4B /* x86id.c in Sources */,
+				C0E93099E10F04FFD44781BD /* cv-dbgfmt.c in Sources */,
+				15985A401D7CFE448FE34E07 /* cv-symline.c in Sources */,
+				41E6572697537DBA5338CB36 /* cv-type.c in Sources */,
+				0BF435949E495133FF34942E /* dwarf2-aranges.c in Sources */,
+				A3F300D82DC37E438366AC67 /* dwarf2-dbgfmt.c in Sources */,
+				6C9BF001E5F8E6CC0CD16707 /* dwarf2-info.c in Sources */,
+				9A5E1E842B9A194883508BB3 /* dwarf2-line.c in Sources */,
+				BEE695D169825B2E5D1FCF2D /* null-dbgfmt.c in Sources */,
+				0C0CF42FF7BA9CB4EAF90994 /* stabs-dbgfmt.c in Sources */,
+				590745D943F2F15AFF85E7EE /* nasm-listfmt.c in Sources */,
+				295EE198E75B546425AEDE41 /* bin-objfmt.c in Sources */,
+				5BE5A48C8CD19A74FF9341E9 /* coff-objfmt.c in Sources */,
+				4D696240DED25536AE2129A7 /* win64-except.c in Sources */,
+				15F51B7723A47F8153E02650 /* dbg-objfmt.c in Sources */,
+				8357DB9D8C3B8FCBE7A140D7 /* elf-objfmt.c in Sources */,
+				015722FDFCDE36B59D18058D /* elf-x86-amd64.c in Sources */,
+				B3C56354E5E8AF44062EF05B /* elf-x86-x86.c in Sources */,
+				678FA1D44B8455687F858D04 /* elf.c in Sources */,
+				7FF50C6DE00EFFA1607FE88A /* macho-objfmt.c in Sources */,
+				4A005597FE586970C8403479 /* rdf-objfmt.c in Sources */,
+				502BAE85B126A8F654700513 /* xdf-objfmt.c in Sources */,
+				002943E6D5D0C6A8F7BD14D9 /* gas-parse.c in Sources */,
+				F8699770B498C3B090D950C9 /* gas-parse-intel.c in Sources */,
+				F5596BA73738E2CBE89B197F /* gas-parser.c in Sources */,
+				E8C66C2A7F6ED26399898368 /* nasm-parse.c in Sources */,
+				2CE3794D4900553071601FD5 /* nasm-parser.c in Sources */,
+				8FEEE891DD8DC675B5EABCB7 /* cpp-preproc.c in Sources */,
+				1EFF5E6A762FC38179443123 /* nasm-eval.c in Sources */,
+				32F941FF659B2DF5233CDD02 /* nasm-pp.c in Sources */,
+				9233D1464DCB83B4DACCC035 /* nasm-preproc.c in Sources */,
+				6EFA977ED12A756A9E42C540 /* nasmlib.c in Sources */,
+				27DDBEC1C74FAB9D3481A37B /* raw-preproc.c in Sources */,
+				1650D228E72675E730F4B15E /* x86cpu.c in Sources */,
+				A0074870B88F1F462C948343 /* x86regtmod.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B557E14197B0A2B0A2EB6375 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				39E1045BFEF6CF2B1C600E30 /* genstring.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B8F495D21D7831CB5C750CC7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8315DE5A5FEF79E65E8032B2 /* genperf.c in Sources */,
+				42914DB1D7C3BB3645FDF0EC /* perfect.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B8FECEEDE3EC6160C264ECD5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D1750B2A6BEECE04B6DD8472 /* genversion.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D90BC6B7D4258F543A43290F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26FC10312E22C9F7698B3DF4 /* phash.c in Sources */,
+				11B844A8CA0ECF11ACA16CDC /* xmalloc.c in Sources */,
+				177905BE57614FF3CAB1B5DB /* xstrdup.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0451D00A455B9864E5CDCE8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5679A5C4A7F334CD607D954A /* main.c in Sources */,
+				90949E3EAB5E6F87B646ED41 /* code.c in Sources */,
+				ECEB3F73D3132B3CB7D30A78 /* dfa.c in Sources */,
+				A4D0D639D2BD45C7257921F1 /* parser.c in Sources */,
+				6293B074C448B18B37F16B08 /* actions.c in Sources */,
+				91C6176CBCDE151EF5358A15 /* scanner.c in Sources */,
+				0ABA98970EAD01A7060A8264 /* mbo_getopt.c in Sources */,
+				A3114024FA3F44403699167C /* substr.c in Sources */,
+				C42052F15FFD08A97EB4E241 /* translate.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		08C19F95B59270A52A2EFAE0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 89B630935CC8C8F4CC52A56A /* genmacro */;
+			targetProxy = E5ABE9348270B96ABEAEEC3B /* PBXContainerItemProxy */;
+		};
+		10CFBAF6C9BE62D9967CECA4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = 375F1C5AD445773D6FC35BAC /* PBXContainerItemProxy */;
+		};
+		10EE9E8B45AFC4BDFE8CBD9C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F917BEE868E15DE64D0AE684 /* genstring */;
+			targetProxy = 18841051965370F20AC26E44 /* PBXContainerItemProxy */;
+		};
+		1D94D4782CBC95432540705A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 89B630935CC8C8F4CC52A56A /* genmacro */;
+			targetProxy = 9255FA93D265904F2EA39CDB /* PBXContainerItemProxy */;
+		};
+		2D973706376C67CD67F33715 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = A055E508030C47037FA18CEA /* PBXContainerItemProxy */;
+		};
+		308D1CAD3AB768B7CA9EDC71 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ECB3AB78926152B6842F9BFB /* genmodule */;
+			targetProxy = AB8A68006EBFF587DC0FF4DE /* PBXContainerItemProxy */;
+		};
+		3328576A5B00683BC2287AE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C152D26398B05ADFAA310FBC /* re2c */;
+			targetProxy = F196A766E322AE6DC35E41BE /* PBXContainerItemProxy */;
+		};
+		340F6ED70184A135F751DADB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0C36DF2CEE38667B8A4AF0EB /* genversion */;
+			targetProxy = 3B8503FCD718D69648335BFE /* PBXContainerItemProxy */;
+		};
+		360E6A1A7913A891B3AA6E2D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 754B8D62EE1A4806BCAB1B58 /* genperf_libs */;
+			targetProxy = F550F695C5F044D49278AC9E /* PBXContainerItemProxy */;
+		};
+		434AB6C9A7FA808D6D0CF6BA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C152D26398B05ADFAA310FBC /* re2c */;
+			targetProxy = 3A9A609C010A3C0C55547A7E /* PBXContainerItemProxy */;
+		};
+		461C1DB376CAFDA3CCD233A1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0C36DF2CEE38667B8A4AF0EB /* genversion */;
+			targetProxy = E2C295C46973F52DD879E084 /* PBXContainerItemProxy */;
+		};
+		465EDCEB4709134BA8C690A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 754B8D62EE1A4806BCAB1B58 /* genperf_libs */;
+			targetProxy = 270BEC5BD4CC9DA8BE2169CA /* PBXContainerItemProxy */;
+		};
+		500A682F16935FCAE6309A61 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = 99C054D7CA34478986871A86 /* PBXContainerItemProxy */;
+		};
+		5305EC8743283D0B63D70029 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 89B630935CC8C8F4CC52A56A /* genmacro */;
+			targetProxy = 0EEAE3998FD38365DF5E4A6F /* PBXContainerItemProxy */;
+		};
+		55024F78E5C9619D0D4B8340 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2A342B6CE3A16EC9AAC325E8 /* generate_files */;
+			targetProxy = CF85BBF9B49DB4F2BC507AED /* PBXContainerItemProxy */;
+		};
+		5552C96874D22B1F9A1AFB90 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2A342B6CE3A16EC9AAC325E8 /* generate_files */;
+			targetProxy = EEA127BF0A4037F319ABB0AA /* PBXContainerItemProxy */;
+		};
+		6327B9E1D31B15FE10B76051 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = F5201B99A80D0B75AE5969D6 /* PBXContainerItemProxy */;
+		};
+		67CBEE719A41E336042218CF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F917BEE868E15DE64D0AE684 /* genstring */;
+			targetProxy = 12EF1AA146D9AD2C12CA4863 /* PBXContainerItemProxy */;
+		};
+		6AD9FF274FBEA5E0DE4C8D4B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ECB3AB78926152B6842F9BFB /* genmodule */;
+			targetProxy = 8FD44A8B0147AD52EBBA23F5 /* PBXContainerItemProxy */;
+		};
+		7A2CB05ECF1CA0744958F845 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 754B8D62EE1A4806BCAB1B58 /* genperf_libs */;
+			targetProxy = CBD787581B2E6F7E60D03556 /* PBXContainerItemProxy */;
+		};
+		7D84E00D21E4604F4323DE23 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = 4827E5DC3221C644200D51C4 /* PBXContainerItemProxy */;
+		};
+		7D915CDCDBE3B8BFAFBB9F29 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F917BEE868E15DE64D0AE684 /* genstring */;
+			targetProxy = 2FD19BA0ADC79E58B05F2FF7 /* PBXContainerItemProxy */;
+		};
+		8001B251B7831856F471DF28 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2A342B6CE3A16EC9AAC325E8 /* generate_files */;
+			targetProxy = 523D86CED665436CDE127E8B /* PBXContainerItemProxy */;
+		};
+		8B10A8848DEEEF33CB711BE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = 143E9950D18AB31778B0250E /* PBXContainerItemProxy */;
+		};
+		A51FB64CBC6BF7A4F8F11909 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 754B8D62EE1A4806BCAB1B58 /* genperf_libs */;
+			targetProxy = DC972EBCE53C7F6BE8908BD7 /* PBXContainerItemProxy */;
+		};
+		A9C189BAB804EF66F1CBC62D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ECB3AB78926152B6842F9BFB /* genmodule */;
+			targetProxy = EC01DD25566EA8125B69D3EC /* PBXContainerItemProxy */;
+		};
+		AF0F31D0240B98E2F80939C1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = C36B049D0FE2379B3C84A8AA /* PBXContainerItemProxy */;
+		};
+		B52F8857B0E2711E7375794D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7EC98B9251261F1670CC5F56 /* genperf */;
+			targetProxy = F56F0BAB48A3CBD413B1C688 /* PBXContainerItemProxy */;
+		};
+		B85D167A85A45903A8B78C4E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B09C3D1CD1860F45C63F4A88 /* yasm */;
+			targetProxy = E99FCD0A276649B43A2D028D /* PBXContainerItemProxy */;
+		};
+		C3FBB1100505F6682DDDF51E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = F4861D691DB02D6CC5528327 /* PBXContainerItemProxy */;
+		};
+		C5BF1ED7D1FA56070F8FE597 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C152D26398B05ADFAA310FBC /* re2c */;
+			targetProxy = 05E3C3ABC1D9E6CF20BFBCCE /* PBXContainerItemProxy */;
+		};
+		D121C3C4037CCFD0CC81FCE0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7EC98B9251261F1670CC5F56 /* genperf */;
+			targetProxy = F36F954630B32C181581C573 /* PBXContainerItemProxy */;
+		};
+		D20949E0FA7FE06292EB106A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7EC98B9251261F1670CC5F56 /* genperf */;
+			targetProxy = DB37AF695EE0255949313143 /* PBXContainerItemProxy */;
+		};
+		D746012F587C6A4171C4EF98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = F97ECB8152F6F5307C597C53 /* PBXContainerItemProxy */;
+		};
+		E89B3484904D0A72A782E413 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7EC98B9251261F1670CC5F56 /* genperf */;
+			targetProxy = 84EAAAC5F01475A12CEF0DFD /* PBXContainerItemProxy */;
+		};
+		F52233D557A6539D00639BB1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907CF228CDD6F555610B572 /* config_sources */;
+			targetProxy = E9F16560FB7E6CBECCF90EF4 /* PBXContainerItemProxy */;
+		};
+		FA064DCF18A357C849A035BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D65C2B6678D4D61C3D2BEE7C /* yasm Support */;
+			targetProxy = F149446D7483B36143E66C0C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0CA3CB8BAA6978E1A1703F67 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmodule;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		131CFAD6E5D646AF4552C772 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmacro;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		15A67EDCB877C829033309A9 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmacro;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		160E483974FB28E6F33E6C3C /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+				SYMROOT = ../xcodebuild;
+			};
+			name = Release_Developer;
+		};
+		17F1786ACA7B8A7C0C64B5F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+				SYMROOT = ../xcodebuild;
+			};
+			name = Release;
+		};
+		1A8BE688A2AC226F18115242 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genversion;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		1B589EA250DE387AD9CA45B3 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Coverage;
+		};
+		1BDA2CACED2E79A9B126A7C9 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genstring;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		1E041A2AE2E99EDD379E291A /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+				SYMROOT = ../xcodebuild;
+			};
+			name = Coverage;
+		};
+		2110832976803595EAC8F143 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = re2c;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		2C8E3359FB865048E9092E49 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmodule;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		2D47D01A0E014FF0634EB105 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = generate_files;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		2F08A6B30C0C040A37F3B2E8 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release_Developer;
+		};
+		3377F311FA7523CB53CFD407 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genversion;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		384FEDCDE3DAC8CA885715E1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		3D9365E7F43BC5D76E06F81A /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = re2c;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		44D9E7485DAA0C7700DC6AC9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
+		4D6F441D7C549CF6A2D7D1ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = generate_files;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		522CA6DAC37E101900A81C37 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genversion;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		602C3181A8C8B6814F7264FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmacro;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		66731F4317AB8747FC4D0A3F /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+					"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm",
+					"$(INTERMEDIATE_DIR)/third_party/yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = yasm;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+		689C55122D155F8DC494C17D /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = re2c;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+		6CBDD020BE9063497C71E3A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmodule;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		75A74F5B2099C24865FB4AE6 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		81C4FE3C4DC3FA51760BB8CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmacro;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		82EE3ABF1870285F93C756B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = re2c;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		9367C5C415A1908DF74C19BB /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf_libs;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		9596F14BD953D1C7C381355C /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+					"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm",
+					"$(INTERMEDIATE_DIR)/third_party/yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = yasm;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		98A8248AA17EF31F34A40B8C /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = generate_files;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		9BA41119F6E51D7493F79CD9 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genstring;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		9E1742A7C1C27780F8CE660B /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf_libs;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		9E2731C6702DEA1C35BDA141 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+				SYMROOT = ../xcodebuild;
+			};
+			name = Debug;
+		};
+		A7873EDDEC807EFD29CF1123 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = config_sources;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		A916589DAA10FE307C70120E /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		ACE0C708A8675DA98E3A3C89 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "yasm Support";
+			};
+			name = Debug;
+		};
+		B630602ACD8B86421FEB28EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+					"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm",
+					"$(INTERMEDIATE_DIR)/third_party/yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = yasm;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		B6813E100713FE4A42DF9D1C /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = config_sources;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		BAFA136BF495B9A9AD250379 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "yasm Support";
+			};
+			name = Release;
+		};
+		BB6C65F7A88109762A326110 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf_libs;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		C45DDE262D16D2089FDE3FCA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		D00D598E446CB2C852D64C20 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genstring;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		D62A3C6C0762AEFCCDB25CEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = config_sources;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		D670B4B3AB9543BF2D70010A /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "yasm Support";
+			};
+			name = Release_Developer;
+		};
+		DE7FD4C16D8446F03476A7B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genstring;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		E1ED4639DF305D9817C60A90 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genmodule;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		E456751D64875FA3EE524CDF /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = generate_files;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		E6E1B5DB7A925E42D65C2937 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = config_sources;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		E7776E0EB5F0452DDEE70F64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+					"$(SHARED_INTERMEDIATE_DIR)/third_party/yasm",
+					"$(INTERMEDIATE_DIR)/third_party/yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = yasm;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		EEA49D45E67260F8BAAAD962 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genperf_libs;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		F014662D6476E2AE3615ABD2 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "yasm Support";
+			};
+			name = Coverage;
+		};
+		F295E72E9599FFBDBF387DA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		FE08144F3A556D330D1D222F /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = "";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/yasm/config/mac,
+					"../third_party/externals/yasm/source/patched-yasm",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = genversion;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		25CE45489E12A19412E02B4D /* Build configuration list for PBXNativeTarget "yasm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9596F14BD953D1C7C381355C /* Coverage */,
+				E7776E0EB5F0452DDEE70F64 /* Debug */,
+				B630602ACD8B86421FEB28EE /* Release */,
+				66731F4317AB8747FC4D0A3F /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		4821233373576D2035CC435E /* Build configuration list for PBXNativeTarget "genmacro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				15A67EDCB877C829033309A9 /* Coverage */,
+				81C4FE3C4DC3FA51760BB8CC /* Debug */,
+				602C3181A8C8B6814F7264FE /* Release */,
+				131CFAD6E5D646AF4552C772 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		4C2AD73A7F40A3CFB6F513A2 /* Build configuration list for PBXAggregateTarget "generate_files" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98A8248AA17EF31F34A40B8C /* Coverage */,
+				2D47D01A0E014FF0634EB105 /* Debug */,
+				4D6F441D7C549CF6A2D7D1ED /* Release */,
+				E456751D64875FA3EE524CDF /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		54D7F8B0C0AC9D0A4EF593C0 /* Build configuration list for PBXAggregateTarget "yasm Support" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F014662D6476E2AE3615ABD2 /* Coverage */,
+				ACE0C708A8675DA98E3A3C89 /* Debug */,
+				BAFA136BF495B9A9AD250379 /* Release */,
+				D670B4B3AB9543BF2D70010A /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		5DEAB76D7CA4A289CD624F56 /* Build configuration list for PBXNativeTarget "genperf_libs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E1742A7C1C27780F8CE660B /* Coverage */,
+				EEA49D45E67260F8BAAAD962 /* Debug */,
+				BB6C65F7A88109762A326110 /* Release */,
+				9367C5C415A1908DF74C19BB /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		607B2E91879373FB8B1CFA3F /* Build configuration list for PBXNativeTarget "re2c" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D9365E7F43BC5D76E06F81A /* Coverage */,
+				2110832976803595EAC8F143 /* Debug */,
+				82EE3ABF1870285F93C756B3 /* Release */,
+				689C55122D155F8DC494C17D /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		650F7C8308AE81B660380985 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B589EA250DE387AD9CA45B3 /* Coverage */,
+				F295E72E9599FFBDBF387DA3 /* Debug */,
+				44D9E7485DAA0C7700DC6AC9 /* Release */,
+				2F08A6B30C0C040A37F3B2E8 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		75B7D968769883AC128A9830 /* Build configuration list for PBXNativeTarget "genperf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				75A74F5B2099C24865FB4AE6 /* Coverage */,
+				C45DDE262D16D2089FDE3FCA /* Debug */,
+				384FEDCDE3DAC8CA885715E1 /* Release */,
+				A916589DAA10FE307C70120E /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		AC4F345D9F3F4EBE456EF96A /* Build configuration list for PBXAggregateTarget "config_sources" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7873EDDEC807EFD29CF1123 /* Coverage */,
+				E6E1B5DB7A925E42D65C2937 /* Debug */,
+				D62A3C6C0762AEFCCDB25CEC /* Release */,
+				B6813E100713FE4A42DF9D1C /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		C98142EFCD850BF62F5DF59A /* Build configuration list for PBXNativeTarget "genversion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FE08144F3A556D330D1D222F /* Coverage */,
+				1A8BE688A2AC226F18115242 /* Debug */,
+				3377F311FA7523CB53CFD407 /* Release */,
+				522CA6DAC37E101900A81C37 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		DBF0E7841E2790799F863237 /* Build configuration list for PBXNativeTarget "genstring" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BDA2CACED2E79A9B126A7C9 /* Coverage */,
+				D00D598E446CB2C852D64C20 /* Debug */,
+				DE7FD4C16D8446F03476A7B3 /* Release */,
+				9BA41119F6E51D7493F79CD9 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		EAC22B3DD329FEF5BE0796A2 /* Build configuration list for PBXProject "yasm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1E041A2AE2E99EDD379E291A /* Coverage */,
+				9E2731C6702DEA1C35BDA141 /* Debug */,
+				17F1786ACA7B8A7C0C64B5F9 /* Release */,
+				160E483974FB28E6F33E6C3C /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		FEE5CA38485D597B3D471653 /* Build configuration list for PBXNativeTarget "genmodule" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1ED4639DF305D9817C60A90 /* Coverage */,
+				6CBDD020BE9063497C71E3A4 /* Debug */,
+				2C8E3359FB865048E9092E49 /* Release */,
+				0CA3CB8BAA6978E1A1703F67 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 907ECAFEB6C437CFE4EBC27F /* Project object */;
+}

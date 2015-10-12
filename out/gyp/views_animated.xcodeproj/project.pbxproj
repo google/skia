@@ -1,0 +1,525 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		26978D54FAB11D0F7AD1A9EA /* SkBorderView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE8CBB2990F1501AF16DF1D0 /* SkBorderView.cpp */; };
+		474A4811B80FCA6F95F97559 /* SkStaticTextView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E1BA33140DEEECC5A937C2C /* SkStaticTextView.cpp */; };
+		995769A869BE3DDB5B87ED09 /* SkWidgetViews.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63F6209D567DCF25C491E569 /* SkWidgetViews.cpp */; };
+		9F70A89B2D831B43EF77A3F8 /* SkScrollBarView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41024B97BC7200E840AEA370 /* SkScrollBarView.cpp */; };
+		D032529EB205AF821F8F6A58 /* SkImageView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C82240C6974C73FD5F770 /* SkImageView.cpp */; };
+		E5EDEB59F7D6C8303B8642DC /* SkProgressBarView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70CAB0C5272DA6F922B582F4 /* SkProgressBarView.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		578B40E77FCE485D3BC95620 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 669A47E5414468304530A112 /* skia_lib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FAACAD0576FEAB6DC6993FBC;
+			remoteInfo = skia_lib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1EF73299617F51875D185E6E /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		2E1BA33140DEEECC5A937C2C /* SkStaticTextView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkStaticTextView.cpp; sourceTree = "<group>"; };
+		3B06B544455682F99E69B1A6 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		41024B97BC7200E840AEA370 /* SkScrollBarView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkScrollBarView.cpp; sourceTree = "<group>"; };
+		5BA2FD9085510220BBA1E0C6 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		5C49D655D534E2C9CB53CB59 /* SkBorderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkBorderView.h; sourceTree = "<group>"; };
+		63F6209D567DCF25C491E569 /* SkWidgetViews.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkWidgetViews.cpp; sourceTree = "<group>"; };
+		669A47E5414468304530A112 /* skia_lib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia_lib.xcodeproj; path = ../out/gyp/skia_lib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		6B4917883BAAC91B77D6DE74 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		70CAB0C5272DA6F922B582F4 /* SkProgressBarView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkProgressBarView.cpp; sourceTree = "<group>"; };
+		7B7DF00FE16B93C6140A0EAD /* SkScrollBarView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkScrollBarView.h; sourceTree = "<group>"; };
+		8B0C82240C6974C73FD5F770 /* SkImageView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageView.cpp; sourceTree = "<group>"; };
+		8F6CFDF3FAF798E4A0E551C3 /* libviews_animated.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libviews_animated.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4CCA70101D50EBCB4B63A96 /* SkImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkImageView.h; sourceTree = "<group>"; };
+		A82DDF10DBEF8037B1037E73 /* SkWidgetViews.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkWidgetViews.h; sourceTree = "<group>"; };
+		B603766A616E777F04EABA70 /* views_animated.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = views_animated.gyp; sourceTree = "<group>"; };
+		DAC4AFA2FE4C510A03BAC246 /* SkProgressBarView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkProgressBarView.h; sourceTree = "<group>"; };
+		FE8CBB2990F1501AF16DF1D0 /* SkBorderView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBorderView.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9BF3BBD3A76617D06186A0F3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		36AC5ECBC1654E7539B5482E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		37B73B25C5F1B1FEC67CF01E = {
+			isa = PBXGroup;
+			children = (
+				9B667F7F84E43F84888A36F8 /* Source */,
+				49CF34D3C4F3BF35D3FECD21 /* Projects */,
+				F45AAD31AF368A1E09E73470 /* Products */,
+				5F760A166ACF6831D68AE8E5 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		49CF34D3C4F3BF35D3FECD21 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				669A47E5414468304530A112 /* skia_lib.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		5F760A166ACF6831D68AE8E5 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				1EF73299617F51875D185E6E /* common.gypi */,
+				6B4917883BAAC91B77D6DE74 /* common_conditions.gypi */,
+				3B06B544455682F99E69B1A6 /* common_variables.gypi */,
+				5BA2FD9085510220BBA1E0C6 /* skia_for_android_framework_defines.gypi */,
+				B603766A616E777F04EABA70 /* views_animated.gyp */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		9B667F7F84E43F84888A36F8 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				B47A64D14F55BE9A0A2AB99E /* include/views/animated */,
+				C9FCE0F16632D7416A812E6F /* src/views/animated */,
+			);
+			name = Source;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		B47A64D14F55BE9A0A2AB99E /* include/views/animated */ = {
+			isa = PBXGroup;
+			children = (
+				5C49D655D534E2C9CB53CB59 /* SkBorderView.h */,
+				A4CCA70101D50EBCB4B63A96 /* SkImageView.h */,
+				DAC4AFA2FE4C510A03BAC246 /* SkProgressBarView.h */,
+				7B7DF00FE16B93C6140A0EAD /* SkScrollBarView.h */,
+				A82DDF10DBEF8037B1037E73 /* SkWidgetViews.h */,
+			);
+			path = include/views/animated;
+			sourceTree = "<group>";
+		};
+		C9FCE0F16632D7416A812E6F /* src/views/animated */ = {
+			isa = PBXGroup;
+			children = (
+				FE8CBB2990F1501AF16DF1D0 /* SkBorderView.cpp */,
+				8B0C82240C6974C73FD5F770 /* SkImageView.cpp */,
+				70CAB0C5272DA6F922B582F4 /* SkProgressBarView.cpp */,
+				41024B97BC7200E840AEA370 /* SkScrollBarView.cpp */,
+				2E1BA33140DEEECC5A937C2C /* SkStaticTextView.cpp */,
+				63F6209D567DCF25C491E569 /* SkWidgetViews.cpp */,
+			);
+			path = src/views/animated;
+			sourceTree = "<group>";
+		};
+		F45AAD31AF368A1E09E73470 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8F6CFDF3FAF798E4A0E551C3 /* libviews_animated.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7C7223C8F28860AAC2DBC6EA /* views_animated */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 80FE09556CEB82EF41418CE5 /* Build configuration list for PBXNativeTarget "views_animated" */;
+			buildPhases = (
+				85D0A131697C1DABFD1D779D /* Sources */,
+				9BF3BBD3A76617D06186A0F3 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				889DDCC7F3050DF07F3559AC /* PBXTargetDependency */,
+			);
+			name = views_animated;
+			productName = views_animated;
+			productReference = 8F6CFDF3FAF798E4A0E551C3 /* libviews_animated.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		95E45615A3989E9DCCF9DCCA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 152B2E32C0E71EBB5235514D /* Build configuration list for PBXProject "views_animated" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = 37B73B25C5F1B1FEC67CF01E;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = 36AC5ECBC1654E7539B5482E /* Products */;
+					ProjectRef = 669A47E5414468304530A112 /* skia_lib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				7C7223C8F28860AAC2DBC6EA /* views_animated */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		85D0A131697C1DABFD1D779D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26978D54FAB11D0F7AD1A9EA /* SkBorderView.cpp in Sources */,
+				D032529EB205AF821F8F6A58 /* SkImageView.cpp in Sources */,
+				E5EDEB59F7D6C8303B8642DC /* SkProgressBarView.cpp in Sources */,
+				9F70A89B2D831B43EF77A3F8 /* SkScrollBarView.cpp in Sources */,
+				474A4811B80FCA6F95F97559 /* SkStaticTextView.cpp in Sources */,
+				995769A869BE3DDB5B87ED09 /* SkWidgetViews.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		889DDCC7F3050DF07F3559AC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia_lib;
+			targetProxy = 578B40E77FCE485D3BC95620 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		10CABAFD3DEAC96940EB28B1 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		1714A871501AC312282BC223 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		4DA39EAEFBA08CDD571304DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/views/animated,
+					../include/views/unix,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/animator,
+					../include/views,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = views_animated;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		7CB43AA7484A5B012FBB5E35 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/views/animated,
+					../include/views/unix,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/animator,
+					../include/views,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = views_animated;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		981BB41D25DEFC7F35E57A65 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		A19E0AF190F6452BF0CA37A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/views/animated,
+					../include/views/unix,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/animator,
+					../include/views,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = views_animated;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		DE47DF781BA899E9CCFC96BC /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		E2F9ED0A993982E0C2348797 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/views/animated,
+					../include/views/unix,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../include/animator,
+					../include/views,
+					../include/xml,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = views_animated;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		152B2E32C0E71EBB5235514D /* Build configuration list for PBXProject "views_animated" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE47DF781BA899E9CCFC96BC /* Coverage */,
+				1714A871501AC312282BC223 /* Debug */,
+				981BB41D25DEFC7F35E57A65 /* Release */,
+				10CABAFD3DEAC96940EB28B1 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		80FE09556CEB82EF41418CE5 /* Build configuration list for PBXNativeTarget "views_animated" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7CB43AA7484A5B012FBB5E35 /* Coverage */,
+				A19E0AF190F6452BF0CA37A9 /* Debug */,
+				4DA39EAEFBA08CDD571304DB /* Release */,
+				E2F9ED0A993982E0C2348797 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 95E45615A3989E9DCCF9DCCA /* Project object */;
+}

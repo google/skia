@@ -1,0 +1,2233 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		143E7E2590A28304768AA6DC /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = C40C0DBAFB9B993CFC10C0C7 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				E97F00B8339C59759572E42D /* PBXTargetDependency */,
+				3626FC7B5F1CD400A7E90DE3 /* PBXTargetDependency */,
+				BE7BE43715C2C1C316795A8F /* PBXTargetDependency */,
+				68E2F2A6563A05FCE4473135 /* PBXTargetDependency */,
+				05C8AFBE6F7905E68DC069FA /* PBXTargetDependency */,
+				F3FF538D40D3FACCF25FEEA3 /* PBXTargetDependency */,
+				B650E31A51060DE647DEBB4C /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		0C53B43372FFA308D7D9D5F8 /* SkBlitRow_opts_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 514DB97AFBBBB7ED6AB472DA /* SkBlitRow_opts_arm_neon.cpp */; };
+		13A4CD551217028471536561 /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
+		1F8920F208E92315828BD3DE /* SkBitmapProcState_matrixProcs_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF68108D22CEEF53D7934553 /* SkBitmapProcState_matrixProcs_neon.cpp */; };
+		9E0A7C1C69BF0DBD211637D0 /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
+		AB66668CCC0CFBCF082F222A /* SkBitmapProcState_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */; };
+		ACDD227C13AFF6E82329C0CE /* SkBlitMask_opts_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFCB5B6F55513B7E3523AC7 /* SkBlitMask_opts_arm_neon.cpp */; };
+		D08EC5C3E60392B07B37F92B /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
+		DE70A9E91BCC19CB0039C99D /* SkBlitMask_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E71BC839A70039C99D /* SkBlitMask_opts_arm.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70A9EA1BCC19CF0039C99D /* SkBitmapProcState_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E31BC838CC0039C99D /* SkBitmapProcState_opts_arm.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70A9EB1BCC19D40039C99D /* SkBlitRow_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9DE1BC833970039C99D /* SkBlitRow_opts_arm.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70A9F51BCC32870039C99D /* SkBlitMask_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9F41BCC32870039C99D /* SkBlitMask_opts_none.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70A9F71BCC328E0039C99D /* opts_check_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9F61BCC328E0039C99D /* opts_check_x86.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70A9FB1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FA1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA021BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FC1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA031BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9FE1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA041BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA001BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA0B1BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA091BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA0C1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA0A1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA0F1BCC53560039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA0D1BCC53560039C99D /* SkBlitRow_opts_SSE2.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA101BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA0E1BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA131BCC53B10039C99D /* SkOpts_sse41.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA111BCC53B10039C99D /* SkOpts_sse41.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA141BCC53B10039C99D /* SkOpts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA121BCC53B10039C99D /* SkOpts.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70AA161BCC53E00039C99D /* SkOpts_ssse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70AA151BCC53E00039C99D /* SkOpts_ssse3.cpp */; settings = {ASSET_TAGS = (); }; };
+		EBDEE3ED6E28E0F1A221AD51 /* SkOpts_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DC1AA72D29F961DF4138513B /* SkOpts_neon.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0A43BA88804F72377636017A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 48AB66837D04BE77329A91B6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DFF34D34499202390E6DD67F;
+			remoteInfo = opts_sse41;
+		};
+		2CC13D96E23531A127189FBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 48AB66837D04BE77329A91B6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58BBC50A64E975660B389B87;
+			remoteInfo = opts_avx2;
+		};
+		B7DDAB1E34DF82AFDD6829D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 48AB66837D04BE77329A91B6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 507984E7CB67588ABE813115;
+			remoteInfo = opts_sse42;
+		};
+		B9ECB5C709662EFB14ABDD24 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 48AB66837D04BE77329A91B6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 801760729BE30DF59BEA25B9;
+			remoteInfo = opts;
+		};
+		D96D31C15723D8925F46DC5F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 48AB66837D04BE77329A91B6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C847B0A525BE3D349A9885D1;
+			remoteInfo = opts_ssse3;
+		};
+		DB8B7E7A0E86F7730AC74506 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 48AB66837D04BE77329A91B6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3BB48783573B89593BC2E26C;
+			remoteInfo = opts_neon;
+		};
+		E60A122BB2C194022E82FCBB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 48AB66837D04BE77329A91B6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 61766364CEA74CD0B2337CBC;
+			remoteInfo = opts_avx;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		03A1C281FEB016408DA04D8E /* libskia_opts_ssse3.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_ssse3.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D4A4F0AE8AB1836EB683972 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		182DD1C8F36FC5D01DF29ED2 /* libskia_opts_neon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_neon.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		19C6A65284A050EDC662FB44 /* libskia_opts_avx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_avx.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F9F6435F7A79B5F2353658E /* libskia_opts_avx2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_avx2.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		514DB97AFBBBB7ED6AB472DA /* SkBlitRow_opts_arm_neon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_arm_neon.cpp; sourceTree = "<group>"; };
+		5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_arm_neon.cpp; sourceTree = "<group>"; };
+		5B893EE8CB6FC14A6577893D /* libskia_opts_sse41.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_sse41.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5DBDEC85E64ABA549AA21964 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		7BFCB5B6F55513B7E3523AC7 /* SkBlitMask_opts_arm_neon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitMask_opts_arm_neon.cpp; sourceTree = "<group>"; };
+		7CC1A8D20D23AAB135C0C8AF /* libskia_opts.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		859D92C1836FDE48433D2DA2 /* opts.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = opts.gypi; sourceTree = "<group>"; };
+		996A8E43C52199B044639C5C /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		B0F60B0CCEA8230251A017F5 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkForceCPlusPlusLinking.cpp; sourceTree = "<group>"; };
+		D68120A67C6B30980C7580EA /* libskia_opts_sse42.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_sse42.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC1AA72D29F961DF4138513B /* SkOpts_neon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOpts_neon.cpp; sourceTree = "<group>"; };
+		DE70A9DE1BC833970039C99D /* SkBlitRow_opts_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_arm.cpp; sourceTree = "<group>"; };
+		DE70A9E31BC838CC0039C99D /* SkBitmapProcState_opts_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_arm.cpp; sourceTree = "<group>"; };
+		DE70A9E71BC839A70039C99D /* SkBlitMask_opts_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitMask_opts_arm.cpp; sourceTree = "<group>"; };
+		DE70A9F41BCC32870039C99D /* SkBlitMask_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBlitMask_opts_none.cpp; path = ../../../../SKIAOLD/skia/src/opts/SkBlitMask_opts_none.cpp; sourceTree = "<group>"; };
+		DE70A9F61BCC328E0039C99D /* opts_check_x86.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = opts_check_x86.cpp; path = ../../../../SKIAOLD/skia/src/opts/opts_check_x86.cpp; sourceTree = "<group>"; };
+		DE70A9F91BCC335B0039C99D /* SkBlitRow_opts_SSE2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBlitRow_opts_SSE2.h; sourceTree = "<group>"; };
+		DE70A9FA1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_SSE2.cpp; sourceTree = "<group>"; };
+		DE70A9FC1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapFilter_opts_SSE2.cpp; sourceTree = "<group>"; };
+		DE70A9FD1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBitmapFilter_opts_SSE2.h; sourceTree = "<group>"; };
+		DE70A9FE1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_SSE2.cpp; sourceTree = "<group>"; };
+		DE70A9FF1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBitmapProcState_opts_SSE2.h; sourceTree = "<group>"; };
+		DE70AA001BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_SSE2.cpp; sourceTree = "<group>"; };
+		DE70AA011BCC339D0039C99D /* SkBlitRow_opts_SSE2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBlitRow_opts_SSE2.h; sourceTree = "<group>"; };
+		DE70AA071BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBitmapProcState_opts_SSE2.h; sourceTree = "<group>"; };
+		DE70AA081BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBitmapProcState_opts_SSSE3.h; sourceTree = "<group>"; };
+		DE70AA091BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_SSE2.cpp; sourceTree = "<group>"; };
+		DE70AA0A1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_SSSE3.cpp; sourceTree = "<group>"; };
+		DE70AA0D1BCC53560039C99D /* SkBlitRow_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_SSE2.cpp; sourceTree = "<group>"; };
+		DE70AA0E1BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_SSE4.cpp; sourceTree = "<group>"; };
+		DE70AA111BCC53B10039C99D /* SkOpts_sse41.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkOpts_sse41.cpp; sourceTree = "<group>"; };
+		DE70AA121BCC53B10039C99D /* SkOpts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOpts.cpp; path = ../core/SkOpts.cpp; sourceTree = "<group>"; };
+		DE70AA151BCC53E00039C99D /* SkOpts_ssse3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkOpts_ssse3.cpp; sourceTree = "<group>"; };
+		DF68108D22CEEF53D7934553 /* SkBitmapProcState_matrixProcs_neon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_matrixProcs_neon.cpp; sourceTree = "<group>"; };
+		F62A47290978373D5F7492B5 /* opts.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = opts.gyp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		177098BB6088BBED9018F45D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5DECC3DDB68E6E7CE2F6CEA7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7AFB444B864C8771DD1F088B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DF79124062D6A3F8A4074EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96FEB11484AFDAC1F3D104D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE5A9ED6372F458B04B8A74D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F3237937CB74FCD888CEAA16 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5644EE80C0BF092F12C952DA /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				87975CAD89DBCB87E8274B3C /* core */,
+				81623B9266B9D3FB0D0EACE7 /* opts */,
+			);
+			name = Source;
+			path = ../src;
+			sourceTree = "<group>";
+		};
+		81623B9266B9D3FB0D0EACE7 /* opts */ = {
+			isa = PBXGroup;
+			children = (
+				DE70AA151BCC53E00039C99D /* SkOpts_ssse3.cpp */,
+				DE70AA111BCC53B10039C99D /* SkOpts_sse41.cpp */,
+				DE70AA121BCC53B10039C99D /* SkOpts.cpp */,
+				DE70AA071BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.h */,
+				DE70AA0D1BCC53560039C99D /* SkBlitRow_opts_SSE2.cpp */,
+				DE70AA0E1BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp */,
+				DE70AA081BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.h */,
+				DE70AA091BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp */,
+				DE70AA0A1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp */,
+				DE70A9F91BCC335B0039C99D /* SkBlitRow_opts_SSE2.h */,
+				DE70A9FA1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp */,
+				DE70A9F61BCC328E0039C99D /* opts_check_x86.cpp */,
+				DE70A9F41BCC32870039C99D /* SkBlitMask_opts_none.cpp */,
+				DE70A9E71BC839A70039C99D /* SkBlitMask_opts_arm.cpp */,
+				DE70A9E31BC838CC0039C99D /* SkBitmapProcState_opts_arm.cpp */,
+				DE70A9DE1BC833970039C99D /* SkBlitRow_opts_arm.cpp */,
+				5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */,
+				DE70A9FC1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp */,
+				DE70A9FD1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.h */,
+				DE70A9FE1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp */,
+				DE70A9FF1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.h */,
+				DE70AA001BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp */,
+				DE70AA011BCC339D0039C99D /* SkBlitRow_opts_SSE2.h */,
+				DF68108D22CEEF53D7934553 /* SkBitmapProcState_matrixProcs_neon.cpp */,
+				7BFCB5B6F55513B7E3523AC7 /* SkBlitMask_opts_arm_neon.cpp */,
+				514DB97AFBBBB7ED6AB472DA /* SkBlitRow_opts_arm_neon.cpp */,
+				DC1AA72D29F961DF4138513B /* SkOpts_neon.cpp */,
+			);
+			path = opts;
+			sourceTree = "<group>";
+		};
+		87975CAD89DBCB87E8274B3C /* core */ = {
+			isa = PBXGroup;
+			children = (
+				C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */,
+			);
+			path = core;
+			sourceTree = "<group>";
+		};
+		87E0614C2E9ABD9FB5BB0348 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				B0F60B0CCEA8230251A017F5 /* common.gypi */,
+				996A8E43C52199B044639C5C /* common_conditions.gypi */,
+				0D4A4F0AE8AB1836EB683972 /* common_variables.gypi */,
+				F62A47290978373D5F7492B5 /* opts.gyp */,
+				859D92C1836FDE48433D2DA2 /* opts.gypi */,
+				5DBDEC85E64ABA549AA21964 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		DBBCE803A71698A894C33F49 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7CC1A8D20D23AAB135C0C8AF /* libskia_opts.a */,
+				03A1C281FEB016408DA04D8E /* libskia_opts_ssse3.a */,
+				5B893EE8CB6FC14A6577893D /* libskia_opts_sse41.a */,
+				D68120A67C6B30980C7580EA /* libskia_opts_sse42.a */,
+				19C6A65284A050EDC662FB44 /* libskia_opts_avx.a */,
+				2F9F6435F7A79B5F2353658E /* libskia_opts_avx2.a */,
+				182DD1C8F36FC5D01DF29ED2 /* libskia_opts_neon.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E0BB92A100EF17BC68DD54DF = {
+			isa = PBXGroup;
+			children = (
+				5644EE80C0BF092F12C952DA /* Source */,
+				DBBCE803A71698A894C33F49 /* Products */,
+				87E0614C2E9ABD9FB5BB0348 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3BB48783573B89593BC2E26C /* opts_neon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB6573B3997A16BD70776BC0 /* Build configuration list for PBXNativeTarget "opts_neon" */;
+			buildPhases = (
+				8FDFB5FBAB63624B5EC56D3B /* Sources */,
+				CE5A9ED6372F458B04B8A74D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts_neon;
+			productName = skia_opts_neon;
+			productReference = 182DD1C8F36FC5D01DF29ED2 /* libskia_opts_neon.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		507984E7CB67588ABE813115 /* opts_sse42 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 91E33F54275836CD0D204687 /* Build configuration list for PBXNativeTarget "opts_sse42" */;
+			buildPhases = (
+				50CF02F9CEE4E8F2BFF36CD3 /* Sources */,
+				96FEB11484AFDAC1F3D104D5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts_sse42;
+			productName = skia_opts_sse42;
+			productReference = D68120A67C6B30980C7580EA /* libskia_opts_sse42.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		58BBC50A64E975660B389B87 /* opts_avx2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD44ABE80BDDC2BAD6D20A36 /* Build configuration list for PBXNativeTarget "opts_avx2" */;
+			buildPhases = (
+				B1ED773F65115F36BD5C0043 /* Sources */,
+				F3237937CB74FCD888CEAA16 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts_avx2;
+			productName = skia_opts_avx2;
+			productReference = 2F9F6435F7A79B5F2353658E /* libskia_opts_avx2.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		61766364CEA74CD0B2337CBC /* opts_avx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C82A861CE85668567EA3234 /* Build configuration list for PBXNativeTarget "opts_avx" */;
+			buildPhases = (
+				D31D2561B06D2B20B1938670 /* Sources */,
+				8DF79124062D6A3F8A4074EA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts_avx;
+			productName = skia_opts_avx;
+			productReference = 19C6A65284A050EDC662FB44 /* libskia_opts_avx.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		801760729BE30DF59BEA25B9 /* opts */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 272E93DA5B8B4A984A8EFB41 /* Build configuration list for PBXNativeTarget "opts" */;
+			buildPhases = (
+				5ECBC01C994ED9DE2AABE3FE /* Sources */,
+				7AFB444B864C8771DD1F088B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts;
+			productName = skia_opts;
+			productReference = 7CC1A8D20D23AAB135C0C8AF /* libskia_opts.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		C847B0A525BE3D349A9885D1 /* opts_ssse3 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F23759FF1DEE3EFDEDDCE72A /* Build configuration list for PBXNativeTarget "opts_ssse3" */;
+			buildPhases = (
+				CA8D7AFDBE5BFC9F6E77B2FB /* Sources */,
+				5DECC3DDB68E6E7CE2F6CEA7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts_ssse3;
+			productName = skia_opts_ssse3;
+			productReference = 03A1C281FEB016408DA04D8E /* libskia_opts_ssse3.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		DFF34D34499202390E6DD67F /* opts_sse41 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 50F38FDB96E715ADE9F33641 /* Build configuration list for PBXNativeTarget "opts_sse41" */;
+			buildPhases = (
+				B861082B04293B89A0E74FF1 /* Sources */,
+				177098BB6088BBED9018F45D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts_sse41;
+			productName = skia_opts_sse41;
+			productReference = 5B893EE8CB6FC14A6577893D /* libskia_opts_sse41.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		48AB66837D04BE77329A91B6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 107DBE63E0A0A46CD9EB1DDB /* Build configuration list for PBXProject "opts" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E0BB92A100EF17BC68DD54DF;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				143E7E2590A28304768AA6DC /* All */,
+				801760729BE30DF59BEA25B9 /* opts */,
+				C847B0A525BE3D349A9885D1 /* opts_ssse3 */,
+				DFF34D34499202390E6DD67F /* opts_sse41 */,
+				507984E7CB67588ABE813115 /* opts_sse42 */,
+				61766364CEA74CD0B2337CBC /* opts_avx */,
+				58BBC50A64E975660B389B87 /* opts_avx2 */,
+				3BB48783573B89593BC2E26C /* opts_neon */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		50CF02F9CEE4E8F2BFF36CD3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D08EC5C3E60392B07B37F92B /* SkForceCPlusPlusLinking.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5ECBC01C994ED9DE2AABE3FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE70AA041BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */,
+				DE70AA0B1BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */,
+				DE70AA031BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */,
+				DE70AA141BCC53B10039C99D /* SkOpts.cpp in Sources */,
+				DE70A9FB1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */,
+				DE70AA101BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp in Sources */,
+				DE70AA0C1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp in Sources */,
+				DE70A9F51BCC32870039C99D /* SkBlitMask_opts_none.cpp in Sources */,
+				DE70AA0F1BCC53560039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */,
+				DE70A9F71BCC328E0039C99D /* opts_check_x86.cpp in Sources */,
+				DE70AA021BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp in Sources */,
+				DE70AA131BCC53B10039C99D /* SkOpts_sse41.cpp in Sources */,
+				DE70AA161BCC53E00039C99D /* SkOpts_ssse3.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8FDFB5FBAB63624B5EC56D3B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB66668CCC0CFBCF082F222A /* SkBitmapProcState_arm_neon.cpp in Sources */,
+				1F8920F208E92315828BD3DE /* SkBitmapProcState_matrixProcs_neon.cpp in Sources */,
+				ACDD227C13AFF6E82329C0CE /* SkBlitMask_opts_arm_neon.cpp in Sources */,
+				0C53B43372FFA308D7D9D5F8 /* SkBlitRow_opts_arm_neon.cpp in Sources */,
+				DE70A9EB1BCC19D40039C99D /* SkBlitRow_opts_arm.cpp in Sources */,
+				EBDEE3ED6E28E0F1A221AD51 /* SkOpts_neon.cpp in Sources */,
+				DE70A9EA1BCC19CF0039C99D /* SkBitmapProcState_opts_arm.cpp in Sources */,
+				DE70A9E91BCC19CB0039C99D /* SkBlitMask_opts_arm.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B1ED773F65115F36BD5C0043 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E0A7C1C69BF0DBD211637D0 /* SkForceCPlusPlusLinking.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B861082B04293B89A0E74FF1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA8D7AFDBE5BFC9F6E77B2FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D31D2561B06D2B20B1938670 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				13A4CD551217028471536561 /* SkForceCPlusPlusLinking.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		05C8AFBE6F7905E68DC069FA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 61766364CEA74CD0B2337CBC /* opts_avx */;
+			targetProxy = E60A122BB2C194022E82FCBB /* PBXContainerItemProxy */;
+		};
+		3626FC7B5F1CD400A7E90DE3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C847B0A525BE3D349A9885D1 /* opts_ssse3 */;
+			targetProxy = D96D31C15723D8925F46DC5F /* PBXContainerItemProxy */;
+		};
+		68E2F2A6563A05FCE4473135 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 507984E7CB67588ABE813115 /* opts_sse42 */;
+			targetProxy = B7DDAB1E34DF82AFDD6829D4 /* PBXContainerItemProxy */;
+		};
+		B650E31A51060DE647DEBB4C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3BB48783573B89593BC2E26C /* opts_neon */;
+			targetProxy = DB8B7E7A0E86F7730AC74506 /* PBXContainerItemProxy */;
+		};
+		BE7BE43715C2C1C316795A8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DFF34D34499202390E6DD67F /* opts_sse41 */;
+			targetProxy = 0A43BA88804F72377636017A /* PBXContainerItemProxy */;
+		};
+		E97F00B8339C59759572E42D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 801760729BE30DF59BEA25B9 /* opts */;
+			targetProxy = B9ECB5C709662EFB14ABDD24 /* PBXContainerItemProxy */;
+		};
+		F3FF538D40D3FACCF25FEEA3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58BBC50A64E975660B389B87 /* opts_avx2 */;
+			targetProxy = 2CC13D96E23531A127189FBF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0BC4E885DC0146CE0FE541DE /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx2";
+				PRODUCT_NAME = skia_opts_avx2;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		0C1A6598AF12DD5319D176CF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		0C56C832CFA198138CAFF61D /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_ssse3;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		1B5D3D394A94D47BF5427D9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		2A97A152BF7989F81ED1B34A /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_ssse3;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		384E2A2A3D7EAC4537EC2F5A /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx";
+				PRODUCT_NAME = skia_opts_avx;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		3A4A6F86316AF541A9FF1472 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse42;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		4408DA4A4AC60572515A616B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse42;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		48EA88C021D939F2D60B8BAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		4BF79F8FE5C192E739906057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		4DA254248D65FED332ED8C71 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		653AD12682B8C7E7191327A5 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_UNUSED_VALUE = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		6920E37FDBB042F0CADA76AD /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		97BEDB037E3E9534254AFD2B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse41;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		9DE99861F1F48E151BF6F807 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse41;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		9FC392CB21C812FA7FB23445 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx2";
+				PRODUCT_NAME = skia_opts_avx2;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		ACC959D6F6AA921814E1A9E7 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx2";
+				PRODUCT_NAME = skia_opts_avx2;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		B09F71210EC75DD801CEEB88 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse41;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		B61E00951642DC081CDF0C41 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_ssse3;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		B77C78303310478B8599222D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse42;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		BDDB71E5DFC072181912E0F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_UNUSED_VALUE = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		BF4850F7831F0A91E3BA301B /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		C44832F9C35E8E54EADBFD19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE41_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse41;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		C957CFD5BA04AAA8AAC08C78 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release_Developer;
+		};
+		CB69068F9741ED5D5EE36D13 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx2";
+				PRODUCT_NAME = skia_opts_avx2;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		CE404BE86A60C68A3FAD6837 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		D97CF84DA5BFAC25CEA15BEF /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Coverage;
+		};
+		DD9119EE893E0922CD4955DC /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx";
+				PRODUCT_NAME = skia_opts_avx;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		E21D40C84DF99B27409CEEF8 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SSE42_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_sse42;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		E35AB1706C331FB7A5B9B640 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_UNUSED_VALUE = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		F6C4C0C4216727D64AD3124A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx";
+				PRODUCT_NAME = skia_opts_avx;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		F8C07F8D7ED01AE761946B5D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_ssse3;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		FC867B4FA59CCE9CF3C895F1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_UNUSED_VALUE = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		FE44FA849DFD7558712ADEFF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
+		FE86E241854DCC024FCBE2F7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_CFLAGS = "-mavx";
+				PRODUCT_NAME = skia_opts_avx;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		FECFF2501BFB92908FDD592B /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_opts_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		107DBE63E0A0A46CD9EB1DDB /* Build configuration list for PBXProject "opts" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6920E37FDBB042F0CADA76AD /* Coverage */,
+				1B5D3D394A94D47BF5427D9F /* Debug */,
+				CE404BE86A60C68A3FAD6837 /* Release */,
+				4DA254248D65FED332ED8C71 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		272E93DA5B8B4A984A8EFB41 /* Build configuration list for PBXNativeTarget "opts" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E35AB1706C331FB7A5B9B640 /* Coverage */,
+				FC867B4FA59CCE9CF3C895F1 /* Debug */,
+				BDDB71E5DFC072181912E0F9 /* Release */,
+				653AD12682B8C7E7191327A5 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		50F38FDB96E715ADE9F33641 /* Build configuration list for PBXNativeTarget "opts_sse41" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9DE99861F1F48E151BF6F807 /* Coverage */,
+				97BEDB037E3E9534254AFD2B /* Debug */,
+				C44832F9C35E8E54EADBFD19 /* Release */,
+				B09F71210EC75DD801CEEB88 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		6C82A861CE85668567EA3234 /* Build configuration list for PBXNativeTarget "opts_avx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				384E2A2A3D7EAC4537EC2F5A /* Coverage */,
+				F6C4C0C4216727D64AD3124A /* Debug */,
+				FE86E241854DCC024FCBE2F7 /* Release */,
+				DD9119EE893E0922CD4955DC /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		91E33F54275836CD0D204687 /* Build configuration list for PBXNativeTarget "opts_sse42" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A4A6F86316AF541A9FF1472 /* Coverage */,
+				4408DA4A4AC60572515A616B /* Debug */,
+				B77C78303310478B8599222D /* Release */,
+				E21D40C84DF99B27409CEEF8 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		AD44ABE80BDDC2BAD6D20A36 /* Build configuration list for PBXNativeTarget "opts_avx2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ACC959D6F6AA921814E1A9E7 /* Coverage */,
+				CB69068F9741ED5D5EE36D13 /* Debug */,
+				9FC392CB21C812FA7FB23445 /* Release */,
+				0BC4E885DC0146CE0FE541DE /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		C40C0DBAFB9B993CFC10C0C7 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D97CF84DA5BFAC25CEA15BEF /* Coverage */,
+				4BF79F8FE5C192E739906057 /* Debug */,
+				FE44FA849DFD7558712ADEFF /* Release */,
+				C957CFD5BA04AAA8AAC08C78 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		EB6573B3997A16BD70776BC0 /* Build configuration list for PBXNativeTarget "opts_neon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF4850F7831F0A91E3BA301B /* Coverage */,
+				48EA88C021D939F2D60B8BAE /* Debug */,
+				0C1A6598AF12DD5319D176CF /* Release */,
+				FECFF2501BFB92908FDD592B /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		F23759FF1DEE3EFDEDDCE72A /* Build configuration list for PBXNativeTarget "opts_ssse3" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A97A152BF7989F81ED1B34A /* Coverage */,
+				B61E00951642DC081CDF0C41 /* Debug */,
+				F8C07F8D7ED01AE761946B5D /* Release */,
+				0C56C832CFA198138CAFF61D /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 48AB66837D04BE77329A91B6 /* Project object */;
+}

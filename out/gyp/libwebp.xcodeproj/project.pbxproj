@@ -1,0 +1,2546 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		48175D1FF8639EC962F81D8E /* libwebp */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 1F7D86D581C61D0066AF3EBA /* Build configuration list for PBXAggregateTarget "libwebp" */;
+			buildPhases = (
+			);
+			dependencies = (
+				AC97D181D450D9CB35212C23 /* PBXTargetDependency */,
+				10083128C0ABEEE93FB02C98 /* PBXTargetDependency */,
+				0B37E38BA284712E4D7986FD /* PBXTargetDependency */,
+				0C7B10A5A3CC2244022F7443 /* PBXTargetDependency */,
+				7EB147458FFA1BA71EB218C9 /* PBXTargetDependency */,
+				EC804FC45AE72136CFFD2D2C /* PBXTargetDependency */,
+			);
+			name = libwebp;
+			productName = webp;
+		};
+		583DD51F6109CE7B96CB4159 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 0C010A7899FCD9EA75522F24 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				CE8D6A512FB40BCBB491149E /* PBXTargetDependency */,
+				7EC7B15D191085B944A36078 /* PBXTargetDependency */,
+				9D9B654D240E0E4DEC9BCDB6 /* PBXTargetDependency */,
+				91952225C5FC68D9491E5F43 /* PBXTargetDependency */,
+				23660187B41480D80AB3FE21 /* PBXTargetDependency */,
+				77456208082BD4747001D354 /* PBXTargetDependency */,
+				01704AF47AC8B999ADBBEE1A /* PBXTargetDependency */,
+				F8CE1FF8164C6FE1F76DA881 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+		D16C845E9062B0AF1B1D310C /* libwebp_dsp_neon */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 264B181D64ECF40B738B7473 /* Build configuration list for PBXAggregateTarget "libwebp_dsp_neon" */;
+			buildPhases = (
+			);
+			dependencies = (
+			);
+			name = libwebp_dsp_neon;
+			productName = libwebp_dsp_neon;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		0516DC60F4197B93C8E8CE2F /* yuv.c in Sources */ = {isa = PBXBuildFile; fileRef = 233B86BF769BEB9C01B82216 /* yuv.c */; };
+		0C6468A60DC7B1C566729EC0 /* webpenc.c in Sources */ = {isa = PBXBuildFile; fileRef = B9A6B4EAC4D2B6E262ABF05D /* webpenc.c */; };
+		0D82DBB38E07E043E1325BE1 /* quant_levels_dec.c in Sources */ = {isa = PBXBuildFile; fileRef = 1845D6CEA6BFC8B0D0F57200 /* quant_levels_dec.c */; };
+		0F4AE79AAF30F6687BCF9D80 /* filters.c in Sources */ = {isa = PBXBuildFile; fileRef = FC5306579436C6B0F3D5E358 /* filters.c */; };
+		132EE0D799A79B9CB8BC201D /* token.c in Sources */ = {isa = PBXBuildFile; fileRef = C955EC30FB7F8988DDD6E8D5 /* token.c */; };
+		167F6D963E04E5CDB46A4C74 /* lossless_enc_sse41.c in Sources */ = {isa = PBXBuildFile; fileRef = 47C644AC1E8E3B685DC0FE87 /* lossless_enc_sse41.c */; };
+		171591010BDB84E8ACA0C70A /* upsampling_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 217F587FC4ECB48F44338173 /* upsampling_mips_dsp_r2.c */; };
+		183A443219E1E14548EE149A /* color_cache.c in Sources */ = {isa = PBXBuildFile; fileRef = B57B3EE6A3ED18B9FD49B07E /* color_cache.c */; };
+		214E7DE63AF8A243A8D2956A /* upsampling.c in Sources */ = {isa = PBXBuildFile; fileRef = 1A338D05D4FD696FDAE009CC /* upsampling.c */; };
+		21D6C1E5D7FA7F5F5A86A8E7 /* enc_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 0549FA995344258BCBCBFC6C /* enc_mips_dsp_r2.c */; };
+		22769965ECDC0D7EA891BDC0 /* huffman_encode.c in Sources */ = {isa = PBXBuildFile; fileRef = C68E6626714441ADF3435449 /* huffman_encode.c */; };
+		250BA2541868FC4093776F23 /* backward_references.c in Sources */ = {isa = PBXBuildFile; fileRef = 52EADE8314DD7648653D1B40 /* backward_references.c */; };
+		2BC1D471233D1F3E70D717BF /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 22408AA6E9D0D26D56A25DB5 /* thread.c */; };
+		2E5FCCB3A37F0C776A122019 /* cost_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = DFBA578AF4EC9C339ED913C1 /* cost_sse2.c */; };
+		30CA4AD21722F75604787501 /* alpha_processing_sse41.c in Sources */ = {isa = PBXBuildFile; fileRef = AECF099792FD3549062413ED /* alpha_processing_sse41.c */; };
+		316BCA290DFA856AB890063C /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 28EB0184B59EF8E52B3C52C4 /* utils.c */; };
+		31C4553E62BB4BB1D2E0B13E /* tree.c in Sources */ = {isa = PBXBuildFile; fileRef = B3CF081A70603FE7F00A9770 /* tree.c */; };
+		35191DDC79E5C036D8C83353 /* picture_csp.c in Sources */ = {isa = PBXBuildFile; fileRef = 5932698954F01E23DCF5E5B8 /* picture_csp.c */; };
+		37E09352D4212ACAABE18561 /* vp8l.c in Sources */ = {isa = PBXBuildFile; fileRef = D0A12E59F90CD148D4E5FB18 /* vp8l.c */; };
+		38F4EDD106286E166C13EEC7 /* rescaler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2DB21AAB37A1425018D7B0B5 /* rescaler.c */; };
+		40646E26F235127ADBF20BA4 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = FA5A552CA817F9B1D3EB332A /* alpha_processing_sse2.c */; };
+		460F93D2B75D9BA3F1087CD0 /* tree.c in Sources */ = {isa = PBXBuildFile; fileRef = 1D31AC25B940ED0521FFD603 /* tree.c */; };
+		49C4DBEA0813B04FF0B01F13 /* vp8.c in Sources */ = {isa = PBXBuildFile; fileRef = B81B46469C9ECFC2276D0AEE /* vp8.c */; };
+		4C3FB50BD648615D1BF6EB2C /* bit_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = FB8D28AA980CD69DC9F0ACCE /* bit_reader.c */; };
+		52F74AEFF103B9289E74C297 /* enc.c in Sources */ = {isa = PBXBuildFile; fileRef = EC3784FA8D85AC27F5449538 /* enc.c */; };
+		57345C03785E969C86F66B11 /* dec_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 62DABF17FB22AA443C071463 /* dec_mips_dsp_r2.c */; };
+		575C0BAFCE6CB76712A5ABDE /* histogram.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F7F7A24A95D50602D7AFDB4 /* histogram.c */; };
+		5CCE383147FB3B97784883B1 /* analysis.c in Sources */ = {isa = PBXBuildFile; fileRef = 6B5FDAA684FD029647139D9D /* analysis.c */; };
+		5E533C1CC729673BF5DCBADF /* upsampling_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = F5D704A2AFF9FF3AE1E3E3E1 /* upsampling_sse2.c */; };
+		63EA3BA588A993D4A4BD3DB6 /* quant_levels.c in Sources */ = {isa = PBXBuildFile; fileRef = AC3EFB86E6D86D8FCF0CFEF1 /* quant_levels.c */; };
+		6949675FDFD8DE98AED164CA /* dec_sse41.c in Sources */ = {isa = PBXBuildFile; fileRef = C254166C4495564DBC2A0B28 /* dec_sse41.c */; };
+		6C8A6FB9C95613103D8AC912 /* rescaler.c in Sources */ = {isa = PBXBuildFile; fileRef = E24F0210D1FF015BB5FF5E15 /* rescaler.c */; };
+		6EB0508F7D14441769F0D243 /* alpha_processing_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = AC78CFFCF3CC7681D1B24CA0 /* alpha_processing_mips_dsp_r2.c */; };
+		736D7FA9D3EC6B14E8C5CB16 /* bit_writer.c in Sources */ = {isa = PBXBuildFile; fileRef = 295949E481831B955EC1D0DE /* bit_writer.c */; };
+		7CDF88B169A79C7726FA8531 /* filters.c in Sources */ = {isa = PBXBuildFile; fileRef = D6D67F582D28DB1A18753E94 /* filters.c */; };
+		7D278327DEC272B57C13F29A /* lossless.c in Sources */ = {isa = PBXBuildFile; fileRef = 4BF9B594F994230A24A900FE /* lossless.c */; };
+		7D64F439BE0604BF410003A6 /* cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 569A5E97407194CCA7F357ED /* cpu.c */; };
+		7FE7FFE7DFED65CE172C200D /* argb_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = BCB716C50519CC5776D0F3DC /* argb_sse2.c */; };
+		80CECC3B00A4A745A0FDB768 /* lossless_enc.c in Sources */ = {isa = PBXBuildFile; fileRef = 1E43F6B2CE0AD9D74A8BF453 /* lossless_enc.c */; };
+		810FED906E525E9B00511F42 /* yuv_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 53F339B0FD321F6DB48BDADC /* yuv_mips_dsp_r2.c */; };
+		81A27D1FDD5FF8CEFF8D5ED9 /* idec.c in Sources */ = {isa = PBXBuildFile; fileRef = DA7852CA0BDE08F8E02102F9 /* idec.c */; };
+		871B4C2999E4F77D788BCF9D /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = 38B25E6C5420486C902D1849 /* frame.c */; };
+		876119413AE9A20D24B4D094 /* huffman.c in Sources */ = {isa = PBXBuildFile; fileRef = 329EB6229C79C0DB409DDD5D /* huffman.c */; };
+		8B5F3EC495D1B401476D232E /* picture_psnr.c in Sources */ = {isa = PBXBuildFile; fileRef = D8EF0B0A23AC745670480CE8 /* picture_psnr.c */; };
+		8D179584A51D7BA4F758F1B4 /* picture_rescale.c in Sources */ = {isa = PBXBuildFile; fileRef = CAB95849B2459C986781A235 /* picture_rescale.c */; };
+		8D4B15FD8A8B9B952C666D8B /* filter.c in Sources */ = {isa = PBXBuildFile; fileRef = E28AD4BB8C3DA35A27C36AFB /* filter.c */; };
+		9D3946A53664C1EDFF6C89DF /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = 7989AE4BA0891D3A13A2B8EF /* frame.c */; };
+		ADBEF65E2CA65715F4E9D780 /* enc_avx2.c in Sources */ = {isa = PBXBuildFile; fileRef = A43B0A8FB76B299D4D043749 /* enc_avx2.c */; };
+		ADD4F9B83BAB96DC767FB815 /* picture_tools.c in Sources */ = {isa = PBXBuildFile; fileRef = A26B887CAA426F7157E46B76 /* picture_tools.c */; };
+		ADEABC2CBA256480F78FDC72 /* cost.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F64183E35584807F87A3E3A /* cost.c */; };
+		AF5AFD02257CD55EC9E1B6CE /* rescaler_mips32.c in Sources */ = {isa = PBXBuildFile; fileRef = 84277428ABD6E97A0AA40DCA /* rescaler_mips32.c */; };
+		B025C2767515B3D380C5B0E9 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 3380692BC0CC8FCC8E603618 /* random.c */; };
+		B229EFB79683E9B1E6670A0C /* alpha.c in Sources */ = {isa = PBXBuildFile; fileRef = 2138625AB995B56595A0117B /* alpha.c */; };
+		B2B73D5CF9F75276B4DF7AEA /* dec_clip_tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 1889E6EE87D335F0723518AA /* dec_clip_tables.c */; };
+		B60AFE72D8EB4AE0C7B74F31 /* yuv_mips32.c in Sources */ = {isa = PBXBuildFile; fileRef = 16CDD4A2909D69140D1C9949 /* yuv_mips32.c */; };
+		B8638F33322517EC4EED6ADF /* lossless_enc_mips32.c in Sources */ = {isa = PBXBuildFile; fileRef = FEF08245C2CBD35B7028D484 /* lossless_enc_mips32.c */; };
+		B8D37929205A8E396DADB533 /* quant.c in Sources */ = {isa = PBXBuildFile; fileRef = C7FE15656C6388131A216618 /* quant.c */; };
+		BB639F26437BF720574CEE1C /* filters_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 047A6ABF8ED2CE3811AB2329 /* filters_mips_dsp_r2.c */; };
+		BD4503F4DB49761F9928733A /* filters_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC36C7AD3FB3E78A1E6D375 /* filters_sse2.c */; };
+		BE31E41879C702827F048EDA /* enc_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 3655DEE72D6A5C4B9A2D4EF6 /* enc_sse2.c */; };
+		BE58B5757C25F4BF18149C1B /* rescaler_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = CEB30FD0EB576FFC43700061 /* rescaler_mips_dsp_r2.c */; };
+		BFA200D248FF676DC23A6B2F /* syntax.c in Sources */ = {isa = PBXBuildFile; fileRef = 477DDF1D70B7537F9B1C19D2 /* syntax.c */; };
+		C3C5937BF9D7A7D767D6F9E0 /* demux.c in Sources */ = {isa = PBXBuildFile; fileRef = 58B8CB0CE01ACEA027150A56 /* demux.c */; };
+		CA183836B84FC8BE0F5D0E33 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = F32ABD5D7F1D3EAAB575253B /* config.c */; };
+		CC9570321DF5763E3A29A850 /* picture.c in Sources */ = {isa = PBXBuildFile; fileRef = 99B5479E8827323DDDDCD922 /* picture.c */; };
+		CE6EBEACE2D33143293DD725 /* dec_mips32.c in Sources */ = {isa = PBXBuildFile; fileRef = 3863FA162005A75C4EF30E8A /* dec_mips32.c */; };
+		D123EAE6D6232A7C75B2776D /* cost_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 79786F9445F872B87E8093EF /* cost_mips_dsp_r2.c */; };
+		D27AFF2A33EF0782959A94EF /* alpha.c in Sources */ = {isa = PBXBuildFile; fileRef = 75F5E48DA34C2AA75866F3F1 /* alpha.c */; };
+		D5DD0B2061E4D552D4B90C9B /* lossless_enc_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 7427A7FF2FB41170A977A681 /* lossless_enc_sse2.c */; };
+		D8D4BD7E2DF6421C908D1904 /* cost_mips32.c in Sources */ = {isa = PBXBuildFile; fileRef = D91C143A8AAEA9FFE4BD75F3 /* cost_mips32.c */; };
+		DA5E19DAE93B413D902A9174 /* cost.c in Sources */ = {isa = PBXBuildFile; fileRef = BDE5C4E70A2DFDD442986F23 /* cost.c */; };
+		E51A2AE9D356FA9F0ABCA6B3 /* dec_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 1443756BA714E0A24E19DE35 /* dec_sse2.c */; };
+		E5F9E31CCA39E3089EDAE702 /* enc_mips32.c in Sources */ = {isa = PBXBuildFile; fileRef = FE81DAA76BF32693ABF42864 /* enc_mips32.c */; };
+		E602F4380130016EFCB67264 /* near_lossless.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF05FD6F3E2DF82469AB1FC /* near_lossless.c */; };
+		E6C42F17EB2FD8DEFBC43BCC /* argb.c in Sources */ = {isa = PBXBuildFile; fileRef = 2DF90DBC0BE5A03942CE386D /* argb.c */; };
+		E9D9DA27A591D16E92B12EB3 /* yuv_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = E03B728BFFFF75BBB854B219 /* yuv_sse2.c */; };
+		E9E1CBFB2FC9AA0B8E77EF9D /* quant.c in Sources */ = {isa = PBXBuildFile; fileRef = 8FC0F2327D6AF6C6CC0E0CB4 /* quant.c */; };
+		EA7311C93B1E78E8758A3319 /* buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 63BE38B6960F6C48119EC112 /* buffer.c */; };
+		ECEB8622B6E8C9FE722B8D46 /* lossless_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 580D5BFB346D70AFA0DFB09D /* lossless_mips_dsp_r2.c */; };
+		F3E3CC2B566008CA8EDAB33B /* lossless_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = CE751A751E273404601D1261 /* lossless_sse2.c */; };
+		F43CBFD0B101CB148CAC1A9F /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = 965A78D977471AACBED7EC42 /* io.c */; };
+		F613E8F9866BE1884D3E9EA5 /* lossless_enc_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = A2D683865DAE4E51F9C70262 /* lossless_enc_mips_dsp_r2.c */; };
+		F6BDD753477DFE3DE99B98D4 /* dec.c in Sources */ = {isa = PBXBuildFile; fileRef = 800BEDC603B7C597B9CF78F6 /* dec.c */; };
+		F6F1DAC7282A1FA711C8CD19 /* enc_sse41.c in Sources */ = {isa = PBXBuildFile; fileRef = D6FF9068E9EEE1642856E9F3 /* enc_sse41.c */; };
+		F84CECAC6275EDC9232EFACE /* alpha_processing.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C989288FD1556A04399A048 /* alpha_processing.c */; };
+		F8D3B5098BAAC588DF8C7135 /* argb_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = D1328D4ACB1A772FC9569AA6 /* argb_mips_dsp_r2.c */; };
+		FAAFD1D39C6B330A803AD03C /* webp.c in Sources */ = {isa = PBXBuildFile; fileRef = A1AAE21D45C6DA240780B0E0 /* webp.c */; };
+		FB3B88BE51B610E2AB116855 /* iterator.c in Sources */ = {isa = PBXBuildFile; fileRef = E2BFBB0E1B645A1905EB836C /* iterator.c */; };
+		FF3C6956BA735B49FE2513DD /* vp8l.c in Sources */ = {isa = PBXBuildFile; fileRef = F62C5304EA2268B5F8CE2C01 /* vp8l.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		03147590C7E9E34F61F4EFAC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AE87FBCC50847E54181717B;
+			remoteInfo = libwebp_enc;
+		};
+		18F019E8EC892B3EC0D70103 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF4F4DAE03D0B2D442A5E75C;
+			remoteInfo = libwebp_dsp;
+		};
+		2A61567BCFF187A6F5335717 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5FEE9A767851EE663B14DC1;
+			remoteInfo = libwebp_utils;
+		};
+		4119D3B1B003B6EBB421E887 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 06D6CEB264457DF20731B2AB;
+			remoteInfo = libwebp_dec;
+		};
+		4D1F5E9713DD7F5AF4A7A826 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5FEE9A767851EE663B14DC1;
+			remoteInfo = libwebp_utils;
+		};
+		580D7C90CCF65358CD2BC997 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43AF69108FDDD0AB4332A1ED;
+			remoteInfo = libwebp_dsp_enc;
+		};
+		6FB21558BF45EA8A53EDEB09 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF4F4DAE03D0B2D442A5E75C;
+			remoteInfo = libwebp_dsp;
+		};
+		B3BB578B920D062531B22439 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D16C845E9062B0AF1B1D310C;
+			remoteInfo = libwebp_dsp_neon;
+		};
+		B6E22B0F50CB02BE2E567762 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C7C48B5CEBCB5F16079F2659;
+			remoteInfo = libwebp_demux;
+		};
+		C6E627FAFD973A36CECFC102 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 06D6CEB264457DF20731B2AB;
+			remoteInfo = libwebp_dec;
+		};
+		D5CF5EF5CA056602BD02673B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 48175D1FF8639EC962F81D8E;
+			remoteInfo = libwebp;
+		};
+		DB5B3B5369FCDE22474B51C8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D16C845E9062B0AF1B1D310C;
+			remoteInfo = libwebp_dsp_neon;
+		};
+		EF479B85742E4E7E7F111972 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AE87FBCC50847E54181717B;
+			remoteInfo = libwebp_enc;
+		};
+		F003EB14F22F52DF3576462D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C7C48B5CEBCB5F16079F2659;
+			remoteInfo = libwebp_demux;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		047A6ABF8ED2CE3811AB2329 /* filters_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = filters_mips_dsp_r2.c; sourceTree = "<group>"; };
+		0549FA995344258BCBCBFC6C /* enc_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc_mips_dsp_r2.c; sourceTree = "<group>"; };
+		1443756BA714E0A24E19DE35 /* dec_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec_sse2.c; sourceTree = "<group>"; };
+		16CDD4A2909D69140D1C9949 /* yuv_mips32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = yuv_mips32.c; sourceTree = "<group>"; };
+		1845D6CEA6BFC8B0D0F57200 /* quant_levels_dec.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = quant_levels_dec.c; sourceTree = "<group>"; };
+		1889E6EE87D335F0723518AA /* dec_clip_tables.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec_clip_tables.c; sourceTree = "<group>"; };
+		19B76369DDF015E4A37C4F1D /* libwebp_utils.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebp_utils.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A338D05D4FD696FDAE009CC /* upsampling.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = upsampling.c; sourceTree = "<group>"; };
+		1D31AC25B940ED0521FFD603 /* tree.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tree.c; sourceTree = "<group>"; };
+		1E43F6B2CE0AD9D74A8BF453 /* lossless_enc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless_enc.c; sourceTree = "<group>"; };
+		1F64183E35584807F87A3E3A /* cost.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cost.c; sourceTree = "<group>"; };
+		1F7F7A24A95D50602D7AFDB4 /* histogram.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = histogram.c; sourceTree = "<group>"; };
+		2138625AB995B56595A0117B /* alpha.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha.c; sourceTree = "<group>"; };
+		217F587FC4ECB48F44338173 /* upsampling_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = upsampling_mips_dsp_r2.c; sourceTree = "<group>"; };
+		22408AA6E9D0D26D56A25DB5 /* thread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = thread.c; sourceTree = "<group>"; };
+		233B86BF769BEB9C01B82216 /* yuv.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = yuv.c; sourceTree = "<group>"; };
+		28EB0184B59EF8E52B3C52C4 /* utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = utils.c; sourceTree = "<group>"; };
+		295949E481831B955EC1D0DE /* bit_writer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bit_writer.c; sourceTree = "<group>"; };
+		2D54F7D86C905479556DB62D /* libwebp_demux.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebp_demux.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2DB21AAB37A1425018D7B0B5 /* rescaler.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rescaler.c; sourceTree = "<group>"; };
+		2DF90DBC0BE5A03942CE386D /* argb.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = argb.c; sourceTree = "<group>"; };
+		329EB6229C79C0DB409DDD5D /* huffman.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = huffman.c; sourceTree = "<group>"; };
+		3380692BC0CC8FCC8E603618 /* random.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = random.c; sourceTree = "<group>"; };
+		3655DEE72D6A5C4B9A2D4EF6 /* enc_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc_sse2.c; sourceTree = "<group>"; };
+		3863FA162005A75C4EF30E8A /* dec_mips32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec_mips32.c; sourceTree = "<group>"; };
+		38B25E6C5420486C902D1849 /* frame.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = frame.c; sourceTree = "<group>"; };
+		3F107807570C4069BB96BE25 /* libwebp_dsp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebp_dsp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		477DDF1D70B7537F9B1C19D2 /* syntax.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = syntax.c; sourceTree = "<group>"; };
+		47C644AC1E8E3B685DC0FE87 /* lossless_enc_sse41.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless_enc_sse41.c; sourceTree = "<group>"; };
+		4BF9B594F994230A24A900FE /* lossless.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless.c; sourceTree = "<group>"; };
+		52EADE8314DD7648653D1B40 /* backward_references.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = backward_references.c; sourceTree = "<group>"; };
+		53F339B0FD321F6DB48BDADC /* yuv_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = yuv_mips_dsp_r2.c; sourceTree = "<group>"; };
+		569A5E97407194CCA7F357ED /* cpu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cpu.c; sourceTree = "<group>"; };
+		580D5BFB346D70AFA0DFB09D /* lossless_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless_mips_dsp_r2.c; sourceTree = "<group>"; };
+		58B8CB0CE01ACEA027150A56 /* demux.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = demux.c; sourceTree = "<group>"; };
+		5932698954F01E23DCF5E5B8 /* picture_csp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = picture_csp.c; sourceTree = "<group>"; };
+		5CD5E1D3003869662AF52285 /* libwebp_dsp_enc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebp_dsp_enc.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		62DABF17FB22AA443C071463 /* dec_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec_mips_dsp_r2.c; sourceTree = "<group>"; };
+		63BE38B6960F6C48119EC112 /* buffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = buffer.c; sourceTree = "<group>"; };
+		6B5FDAA684FD029647139D9D /* analysis.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = analysis.c; sourceTree = "<group>"; };
+		71A8D3236F1441455DC926FD /* libwebp_enc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebp_enc.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		7427A7FF2FB41170A977A681 /* lossless_enc_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless_enc_sse2.c; sourceTree = "<group>"; };
+		75F5E48DA34C2AA75866F3F1 /* alpha.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha.c; sourceTree = "<group>"; };
+		79786F9445F872B87E8093EF /* cost_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cost_mips_dsp_r2.c; sourceTree = "<group>"; };
+		7989AE4BA0891D3A13A2B8EF /* frame.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = frame.c; sourceTree = "<group>"; };
+		800BEDC603B7C597B9CF78F6 /* dec.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec.c; sourceTree = "<group>"; };
+		84277428ABD6E97A0AA40DCA /* rescaler_mips32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rescaler_mips32.c; sourceTree = "<group>"; };
+		8C989288FD1556A04399A048 /* alpha_processing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha_processing.c; sourceTree = "<group>"; };
+		8FC0F2327D6AF6C6CC0E0CB4 /* quant.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = quant.c; sourceTree = "<group>"; };
+		965A78D977471AACBED7EC42 /* io.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = io.c; sourceTree = "<group>"; };
+		99B5479E8827323DDDDCD922 /* picture.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = picture.c; sourceTree = "<group>"; };
+		A1AAE21D45C6DA240780B0E0 /* webp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = webp.c; sourceTree = "<group>"; };
+		A26B887CAA426F7157E46B76 /* picture_tools.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = picture_tools.c; sourceTree = "<group>"; };
+		A2D683865DAE4E51F9C70262 /* lossless_enc_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless_enc_mips_dsp_r2.c; sourceTree = "<group>"; };
+		A43B0A8FB76B299D4D043749 /* enc_avx2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc_avx2.c; sourceTree = "<group>"; };
+		A88591081CA5748A5F0FB765 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		A8D30FA7BD736E0579C1CBE7 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		AC3EFB86E6D86D8FCF0CFEF1 /* quant_levels.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = quant_levels.c; sourceTree = "<group>"; };
+		AC78CFFCF3CC7681D1B24CA0 /* alpha_processing_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha_processing_mips_dsp_r2.c; sourceTree = "<group>"; };
+		AECF099792FD3549062413ED /* alpha_processing_sse41.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha_processing_sse41.c; sourceTree = "<group>"; };
+		B3CF081A70603FE7F00A9770 /* tree.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tree.c; sourceTree = "<group>"; };
+		B4C2AB5BED5B8CD5406FCF1C /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		B57B3EE6A3ED18B9FD49B07E /* color_cache.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = color_cache.c; sourceTree = "<group>"; };
+		B81B46469C9ECFC2276D0AEE /* vp8.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vp8.c; sourceTree = "<group>"; };
+		B92C1D69BA99CC5F4BE09A2A /* libwebp_skia.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = libwebp_skia.gypi; sourceTree = "<group>"; };
+		B9A6B4EAC4D2B6E262ABF05D /* webpenc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = webpenc.c; sourceTree = "<group>"; };
+		BCB716C50519CC5776D0F3DC /* argb_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = argb_sse2.c; sourceTree = "<group>"; };
+		BDE5C4E70A2DFDD442986F23 /* cost.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cost.c; sourceTree = "<group>"; };
+		BEF05FD6F3E2DF82469AB1FC /* near_lossless.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = near_lossless.c; sourceTree = "<group>"; };
+		C254166C4495564DBC2A0B28 /* dec_sse41.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dec_sse41.c; sourceTree = "<group>"; };
+		C65E983E7DD9A574A2DC4905 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		C68E6626714441ADF3435449 /* huffman_encode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = huffman_encode.c; sourceTree = "<group>"; };
+		C7FE15656C6388131A216618 /* quant.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = quant.c; sourceTree = "<group>"; };
+		C955EC30FB7F8988DDD6E8D5 /* token.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = token.c; sourceTree = "<group>"; };
+		CAB95849B2459C986781A235 /* picture_rescale.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = picture_rescale.c; sourceTree = "<group>"; };
+		CE751A751E273404601D1261 /* lossless_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless_sse2.c; sourceTree = "<group>"; };
+		CEB30FD0EB576FFC43700061 /* rescaler_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rescaler_mips_dsp_r2.c; sourceTree = "<group>"; };
+		D075062C20DE11D9B57D2E5E /* libwebp.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = libwebp.gyp; sourceTree = "<group>"; };
+		D0A12E59F90CD148D4E5FB18 /* vp8l.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vp8l.c; sourceTree = "<group>"; };
+		D1328D4ACB1A772FC9569AA6 /* argb_mips_dsp_r2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = argb_mips_dsp_r2.c; sourceTree = "<group>"; };
+		D6D67F582D28DB1A18753E94 /* filters.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = filters.c; sourceTree = "<group>"; };
+		D6FF9068E9EEE1642856E9F3 /* enc_sse41.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc_sse41.c; sourceTree = "<group>"; };
+		D8EF0B0A23AC745670480CE8 /* picture_psnr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = picture_psnr.c; sourceTree = "<group>"; };
+		D91C143A8AAEA9FFE4BD75F3 /* cost_mips32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cost_mips32.c; sourceTree = "<group>"; };
+		DA7852CA0BDE08F8E02102F9 /* idec.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = idec.c; sourceTree = "<group>"; };
+		DFBA578AF4EC9C339ED913C1 /* cost_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cost_sse2.c; sourceTree = "<group>"; };
+		E03B728BFFFF75BBB854B219 /* yuv_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = yuv_sse2.c; sourceTree = "<group>"; };
+		E24F0210D1FF015BB5FF5E15 /* rescaler.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rescaler.c; sourceTree = "<group>"; };
+		E28AD4BB8C3DA35A27C36AFB /* filter.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = filter.c; sourceTree = "<group>"; };
+		E2BFBB0E1B645A1905EB836C /* iterator.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = iterator.c; sourceTree = "<group>"; };
+		E625E8468BCB0C9A3AC8E603 /* libwebp_dec.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebp_dec.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBC36C7AD3FB3E78A1E6D375 /* filters_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = filters_sse2.c; sourceTree = "<group>"; };
+		EC3784FA8D85AC27F5449538 /* enc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc.c; sourceTree = "<group>"; };
+		F32ABD5D7F1D3EAAB575253B /* config.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
+		F5D704A2AFF9FF3AE1E3E3E1 /* upsampling_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = upsampling_sse2.c; sourceTree = "<group>"; };
+		F62C5304EA2268B5F8CE2C01 /* vp8l.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vp8l.c; sourceTree = "<group>"; };
+		FA5A552CA817F9B1D3EB332A /* alpha_processing_sse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha_processing_sse2.c; sourceTree = "<group>"; };
+		FB8D28AA980CD69DC9F0ACCE /* bit_reader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bit_reader.c; sourceTree = "<group>"; };
+		FC5306579436C6B0F3D5E358 /* filters.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = filters.c; sourceTree = "<group>"; };
+		FE81DAA76BF32693ABF42864 /* enc_mips32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = enc_mips32.c; sourceTree = "<group>"; };
+		FEF08245C2CBD35B7028D484 /* lossless_enc_mips32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lossless_enc_mips32.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		183E865BABA1C922E120A237 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		57F3E17CFCB5EADC69E81ED7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6B9AACB80CB8AD12114E31DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A693C653FC000DD7A17D49D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		83DA6F862B7C9A36FD6D8409 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9781968A40FD983EADBE70C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08C174426FF9E9C65CB383B9 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				A5DAF143B14212CF7BF28507 /* dec */,
+				DD1AB5FB191226196A189D2A /* demux */,
+				6EA89AE2981FBC32FDA3B0A0 /* dsp */,
+				589CB84BEF7A84FA48C318CF /* enc */,
+				A9C128F2B08A3628540284FC /* utils */,
+			);
+			name = Source;
+			path = ../third_party/externals/libwebp/src;
+			sourceTree = "<group>";
+		};
+		49B132C52586EFDD457CC4B7 = {
+			isa = PBXGroup;
+			children = (
+				08C174426FF9E9C65CB383B9 /* Source */,
+				90E9D3190235C3B2CFE59AEF /* Products */,
+				B9C9EA6EA12F0ACA95BF6CBB /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		589CB84BEF7A84FA48C318CF /* enc */ = {
+			isa = PBXGroup;
+			children = (
+				2138625AB995B56595A0117B /* alpha.c */,
+				6B5FDAA684FD029647139D9D /* analysis.c */,
+				52EADE8314DD7648653D1B40 /* backward_references.c */,
+				F32ABD5D7F1D3EAAB575253B /* config.c */,
+				1F64183E35584807F87A3E3A /* cost.c */,
+				E28AD4BB8C3DA35A27C36AFB /* filter.c */,
+				38B25E6C5420486C902D1849 /* frame.c */,
+				1F7F7A24A95D50602D7AFDB4 /* histogram.c */,
+				E2BFBB0E1B645A1905EB836C /* iterator.c */,
+				BEF05FD6F3E2DF82469AB1FC /* near_lossless.c */,
+				99B5479E8827323DDDDCD922 /* picture.c */,
+				5932698954F01E23DCF5E5B8 /* picture_csp.c */,
+				D8EF0B0A23AC745670480CE8 /* picture_psnr.c */,
+				CAB95849B2459C986781A235 /* picture_rescale.c */,
+				A26B887CAA426F7157E46B76 /* picture_tools.c */,
+				C7FE15656C6388131A216618 /* quant.c */,
+				477DDF1D70B7537F9B1C19D2 /* syntax.c */,
+				C955EC30FB7F8988DDD6E8D5 /* token.c */,
+				1D31AC25B940ED0521FFD603 /* tree.c */,
+				D0A12E59F90CD148D4E5FB18 /* vp8l.c */,
+				B9A6B4EAC4D2B6E262ABF05D /* webpenc.c */,
+			);
+			path = enc;
+			sourceTree = "<group>";
+		};
+		6EA89AE2981FBC32FDA3B0A0 /* dsp */ = {
+			isa = PBXGroup;
+			children = (
+				8C989288FD1556A04399A048 /* alpha_processing.c */,
+				AC78CFFCF3CC7681D1B24CA0 /* alpha_processing_mips_dsp_r2.c */,
+				FA5A552CA817F9B1D3EB332A /* alpha_processing_sse2.c */,
+				AECF099792FD3549062413ED /* alpha_processing_sse41.c */,
+				2DF90DBC0BE5A03942CE386D /* argb.c */,
+				D1328D4ACB1A772FC9569AA6 /* argb_mips_dsp_r2.c */,
+				BCB716C50519CC5776D0F3DC /* argb_sse2.c */,
+				BDE5C4E70A2DFDD442986F23 /* cost.c */,
+				D91C143A8AAEA9FFE4BD75F3 /* cost_mips32.c */,
+				79786F9445F872B87E8093EF /* cost_mips_dsp_r2.c */,
+				DFBA578AF4EC9C339ED913C1 /* cost_sse2.c */,
+				569A5E97407194CCA7F357ED /* cpu.c */,
+				800BEDC603B7C597B9CF78F6 /* dec.c */,
+				1889E6EE87D335F0723518AA /* dec_clip_tables.c */,
+				3863FA162005A75C4EF30E8A /* dec_mips32.c */,
+				62DABF17FB22AA443C071463 /* dec_mips_dsp_r2.c */,
+				1443756BA714E0A24E19DE35 /* dec_sse2.c */,
+				C254166C4495564DBC2A0B28 /* dec_sse41.c */,
+				EC3784FA8D85AC27F5449538 /* enc.c */,
+				A43B0A8FB76B299D4D043749 /* enc_avx2.c */,
+				FE81DAA76BF32693ABF42864 /* enc_mips32.c */,
+				0549FA995344258BCBCBFC6C /* enc_mips_dsp_r2.c */,
+				3655DEE72D6A5C4B9A2D4EF6 /* enc_sse2.c */,
+				D6FF9068E9EEE1642856E9F3 /* enc_sse41.c */,
+				D6D67F582D28DB1A18753E94 /* filters.c */,
+				047A6ABF8ED2CE3811AB2329 /* filters_mips_dsp_r2.c */,
+				EBC36C7AD3FB3E78A1E6D375 /* filters_sse2.c */,
+				4BF9B594F994230A24A900FE /* lossless.c */,
+				1E43F6B2CE0AD9D74A8BF453 /* lossless_enc.c */,
+				FEF08245C2CBD35B7028D484 /* lossless_enc_mips32.c */,
+				A2D683865DAE4E51F9C70262 /* lossless_enc_mips_dsp_r2.c */,
+				7427A7FF2FB41170A977A681 /* lossless_enc_sse2.c */,
+				47C644AC1E8E3B685DC0FE87 /* lossless_enc_sse41.c */,
+				580D5BFB346D70AFA0DFB09D /* lossless_mips_dsp_r2.c */,
+				CE751A751E273404601D1261 /* lossless_sse2.c */,
+				E24F0210D1FF015BB5FF5E15 /* rescaler.c */,
+				84277428ABD6E97A0AA40DCA /* rescaler_mips32.c */,
+				CEB30FD0EB576FFC43700061 /* rescaler_mips_dsp_r2.c */,
+				1A338D05D4FD696FDAE009CC /* upsampling.c */,
+				217F587FC4ECB48F44338173 /* upsampling_mips_dsp_r2.c */,
+				F5D704A2AFF9FF3AE1E3E3E1 /* upsampling_sse2.c */,
+				233B86BF769BEB9C01B82216 /* yuv.c */,
+				16CDD4A2909D69140D1C9949 /* yuv_mips32.c */,
+				53F339B0FD321F6DB48BDADC /* yuv_mips_dsp_r2.c */,
+				E03B728BFFFF75BBB854B219 /* yuv_sse2.c */,
+			);
+			path = dsp;
+			sourceTree = "<group>";
+		};
+		90E9D3190235C3B2CFE59AEF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E625E8468BCB0C9A3AC8E603 /* libwebp_dec.a */,
+				2D54F7D86C905479556DB62D /* libwebp_demux.a */,
+				3F107807570C4069BB96BE25 /* libwebp_dsp.a */,
+				5CD5E1D3003869662AF52285 /* libwebp_dsp_enc.a */,
+				71A8D3236F1441455DC926FD /* libwebp_enc.a */,
+				19B76369DDF015E4A37C4F1D /* libwebp_utils.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A5DAF143B14212CF7BF28507 /* dec */ = {
+			isa = PBXGroup;
+			children = (
+				75F5E48DA34C2AA75866F3F1 /* alpha.c */,
+				63BE38B6960F6C48119EC112 /* buffer.c */,
+				7989AE4BA0891D3A13A2B8EF /* frame.c */,
+				DA7852CA0BDE08F8E02102F9 /* idec.c */,
+				965A78D977471AACBED7EC42 /* io.c */,
+				8FC0F2327D6AF6C6CC0E0CB4 /* quant.c */,
+				B3CF081A70603FE7F00A9770 /* tree.c */,
+				B81B46469C9ECFC2276D0AEE /* vp8.c */,
+				F62C5304EA2268B5F8CE2C01 /* vp8l.c */,
+				A1AAE21D45C6DA240780B0E0 /* webp.c */,
+			);
+			path = dec;
+			sourceTree = "<group>";
+		};
+		A9C128F2B08A3628540284FC /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				FB8D28AA980CD69DC9F0ACCE /* bit_reader.c */,
+				295949E481831B955EC1D0DE /* bit_writer.c */,
+				B57B3EE6A3ED18B9FD49B07E /* color_cache.c */,
+				FC5306579436C6B0F3D5E358 /* filters.c */,
+				329EB6229C79C0DB409DDD5D /* huffman.c */,
+				C68E6626714441ADF3435449 /* huffman_encode.c */,
+				AC3EFB86E6D86D8FCF0CFEF1 /* quant_levels.c */,
+				1845D6CEA6BFC8B0D0F57200 /* quant_levels_dec.c */,
+				3380692BC0CC8FCC8E603618 /* random.c */,
+				2DB21AAB37A1425018D7B0B5 /* rescaler.c */,
+				22408AA6E9D0D26D56A25DB5 /* thread.c */,
+				28EB0184B59EF8E52B3C52C4 /* utils.c */,
+			);
+			path = utils;
+			sourceTree = "<group>";
+		};
+		B9C9EA6EA12F0ACA95BF6CBB /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				A8D30FA7BD736E0579C1CBE7 /* common.gypi */,
+				B4C2AB5BED5B8CD5406FCF1C /* common_conditions.gypi */,
+				A88591081CA5748A5F0FB765 /* common_variables.gypi */,
+				D075062C20DE11D9B57D2E5E /* libwebp.gyp */,
+				B92C1D69BA99CC5F4BE09A2A /* libwebp_skia.gypi */,
+				C65E983E7DD9A574A2DC4905 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		DD1AB5FB191226196A189D2A /* demux */ = {
+			isa = PBXGroup;
+			children = (
+				58B8CB0CE01ACEA027150A56 /* demux.c */,
+			);
+			path = demux;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		06D6CEB264457DF20731B2AB /* libwebp_dec */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBDD2B7AC83E10C9D3EC1BC7 /* Build configuration list for PBXNativeTarget "libwebp_dec" */;
+			buildPhases = (
+				4EDE116DEFB6125034BEB3FD /* Sources */,
+				6B9AACB80CB8AD12114E31DD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libwebp_dec;
+			productName = webp_dec;
+			productReference = E625E8468BCB0C9A3AC8E603 /* libwebp_dec.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		43AF69108FDDD0AB4332A1ED /* libwebp_dsp_enc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6435393A3860F959660F7E5F /* Build configuration list for PBXNativeTarget "libwebp_dsp_enc" */;
+			buildPhases = (
+				FE26E03CD57DEA093159885A /* Sources */,
+				57F3E17CFCB5EADC69E81ED7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libwebp_dsp_enc;
+			productName = webp_dsp_enc;
+			productReference = 5CD5E1D3003869662AF52285 /* libwebp_dsp_enc.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		9AE87FBCC50847E54181717B /* libwebp_enc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7F517DF169EB286E901A42F7 /* Build configuration list for PBXNativeTarget "libwebp_enc" */;
+			buildPhases = (
+				9248040C710BDA855C7875D2 /* Sources */,
+				7A693C653FC000DD7A17D49D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libwebp_enc;
+			productName = webp_enc;
+			productReference = 71A8D3236F1441455DC926FD /* libwebp_enc.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		C7C48B5CEBCB5F16079F2659 /* libwebp_demux */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 81A33D751E4EEEFD415EA3DF /* Build configuration list for PBXNativeTarget "libwebp_demux" */;
+			buildPhases = (
+				8E8069C4837345011DAAAF08 /* Sources */,
+				183E865BABA1C922E120A237 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libwebp_demux;
+			productName = webp_demux;
+			productReference = 2D54F7D86C905479556DB62D /* libwebp_demux.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D5FEE9A767851EE663B14DC1 /* libwebp_utils */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4C56C3FE689CC0216E5C3A6 /* Build configuration list for PBXNativeTarget "libwebp_utils" */;
+			buildPhases = (
+				8E54542854FEA8B290727B0E /* Sources */,
+				9781968A40FD983EADBE70C6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libwebp_utils;
+			productName = webp_utils;
+			productReference = 19B76369DDF015E4A37C4F1D /* libwebp_utils.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		EF4F4DAE03D0B2D442A5E75C /* libwebp_dsp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0CDBF426BC027FBDC613914D /* Build configuration list for PBXNativeTarget "libwebp_dsp" */;
+			buildPhases = (
+				051CF89CCE786CAB4CDE8E1F /* Sources */,
+				83DA6F862B7C9A36FD6D8409 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libwebp_dsp;
+			productName = webp_dsp;
+			productReference = 3F107807570C4069BB96BE25 /* libwebp_dsp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9B1E54449FC69F4DF2DDC3EC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = D6D73DB1CDC76C63C3AC2C23 /* Build configuration list for PBXProject "libwebp" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = 49B132C52586EFDD457CC4B7;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				583DD51F6109CE7B96CB4159 /* All */,
+				06D6CEB264457DF20731B2AB /* libwebp_dec */,
+				C7C48B5CEBCB5F16079F2659 /* libwebp_demux */,
+				EF4F4DAE03D0B2D442A5E75C /* libwebp_dsp */,
+				D16C845E9062B0AF1B1D310C /* libwebp_dsp_neon */,
+				43AF69108FDDD0AB4332A1ED /* libwebp_dsp_enc */,
+				9AE87FBCC50847E54181717B /* libwebp_enc */,
+				D5FEE9A767851EE663B14DC1 /* libwebp_utils */,
+				48175D1FF8639EC962F81D8E /* libwebp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		051CF89CCE786CAB4CDE8E1F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F84CECAC6275EDC9232EFACE /* alpha_processing.c in Sources */,
+				6EB0508F7D14441769F0D243 /* alpha_processing_mips_dsp_r2.c in Sources */,
+				40646E26F235127ADBF20BA4 /* alpha_processing_sse2.c in Sources */,
+				30CA4AD21722F75604787501 /* alpha_processing_sse41.c in Sources */,
+				7D64F439BE0604BF410003A6 /* cpu.c in Sources */,
+				F6BDD753477DFE3DE99B98D4 /* dec.c in Sources */,
+				B2B73D5CF9F75276B4DF7AEA /* dec_clip_tables.c in Sources */,
+				CE6EBEACE2D33143293DD725 /* dec_mips32.c in Sources */,
+				57345C03785E969C86F66B11 /* dec_mips_dsp_r2.c in Sources */,
+				E51A2AE9D356FA9F0ABCA6B3 /* dec_sse2.c in Sources */,
+				6949675FDFD8DE98AED164CA /* dec_sse41.c in Sources */,
+				52F74AEFF103B9289E74C297 /* enc.c in Sources */,
+				BE31E41879C702827F048EDA /* enc_sse2.c in Sources */,
+				7CDF88B169A79C7726FA8531 /* filters.c in Sources */,
+				BB639F26437BF720574CEE1C /* filters_mips_dsp_r2.c in Sources */,
+				BD4503F4DB49761F9928733A /* filters_sse2.c in Sources */,
+				7D278327DEC272B57C13F29A /* lossless.c in Sources */,
+				ECEB8622B6E8C9FE722B8D46 /* lossless_mips_dsp_r2.c in Sources */,
+				F3E3CC2B566008CA8EDAB33B /* lossless_sse2.c in Sources */,
+				6C8A6FB9C95613103D8AC912 /* rescaler.c in Sources */,
+				AF5AFD02257CD55EC9E1B6CE /* rescaler_mips32.c in Sources */,
+				BE58B5757C25F4BF18149C1B /* rescaler_mips_dsp_r2.c in Sources */,
+				214E7DE63AF8A243A8D2956A /* upsampling.c in Sources */,
+				171591010BDB84E8ACA0C70A /* upsampling_mips_dsp_r2.c in Sources */,
+				5E533C1CC729673BF5DCBADF /* upsampling_sse2.c in Sources */,
+				0516DC60F4197B93C8E8CE2F /* yuv.c in Sources */,
+				B60AFE72D8EB4AE0C7B74F31 /* yuv_mips32.c in Sources */,
+				810FED906E525E9B00511F42 /* yuv_mips_dsp_r2.c in Sources */,
+				E9D9DA27A591D16E92B12EB3 /* yuv_sse2.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EDE116DEFB6125034BEB3FD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D27AFF2A33EF0782959A94EF /* alpha.c in Sources */,
+				EA7311C93B1E78E8758A3319 /* buffer.c in Sources */,
+				9D3946A53664C1EDFF6C89DF /* frame.c in Sources */,
+				81A27D1FDD5FF8CEFF8D5ED9 /* idec.c in Sources */,
+				F43CBFD0B101CB148CAC1A9F /* io.c in Sources */,
+				E9E1CBFB2FC9AA0B8E77EF9D /* quant.c in Sources */,
+				31C4553E62BB4BB1D2E0B13E /* tree.c in Sources */,
+				49C4DBEA0813B04FF0B01F13 /* vp8.c in Sources */,
+				FF3C6956BA735B49FE2513DD /* vp8l.c in Sources */,
+				FAAFD1D39C6B330A803AD03C /* webp.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8E54542854FEA8B290727B0E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C3FB50BD648615D1BF6EB2C /* bit_reader.c in Sources */,
+				736D7FA9D3EC6B14E8C5CB16 /* bit_writer.c in Sources */,
+				183A443219E1E14548EE149A /* color_cache.c in Sources */,
+				0F4AE79AAF30F6687BCF9D80 /* filters.c in Sources */,
+				876119413AE9A20D24B4D094 /* huffman.c in Sources */,
+				22769965ECDC0D7EA891BDC0 /* huffman_encode.c in Sources */,
+				63EA3BA588A993D4A4BD3DB6 /* quant_levels.c in Sources */,
+				0D82DBB38E07E043E1325BE1 /* quant_levels_dec.c in Sources */,
+				B025C2767515B3D380C5B0E9 /* random.c in Sources */,
+				38F4EDD106286E166C13EEC7 /* rescaler.c in Sources */,
+				2BC1D471233D1F3E70D717BF /* thread.c in Sources */,
+				316BCA290DFA856AB890063C /* utils.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8E8069C4837345011DAAAF08 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C3C5937BF9D7A7D767D6F9E0 /* demux.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9248040C710BDA855C7875D2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B229EFB79683E9B1E6670A0C /* alpha.c in Sources */,
+				5CCE383147FB3B97784883B1 /* analysis.c in Sources */,
+				250BA2541868FC4093776F23 /* backward_references.c in Sources */,
+				CA183836B84FC8BE0F5D0E33 /* config.c in Sources */,
+				ADEABC2CBA256480F78FDC72 /* cost.c in Sources */,
+				8D4B15FD8A8B9B952C666D8B /* filter.c in Sources */,
+				871B4C2999E4F77D788BCF9D /* frame.c in Sources */,
+				575C0BAFCE6CB76712A5ABDE /* histogram.c in Sources */,
+				FB3B88BE51B610E2AB116855 /* iterator.c in Sources */,
+				E602F4380130016EFCB67264 /* near_lossless.c in Sources */,
+				CC9570321DF5763E3A29A850 /* picture.c in Sources */,
+				35191DDC79E5C036D8C83353 /* picture_csp.c in Sources */,
+				8B5F3EC495D1B401476D232E /* picture_psnr.c in Sources */,
+				8D179584A51D7BA4F758F1B4 /* picture_rescale.c in Sources */,
+				ADD4F9B83BAB96DC767FB815 /* picture_tools.c in Sources */,
+				B8D37929205A8E396DADB533 /* quant.c in Sources */,
+				BFA200D248FF676DC23A6B2F /* syntax.c in Sources */,
+				132EE0D799A79B9CB8BC201D /* token.c in Sources */,
+				460F93D2B75D9BA3F1087CD0 /* tree.c in Sources */,
+				37E09352D4212ACAABE18561 /* vp8l.c in Sources */,
+				0C6468A60DC7B1C566729EC0 /* webpenc.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FE26E03CD57DEA093159885A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E6C42F17EB2FD8DEFBC43BCC /* argb.c in Sources */,
+				F8D3B5098BAAC588DF8C7135 /* argb_mips_dsp_r2.c in Sources */,
+				7FE7FFE7DFED65CE172C200D /* argb_sse2.c in Sources */,
+				DA5E19DAE93B413D902A9174 /* cost.c in Sources */,
+				D8D4BD7E2DF6421C908D1904 /* cost_mips32.c in Sources */,
+				D123EAE6D6232A7C75B2776D /* cost_mips_dsp_r2.c in Sources */,
+				2E5FCCB3A37F0C776A122019 /* cost_sse2.c in Sources */,
+				ADBEF65E2CA65715F4E9D780 /* enc_avx2.c in Sources */,
+				E5F9E31CCA39E3089EDAE702 /* enc_mips32.c in Sources */,
+				21D6C1E5D7FA7F5F5A86A8E7 /* enc_mips_dsp_r2.c in Sources */,
+				F6F1DAC7282A1FA711C8CD19 /* enc_sse41.c in Sources */,
+				80CECC3B00A4A745A0FDB768 /* lossless_enc.c in Sources */,
+				B8638F33322517EC4EED6ADF /* lossless_enc_mips32.c in Sources */,
+				F613E8F9866BE1884D3E9EA5 /* lossless_enc_mips_dsp_r2.c in Sources */,
+				D5DD0B2061E4D552D4B90C9B /* lossless_enc_sse2.c in Sources */,
+				167F6D963E04E5CDB46A4C74 /* lossless_enc_sse41.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		01704AF47AC8B999ADBBEE1A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5FEE9A767851EE663B14DC1 /* libwebp_utils */;
+			targetProxy = 4D1F5E9713DD7F5AF4A7A826 /* PBXContainerItemProxy */;
+		};
+		0B37E38BA284712E4D7986FD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EF4F4DAE03D0B2D442A5E75C /* libwebp_dsp */;
+			targetProxy = 6FB21558BF45EA8A53EDEB09 /* PBXContainerItemProxy */;
+		};
+		0C7B10A5A3CC2244022F7443 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D16C845E9062B0AF1B1D310C /* libwebp_dsp_neon */;
+			targetProxy = DB5B3B5369FCDE22474B51C8 /* PBXContainerItemProxy */;
+		};
+		10083128C0ABEEE93FB02C98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C7C48B5CEBCB5F16079F2659 /* libwebp_demux */;
+			targetProxy = F003EB14F22F52DF3576462D /* PBXContainerItemProxy */;
+		};
+		23660187B41480D80AB3FE21 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43AF69108FDDD0AB4332A1ED /* libwebp_dsp_enc */;
+			targetProxy = 580D7C90CCF65358CD2BC997 /* PBXContainerItemProxy */;
+		};
+		77456208082BD4747001D354 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AE87FBCC50847E54181717B /* libwebp_enc */;
+			targetProxy = EF479B85742E4E7E7F111972 /* PBXContainerItemProxy */;
+		};
+		7EB147458FFA1BA71EB218C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AE87FBCC50847E54181717B /* libwebp_enc */;
+			targetProxy = 03147590C7E9E34F61F4EFAC /* PBXContainerItemProxy */;
+		};
+		7EC7B15D191085B944A36078 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C7C48B5CEBCB5F16079F2659 /* libwebp_demux */;
+			targetProxy = B6E22B0F50CB02BE2E567762 /* PBXContainerItemProxy */;
+		};
+		91952225C5FC68D9491E5F43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D16C845E9062B0AF1B1D310C /* libwebp_dsp_neon */;
+			targetProxy = B3BB578B920D062531B22439 /* PBXContainerItemProxy */;
+		};
+		9D9B654D240E0E4DEC9BCDB6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EF4F4DAE03D0B2D442A5E75C /* libwebp_dsp */;
+			targetProxy = 18F019E8EC892B3EC0D70103 /* PBXContainerItemProxy */;
+		};
+		AC97D181D450D9CB35212C23 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 06D6CEB264457DF20731B2AB /* libwebp_dec */;
+			targetProxy = 4119D3B1B003B6EBB421E887 /* PBXContainerItemProxy */;
+		};
+		CE8D6A512FB40BCBB491149E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 06D6CEB264457DF20731B2AB /* libwebp_dec */;
+			targetProxy = C6E627FAFD973A36CECFC102 /* PBXContainerItemProxy */;
+		};
+		EC804FC45AE72136CFFD2D2C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5FEE9A767851EE663B14DC1 /* libwebp_utils */;
+			targetProxy = 2A61567BCFF187A6F5335717 /* PBXContainerItemProxy */;
+		};
+		F8CE1FF8164C6FE1F76DA881 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 48175D1FF8639EC962F81D8E /* libwebp */;
+			targetProxy = D5CF5EF5CA056602BD02673B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		01915D449CACD345B53C5B3C /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		187A6E1592AF06812A9259C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		1EF2BDF113AB3AF57521FE5B /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_demux;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+		2BC9EF16A7BD7D1241E2D9AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		313F769424A963B045937B41 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = ../third_party/libwebp/webp;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libwebp_dsp_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		3E7C638A791588DE94012F95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dec;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		47CE99359309479D2D5EEB2E /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		509FE1E403F8C2FF17FF8756 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dec;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		50A05A9EB98FC969DEC70896 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		546B0CE9D3903BC6346BD4F3 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		55F011FF5E4329F8E1FEA6FB /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dec;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		5CEF275D3ACACB4FA767E45B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		5F3400A1807361F8D4F55CA8 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		61C72FA3BCC64AA4553766A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		641FE744DABDFBC85CFE704E /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		8127EF543C34BC3E3AF165F5 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+		833CBDB43C2A16DED11D6A7F /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		8CC6FD429579201675B074A8 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_demux;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		982C49E493C84A107401AC64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		9984DA51A5E67DA48041406F /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+		9F370639B58BDAD141A44103 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release_Developer;
+		};
+		A3E19D27B86C214D5AE9BDD4 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dec;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+		A5BB8563E69B656DD257E1FA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		A80C38471E8077A6B67147AA /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		BD2B369A1FE1B899D85C980A /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = ../third_party/libwebp/webp;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libwebp_dsp_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		C0FE3DB679FCF2DCDA893AF9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		C288DE8CFC8F0A7A2CF0539E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		C315F6D30EE1C6D463B4612D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		C512D5B185880B1B59C1F360 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = ../third_party/libwebp/webp;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libwebp_dsp_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		CC73A0C8F45152D9D711BDCA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		D07E9E248B64A670545AB6B9 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		D448EA62E66FEBBFF204565E /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = ../third_party/libwebp/webp;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = libwebp_dsp_neon;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		DD25DADEE300559D7B2CC26A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_demux;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		E17DAA6A52A674609B3B24D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		E6ABAE847378141CB5166C04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_dsp;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		EC018CA8233AF8C6CAE98D11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_demux;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		EC8510D3CC99C53BB9E8E559 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					HAVE_CONFIG_H,
+					WEBP_SWAP_16BIT_CSP,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					../third_party/externals/libwebp,
+					../third_party/libwebp/webp,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = webp_enc;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+		F55DE52D61C7FF2AB708FCCE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
+		F72496C0D4A1DF3B99E7183D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		F7E5739EA7C29AA7E7616944 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Coverage;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0C010A7899FCD9EA75522F24 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F7E5739EA7C29AA7E7616944 /* Coverage */,
+				F72496C0D4A1DF3B99E7183D /* Debug */,
+				F55DE52D61C7FF2AB708FCCE /* Release */,
+				9F370639B58BDAD141A44103 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		0CDBF426BC027FBDC613914D /* Build configuration list for PBXNativeTarget "libwebp_dsp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				641FE744DABDFBC85CFE704E /* Coverage */,
+				E6ABAE847378141CB5166C04 /* Debug */,
+				C288DE8CFC8F0A7A2CF0539E /* Release */,
+				9984DA51A5E67DA48041406F /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		1F7D86D581C61D0066AF3EBA /* Build configuration list for PBXAggregateTarget "libwebp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				833CBDB43C2A16DED11D6A7F /* Coverage */,
+				CC73A0C8F45152D9D711BDCA /* Debug */,
+				5CEF275D3ACACB4FA767E45B /* Release */,
+				5F3400A1807361F8D4F55CA8 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		264B181D64ECF40B738B7473 /* Build configuration list for PBXAggregateTarget "libwebp_dsp_neon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD2B369A1FE1B899D85C980A /* Coverage */,
+				C512D5B185880B1B59C1F360 /* Debug */,
+				313F769424A963B045937B41 /* Release */,
+				D448EA62E66FEBBFF204565E /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		6435393A3860F959660F7E5F /* Build configuration list for PBXNativeTarget "libwebp_dsp_enc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				47CE99359309479D2D5EEB2E /* Coverage */,
+				982C49E493C84A107401AC64 /* Debug */,
+				C0FE3DB679FCF2DCDA893AF9 /* Release */,
+				D07E9E248B64A670545AB6B9 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		7F517DF169EB286E901A42F7 /* Build configuration list for PBXNativeTarget "libwebp_enc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				50A05A9EB98FC969DEC70896 /* Coverage */,
+				2BC9EF16A7BD7D1241E2D9AD /* Debug */,
+				C315F6D30EE1C6D463B4612D /* Release */,
+				EC8510D3CC99C53BB9E8E559 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		81A33D751E4EEEFD415EA3DF /* Build configuration list for PBXNativeTarget "libwebp_demux" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8CC6FD429579201675B074A8 /* Coverage */,
+				EC018CA8233AF8C6CAE98D11 /* Debug */,
+				DD25DADEE300559D7B2CC26A /* Release */,
+				1EF2BDF113AB3AF57521FE5B /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		BBDD2B7AC83E10C9D3EC1BC7 /* Build configuration list for PBXNativeTarget "libwebp_dec" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55F011FF5E4329F8E1FEA6FB /* Coverage */,
+				509FE1E403F8C2FF17FF8756 /* Debug */,
+				3E7C638A791588DE94012F95 /* Release */,
+				A3E19D27B86C214D5AE9BDD4 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		D6D73DB1CDC76C63C3AC2C23 /* Build configuration list for PBXProject "libwebp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A80C38471E8077A6B67147AA /* Coverage */,
+				A5BB8563E69B656DD257E1FA /* Debug */,
+				E17DAA6A52A674609B3B24D5 /* Release */,
+				01915D449CACD345B53C5B3C /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		F4C56C3FE689CC0216E5C3A6 /* Build configuration list for PBXNativeTarget "libwebp_utils" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				546B0CE9D3903BC6346BD4F3 /* Coverage */,
+				61C72FA3BCC64AA4553766A4 /* Debug */,
+				187A6E1592AF06812A9259C5 /* Release */,
+				8127EF543C34BC3E3AF165F5 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9B1E54449FC69F4DF2DDC3EC /* Project object */;
+}

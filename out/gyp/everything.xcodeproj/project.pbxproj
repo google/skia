@@ -1,0 +1,383 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		60F2DCC82E423088DADD3873 /* everything */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D4EEB914F5E0C1AF38A35A3A /* Build configuration list for PBXAggregateTarget "everything" */;
+			buildPhases = (
+			);
+			dependencies = (
+				CCD036317F36643E873DB140 /* PBXTargetDependency */,
+				8F03C3A1A40BEF9D532F368C /* PBXTargetDependency */,
+			);
+			name = everything;
+			productName = everything;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXContainerItemProxy section */
+		280A6A840EBAD859B6C71960 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 923E8EF11AF3E576BE6B1FB1 /* debugger.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 47CA45D377422342D8007A57;
+			remoteInfo = debugger;
+		};
+		77F431E697A3BD3267E7A510 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 923E8EF11AF3E576BE6B1FB1 /* debugger.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 993BD829B5A566FD893EC39F;
+			remoteInfo = debugger;
+		};
+		E73E0D914038DD6B58C49568 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 014888DBA262F9E8CF75BEC6 /* most.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 6836FF696ED3861D854E50B0;
+			remoteInfo = most;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		011B385CA30F0B561A26F21D /* everything.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = everything.gyp; sourceTree = "<group>"; };
+		014888DBA262F9E8CF75BEC6 /* most.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = most.xcodeproj; path = ../out/gyp/most.xcodeproj; sourceTree = SOURCE_ROOT; };
+		06DF9C49F7696FF789089035 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		37B846CB0DDE45DFB163CD21 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		5B30BC287EC2873FA9317481 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		923E8EF11AF3E576BE6B1FB1 /* debugger.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = debugger.xcodeproj; path = ../out/gyp/debugger.xcodeproj; sourceTree = SOURCE_ROOT; };
+		C7253A661A0EFCF928630103 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		149322225F58A2E8C19C22D0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7DF97D78DE1611729C4F10C2 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				06DF9C49F7696FF789089035 /* common.gypi */,
+				37B846CB0DDE45DFB163CD21 /* common_conditions.gypi */,
+				5B30BC287EC2873FA9317481 /* common_variables.gypi */,
+				011B385CA30F0B561A26F21D /* everything.gyp */,
+				C7253A661A0EFCF928630103 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		89D6661037E6F153BD5475ED /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BE886856CF8E5E9B5895F6EE /* debugger.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A03DB753AD00DED975A0AD03 = {
+			isa = PBXGroup;
+			children = (
+				F6C2B36F3B63D71886910F65 /* Projects */,
+				7DF97D78DE1611729C4F10C2 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		F6C2B36F3B63D71886910F65 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				923E8EF11AF3E576BE6B1FB1 /* debugger.xcodeproj */,
+				014888DBA262F9E8CF75BEC6 /* most.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		FFEB066564C30725DCB416A5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 9FDAA384F0BC3082604F9815 /* Build configuration list for PBXProject "everything" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = A03DB753AD00DED975A0AD03;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = 89D6661037E6F153BD5475ED /* Products */;
+					ProjectRef = 923E8EF11AF3E576BE6B1FB1 /* debugger.xcodeproj */;
+				},
+				{
+					ProductGroup = 149322225F58A2E8C19C22D0 /* Products */;
+					ProjectRef = 014888DBA262F9E8CF75BEC6 /* most.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				60F2DCC82E423088DADD3873 /* everything */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		BE886856CF8E5E9B5895F6EE /* debugger.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = debugger.app;
+			remoteRef = 280A6A840EBAD859B6C71960 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXTargetDependency section */
+		8F03C3A1A40BEF9D532F368C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = debugger;
+			targetProxy = 77F431E697A3BD3267E7A510 /* PBXContainerItemProxy */;
+		};
+		CCD036317F36643E873DB140 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = most;
+			targetProxy = E73E0D914038DD6B58C49568 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		17B10B94FED73CFDB0F84365 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		3C99CB0163D720D0948D13C9 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = ../third_party/lua/src/;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = everything;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		4B1B5ECF6244A60089CC085C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = ../third_party/lua/src/;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = everything;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		573F9D1902BC7A33021A0B54 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		59FBCF24A28EEF5D60EB0FF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = ../third_party/lua/src/;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = everything;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		8B48FC13FA322E945C7F712C /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		92992F758303D8851BE401AD /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = ../third_party/lua/src/;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = everything;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		A92875B3D8FD1F20CCDC3876 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9FDAA384F0BC3082604F9815 /* Build configuration list for PBXProject "everything" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B48FC13FA322E945C7F712C /* Coverage */,
+				A92875B3D8FD1F20CCDC3876 /* Debug */,
+				573F9D1902BC7A33021A0B54 /* Release */,
+				17B10B94FED73CFDB0F84365 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		D4EEB914F5E0C1AF38A35A3A /* Build configuration list for PBXAggregateTarget "everything" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92992F758303D8851BE401AD /* Coverage */,
+				4B1B5ECF6244A60089CC085C /* Debug */,
+				59FBCF24A28EEF5D60EB0FF6 /* Release */,
+				3C99CB0163D720D0948D13C9 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FFEB066564C30725DCB416A5 /* Project object */;
+}

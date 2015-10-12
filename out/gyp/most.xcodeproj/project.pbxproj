@@ -1,0 +1,1276 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		6836FF696ED3861D854E50B0 /* most */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 8A54BA82CE5B1F6422CF2DE0 /* Build configuration list for PBXAggregateTarget "most" */;
+			buildPhases = (
+			);
+			dependencies = (
+				A27C24B65C0EF5560C8B4956 /* PBXTargetDependency */,
+				478829EB20553AAA5B631CF6 /* PBXTargetDependency */,
+				97007CDE6EE8037767F55D64 /* PBXTargetDependency */,
+				B4907054014286A3C0DD14DE /* PBXTargetDependency */,
+				9640A32340EEB08506C7AE13 /* PBXTargetDependency */,
+				FCF6D70B40CB3A0DBDFB0F3D /* PBXTargetDependency */,
+				CC15789A1F71BAD73962845A /* PBXTargetDependency */,
+				AEA6F38E916FA4E84530EB35 /* PBXTargetDependency */,
+				4DF39704939030E7AC65E188 /* PBXTargetDependency */,
+				EE0204FD2C94B571BD31FB71 /* PBXTargetDependency */,
+				33E9F715569A257D32473265 /* PBXTargetDependency */,
+			);
+			name = most;
+			productName = most;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXContainerItemProxy section */
+		013EFC0F272FD572C0395FA8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E925D99EC4E301A4868F7303 /* nanomsg.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E9D7EBCE8DC0A611048413FA;
+			remoteInfo = nanomsg_picture_demo;
+		};
+		06AAF351DE91058B7C8A606F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = EB8761F9DDD06667FB2AC82D;
+			remoteInfo = pinspect;
+		};
+		09B031235EF53F09F85F65CD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6E1A9F90DBB906ACE59C4952;
+			remoteInfo = whitelist_typefaces;
+		};
+		0BE441BF173C44932967FD7D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7AAE576574B25CD75B8A8013 /* bench.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 67C52D2BA536561709A0C222;
+			remoteInfo = nanobench;
+		};
+		0C02FBCAFF49D197598FAF0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8C44B963EBD5CB9C3BEE239A;
+			remoteInfo = render_pdfs;
+		};
+		113613C848CDE8DE8E8E4692 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 62CAE66DF7792D1D2FEE1423;
+			remoteInfo = tools;
+		};
+		1B81DEE235C3CAF864ADD22D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C251430F0ABA93C83C5205BD;
+			remoteInfo = resources;
+		};
+		1BC8A93770E038B1EBE96C51 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0771CE9DD8138206646603A3;
+			remoteInfo = bench_pictures;
+		};
+		29CDD822B7A49E630E58251D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C6BB28EE146235A1933632BA;
+			remoteInfo = proc_stats;
+		};
+		314E162810E9E3EA5E72CB34 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 55B94FD791C8D041560B20EA;
+			remoteInfo = skpinfo;
+		};
+		33CCF53D5C714E20CBC443EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 356B2BB9CE72517A1DDCAC2A /* dm.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = AAADFD3CD61729E3A6A12428;
+			remoteInfo = dm;
+		};
+		36BA7525C7DE17C5BCD01904 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BCBC57CA4D5855AB1F0A7D2C;
+			remoteInfo = bitmap_region_decoder;
+		};
+		3728A12D1BE9C5739A99BDF7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 98236122DD196B362D285779;
+			remoteInfo = chrome_fuzz;
+		};
+		393A50421C0BC6CFED1088E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 75F5903BB86609A96DFDB76E /* SampleApp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 141043815B033B77448F4344;
+			remoteInfo = SampleApp;
+		};
+		3DC91C4B21A1177FA2DBB744 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DB59C74550A866F0BC25E74E;
+			remoteInfo = picture_renderer;
+		};
+		3F666B3CE383CDB3506ED748 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A4CCA6D0D91F1D15A9EC226A;
+			remoteInfo = timer;
+		};
+		446E78FD85ED9F69214BB069 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1B8866842AF7E5BCA9F08195 /* pathops_unittest.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5766069455692DDB48A3EA1B;
+			remoteInfo = pathops_unittest;
+		};
+		454036437192875833C5FC36 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2AC0D1C1C3593C01ADE84BD0;
+			remoteInfo = lua_app;
+		};
+		4B3C69229DF300CB50DDC782 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F4AA5E9CCDD8CA3600FEA338;
+			remoteInfo = skimagediff;
+		};
+		4DAFB877CCF12CA18E5EB19E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 75F5903BB86609A96DFDB76E /* SampleApp.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 9347DB085937D8DFA0446C49;
+			remoteInfo = SampleApp;
+		};
+		61A097523CC56A79B63A7EAA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 97304DE2C01B0F32726E7077;
+			remoteInfo = skhello;
+		};
+		6233CDD93F02DBBE5C14E2A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4A07EFEB657A8B5FE36F00F2;
+			remoteInfo = picture_utils;
+		};
+		630725A7F4B0B577677D6264 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2760ACE9D826AE8ACAA82994;
+			remoteInfo = flatten;
+		};
+		649AF2F0D4C4239778E8C70B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F574D4AB4D780C697B8A511C;
+			remoteInfo = imgconv;
+		};
+		74815613F8F8DE10387A5759 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0BF267D38B5A420792718968;
+			remoteInfo = skpdiff;
+		};
+		79E4486D0EA88E0DE77B0DBC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 356B2BB9CE72517A1DDCAC2A /* dm.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 60AAE665D1FA9247264726AE;
+			remoteInfo = dm;
+		};
+		88E9F50C05074BE9EF5FD21A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E925D99EC4E301A4868F7303 /* nanomsg.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 38B7DA305EA84E23D8CF950D;
+			remoteInfo = libnanomsg;
+		};
+		909E9734BC0DDDF067224E5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7AAE576574B25CD75B8A8013 /* bench.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D53A33AF86F8496727A2621;
+			remoteInfo = nanobench;
+		};
+		943C9BCFCFB30806E7589FA9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1B8866842AF7E5BCA9F08195 /* pathops_unittest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 602C92C68F3ED6F50349143A;
+			remoteInfo = pathops_unittest;
+		};
+		98FB88CDFB0659301B9B5E5E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 77F5BC84206EFBAB509DAC9C;
+			remoteInfo = lua_pictures;
+		};
+		A1249B818733B3ED732F2101 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2709E6D3CD1F1FF041DCB372;
+			remoteInfo = skp2svg;
+		};
+		A84B9C2E4A5C011714094CA3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 950B80EBFBB4F47181094B44;
+			remoteInfo = dump_record;
+		};
+		AEA3DF62A8DCAF7BF87619A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5D93008DE0DB9B62DC0AB6BD;
+			remoteInfo = test_public_includes;
+		};
+		AFD7143DDBF6A1599784EAC8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 91197EFDC079FCD9B3094A4F;
+			remoteInfo = crash_handler;
+		};
+		B1331E62ACC9CF49DF248E39 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 556651A4C918EDFE83ABD9FF /* skia_lib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FAACAD0576FEAB6DC6993FBC;
+			remoteInfo = skia_lib;
+		};
+		B185C5D0621E109EC531DC6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 50EDA215D35CC8EB471B9691;
+			remoteInfo = imgslice;
+		};
+		BA8AD05B5E9047288A6D2EE6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F45292A6B7FFD52AE9652A77 /* example.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = AC150070A78CAE36E1A543B9;
+			remoteInfo = HelloWorld;
+		};
+		BF49BD1F24804504C4621B51 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5AE12DE8D21CEBF738082BA6;
+			remoteInfo = create_test_font;
+		};
+		C2AE025FA41DB058A34087CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E925D99EC4E301A4868F7303 /* nanomsg.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C3E0D6544C59DF65AF4DBA4;
+			remoteInfo = libnanomsg;
+		};
+		C55EBE3778F75B955C961C1B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B65B39DEBBC5792F9131BC7 /* visualbench.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 03F75953A7F9D1294FDA0695;
+			remoteInfo = visualbench;
+		};
+		CDC77A8CF9F3E8AD6DDCF51E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E925D99EC4E301A4868F7303 /* nanomsg.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F74AFC353F8D270721A7B167;
+			remoteInfo = nanomsg_picture_demo;
+		};
+		CE1FCC2E7B444D84FA676681 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2AD331C253C37CDABBB5EC1C;
+			remoteInfo = skdiff;
+		};
+		D35B32EA724859760BE4EE97 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BF63845027519D839B0FEEAE;
+			remoteInfo = gpuveto;
+		};
+		D3D61BE4FB6204DEF8E1C9E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F45292A6B7FFD52AE9652A77 /* example.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DF837F1C7C960DA40E60D8C9;
+			remoteInfo = HelloWorld;
+		};
+		D44658F05AEECD3F3607362F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5B57DBDC5A7D04B637276BFE;
+			remoteInfo = test_image_decoder;
+		};
+		D81152860C324A48AE0B8507 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6638FCC94980DD78C7F18A7F /* pathops_skpclip.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = C53354D27E05D8D142278F96;
+			remoteInfo = pathops_skpclip;
+		};
+		EA256446253A211C965C6085 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1FD192B0AB2183A39D6BC8FC;
+			remoteInfo = render_pictures;
+		};
+		EACB0523CDA68EDF6F242481 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B65B39DEBBC5792F9131BC7 /* visualbench.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = ABE4D44926B148A2D417046B;
+			remoteInfo = visualbench;
+		};
+		EE6D6F6568ACC99F94979140 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6638FCC94980DD78C7F18A7F /* pathops_skpclip.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2D65A24C5A5C3906F8EB484E;
+			remoteInfo = pathops_skpclip;
+		};
+		F9F31A6407E3C9C44321B608 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1DB4979BCCDE143005F53483;
+			remoteInfo = skpmaker;
+		};
+		FD4EA1160A779532A3681E93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6CA30CDC5C7EEAFFB2BB6D72;
+			remoteInfo = sk_tool_utils;
+		};
+		FDFF37BDE62D1E6D16491EC0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 644951A4AD93C21458ED832B;
+			remoteInfo = filter;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1B8866842AF7E5BCA9F08195 /* pathops_unittest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = pathops_unittest.xcodeproj; path = ../out/gyp/pathops_unittest.xcodeproj; sourceTree = SOURCE_ROOT; };
+		2B65B39DEBBC5792F9131BC7 /* visualbench.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = visualbench.xcodeproj; path = ../out/gyp/visualbench.xcodeproj; sourceTree = SOURCE_ROOT; };
+		3159C07DE69C77DE37EE4591 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		356B2BB9CE72517A1DDCAC2A /* dm.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dm.xcodeproj; path = ../out/gyp/dm.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4F159807EE7BB528E99AF018 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		556651A4C918EDFE83ABD9FF /* skia_lib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia_lib.xcodeproj; path = ../out/gyp/skia_lib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		6638FCC94980DD78C7F18A7F /* pathops_skpclip.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = pathops_skpclip.xcodeproj; path = ../out/gyp/pathops_skpclip.xcodeproj; sourceTree = SOURCE_ROOT; };
+		718D984EA7935B0A93DE6B6B /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		75F5903BB86609A96DFDB76E /* SampleApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SampleApp.xcodeproj; path = ../out/gyp/SampleApp.xcodeproj; sourceTree = SOURCE_ROOT; };
+		767D3650C4DD5D9CAADCF429 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		7AAE576574B25CD75B8A8013 /* bench.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bench.xcodeproj; path = ../out/gyp/bench.xcodeproj; sourceTree = SOURCE_ROOT; };
+		8EA8635080C8973583C674E2 /* tools.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = tools.xcodeproj; path = ../out/gyp/tools.xcodeproj; sourceTree = SOURCE_ROOT; };
+		9D286711781D122CC3BEA2EC /* most.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = most.gyp; sourceTree = "<group>"; };
+		E925D99EC4E301A4868F7303 /* nanomsg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = nanomsg.xcodeproj; path = ../out/gyp/nanomsg.xcodeproj; sourceTree = SOURCE_ROOT; };
+		F45292A6B7FFD52AE9652A77 /* example.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = example.xcodeproj; path = ../out/gyp/example.xcodeproj; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		07BAC93CD21FC712EBDFFE87 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				281CF8E3E74BABF7A6A2B1AC /* nanomsg_picture_demo */,
+				2F6F0FBA7E5427B3306E8BF8 /* libnanomsg.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1D54123F55A53B743EFFB7F6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				958A28E6902C28724DF0733B /* nanobench */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2700D1EB3A846C6D2A385E3C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6A38FAB5F1032364EF43C77E /* pathops_unittest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		409275AC708972F4E6A28726 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F6F7B94EA058BC2B1BCF6BB9 /* HelloWorld */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4EEA6EA4F39FB760CE0DCF58 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5F4C16067A0DA7F3AE7EF0F1 /* pathops_skpclip */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6151308E9DDA10D258C8F34A /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				4F159807EE7BB528E99AF018 /* common.gypi */,
+				767D3650C4DD5D9CAADCF429 /* common_conditions.gypi */,
+				718D984EA7935B0A93DE6B6B /* common_variables.gypi */,
+				9D286711781D122CC3BEA2EC /* most.gyp */,
+				3159C07DE69C77DE37EE4591 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		65AF0DD1BDD1E372D0EBE2A6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6A78F0990E9074343D70D811 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E18F2A651B34905B708DBD1 /* libbitmap_region_decoder.a */,
+				7B06189D3DA6D6A421962FEB /* chrome_fuzz */,
+				635384C9ED90B310C4F9F175 /* libcrash_handler.a */,
+				D0BF521F5D3908EE20CF7371 /* libresources.a */,
+				06CCC03270D9F0080266AFB9 /* libsk_tool_utils.a */,
+				FB41613241FF04947AA36493 /* libtimer.a */,
+				60B1116440D6621A990390BA /* skdiff */,
+				BC1B602FC19AD57D6E0FB6FE /* skpdiff */,
+				E3BED581D623BB2725448FFA /* skpmaker */,
+				E316CA0A2EB75F0528077F0E /* skimagediff */,
+				74CD351AFB6C247A144192A1 /* skhello */,
+				E76F21E9D32EE2FC689E4781 /* skpinfo */,
+				91FE95BB7C1AE12F327B8AFD /* imgslice */,
+				09418948B307C42284DD47EF /* flatten */,
+				56F7C3C2553745F4F0D52C5E /* skp2svg */,
+				2959D035C69DD48A5C154559 /* gpuveto */,
+				7AA4A897D13D2890CAF99432 /* lua_app */,
+				0F1BA4561F9232296A5E0DB0 /* lua_pictures */,
+				AE1122F477662331C581EB8D /* render_pictures */,
+				42EFD72323D342239C240693 /* bench_pictures */,
+				02AF773B51CD72CB32288AB1 /* dump_record */,
+				24B8374439BC544715FEF3B1 /* libpicture_renderer.a */,
+				483609B0D320F545569F3387 /* render_pdfs */,
+				5B44564201D5424679D98D9C /* libpicture_utils.a */,
+				B0DCBA77B7D34AEFEBD38174 /* pinspect */,
+				3086A686D333B9FF5ACD1408 /* imgconv */,
+				696F9B57852899740EBED48E /* filter */,
+				6E24AAABA41FCFF2F2DD75C7 /* test_image_decoder */,
+				55F215CD559A084355D17079 /* libproc_stats.a */,
+				7F4822B39AE4840983C048F3 /* whitelist_typefaces */,
+				8D4862705C371E0AED4D5B15 /* libtest_public_includes.a */,
+				EB1677DE144E71AFEF302D5D /* create_test_font */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		89EA4F6FC32B5855489BA096 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8750347261A04C7046C72BAF /* visualbench */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A9FFB34945D7C513C3F7BF8D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				42647D599D56BD9F893BE8F6 /* SampleApp */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AD509B849181AC3F54AD7137 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				75F5903BB86609A96DFDB76E /* SampleApp.xcodeproj */,
+				7AAE576574B25CD75B8A8013 /* bench.xcodeproj */,
+				356B2BB9CE72517A1DDCAC2A /* dm.xcodeproj */,
+				F45292A6B7FFD52AE9652A77 /* example.xcodeproj */,
+				E925D99EC4E301A4868F7303 /* nanomsg.xcodeproj */,
+				6638FCC94980DD78C7F18A7F /* pathops_skpclip.xcodeproj */,
+				1B8866842AF7E5BCA9F08195 /* pathops_unittest.xcodeproj */,
+				556651A4C918EDFE83ABD9FF /* skia_lib.xcodeproj */,
+				8EA8635080C8973583C674E2 /* tools.xcodeproj */,
+				2B65B39DEBBC5792F9131BC7 /* visualbench.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		B2E59CB54DAEBD3F88E12055 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A966AC1E770A164EAC7BF357 /* dm */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1936A61C1BFC205BA728DDE = {
+			isa = PBXGroup;
+			children = (
+				AD509B849181AC3F54AD7137 /* Projects */,
+				6151308E9DDA10D258C8F34A /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		EFF2ABAB9A2ECC88F9790E0F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 9DBE443328BA9595CE0E13F5 /* Build configuration list for PBXProject "most" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = F1936A61C1BFC205BA728DDE;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = 1D54123F55A53B743EFFB7F6 /* Products */;
+					ProjectRef = 7AAE576574B25CD75B8A8013 /* bench.xcodeproj */;
+				},
+				{
+					ProductGroup = B2E59CB54DAEBD3F88E12055 /* Products */;
+					ProjectRef = 356B2BB9CE72517A1DDCAC2A /* dm.xcodeproj */;
+				},
+				{
+					ProductGroup = 409275AC708972F4E6A28726 /* Products */;
+					ProjectRef = F45292A6B7FFD52AE9652A77 /* example.xcodeproj */;
+				},
+				{
+					ProductGroup = 07BAC93CD21FC712EBDFFE87 /* Products */;
+					ProjectRef = E925D99EC4E301A4868F7303 /* nanomsg.xcodeproj */;
+				},
+				{
+					ProductGroup = 4EEA6EA4F39FB760CE0DCF58 /* Products */;
+					ProjectRef = 6638FCC94980DD78C7F18A7F /* pathops_skpclip.xcodeproj */;
+				},
+				{
+					ProductGroup = 2700D1EB3A846C6D2A385E3C /* Products */;
+					ProjectRef = 1B8866842AF7E5BCA9F08195 /* pathops_unittest.xcodeproj */;
+				},
+				{
+					ProductGroup = A9FFB34945D7C513C3F7BF8D /* Products */;
+					ProjectRef = 75F5903BB86609A96DFDB76E /* SampleApp.xcodeproj */;
+				},
+				{
+					ProductGroup = 65AF0DD1BDD1E372D0EBE2A6 /* Products */;
+					ProjectRef = 556651A4C918EDFE83ABD9FF /* skia_lib.xcodeproj */;
+				},
+				{
+					ProductGroup = 6A78F0990E9074343D70D811 /* Products */;
+					ProjectRef = 8EA8635080C8973583C674E2 /* tools.xcodeproj */;
+				},
+				{
+					ProductGroup = 89EA4F6FC32B5855489BA096 /* Products */;
+					ProjectRef = 2B65B39DEBBC5792F9131BC7 /* visualbench.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				6836FF696ED3861D854E50B0 /* most */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		02AF773B51CD72CB32288AB1 /* dump_record */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = dump_record;
+			remoteRef = A84B9C2E4A5C011714094CA3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		06CCC03270D9F0080266AFB9 /* libsk_tool_utils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsk_tool_utils.a;
+			remoteRef = FD4EA1160A779532A3681E93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		09418948B307C42284DD47EF /* flatten */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = flatten;
+			remoteRef = 630725A7F4B0B577677D6264 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0F1BA4561F9232296A5E0DB0 /* lua_pictures */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = lua_pictures;
+			remoteRef = 98FB88CDFB0659301B9B5E5E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		24B8374439BC544715FEF3B1 /* libpicture_renderer.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libpicture_renderer.a;
+			remoteRef = 3DC91C4B21A1177FA2DBB744 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		281CF8E3E74BABF7A6A2B1AC /* nanomsg_picture_demo */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = nanomsg_picture_demo;
+			remoteRef = CDC77A8CF9F3E8AD6DDCF51E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2959D035C69DD48A5C154559 /* gpuveto */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = gpuveto;
+			remoteRef = D35B32EA724859760BE4EE97 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2F6F0FBA7E5427B3306E8BF8 /* libnanomsg.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libnanomsg.a;
+			remoteRef = 88E9F50C05074BE9EF5FD21A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3086A686D333B9FF5ACD1408 /* imgconv */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = imgconv;
+			remoteRef = 649AF2F0D4C4239778E8C70B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		42647D599D56BD9F893BE8F6 /* SampleApp */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = SampleApp;
+			remoteRef = 393A50421C0BC6CFED1088E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		42EFD72323D342239C240693 /* bench_pictures */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = bench_pictures;
+			remoteRef = 1BC8A93770E038B1EBE96C51 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		483609B0D320F545569F3387 /* render_pdfs */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = render_pdfs;
+			remoteRef = 0C02FBCAFF49D197598FAF0C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		55F215CD559A084355D17079 /* libproc_stats.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libproc_stats.a;
+			remoteRef = 29CDD822B7A49E630E58251D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		56F7C3C2553745F4F0D52C5E /* skp2svg */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = skp2svg;
+			remoteRef = A1249B818733B3ED732F2101 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5B44564201D5424679D98D9C /* libpicture_utils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libpicture_utils.a;
+			remoteRef = 6233CDD93F02DBBE5C14E2A4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5F4C16067A0DA7F3AE7EF0F1 /* pathops_skpclip */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = pathops_skpclip;
+			remoteRef = EE6D6F6568ACC99F94979140 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		60B1116440D6621A990390BA /* skdiff */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = skdiff;
+			remoteRef = CE1FCC2E7B444D84FA676681 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		635384C9ED90B310C4F9F175 /* libcrash_handler.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libcrash_handler.a;
+			remoteRef = AFD7143DDBF6A1599784EAC8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		696F9B57852899740EBED48E /* filter */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = filter;
+			remoteRef = FDFF37BDE62D1E6D16491EC0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		6A38FAB5F1032364EF43C77E /* pathops_unittest */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = pathops_unittest;
+			remoteRef = 943C9BCFCFB30806E7589FA9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		6E24AAABA41FCFF2F2DD75C7 /* test_image_decoder */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_image_decoder;
+			remoteRef = D44658F05AEECD3F3607362F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		74CD351AFB6C247A144192A1 /* skhello */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = skhello;
+			remoteRef = 61A097523CC56A79B63A7EAA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7AA4A897D13D2890CAF99432 /* lua_app */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = lua_app;
+			remoteRef = 454036437192875833C5FC36 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7B06189D3DA6D6A421962FEB /* chrome_fuzz */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = chrome_fuzz;
+			remoteRef = 3728A12D1BE9C5739A99BDF7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7F4822B39AE4840983C048F3 /* whitelist_typefaces */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = whitelist_typefaces;
+			remoteRef = 09B031235EF53F09F85F65CD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8750347261A04C7046C72BAF /* visualbench */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = visualbench;
+			remoteRef = EACB0523CDA68EDF6F242481 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8D4862705C371E0AED4D5B15 /* libtest_public_includes.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libtest_public_includes.a;
+			remoteRef = AEA3DF62A8DCAF7BF87619A3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		91FE95BB7C1AE12F327B8AFD /* imgslice */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = imgslice;
+			remoteRef = B185C5D0621E109EC531DC6A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		958A28E6902C28724DF0733B /* nanobench */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = nanobench;
+			remoteRef = 0BE441BF173C44932967FD7D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9E18F2A651B34905B708DBD1 /* libbitmap_region_decoder.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libbitmap_region_decoder.a;
+			remoteRef = 36BA7525C7DE17C5BCD01904 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A966AC1E770A164EAC7BF357 /* dm */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = dm;
+			remoteRef = 79E4486D0EA88E0DE77B0DBC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AE1122F477662331C581EB8D /* render_pictures */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = render_pictures;
+			remoteRef = EA256446253A211C965C6085 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B0DCBA77B7D34AEFEBD38174 /* pinspect */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = pinspect;
+			remoteRef = 06AAF351DE91058B7C8A606F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC1B602FC19AD57D6E0FB6FE /* skpdiff */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = skpdiff;
+			remoteRef = 74815613F8F8DE10387A5759 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D0BF521F5D3908EE20CF7371 /* libresources.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libresources.a;
+			remoteRef = 1B81DEE235C3CAF864ADD22D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E316CA0A2EB75F0528077F0E /* skimagediff */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = skimagediff;
+			remoteRef = 4B3C69229DF300CB50DDC782 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E3BED581D623BB2725448FFA /* skpmaker */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = skpmaker;
+			remoteRef = F9F31A6407E3C9C44321B608 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E76F21E9D32EE2FC689E4781 /* skpinfo */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = skpinfo;
+			remoteRef = 314E162810E9E3EA5E72CB34 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		EB1677DE144E71AFEF302D5D /* create_test_font */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = create_test_font;
+			remoteRef = BF49BD1F24804504C4621B51 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F6F7B94EA058BC2B1BCF6BB9 /* HelloWorld */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = HelloWorld;
+			remoteRef = D3D61BE4FB6204DEF8E1C9E6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FB41613241FF04947AA36493 /* libtimer.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libtimer.a;
+			remoteRef = 3F666B3CE383CDB3506ED748 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXTargetDependency section */
+		33E9F715569A257D32473265 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libnanomsg;
+			targetProxy = C2AE025FA41DB058A34087CA /* PBXContainerItemProxy */;
+		};
+		478829EB20553AAA5B631CF6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = nanobench;
+			targetProxy = 909E9734BC0DDDF067224E5A /* PBXContainerItemProxy */;
+		};
+		4DF39704939030E7AC65E188 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = visualbench;
+			targetProxy = C55EBE3778F75B955C961C1B /* PBXContainerItemProxy */;
+		};
+		9640A32340EEB08506C7AE13 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = tools;
+			targetProxy = 113613C848CDE8DE8E8E4692 /* PBXContainerItemProxy */;
+		};
+		97007CDE6EE8037767F55D64 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HelloWorld;
+			targetProxy = BA8AD05B5E9047288A6D2EE6 /* PBXContainerItemProxy */;
+		};
+		A27C24B65C0EF5560C8B4956 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia_lib;
+			targetProxy = B1331E62ACC9CF49DF248E39 /* PBXContainerItemProxy */;
+		};
+		AEA6F38E916FA4E84530EB35 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = dm;
+			targetProxy = 33CCF53D5C714E20CBC443EB /* PBXContainerItemProxy */;
+		};
+		B4907054014286A3C0DD14DE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SampleApp;
+			targetProxy = 4DAFB877CCF12CA18E5EB19E /* PBXContainerItemProxy */;
+		};
+		CC15789A1F71BAD73962845A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = pathops_skpclip;
+			targetProxy = D81152860C324A48AE0B8507 /* PBXContainerItemProxy */;
+		};
+		EE0204FD2C94B571BD31FB71 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = nanomsg_picture_demo;
+			targetProxy = 013EFC0F272FD572C0395FA8 /* PBXContainerItemProxy */;
+		};
+		FCF6D70B40CB3A0DBDFB0F3D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = pathops_unittest;
+			targetProxy = 446E78FD85ED9F69214BB069 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0F7D967E57C020573422F6CD /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		23810501FB031F8604E7C509 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/lua/src/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../third_party/externals,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = most;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		274B3809EAF3C24F2089365F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/lua/src/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../third_party/externals,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = most;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		44F04AA6614B0026F7B912C1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		68235BA9276DAAD5F2BE56F6 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/lua/src/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../third_party/externals,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = most;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		737AC27DE0C96D3728D08CC3 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../third_party/lua/src/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../include/utils,
+					../src/utils,
+					../include/gpu,
+					../third_party/externals,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = most;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		A78B235EEA2DC816D9D8E0DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		D2114122423CD80381DF8742 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8A54BA82CE5B1F6422CF2DE0 /* Build configuration list for PBXAggregateTarget "most" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				68235BA9276DAAD5F2BE56F6 /* Coverage */,
+				23810501FB031F8604E7C509 /* Debug */,
+				274B3809EAF3C24F2089365F /* Release */,
+				737AC27DE0C96D3728D08CC3 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		9DBE443328BA9595CE0E13F5 /* Build configuration list for PBXProject "most" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2114122423CD80381DF8742 /* Coverage */,
+				44F04AA6614B0026F7B912C1 /* Debug */,
+				A78B235EEA2DC816D9D8E0DA /* Release */,
+				0F7D967E57C020573422F6CD /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EFF2ABAB9A2ECC88F9790E0F /* Project object */;
+}
