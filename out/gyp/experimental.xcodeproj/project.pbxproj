@@ -1,0 +1,373 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		21CD6E62E8AC7AB662CE54CA /* SkSetPoly3To3_D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23786002DDB7B28A64D57383 /* SkSetPoly3To3_D.cpp */; };
+		E8DB0D57BF130F8144A800E1 /* SkSetPoly3To3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA02BB3BC136E412AB81788F /* SkSetPoly3To3.cpp */; };
+		FBC535EA41E56EE8B7650551 /* SkSetPoly3To3_A.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 273548BB47E0CD1164C9C41F /* SkSetPoly3To3_A.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		23786002DDB7B28A64D57383 /* SkSetPoly3To3_D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSetPoly3To3_D.cpp; sourceTree = "<group>"; };
+		273548BB47E0CD1164C9C41F /* SkSetPoly3To3_A.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSetPoly3To3_A.cpp; sourceTree = "<group>"; };
+		798035BD67D55F6B1DDB25AB /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		80E69A1582BD84422AF7842B /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		842F0EE6DB6B668E8013B6B1 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		A45481735BBCA25287144B1E /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		B914B4A6028B1B9543A6A0AB /* experimental.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = experimental.gyp; sourceTree = "<group>"; };
+		E18165BCFCD262D9D8DC9100 /* libexperimental.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libexperimental.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA02BB3BC136E412AB81788F /* SkSetPoly3To3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSetPoly3To3.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EB338B41147702044AD3B0EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		11551E34F1DA53F7C6F50964 = {
+			isa = PBXGroup;
+			children = (
+				E4B40425C75FAC322339C8CB /* Source */,
+				D5C4093B26DDD3E9DF1FFAA5 /* Products */,
+				AE8FCFEDF33AB872F9418AA9 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		AE8FCFEDF33AB872F9418AA9 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				842F0EE6DB6B668E8013B6B1 /* common.gypi */,
+				798035BD67D55F6B1DDB25AB /* common_conditions.gypi */,
+				A45481735BBCA25287144B1E /* common_variables.gypi */,
+				B914B4A6028B1B9543A6A0AB /* experimental.gyp */,
+				80E69A1582BD84422AF7842B /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		D5C4093B26DDD3E9DF1FFAA5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E18165BCFCD262D9D8DC9100 /* libexperimental.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E4B40425C75FAC322339C8CB /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				FA02BB3BC136E412AB81788F /* SkSetPoly3To3.cpp */,
+				273548BB47E0CD1164C9C41F /* SkSetPoly3To3_A.cpp */,
+				23786002DDB7B28A64D57383 /* SkSetPoly3To3_D.cpp */,
+			);
+			name = Source;
+			path = ../experimental;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6FBB728C6C0DAC5703D87BF0 /* experimental */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C63E081CC638F2507A0D35AF /* Build configuration list for PBXNativeTarget "experimental" */;
+			buildPhases = (
+				2DE16E0544983DF85FF8B979 /* Sources */,
+				EB338B41147702044AD3B0EB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = experimental;
+			productName = experimental;
+			productReference = E18165BCFCD262D9D8DC9100 /* libexperimental.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D3B99B224D32503BE517C481 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = AFDF45F7D05EB66EBF9B5D93 /* Build configuration list for PBXProject "experimental" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = 11551E34F1DA53F7C6F50964;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				6FBB728C6C0DAC5703D87BF0 /* experimental */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2DE16E0544983DF85FF8B979 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E8DB0D57BF130F8144A800E1 /* SkSetPoly3To3.cpp in Sources */,
+				FBC535EA41E56EE8B7650551 /* SkSetPoly3To3_A.cpp in Sources */,
+				21CD6E62E8AC7AB662CE54CA /* SkSetPoly3To3_D.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0A6A91F8C9CE8D4182C7A7B3 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		10E5BD7442589FD4EA37390E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/config,
+					../include/core,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = experimental;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		20F6DAB5EB31FA5FC4AB5023 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		2CF9D10FD2022DE107B9D894 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/config,
+					../include/core,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = experimental;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		380C8B5C8A84EB40904FABEE /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/config,
+					../include/core,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = experimental;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		497C2BAB38833D888D53957A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		756E27A09F12A47E6F0A1230 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		76FCC4347548B3F51A467208 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/config,
+					../include/core,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = experimental;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AFDF45F7D05EB66EBF9B5D93 /* Build configuration list for PBXProject "experimental" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				20F6DAB5EB31FA5FC4AB5023 /* Coverage */,
+				497C2BAB38833D888D53957A /* Debug */,
+				756E27A09F12A47E6F0A1230 /* Release */,
+				0A6A91F8C9CE8D4182C7A7B3 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		C63E081CC638F2507A0D35AF /* Build configuration list for PBXNativeTarget "experimental" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				380C8B5C8A84EB40904FABEE /* Coverage */,
+				10E5BD7442589FD4EA37390E /* Debug */,
+				2CF9D10FD2022DE107B9D894 /* Release */,
+				76FCC4347548B3F51A467208 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D3B99B224D32503BE517C481 /* Project object */;
+}

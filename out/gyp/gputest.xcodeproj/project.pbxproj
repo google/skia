@@ -1,0 +1,483 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3788140F6043DA805E5CB35E /* GrContextFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFE60CCD85EE10C0914AC29 /* GrContextFactory.cpp */; };
+		4626617F67EB4BA7BE2FAC20 /* GrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12C5BF69378493CECA97F492 /* GrTest.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5BBABCBA9286332D0B519A3E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CABE42B70F773B703D225A21 /* skia_lib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = FAACAD0576FEAB6DC6993FBC;
+			remoteInfo = skia_lib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		031AFF10EA42E35B9714E0E2 /* GrTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTest.h; sourceTree = "<group>"; };
+		12C5BF69378493CECA97F492 /* GrTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTest.cpp; sourceTree = "<group>"; };
+		39987C1496ABD090197FECFD /* gputest.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = gputest.gyp; sourceTree = "<group>"; };
+		52055BEF0DE5A85C03C6C6E9 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		7BFE60CCD85EE10C0914AC29 /* GrContextFactory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrContextFactory.cpp; sourceTree = "<group>"; };
+		81A5B145469094E4E900EB46 /* GrContextFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrContextFactory.h; sourceTree = "<group>"; };
+		B23168748A66E699BD111351 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		C5FCF535F00F37440D112A45 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		CABE42B70F773B703D225A21 /* skia_lib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia_lib.xcodeproj; path = ../out/gyp/skia_lib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		DD1438E44D3B102CD1622BCB /* libskia_skgputest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_skgputest.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E436157A3D5BF515FB6A4DCF /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0E05679503BE0CECC54E0407 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		071CC73CBBAD4AAD84B57F96 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				7BFE60CCD85EE10C0914AC29 /* GrContextFactory.cpp */,
+				81A5B145469094E4E900EB46 /* GrContextFactory.h */,
+				12C5BF69378493CECA97F492 /* GrTest.cpp */,
+				031AFF10EA42E35B9714E0E2 /* GrTest.h */,
+			);
+			name = Source;
+			path = ../src/gpu;
+			sourceTree = "<group>";
+		};
+		5FB8A6346EE8E35537D0E900 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				B23168748A66E699BD111351 /* common.gypi */,
+				52055BEF0DE5A85C03C6C6E9 /* common_conditions.gypi */,
+				E436157A3D5BF515FB6A4DCF /* common_variables.gypi */,
+				39987C1496ABD090197FECFD /* gputest.gyp */,
+				C5FCF535F00F37440D112A45 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		7FD5D43F7BC0FE8089A023CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A03ED02F7839DDB36CF48E82 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DD1438E44D3B102CD1622BCB /* libskia_skgputest.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BC935D1D9CD3800E5F44E377 = {
+			isa = PBXGroup;
+			children = (
+				071CC73CBBAD4AAD84B57F96 /* Source */,
+				FDAE027303DFECADE1F4A7BF /* Projects */,
+				A03ED02F7839DDB36CF48E82 /* Products */,
+				5FB8A6346EE8E35537D0E900 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		FDAE027303DFECADE1F4A7BF /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				CABE42B70F773B703D225A21 /* skia_lib.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		20644987FE3263F17D8032BC /* skgputest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8D6DEC6EDC37602C03021F8A /* Build configuration list for PBXNativeTarget "skgputest" */;
+			buildPhases = (
+				0D8BB6EE18002D62FD5AA39B /* Sources */,
+				0E05679503BE0CECC54E0407 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				27E258520770B3571A2262EE /* PBXTargetDependency */,
+			);
+			name = skgputest;
+			productName = skia_skgputest;
+			productReference = DD1438E44D3B102CD1622BCB /* libskia_skgputest.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C59C8FB6D979C847F47EB515 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = BDFFCC147398300F1D16326D /* Build configuration list for PBXProject "gputest" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = BC935D1D9CD3800E5F44E377;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = 7FD5D43F7BC0FE8089A023CC /* Products */;
+					ProjectRef = CABE42B70F773B703D225A21 /* skia_lib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				20644987FE3263F17D8032BC /* skgputest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0D8BB6EE18002D62FD5AA39B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3788140F6043DA805E5CB35E /* GrContextFactory.cpp in Sources */,
+				4626617F67EB4BA7BE2FAC20 /* GrTest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		27E258520770B3571A2262EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = skia_lib;
+			targetProxy = 5BBABCBA9286332D0B519A3E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		059B88200981FAC836FD47C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		1DD53B463961D625908E577B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../include/utils,
+					../src/core,
+					../src/gpu,
+					../../src/gpu,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgputest;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		26955D865AAF32CE1F9F15B9 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../include/utils,
+					../src/core,
+					../src/gpu,
+					../../src/gpu,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgputest;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		544C504E5F4BD56B098BDEC7 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		66A973C94DE296F0E48CD563 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		9616CFE2C4D79F67A4230A31 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../include/utils,
+					../src/core,
+					../src/gpu,
+					../../src/gpu,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgputest;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		C7540483B669136F020EEC4F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../include/utils,
+					../src/core,
+					../src/gpu,
+					../../src/gpu,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/codec,
+					"../third_party/externals/libjpeg-turbo/",
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../src/sfnt,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgputest;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		F567E5E2BCD6D8291F061308 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8D6DEC6EDC37602C03021F8A /* Build configuration list for PBXNativeTarget "skgputest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9616CFE2C4D79F67A4230A31 /* Coverage */,
+				1DD53B463961D625908E577B /* Debug */,
+				C7540483B669136F020EEC4F /* Release */,
+				26955D865AAF32CE1F9F15B9 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		BDFFCC147398300F1D16326D /* Build configuration list for PBXProject "gputest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66A973C94DE296F0E48CD563 /* Coverage */,
+				059B88200981FAC836FD47C2 /* Debug */,
+				F567E5E2BCD6D8291F061308 /* Release */,
+				544C504E5F4BD56B098BDEC7 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C59C8FB6D979C847F47EB515 /* Project object */;
+}

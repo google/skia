@@ -71,7 +71,7 @@ namespace SkOpts {
 
     static void init() {
         // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?
-    #if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
+    #if defined(SK_CPU_X86) /*&& !defined(SK_BUILD_FOR_IOS) */
         uint32_t abcd[] = {0,0,0,0};
         cpuid(abcd);
         if (abcd[2] & (1<< 9)) { Init_ssse3(); }

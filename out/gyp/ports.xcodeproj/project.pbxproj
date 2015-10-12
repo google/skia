@@ -1,0 +1,585 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		146DD105561E7ACB3709CD4D /* SkRemotableFontMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D20E2EDA5396B9B688102506 /* SkRemotableFontMgr.cpp */; };
+		14D0F5E7572A1804CCE37D3D /* SkOSFile_posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1962E6876D1B6B7AA2199D3E /* SkOSFile_posix.cpp */; };
+		3AC4B21346B07660CEBDECC7 /* SkGlobalInitialization_default.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B49A172C7FB26F187651806F /* SkGlobalInitialization_default.cpp */; };
+		4FB5624CFBE3C27DF2B5E49B /* SkStream_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76E7DBD22F4479F57EB7E3F1 /* SkStream_mac.cpp */; };
+		7393909AC153B08D577DB0B9 /* SkMemory_malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 316E889BFC07DFF663A2146A /* SkMemory_malloc.cpp */; };
+		897E43AFC3AF86FE26606C11 /* SkDiscardableMemory_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88D92BA368540D02746D98D9 /* SkDiscardableMemory_none.cpp */; };
+		8CD787EEF527C16BC17DB0CA /* SkOSLibrary_posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19410E2BF53F57A02BF78D9 /* SkOSLibrary_posix.cpp */; };
+		C1DB12BA08579ABADBE74A0D /* SkTime_Unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C93E2A5818E38CF74AA058C /* SkTime_Unix.cpp */; };
+		C751D07CF6DCEAB3302AE5FD /* SkOSFile_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EE2D3D27F6F0C97E942A870 /* SkOSFile_stdio.cpp */; };
+		D7AA1DD23CEAAF67AFA3CD04 /* SkTLS_pthread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169CCC00B3C14F4058B7AB54 /* SkTLS_pthread.cpp */; };
+		DE70A9E21BC835520039C99D /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E11BC835520039C99D /* SkFontHost_mac.cpp */; settings = {ASSET_TAGS = (); }; };
+		E15815EAE2B54A569CE20FD1 /* SkDebug_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D75B8440274C14D0E7624731 /* SkDebug_stdio.cpp */; };
+		F5DA6423DB237957CD85EE19 /* SkFontMgr_indirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADBC605BBED75075A7796131 /* SkFontMgr_indirect.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0883C3469EBB6816335A0BA7 /* SkFontMgr_win_dw_factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_win_dw_factory.cpp; sourceTree = "<group>"; };
+		0C93E2A5818E38CF74AA058C /* SkTime_Unix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTime_Unix.cpp; sourceTree = "<group>"; };
+		169CCC00B3C14F4058B7AB54 /* SkTLS_pthread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTLS_pthread.cpp; sourceTree = "<group>"; };
+		1962E6876D1B6B7AA2199D3E /* SkOSFile_posix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOSFile_posix.cpp; sourceTree = "<group>"; };
+		197994D0384B11C88DB8450E /* SkTypeface_win_dw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTypeface_win_dw.h; sourceTree = "<group>"; };
+		20F8390C4D99947F437C796D /* SkFontMgr_custom_directory_factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_custom_directory_factory.cpp; sourceTree = "<group>"; };
+		21F6760A848608C42A551BCA /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		24FF08C47BF075AA5F618D8F /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		2F94D7B95637E99D1FF01926 /* SkFontMgr_indirect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFontMgr_indirect.h; sourceTree = "<group>"; };
+		316E889BFC07DFF663A2146A /* SkMemory_malloc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMemory_malloc.cpp; sourceTree = "<group>"; };
+		351307FC659682C6AB89A7CE /* SkFontMgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFontMgr.h; sourceTree = "<group>"; };
+		3A725E600E0D27915A42A8D6 /* SkFontMgr_win_dw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_win_dw.cpp; sourceTree = "<group>"; };
+		3BB823F06EF0916046DAB513 /* ports.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = ports.gyp; sourceTree = "<group>"; };
+		4B88B8BCAA414C04C61E6C82 /* SkAtomics_sync.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkAtomics_sync.h; sourceTree = "<group>"; };
+		4F629C142D7937D9D3ADCF2C /* SkFontMgr_fontconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFontMgr_fontconfig.h; sourceTree = "<group>"; };
+		5A56E367ADB3E928A8B8D934 /* SkRemotableFontMgr_win_dw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkRemotableFontMgr_win_dw.cpp; sourceTree = "<group>"; };
+		5EFDBC30C94D1D2C82B7F38E /* SkDebug_win.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDebug_win.cpp; sourceTree = "<group>"; };
+		6AB8EAB886B470818126E50D /* SkFontMgr_win_gdi_factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_win_gdi_factory.cpp; sourceTree = "<group>"; };
+		6B90C2BF7B8C6FC84361C27E /* SkRemotableFontMgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkRemotableFontMgr.h; sourceTree = "<group>"; };
+		76E7DBD22F4479F57EB7E3F1 /* SkStream_mac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkStream_mac.cpp; sourceTree = "<group>"; };
+		88D92BA368540D02746D98D9 /* SkDiscardableMemory_none.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDiscardableMemory_none.cpp; sourceTree = "<group>"; };
+		893C86EDF0B84BC89CB43E59 /* libskia_ports.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_ports.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A44A040528A3B06FDE956AC /* SkFontMgr_android_factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_android_factory.cpp; sourceTree = "<group>"; };
+		8B3F48C6A400C852D3FDBEAD /* SkOSLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkOSLibrary.h; sourceTree = "<group>"; };
+		90D118F37A4D829C0AEE1656 /* SkFontMgr_custom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFontMgr_custom.h; sourceTree = "<group>"; };
+		9ABAFADAD015F755000A2392 /* SkScalerContext_win_dw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkScalerContext_win_dw.h; sourceTree = "<group>"; };
+		9EE2D3D27F6F0C97E942A870 /* SkOSFile_stdio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOSFile_stdio.cpp; sourceTree = "<group>"; };
+		A19410E2BF53F57A02BF78D9 /* SkOSLibrary_posix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOSLibrary_posix.cpp; sourceTree = "<group>"; };
+		A34229D58966F268A58FEE3D /* SkScalerContext_win_dw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkScalerContext_win_dw.cpp; sourceTree = "<group>"; };
+		A72D8DFDAB62C0094094F3E9 /* SkTime_win.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTime_win.cpp; sourceTree = "<group>"; };
+		AC7358CFD76E407EB2B29300 /* SkFontMgr_android.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFontMgr_android.h; sourceTree = "<group>"; };
+		AD77973F9BB0A131A3781EA5 /* SkAtomics_std.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkAtomics_std.h; sourceTree = "<group>"; };
+		ADBC605BBED75075A7796131 /* SkFontMgr_indirect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_indirect.cpp; sourceTree = "<group>"; };
+		B49A172C7FB26F187651806F /* SkGlobalInitialization_default.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkGlobalInitialization_default.cpp; sourceTree = "<group>"; };
+		BBD1B65550ACBF66590DF2AF /* SkOSFile_win.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOSFile_win.cpp; sourceTree = "<group>"; };
+		C4F8842153FE44B22E997FBB /* SkAtomics_atomic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkAtomics_atomic.h; sourceTree = "<group>"; };
+		CE055C73ABAAC527C0FD7960 /* SkTLS_win.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTLS_win.cpp; sourceTree = "<group>"; };
+		D156028AA6A99574A32A87AA /* SkFontMgr_custom_embedded_factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_custom_embedded_factory.cpp; sourceTree = "<group>"; };
+		D20E2EDA5396B9B688102506 /* SkRemotableFontMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkRemotableFontMgr.cpp; sourceTree = "<group>"; };
+		D21D7C07CFBEDFC22F561F3A /* SkOSLibrary_win.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOSLibrary_win.cpp; sourceTree = "<group>"; };
+		D2593ED80DFDBC8E33EC11F6 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		D444EAF9CCF802DF2191816B /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		D75B8440274C14D0E7624731 /* SkDebug_stdio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDebug_stdio.cpp; sourceTree = "<group>"; };
+		D93799CE0FD60BD6BF37F658 /* SkFontConfigInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFontConfigInterface.h; sourceTree = "<group>"; };
+		DE70A9E11BC835520039C99D /* SkFontHost_mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontHost_mac.cpp; sourceTree = "<group>"; };
+		F9A7D730A0EAB819FF217558 /* SkFontMgr_fontconfig_factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontMgr_fontconfig_factory.cpp; sourceTree = "<group>"; };
+		FCC9CCB3FD147290D4B8DD8B /* SkTypeface_win_dw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTypeface_win_dw.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		71F88681068A17A4B62080F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00D67E8FDF4DAAF56D3DB875 /* utils/mac */ = {
+			isa = PBXGroup;
+			children = (
+				76E7DBD22F4479F57EB7E3F1 /* SkStream_mac.cpp */,
+			);
+			path = utils/mac;
+			sourceTree = "<group>";
+		};
+		38A53B08968B4CEE8467FACC /* src */ = {
+			isa = PBXGroup;
+			children = (
+				708A0505C2A0E4E0508631AE /* fonts */,
+				715BD29B7AF1E40031A8DB21 /* ports */,
+				00D67E8FDF4DAAF56D3DB875 /* utils/mac */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		708A0505C2A0E4E0508631AE /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				ADBC605BBED75075A7796131 /* SkFontMgr_indirect.cpp */,
+				D20E2EDA5396B9B688102506 /* SkRemotableFontMgr.cpp */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		715BD29B7AF1E40031A8DB21 /* ports */ = {
+			isa = PBXGroup;
+			children = (
+				DE70A9E11BC835520039C99D /* SkFontHost_mac.cpp */,
+				D75B8440274C14D0E7624731 /* SkDebug_stdio.cpp */,
+				5EFDBC30C94D1D2C82B7F38E /* SkDebug_win.cpp */,
+				88D92BA368540D02746D98D9 /* SkDiscardableMemory_none.cpp */,
+				8A44A040528A3B06FDE956AC /* SkFontMgr_android_factory.cpp */,
+				20F8390C4D99947F437C796D /* SkFontMgr_custom_directory_factory.cpp */,
+				D156028AA6A99574A32A87AA /* SkFontMgr_custom_embedded_factory.cpp */,
+				F9A7D730A0EAB819FF217558 /* SkFontMgr_fontconfig_factory.cpp */,
+				3A725E600E0D27915A42A8D6 /* SkFontMgr_win_dw.cpp */,
+				0883C3469EBB6816335A0BA7 /* SkFontMgr_win_dw_factory.cpp */,
+				6AB8EAB886B470818126E50D /* SkFontMgr_win_gdi_factory.cpp */,
+				B49A172C7FB26F187651806F /* SkGlobalInitialization_default.cpp */,
+				316E889BFC07DFF663A2146A /* SkMemory_malloc.cpp */,
+				1962E6876D1B6B7AA2199D3E /* SkOSFile_posix.cpp */,
+				9EE2D3D27F6F0C97E942A870 /* SkOSFile_stdio.cpp */,
+				BBD1B65550ACBF66590DF2AF /* SkOSFile_win.cpp */,
+				8B3F48C6A400C852D3FDBEAD /* SkOSLibrary.h */,
+				A19410E2BF53F57A02BF78D9 /* SkOSLibrary_posix.cpp */,
+				D21D7C07CFBEDFC22F561F3A /* SkOSLibrary_win.cpp */,
+				5A56E367ADB3E928A8B8D934 /* SkRemotableFontMgr_win_dw.cpp */,
+				A34229D58966F268A58FEE3D /* SkScalerContext_win_dw.cpp */,
+				9ABAFADAD015F755000A2392 /* SkScalerContext_win_dw.h */,
+				169CCC00B3C14F4058B7AB54 /* SkTLS_pthread.cpp */,
+				CE055C73ABAAC527C0FD7960 /* SkTLS_win.cpp */,
+				0C93E2A5818E38CF74AA058C /* SkTime_Unix.cpp */,
+				A72D8DFDAB62C0094094F3E9 /* SkTime_win.cpp */,
+				FCC9CCB3FD147290D4B8DD8B /* SkTypeface_win_dw.cpp */,
+				197994D0384B11C88DB8450E /* SkTypeface_win_dw.h */,
+			);
+			path = ports;
+			sourceTree = "<group>";
+		};
+		7FB4C6FA30F1C22EC2A74840 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				A5B7288DF1AD85C20BF256B3 /* include/ports */,
+				38A53B08968B4CEE8467FACC /* src */,
+			);
+			name = Source;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		8BE0CAF5BB132440410E3EA3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				893C86EDF0B84BC89CB43E59 /* libskia_ports.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A58554E1B3FF98E3761F4650 = {
+			isa = PBXGroup;
+			children = (
+				7FB4C6FA30F1C22EC2A74840 /* Source */,
+				8BE0CAF5BB132440410E3EA3 /* Products */,
+				D601B6FE6E55A87C8BC0FA3C /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		A5B7288DF1AD85C20BF256B3 /* include/ports */ = {
+			isa = PBXGroup;
+			children = (
+				C4F8842153FE44B22E997FBB /* SkAtomics_atomic.h */,
+				AD77973F9BB0A131A3781EA5 /* SkAtomics_std.h */,
+				4B88B8BCAA414C04C61E6C82 /* SkAtomics_sync.h */,
+				D93799CE0FD60BD6BF37F658 /* SkFontConfigInterface.h */,
+				351307FC659682C6AB89A7CE /* SkFontMgr.h */,
+				AC7358CFD76E407EB2B29300 /* SkFontMgr_android.h */,
+				90D118F37A4D829C0AEE1656 /* SkFontMgr_custom.h */,
+				4F629C142D7937D9D3ADCF2C /* SkFontMgr_fontconfig.h */,
+				2F94D7B95637E99D1FF01926 /* SkFontMgr_indirect.h */,
+				6B90C2BF7B8C6FC84361C27E /* SkRemotableFontMgr.h */,
+			);
+			path = include/ports;
+			sourceTree = "<group>";
+		};
+		D601B6FE6E55A87C8BC0FA3C /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				D2593ED80DFDBC8E33EC11F6 /* common.gypi */,
+				21F6760A848608C42A551BCA /* common_conditions.gypi */,
+				D444EAF9CCF802DF2191816B /* common_variables.gypi */,
+				3BB823F06EF0916046DAB513 /* ports.gyp */,
+				24FF08C47BF075AA5F618D8F /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		26FBB2066D17FDFB873DA3F9 /* ports */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 274AF5CCC725E6C8B41F1145 /* Build configuration list for PBXNativeTarget "ports" */;
+			buildPhases = (
+				403D21850C32A4AE78A78BE8 /* Sources */,
+				71F88681068A17A4B62080F9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ports;
+			productName = skia_ports;
+			productReference = 893C86EDF0B84BC89CB43E59 /* libskia_ports.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C298540E89F6848FDED0638D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = D0062A2D228C23B2353EC990 /* Build configuration list for PBXProject "ports" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A58554E1B3FF98E3761F4650;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				26FBB2066D17FDFB873DA3F9 /* ports */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		403D21850C32A4AE78A78BE8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E15815EAE2B54A569CE20FD1 /* SkDebug_stdio.cpp in Sources */,
+				F5DA6423DB237957CD85EE19 /* SkFontMgr_indirect.cpp in Sources */,
+				DE70A9E21BC835520039C99D /* SkFontHost_mac.cpp in Sources */,
+				146DD105561E7ACB3709CD4D /* SkRemotableFontMgr.cpp in Sources */,
+				3AC4B21346B07660CEBDECC7 /* SkGlobalInitialization_default.cpp in Sources */,
+				7393909AC153B08D577DB0B9 /* SkMemory_malloc.cpp in Sources */,
+				14D0F5E7572A1804CCE37D3D /* SkOSFile_posix.cpp in Sources */,
+				C751D07CF6DCEAB3302AE5FD /* SkOSFile_stdio.cpp in Sources */,
+				8CD787EEF527C16BC17DB0CA /* SkOSLibrary_posix.cpp in Sources */,
+				897E43AFC3AF86FE26606C11 /* SkDiscardableMemory_none.cpp in Sources */,
+				C1DB12BA08579ABADBE74A0D /* SkTime_Unix.cpp in Sources */,
+				D7AA1DD23CEAAF67AFA3CD04 /* SkTLS_pthread.cpp in Sources */,
+				4FB5624CFBE3C27DF2B5E49B /* SkStream_mac.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2A58A325E8875DC73D46EDD8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		31BC845866810AD3ADC62DDF /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		480DA79ABEA8B222F20B4893 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		56AC07EC55517BC120A0C5F1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../include/private,
+					../include/utils,
+					../include/utils/win,
+					../src/core,
+					../src/lazy,
+					../src/ports,
+					../src/sfnt,
+					../src/utils,
+					../include/utils/mac,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_ports;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		9F435D6A89FE4A49A8C50206 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		A13AA5E04A9CCFD651815844 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../include/private,
+					../include/utils,
+					../include/utils/win,
+					../src/core,
+					../src/lazy,
+					../src/ports,
+					../src/sfnt,
+					../src/utils,
+					../include/utils/mac,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_ports;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		D717987A2185C4754F8BE9DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../include/private,
+					../include/utils,
+					../include/utils/win,
+					../src/core,
+					../src/lazy,
+					../src/ports,
+					../src/sfnt,
+					../src/utils,
+					../include/utils/mac,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_ports;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		E48AE5CF637910A5A48DC33B /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/images,
+					../include/ports,
+					../include/private,
+					../include/utils,
+					../include/utils/win,
+					../src/core,
+					../src/lazy,
+					../src/ports,
+					../src/sfnt,
+					../src/utils,
+					../include/utils/mac,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_ports;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		274AF5CCC725E6C8B41F1145 /* Build configuration list for PBXNativeTarget "ports" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A13AA5E04A9CCFD651815844 /* Coverage */,
+				56AC07EC55517BC120A0C5F1 /* Debug */,
+				D717987A2185C4754F8BE9DE /* Release */,
+				E48AE5CF637910A5A48DC33B /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		D0062A2D228C23B2353EC990 /* Build configuration list for PBXProject "ports" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31BC845866810AD3ADC62DDF /* Coverage */,
+				2A58A325E8875DC73D46EDD8 /* Debug */,
+				9F435D6A89FE4A49A8C50206 /* Release */,
+				480DA79ABEA8B222F20B4893 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C298540E89F6848FDED0638D /* Project object */;
+}

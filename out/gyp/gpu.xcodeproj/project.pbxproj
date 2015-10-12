@@ -1,0 +1,1744 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05FC0BBCFC0BDDF0AF5E13A0 /* GrSimpleTextureEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3770987DECFE8DFF255843CE /* GrSimpleTextureEffect.cpp */; };
+		0784FFD969D6E1AA38CC95D1 /* GrSWMaskHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B4E4CBF97322843ED32491 /* GrSWMaskHelper.cpp */; };
+		0D4285581601E98C9128DCBE /* GrBlend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C0D4F5AD0D4C5EB7BF1690BF /* GrBlend.cpp */; };
+		0D81B1080D7880FC718826B5 /* GrDrawAtlasBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AF944855B6C05EF124FEC8C /* GrDrawAtlasBatch.cpp */; };
+		0ECC4593E37F6C80AC70FFC7 /* GrGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C3F2F7EE20652684DF4E10A /* GrGLContext.cpp */; };
+		0FDE0D36793BC83E0AE1D1DA /* GrDashingEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 607F77D188E492F912C0D79F /* GrDashingEffect.cpp */; };
+		120F50D08F9416997BF3A5A6 /* SkGrPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDB64F41BDC8B64ED51E85C /* SkGrPixelRef.cpp */; };
+		15D32D6E4DB49CB99FB462E4 /* GrGLVertexShaderBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C6E64A4228D056DDAA63A85 /* GrGLVertexShaderBuilder.cpp */; };
+		166200175294F372DF82DA81 /* GrDitherEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76FCE9F0FC572744393D438F /* GrDitherEffect.cpp */; };
+		192274A19C865F62E241932A /* GrFrameBufferObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 109F814A6F6B2D76E78B409A /* GrFrameBufferObj.cpp */; };
+		19DF139AAEEC735932889B14 /* GrGLBufferImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4D663E5AA8A29FEB4A3FFA6 /* GrGLBufferImpl.cpp */; };
+		1CC9661A0C60EC8EEC86634E /* GrVertexBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED5CBB775E52E6D86B6C6BFE /* GrVertexBatch.cpp */; };
+		1D15473CA18A0285AB4C675C /* GrAAStrokeRectBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5D724E874CD9D8FC8B693C88 /* GrAAStrokeRectBatch.cpp */; };
+		1ED9D13BA3FDC8C6AD3455D0 /* GrTextureDomain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC4D9316BC086CB3FC75F0F0 /* GrTextureDomain.cpp */; };
+		207E78F56A6415E1F8477345 /* GrSingleTextureEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224DBF1C4B578FB0A5DBFCC1 /* GrSingleTextureEffect.cpp */; };
+		2189989D88B5F6BED5A3D84A /* GrPathProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92132BC9963CB40756E411AB /* GrPathProcessor.cpp */; };
+		21EF044487160F8109EAE2C7 /* GrNonAAStrokeRectBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 141E8E56E4CD9CF1B218AD00 /* GrNonAAStrokeRectBatch.cpp */; };
+		2320E9AC2513F15BD2B2015C /* GrBatchFontCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 11C61A0C1E9B1396F4832A10 /* GrBatchFontCache.cpp */; };
+		2352873240F0BA3D27C9AF5F /* GrXferProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDEC927EBB3A44D843B1CE38 /* GrXferProcessor.cpp */; };
+		23795E710F1FEADE39098E7A /* GrLayerHoister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6FB36E47CD07654F9559735C /* GrLayerHoister.cpp */; };
+		24BAE8F15E4D0E79DF11E3F5 /* GrDrawPathBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D57DA950423151BE518E1CAF /* GrDrawPathBatch.cpp */; };
+		251C2E36699A547B27748105 /* GrPipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4830D949CE9A109AF7649659 /* GrPipeline.cpp */; };
+		258D6EB85018BE7425D680FC /* GrPrimitiveProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23515B8451D8A4A6D43349CB /* GrPrimitiveProcessor.cpp */; };
+		25DC773054C9DD3FBDC7BE3B /* GrGpuResourceRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3596C2565865AAF8551DBCA5 /* GrGpuResourceRef.cpp */; };
+		28291A5F3D4FB994AA2E5CF0 /* GrGLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 73E8E99E00732F22C33D8269 /* GrGLInterface.cpp */; };
+		2AA92406E62544F3AED7DC81 /* SkGpuDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A483BF8A39BC3CD42516BD40 /* SkGpuDevice.cpp */; };
+		2AC9E03330F87A59311C65A0 /* GrGLShaderBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0215F189C414364A40B74E2B /* GrGLShaderBuilder.cpp */; };
+		2AD2536C73F4F8CF64FA8687 /* GrYUVProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D3AC1D464CCDB4882A95EDD /* GrYUVProvider.cpp */; };
+		2D0228400AD0DC89044C62D4 /* GrGLTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8A75EEE601D4F97A091C240A /* GrGLTexture.cpp */; };
+		2EC7E9A6F9860A2B0E3AF463 /* GrClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F304D9E7AEBAA79800C7A9BC /* GrClip.cpp */; };
+		2F96834248014DD6BB92CB67 /* GrNonAAFillRectBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D23B946A4586733063F22F39 /* GrNonAAFillRectBatch.cpp */; };
+		31B4449D7BB09750F3A70057 /* GrGLDefaultInterface_native.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941BBA3ADA863CEEEA2DAA7C /* GrGLDefaultInterface_native.cpp */; };
+		38B8C02D49B5A70458AC23D5 /* GrCoverageSetOpXP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF1C0206D6B293F0158960 /* GrCoverageSetOpXP.cpp */; };
+		3A219964989C5952D52AB80E /* GrPathRendering.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D22774787C970ED1844E9CB8 /* GrPathRendering.cpp */; };
+		3A536B28CBB225D2D0D3D65F /* GrGLExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28AC421A340AD03B2B4BB747 /* GrGLExtensions.cpp */; };
+		3C65B052DC3A54BBFD245833 /* GrTessellatingPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49515249859AD1031D90547D /* GrTessellatingPathRenderer.cpp */; };
+		3E98D0301CE3853FB29C2DBE /* GrTextBlobCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF4B9EE872420D12A5ED593B /* GrTextBlobCache.cpp */; };
+		3FC453AF299717BB919F3EF2 /* GrGLProgramDataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D1E3B8F9001C2F056A95F21 /* GrGLProgramDataManager.cpp */; };
+		40FFCBF01027647091411350 /* GrGLVertexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D81A68EFBDB34609E1782E8C /* GrGLVertexBuffer.cpp */; };
+		42E8B123799FEEF48F9DD846 /* GrDisableColorXP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1855F29364B1BDC852D823B3 /* GrDisableColorXP.cpp */; };
+		431DF9E21A66D811FFD3E0F3 /* GrFragmentProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1DAADA58B384AE153CBDDA0D /* GrFragmentProcessor.cpp */; };
+		434D1C475A816B0896C0DDEF /* GrGpuResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9782B79625EF2993E92116C /* GrGpuResource.cpp */; };
+		450BD402CCA949D84BF47C7A /* GrGLGpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FA469E65A3173D47AEDDEBF /* GrGLGpu.cpp */; };
+		45E07B09F6373AEF244125A9 /* GrGLGLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E7436E2635A90374414F2B6 /* GrGLGLSL.cpp */; };
+		45F0F925902E4B881E9DDAA0 /* GrResourceCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49224ED24E8AF5DB8E57D3B /* GrResourceCache.cpp */; };
+		46D0D8E18C65A5535439C02E /* GrXfermodeFragmentProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 568CCA22D892AE25FD30681C /* GrXfermodeFragmentProcessor.cpp */; };
+		475429CFAECCDDB5959680C7 /* SkGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F046ECFBA177705CB5A3898 /* SkGLContext.cpp */; };
+		498D9744457DAE7DD17F4412 /* GrBatchTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5544393D60385D3BB547BCCD /* GrBatchTest.cpp */; };
+		4C1DCE9244C704E099D0B36E /* GrTextureObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E007B94E064B0C9C7ADCF1E4 /* GrTextureObj.cpp */; };
+		4F43F3E46924B2B17EB80E0B /* GrDrawVerticesBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 66B103EB285DCD6564DB4F79 /* GrDrawVerticesBatch.cpp */; };
+		50F32D83AD0A58B2329E0917 /* GrRectanizer_pow2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DBDCC6BEB2EC3ACCE9E95668 /* GrRectanizer_pow2.cpp */; };
+		521942E9A8F35460E2BB97B2 /* GrBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94BFAAEA6082404686172D8E /* GrBatch.cpp */; };
+		5255ECA238B61695234CB557 /* GrAADistanceFieldPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5EF59BEC1557309F2097FA5 /* GrAADistanceFieldPathRenderer.cpp */; };
+		534ED4DCE173FD4E12045973 /* GrPathRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3375FD76ECD030BD53F1998 /* GrPathRange.cpp */; };
+		542CC7354BEA655CF2E61CFE /* GrGLGeometryProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3119DFF36AD4CD0B90B2DF3 /* GrGLGeometryProcessor.cpp */; };
+		584A86817F2A968DD8DB5A30 /* GrDrawTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E30082FBF4030451D4196AB /* GrDrawTarget.cpp */; };
+		58BD348BD5CF5B62E64088EF /* GrBlurUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 148595FCB07440E7D86A8C36 /* GrBlurUtils.cpp */; };
+		5C80DF1124459F0554EFF995 /* GrReducedClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C9AFA47F03CBAB4FDECF6E0 /* GrReducedClip.cpp */; };
+		5D396A13075CED303C8207E5 /* GrAAFillRectBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A20B6D7AAF2FD0E5D372A3 /* GrAAFillRectBatch.cpp */; };
+		5EC98A65E7FA15DD624BA1DB /* GrGLIndexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF721B628E09B71FB3D55B1E /* GrGLIndexBuffer.cpp */; };
+		5F4F8975CED83896500DAED2 /* GrAtlasTextBlob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B08EE781C1E88837DC03E0F /* GrAtlasTextBlob.cpp */; };
+		67C08C169A04129699C7F783 /* GrCaps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 11AF1FF32A7440748FAE3B22 /* GrCaps.cpp */; };
+		67CADBBBA6EC507318604FC9 /* GrGLSLBlend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37822F74249F93179048D922 /* GrGLSLBlend.cpp */; };
+		696CADAFBDE6518F34550649 /* GrStencil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8384A215AF93D583E5D93ADF /* GrStencil.cpp */; };
+		6A402B9DE023C53F16B1E755 /* GrBicubicEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22464598D9C1D30EB676CB4A /* GrBicubicEffect.cpp */; };
+		6B2A07663E73D1BF0E2D9B61 /* GrRenderTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2FD91C3D5171F4DA88C700C6 /* GrRenderTarget.cpp */; };
+		6C1890462F5C7E5ECF1EE661 /* GrGpuFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38DB3BF721D39ABB934ED426 /* GrGpuFactory.cpp */; };
+		6E1C41D152AB1146EA27E4BF /* GrPaint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B8D7966EAB782B67F45D2FB /* GrPaint.cpp */; };
+		6E7F782C4C931B4903E64276 /* GrDashLinePathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3FB0BCAEDEA77D34C11D6A2 /* GrDashLinePathRenderer.cpp */; };
+		70E3292E9B1E87DFAF3E6935 /* GrGLGeometryShaderBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 465A00813308A68CAB061EF7 /* GrGLGeometryShaderBuilder.cpp */; };
+		74A63BF459A821861CF1F24D /* GrDefaultPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6762426240B46A8D5876F9CF /* GrDefaultPathRenderer.cpp */; };
+		78E4091570871D9BDFED10CA /* GrStencilAttachment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAAC96D3130C9ACA60A726D6 /* GrStencilAttachment.cpp */; };
+		7B28DE39C0AADAE398E2DD2F /* GrGLSLPrettyPrint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09A81726026D19385BF70E4D /* GrGLSLPrettyPrint.cpp */; };
+		7BA032F87F334752168152A8 /* GrDrawBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 56E359D29A187B61A9155158 /* GrDrawBatch.cpp */; };
+		7D127834EAC2B2922EC79372 /* GrGLCreateDebugInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6454F9C5930DDA6D9CB8F650 /* GrGLCreateDebugInterface.cpp */; };
+		7D9F10FBF855E635DF38739D /* GrGLProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8D8F605E696C6F05905AF945 /* GrGLProgram.cpp */; };
+		7DD043C97340D14F51FDEED9 /* SkDebugGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7CBBFFB58B011135B87D8B5B /* SkDebugGLContext.cpp */; };
+		7E15C5C8AF0C17EDDE4C3755 /* SkImage_Gpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BFDA1DFF7B1C18A751FB910 /* SkImage_Gpu.cpp */; };
+		7FEC8AD396118633E08F040D /* GrRectBatchFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C5F529A01EC55F5CD370D1E1 /* GrRectBatchFactory.cpp */; };
+		804FD41BCD7E51CCE2413A7E /* GrMemoryPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDEE8CD73BCE3E31A486B882 /* GrMemoryPool.cpp */; };
+		80EE0E6F068AC958E81D34AC /* GrProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9E82CC0ABBED880B607400E1 /* GrProcessor.cpp */; };
+		81737C26A5570378688B8D4B /* GrGLPathRendering.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C7FFA41C318446278EE7A2C3 /* GrGLPathRendering.cpp */; };
+		85A1D765B7422873D1E4619B /* GrAAConvexPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 495975E9FF9A916B3E6F1F74 /* GrAAConvexPathRenderer.cpp */; };
+		862C03EA1E54BAE6145E9BCA /* GrRecordReplaceDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C83D23E3B6B360F6E0D417B6 /* GrRecordReplaceDraw.cpp */; };
+		86609368E28E30684B9E7B69 /* SkNullGLContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB8B9591168976341D3A57C7 /* SkNullGLContext.cpp */; };
+		8B3A3FBA17E1544E45053A69 /* GrConvolutionEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D676BC589E63C1AE0F9C9B23 /* GrConvolutionEffect.cpp */; };
+		8DAB94110234FF9F14F04C41 /* GrInvariantOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE9F59E91497061C9A225AD9 /* GrInvariantOutput.cpp */; };
+		8E1F8C6BF014A59726D3A695 /* GrConstColorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA7C12843D278320B9391BB9 /* GrConstColorProcessor.cpp */; };
+		8F6DCFEDFBF63B985105D5B4 /* GrProcessorUnitTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08D2D2B03940FD07FD980D9F /* GrProcessorUnitTest.cpp */; };
+		8FA7F770120A76776DBA49D0 /* GrStencilAndCoverPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5BA4513FC94EDBA43EEE9E5A /* GrStencilAndCoverPathRenderer.cpp */; };
+		913705B286CE4CD14D99D779 /* GrGLPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEFECC3AE66232E632844C89 /* GrGLPath.cpp */; };
+		91E2C0962DA2C9430FE5FBE5 /* GrGLStencilAttachment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE3FCFEC7B479A40555D4DAD /* GrGLStencilAttachment.cpp */; };
+		92FBA2C59B1B9B090ADF9365 /* SkGrTexturePixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EEE106C43AC0DBEA7DC574EA /* SkGrTexturePixelRef.cpp */; };
+		94166FF71948E0B2D5C80C07 /* GrBezierEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A951B66AC598B78884A19B13 /* GrBezierEffect.cpp */; };
+		9461149D3554BB4860624955 /* GrGLTextureRenderTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03585709352B448642278FDD /* GrGLTextureRenderTarget.cpp */; };
+		9473379020C360DD693F7B6F /* GrRRectEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D66F2907123AE21D346656F5 /* GrRRectEffect.cpp */; };
+		957543678C1BA4D40614F8AA /* GrPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52714392811DDF41D36B52B /* GrPathRenderer.cpp */; };
+		97610968FE6DF1223BADD704 /* GrAtlasTextContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB3DB176EF967F0B8C0D2926 /* GrAtlasTextContext.cpp */; };
+		988B509E02FD5EB8CBFEE197 /* GrSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 515394A8218449442E14FCB6 /* GrSurface.cpp */; };
+		9E83D300E95DC365F5FD5C8F /* GrPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83E7EFF98143815973DCD4BE /* GrPath.cpp */; };
+		A02AE2A35CD14282D12AACBD /* GrDefaultGeoProcFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DC784C9B2486ABCCB5ED3936 /* GrDefaultGeoProcFactory.cpp */; };
+		A09736E18367D5130CC9DA50 /* GrGLNoOpInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76B781BA86369300A1296B2E /* GrGLNoOpInterface.cpp */; };
+		A0A7C583FF94EE8E6E38EBF8 /* GrGLProgramBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 463FAD132CF83EB516C57C88 /* GrGLProgramBuilder.cpp */; };
+		A0F358A7ED18566FC9B0C00D /* GrGLShaderStringBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EEF4015FBB7BB5616EADB4A1 /* GrGLShaderStringBuilder.cpp */; };
+		A4D8A22431728C496B2E5A68 /* GrConfigConversionEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 513F754E766874FD6BDADA25 /* GrConfigConversionEffect.cpp */; };
+		A6E279E9BCB315661F27E180 /* GrGLFragmentShaderBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15EDC7F9F00A3331720F20D /* GrGLFragmentShaderBuilder.cpp */; };
+		A777FCD58775830BB39A01F9 /* GrTextureProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6107D25D1647113540CE6292 /* GrTextureProvider.cpp */; };
+		A827844E94B4E1BC3191F993 /* GrGLSLCaps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF411B61711467D7A3456570 /* GrGLSLCaps.cpp */; };
+		A9271038DE85D4E8E7BE87CC /* GrTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6532DE2B0D6889181887D72 /* GrTexture.cpp */; };
+		AAA3880BD71E3A3678A58EEE /* GrRectanizer_skyline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2981DC8ADE0142210FCF2FA3 /* GrRectanizer_skyline.cpp */; };
+		AB78F3C4E6687BB4D146FA9D /* GrGLGpuProgramCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9417D27F9043EAB99225135 /* GrGLGpuProgramCache.cpp */; };
+		AC233AC13A7B5D7707D1A3D4 /* GrAAHairLinePathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EE5100DEB76754DF7B0C1690 /* GrAAHairLinePathRenderer.cpp */; };
+		AFAC10B2D77712BB02CF69D1 /* GrTestUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75B769C9324E8CB5F796C971 /* GrTestUtils.cpp */; };
+		B008612763575DBEB7F7E0F5 /* GrGLPrimitiveProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31273BCE4DA8DC6D4A37D7AB /* GrGLPrimitiveProcessor.cpp */; };
+		B33FD2DA9655CBBA62E58307 /* GrAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FAFDCB69D177F92C59FA935 /* GrAtlas.cpp */; };
+		B568BF1F8F027477CADDB3FC /* GrAALinearizingConvexPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12083F60A92D861008511125 /* GrAALinearizingConvexPathRenderer.cpp */; };
+		B59D2D3C3E32683D0FF31556 /* GrPathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30FD87259E7D8485789AF7B6 /* GrPathUtils.cpp */; };
+		B5AC2149C8A93E6152449791 /* GrGLCreateNullInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B779508CD124A302B9E7314 /* GrGLCreateNullInterface.cpp */; };
+		B5E8CC0F5FD92D461D9224CF /* GrBufferAllocPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0553FAFBB319F95F43CDBCEA /* GrBufferAllocPool.cpp */; };
+		B7DB8278557D2508A672E116 /* GrTraceMarker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 87B67F8B51BF405F4CFF705B /* GrTraceMarker.cpp */; };
+		B828C1404FBC0B964AD15080 /* GrYUVtoRGBEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FD13CD07C8515A83E634DD47 /* GrYUVtoRGBEffect.cpp */; };
+		B8ED7A1D7345D4EFB5BC8D46 /* GrGLFragmentProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F31967256A166293319286D8 /* GrGLFragmentProcessor.cpp */; };
+		B91230A95F400856E283AC55 /* GrProgramElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 406744447FE609C776DE3F4A /* GrProgramElement.cpp */; };
+		B96CF0D60657FE0EB075A896 /* GrDrawContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9496C0AFB75DE35D1CE8676 /* GrDrawContext.cpp */; };
+		BC08E30CE8002B050E240C1B /* GrPipelineBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA049E3F22AB6D82592D7FAD /* GrPipelineBuilder.cpp */; };
+		BDC715E6584523EA1B5E8D79 /* GrGLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D088157823C58475A9A469EB /* GrGLUtil.cpp */; };
+		BDE575287552AFD5AEE25933 /* GrShaderObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BD92AA2E4F6C204643E03A58 /* GrShaderObj.cpp */; };
+		BF23710269908BA74B226349 /* GrBitmapTextGeoProc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C2500F7D238C9E253AFA0110 /* GrBitmapTextGeoProc.cpp */; };
+		BF5B3ECC1915FEB9B64A3536 /* GrBatchFlushState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 990999B7965436BB2CBBBF74 /* GrBatchFlushState.cpp */; };
+		BF8F36E92F336DDED213A45D /* GrGLCaps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 360EAFA6A465F1D6FAF89DC4 /* GrGLCaps.cpp */; };
+		C101EB75571660853987B7DE /* GrPathRendererChain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 611FBBB54A15EA131FB7F882 /* GrPathRendererChain.cpp */; };
+		C194418D789E33C7A6D7308A /* GrCopySurfaceBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D54ABFDD4D85FE6DD0A46349 /* GrCopySurfaceBatch.cpp */; };
+		C3007065E4EEA8E87D93855A /* GrLayerCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B6AE01F0E6F68CC39F1F11B /* GrLayerCache.cpp */; };
+		C39E422839D33BBC55AD0BDD /* GrTextureUnitObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3B68AC9C294991FEBF471C5 /* GrTextureUnitObj.cpp */; };
+		C6DCF91B1CB1E22ADCEB59BE /* GrBufferObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01AE685A389DC5469AAEA611 /* GrBufferObj.cpp */; };
+		C8941382ED8C23114EA75481 /* GrGLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CEA7DD84C9CEF29A8E39E2E /* GrGLSL.cpp */; };
+		CA9321DBDEEB695BD8F5250B /* GrOvalRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 665F8807E65FFB30228B9028 /* GrOvalRenderer.cpp */; };
+		CD14B875ED65C0D2B18B0302 /* GrConvexPolyEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C7CBEB8BE35FD0C85D58B00 /* GrConvexPolyEffect.cpp */; };
+		CD50427738C415C4279D41F0 /* SkGr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 847BB899C75A74A67B43D652 /* SkGr.cpp */; };
+		CD812552DBE86503CCC0D72C /* GrCoordTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F1FBCF86E23EB8D8679CCD5C /* GrCoordTransform.cpp */; };
+		CECFCF7C347CA58EFDD37C50 /* GrResourceProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BBF21073CDA6135FADD03 /* GrResourceProvider.cpp */; };
+		D0BC2B1955FD030AE53F8C22 /* GrGLNameAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 97B43445F35F711A1DE21554 /* GrGLNameAllocator.cpp */; };
+		D26E369413DB69F825A63845 /* GrDebugGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3254BB84305BDC2422F799 /* GrDebugGL.cpp */; };
+		D467DF508B2048DA50E5EF4E /* GrBatchAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B93B361F5D7037DE4EC3BF2 /* GrBatchAtlas.cpp */; };
+		D5A8C5EE9429FF0A059BA959 /* SkSurface_Gpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C45D6C2A881D10983CED36 /* SkSurface_Gpu.cpp */; };
+		D733115F24F4A01EDDD9D167 /* GrMatrixConvolutionEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5D4716B54EC4E6B725D104 /* GrMatrixConvolutionEffect.cpp */; };
+		D77A306B688B3BD672F02774 /* GrGLProgramDesc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5BA2204D8AB52DE9D034A4B8 /* GrGLProgramDesc.cpp */; };
+		D7B7C4ACBF83A9F36B1460AF /* GrGLXferProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0F87564EC1873850E863573 /* GrGLXferProcessor.cpp */; };
+		D9407573799EB8F06FDBF407 /* GrContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 466B2FF2CA20C641BA5EBD3B /* GrContext.cpp */; };
+		DC429647358FEB94AD2ACBE5 /* GrTextureStripAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 022FA6A3327FDCFC3CC350F9 /* GrTextureStripAtlas.cpp */; };
+		DC8723B9A059EC91399CDBB0 /* GrStencilAndCoverTextContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E4AA10E71F30183384DC0CD /* GrStencilAndCoverTextContext.cpp */; };
+		E017BBB85CBEA95788F81E3F /* GrProgramObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5B76DEAC92ACFB0F11A4A6 /* GrProgramObj.cpp */; };
+		E2B09686985C0AF4CEB0F913 /* GrTextContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7AF826BF22257F814B13B510 /* GrTextContext.cpp */; };
+		E5CC2214DF168BE97DE5257C /* GrClipMaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16810C39133A81E97D0161EA /* GrClipMaskManager.cpp */; };
+		E6F4FA5CA7D0C4E3673A2489 /* GrGLPathRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C16CA8E930B487AEE1D52788 /* GrGLPathRange.cpp */; };
+		EA656401A97B00D1CBFA5901 /* GrAAConvexTessellator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C96809DE46024040C2A2DB94 /* GrAAConvexTessellator.cpp */; };
+		EC49E03CAB6120E2781CB172 /* GrDistanceFieldGeoProc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF2A2E074BB1FC1476065555 /* GrDistanceFieldGeoProc.cpp */; };
+		ED4D0B07DD1DE150D13DC669 /* GrGLRenderTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BECBFFC132B58C9D5CCFFF2 /* GrGLRenderTarget.cpp */; };
+		EF79FD930B411A49552977C7 /* GrCustomXfermode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E71CCDC2AF7B713395B9B9E6 /* GrCustomXfermode.cpp */; };
+		F1D5E85D4FDC8E968A08C022 /* GrOvalEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592FBDA2A273BF2163695907 /* GrOvalEffect.cpp */; };
+		F37DEEF215866FB6BCB2EFD0 /* GrGpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49962B0C63919324E75E5380 /* GrGpu.cpp */; };
+		F3809322CA7523F042A4C046 /* GrFontScaler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D8AB7FF64121AAFBA3C11B1 /* GrFontScaler.cpp */; };
+		F411758C0B081B6C5D505C19 /* GrGLAssembleInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 020CEA250646AA62FC903BB9 /* GrGLAssembleInterface.cpp */; };
+		F49A231D5C64ABF6CD93534E /* GrGLVertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0752AC8B0937BCC48DA2765 /* GrGLVertexArray.cpp */; };
+		F75E7A1B4C9A7BC57D2218A7 /* GrTextureAccess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CDAA9B17E97DE153761EB87 /* GrTextureAccess.cpp */; };
+		F830DB9613D9A3170B634624 /* GrProcOptInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53C3547B1CAFD8A4E6B0E474 /* GrProcOptInfo.cpp */; };
+		FD82C3C03D222509C0B419CD /* SkBorder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01297BDC1F4D5B0D5B3CAF1D /* SkBorder.cpp */; };
+		FDF833C672C058294808FEAC /* GrStrokeInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EEB266757FF44454C31CB3A /* GrStrokeInfo.cpp */; };
+		FF82B165FDF77878E777910D /* GrSoftwarePathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43D7C6A95E423A16B923C390 /* GrSoftwarePathRenderer.cpp */; };
+		FFE51B8D566ED7D3CB3E9AFF /* GrPorterDuffXferProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2FB3A8D7FFA795294A971013 /* GrPorterDuffXferProcessor.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0033E35AC14A1E8ED4838F17 /* GrProcessorUnitTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrProcessorUnitTest.h; sourceTree = "<group>"; };
+		01297BDC1F4D5B0D5B3CAF1D /* SkBorder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBorder.cpp; sourceTree = "<group>"; };
+		016285443A435E4E1C8D526A /* SkMesaGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkMesaGLContext.h; sourceTree = "<group>"; };
+		0199907F8D225D59D3D1C69E /* SkSurface_Gpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSurface_Gpu.h; sourceTree = "<group>"; };
+		01AE685A389DC5469AAEA611 /* GrBufferObj.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBufferObj.cpp; sourceTree = "<group>"; };
+		01DAD8F876ACB2380A50B1DA /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		020CEA250646AA62FC903BB9 /* GrGLAssembleInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLAssembleInterface.cpp; sourceTree = "<group>"; };
+		0215F189C414364A40B74E2B /* GrGLShaderBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLShaderBuilder.cpp; sourceTree = "<group>"; };
+		022FA6A3327FDCFC3CC350F9 /* GrTextureStripAtlas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextureStripAtlas.cpp; sourceTree = "<group>"; };
+		02E11ABCB16D5F7312D1AAAD /* SkBorder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkBorder.h; sourceTree = "<group>"; };
+		03585709352B448642278FDD /* GrGLTextureRenderTarget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLTextureRenderTarget.cpp; sourceTree = "<group>"; };
+		0373E54755BB5B6A91F0CB10 /* GrGLGLSL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLGLSL.h; sourceTree = "<group>"; };
+		03AD36BD243B6CBC7D05FC82 /* GrPathRange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPathRange.h; sourceTree = "<group>"; };
+		0473BD6BAD7C773B5296D1BD /* GrBitmapTextGeoProc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBitmapTextGeoProc.h; sourceTree = "<group>"; };
+		04FE00744EE7C11E66939399 /* GrTracing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTracing.h; sourceTree = "<group>"; };
+		0553FAFBB319F95F43CDBCEA /* GrBufferAllocPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBufferAllocPool.cpp; sourceTree = "<group>"; };
+		05CBECD0492389F1A18BFB06 /* GrSimpleTextureEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrSimpleTextureEffect.h; sourceTree = "<group>"; };
+		069C6D1842546E0B787CCB72 /* GrVertices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrVertices.h; sourceTree = "<group>"; };
+		07A20B6D7AAF2FD0E5D372A3 /* GrAAFillRectBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAAFillRectBatch.cpp; sourceTree = "<group>"; };
+		08480A6DF3551AD69FB0B171 /* GrPaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPaint.h; sourceTree = "<group>"; };
+		08D2D2B03940FD07FD980D9F /* GrProcessorUnitTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrProcessorUnitTest.cpp; sourceTree = "<group>"; };
+		09A81726026D19385BF70E4D /* GrGLSLPrettyPrint.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLSLPrettyPrint.cpp; sourceTree = "<group>"; };
+		0A3254BB84305BDC2422F799 /* GrDebugGL.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDebugGL.cpp; sourceTree = "<group>"; };
+		0A3BBF21073CDA6135FADD03 /* GrResourceProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrResourceProvider.cpp; sourceTree = "<group>"; };
+		0B08EE781C1E88837DC03E0F /* GrAtlasTextBlob.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAtlasTextBlob.cpp; sourceTree = "<group>"; };
+		0B6AE01F0E6F68CC39F1F11B /* GrLayerCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrLayerCache.cpp; sourceTree = "<group>"; };
+		0B93B361F5D7037DE4EC3BF2 /* GrBatchAtlas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBatchAtlas.cpp; sourceTree = "<group>"; };
+		0C652A215A280663970EC61F /* GrSWMaskHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrSWMaskHelper.h; sourceTree = "<group>"; };
+		0C9AFA47F03CBAB4FDECF6E0 /* GrReducedClip.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrReducedClip.cpp; sourceTree = "<group>"; };
+		0CDAA9B17E97DE153761EB87 /* GrTextureAccess.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextureAccess.cpp; sourceTree = "<group>"; };
+		0F10F731C988807AA85D0E81 /* GrTexturePriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTexturePriv.h; sourceTree = "<group>"; };
+		109F814A6F6B2D76E78B409A /* GrFrameBufferObj.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrFrameBufferObj.cpp; sourceTree = "<group>"; };
+		1159AD1694A1ED28D70E60B5 /* GrGLPathRange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLPathRange.h; sourceTree = "<group>"; };
+		11804418C6D61C7FFB6F3635 /* GrGLVertexBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLVertexBuffer.h; sourceTree = "<group>"; };
+		11AF1FF32A7440748FAE3B22 /* GrCaps.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrCaps.cpp; sourceTree = "<group>"; };
+		11C61A0C1E9B1396F4832A10 /* GrBatchFontCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBatchFontCache.cpp; sourceTree = "<group>"; };
+		12083F60A92D861008511125 /* GrAALinearizingConvexPathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAALinearizingConvexPathRenderer.cpp; sourceTree = "<group>"; };
+		129961121F8442CD02C193C4 /* GrDefaultPathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDefaultPathRenderer.h; sourceTree = "<group>"; };
+		1345FBF43AC0849E9FFEB1D4 /* GrAAConvexPathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAAConvexPathRenderer.h; sourceTree = "<group>"; };
+		141E8E56E4CD9CF1B218AD00 /* GrNonAAStrokeRectBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrNonAAStrokeRectBatch.cpp; sourceTree = "<group>"; };
+		142E71CA22946B00F1AFC48B /* GrGpuFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGpuFactory.h; sourceTree = "<group>"; };
+		148595FCB07440E7D86A8C36 /* GrBlurUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBlurUtils.cpp; sourceTree = "<group>"; };
+		157AB1507535AE9F2661726E /* SkGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkGLContext.h; sourceTree = "<group>"; };
+		16810C39133A81E97D0161EA /* GrClipMaskManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrClipMaskManager.cpp; sourceTree = "<group>"; };
+		170EC400B7F230D173993589 /* GrBicubicEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBicubicEffect.h; sourceTree = "<group>"; };
+		17C45D6C2A881D10983CED36 /* SkSurface_Gpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSurface_Gpu.cpp; sourceTree = "<group>"; };
+		184A7119B91728BA28051E95 /* GrVertexBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrVertexBuffer.h; sourceTree = "<group>"; };
+		1855F29364B1BDC852D823B3 /* GrDisableColorXP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDisableColorXP.cpp; sourceTree = "<group>"; };
+		1994B62D1D859D921FE4EC77 /* GrDrawPathBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDrawPathBatch.h; sourceTree = "<group>"; };
+		19A58BE7ED7A39DC5EC8E7D4 /* GrGLXferProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLXferProcessor.h; sourceTree = "<group>"; };
+		1A96BE51FE32DC50CDACA38F /* GrGLFragmentProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLFragmentProcessor.h; sourceTree = "<group>"; };
+		1B2B32B45B835AAA9A7BC151 /* GrGLConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLConfig.h; sourceTree = "<group>"; };
+		1B325FEF87C1D6EB3F7CB3C7 /* GrPathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPathRenderer.h; sourceTree = "<group>"; };
+		1DAADA58B384AE153CBDDA0D /* GrFragmentProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrFragmentProcessor.cpp; sourceTree = "<group>"; };
+		1E687D55EBF0BE251870ACD9 /* GrDefaultGeoProcFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDefaultGeoProcFactory.h; sourceTree = "<group>"; };
+		1F353AF4D29BB1411F63599F /* GrGLProgramDataManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLProgramDataManager.h; sourceTree = "<group>"; };
+		1F6A53B4401555F08606F541 /* GrTRecorder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTRecorder.h; sourceTree = "<group>"; };
+		1F76E87EC57BA01BD90574AA /* GrOvalEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrOvalEffect.h; sourceTree = "<group>"; };
+		20469D2DCEBFBAE59E8D4319 /* GrRenderBufferObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRenderBufferObj.h; sourceTree = "<group>"; };
+		215A3E59E58EE33D6C91112B /* GrNonAAFillRectBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrNonAAFillRectBatch.h; sourceTree = "<group>"; };
+		21D33B64411E6C7EE3CA6C87 /* GrLayerCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrLayerCache.h; sourceTree = "<group>"; };
+		22464598D9C1D30EB676CB4A /* GrBicubicEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBicubicEffect.cpp; sourceTree = "<group>"; };
+		224DBF1C4B578FB0A5DBFCC1 /* GrSingleTextureEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrSingleTextureEffect.cpp; sourceTree = "<group>"; };
+		231F7F91B554A6155B0B961D /* GrTextureProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextureProvider.h; sourceTree = "<group>"; };
+		23515B8451D8A4A6D43349CB /* GrPrimitiveProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPrimitiveProcessor.cpp; sourceTree = "<group>"; };
+		23A079C5E97FEB1934AD67CB /* GrAADistanceFieldPathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAADistanceFieldPathRenderer.h; sourceTree = "<group>"; };
+		23B4E4CBF97322843ED32491 /* GrSWMaskHelper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrSWMaskHelper.cpp; sourceTree = "<group>"; };
+		265635B317F7F9F10198D968 /* GrSurface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrSurface.h; sourceTree = "<group>"; };
+		27C26929E81178B473CD19C3 /* GrRect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRect.h; sourceTree = "<group>"; };
+		28AC421A340AD03B2B4BB747 /* GrGLExtensions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLExtensions.cpp; sourceTree = "<group>"; };
+		2981DC8ADE0142210FCF2FA3 /* GrRectanizer_skyline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrRectanizer_skyline.cpp; sourceTree = "<group>"; };
+		2B5D4716B54EC4E6B725D104 /* GrMatrixConvolutionEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrMatrixConvolutionEffect.cpp; sourceTree = "<group>"; };
+		2BFDA1DFF7B1C18A751FB910 /* SkImage_Gpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImage_Gpu.cpp; sourceTree = "<group>"; };
+		2C1632938BDC14FD8C6A550E /* GrPipeline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPipeline.h; sourceTree = "<group>"; };
+		2C7CBEB8BE35FD0C85D58B00 /* GrConvexPolyEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrConvexPolyEffect.cpp; sourceTree = "<group>"; };
+		2DDB64F41BDC8B64ED51E85C /* SkGrPixelRef.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkGrPixelRef.cpp; sourceTree = "<group>"; };
+		2DEE02CD759ABBFE13AB5D6D /* GrGLFragmentShaderBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLFragmentShaderBuilder.h; sourceTree = "<group>"; };
+		2E7436E2635A90374414F2B6 /* GrGLGLSL.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLGLSL.cpp; sourceTree = "<group>"; };
+		2FB3A8D7FFA795294A971013 /* GrPorterDuffXferProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPorterDuffXferProcessor.cpp; sourceTree = "<group>"; };
+		2FD91C3D5171F4DA88C700C6 /* GrRenderTarget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrRenderTarget.cpp; sourceTree = "<group>"; };
+		30FD87259E7D8485789AF7B6 /* GrPathUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPathUtils.cpp; sourceTree = "<group>"; };
+		31273BCE4DA8DC6D4A37D7AB /* GrGLPrimitiveProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLPrimitiveProcessor.cpp; sourceTree = "<group>"; };
+		3254FDAC8FBC78140A524594 /* GrStencilPathBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrStencilPathBatch.h; sourceTree = "<group>"; };
+		34D7020704FB831C0D2E9A71 /* GrGLProgram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLProgram.h; sourceTree = "<group>"; };
+		35963820FA044F1A8A03B79A /* GrTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTexture.h; sourceTree = "<group>"; };
+		3596C2565865AAF8551DBCA5 /* GrGpuResourceRef.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGpuResourceRef.cpp; sourceTree = "<group>"; };
+		35F417C9C0CD9BA5D465AF76 /* GrPathProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPathProcessor.h; sourceTree = "<group>"; };
+		360EAFA6A465F1D6FAF89DC4 /* GrGLCaps.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCaps.cpp; sourceTree = "<group>"; };
+		36F433746FF383720588648F /* SkCreatePlatformGLContext_egl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCreatePlatformGLContext_egl.cpp; sourceTree = "<group>"; };
+		3770987DECFE8DFF255843CE /* GrSimpleTextureEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrSimpleTextureEffect.cpp; sourceTree = "<group>"; };
+		37822F74249F93179048D922 /* GrGLSLBlend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLSLBlend.cpp; sourceTree = "<group>"; };
+		38DB3BF721D39ABB934ED426 /* GrGpuFactory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGpuFactory.cpp; sourceTree = "<group>"; };
+		394B8FCF827984BDE5E14E66 /* GrGeometryProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGeometryProcessor.h; sourceTree = "<group>"; };
+		396395BCE93D8160DB842EE7 /* GrBatchAtlas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBatchAtlas.h; sourceTree = "<group>"; };
+		3C6E64A4228D056DDAA63A85 /* GrGLVertexShaderBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLVertexShaderBuilder.cpp; sourceTree = "<group>"; };
+		3E30082FBF4030451D4196AB /* GrDrawTarget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawTarget.cpp; sourceTree = "<group>"; };
+		3E4AA10E71F30183384DC0CD /* GrStencilAndCoverTextContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrStencilAndCoverTextContext.cpp; sourceTree = "<group>"; };
+		3EE9FB90BDBA35E9B2E316BF /* GrAAStrokeRectBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAAStrokeRectBatch.h; sourceTree = "<group>"; };
+		406744447FE609C776DE3F4A /* GrProgramElement.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrProgramElement.cpp; sourceTree = "<group>"; };
+		41B495E87C010AEFA87280A6 /* GrAAConvexTessellator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAAConvexTessellator.h; sourceTree = "<group>"; };
+		42089930798553F8567A28B3 /* GrGLIndexBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLIndexBuffer.h; sourceTree = "<group>"; };
+		42352BFD6875143592CEE0BD /* SkGpuDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkGpuDevice.h; sourceTree = "<group>"; };
+		43D7C6A95E423A16B923C390 /* GrSoftwarePathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrSoftwarePathRenderer.cpp; sourceTree = "<group>"; };
+		440BCDA221DB8E6E8CD8C6DC /* GrContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrContext.h; sourceTree = "<group>"; };
+		4429DABE451116284DA58672 /* SkNullGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkNullGLContext.h; sourceTree = "<group>"; };
+		456D42F7CF39092A47CD99E8 /* GrGLCreateNativeInterface_glx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateNativeInterface_glx.cpp; sourceTree = "<group>"; };
+		463FAD132CF83EB516C57C88 /* GrGLProgramBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLProgramBuilder.cpp; sourceTree = "<group>"; };
+		465A00813308A68CAB061EF7 /* GrGLGeometryShaderBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLGeometryShaderBuilder.cpp; sourceTree = "<group>"; };
+		466B2FF2CA20C641BA5EBD3B /* GrContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrContext.cpp; sourceTree = "<group>"; };
+		4830D949CE9A109AF7649659 /* GrPipeline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPipeline.cpp; sourceTree = "<group>"; };
+		4913D348DFCE572CF7039E50 /* GrCoverageSetOpXP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrCoverageSetOpXP.h; sourceTree = "<group>"; };
+		49515249859AD1031D90547D /* GrTessellatingPathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTessellatingPathRenderer.cpp; sourceTree = "<group>"; };
+		495975E9FF9A916B3E6F1F74 /* GrAAConvexPathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAAConvexPathRenderer.cpp; sourceTree = "<group>"; };
+		498237B2CED23D154841A687 /* GrTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTypes.h; sourceTree = "<group>"; };
+		49962B0C63919324E75E5380 /* GrGpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGpu.cpp; sourceTree = "<group>"; };
+		49AA2D19D6929FA2BCDE7CA6 /* GrGpuResourcePriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGpuResourcePriv.h; sourceTree = "<group>"; };
+		4BA80649F7DCC3B09CA8E520 /* GrDashLinePathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDashLinePathRenderer.h; sourceTree = "<group>"; };
+		4C5B76DEAC92ACFB0F11A4A6 /* GrProgramObj.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrProgramObj.cpp; sourceTree = "<group>"; };
+		4D1E3B8F9001C2F056A95F21 /* GrGLProgramDataManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLProgramDataManager.cpp; sourceTree = "<group>"; };
+		4E507C050CE039E401684104 /* GrColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrColor.h; sourceTree = "<group>"; };
+		4E59C318F36FE441DC042B50 /* gpu.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = gpu.gypi; sourceTree = "<group>"; };
+		4FA469E65A3173D47AEDDEBF /* GrGLGpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLGpu.cpp; sourceTree = "<group>"; };
+		500B0D5A2EC98021C53A9BC2 /* GrGLCreateNativeInterface_iOS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateNativeInterface_iOS.cpp; sourceTree = "<group>"; };
+		503FF46299A71E2D7495F895 /* GrGpuResource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGpuResource.h; sourceTree = "<group>"; };
+		513F754E766874FD6BDADA25 /* GrConfigConversionEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrConfigConversionEffect.cpp; sourceTree = "<group>"; };
+		515394A8218449442E14FCB6 /* GrSurface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrSurface.cpp; sourceTree = "<group>"; };
+		523EEFF700F3579E0653BB07 /* GrProgramElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrProgramElement.h; sourceTree = "<group>"; };
+		5352E103D1E730405FB6E4FC /* GrGLPathRendering.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLPathRendering.h; sourceTree = "<group>"; };
+		535DEC59C847755C922EDC52 /* GrAtlasTextBlob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAtlasTextBlob.h; sourceTree = "<group>"; };
+		53C3547B1CAFD8A4E6B0E474 /* GrProcOptInfo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrProcOptInfo.cpp; sourceTree = "<group>"; };
+		542CCD776F55505AB1F0DD31 /* SkANGLEGLContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkANGLEGLContext.cpp; sourceTree = "<group>"; };
+		5544393D60385D3BB547BCCD /* GrBatchTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBatchTest.cpp; sourceTree = "<group>"; };
+		55D632DB877C0020874CDC0F /* GrGLVertexShaderBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLVertexShaderBuilder.h; sourceTree = "<group>"; };
+		568CCA22D892AE25FD30681C /* GrXfermodeFragmentProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrXfermodeFragmentProcessor.cpp; sourceTree = "<group>"; };
+		56E359D29A187B61A9155158 /* GrDrawBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawBatch.cpp; sourceTree = "<group>"; };
+		592FBDA2A273BF2163695907 /* GrOvalEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrOvalEffect.cpp; sourceTree = "<group>"; };
+		596C6370BEB611D89EDCD006 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		5AF944855B6C05EF124FEC8C /* GrDrawAtlasBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawAtlasBatch.cpp; sourceTree = "<group>"; };
+		5BA2204D8AB52DE9D034A4B8 /* GrGLProgramDesc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLProgramDesc.cpp; sourceTree = "<group>"; };
+		5BA4513FC94EDBA43EEE9E5A /* GrStencilAndCoverPathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrStencilAndCoverPathRenderer.cpp; sourceTree = "<group>"; };
+		5C9C332A277E77F20520C52A /* GrGLGeometryProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLGeometryProcessor.h; sourceTree = "<group>"; };
+		5CEA7DD84C9CEF29A8E39E2E /* GrGLSL.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLSL.cpp; sourceTree = "<group>"; };
+		5D724E874CD9D8FC8B693C88 /* GrAAStrokeRectBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAAStrokeRectBatch.cpp; sourceTree = "<group>"; };
+		5DBF374A94442E2651E74FF7 /* GrFragmentProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrFragmentProcessor.h; sourceTree = "<group>"; };
+		5F73C0725C836392CEEC2230 /* GrDitherEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDitherEffect.h; sourceTree = "<group>"; };
+		5FAFDCB69D177F92C59FA935 /* GrAtlas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAtlas.cpp; sourceTree = "<group>"; };
+		607F77D188E492F912C0D79F /* GrDashingEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDashingEffect.cpp; sourceTree = "<group>"; };
+		6107D25D1647113540CE6292 /* GrTextureProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextureProvider.cpp; sourceTree = "<group>"; };
+		611FBBB54A15EA131FB7F882 /* GrPathRendererChain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPathRendererChain.cpp; sourceTree = "<group>"; };
+		61E8DFD2EB75CD63F2B8168C /* GrGLShaderStringBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLShaderStringBuilder.h; sourceTree = "<group>"; };
+		623D2CE93DF501DBB5F1941F /* GrGLExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLExtensions.h; sourceTree = "<group>"; };
+		629BDB8F677955387FB817F5 /* GrOvalRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrOvalRenderer.h; sourceTree = "<group>"; };
+		62AAF8DEDEB24C6A7B0E136A /* GrMatrixConvolutionEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrMatrixConvolutionEffect.h; sourceTree = "<group>"; };
+		635FD01F40960D5B1055E426 /* GrConvexPolyEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrConvexPolyEffect.h; sourceTree = "<group>"; };
+		6454F9C5930DDA6D9CB8F650 /* GrGLCreateDebugInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateDebugInterface.cpp; sourceTree = "<group>"; };
+		648F91DA817A06E251A226C3 /* GrGpuResourceRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGpuResourceRef.h; sourceTree = "<group>"; };
+		64FB288FB137E0205D029E50 /* GrInvariantOutput.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrInvariantOutput.h; sourceTree = "<group>"; };
+		6549A476F0BD9BB3FBF95D83 /* GrProgramDesc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrProgramDesc.h; sourceTree = "<group>"; };
+		665F8807E65FFB30228B9028 /* GrOvalRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrOvalRenderer.cpp; sourceTree = "<group>"; };
+		66B103EB285DCD6564DB4F79 /* GrDrawVerticesBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawVerticesBatch.cpp; sourceTree = "<group>"; };
+		6762426240B46A8D5876F9CF /* GrDefaultPathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDefaultPathRenderer.cpp; sourceTree = "<group>"; };
+		68EBE4F8B8872ABD1CBB4598 /* GrProgramObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrProgramObj.h; sourceTree = "<group>"; };
+		691518E2578BD590C99A88FC /* GrGLTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLTexture.h; sourceTree = "<group>"; };
+		69D7A4327BE935D26386BAA9 /* GrGpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGpu.h; sourceTree = "<group>"; };
+		6BD8AFD24D04A4E2DE561FC1 /* GrRRectEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRRectEffect.h; sourceTree = "<group>"; };
+		6BECBFFC132B58C9D5CCFFF2 /* GrGLRenderTarget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLRenderTarget.cpp; sourceTree = "<group>"; };
+		6C3F2F7EE20652684DF4E10A /* GrGLContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLContext.cpp; sourceTree = "<group>"; };
+		6D4427E80DD879A479682C5B /* GrGLCreateNativeInterface_none.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateNativeInterface_none.cpp; sourceTree = "<group>"; };
+		6D4B3070A4D09738FD261F8E /* GrConvolutionEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrConvolutionEffect.h; sourceTree = "<group>"; };
+		6D4D7D4B9A09E482A6AF781D /* GrGLShaderBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLShaderBuilder.h; sourceTree = "<group>"; };
+		6D6EBD4F5DE851FAEDDF952B /* GrProcOptInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrProcOptInfo.h; sourceTree = "<group>"; };
+		6D8073409E31647F8604386B /* GrGLSL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLSL.h; sourceTree = "<group>"; };
+		6E4BF0AFDC7D71A87E90D0A8 /* GrGLCreateNativeInterface_egl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateNativeInterface_egl.cpp; sourceTree = "<group>"; };
+		6E9D637909681BA1313CA187 /* GrAtlas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAtlas.h; sourceTree = "<group>"; };
+		6EBCE647F5F790BC3A4941B4 /* GrGLRenderTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLRenderTarget.h; sourceTree = "<group>"; };
+		6FB36E47CD07654F9559735C /* GrLayerHoister.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrLayerHoister.cpp; sourceTree = "<group>"; };
+		6FE54866F98BC2D27B41F719 /* SkANGLEGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkANGLEGLContext.h; sourceTree = "<group>"; };
+		7089191EA9D4A8E01D9E64F8 /* GrBatchFlushState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBatchFlushState.h; sourceTree = "<group>"; };
+		71C4B0D60B883BA5D48F86C6 /* GrTextureStripAtlas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextureStripAtlas.h; sourceTree = "<group>"; };
+		7294709291E25AB204BF3F14 /* GrResourceCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrResourceCache.h; sourceTree = "<group>"; };
+		72DFD2BDCF9EE713114D735B /* GrAAHairLinePathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAAHairLinePathRenderer.h; sourceTree = "<group>"; };
+		733D67C8DBDA09BF332DBE8C /* GrGLStencilAttachment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLStencilAttachment.h; sourceTree = "<group>"; };
+		7399FC871361B3DE87263290 /* GrAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAllocator.h; sourceTree = "<group>"; };
+		73A6CE0C26251293D66212B6 /* GrCustomXfermode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrCustomXfermode.h; sourceTree = "<group>"; };
+		73E8E99E00732F22C33D8269 /* GrGLInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLInterface.cpp; sourceTree = "<group>"; };
+		7564778C764622C0C86FED24 /* GrSurfacePriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrSurfacePriv.h; sourceTree = "<group>"; };
+		75B769C9324E8CB5F796C971 /* GrTestUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTestUtils.cpp; sourceTree = "<group>"; };
+		75C1288CDA2C5EA4184A96DD /* GrPipelineBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPipelineBuilder.h; sourceTree = "<group>"; };
+		762096DDA2AF7C4F33366392 /* GrContextOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrContextOptions.h; sourceTree = "<group>"; };
+		76B781BA86369300A1296B2E /* GrGLNoOpInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLNoOpInterface.cpp; sourceTree = "<group>"; };
+		76FCE9F0FC572744393D438F /* GrDitherEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDitherEffect.cpp; sourceTree = "<group>"; };
+		776EF0925BC1A24F95284E07 /* libskia_skgpu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_skgpu.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		78A1EDFF2A1CAC016B3C3BF8 /* GrTextBlobCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextBlobCache.h; sourceTree = "<group>"; };
+		78AAA0F93570E4E2897097FF /* GrStencilAttachment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrStencilAttachment.h; sourceTree = "<group>"; };
+		79DB8EB953A7D14F35CDB170 /* gpu.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = gpu.gypi; sourceTree = "<group>"; };
+		7AF826BF22257F814B13B510 /* GrTextContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextContext.cpp; sourceTree = "<group>"; };
+		7B91A0E42344D9EB6C0344A5 /* GrYUVProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrYUVProvider.h; sourceTree = "<group>"; };
+		7C6176A938A3FE8BF423BC94 /* GrTextureObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextureObj.h; sourceTree = "<group>"; };
+		7CBBFFB58B011135B87D8B5B /* SkDebugGLContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDebugGLContext.cpp; sourceTree = "<group>"; };
+		7D1B39CE19CBFBF2E2AEEE57 /* GrDrawAtlasBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDrawAtlasBatch.h; sourceTree = "<group>"; };
+		7D8AB7FF64121AAFBA3C11B1 /* GrFontScaler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrFontScaler.cpp; sourceTree = "<group>"; };
+		7DF7E7EC1DF2780CEA7E0B71 /* GrGLSLBlend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLSLBlend.h; sourceTree = "<group>"; };
+		7E3DFB87AB122055B9B41DA0 /* GrPrimitiveProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPrimitiveProcessor.h; sourceTree = "<group>"; };
+		7F046ECFBA177705CB5A3898 /* SkGLContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkGLContext.cpp; sourceTree = "<group>"; };
+		8314E022A68539665657DAB3 /* SkCreatePlatformGLContext_iOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SkCreatePlatformGLContext_iOS.mm; sourceTree = "<group>"; };
+		8384A215AF93D583E5D93ADF /* GrStencil.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrStencil.cpp; sourceTree = "<group>"; };
+		83AA3FC78BEB724C00D2DE3B /* GrAutoLocaleSetter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAutoLocaleSetter.h; sourceTree = "<group>"; };
+		83E7EFF98143815973DCD4BE /* GrPath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPath.cpp; sourceTree = "<group>"; };
+		847BB899C75A74A67B43D652 /* SkGr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkGr.cpp; sourceTree = "<group>"; };
+		86806C85BE291788BDB50349 /* GrNonAAStrokeRectBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrNonAAStrokeRectBatch.h; sourceTree = "<group>"; };
+		86DA730B2E531AF8B0DBA000 /* GrRectanizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRectanizer.h; sourceTree = "<group>"; };
+		86EAA77A02ABD378A53ABE29 /* GrDebugGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDebugGL.h; sourceTree = "<group>"; };
+		87B67F8B51BF405F4CFF705B /* GrTraceMarker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTraceMarker.cpp; sourceTree = "<group>"; };
+		89B9B524E5DBBFE2A1BA85AE /* GrBufferAllocPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBufferAllocPool.h; sourceTree = "<group>"; };
+		8A75EEE601D4F97A091C240A /* GrGLTexture.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLTexture.cpp; sourceTree = "<group>"; };
+		8B1B82E84CA950F7EDE3652F /* GrGLSLCaps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLSLCaps.h; sourceTree = "<group>"; };
+		8B8D7966EAB782B67F45D2FB /* GrPaint.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPaint.cpp; sourceTree = "<group>"; };
+		8B939575A4B1B49BB01844A8 /* GrBlend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBlend.h; sourceTree = "<group>"; };
+		8D67DA524284FEDE34ADF97F /* GrGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLContext.h; sourceTree = "<group>"; };
+		8D8F605E696C6F05905AF945 /* GrGLProgram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLProgram.cpp; sourceTree = "<group>"; };
+		8D9943682A420F6B1CBA4330 /* GrPathRendering.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPathRendering.h; sourceTree = "<group>"; };
+		8E22A5E504C6C4CABA491CEE /* GrYUVtoRGBEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrYUVtoRGBEffect.h; sourceTree = "<group>"; };
+		8E4B19C30B96F038E8FE709F /* GrResourceProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrResourceProvider.h; sourceTree = "<group>"; };
+		91202F3173D55E79BCB72117 /* GrGeometryBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGeometryBuffer.h; sourceTree = "<group>"; };
+		91C7A44DB01DE39F23C33E9B /* GrDistanceFieldGeoProc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDistanceFieldGeoProc.h; sourceTree = "<group>"; };
+		92132BC9963CB40756E411AB /* GrPathProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPathProcessor.cpp; sourceTree = "<group>"; };
+		9227AC1ED0B6A09328EDDF18 /* GrGLProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLProcessor.h; sourceTree = "<group>"; };
+		93AF1C0206D6B293F0158960 /* GrCoverageSetOpXP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrCoverageSetOpXP.cpp; sourceTree = "<group>"; };
+		941BBA3ADA863CEEEA2DAA7C /* GrGLDefaultInterface_native.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLDefaultInterface_native.cpp; sourceTree = "<group>"; };
+		946FCF4DC09C3B722B44F450 /* GrGLBufferImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLBufferImpl.h; sourceTree = "<group>"; };
+		94BFAAEA6082404686172D8E /* GrBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBatch.cpp; sourceTree = "<group>"; };
+		97B43445F35F711A1DE21554 /* GrGLNameAllocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLNameAllocator.cpp; sourceTree = "<group>"; };
+		990999B7965436BB2CBBBF74 /* GrBatchFlushState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBatchFlushState.cpp; sourceTree = "<group>"; };
+		9928DC015232BCC2A8013DB5 /* GrTextureUnitObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextureUnitObj.h; sourceTree = "<group>"; };
+		9A22B3448014CB49F851E985 /* GrIndexBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrIndexBuffer.h; sourceTree = "<group>"; };
+		9B779508CD124A302B9E7314 /* GrGLCreateNullInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateNullInterface.cpp; sourceTree = "<group>"; };
+		9C3209A9AA4AD9753FC5B3E5 /* GrGLGpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLGpu.h; sourceTree = "<group>"; };
+		9C9D4C52B44764228F9F119B /* GrGLShaderVar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLShaderVar.h; sourceTree = "<group>"; };
+		9D3AC1D464CCDB4882A95EDD /* GrYUVProvider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrYUVProvider.cpp; sourceTree = "<group>"; };
+		9D44207E0026DC550AA049A6 /* GrDrawVerticesBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDrawVerticesBatch.h; sourceTree = "<group>"; };
+		9E82CC0ABBED880B607400E1 /* GrProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrProcessor.cpp; sourceTree = "<group>"; };
+		9EAAB0B1494CEBC3E66ADB69 /* GrTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTestUtils.h; sourceTree = "<group>"; };
+		9EE050462827CE2176F60690 /* GrGLPrimitiveProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLPrimitiveProcessor.h; sourceTree = "<group>"; };
+		9EEB266757FF44454C31CB3A /* GrStrokeInfo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrStrokeInfo.cpp; sourceTree = "<group>"; };
+		9F2B098BD7AA0EB9DE8CA5BB /* GrBatchTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBatchTest.h; sourceTree = "<group>"; };
+		9FEEE66D34C4B6E08228D6F2 /* SkGrPixelRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkGrPixelRef.h; sourceTree = "<group>"; };
+		A0061B593E021D50D2F1D27E /* GrDisableColorXP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDisableColorXP.h; sourceTree = "<group>"; };
+		A1252F07D3A6815525BBC627 /* GrRenderTargetPriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRenderTargetPriv.h; sourceTree = "<group>"; };
+		A13A0F3664B92339C128B6C8 /* GrBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBatch.h; sourceTree = "<group>"; };
+		A2A26AFA76D72302BBE7ABC9 /* GrGLUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLUtil.h; sourceTree = "<group>"; };
+		A2C7295603061003501F3DB2 /* GrGLCaps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLCaps.h; sourceTree = "<group>"; };
+		A2F6A8C5A205DE6398385F3B /* GrRectBatchFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRectBatchFactory.h; sourceTree = "<group>"; };
+		A2F88EE0E4241DA3BBE2AFAE /* GrMemoryPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrMemoryPool.h; sourceTree = "<group>"; };
+		A3B68AC9C294991FEBF471C5 /* GrTextureUnitObj.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextureUnitObj.cpp; sourceTree = "<group>"; };
+		A483BF8A39BC3CD42516BD40 /* SkGpuDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkGpuDevice.cpp; sourceTree = "<group>"; };
+		A6148CCCCCCD7B3901F389BB /* GrGLTextureRenderTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLTextureRenderTarget.h; sourceTree = "<group>"; };
+		A8A674ED6F699935B12AE718 /* GrRectanizer_skyline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRectanizer_skyline.h; sourceTree = "<group>"; };
+		A91D89618922B1A2CB00A14D /* GrAtlasTextContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAtlasTextContext.h; sourceTree = "<group>"; };
+		A951B66AC598B78884A19B13 /* GrBezierEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBezierEffect.cpp; sourceTree = "<group>"; };
+		A9B9B989C3216ED5A9BB0A07 /* GrPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPath.h; sourceTree = "<group>"; };
+		AB8B9591168976341D3A57C7 /* SkNullGLContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkNullGLContext.cpp; sourceTree = "<group>"; };
+		AD1C3BA29FC007055A0B27FF /* GrVertexArrayObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrVertexArrayObj.h; sourceTree = "<group>"; };
+		AE0DE6BC0CE48C5E7671A9C1 /* GrStrokeInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrStrokeInfo.h; sourceTree = "<group>"; };
+		AE56EEEB549D1C770D1FEAD7 /* GrQuad.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrQuad.h; sourceTree = "<group>"; };
+		AF1116B917A043D9F65698DC /* GrClearBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrClearBatch.h; sourceTree = "<group>"; };
+		AF721B628E09B71FB3D55B1E /* GrGLIndexBuffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLIndexBuffer.cpp; sourceTree = "<group>"; };
+		B014EFC6618DD28AA17EA0D7 /* GrReducedClip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrReducedClip.h; sourceTree = "<group>"; };
+		B0F87564EC1873850E863573 /* GrGLXferProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLXferProcessor.cpp; sourceTree = "<group>"; };
+		B12692E4039B7D49D83B6679 /* GrGLAssembleInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLAssembleInterface.h; sourceTree = "<group>"; };
+		B270B4C6AA97EAA3D47A8A9B /* GrGLNoOpInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLNoOpInterface.h; sourceTree = "<group>"; };
+		B28CB803D08480582F46AED5 /* GrSoftwarePathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrSoftwarePathRenderer.h; sourceTree = "<group>"; };
+		B369A8A03C54FDE3709CCD10 /* GrNonAtomicRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrNonAtomicRef.h; sourceTree = "<group>"; };
+		B3BF98028FE2D238D6FBE1B8 /* GrRenderTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRenderTarget.h; sourceTree = "<group>"; };
+		B4311728A446786A4790CBFD /* GrGLNameAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLNameAllocator.h; sourceTree = "<group>"; };
+		B467D32A87CDF8340FFD30F2 /* GrBatchFontCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBatchFontCache.h; sourceTree = "<group>"; };
+		B52714392811DDF41D36B52B /* GrPathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPathRenderer.cpp; sourceTree = "<group>"; };
+		B5EF59BEC1557309F2097FA5 /* GrAADistanceFieldPathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAADistanceFieldPathRenderer.cpp; sourceTree = "<group>"; };
+		B651D6F16CF89C5E83EC21D9 /* SkMesaGLContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMesaGLContext.cpp; sourceTree = "<group>"; };
+		B6817F5212A869CA3AFD22E9 /* gpu.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = gpu.gyp; sourceTree = "<group>"; };
+		B6EB07EEB2DD6F8F1161AA2B /* GrGLFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLFunctions.h; sourceTree = "<group>"; };
+		B74BB696D582EB14FFD2F794 /* GrTInstanceBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTInstanceBatch.h; sourceTree = "<group>"; };
+		B9496C0AFB75DE35D1CE8676 /* GrDrawContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawContext.cpp; sourceTree = "<group>"; };
+		B99766535E54ABAC931AC7E3 /* GrGLPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLPath.h; sourceTree = "<group>"; };
+		BA0F3EEA87FC06D582617229 /* GrDiscardBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDiscardBatch.h; sourceTree = "<group>"; };
+		BA2CD1A5FDAB2A2828EE20A2 /* GrAAFillRectBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAAFillRectBatch.h; sourceTree = "<group>"; };
+		BAAC96D3130C9ACA60A726D6 /* GrStencilAttachment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrStencilAttachment.cpp; sourceTree = "<group>"; };
+		BAFCE13D79B15181A7DA59AA /* GrCaps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrCaps.h; sourceTree = "<group>"; };
+		BD92AA2E4F6C204643E03A58 /* GrShaderObj.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrShaderObj.cpp; sourceTree = "<group>"; };
+		BE2795269BB4AC132505F336 /* GrConfigConversionEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrConfigConversionEffect.h; sourceTree = "<group>"; };
+		BEB8F87CB65472C0AE3E6CB9 /* GrCoordTransform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrCoordTransform.h; sourceTree = "<group>"; };
+		BEC79651612093D45A1F31FE /* GrGLGeometryShaderBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLGeometryShaderBuilder.h; sourceTree = "<group>"; };
+		BF411B61711467D7A3456570 /* GrGLSLCaps.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLSLCaps.cpp; sourceTree = "<group>"; };
+		C019050180E45AE03EFF60BA /* GrAALinearizingConvexPathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrAALinearizingConvexPathRenderer.h; sourceTree = "<group>"; };
+		C0D4F5AD0D4C5EB7BF1690BF /* GrBlend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBlend.cpp; sourceTree = "<group>"; };
+		C16CA8E930B487AEE1D52788 /* GrGLPathRange.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLPathRange.cpp; sourceTree = "<group>"; };
+		C194A483305CF5794C346709 /* GrConstColorProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrConstColorProcessor.h; sourceTree = "<group>"; };
+		C2500F7D238C9E253AFA0110 /* GrBitmapTextGeoProc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrBitmapTextGeoProc.cpp; sourceTree = "<group>"; };
+		C3056E6B021CC1D5516DF49A /* GrFrameBufferObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrFrameBufferObj.h; sourceTree = "<group>"; };
+		C3119DFF36AD4CD0B90B2DF3 /* GrGLGeometryProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLGeometryProcessor.cpp; sourceTree = "<group>"; };
+		C3DF6C4DF4FFDFFDA7C43C99 /* GrDrawContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDrawContext.h; sourceTree = "<group>"; };
+		C3FB0BCAEDEA77D34C11D6A2 /* GrDashLinePathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDashLinePathRenderer.cpp; sourceTree = "<group>"; };
+		C440B6E84529051B3FD779CB /* GrTextureAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextureAccess.h; sourceTree = "<group>"; };
+		C4D663E5AA8A29FEB4A3FFA6 /* GrGLBufferImpl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLBufferImpl.cpp; sourceTree = "<group>"; };
+		C547F9ACDF8BD32C42C3C1DE /* GrGlyph.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGlyph.h; sourceTree = "<group>"; };
+		C554CF726040A9EC38F00370 /* GrConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrConfig.h; sourceTree = "<group>"; };
+		C5F529A01EC55F5CD370D1E1 /* GrRectBatchFactory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrRectBatchFactory.cpp; sourceTree = "<group>"; };
+		C6FF49184DF1990A24BEF8E9 /* Gr1DKernelEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Gr1DKernelEffect.h; sourceTree = "<group>"; };
+		C747D536F7E7E293D0708B10 /* GrTextureDomain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextureDomain.h; sourceTree = "<group>"; };
+		C7FFA41C318446278EE7A2C3 /* GrGLPathRendering.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLPathRendering.cpp; sourceTree = "<group>"; };
+		C82520779C8C5DAC583256E5 /* GrGLProgramBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLProgramBuilder.h; sourceTree = "<group>"; };
+		C83D23E3B6B360F6E0D417B6 /* GrRecordReplaceDraw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrRecordReplaceDraw.cpp; sourceTree = "<group>"; };
+		C9417D27F9043EAB99225135 /* GrGLGpuProgramCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLGpuProgramCache.cpp; sourceTree = "<group>"; };
+		C96809DE46024040C2A2DB94 /* GrAAConvexTessellator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAAConvexTessellator.cpp; sourceTree = "<group>"; };
+		C9782B79625EF2993E92116C /* GrGpuResource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGpuResource.cpp; sourceTree = "<group>"; };
+		C9CE0DB6E83DDCAE86148A73 /* GrClipMaskManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrClipMaskManager.h; sourceTree = "<group>"; };
+		CA049E3F22AB6D82592D7FAD /* GrPipelineBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPipelineBuilder.cpp; sourceTree = "<group>"; };
+		CB774CB0F2476EBADDE4E8B8 /* GrClip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrClip.h; sourceTree = "<group>"; };
+		CCB1DC43BBC3DBDC5C24ECBB /* GrXferProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrXferProcessor.h; sourceTree = "<group>"; };
+		CD09E8658FF771E1E09765AF /* GrGLInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLInterface.h; sourceTree = "<group>"; };
+		CF2A2E074BB1FC1476065555 /* GrDistanceFieldGeoProc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDistanceFieldGeoProc.cpp; sourceTree = "<group>"; };
+		D0752AC8B0937BCC48DA2765 /* GrGLVertexArray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLVertexArray.cpp; sourceTree = "<group>"; };
+		D088157823C58475A9A469EB /* GrGLUtil.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLUtil.cpp; sourceTree = "<group>"; };
+		D0B49522D443A1FB36339635 /* GrBufferObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBufferObj.h; sourceTree = "<group>"; };
+		D1E5BEDD69BC2B5040BE81AB /* GrPorterDuffXferProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPorterDuffXferProcessor.h; sourceTree = "<group>"; };
+		D22774787C970ED1844E9CB8 /* GrPathRendering.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPathRendering.cpp; sourceTree = "<group>"; };
+		D23B946A4586733063F22F39 /* GrNonAAFillRectBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrNonAAFillRectBatch.cpp; sourceTree = "<group>"; };
+		D393B62EE15BA959FDB48428 /* GrRecordReplaceDraw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRecordReplaceDraw.h; sourceTree = "<group>"; };
+		D408AD235FB056D0FC054751 /* GrFontScaler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrFontScaler.h; sourceTree = "<group>"; };
+		D54ABFDD4D85FE6DD0A46349 /* GrCopySurfaceBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrCopySurfaceBatch.cpp; sourceTree = "<group>"; };
+		D57DA950423151BE518E1CAF /* GrDrawPathBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawPathBatch.cpp; sourceTree = "<group>"; };
+		D5E94718A34B64BDD901EA86 /* GrCopySurfaceBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrCopySurfaceBatch.h; sourceTree = "<group>"; };
+		D62E7980DE872B93A55AD89D /* GrDrawBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDrawBatch.h; sourceTree = "<group>"; };
+		D6532DE2B0D6889181887D72 /* GrTexture.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTexture.cpp; sourceTree = "<group>"; };
+		D66F2907123AE21D346656F5 /* GrRRectEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrRRectEffect.cpp; sourceTree = "<group>"; };
+		D676BC589E63C1AE0F9C9B23 /* GrConvolutionEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrConvolutionEffect.cpp; sourceTree = "<group>"; };
+		D7C60635C76AD3C0F7818901 /* GrRectanizer_pow2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrRectanizer_pow2.h; sourceTree = "<group>"; };
+		D81A68EFBDB34609E1782E8C /* GrGLVertexBuffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLVertexBuffer.cpp; sourceTree = "<group>"; };
+		D8D8A5E4763C0A3E474648E3 /* GrDrawTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDrawTarget.h; sourceTree = "<group>"; };
+		DA7C12843D278320B9391BB9 /* GrConstColorProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrConstColorProcessor.cpp; sourceTree = "<group>"; };
+		DBDCC6BEB2EC3ACCE9E95668 /* GrRectanizer_pow2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrRectanizer_pow2.cpp; sourceTree = "<group>"; };
+		DBEE070160FE021284278A89 /* GrGpuResourceCacheAccess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGpuResourceCacheAccess.h; sourceTree = "<group>"; };
+		DC784C9B2486ABCCB5ED3936 /* GrDefaultGeoProcFactory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrDefaultGeoProcFactory.cpp; sourceTree = "<group>"; };
+		DD384C3F5AF7407C89AFBD12 /* SkGrPriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkGrPriv.h; sourceTree = "<group>"; };
+		DDA4EF5676DB622DC39B3BED /* GrBlurUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBlurUtils.h; sourceTree = "<group>"; };
+		DDEC927EBB3A44D843B1CE38 /* GrXferProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrXferProcessor.cpp; sourceTree = "<group>"; };
+		DDEE8CD73BCE3E31A486B882 /* GrMemoryPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrMemoryPool.cpp; sourceTree = "<group>"; };
+		DE9F59E91497061C9A225AD9 /* GrInvariantOutput.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrInvariantOutput.cpp; sourceTree = "<group>"; };
+		DF85A393145E2B9FEE1984EE /* SkGr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkGr.h; sourceTree = "<group>"; };
+		E007B94E064B0C9C7ADCF1E4 /* GrTextureObj.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextureObj.cpp; sourceTree = "<group>"; };
+		E02BB5B98867811E828FD435 /* GrTextContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTextContext.h; sourceTree = "<group>"; };
+		E15EDC7F9F00A3331720F20D /* GrGLFragmentShaderBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLFragmentShaderBuilder.cpp; sourceTree = "<group>"; };
+		E19226F44A23751585BB54E8 /* GrBezierEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrBezierEffect.h; sourceTree = "<group>"; };
+		E1D1FDD4D5F380C566E6DB9F /* SkImage_Gpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkImage_Gpu.h; sourceTree = "<group>"; };
+		E1E8C1A84715C3B7F7FF1934 /* GrTessellatingPathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTessellatingPathRenderer.h; sourceTree = "<group>"; };
+		E39DFB5B5D3DFB3809AB8A39 /* GrShaderObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrShaderObj.h; sourceTree = "<group>"; };
+		E3F1796C73545AC022D6A494 /* GrProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrProcessor.h; sourceTree = "<group>"; };
+		E47835611A224BD9E755684A /* GrPathRendererChain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPathRendererChain.h; sourceTree = "<group>"; };
+		E49224ED24E8AF5DB8E57D3B /* GrResourceCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrResourceCache.cpp; sourceTree = "<group>"; };
+		E4DBFB82BF8CB7E57FE039B1 /* GrFBBindableObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrFBBindableObj.h; sourceTree = "<group>"; };
+		E6BA7F76D537D45544EEECBA /* SkCreatePlatformGLContext_glx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCreatePlatformGLContext_glx.cpp; sourceTree = "<group>"; };
+		E71CCDC2AF7B713395B9B9E6 /* GrCustomXfermode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrCustomXfermode.cpp; sourceTree = "<group>"; };
+		E88570CA5318E87B04C468F4 /* GrGLDefaultInterface_none.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLDefaultInterface_none.cpp; sourceTree = "<group>"; };
+		E8EF781AA10B0D5537B07256 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		EA34579A9DB3E7AB1DE011A4 /* GrXfermodeFragmentProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrXfermodeFragmentProcessor.h; sourceTree = "<group>"; };
+		EAC63A735B3BABC77F787F6F /* GrLayerHoister.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrLayerHoister.h; sourceTree = "<group>"; };
+		EAF31A796D5DB3B416C01C5A /* GrDashingEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrDashingEffect.h; sourceTree = "<group>"; };
+		EB518B27065FDAF140DA9DFF /* GrStencilAndCoverTextContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrStencilAndCoverTextContext.h; sourceTree = "<group>"; };
+		ED5CBB775E52E6D86B6C6BFE /* GrVertexBatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrVertexBatch.cpp; sourceTree = "<group>"; };
+		EDEDCC98347A2B3B7BF08577 /* GrGLSLPrettyPrint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLSLPrettyPrint.h; sourceTree = "<group>"; };
+		EE5100DEB76754DF7B0C1690 /* GrAAHairLinePathRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAAHairLinePathRenderer.cpp; sourceTree = "<group>"; };
+		EE780A850BBAF767DD84CBC8 /* GrGLCreateANGLEInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateANGLEInterface.cpp; sourceTree = "<group>"; };
+		EEDB7FF6F3016BD9FBA2CEB5 /* GrResourceKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrResourceKey.h; sourceTree = "<group>"; };
+		EEE106C43AC0DBEA7DC574EA /* SkGrTexturePixelRef.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkGrTexturePixelRef.cpp; sourceTree = "<group>"; };
+		EEF4015FBB7BB5616EADB4A1 /* GrGLShaderStringBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLShaderStringBuilder.cpp; sourceTree = "<group>"; };
+		EF4B9EE872420D12A5ED593B /* GrTextBlobCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextBlobCache.cpp; sourceTree = "<group>"; };
+		F012BFEF7ED77CDB4BB569A3 /* GrTraceMarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrTraceMarker.h; sourceTree = "<group>"; };
+		F133D20B847275002366F947 /* SkDebugGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDebugGLContext.h; sourceTree = "<group>"; };
+		F1EB012C2D5534D03C23E385 /* GrGLDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLDefines.h; sourceTree = "<group>"; };
+		F1FBCF86E23EB8D8679CCD5C /* GrCoordTransform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrCoordTransform.cpp; sourceTree = "<group>"; };
+		F304D9E7AEBAA79800C7A9BC /* GrClip.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrClip.cpp; sourceTree = "<group>"; };
+		F31967256A166293319286D8 /* GrGLFragmentProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLFragmentProcessor.cpp; sourceTree = "<group>"; };
+		F3375FD76ECD030BD53F1998 /* GrPathRange.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrPathRange.cpp; sourceTree = "<group>"; };
+		F39A01C3073038676502C8D2 /* GrShaderVar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrShaderVar.h; sourceTree = "<group>"; };
+		F47FC8C634104209FAB33820 /* SkCommandBufferGLContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCommandBufferGLContext.cpp; sourceTree = "<group>"; };
+		F52E284BB69A7023E7AEFE68 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		F5ABBED206E4AA35F4F1D9C2 /* SkGrTexturePixelRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkGrTexturePixelRef.h; sourceTree = "<group>"; };
+		F610AF15CA4495E480B561AF /* GrFakeRefObj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrFakeRefObj.h; sourceTree = "<group>"; };
+		F89FC79B31E5EF0A4139FF19 /* GrGLIRect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLIRect.h; sourceTree = "<group>"; };
+		F8E21CB28EB56CAE82542DAE /* GrGLVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLVertexArray.h; sourceTree = "<group>"; };
+		F956F65801DBDAE89D76EBD1 /* GrPendingProgramElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPendingProgramElement.h; sourceTree = "<group>"; };
+		F9EBB6F987FA2D6324C70311 /* GrVertexBatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrVertexBatch.h; sourceTree = "<group>"; };
+		FA8385022C27426F30607308 /* GrGLProgramDesc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLProgramDesc.h; sourceTree = "<group>"; };
+		FB3DB176EF967F0B8C0D2926 /* GrAtlasTextContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrAtlasTextContext.cpp; sourceTree = "<group>"; };
+		FBC32059308E6C3D0F92E1A0 /* SkCommandBufferGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkCommandBufferGLContext.h; sourceTree = "<group>"; };
+		FC225E90965E71E19F75AF0E /* GrStencilAndCoverPathRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrStencilAndCoverPathRenderer.h; sourceTree = "<group>"; };
+		FC4D9316BC086CB3FC75F0F0 /* GrTextureDomain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextureDomain.cpp; sourceTree = "<group>"; };
+		FC5A23BD61CCF73F29ACFEF0 /* GrSingleTextureEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrSingleTextureEffect.h; sourceTree = "<group>"; };
+		FC8D3764CD6252E8E5CEE0D7 /* GrGLSL_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrGLSL_impl.h; sourceTree = "<group>"; };
+		FCCD4C06DFE3CCEFD519DCFF /* GrGLCreateMesaInterface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLCreateMesaInterface.cpp; sourceTree = "<group>"; };
+		FD13CD07C8515A83E634DD47 /* GrYUVtoRGBEffect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrYUVtoRGBEffect.cpp; sourceTree = "<group>"; };
+		FD6310B77C8D948F1266D28A /* GrPathUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrPathUtils.h; sourceTree = "<group>"; };
+		FD82F4A7CA1F95303AEB2696 /* GrStencil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrStencil.h; sourceTree = "<group>"; };
+		FE3FCFEC7B479A40555D4DAD /* GrGLStencilAttachment.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLStencilAttachment.cpp; sourceTree = "<group>"; };
+		FEFECC3AE66232E632844C89 /* GrGLPath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLPath.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		98C56CEFD4EABD14112E96AC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00FC1F1DC3E9B296E47BFF72 /* command_buffer */ = {
+			isa = PBXGroup;
+			children = (
+				FBC32059308E6C3D0F92E1A0 /* SkCommandBufferGLContext.h */,
+			);
+			path = command_buffer;
+			sourceTree = "<group>";
+		};
+		10C7A8BDAA889278D71DF05A /* angle */ = {
+			isa = PBXGroup;
+			children = (
+				EE780A850BBAF767DD84CBC8 /* GrGLCreateANGLEInterface.cpp */,
+				542CCD776F55505AB1F0DD31 /* SkANGLEGLContext.cpp */,
+			);
+			path = angle;
+			sourceTree = "<group>";
+		};
+		11FDAE90FDC0715B555ED56A /* mesa */ = {
+			isa = PBXGroup;
+			children = (
+				FCCD4C06DFE3CCEFD519DCFF /* GrGLCreateMesaInterface.cpp */,
+				B651D6F16CF89C5E83EC21D9 /* SkMesaGLContext.cpp */,
+				016285443A435E4E1C8D526A /* SkMesaGLContext.h */,
+			);
+			path = mesa;
+			sourceTree = "<group>";
+		};
+		37188C6AC9809F3B3FE7AED7 /* builders */ = {
+			isa = PBXGroup;
+			children = (
+				E15EDC7F9F00A3331720F20D /* GrGLFragmentShaderBuilder.cpp */,
+				2DEE02CD759ABBFE13AB5D6D /* GrGLFragmentShaderBuilder.h */,
+				465A00813308A68CAB061EF7 /* GrGLGeometryShaderBuilder.cpp */,
+				BEC79651612093D45A1F31FE /* GrGLGeometryShaderBuilder.h */,
+				463FAD132CF83EB516C57C88 /* GrGLProgramBuilder.cpp */,
+				C82520779C8C5DAC583256E5 /* GrGLProgramBuilder.h */,
+				09A81726026D19385BF70E4D /* GrGLSLPrettyPrint.cpp */,
+				0215F189C414364A40B74E2B /* GrGLShaderBuilder.cpp */,
+				6D4D7D4B9A09E482A6AF781D /* GrGLShaderBuilder.h */,
+				EEF4015FBB7BB5616EADB4A1 /* GrGLShaderStringBuilder.cpp */,
+				61E8DFD2EB75CD63F2B8168C /* GrGLShaderStringBuilder.h */,
+				3C6E64A4228D056DDAA63A85 /* GrGLVertexShaderBuilder.cpp */,
+				55D632DB877C0020874CDC0F /* GrGLVertexShaderBuilder.h */,
+			);
+			path = builders;
+			sourceTree = "<group>";
+		};
+		48123D4BDD0C983B89A07660 /* glsl */ = {
+			isa = PBXGroup;
+			children = (
+				5CEA7DD84C9CEF29A8E39E2E /* GrGLSL.cpp */,
+				6D8073409E31647F8604386B /* GrGLSL.h */,
+				BF411B61711467D7A3456570 /* GrGLSLCaps.cpp */,
+				8B1B82E84CA950F7EDE3652F /* GrGLSLCaps.h */,
+				FC8D3764CD6252E8E5CEE0D7 /* GrGLSL_impl.h */,
+			);
+			path = glsl;
+			sourceTree = "<group>";
+		};
+		50132294E21DDD33140C73EE /* debug */ = {
+			isa = PBXGroup;
+			children = (
+				01AE685A389DC5469AAEA611 /* GrBufferObj.cpp */,
+				D0B49522D443A1FB36339635 /* GrBufferObj.h */,
+				0A3254BB84305BDC2422F799 /* GrDebugGL.cpp */,
+				86EAA77A02ABD378A53ABE29 /* GrDebugGL.h */,
+				E4DBFB82BF8CB7E57FE039B1 /* GrFBBindableObj.h */,
+				F610AF15CA4495E480B561AF /* GrFakeRefObj.h */,
+				109F814A6F6B2D76E78B409A /* GrFrameBufferObj.cpp */,
+				C3056E6B021CC1D5516DF49A /* GrFrameBufferObj.h */,
+				6454F9C5930DDA6D9CB8F650 /* GrGLCreateDebugInterface.cpp */,
+				4C5B76DEAC92ACFB0F11A4A6 /* GrProgramObj.cpp */,
+				68EBE4F8B8872ABD1CBB4598 /* GrProgramObj.h */,
+				20469D2DCEBFBAE59E8D4319 /* GrRenderBufferObj.h */,
+				BD92AA2E4F6C204643E03A58 /* GrShaderObj.cpp */,
+				E39DFB5B5D3DFB3809AB8A39 /* GrShaderObj.h */,
+				E007B94E064B0C9C7ADCF1E4 /* GrTextureObj.cpp */,
+				7C6176A938A3FE8BF423BC94 /* GrTextureObj.h */,
+				A3B68AC9C294991FEBF471C5 /* GrTextureUnitObj.cpp */,
+				9928DC015232BCC2A8013DB5 /* GrTextureUnitObj.h */,
+				AD1C3BA29FC007055A0B27FF /* GrVertexArrayObj.h */,
+				7CBBFFB58B011135B87D8B5B /* SkDebugGLContext.cpp */,
+				F133D20B847275002366F947 /* SkDebugGLContext.h */,
+			);
+			path = debug;
+			sourceTree = "<group>";
+		};
+		521CE5D47A58B211366C2D80 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				EF4057CA78DAEC5BD7DD7D38 /* gpu */,
+				B0279562D9383DF852E6E21E /* image */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		62B56F0598F62EEFA876F2E6 /* egl */ = {
+			isa = PBXGroup;
+			children = (
+				6E4BF0AFDC7D71A87E90D0A8 /* GrGLCreateNativeInterface_egl.cpp */,
+				36F433746FF383720588648F /* SkCreatePlatformGLContext_egl.cpp */,
+			);
+			path = egl;
+			sourceTree = "<group>";
+		};
+		67FD86AB9E283CE94ABE5E7A /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				F52E284BB69A7023E7AEFE68 /* common.gypi */,
+				01DAD8F876ACB2380A50B1DA /* common_conditions.gypi */,
+				596C6370BEB611D89EDCD006 /* common_variables.gypi */,
+				B6817F5212A869CA3AFD22E9 /* gpu.gyp */,
+				4E59C318F36FE441DC042B50 /* gpu.gypi */,
+				E8EF781AA10B0D5537B07256 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		70EA582036196AAD1B6B5FDB /* batches */ = {
+			isa = PBXGroup;
+			children = (
+				495975E9FF9A916B3E6F1F74 /* GrAAConvexPathRenderer.cpp */,
+				1345FBF43AC0849E9FFEB1D4 /* GrAAConvexPathRenderer.h */,
+				C96809DE46024040C2A2DB94 /* GrAAConvexTessellator.cpp */,
+				41B495E87C010AEFA87280A6 /* GrAAConvexTessellator.h */,
+				B5EF59BEC1557309F2097FA5 /* GrAADistanceFieldPathRenderer.cpp */,
+				23A079C5E97FEB1934AD67CB /* GrAADistanceFieldPathRenderer.h */,
+				07A20B6D7AAF2FD0E5D372A3 /* GrAAFillRectBatch.cpp */,
+				BA2CD1A5FDAB2A2828EE20A2 /* GrAAFillRectBatch.h */,
+				EE5100DEB76754DF7B0C1690 /* GrAAHairLinePathRenderer.cpp */,
+				72DFD2BDCF9EE713114D735B /* GrAAHairLinePathRenderer.h */,
+				12083F60A92D861008511125 /* GrAALinearizingConvexPathRenderer.cpp */,
+				C019050180E45AE03EFF60BA /* GrAALinearizingConvexPathRenderer.h */,
+				5D724E874CD9D8FC8B693C88 /* GrAAStrokeRectBatch.cpp */,
+				3EE9FB90BDBA35E9B2E316BF /* GrAAStrokeRectBatch.h */,
+				94BFAAEA6082404686172D8E /* GrBatch.cpp */,
+				A13A0F3664B92339C128B6C8 /* GrBatch.h */,
+				AF1116B917A043D9F65698DC /* GrClearBatch.h */,
+				D54ABFDD4D85FE6DD0A46349 /* GrCopySurfaceBatch.cpp */,
+				D5E94718A34B64BDD901EA86 /* GrCopySurfaceBatch.h */,
+				C3FB0BCAEDEA77D34C11D6A2 /* GrDashLinePathRenderer.cpp */,
+				4BA80649F7DCC3B09CA8E520 /* GrDashLinePathRenderer.h */,
+				6762426240B46A8D5876F9CF /* GrDefaultPathRenderer.cpp */,
+				129961121F8442CD02C193C4 /* GrDefaultPathRenderer.h */,
+				BA0F3EEA87FC06D582617229 /* GrDiscardBatch.h */,
+				5AF944855B6C05EF124FEC8C /* GrDrawAtlasBatch.cpp */,
+				7D1B39CE19CBFBF2E2AEEE57 /* GrDrawAtlasBatch.h */,
+				56E359D29A187B61A9155158 /* GrDrawBatch.cpp */,
+				D62E7980DE872B93A55AD89D /* GrDrawBatch.h */,
+				D57DA950423151BE518E1CAF /* GrDrawPathBatch.cpp */,
+				1994B62D1D859D921FE4EC77 /* GrDrawPathBatch.h */,
+				66B103EB285DCD6564DB4F79 /* GrDrawVerticesBatch.cpp */,
+				9D44207E0026DC550AA049A6 /* GrDrawVerticesBatch.h */,
+				D23B946A4586733063F22F39 /* GrNonAAFillRectBatch.cpp */,
+				215A3E59E58EE33D6C91112B /* GrNonAAFillRectBatch.h */,
+				141E8E56E4CD9CF1B218AD00 /* GrNonAAStrokeRectBatch.cpp */,
+				86806C85BE291788BDB50349 /* GrNonAAStrokeRectBatch.h */,
+				C5F529A01EC55F5CD370D1E1 /* GrRectBatchFactory.cpp */,
+				A2F6A8C5A205DE6398385F3B /* GrRectBatchFactory.h */,
+				5BA4513FC94EDBA43EEE9E5A /* GrStencilAndCoverPathRenderer.cpp */,
+				FC225E90965E71E19F75AF0E /* GrStencilAndCoverPathRenderer.h */,
+				3254FDAC8FBC78140A524594 /* GrStencilPathBatch.h */,
+				B74BB696D582EB14FFD2F794 /* GrTInstanceBatch.h */,
+				49515249859AD1031D90547D /* GrTessellatingPathRenderer.cpp */,
+				E1E8C1A84715C3B7F7FF1934 /* GrTessellatingPathRenderer.h */,
+				ED5CBB775E52E6D86B6C6BFE /* GrVertexBatch.cpp */,
+				F9EBB6F987FA2D6324C70311 /* GrVertexBatch.h */,
+			);
+			path = batches;
+			sourceTree = "<group>";
+		};
+		740E84149EF5BAA608BDD8F0 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				E19D59C547F9FEEB98966F19 /* .. */,
+				79DB8EB953A7D14F35CDB170 /* gpu.gypi */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		7498BE47C2DA3ED1849135FE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				776EF0925BC1A24F95284E07 /* libskia_skgpu.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		787E10023430246E6E231572 /* gl */ = {
+			isa = PBXGroup;
+			children = (
+				10C7A8BDAA889278D71DF05A /* angle */,
+				37188C6AC9809F3B3FE7AED7 /* builders */,
+				DCED9ECD0854A23255734029 /* command_buffer */,
+				50132294E21DDD33140C73EE /* debug */,
+				62B56F0598F62EEFA876F2E6 /* egl */,
+				C11407A94D7922857B2558E4 /* glx */,
+				BC1784FABAB431619453EBDC /* iOS */,
+				11FDAE90FDC0715B555ED56A /* mesa */,
+				020CEA250646AA62FC903BB9 /* GrGLAssembleInterface.cpp */,
+				B12692E4039B7D49D83B6679 /* GrGLAssembleInterface.h */,
+				C4D663E5AA8A29FEB4A3FFA6 /* GrGLBufferImpl.cpp */,
+				946FCF4DC09C3B722B44F450 /* GrGLBufferImpl.h */,
+				360EAFA6A465F1D6FAF89DC4 /* GrGLCaps.cpp */,
+				A2C7295603061003501F3DB2 /* GrGLCaps.h */,
+				6C3F2F7EE20652684DF4E10A /* GrGLContext.cpp */,
+				8D67DA524284FEDE34ADF97F /* GrGLContext.h */,
+				6D4427E80DD879A479682C5B /* GrGLCreateNativeInterface_none.cpp */,
+				9B779508CD124A302B9E7314 /* GrGLCreateNullInterface.cpp */,
+				941BBA3ADA863CEEEA2DAA7C /* GrGLDefaultInterface_native.cpp */,
+				E88570CA5318E87B04C468F4 /* GrGLDefaultInterface_none.cpp */,
+				F1EB012C2D5534D03C23E385 /* GrGLDefines.h */,
+				28AC421A340AD03B2B4BB747 /* GrGLExtensions.cpp */,
+				F31967256A166293319286D8 /* GrGLFragmentProcessor.cpp */,
+				1A96BE51FE32DC50CDACA38F /* GrGLFragmentProcessor.h */,
+				2E7436E2635A90374414F2B6 /* GrGLGLSL.cpp */,
+				0373E54755BB5B6A91F0CB10 /* GrGLGLSL.h */,
+				C3119DFF36AD4CD0B90B2DF3 /* GrGLGeometryProcessor.cpp */,
+				5C9C332A277E77F20520C52A /* GrGLGeometryProcessor.h */,
+				4FA469E65A3173D47AEDDEBF /* GrGLGpu.cpp */,
+				9C3209A9AA4AD9753FC5B3E5 /* GrGLGpu.h */,
+				C9417D27F9043EAB99225135 /* GrGLGpuProgramCache.cpp */,
+				F89FC79B31E5EF0A4139FF19 /* GrGLIRect.h */,
+				AF721B628E09B71FB3D55B1E /* GrGLIndexBuffer.cpp */,
+				42089930798553F8567A28B3 /* GrGLIndexBuffer.h */,
+				73E8E99E00732F22C33D8269 /* GrGLInterface.cpp */,
+				97B43445F35F711A1DE21554 /* GrGLNameAllocator.cpp */,
+				B4311728A446786A4790CBFD /* GrGLNameAllocator.h */,
+				76B781BA86369300A1296B2E /* GrGLNoOpInterface.cpp */,
+				B270B4C6AA97EAA3D47A8A9B /* GrGLNoOpInterface.h */,
+				FEFECC3AE66232E632844C89 /* GrGLPath.cpp */,
+				B99766535E54ABAC931AC7E3 /* GrGLPath.h */,
+				C16CA8E930B487AEE1D52788 /* GrGLPathRange.cpp */,
+				1159AD1694A1ED28D70E60B5 /* GrGLPathRange.h */,
+				C7FFA41C318446278EE7A2C3 /* GrGLPathRendering.cpp */,
+				5352E103D1E730405FB6E4FC /* GrGLPathRendering.h */,
+				31273BCE4DA8DC6D4A37D7AB /* GrGLPrimitiveProcessor.cpp */,
+				9EE050462827CE2176F60690 /* GrGLPrimitiveProcessor.h */,
+				9227AC1ED0B6A09328EDDF18 /* GrGLProcessor.h */,
+				8D8F605E696C6F05905AF945 /* GrGLProgram.cpp */,
+				34D7020704FB831C0D2E9A71 /* GrGLProgram.h */,
+				4D1E3B8F9001C2F056A95F21 /* GrGLProgramDataManager.cpp */,
+				1F353AF4D29BB1411F63599F /* GrGLProgramDataManager.h */,
+				5BA2204D8AB52DE9D034A4B8 /* GrGLProgramDesc.cpp */,
+				FA8385022C27426F30607308 /* GrGLProgramDesc.h */,
+				6BECBFFC132B58C9D5CCFFF2 /* GrGLRenderTarget.cpp */,
+				6EBCE647F5F790BC3A4941B4 /* GrGLRenderTarget.h */,
+				37822F74249F93179048D922 /* GrGLSLBlend.cpp */,
+				7DF7E7EC1DF2780CEA7E0B71 /* GrGLSLBlend.h */,
+				9C9D4C52B44764228F9F119B /* GrGLShaderVar.h */,
+				FE3FCFEC7B479A40555D4DAD /* GrGLStencilAttachment.cpp */,
+				733D67C8DBDA09BF332DBE8C /* GrGLStencilAttachment.h */,
+				8A75EEE601D4F97A091C240A /* GrGLTexture.cpp */,
+				691518E2578BD590C99A88FC /* GrGLTexture.h */,
+				03585709352B448642278FDD /* GrGLTextureRenderTarget.cpp */,
+				A6148CCCCCCD7B3901F389BB /* GrGLTextureRenderTarget.h */,
+				D088157823C58475A9A469EB /* GrGLUtil.cpp */,
+				A2A26AFA76D72302BBE7ABC9 /* GrGLUtil.h */,
+				D0752AC8B0937BCC48DA2765 /* GrGLVertexArray.cpp */,
+				F8E21CB28EB56CAE82542DAE /* GrGLVertexArray.h */,
+				D81A68EFBDB34609E1782E8C /* GrGLVertexBuffer.cpp */,
+				11804418C6D61C7FFB6F3635 /* GrGLVertexBuffer.h */,
+				B0F87564EC1873850E863573 /* GrGLXferProcessor.cpp */,
+				19A58BE7ED7A39DC5EC8E7D4 /* GrGLXferProcessor.h */,
+				7F046ECFBA177705CB5A3898 /* SkGLContext.cpp */,
+				AB8B9591168976341D3A57C7 /* SkNullGLContext.cpp */,
+			);
+			path = gl;
+			sourceTree = "<group>";
+		};
+		80835FFF64DE206A8333DEF1 /* effects */ = {
+			isa = PBXGroup;
+			children = (
+				C6FF49184DF1990A24BEF8E9 /* Gr1DKernelEffect.h */,
+				A951B66AC598B78884A19B13 /* GrBezierEffect.cpp */,
+				E19226F44A23751585BB54E8 /* GrBezierEffect.h */,
+				22464598D9C1D30EB676CB4A /* GrBicubicEffect.cpp */,
+				170EC400B7F230D173993589 /* GrBicubicEffect.h */,
+				C2500F7D238C9E253AFA0110 /* GrBitmapTextGeoProc.cpp */,
+				0473BD6BAD7C773B5296D1BD /* GrBitmapTextGeoProc.h */,
+				513F754E766874FD6BDADA25 /* GrConfigConversionEffect.cpp */,
+				BE2795269BB4AC132505F336 /* GrConfigConversionEffect.h */,
+				DA7C12843D278320B9391BB9 /* GrConstColorProcessor.cpp */,
+				2C7CBEB8BE35FD0C85D58B00 /* GrConvexPolyEffect.cpp */,
+				635FD01F40960D5B1055E426 /* GrConvexPolyEffect.h */,
+				D676BC589E63C1AE0F9C9B23 /* GrConvolutionEffect.cpp */,
+				6D4B3070A4D09738FD261F8E /* GrConvolutionEffect.h */,
+				93AF1C0206D6B293F0158960 /* GrCoverageSetOpXP.cpp */,
+				E71CCDC2AF7B713395B9B9E6 /* GrCustomXfermode.cpp */,
+				607F77D188E492F912C0D79F /* GrDashingEffect.cpp */,
+				EAF31A796D5DB3B416C01C5A /* GrDashingEffect.h */,
+				1855F29364B1BDC852D823B3 /* GrDisableColorXP.cpp */,
+				A0061B593E021D50D2F1D27E /* GrDisableColorXP.h */,
+				CF2A2E074BB1FC1476065555 /* GrDistanceFieldGeoProc.cpp */,
+				91C7A44DB01DE39F23C33E9B /* GrDistanceFieldGeoProc.h */,
+				76FCE9F0FC572744393D438F /* GrDitherEffect.cpp */,
+				5F73C0725C836392CEEC2230 /* GrDitherEffect.h */,
+				2B5D4716B54EC4E6B725D104 /* GrMatrixConvolutionEffect.cpp */,
+				62AAF8DEDEB24C6A7B0E136A /* GrMatrixConvolutionEffect.h */,
+				592FBDA2A273BF2163695907 /* GrOvalEffect.cpp */,
+				1F76E87EC57BA01BD90574AA /* GrOvalEffect.h */,
+				2FB3A8D7FFA795294A971013 /* GrPorterDuffXferProcessor.cpp */,
+				D66F2907123AE21D346656F5 /* GrRRectEffect.cpp */,
+				6BD8AFD24D04A4E2DE561FC1 /* GrRRectEffect.h */,
+				3770987DECFE8DFF255843CE /* GrSimpleTextureEffect.cpp */,
+				05CBECD0492389F1A18BFB06 /* GrSimpleTextureEffect.h */,
+				224DBF1C4B578FB0A5DBFCC1 /* GrSingleTextureEffect.cpp */,
+				FC5A23BD61CCF73F29ACFEF0 /* GrSingleTextureEffect.h */,
+				FC4D9316BC086CB3FC75F0F0 /* GrTextureDomain.cpp */,
+				C747D536F7E7E293D0708B10 /* GrTextureDomain.h */,
+				022FA6A3327FDCFC3CC350F9 /* GrTextureStripAtlas.cpp */,
+				71C4B0D60B883BA5D48F86C6 /* GrTextureStripAtlas.h */,
+				568CCA22D892AE25FD30681C /* GrXfermodeFragmentProcessor.cpp */,
+				FD13CD07C8515A83E634DD47 /* GrYUVtoRGBEffect.cpp */,
+				8E22A5E504C6C4CABA491CEE /* GrYUVtoRGBEffect.h */,
+			);
+			path = effects;
+			sourceTree = "<group>";
+		};
+		A8C81CAE11609A791759DB61 = {
+			isa = PBXGroup;
+			children = (
+				740E84149EF5BAA608BDD8F0 /* Source */,
+				7498BE47C2DA3ED1849135FE /* Products */,
+				67FD86AB9E283CE94ABE5E7A /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		AF8860CDF735FE37C2F4DC37 /* effects */ = {
+			isa = PBXGroup;
+			children = (
+				C194A483305CF5794C346709 /* GrConstColorProcessor.h */,
+				4913D348DFCE572CF7039E50 /* GrCoverageSetOpXP.h */,
+				73A6CE0C26251293D66212B6 /* GrCustomXfermode.h */,
+				D1E5BEDD69BC2B5040BE81AB /* GrPorterDuffXferProcessor.h */,
+				EA34579A9DB3E7AB1DE011A4 /* GrXfermodeFragmentProcessor.h */,
+			);
+			path = effects;
+			sourceTree = "<group>";
+		};
+		B0279562D9383DF852E6E21E /* image */ = {
+			isa = PBXGroup;
+			children = (
+				2BFDA1DFF7B1C18A751FB910 /* SkImage_Gpu.cpp */,
+				E1D1FDD4D5F380C566E6DB9F /* SkImage_Gpu.h */,
+				17C45D6C2A881D10983CED36 /* SkSurface_Gpu.cpp */,
+				0199907F8D225D59D3D1C69E /* SkSurface_Gpu.h */,
+			);
+			path = image;
+			sourceTree = "<group>";
+		};
+		B5145654A4FFF541BD07594E /* angle */ = {
+			isa = PBXGroup;
+			children = (
+				6FE54866F98BC2D27B41F719 /* SkANGLEGLContext.h */,
+			);
+			path = angle;
+			sourceTree = "<group>";
+		};
+		BC1784FABAB431619453EBDC /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				500B0D5A2EC98021C53A9BC2 /* GrGLCreateNativeInterface_iOS.cpp */,
+				8314E022A68539665657DAB3 /* SkCreatePlatformGLContext_iOS.mm */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		C11407A94D7922857B2558E4 /* glx */ = {
+			isa = PBXGroup;
+			children = (
+				456D42F7CF39092A47CD99E8 /* GrGLCreateNativeInterface_glx.cpp */,
+				E6BA7F76D537D45544EEECBA /* SkCreatePlatformGLContext_glx.cpp */,
+			);
+			path = glx;
+			sourceTree = "<group>";
+		};
+		C5BA1185A851ACFFC5A08FE9 /* include/gpu */ = {
+			isa = PBXGroup;
+			children = (
+				AF8860CDF735FE37C2F4DC37 /* effects */,
+				ECB2B569D49E39573B86C62B /* gl */,
+				8B939575A4B1B49BB01844A8 /* GrBlend.h */,
+				BAFCE13D79B15181A7DA59AA /* GrCaps.h */,
+				CB774CB0F2476EBADDE4E8B8 /* GrClip.h */,
+				4E507C050CE039E401684104 /* GrColor.h */,
+				C554CF726040A9EC38F00370 /* GrConfig.h */,
+				440BCDA221DB8E6E8CD8C6DC /* GrContext.h */,
+				762096DDA2AF7C4F33366392 /* GrContextOptions.h */,
+				BEB8F87CB65472C0AE3E6CB9 /* GrCoordTransform.h */,
+				C3DF6C4DF4FFDFFDA7C43C99 /* GrDrawContext.h */,
+				5DBF374A94442E2651E74FF7 /* GrFragmentProcessor.h */,
+				503FF46299A71E2D7495F895 /* GrGpuResource.h */,
+				648F91DA817A06E251A226C3 /* GrGpuResourceRef.h */,
+				64FB288FB137E0205D029E50 /* GrInvariantOutput.h */,
+				08480A6DF3551AD69FB0B171 /* GrPaint.h */,
+				E47835611A224BD9E755684A /* GrPathRendererChain.h */,
+				E3F1796C73545AC022D6A494 /* GrProcessor.h */,
+				0033E35AC14A1E8ED4838F17 /* GrProcessorUnitTest.h */,
+				523EEFF700F3579E0653BB07 /* GrProgramElement.h */,
+				27C26929E81178B473CD19C3 /* GrRect.h */,
+				B3BF98028FE2D238D6FBE1B8 /* GrRenderTarget.h */,
+				EEDB7FF6F3016BD9FBA2CEB5 /* GrResourceKey.h */,
+				F39A01C3073038676502C8D2 /* GrShaderVar.h */,
+				265635B317F7F9F10198D968 /* GrSurface.h */,
+				9EAAB0B1494CEBC3E66ADB69 /* GrTestUtils.h */,
+				35963820FA044F1A8A03B79A /* GrTexture.h */,
+				C440B6E84529051B3FD779CB /* GrTextureAccess.h */,
+				231F7F91B554A6155B0B961D /* GrTextureProvider.h */,
+				498237B2CED23D154841A687 /* GrTypes.h */,
+				CCB1DC43BBC3DBDC5C24ECBB /* GrXferProcessor.h */,
+				DF85A393145E2B9FEE1984EE /* SkGr.h */,
+				9FEEE66D34C4B6E08228D6F2 /* SkGrPixelRef.h */,
+				F5ABBED206E4AA35F4F1D9C2 /* SkGrTexturePixelRef.h */,
+			);
+			path = include/gpu;
+			sourceTree = "<group>";
+		};
+		DCED9ECD0854A23255734029 /* command_buffer */ = {
+			isa = PBXGroup;
+			children = (
+				F47FC8C634104209FAB33820 /* SkCommandBufferGLContext.cpp */,
+			);
+			path = command_buffer;
+			sourceTree = "<group>";
+		};
+		E19D59C547F9FEEB98966F19 /* .. */ = {
+			isa = PBXGroup;
+			children = (
+				F32451AC59EDC34686DF4B8D /* experimental/ChromeUtils */,
+				C5BA1185A851ACFFC5A08FE9 /* include/gpu */,
+				521CE5D47A58B211366C2D80 /* src */,
+			);
+			path = ..;
+			sourceTree = "<group>";
+		};
+		ECB2B569D49E39573B86C62B /* gl */ = {
+			isa = PBXGroup;
+			children = (
+				B5145654A4FFF541BD07594E /* angle */,
+				00FC1F1DC3E9B296E47BFF72 /* command_buffer */,
+				1B2B32B45B835AAA9A7BC151 /* GrGLConfig.h */,
+				623D2CE93DF501DBB5F1941F /* GrGLExtensions.h */,
+				B6EB07EEB2DD6F8F1161AA2B /* GrGLFunctions.h */,
+				CD09E8658FF771E1E09765AF /* GrGLInterface.h */,
+				EDEDCC98347A2B3B7BF08577 /* GrGLSLPrettyPrint.h */,
+				157AB1507535AE9F2661726E /* SkGLContext.h */,
+				4429DABE451116284DA58672 /* SkNullGLContext.h */,
+			);
+			path = gl;
+			sourceTree = "<group>";
+		};
+		EF4057CA78DAEC5BD7DD7D38 /* gpu */ = {
+			isa = PBXGroup;
+			children = (
+				70EA582036196AAD1B6B5FDB /* batches */,
+				80835FFF64DE206A8333DEF1 /* effects */,
+				787E10023430246E6E231572 /* gl */,
+				48123D4BDD0C983B89A07660 /* glsl */,
+				7399FC871361B3DE87263290 /* GrAllocator.h */,
+				5FAFDCB69D177F92C59FA935 /* GrAtlas.cpp */,
+				6E9D637909681BA1313CA187 /* GrAtlas.h */,
+				0B08EE781C1E88837DC03E0F /* GrAtlasTextBlob.cpp */,
+				535DEC59C847755C922EDC52 /* GrAtlasTextBlob.h */,
+				FB3DB176EF967F0B8C0D2926 /* GrAtlasTextContext.cpp */,
+				A91D89618922B1A2CB00A14D /* GrAtlasTextContext.h */,
+				83AA3FC78BEB724C00D2DE3B /* GrAutoLocaleSetter.h */,
+				0B93B361F5D7037DE4EC3BF2 /* GrBatchAtlas.cpp */,
+				396395BCE93D8160DB842EE7 /* GrBatchAtlas.h */,
+				990999B7965436BB2CBBBF74 /* GrBatchFlushState.cpp */,
+				7089191EA9D4A8E01D9E64F8 /* GrBatchFlushState.h */,
+				11C61A0C1E9B1396F4832A10 /* GrBatchFontCache.cpp */,
+				B467D32A87CDF8340FFD30F2 /* GrBatchFontCache.h */,
+				5544393D60385D3BB547BCCD /* GrBatchTest.cpp */,
+				9F2B098BD7AA0EB9DE8CA5BB /* GrBatchTest.h */,
+				C0D4F5AD0D4C5EB7BF1690BF /* GrBlend.cpp */,
+				148595FCB07440E7D86A8C36 /* GrBlurUtils.cpp */,
+				DDA4EF5676DB622DC39B3BED /* GrBlurUtils.h */,
+				0553FAFBB319F95F43CDBCEA /* GrBufferAllocPool.cpp */,
+				89B9B524E5DBBFE2A1BA85AE /* GrBufferAllocPool.h */,
+				11AF1FF32A7440748FAE3B22 /* GrCaps.cpp */,
+				F304D9E7AEBAA79800C7A9BC /* GrClip.cpp */,
+				16810C39133A81E97D0161EA /* GrClipMaskManager.cpp */,
+				C9CE0DB6E83DDCAE86148A73 /* GrClipMaskManager.h */,
+				466B2FF2CA20C641BA5EBD3B /* GrContext.cpp */,
+				F1FBCF86E23EB8D8679CCD5C /* GrCoordTransform.cpp */,
+				DC784C9B2486ABCCB5ED3936 /* GrDefaultGeoProcFactory.cpp */,
+				1E687D55EBF0BE251870ACD9 /* GrDefaultGeoProcFactory.h */,
+				B9496C0AFB75DE35D1CE8676 /* GrDrawContext.cpp */,
+				3E30082FBF4030451D4196AB /* GrDrawTarget.cpp */,
+				D8D8A5E4763C0A3E474648E3 /* GrDrawTarget.h */,
+				7D8AB7FF64121AAFBA3C11B1 /* GrFontScaler.cpp */,
+				D408AD235FB056D0FC054751 /* GrFontScaler.h */,
+				1DAADA58B384AE153CBDDA0D /* GrFragmentProcessor.cpp */,
+				91202F3173D55E79BCB72117 /* GrGeometryBuffer.h */,
+				394B8FCF827984BDE5E14E66 /* GrGeometryProcessor.h */,
+				C547F9ACDF8BD32C42C3C1DE /* GrGlyph.h */,
+				49962B0C63919324E75E5380 /* GrGpu.cpp */,
+				69D7A4327BE935D26386BAA9 /* GrGpu.h */,
+				38DB3BF721D39ABB934ED426 /* GrGpuFactory.cpp */,
+				142E71CA22946B00F1AFC48B /* GrGpuFactory.h */,
+				C9782B79625EF2993E92116C /* GrGpuResource.cpp */,
+				DBEE070160FE021284278A89 /* GrGpuResourceCacheAccess.h */,
+				49AA2D19D6929FA2BCDE7CA6 /* GrGpuResourcePriv.h */,
+				3596C2565865AAF8551DBCA5 /* GrGpuResourceRef.cpp */,
+				9A22B3448014CB49F851E985 /* GrIndexBuffer.h */,
+				DE9F59E91497061C9A225AD9 /* GrInvariantOutput.cpp */,
+				0B6AE01F0E6F68CC39F1F11B /* GrLayerCache.cpp */,
+				21D33B64411E6C7EE3CA6C87 /* GrLayerCache.h */,
+				6FB36E47CD07654F9559735C /* GrLayerHoister.cpp */,
+				EAC63A735B3BABC77F787F6F /* GrLayerHoister.h */,
+				DDEE8CD73BCE3E31A486B882 /* GrMemoryPool.cpp */,
+				A2F88EE0E4241DA3BBE2AFAE /* GrMemoryPool.h */,
+				B369A8A03C54FDE3709CCD10 /* GrNonAtomicRef.h */,
+				665F8807E65FFB30228B9028 /* GrOvalRenderer.cpp */,
+				629BDB8F677955387FB817F5 /* GrOvalRenderer.h */,
+				8B8D7966EAB782B67F45D2FB /* GrPaint.cpp */,
+				83E7EFF98143815973DCD4BE /* GrPath.cpp */,
+				A9B9B989C3216ED5A9BB0A07 /* GrPath.h */,
+				92132BC9963CB40756E411AB /* GrPathProcessor.cpp */,
+				35F417C9C0CD9BA5D465AF76 /* GrPathProcessor.h */,
+				F3375FD76ECD030BD53F1998 /* GrPathRange.cpp */,
+				03AD36BD243B6CBC7D05FC82 /* GrPathRange.h */,
+				B52714392811DDF41D36B52B /* GrPathRenderer.cpp */,
+				1B325FEF87C1D6EB3F7CB3C7 /* GrPathRenderer.h */,
+				611FBBB54A15EA131FB7F882 /* GrPathRendererChain.cpp */,
+				D22774787C970ED1844E9CB8 /* GrPathRendering.cpp */,
+				8D9943682A420F6B1CBA4330 /* GrPathRendering.h */,
+				30FD87259E7D8485789AF7B6 /* GrPathUtils.cpp */,
+				FD6310B77C8D948F1266D28A /* GrPathUtils.h */,
+				F956F65801DBDAE89D76EBD1 /* GrPendingProgramElement.h */,
+				4830D949CE9A109AF7649659 /* GrPipeline.cpp */,
+				2C1632938BDC14FD8C6A550E /* GrPipeline.h */,
+				CA049E3F22AB6D82592D7FAD /* GrPipelineBuilder.cpp */,
+				75C1288CDA2C5EA4184A96DD /* GrPipelineBuilder.h */,
+				23515B8451D8A4A6D43349CB /* GrPrimitiveProcessor.cpp */,
+				7E3DFB87AB122055B9B41DA0 /* GrPrimitiveProcessor.h */,
+				53C3547B1CAFD8A4E6B0E474 /* GrProcOptInfo.cpp */,
+				6D6EBD4F5DE851FAEDDF952B /* GrProcOptInfo.h */,
+				9E82CC0ABBED880B607400E1 /* GrProcessor.cpp */,
+				08D2D2B03940FD07FD980D9F /* GrProcessorUnitTest.cpp */,
+				6549A476F0BD9BB3FBF95D83 /* GrProgramDesc.h */,
+				406744447FE609C776DE3F4A /* GrProgramElement.cpp */,
+				AE56EEEB549D1C770D1FEAD7 /* GrQuad.h */,
+				C83D23E3B6B360F6E0D417B6 /* GrRecordReplaceDraw.cpp */,
+				D393B62EE15BA959FDB48428 /* GrRecordReplaceDraw.h */,
+				86DA730B2E531AF8B0DBA000 /* GrRectanizer.h */,
+				DBDCC6BEB2EC3ACCE9E95668 /* GrRectanizer_pow2.cpp */,
+				D7C60635C76AD3C0F7818901 /* GrRectanizer_pow2.h */,
+				2981DC8ADE0142210FCF2FA3 /* GrRectanizer_skyline.cpp */,
+				A8A674ED6F699935B12AE718 /* GrRectanizer_skyline.h */,
+				0C9AFA47F03CBAB4FDECF6E0 /* GrReducedClip.cpp */,
+				B014EFC6618DD28AA17EA0D7 /* GrReducedClip.h */,
+				2FD91C3D5171F4DA88C700C6 /* GrRenderTarget.cpp */,
+				A1252F07D3A6815525BBC627 /* GrRenderTargetPriv.h */,
+				E49224ED24E8AF5DB8E57D3B /* GrResourceCache.cpp */,
+				7294709291E25AB204BF3F14 /* GrResourceCache.h */,
+				0A3BBF21073CDA6135FADD03 /* GrResourceProvider.cpp */,
+				8E4B19C30B96F038E8FE709F /* GrResourceProvider.h */,
+				23B4E4CBF97322843ED32491 /* GrSWMaskHelper.cpp */,
+				0C652A215A280663970EC61F /* GrSWMaskHelper.h */,
+				43D7C6A95E423A16B923C390 /* GrSoftwarePathRenderer.cpp */,
+				B28CB803D08480582F46AED5 /* GrSoftwarePathRenderer.h */,
+				8384A215AF93D583E5D93ADF /* GrStencil.cpp */,
+				FD82F4A7CA1F95303AEB2696 /* GrStencil.h */,
+				3E4AA10E71F30183384DC0CD /* GrStencilAndCoverTextContext.cpp */,
+				EB518B27065FDAF140DA9DFF /* GrStencilAndCoverTextContext.h */,
+				BAAC96D3130C9ACA60A726D6 /* GrStencilAttachment.cpp */,
+				78AAA0F93570E4E2897097FF /* GrStencilAttachment.h */,
+				9EEB266757FF44454C31CB3A /* GrStrokeInfo.cpp */,
+				AE0DE6BC0CE48C5E7671A9C1 /* GrStrokeInfo.h */,
+				515394A8218449442E14FCB6 /* GrSurface.cpp */,
+				7564778C764622C0C86FED24 /* GrSurfacePriv.h */,
+				1F6A53B4401555F08606F541 /* GrTRecorder.h */,
+				75B769C9324E8CB5F796C971 /* GrTestUtils.cpp */,
+				EF4B9EE872420D12A5ED593B /* GrTextBlobCache.cpp */,
+				78A1EDFF2A1CAC016B3C3BF8 /* GrTextBlobCache.h */,
+				7AF826BF22257F814B13B510 /* GrTextContext.cpp */,
+				E02BB5B98867811E828FD435 /* GrTextContext.h */,
+				D6532DE2B0D6889181887D72 /* GrTexture.cpp */,
+				0CDAA9B17E97DE153761EB87 /* GrTextureAccess.cpp */,
+				0F10F731C988807AA85D0E81 /* GrTexturePriv.h */,
+				6107D25D1647113540CE6292 /* GrTextureProvider.cpp */,
+				87B67F8B51BF405F4CFF705B /* GrTraceMarker.cpp */,
+				F012BFEF7ED77CDB4BB569A3 /* GrTraceMarker.h */,
+				04FE00744EE7C11E66939399 /* GrTracing.h */,
+				184A7119B91728BA28051E95 /* GrVertexBuffer.h */,
+				069C6D1842546E0B787CCB72 /* GrVertices.h */,
+				DDEC927EBB3A44D843B1CE38 /* GrXferProcessor.cpp */,
+				9D3AC1D464CCDB4882A95EDD /* GrYUVProvider.cpp */,
+				7B91A0E42344D9EB6C0344A5 /* GrYUVProvider.h */,
+				A483BF8A39BC3CD42516BD40 /* SkGpuDevice.cpp */,
+				42352BFD6875143592CEE0BD /* SkGpuDevice.h */,
+				847BB899C75A74A67B43D652 /* SkGr.cpp */,
+				2DDB64F41BDC8B64ED51E85C /* SkGrPixelRef.cpp */,
+				DD384C3F5AF7407C89AFBD12 /* SkGrPriv.h */,
+				EEE106C43AC0DBEA7DC574EA /* SkGrTexturePixelRef.cpp */,
+			);
+			path = gpu;
+			sourceTree = "<group>";
+		};
+		F32451AC59EDC34686DF4B8D /* experimental/ChromeUtils */ = {
+			isa = PBXGroup;
+			children = (
+				01297BDC1F4D5B0D5B3CAF1D /* SkBorder.cpp */,
+				02E11ABCB16D5F7312D1AAAD /* SkBorder.h */,
+			);
+			path = experimental/ChromeUtils;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7599172564E7286191FBC920 /* skgpu */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CEC04DA467B1591D605A66B6 /* Build configuration list for PBXNativeTarget "skgpu" */;
+			buildPhases = (
+				924D580BC9FB35B53C5D1FF5 /* Sources */,
+				98C56CEFD4EABD14112E96AC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = skgpu;
+			productName = skia_skgpu;
+			productReference = 776EF0925BC1A24F95284E07 /* libskia_skgpu.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E45EB760EE700C1653971341 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = FC8337C282328CD60830B3F0 /* Build configuration list for PBXProject "gpu" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A8C81CAE11609A791759DB61;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				7599172564E7286191FBC920 /* skgpu */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		924D580BC9FB35B53C5D1FF5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B33FD2DA9655CBBA62E58307 /* GrAtlas.cpp in Sources */,
+				5F4F8975CED83896500DAED2 /* GrAtlasTextBlob.cpp in Sources */,
+				97610968FE6DF1223BADD704 /* GrAtlasTextContext.cpp in Sources */,
+				D467DF508B2048DA50E5EF4E /* GrBatchAtlas.cpp in Sources */,
+				2320E9AC2513F15BD2B2015C /* GrBatchFontCache.cpp in Sources */,
+				BF5B3ECC1915FEB9B64A3536 /* GrBatchFlushState.cpp in Sources */,
+				498D9744457DAE7DD17F4412 /* GrBatchTest.cpp in Sources */,
+				0D4285581601E98C9128DCBE /* GrBlend.cpp in Sources */,
+				58BD348BD5CF5B62E64088EF /* GrBlurUtils.cpp in Sources */,
+				B5E8CC0F5FD92D461D9224CF /* GrBufferAllocPool.cpp in Sources */,
+				67C08C169A04129699C7F783 /* GrCaps.cpp in Sources */,
+				2EC7E9A6F9860A2B0E3AF463 /* GrClip.cpp in Sources */,
+				E5CC2214DF168BE97DE5257C /* GrClipMaskManager.cpp in Sources */,
+				D9407573799EB8F06FDBF407 /* GrContext.cpp in Sources */,
+				CD812552DBE86503CCC0D72C /* GrCoordTransform.cpp in Sources */,
+				A02AE2A35CD14282D12AACBD /* GrDefaultGeoProcFactory.cpp in Sources */,
+				B96CF0D60657FE0EB075A896 /* GrDrawContext.cpp in Sources */,
+				584A86817F2A968DD8DB5A30 /* GrDrawTarget.cpp in Sources */,
+				F3809322CA7523F042A4C046 /* GrFontScaler.cpp in Sources */,
+				431DF9E21A66D811FFD3E0F3 /* GrFragmentProcessor.cpp in Sources */,
+				F37DEEF215866FB6BCB2EFD0 /* GrGpu.cpp in Sources */,
+				434D1C475A816B0896C0DDEF /* GrGpuResource.cpp in Sources */,
+				6C1890462F5C7E5ECF1EE661 /* GrGpuFactory.cpp in Sources */,
+				8DAB94110234FF9F14F04C41 /* GrInvariantOutput.cpp in Sources */,
+				C3007065E4EEA8E87D93855A /* GrLayerCache.cpp in Sources */,
+				23795E710F1FEADE39098E7A /* GrLayerHoister.cpp in Sources */,
+				804FD41BCD7E51CCE2413A7E /* GrMemoryPool.cpp in Sources */,
+				CA9321DBDEEB695BD8F5250B /* GrOvalRenderer.cpp in Sources */,
+				6E1C41D152AB1146EA27E4BF /* GrPaint.cpp in Sources */,
+				9E83D300E95DC365F5FD5C8F /* GrPath.cpp in Sources */,
+				2189989D88B5F6BED5A3D84A /* GrPathProcessor.cpp in Sources */,
+				534ED4DCE173FD4E12045973 /* GrPathRange.cpp in Sources */,
+				C101EB75571660853987B7DE /* GrPathRendererChain.cpp in Sources */,
+				957543678C1BA4D40614F8AA /* GrPathRenderer.cpp in Sources */,
+				3A219964989C5952D52AB80E /* GrPathRendering.cpp in Sources */,
+				B59D2D3C3E32683D0FF31556 /* GrPathUtils.cpp in Sources */,
+				251C2E36699A547B27748105 /* GrPipeline.cpp in Sources */,
+				BC08E30CE8002B050E240C1B /* GrPipelineBuilder.cpp in Sources */,
+				258D6EB85018BE7425D680FC /* GrPrimitiveProcessor.cpp in Sources */,
+				B91230A95F400856E283AC55 /* GrProgramElement.cpp in Sources */,
+				80EE0E6F068AC958E81D34AC /* GrProcessor.cpp in Sources */,
+				8F6DCFEDFBF63B985105D5B4 /* GrProcessorUnitTest.cpp in Sources */,
+				F830DB9613D9A3170B634624 /* GrProcOptInfo.cpp in Sources */,
+				25DC773054C9DD3FBDC7BE3B /* GrGpuResourceRef.cpp in Sources */,
+				862C03EA1E54BAE6145E9BCA /* GrRecordReplaceDraw.cpp in Sources */,
+				50F32D83AD0A58B2329E0917 /* GrRectanizer_pow2.cpp in Sources */,
+				AAA3880BD71E3A3678A58EEE /* GrRectanizer_skyline.cpp in Sources */,
+				6B2A07663E73D1BF0E2D9B61 /* GrRenderTarget.cpp in Sources */,
+				5C80DF1124459F0554EFF995 /* GrReducedClip.cpp in Sources */,
+				45F0F925902E4B881E9DDAA0 /* GrResourceCache.cpp in Sources */,
+				CECFCF7C347CA58EFDD37C50 /* GrResourceProvider.cpp in Sources */,
+				696CADAFBDE6518F34550649 /* GrStencil.cpp in Sources */,
+				DC8723B9A059EC91399CDBB0 /* GrStencilAndCoverTextContext.cpp in Sources */,
+				78E4091570871D9BDFED10CA /* GrStencilAttachment.cpp in Sources */,
+				FDF833C672C058294808FEAC /* GrStrokeInfo.cpp in Sources */,
+				B7DB8278557D2508A672E116 /* GrTraceMarker.cpp in Sources */,
+				AFAC10B2D77712BB02CF69D1 /* GrTestUtils.cpp in Sources */,
+				0784FFD969D6E1AA38CC95D1 /* GrSWMaskHelper.cpp in Sources */,
+				FF82B165FDF77878E777910D /* GrSoftwarePathRenderer.cpp in Sources */,
+				988B509E02FD5EB8CBFEE197 /* GrSurface.cpp in Sources */,
+				3E98D0301CE3853FB29C2DBE /* GrTextBlobCache.cpp in Sources */,
+				E2B09686985C0AF4CEB0F913 /* GrTextContext.cpp in Sources */,
+				A9271038DE85D4E8E7BE87CC /* GrTexture.cpp in Sources */,
+				A777FCD58775830BB39A01F9 /* GrTextureProvider.cpp in Sources */,
+				F75E7A1B4C9A7BC57D2218A7 /* GrTextureAccess.cpp in Sources */,
+				2352873240F0BA3D27C9AF5F /* GrXferProcessor.cpp in Sources */,
+				2AD2536C73F4F8CF64FA8687 /* GrYUVProvider.cpp in Sources */,
+				AC233AC13A7B5D7707D1A3D4 /* GrAAHairLinePathRenderer.cpp in Sources */,
+				B568BF1F8F027477CADDB3FC /* GrAALinearizingConvexPathRenderer.cpp in Sources */,
+				EA656401A97B00D1CBFA5901 /* GrAAConvexTessellator.cpp in Sources */,
+				5255ECA238B61695234CB557 /* GrAADistanceFieldPathRenderer.cpp in Sources */,
+				85A1D765B7422873D1E4619B /* GrAAConvexPathRenderer.cpp in Sources */,
+				5D396A13075CED303C8207E5 /* GrAAFillRectBatch.cpp in Sources */,
+				1D15473CA18A0285AB4C675C /* GrAAStrokeRectBatch.cpp in Sources */,
+				521942E9A8F35460E2BB97B2 /* GrBatch.cpp in Sources */,
+				C194418D789E33C7A6D7308A /* GrCopySurfaceBatch.cpp in Sources */,
+				6E7F782C4C931B4903E64276 /* GrDashLinePathRenderer.cpp in Sources */,
+				74A63BF459A821861CF1F24D /* GrDefaultPathRenderer.cpp in Sources */,
+				7BA032F87F334752168152A8 /* GrDrawBatch.cpp in Sources */,
+				0D81B1080D7880FC718826B5 /* GrDrawAtlasBatch.cpp in Sources */,
+				24BAE8F15E4D0E79DF11E3F5 /* GrDrawPathBatch.cpp in Sources */,
+				4F43F3E46924B2B17EB80E0B /* GrDrawVerticesBatch.cpp in Sources */,
+				2F96834248014DD6BB92CB67 /* GrNonAAFillRectBatch.cpp in Sources */,
+				21EF044487160F8109EAE2C7 /* GrNonAAStrokeRectBatch.cpp in Sources */,
+				7FEC8AD396118633E08F040D /* GrRectBatchFactory.cpp in Sources */,
+				8FA7F770120A76776DBA49D0 /* GrStencilAndCoverPathRenderer.cpp in Sources */,
+				3C65B052DC3A54BBFD245833 /* GrTessellatingPathRenderer.cpp in Sources */,
+				1CC9661A0C60EC8EEC86634E /* GrVertexBatch.cpp in Sources */,
+				A4D8A22431728C496B2E5A68 /* GrConfigConversionEffect.cpp in Sources */,
+				8E1F8C6BF014A59726D3A695 /* GrConstColorProcessor.cpp in Sources */,
+				38B8C02D49B5A70458AC23D5 /* GrCoverageSetOpXP.cpp in Sources */,
+				EF79FD930B411A49552977C7 /* GrCustomXfermode.cpp in Sources */,
+				94166FF71948E0B2D5C80C07 /* GrBezierEffect.cpp in Sources */,
+				8B3A3FBA17E1544E45053A69 /* GrConvolutionEffect.cpp in Sources */,
+				CD14B875ED65C0D2B18B0302 /* GrConvexPolyEffect.cpp in Sources */,
+				6A402B9DE023C53F16B1E755 /* GrBicubicEffect.cpp in Sources */,
+				BF23710269908BA74B226349 /* GrBitmapTextGeoProc.cpp in Sources */,
+				0FDE0D36793BC83E0AE1D1DA /* GrDashingEffect.cpp in Sources */,
+				42E8B123799FEEF48F9DD846 /* GrDisableColorXP.cpp in Sources */,
+				EC49E03CAB6120E2781CB172 /* GrDistanceFieldGeoProc.cpp in Sources */,
+				166200175294F372DF82DA81 /* GrDitherEffect.cpp in Sources */,
+				D733115F24F4A01EDDD9D167 /* GrMatrixConvolutionEffect.cpp in Sources */,
+				F1D5E85D4FDC8E968A08C022 /* GrOvalEffect.cpp in Sources */,
+				FFE51B8D566ED7D3CB3E9AFF /* GrPorterDuffXferProcessor.cpp in Sources */,
+				9473379020C360DD693F7B6F /* GrRRectEffect.cpp in Sources */,
+				05FC0BBCFC0BDDF0AF5E13A0 /* GrSimpleTextureEffect.cpp in Sources */,
+				207E78F56A6415E1F8477345 /* GrSingleTextureEffect.cpp in Sources */,
+				1ED9D13BA3FDC8C6AD3455D0 /* GrTextureDomain.cpp in Sources */,
+				DC429647358FEB94AD2ACBE5 /* GrTextureStripAtlas.cpp in Sources */,
+				46D0D8E18C65A5535439C02E /* GrXfermodeFragmentProcessor.cpp in Sources */,
+				B828C1404FBC0B964AD15080 /* GrYUVtoRGBEffect.cpp in Sources */,
+				F411758C0B081B6C5D505C19 /* GrGLAssembleInterface.cpp in Sources */,
+				67CADBBBA6EC507318604FC9 /* GrGLSLBlend.cpp in Sources */,
+				19DF139AAEEC735932889B14 /* GrGLBufferImpl.cpp in Sources */,
+				BF8F36E92F336DDED213A45D /* GrGLCaps.cpp in Sources */,
+				0ECC4593E37F6C80AC70FFC7 /* GrGLContext.cpp in Sources */,
+				542CC7354BEA655CF2E61CFE /* GrGLGeometryProcessor.cpp in Sources */,
+				45E07B09F6373AEF244125A9 /* GrGLGLSL.cpp in Sources */,
+				450BD402CCA949D84BF47C7A /* GrGLGpu.cpp in Sources */,
+				AB78F3C4E6687BB4D146FA9D /* GrGLGpuProgramCache.cpp in Sources */,
+				3A536B28CBB225D2D0D3D65F /* GrGLExtensions.cpp in Sources */,
+				B8ED7A1D7345D4EFB5BC8D46 /* GrGLFragmentProcessor.cpp in Sources */,
+				5EC98A65E7FA15DD624BA1DB /* GrGLIndexBuffer.cpp in Sources */,
+				28291A5F3D4FB994AA2E5CF0 /* GrGLInterface.cpp in Sources */,
+				D0BC2B1955FD030AE53F8C22 /* GrGLNameAllocator.cpp in Sources */,
+				A09736E18367D5130CC9DA50 /* GrGLNoOpInterface.cpp in Sources */,
+				913705B286CE4CD14D99D779 /* GrGLPath.cpp in Sources */,
+				E6F4FA5CA7D0C4E3673A2489 /* GrGLPathRange.cpp in Sources */,
+				81737C26A5570378688B8D4B /* GrGLPathRendering.cpp in Sources */,
+				B008612763575DBEB7F7E0F5 /* GrGLPrimitiveProcessor.cpp in Sources */,
+				7D9F10FBF855E635DF38739D /* GrGLProgram.cpp in Sources */,
+				D77A306B688B3BD672F02774 /* GrGLProgramDesc.cpp in Sources */,
+				3FC453AF299717BB919F3EF2 /* GrGLProgramDataManager.cpp in Sources */,
+				ED4D0B07DD1DE150D13DC669 /* GrGLRenderTarget.cpp in Sources */,
+				91E2C0962DA2C9430FE5FBE5 /* GrGLStencilAttachment.cpp in Sources */,
+				2D0228400AD0DC89044C62D4 /* GrGLTexture.cpp in Sources */,
+				9461149D3554BB4860624955 /* GrGLTextureRenderTarget.cpp in Sources */,
+				BDC715E6584523EA1B5E8D79 /* GrGLUtil.cpp in Sources */,
+				F49A231D5C64ABF6CD93534E /* GrGLVertexArray.cpp in Sources */,
+				40FFCBF01027647091411350 /* GrGLVertexBuffer.cpp in Sources */,
+				D7B7C4ACBF83A9F36B1460AF /* GrGLXferProcessor.cpp in Sources */,
+				A0A7C583FF94EE8E6E38EBF8 /* GrGLProgramBuilder.cpp in Sources */,
+				2AC9E03330F87A59311C65A0 /* GrGLShaderBuilder.cpp in Sources */,
+				A0F358A7ED18566FC9B0C00D /* GrGLShaderStringBuilder.cpp in Sources */,
+				7B28DE39C0AADAE398E2DD2F /* GrGLSLPrettyPrint.cpp in Sources */,
+				15D32D6E4DB49CB99FB462E4 /* GrGLVertexShaderBuilder.cpp in Sources */,
+				A6E279E9BCB315661F27E180 /* GrGLFragmentShaderBuilder.cpp in Sources */,
+				70E3292E9B1E87DFAF3E6935 /* GrGLGeometryShaderBuilder.cpp in Sources */,
+				A827844E94B4E1BC3191F993 /* GrGLSLCaps.cpp in Sources */,
+				C8941382ED8C23114EA75481 /* GrGLSL.cpp in Sources */,
+				2AA92406E62544F3AED7DC81 /* SkGpuDevice.cpp in Sources */,
+				CD50427738C415C4279D41F0 /* SkGr.cpp in Sources */,
+				120F50D08F9416997BF3A5A6 /* SkGrPixelRef.cpp in Sources */,
+				92FBA2C59B1B9B090ADF9365 /* SkGrTexturePixelRef.cpp in Sources */,
+				7E15C5C8AF0C17EDDE4C3755 /* SkImage_Gpu.cpp in Sources */,
+				D5A8C5EE9429FF0A059BA959 /* SkSurface_Gpu.cpp in Sources */,
+				475429CFAECCDDB5959680C7 /* SkGLContext.cpp in Sources */,
+				31B4449D7BB09750F3A70057 /* GrGLDefaultInterface_native.cpp in Sources */,
+				7D127834EAC2B2922EC79372 /* GrGLCreateDebugInterface.cpp in Sources */,
+				C6DCF91B1CB1E22ADCEB59BE /* GrBufferObj.cpp in Sources */,
+				4C1DCE9244C704E099D0B36E /* GrTextureObj.cpp in Sources */,
+				C39E422839D33BBC55AD0BDD /* GrTextureUnitObj.cpp in Sources */,
+				192274A19C865F62E241932A /* GrFrameBufferObj.cpp in Sources */,
+				BDE575287552AFD5AEE25933 /* GrShaderObj.cpp in Sources */,
+				E017BBB85CBEA95788F81E3F /* GrProgramObj.cpp in Sources */,
+				D26E369413DB69F825A63845 /* GrDebugGL.cpp in Sources */,
+				7DD043C97340D14F51FDEED9 /* SkDebugGLContext.cpp in Sources */,
+				B5AC2149C8A93E6152449791 /* GrGLCreateNullInterface.cpp in Sources */,
+				86609368E28E30684B9E7B69 /* SkNullGLContext.cpp in Sources */,
+				FD82C3C03D222509C0B419CD /* SkBorder.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0FAD4DA19EA642C4F50A2AB6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"GR_CHROME_UTILS=1",
+					"SK_EGL=0",
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../src/core,
+					../src/gpu,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/utils,
+					../src/utils,
+					../third_party/etc1,
+					../third_party/ktx,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgpu;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		2E95F828819885CED08FB2C7 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"GR_CHROME_UTILS=1",
+					"SK_EGL=0",
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../src/core,
+					../src/gpu,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/utils,
+					../src/utils,
+					../third_party/etc1,
+					../third_party/ktx,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgpu;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		3F99D18E89123E2864BB596A /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		522BAA9A59B1747B04D7D237 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"GR_CHROME_UTILS=1",
+					"SK_EGL=0",
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../src/core,
+					../src/gpu,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/utils,
+					../src/utils,
+					../third_party/etc1,
+					../third_party/ktx,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgpu;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		79EAD305AE0CB63279F1E902 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		89FE3EF8426F70E1B1FDEE93 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		8F7D99533E6F125686BAA48C /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"GR_CHROME_UTILS=1",
+					"SK_EGL=0",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					../include/gpu,
+					../include/private,
+					../src/core,
+					../src/gpu,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/utils,
+					../src/utils,
+					../third_party/etc1,
+					../third_party/ktx,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_skgpu;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		9A990D0984CB1607D3626DB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CEC04DA467B1591D605A66B6 /* Build configuration list for PBXNativeTarget "skgpu" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F7D99533E6F125686BAA48C /* Coverage */,
+				0FAD4DA19EA642C4F50A2AB6 /* Debug */,
+				522BAA9A59B1747B04D7D237 /* Release */,
+				2E95F828819885CED08FB2C7 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		FC8337C282328CD60830B3F0 /* Build configuration list for PBXProject "gpu" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				79EAD305AE0CB63279F1E902 /* Coverage */,
+				89FE3EF8426F70E1B1FDEE93 /* Debug */,
+				9A990D0984CB1607D3626DB1 /* Release */,
+				3F99D18E89123E2864BB596A /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E45EB760EE700C1653971341 /* Project object */;
+}

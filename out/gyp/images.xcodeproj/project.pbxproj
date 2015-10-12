@@ -1,0 +1,742 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01F3E3340B6EEBAD43C5A0B1 /* SkDecodingImageGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 49E4126AC90B3DE57C0AC66B /* SkDecodingImageGenerator.cpp */; };
+		095915B9FCA5939EB0589345 /* SkImageEncoder_argb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AC90833BFF905C83607B541 /* SkImageEncoder_argb.cpp */; };
+		15F416C1C17D4E9F05A88445 /* SkImageEncoder_Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25FB0A38A18058A528A3348A /* SkImageEncoder_Factory.cpp */; };
+		1C39F370364200A5090E0CB2 /* SkForceLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9EB9CCF5DE5552315BF9E6A /* SkForceLinking.cpp */; };
+		21E7ADA36F3EE6EC0D7B8AB1 /* SkImageDecoder_libjpeg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 589AC7B093BD660098E5623D /* SkImageDecoder_libjpeg.cpp */; };
+		3B1E863FEBC259272DA66118 /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FA21BD94654CDAD797EDBF4 /* SkImageDecoder_CG.cpp */; };
+		44355BCAF65FC76D3249CA0E /* SkImageDecoder_FactoryRegistrar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A41EE93724ECF768888F8C1 /* SkImageDecoder_FactoryRegistrar.cpp */; };
+		5907E02D276B4EE1D629BAB0 /* SkScaledBitmapSampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D68D63F4BD2E48F107F60B54 /* SkScaledBitmapSampler.cpp */; };
+		68111DE590D0DC3B0EFCBA79 /* SkImageGenerator_skia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19187A0E8E1A8488AEF00C17 /* SkImageGenerator_skia.cpp */; };
+		75CEF57D58B691ADD257CC0C /* SkJpegUtility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592A046855B85B2E94EEBDEE /* SkJpegUtility.cpp */; };
+		7918F45D60FC15EF4641865A /* SkImageDecoder_wbmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 876AB1E494AE134D65AEA101 /* SkImageDecoder_wbmp.cpp */; };
+		79236A8321029424E4A97F97 /* SkImageEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76ED1153DFDC574409ADC26B /* SkImageEncoder.cpp */; };
+		7C1FF5213ED7895D2B97AA70 /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA1D075DE3F9C9844C003FD /* SkMovie.cpp */; };
+		9AE64A809DBCB99EE0CE4E12 /* SkImageDecoder_astc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5849B1554AED228EB949DE3 /* SkImageDecoder_astc.cpp */; };
+		9AFBF1E6268244AD32E29C22 /* SkImageDecoder_libbmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4854C13CD47F0C10CD81752B /* SkImageDecoder_libbmp.cpp */; };
+		A0B4D1459EC49317512956D5 /* SkImageDecoder_libico.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 293126865B91FE4612DCE411 /* SkImageDecoder_libico.cpp */; };
+		A728943077760D8AF68D2796 /* bmpdecoderhelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B827DB0177F9401697E7DA1 /* bmpdecoderhelper.cpp */; };
+		A75A7173FC06DA89A401C1A3 /* SkImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C0E2BAED2B8B71E40726C887 /* SkImageDecoder.cpp */; };
+		B323E19E60B4359AC06C922F /* SkImageDecoder_pkm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 68CCCAF69A50D939A4CBFF79 /* SkImageDecoder_pkm.cpp */; };
+		D620DE4B19D668975522A30B /* SkImageDecoder_libwebp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D70B5458016CFE846D7A2F4 /* SkImageDecoder_libwebp.cpp */; };
+		E9BBD5FF75857B9F2ED70219 /* SkImageDecoder_ktx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E626DAAFCE093385B561B7F7 /* SkImageDecoder_ktx.cpp */; };
+		FA95EF231207C07943A02A03 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 899428806515A91852CE59F3 /* SkPageFlipper.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2225F8B77993E068B414115A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 48175D1FF8639EC962F81D8E;
+			remoteInfo = libwebp;
+		};
+		22661C8ABE6D7F50EA52AF90 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E625E8468BCB0C9A3AC8E603;
+			remoteInfo = libwebp_dec;
+		};
+		46CD92547831DB0AA42C86B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 71A8D3236F1441455DC926FD;
+			remoteInfo = libwebp_enc;
+		};
+		4BE34F6C8F230536A4B7DCC4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 19B76369DDF015E4A37C4F1D;
+			remoteInfo = libwebp_utils;
+		};
+		538075324037A4B1061CA0C8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2D54F7D86C905479556DB62D;
+			remoteInfo = libwebp_demux;
+		};
+		809E0E278576919EED161092 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3F107807570C4069BB96BE25;
+			remoteInfo = libwebp_dsp;
+		};
+		C8AAFD503B151AD1B1754FF7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5CD5E1D3003869662AF52285;
+			remoteInfo = libwebp_dsp_enc;
+		};
+		CC88AE5355BCE25574BA35E1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B23F1F5D2FEFDE58FC20E40F;
+			remoteInfo = libjpeg;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		01F2721B0A2F9478C62C4C2A /* SkImageDecoder_FactoryDefault.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_FactoryDefault.cpp; sourceTree = "<group>"; };
+		024EF40B939C667779BA3926 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		19187A0E8E1A8488AEF00C17 /* SkImageGenerator_skia.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageGenerator_skia.cpp; sourceTree = "<group>"; };
+		1A41EE93724ECF768888F8C1 /* SkImageDecoder_FactoryRegistrar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_FactoryRegistrar.cpp; sourceTree = "<group>"; };
+		20015AA0A30BEC6B7080AD45 /* images.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = images.gyp; sourceTree = "<group>"; };
+		20382B135C311B8A2979F19E /* SkImageDecoder_libgif.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_libgif.cpp; sourceTree = "<group>"; };
+		25FB0A38A18058A528A3348A /* SkImageEncoder_Factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageEncoder_Factory.cpp; sourceTree = "<group>"; };
+		293126865B91FE4612DCE411 /* SkImageDecoder_libico.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_libico.cpp; sourceTree = "<group>"; };
+		2AC90833BFF905C83607B541 /* SkImageEncoder_argb.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageEncoder_argb.cpp; sourceTree = "<group>"; };
+		2B7F6EA037581669AB16F9C2 /* SkImageDecoder_libpng.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_libpng.cpp; sourceTree = "<group>"; };
+		2F949B9DEA68B97A5675478A /* SkPageFlipper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPageFlipper.h; sourceTree = "<group>"; };
+		3822E1C78B6C1795DC2A48B8 /* libskia_images.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_images.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		3ACE0CBF8F5C2507CFBE2F90 /* SkForceLinking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkForceLinking.h; sourceTree = "<group>"; };
+		3B0E5E0BFBE8F69A42414E53 /* SkMovie.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkMovie.h; sourceTree = "<group>"; };
+		4854C13CD47F0C10CD81752B /* SkImageDecoder_libbmp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_libbmp.cpp; sourceTree = "<group>"; };
+		49D627C0AB960A5972FE9D8A /* SkMovie_gif.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMovie_gif.cpp; sourceTree = "<group>"; };
+		49E4126AC90B3DE57C0AC66B /* SkDecodingImageGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDecodingImageGenerator.cpp; sourceTree = "<group>"; };
+		4B827DB0177F9401697E7DA1 /* bmpdecoderhelper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bmpdecoderhelper.cpp; sourceTree = "<group>"; };
+		4D70B5458016CFE846D7A2F4 /* SkImageDecoder_libwebp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_libwebp.cpp; sourceTree = "<group>"; };
+		589AC7B093BD660098E5623D /* SkImageDecoder_libjpeg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_libjpeg.cpp; sourceTree = "<group>"; };
+		592A046855B85B2E94EEBDEE /* SkJpegUtility.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkJpegUtility.cpp; sourceTree = "<group>"; };
+		63545228FBC4F2B30EF8FB72 /* bmpdecoderhelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bmpdecoderhelper.h; sourceTree = "<group>"; };
+		68CCCAF69A50D939A4CBFF79 /* SkImageDecoder_pkm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_pkm.cpp; sourceTree = "<group>"; };
+		7588031DCF2EE09C5CCBDC64 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		76ED1153DFDC574409ADC26B /* SkImageEncoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageEncoder.cpp; sourceTree = "<group>"; };
+		876AB1E494AE134D65AEA101 /* SkImageDecoder_wbmp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_wbmp.cpp; sourceTree = "<group>"; };
+		8915318303C05A85F0EACB90 /* SkJpegUtility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkJpegUtility.h; sourceTree = "<group>"; };
+		899428806515A91852CE59F3 /* SkPageFlipper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPageFlipper.cpp; sourceTree = "<group>"; };
+		947C74B4D0D63B271B324921 /* libwebp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libwebp.xcodeproj; path = ../out/gyp/libwebp.xcodeproj; sourceTree = SOURCE_ROOT; };
+		9C72C571F95E6F9529654135 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		9FA21BD94654CDAD797EDBF4 /* SkImageDecoder_CG.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_CG.cpp; sourceTree = "<group>"; };
+		A33B2EC16CA7D3A754A671B4 /* SkScaledBitmapSampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkScaledBitmapSampler.h; sourceTree = "<group>"; };
+		B1BE189956008B6900607F49 /* SkDecodingImageGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDecodingImageGenerator.h; sourceTree = "<group>"; };
+		B5849B1554AED228EB949DE3 /* SkImageDecoder_astc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_astc.cpp; sourceTree = "<group>"; };
+		B9EB9CCF5DE5552315BF9E6A /* SkForceLinking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkForceLinking.cpp; sourceTree = "<group>"; };
+		C0E2BAED2B8B71E40726C887 /* SkImageDecoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder.cpp; sourceTree = "<group>"; };
+		CF7679EB357FC8C39FC3ADD5 /* SkImageDecoder_WIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_WIC.cpp; sourceTree = "<group>"; };
+		D68D63F4BD2E48F107F60B54 /* SkScaledBitmapSampler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkScaledBitmapSampler.cpp; sourceTree = "<group>"; };
+		E626DAAFCE093385B561B7F7 /* SkImageDecoder_ktx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_ktx.cpp; sourceTree = "<group>"; };
+		EAA1D075DE3F9C9844C003FD /* SkMovie.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMovie.cpp; sourceTree = "<group>"; };
+		F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libjpeg.xcodeproj; path = ../out/gyp/libjpeg.xcodeproj; sourceTree = SOURCE_ROOT; };
+		F746C9CB2E37CF1C3B992CEB /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F501CF9620E521CBFFEAC249 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0648FF5C8E952084DE1B27D7 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				49E4126AC90B3DE57C0AC66B /* SkDecodingImageGenerator.cpp */,
+				B9EB9CCF5DE5552315BF9E6A /* SkForceLinking.cpp */,
+				C0E2BAED2B8B71E40726C887 /* SkImageDecoder.cpp */,
+				01F2721B0A2F9478C62C4C2A /* SkImageDecoder_FactoryDefault.cpp */,
+				1A41EE93724ECF768888F8C1 /* SkImageDecoder_FactoryRegistrar.cpp */,
+				B5849B1554AED228EB949DE3 /* SkImageDecoder_astc.cpp */,
+				E626DAAFCE093385B561B7F7 /* SkImageDecoder_ktx.cpp */,
+				4854C13CD47F0C10CD81752B /* SkImageDecoder_libbmp.cpp */,
+				20382B135C311B8A2979F19E /* SkImageDecoder_libgif.cpp */,
+				293126865B91FE4612DCE411 /* SkImageDecoder_libico.cpp */,
+				589AC7B093BD660098E5623D /* SkImageDecoder_libjpeg.cpp */,
+				2B7F6EA037581669AB16F9C2 /* SkImageDecoder_libpng.cpp */,
+				4D70B5458016CFE846D7A2F4 /* SkImageDecoder_libwebp.cpp */,
+				68CCCAF69A50D939A4CBFF79 /* SkImageDecoder_pkm.cpp */,
+				876AB1E494AE134D65AEA101 /* SkImageDecoder_wbmp.cpp */,
+				76ED1153DFDC574409ADC26B /* SkImageEncoder.cpp */,
+				25FB0A38A18058A528A3348A /* SkImageEncoder_Factory.cpp */,
+				2AC90833BFF905C83607B541 /* SkImageEncoder_argb.cpp */,
+				592A046855B85B2E94EEBDEE /* SkJpegUtility.cpp */,
+				8915318303C05A85F0EACB90 /* SkJpegUtility.h */,
+				EAA1D075DE3F9C9844C003FD /* SkMovie.cpp */,
+				49D627C0AB960A5972FE9D8A /* SkMovie_gif.cpp */,
+				899428806515A91852CE59F3 /* SkPageFlipper.cpp */,
+				D68D63F4BD2E48F107F60B54 /* SkScaledBitmapSampler.cpp */,
+				A33B2EC16CA7D3A754A671B4 /* SkScaledBitmapSampler.h */,
+				4B827DB0177F9401697E7DA1 /* bmpdecoderhelper.cpp */,
+				63545228FBC4F2B30EF8FB72 /* bmpdecoderhelper.h */,
+			);
+			path = images;
+			sourceTree = "<group>";
+		};
+		248EBA41BCCCD88E71D994CF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3822E1C78B6C1795DC2A48B8 /* libskia_images.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3B47B8B3BEE47F4FE399CB9B /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */,
+				947C74B4D0D63B271B324921 /* libwebp.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		51507869E5A8BCCAF2EB7A63 /* include/images */ = {
+			isa = PBXGroup;
+			children = (
+				B1BE189956008B6900607F49 /* SkDecodingImageGenerator.h */,
+				3ACE0CBF8F5C2507CFBE2F90 /* SkForceLinking.h */,
+				3B0E5E0BFBE8F69A42414E53 /* SkMovie.h */,
+				2F949B9DEA68B97A5675478A /* SkPageFlipper.h */,
+			);
+			path = include/images;
+			sourceTree = "<group>";
+		};
+		57E084339549F463C650549F /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				51507869E5A8BCCAF2EB7A63 /* include/images */,
+				D2AD04FF889C7D01F282353D /* src */,
+			);
+			name = Source;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		A6C1E38A92C02A1E4BA59229 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				024EF40B939C667779BA3926 /* common.gypi */,
+				7588031DCF2EE09C5CCBDC64 /* common_conditions.gypi */,
+				F746C9CB2E37CF1C3B992CEB /* common_variables.gypi */,
+				20015AA0A30BEC6B7080AD45 /* images.gyp */,
+				9C72C571F95E6F9529654135 /* skia_for_android_framework_defines.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+		AEEE95E6EE78C9F84721D155 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F157973ECDA6AD1464795582 /* libwebp_dec.a */,
+				75FAB1406F87C90E38A36BFA /* libwebp_demux.a */,
+				A2CD262C48692F5F4B625A49 /* libwebp_dsp.a */,
+				87618B9FBF8C0479DBDA5B5B /* libwebp_dsp_enc.a */,
+				3EF69DC119F7970FCD72B268 /* libwebp_enc.a */,
+				379C8F2D8EB04C85802D7B0B /* libwebp_utils.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BEF8E62D986F08370031B1A0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D2AD04FF889C7D01F282353D /* src */ = {
+			isa = PBXGroup;
+			children = (
+				0648FF5C8E952084DE1B27D7 /* images */,
+				FF37F73DBE5D525368DF4FEE /* ports */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		FD56A47878CA02263945824E = {
+			isa = PBXGroup;
+			children = (
+				57E084339549F463C650549F /* Source */,
+				3B47B8B3BEE47F4FE399CB9B /* Projects */,
+				248EBA41BCCCD88E71D994CF /* Products */,
+				A6C1E38A92C02A1E4BA59229 /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		FF37F73DBE5D525368DF4FEE /* ports */ = {
+			isa = PBXGroup;
+			children = (
+				9FA21BD94654CDAD797EDBF4 /* SkImageDecoder_CG.cpp */,
+				CF7679EB357FC8C39FC3ADD5 /* SkImageDecoder_WIC.cpp */,
+				19187A0E8E1A8488AEF00C17 /* SkImageGenerator_skia.cpp */,
+			);
+			path = ports;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A48FDCBAFF0B3D6F97E7AD5 /* images */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E28168BCCFBCC14B3FFAA6FA /* Build configuration list for PBXNativeTarget "images" */;
+			buildPhases = (
+				6D88B972D9A110CDAA03CA0C /* Sources */,
+				F501CF9620E521CBFFEAC249 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CAF5BEE0F04065C5517A7EED /* PBXTargetDependency */,
+				E7C1FD019EC250EE7A703BD0 /* PBXTargetDependency */,
+			);
+			name = images;
+			productName = skia_images;
+			productReference = 3822E1C78B6C1795DC2A48B8 /* libskia_images.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		683876EE9971686FE15005A9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 2AB099DFE398552C70C57491 /* Build configuration list for PBXProject "images" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = FD56A47878CA02263945824E;
+			projectDirPath = ../../gyp;
+			projectReferences = (
+				{
+					ProductGroup = BEF8E62D986F08370031B1A0 /* Products */;
+					ProjectRef = F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */;
+				},
+				{
+					ProductGroup = AEEE95E6EE78C9F84721D155 /* Products */;
+					ProjectRef = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				0A48FDCBAFF0B3D6F97E7AD5 /* images */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		379C8F2D8EB04C85802D7B0B /* libwebp_utils.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebp_utils.a;
+			remoteRef = 4BE34F6C8F230536A4B7DCC4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3EF69DC119F7970FCD72B268 /* libwebp_enc.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebp_enc.a;
+			remoteRef = 46CD92547831DB0AA42C86B6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		75FAB1406F87C90E38A36BFA /* libwebp_demux.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebp_demux.a;
+			remoteRef = 538075324037A4B1061CA0C8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		87618B9FBF8C0479DBDA5B5B /* libwebp_dsp_enc.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebp_dsp_enc.a;
+			remoteRef = C8AAFD503B151AD1B1754FF7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A2CD262C48692F5F4B625A49 /* libwebp_dsp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebp_dsp.a;
+			remoteRef = 809E0E278576919EED161092 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F157973ECDA6AD1464795582 /* libwebp_dec.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebp_dec.a;
+			remoteRef = 22661C8ABE6D7F50EA52AF90 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6D88B972D9A110CDAA03CA0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A728943077760D8AF68D2796 /* bmpdecoderhelper.cpp in Sources */,
+				01F3E3340B6EEBAD43C5A0B1 /* SkDecodingImageGenerator.cpp in Sources */,
+				1C39F370364200A5090E0CB2 /* SkForceLinking.cpp in Sources */,
+				A75A7173FC06DA89A401C1A3 /* SkImageDecoder.cpp in Sources */,
+				44355BCAF65FC76D3249CA0E /* SkImageDecoder_FactoryRegistrar.cpp in Sources */,
+				7918F45D60FC15EF4641865A /* SkImageDecoder_wbmp.cpp in Sources */,
+				B323E19E60B4359AC06C922F /* SkImageDecoder_pkm.cpp in Sources */,
+				E9BBD5FF75857B9F2ED70219 /* SkImageDecoder_ktx.cpp in Sources */,
+				9AE64A809DBCB99EE0CE4E12 /* SkImageDecoder_astc.cpp in Sources */,
+				9AFBF1E6268244AD32E29C22 /* SkImageDecoder_libbmp.cpp in Sources */,
+				A0B4D1459EC49317512956D5 /* SkImageDecoder_libico.cpp in Sources */,
+				D620DE4B19D668975522A30B /* SkImageDecoder_libwebp.cpp in Sources */,
+				21E7ADA36F3EE6EC0D7B8AB1 /* SkImageDecoder_libjpeg.cpp in Sources */,
+				79236A8321029424E4A97F97 /* SkImageEncoder.cpp in Sources */,
+				15F416C1C17D4E9F05A88445 /* SkImageEncoder_Factory.cpp in Sources */,
+				095915B9FCA5939EB0589345 /* SkImageEncoder_argb.cpp in Sources */,
+				75CEF57D58B691ADD257CC0C /* SkJpegUtility.cpp in Sources */,
+				7C1FF5213ED7895D2B97AA70 /* SkMovie.cpp in Sources */,
+				FA95EF231207C07943A02A03 /* SkPageFlipper.cpp in Sources */,
+				5907E02D276B4EE1D629BAB0 /* SkScaledBitmapSampler.cpp in Sources */,
+				68111DE590D0DC3B0EFCBA79 /* SkImageGenerator_skia.cpp in Sources */,
+				3B1E863FEBC259272DA66118 /* SkImageDecoder_CG.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CAF5BEE0F04065C5517A7EED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libjpeg;
+			targetProxy = CC88AE5355BCE25574BA35E1 /* PBXContainerItemProxy */;
+		};
+		E7C1FD019EC250EE7A703BD0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libwebp;
+			targetProxy = 2225F8B77993E068B414115A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0D2E4DD7392D5CACF3352EDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		11060FD7D0CD1D16FC9D41BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/images,
+					../include/private,
+					../src/lazy,
+					../src/core/,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../third_party/externals/giflib,
+					"../third_party/externals/libjpeg-turbo/",
+					../third_party/etc1,
+					../third_party/ktx,
+					../third_party/externals/libwebp/src,
+					../include/utils,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_images;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release;
+		};
+		1244F659C5E3CF6D8F527F9A /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		364C54103D04F4B50751ECAC /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/images,
+					../include/private,
+					../src/lazy,
+					../src/core/,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../third_party/externals/giflib,
+					"../third_party/externals/libjpeg-turbo/",
+					../third_party/etc1,
+					../third_party/ktx,
+					../third_party/externals/libwebp/src,
+					../include/utils,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_images;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Coverage;
+		};
+		522CBA77AFD98DA478F6AC0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/images,
+					../include/private,
+					../src/lazy,
+					../src/core/,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../third_party/externals/giflib,
+					"../third_party/externals/libjpeg-turbo/",
+					../third_party/etc1,
+					../third_party/ktx,
+					../third_party/externals/libwebp/src,
+					../include/utils,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_images;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Debug;
+		};
+		84925B07483AE4576F630092 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+		8D1401CE83E383C34E319D27 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		A620CC560376270CB7DBD6BD /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/images,
+					../include/private,
+					../src/lazy,
+					../src/core/,
+					../src/image/,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../third_party/externals/giflib,
+					"../third_party/externals/libjpeg-turbo/",
+					../third_party/etc1,
+					../third_party/ktx,
+					../third_party/externals/libwebp/src,
+					../include/utils,
+					../src/utils,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_images;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+					"-w",
+				);
+			};
+			name = Release_Developer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2AB099DFE398552C70C57491 /* Build configuration list for PBXProject "images" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84925B07483AE4576F630092 /* Coverage */,
+				0D2E4DD7392D5CACF3352EDA /* Debug */,
+				8D1401CE83E383C34E319D27 /* Release */,
+				1244F659C5E3CF6D8F527F9A /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		E28168BCCFBCC14B3FFAA6FA /* Build configuration list for PBXNativeTarget "images" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				364C54103D04F4B50751ECAC /* Coverage */,
+				522CBA77AFD98DA478F6AC0F /* Debug */,
+				11060FD7D0CD1D16FC9D41BF /* Release */,
+				A620CC560376270CB7DBD6BD /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 683876EE9971686FE15005A9 /* Project object */;
+}

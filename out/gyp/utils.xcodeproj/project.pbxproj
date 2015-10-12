@@ -1,0 +1,1165 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		B98D08519024E7FD891968E6 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 2D242B47B3AD3E367362331C /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				A0CFF6ECD85926D782F71501 /* PBXTargetDependency */,
+				B974095157D8B26F7D182F17 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		130C7125AE13CEA0428FD5DC /* SkThreadUtils_pthread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A8D352413567BF29EACDC7BA /* SkThreadUtils_pthread.cpp */; };
+		1D9B6EB52B4788C18C742832 /* SkCreateCGImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D446326F8F69A788B8F01185 /* SkCreateCGImageRef.cpp */; };
+		2A367EE34D4E75AEA1976098 /* SkBitmapHasher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8339441DB86DFBA2B883CE68 /* SkBitmapHasher.cpp */; };
+		36333DE20B1CBA82F7F9FBC5 /* SkBitmapSourceDeserializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B11628C5B94A742B80B13D3A /* SkBitmapSourceDeserializer.cpp */; };
+		36992C410DC07E72517A6FDC /* SkAndroidSDKCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2F8BBF57E83EE2D3D94D9CB0 /* SkAndroidSDKCanvas.cpp */; };
+		37618873CC3078CB7E3C40A0 /* SkTextureCompressor_LATC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 51B87537E57E0CC2BDD7DE18 /* SkTextureCompressor_LATC.cpp */; };
+		3B4EC4E03A607470579410DA /* SkThreadUtils_pthread_mach.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 21D2289109D669E573225AD8 /* SkThreadUtils_pthread_mach.cpp */; };
+		405ED2982B6ADD19EB72045A /* SkTextureCompressor_R11EAC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84AEACE5A9858793D08AC503 /* SkTextureCompressor_R11EAC.cpp */; };
+		41622D348F5D881D57185D55 /* SkRandomScalerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF6A97576EF08CBF477E0AF3 /* SkRandomScalerContext.cpp */; };
+		42916B35D78A3844F51B2CCC /* SkTestScalerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 995DCD63DF46A411E66B90BC /* SkTestScalerContext.cpp */; };
+		45B9B328E6678EF6CE20F0AF /* SkCullPoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22EE2A6D900B5B32D39A4C81 /* SkCullPoints.cpp */; };
+		4888EE139B06117415C012B1 /* SkImageGeneratorUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1DB49305D4294137F17513B4 /* SkImageGeneratorUtils.cpp */; };
+		4FC1B8F2CD6C74642F8BD950 /* SkDumpCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 126AA6BC42EFF8948DA15F04 /* SkDumpCanvas.cpp */; };
+		5B55C3CF996F2AFC9405F939 /* SkRTConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8194F906C47E41E93381BC55 /* SkRTConf.cpp */; };
+		6107B808D31A1F987D08D64D /* SkGScalerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B54479B77DCDD6FB7F1EF76 /* SkGScalerContext.cpp */; };
+		610A047D5466C51991B1D098 /* SkMatrix44.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF6438AF1C138A4A2AEDEACA /* SkMatrix44.cpp */; };
+		639B659CBAE06FD0B1DF10F4 /* SkSHA1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6A2C1608CD8DD74552E94F29 /* SkSHA1.cpp */; };
+		6B53BB76E8494BF3BCF7A1E8 /* SkPatchUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 194F51E694C0BE9F94805041 /* SkPatchUtils.cpp */; };
+		70CB17A972C76B8E57F3F5E2 /* SkCanvasStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4806F877B85537A1D810A51 /* SkCanvasStack.cpp */; };
+		724EB42E4F39D013DE2E625A /* SkCubicInterval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FB5238233837324E28613B4 /* SkCubicInterval.cpp */; };
+		738BB661F2BA6508F5656BDC /* SkTextBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A07E123F9E9633AE4580C8D0 /* SkTextBox.cpp */; };
+		7B923E305FE11929541504CD /* SkLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 647F3C4F037431A86E758ACF /* SkLayer.cpp */; };
+		7CB78B38292A1EF47FEBB178 /* SkWhitelistTypefaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 184E867FF70004D114F74191 /* SkWhitelistTypefaces.cpp */; };
+		80B27BF8163451329516B1CE /* SkInterpolator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A99DA0C0F3530AE066508B /* SkInterpolator.cpp */; };
+		92A989E7B430F0C66CD217E7 /* SkTextureCompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B494CE62226ABE5068A0342 /* SkTextureCompressor.cpp */; };
+		93025E25ED4ECDCF9E7355C4 /* SkNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C83143E1B72B0AFB55C33B4B /* SkNinePatch.cpp */; };
+		972E7A185ED1329356B90C77 /* SkOSFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DECC4CBDB92AC752276AEC67 /* SkOSFile.cpp */; };
+		9A21827B2641ABC7DC06AB22 /* SkEventTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1B6E8764143FE5A75267574B /* SkEventTracer.cpp */; };
+		9BDD37F03B492A7027372B16 /* SkCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F525D07E5CE8967E81160F5B /* SkCamera.cpp */; };
+		9D24BFA06F8892FA7D85D4C9 /* SkBase64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E88FDCBAE51EBD2A3BBF06F8 /* SkBase64.cpp */; };
+		A012EE5678EF0DA46D99C547 /* SkBoundaryPatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E0B6D6A6B64CC88C4450C7 /* SkBoundaryPatch.cpp */; };
+		AC7C2A8F59FA7EA9A6144373 /* SkHwuiRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 390B27359474CA447EE44314 /* SkHwuiRenderer.cpp */; };
+		B02F318BF84E98198694B6C5 /* SkParse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 121A62CF16BC6B80CB85D192 /* SkParse.cpp */; };
+		BBA900968923534E8E414489 /* SkDashPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B88826DE03D8D298AD81E226 /* SkDashPath.cpp */; };
+		C0833DAACE7261583C59939A /* SkParseColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3C27593F36DEBB341A43A59 /* SkParseColor.cpp */; };
+		C5AC075864A074B3A0CD18B4 /* SkBitSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 196B8DF63D0921E59B8C5C45 /* SkBitSet.cpp */; };
+		C61A8DD2BEE42D496074E85E /* SkNullCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C30B108E0BB92278E899267 /* SkNullCanvas.cpp */; };
+		D3BE68343FC0DD1E10CB7B11 /* SkTextureCompressor_ASTC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3090657C8B05E8230744A417 /* SkTextureCompressor_ASTC.cpp */; };
+		D9EC335B40A5A0C5B75173C8 /* SkMatrix22.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6D752DABB2E1BBF76344627A /* SkMatrix22.cpp */; };
+		E577F8723F7466AE64013FB0 /* SkMD5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AF6E0D4FF8A4D18E1708F7E /* SkMD5.cpp */; };
+		E658D40770FE725C160A8272 /* SkNWayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1005211878D4780DC97E2C85 /* SkNWayCanvas.cpp */; };
+		E732CAC15CA708290B04C43E /* SkFrontBufferedStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C53E8B40F135FE4CE2D97E64 /* SkFrontBufferedStream.cpp */; };
+		EA3B0ADEA18F3774D2E783A7 /* SkCanvasStateUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C0949A80AECC07E05F74372 /* SkCanvasStateUtils.cpp */; };
+		ECB25E74EA295EE2AE03B2A9 /* SkMeshUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44A6AAB3B152682B8BEDFC2C /* SkMeshUtils.cpp */; };
+		EE927670B312628669399417 /* SkPatchGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED29B720575858CDE9C9B5C2 /* SkPatchGrid.cpp */; };
+		F6B8873F9B0CA3D1776D6270 /* SkParsePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 080726749C2672EFFC02F622 /* SkParsePath.cpp */; };
+		FAC9CD42179C8FD9A11A142F /* SkPaintFilterCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28BBF38FFF8ABADE4977E272 /* SkPaintFilterCanvas.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		827EAB5545B76F7DABA86923 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9236069D6EB0E6A006256604 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7364408688F1A6434987562A;
+			remoteInfo = utils;
+		};
+		85CB9BB2137113BAFC503631 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9236069D6EB0E6A006256604 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FCE95716074F38486A2AAB5;
+			remoteInfo = android_utils;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		000AE59C48765EB03C73E805 /* SkMD5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkMD5.h; sourceTree = "<group>"; };
+		046C4E713953E42424BEDE48 /* skia_for_android_framework_defines.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = skia_for_android_framework_defines.gypi; sourceTree = "<group>"; };
+		06EAF140CFCAA08544BC3D9C /* SkNinePatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkNinePatch.h; sourceTree = "<group>"; };
+		080726749C2672EFFC02F622 /* SkParsePath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkParsePath.cpp; sourceTree = "<group>"; };
+		0B0D3D3D370A694212E533F9 /* SkFrontBufferedStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFrontBufferedStream.h; sourceTree = "<group>"; };
+		0B494CE62226ABE5068A0342 /* SkTextureCompressor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTextureCompressor.cpp; sourceTree = "<group>"; };
+		0C45C69FCD2319D98BAD2EAE /* SkAndroidSDKCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkAndroidSDKCanvas.h; sourceTree = "<group>"; };
+		1005211878D4780DC97E2C85 /* SkNWayCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkNWayCanvas.cpp; sourceTree = "<group>"; };
+		10AB6A3B4EF1FCCBCAB156C9 /* SkHRESULT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkHRESULT.h; sourceTree = "<group>"; };
+		11489FECA9A8C16F7E10E19B /* SkThreadUtils_pthread_linux.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkThreadUtils_pthread_linux.cpp; sourceTree = "<group>"; };
+		121A62CF16BC6B80CB85D192 /* SkParse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkParse.cpp; sourceTree = "<group>"; };
+		124C6BA3D444BF5E52525497 /* SkAutoCoInitialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkAutoCoInitialize.h; sourceTree = "<group>"; };
+		126AA6BC42EFF8948DA15F04 /* SkDumpCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDumpCanvas.cpp; sourceTree = "<group>"; };
+		14A5EC0581D15CEB11AAC4FB /* SkThreadUtils_pthread_other.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkThreadUtils_pthread_other.cpp; sourceTree = "<group>"; };
+		16167A0E81AC78662DBEEBD3 /* SkDWrite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDWrite.h; sourceTree = "<group>"; };
+		184E867FF70004D114F74191 /* SkWhitelistTypefaces.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkWhitelistTypefaces.cpp; sourceTree = "<group>"; };
+		194F51E694C0BE9F94805041 /* SkPatchUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPatchUtils.cpp; sourceTree = "<group>"; };
+		196B8DF63D0921E59B8C5C45 /* SkBitSet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitSet.cpp; sourceTree = "<group>"; };
+		199A0EAEB05A6D3240A49CFA /* SkCanvasStateUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkCanvasStateUtils.h; sourceTree = "<group>"; };
+		1B6E8764143FE5A75267574B /* SkEventTracer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkEventTracer.cpp; sourceTree = "<group>"; };
+		1C30B108E0BB92278E899267 /* SkNullCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkNullCanvas.cpp; sourceTree = "<group>"; };
+		1C361ECB1E62B883FC655570 /* SkCubicInterval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkCubicInterval.h; sourceTree = "<group>"; };
+		1DB49305D4294137F17513B4 /* SkImageGeneratorUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageGeneratorUtils.cpp; sourceTree = "<group>"; };
+		21D2289109D669E573225AD8 /* SkThreadUtils_pthread_mach.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkThreadUtils_pthread_mach.cpp; sourceTree = "<group>"; };
+		22E0B6D6A6B64CC88C4450C7 /* SkBoundaryPatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBoundaryPatch.cpp; sourceTree = "<group>"; };
+		22EE2A6D900B5B32D39A4C81 /* SkCullPoints.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCullPoints.cpp; sourceTree = "<group>"; };
+		2429FD33725F614449B39BDD /* SkEventTracer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkEventTracer.h; sourceTree = "<group>"; };
+		244EF18A47D4DC1F462DF98B /* SkAutoCoInitialize.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkAutoCoInitialize.cpp; sourceTree = "<group>"; };
+		2868C21A78DAD7DB595A34D8 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
+		289F391623A8E71043079829 /* SkSHA1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkSHA1.h; sourceTree = "<group>"; };
+		28BBF38FFF8ABADE4977E272 /* SkPaintFilterCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPaintFilterCanvas.cpp; sourceTree = "<group>"; };
+		2A2E8E5300C5E5A5B64CBD70 /* SkParse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkParse.h; sourceTree = "<group>"; };
+		2E79F0997D1A27AE2DCC843F /* SkTextureCompressor_LATC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTextureCompressor_LATC.h; sourceTree = "<group>"; };
+		2F8BBF57E83EE2D3D94D9CB0 /* SkAndroidSDKCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkAndroidSDKCanvas.cpp; sourceTree = "<group>"; };
+		2FACA0E9F6318A3071CDB25C /* SkDWriteGeometrySink.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDWriteGeometrySink.cpp; sourceTree = "<group>"; };
+		30152FCEF997A9F1656CDF1B /* SkPaintFilterCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPaintFilterCanvas.h; sourceTree = "<group>"; };
+		3090657C8B05E8230744A417 /* SkTextureCompressor_ASTC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTextureCompressor_ASTC.cpp; sourceTree = "<group>"; };
+		353F4B2D95E909CCDCA72F00 /* SkMeshUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkMeshUtils.h; sourceTree = "<group>"; };
+		35B35D70D94E7F377EE3A4FC /* SkPatchGrid.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPatchGrid.h; sourceTree = "<group>"; };
+		35FE9F06E9C35C8D2BF1A46A /* SkWGL_win.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkWGL_win.cpp; sourceTree = "<group>"; };
+		390B27359474CA447EE44314 /* SkHwuiRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkHwuiRenderer.cpp; sourceTree = "<group>"; };
+		428035E313223DFB13FBD4BF /* SkBitSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkBitSet.h; sourceTree = "<group>"; };
+		44A6AAB3B152682B8BEDFC2C /* SkMeshUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMeshUtils.cpp; sourceTree = "<group>"; };
+		48F30F72C88D5BB6735FF0E5 /* SkIStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkIStream.h; sourceTree = "<group>"; };
+		4B54479B77DCDD6FB7F1EF76 /* SkGScalerContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkGScalerContext.cpp; sourceTree = "<group>"; };
+		4E10F3CCB76391131616F6AA /* SkThreadUtils_win.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkThreadUtils_win.cpp; sourceTree = "<group>"; };
+		4F17A244E2CC0EF6DF9ABCA3 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common.gypi; sourceTree = "<group>"; };
+		51B87537E57E0CC2BDD7DE18 /* SkTextureCompressor_LATC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTextureCompressor_LATC.cpp; sourceTree = "<group>"; };
+		55065A7B631B7CAB8DDF4588 /* SkDWriteFontFileStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDWriteFontFileStream.cpp; sourceTree = "<group>"; };
+		558069E8CF4F496EC74015E2 /* SkCanvasStack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkCanvasStack.h; sourceTree = "<group>"; };
+		58C566E41F91578D21DAC955 /* SkCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkCamera.h; sourceTree = "<group>"; };
+		5E9571E280294F3E47E22A35 /* SkMatrix22.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkMatrix22.h; sourceTree = "<group>"; };
+		603AEE46C5943817F92D1171 /* SkTextureCompressor_Blitter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTextureCompressor_Blitter.h; sourceTree = "<group>"; };
+		61557486D05971EEAA846B04 /* SkRandom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkRandom.h; sourceTree = "<group>"; };
+		647F3C4F037431A86E758ACF /* SkLayer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkLayer.cpp; sourceTree = "<group>"; };
+		68FCFB71D5BD2BAC445DBC1A /* SkDumpCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDumpCanvas.h; sourceTree = "<group>"; };
+		6A2C1608CD8DD74552E94F29 /* SkSHA1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkSHA1.cpp; sourceTree = "<group>"; };
+		6AF6E0D4FF8A4D18E1708F7E /* SkMD5.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMD5.cpp; sourceTree = "<group>"; };
+		6C0949A80AECC07E05F74372 /* SkCanvasStateUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCanvasStateUtils.cpp; sourceTree = "<group>"; };
+		6D752DABB2E1BBF76344627A /* SkMatrix22.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMatrix22.cpp; sourceTree = "<group>"; };
+		6EB7C6A4C955592AFCAF5F41 /* libskia_utils.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_utils.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		70D74CE1E107440DE4BC4753 /* SkThreadUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkThreadUtils.h; sourceTree = "<group>"; };
+		76913B1691C443C4B3E9E952 /* SkBoundaryPatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkBoundaryPatch.h; sourceTree = "<group>"; };
+		7719F9ECBAB9CCA12D509577 /* SkDebugUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDebugUtils.h; sourceTree = "<group>"; };
+		787ED3F4589BA94619B8A41D /* SkTFitsIn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTFitsIn.h; sourceTree = "<group>"; };
+		79BBC87122017C8E63145994 /* SkTextureCompressor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTextureCompressor.h; sourceTree = "<group>"; };
+		79F31336D13C1034EB8FB9C6 /* SkRTConf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkRTConf.h; sourceTree = "<group>"; };
+		7D4DA3356C2DFDE6DCF1CEAC /* SkNWayCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkNWayCanvas.h; sourceTree = "<group>"; };
+		7EB42DBF41808B51AD57BF4E /* SkNullCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkNullCanvas.h; sourceTree = "<group>"; };
+		7FB5238233837324E28613B4 /* SkCubicInterval.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCubicInterval.cpp; sourceTree = "<group>"; };
+		7FB95B6C2558232C97A4C259 /* SkBitmapHasher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkBitmapHasher.h; sourceTree = "<group>"; };
+		8194F906C47E41E93381BC55 /* SkRTConf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkRTConf.cpp; sourceTree = "<group>"; };
+		8339441DB86DFBA2B883CE68 /* SkBitmapHasher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapHasher.cpp; sourceTree = "<group>"; };
+		84AEACE5A9858793D08AC503 /* SkTextureCompressor_R11EAC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTextureCompressor_R11EAC.cpp; sourceTree = "<group>"; };
+		8657D3F6F5E734DD3210DCD2 /* SkMatrix44.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkMatrix44.h; sourceTree = "<group>"; };
+		89CB69129B15156E378A1D22 /* SkTextureCompressor_ASTC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTextureCompressor_ASTC.h; sourceTree = "<group>"; };
+		8C8C33F2601549C13FDBC072 /* SkTextureCompressor_Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTextureCompressor_Utils.h; sourceTree = "<group>"; };
+		91CED818E43385E2CFDFD4FE /* utils.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = utils.gypi; sourceTree = "<group>"; };
+		93128E911267D259FE9EDD4E /* SkTextBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTextBox.h; sourceTree = "<group>"; };
+		9539B2417F3E1ACA0C532B29 /* SkTScopedComPtr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTScopedComPtr.h; sourceTree = "<group>"; };
+		981C7F983ACFB56378B2CDDF /* SkGScalerContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkGScalerContext.h; sourceTree = "<group>"; };
+		995DCD63DF46A411E66B90BC /* SkTestScalerContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTestScalerContext.cpp; sourceTree = "<group>"; };
+		9EC39E4D109E668FC48736E4 /* SkParsePaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkParsePaint.h; sourceTree = "<group>"; };
+		A07E123F9E9633AE4580C8D0 /* SkTextBox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkTextBox.cpp; sourceTree = "<group>"; };
+		A2A99DA0C0F3530AE066508B /* SkInterpolator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkInterpolator.cpp; sourceTree = "<group>"; };
+		A70626972C9580DC8DC3711D /* SkDWrite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDWrite.cpp; sourceTree = "<group>"; };
+		A8D352413567BF29EACDC7BA /* SkThreadUtils_pthread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkThreadUtils_pthread.cpp; sourceTree = "<group>"; };
+		AAC4FA2741E83D0D58FFE8F2 /* SkDWriteFontFileStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDWriteFontFileStream.h; sourceTree = "<group>"; };
+		AD2E7CB15D697D5A875EFE6D /* SkCullPoints.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkCullPoints.h; sourceTree = "<group>"; };
+		AE51B890F21D20561C567ACC /* SkDWriteGeometrySink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDWriteGeometrySink.h; sourceTree = "<group>"; };
+		AF6438AF1C138A4A2AEDEACA /* SkMatrix44.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMatrix44.cpp; sourceTree = "<group>"; };
+		AFF703F1B24F1F74BFA9C477 /* SkIStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkIStream.cpp; sourceTree = "<group>"; };
+		B0AFAE3A6DFB69110C4CDD48 /* SkParsePath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkParsePath.h; sourceTree = "<group>"; };
+		B11628C5B94A742B80B13D3A /* SkBitmapSourceDeserializer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapSourceDeserializer.cpp; sourceTree = "<group>"; };
+		B3C27593F36DEBB341A43A59 /* SkParseColor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkParseColor.cpp; sourceTree = "<group>"; };
+		B636621D716CEBEEEB33039C /* SkHwuiRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkHwuiRenderer.h; sourceTree = "<group>"; };
+		B88826DE03D8D298AD81E226 /* SkDashPath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkDashPath.cpp; sourceTree = "<group>"; };
+		BAFEA83B9F40F7F2DC7386E5 /* SkBitmapSourceDeserializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkBitmapSourceDeserializer.h; sourceTree = "<group>"; };
+		BC30C221D70222BACBC07EA1 /* utils.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = utils.gypi; sourceTree = "<group>"; };
+		C53E8B40F135FE4CE2D97E64 /* SkFrontBufferedStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkFrontBufferedStream.cpp; sourceTree = "<group>"; };
+		C69913150935D08010C0E434 /* SkLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkLayer.h; sourceTree = "<group>"; };
+		C805F9D5A6C8B123FA451DAA /* SkNoSaveLayerCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkNoSaveLayerCanvas.h; sourceTree = "<group>"; };
+		C83143E1B72B0AFB55C33B4B /* SkNinePatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkNinePatch.cpp; sourceTree = "<group>"; };
+		C9856C17693315AA9B404186 /* libskia_android_utils.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_android_utils.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB45B3840DECA1660139FCB5 /* SkThreadUtils_win.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkThreadUtils_win.h; sourceTree = "<group>"; };
+		CCB163698319888666A10F5D /* SkTextureCompressor_R11EAC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTextureCompressor_R11EAC.h; sourceTree = "<group>"; };
+		CE5F749807046257652F30CD /* SkHRESULT.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkHRESULT.cpp; sourceTree = "<group>"; };
+		D1B63E41AF2E4269056C1A29 /* SkRandomScalerContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkRandomScalerContext.h; sourceTree = "<group>"; };
+		D446326F8F69A788B8F01185 /* SkCreateCGImageRef.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCreateCGImageRef.cpp; sourceTree = "<group>"; };
+		D4806F877B85537A1D810A51 /* SkCanvasStack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCanvasStack.cpp; sourceTree = "<group>"; };
+		DECC4CBDB92AC752276AEC67 /* SkOSFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkOSFile.cpp; sourceTree = "<group>"; };
+		E4677FBE8065139A58E1C5B2 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
+		E68D13654E46022EAC4FD307 /* SkThreadUtils_pthread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkThreadUtils_pthread.h; sourceTree = "<group>"; };
+		E6B4CB59531D68EF9E530456 /* SkCGUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkCGUtils.h; sourceTree = "<group>"; };
+		E88FDCBAE51EBD2A3BBF06F8 /* SkBase64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBase64.cpp; sourceTree = "<group>"; };
+		ED29B720575858CDE9C9B5C2 /* SkPatchGrid.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkPatchGrid.cpp; sourceTree = "<group>"; };
+		EDF7470FE2CBC52D9B299663 /* SkPatchUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPatchUtils.h; sourceTree = "<group>"; };
+		EE41970C02E631506C2052C1 /* SkWGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkWGL.h; sourceTree = "<group>"; };
+		F1D27702799FE02206EDBE75 /* SkBase64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkBase64.h; sourceTree = "<group>"; };
+		F238F8CE69B5CB34B4AFD096 /* SkFloatUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkFloatUtils.h; sourceTree = "<group>"; };
+		F42E449FED8BB6E8047E6949 /* utils.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = utils.gyp; sourceTree = "<group>"; };
+		F4F3B4950BA96FE33C87642B /* SkTestScalerContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkTestScalerContext.h; sourceTree = "<group>"; };
+		F525D07E5CE8967E81160F5B /* SkCamera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkCamera.cpp; sourceTree = "<group>"; };
+		FAC4829EE5C5C7A8351CB41E /* SkDashPathPriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkDashPathPriv.h; sourceTree = "<group>"; };
+		FB2F1957FF248959A8932BF9 /* SkPictureUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkPictureUtils.h; sourceTree = "<group>"; };
+		FE1FB8E96436E0DC1AD55FEC /* SkInterpolator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkInterpolator.h; sourceTree = "<group>"; };
+		FF6A97576EF08CBF477E0AF3 /* SkRandomScalerContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkRandomScalerContext.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		11E21C705E4E4793179D8AC2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		57ACED7EEE8217FB9E775173 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0825DC1CD3D0E084509AA223 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6EB7C6A4C955592AFCAF5F41 /* libskia_utils.a */,
+				C9856C17693315AA9B404186 /* libskia_android_utils.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1FC9900E43951C3F995C982E /* src */ = {
+			isa = PBXGroup;
+			children = (
+				BD5B8E80ECD7EE2817604249 /* fonts */,
+				46AD1380015C329916746DA4 /* utils */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		2BC3C6CB5E105FE710A6E99B /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				E6B4CB59531D68EF9E530456 /* SkCGUtils.h */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
+		37F9A0937401DA5FBD731C11 /* win */ = {
+			isa = PBXGroup;
+			children = (
+				124C6BA3D444BF5E52525497 /* SkAutoCoInitialize.h */,
+				10AB6A3B4EF1FCCBCAB156C9 /* SkHRESULT.h */,
+				48F30F72C88D5BB6735FF0E5 /* SkIStream.h */,
+				9539B2417F3E1ACA0C532B29 /* SkTScopedComPtr.h */,
+			);
+			path = win;
+			sourceTree = "<group>";
+		};
+		38A68B0D31234B72B5B092A7 /* win */ = {
+			isa = PBXGroup;
+			children = (
+				244EF18A47D4DC1F462DF98B /* SkAutoCoInitialize.cpp */,
+				A70626972C9580DC8DC3711D /* SkDWrite.cpp */,
+				16167A0E81AC78662DBEEBD3 /* SkDWrite.h */,
+				55065A7B631B7CAB8DDF4588 /* SkDWriteFontFileStream.cpp */,
+				AAC4FA2741E83D0D58FFE8F2 /* SkDWriteFontFileStream.h */,
+				2FACA0E9F6318A3071CDB25C /* SkDWriteGeometrySink.cpp */,
+				AE51B890F21D20561C567ACC /* SkDWriteGeometrySink.h */,
+				CE5F749807046257652F30CD /* SkHRESULT.cpp */,
+				AFF703F1B24F1F74BFA9C477 /* SkIStream.cpp */,
+				EE41970C02E631506C2052C1 /* SkWGL.h */,
+				35FE9F06E9C35C8D2BF1A46A /* SkWGL_win.cpp */,
+			);
+			path = win;
+			sourceTree = "<group>";
+		};
+		46AD1380015C329916746DA4 /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				B5F2FFE2D09EFA82FAE2E629 /* android */,
+				4D7721EAB432261C01868DFD /* mac */,
+				38A68B0D31234B72B5B092A7 /* win */,
+				E88FDCBAE51EBD2A3BBF06F8 /* SkBase64.cpp */,
+				F1D27702799FE02206EDBE75 /* SkBase64.h */,
+				196B8DF63D0921E59B8C5C45 /* SkBitSet.cpp */,
+				428035E313223DFB13FBD4BF /* SkBitSet.h */,
+				8339441DB86DFBA2B883CE68 /* SkBitmapHasher.cpp */,
+				7FB95B6C2558232C97A4C259 /* SkBitmapHasher.h */,
+				B11628C5B94A742B80B13D3A /* SkBitmapSourceDeserializer.cpp */,
+				BAFEA83B9F40F7F2DC7386E5 /* SkBitmapSourceDeserializer.h */,
+				22E0B6D6A6B64CC88C4450C7 /* SkBoundaryPatch.cpp */,
+				F525D07E5CE8967E81160F5B /* SkCamera.cpp */,
+				D4806F877B85537A1D810A51 /* SkCanvasStack.cpp */,
+				558069E8CF4F496EC74015E2 /* SkCanvasStack.h */,
+				6C0949A80AECC07E05F74372 /* SkCanvasStateUtils.cpp */,
+				7FB5238233837324E28613B4 /* SkCubicInterval.cpp */,
+				22EE2A6D900B5B32D39A4C81 /* SkCullPoints.cpp */,
+				B88826DE03D8D298AD81E226 /* SkDashPath.cpp */,
+				FAC4829EE5C5C7A8351CB41E /* SkDashPathPriv.h */,
+				126AA6BC42EFF8948DA15F04 /* SkDumpCanvas.cpp */,
+				1B6E8764143FE5A75267574B /* SkEventTracer.cpp */,
+				F238F8CE69B5CB34B4AFD096 /* SkFloatUtils.h */,
+				C53E8B40F135FE4CE2D97E64 /* SkFrontBufferedStream.cpp */,
+				1DB49305D4294137F17513B4 /* SkImageGeneratorUtils.cpp */,
+				A2A99DA0C0F3530AE066508B /* SkInterpolator.cpp */,
+				647F3C4F037431A86E758ACF /* SkLayer.cpp */,
+				6AF6E0D4FF8A4D18E1708F7E /* SkMD5.cpp */,
+				000AE59C48765EB03C73E805 /* SkMD5.h */,
+				6D752DABB2E1BBF76344627A /* SkMatrix22.cpp */,
+				5E9571E280294F3E47E22A35 /* SkMatrix22.h */,
+				AF6438AF1C138A4A2AEDEACA /* SkMatrix44.cpp */,
+				44A6AAB3B152682B8BEDFC2C /* SkMeshUtils.cpp */,
+				1005211878D4780DC97E2C85 /* SkNWayCanvas.cpp */,
+				C83143E1B72B0AFB55C33B4B /* SkNinePatch.cpp */,
+				1C30B108E0BB92278E899267 /* SkNullCanvas.cpp */,
+				DECC4CBDB92AC752276AEC67 /* SkOSFile.cpp */,
+				28BBF38FFF8ABADE4977E272 /* SkPaintFilterCanvas.cpp */,
+				121A62CF16BC6B80CB85D192 /* SkParse.cpp */,
+				B3C27593F36DEBB341A43A59 /* SkParseColor.cpp */,
+				080726749C2672EFFC02F622 /* SkParsePath.cpp */,
+				ED29B720575858CDE9C9B5C2 /* SkPatchGrid.cpp */,
+				35B35D70D94E7F377EE3A4FC /* SkPatchGrid.h */,
+				194F51E694C0BE9F94805041 /* SkPatchUtils.cpp */,
+				EDF7470FE2CBC52D9B299663 /* SkPatchUtils.h */,
+				8194F906C47E41E93381BC55 /* SkRTConf.cpp */,
+				6A2C1608CD8DD74552E94F29 /* SkSHA1.cpp */,
+				289F391623A8E71043079829 /* SkSHA1.h */,
+				787ED3F4589BA94619B8A41D /* SkTFitsIn.h */,
+				A07E123F9E9633AE4580C8D0 /* SkTextBox.cpp */,
+				0B494CE62226ABE5068A0342 /* SkTextureCompressor.cpp */,
+				79BBC87122017C8E63145994 /* SkTextureCompressor.h */,
+				3090657C8B05E8230744A417 /* SkTextureCompressor_ASTC.cpp */,
+				89CB69129B15156E378A1D22 /* SkTextureCompressor_ASTC.h */,
+				603AEE46C5943817F92D1171 /* SkTextureCompressor_Blitter.h */,
+				51B87537E57E0CC2BDD7DE18 /* SkTextureCompressor_LATC.cpp */,
+				2E79F0997D1A27AE2DCC843F /* SkTextureCompressor_LATC.h */,
+				84AEACE5A9858793D08AC503 /* SkTextureCompressor_R11EAC.cpp */,
+				CCB163698319888666A10F5D /* SkTextureCompressor_R11EAC.h */,
+				8C8C33F2601549C13FDBC072 /* SkTextureCompressor_Utils.h */,
+				70D74CE1E107440DE4BC4753 /* SkThreadUtils.h */,
+				A8D352413567BF29EACDC7BA /* SkThreadUtils_pthread.cpp */,
+				E68D13654E46022EAC4FD307 /* SkThreadUtils_pthread.h */,
+				11489FECA9A8C16F7E10E19B /* SkThreadUtils_pthread_linux.cpp */,
+				21D2289109D669E573225AD8 /* SkThreadUtils_pthread_mach.cpp */,
+				14A5EC0581D15CEB11AAC4FB /* SkThreadUtils_pthread_other.cpp */,
+				4E10F3CCB76391131616F6AA /* SkThreadUtils_win.cpp */,
+				CB45B3840DECA1660139FCB5 /* SkThreadUtils_win.h */,
+				184E867FF70004D114F74191 /* SkWhitelistTypefaces.cpp */,
+			);
+			path = utils;
+			sourceTree = "<group>";
+		};
+		4D7721EAB432261C01868DFD /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				D446326F8F69A788B8F01185 /* SkCreateCGImageRef.cpp */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
+		6E854B04F1E504314F96AE44 /* include/utils */ = {
+			isa = PBXGroup;
+			children = (
+				2BC3C6CB5E105FE710A6E99B /* mac */,
+				37F9A0937401DA5FBD731C11 /* win */,
+				76913B1691C443C4B3E9E952 /* SkBoundaryPatch.h */,
+				58C566E41F91578D21DAC955 /* SkCamera.h */,
+				199A0EAEB05A6D3240A49CFA /* SkCanvasStateUtils.h */,
+				1C361ECB1E62B883FC655570 /* SkCubicInterval.h */,
+				AD2E7CB15D697D5A875EFE6D /* SkCullPoints.h */,
+				7719F9ECBAB9CCA12D509577 /* SkDebugUtils.h */,
+				68FCFB71D5BD2BAC445DBC1A /* SkDumpCanvas.h */,
+				2429FD33725F614449B39BDD /* SkEventTracer.h */,
+				0B0D3D3D370A694212E533F9 /* SkFrontBufferedStream.h */,
+				FE1FB8E96436E0DC1AD55FEC /* SkInterpolator.h */,
+				C69913150935D08010C0E434 /* SkLayer.h */,
+				8657D3F6F5E734DD3210DCD2 /* SkMatrix44.h */,
+				353F4B2D95E909CCDCA72F00 /* SkMeshUtils.h */,
+				7D4DA3356C2DFDE6DCF1CEAC /* SkNWayCanvas.h */,
+				06EAF140CFCAA08544BC3D9C /* SkNinePatch.h */,
+				C805F9D5A6C8B123FA451DAA /* SkNoSaveLayerCanvas.h */,
+				7EB42DBF41808B51AD57BF4E /* SkNullCanvas.h */,
+				30152FCEF997A9F1656CDF1B /* SkPaintFilterCanvas.h */,
+				2A2E8E5300C5E5A5B64CBD70 /* SkParse.h */,
+				9EC39E4D109E668FC48736E4 /* SkParsePaint.h */,
+				B0AFAE3A6DFB69110C4CDD48 /* SkParsePath.h */,
+				FB2F1957FF248959A8932BF9 /* SkPictureUtils.h */,
+				79F31336D13C1034EB8FB9C6 /* SkRTConf.h */,
+				61557486D05971EEAA846B04 /* SkRandom.h */,
+				93128E911267D259FE9EDD4E /* SkTextBox.h */,
+			);
+			path = include/utils;
+			sourceTree = "<group>";
+		};
+		7CBE8AF52C75F7EB62D5670F = {
+			isa = PBXGroup;
+			children = (
+				E78EB3F3D9FD5EF4B5B1BC29 /* Source */,
+				0825DC1CD3D0E084509AA223 /* Products */,
+				F62957F329904763016EDD0D /* Build */,
+			);
+			sourceTree = "<group>";
+		};
+		9BAA29776768F4AAAC6EF7B7 /* .. */ = {
+			isa = PBXGroup;
+			children = (
+				6E854B04F1E504314F96AE44 /* include/utils */,
+				1FC9900E43951C3F995C982E /* src */,
+			);
+			path = ..;
+			sourceTree = "<group>";
+		};
+		B5F2FFE2D09EFA82FAE2E629 /* android */ = {
+			isa = PBXGroup;
+			children = (
+				2F8BBF57E83EE2D3D94D9CB0 /* SkAndroidSDKCanvas.cpp */,
+				0C45C69FCD2319D98BAD2EAE /* SkAndroidSDKCanvas.h */,
+				390B27359474CA447EE44314 /* SkHwuiRenderer.cpp */,
+				B636621D716CEBEEEB33039C /* SkHwuiRenderer.h */,
+			);
+			path = android;
+			sourceTree = "<group>";
+		};
+		BD5B8E80ECD7EE2817604249 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				4B54479B77DCDD6FB7F1EF76 /* SkGScalerContext.cpp */,
+				981C7F983ACFB56378B2CDDF /* SkGScalerContext.h */,
+				FF6A97576EF08CBF477E0AF3 /* SkRandomScalerContext.cpp */,
+				D1B63E41AF2E4269056C1A29 /* SkRandomScalerContext.h */,
+				995DCD63DF46A411E66B90BC /* SkTestScalerContext.cpp */,
+				F4F3B4950BA96FE33C87642B /* SkTestScalerContext.h */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		E78EB3F3D9FD5EF4B5B1BC29 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				9BAA29776768F4AAAC6EF7B7 /* .. */,
+				91CED818E43385E2CFDFD4FE /* utils.gypi */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		F62957F329904763016EDD0D /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				4F17A244E2CC0EF6DF9ABCA3 /* common.gypi */,
+				2868C21A78DAD7DB595A34D8 /* common_conditions.gypi */,
+				E4677FBE8065139A58E1C5B2 /* common_variables.gypi */,
+				046C4E713953E42424BEDE48 /* skia_for_android_framework_defines.gypi */,
+				F42E449FED8BB6E8047E6949 /* utils.gyp */,
+				BC30C221D70222BACBC07EA1 /* utils.gypi */,
+			);
+			name = Build;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4FCE95716074F38486A2AAB5 /* android_utils */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 915EF7093FE843AD4AF3C75C /* Build configuration list for PBXNativeTarget "android_utils" */;
+			buildPhases = (
+				0B0DF12A23C39C540F84C34E /* Sources */,
+				57ACED7EEE8217FB9E775173 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = android_utils;
+			productName = skia_android_utils;
+			productReference = C9856C17693315AA9B404186 /* libskia_android_utils.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		7364408688F1A6434987562A /* utils */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C99270A93EA9151DBD3EA10B /* Build configuration list for PBXNativeTarget "utils" */;
+			buildPhases = (
+				B7FB44873E58E2C4344430FC /* Sources */,
+				11E21C705E4E4793179D8AC2 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = utils;
+			productName = skia_utils;
+			productReference = 6EB7C6A4C955592AFCAF5F41 /* libskia_utils.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9236069D6EB0E6A006256604 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = CAABDEE598BC177CE8FDAC3C /* Build configuration list for PBXProject "utils" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 7CBE8AF52C75F7EB62D5670F;
+			projectDirPath = ../../gyp;
+			projectRoot = "";
+			targets = (
+				B98D08519024E7FD891968E6 /* All */,
+				7364408688F1A6434987562A /* utils */,
+				4FCE95716074F38486A2AAB5 /* android_utils */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0B0DF12A23C39C540F84C34E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36992C410DC07E72517A6FDC /* SkAndroidSDKCanvas.cpp in Sources */,
+				AC7C2A8F59FA7EA9A6144373 /* SkHwuiRenderer.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B7FB44873E58E2C4344430FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D24BFA06F8892FA7D85D4C9 /* SkBase64.cpp in Sources */,
+				2A367EE34D4E75AEA1976098 /* SkBitmapHasher.cpp in Sources */,
+				36333DE20B1CBA82F7F9FBC5 /* SkBitmapSourceDeserializer.cpp in Sources */,
+				C5AC075864A074B3A0CD18B4 /* SkBitSet.cpp in Sources */,
+				A012EE5678EF0DA46D99C547 /* SkBoundaryPatch.cpp in Sources */,
+				E732CAC15CA708290B04C43E /* SkFrontBufferedStream.cpp in Sources */,
+				9BDD37F03B492A7027372B16 /* SkCamera.cpp in Sources */,
+				70CB17A972C76B8E57F3F5E2 /* SkCanvasStack.cpp in Sources */,
+				EA3B0ADEA18F3774D2E783A7 /* SkCanvasStateUtils.cpp in Sources */,
+				724EB42E4F39D013DE2E625A /* SkCubicInterval.cpp in Sources */,
+				45B9B328E6678EF6CE20F0AF /* SkCullPoints.cpp in Sources */,
+				BBA900968923534E8E414489 /* SkDashPath.cpp in Sources */,
+				4FC1B8F2CD6C74642F8BD950 /* SkDumpCanvas.cpp in Sources */,
+				9A21827B2641ABC7DC06AB22 /* SkEventTracer.cpp in Sources */,
+				4888EE139B06117415C012B1 /* SkImageGeneratorUtils.cpp in Sources */,
+				80B27BF8163451329516B1CE /* SkInterpolator.cpp in Sources */,
+				7B923E305FE11929541504CD /* SkLayer.cpp in Sources */,
+				D9EC335B40A5A0C5B75173C8 /* SkMatrix22.cpp in Sources */,
+				610A047D5466C51991B1D098 /* SkMatrix44.cpp in Sources */,
+				E577F8723F7466AE64013FB0 /* SkMD5.cpp in Sources */,
+				ECB25E74EA295EE2AE03B2A9 /* SkMeshUtils.cpp in Sources */,
+				93025E25ED4ECDCF9E7355C4 /* SkNinePatch.cpp in Sources */,
+				E658D40770FE725C160A8272 /* SkNWayCanvas.cpp in Sources */,
+				C61A8DD2BEE42D496074E85E /* SkNullCanvas.cpp in Sources */,
+				972E7A185ED1329356B90C77 /* SkOSFile.cpp in Sources */,
+				FAC9CD42179C8FD9A11A142F /* SkPaintFilterCanvas.cpp in Sources */,
+				B02F318BF84E98198694B6C5 /* SkParse.cpp in Sources */,
+				C0833DAACE7261583C59939A /* SkParseColor.cpp in Sources */,
+				F6B8873F9B0CA3D1776D6270 /* SkParsePath.cpp in Sources */,
+				EE927670B312628669399417 /* SkPatchGrid.cpp in Sources */,
+				6B53BB76E8494BF3BCF7A1E8 /* SkPatchUtils.cpp in Sources */,
+				639B659CBAE06FD0B1DF10F4 /* SkSHA1.cpp in Sources */,
+				5B55C3CF996F2AFC9405F939 /* SkRTConf.cpp in Sources */,
+				738BB661F2BA6508F5656BDC /* SkTextBox.cpp in Sources */,
+				92A989E7B430F0C66CD217E7 /* SkTextureCompressor.cpp in Sources */,
+				D3BE68343FC0DD1E10CB7B11 /* SkTextureCompressor_ASTC.cpp in Sources */,
+				405ED2982B6ADD19EB72045A /* SkTextureCompressor_R11EAC.cpp in Sources */,
+				37618873CC3078CB7E3C40A0 /* SkTextureCompressor_LATC.cpp in Sources */,
+				130C7125AE13CEA0428FD5DC /* SkThreadUtils_pthread.cpp in Sources */,
+				3B4EC4E03A607470579410DA /* SkThreadUtils_pthread_mach.cpp in Sources */,
+				7CB78B38292A1EF47FEBB178 /* SkWhitelistTypefaces.cpp in Sources */,
+				1D9B6EB52B4788C18C742832 /* SkCreateCGImageRef.cpp in Sources */,
+				6107B808D31A1F987D08D64D /* SkGScalerContext.cpp in Sources */,
+				41622D348F5D881D57185D55 /* SkRandomScalerContext.cpp in Sources */,
+				42916B35D78A3844F51B2CCC /* SkTestScalerContext.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A0CFF6ECD85926D782F71501 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7364408688F1A6434987562A /* utils */;
+			targetProxy = 827EAB5545B76F7DABA86923 /* PBXContainerItemProxy */;
+		};
+		B974095157D8B26F7D182F17 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FCE95716074F38486A2AAB5 /* android_utils */;
+			targetProxy = 85CB9BB2137113BAFC503631 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		10120C302949009078978760 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		195E25765F8F3A50C7326934 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Debug;
+		};
+		3914624EAA8F8D36D7A45BC7 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release_Developer;
+		};
+		52A1FAC13D3CDA2EFF0DC772 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Release;
+		};
+		58D5C3B22A998C06FB036B28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_android_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		5BC5950FB95A3C2ECB4F95BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/gpu,
+					../include/images,
+					../include/pathops,
+					../include/pipe,
+					../include/private,
+					../include/utils,
+					../include/utils/mac,
+					../src/core,
+					../src/image,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../third_party/etc1,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+		65E89811D0163EAC4CC574BE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_android_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		7B9E387816B7F1F5A7FB6078 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/gpu,
+					../include/images,
+					../include/pathops,
+					../include/pipe,
+					../include/private,
+					../include/utils,
+					../include/utils/mac,
+					../src/core,
+					../src/image,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../third_party/etc1,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		7DC76EEA7FAD0C236F54652C /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = Coverage;
+		};
+		82B326CFE5ED2310178AA505 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/gpu,
+					../include/images,
+					../include/pathops,
+					../include/pipe,
+					../include/private,
+					../include/utils,
+					../include/utils/mac,
+					../src/core,
+					../src/image,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../third_party/etc1,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		832AB3C927065F61FACD44AF /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/effects,
+					../include/gpu,
+					../include/images,
+					../include/pathops,
+					../include/pipe,
+					../include/private,
+					../include/utils,
+					../include/utils/mac,
+					../src/core,
+					../src/image,
+					../src/opts,
+					../src/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../third_party/etc1,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		86B5F4024179584D9007B1B1 /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release_Developer;
+		};
+		98101D8C261E8455DF5E209B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Release;
+		};
+		9D7BC1663791D41CECB9956B /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_android_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Coverage;
+		};
+		B9D03722D6A2C42300D4066C /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				EXECUTABLE_PREFIX = lib;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_INTERNAL,
+					SK_GAMMA_SRGB,
+					SK_GAMMA_APPLY_TO_A8,
+					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+					"SK_SUPPORT_GPU=1",
+					"SK_SUPPORT_OPENCL=0",
+					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
+					SK_BUILD_FOR_IOS,
+					NDEBUG,
+					"SK_DEVELOPER=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THREADSAFE_STATICS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = skia_android_utils;
+				SYMROOT = ../xcodebuild;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Winit-self",
+					"-Wpointer-arith",
+					"-Wsign-compare",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release_Developer;
+		};
+		E2406E52744624A49C62C5A1 /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INTERMEDIATE_DIR = "$(PROJECT_DERIVED_FILE_DIR)/$(CONFIGURATION)";
+				SDKROOT = iphoneos;
+				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
+			};
+			name = Coverage;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2D242B47B3AD3E367362331C /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7DC76EEA7FAD0C236F54652C /* Coverage */,
+				10120C302949009078978760 /* Debug */,
+				52A1FAC13D3CDA2EFF0DC772 /* Release */,
+				3914624EAA8F8D36D7A45BC7 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		915EF7093FE843AD4AF3C75C /* Build configuration list for PBXNativeTarget "android_utils" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9D7BC1663791D41CECB9956B /* Coverage */,
+				65E89811D0163EAC4CC574BE /* Debug */,
+				58D5C3B22A998C06FB036B28 /* Release */,
+				B9D03722D6A2C42300D4066C /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		C99270A93EA9151DBD3EA10B /* Build configuration list for PBXNativeTarget "utils" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				82B326CFE5ED2310178AA505 /* Coverage */,
+				7B9E387816B7F1F5A7FB6078 /* Debug */,
+				5BC5950FB95A3C2ECB4F95BF /* Release */,
+				832AB3C927065F61FACD44AF /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		CAABDEE598BC177CE8FDAC3C /* Build configuration list for PBXProject "utils" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2406E52744624A49C62C5A1 /* Coverage */,
+				195E25765F8F3A50C7326934 /* Debug */,
+				98101D8C261E8455DF5E209B /* Release */,
+				86B5F4024179584D9007B1B1 /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9236069D6EB0E6A006256604 /* Project object */;
+}
