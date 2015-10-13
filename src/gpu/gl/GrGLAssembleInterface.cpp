@@ -765,6 +765,10 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         }
     }
 
+    if (extensions.has("GL_CHROMIUM_bind_uniform_location")) {
+        GET_PROC_SUFFIX(BindUniformLocation, CHROMIUM);
+    }
+
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 

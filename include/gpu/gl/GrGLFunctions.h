@@ -102,7 +102,6 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompileShaderProc)(GrGLuint shader);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTexImage2DProc)(GrGLenum target, GrGLint level, GrGLenum internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLsizei imageSize, const GrGLvoid* data);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLsizei imageSize, const GrGLvoid* data);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTextureCHROMIUMProc)(GrGLenum target, GrGLenum src, GrGLenum dst, GrGLint level, GrGLint format, GrGLenum type);
 typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLCreateProgramProc)(void);
 typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLCreateShaderProc)(GrGLenum type);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCullFaceProc)(GrGLenum mode);
@@ -182,7 +181,8 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLRenderbufferStorageProc)(GrGLenum tar
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLRenderbufferStorageMultisampleProc)(GrGLenum target, GrGLsizei samples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLResolveMultisampleFramebufferProc)();
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLScissorProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindUniformLocation)(GrGLuint program, GrGLint location, const char* name);
+// GL_CHROMIUM_bind_uniform_location
+typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindUniformLocationProc)(GrGLuint program, GrGLint location, const char* name);
 
 #if GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLShaderSourceProc)(GrGLuint shader, GrGLsizei count, const char* const * str, const GrGLint* length);
