@@ -829,7 +829,7 @@ SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
     if (0 == matrix[SkMatrix::kMSkewY]) {
         return kX_SkAxisAlignment;
     }
-    if (0 == matrix[SkMatrix::kMScaleX]) {
+    if (0 == matrix[SkMatrix::kMSkewX]) {
         return kY_SkAxisAlignment;
     }
     return kNone_SkAxisAlignment;
