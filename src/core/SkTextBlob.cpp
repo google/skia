@@ -403,8 +403,6 @@ SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
     }
 
     SkASSERT((void*)glyphPosX <= SkTextBlob::RunRecord::Next(&run));
-    SkASSERT(run.positioning() == SkTextBlob::kHorizontal_Positioning ||
-             (void*)glyphPosY <= SkTextBlob::RunRecord::Next(&run));
 
     return bounds.makeOffset(run.offset().x(), run.offset().y());
 }
