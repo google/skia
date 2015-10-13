@@ -259,6 +259,12 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
 
 SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    // FIXME: Support subsets for scanline decodes.
+    if (options.fSubset) {
+        // Subsets are not supported.
+        return kUnimplemented;
+    }
+
     // Reset fSampleX. If it needs to be a value other than 1, it will get modified by
     // the sampler.
     fSampleX = 1;

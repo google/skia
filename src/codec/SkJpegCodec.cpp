@@ -177,19 +177,19 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
     // support these as well
     unsigned int num;
     unsigned int denom = 8;
-    if (desiredScale > 0.875f) {
+    if (desiredScale >= 0.9375) {
         num = 8;
-    } else if (desiredScale > 0.75f) {
+    } else if (desiredScale >= 0.8125) {
         num = 7;
-    } else if (desiredScale > 0.625f) {
+    } else if (desiredScale >= 0.6875f) {
         num = 6;
-    } else if (desiredScale > 0.5f) {
+    } else if (desiredScale >= 0.5625f) {
         num = 5;
-    } else if (desiredScale > 0.375f) {
+    } else if (desiredScale >= 0.4375f) {
         num = 4;
-    } else if (desiredScale > 0.25f) {
+    } else if (desiredScale >= 0.3125f) {
         num = 3;
-    } else if (desiredScale > 0.125f) {
+    } else if (desiredScale >= 0.1875f) {
         num = 2;
     } else {
         num = 1;
@@ -380,15 +380,9 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
-    if (!createIfNecessary || fSwizzler) {
-        SkASSERT(!fSwizzler || (fSrcRow && static_cast<uint8_t*>(fStorage.get()) == fSrcRow));
-        return fSwizzler;
-    }
-
-    const SkImageInfo& info = this->dstInfo();
+void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
     SkSwizzler::SrcConfig srcConfig;
-    switch (info.colorType()) {
+    switch (dstInfo.colorType()) {
         case kGray_8_SkColorType:
             srcConfig = SkSwizzler::kGray;
             break;
@@ -406,14 +400,18 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
             SkASSERT(false);
     }
 
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, info,
-                                               this->options().fZeroInitialized));
-    if (!fSwizzler) {
-        return nullptr;
-    }
-
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, dstInfo, options));
     fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
     fSrcRow = static_cast<uint8_t*>(fStorage.get());
+}
+
+SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
+    if (!createIfNecessary || fSwizzler) {
+        SkASSERT(!fSwizzler || (fSrcRow && static_cast<uint8_t*>(fStorage.get()) == fSrcRow));
+        return fSwizzler;
+    }
+
+    this->initializeSwizzler(this->dstInfo(), this->options());
     return fSwizzler;
 }
 
@@ -441,6 +439,11 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
+    // We will need a swizzler if we are performing a subset decode
+    if (options.fSubset) {
+        this->initializeSwizzler(dstInfo, options);
+    }
+
     return kSuccess;
 }
 
@@ -452,7 +455,7 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
     // Read rows one at a time
     JSAMPLE* dstRow;
     if (fSwizzler) {
-        // write data to storage row, then sample using swizzler         
+        // write data to storage row, then sample using swizzler
         dstRow = fSrcRow;
     } else {
         // write data directly to dst

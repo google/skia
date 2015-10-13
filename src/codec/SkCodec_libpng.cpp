@@ -435,8 +435,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
 
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo,
-                                               options.fZeroInitialized));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo, options));
     if (!fSwizzler) {
         // FIXME: CreateSwizzler could fail for another reason.
         return kUnimplemented;
@@ -477,8 +476,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     }
 
     // Note that ctable and ctableCount may be modified if there is a color table
-    const Result result = this->initializeSwizzler(requestedInfo, options,
-                                                   ctable, ctableCount);
+    const Result result = this->initializeSwizzler(requestedInfo, options, ctable, ctableCount);
     if (result != kSuccess) {
         return result;
     }
@@ -699,15 +697,14 @@ public:
     }
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
-            SkPMColor ctable[], int* ctableCount) override
-    {
+            SkPMColor ctable[], int* ctableCount) override {
         if (!conversion_possible(dstInfo, this->getInfo())) {
             return kInvalidConversion;    
         }
 
-        const SkCodec::Result result = this->initializeSwizzler(dstInfo, options, ctable,
-                                                                ctableCount);
-        if (result != SkCodec::kSuccess) {
+        const Result result = this->initializeSwizzler(dstInfo, options, ctable,
+                                                       ctableCount);
+        if (result != kSuccess) {
             return result;
         }
 

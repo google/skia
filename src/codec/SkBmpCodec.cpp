@@ -564,10 +564,6 @@ uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
 
 SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    if (options.fSubset) {
-        // Subsets are not supported.
-        return kUnimplemented;
-    }
     if (!conversion_possible(dstInfo, this->getInfo())) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;

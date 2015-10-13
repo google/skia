@@ -250,9 +250,9 @@ static SkSwizzler::ResultAlpha swizzle_mask32_to_565(
  * Create a new mask swizzler
  *
  */
-SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
-        const SkImageInfo& dstInfo, const SkImageInfo& srcInfo, SkMasks* masks,
-        uint32_t bitsPerPixel) {
+SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
+        const SkImageInfo& srcInfo, SkMasks* masks, uint32_t bitsPerPixel,
+        const SkCodec::Options& options) {
 
     // Choose the appropriate row procedure
     RowProc proc = nullptr;
@@ -352,7 +352,14 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
             return nullptr;
     }
 
-    return new SkMaskSwizzler(dstInfo.width(), masks, proc);
+    int srcOffset = 0;
+    int srcWidth = dstInfo.width();
+    if (options.fSubset) {
+        srcOffset = options.fSubset->left();
+        srcWidth = options.fSubset->width();
+    }
+
+    return new SkMaskSwizzler(masks, proc, srcOffset, srcWidth);
 }
 
 /*
@@ -360,13 +367,14 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(
  * Constructor for mask swizzler
  *
  */
-SkMaskSwizzler::SkMaskSwizzler(int width, SkMasks* masks, RowProc proc)
+SkMaskSwizzler::SkMaskSwizzler(SkMasks* masks, RowProc proc, int srcOffset, int srcWidth)
     : fMasks(masks)
     , fRowProc(proc)
-    , fSrcWidth(width)
-    , fDstWidth(width)
+    , fSrcWidth(srcWidth)
+    , fDstWidth(srcWidth)
     , fSampleX(1)
-    , fX0(0)
+    , fSrcOffset(srcOffset)
+    , fX0(srcOffset)
 {}
 
 int SkMaskSwizzler::onSetSampleX(int sampleX) {
@@ -374,7 +382,7 @@ int SkMaskSwizzler::onSetSampleX(int sampleX) {
     SkASSERT(sampleX > 0); // Surely there is an upper limit? Should there be
                            // way to report failure?
     fSampleX = sampleX;
-    fX0 = get_start_coord(sampleX);
+    fX0 = get_start_coord(sampleX) + fSrcOffset;
     fDstWidth = get_scaled_dimension(fSrcWidth, sampleX);
 
     // check that fX0 is less than original width

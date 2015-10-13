@@ -220,11 +220,15 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo,
     if (nullptr == options) {
         options = &optsStorage;
     } else if (options->fSubset) {
-        SkIRect subset(*options->fSubset);
-        if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
-            // FIXME: How to differentiate between not supporting subset at all
-            // and not supporting this particular subset?
-            return kUnimplemented;
+        SkIRect size = SkIRect::MakeSize(dstInfo.dimensions());
+        if (!size.contains(*options->fSubset)) {
+            return kInvalidInput;
+        }
+
+        // We only support subsetting in the x-dimension for scanline decoder.
+        // Subsetting in the y-dimension can be accomplished using skipScanlines().
+        if (options->fSubset->top() != 0 || options->fSubset->height() != dstInfo.height()) {
+            return kInvalidInput;
         }
     }
 

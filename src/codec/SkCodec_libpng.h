@@ -18,7 +18,6 @@
 #endif
 #include "png.h"
 
-class SkScanlineDecoder;
 class SkStream;
 
 class SkPngCodec : public SkCodec {
@@ -27,7 +26,6 @@ public:
 
     // Assume IsPng was called and returned true.
     static SkCodec* NewFromStream(SkStream*);
-    static SkScanlineDecoder* NewSDFromStream(SkStream*);
 
     virtual ~SkPngCodec();
 
@@ -78,7 +76,6 @@ private:
     SkSwizzler::SrcConfig       fSrcConfig;
     const int                   fNumberPasses;
     int                         fBitDepth;
-
     AlphaState                  fAlphaState;
 
     bool decodePalette(bool premultiply, int* ctableCount);

@@ -435,10 +435,6 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inp
 SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
         int* inputColorCount, const Options& opts) {
     // Check for valid input parameters
-    if (opts.fSubset) {
-        // Subsets are not supported.
-        return kUnimplemented;
-    }
     if (!conversion_possible(dstInfo, this->getInfo())) {
         return gif_error("Cannot convert input type to output type.\n",
                 kInvalidConversion);
@@ -449,11 +445,9 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
     return kSuccess;
 }
 
-SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo,
-        ZeroInitialized zeroInit) {
+SkCodec::Result SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(SkSwizzler::kIndex,
-            colorPtr, dstInfo, zeroInit));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(SkSwizzler::kIndex, colorPtr, dstInfo, opts));
     if (nullptr != fSwizzler.get()) {
         return kSuccess;
     }
@@ -485,7 +479,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     // Initialize the swizzler
     if (fFrameIsSubset) {
         const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameRect.width(), fFrameRect.height());
-        if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts.fZeroInitialized)) {
+        if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
         }
 
@@ -499,7 +493,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
         dst = SkTAddOffset<void*>(dst, dstRowBytes * fFrameRect.top() +
                 dstBytesPerPixel * fFrameRect.left());
     } else {
-        if (kSuccess != this->initializeSwizzler(dstInfo, opts.fZeroInitialized)) {
+        if (kSuccess != this->initializeSwizzler(dstInfo, opts)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
         }
     }
@@ -535,11 +529,11 @@ SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     // Initialize the swizzler
     if (fFrameIsSubset) {
         const SkImageInfo subsetDstInfo = dstInfo.makeWH(fFrameRect.width(), fFrameRect.height());
-        if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts.fZeroInitialized)) {
+        if (kSuccess != this->initializeSwizzler(subsetDstInfo, opts)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
         }
     } else {
-        if (kSuccess != this->initializeSwizzler(dstInfo, opts.fZeroInitialized)) {
+        if (kSuccess != this->initializeSwizzler(dstInfo, opts)) {
             return gif_error("Could not initialize swizzler.\n", kUnimplemented);
         }
     }

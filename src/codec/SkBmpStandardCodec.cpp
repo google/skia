@@ -161,8 +161,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
     return true;
 }
 
-bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo,
-                                            const Options& opts) {
+bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
     // Get swizzler configuration
     SkSwizzler::SrcConfig config;
     switch (this->bitsPerPixel()) {
@@ -197,8 +196,7 @@ bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo,
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
 
     // Create swizzler
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(config,
-            colorPtr, dstInfo, opts.fZeroInitialized));
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(config, colorPtr, dstInfo, opts));
 
     if (nullptr == fSwizzler.get()) {
         return false;

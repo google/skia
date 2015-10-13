@@ -404,9 +404,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
                         largestSubsetDecodeInfo.width(), largestSubsetDecodeInfo.height());
             }
-            const size_t rowBytes = decodeInfo.minRowBytes();
-            char* buffer = new char[largestSubsetDecodeInfo.height() * rowBytes];
-            SkAutoTDeleteArray<char> lineDeleter(buffer);
             for (int col = 0; col < divisor; col++) {
                 //currentSubsetWidth may be larger than subsetWidth for rightmost subsets
                 const int currentSubsetWidth = (col + 1 == divisor) ?
@@ -418,10 +415,13 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                             subsetHeight + extraY : subsetHeight;
                     const int y = row * subsetHeight;
                     //create scanline decoder for each subset
-                    if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                        colorCountPtr)
-                            // TODO (msarett): Support this mode for all scanline orderings.
-                            || SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
+                    SkCodec::Options options;
+                    SkIRect subset = SkIRect::MakeXYWH(x, 0, currentSubsetWidth, h);
+                    options.fSubset = &subset;
+                    // TODO (msarett): Support this mode for all scanline orderings.
+                    if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options,
+                            colorPtr, colorCountPtr) ||
+                            SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
                         if (x == 0 && y == 0) {
                             //first try, image may not be compatible
                             return Error::Nonfatal("Could not start top-down scanline decoder");
@@ -440,17 +440,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     SkBitmap subsetBm;
                     SkIRect bounds = SkIRect::MakeWH(currentSubsetWidth, currentSubsetHeight);
                     SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
-                    SkAutoLockPixels autlockSubsetBm(subsetBm, true);
-                    codec->getScanlines(buffer, currentSubsetHeight, rowBytes);
-
-                    const size_t bpp = decodeInfo.bytesPerPixel();
-                    char* bufferRow = buffer;
-                    for (int subsetY = 0; subsetY < currentSubsetHeight; ++subsetY) {
-                        memcpy(subsetBm.getAddr(0, subsetY), bufferRow + x*bpp,
-                                currentSubsetWidth*bpp);
-                        bufferRow += rowBytes;
-                    }
-
+                    SkAutoLockPixels autolock(subsetBm, true);
+                    codec->getScanlines(subsetBm.getAddr(0, 0), currentSubsetHeight,
+                            subsetBm.rowBytes());
                     subsetBm.notifyPixelsChanged();
                     canvas->drawBitmap(subsetBm, SkIntToScalar(x), SkIntToScalar(y));
                 }

@@ -129,9 +129,11 @@ private:
      * @param dstInfo  Output image information.  Dimensions may have been
      *                 adjusted if the image frame size does not match the size
      *                 indicated in the header.
-     * @param zeroInit Indicates if destination memory is zero initialized.
+     * @param options  Informs the swizzler if destination memory is zero initialized.
+     *                 Contains subset information.
      */
-    Result initializeSwizzler(const SkImageInfo& dstInfo, ZeroInitialized zeroInit);
+    Result initializeSwizzler(const SkImageInfo& dstInfo,
+            const Options& options);
 
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler);

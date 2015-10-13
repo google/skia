@@ -103,9 +103,10 @@ private:
     bool setOutputColorSpace(const SkImageInfo& dst);
 
     // scanline decoding
+    void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     SkSampler* getSampler(bool createIfNecessary) override;
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
-                   SkPMColor ctable[], int* ctableCount) override;
+            SkPMColor ctable[], int* ctableCount) override;
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
     bool onSkipScanlines(int count) override;
 

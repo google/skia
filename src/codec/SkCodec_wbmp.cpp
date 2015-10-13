@@ -70,8 +70,8 @@ bool SkWbmpCodec::onRewind() {
     return read_header(this->stream(), nullptr);
 }
 
-SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
-        const SkPMColor* ctable, const Options& opts) {
+SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
+        const Options& opts) {
     // Create the swizzler based on the desired color type
     switch (info.colorType()) {
         case kIndex_8_SkColorType:
@@ -82,8 +82,7 @@ SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info,
         default:
             return nullptr;
     }
-    return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info,
-                                      opts.fZeroInitialized);
+    return SkSwizzler::CreateSwizzler(SkSwizzler::kBit, ctable, info, opts);
 }
 
 bool SkWbmpCodec::readRow(uint8_t* row) {
@@ -188,8 +187,7 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     }
 
     // Initialize the swizzler
-    fSwizzler.reset(this->initializeSwizzler(dstInfo,
-            get_color_ptr(fColorTable.get()), options));
+    fSwizzler.reset(this->initializeSwizzler(dstInfo, get_color_ptr(fColorTable.get()), options));
     if (nullptr == fSwizzler.get()) {
         return kInvalidConversion;
     }

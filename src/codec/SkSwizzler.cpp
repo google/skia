@@ -230,9 +230,6 @@ static SkSwizzler::ResultAlpha swizzle_index_to_index(
     //                 SkScaledBitmap sampler just guesses that it is opaque.  This is dangerous
     //                 and probably wrong since gif and bmp (rarely) may have alpha.
     if (1 == deltaSrc) {
-        // A non-zero offset is only used when sampling, meaning that deltaSrc will be
-        // greater than 1. The below loop relies on the fact that src remains unchanged.
-        SkASSERT(0 == offset);
         memcpy(dst, src, dstWidth);
         for (int x = 0; x < dstWidth; x++) {
             UPDATE_RESULT_ALPHA(ctable[src[x]] >> SK_A32_SHIFT);
@@ -514,8 +511,8 @@ static bool swizzle_rgba_to_n32_unpremul_skipZ(void* SK_RESTRICT dstRow,
 
 SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkPMColor* ctable,
-                                       const SkImageInfo& dstInfo, 
-                                       SkCodec::ZeroInitialized zeroInit) {
+                                       const SkImageInfo& dstInfo,
+                                       const SkCodec::Options& options) {
     if (dstInfo.colorType() == kUnknown_SkColorType || kUnknown == sc) {
         return nullptr;
     }
@@ -524,7 +521,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
         return nullptr;
     }
     RowProc proc = nullptr;
-
+    SkCodec::ZeroInitialized zeroInit = options.fZeroInitialized;
     switch (sc) {
         case kBit:
             switch (dstInfo.colorType()) {
@@ -683,28 +680,35 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
         return nullptr;
     }
 
-    // Store deltaSrc in bytes if it is an even multiple, otherwise use bits
-    int deltaSrc = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) : BitsPerPixel(sc);
+    // Store bpp in bytes if it is an even multiple, otherwise use bits
+    int bpp = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) : BitsPerPixel(sc);
+    
+    int srcOffset = 0;
+    int srcWidth = dstInfo.width();
+    if (options.fSubset) {
+        srcOffset = options.fSubset->left();
+        srcWidth = options.fSubset->width();
+    }
 
-    return new SkSwizzler(proc, ctable, deltaSrc, dstInfo.width());
+    return new SkSwizzler(proc, ctable, srcOffset, srcWidth, bpp);
 }
 
-SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable,
-                       int deltaSrc, int srcWidth)
+SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int srcWidth, int bpp)
     : fRowProc(proc)
     , fColorTable(ctable)
-    , fDeltaSrc(deltaSrc)
+    , fSrcOffset(srcOffset)
+    , fX0(srcOffset)
     , fSrcWidth(srcWidth)
     , fDstWidth(srcWidth)
+    , fBPP(bpp)
     , fSampleX(1)
-    , fX0(0)
 {}
 
 int SkSwizzler::onSetSampleX(int sampleX) {
     SkASSERT(sampleX > 0); // Surely there is an upper limit? Should there be
                            // way to report failure?
     fSampleX = sampleX;
-    fX0 = get_start_coord(sampleX);
+    fX0 = get_start_coord(sampleX) + fSrcOffset;
     fDstWidth = get_scaled_dimension(fSrcWidth, sampleX);
 
     // check that fX0 is less than original width
@@ -714,6 +718,5 @@ int SkSwizzler::onSetSampleX(int sampleX) {
 
 SkSwizzler::ResultAlpha SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
     SkASSERT(nullptr != dst && nullptr != src);
-    return fRowProc(dst, src, fDstWidth, fDeltaSrc, fSampleX * fDeltaSrc,
-            fX0 * fDeltaSrc, fColorTable);
+    return fRowProc(dst, src, fDstWidth, fBPP, fSampleX * fBPP, fX0 * fBPP, fColorTable);
 }

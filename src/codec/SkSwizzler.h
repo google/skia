@@ -121,13 +121,14 @@ public:
      *  @param ctable Unowned pointer to an array of up to 256 colors for an
      *                index source.
      *  @param dstInfo Describes the destination.
-     *  @param ZeroInitialized Whether dst is zero-initialized. The
+     *  @param options Indicates if dst is zero-initialized. The
      *                         implementation may choose to skip writing zeroes
      *                         if set to kYes_ZeroInitialized.
+     *                 Contains subset information.
      *  @return A new SkSwizzler or nullptr on failure.
      */
     static SkSwizzler* CreateSwizzler(SrcConfig, const SkPMColor* ctable,
-                                      const SkImageInfo& dstInfo, SkCodec::ZeroInitialized);
+                                      const SkImageInfo& dstInfo, const SkCodec::Options&);
 
     /**
      *  Swizzle a line. Generally this will be called height times, once
@@ -173,16 +174,19 @@ private:
 
     const RowProc       fRowProc;
     const SkPMColor*    fColorTable;      // Unowned pointer
-    const int           fDeltaSrc;        // if bitsPerPixel % 8 == 0
-                                          //     deltaSrc is bytesPerPixel
-                                          // else
-                                          //     deltaSrc is bitsPerPixel
+    const int           fSrcOffset;       // Offset of the src in pixels, allows for partial
+                                          // scanline decodes.
+    int                 fX0;              // Start coordinate for the src, may be different than
+                                          // fSrcOffset if we are sampling.
     const int           fSrcWidth;        // Width of the source - i.e. before any sampling.
     int                 fDstWidth;        // Width of dst, which may differ with sampling.
-    int                 fX0;              // first X coord to sample
     int                 fSampleX;         // step between X samples
+    const int           fBPP;             // if bitsPerPixel % 8 == 0
+                                          //     fBPP is bytesPerPixel
+                                          // else
+                                          //     fBPP is bitsPerPixel
 
-    SkSwizzler(RowProc proc, const SkPMColor* ctable, int deltaSrc, int srcWidth);
+    SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int srcWidth, int bpp);
 
     int onSetSampleX(int) override;
 

@@ -144,8 +144,8 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
         return false;
     }
 
-    SkIRect bounds = SkIRect::MakeSize(this->getInfo().dimensions());
-    if (!desiredSubset->intersect(bounds)) {
+    SkIRect dimensions  = SkIRect::MakeSize(this->getInfo().dimensions());
+    if (!dimensions.contains(*desiredSubset)) {
         return false;
     }
 

@@ -65,56 +65,29 @@ void SubsetSingleBench::onDraw(int n, SkCanvas* canvas) {
     if (fUseCodec) {
         for (int count = 0; count < n; count++) {
             SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(fStream->duplicate()));
+            SkASSERT(SkCodec::kOutOfOrder_SkScanlineOrder != codec->getScanlineOrder());
             const SkImageInfo info = codec->getInfo().makeColorType(fColorType);
 
+            // The scanline decoder will handle subsetting in the x-dimension.
+            SkIRect subset = SkIRect::MakeXYWH(fOffsetLeft, 0, fSubsetWidth,
+                    codec->getInfo().height());
+            SkCodec::Options options;
+            options.fSubset = &subset;
+
             SkDEBUGCODE(SkCodec::Result result =)
-            codec->startScanlineDecode(info, nullptr, colors, &colorCount);
+            codec->startScanlineDecode(info, &options, colors, &colorCount);
             SkASSERT(result == SkCodec::kSuccess);
 
             SkBitmap bitmap;
             SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);
             alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
-            SkDEBUGCODE(int lines = ) codec->skipScanlines(fOffsetTop);
-            SkASSERT((uint32_t) lines == fOffsetTop);
+            SkDEBUGCODE(bool success = ) codec->skipScanlines(fOffsetTop);
+            SkASSERT(success);
 
-            const uint32_t bpp = info.bytesPerPixel();
-
-            switch (codec->getScanlineOrder()) {
-                case SkCodec::kTopDown_SkScanlineOrder: {
-                    SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
-                    for (uint32_t y = 0; y < fSubsetHeight; y++) {
-                        SkDEBUGCODE(lines = ) codec->getScanlines(row.get(), 1, 0);
-                        SkASSERT(lines == 1);
-
-                        memcpy(bitmap.getAddr(0, y), row.get() + fOffsetLeft * bpp,
-                                fSubsetWidth * bpp);
-                    }
-                    break;
-                }
-                case SkCodec::kNone_SkScanlineOrder: {
-                    // decode all scanlines that intersect the subset, and copy the subset
-                    // into the output.
-                    SkImageInfo stripeInfo = info.makeWH(info.width(), fSubsetHeight);
-                    SkBitmap stripeBm;
-                    alloc_pixels(&stripeBm, stripeInfo, colors, colorCount);
-
-                    SkDEBUGCODE(lines = ) codec->getScanlines(stripeBm.getPixels(), fSubsetHeight,
-                                                               stripeBm.rowBytes());
-                    SkASSERT((uint32_t) lines == fSubsetHeight);
-
-                    for (uint32_t y = 0; y < fSubsetHeight; y++) {
-                        memcpy(bitmap.getAddr(0, y), stripeBm.getAddr(fOffsetLeft, y),
-                                fSubsetWidth * bpp);
-                    }
-                    break;
-                }
-                default:
-                    // We currently are only testing kTopDown and kNone, which are the only
-                    // two used by the subsets we care about. skbug.com/4428
-                    SkASSERT(false);
-
-            }
+            SkDEBUGCODE(uint32_t lines = ) codec->getScanlines(bitmap.getPixels(), fSubsetHeight,
+                    bitmap.rowBytes());
+            SkASSERT(lines == fSubsetHeight);
         }
     } else {
         for (int count = 0; count < n; count++) {

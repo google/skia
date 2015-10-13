@@ -168,11 +168,20 @@ public:
         ZeroInitialized fZeroInitialized;
         /**
          *  If not NULL, represents a subset of the original image to decode.
-         *
          *  Must be within the bounds returned by getInfo().
-         *
          *  If the EncodedFormat is kWEBP_SkEncodedFormat (the only one which
          *  currently supports subsets), the top and left values must be even.
+         *
+         *  In getPixels, we will attempt to decode the exact rectangular
+         *  subset specified by fSubset.
+         *
+         *  In a scanline decode, it does not make sense to specify a subset
+         *  top or subset height, since the client already controls which rows
+         *  to get and which rows to skip.  During scanline decodes, we will
+         *  require that the subset top be zero and the subset height be equal
+         *  to the full height.  We will, however, use the values of
+         *  subset left and subset width to decode partial scanlines on calls
+         *  to getScanlines().
          */
         SkIRect*        fSubset;
     };
@@ -259,7 +268,7 @@ public:
      *  @return Enum representing success or reason for failure.
      */
     Result startScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options* options,
-                 SkPMColor ctable[], int* ctableCount);
+            SkPMColor ctable[], int* ctableCount);
 
     /**
      *  Simplified version of startScanlineDecode() that asserts that info is NOT

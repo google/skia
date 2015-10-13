@@ -28,7 +28,8 @@ public:
     static SkMaskSwizzler* CreateMaskSwizzler(const SkImageInfo& dstInfo,
                                               const SkImageInfo& srcInfo,
                                               SkMasks* masks,
-                                              uint32_t bitsPerPixel);
+                                              uint32_t bitsPerPixel,
+                                              const SkCodec::Options& options);
 
     /*
      * Swizzle a row
@@ -49,14 +50,10 @@ private:
     /*
      * Row procedure used for swizzle
      */
-    typedef SkSwizzler::ResultAlpha (*RowProc)(
-            void* dstRow, const uint8_t* srcRow, int width,
+    typedef SkSwizzler::ResultAlpha (*RowProc)(void* dstRow, const uint8_t* srcRow, int width,
             SkMasks* masks, uint32_t startX, uint32_t sampleX);
 
-    /*
-     * Constructor for mask swizzler
-     */
-    SkMaskSwizzler(int width, SkMasks* masks, RowProc proc);
+    SkMaskSwizzler(SkMasks* masks, RowProc proc, int srcWidth, int srcOffset);
 
     int onSetSampleX(int) override;
 
@@ -67,6 +64,7 @@ private:
     const int       fSrcWidth;        // Width of the source - i.e. before any sampling.
     int             fDstWidth;        // Width of dst, which may differ with sampling.
     int             fSampleX;
+    int             fSrcOffset;
     int             fX0;
 };
 
