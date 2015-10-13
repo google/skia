@@ -111,6 +111,7 @@ DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
+DEFINE_bool(pngBuildTileIndex, false, "If supported, use png buildTileIndex/decodeSubset.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) return SkStringPrintf("%llu", (uint64_t)(ms*1e6));
@@ -508,8 +509,8 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
  */
 static bool run_subset_bench(const SkString& path, bool useCodec) {
     static const char* const exts[] = {
-        "jpg", "jpeg", "png",
-        "JPG", "JPEG", "PNG",
+        "jpg", "jpeg",
+        "JPG", "JPEG",
     };
 
     for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
@@ -518,7 +519,18 @@ static bool run_subset_bench(const SkString& path, bool useCodec) {
         }
     }
 
-    return !useCodec && (path.endsWith("webp") || path.endsWith("WEBP"));
+    // Test png in SkCodec, and optionally on SkImageDecoder. SkImageDecoder is
+    // disabled by default because it leaks memory.
+    // skbug.com/4360
+    if ((useCodec || FLAGS_pngBuildTileIndex) && (path.endsWith("png") || path.endsWith("PNG"))) {
+        return true;
+    }
+
+    if (!useCodec && (path.endsWith("webp") || path.endsWith("WEBP"))) {
+        return true;
+    }
+
+    return false;
 }
 
 /*
