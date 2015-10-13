@@ -25,7 +25,7 @@ platform_tools/android/apps/*/src/main/libs
 platform_tools/chromeos/third_party/externals
 platform_tools/chromeos/toolchain
 /skps
-third_party/externals
+
 tools/skp/page_sets/data/*.json
 tools/skp/page_sets/data/*.wpr
 xcodebuild
