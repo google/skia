@@ -1,0 +1,10 @@
+CMake Warning at MissingConfigOneName.cmake:1 \(find_package\):
+  Could not find a package configuration file named "NotHereConfig.cmake"
+  provided by package "NotHere".
+
+  Add the installation prefix of "NotHere" to CMAKE_PREFIX_PATH or set
+  "NotHere_DIR" to a directory containing one of the above files.  If
+  "NotHere" provides a separate development package or SDK, be sure it has
+  been installed.
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)

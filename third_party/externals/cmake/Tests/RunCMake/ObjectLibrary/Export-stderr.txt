@@ -1,0 +1,4 @@
+CMake Error at Export.cmake:2 \(export\):
+  export given OBJECT library "A" which may not be exported.
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)

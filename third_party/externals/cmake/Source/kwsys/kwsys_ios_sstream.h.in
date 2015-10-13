@@ -1,0 +1,199 @@
+/*============================================================================
+  KWSys - Kitware System Library
+  Copyright 2000-2009 Kitware, Inc., Insight Software Consortium
+
+  Distributed under the OSI-approved BSD License (the "License");
+  see accompanying file Copyright.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even the
+  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the License for more information.
+============================================================================*/
+#ifndef @KWSYS_NAMESPACE@_ios_sstream
+#define @KWSYS_NAMESPACE@_ios_sstream
+
+#include <@KWSYS_NAMESPACE@/Configure.hxx>
+
+/* Define this macro temporarily to keep the code readable.  */
+#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
+# define kwsys_stl @KWSYS_NAMESPACE@_stl
+#endif
+
+#if @KWSYS_NAMESPACE@_IOS_USE_SSTREAM
+# ifdef _MSC_VER
+#  pragma warning (push, 1)
+#  pragma warning (disable: 4702)
+# endif
+# include <sstream>
+# ifdef _MSC_VER
+#  pragma warning(pop)
+# endif
+#else
+# ifdef _MSC_VER
+#  pragma warning (push, 1)
+#  pragma warning (disable: 4702)
+#  pragma warning (disable: 4995) /* Old streams are deprecated.  */
+# endif
+# if @KWSYS_NAMESPACE@_IOS_USE_ANSI
+#  include <strstream>
+# elif @KWSYS_NAMESPACE@_IOS_USE_STRSTREAM_H
+#  include <strstream.h>
+# elif @KWSYS_NAMESPACE@_IOS_USE_STRSTREA_H
+#  include <strstrea.h>
+# endif
+# if @KWSYS_NAMESPACE@_IOS_USE_ANSI
+#  include <new> // Need placement operator new.
+# else
+#  include <new.h> // Need placement operator new.
+# endif
+# ifdef _MSC_VER
+#  pragma warning(pop)
+# endif
+
+// Only have old std strstream classes.  Wrap them to look like new
+// ostringstream and istringstream classes.
+
+# include <@KWSYS_NAMESPACE@/stl/string>
+
+namespace @KWSYS_NAMESPACE@_ios
+{
+using @KWSYS_NAMESPACE@_ios_namespace::streambuf;
+using @KWSYS_NAMESPACE@_ios_namespace::ostream;
+using @KWSYS_NAMESPACE@_ios_namespace::istream;
+using @KWSYS_NAMESPACE@_ios_namespace::strstream;
+using @KWSYS_NAMESPACE@_ios_namespace::istrstream;
+using @KWSYS_NAMESPACE@_ios_namespace::ostrstream;
+using @KWSYS_NAMESPACE@_ios_namespace::ios;
+using @KWSYS_NAMESPACE@_ios_namespace::endl;
+using @KWSYS_NAMESPACE@_ios_namespace::ends;
+using @KWSYS_NAMESPACE@_ios_namespace::flush;
+
+class stringstream_cleanup
+{
+public:
+  stringstream_cleanup(strstream& str): m_StrStream(str) {}
+  ~stringstream_cleanup() { m_StrStream.rdbuf()->freeze(0); }
+  static void IgnoreUnusedVariable(const stringstream_cleanup&) {}
+protected:
+  strstream& m_StrStream;
+private:
+  void operator=(stringstream_cleanup const&);
+};
+
+class stringstream: public strstream
+{
+public:
+  typedef strstream Superclass;
+  stringstream() {}
+  stringstream(const kwsys_stl::string& s) { *this << s.c_str(); }
+  kwsys_stl::string str()
+    {
+    stringstream_cleanup cleanup(*this);
+    stringstream_cleanup::IgnoreUnusedVariable(cleanup);
+// Visual Studio 6 has a strstream::pcount, but this is not rdbuf()->pcount()
+#if (@KWSYS_NAMESPACE@_IOS_USE_STRSTREA_H) && defined(_MSC_VER) && (_MSC_VER == 1200)
+    int count = this->pcount();
+#elif defined(__WATCOMC__)
+    int count = this->rdbuf()->out_waiting();
+#else
+    int count = this->rdbuf()->pcount();
+#endif
+    const char* ptr = this->Superclass::str();
+    return kwsys_stl::string(ptr?ptr:"", count);
+    }
+  void str(const kwsys_stl::string& s)
+    {
+    this->~stringstream();
+    new (this) stringstream(s);
+    }
+private:
+  stringstream(const stringstream&);
+  void operator=(const stringstream&);
+};
+
+class ostringstream_cleanup
+{
+public:
+  ostringstream_cleanup(ostrstream& ostr): m_OStrStream(ostr) {}
+  ~ostringstream_cleanup() { m_OStrStream.rdbuf()->freeze(0); }
+  static void IgnoreUnusedVariable(const ostringstream_cleanup&) {}
+protected:
+  ostrstream& m_OStrStream;
+private:
+  void operator=(ostringstream_cleanup const&);
+};
+
+class ostringstream: public ostrstream
+{
+public:
+  typedef ostrstream Superclass;
+  ostringstream() {}
+  ostringstream(const kwsys_stl::string& s) { *this << s.c_str(); }
+  kwsys_stl::string str()
+    {
+    ostringstream_cleanup cleanup(*this);
+    ostringstream_cleanup::IgnoreUnusedVariable(cleanup);
+    int count = this->pcount();
+    const char* ptr = this->Superclass::str();
+    return kwsys_stl::string(ptr?ptr:"", count);
+    }
+  void str(const kwsys_stl::string& s)
+    {
+    this->~ostringstream();
+    new (this) ostringstream(s);
+    }
+private:
+  ostringstream(const ostringstream&);
+  void operator=(const ostringstream&);
+};
+
+#if defined(_MSC_VER)
+# pragma warning (push)
+# pragma warning (disable: 4097) /* typedef-name used as synonym for class */
+#endif
+#if defined(__WATCOMC__)
+// W728: class modifiers for 'A' conflict with class modifiers for 'B'
+# pragma warning 728 10
+#endif
+
+class istringstream: private kwsys_stl::string, public istrstream
+{
+public:
+  typedef kwsys_stl::string StdString;
+  typedef istrstream IStrStream;
+  istringstream(): StdString(),
+                   IStrStream(const_cast<char*>(StdString::c_str())) {}
+  istringstream(const kwsys_stl::string& s):
+    StdString(s), IStrStream(const_cast<char*>(StdString::c_str())) {}
+  kwsys_stl::string str() const { return *this; }
+  void str(const kwsys_stl::string& s)
+    {
+    this->~istringstream();
+    new (this) istringstream(s);
+    }
+  void clear(int flags)
+    {
+    this->IStrStream::clear(flags);
+    }
+private:
+  istringstream(const istringstream&);
+  void operator=(const istringstream&);
+};
+
+#if defined(__WATCOMC__)
+# pragma warning 728 9
+#endif
+#if defined(_MSC_VER)
+# pragma warning (pop)
+#endif
+
+} // namespace @KWSYS_NAMESPACE@_ios
+
+#endif
+
+/* Undefine temporary macro.  */
+#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
+# undef kwsys_stl
+#endif
+
+#endif

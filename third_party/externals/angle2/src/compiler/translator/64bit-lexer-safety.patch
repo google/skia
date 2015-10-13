@@ -1,0 +1,40 @@
+--- a/src/compiler/glslang_lex.cpp
++++ b/src/compiler/glslang_lex.cpp
+@@ -68,6 +68,7 @@ typedef int16_t flex_int16_t;
+ typedef uint16_t flex_uint16_t;
+ typedef int32_t flex_int32_t;
+ typedef uint32_t flex_uint32_t;
++typedef uint64_t flex_uint64_t;
+ #else
+ typedef signed char flex_int8_t;
+ typedef short int flex_int16_t;
+@@ -191,6 +192,11 @@ typedef void* yyscan_t;
+ typedef struct yy_buffer_state *YY_BUFFER_STATE;
+ #endif
+
++#ifndef YY_TYPEDEF_YY_SIZE_T
++#define YY_TYPEDEF_YY_SIZE_T
++typedef size_t yy_size_t;
++#endif
++
+ #define EOB_ACT_CONTINUE_SCAN 0
+ #define EOB_ACT_END_OF_FILE 1
+ #define EOB_ACT_LAST_MATCH 2
+@@ -204,7 +210,7 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
+      */
+     #define  YY_LESS_LINENO(n) \
+             do { \
+-                int yyl;\
++                yy_size_t yyl;\
+                 for ( yyl = n; yyl < yyleng; ++yyl )\
+                     if ( yytext[yyl] == '\n' )\
+                         --yylineno;\
+@@ -378,7 +379,7 @@ static void yy_fatal_error (yyconst char msg[] ,yyscan_t yyscanner );
+  */
+ #define YY_DO_BEFORE_ACTION \
+ 	yyg->yytext_ptr = yy_bp; \
+-	yyleng = (size_t) (yy_cp - yy_bp); \
++	yyleng = (yy_size_t) (yy_cp - yy_bp); \
+ 	yyg->yy_hold_char = *yy_cp; \
+ 	*yy_cp = '\0'; \
+ 	yyg->yy_c_buf_p = yy_cp;

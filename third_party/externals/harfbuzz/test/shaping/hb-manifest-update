@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+from hb_test_tools import *
+
+UtilMains.process_multiple_args (Manifest.update_recursive, mnemonic="DIR")

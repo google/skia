@@ -1,0 +1,4 @@
+CMake Error at Import.cmake:1 \(add_library\):
+  The OBJECT library type may not be used for IMPORTED libraries.
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)

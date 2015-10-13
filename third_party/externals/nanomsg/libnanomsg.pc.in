@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Nanomsg
+Description: nanomsg library is a high-performance implementation of several scalability protocols.
+URL: http://nanomsg.org/
+Version: @NN_ABI_VERSION@
+Requires:
+Libs: -L${libdir} -lnanomsg
+Cflags: -I${includedir}

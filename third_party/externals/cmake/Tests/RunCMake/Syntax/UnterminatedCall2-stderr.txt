@@ -1,0 +1,7 @@
+CMake Error: Error in cmake code at
+.*/Syntax/UnterminatedCall2.cmake:4:
+Parse error.  Function missing ending "\)".  End of file reached.
+CMake Error at CMakeLists.txt:3 \(include\):
+  include could not find load file:
+
+    UnterminatedCall2.cmake

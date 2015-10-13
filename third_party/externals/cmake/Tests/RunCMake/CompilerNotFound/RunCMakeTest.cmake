@@ -1,0 +1,11 @@
+include(RunCMake)
+
+if("${RunCMake_GENERATOR}" MATCHES "Visual Studio|Xcode")
+  run_cmake(NoCompilerC-IDE)
+  run_cmake(NoCompilerCXX-IDE)
+  run_cmake(NoCompilerCandCXX-IDE)
+else()
+  run_cmake(BadCompilerC)
+  run_cmake(BadCompilerCXX)
+  run_cmake(BadCompilerCandCXX)
+endif()

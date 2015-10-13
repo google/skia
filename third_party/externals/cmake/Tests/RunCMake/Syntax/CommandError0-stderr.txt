@@ -1,0 +1,8 @@
+CMake Error: Error in cmake code at
+.*/Tests/RunCMake/Syntax/CommandError0.cmake:2:
+Parse error.  Expected "\(", got newline with text "
+".
+CMake Error at CMakeLists.txt:3 \(include\):
+  include could not find load file:
+
+    CommandError0.cmake

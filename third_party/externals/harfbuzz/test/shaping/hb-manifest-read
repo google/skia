@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+from hb_test_tools import *
+
+UtilMains.process_multiple_args (FilterHelpers.filter_printer_function (Manifest.read), mnemonic="DIR")

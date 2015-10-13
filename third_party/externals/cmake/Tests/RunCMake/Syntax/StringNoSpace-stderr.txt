@@ -1,0 +1,19 @@
+CMake Warning \(dev\) at CMakeLists.txt:3 \(include\):
+  Syntax Warning in cmake code at
+
+    .*/Tests/RunCMake/Syntax/StringNoSpace.cmake:2:28
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning \(dev\) at CMakeLists.txt:3 \(include\):
+  Syntax Warning in cmake code at
+
+    .*/Tests/RunCMake/Syntax/StringNoSpace.cmake:2:31
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+\[1 \${var} \\n 4\]
+\[x\]
+\[y\]$

@@ -1,0 +1,2 @@
+# Preserve upstream indentation style.
+cm_sha2.*        whitespace=indent-with-non-tab

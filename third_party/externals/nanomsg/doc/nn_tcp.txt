@@ -1,0 +1,79 @@
+nn_tcp(7)
+=========
+
+NAME
+----
+nn_tcp - TCP transport mechanism
+
+
+SYNOPSIS
+--------
+*#include <nanomsg/nn.h>*
+
+*#include <nanomsg/tcp.h>*
+
+
+DESCRIPTION
+-----------
+TCP transport allows for passing message over the network using simple reliable
+one-to-one connections. TCP is the most widely used transport protocol, it is
+virtually ubiquitous and thus the transport of choice for communication over
+the network.
+
+When binding a TCP socket address of the form tcp://interface:port should be
+used. Port is the TCP port number to use. Interface is one of the following
+(optionally placed within square brackets):
+
+*  Asterisk character (*) meaning all local network interfaces.
+*  IPv4 address of a local network interface in numeric form (192.168.0.111).
+*  IPv6 address of a local network interface in numeric form (::1).
+*  Interface name, as defined by operating system.
+
+When connecting a TCP socket address of the form tcp://interface;address:port
+should be used. Port is the TCP port number to use. Interface is optional and
+specifies which local network interface to use. If not specified, OS will select
+an appropriate interface itself. If specified it can be one of the following
+(optionally placed within square brackets):
+
+*  IPv4 address of a local network interface in numeric form (192.168.0.111).
+*  IPv6 address of a local network interface in numeric form (::1).
+*  Interface name, as defined by operating system (eth0).
+
+Finally, address specifies the remote address to connect to. It can be one of
+the following (optionally placed within square brackets):
+
+*  IPv4 address of a remote network interface in numeric form (192.168.0.111).
+*  IPv6 address of a remote network interface in numeric form (::1).
+*  The DNS name of the remote box.
+
+
+Socket Options
+~~~~~~~~~~~~~~
+
+NN_TCP_NODELAY::
+    This option, when set to 1, disables Nagle's algorithm. It also disables
+    delaying of TCP acknowledgments. Using this option improves latency at
+    the expense of throughput. Type of this option is int. Default value is 0.
+
+
+EXAMPLE
+-------
+
+----
+nn_bind (s1, "tcp://*:5555");
+nn_connect (s2, "tcp://myserver:5555");
+----
+
+SEE ALSO
+--------
+linknanomsg:nn_inproc[7]
+linknanomsg:nn_ipc[7]
+linknanomsg:nn_bind[3]
+linknanomsg:nn_connect[3]
+linknanomsg:nanomsg[7]
+
+
+AUTHORS
+-------
+Martin Sustrik <sustrik@250bpm.com>
+

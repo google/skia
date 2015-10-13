@@ -1,0 +1,19 @@
+# Copyright 2015 The ANGLE Project Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This isolate expresses the Chromium project's default runtime
+# dependencies.
+{
+  'conditions': [
+    ['OS=="win"', {
+      'variables': {
+        'files': [
+          '<(PRODUCT_DIR)/d3dcompiler_47.dll',
+          '<(PRODUCT_DIR)/libEGL.dll',
+          '<(PRODUCT_DIR)/libGLESv2.dll',
+        ],
+      },
+    }],
+  ],
+}

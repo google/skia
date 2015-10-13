@@ -1,0 +1,49 @@
+/*============================================================================
+  KWSys - Kitware System Library
+  Copyright 2000-2009 Kitware, Inc., Insight Software Consortium
+
+  Distributed under the OSI-approved BSD License (the "License");
+  see accompanying file Copyright.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even the
+  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the License for more information.
+============================================================================*/
+#ifndef @KWSYS_NAMESPACE@_stl_@KWSYS_STL_HEADER@
+#define @KWSYS_NAMESPACE@_stl_@KWSYS_STL_HEADER@
+
+#include <@KWSYS_NAMESPACE@/Configure.hxx>
+
+/* Avoid warnings in MSVC standard headers.  */
+#ifdef _MSC_VER
+# pragma warning (push, 1)
+# pragma warning (disable: 4702)
+# pragma warning (disable: 4786)
+#endif
+
+/* The HP standard library defines the functor "times" instead of
+   "multiplies" as specified by C++98 20.3.2 for backward
+   compatibility with earlier specifications.  Defining this macro
+   fixes this behavior.  The name "times" also conflicts with the
+   function declared in sys/times.h on that platform, so we must do
+   this as a work-around anyway.  */
+#if defined(__HP_aCC) && !defined(__HPACC_USING_MULTIPLIES_IN_FUNCTIONAL)
+# define __HPACC_USING_MULTIPLIES_IN_FUNCTIONAL
+# define @KWSYS_NAMESPACE@_DEFINED___HPACC_USING_MULTIPLIES_IN_FUNCTIONAL
+#endif
+
+/* Include the real header.  */
+#include <@KWSYS_STL_HEADER@>
+
+/* Cleanup.  */
+#if defined(@KWSYS_NAMESPACE@_DEFINED___HPACC_USING_MULTIPLIES_IN_FUNCTIONAL)
+# undef @KWSYS_NAMESPACE@_DEFINED___HPACC_USING_MULTIPLIES_IN_FUNCTIONAL
+# undef __HPACC_USING_MULTIPLIES_IN_FUNCTIONAL
+#endif
+
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
+
+@KWSYS_STL_HEADER_EXTRA@
+#endif

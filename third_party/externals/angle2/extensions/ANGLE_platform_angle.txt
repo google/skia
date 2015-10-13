@@ -1,0 +1,127 @@
+Name
+
+    ANGLE_platform_angle
+
+Name Strings
+
+    EGL_ANGLE_platform_angle
+
+Contributors
+
+    Scott Graham, Google
+    Shannon Woods, Google
+    Geoff Lang, Google
+
+Contacts
+
+    Scott Graham, Google (scottmg 'at' google 'dot' com)
+
+Status
+
+    Draft
+
+Version
+
+    Version 3, 2014-10-20
+
+Number
+
+    EGL Extension XXX
+
+Extension Type
+
+    EGL client extension
+
+Dependencies
+
+    Requires EGL_EXT_client_extensions to query its existence without
+    a display.
+
+    Requires EGL_EXT_platform_base.
+
+    This extension is written against the wording of version 9 of the
+    EGL_EXT_platform_base specification.
+
+    ANGLE_platform_angle_d3d affects the definition of this extension.
+    ANGLE_platform_angle_opengl affects the definition of this extension.
+
+Overview
+
+    This extension defines how to create EGL resources from native resources
+    using the functions defined by EGL_EXT_platform_base.
+
+New Types
+
+    None
+
+New Procedures and Functions
+
+    None
+
+New Tokens
+
+    Accepted as the <platform> argument of eglGetPlatformDisplayEXT:
+
+        EGL_PLATFORM_ANGLE_ANGLE                           0x3202
+
+    Accepted as an attribute name in the <attrib_list> argument of
+    eglGetPlatformDisplayEXT:
+
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE                      0x3203
+        EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE         0x3204
+        EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE         0x3205
+
+    Accepted as values for the EGL_PLATFORM_ANGLE_TYPE_ANGLE attribute:
+
+        EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE              0x3206
+
+Additions to the EGL Specification
+
+    None.
+
+New Behavior
+
+    To determine if the EGL implementation supports this extension, clients
+    should query the EGL_EXTENSIONS string of EGL_NO_DISPLAY.
+
+    To obtain an EGLDisplay backed by a ANGLE display, call
+    eglGetPlatformDisplayEXT with <platform> set to EGL_PLATFORM_ANGLE_ANGLE.
+
+    The <native_display> parameter is of type EGLNativeDisplayType. If
+    <native_display> is EGL_DEFAULT_DISPLAY a default display is returned.
+    Multiple calls with the same <native_display> will return the same
+    EGLDisplay handle. If <platform> is set to EGL_PLATFORM_ANGLE_ANGLE and
+    the returned display is in an uninitialized state, its attributes are
+    overwritten by those provided in the <attrib_list>, if any.
+
+    If no <attrib_list> is specified, the value of
+    EGL_PLATFORM_ANGLE_TYPE_ANGLE is implicitly set to
+    EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE.
+
+    If no <attrib_list> is specified, the values of
+    EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE and
+    EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE are implicitly set to
+    EGL_DONT_CARE.
+
+    If EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE is set to EGL_DONT_CARE and
+    EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE is not set to EGL_DONT_CARE,
+    an EGL_BAD_ATTRIBUTE error is generated and EGL_NO_DISPLAY is returned.
+
+    If no display matching the requested <native_display> or of the type
+    requested by the value of EGL_PLATFORM_ANGLE_TYPE_ANGLE is available,
+    EGL_NO_DISPLAY is returned. No error condition is raised in this case.
+
+Issues
+
+    None
+
+Revision History
+
+    Version 1, 2014-02-04 (Scott Graham)
+      - Initial draft
+    Version 2, 2014-06-05 (Geoff Lang)
+      - Rename extension from ANGLE_platform_angle_d3d to ANGLE_platform_angle.
+      - Add sub-extensions for specific platforms.
+    Version 3, 2014-10-20 (Geoff Lang)
+      - Add attributes to request specific feature level and context versions.
+      - Moved descriptions of platforms to child extension specs.

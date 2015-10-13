@@ -1,0 +1,57 @@
+Name: libjpeg-turbo
+URL: http://sourceforge.net/projects/libjpeg-turbo/
+Version: 1.3.1
+License: Custom license
+License File: LICENSE.txt
+Security Critical: yes
+License Android Compatible: yes
+
+Description:
+This consists of the components:
+* A partial copy of libjpeg-turbo 1.3.1 (r1219);
+* Revision r1188 cherry-picked from upstream trunk into config.h to fix
+  compiler warning on newer versions of gcc;
+* Revision r1220 cherry-picked from upstream trunk into jchuff.c to use
+  clz/bsr instructions on ARM for bit counting rather than the lookup table
+  (reduces memory footprint and can improve performance in some cases);
+* Revisions r1108, r1109, r1333, r1375, r1386, r1389 and r1390 cherry-picked
+  from upstream trunk for Arm64 NEON SIMD support;
+* Revisions r1582, r1583, r1586, r1587, r1591, and
+  commit 91eceba0a132a3fc70388a82c75616e67725a93a (code moved to GitHub)
+  cherry-picked from upstream trunk for partial decoding optimization;
+  http://crbug.com/515694
+* Revisions r1295, r1385, r1398, and r1402 (r1386 is also required but has
+  already been cherry-picked) cherry-picked from upstream trunk to enable
+  decoding to 565 as a memory optimization;
+  http://crbug.com/516761
+* A build file (libjpeg.gyp), and;
+* Patched header files used by Chromium.
+
+More details on cherry-picked revisions and commits can be found at:
+https://sourceforge.net/p/libjpeg-turbo/code/commit_browser
+https://github.com/libjpeg-turbo/libjpeg-turbo/commits/master
+
+This libjpeg-turbo can replace our libjpeg-6b without any modifications in the
+Chromium code.
+
+Same as our copy of libjpeg-6b, this libjpeg-turbo also added a new file
+jpeglibmangler.h and included it from jpeglib.h that changes the names of all
+externally visible functions to chromium_* so that we can avoid conflicts that
+arise when system libraries attempt to use our libjpeg. Also, we applied the
+following changes which are not merged to upstream:
+
+* Added the 'private_extern' flags on Mac (or the 'hidden' flags on Linux) to
+  all the global symbols in '.asm' files to prevent making them external ones.
+* Supported motion-JPEG frames that do not have DHT markers.
+* Fix libjpeg_turbo svn r64 libjpeg6b compat issue: make the fast path Huffman
+  decoder fallback to slow decoding if the Huffman decoding bit sentinel > 16,
+  this to match the exact behavior of jpeg_huff_decode().
+  http://crbug.com/398235
+* Fixed an issue with the ARM NEON build.
+  http://crbug.com/451035
+
+Refer to working-with-nested-repos [1] for details of how to setup your git
+svn client to update the code (for making local changes, cherry picking from
+upstream, etc).
+
+[1] https://www.chromium.org/developers/how-tos/get-the-code/working-with-nested-repos

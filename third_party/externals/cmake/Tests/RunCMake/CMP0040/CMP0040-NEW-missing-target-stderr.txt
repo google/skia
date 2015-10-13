@@ -1,0 +1,4 @@
+CMake Error at CMP0040-NEW-missing-target.cmake:3 \(add_custom_command\):
+  The target name "foobar" is unknown in this context.
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)

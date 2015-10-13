@@ -1,0 +1,46 @@
+/*============================================================================
+  KWSys - Kitware System Library
+  Copyright 2000-2009 Kitware, Inc., Insight Software Consortium
+
+  Distributed under the OSI-approved BSD License (the "License");
+  see accompanying file Copyright.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even the
+  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the License for more information.
+============================================================================*/
+#ifndef @KWSYS_NAMESPACE@_ios_fstream
+#define @KWSYS_NAMESPACE@_ios_fstream
+
+#include <@KWSYS_NAMESPACE@/Configure.hxx>
+
+#ifdef _MSC_VER
+# pragma warning (push, 1)
+# pragma warning (disable: 4702)
+# pragma warning (disable: 4995) /* Old streams are deprecated.  */
+#endif
+
+#if @KWSYS_NAMESPACE@_IOS_USE_ANSI
+# include <fstream>
+#else
+# include <fstream.h>
+#endif
+
+#if !@KWSYS_NAMESPACE@_IOS_USE_SSTREAM
+namespace @KWSYS_NAMESPACE@_ios
+{
+  using @KWSYS_NAMESPACE@_ios_namespace::ostream;
+  using @KWSYS_NAMESPACE@_ios_namespace::istream;
+  using @KWSYS_NAMESPACE@_ios_namespace::ofstream;
+  using @KWSYS_NAMESPACE@_ios_namespace::ifstream;
+  using @KWSYS_NAMESPACE@_ios_namespace::ios;
+  using @KWSYS_NAMESPACE@_ios_namespace::endl;
+  using @KWSYS_NAMESPACE@_ios_namespace::flush;
+}
+#endif
+
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
+
+#endif

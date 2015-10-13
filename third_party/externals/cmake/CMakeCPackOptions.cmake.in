@@ -1,0 +1,124 @@
+# This file is configured at cmake time, and loaded at cpack time.
+# To pass variables to cpack from cmake, they must be configured
+# in this file.
+
+if(CPACK_GENERATOR MATCHES "NSIS")
+  set(CPACK_NSIS_INSTALL_ROOT "@CPACK_NSIS_INSTALL_ROOT@")
+
+  # set the install/unistall icon used for the installer itself
+  # There is a bug in NSI that does not handle full unix paths properly.
+  set(CPACK_NSIS_MUI_ICON "@CMake_SOURCE_DIR@/Utilities/Release\\CMakeLogo.ico")
+  set(CPACK_NSIS_MUI_UNIICON "@CMake_SOURCE_DIR@/Utilities/Release\\CMakeLogo.ico")
+  # set the package header icon for MUI
+  set(CPACK_PACKAGE_ICON "@CMake_SOURCE_DIR@/Utilities/Release\\CMakeInstall.bmp")
+  # tell cpack to create links to the doc files
+  set(CPACK_NSIS_MENU_LINKS
+    "@CMAKE_DOC_DIR@/html/index.html" "CMake Documentation"
+    "http://www.cmake.org" "CMake Web Site"
+    )
+  # Use the icon from cmake-gui for add-remove programs
+  set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\cmake-gui.exe")
+
+  set(CPACK_NSIS_PACKAGE_NAME "@CPACK_NSIS_PACKAGE_NAME@")
+  set(CPACK_NSIS_DISPLAY_NAME "@CPACK_NSIS_PACKAGE_NAME@, a cross-platform, open-source build system")
+  set(CPACK_NSIS_HELP_LINK "http://www.cmake.org")
+  set(CPACK_NSIS_URL_INFO_ABOUT "http://www.kitware.com")
+  set(CPACK_NSIS_CONTACT @CPACK_PACKAGE_CONTACT@)
+  set(CPACK_NSIS_MODIFY_PATH ON)
+endif()
+
+# include the cpack options for qt dialog if they exist
+# they might not if qt was not enabled for the build
+include("@QT_DIALOG_CPACK_OPTIONS_FILE@" OPTIONAL)
+
+if(CPACK_GENERATOR MATCHES "IFW")
+  # Installer configuration
+  set(CPACK_IFW_PACKAGE_TITLE "CMake Build Tool")
+  set(CPACK_IFW_PRODUCT_URL "http://www.cmake.org")
+  @_CPACK_IFW_PACKAGE_ICON@
+  set(CPACK_IFW_PACKAGE_WINDOW_ICON
+    "@CMake_SOURCE_DIR@/Source/QtDialog/CMakeSetup128.png")
+  set(CPACK_IFW_PACKAGE_CONTROL_SCRIPT
+    "@CMake_SOURCE_DIR@/Source/QtIFW/controlscript.qs")
+  # Uninstaller configuration
+  set(CPACK_IFW_PACKAGE_MAINTENANCE_TOOL_NAME "cmake-maintenance")
+  # Package configuration group
+  set(CPACK_IFW_PACKAGE_GROUP CMake)
+  # Group configuration
+  set(CPACK_COMPONENT_GROUP_CMAKE_DISPLAY_NAME
+    "@CPACK_PACKAGE_NAME@")
+  set(CPACK_COMPONENT_GROUP_CMAKE_DESCRIPTION
+    "@CPACK_PACKAGE_DESCRIPTION_SUMMARY@")
+  # IFW group configuration
+  set(CPACK_IFW_COMPONENT_GROUP_CMAKE_VERSION
+    "@_CPACK_IFW_PACKAGE_VERSION@")
+  set(CPACK_IFW_COMPONENT_GROUP_CMAKE_LICENSES
+    "@CPACK_PACKAGE_NAME@ Copyright" "@CPACK_RESOURCE_FILE_LICENSE@")
+  @_CPACK_IFW_PACKAGE_SCRIPT@
+endif()
+
+if(CPACK_GENERATOR MATCHES "CygwinSource")
+  # when packaging source make sure the .build directory is not included
+    set(CPACK_SOURCE_IGNORE_FILES
+      "/CVS/" "/\\.build/" "/\\.svn/" "\\.swp$" "\\.#" "/#" "~$")
+endif()
+
+if("${CPACK_GENERATOR}" STREQUAL "PackageMaker")
+  if(CMAKE_PACKAGE_QTGUI)
+    set(CPACK_PACKAGE_DEFAULT_LOCATION "/Applications")
+  else()
+    set(CPACK_PACKAGE_DEFAULT_LOCATION "/usr")
+  endif()
+endif()
+
+if("${CPACK_GENERATOR}" STREQUAL "WIX")
+  # Reset CPACK_PACKAGE_VERSION to deal with WiX restriction.
+  # But the file names still use the full CMake_VERSION value:
+  set(CPACK_PACKAGE_FILE_NAME
+    "${CPACK_PACKAGE_NAME}-@CMake_VERSION@-${CPACK_SYSTEM_NAME}")
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME
+    "${CPACK_PACKAGE_NAME}-@CMake_VERSION@-Source")
+
+  if(NOT CPACK_WIX_SIZEOF_VOID_P)
+    set(CPACK_WIX_SIZEOF_VOID_P "@CMAKE_SIZEOF_VOID_P@")
+  endif()
+
+  set(CPACK_PACKAGE_VERSION
+    "@CMake_VERSION_MAJOR@.@CMake_VERSION_MINOR@")
+  # WIX installers require at most a 4 component version number, where
+  # each component is an integer between 0 and 65534 inclusive
+  set(patch "@CMake_VERSION_PATCH@")
+  if(patch MATCHES "^[0-9]+$" AND patch LESS 65535)
+    set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}.${patch}")
+  endif()
+
+  set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "http://www.cmake.org")
+
+  set(CPACK_WIX_PROPERTY_ARPCONTACT "@CPACK_PACKAGE_CONTACT@")
+
+  set(CPACK_WIX_PROPERTY_ARPCOMMENTS
+    "CMake is a cross-platform, open-source build system."
+  )
+
+  set(CPACK_WIX_PRODUCT_ICON
+    "@CMake_SOURCE_DIR@/Utilities/Release/CMakeLogo.ico"
+  )
+
+  set_property(INSTALL "@CMAKE_DOC_DIR@/html/index.html" PROPERTY
+    CPACK_START_MENU_SHORTCUTS "CMake Documentation"
+  )
+
+  set_property(INSTALL "cmake.org.html" PROPERTY
+    CPACK_START_MENU_SHORTCUTS "CMake Web Site"
+  )
+
+  set(CPACK_WIX_LIGHT_EXTRA_FLAGS "-dcl:high")
+
+  set(CPACK_WIX_UI_BANNER
+    "@CMake_SOURCE_DIR@/Utilities/Release/cpack_wix_ui_banner.jpg"
+  )
+
+  set(CPACK_WIX_UI_DIALOG
+    "@CMake_SOURCE_DIR@/Utilities/Release/cpack_wix_ui_dialog.jpg"
+  )
+endif()

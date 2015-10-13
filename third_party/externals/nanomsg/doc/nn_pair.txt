@@ -1,0 +1,58 @@
+nn_pair(7)
+==========
+
+NAME
+----
+nn_pair - one-to-one scalability protocol
+
+
+SYNOPSIS
+--------
+*#include <nanomsg/nn.h>*
+
+*#include <nanomsg/pair.h>*
+
+
+DESCRIPTION
+-----------
+Pair protocol is the simplest and least scalable scalability protocol. It allows
+scaling by breaking the application in exactly two pieces. For example,
+if a monolithic application handles both accounting and agenda of HR department,
+it can be split into two applications (accounting vs. HR) that are run on two
+separate servers. These applications can then communicate via PAIR sockets.
+
+The downside of this protocol is that its scaling properties are very limited.
+Splitting the application into two pieces allows to scale the two servers.
+To add the third server to the cluster, application has to be split once more,
+say by separating HR functionality into hiring module and salary computation
+module. Whenever possible, try to use one of the more scalable protocols
+instead.
+
+Socket Types
+~~~~~~~~~~~~
+
+NN_PAIR::
+    Socket for communication with exactly one peer. Each party can send messages
+    at any time. If the peer is not available or send buffer is full subsequent
+    calls to linknanomsg:nn_send[3] will block until it's possible to send the
+    message.
+
+Socket Options
+~~~~~~~~~~~~~~
+
+No protocol-specific socket options are defined at the moment.
+
+SEE ALSO
+--------
+linknanomsg:nn_bus[7]
+linknanomsg:nn_pubsub[7]
+linknanomsg:nn_reqrep[7]
+linknanomsg:nn_pipeline[7]
+linknanomsg:nn_survey[7]
+linknanomsg:nanomsg[7]
+
+
+AUTHORS
+-------
+Martin Sustrik <sustrik@250bpm.com>
+

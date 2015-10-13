@@ -1,0 +1,5 @@
+CMake Error at .*Modules/CMakeFindDependencyMacro.cmake:[0-9]+ \(message\):
+  Invalid arguments to find_dependency
+Call Stack \(most recent call first\):
+  empty-arg-3.cmake:4 \(find_dependency\)
+  CMakeLists.txt:4 \(include\)

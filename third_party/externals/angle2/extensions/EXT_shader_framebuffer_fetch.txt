@@ -1,0 +1,263 @@
+Name
+
+    EXT_shader_framebuffer_fetch
+
+Name Strings
+
+    GL_EXT_shader_framebuffer_fetch
+
+Contact
+
+    Benj Lipchak, Apple (lipchak 'at' apple.com)
+
+Status
+
+    Complete
+
+Version
+
+    Last Modified Date: May 28, 2013
+    Author Revision: 4
+
+Number
+
+    OpenGL ES Extension #122
+
+Dependencies
+
+    OpenGL ES 2.0 is required.
+    
+    This specification is written against the OpenGL ES 2.0.24 specification.
+    This extension is written against the OpenGL ES Shading Language 1.0.17
+    specification.
+    
+    OpenGL ES 3.0 affects the definition of this extension.
+
+Overview
+
+    Conventional OpenGL blending provides a configurable series of operations
+    that can be used to combine the output values from a fragment shader with
+    the values already in the framebuffer. While these operations are
+    suitable for basic image compositing, other compositing operations or
+    operations that treat fragment output as something other than a color
+    (normals, for instance) may not be expressible without multiple passes or
+    render-to-texture operations.
+
+    This extension provides a mechanism whereby a fragment shader may read
+    existing framebuffer data as input. This can be used to implement
+    compositing operations that would have been inconvenient or impossible with
+    fixed-function blending. It can also be used to apply a function to the
+    framebuffer color, by writing a shader which uses the existing framebuffer
+    color as its only input.
+
+Issues
+
+    1. How is framebuffer data treated during multisample rendering?
+    
+    RESOLVED: Reading the value of gl_LastFragData produces a different
+    result for each sample. This implies that all or part of the shader be run
+    once for each sample. Input values to the shader from existing variables
+    in GLSL ES remain identical across samples.
+    
+    2. How does the use of gl_LastFragData interact with fragment discard?
+    
+    RESOLVED: Hardware may not necessarily support discarding on sample
+    granularity. Therefore, three options were considered for this
+    functionality:
+    
+        A) Allow discard based on variables calculated using the framebuffer
+           color when multisample rasterization is disabled, but disallow
+           discard in this manner when multisample rasterization is enabled.
+        
+        B) Restrict usage of the framebuffer color until it is known whether
+           or not the pixel will be discarded.
+            
+        C) Allow undefined results for fragment shaders that discard on a
+           per-sample basis on hardware that doesn't support it.
+    
+    This extension has chosen option C. Restricting orthogonality of fragment
+    shaders between single-sample and multisample rendering is undesirable, as
+    is restricting usage of the framebuffer color, which can generally only be
+    done with detailed flow-control analysis.
+    
+    3. What is the precision of gl_LastFragData in practice?
+    
+    RESOLVED: Three options were considered for this functionality:
+    
+        A) gl_LastFragData is always mediump.
+        
+        B) gl_LastFragData takes the precision most closely matching the
+           actual storage format of the framebuffer.
+        
+        C) Allow redeclaration of gl_LastFragData in order to change its
+           precision.
+    
+    This extension has chosen option C. A fixed precision per option A
+    increases the likelihood of redundant conversion operations in the shader,
+    and option B does not provide for clear behavior with regard to the
+    precision of intermediate results from calculations using the
+    framebuffer color.
+
+    4. How does this extension iteract with conventional blending?
+    
+    RESOLVED: There is no interaction.  The two remain orthogonal.  The rest
+    of the pipeline continues as usual after the fragment shader stage.
+    
+
+    5. How does this extension work in ES 3.0?
+
+    RESOLVED: Differently than in ES 2.0.
+
+    The built-in fragment outputs of ES 2.0 are replaced in #version 300 es
+    shaders by user-declared outputs, to accomodate integer and MRT 
+    framebuffers.  Three options were considered:
+
+        A) Add built-ins similar to gl_LastFragData.
+        
+        B) Add a layout to mark user-declared fragment outputs as having
+        defined content on entry to fragment shader.
+            
+        C) Allow marking user-declared fragment outputs as "inout".
+
+    This extension has chosen option C.  Adding built-ins per option A is
+    unwieldy for MRT framebuffers with mixed attachment types and precisions.  
+    Options B and C are semantically identical, but C requires fewer 
+    modifications to the specification and to user shaders.  Note that the 
+    inout qualifier is not allowed for re-declaring existing fragment outputs 
+    such as gl_FragDepth.
+
+New Procedures and Functions
+
+    None
+    
+New Tokens
+
+    Accepted by the <pname> parameter of GetBooleanv, GetIntegerv, GetFloatv,
+    and GetDoublev:
+    
+        FRAGMENT_SHADER_DISCARDS_SAMPLES_EXT            0x8A52
+
+New Builtin Variables
+
+    mediump vec4 gl_LastFragData[gl_MaxDrawBuffers]
+    
+Changes to the OpenGL ES 2.0.24 Specification, Chapter 3
+
+    Remove the last sentence of Paragraph 2 of Section 3.8.1, page 84 ("These
+    built-in varying variables include [...]" and add:
+    
+    These built-in varying variables include the fragment's position, eye z
+    coordinate, and front-facing flag, as well as the last data or color value
+    written to the framebuffer. When the value of SAMPLE_BUFFERS is 1 and the 
+    current framebuffer color is accessed in the fragment shader, the fragment
+    shader will be invoked separately for each covered sample and a separate 
+    value for the previous framebuffer color will be provided for each sample."
+    
+    Add a new subsection to section 3.8.2, page 87 ("Shader Execution"):
+    
+    "Discard
+    
+    Fragment shaders may conditionally abandon operations using the discard
+    keyword. However, the ability of hardware to support abandoning operations
+    on a single sample when the shader is invoked once for each covered sample
+    is implementation-dependent. This capability can be determined by calling
+    GetBooleanv with the symbolic constant 
+    FRAGMENT_SHADER_DISCARDS_SAMPLES_EXT. If FALSE is returned, results from
+    shaders which discard based on per-sample logic are undefined."
+
+Changes to the OpenGL ES 2.0.24 Specification, Chapter 4
+
+    Replace first element of Figure 4.1, page 90 ("Fragment + Associated Data"):
+    
+    "Fragment (or sample) + Associated Data"
+
+New Implementation Dependent State
+
+    Add to table 6.19 (Implementation Dependent Values (cont.)):
+
+    Get Value                             Type  Get Command  Minimum Value  Description        Section
+    ---------                             ----  -----------  -------------  --------------     -------
+    FRAGMENT_SHADER_DISCARDS_SAMPLES_EXT  B     GetBooleanv  -              Samples may be     3.8.2
+                                                                            discarded 
+                                                                            individually 
+
+Changes to the OpenGL ES Shading Language 1.0.17 Specification, Chapter 3
+
+    Remove Paragraph 2 of section 3.8, page 17, Identifiers ("Identifiers
+    starting with "gl_" are reserved [...]") and add:
+
+    "Identifiers starting with "gl_" are reserved for use by OpenGL ES, and
+    may not be declared in a shader as either a variable or a function.
+    However, as noted in the specification, certain predeclared "gl_" names
+    are allowed to be redeclared in a shader for the specific purpose of
+    changing their precision qualifier."
+    
+Changes to the OpenGL ES Shading Language 1.0.17 Specification, Chapter 7
+
+    Add after the last sentence of Paragraph 2 of Section 7.2, page 60,
+    Fragment Shader Special Variables ("These variables may be written to
+    more [...]"):
+    
+    "... To access the existing framebuffer values (e.g., to implement a
+    complex blend operation inside the shader), fragment shaders should use
+    the read-only input array gl_LastFragData.  gl_LastFragData returns the
+    value written by the most recent fragment at the same position.
+    
+    Access to gl_LastFragData is optional, and must be enabled by 
+    
+    #extension GL_EXT_shader_framebuffer_fetch : <behavior>
+    
+    Where <behavior> is as specified in section 3.3.
+    
+    By default, gl_LastFragData is declared with the mediump precision
+    qualifier. This can be changed by redeclaring the corresponding variables
+    with the desired precision qualifier.
+    
+    Redeclarations are done as follows
+    
+    // Redeclaration that changes nothing is allowed
+    mediump vec4 gl_LastFragData[gl_MaxDrawBuffers]; 
+    
+    // All the following are allowed redeclaration that change behavior
+    lowp vec4 gl_LastFragData[gl_MaxDrawBuffers];
+    highp vec4 gl_LastFragData[gl_MaxDrawBuffers];
+    
+    Redeclarations must not otherwise alter the declared type or array size of
+    gl_LastFragData."
+    
+Changes to the OpenGL ES Shading Language 3.00.3 Specification, Chapter 4
+
+    Modify Paragraph 2 of section 4.3.6:
+    "Except in the fragment stage, there is not an inout storage qualifier at
+    global scope for declaring a single variable name as both input and output
+    [...]"
+
+    Modify Paragraph 5 of section 4.3.6:
+    "Fragment outputs output per-fragment data and are declared using the out
+    or inout storage qualifier. It is an error to use centroid out or centroid
+    inout in a fragment shader [...]" and append new paragraph:
+
+    "Upon entry to the fragment shader, fragment outputs declared as inout will
+    contain the value written by the most recent fragment at the same position.
+    This behavior, and the ability to use the inout qualifier at global scope 
+    in a fragment shader, is optional and must be enabled by
+
+    #extension GL_EXT_shader_framebuffer_fetch : <behavior>
+    
+    Where <behavior> is as specified in section 3.4."
+
+Interactions with OES_standard_derivatives
+
+    Results from shaders which use the built-in derivative functions dFdx,
+    dFdy, and fwidth on variables calculated using the current framebuffer 
+    color are undefined.
+
+Revision History
+
+    Version 4, 2013/05/28 - Added ES3 interaction as requested in Bug 10236
+    Version 3, 2012/09/24 - Remove obsolete issue 3 about derivatives
+    Version 2, 2012/06/21 - Fix MULTISAMPLE enabled -> SAMPLE_BUFFERS = 1,
+                            recast from APPLE to multivendor EXT, clarify that
+                            gl_LastFragData reflects value written by previous
+                            pixel at same coordinates.
+    Version 1, 2012/06/01 - Conversion from ARB_sync to APPLE_sync for ES.

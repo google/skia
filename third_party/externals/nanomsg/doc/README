@@ -1,0 +1,4 @@
+This directory contains the documentation for nanomsg library. To build the
+documentation (both man pages and web pages) do "make doc" in the build
+directory. The prerequisite for building the documentation are asciidoc and
+xmlto utilities.

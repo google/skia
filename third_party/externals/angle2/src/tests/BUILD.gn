@@ -1,0 +1,81 @@
+# Copyright 2015 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//testing/test.gni")
+import("//third_party/angle/build/angle_common.gni")
+
+unittests_gypi = exec_script(
+  "//build/gypi_to_gn.py",
+  [ rebase_path("angle_unittests.gypi"), "--replace=<(angle_path)=." ],
+  "scope",
+  [ "angle_unittests.gypi" ])
+
+test("angle_unittests") {
+  include_dirs = [
+    "testing/gtest/include",
+    "../../src",
+  ]
+
+  sources = rebase_path(unittests_gypi.angle_unittests_sources, ".", "../..")
+
+  if (angle_enable_hlsl) {
+    sources += rebase_path(unittests_gypi.angle_unittests_hlsl_sources, ".", "../..")
+  }
+
+  sources += [
+    "//gpu/angle_unittest_main.cc",
+  ]
+
+  deps = [
+    "//base",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/angle:libANGLE",
+    "//third_party/angle:preprocessor",
+    "//third_party/angle:translator_static",
+  ]
+}
+
+end2end_gypi = exec_script(
+  "//build/gypi_to_gn.py",
+  [ rebase_path("angle_end2end_tests.gypi"), "--replace=<(angle_path)=." ],
+  "scope",
+  [ "angle_unittests.gypi" ])
+
+test("angle_end2end_tests") {
+  include_dirs = [
+    "testing/gtest/include",
+    "../../src/tests",
+    "../../util",
+  ]
+
+  sources = rebase_path(end2end_gypi.angle_end2end_tests_sources, ".", "../..")
+
+  if (is_win) {
+    sources += rebase_path(end2end_gypi.angle_end2end_tests_win_sources, ".", "../..")
+  }
+
+  sources += [
+    "//gpu/angle_end2end_tests_main.cc",
+  ]
+
+  configs += [
+    "//third_party/angle:internal_config",
+    "//third_party/angle:libANGLE_config",
+  ]
+
+  deps = [
+    "//base",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/angle:angle_util",
+    "//third_party/angle:libANGLE",
+    "//third_party/angle:libEGL",
+    "//third_party/angle:libGLESv2",
+    "//third_party/angle:preprocessor",
+    "//third_party/angle:translator_static",
+  ]
+}
