@@ -1,0 +1,21 @@
+/*============================================================================
+  KWSys - Kitware System Library
+  Copyright 2000-2009 Kitware, Inc., Insight Software Consortium
+
+  Distributed under the OSI-approved BSD License (the "License");
+  see accompanying file Copyright.txt for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even the
+  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the License for more information.
+============================================================================*/
+#ifndef @KWSYS_NAMESPACE@_testSystemtools_h
+#define @KWSYS_NAMESPACE@_testSystemtools_h
+
+#define EXECUTABLE_OUTPUT_PATH "@CMAKE_CURRENT_BINARY_DIR@"
+
+#define TEST_SYSTEMTOOLS_SOURCE_DIR "@TEST_SYSTEMTOOLS_SOURCE_DIR@"
+#define TEST_SYSTEMTOOLS_BINARY_DIR "@TEST_SYSTEMTOOLS_BINARY_DIR@"
+#cmakedefine KWSYS_TEST_SYSTEMTOOLS_LONG_PATHS
+
+#endif

@@ -1,0 +1,85 @@
+#!/usr/bin/python
+
+# Copyright (c) 2010 The ANGLE Project Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This script is wrapper for ANGLE that adds some support for how GYP
+# is invoked by ANGLE beyond what can be done in the gclient hooks.
+
+import os
+import sys
+
+script_dir = os.path.dirname(__file__)
+angle_dir = os.path.normpath(os.path.join(script_dir, os.pardir))
+
+sys.path.append(os.path.join(angle_dir, 'third_party', 'gyp', 'pylib'))
+import gyp
+
+def appendCommonArgs(args):
+    # Set the depth to get the top-level Makefile generated into the
+    # correct directory. This only has an effect on Linux.
+    args.append('--depth');
+    args.append('.');
+    # Add standalone.gypi to the include path to set required
+    # variables that are otherwise picked up from Chromium's gyp
+    # files.
+    args.append('-I' + os.path.join(script_dir, 'standalone.gypi'))
+    # Add common.gypi to the include path.
+    args.append('-I' + os.path.join(script_dir, 'common.gypi'))
+    args.append('--no-parallel')
+    # Indicate ANGLE is being built standalone (as opposed to within
+    # a Chromium workspace).
+    args.append('-Dangle_standalone=1')
+
+def generateProjects(generate_args):
+    args = generate_args
+    appendCommonArgs(args)
+    # Add all.gyp as the main gyp file to be generated.
+    args.append(os.path.join(script_dir, 'ANGLE.gyp'))
+
+    gyp.main(args)
+
+def generateWinRTProjects(generate_args, generation_dir, build_winphone, msvs_version, app_type_rev,
+                          target_platform_ver):
+    args = generate_args
+    appendCommonArgs(args)
+
+    args.append('--ignore-environment')
+    args.append('--generator-output=' + generation_dir)
+    args.append('--format=msvs')
+    args.append('-Gmsvs_version=' + msvs_version)
+    args.append('-Dangle_use_commit_id=1')
+    args.append('-Dangle_build_winrt=1')
+    args.append('-Dangle_build_winrt_app_type_revision=' + app_type_rev)
+    args.append('-Dangle_build_winrt_target_platform_ver=' + target_platform_ver)
+    args.append('-Dangle_build_winphone=' + ('1' if build_winphone else '0'))
+    args.append('-Dangle_enable_d3d9=0')
+    args.append('-Dangle_enable_gl=0')
+    # Add all.gyp as the main gyp file to be generated.
+    args.append(os.path.join(script_dir, 'ANGLE.gyp'))
+
+    print 'Generating WinRT projects to ' + generation_dir + ' from gyp files...'
+    sys.stdout.flush()
+
+    gyp.main(args)
+
+if __name__ == '__main__':
+    print 'Updating projects from gyp files...'
+    sys.stdout.flush()
+
+    # Generate projects
+    args = sys.argv[1:]
+    generateProjects(args)
+
+    # Generate WinRT projects only if configured
+    if 'GYP_GENERATE_WINRT' in os.environ:
+      # Generate Windows 8.1 projects
+      args = sys.argv[1:]
+      generateWinRTProjects(args, "winrt/8.1/windows", False, "2013e", "8.1", "");
+      args = sys.argv[1:]
+      generateWinRTProjects(args, "winrt/8.1/windowsphone", True, "2013e", "8.1", "");
+
+      # Generate Windows 10 projects
+      args = sys.argv[1:]
+      generateWinRTProjects(args, "winrt/10", False, "2015", "10.0", "10.0.10240.0");

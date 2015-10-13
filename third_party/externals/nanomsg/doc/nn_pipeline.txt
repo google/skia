@@ -1,0 +1,49 @@
+nn_pipeline(7)
+==============
+
+NAME
+----
+nn_pipeline - scalability protocol for passing tasks through a series of processing steps
+
+
+SYNOPSIS
+--------
+*#include <nanomsg/nn.h>*
+
+*#include <nanomsg/pipeline.h>*
+
+
+DESCRIPTION
+-----------
+Fair queues messages from the previous processing step and load balances them
+among instances of the next processing step.
+
+Socket Types
+~~~~~~~~~~~~
+
+NN_PUSH::
+    This socket is used to send messages to a cluster of load-balanced
+    nodes. Receive operation is not implemented on this socket type.
+NN_PULL::
+    This socket is used to receive a message from a cluster of nodes. Send
+    operation is not implemented on this socket type.
+
+Socket Options
+~~~~~~~~~~~~~~
+
+No protocol-specific socket options are defined at the moment.
+
+SEE ALSO
+--------
+linknanomsg:nn_bus[7]
+linknanomsg:nn_pubsub[7]
+linknanomsg:nn_reqrep[7]
+linknanomsg:nn_survey[7]
+linknanomsg:nn_pair[7]
+linknanomsg:nanomsg[7]
+
+
+AUTHORS
+-------
+Martin Sustrik <sustrik@250bpm.com>
+

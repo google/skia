@@ -1,0 +1,6 @@
+CMake Error at CMakeLists.txt:3 \(include\):
+  File
+
+    .*/Tests/RunCMake/Syntax/BOM-UTF-16-BE.cmake
+
+  starts with a Byte-Order-Mark that is not UTF-8.

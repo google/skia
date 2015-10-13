@@ -1,0 +1,5 @@
+CMake Error in CMakeLists.txt:
+  Evaluation file to be written multiple times for different configurations
+  or languages with different content:
+
+  .*output.txt

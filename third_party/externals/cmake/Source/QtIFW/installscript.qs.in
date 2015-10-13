@@ -1,0 +1,24 @@
+function Component()
+{
+    // default constructor
+}
+
+Component.prototype.createOperations = function()
+{
+    // call default implementation to actually install applications!
+    component.createOperations();
+
+    // Create shortcut
+    if (installer.value("os") === "win") {
+
+@_CPACK_IFW_SHORTCUT_OPTIONAL@
+
+        component.addOperation("CreateShortcut",
+                               installer.value("TargetDir") + "/cmake.org.html",
+                               installer.value("StartMenuDir") + "/CMake Web Site.lnk");
+
+        component.addOperation("CreateShortcut",
+                               installer.value("TargetDir") + "/cmake-maintenance.exe",
+                               installer.value("StartMenuDir") + "/CMake Maintenance Tool.lnk");
+    }
+}

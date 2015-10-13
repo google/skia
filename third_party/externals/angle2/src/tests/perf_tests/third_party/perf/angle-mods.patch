@@ -1,0 +1,61 @@
+diff --git a/tests/perf_tests/third_party/perf/perf_test.cc b/tests/perf_tests/third_party/perf/perf_test.cc
+index 0d5abc0..7364330 100644
+--- a/tests/perf_tests/third_party/perf/perf_test.cc
++++ b/tests/perf_tests/third_party/perf/perf_test.cc
+@@ -2,16 +2,51 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
+-#include "testing/perf/perf_test.h"
++#include "perf_test.h"
+ 
+ #include <stdio.h>
+-
+-#include "base/logging.h"
+-#include "base/strings/string_number_conversions.h"
+-#include "base/strings/stringprintf.h"
++#include <stdarg.h>
++#include <vector>
+ 
+ namespace {
+ 
++namespace base {
++
++std::string FormatString(const char *fmt, va_list vararg) {
++  static std::vector<char> buffer(512);
++
++  // Attempt to just print to the current buffer
++  int len = vsnprintf(&buffer[0], buffer.size(), fmt, vararg);
++  if (len < 0 || static_cast<size_t>(len) >= buffer.size()) {
++    // Buffer was not large enough, calculate the required size and resize the buffer
++    len = vsnprintf(NULL, 0, fmt, vararg);
++    buffer.resize(len + 1);
++
++    // Print again
++    vsnprintf(&buffer[0], buffer.size(), fmt, vararg);
++  }
++
++  return std::string(buffer.data(), len);
++}
++
++std::string StringPrintf(const char *fmt, ...) {
++  va_list vararg;
++  va_start(vararg, fmt);
++  std::string result = FormatString(fmt, vararg);
++  va_end(vararg);
++  return result;
++}
++
++std::string UintToString(unsigned int value) {
++  return StringPrintf("%u", value);
++}
++
++std::string DoubleToString(double value) {
++  return StringPrintf("%.10lf", value);
++}
++
++}
++
+ std::string ResultsToString(const std::string& measurement,
+                             const std::string& modifier,
+                             const std::string& trace,

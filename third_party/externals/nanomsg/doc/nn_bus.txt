@@ -1,0 +1,57 @@
+nn_bus(7)
+=========
+
+NAME
+----
+nn_bus - message bus scalability protocol
+
+
+SYNOPSIS
+--------
+*#include <nanomsg/nn.h>*
+
+*#include <nanomsg/bus.h>*
+
+
+DESCRIPTION
+-----------
+Broadcasts messages from any node to all other nodes in the topology. The socket
+should never receives messages that it sent itself.
+
+This pattern scales only to local level (within a single machine or within
+a single LAN). Trying to scale it further can result in overloading individual
+nodes with messages.
+
+WARNING: For bus topology to function correctly, user is responsible for
+ensuring that path from each node to any other node exists within the topology.
+
+Raw (AF_SP_RAW) BUS socket never sends the message to the peer it was received
+from.
+
+Socket Types
+~~~~~~~~~~~~
+
+NN_BUS::
+    Sent messages are distributed to all nodes in the topology. Incoming
+    messages from all other nodes in the topology are fair-queued in the
+    socket.
+
+Socket Options
+~~~~~~~~~~~~~~
+
+There are no options defined at the moment.
+
+
+SEE ALSO
+--------
+linknanomsg:nn_pubsub[7]
+linknanomsg:nn_reqrep[7]
+linknanomsg:nn_pipeline[7]
+linknanomsg:nn_survey[7]
+linknanomsg:nn_pair[7]
+linknanomsg:nanomsg[7]
+
+AUTHORS
+-------
+Martin Sustrik <sustrik@250bpm.com>
+

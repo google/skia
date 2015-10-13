@@ -1,0 +1,21 @@
+# Copyright 2015 The ANGLE Project Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This isolate expresses ANGLE's runtime dependencies on all platforms
+# on which it can currently compile.
+{
+  'includes': [
+    'angle.isolate',
+  ],
+  'conditions': [
+    ['OS=="linux"', {
+      'variables': {
+        'files': [
+          '<(PRODUCT_DIR)/lib/libEGL.so',
+          '<(PRODUCT_DIR)/lib/libGLESv2.so',
+        ],
+      },
+    }],
+  ],
+}

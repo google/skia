@@ -1,0 +1,69 @@
+http://cygwin.com/setup.html
+
+
+Need to produce two tar files:
+
+Source-
+
+- create subdirs
+- copy src
+- duplicate src
+- configure files into duplicate src
+   CPack.cygwin-readme.in
+   CPack.cygwin-install.sh.in
+   CPack.setup.hint.in
+- diff duplicate src and orig src
+- write diff into toplevel
+- create tar file call super class
+
+cmake-2.2.3-1
+
+
+1. a source release
+cmake-2.2.3-2-src.tar.bz2
+
+cmake-2.2.3-2.patch  has cmake-2.2.3/CYGWIN-PATCHES/cmake.README cmake-2.2.3/CYGWIN-PATCHES/setup.hint
+cmake-2.2.3-2.sh  -> script to create cygwin release
+cmake-2.2.3.tar.bz2  -> unmodified cmake sources for 2.2.3
+
+
+
+
+
+2 a binary release
+cmake-2.2.3-2.tar.bz2
+
+normal binary release with use as the root of the tree:
+
+Here is the bootstrap command used:
+
+  ${SOURCE_DIR}/bootstrap --prefix=/usr --datadir=/share/cmake-${VER} \
+                          --docdir=/share/doc/cmake-${VER} --mandir=/share/man
+
+CMAKE_DOC_DIR    /share/doc/${PKG}-${VER}
+CMAKE_MAN_DIR    /share/man
+CMAKE_DATA_DIR   /share/${PKG}-${VER}
+
+Here is the directory stucture:
+
+usr/bin/cmake.exe
+usr/share/doc/cmake-2.2.3/MANIFEST    ***
+usr/share/doc/Cygwin/cmake-2.2.3-2.README   ****
+usr/share/cmake-2.2.3/Modules
+
+
+
+usr/bin
+usr/share/cmake-2.2.3/include
+usr/share/cmake-2.2.3/Modules/Platform
+usr/share/cmake-2.2.3/Modules
+usr/share/cmake-2.2.3/Templates
+usr/share/cmake-2.2.3
+usr/share/doc/cmake-2.2.3
+usr/share/doc/Cygwin
+usr/share/doc
+usr/share/man/man1
+usr/share/man
+usr/share
+usr
+

@@ -1,0 +1,5 @@
+# CMake setup.hint file for cygwin setup.exe program
+category: Devel
+requires: libgcc1 libidn11 @CMAKE_NCURSES_VERSION@ libstdc++6
+sdesc: "A cross platform build manager"
+ldesc: "CMake is a cross platform build manager. It allows you to specify build parameters for C and C++ programs in a cross platform manner. For cygwin Makefiles will be generated. CMake is also capable of generating microsoft project files, nmake, and borland makefiles. CMake can also perform system inspection operations like finding installed libraries and header files."

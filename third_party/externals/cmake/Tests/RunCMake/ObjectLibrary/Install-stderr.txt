@@ -1,0 +1,4 @@
+CMake Error at Install.cmake:2 \(install\):
+  install TARGETS given OBJECT library "A" which may not be installed.
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)

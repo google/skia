@@ -1,0 +1,42 @@
+Release process
+===============
+
+1. Check CI (http://build.nanomsg.org/waterfall).
+
+2. Check Windows build -- this has to be done manually for now, since there's
+   no CI for Windows just yet.
+
+3. "make distcheck" to check whether the packaging process still works.
+
+4. Bump ABI version as appropriate (see the docs on versioning). This happens
+   in src/nn.h, check links there on which numbers to update.
+
+5. Commit and push back to the public repo.
+
+6. Tag the new version, e.g. git tag -a 0.3-beta.
+
+7. Push the tag to the repo, e.g. git push origin 0.3-beta.
+
+8. Clone a clean repo from GitHub.
+
+9. Build the package (make distcheck).
+
+10. Upload the packages, SFTP to xsdownload@chrocht.moloch.sk.
+
+11. Get the checksums (md5sum) of the packages.
+
+12. Upload the "download" page on the website (see gh-pages branch of the
+    repo).
+
+13. Generate the docs (./configure --enable-doc; make).
+
+14. In online docs (gh-pages) make a new folder (e.g. v0.3) and copy the HTML
+    docs there.
+
+15. Link the docs from "documentation.html" page.
+
+16. Send the announcement about the release. These commands might be useful:
+    git log --oneline 0.2-alpha..0.3-beta | wc -l
+    git diff -U0 0.2-alpha..0.3-beta AUTHORS
+
+17. Update the topic in the chatroom accordingly.

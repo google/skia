@@ -1,0 +1,2 @@
+This directory contains automatic tests for nanomsg library. To run the tests
+do "make test" in the build directory.

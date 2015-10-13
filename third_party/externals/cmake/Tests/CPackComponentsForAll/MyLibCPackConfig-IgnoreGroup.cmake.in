@@ -1,0 +1,47 @@
+#
+# Activate component packaging
+#
+if(CPACK_GENERATOR MATCHES "ZIP")
+   set(CPACK_ARCHIVE_COMPONENT_INSTALL "ON")
+endif()
+
+if(CPACK_GENERATOR MATCHES "RPM")
+  set(CPACK_RPM_COMPONENT_INSTALL "ON")
+
+  # test that /usr and /usr/foo get omitted in relocatable
+  # rpms as shortest relocation path is treated as base of
+  # package (/usr/foo/bar is relocatable and must exist)
+  set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/foo/bar")
+
+  # test requires
+  set(CPACK_RPM_applications_PACKAGE_REQUIRES "mylib-libraries")
+
+  # test a "noarch" rpm
+  set(CPACK_RPM_headers_PACKAGE_ARCHITECTURE "noarch")
+
+  # test cross-built rpm
+  set(CPACK_RPM_applications_PACKAGE_ARCHITECTURE "armv7hf")
+
+  # test package summary override - headers rpm is generated in the middle
+  set(CPACK_RPM_PACKAGE_SUMMARY "default summary")
+  set(CPACK_RPM_headers_PACKAGE_SUMMARY "headers summary")
+
+  # test package description override - headers rpm is generated in the middle
+  set(CPACK_RPM_headers_PACKAGE_DESCRIPTION "headers description")
+
+  # test package do not use CPACK_PACKAGING_INSTALL_PREFIX
+  # as relocation path
+  set(CPACK_RPM_NO_libraries_INSTALL_PREFIX_RELOCATION true)
+endif()
+
+if(CPACK_GENERATOR MATCHES "DEB")
+   set(CPACK_DEB_COMPONENT_INSTALL "ON")
+endif()
+
+#
+# Choose grouping way
+#
+#set(CPACK_COMPONENTS_ALL_GROUPS_IN_ONE_PACKAGE)
+#set(CPACK_COMPONENTS_GROUPING)
+set(CPACK_COMPONENTS_IGNORE_GROUPS 1)
+#set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE 1)

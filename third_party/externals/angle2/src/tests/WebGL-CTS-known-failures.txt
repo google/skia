@@ -1,0 +1,9 @@
+Known failures in the WebGL CTS 1.0.4, using Canary 46.0.2457.0 with ANGLE 02df796f466c
+https://www.khronos.org/registry/webgl/sdk/tests/webgl-conformance-tests.html
+
+conformance/glsl/bugs/pow-of-small-constant-in-user-defined-function.html: 1 tests failed
+conformance/glsl/bugs/sampler-struct-function-arg.html: 1 tests failed
+conformance/misc/expando-loss.html: 2 tests failed
+deqp/data/gles2/shaders/functions.html: 8 tests failed
+deqp/data/gles2/shaders/preprocessor.html: 21 tests failed
+deqp/data/gles2/shaders/scoping.html: 4 tests failed

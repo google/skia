@@ -1,0 +1,6 @@
+^get_directory_property: --><--
+get_property: --><--
+get_directory_property: -->value<--
+get_property: -->value<--
+get_directory_property: --><--
+get_property: --><--$

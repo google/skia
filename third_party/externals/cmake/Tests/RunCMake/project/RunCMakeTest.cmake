@@ -1,0 +1,17 @@
+include(RunCMake)
+
+run_cmake(LanguagesImplicit)
+run_cmake(LanguagesEmpty)
+run_cmake(LanguagesNONE)
+run_cmake(LanguagesTwice)
+run_cmake(VersionAndLanguagesEmpty)
+run_cmake(VersionEmpty)
+run_cmake(VersionInvalid)
+run_cmake(VersionMissingLanguages)
+run_cmake(VersionMissingValueOkay)
+run_cmake(VersionTwice)
+
+run_cmake(CMP0048-OLD)
+run_cmake(CMP0048-OLD-VERSION)
+run_cmake(CMP0048-WARN)
+run_cmake(CMP0048-NEW)

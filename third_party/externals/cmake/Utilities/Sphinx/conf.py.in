@@ -1,0 +1,69 @@
+#=============================================================================
+# CMake - Cross Platform Makefile Generator
+# Copyright 2000-2013 Kitware, Inc., Insight Software Consortium
+#
+# Distributed under the OSI-approved BSD License (the "License");
+# see accompanying file Copyright.txt for details.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the License for more information.
+#=============================================================================
+import sys
+import os
+import re
+import glob
+
+sys.path.insert(0, r'@conf_path@')
+
+source_suffix = '.rst'
+master_doc = 'index'
+
+project = 'CMake'
+copyright = '@conf_copyright@'
+version = '@conf_version@' # feature version
+release = '@conf_release@' # full version string
+
+primary_domain = 'cmake'
+
+exclude_patterns = []
+
+extensions = ['cmake']
+templates_path = ['@conf_path@/templates']
+
+nitpicky = True
+
+cmake_manuals = sorted(glob.glob(r'@conf_docs@/manual/*.rst'))
+cmake_manual_description = re.compile('^\.\. cmake-manual-description:(.*)$')
+man_pages = []
+for fpath in cmake_manuals:
+    try:
+        name, sec, rst = os.path.basename(fpath).split('.')
+        desc = None
+        f = open(fpath, 'r')
+        for l in f:
+            m = cmake_manual_description.match(l)
+            if m:
+                desc = m.group(1).strip()
+                break
+        f.close()
+        if desc:
+            man_pages.append(('manual/%s.%s' % (name, sec),
+                              name, desc, [], int(sec)))
+        else:
+            sys.stderr.write("ERROR: No cmake-manual-description in '%s'\n" % fpath)
+    except Exception as e:
+        sys.stderr.write("ERROR: %s\n" % str(e))
+man_show_urls = False
+
+html_show_sourcelink = True
+html_static_path = ['@conf_path@/static']
+html_style = 'cmake.css'
+html_theme = 'default'
+html_title = 'CMake %s Documentation' % release
+html_short_title = '%s Documentation' % release
+html_favicon = '@conf_path@/static/cmake-favicon.ico'
+# Not supported yet by sphinx:
+# https://bitbucket.org/birkenfeld/sphinx/issue/1448/make-qthelp-more-configurable
+# qthelp_namespace = "org.cmake"
+# qthelp_qch_name = "CMake-300.qch"

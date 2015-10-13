@@ -1,0 +1,8 @@
+arabic-fallback-shaping.tests
+arabic-feature-order.tests
+context-matching.tests
+hangul-jamo.tests
+indic-old-spec.tests
+indic-pref-blocking.tests
+mongolian-variation-selector.tests
+zero-width-marks.tests

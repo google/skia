@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<Description>
+  <ErrorThreshold>10</ErrorThreshold>
+  <LineLength>79</LineLength>
+  <Header>"@CMake_SOURCE_DIR@/Utilities/KWStyle/Headers",false,true</Header>
+  <Functions>
+    <regex>^(cm)?[A-Z]</regex>
+    <length>200</length>
+  </Functions>
+  <InternalVariables>
+    <regex>^[A-Z]</regex>
+    <alignment>0</alignment>
+  </InternalVariables>
+  <SemicolonSpace>0</SemicolonSpace>
+  <DeclarationOrder>
+    <public>0</public>
+    <protected>1</protected>
+    <private>2</private>
+  </DeclarationOrder>
+  <Tabs>1</Tabs>
+  <EmptyLines>4</EmptyLines>
+  <StatementPerLine>
+    <maxNumber>1</maxNumber>
+    <checkInline>0</checkInline>
+  </StatementPerLine>
+  <VariablePerLine>
+    <maxNumber>1</maxNumber>
+  </VariablePerLine>
+  <BadCharacters>true</BadCharacters>
+</Description>

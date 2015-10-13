@@ -1,0 +1,248 @@
+# -------------------------------------------------------------------------
+# Doxygen documentation batch
+# modified by S. Barre (Time-stamp: <2003-01-16 14:04:41 barre>
+# -------------------------------------------------------------------------
+
+# Path to several tools (_PROG to avoid the typical GZIP env var pb)
+# Example:
+#   DOXYGEN_PROG=@DOXYGEN@   (INCLUDE(${CMAKE_ROOT}/Modules/FindDoxygen.cmake))
+#   GZIP_PROG=@GZIP@         (INCLUDE(${CMAKE_ROOT}/Modules/FindCygwin.cmake))
+#   HHC_PROG=@HHC@           (INCLUDE(${CMAKE_ROOT}/Modules/FindHhc.cmake))
+#   MV_PROG=@MV@             (INCLUDE(${CMAKE_ROOT}/Modules/FindCygwin.cmake))
+#   PERL_PROG=@PERL@         (INCLUDE(${CMAKE_ROOT}/Modules/FindPerl.cmake))
+#   RM_PROG=@RM@             (INCLUDE(${CMAKE_ROOT}/Modules/FindCygwin.cmake))
+#   TAR_PROG=@TAR@           (INCLUDE(${CMAKE_ROOT}/Modules/FindCygwin.cmake))
+#   WGET_PROG=@WGET@         (INCLUDE(${CMAKE_ROOT}/Modules/FindWget.cmake))
+#
+export DOXYGEN_PROG="@DOXYGEN@"        # Doxygen
+export GZIP_PROG="@GZIP@"              # gzip (Unix-like 'gzip compressor')
+export GNUPLOT_PROG="@GNUPLOT@"        # gnuplot (data plotting program)
+export HHC_PROG="@HTML_HELP_COMPILER@" # HTML Help Compiler
+export MV_PROG="@MV@"                  # mv (Unix-like 'move/rename files')
+export PERL_PROG="@PERL@"              # Perl
+export RM_PROG="@RM@"                  # rm (Unix-like 'remove files')
+export TAR_PROG="@TAR@"                # tar (Unix-like 'archiver')
+export WGET_PROG="@WGET@"              # wget (remote file retrieval)
+
+# PROJECT_NAME:
+# Documentation/project name. Used in some of the resulting file names and
+# xrefs to uniquify two or more projects linked together through their
+# Doxygen's tag files. Mandatory for each documentation set.
+# Note: might be the same as the doxyfile's PROJECT_NAME
+# Example:
+#   PROJECT_NAME=VTK
+#
+export PROJECT_NAME=CMake
+
+# PATH_TO_VTK_DOX_SCRIPTS:
+# Path to the directory holding the Perl scripts used to produce the VTK doc
+# in Doxygen format. You need the VTK source files or a local copy of
+# these scripts.
+# Example:
+#   PATH_TO_VTK_DOX_SCRIPTS=@VTK_SOURCE_DIR@/Utilities/Doxygen
+#
+export PATH_TO_VTK_DOX_SCRIPTS="@VTK_SOURCE_DIR@/Utilities/Doxygen"
+
+# SOURCE_DIR:
+# Source directory. The top directory of the source files.
+# Example:
+#   SOURCE_DIR=@VTK_SOURCE_DIR@
+#
+export SOURCE_DIR="@CMake_SOURCE_DIR@"
+
+# REL_PATH_TO_TOP:
+# Relative path from the top directory of the source files to the directory
+# (or top directory) holding the files to document. Useful if several parts
+# of the same source directory should be documented separately.
+# Example:
+#   REL_PATH_TO_TOP=.
+#   REL_PATH_TO_TOP=framework/src
+#
+# export REL_PATH_TO_TOP=Source
+export REL_PATH_TO_TOP=.
+
+# INTERMEDIATE_DOX_DIR:
+# Directory where the intermediate Doxygen files should be stored (mainly
+# these headers files converted from the VTK format to the Doxygen format).
+# This directory is erased at the end of this script, unless you comment
+# the corresponding line.
+# DOXTEMP might be used to simplify the syntax.
+# Example:
+#   DOXTEMP=DOXTEMP=@VTK_BINARY_DIR@/Utilities/Doxygen
+#   INTERMEDIATE_DOX_DIR=$DOXTEMP/dox
+#
+export DOXTEMP="@CMake_BINARY_DIR@/Utilities/Doxygen"
+export INTERMEDIATE_DOX_DIR="$DOXTEMP/dox"
+
+# DOXYFILE:
+# Path to the Doxygen configuration file (i.e. doxyfile).
+# Example:
+#   DOXYFILE=$DOXTEMP/doxyfile
+#
+export DOXYFILE="$DOXTEMP/doxyfile"
+
+# OUTPUT_DIRECTORY ALLOW_ERASE_OUTPUT_DIRECTORY:
+# Path to the Doxygen output directory (where the resulting doc is stored).
+# Note: should be the same as your doxyfile's OUTPUT_DIRECTORY
+# If ON, allows the output directory to be erased when some advanced output
+# file have been produced (HTML Help, or TAR archive for example).
+# Example:
+#   OUTPUT_DIRECTORY=$DOXTEMP/doc
+#   ALLOW_ERASE_OUTPUT_DIRECTORY=ON
+#
+export OUTPUT_DIRECTORY="$DOXTEMP/doc"
+export ALLOW_ERASE_OUTPUT_DIRECTORY=ON
+
+# COMPILE_HTML_HELP RESULTING_HTML_HELP_FILE:
+# Compile the CHM (Compressed HTML) HTML Help file, name of the resulting
+# file. If set to ON and name is non-empty these options will actually
+# trigger the HTML-Help compiler to create the CHM. The resulting
+# file (usually index.chm) will be renamed to this name.
+# Note: if ON, the whole $OUTPUT_DIRECTORY will be erased at the end of
+#       this script, since this file is considered to be one of the
+#       advanced final output, unless ALLOW_ERASE_OUTPUT_DIRECTORY is OFF
+# Note: your doxyfile should be configured to enable HTML Help creation
+#       (using GENERATE_HTML = YES, GENERATE_HTMLHELP = YES)
+# Example:
+#   COMPILE_HTML_HELP=ON
+#   COMPILE_HTML_HELP=@DOCUMENTATION_HTML_HELP@
+#   RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
+#
+export COMPILE_HTML_HELP=@DOCUMENTATION_HTML_HELP@
+export RESULTING_HTML_HELP_FILE="$DOXTEMP/$PROJECT_NAME.chm"
+
+# CREATE_HTML_TARZ_ARCHIVE RESULTING_HTML_TARZ_ARCHIVE_FILE:
+# Create a compressed (gzip) tar archive of the html directory (located
+# under the OUTPUT_DIRECTORY), and name of the resulting archive file.
+# Note: your doxyfile should be configured to enable HTML creation
+#       (using GENERATE_HTML = YES)
+# Example:
+#   CREATE_HTML_TARZ_ARCHIVE=ON
+#   CREATE_HTML_TARZ_ARCHIVE=@DOCUMENTATION_HTML_TARZ@
+#   RESULTING_HTML_TARZ_ARCHIVE_FILE=$DOXTEMP/vtk4-html.tar.gz
+#   RESULTING_HTML_TARZ_ARCHIVE_FILE=$DOXTEMP/$PROJECT_NAME-html.tar.gz
+#
+export CREATE_HTML_TARZ_ARCHIVE=@DOCUMENTATION_HTML_TARZ@
+export RESULTING_HTML_TARZ_ARCHIVE_FILE="$DOXTEMP/$PROJECT_NAME-html.tar.gz"
+
+# ----------------------------------------------------------------------------
+# Build the contributors list.
+
+if test "x@VTK_SOURCE_DIR@" != "x" ; then
+  if test "x$PERL_PROG" != "xNOTFOUND" ; then
+    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_contributors.pl" \
+        --authors  "$SOURCE_DIR/Utilities/Doxygen/authors.txt" \
+        --cachedir "$DOXTEMP/cache" \
+        --class_group '^(cm[A-Z0-9][A-Za-z0-9]+)\.(?:c|cpp|cxx|h|fl)$' \
+        --files_in '(?:^hints|dummy|README|^Makefile\.borland|\.(?:c|cmake|cpp|cxx|h|html|in|java|fl|pl|py|tcl|txt))$' \
+        --files_out '(?:^ChangeLog\.txt)$' \
+        --gnuplot_file "$DOXTEMP/contrib/history.plt" \
+        --history_img "|lines|$DOXTEMP/contrib/history.png" \
+        --history_img "365|lines|$DOXTEMP/contrib/history2y.png" \
+        --history_img "180|linespoints|$DOXTEMP/contrib/history6m.png" \
+        --history_dir "$DOXTEMP/contrib" \
+        --history_max_nb 10 \
+        --lines_add 1.0 \
+        --lines_rem 0.5 \
+        --massive 50 \
+        --max_class_nb 10 \
+        --max_file_nb 5 \
+        --min_class 0.02 \
+        --min_file 0.01 \
+        --min_contrib 0.05 \
+        --min_gcontrib 0.0001 \
+        --store "doc_""$PROJECT_NAME""_contributors.dox" \
+        --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
+        --to "$INTERMEDIATE_DOX_DIR" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP"
+  fi
+
+  if test "x$GNUPLOT_PROG" != "xNOTFOUND" ; then
+    $GNUPLOT_PROG "$DOXTEMP/contrib/history.plt"
+  fi
+fi
+
+# ----------------------------------------------------------------------------
+# Create the Doxygen doc.
+
+if test "x$DOXYGEN_PROG" != "xNOTFOUND" ; then
+
+    if test "x$RM_PROG" != "xNOTFOUND" ; then
+        $RM_PROG -fr "$OUTPUT_DIRECTORY"
+    fi
+
+    "$DOXYGEN_PROG" "$DOXYFILE"
+
+    # yes, a second time, to get the contrib, I don't know why
+    "$DOXYGEN_PROG" "$DOXYFILE"
+fi
+
+# ----------------------------------------------------------------------------
+# Clean the HTML pages to remove the path to the intermediate Doxygen dir.
+
+if test "x@VTK_SOURCE_DIR@" != "x" ; then
+  if test "x$PERL_PROG" != "xNOTFOUND" ; then
+    $PERL_PROG "$PATH_TO_VTK_DOX_SCRIPTS/doc_rmpath.pl" \
+        --verbose \
+        --to "$INTERMEDIATE_DOX_DIR" \
+        --html "$OUTPUT_DIRECTORY/html"
+  fi
+fi
+
+# ----------------------------------------------------------------------------
+# Create the CHM HTML HELP doc.
+
+if test "x$COMPILE_HTML_HELP" == "xON" ; then
+    if test "x$RESULTING_HTML_HELP_FILE" != "x" ; then
+        cd $OUTPUT_DIRECTORY/html
+        if test "x$HHC_PROG" != "xNOTFOUND" ; then
+            "$HHC_PROG" index.hhp
+            if test "x$MV_PROG" != "xNOTFOUND" ; then
+                $MV_PROG -f index.chm "$RESULTING_HTML_HELP_FILE"
+            fi
+       fi
+   fi
+fi
+
+# ----------------------------------------------------------------------------
+# Create the compressed tar archive.
+
+if test "x$CREATE_HTML_TARZ_ARCHIVE" == "xON" ; then
+    if test "x$RESULTING_HTML_TARZ_ARCHIVE_FILE" != "x" ; then
+        cd "$OUTPUT_DIRECTORY"
+        if test "x$TAR_PROG" != "xNOTFOUND" ; then
+            if test "x$RM_PROG" != "xNOTFOUND" ; then
+                $RM_PROG -f html.tar
+            fi
+            $TAR_PROG -cf html.tar html
+            if test "x$GZIP_PROG" != "xNOTFOUND" ; then
+                if test "x$RM_PROG" != "xNOTFOUND" ; then
+                    $RM_PROG -f html.tar.gz
+                fi
+                $GZIP_PROG html.tar
+                $MV_PROG -f html.tar.gz "$RESULTING_HTML_TARZ_ARCHIVE_FILE"
+            fi
+       fi
+   fi
+fi
+
+# ----------------------------------------------------------------------------
+# Clean-up.
+
+if test "x$RM_PROG" != "xNOTFOUND" ; then
+    $RM_PROG -fr "$INTERMEDIATE_DOX_DIR"
+
+    if test "x$DOWNLOAD_VTK_TAGFILE" == "xON" ; then
+        if test "x$VTK_TAGFILE" != "x" ; then
+            $RM_PROG -f "$VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE"
+        fi
+    fi
+
+    if test "x$COMPILE_HTML_HELP" == "xON" ; then
+        if test "x$RESULTING_HTML_HELP_FILE" != "x" ; then
+            if test "x$ALLOW_ERASE_OUTPUT_DIRECTORY" == "xON" ; then
+                $RM_PROG -fr "$OUTPUT_DIRECTORY"
+            fi
+        fi
+    fi
+fi

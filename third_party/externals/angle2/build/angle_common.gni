@@ -1,0 +1,25 @@
+# Copyright 2015 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+angle_enable_d3d9 = false
+angle_enable_d3d11 = false
+angle_enable_gl = false
+
+if (is_win) {
+  angle_enable_d3d9 = true
+  angle_enable_d3d11 = true
+  angle_enable_gl = true
+
+  import("//build/config/win/visual_studio_version.gni")
+} # is_win
+
+if (is_linux) {
+  angle_enable_gl = true
+}
+
+angle_enable_hlsl = false
+
+if (angle_enable_d3d9 || angle_enable_d3d11) {
+  angle_enable_hlsl = true
+}

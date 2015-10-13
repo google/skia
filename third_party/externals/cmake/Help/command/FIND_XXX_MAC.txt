@@ -1,0 +1,24 @@
+On Darwin or systems supporting OS X Frameworks, the cmake variable
+CMAKE_FIND_FRAMEWORK can be set to empty or one of the following:
+
+* FIRST: Try to find frameworks before standard libraries or headers.
+  This is the default on Darwin.
+
+* LAST: Try to find frameworks after standard libraries or headers.
+
+* ONLY: Only try to find frameworks.
+
+* NEVER: Never try to find frameworks.
+
+On Darwin or systems supporting OS X Application Bundles, the cmake
+variable CMAKE_FIND_APPBUNDLE can be set to empty or one of the
+following:
+
+* FIRST: Try to find application bundles before standard programs.
+  This is the default on Darwin.
+
+* LAST: Try to find application bundles after standard programs.
+
+* ONLY: Only try to find application bundles.
+
+* NEVER: Never try to find application bundles.

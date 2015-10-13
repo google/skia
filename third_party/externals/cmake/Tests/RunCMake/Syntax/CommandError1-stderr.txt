@@ -1,0 +1,7 @@
+CMake Error: Error in cmake code at
+.*/Tests/RunCMake/Syntax/CommandError1.cmake:1:
+Parse error.  Expected a newline, got identifier with text "message".
+CMake Error at CMakeLists.txt:3 \(include\):
+  include could not find load file:
+
+    CommandError1.cmake

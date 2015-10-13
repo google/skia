@@ -1,0 +1,4 @@
+CMake Deprecation Warning at warnmessage.cmake:4 \(message\):
+  This is a warning
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)

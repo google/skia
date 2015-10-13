@@ -1,0 +1,22 @@
+CMake Warning \(dev\) at CMakeLists.txt:3 \(include\):
+  Syntax Warning in cmake code at
+
+    .*/Tests/RunCMake/Syntax/ParenNoSpace1.cmake:1:26
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning \(dev\) at CMakeLists.txt:3 \(include\):
+  Syntax Warning in cmake code at
+
+    .*/Tests/RunCMake/Syntax/ParenNoSpace1.cmake:2:26
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Error at CMakeLists.txt:3 \(include\):
+  Syntax Error in cmake code at
+
+    .*/Tests/RunCMake/Syntax/ParenNoSpace1.cmake:3:29
+
+  Argument not separated from preceding token by whitespace.

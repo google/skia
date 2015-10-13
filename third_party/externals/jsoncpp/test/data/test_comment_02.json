@@ -1,0 +1,16 @@
+{
+   /* C-style comment
+
+    C-style-2 comment */
+   "c-test" : {
+      "a" : 1,
+      /* Internal comment c-style */
+      "b" : 2
+   },
+   // C++-style comment
+   "cpp-test" : {
+      // Internal comment cpp-style
+      "c" : 3,
+      "d" : 4
+   }
+}

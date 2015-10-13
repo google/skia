@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: @CMAKE_PROJECT_NAME@
+Description: @NN_DESCRIPTION@
+URL: http://nanomsg.org/
+Version: @NN_VERSION_STR@
+Requires:
+Libs: -L${libdir} -l@CMAKE_PROJECT_NAME@
+Cflags: -I${includedir}

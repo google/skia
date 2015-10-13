@@ -1,0 +1,7 @@
+.={}
+.c-test={}
+.c-test.a=1
+.c-test.b=2
+.cpp-test={}
+.cpp-test.c=3
+.cpp-test.d=4

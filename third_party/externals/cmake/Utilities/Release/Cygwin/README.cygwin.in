@@ -1,0 +1,42 @@
+cmake
+--------------------------------------
+Runtime requirements:
+  cygwin-1.5.21(0.156/4/2) or newer
+
+Build requirements
+  cygwin-1.5.21(0.156/4/2) or newer
+  make
+
+Canonical homepage:
+  http://www.cmake.org
+
+Canonical download:
+  ftp://www.cmake.org/pub/cmake/
+
+------------------------------------
+
+Build instructions:
+  unpack @CPACK_PACKAGE_FILE_NAME@-@CPACK_CYGWIN_PATCH_NUMBER@-src.tar.bz2
+    if you use setup to install this src package, it will be
+         unpacked under /usr/src automatically
+  cd /usr/src
+  ./@CPACK_PACKAGE_FILE_NAME@-@CPACK_CYGWIN_PATCH_NUMBER@.sh all
+
+This will create:
+  /usr/src/@CPACK_PACKAGE_FILE_NAME@.tar.bz2
+  /usr/src/@CPACK_PACKAGE_FILE_NAME@-@CPACK_CYGWIN_PATCH_NUMBER@-src.tar.bz2
+
+-------------------------------------------
+
+Port Notes:
+
+The directory /usr/share/@CPACK_PACKAGE_FILE_NAME@/include is purposely not
+located at /usr/include/@CPACK_PACKAGE_FILE_NAME@ or /usr/include/cmake.  The
+files it contains are not meant for inclusion in any C or C++ program.
+They are used for compiling dynamically loadable CMake commands inside
+projects that provide them.  CMake will automatically provide the
+proper include path when the files are needed.
+
+------------------
+
+Cygwin port maintained by: CMake Developers <cmake@www.cmake.org>

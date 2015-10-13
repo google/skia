@@ -1,0 +1,7 @@
+add_custom_target(CustomTarget)
+set_property(TARGET CustomTarget PROPERTY LINK_LIBRARIES)
+set_property(TARGET CustomTarget APPEND PROPERTY LINK_LIBRARIES)
+get_property(val TARGET CustomTarget PROPERTY LINK_LIBRARIES)
+if (NOT "${val}" STREQUAL "")
+  message(FATAL_ERROR "LINK_LIBRARIES value is '${val}' but should be ''")
+endif()

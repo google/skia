@@ -1,0 +1,8 @@
+CMake Error: Error in cmake code at
+.*/Syntax/UnterminatedBracket1.cmake:2:
+Parse error.  Function missing ending "\)".  Instead found unterminated bracket with text "\]\]\)
+".
+CMake Error at CMakeLists.txt:3 \(include\):
+  include could not find load file:
+
+    UnterminatedBracket1.cmake$

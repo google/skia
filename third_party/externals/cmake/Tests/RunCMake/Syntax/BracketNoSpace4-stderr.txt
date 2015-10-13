@@ -1,0 +1,6 @@
+CMake Error at CMakeLists.txt:3 \(include\):
+  Syntax Error in cmake code at
+
+    .*/Tests/RunCMake/Syntax/BracketNoSpace4.cmake:1:44
+
+  Argument not separated from preceding token by whitespace.

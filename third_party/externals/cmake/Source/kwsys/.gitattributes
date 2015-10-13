@@ -1,0 +1,12 @@
+.git*            export-ignore
+
+/CONTRIBUTING.rst conflict-marker-size=78
+
+*.c              whitespace=tab-in-indent,no-lf-at-eof
+*.h              whitespace=tab-in-indent,no-lf-at-eof
+*.h.in           whitespace=tab-in-indent,no-lf-at-eof
+*.cxx            whitespace=tab-in-indent,no-lf-at-eof
+*.hxx            whitespace=tab-in-indent,no-lf-at-eof
+*.hxx.in         whitespace=tab-in-indent,no-lf-at-eof
+*.txt            whitespace=tab-in-indent,no-lf-at-eof
+*.cmake          whitespace=tab-in-indent,no-lf-at-eof

@@ -1,0 +1,55 @@
+nn_pubsub(7)
+============
+
+NAME
+----
+nn_pubsub - publish/subscribe scalability protocol
+
+
+SYNOPSIS
+--------
+*#include <nanomsg/nn.h>*
+
+*#include <nanomsg/pubsub.h>*
+
+
+DESCRIPTION
+-----------
+Broadcasts messages to multiple destinations.
+
+Socket Types
+~~~~~~~~~~~~
+
+NN_PUB::
+    This socket is used to distribute messages to multiple destinations.
+    Receive operation is not defined.
+NN_SUB::
+    Receives messages from the publisher. Only messages that the socket is
+    subscribed to are received. When the socket is created there are no
+    subscriptions and thus no messages will be received. Send operation is
+    not defined on this socket.
+
+Socket Options
+~~~~~~~~~~~~~~
+
+NN_SUB_SUBSCRIBE::
+    Defined on full SUB socket. Subscribes for a particular topic. Type of the
+    option is string.
+NN_SUB_UNSUBSCRIBE::
+    Defined on full SUB socket. Unsubscribes from a particular topic. Type of
+    the option is string.
+
+
+SEE ALSO
+--------
+linknanomsg:nn_bus[7]
+linknanomsg:nn_reqrep[7]
+linknanomsg:nn_pipeline[7]
+linknanomsg:nn_survey[7]
+linknanomsg:nn_pair[7]
+linknanomsg:nanomsg[7]
+
+AUTHORS
+-------
+Martin Sustrik <sustrik@250bpm.com>
+

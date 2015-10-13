@@ -1,0 +1,8 @@
+CMake Error: Error in cmake code at
+.*/Syntax/UnterminatedBracketComment.cmake:1:
+Parse error.  Expected a command name, got unterminated bracket with text "#\]\]
+".
+CMake Error at CMakeLists.txt:3 \(include\):
+  include could not find load file:
+
+    UnterminatedBracketComment.cmake

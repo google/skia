@@ -1,0 +1,4 @@
+CMake Deprecation Error at errormessage.cmake:4 \(message\):
+  This is an error
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)
