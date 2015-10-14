@@ -109,6 +109,7 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
 }
 
 bool GrClipMaskManager::getAnalyticClipProcessor(const GrReducedClip::ElementList& elements,
+                                                 bool abortIfAA,
                                                  SkVector& clipToRTOffset,
                                                  const SkRect* drawBounds,
                                                  const GrFragmentProcessor** resultFP) {
@@ -151,16 +152,20 @@ bool GrClipMaskManager::getAnalyticClipProcessor(const GrReducedClip::ElementLis
         if (failed) {
             break;
         }
-
         if (!skip) {
             GrPrimitiveEdgeType edgeType;
             if (iter.get()->isAA()) {
+                if (abortIfAA) {
+                    failed = true;
+                    break;
+                }
                 edgeType =
                     invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
             } else {
                 edgeType =
                     invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
             }
+
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
                     fps[fpCnt] = GrConvexPolyEffect::Create(edgeType, iter.get()->getPath(),
@@ -282,8 +287,9 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         bool disallowAnalyticAA = pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
         const GrFragmentProcessor* clipFP = nullptr;
         if (elements.isEmpty() ||
-            (requiresAA && !disallowAnalyticAA &&
-             this->getAnalyticClipProcessor(elements, clipToRTOffset, devBounds, &clipFP))) {
+            (requiresAA &&
+             this->getAnalyticClipProcessor(elements, disallowAnalyticAA, clipToRTOffset, devBounds,
+                                            &clipFP))) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
             if (nullptr == devBounds ||

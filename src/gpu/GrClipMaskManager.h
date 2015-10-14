@@ -89,8 +89,10 @@ private:
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
     // whether the element list was successfully converted to processors. *fp may be nullptr even
     // when the function succeeds because all the elements were ignored. TODO: Make clip reduction
-    // bounds-aware and stop checking bounds in this function.
+    // bounds-aware and stop checking bounds in this function. Similarly, we shouldn't need to pass
+    // abortIfAA, but we don't yet know if all the AA elements will be eliminated.
     bool getAnalyticClipProcessor(const GrReducedClip::ElementList&,
+                                  bool abortIfAA,
                                   SkVector& clipOffset,
                                   const SkRect* devBounds,
                                   const GrFragmentProcessor** fp);
