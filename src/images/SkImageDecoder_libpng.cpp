@@ -52,7 +52,9 @@ SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
                 "Suppress most PNG warnings when calling image decode "
                 "functions.");
 
-
+#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_PNG_NO_INDEX_SUPPORTED)
+#define SK_PNG_INDEX_SUPPORTED
+#endif
 
 class SkPNGImageIndex {
 public:
@@ -88,7 +90,7 @@ public:
     virtual ~SkPNGImageDecoder() { delete fImageIndex; }
 
 protected:
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_PNG_INDEX_SUPPORTED
     bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) override;
     bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& region) override;
 #endif
@@ -132,7 +134,7 @@ static void sk_read_fn(png_structp png_ptr, png_bytep data, png_size_t length) {
     }
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_PNG_INDEX_SUPPORTED
 static void sk_seek_fn(png_structp png_ptr, png_uint_32 offset) {
     SkStreamRewindable* sk_stream = (SkStreamRewindable*) png_get_io_ptr(png_ptr);
     if (!sk_stream->rewind()) {
@@ -262,7 +264,7 @@ bool SkPNGImageDecoder::onDecodeInit(SkStream* sk_stream, png_structp *png_ptrp,
     * png_init_io() here you would call:
     */
     png_set_read_fn(png_ptr, (void *)sk_stream, sk_read_fn);
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_PNG_INDEX_SUPPORTED
     png_set_seek_fn(png_ptr, sk_seek_fn);
 #endif
     /* where user_io_ptr is a structure you want available to the callbacks */
@@ -726,7 +728,7 @@ bool SkPNGImageDecoder::decodePalette(png_structp png_ptr, png_infop info_ptr,
     return true;
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_PNG_INDEX_SUPPORTED
 
 bool SkPNGImageDecoder::onBuildTileIndex(SkStreamRewindable* sk_stream, int *width, int *height) {
     SkAutoTDelete<SkStreamRewindable> streamDeleter(sk_stream);

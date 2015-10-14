@@ -54,6 +54,10 @@ SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderErrors,
                 "Suppress most JPG error messages when decode "
                 "function fails.");
 
+#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_JPEG_NO_INDEX_SUPPORTED)
+#define SK_JPEG_INDEX_SUPPORTED
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +89,7 @@ static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* sr
     }
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
 class SkJPEGImageIndex {
 public:
     // Takes ownership of stream.
@@ -203,7 +207,7 @@ private:
 
 class SkJPEGImageDecoder : public SkImageDecoder {
 public:
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
     SkJPEGImageDecoder() {
         fImageIndex = nullptr;
         fImageWidth = 0;
@@ -218,7 +222,7 @@ public:
     }
 
 protected:
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
     bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) override;
     bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) override;
 #endif
@@ -228,7 +232,7 @@ protected:
                             SkYUVColorSpace* colorSpace) override;
 
 private:
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
     SkJPEGImageIndex* fImageIndex;
     int fImageWidth;
     int fImageHeight;
@@ -295,7 +299,7 @@ static bool skip_src_rows(jpeg_decompress_struct* cinfo, void* buffer, int count
     return true;
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
 static bool skip_src_rows_tile(jpeg_decompress_struct* cinfo,
                                huffman_index *index, void* buffer, int count) {
     for (int i = 0; i < count; i++) {
@@ -329,7 +333,7 @@ static bool return_false(const jpeg_decompress_struct& cinfo,
     return false;
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
 static bool return_false(const jpeg_decompress_struct& cinfo,
                          const SkBitmap& bm, const char caller[]) {
     print_jpeg_decoder_errors(cinfo, bm.width(), bm.height(), caller);
@@ -939,7 +943,7 @@ bool SkJPEGImageDecoder::onDecodeYUV8Planes(SkStream* stream, SkISize componentS
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
 bool SkJPEGImageDecoder::onBuildTileIndex(SkStreamRewindable* stream, int *width, int *height) {
     SkAutoTDelete<SkJPEGImageIndex> imageIndex(new SkJPEGImageIndex(stream, this));
 
