@@ -31,11 +31,8 @@ private:
     // subclasses should return true to advance the stream
     virtual bool timingFinished(Benchmark*, int loops, double measurement)=0;
 
-    bool nextBenchmarkIfNecessary(SkCanvas*);
-
     TimingStateMachine fTSM;
     SkAutoTDelete<VisualBenchmarkStream> fBenchmarkStream;
-    SkAutoTUnref<Benchmark> fBenchmark;
     bool fReinitializeBenchmark;
     bool fPreWarmBeforeSample;
 
