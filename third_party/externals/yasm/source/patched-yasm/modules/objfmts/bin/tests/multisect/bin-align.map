@@ -1,0 +1,66 @@
+
+- YASM Map file ---------------------------------------------------------------
+
+Source file:  -
+Output file:  results/bin-align
+
+-- Program origin -------------------------------------------------------------
+
+00000000
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart    Vstop     Start     Stop      Length    Class     Name
+00000000  00000009  00000000  00000009  00000009  progbits  .text
+00000010  00000011  00000010  00000011  00000001  progbits  .data
+00000014  00000014  00000014  00000014  00000000  progbits  .foo
+00000018  00000018  00000018  00000018  00000000  progbits  .bar
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:    00000009
+start:     00000000
+align:     00000008
+follows:   not defined
+vstart:    00000000
+valign:    00000008
+vfollows:  not defined
+
+---- Section .data ------------------------------------------------------------
+
+class:     progbits
+length:    00000001
+start:     00000010
+align:     00000008
+follows:   not defined
+vstart:    00000010
+valign:    00000008
+vfollows:  not defined
+
+---- Section .foo -------------------------------------------------------------
+
+class:     progbits
+length:    00000000
+start:     00000014
+align:     00000004
+follows:   not defined
+vstart:    00000014
+valign:    00000004
+vfollows:  not defined
+
+---- Section .bar -------------------------------------------------------------
+
+class:     progbits
+length:    00000000
+start:     00000018
+align:     00000008
+follows:   not defined
+vstart:    00000018
+valign:    00000004
+vfollows:  not defined
+
+-- Symbols --------------------------------------------------------------------
+

@@ -1,0 +1,16 @@
+-:2: error: unexpected `:' after instruction
+-:3: error: unexpected `:' after instruction
+-:4: error: expected expression after `%'
+-:5: error: expected operand, got `%'
+-:6: error: expected expression after `~'
+-:7: error: expected expression after `+'
+-:8: error: expected expression after `-'
+-:9: error: expected expression after `('
+-:10: error: expected operand, got `)'
+-:11: error: expected expression after `%'
+-:12: error: unexpected `%' after instruction
+-:13: error: expected expression after `~'
+-:14: error: expected expression after `+'
+-:15: error: expected expression after `-'
+-:16: error: expected expression after `('
+-:17: error: unexpected `)' after instruction

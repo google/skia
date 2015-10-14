@@ -1,0 +1,7 @@
+-:2: warning: Unknown section name, defaulting to __TEXT segment
+-:6: warning: section name is too long, max 16 chars; truncating
+-:6: warning: Unknown section name, defaulting to __TEXT segment
+-:7: warning: segment name is too long, max 16 chars; truncating
+-:8: warning: section name is too long, max 16 chars; truncating
+-:9: warning: segment name is too long, max 16 chars; truncating
+-:9: warning: section name is too long, max 16 chars; truncating

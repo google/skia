@@ -1,0 +1,106 @@
+%imacro export 1+.nolist
+[export %1]
+%endmacro
+
+; Raw exception handling operations
+%imacro proc_frame 1+.nolist
+%1:
+[proc_frame %1]
+%endmacro
+
+; Disable these as they're too closely named to the macroized ones.
+; MASM needs a preceding . to use these, so it seems reasonable for
+; us to similarly require the [].
+;
+;%imacro pushreg 1.nolist
+;[pushreg %1]
+;%endmacro
+;
+;%imacro setframe 1-2.nolist
+;[setframe %1 %2]
+;%endmacro
+;
+;%imacro allocstack 1.nolist
+;[allocstack %1]
+;%endmacro
+;
+;%imacro savereg 2.nolist
+;[savereg %1 %2]
+;%endmacro
+;
+;%imacro savexmm128 2.nolist
+;[savexmm128 %1 %2]
+;%endmacro
+;
+;%imacro pushframe 0-1.nolist
+;[pushframe %1]
+;%endmacro
+;
+;%imacro endprolog 0.nolist
+;[endprolog]
+;%endmacro
+;
+
+%imacro endproc_frame 0.nolist
+[endproc_frame]
+%endmacro
+
+; Complex (macro) exception handling operations
+; Mimics many macros provided by MASM's macamd64.inc
+%imacro push_reg 1
+push %1
+[pushreg %1]
+%endmacro
+
+%imacro rex_push_reg 1
+db 0x48
+push %1
+[pushreg %1]
+%endmacro
+
+%imacro push_eflags 0
+pushfq
+[allocstack 8]
+%endmacro
+
+%imacro rex_push_eflags 0
+db 0x48
+pushfq
+[allocstack 8]
+%endmacro
+
+%imacro alloc_stack 1
+sub rsp, %1
+[allocstack %1]
+%endmacro
+
+%imacro save_reg 2
+mov [rsp+%2], %1
+[savereg %1 %2]
+%endmacro
+
+%imacro save_xmm128 2
+movdqa [rsp+%2], %1
+[savexmm128 %1 %2]
+%endmacro
+
+%imacro push_frame 0-1.nolist
+[pushframe %1]
+%endmacro
+
+%imacro set_frame 1-2
+%if %0==1
+mov %1, rsp
+%else
+lea %1, [rsp+%2]
+%endif
+[setframe %1 %2]
+%endmacro
+
+%imacro end_prolog 0.nolist
+[endprolog]
+%endmacro
+
+%imacro end_prologue 0.nolist
+[endprolog]
+%endmacro

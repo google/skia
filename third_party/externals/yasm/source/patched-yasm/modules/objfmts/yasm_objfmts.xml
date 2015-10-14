@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="yasm_objfmts">
+
+ <refentryinfo>
+  <title>Yasm Supported Object Formats</title>
+  <date>February 2007</date>
+  <productname>Yasm</productname>
+  <author>
+   <firstname>Peter</firstname>
+   <surname>Johnson</surname>
+   <affiliation>
+    <address><email>peter@tortall.net</email></address>
+   </affiliation>
+  </author>
+
+  <copyright>
+   <year>2006</year>
+   <holder>Peter Johnson</holder>
+  </copyright>
+ </refentryinfo>
+
+ <refmeta>
+  <refentrytitle>yasm_objfmts</refentrytitle>
+  <manvolnum>7</manvolnum>
+ </refmeta>
+
+ <refnamediv>
+  <refname>yasm_objfmts</refname>
+  <refpurpose>Yasm Supported Object Formats</refpurpose>
+ </refnamediv>
+
+ <refsynopsisdiv>
+  <cmdsynopsis>
+   <command>yasm</command>
+   <arg choice="plain">
+    <option>-f <replaceable>objfmt</replaceable></option>
+   </arg>
+   <arg choice="plain">
+    <option><replaceable>...</replaceable></option>
+   </arg>
+  </cmdsynopsis>
+ </refsynopsisdiv>
+
+ <refsect1>
+  <title>Description</title>
+
+  <para>The standard Yasm distribution includes a number of modules
+   for different object formats (Yasm's primary output).</para>
+
+  <para>The object format is selected on the
+   
+   <citerefentry>
+    <refentrytitle>yasm</refentrytitle>
+    <manvolnum>1</manvolnum>
+   </citerefentry>
+   
+   command line by use of the <option>-f
+    <replaceable>objfmt</replaceable></option> command line
+   option.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>bin</title>
+  
+  <para>The <quote>bin</quote> object format produces a flat-format,
+   non-relocatable binary file.  It is appropriate for producing DOS
+   .COM executables or things like boot blocks.  It supports only 3
+   sections and those sections are written in a predefined order to
+   the output file.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>coff</title>
+
+  <para>The COFF object format is an older relocatable object format
+   used on older Unix and compatible systems, and also (more recently)
+   on the DJGPP development system for DOS.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>dbg</title>
+
+  <para>The <quote>dbg</quote> object format is not a
+   <quote>real</quote> object format; the output file it creates
+   simply describes the sequence of calls made to it by Yasm and the
+   final object and symbol table information in a human-readable text
+   format (that in a normal object format would get processed into
+   that object format's particular binary representation).  This
+   object format is not intended for real use, but rather for
+   debugging Yasm's internals.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>elf</title>
+
+  <para>The ELF object format really comes in two flavors:
+   <quote>elf32</quote> (for 32-bit targets) and <quote>elf64</quote>
+   (for 64-bit targets).  ELF is a standard object format in common
+   use on modern Unix and compatible systems (e.g. Linux, FreeBSD).
+   ELF has complex support for relocatable and shared objects.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>macho</title>
+
+  <para>The Mach-O object format really comes in two flavors:
+   <quote>macho32</quote> (for 32-bit targets) and
+   <quote>macho64</quote> (for 64-bit targets).  Mach-O is used as
+   the object format on MacOS X.  As Yasm currently only supports
+   x86 and AMD64 instruction sets, it can only generate Mach-O
+   objects for Intel-based Macs.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>rdf</title>
+
+  <para>The RDOFF2 object format is a simple multi-section format
+   originally designed for NASM.  It supports segment references but
+   not WRT references.  It was designed primarily for simplicity and
+   has minimalistic headers for ease of loading and linking.  A
+   complete toolchain (linker, librarian, and loader) is distributed
+   with NASM.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>win32</title>
+
+  <para>The Win32 object format produces object files compatible with
+   Microsoft compilers (such as Visual C++) that target the 32-bit x86
+   Windows platform.  The object format itself is an extended version
+   of COFF.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>win64</title>
+
+  <para>The Win64 object format produces object files compatible with
+   Microsoft compilers that target the 64-bit <quote>x64</quote>
+   Windows platform.  This format is very similar to the win32 object
+   format, but produces 64-bit objects.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>xdf</title>
+
+  <para>The XDF object format is essentially a simplified version of
+   COFF.  It's a multi-section relocatable format that supports 64-bit
+   physical and virtual addresses.</para>
+ </refsect1>
+
+ <refsect1>
+  <title>See Also</title>
+
+  <para><citerefentry>
+   <refentrytitle>yasm</refentrytitle>
+   <manvolnum>1</manvolnum>
+  </citerefentry>,
+
+  <citerefentry>
+   <refentrytitle>yasm_arch</refentrytitle>
+   <manvolnum>7</manvolnum>
+  </citerefentry></para>
+ </refsect1>
+</refentry>

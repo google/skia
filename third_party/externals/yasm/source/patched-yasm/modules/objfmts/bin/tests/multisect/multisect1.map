@@ -1,0 +1,78 @@
+
+- YASM Map file ---------------------------------------------------------------
+
+Source file:  -
+Output file:  results/multisect1
+
+-- Program origin -------------------------------------------------------------
+
+00000000
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart    Vstop     Start     Stop      Length    Class     Name
+00000000  00000000  00000000  00000000  00000000  progbits  .text
+00000100  00000110  00000000  00000010  00000010  progbits  _TEXT
+00000000  00000004  00000010  00000014  00000004  progbits  GATESEG
+00000020  00000420  00000020  00000420  00000400  nobits    .bss
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:    00000000
+start:     00000000
+align:     00000004
+follows:   not defined
+vstart:    00000000
+valign:    00000004
+vfollows:  not defined
+
+---- Section _TEXT ------------------------------------------------------------
+
+class:     progbits
+length:    00000010
+start:     00000000
+align:     00000004
+follows:   not defined
+vstart:    00000100
+valign:    00000004
+vfollows:  not defined
+
+---- Section GATESEG ----------------------------------------------------------
+
+class:     progbits
+length:    00000004
+start:     00000010
+align:     00000001
+follows:   _TEXT
+vstart:    00000000
+valign:    00000001
+vfollows:  not defined
+
+---- Section .bss -------------------------------------------------------------
+
+class:     nobits
+length:    00000400
+start:     00000020
+align:     00000010
+follows:   GATESEG
+vstart:    00000020
+valign:    00000010
+vfollows:  not defined
+
+-- Symbols --------------------------------------------------------------------
+
+---- Section GATESEG ----------------------------------------------------------
+
+Real      Virtual   Name
+00000010  00000000  gate0cpy
+
+
+---- Section .bss -------------------------------------------------------------
+
+Real      Virtual   Name
+00000420  00000420  stack_ends
+
+

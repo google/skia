@@ -1,0 +1,6 @@
+-:10: warning: value does not fit in signed 8 bit field
+-:13: warning: value does not fit in signed 8 bit field
+-:26: warning: value does not fit in signed 8 bit field
+-:29: warning: value does not fit in signed 8 bit field
+-:42: warning: value does not fit in signed 8 bit field
+-:45: warning: value does not fit in signed 8 bit field

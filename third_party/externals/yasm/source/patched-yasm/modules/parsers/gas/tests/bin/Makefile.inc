@@ -1,0 +1,32 @@
+TESTS += modules/parsers/gas/tests/bin/gas_bin_test.sh
+
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas_bin_test.sh
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-comment.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-comment.errwarn
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-comment.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-intel_syntax-noprefix.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-intel_syntax-noprefix.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-llabel.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-llabel.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-macro.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-macro.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-set.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-set.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-str.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/gas-str.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/rept-err.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/rept-err.errwarn
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptempty.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptempty.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptlong.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptlong.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptnested.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptnested.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptsimple.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptsimple.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptwarn.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptwarn.errwarn
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptwarn.hex
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptzero.asm
+EXTRA_DIST += modules/parsers/gas/tests/bin/reptzero.hex
+

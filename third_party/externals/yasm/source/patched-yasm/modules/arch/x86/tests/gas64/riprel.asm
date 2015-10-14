@@ -1,0 +1,1 @@
+mov %rax,foo(%rip)

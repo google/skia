@@ -1,0 +1,6 @@
+-:1: error: invalid number of operands
+-:3: error: invalid number of operands
+bar1.s:601: error: invalid number of operands
+bar1.s:201: error: invalid number of operands
+bar2.s:203: error: invalid number of operands
+bar2.s:205: error: invalid number of operands

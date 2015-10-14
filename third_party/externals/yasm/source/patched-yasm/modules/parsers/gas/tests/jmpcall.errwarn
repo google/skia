@@ -1,0 +1,4 @@
+-:4: warning: indirect call without `*'
+-:6: warning: indirect call without `*'
+-:7: warning: indirect call without `*'
+-:12: warning: skipping prefixes on this instruction

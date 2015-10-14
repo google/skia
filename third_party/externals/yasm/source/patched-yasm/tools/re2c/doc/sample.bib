@@ -1,0 +1,48 @@
+@Article{Bumbulis94,
+  author = {Peter Bumbulis and Donald D. Cowan},
+  title = {RE2C -- A More Versatile Scanner Generator},
+  journal = "ACM Letters on Programming Languages and Systems",
+  volume = 2,
+  number = "1--4",
+  year = 1994,
+  abstract = {
+  It is usually claimed that lexical analysis routines are still coded by
+  hand, despite the widespread availability of scanner generators, for
+  efficiency reasons.  While efficiency is a consideration, there exist
+  freely available scanner generators such as GLA \cite{Gray88} that can
+  generate scanners that are faster than most hand-coded ones.  However,
+  most generated scanners are tailored for a particular environment, and
+  retargetting these scanners to other environments, if possible, is
+  usually complex enough to make a hand-coded scanner more appealing.  In
+  this paper we describe RE2C, a scanner generator that not only generates
+  scanners which are faster (and usually smaller) than those produced by
+  any other scanner generator known to the authors, including GLA, but
+  also adapt easily to any environment.
+  }
+}
+@Article{Gray88,
+  author = {Robert W. Gray},
+  title = {{$\gamma$-GLA} - {A} Generator for Lexical Analyzers That
+  Programmers Can Use},
+  journal = {USENIX Conference Proceedings},
+  year = {1988},
+  month = {June},
+  pages = {147-160},
+  abstract = {Writing an efficient lexical analyzer for even a simple
+  language is not a trivial task, and should not be done by hand. We
+  describe GLA, a tool that generates very efficient scanners. These
+  scanners do not use the conventional transition matrix, but instead
+  use a few 128 element vectors.  Scanning time is only slightly
+  greater than the absolute minimum --- the time it takes to look at
+  each character in a file. The GLA language allows simple, concise
+  specification of scanners. Augmenting regular expressions with
+  auxiliary scanners easily handles nasty problems such as C comments
+  and C literal constants. We formalize the connection between token
+  scanning and token processing by associating a processor with
+  appropriate patterns. A library of canned descriptions simplifies the
+  specification of commonly used language pieces --- such as,
+  C\_IDENTIFIERS, C\_STRINGS, PASCAL\_COMMENTS, etc. Finally, carefully
+  tuned lexical analysis support modules are provided for error
+  handling, input buffering, storing identifiers in hash tables and
+  manipulating denotations.}
+}
