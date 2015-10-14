@@ -30,6 +30,7 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fTextureID);
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
+    fTarget = idDesc.fTarget;
     fTextureID = idDesc.fTextureID;
     fTextureIDLifecycle = idDesc.fLifeCycle;
 }
