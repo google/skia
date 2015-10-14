@@ -108,10 +108,10 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
     return false;
 }
 
-const GrFragmentProcessor* GrClipMaskManager::getAnalyticClipProcessor(
-                                                        const GrReducedClip::ElementList& elements,
-                                                        const SkVector& clipToRTOffset,
-                                                        const SkRect* drawBounds) {
+bool GrClipMaskManager::getAnalyticClipProcessor(const GrReducedClip::ElementList& elements,
+                                                 SkVector& clipToRTOffset,
+                                                 const SkRect* drawBounds,
+                                                 const GrFragmentProcessor** resultFP) {
     SkRect boundsInClipSpace;
     if (drawBounds) {
         boundsInClipSpace = *drawBounds;
@@ -190,14 +190,14 @@ const GrFragmentProcessor* GrClipMaskManager::getAnalyticClipProcessor(
         iter.next();
     }
 
-    const GrFragmentProcessor* resultFP = nullptr;
-    if (!failed) {
-        resultFP = GrFragmentProcessor::RunInSeries(fps, fpCnt);
+    *resultFP = nullptr;
+    if (!failed && fpCnt) {
+        *resultFP = GrFragmentProcessor::RunInSeries(fps, fpCnt);
     }
     for (int i = 0; i < fpCnt; ++i) {
         fps[i]->unref();
     }
-    return resultFP;
+    return !failed;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         const GrFragmentProcessor* clipFP = nullptr;
         if (elements.isEmpty() ||
             (requiresAA && !disallowAnalyticAA &&
-             SkToBool(clipFP = this->getAnalyticClipProcessor(elements, clipToRTOffset, devBounds)))) {
+             this->getAnalyticClipProcessor(elements, clipToRTOffset, devBounds, &clipFP))) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clip.origin());
             if (nullptr == devBounds ||

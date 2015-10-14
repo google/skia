@@ -87,10 +87,13 @@ private:
     };
 
     // Attempts to install a series of coverage effects to implement the clip. Return indicates
-    // whether the element list was successfully converted to effects.
-    const GrFragmentProcessor* getAnalyticClipProcessor(const GrReducedClip::ElementList&,
-                                                        const SkVector& clipOffset,
-                                                        const SkRect* devBounds);
+    // whether the element list was successfully converted to processors. *fp may be nullptr even
+    // when the function succeeds because all the elements were ignored. TODO: Make clip reduction
+    // bounds-aware and stop checking bounds in this function.
+    bool getAnalyticClipProcessor(const GrReducedClip::ElementList&,
+                                  SkVector& clipOffset,
+                                  const SkRect* devBounds,
+                                  const GrFragmentProcessor** fp);
 
     // Draws the clip into the stencil buffer
     bool createStencilClipMask(GrRenderTarget*,
