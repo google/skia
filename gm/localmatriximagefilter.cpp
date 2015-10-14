@@ -86,8 +86,7 @@ protected:
             canvas->save();
             show_image(canvas, image0, filter);
             for (const auto& matrix : matrices) {
-                SkAutoTUnref<SkImageFilter> localFilter(
-                    SkImageFilter::CreateLocalMatrixFilter(matrix, filter));
+                SkAutoTUnref<SkImageFilter> localFilter(filter->newWithLocalMatrix(matrix));
                 canvas->translate(spacer, 0);
                 show_image(canvas, image0, localFilter);
             }

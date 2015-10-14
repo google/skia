@@ -230,18 +230,17 @@ public:
     bool canComputeFastBounds() const;
 
     /**
+     *  If this filter can be represented by another filter + a localMatrix, return that filter,
+     *  else return null.
+     */
+    SkImageFilter* newWithLocalMatrix(const SkMatrix& matrix) const;
+
+    /**
      * Create an SkMatrixImageFilter, which transforms its input by the given matrix.
      */
     static SkImageFilter* CreateMatrixFilter(const SkMatrix& matrix,
                                              SkFilterQuality,
                                              SkImageFilter* input = NULL);
-
-    /**
-     * Create an SkLocalMatrixImageFilter, which transform the filter parameters
-     * of its inputs by the given matrix.
-     */
-    static SkImageFilter* CreateLocalMatrixFilter(const SkMatrix& matrix,
-                                                  SkImageFilter* input);
 
 #if SK_SUPPORT_GPU
     /**

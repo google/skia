@@ -440,9 +440,11 @@ SkImageFilter* SkImageFilter::CreateMatrixFilter(const SkMatrix& matrix,
     return SkMatrixImageFilter::Create(matrix, filterQuality, input);
 }
 
-SkImageFilter* SkImageFilter::CreateLocalMatrixFilter(const SkMatrix& matrix,
-                                                      SkImageFilter* input) {
-    return SkLocalMatrixImageFilter::Create(matrix, input);
+SkImageFilter* SkImageFilter::newWithLocalMatrix(const SkMatrix& matrix) const {
+    // SkLocalMatrixImageFilter takes SkImage* in its factory, but logically that parameter
+    // is *always* treated as a const ptr. Hence the const-cast here.
+    //
+    return SkLocalMatrixImageFilter::Create(matrix, const_cast<SkImageFilter*>(this));
 }
 
 #if SK_SUPPORT_GPU
