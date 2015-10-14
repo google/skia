@@ -33,6 +33,8 @@
 		1FDEEE091BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */; settings = {ASSET_TAGS = (); }; };
 		1FDEEE0B1BCF0A8B00623F0F /* opts_check_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */; settings = {ASSET_TAGS = (); }; };
 		1FDEEE0D1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0C1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp */; settings = {ASSET_TAGS = (); }; };
+		1FDEEE1F1BCF0D0200623F0F /* opts_configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE0E1BCF0CBE00623F0F /* opts_configuration.cpp */; settings = {ASSET_TAGS = (); }; };
+		1FDEEE211BCF0F5600623F0F /* SkBitmapProcState_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEEE201BCF0F5600623F0F /* SkBitmapProcState_opts_none.cpp */; settings = {ASSET_TAGS = (); }; };
 		9E0A7C1C69BF0DBD211637D0 /* SkForceCPlusPlusLinking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66EA89C4CBF5D977F1160F4 /* SkForceCPlusPlusLinking.cpp */; };
 		AB66668CCC0CFBCF082F222A /* SkBitmapProcState_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */; };
 		ACDD227C13AFF6E82329C0CE /* SkBlitMask_opts_arm_neon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFCB5B6F55513B7E3523AC7 /* SkBlitMask_opts_arm_neon.cpp */; };
@@ -106,6 +108,18 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		1FDEEE121BCF0CE600623F0F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		03A1C281FEB016408DA04D8E /* libskia_opts_ssse3.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_ssse3.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D4A4F0AE8AB1836EB683972 /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
@@ -114,6 +128,9 @@
 		1FDEEE081BCF0A7F00623F0F /* SkBlitMask_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitMask_opts_none.cpp; sourceTree = "<group>"; };
 		1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_check_x86.cpp; sourceTree = "<group>"; };
 		1FDEEE0C1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_none.cpp; sourceTree = "<group>"; };
+		1FDEEE0E1BCF0CBE00623F0F /* opts_configuration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_configuration.cpp; sourceTree = "<group>"; };
+		1FDEEE141BCF0CE600623F0F /* libopts_dynamic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libopts_dynamic.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FDEEE201BCF0F5600623F0F /* SkBitmapProcState_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_none.cpp; sourceTree = "<group>"; };
 		2F9F6435F7A79B5F2353658E /* libskia_opts_avx2.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libskia_opts_avx2.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		514DB97AFBBBB7ED6AB472DA /* SkBlitRow_opts_arm_neon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_arm_neon.cpp; sourceTree = "<group>"; };
 		5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_arm_neon.cpp; sourceTree = "<group>"; };
@@ -152,6 +169,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		177098BB6088BBED9018F45D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDEEE111BCF0CE600623F0F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -217,13 +241,14 @@
 			isa = PBXGroup;
 			children = (
 				1FDEEE0A1BCF0A8B00623F0F /* opts_check_x86.cpp */,
+				1FDEEE0E1BCF0CBE00623F0F /* opts_configuration.cpp */,
 				DE70A9FC1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.cpp */,
 				DE70A9FD1BCC339D0039C99D /* SkBitmapFilter_opts_SSE2.h */,
 				5686780AE579C1B43E602FDD /* SkBitmapProcState_arm_neon.cpp */,
 				DF68108D22CEEF53D7934553 /* SkBitmapProcState_matrixProcs_neon.cpp */,
 				DE70A9E31BC838CC0039C99D /* SkBitmapProcState_opts_arm.cpp */,
+				1FDEEE201BCF0F5600623F0F /* SkBitmapProcState_opts_none.cpp */,
 				DE70AA091BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp */,
-				DE70A9FF1BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.h */,
 				DE70AA0A1BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.cpp */,
 				DE70AA081BCC529E0039C99D /* SkBitmapProcState_opts_SSSE3.h */,
 				7BFCB5B6F55513B7E3523AC7 /* SkBlitMask_opts_arm_neon.cpp */,
@@ -232,7 +257,6 @@
 				514DB97AFBBBB7ED6AB472DA /* SkBlitRow_opts_arm_neon.cpp */,
 				DE70A9DE1BC833970039C99D /* SkBlitRow_opts_arm.cpp */,
 				1FDEEE0C1BCF0B2900623F0F /* SkBlitRow_opts_none.cpp */,
-				DE70AA001BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp */,
 				DE70A9F91BCC335B0039C99D /* SkBlitRow_opts_SSE2.h */,
 				DE70AA0E1BCC53560039C99D /* SkBlitRow_opts_SSE4.cpp */,
 				DE70A9FA1BCC335B0039C99D /* SkBlitRow_opts_SSE2.cpp */,
@@ -279,6 +303,7 @@
 				19C6A65284A050EDC662FB44 /* libskia_opts_avx.a */,
 				2F9F6435F7A79B5F2353658E /* libskia_opts_avx2.a */,
 				182DD1C8F36FC5D01DF29ED2 /* libskia_opts_neon.a */,
+				1FDEEE141BCF0CE600623F0F /* libopts_dynamic.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -295,6 +320,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1FDEEE131BCF0CE600623F0F /* opts_dynamic */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1FDEEE1A1BCF0CE600623F0F /* Build configuration list for PBXNativeTarget "opts_dynamic" */;
+			buildPhases = (
+				1FDEEE101BCF0CE600623F0F /* Sources */,
+				1FDEEE111BCF0CE600623F0F /* Frameworks */,
+				1FDEEE121BCF0CE600623F0F /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = opts_dynamic;
+			productName = opts_dynamic;
+			productReference = 1FDEEE141BCF0CE600623F0F /* libopts_dynamic.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		3BB48783573B89593BC2E26C /* opts_neon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EB6573B3997A16BD70776BC0 /* Build configuration list for PBXNativeTarget "opts_neon" */;
@@ -414,6 +456,11 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+				TargetAttributes = {
+					1FDEEE131BCF0CE600623F0F = {
+						CreatedOnToolsVersion = 7.0;
+					};
+				};
 			};
 			buildConfigurationList = 107DBE63E0A0A46CD9EB1DDB /* Build configuration list for PBXProject "opts" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -434,11 +481,20 @@
 				61766364CEA74CD0B2337CBC /* opts_avx */,
 				58BBC50A64E975660B389B87 /* opts_avx2 */,
 				3BB48783573B89593BC2E26C /* opts_neon */,
+				1FDEEE131BCF0CE600623F0F /* opts_dynamic */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1FDEEE101BCF0CE600623F0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1FDEEE1F1BCF0D0200623F0F /* opts_configuration.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		50CF02F9CEE4E8F2BFF36CD3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -452,6 +508,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE70AA041BCC339D0039C99D /* SkBlitRow_opts_SSE2.cpp in Sources */,
+				1FDEEE211BCF0F5600623F0F /* SkBitmapProcState_opts_none.cpp in Sources */,
 				1FDEEE0B1BCF0A8B00623F0F /* opts_check_x86.cpp in Sources */,
 				DE70AA0B1BCC529E0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */,
 				DE70AA031BCC339D0039C99D /* SkBitmapProcState_opts_SSE2.cpp in Sources */,
@@ -723,6 +780,226 @@
 				SHARED_INTERMEDIATE_DIR = "$(SYMROOT)/DerivedSources/$(CONFIGURATION)";
 			};
 			name = Debug;
+		};
+		1FDEEE1B1BCF0CE600623F0F /* Coverage */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Coverage;
+		};
+		1FDEEE1C1BCF0CE600623F0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		1FDEEE1D1BCF0CE600623F0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1FDEEE1E1BCF0CE600623F0F /* Release_Developer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../include/private,
+					../src/core,
+					../src/opts,
+					../src/utils,
+					../include/utils,
+					../include/c,
+					../include/config,
+					../include/core,
+					../include/pathops,
+					../include/pipe,
+					../include/utils/mac,
+					../include/effects,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release_Developer;
 		};
 		2A97A152BF7989F81ED1B34A /* Coverage */ = {
 			isa = XCBuildConfiguration;
@@ -2140,6 +2417,17 @@
 				4DA254248D65FED332ED8C71 /* Release_Developer */,
 			);
 			defaultConfigurationIsVisible = 1;
+			defaultConfigurationName = Coverage;
+		};
+		1FDEEE1A1BCF0CE600623F0F /* Build configuration list for PBXNativeTarget "opts_dynamic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FDEEE1B1BCF0CE600623F0F /* Coverage */,
+				1FDEEE1C1BCF0CE600623F0F /* Debug */,
+				1FDEEE1D1BCF0CE600623F0F /* Release */,
+				1FDEEE1E1BCF0CE600623F0F /* Release_Developer */,
+			);
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Coverage;
 		};
 		272E93DA5B8B4A984A8EFB41 /* Build configuration list for PBXNativeTarget "opts" */ = {
