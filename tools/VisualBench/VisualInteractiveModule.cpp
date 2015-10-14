@@ -3,42 +3,28 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- *
  */
 
 #include "VisualInteractiveModule.h"
 
-#include "ProcStats.h"
-#include "SkApplication.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
-#include "SkGraphics.h"
-#include "SkGr.h"
 #include "SkImageDecoder.h"
-#include "SkOSFile.h"
-#include "SkStream.h"
-#include "Stats.h"
-#include "gl/GrGLInterface.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 VisualInteractiveModule::VisualInteractiveModule(VisualBench* owner)
-    : fCurrentMeasurement(0)
-    , fBenchmark(nullptr)
-    , fAdvance(false)
-    , fHasBeenReset(false)
-    , fOwner(SkRef(owner)) {
-    fBenchmarkStream.reset(new VisualBenchmarkStream);
-
+    : INHERITED(owner, false)
+    , fCurrentMeasurement(0)
+    , fAdvance(false) {
     memset(fMeasurements, 0, sizeof(fMeasurements));
 }
 
-inline void VisualInteractiveModule::renderFrame(SkCanvas* canvas) {
-    fBenchmark->draw(fTSM.loops(), canvas);
+void VisualInteractiveModule::renderFrame(SkCanvas* canvas, Benchmark* benchmark, int loops) {
+    benchmark->draw(loops, canvas);
     this->drawStats(canvas);
     canvas->flush();
-    fOwner->present();
 }
 
 void VisualInteractiveModule::drawStats(SkCanvas* canvas) {
@@ -80,63 +66,16 @@ void VisualInteractiveModule::drawStats(SkCanvas* canvas) {
 
 }
 
-bool VisualInteractiveModule::advanceRecordIfNecessary(SkCanvas* canvas) {
-    if (fBenchmark) {
+bool VisualInteractiveModule::timingFinished(Benchmark* benchmark, int loops, double measurement) {
+    // Record measurements
+    fMeasurements[fCurrentMeasurement++] = measurement;
+    fCurrentMeasurement &= (kMeasurementCount-1);  // fast mod
+    SkASSERT(fCurrentMeasurement < kMeasurementCount);
+    if (fAdvance) {
+        fAdvance = false;
         return true;
     }
-
-    fBenchmark.reset(fBenchmarkStream->next());
-    if (!fBenchmark) {
-        return false;
-    }
-
-    // clear both buffers
-    fOwner->clear(canvas, SK_ColorWHITE, 2);
-
-    fBenchmark->delayedSetup();
-    fBenchmark->preTimingHooks(canvas);
-    return true;
-}
-#include "GrGpu.h"
-#include "GrResourceCache.h"
-void VisualInteractiveModule::draw(SkCanvas* canvas) {
-    if (!this->advanceRecordIfNecessary(canvas)) {
-        SkDebugf("Exiting VisualBench successfully\n");
-        fOwner->closeWindow();
-        return;
-    }
-
-    if (fHasBeenReset) {
-        fHasBeenReset = false;
-        fBenchmark->preTimingHooks(canvas);
-    }
-
-    this->renderFrame(canvas);
-    TimingStateMachine::ParentEvents event = fTSM.nextFrame(false);
-    switch (event) {
-        case TimingStateMachine::kReset_ParentEvents:
-            fBenchmark->postTimingHooks(canvas);
-            fHasBeenReset = true;
-            fOwner->reset();
-            break;
-        case TimingStateMachine::kTiming_ParentEvents:
-            break;
-        case TimingStateMachine::kTimingFinished_ParentEvents:
-            // Record measurements
-            fMeasurements[fCurrentMeasurement++] = fTSM.lastMeasurement();
-            fCurrentMeasurement &= (kMeasurementCount-1);  // fast mod
-            SkASSERT(fCurrentMeasurement < kMeasurementCount);
-            this->drawStats(canvas);
-            if (fAdvance) {
-                fAdvance = false;
-                fTSM.nextBenchmark(canvas, fBenchmark);
-                fBenchmark->postTimingHooks(canvas);
-                fBenchmark.reset(nullptr);
-                fOwner->reset();
-                fHasBeenReset = true;
-            }
-            break;
-    }
+    return false;
 }
 
 bool VisualInteractiveModule::onHandleChar(SkUnichar c) {

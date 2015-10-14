@@ -3,56 +3,36 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- *
  */
 
 #ifndef VisualInteractiveModule_DEFINED
 #define VisualInteractiveModule_DEFINED
 
-#include "VisualModule.h"
-
-#include "ResultsWriter.h"
-#include "SkPicture.h"
-#include "Timer.h"
-#include "TimingStateMachine.h"
-#include "VisualBench.h"
-#include "VisualBenchmarkStream.h"
+#include "VisualStreamTimingModule.h"
 
 class SkCanvas;
 
 /*
  * This module for VisualBench is designed to display stats data dynamically
  */
-class VisualInteractiveModule : public VisualModule {
+class VisualInteractiveModule : public VisualStreamTimingModule {
 public:
     // TODO get rid of backpointer
     VisualInteractiveModule(VisualBench* owner);
 
-    void draw(SkCanvas* canvas) override;
-    bool onHandleChar(SkUnichar unichar) override;
+    bool onHandleChar(SkUnichar c) override;
 
 private:
-    void setTitle();
-    bool setupBackend();
-    void setupRenderTarget();
     void drawStats(SkCanvas*);
-    bool advanceRecordIfNecessary(SkCanvas*);
-    inline void renderFrame(SkCanvas*);
+    void renderFrame(SkCanvas*, Benchmark*, int loops) override;
+    bool timingFinished(Benchmark*, int loops, double measurement) override;
 
     static const int kMeasurementCount = 64;  // should be power of 2 for fast mod
     double fMeasurements[kMeasurementCount];
     int fCurrentMeasurement;
-
-    SkAutoTDelete<VisualBenchmarkStream> fBenchmarkStream;
-    SkAutoTUnref<Benchmark> fBenchmark;
-    TimingStateMachine fTSM;
     bool fAdvance;
-    bool fHasBeenReset;
 
-    // support framework
-    SkAutoTUnref<VisualBench> fOwner;
-
-    typedef VisualModule INHERITED;
+    typedef VisualStreamTimingModule INHERITED;
 };
 
 #endif

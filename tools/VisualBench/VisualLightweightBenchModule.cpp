@@ -3,7 +3,6 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- *
  */
 
 #include "VisualLightweightBenchModule.h"
@@ -43,12 +42,9 @@ static SkString humanize(double ms) {
 #define HUMANIZE(time) humanize(time).c_str()
 
 VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
-    : fCurrentSample(0)
-    , fHasBeenReset(false)
-    , fOwner(SkRef(owner))
+    : INHERITED(owner, true)
+    , fCurrentSample(0)
     , fResults(new ResultsWriter) {
-    fBenchmarkStream.reset(new VisualBenchmarkStream);
-
     // Print header
     SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tbench\n", FLAGS_samples,
              "samples");
@@ -73,17 +69,19 @@ VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
             fResults->property(FLAGS_properties[i - 1], FLAGS_properties[i]);
         }
     }
+
+    // seed an initial record
+    fRecords.push_back();
 }
 
-inline void VisualLightweightBenchModule::renderFrame(SkCanvas* canvas) {
-    fBenchmark->draw(fTSM.loops(), canvas);
+void VisualLightweightBenchModule::renderFrame(SkCanvas* canvas, Benchmark* benchmark, int loops) {
+    benchmark->draw(loops, canvas);
     canvas->flush();
-    fOwner->present();
 }
 
-void VisualLightweightBenchModule::printStats() {
+void VisualLightweightBenchModule::printStats(Benchmark* benchmark, int loops) {
     const SkTArray<double>& measurements = fRecords.back().fMeasurements;
-    const char* shortName = fBenchmark->getUniqueName();
+    const char* shortName = benchmark->getUniqueName();
 
     // update log
     // Note: We currently log only the minimum.  It would be interesting to log more information
@@ -93,6 +91,9 @@ void VisualLightweightBenchModule::printStats() {
     } else {
         configName.appendf("gpu");
     }
+    // Log bench name
+    fResults->bench(shortName, benchmark->getSize().fX, benchmark->getSize().fY);
+
     fResults->config(configName.c_str());
     fResults->configOption("name", shortName);
     SkASSERT(measurements.count());
@@ -110,7 +111,7 @@ void VisualLightweightBenchModule::printStats() {
         SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\n",
                  sk_tools::getCurrResidentSetSizeMB(),
                  sk_tools::getMaxResidentSetSizeMB(),
-                 fTSM.loops(),
+                 loops,
                  HUMANIZE(stats.min),
                  HUMANIZE(stats.median),
                  HUMANIZE(stats.mean),
@@ -121,65 +122,16 @@ void VisualLightweightBenchModule::printStats() {
     }
 }
 
-bool VisualLightweightBenchModule::advanceRecordIfNecessary(SkCanvas* canvas) {
-    if (fBenchmark) {
+bool VisualLightweightBenchModule::timingFinished(Benchmark* benchmark, int loops,
+                                                  double measurement) {
+    fRecords.back().fMeasurements.push_back(measurement);
+    if (++fCurrentSample > FLAGS_samples) {
+        this->printStats(benchmark, loops);
+        fRecords.push_back();
+        fCurrentSample = 0;
         return true;
     }
-
-    fBenchmark.reset(fBenchmarkStream->next());
-    if (!fBenchmark) {
-        return false;
-    }
-
-    fOwner->clear(canvas, SK_ColorWHITE, 2);
-
-    fRecords.push_back();
-
-    // Log bench name
-    fResults->bench(fBenchmark->getUniqueName(), fBenchmark->getSize().fX,
-                    fBenchmark->getSize().fY);
-
-    fBenchmark->delayedSetup();
-    fBenchmark->preTimingHooks(canvas);
-    return true;
-}
-
-void VisualLightweightBenchModule::draw(SkCanvas* canvas) {
-    if (!this->advanceRecordIfNecessary(canvas)) {
-        SkDebugf("Exiting VisualBench successfully\n");
-        fOwner->closeWindow();
-        return;
-    }
-
-    if (fHasBeenReset) {
-        fHasBeenReset = false;
-        fBenchmark->preTimingHooks(canvas);
-    }
-
-    this->renderFrame(canvas);
-    TimingStateMachine::ParentEvents event = fTSM.nextFrame(true);
-    switch (event) {
-        case TimingStateMachine::kReset_ParentEvents:
-            fBenchmark->postTimingHooks(canvas);
-            fOwner->reset();
-            fHasBeenReset = true;
-            break;
-        case TimingStateMachine::kTiming_ParentEvents:
-            break;
-        case TimingStateMachine::kTimingFinished_ParentEvents:
-            fBenchmark->postTimingHooks(canvas);
-            fOwner->reset();
-            fRecords.back().fMeasurements.push_back(fTSM.lastMeasurement());
-            if (++fCurrentSample > FLAGS_samples) {
-                this->printStats();
-                fTSM.nextBenchmark(canvas, fBenchmark);
-                fCurrentSample = 0;
-                fBenchmark.reset(nullptr);
-            } else {
-                fHasBeenReset = true;
-            }
-            break;
-    }
+    return false;
 }
 
 bool VisualLightweightBenchModule::onHandleChar(SkUnichar c) {
