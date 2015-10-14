@@ -11,7 +11,6 @@
 
 #include "Test.h"
 
-
 class TextBlobTester {
 public:
     // This unit test feeds an SkTextBlobBuilder various runs then checks to see if
@@ -155,13 +154,19 @@ public:
             // don't trigger asserts (http://crbug.com/542643).
             SkPaint p;
             p.setTextSize(0);
-            p.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            p.setTextEncoding(SkPaint::kUTF8_TextEncoding);
 
             const char* txt = "BOOO";
-            const size_t len = strlen(txt);
-            const SkTextBlobBuilder::RunBuffer& buffer = builder.allocRunPos(p, (int)len);
-            p.textToGlyphs(txt, len, buffer.glyphs);
-            memset(buffer.pos, 0, sizeof(SkScalar) * len * 2);
+            const size_t txtLen = strlen(txt);
+            const int glyphCount = p.textToGlyphs(txt, txtLen, nullptr);
+
+            p.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            const SkTextBlobBuilder::RunBuffer& buffer = builder.allocRunPos(p, glyphCount);
+
+            p.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+            p.textToGlyphs(txt, txtLen, buffer.glyphs);
+
+            memset(buffer.pos, 0, sizeof(SkScalar) * glyphCount * 2);
             SkAutoTUnref<const SkTextBlob> blob(builder.build());
             REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
         }
