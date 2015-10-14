@@ -555,7 +555,6 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
         SkPMColor colors[256];
         int colorCount;
         const SkImageInfo info = codec->getInfo().makeColorType(colorType);
-        SkAutoTDeleteArray<uint8_t> row(new uint8_t[info.minRowBytes()]);
         if (codec->startScanlineDecode(info, nullptr, colors, &colorCount) != SkCodec::kSuccess)
         {
             SkDebugf("Could not create scanline decoder for %s with color type %s.  "
