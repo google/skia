@@ -91,7 +91,9 @@ void TimingStateMachine::recordMeasurement() {
     fLastMeasurement = this->elapsed() / (FLAGS_frames * fLoops);
 }
 
-void TimingStateMachine::nextBenchmark() {
+void TimingStateMachine::nextBenchmark(SkCanvas* canvas, Benchmark* benchmark) {
+    benchmark->postDraw(canvas);
+    benchmark->perCanvasPostDraw(canvas);
     fLoops = 1;
     fInnerState = kTuning_InnerState;
     fState = kPreWarm_State;

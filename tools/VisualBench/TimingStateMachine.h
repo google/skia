@@ -38,9 +38,10 @@ public:
     ParentEvents nextFrame(bool preWarmBetweenSamples);
 
     /*
-     * The caller should call this when they are ready to move to the next benchmark.
+     * The caller should call this when they are ready to move to the next benchmark.  The caller
+     * must call this with the *last* benchmark so post draw hooks can be invoked
      */
-    void nextBenchmark();
+    void nextBenchmark(SkCanvas*, Benchmark*);
 
     /*
      * When TimingStateMachine returns kTimingFinished_ParentEvents, then the owner can call

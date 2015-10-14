@@ -16,43 +16,52 @@ VisualStreamTimingModule::VisualStreamTimingModule(VisualBench* owner, bool preW
     fBenchmarkStream.reset(new VisualBenchmarkStream);
 }
 
+bool VisualStreamTimingModule::nextBenchmarkIfNecessary(SkCanvas* canvas) {
+    if (fBenchmark) {
+        return true;
+    }
+
+    fBenchmark.reset(fBenchmarkStream->next());
+    if (!fBenchmark) {
+        return false;
+    }
+
+    fOwner->clear(canvas, SK_ColorWHITE, 2);
+
+    fBenchmark->delayedSetup();
+    fBenchmark->preTimingHooks(canvas);
+    return true;
+}
+
 void VisualStreamTimingModule::draw(SkCanvas* canvas) {
-    if (!fBenchmarkStream->current()) {
-        // this should never happen but just to be safe
+    if (!this->nextBenchmarkIfNecessary(canvas)) {
+        SkDebugf("Exiting VisualBench successfully\n");
+        fOwner->closeWindow();
         return;
     }
 
     if (fReinitializeBenchmark) {
         fReinitializeBenchmark = false;
-        fBenchmarkStream->current()->preTimingHooks(canvas);
+        fBenchmark->preTimingHooks(canvas);
     }
 
-    this->renderFrame(canvas, fBenchmarkStream->current(), fTSM.loops());
+    this->renderFrame(canvas, fBenchmark, fTSM.loops());
     fOwner->present();
     TimingStateMachine::ParentEvents event = fTSM.nextFrame(fPreWarmBeforeSample);
     switch (event) {
         case TimingStateMachine::kReset_ParentEvents:
-            fBenchmarkStream->current()->postTimingHooks(canvas);
+            fBenchmark->postTimingHooks(canvas);
             fOwner->reset();
             fReinitializeBenchmark = true;
             break;
         case TimingStateMachine::kTiming_ParentEvents:
             break;
         case TimingStateMachine::kTimingFinished_ParentEvents:
-            fBenchmarkStream->current()->postTimingHooks(canvas);
+            fBenchmark->postTimingHooks(canvas);
             fOwner->reset();
-            if (this->timingFinished(fBenchmarkStream->current(), fTSM.loops(),
-                                     fTSM.lastMeasurement())) {
-                fTSM.nextBenchmark();
-                if (!fBenchmarkStream->next()) {
-                    SkDebugf("Exiting VisualBench successfully\n");
-                    fOwner->closeWindow();
-                } else {
-                    fOwner->clear(canvas, SK_ColorWHITE, 2);
-
-                    fBenchmarkStream->current()->delayedSetup();
-                    fBenchmarkStream->current()->preTimingHooks(canvas);
-                }
+            if (this->timingFinished(fBenchmark, fTSM.loops(), fTSM.lastMeasurement())) {
+                fTSM.nextBenchmark(canvas, fBenchmark);
+                fBenchmark.reset(nullptr);
             } else {
                 fReinitializeBenchmark = true;
             }
