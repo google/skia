@@ -11,6 +11,7 @@
 #include "SkBitmapDevice.h"
 #include "SkChecksum.h"
 #include "SkDevice.h"
+#include "SkLocalMatrixImageFilter.h"
 #include "SkMatrixImageFilter.h"
 #include "SkMutex.h"
 #include "SkOncePtr.h"
@@ -437,6 +438,11 @@ SkImageFilter* SkImageFilter::CreateMatrixFilter(const SkMatrix& matrix,
                                                  SkFilterQuality filterQuality,
                                                  SkImageFilter* input) {
     return SkMatrixImageFilter::Create(matrix, filterQuality, input);
+}
+
+SkImageFilter* SkImageFilter::CreateLocalMatrixFilter(const SkMatrix& matrix,
+                                                      SkImageFilter* input) {
+    return SkLocalMatrixImageFilter::Create(matrix, input);
 }
 
 #if SK_SUPPORT_GPU

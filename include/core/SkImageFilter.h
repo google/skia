@@ -236,6 +236,13 @@ public:
                                              SkFilterQuality,
                                              SkImageFilter* input = NULL);
 
+    /**
+     * Create an SkLocalMatrixImageFilter, which transform the filter parameters
+     * of its inputs by the given matrix.
+     */
+    static SkImageFilter* CreateLocalMatrixFilter(const SkMatrix& matrix,
+                                                  SkImageFilter* input);
+
 #if SK_SUPPORT_GPU
     /**
      * Wrap the given texture in a texture-backed SkBitmap.

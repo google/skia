@@ -142,6 +142,8 @@
         '<(skia_src_path)/core/SkLightingShader.h',
         '<(skia_src_path)/core/SkLightingShader.cpp',
         '<(skia_src_path)/core/SkLineClipper.cpp',
+        '<(skia_src_path)/core/SkLocalMatrixImageFilter.cpp',
+        '<(skia_src_path)/core/SkLocalMatrixImageFilter.h',
         '<(skia_src_path)/core/SkLocalMatrixShader.cpp',
         '<(skia_src_path)/core/SkMallocPixelRef.cpp',
         '<(skia_src_path)/core/SkMask.cpp',
