@@ -1,0 +1,10 @@
+.386
+.model flat
+_TEXT SEGMENT USE32 PUBLIC 'CODE'
+MyHandler proc
+.safeseh MyHandler
+MyHandler endp
+_TEXT ENDS
+MyHandler3 proto
+.safeseh MyHandler3
+end

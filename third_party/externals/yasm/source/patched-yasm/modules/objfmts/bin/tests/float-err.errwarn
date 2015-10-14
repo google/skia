@@ -1,0 +1,8 @@
+-:2: error: invalid floating point constant size
+-:3: warning: overflow in floating point expression
+-:4: warning: overflow in floating point expression
+-:5: warning: underflow in floating point expression
+-:8: error: invalid floating point constant size
+-:9: warning: overflow in floating point expression
+-:11: warning: overflow in floating point expression
+-:12: warning: underflow in floating point expression

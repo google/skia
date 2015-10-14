@@ -1,0 +1,36 @@
+
+_TEXT SEGMENT
+
+sample PROC FRAME
+.allocstack 8			; smallest value
+.setframe rbp, 0		; smallest value
+.savexmm128 xmm7, 16*64*1024-16	; last smaller-sized
+.savereg rsi, 8*64*1024-8	; last smaller-sized
+.endprolog
+sample ENDP
+
+sample2 PROC FRAME
+.allocstack 128			; last smaller-sized
+.setframe rbp, 240		; largest value
+.savexmm128 xmm7, 16*64*1024	; first larger-sized
+.savereg rsi, 8*64*1024		; first larger-sized
+.endprolog
+sample2 ENDP
+
+sample3 PROC FRAME
+.allocstack 136			; first medium-sized
+.endprolog
+sample3 ENDP
+
+sample4 PROC FRAME
+.allocstack 8*64*1024-8		; last medium-sized
+.endprolog
+sample4 ENDP
+
+sample5 PROC FRAME
+.allocstack 8*64*1024		; first larger-sized
+.endprolog
+sample5 ENDP
+
+_TEXT ENDS
+end

@@ -1,0 +1,2 @@
+-:1: warning: binary object format does not support extern variables
+-:2: warning: `foo' both defined and declared extern

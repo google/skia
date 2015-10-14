@@ -1,0 +1,5 @@
+-:2: error: 16-bit addresses not supported in 64-bit mode
+-:4: error: 16-bit addresses not supported in 64-bit mode
+-:5: error: invalid effective address
+-:6: error: invalid effective address
+-:7: error: cannot use A/B/C/DH with instruction needing REX

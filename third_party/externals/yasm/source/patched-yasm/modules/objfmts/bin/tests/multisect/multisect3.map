@@ -1,0 +1,54 @@
+
+- YASM Map file ---------------------------------------------------------------
+
+Source file:  -
+Output file:  results/multisect3
+
+-- Program origin -------------------------------------------------------------
+
+00000000
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart    Vstop     Start     Stop      Length    Class     Name
+00000000  00000002  00000000  00000002  00000002  progbits  .text
+00000004  00000008  00000004  00000008  00000004  nobits    .foo
+00000008  0000000C  00000008  0000000C  00000004  nobits    .bss
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:    00000002
+start:     00000000
+align:     00000004
+follows:   not defined
+vstart:    00000000
+valign:    00000004
+vfollows:  not defined
+
+---- Section .foo -------------------------------------------------------------
+
+class:     nobits
+length:    00000004
+start:     00000004
+align:     00000004
+follows:   .text
+vstart:    00000004
+valign:    00000004
+vfollows:  not defined
+
+---- Section .bss -------------------------------------------------------------
+
+class:     nobits
+length:    00000004
+start:     00000008
+align:     00000004
+follows:   not defined
+vstart:    00000008
+valign:    00000004
+vfollows:  not defined
+
+-- Symbols --------------------------------------------------------------------
+

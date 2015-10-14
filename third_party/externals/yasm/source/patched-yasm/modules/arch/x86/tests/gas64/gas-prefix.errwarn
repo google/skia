@@ -1,0 +1,4 @@
+-:4: warning: multiple REX prefixes, using leftmost
+-:5: warning: ignoring REX prefix on jump
+-:6: warning: REX prefix not allowed on this instruction, ignoring
+-:7: warning: overriding generated REX prefix

@@ -1,0 +1,20 @@
+-:1: error: directive `section' requires an argument
+-:2: warning: Unrecognized qualifier `use16'
+-:3: warning: Unrecognized qualifier `use32'
+-:4: warning: Unrecognized qualifier `use64'
+-:5: warning: Unrecognized qualifier `bss'
+-:6: warning: Unrecognized qualifier `flat'
+-:7: warning: Unrecognized qualifier `foo'
+-:8: warning: Unrecognized qualifier `foo'
+-:9: error: argument to `absolute' is not an integer
+-:9: error: undefined symbol `foo' (first use)
+-:9: error:  (Each undefined symbol is reported only once.)
+-:10: error: argument to `absolute' is not an integer
+-:11: warning: Unrecognized qualifier `absolute'
+-:12: error: argument to `virtual' is not an integer
+-:13: error: argument to `virtual' is not an integer
+-:14: warning: Unrecognized qualifier `virtual'
+-:15: error: argument to `align' is not an integer
+-:16: error: argument to `align' is not an integer
+-:17: warning: Unrecognized qualifier `align'
+-:18: warning: Unrecognized string qualifier

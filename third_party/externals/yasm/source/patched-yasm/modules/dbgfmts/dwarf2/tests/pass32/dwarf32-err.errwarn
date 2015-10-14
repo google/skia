@@ -1,0 +1,22 @@
+-:1: error: directive `.loc' requires an argument
+-:2: error: file number required
+-:3: error: file number required
+-:4: error: file number less than one
+-:6: error: line number required
+-:7: error: line number required
+-:8: error: line number required
+-:11: error: line number required
+-:12: warning: unrecognized numeric qualifier
+-:13: error: column number is not a constant
+-:14: error: is_stmt requires value
+-:17: error: is_stmt value is not a constant
+-:19: error: is_stmt value is not a constant
+-:20: error: is_stmt value is not a constant
+-:22: error: is_stmt value not 0 or 1
+-:23: error: isa requires value
+-:26: error: isa value is not a constant
+-:28: error: isa value is not a constant
+-:30: error: isa value less than zero
+-:31: error: column number is not a constant
+-:33: warning: unrecognized loc option `foo'
+-:33: warning: unrecognized numeric qualifier

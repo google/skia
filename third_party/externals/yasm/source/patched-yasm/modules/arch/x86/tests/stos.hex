@@ -1,0 +1,14 @@
+aa 
+ab 
+66 
+ab 
+aa 
+66 
+ab 
+ab 
+aa 
+66 
+ab 
+ab 
+48 
+ab 

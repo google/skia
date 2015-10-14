@@ -1,0 +1,22 @@
+re2c
+----
+
+YASM version
+------------
+- translated to C from C++ for portability reasons
+
+Version 0.9.1
+-------------
+
+- removed rcs comments in source files
+
+Version 0.9
+-----------
+
+- redistribution based on version 0.5
+- added parentheses to assignment expressions in 'if' statements
+- rearranged class members to match initialization order
+- substr fix
+- use array delete [] when necessary
+- other minor fixes for subduing compiler warnings
+

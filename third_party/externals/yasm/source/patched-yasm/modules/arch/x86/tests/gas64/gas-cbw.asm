@@ -1,0 +1,12 @@
+cbw
+cdqe
+cwde
+cwd
+cdq
+cqo
+cbtw
+cltq
+cwtl
+cwtd
+cltd
+cqto

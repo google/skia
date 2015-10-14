@@ -1,0 +1,6 @@
+-:2: warning: value does not fit in 16 bit field
+-:3: warning: value does not fit in 16 bit field
+-:4: warning: value does not fit in 32 bit field
+-:6: warning: value does not fit in 32 bit field
+-:8: warning: value does not fit in 16 bit field
+-:11: warning: value does not fit in 16 bit field

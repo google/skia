@@ -1,0 +1,2 @@
+-:2: error: cannot use A/B/C/DH with instruction needing REX
+-:3: error: cannot use A/B/C/DH with instruction needing REX

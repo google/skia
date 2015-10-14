@@ -1,0 +1,63 @@
+'\" t
+.\"     Title: yasm_dbgfmts
+.\"    Author: Peter Johnson <peter@tortall.net>
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: October 2006
+.\"    Manual: Yasm Supported Debug Formats
+.\"    Source: Yasm
+.\"  Language: English
+.\"
+.TH "YASM_DBGFMTS" "7" "October 2006" "Yasm" "Yasm Supported Debug Formats"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+yasm_dbgfmts \- Yasm Supported Debugging Formats
+.SH "SYNOPSIS"
+.HP \w'\fByasm\fR\ 'u
+\fByasm\fR \fB\-g\ \fR\fB\fIdbgfmt\fR\fR \fB\fI\&.\&.\&.\fR\fR
+.SH "DESCRIPTION"
+.PP
+The standard Yasm distribution includes a number of modules for different debugging formats\&. The debugging information is embedded into the object file\&. Use of a non\-\(lqnull\(rq
+debug format also causes Yasm to output all symbols to the object file (including local symbols)\&.
+.PP
+The debug format is selected on the
+\fByasm\fR(1)
+command line by use of the
+\fB\-g \fR\fB\fIdbgfmt\fR\fR
+command line option\&.
+.SH "CV8"
+.PP
+The CV8 debug format is used by Microsoft Visual Studio 2005 (version 8\&.0) and is completely undocumented, although it bears strong similarities to earlier CodeView formats\&. Yasm\'s support for the CV8 debug format is currently limited to generating assembly\-level line number information (to allow some level of source\-level debugging)\&. The CV8 debug information is stored in the \&.debug$S and \&.debug$T sections of the Win64 object file\&.
+.SH "DWARF2"
+.PP
+The DWARF 2 debug format is a complex, well\-documented standard for debugging information\&. It was created to overcome shortcomings in STABS, allowing for much more detailed and compact descriptions of data structures, data variable movement, and complex language structures such as in C++\&. The debugging information is stored in sections (just like normal program sections) in the object file\&. Yasm supports full pass\-through of DWARF2 debugging information (e\&.g\&. from a C++ compiler), and can also generate assembly\-level line number information\&.
+.SH "NULL"
+.PP
+The
+\(lqnull\(rq
+debug format is a placeholder; it adds no debugging information to the output file\&.
+.SH "STABS"
+.PP
+The STABS debug format is a poorly documented, semi\-standard format for debugging information in COFF and ELF object files\&. The debugging information is stored as part of the object file\'s symbol table and thus is limited in complexity and scope\&. Despite this, STABS is a common debugging format on older Unix and compatible systems, as well as DJGPP\&.
+.SH "SEE ALSO"
+.PP
+\fByasm\fR(1),
+\fByasm_objfmts\fR(7)
+.SH "AUTHOR"
+.PP
+\fBPeter Johnson\fR <\&peter@tortall\&.net\&>
+.RS 4
+Author.
+.RE
+.SH "COPYRIGHT"
+.br
+Copyright \(co 2006 Peter Johnson
+.br

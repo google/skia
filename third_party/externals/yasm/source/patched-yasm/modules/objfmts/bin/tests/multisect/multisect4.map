@@ -1,0 +1,97 @@
+
+- YASM Map file ---------------------------------------------------------------
+
+Source file:  -
+Output file:  results/multisect4
+
+-- Program origin -------------------------------------------------------------
+
+00009000
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart    Vstop     Start     Stop      Length    Class     Name
+00000800  00000900  00000800  00000900  00000100  nobits    .earlybss
+00009000  00009100  00009000  00009100  00000100  progbits  .text
+00009100  00009200  00009100  00009200  00000100  progbits  .data
+00000900  00000A00  00009200  00009300  00000100  progbits  .bcopy32
+00009300  00009400  00009300  00009400  00000100  nobits    .latebss
+00000A00  00000B00  00009400  00009500  00000100  nobits    .bss
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .earlybss --------------------------------------------------------
+
+class:     nobits
+length:    00000100
+start:     00000800
+align:     00000004
+follows:   not defined
+vstart:    00000800
+valign:    00000004
+vfollows:  not defined
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:    00000100
+start:     00009000
+align:     00000004
+follows:   not defined
+vstart:    00009000
+valign:    00000004
+vfollows:  not defined
+
+---- Section .data ------------------------------------------------------------
+
+class:     progbits
+length:    00000100
+start:     00009100
+align:     00000010
+follows:   .text
+vstart:    00009100
+valign:    00000010
+vfollows:  not defined
+
+---- Section .bcopy32 ---------------------------------------------------------
+
+class:     progbits
+length:    00000100
+start:     00009200
+align:     00000010
+follows:   .data
+vstart:    00000900
+valign:    00000010
+vfollows:  .earlybss
+
+---- Section .latebss ---------------------------------------------------------
+
+class:     nobits
+length:    00000100
+start:     00009300
+align:     00000010
+follows:   .bcopy32
+vstart:    00009300
+valign:    00000010
+vfollows:  not defined
+
+---- Section .bss -------------------------------------------------------------
+
+class:     nobits
+length:    00000100
+start:     00009400
+align:     00000100
+follows:   not defined
+vstart:    00000A00
+valign:    00000100
+vfollows:  .bcopy32
+
+-- Symbols --------------------------------------------------------------------
+
+---- No Section ---------------------------------------------------------------
+
+Value     Name
+00000800  BSS_START
+00009000  TEXT_START
+
+

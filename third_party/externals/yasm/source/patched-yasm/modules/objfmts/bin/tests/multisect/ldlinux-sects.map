@@ -1,0 +1,148 @@
+
+- YASM Map file ---------------------------------------------------------------
+
+Source file:  -
+Output file:  results/ldlinux-sects
+
+-- Program origin -------------------------------------------------------------
+
+00007C00
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart    Vstop     Start     Stop      Length    Class     Name
+00000800  000048C4  00000800  000048C4  000040C4  nobits    .earlybss
+00006C00  00007C00  00006C00  00007C00  00001000  nobits    .stack
+00007C00  0000A010  00007C00  0000A010  00002410  progbits  .text
+0000A010  0000A5A0  0000A010  0000A5A0  00000590  progbits  .data
+000048D0  00004B70  0000A5A0  0000A840  000002A0  progbits  .bcopy32
+00004B70  00004B93  0000A840  0000A863  00000023  progbits  .config
+0000A863  0000A863  0000A863  0000A863  00000000  progbits  .adv
+0000A870  0000E170  0000A870  0000E170  00003900  nobits    .bss
+00004B94  00004B94  0000E170  0000E170  00000000  nobits    .config.end
+00004BA0  00004D9B  0000E170  0000E36B  000001FB  nobits    .bss1
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .earlybss --------------------------------------------------------
+
+class:     nobits
+length:    000040C4
+start:     00000800
+align:     00000004
+follows:   not defined
+vstart:    00000800
+valign:    00000004
+vfollows:  not defined
+
+---- Section .stack -----------------------------------------------------------
+
+class:     nobits
+length:    00001000
+start:     00006C00
+align:     00000010
+follows:   not defined
+vstart:    00006C00
+valign:    00000010
+vfollows:  not defined
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:    00002410
+start:     00007C00
+align:     00000004
+follows:   not defined
+vstart:    00007C00
+valign:    00000004
+vfollows:  not defined
+
+---- Section .data ------------------------------------------------------------
+
+class:     progbits
+length:    00000590
+start:     0000A010
+align:     00000010
+follows:   not defined
+vstart:    0000A010
+valign:    00000010
+vfollows:  not defined
+
+---- Section .bcopy32 ---------------------------------------------------------
+
+class:     progbits
+length:    000002A0
+start:     0000A5A0
+align:     00000004
+follows:   .data
+vstart:    000048D0
+valign:    00000010
+vfollows:  .earlybss
+
+---- Section .config ----------------------------------------------------------
+
+class:     progbits
+length:    00000023
+start:     0000A840
+align:     00000004
+follows:   .bcopy32
+vstart:    00004B70
+valign:    00000010
+vfollows:  .bcopy32
+
+---- Section .adv -------------------------------------------------------------
+
+class:     progbits
+length:    00000000
+start:     0000A863
+align:     00000001
+follows:   .config
+vstart:    0000A863
+valign:    00000001
+vfollows:  not defined
+
+---- Section .bss -------------------------------------------------------------
+
+class:     nobits
+length:    00003900
+start:     0000A870
+align:     00000010
+follows:   .adv
+vstart:    0000A870
+valign:    00000010
+vfollows:  not defined
+
+---- Section .config.end ------------------------------------------------------
+
+class:     nobits
+length:    00000000
+start:     0000E170
+align:     00000004
+follows:   not defined
+vstart:    00004B94
+valign:    00000004
+vfollows:  .config
+
+---- Section .bss1 ------------------------------------------------------------
+
+class:     nobits
+length:    000001FB
+start:     0000E170
+align:     00000004
+follows:   not defined
+vstart:    00004BA0
+valign:    00000010
+vfollows:  .config.end
+
+-- Symbols --------------------------------------------------------------------
+
+---- No Section ---------------------------------------------------------------
+
+Value     Name
+00000800  BSS_START
+0000B800  LATEBSS_START
+00007C00  TEXT_START
+00001000  STACK_SIZE
+00006C00  STACK_START
+
+

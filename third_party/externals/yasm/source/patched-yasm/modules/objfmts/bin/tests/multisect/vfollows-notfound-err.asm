@@ -1,0 +1,2 @@
+section foo vfollows=bar
+
