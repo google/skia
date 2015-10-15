@@ -50,7 +50,7 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
         return result;
     }
 
-    uint32_t rows = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
+    int rows = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
     if (rows != dstInfo.height()) {
         *rowsDecoded = rows;
         return kIncompleteInput;

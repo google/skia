@@ -700,8 +700,8 @@ SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int
     , fX0(srcOffset)
     , fSrcWidth(srcWidth)
     , fDstWidth(srcWidth)
-    , fBPP(bpp)
     , fSampleX(1)
+    , fBPP(bpp)
 {}
 
 int SkSwizzler::onSetSampleX(int sampleX) {

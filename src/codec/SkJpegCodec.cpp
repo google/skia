@@ -381,7 +381,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
-    SkSwizzler::SrcConfig srcConfig;
+    SkSwizzler::SrcConfig srcConfig = SkSwizzler::kUnknown;
     switch (dstInfo.colorType()) {
         case kGray_8_SkColorType:
             srcConfig = SkSwizzler::kGray;
@@ -487,14 +487,17 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
 }
 
 #ifndef TURBO_HAS_SKIP
-// TODO (msarett): Make this a member function and avoid reallocating the
-//                 memory buffer on each call to skip.
-#define jpeg_skip_scanlines(dinfo, count)                                    \
-    SkAutoMalloc storage(get_row_bytes(dinfo));                              \
-    uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());              \
-    for (int y = 0; y < count; y++) {                                        \
-        jpeg_read_scanlines(dinfo, &storagePtr, 1);                          \
+// TODO (msarett): Avoid reallocating the memory buffer on each call to skip.
+static uint32_t jpeg_skip_scanlines(dinfo, count) {
+    SkAutoMalloc storage(get_row_bytes(dinfo));
+    uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
+    for (int y = 0; y < count; y++) {
+        if (1 != jpeg_read_scanlines(dinfo, &storagePtr, 1)) {
+            return y;
+        }
     }
+    return count;
+}
 #endif
 
 bool SkJpegCodec::onSkipScanlines(int count) {
@@ -503,5 +506,5 @@ bool SkJpegCodec::onSkipScanlines(int count) {
         return fDecoderMgr->returnFalse("setjmp");
     }
 
-    return count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
+    return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
 }

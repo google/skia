@@ -92,8 +92,8 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
 SkWbmpCodec::SkWbmpCodec(const SkImageInfo& info, SkStream* stream)
     : INHERITED(info, stream)
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
-    , fColorTable(nullptr)
     , fSwizzler(nullptr)
+    , fColorTable(nullptr)
 {}
 
 SkEncodedFormat SkWbmpCodec::onGetEncodedFormat() const {

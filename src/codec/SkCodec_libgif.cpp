@@ -30,13 +30,6 @@ bool SkGifCodec::IsGif(SkStream* stream) {
 }
 
 /*
- * Warning reporting function
- */
-static void gif_warning(const char* msg) {
-    SkCodecPrintf("Gif Warning: %s\n", msg);
-}
-
-/*
  * Error function
  */
 static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCodec::kInvalidInput) {
@@ -189,6 +182,7 @@ bool SkGifCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, GifFileType** 
         SkIRect frameRect;
         if (!GetDimensions(gif, &size, &frameRect)) {
             gif_error("Invalid gif size.\n");
+            return false;
         }
         bool frameIsSubset = (size != frameRect.size());
 
@@ -237,6 +231,7 @@ SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType
     : INHERITED(srcInfo, stream)
     , fGif(gif)
     , fSrcBuffer(new uint8_t[this->getInfo().width()])
+    , fFrameRect(frameRect)
     // If it is valid, fTransIndex will be used to set fFillIndex.  We don't know if
     // fTransIndex is valid until we process the color table, since fTransIndex may
     // be greater than the size of the color table.
@@ -244,10 +239,9 @@ SkGifCodec::SkGifCodec(const SkImageInfo& srcInfo, SkStream* stream, GifFileType
     // Default fFillIndex is 0.  We will overwrite this if fTransIndex is valid, or if
     // there is a valid background color.
     , fFillIndex(0)
-    , fFrameRect(frameRect)
     , fFrameIsSubset(frameIsSubset)
-    , fColorTable(NULL)
     , fSwizzler(NULL)
+    , fColorTable(NULL)
 {}
 
 bool SkGifCodec::onRewind() {

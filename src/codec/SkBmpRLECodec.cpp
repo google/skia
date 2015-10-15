@@ -55,7 +55,7 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     // Perform the decode
-    uint32_t rows = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
+    int rows = this->decodeRows(dstInfo, dst, dstRowBytes, opts);
     if (rows != dstInfo.height()) {
         // We set rowsDecoded equal to the height because the background has already
         // been filled.  RLE encodings sometimes skip pixels, so we always start by

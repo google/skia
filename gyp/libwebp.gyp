@@ -243,8 +243,6 @@
             'include_dirs': [
               '../third_party/externals/libwebp/src',
             ],
-            'cflags': [ '-w' ],
-            'xcode_settings': { 'WARNING_CFLAGS': [ '-w' ] },
           },
           'conditions': [
             ['OS!="win"', {'product_name': 'webp'}],

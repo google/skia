@@ -287,8 +287,8 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
     }
 
     // Now determine the default SkColorType and SkAlphaType and set required transforms
-    SkColorType skColorType;
-    SkAlphaType skAlphaType;
+    SkColorType skColorType = kUnknown_SkColorType;
+    SkAlphaType skAlphaType = kUnknown_SkAlphaType;
     switch (colorType) {
         case PNG_COLOR_TYPE_PALETTE:
             skColorType = kIndex_8_SkColorType;
@@ -605,8 +605,8 @@ public:
     SkPngScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
             png_structp png_ptr, png_infop info_ptr, int bitDepth)
         : INHERITED(srcInfo, stream, png_ptr, info_ptr, bitDepth, 1)
-        , fSrcRow(nullptr)
         , fAlphaState(kUnknown_AlphaState)
+        , fSrcRow(nullptr)
     {}
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
@@ -843,4 +843,3 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.detach(), png_ptr,
                                               info_ptr, bitDepth, numberPasses);
 }
-
