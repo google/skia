@@ -15,10 +15,12 @@
     "~blurroundrect", 
     "~patch_grid", 
     "~desk_carsvg", 
-    "~desk_unicodetable"
+    "~desk_unicodetable", 
+    "~interlaced1.png", 
+    "~interlaced2.png", 
+    "~interlaced3.png"
   ], 
   "Perf-Android-Nexus7-Tegra3-Arm7-Release": [
-    "--images", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -71,7 +73,11 @@
     "--loops", 
     "1", 
     "--samples", 
-    "1"
+    "1", 
+    "--match", 
+    "~interlaced1.png", 
+    "~interlaced2.png", 
+    "~interlaced3.png"
   ], 
   "Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE": [
     "--images", 
@@ -93,7 +99,10 @@
     "256", 
     "--match", 
     "~gradient", 
-    "~etc1bitmap"
+    "~etc1bitmap", 
+    "~interlaced1.png", 
+    "~interlaced2.png", 
+    "~interlaced3.png"
   ], 
   "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug": [
     "--images", 

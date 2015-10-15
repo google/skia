@@ -29,8 +29,8 @@ cov_start = lineno()+1   # We care about coverage starting just past this def.
 def get_args(bot):
   args = []
 
-  # Temporarily disable image benchmarking.
-  args.append('--images')
+  if 'GPU' in bot:
+    args.append('--images')
 
   if 'Appurify' not in bot:
     args.extend(['--scales', '1.0', '1.1'])
@@ -79,6 +79,17 @@ def get_args(bot):
     match.append('~desk_carsvg')
     match.append('~keymobi')
     match.append('~path_hairline')
+
+  # the 32-bit GCE bots run out of memory in DM when running these large images
+  # so defensively disable them in nanobench, too.
+  # FIXME (scroggo): This may have just been due to SkImageDecoder's
+  # buildTileIndex leaking memory (skbug.com/4360). That is disabled by
+  # default for nanobench, so we may not need this.
+  # FIXME (scroggo): Share image blacklists between dm and nanobench?
+  if 'x86' in bot and not 'x86-64' in bot:
+    match.append('~interlaced1.png')
+    match.append('~interlaced2.png')
+    match.append('~interlaced3.png')
 
   if match:
     args.append('--match')

@@ -112,6 +112,7 @@ DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 DEFINE_bool(pngBuildTileIndex, false, "If supported, use png buildTileIndex/decodeSubset.");
+DEFINE_bool(jpgBuildTileIndex, false, "If supported, use jpg buildTileIndex/decodeSubset.");
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) return SkStringPrintf("%llu", (uint64_t)(ms*1e6));
@@ -513,9 +514,11 @@ static bool run_subset_bench(const SkString& path, bool useCodec) {
         "JPG", "JPEG",
     };
 
-    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
-        if (path.endsWith(exts[i])) {
-            return true;
+    if (useCodec || FLAGS_jpgBuildTileIndex) {
+        for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
+            if (path.endsWith(exts[i])) {
+                return true;
+            }
         }
     }
 
@@ -983,12 +986,34 @@ public:
             while (fCurrentBRDStrategy < (int) SK_ARRAY_COUNT(strategies)) {
                 fSourceType = "image";
                 fBenchType = strategies[fCurrentBRDStrategy].fName;
+
+                const SkString& path = fImages[fCurrentBRDImage];
+                const SkBitmapRegionDecoderInterface::Strategy strategy =
+                        strategies[fCurrentBRDStrategy].fStrategy;
+
+                if (SkBitmapRegionDecoderInterface::kOriginal_Strategy == strategy) {
+                    // Disable png and jpeg for SkImageDecoder:
+                    if (!FLAGS_jpgBuildTileIndex) {
+                        if (path.endsWith("JPEG") || path.endsWith("JPG") ||
+                            path.endsWith("jpeg") || path.endsWith("jpg"))
+                        {
+                            fCurrentBRDStrategy++;
+                            continue;
+                        }
+                    }
+                    if (!FLAGS_pngBuildTileIndex) {
+                        if (path.endsWith("PNG") || path.endsWith("png")) {
+                            fCurrentBRDStrategy++;
+                            continue;
+                        }
+                    }
+                }
+
                 while (fCurrentColorType < fColorTypes.count()) {
                     while (fCurrentBRDSampleSize < (int) SK_ARRAY_COUNT(sampleSizes)) {
                         while (fCurrentSubsetType <= kLastSingle_SubsetType) {
-                            const SkString& path = fImages[fCurrentBRDImage];
-                            const SkBitmapRegionDecoderInterface::Strategy strategy =
-                                    strategies[fCurrentBRDStrategy].fStrategy;
+
+
                             SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
                             const SkColorType colorType = fColorTypes[fCurrentColorType];
                             uint32_t sampleSize = sampleSizes[fCurrentBRDSampleSize];
