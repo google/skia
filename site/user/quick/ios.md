@@ -1,104 +1,136 @@
 iOS
 ===
 
+The following has been tested on MacOS Yosemite with Xcode version 6.3.
+
+Quickstart
+----------
+
+1.  Install [XCode](http://developer.apple.com/xcode/). 
+
+2.  Install depot tools.
+
+    <!--?prettify lang=sh?-->
+
+        git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+        export PATH="${PWD}/depot_tools:${PATH}"
+
+3.  Get Skia.
+
+    <!--?prettify lang=sh?-->
+
+        git clone 'https://skia.googlesource.com/skia'
+        cd skia
+
+4.  Create the project files.
+
+    <!--?prettify lang=sh?-->
+
+        GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" ./gyp_skia
+
+5.  Build and run SampleApp.
+
+    <!--?prettify lang=sh?-->
+
+        xed out/gyp/SampleApp.xcodeproj # opens the SampleApp project in Xcode
+
 Prerequisites
 -------------
 
-_These steps should closely follow building on Mac OS X. Those steps seem slightly out of date._
+Make sure the following have been installed:
+
+  * XCode (Apple's development environment): required
+    * publicly available at http://developer.apple.com/xcode/
+    * add the optional Unix Tools to the install so you get the make command line tool.
+  * Chromium depot_tools: required to download the source and dependencies
+    * http://www.chromium.org/developers/how-tos/depottools
+  * You will need an Apple developer account if you wish to run on an iOS device.
+  * A tool such as [ios-deploy](https://github.com/phonegap/ios-deploy) is also useful for pulling output from an iOS device.
+
+Check out the source code
+-------------------------
+
+See the instructions [here](../download).
+
+Generate XCode projects
+-----------------------
+
+We use the open-source gyp tool to generate XCode projects (and analogous
+build scripts on other platforms) from our multiplatform "gyp" files.
+
+Before building, make sure that gyp knows to create an XCode project or ninja
+build files. If you leave GYP_GENERATORS undefined it will assume the
+following default:
+
+    GYP_GENERATORS="ninja,xcode"
+
+Or you can set it to `xcode` alone, if you like.
+
+You can then generate the Xcode projects by running:
+
+    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" ./gyp_skia
+
+Alternatively, you can do:
+
+    export GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0"
+    ./gyp_skia
+
+Build and run tests
+-------------------
+
+The 'dm' test program is wrapped in an app called iOSShell. The project for iOSShell is at out/gyp/iOSShell.xcodeproj. 
+Running this app with the flag '--dm' will run unit tests and golden master images. Other arguments to the standard 'dm'
+test program can also be passed in.
+
+To launch the iOS app on a device from the command line you can use a tool such as [ios-deploy](https://github.com/phonegap/ios-deploy):
+
+    xcodebuild -project out/gyp/iOSShell.xcodeproj -configuration Debug
+    ios-deploy --bundle xcodebuild/Debug-iphoneos/iOSShell.app -I -d --args "--dm <dm_args>"
+
+The usual mode you want for testing is Debug mode (SK_DEBUG is defined, and
+debug symbols are included in the binary). If you would like to build the
+Release version instead:
+
+    xcodebuild -project out/gyp/iOSShell.xcodeproj -configuration Release
+    ios-deploy --bundle xcodebuild/Release-iphoneos/iOSShell.app -I -d --args "--dm <dm_args>"
+
+Build and run nanobench (performance tests)
+-------------------------------------------
+
+The 'nanobench' test program is also wrapped in iOSShell.app. Passing in the flag '--nanobench' will run these tests.
+
+Here's an example of running nanobench from the command line. We will build with the "Release" configuration, since we are running performance tests.
+
+    xcodebuild --project out/gyp/iOSShell.xcodeproj -configuration Release
+    ios-deploy --bundle xcodebuild/Release-iphoneos/iOSShell.app -I -d --args "--nanobench <nanobench_args>"
 
 Build and run SampleApp in the XCode IDE
 ----------------------------------------
 
-### XCode 4.5
+  * Run gyp_skia as described above.
+  * In the Finder, navigate to $SKIA_INSTALLDIR/trunk/out/gyp
+  * Double-click SampleApp.xcodeproj ; this will launch XCode and open the SampleApp project
+  * Make sure the SampleApp target is selected, and choose an iOS device to run on
+  * Click the “Build and Run” button in the top toolbar
+  * Once the build is complete, launching the app will display a window with lots of shaded text examples. On the upper left there is a drop down
+menu that allows you to cycle through different test pages. On the upper right there is a dialog with a set of options, including different
+rendering methods for each test page.
 
+Provisioning
+------------
 
-To build SampleApp on XCode 4.5 using the IDE these steps should work:
+To run the Skia apps on an iOS device rather than using the simulator, you will need a developer account and a provisioning profile. See
+[Launching Your App on Devices](https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/LaunchingYourApponDevices/LaunchingYourApponDevices.html) for more information.
 
-    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" ./gyp_skia
-    xed out/gyp/SampleApp.xcodeproj # opens the SampleApp project in the IDE
+Managing App Data
+-----------------
+By default, the iOS apps will look for resource files in the Documents/resources folder of the app and write any output files to Documents/. To upload resources
+so that the app can read them you can use a tool such as [ios-deploy](https://github.com/phonegap/ios-deploy). For example:
 
-Note that if you run make at the command line the gyp\_skia script will rerun
-and you'll lose the effect of the GYP\_DEFINES. To avoid this do:
+    ios-deploy --bundle_id 'com.google.SkiaSampleApp' --upload resources/baby_tux.png --to Documents/resources/baby_tux.png
 
-    export GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0"
+You can use the same tool to download log files and golden master (GM) images:
 
-### XCode 3
+    ios-deploy --bundle_id 'com.google.iOSShell' --download=/Documents --to ./my_download_location
 
-Use GYP\_DEFINES to tell gyp\_skia how to build for iOS. Here's a bash shell
-snippet that sets the world up to build SampleApp with XCode 3:
-
-    function buildSampleApp()
-    {
-      sdkVersion="4.3"
-      if [[ "$1" == "sim" ]] ; then
-        export GYP_DEFINES="skia_os='ios' skia_arch_type='x86' \
-          ios_sdk_dir='/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator' \
-          ios_sdk_version='$sdkVersion'"
-      elif [[ "$1" == "iphone" ]] ; then
-        export GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7='1' arm_neon='0' \
-          ios_sdk_dir='/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS' \
-          ios_sdk_version='$sdkVersion'"
-      elif [[ "$1" == "mac" ]] ; then
-        export GYP_DEFINES=""
-      else
-        echo "buildSampleApp  expects 'sim', 'iphone', or 'mac'"
-      fi
-      if [[ "$1" == "sim" ]] || [[ "$1" == "iphone" ]] || [[ "$1" == "mac" ]] ; then
-        save=`pwd`
-        cd /chrome/nih/skia/trunk
-        echo "$GYP_DEFINES ./gyp_skia gyp/SampleApp.gyp"
-        ./gyp_skia gyp/SampleApp.gyp
-        cd $save
-      fi
-      if [[ "$1" == "sim" ]] ; then
-        setiossdk iphonesimulator$sdkVersion
-      elif [[ "$1" == "iphone" ]] ; then
-        setiossdk iphoneos$sdkVersion
-      fi
-    }
-
-The script function setiossdk called by buildSampleApp is a
-not-completely-working hackery. When gyp builds an iOS-targeted project, it is
-hard-coded for the iOS simulator. To point the project at either the iOS
-simulator, or an iOS device, the project file must be opened to create a
-custom pbxuser file.
-
-This is accomplished by:
-
-    function setiossdk()
-    {
-      osascript -e 'tell app "Xcode" to quit'
-      osascript -e 'repeat until appIsRunning("Xcode") is false' -e \
-        'do shell script "sleep 1"' -e 'end repeat'
-      save=`pwd`
-      skia
-      cd out/gyp
-      for project in *.xcodeproj; do
-        open $project
-      done
-      osascript -e 'tell app "Xcode" to quit'
-      osascript -e 'repeat until appIsRunning("Xcode") is false' -e \
-        'do shell script "sleep 1"' -e 'end repeat'
-      for project in *.xcodeproj; do
-        lsave=`pwd`
-        cd $project
-        filename=`eval whoami`.pbxuser
-        while [[ ! -s $filename ]] ; do
-          sleep 1
-          echo -n "."
-        done
-        sed -e '/activeSDKPreference/ d' <$filename | sed -e '/activeTarget/ i\
-    \                activeSDKPreference = '$1';' >x$filename
-        if [[ -s x$filename ]] ; then
-          mv x$filename $filename
-        else
-          echo "mv x$filename $project/$filename failed"
-        fi
-        cd $lsave
-      done
-      open SampleApp.xcodeproj
-      cd $save
-    }
-
-In particular, the calls to osascript to wait for Xcode to quit use faulty syntax.
-
+Alternatively, you can put resources and other files in the bundle of the application. In this case, you'll need to run the app with the option '--resourcePath .'
