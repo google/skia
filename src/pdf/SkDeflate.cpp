@@ -11,13 +11,13 @@
 #include "SkDeflate.h"
 #include "SkStream.h"
 
-namespace {
-
 #ifdef ZLIB_INCLUDE
     #include ZLIB_INCLUDE
 #else
     #include "zlib.h"
 #endif
+
+namespace {
 
 // Different zlib implementations use different T.
 // We've seen size_t and unsigned.
