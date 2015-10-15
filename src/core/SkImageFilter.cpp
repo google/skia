@@ -87,6 +87,11 @@ bool SkImageFilter::CropRect::applyTo(const SkIRect& imageBounds, const Context&
             cropped->fBottom = cropped->fTop + devICropR.height();
         }
     }
+    // Intersect against the clip bounds, in case the crop rect has
+    // grown the bounds beyond the original clip. This can happen for
+    // example in tiling, where the clip is much smaller than the filtered
+    // primitive. If we didn't do this, we would be processing the filter
+    // at the full crop rect size in every tile.
     return cropped->intersect(ctx.clipBounds());
 }
 
