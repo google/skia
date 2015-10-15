@@ -8,12 +8,16 @@
 
 #include "SkJpegUtility.h"
 
+#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_JPEG_NO_INDEX_SUPPORTED)
+#define SK_JPEG_INDEX_SUPPORTED
+#endif
+
 /////////////////////////////////////////////////////////////////////
 static void sk_init_source(j_decompress_ptr cinfo) {
     skjpeg_source_mgr*  src = (skjpeg_source_mgr*)cinfo->src;
     src->next_input_byte = (const JOCTET*)src->fBuffer;
     src->bytes_in_buffer = 0;
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
     src->current_offset = 0;
 #endif
     if (!src->fStream->rewind()) {
@@ -22,7 +26,7 @@ static void sk_init_source(j_decompress_ptr cinfo) {
     }
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
 static boolean sk_seek_input_data(j_decompress_ptr cinfo, long byte_offset) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*)cinfo->src;
     size_t bo = (size_t) byte_offset;
@@ -57,7 +61,7 @@ static boolean sk_fill_input_buffer(j_decompress_ptr cinfo) {
         return FALSE;
     }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
     src->current_offset += bytes;
 #endif
     src->next_input_byte = (const JOCTET*)src->fBuffer;
@@ -77,7 +81,7 @@ static void sk_skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
                 cinfo->err->error_exit((j_common_ptr)cinfo);
                 return;
             }
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
             src->current_offset += bytes;
 #endif
             bytesToSkip -= bytes;
@@ -104,7 +108,7 @@ skjpeg_source_mgr::skjpeg_source_mgr(SkStream* stream, SkImageDecoder* decoder)
     skip_input_data = sk_skip_input_data;
     resync_to_restart = jpeg_resync_to_restart;
     term_source = sk_term_source;
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_JPEG_INDEX_SUPPORTED
     seek_input_data = sk_seek_input_data;
 #endif
 //    SkDebugf("**************** use memorybase %p %d\n", fMemoryBase, fMemoryBaseSize);
