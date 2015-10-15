@@ -10,61 +10,66 @@
 #include "SkCanvas.h"
 
 VisualStreamTimingModule::VisualStreamTimingModule(VisualBench* owner, bool preWarmBeforeSample)
-    : fReinitializeBenchmark(false)
+    : fInitState(kReset_InitState)
     , fPreWarmBeforeSample(preWarmBeforeSample)
     , fOwner(owner) {
     fBenchmarkStream.reset(new VisualBenchmarkStream);
 }
 
-bool VisualStreamTimingModule::nextBenchmarkIfNecessary(SkCanvas* canvas) {
-    if (fBenchmark) {
-        return true;
+inline void VisualStreamTimingModule::handleInitState(SkCanvas* canvas) {
+    switch (fInitState) {
+        case kNewBenchmark_InitState:
+            fOwner->clear(canvas, SK_ColorWHITE, 2);
+            fBenchmarkStream->current()->delayedSetup();
+            // fallthrough
+        case kReset_InitState:
+            fBenchmarkStream->current()->preTimingHooks(canvas);
+            break;
+        case kNone_InitState:
+            break;
     }
-
-    fBenchmark.reset(fBenchmarkStream->next());
-    if (!fBenchmark) {
-        return false;
-    }
-
-    fOwner->clear(canvas, SK_ColorWHITE, 2);
-
-    fBenchmark->delayedSetup();
-    fBenchmark->preTimingHooks(canvas);
-    return true;
+    fInitState = kNone_InitState;
 }
 
-void VisualStreamTimingModule::draw(SkCanvas* canvas) {
-    if (!this->nextBenchmarkIfNecessary(canvas)) {
-        SkDebugf("Exiting VisualBench successfully\n");
-        fOwner->closeWindow();
-        return;
-    }
-
-    if (fReinitializeBenchmark) {
-        fReinitializeBenchmark = false;
-        fBenchmark->preTimingHooks(canvas);
-    }
-
-    this->renderFrame(canvas, fBenchmark, fTSM.loops());
-    fOwner->present();
-    TimingStateMachine::ParentEvents event = fTSM.nextFrame(fPreWarmBeforeSample);
+inline void VisualStreamTimingModule::handleTimingEvent(SkCanvas* canvas,
+                                                        TimingStateMachine::ParentEvents event) {
     switch (event) {
         case TimingStateMachine::kReset_ParentEvents:
-            fBenchmark->postTimingHooks(canvas);
+            fBenchmarkStream->current()->postTimingHooks(canvas);
             fOwner->reset();
-            fReinitializeBenchmark = true;
+            fInitState = kReset_InitState;
             break;
         case TimingStateMachine::kTiming_ParentEvents:
             break;
         case TimingStateMachine::kTimingFinished_ParentEvents:
-            fBenchmark->postTimingHooks(canvas);
+            fBenchmarkStream->current()->postTimingHooks(canvas);
             fOwner->reset();
-            if (this->timingFinished(fBenchmark, fTSM.loops(), fTSM.lastMeasurement())) {
-                fTSM.nextBenchmark(canvas, fBenchmark);
-                fBenchmark.reset(nullptr);
+            if (this->timingFinished(fBenchmarkStream->current(), fTSM.loops(),
+                                     fTSM.lastMeasurement())) {
+                fTSM.nextBenchmark();
+                if (!fBenchmarkStream->next()) {
+                    SkDebugf("Exiting VisualBench successfully\n");
+                    fOwner->closeWindow();
+                } else {
+                    fInitState = kNewBenchmark_InitState;
+                }
             } else {
-                fReinitializeBenchmark = true;
+                fInitState = kReset_InitState;
             }
             break;
     }
+}
+
+void VisualStreamTimingModule::draw(SkCanvas* canvas) {
+    if (!fBenchmarkStream->current()) {
+        // this should never happen but just to be safe
+        // TODO research why this does happen on mac
+        return;
+    }
+
+    this->handleInitState(canvas);
+    this->renderFrame(canvas, fBenchmarkStream->current(), fTSM.loops());
+    fOwner->present();
+    TimingStateMachine::ParentEvents event = fTSM.nextFrame(fPreWarmBeforeSample);
+    this->handleTimingEvent(canvas, event);
 }

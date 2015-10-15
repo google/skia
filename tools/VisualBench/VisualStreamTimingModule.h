@@ -14,6 +14,8 @@
 #include "VisualBench.h"
 #include "VisualBenchmarkStream.h"
 
+class SkCanvas;
+
 /*
  * VisualStreamTimingModule is the base class for modules which want to time a stream of Benchmarks.
  *
@@ -31,12 +33,17 @@ private:
     // subclasses should return true to advance the stream
     virtual bool timingFinished(Benchmark*, int loops, double measurement)=0;
 
-    bool nextBenchmarkIfNecessary(SkCanvas*);
+    inline void handleInitState(SkCanvas*);
+    inline void handleTimingEvent(SkCanvas*, TimingStateMachine::ParentEvents);
 
     TimingStateMachine fTSM;
     SkAutoTDelete<VisualBenchmarkStream> fBenchmarkStream;
-    SkAutoTUnref<Benchmark> fBenchmark;
-    bool fReinitializeBenchmark;
+    enum InitState {
+        kNone_InitState,
+        kReset_InitState,
+        kNewBenchmark_InitState,
+    };
+    InitState fInitState;
     bool fPreWarmBeforeSample;
 
     // support framework

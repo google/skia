@@ -74,6 +74,11 @@ VisualBenchmarkStream::VisualBenchmarkStream()
             }
         }
     }
+
+    // seed with an initial benchmark
+    // NOTE the initial benchmark will not have preTimingHooks called, but that is okay because
+    // it is the warmupbench
+    this->next();
 }
 
 bool VisualBenchmarkStream::ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
@@ -98,23 +103,24 @@ bool VisualBenchmarkStream::ReadPicture(const char* path, SkAutoTUnref<SkPicture
 }
 
 Benchmark* VisualBenchmarkStream::next() {
+    Benchmark* bench;
     if (!fIsWarmedUp) {
         fIsWarmedUp = true;
-        return new WarmupBench;
+        bench = new WarmupBench;
+    } else {
+        // skips non matching benches
+        while ((bench = this->innerNext()) &&
+               (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName()) ||
+                !bench->isSuitableFor(Benchmark::kGPU_Backend))) {
+            bench->unref();
+        }
+    }
+    if (bench && FLAGS_cpu) {
+        bench = new CpuWrappedBenchmark(bench);
     }
 
-    Benchmark* bench;
-
-    // skips non matching benches
-    while ((bench = this->innerNext()) &&
-           (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName()) ||
-            !bench->isSuitableFor(Benchmark::kGPU_Backend))) {
-        bench->unref();
-    }
-    if (FLAGS_cpu) {
-        return new CpuWrappedBenchmark(bench);
-    }
-    return bench;
+    fBenchmark.reset(bench);
+    return fBenchmark;
 }
 
 Benchmark* VisualBenchmarkStream::innerNext() {

@@ -20,6 +20,12 @@ public:
     const char* onGetName()       override { return fBench->getName(); }
     const char* onGetUniqueName() override { return fBench->getUniqueName(); }
 
+    void onDelayedSetup() override { fBench->delayedSetup(); }
+    void onPerCanvasPreDraw(SkCanvas* canvas) override { fBench->perCanvasPreDraw(canvas); }
+    void onPreDraw(SkCanvas* canvas) override { fBench->preDraw(canvas); }
+    void onPostDraw(SkCanvas* canvas) override { fBench->postDraw(canvas); }
+    void onPerCanvasPostDraw(SkCanvas* canvas) override { fBench->perCanvasPostDraw(canvas); }
+
     void onDraw(int loops, SkCanvas* canvas) override {
         // TODO: use onPreDraw() to move offscreen allocation/deallocation out of timing.
         SkAutoTUnref<SkSurface> offscreen(SkSurface::NewRaster(canvas->imageInfo()));
@@ -28,6 +34,8 @@ public:
         SkAutoTUnref<SkImage> image(offscreen->newImageSnapshot());
         canvas->drawImage(image, 0,0);
     }
+
+    virtual SkIPoint onGetSize() override { return fBench->getSize(); }
 
 private:
     SkAutoTUnref<Benchmark> fBench;
