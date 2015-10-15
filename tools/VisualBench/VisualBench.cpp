@@ -84,8 +84,10 @@ void VisualBench::resetContext() {
 
     fInterface.reset(GrGLCreateNativeInterface());
 
-    // TODO use the GLContext creation factories
-    fInterface.reset(GrGLInterfaceRemoveNVPR(fInterface));
+    // TODO use the GLContext creation factories and also set this all up in configs
+    if (!FLAGS_nvpr) {
+        fInterface.reset(GrGLInterfaceRemoveNVPR(fInterface));
+    }
     SkASSERT(fInterface);
 
     // setup contexts

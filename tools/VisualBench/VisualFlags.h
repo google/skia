@@ -10,6 +10,8 @@
 
 #include "SkCommandLineFlags.h"
 
+DECLARE_string(config);
 DECLARE_int32(msaa);
+DECLARE_bool(nvpr);
 
 #endif

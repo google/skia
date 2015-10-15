@@ -7,13 +7,14 @@
  */
 
 #include <VisualBench/VisualBenchmarkStream.h>
-#include "CpuWrappedBenchmark.h"
+#include <VisualBench/WrappedBenchmark.h>
 #include "GMBench.h"
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "sk_tool_utils.h"
+#include "VisualFlags.h"
 #include "VisualSKPBench.h"
 
 DEFINE_bool(cpu, false, "Run in CPU mode?");
@@ -115,8 +116,12 @@ Benchmark* VisualBenchmarkStream::next() {
             bench->unref();
         }
     }
+
+    // TODO move this all to --config
     if (bench && FLAGS_cpu) {
         bench = new CpuWrappedBenchmark(bench);
+    } else if (bench && FLAGS_nvpr) {
+        bench = new NvprWrappedBenchmark(bench, 4);
     }
 
     fBenchmark.reset(bench);
