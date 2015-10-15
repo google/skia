@@ -70,7 +70,7 @@ protected:
 
     uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
 
-    int onOutputScanline(int inputScanline) const;
+    int onOutputScanline(int inputScanline) const override;
 
 private:
 
