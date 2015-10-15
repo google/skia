@@ -9,63 +9,98 @@ exports_files(["BUILD.public"])
 SRCS = glob(
     [
         "include/private/*.h",
-        "google/*.cpp",
-        "src/c/*.cpp",
-        "src/core/*.cpp",
-        "src/device/*.cpp",
-        "src/doc/*.cpp",
-        "src/effects/*.cpp",
-        "src/effects/gradients/*.cpp",
-        "src/image/*.cpp",
-        "src/images/*.cpp",
-        "src/lazy/*.cpp",
-        "src/pathops/*.cpp",
-        "src/pdf/*.cpp",
-        "src/pipe/*.cpp",
-        "src/sfnt/*.cpp",
-        "src/utils/*.cpp",
-        "src/gpu/*.cpp",
-        "src/gpu/effects/*.cpp",
-        "src/gpu/gl/*.cpp",
-        "src/gpu/gl/builders/*.cpp",
-        "src/gpu/gl/debug/*.cpp",
-        "src/gpu/gl/glx/*.cpp",
-        "src/opts/opts_check_x86.cpp",
-        "src/opts/*SSE2*.cpp",
-        "src/opts/*sse2*.cpp",
-        "src/opts/SkTextureCompression_opts_none.cpp",
-
-        # TODO(mtklein): might be more maintainable with a blacklist instead?
-        "src/ports/SkBarriers_x86.cpp",
-        "src/ports/SkDebug_stdio.cpp",
-        "src/ports/SkDiscardableMemory_none.cpp",
-        "src/ports/SkFontHost_linux.cpp",
-        "src/ports/SkFontHost_FreeType.cpp",
-        "src/ports/SkFontHost_FreeType_common.cpp",
-        "src/ports/SkGlobalInitialization_default.cpp",
-        "src/ports/SkImageGenerator_skia.cpp",
-        "src/ports/SkMemory_malloc.cpp",
-        "src/ports/SkMutex_pthread.h",
-        "src/ports/SkOSFile_posix.cpp",
-        "src/ports/SkOSFile_stdio.cpp",
-        "src/ports/SkTLS_pthread.cpp",
-        "src/ports/SkTime_Unix.cpp",
+        "src/**/*.h",
+        "src/**/*.cpp",
+        "src/**/*.c",
 
         # Third Party
         "third_party/etc1/*.cpp",
+        "third_party/etc1/*.h",
         "third_party/ktx/*.cpp",
+        "third_party/ktx/*.h",
     ],
     exclude = [
-        "src/pdf/SkPDFFont.cpp",  # Wrapped by google/SkPDFFont_sfntly.cpp
-        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
-        "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
-        # TODO(mtklein): files below here probably want upstream fixes
-        "src/utils/SkThreadUtils_pthread_mach.cpp",  # Mac-only.  Move to ports?
-        # Non-Mac-non-Linux.  Move to ports?
-        "src/utils/SkThreadUtils_pthread_other.cpp",
-        "src/utils/SkThreadUtils_win.cpp",  # Windows-only.  Move to ports?
-        "src/doc/*_XPS.cpp",  # Windows-only.
+        # Exclude platform-dependent files.
+        "src/device/xps/*",  # Windows-only. Move to ports?
+        "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
+        "src/gpu/gl/android/*",
+        "src/gpu/gl/iOS/*",
+        "src/gpu/gl/mac/*",
+        "src/gpu/gl/win/*",
+        "src/opts/**/*",
+        "src/ports/**/*",
+        "src/utils/android/**/*",
+        "src/utils/mac/**/*",
+        "src/utils/SkThreadUtils_pthread_mach.cpp",  # Mac-only. Move to ports?
+        "src/utils/SkThreadUtils_pthread_other.cpp",  # Non-Mac-non-Linux. Move to ports?
+        "src/utils/SkThreadUtils_win.cpp",  # Windows-only. Move to ports?
+        "src/utils/win/**/*",
+        "src/views/sdl/*",
+        "src/views/win/*",
+        "src/views/unix/*",
+
+        # Exclude multiple definitions.
+        # TODO(mtklein): Move to opts?
         "src/doc/SkDocument_PDF_None.cpp",  # We use SkDocument_PDF.cpp.
+        "src/fonts/*fontconfig*",
+        "src/gpu/gl/egl/*",  # Conflicts with gpu/gl/glx.
+        "src/gpu/gl/nacl/*",  # Conflicts with gpu/gl/glx.
+        "src/gpu/gl/GrGLDefaultInterface_none.cpp",  # Conflicts with src/gpu/gl/GrGLDefaultInterface_native.cpp
+        "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",  # Conflicts with src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp
+
+        # Exclude files that don't compile with the current DEFINES.
+        "src/gpu/gl/angle/*",  # Requires SK_ANGLE define.
+        "src/gpu/gl/command_buffer/*",  # unknown type name 'HMODULE'
+        "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
+        "src/svg/parser/*",  # Missing SkSVG.h.
+
+        # Dependency on files outside src.
+        "src/svg/skp2svg.cpp",  # Depends on tools/LazyDecodeBitmap.h.
+
+        # Not used.
+        "src/animator/**/*",
+        "src/views/**/*",
+        "src/xml/SkBML_Verbs.h",
+        "src/xml/SkBML_XMLParser.cpp",
+        "src/xml/SkXMLPullParser.cpp",
+    ],
+)
+
+# Platform-dependent SRCS for google3-default platform.
+PLATFORM_SRCS = glob(
+    [
+        "src/opts/**/*.cpp",
+        "src/opts/**/*.h",
+        "src/ports/**/*.cpp",
+        "src/ports/**/*.h",
+    ],
+    exclude = [
+        "src/opts/*arm*",
+        "src/opts/*mips*",
+        "src/opts/*NEON*",
+        "src/opts/*neon*",
+        "src/opts/*SSSE3*",
+        "src/opts/*ssse3*",
+        "src/opts/*SSE4*",
+        "src/opts/*sse4*",
+        "src/opts/SkBlitMask_opts_none.cpp",
+        "src/opts/SkBitmapProcState_opts_none.cpp",
+        "src/opts/SkBlitRow_opts_none.cpp",
+        "src/ports/*android*",
+        "src/ports/*chromium*",
+        "src/ports/*CG*",
+        "src/ports/*fontconfig*",
+        "src/ports/*FontConfig*",
+        "src/ports/*mac*",
+        "src/ports/*mozalloc*",
+        "src/ports/*nacl*",
+        "src/ports/*win*",
+        "src/ports/SkFontMgr_custom_embedded_factory.cpp",
+        "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkImageDecoder_WIC.cpp",
+        "src/ports/SkImageDecoder_empty.cpp",
+        "src/ports/SkImageGenerator_none.cpp",
+        "src/ports/SkTLS_none.cpp",
     ],
 )
 
@@ -88,8 +123,13 @@ HDRS = glob(
         "include/**/*.h",
     ],
     exclude = [
-        "include/animator/*.h",
-        "include/private/*.h",
+        "include/private/**/*",
+
+        # Not used.
+        "include/animator/**/*",
+        "include/views/**/*",
+        "include/xml/SkBML_WXMLParser.h",
+        "include/xml/SkBML_XMLParser.h",
     ],
 )
 
@@ -99,34 +139,85 @@ INCLUDES = [
     "include/codec",
     "include/config",
     "include/core",
-    "include/device",
     "include/effects",
     "include/gpu",
     "include/images",
     "include/pathops",
-    "include/pdf",
     "include/pipe",
     "include/ports",
     "include/private",
     "include/utils",
-    "include/views",
+    "include/svg",
     "include/xml",
     "src/core",
-    "src/doc",
     "src/gpu",
     "src/image",
     "src/lazy",
     "src/opts",
     "src/pdf",
-    "src/ports",
     "src/sfnt",
     "src/utils",
     "third_party/etc1",
     "third_party/ktx",
 ]
 
+DM_SRCS = glob(
+    [
+        "dm/*.cpp",
+        "dm/*.h",
+        "gm/*.c",
+        "gm/*.cpp",
+        "gm/*.h",
+        "tests/*.cpp",
+        "tests/*.h",
+        "tools/CrashHandler.cpp",
+        "tools/CrashHandler.h",
+        "tools/LazyDecodeBitmap.cpp",
+        "tools/LazyDecodeBitmap.h",
+        "tools/ProcStats.cpp",
+        "tools/ProcStats.h",
+        "tools/Resources.cpp",
+        "tools/Resources.h",
+        "tools/SkBitmapRegionDecoderInterface.cpp",
+        "tools/SkBitmapRegionDecoderInterface.h",
+        "tools/SkBitmapRegionSampler.cpp",
+        "tools/SkBitmapRegionSampler.h",
+        "tools/SkBitmapRegionCanvas.cpp",
+        "tools/SkBitmapRegionCanvas.h",
+        "tools/flags/*.cpp",
+        "tools/flags/*.h",
+        "tools/timer/*.cpp",
+        "tools/timer/*.h",
+        "tools/sk_tool_utils.cpp",
+        "tools/sk_tool_utils_font.cpp",
+        "tools/sk_tool_utils.h",
+    ],
+    exclude = [
+        "tests/skia_test.cpp",  # Old main.
+        "tests/SkpSkGrTest.cpp",  # Alternate main.
+        "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
+        "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
+        "dm/DMSrcSinkAndroid.cpp",  # Android-only.
+        "tools/timer/SysTimer_windows.cpp",
+        "tools/timer/SysTimer_mach.cpp",
+    ],
+)
+
+DM_INCLUDES = [
+    "gm",
+    "src/codec",
+    "src/effects",
+    "src/fonts",
+    "src/pathops",
+    "src/pipe/utils",
+    "src/utils/debugger",
+    "tests",
+    "tools",
+    "tools/flags",
+    "tools/timer",
+]
+
 COPTS = [
-    "-Wno-deprecated-declarations",  # Internal use of deprecated methods. :(
     "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
 ]
 
@@ -143,3 +234,56 @@ DEFINES = [
 ]
 
 LINKOPTS = ["-ldl"]
+
+cc_library(
+    name = "opts_ssse3",
+    srcs = SRCS_SSSE3,
+    copts = COPTS + ["-mssse3"],
+    defines = DEFINES,
+    includes = INCLUDES,
+)
+
+cc_library(
+    name = "opts_sse4",
+    srcs = SRCS_SSE4,
+    copts = COPTS + ["-msse4"],
+    defines = DEFINES,
+    includes = INCLUDES,
+)
+
+cc_library(
+    name = "skia",
+    srcs = SRCS + PLATFORM_SRCS,
+    hdrs = HDRS,
+    copts = COPTS,
+    defines = DEFINES,
+    includes = INCLUDES,
+    linkopts = LINKOPTS,
+    visibility = [":skia_clients"],
+    deps = EXTERNAL_DEPS + [
+        ":opts_sse4",
+        ":opts_ssse3",
+    ],
+)
+
+cc_test(
+    name = "dm",
+    size = "large",
+    srcs = DM_SRCS,
+    args = [
+        "--nogpu",
+        "--verbose",
+        # TODO(mtklein): maybe investigate why these fail?
+        "--match ~FontMgr ~Gif ~Scalar ~Canvas ~Codec_stripes ~Stream ~skps",
+        # TODO(benjaminwagner): dm can't find resources when running on TAP.
+        "--resourcePath %s/resources" % BASE_DIR,
+        "--images %s/resources" % BASE_DIR,
+    ],
+    copts = COPTS,
+    data = glob(["resources/*"]),
+    defines = DEFINES,
+    includes = DM_INCLUDES,
+    deps = DM_EXTERNAL_DEPS + [
+        ":skia",
+    ],
+)

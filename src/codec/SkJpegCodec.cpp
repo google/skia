@@ -151,7 +151,11 @@ SkJpegCodec::SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream,
  * Return the row bytes of a particular image type and width
  */
 static int get_row_bytes(const j_decompress_ptr dinfo) {
+#if defined (GOOGLE3)
+    int colorBytes = dinfo->out_color_components;
+#else
     int colorBytes = (dinfo->out_color_space == JCS_RGB565) ? 2 : dinfo->out_color_components;
+#endif
     return dinfo->output_width * colorBytes;
 
 }
@@ -247,10 +251,14 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             } else {
                 // Check the byte ordering of the RGBA color space for the
                 // current platform
-#if defined(SK_PMCOLOR_IS_RGBA)
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
+#if defined(GOOGLE3)
+                return false;
 #else
+    #if defined(SK_PMCOLOR_IS_RGBA)
+                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
+    #else
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
+    #endif
 #endif
             }
             return true;
@@ -261,8 +269,12 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
                 // best to do this in SkSwizzler and also move convert_CMYK_to_RGBA into SkSwizzler.
                 return false;
             } else {
+#if defined(GOOGLE3)
+                return false;
+#else
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
+#endif
             }
             return true;
         case kGray_8_SkColorType:
@@ -397,7 +409,11 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
             break;
         default:
             // This function should only be called if the colorType is supported by jpeg
+#if defined(GOOGLE3)
+            SK_CRASH();
+#else
             SkASSERT(false);
+#endif
     }
 
     fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, dstInfo, options));
@@ -488,7 +504,7 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
 
 #ifndef TURBO_HAS_SKIP
 // TODO (msarett): Avoid reallocating the memory buffer on each call to skip.
-static uint32_t jpeg_skip_scanlines(dinfo, count) {
+static uint32_t jpeg_skip_scanlines(jpeg_decompress_struct* dinfo, int count) {
     SkAutoMalloc storage(get_row_bytes(dinfo));
     uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
     for (int y = 0; y < count; y++) {
