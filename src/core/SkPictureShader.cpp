@@ -190,7 +190,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkM
     // Scale down the tile size if larger than maxTextureSize for GPU Path or it should fail on create texture
     if (maxTextureSize) {
         if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
-            SkScalar downScale = maxTextureSize / SkMax32(scaledSize.width(), scaledSize.height());
+            SkScalar downScale = maxTextureSize / SkMaxScalar(scaledSize.width(), scaledSize.height());
             scaledSize.set(SkScalarFloorToScalar(SkScalarMul(scaledSize.width(), downScale)),
                            SkScalarFloorToScalar(SkScalarMul(scaledSize.height(), downScale)));
         }
