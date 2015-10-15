@@ -81,24 +81,17 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     int inputCount = countInputs();
     for (int i = 0; i < inputCount; ++i) {
         SkBitmap tmp;
-        const SkBitmap* srcPtr;
+        SkBitmap input = src;
         SkIPoint pos = SkIPoint::Make(0, 0);
-        SkImageFilter* filter = getInput(i);
-        if (filter) {
-            if (!filter->filterImage(proxy, src, ctx, &tmp, &pos)) {
-                continue;
-            }
-            srcPtr = &tmp;
-        } else {
-            srcPtr = &src;
+        if (!this->filterInput(i, proxy, src, ctx, &input, &pos)) {
+            continue;
         }
-
         if (fModes) {
             paint.setXfermodeMode((SkXfermode::Mode)fModes[i]);
         } else {
             paint.setXfermode(nullptr);
         }
-        canvas.drawSprite(*srcPtr, pos.x() - x0, pos.y() - y0, &paint);
+        canvas.drawSprite(input, pos.x() - x0, pos.y() - y0, &paint);
         didProduceResult = true;
     }
 

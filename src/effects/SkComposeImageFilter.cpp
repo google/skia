@@ -27,19 +27,16 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
                                          const Context& ctx,
                                          SkBitmap* result,
                                          SkIPoint* offset) const {
-    SkImageFilter* outer = getInput(0);
-    SkImageFilter* inner = getInput(1);
-
     SkBitmap tmp;
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
-    if (!inner->filterImage(proxy, src, ctx, &tmp, &innerOffset))
+    if (!this->filterInput(1, proxy, src, ctx, &tmp, &innerOffset))
         return false;
 
     SkMatrix outerMatrix(ctx.ctm());
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
     Context outerContext(outerMatrix, ctx.clipBounds(), ctx.cache());
-    if (!outer->filterImage(proxy, tmp, outerContext, result, &outerOffset)) {
+    if (!this->filterInput(0, proxy, tmp, outerContext, result, &outerOffset)) {
         return false;
     }
 

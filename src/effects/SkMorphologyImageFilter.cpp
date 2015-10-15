@@ -58,8 +58,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
                                                  SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (this->getInput(0) &&
-        !this->getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 

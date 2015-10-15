@@ -226,7 +226,7 @@ SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
 void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fInputCount);
     for (int i = 0; i < fInputCount; i++) {
-        SkImageFilter* input = getInput(i);
+        SkImageFilter* input = this->getInput(i);
         buffer.writeBool(input != nullptr);
         if (input != nullptr) {
             buffer.writeFlattenable(input);
@@ -260,6 +260,13 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
         return true;
     }
     return false;
+}
+
+bool SkImageFilter::filterInput(int index, Proxy* proxy, const SkBitmap& src,
+                                const Context& context,
+                                SkBitmap* result, SkIPoint* offset) const {
+    SkImageFilter* input = this->getInput(index);
+    return !input || input->filterImage(proxy, src, context, result, offset);
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,

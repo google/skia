@@ -50,16 +50,12 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
                                             SkBitmap* dst,
                                             SkIPoint* offset) const {
     SkBitmap background = src, foreground = src;
-    SkImageFilter* backgroundInput = this->getInput(0);
-    SkImageFilter* foregroundInput = this->getInput(1);
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    if (backgroundInput &&
-        !backgroundInput->filterImage(proxy, src, ctx, &background, &backgroundOffset)) {
+    if (!this->filterInput(0, proxy, src, ctx, &background, &backgroundOffset)) {
         background.reset();
     }
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    if (foregroundInput &&
-        !foregroundInput->filterImage(proxy, src, ctx, &foreground, &foregroundOffset)) {
+    if (!this->filterInput(1, proxy, src, ctx, &foreground, &foregroundOffset)) {
         foreground.reset();
     }
 

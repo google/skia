@@ -1168,10 +1168,9 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
                                                  const Context& ctx,
                                                  SkBitmap* dst,
                                                  SkIPoint* offset) const {
-    SkImageFilter* input = getInput(0);
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (input && !input->filterImage(proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -1309,10 +1308,9 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
                                                   const Context& ctx,
                                                   SkBitmap* dst,
                                                   SkIPoint* offset) const {
-    SkImageFilter* input = getInput(0);
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (input && !input->filterImage(proxy, source, ctx, &src, &srcOffset)) {
+    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 

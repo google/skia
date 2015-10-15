@@ -212,11 +212,9 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
                                             SkBitmap* dst,
                                             SkIPoint* offset) const {
     SkBitmap displ = src, color = src;
-    const SkImageFilter* colorInput = this->getColorInput();
-    const SkImageFilter* displInput = this->getDisplacementInput();
     SkIPoint colorOffset = SkIPoint::Make(0, 0), displOffset = SkIPoint::Make(0, 0);
-    if ((colorInput && !colorInput->filterImage(proxy, src, ctx, &color, &colorOffset)) ||
-        (displInput && !displInput->filterImage(proxy, src, ctx, &displ, &displOffset))) {
+    if (!this->filterInput(1, proxy, src, ctx, &color, &colorOffset) ||
+        !this->filterInput(0, proxy, src, ctx, &displ, &displOffset)) {
         return false;
     }
     if ((displ.colorType() != kN32_SkColorType) ||

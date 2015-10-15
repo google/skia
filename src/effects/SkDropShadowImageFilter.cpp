@@ -59,7 +59,7 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
 {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset))
+    if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset))
         return false;
 
     SkIRect bounds;

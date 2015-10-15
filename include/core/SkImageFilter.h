@@ -337,6 +337,14 @@ protected:
     // no inputs.
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const;
 
+    // Helper function which invokes filter processing on the input at the
+    // specified "index". If the input is null, it leaves "result" and
+    // "offset" untouched, and returns true. If the input is non-null, it
+    // calls filterImage() on that input, and returns true on success.
+    // i.e., return !getInput(index) || getInput(index)->filterImage(...);
+    bool filterInput(int index, Proxy*, const SkBitmap& src, const Context&,
+                     SkBitmap* result, SkIPoint* offset) const;
+
     /**
      *  Return true (and return a ref'd colorfilter) if this node in the DAG is just a
      *  colorfilter w/o CropRect constraints.

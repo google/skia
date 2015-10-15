@@ -18,7 +18,6 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                         const Context& ctx,
                                         SkBitmap* result,
                                         SkIPoint* offset) const {
-    SkImageFilter* input = getInput(0);
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
 #ifdef SK_DISABLE_OFFSETIMAGEFILTER_OPTIMIZATION
@@ -26,7 +25,7 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
 #else
     if (!cropRectIsSet()) {
 #endif
-        if (input && !input->filterImage(proxy, source, ctx, &src, &srcOffset)) {
+        if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
             return false;
         }
 
@@ -37,7 +36,7 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
         offset->fY = srcOffset.fY + SkScalarRoundToInt(vec.fY);
         *result = src;
     } else {
-        if (input && !input->filterImage(proxy, source, ctx, &src, &srcOffset)) {
+        if (!this->filterInput(0, proxy, source, ctx, &src, &srcOffset)) {
             return false;
         }
 

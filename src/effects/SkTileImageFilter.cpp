@@ -28,9 +28,8 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                       const Context& ctx,
                                       SkBitmap* dst, SkIPoint* offset) const {
     SkBitmap source = src;
-    SkImageFilter* input = getInput(0);
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (input && !input->filterImage(proxy, src, ctx, &source, &srcOffset)) {
+    if (!this->filterInput(0, proxy, src, ctx, &source, &srcOffset)) {
         return false;
     }
 
