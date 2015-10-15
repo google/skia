@@ -25,10 +25,10 @@ TEST_RUNNER_BUNDLE_ID="com.google.iOSShell"
 SKIA_SRC_DIR=$(cd "${SCRIPT_DIR}/../../.."; pwd)
 
 # Provisioning profile - this needs to be set up on the local machine.
-PROVISIONING_PROFILE="9e88090d-abed-4e89-b106-3eff3512d31f"
+PROVISIONING_PROFILE=""
 
 # Code Signing identity - this needs to be set up on the local machine.
-CODE_SIGN_IDENTITY="iPhone Developer: Google Development (3F4Y5873JF)"
+CODE_SIGN_IDENTITY="iPhone Developer"
 
 IOS_BUNDLE_ID="com.google.iOSShell"
 

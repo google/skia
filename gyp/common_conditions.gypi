@@ -544,7 +544,6 @@
         'xcode_settings': {
           'ARCHS': ['armv7'],
           'CODE_SIGNING_REQUIRED': 'NO',
-          'CODE_SIGN_IDENTITY[sdk=iphoneos*]': 'iPhone Developer: Google Development (3F4Y5873JF)',
           'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',
           'SDKROOT': 'iphoneos',
           'TARGETED_DEVICE_FAMILY': '1,2',
