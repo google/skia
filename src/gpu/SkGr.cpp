@@ -285,13 +285,12 @@ GrTexture* stretch_texture(GrTexture* inputTexture, const SkGrStretch& stretch,
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
     SkRect localRect = SkRect::MakeWH(1.f, 1.f);
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(stretched->asRenderTarget()));
     if (!drawContext) {
         return nullptr;
     }
 
-    drawContext->drawNonAARectToRect(stretched->asRenderTarget(), GrClip::WideOpen(), paint,
-                                     SkMatrix::I(), rect, localRect);
+    drawContext->drawNonAARectToRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect, localRect);
 
     return stretched.detach();
 }

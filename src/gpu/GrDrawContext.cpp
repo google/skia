@@ -38,72 +38,81 @@ private:
 };
 
 GrDrawContext::GrDrawContext(GrContext* context,
+                             GrRenderTarget* rt,
                              GrDrawTarget* drawTarget,
                              const SkSurfaceProps* surfaceProps)
     : fContext(context)
+    , fRenderTarget(rt)
     , fDrawTarget(SkRef(drawTarget))
     , fTextContext(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
+    SkDEBUGCODE(this->validate();)
 }
 
 GrDrawContext::~GrDrawContext() {
     SkSafeUnref(fDrawTarget);
 }
 
-void GrDrawContext::copySurface(GrRenderTarget* dst, GrSurface* src,
-                                const SkIRect& srcRect, const SkIPoint& dstPoint) {
+#ifdef SK_DEBUG
+void GrDrawContext::validate() const {
+    SkASSERT(fRenderTarget);
+    ASSERT_OWNED_RESOURCE(fRenderTarget);
+}
+#endif
+
+void GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
 
-    if (!this->prepareToDraw(dst)) {
-        return;
-    }
-
-    fDrawTarget->copySurface(dst, src, srcRect, dstPoint);
+    fDrawTarget->copySurface(fRenderTarget, src, srcRect, dstPoint);
 }
 
 
-void GrDrawContext::drawText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
+void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
                              const SkPaint& skPaint,
                              const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
 
     if (!fTextContext) {
-        fTextContext = fContext->textContext(fSurfaceProps, rt);
+        fTextContext = fContext->textContext(fSurfaceProps, fRenderTarget);
     }
 
-    fTextContext->drawText(this, rt, clip, grPaint, skPaint, viewMatrix,
+    fTextContext->drawText(this, fRenderTarget, clip, grPaint, skPaint, viewMatrix,
                            text, byteLength, x, y, clipBounds);
 
 }
-void GrDrawContext::drawPosText(GrRenderTarget* rt, const GrClip& clip, const GrPaint& grPaint,
+void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
                                 const SkPaint& skPaint,
                                 const SkMatrix& viewMatrix,
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset, const SkIRect& clipBounds) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
 
     if (!fTextContext) {
-        fTextContext = fContext->textContext(fSurfaceProps, rt);
+        fTextContext = fContext->textContext(fSurfaceProps, fRenderTarget);
     }
 
-    fTextContext->drawPosText(this, rt, clip, grPaint, skPaint, viewMatrix, text, byteLength,
+    fTextContext->drawPosText(this, fRenderTarget, clip, grPaint, skPaint, viewMatrix, text, byteLength,
                               pos, scalarsPerPosition, offset, clipBounds);
 
 }
-void GrDrawContext::drawTextBlob(GrRenderTarget* rt, const GrClip& clip, const SkPaint& skPaint,
+void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
                                  const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                  SkScalar x, SkScalar y,
                                  SkDrawFilter* filter, const SkIRect& clipBounds) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
 
     if (!fTextContext) {
-        fTextContext = fContext->textContext(fSurfaceProps, rt);
+        fTextContext = fContext->textContext(fSurfaceProps, fRenderTarget);
     }
 
-    fTextContext->drawTextBlob(this, rt,
+    fTextContext->drawTextBlob(this, fRenderTarget,
                                clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);
 }
 
@@ -115,47 +124,43 @@ void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
                                        GrPathRangeDraw* draw,
                                        int /*GrPathRendering::FillType*/ fill) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
 
     fDrawTarget->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color, range, draw,
                                     (GrPathRendering::FillType) fill);
 }
 
-void GrDrawContext::discard(GrRenderTarget* renderTarget) {
+void GrDrawContext::discard() {
     RETURN_IF_ABANDONED
-    SkASSERT(renderTarget);
+    SkDEBUGCODE(this->validate();)
+
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(renderTarget)) {
-        return;
-    }
-    fDrawTarget->discard(renderTarget);
+    fDrawTarget->discard(fRenderTarget);
 }
 
-void GrDrawContext::clear(GrRenderTarget* renderTarget,
-                          const SkIRect* rect,
+void GrDrawContext::clear(const SkIRect* rect,
                           const GrColor color,
                           bool canIgnoreRect) {
     RETURN_IF_ABANDONED
-    SkASSERT(renderTarget);
+    SkDEBUGCODE(this->validate();)
 
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(renderTarget)) {
-        return;
-    }
-    fDrawTarget->clear(rect, color, canIgnoreRect, renderTarget);
+    fDrawTarget->clear(rect, color, canIgnoreRect, fRenderTarget);
 }
 
 
-void GrDrawContext::drawPaint(GrRenderTarget* rt,
-                              const GrClip& clip,
+void GrDrawContext::drawPaint(const GrClip& clip,
                               const GrPaint& origPaint,
                               const SkMatrix& viewMatrix) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
     SkRect r;
     r.setLTRB(0, 0,
-              SkIntToScalar(rt->width()),
-              SkIntToScalar(rt->height()));
+              SkIntToScalar(fRenderTarget->width()),
+              SkIntToScalar(fRenderTarget->height()));
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
 
     // by definition this fills the entire clip, no need for AA
@@ -175,7 +180,7 @@ void GrDrawContext::drawPaint(GrRenderTarget* rt,
             return;
         }
         inverse.mapRect(&r);
-        this->drawRect(rt, clip, *paint, viewMatrix, r);
+        this->drawRect(clip, *paint, viewMatrix, r);
     } else {
         SkMatrix localMatrix;
         if (!viewMatrix.invert(&localMatrix)) {
@@ -184,11 +189,8 @@ void GrDrawContext::drawPaint(GrRenderTarget* rt,
         }
 
         AutoCheckFlush acf(fContext);
-        if (!this->prepareToDraw(rt)) {
-            return;
-        }
 
-        GrPipelineBuilder pipelineBuilder(*paint, rt, clip);
+        GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget, clip);
         fDrawTarget->drawNonAARect(pipelineBuilder,
                                    paint->getColor(),
                                    SkMatrix::I(),
@@ -202,27 +204,25 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
            point.fY >= rect.fTop && point.fY <= rect.fBottom;
 }
 
-void GrDrawContext::drawRect(GrRenderTarget* rt,
-                             const GrClip& clip,
+void GrDrawContext::drawRect(const GrClip& clip,
                              const GrPaint& paint,
                              const SkMatrix& viewMatrix,
                              const SkRect& rect,
                              const GrStrokeInfo* strokeInfo) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
     if (strokeInfo && strokeInfo->isDashed()) {
         SkPath path;
         path.setIsVolatile(true);
         path.addRect(rect);
-        this->drawPath(rt, clip, paint, viewMatrix, path, *strokeInfo);
+        this->drawPath(clip, paint, viewMatrix, path, *strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
 
     SkScalar width = nullptr == strokeInfo ? -1 : strokeInfo->getWidth();
 
@@ -253,7 +253,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isConstantBlendedColor(&clearColor)) {
-                    fDrawTarget->clear(nullptr, clearColor, true, rt);
+                    fDrawTarget->clear(nullptr, clearColor, true, fRenderTarget);
                     return;
                 }
             }
@@ -285,7 +285,7 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
 
     if (width >= 0) {
         // Non-AA hairlines are snapped to pixel centers to make which pixels are hit deterministic
-        bool snapToPixelCenters = (0 == width && !rt->isUnifiedMultisampled());
+        bool snapToPixelCenters = (0 == width && !fRenderTarget->isUnifiedMultisampled());
         SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAStroke(
                                         color, viewMatrix, rect, width, snapToPixelCenters));
 
@@ -301,19 +301,17 @@ void GrDrawContext::drawRect(GrRenderTarget* rt,
     }
 }
 
-void GrDrawContext::drawNonAARectToRect(GrRenderTarget* rt,
-                                        const GrClip& clip,
+void GrDrawContext::drawNonAARectToRect(const GrClip& clip,
                                         const GrPaint& paint,
                                         const SkMatrix& viewMatrix,
                                         const SkRect& rectToDraw,
                                         const SkRect& localRect) {
     RETURN_IF_ABANDONED
-    AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
+    SkDEBUGCODE(this->validate();)
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    AutoCheckFlush acf(fContext);
+
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     fDrawTarget->drawNonAARect(pipelineBuilder,
                                paint.getColor(),
                                viewMatrix,
@@ -321,19 +319,17 @@ void GrDrawContext::drawNonAARectToRect(GrRenderTarget* rt,
                                localRect);
 }
 
-void GrDrawContext::drawNonAARectWithLocalMatrix(GrRenderTarget* rt,
-                                                 const GrClip& clip,
+void GrDrawContext::drawNonAARectWithLocalMatrix(const GrClip& clip,
                                                  const GrPaint& paint,
                                                  const SkMatrix& viewMatrix,
                                                  const SkRect& rectToDraw,
                                                  const SkMatrix& localMatrix) {
     RETURN_IF_ABANDONED
-    AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
+    SkDEBUGCODE(this->validate();)
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    AutoCheckFlush acf(fContext);
+
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     fDrawTarget->drawNonAARect(pipelineBuilder,
                                paint.getColor(),
                                viewMatrix,
@@ -341,8 +337,7 @@ void GrDrawContext::drawNonAARectWithLocalMatrix(GrRenderTarget* rt,
                                localMatrix);
 }
 
-void GrDrawContext::drawVertices(GrRenderTarget* rt,
-                                 const GrClip& clip,
+void GrDrawContext::drawVertices(const GrClip& clip,
                                  const GrPaint& paint,
                                  const SkMatrix& viewMatrix,
                                  GrPrimitiveType primitiveType,
@@ -353,12 +348,11 @@ void GrDrawContext::drawVertices(GrRenderTarget* rt,
                                  const uint16_t indices[],
                                  int indexCount) {
     RETURN_IF_ABANDONED
-    AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
+    SkDEBUGCODE(this->validate();)
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    AutoCheckFlush acf(fContext);
+
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
 
     // TODO clients should give us bounds
     SkRect bounds;
@@ -387,8 +381,7 @@ void GrDrawContext::drawVertices(GrRenderTarget* rt,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawContext::drawAtlas(GrRenderTarget* rt,
-                              const GrClip& clip,
+void GrDrawContext::drawAtlas(const GrClip& clip,
                               const GrPaint& paint,
                               const SkMatrix& viewMatrix,
                               int spriteCount,
@@ -396,12 +389,11 @@ void GrDrawContext::drawAtlas(GrRenderTarget* rt,
                               const SkRect texRect[],
                               const SkColor colors[]) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
     
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     
     GrDrawAtlasBatch::Geometry geometry;
     geometry.fColor = paint.getColor();
@@ -413,13 +405,14 @@ void GrDrawContext::drawAtlas(GrRenderTarget* rt,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawContext::drawRRect(GrRenderTarget*rt,
-                              const GrClip& clip,
+void GrDrawContext::drawRRect(const GrClip& clip,
                               const GrPaint& paint,
                               const SkMatrix& viewMatrix,
                               const SkRRect& rrect,
                               const GrStrokeInfo& strokeInfo) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
     if (rrect.isEmpty()) {
        return;
     }
@@ -428,17 +421,15 @@ void GrDrawContext::drawRRect(GrRenderTarget*rt,
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rrect);
-        this->drawPath(rt, clip, paint, viewMatrix, path, strokeInfo);
+        this->drawPath(clip, paint, viewMatrix, path, strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
+
     if (!GrOvalRenderer::DrawRRect(fDrawTarget,
                                    pipelineBuilder,
                                    color,
@@ -456,23 +447,21 @@ void GrDrawContext::drawRRect(GrRenderTarget*rt,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawContext::drawDRRect(GrRenderTarget* rt,
-                               const GrClip& clip,
+void GrDrawContext::drawDRRect(const GrClip& clip,
                                const GrPaint& paint,
                                const SkMatrix& viewMatrix,
                                const SkRRect& outer,
                                const SkRRect& inner) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
     if (outer.isEmpty()) {
        return;
     }
 
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
     if (!GrOvalRenderer::DrawDRRect(fDrawTarget,
                                     pipelineBuilder,
@@ -495,13 +484,14 @@ void GrDrawContext::drawDRRect(GrRenderTarget* rt,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawContext::drawOval(GrRenderTarget* rt,
-                             const GrClip& clip,
+void GrDrawContext::drawOval(const GrClip& clip,
                              const GrPaint& paint,
                              const SkMatrix& viewMatrix,
                              const SkRect& oval,
                              const GrStrokeInfo& strokeInfo) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
     if (oval.isEmpty()) {
        return;
     }
@@ -510,17 +500,15 @@ void GrDrawContext::drawOval(GrRenderTarget* rt,
         SkPath path;
         path.setIsVolatile(true);
         path.addOval(oval);
-        this->drawPath(rt, clip, paint, viewMatrix, path, strokeInfo);
+        this->drawPath(clip, paint, viewMatrix, path, strokeInfo);
         return;
     }
 
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
+
     if (!GrOvalRenderer::DrawOval(fDrawTarget,
                                   pipelineBuilder,
                                   color,
@@ -586,29 +574,28 @@ static bool is_nested_rects(const SkMatrix& viewMatrix,
     return allEq || allGoE1;
 }
 
-void GrDrawContext::drawBatch(GrRenderTarget* rt, const GrClip& clip,
+void GrDrawContext::drawBatch(const GrClip& clip,
                               const GrPaint& paint, GrDrawBatch* batch) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
 
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     fDrawTarget->drawBatch(pipelineBuilder, batch);
 }
 
-void GrDrawContext::drawPath(GrRenderTarget* rt,
-                             const GrClip& clip,
+void GrDrawContext::drawPath(const GrClip& clip,
                              const GrPaint& paint,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
                              const GrStrokeInfo& strokeInfo) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
     if (path.isEmpty()) {
        if (path.isInverseFillType()) {
-           this->drawPaint(rt, clip, paint, viewMatrix);
+           this->drawPaint(clip, paint, viewMatrix);
        }
        return;
     }
@@ -621,11 +608,8 @@ void GrDrawContext::drawPath(GrRenderTarget* rt,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
     AutoCheckFlush acf(fContext);
-    if (!this->prepareToDraw(rt)) {
-        return;
-    }
 
-    GrPipelineBuilder pipelineBuilder(paint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     if (!strokeInfo.isDashed()) {
         bool useCoverageAA = paint.isAntiAlias() &&
                 !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
@@ -669,7 +653,6 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
                                      const GrStrokeInfo& strokeInfo) {
     RETURN_IF_ABANDONED
     SkASSERT(!path.isEmpty());
-
 
     // An Assumption here is that path renderer would use some form of tweaking
     // the src color (either the input alpha or in the frag shader) to implement
@@ -749,16 +732,9 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
     pr->drawPath(args);
 }
 
-bool GrDrawContext::prepareToDraw(GrRenderTarget* rt) {
-    RETURN_FALSE_IF_ABANDONED
-
-    ASSERT_OWNED_RESOURCE(rt);
-    SkASSERT(rt);
-    return true;
-}
-
 void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch) {
     RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
 
     fDrawTarget->drawBatch(*pipelineBuilder, batch);
 }

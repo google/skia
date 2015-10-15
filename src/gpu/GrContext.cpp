@@ -125,12 +125,13 @@ GrTextContext* GrContext::DrawingMgr::textContext(const SkSurfaceProps& props,
     return fTextContexts[props.pixelGeometry()][useDIF];
 }
 
-GrDrawContext* GrContext::DrawingMgr::drawContext(const SkSurfaceProps* surfaceProps) {
+GrDrawContext* GrContext::DrawingMgr::drawContext(GrRenderTarget* rt, 
+                                                  const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
     }
 
-    return new GrDrawContext(fContext, fDrawTarget, surfaceProps);
+    return new GrDrawContext(fContext, rt, fDrawTarget, surfaceProps);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -429,13 +430,13 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             }
             SkMatrix matrix;
             matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            SkAutoTUnref<GrDrawContext> drawContext(this->drawContext());
+            SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(renderTarget));
             if (!drawContext) {
                 return false;
             }
             paint.addColorFragmentProcessor(fp);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-            drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, matrix, rect, nullptr);
+            drawContext->drawRect(GrClip::WideOpen(), paint, matrix, rect, nullptr);
 
             if (kFlushWrites_PixelOp & pixelOpsFlags) {
                 this->flushSurfaceWrites(surface);
@@ -541,9 +542,8 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             if (fp) {
                 paint.addColorFragmentProcessor(fp);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                SkAutoTUnref<GrDrawContext> drawContext(this->drawContext());
-                drawContext->drawRect(temp->asRenderTarget(), GrClip::WideOpen(), paint,
-                                      SkMatrix::I(), rect, nullptr);
+                SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(temp->asRenderTarget()));
+                drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect, nullptr);
                 surfaceToRead.reset(SkRef(temp.get()));
                 left = 0;
                 top = 0;
@@ -617,12 +617,12 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return;
     }
 
-    SkAutoTUnref<GrDrawContext> drawContext(this->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(dst->asRenderTarget()));
     if (!drawContext) {
         return;
     }
 
-    drawContext->copySurface(dst->asRenderTarget(), src, srcRect, dstPoint);
+    drawContext->copySurface(src, srcRect, dstPoint);
 
     if (kFlushWrites_PixelOp & pixelOpsFlags) {
         this->flush();

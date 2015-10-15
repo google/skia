@@ -364,12 +364,12 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(dstDesc.fWidth),
                                        SkIntToScalar(dstDesc.fHeight));
-    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext(dst->asRenderTarget()));
     if (!drawContext) {
         return nullptr;
     }
 
-    drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, SkMatrix::I(), rect);
+    drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect);
     ctx->flushSurfaceWrites(dst);
     return new SkImage_Gpu(dstDesc.fWidth, dstDesc.fHeight, kNeedNewImageUniqueID,
                            kOpaque_SkAlphaType, dst, budgeted);

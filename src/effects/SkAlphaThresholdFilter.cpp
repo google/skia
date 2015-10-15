@@ -251,7 +251,7 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 #if SK_SUPPORT_GPU
 bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
                                                      GrTexture* texture,
-                                                     const SkMatrix& in_matrix,
+                                                     const SkMatrix& inMatrix,
                                                      const SkIRect&) const {
     if (fp) {
         GrContext* context = texture->getContext();
@@ -272,17 +272,17 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             return false;
         }
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
+        SkAutoTUnref<GrDrawContext> drawContext(
+                                            context->drawContext(maskTexture->asRenderTarget()));
         if (drawContext) {
             GrPaint grPaint;
             grPaint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
             SkRegion::Iterator iter(fRegion);
-            drawContext->clear(maskTexture->asRenderTarget(), nullptr, 0x0, true);
+            drawContext->clear(nullptr, 0x0, true);
 
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());
-                drawContext->drawRect(maskTexture->asRenderTarget(), GrClip::WideOpen(), grPaint,
-                                      in_matrix, rect);
+                drawContext->drawRect(GrClip::WideOpen(), grPaint, inMatrix, rect);
                 iter.next();
             }
         }

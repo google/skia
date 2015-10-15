@@ -175,12 +175,13 @@ public:
      * Callers should take a ref if they rely on the GrDrawContext sticking around.
      * NULL will be returned if the context has been abandoned.
      *
+     * @param  rt           the render target receiving the draws
      * @param  surfaceProps the surface properties (mainly defines text drawing)
      *
      * @return a draw context
      */
-    GrDrawContext* drawContext(const SkSurfaceProps* surfaceProps = NULL) {
-        return fDrawingMgr.drawContext(surfaceProps);
+    GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps = NULL) {
+        return fDrawingMgr.drawContext(rt, surfaceProps);
     }
 
     GrTextContext* textContext(const SkSurfaceProps& surfaceProps, GrRenderTarget* rt) {
@@ -441,7 +442,7 @@ private:
 
         // Callers assume the creation ref of the drawContext!
         // NULL will be returned if the context has been abandoned.
-        GrDrawContext* drawContext(const SkSurfaceProps* surfaceProps);
+        GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps);
 
         GrTextContext* textContext(const SkSurfaceProps& props, GrRenderTarget* rt);
 

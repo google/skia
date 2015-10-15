@@ -113,7 +113,6 @@ public:
      */
     virtual bool directFilterMaskGPU(GrTextureProvider* texProvider,
                                      GrDrawContext* drawContext,
-                                     GrRenderTarget* rt,
                                      GrPaint* grp,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
@@ -125,7 +124,6 @@ public:
      */
     virtual bool directFilterRRectMaskGPU(GrTextureProvider* texProvider,
                                           GrDrawContext* drawContext,
-                                          GrRenderTarget* rt,
                                           GrPaint* grp,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,

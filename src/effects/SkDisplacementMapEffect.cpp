@@ -449,13 +449,12 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     matrix.setTranslate(-SkIntToScalar(colorBounds.x()),
                         -SkIntToScalar(colorBounds.y()));
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
     if (!drawContext) {
         return false;
     }
 
-    drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, matrix,
-                          SkRect::Make(colorBounds));
+    drawContext->drawRect(GrClip::WideOpen(), paint, matrix, SkRect::Make(colorBounds));
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     WrapTexture(dst, bounds.width(), bounds.height(), result);

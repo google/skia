@@ -467,10 +467,11 @@ void GrLayerCache::purgeAll() {
 
     SkASSERT(0 == fPictureHash.count());
 
-    SkAutoTUnref<GrDrawContext> drawContext(fContext->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(
+                                fContext->drawContext(fAtlas->getTexture()->asRenderTarget()));
 
     if (drawContext) {
-        drawContext->discard(fAtlas->getTexture()->asRenderTarget());
+        drawContext->discard();
     }
 }
 #endif

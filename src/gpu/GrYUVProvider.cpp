@@ -130,12 +130,12 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
     paint.addColorFragmentProcessor(yuvToRgbProcessor);
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSize[0].fWidth, yuvInfo.fSize[0].fHeight);
 
-    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext(renderTarget));
     if (!drawContext) {
         return nullptr;
     }
 
-    drawContext->drawRect(renderTarget, GrClip::WideOpen(), paint, SkMatrix::I(), r);
+    drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), r);
 
     return result.detach();
 }

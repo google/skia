@@ -22,7 +22,7 @@ static const int S = 200;
 DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();
-        SkAutoTUnref<GrDrawContext> drawContext(ctx ? ctx->drawContext() : nullptr);
+        SkAutoTUnref<GrDrawContext> drawContext(ctx ? ctx->drawContext(target) : nullptr);
         if (drawContext && target) {
             SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
             static const int stride = 2 * S;
@@ -96,7 +96,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
                 tm.postIDiv(2*S, 2*S);
                 paint.addColorTextureProcessor(texture, tm);
 
-                drawContext->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+                drawContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
 
                 // now update the lower right of the texture in first pass
                 // or upper right in second pass
@@ -110,7 +110,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
                 texture->writePixels(S, (i ? 0 : S), S, S,
                                      texture->config(), gTextureData.get(),
                                      4 * stride);
-                drawContext->drawRect(target, clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+                drawContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
             }
         } else {
             skiagm::GM::DrawGpuOnlyMessage(canvas);

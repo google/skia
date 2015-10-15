@@ -22,12 +22,12 @@ void GrRenderTarget::discard() {
         return;
     }
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(this));
     if (!drawContext) {
         return;
     }
 
-    drawContext->discard(this);
+    drawContext->discard();
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {

@@ -224,14 +224,13 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         paint1.addColorFragmentProcessor(pmToUPM1);
 
 
-        SkAutoTUnref<GrDrawContext> readDrawContext(context->drawContext());
+        SkAutoTUnref<GrDrawContext> readDrawContext(context->drawContext(readTex->asRenderTarget()));
         if (!readDrawContext) {
             failed = true;
             break;
         }
 
-        readDrawContext->drawNonAARectToRect(readTex->asRenderTarget(),
-                                             GrClip::WideOpen(),
+        readDrawContext->drawNonAARectToRect(GrClip::WideOpen(),
                                              paint1,
                                              SkMatrix::I(),
                                              kDstRect,
@@ -241,13 +240,12 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         paint2.addColorFragmentProcessor(upmToPM);
 
-        SkAutoTUnref<GrDrawContext> tempDrawContext(context->drawContext());
+        SkAutoTUnref<GrDrawContext> tempDrawContext(context->drawContext(tempTex->asRenderTarget()));
         if (!tempDrawContext) {
             failed = true;
             break;
         }
-        tempDrawContext->drawNonAARectToRect(tempTex->asRenderTarget(),
-                                             GrClip::WideOpen(),
+        tempDrawContext->drawNonAARectToRect(GrClip::WideOpen(),
                                              paint2,
                                              SkMatrix::I(),
                                              kDstRect,
@@ -255,14 +253,13 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         paint3.addColorFragmentProcessor(pmToUPM2);
 
-        readDrawContext.reset(context->drawContext());
+        readDrawContext.reset(context->drawContext(readTex->asRenderTarget()));
         if (!readDrawContext) {
             failed = true;
             break;
         }
 
-        readDrawContext->drawNonAARectToRect(readTex->asRenderTarget(),
-                                             GrClip::WideOpen(),
+        readDrawContext->drawNonAARectToRect(GrClip::WideOpen(),
                                              paint3,
                                              SkMatrix::I(),
                                              kDstRect,

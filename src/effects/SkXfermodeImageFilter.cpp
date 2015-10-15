@@ -197,13 +197,12 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
         paint.addColorFragmentProcessor(xferFP)->unref();
     }
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
     if (!drawContext) {
         return false;
     }
 
-    drawContext->drawRect(dst->asRenderTarget(), GrClip::WideOpen(), paint, 
-                          SkMatrix::I(), srcRect);
+    drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), srcRect);
 
     offset->fX = backgroundOffset.fX;
     offset->fY = backgroundOffset.fY;

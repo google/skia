@@ -26,7 +26,6 @@ static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& r
 // is already burnt into the mask this boils down to a rect draw.
 // Return true if the mask was successfully drawn.
 static bool draw_mask(GrDrawContext* drawContext,
-                      GrRenderTarget* rt,
                       const GrClip& clip,
                       const SkMatrix& viewMatrix,
                       const SkRect& maskRect,
@@ -43,13 +42,12 @@ static bool draw_mask(GrDrawContext* drawContext,
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    drawContext->drawNonAARectWithLocalMatrix(rt, clip, *grp, SkMatrix::I(), maskRect, inverse);
+    drawContext->drawNonAARectWithLocalMatrix(clip, *grp, SkMatrix::I(), maskRect, inverse);
     return true;
 }
 
 static bool draw_with_mask_filter(GrDrawContext* drawContext,
                                   GrTextureProvider* textureProvider,
-                                  GrRenderTarget* rt,
                                   const GrClip& clipData,
                                   const SkMatrix& viewMatrix,
                                   const SkPath& devPath,
@@ -91,7 +89,7 @@ static bool draw_with_mask_filter(GrDrawContext* drawContext,
 
     SkRect maskRect = SkRect::Make(dstM.fBounds);
 
-    return draw_mask(drawContext, rt, clipData, viewMatrix, maskRect, grp, texture);
+    return draw_mask(drawContext, clipData, viewMatrix, maskRect, grp, texture);
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
@@ -126,12 +124,12 @@ static GrTexture* create_mask_GPU(GrContext* context,
 
     SkRect clipRect = SkRect::MakeWH(maskRect->width(), maskRect->height());
 
-    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
+    SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(mask->asRenderTarget()));
     if (!drawContext) {
         return nullptr;
     }
 
-    drawContext->clear(mask->asRenderTarget(), nullptr, 0x0, true);
+    drawContext->clear(nullptr, 0x0, true);
 
     GrPaint tempPaint;
     tempPaint.setAntiAlias(doAA);
@@ -144,7 +142,7 @@ static GrTexture* create_mask_GPU(GrContext* context,
     // the origin using tempPaint.
     SkMatrix translate;
     translate.setTranslate(-maskRect->fLeft, -maskRect->fTop);
-    drawContext->drawPath(mask->asRenderTarget(), clip, tempPaint, translate, devPath, strokeInfo);
+    drawContext->drawPath(clip, tempPaint, translate, devPath, strokeInfo);
     return mask;
 }
 
@@ -247,7 +245,6 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
 
             if (paint.getMaskFilter()->directFilterMaskGPU(context->textureProvider(),
                                                            drawContext,
-                                                           renderTarget,
                                                            &grPaint,
                                                            clip,
                                                            viewMatrix,
@@ -272,7 +269,6 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                     // filterMaskGPU gives us ownership of a ref to the result
                     SkAutoTUnref<GrTexture> atu(filtered);
                     if (draw_mask(drawContext,
-                                  renderTarget,
                                   clip,
                                   viewMatrix,
                                   maskRect,
@@ -289,12 +285,12 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
         // GPU path fails
         SkPaint::Style style = strokeInfo.isHairlineStyle() ? SkPaint::kStroke_Style :
                                                               SkPaint::kFill_Style;
-        draw_with_mask_filter(drawContext, context->textureProvider(), renderTarget,
+        draw_with_mask_filter(drawContext, context->textureProvider(),
                               clip, viewMatrix, *devPathPtr,
                               paint.getMaskFilter(), clipBounds, &grPaint, style);
         return;
     }
 
-    drawContext->drawPath(renderTarget, clip, grPaint, viewMatrix, *pathPtr, strokeInfo);
+    drawContext->drawPath(clip, grPaint, viewMatrix, *pathPtr, strokeInfo);
 }
 

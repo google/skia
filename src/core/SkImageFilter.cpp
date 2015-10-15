@@ -360,10 +360,9 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         SkASSERT(fp);
         paint.addColorFragmentProcessor(fp)->unref();
 
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext());
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
         if (drawContext) {
-            drawContext->drawNonAARectToRect(dst->asRenderTarget(), clip, paint, SkMatrix::I(),
-                                             dstRect, srcRect);
+            drawContext->drawNonAARectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
             WrapTexture(dst, bounds.width(), bounds.height(), result);
             return true;
