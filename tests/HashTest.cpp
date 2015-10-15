@@ -120,14 +120,16 @@ private:
     uint32_t* fCounter;
 };
 
-uint32_t hash_copy_counter(const CopyCounter&) {
-    return 0; // let them collide, what do we care?
-}
+struct HashCopyCounter {
+    uint32_t operator()(const CopyCounter&) const {
+        return 0; // let them collide, what do we care?
+    }
+};
 
 }
 
 DEF_TEST(HashSetCopyCounter, r) {
-    SkTHashSet<CopyCounter, hash_copy_counter> set;
+    SkTHashSet<CopyCounter, HashCopyCounter> set;
 
     uint32_t globalCounter = 0;
     CopyCounter copyCounter1(1, &globalCounter);

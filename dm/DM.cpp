@@ -144,7 +144,11 @@ struct Gold : public SkString {
         this->append(name);
         this->append(md5);
     }
-    static uint32_t Hash(const Gold& g) { return SkGoodHash((const SkString&)g); }
+    struct Hash {
+        uint32_t operator()(const Gold& g) const {
+            return SkGoodHash()((const SkString&)g);
+        }
+    };
 };
 static SkTHashSet<Gold, Gold::Hash> gGold;
 

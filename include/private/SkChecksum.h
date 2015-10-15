@@ -182,17 +182,20 @@ public:
 
 // SkGoodHash should usually be your first choice in hashing data.
 // It should be both reasonably fast and high quality.
-
-template <typename K>
-uint32_t SkGoodHash(const K& k) {
-    if (sizeof(K) == 4) {
+struct SkGoodHash {
+    template <typename K>
+    SK_WHEN(sizeof(K) == 4, uint32_t) operator()(const K& k) const {
         return SkChecksum::Mix(*(const uint32_t*)&k);
     }
-    return SkChecksum::Murmur3(&k, sizeof(K));
-}
 
-inline uint32_t SkGoodHash(const SkString& k) {
-    return SkChecksum::Murmur3(k.c_str(), k.size());
-}
+    template <typename K>
+    SK_WHEN(sizeof(K) != 4, uint32_t) operator()(const K& k) const {
+        return SkChecksum::Murmur3(&k, sizeof(K));
+    }
+
+    uint32_t operator()(const SkString& k) const {
+        return SkChecksum::Murmur3(k.c_str(), k.size());
+    }
+};
 
 #endif

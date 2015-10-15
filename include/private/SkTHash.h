@@ -191,7 +191,7 @@ private:
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
-template <typename K, typename V, uint32_t(*HashK)(const K&) = &SkGoodHash>
+template <typename K, typename V, typename HashK = SkGoodHash>
 class SkTHashMap : SkNoncopyable {
 public:
     SkTHashMap() {}
@@ -247,14 +247,14 @@ private:
         K key;
         V val;
         static const K& GetKey(const Pair& p) { return p.key; }
-        static uint32_t Hash(const K& key) { return HashK(key); }
+        static uint32_t Hash(const K& key) { return HashK()(key); }
     };
 
     SkTHashTable<Pair, K> fTable;
 };
 
 // A set of T.  T is treated as an ordiary copyable C++ type.
-template <typename T, uint32_t(*HashT)(const T&) = &SkGoodHash>
+template <typename T, typename HashT = SkGoodHash>
 class SkTHashSet : SkNoncopyable {
 public:
     SkTHashSet() {}
@@ -293,7 +293,7 @@ public:
 private:
     struct Traits {
         static const T& GetKey(const T& item) { return item; }
-        static uint32_t Hash(const T& item) { return HashT(item); }
+        static uint32_t Hash(const T& item) { return HashT()(item); }
     };
     SkTHashTable<T, T, Traits> fTable;
 };

@@ -102,10 +102,12 @@ private:
             SkASSERT(rhs.fPtr);
             return *fPtr == *rhs.fPtr;
         }
-        static uint32_t Hash(const WrapGS& w) {
-            SkASSERT(w.fPtr);
-            return w.fPtr->hash();
-        }
+        struct Hash {
+            uint32_t operator()(const WrapGS& w) const {
+                SkASSERT(w.fPtr);
+                return w.fPtr->hash();
+            }
+        };
     };
     SkTHashSet<WrapGS, WrapGS::Hash> fGraphicStateRecords;
 
