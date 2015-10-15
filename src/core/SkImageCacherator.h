@@ -60,7 +60,7 @@ private:
     bool generateBitmap(SkBitmap*);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*);
 #if SK_SUPPORT_GPU
-    GrTexture* lockUnstretchedTexture(GrContext*, const GrTextureParams&, const SkImage* client);
+    GrTexture* lockUnstretchedTexture(GrContext*, const SkImage* client);
 #endif
 
     class ScopedGenerator {

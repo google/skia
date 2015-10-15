@@ -140,7 +140,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
     {
         ScopedGenerator generator(this);
         SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
-        tex.reset(generator->generateTexture(nullptr, GrTextureParams::ClampNoFilter(), &subset));
+        tex.reset(generator->generateTexture(nullptr, &subset));
     }
     if (!tex) {
         bitmap->reset();
@@ -217,8 +217,7 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
  *  4. Ask the generator to return YUV planes, which the GPU can convert
  *  5. Ask the generator to return RGB(A) data, which the GPU can convert
  */
-GrTexture* SkImageCacherator::lockUnstretchedTexture(GrContext* ctx, const GrTextureParams& params,
-                                                     const SkImage* client) {
+GrTexture* SkImageCacherator::lockUnstretchedTexture(GrContext* ctx, const SkImage* client) {
     // textures (at least the texture-key) only support 16bit dimensions, so abort early
     // if we're too big.
     if (fInfo.width() > 0xFFFF || fInfo.height() > 0xFFFF) {
@@ -226,8 +225,9 @@ GrTexture* SkImageCacherator::lockUnstretchedTexture(GrContext* ctx, const GrTex
     }
 
     GrUniqueKey key;
+    const GrTextureParams& noStretchParams = GrTextureParams::ClampNoFilter();
     GrMakeKeyFromImageID(&key, fUniqueID, SkIRect::MakeWH(fInfo.width(), fInfo.height()),
-                         *ctx->caps(), params);
+                         *ctx->caps(), noStretchParams);
 
     // 1. Check the cache for a pre-existing one
     if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
@@ -238,7 +238,7 @@ GrTexture* SkImageCacherator::lockUnstretchedTexture(GrContext* ctx, const GrTex
     {
         ScopedGenerator generator(this);
         SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
-        if (GrTexture* tex = generator->generateTexture(ctx, params, &subset)) {
+        if (GrTexture* tex = generator->generateTexture(ctx, &subset)) {
             return set_key_and_return(tex, key);
         }
     }
@@ -267,7 +267,7 @@ GrTexture* SkImageCacherator::lockUnstretchedTexture(GrContext* ctx, const GrTex
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
     if (this->tryLockAsBitmap(&bitmap, client)) {
-        return GrRefCachedBitmapTexture(ctx, bitmap, params);
+        return GrRefCachedBitmapTexture(ctx, bitmap, noStretchParams);
     }
     return nullptr;
 }
@@ -278,11 +278,10 @@ GrTexture* SkImageCacherator::lockUnstretchedTexture(GrContext* ctx, const GrTex
 
 class Cacherator_GrTextureMaker : public GrTextureMaker {
 public:
-    Cacherator_GrTextureMaker(SkImageCacherator* cacher, const GrTextureParams& params,
-                              const SkImage* client, const GrUniqueKey& unstretchedKey)
+    Cacherator_GrTextureMaker(SkImageCacherator* cacher, const SkImage* client,
+                              const GrUniqueKey& unstretchedKey)
         : INHERITED(cacher->info().width(), cacher->info().height())
         , fCacher(cacher)
-        , fParams(params)
         , fClient(client)
         , fUnstretchedKey(unstretchedKey)
     {}
@@ -293,7 +292,7 @@ protected:
 //    GrTexture* onGenerateStretchedTexture(GrContext*, const SkGrStretch&) override;
 
     GrTexture* onRefUnstretchedTexture(GrContext* ctx) override {
-        return fCacher->lockUnstretchedTexture(ctx, fParams, fClient);
+        return fCacher->lockUnstretchedTexture(ctx, fClient);
     }
 
     bool onMakeStretchedKey(const SkGrStretch& stretch, GrUniqueKey* stretchedKey) override {
@@ -312,7 +311,6 @@ protected:
 
 private:
     SkImageCacherator*      fCacher;
-    const GrTextureParams&  fParams;
     const SkImage*          fClient;
     const GrUniqueKey       fUnstretchedKey;
 
@@ -328,9 +326,9 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParam
     GrUniqueKey key;
     GrMakeKeyFromImageID(&key, this->uniqueID(),
                          SkIRect::MakeWH(this->info().width(), this->info().height()),
-                         *ctx->caps(), params);
+                         *ctx->caps(), GrTextureParams::ClampNoFilter());
 
-    return Cacherator_GrTextureMaker(this, params, client, key).refCachedTexture(ctx, params);
+    return Cacherator_GrTextureMaker(this, client, key).refCachedTexture(ctx, params);
 }
 
 #else

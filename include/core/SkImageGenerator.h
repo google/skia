@@ -150,7 +150,7 @@ public:
      *  so the caller must inspect the texture's width/height and compare them to the generator's
      *  getInfo() width/height. For readback usage use GrTextureParams::ClampNoFilter()
      */
-    GrTexture* generateTexture(GrContext*, const GrTextureParams&, const SkIRect* subset = nullptr);
+    GrTexture* generateTexture(GrContext*, const SkIRect* subset = nullptr);
 
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
@@ -195,7 +195,7 @@ protected:
     virtual bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
                                  SkYUVColorSpace* colorSpace);
 
-    virtual GrTexture* onGenerateTexture(GrContext*, const GrTextureParams&, const SkIRect*) {
+    virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect*) {
         return nullptr;
     }
 

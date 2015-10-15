@@ -220,8 +220,7 @@ public:
         fTexture.reset(SkRef(image->getTexture()));
     }
 protected:
-    GrTexture* onGenerateTexture(GrContext* ctx, const GrTextureParams& params,
-                                 const SkIRect* subset) override {
+    GrTexture* onGenerateTexture(GrContext* ctx, const SkIRect* subset) override {
         if (ctx) {
             SkASSERT(ctx == fCtx.get());
         }
