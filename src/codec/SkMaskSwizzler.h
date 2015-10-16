@@ -53,7 +53,7 @@ private:
     typedef SkSwizzler::ResultAlpha (*RowProc)(void* dstRow, const uint8_t* srcRow, int width,
             SkMasks* masks, uint32_t startX, uint32_t sampleX);
 
-    SkMaskSwizzler(SkMasks* masks, RowProc proc, int srcWidth, int srcOffset);
+    SkMaskSwizzler(SkMasks* masks, RowProc proc, int subsetWidth, int srcOffset);
 
     int onSetSampleX(int) override;
 
@@ -61,7 +61,7 @@ private:
     const RowProc   fRowProc;
 
     // FIXME: Can this class share more with SkSwizzler? These variables are all the same.
-    const int       fSrcWidth;        // Width of the source - i.e. before any sampling.
+    const int       fSubsetWidth;     // Width of the subset of source before any sampling.
     int             fDstWidth;        // Width of dst, which may differ with sampling.
     int             fSampleX;
     int             fSrcOffset;

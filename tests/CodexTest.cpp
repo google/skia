@@ -220,6 +220,26 @@ static void check(skiatest::Reporter* r,
                 == 0);
         REPORTER_ASSERT(r, codec->skipScanlines(1)
                 == 0);
+
+        // Test partial scanline decodes
+        if (supports_scaled_codec(path) && info.width() >= 3) {
+            SkCodec::Options options;
+            int width = info.width();
+            int height = info.height();
+            SkIRect subset = SkIRect::MakeXYWH(2 * (width / 3), 0, width / 3, height);
+            options.fSubset = &subset;
+
+            const SkCodec::Result partialStartResult = codec->startScanlineDecode(info, &options,
+                    nullptr, nullptr);
+            REPORTER_ASSERT(r, partialStartResult == SkCodec::kSuccess);
+
+            for (int y = 0; y < height; y++) {
+                const int lines = codec->getScanlines(bm.getAddr(0, y), 1, 0);
+                if (!isIncomplete) {
+                    REPORTER_ASSERT(r, 1 == lines);
+                }
+            }
+        }
     } else {
         REPORTER_ASSERT(r, startResult == SkCodec::kUnimplemented);
     }

@@ -178,7 +178,7 @@ private:
                                           // scanline decodes.
     int                 fX0;              // Start coordinate for the src, may be different than
                                           // fSrcOffset if we are sampling.
-    const int           fSrcWidth;        // Width of the source - i.e. before any sampling.
+    const int           fSubsetWidth;     // Width of the subset of the source before any sampling.
     int                 fDstWidth;        // Width of dst, which may differ with sampling.
     int                 fSampleX;         // step between X samples
     const int           fBPP;             // if bitsPerPixel % 8 == 0
@@ -186,7 +186,7 @@ private:
                                           // else
                                           //     fBPP is bitsPerPixel
 
-    SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int srcWidth, int bpp);
+    SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int subsetWidth, int bpp);
 
     int onSetSampleX(int) override;
 

@@ -367,11 +367,11 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
  * Constructor for mask swizzler
  *
  */
-SkMaskSwizzler::SkMaskSwizzler(SkMasks* masks, RowProc proc, int srcOffset, int srcWidth)
+SkMaskSwizzler::SkMaskSwizzler(SkMasks* masks, RowProc proc, int srcOffset, int subsetWidth)
     : fMasks(masks)
     , fRowProc(proc)
-    , fSrcWidth(srcWidth)
-    , fDstWidth(srcWidth)
+    , fSubsetWidth(subsetWidth)
+    , fDstWidth(subsetWidth)
     , fSampleX(1)
     , fSrcOffset(srcOffset)
     , fX0(srcOffset)
@@ -383,10 +383,10 @@ int SkMaskSwizzler::onSetSampleX(int sampleX) {
                            // way to report failure?
     fSampleX = sampleX;
     fX0 = get_start_coord(sampleX) + fSrcOffset;
-    fDstWidth = get_scaled_dimension(fSrcWidth, sampleX);
+    fDstWidth = get_scaled_dimension(fSubsetWidth, sampleX);
 
-    // check that fX0 is less than original width
-    SkASSERT(fX0 >= 0 && fX0 < fSrcWidth);
+    // check that fX0 is valid
+    SkASSERT(fX0 >= 0);
     return fDstWidth;
 }
 

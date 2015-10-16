@@ -693,13 +693,14 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
     return new SkSwizzler(proc, ctable, srcOffset, srcWidth, bpp);
 }
 
-SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int srcWidth, int bpp)
+SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int subsetWidth,
+        int bpp)
     : fRowProc(proc)
     , fColorTable(ctable)
     , fSrcOffset(srcOffset)
     , fX0(srcOffset)
-    , fSrcWidth(srcWidth)
-    , fDstWidth(srcWidth)
+    , fSubsetWidth(subsetWidth)
+    , fDstWidth(subsetWidth)
     , fSampleX(1)
     , fBPP(bpp)
 {}
@@ -709,10 +710,10 @@ int SkSwizzler::onSetSampleX(int sampleX) {
                            // way to report failure?
     fSampleX = sampleX;
     fX0 = get_start_coord(sampleX) + fSrcOffset;
-    fDstWidth = get_scaled_dimension(fSrcWidth, sampleX);
+    fDstWidth = get_scaled_dimension(fSubsetWidth, sampleX);
 
-    // check that fX0 is less than original width
-    SkASSERT(fX0 >= 0 && fX0 < fSrcWidth);
+    // check that fX0 is valid
+    SkASSERT(fX0 >= 0);
     return fDstWidth;
 }
 
