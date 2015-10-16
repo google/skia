@@ -387,6 +387,7 @@
 					../third_party/externals/libpng,
 					../third_party/libpng,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_codec;
 				SYMROOT = ../xcodebuild;
@@ -449,6 +450,7 @@
 					../third_party/externals/libpng,
 					../third_party/libpng,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_codec;
 				SYMROOT = ../xcodebuild;
@@ -510,6 +512,7 @@
 					../third_party/externals/libpng,
 					../third_party/libpng,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_codec;
 				SYMROOT = ../xcodebuild;
@@ -590,6 +593,7 @@
 					../third_party/externals/libpng,
 					../third_party/libpng,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_codec;
 				SYMROOT = ../xcodebuild;

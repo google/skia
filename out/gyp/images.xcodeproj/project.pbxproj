@@ -481,6 +481,7 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_images;
 				SYMROOT = ../xcodebuild;
@@ -553,6 +554,7 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_images;
 				SYMROOT = ../xcodebuild;
@@ -615,6 +617,7 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_images;
 				SYMROOT = ../xcodebuild;
@@ -696,6 +699,7 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_images;
 				SYMROOT = ../xcodebuild;
