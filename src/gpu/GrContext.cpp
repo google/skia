@@ -62,13 +62,18 @@
 
 void GrContext::DrawingMgr::init(GrContext* context) {
     fContext = context;
-    fDrawTarget = new GrDrawTarget(context->getGpu(), context->resourceProvider());
 }
 
 void GrContext::DrawingMgr::cleanup() {
-    SkSafeSetNull(fDrawTarget);
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        fDrawTargets[i]->unref();
+    }
+
+    fDrawTargets.reset();
+
     delete fNVPRTextContext;
     fNVPRTextContext = nullptr;
+
     for (int i = 0; i < kNumPixelGeometries; ++i) {
         delete fTextContexts[i][0];
         fTextContexts[i][0] = nullptr;
@@ -82,18 +87,19 @@ GrContext::DrawingMgr::~DrawingMgr() {
 }
 
 void GrContext::DrawingMgr::abandon() {
+    fAbandoned = true;
     this->cleanup();
 }
 
 void GrContext::DrawingMgr::reset() {
-    if (fDrawTarget) {
-        fDrawTarget->reset();
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        fDrawTargets[i]->reset();
     }
 }
 
 void GrContext::DrawingMgr::flush() {
-    if (fDrawTarget) {
-        fDrawTarget->flush();
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        fDrawTargets[i]->flush();
     }
 }
 
@@ -125,13 +131,33 @@ GrTextContext* GrContext::DrawingMgr::textContext(const SkSurfaceProps& props,
     return fTextContexts[props.pixelGeometry()][useDIF];
 }
 
+GrDrawTarget* GrContext::DrawingMgr::newDrawTarget(GrRenderTarget* rt) {
+    SkASSERT(fContext);
+
+    // When MDB is disabled we always just return the single drawTarget
+#ifndef ENABLE_MDB
+    if (fDrawTargets.count()) {
+        SkASSERT(fDrawTargets.count() == 1);
+        // DrawingMgr gets the creation ref - this ref is for the caller
+        return SkRef(fDrawTargets[0]);
+    }
+#endif
+
+    GrDrawTarget* dt = new GrDrawTarget(fContext->getGpu(), fContext->resourceProvider());
+
+    *fDrawTargets.append() = dt;
+
+    // DrawingMgr gets the creation ref - this ref is for the caller 
+    return SkRef(dt);
+}
+
 GrDrawContext* GrContext::DrawingMgr::drawContext(GrRenderTarget* rt, 
                                                   const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
     }
 
-    return new GrDrawContext(fContext, rt, fDrawTarget, surfaceProps);
+    return new GrDrawContext(fContext, rt, surfaceProps);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

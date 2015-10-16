@@ -54,7 +54,8 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    tar->init(this, fDrawingMgr.fDrawTarget);
+    SkAutoTUnref<GrDrawTarget> dt(fDrawingMgr.newDrawTarget(nullptr));
+    tar->init(this, dt);
 }
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {

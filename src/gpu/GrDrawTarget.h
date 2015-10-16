@@ -49,6 +49,15 @@ public:
 
     ~GrDrawTarget() override;
 
+    void makeClosed() {
+        // We only close drawTargets When MDB is enabled. When MDB is disabled there is only
+        // ever one drawTarget and all calls will be funnelled into it.
+#ifdef ENABLE_MDB
+        fClosed = true;
+#endif
+    }
+    bool isClosed() const { return fClosed; }
+
     /**
      * Empties the draw buffer of any queued up draws.
      */
@@ -234,6 +243,8 @@ private:
     GrBatchFlushState                           fFlushState;
     bool                                        fFlushing;
     int                                         fFirstUnpreparedBatch;
+
+    bool                                        fClosed;
 
     typedef SkRefCnt INHERITED;
 };

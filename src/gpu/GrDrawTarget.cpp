@@ -37,7 +37,8 @@ GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     , fResourceProvider(resourceProvider)
     , fFlushState(fGpu, fResourceProvider, 0)
     , fFlushing(false)
-    , fFirstUnpreparedBatch(0) {
+    , fFirstUnpreparedBatch(0)
+    , fClosed(false) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
@@ -117,6 +118,12 @@ void GrDrawTarget::flush() {
         return;
     }
     fFlushing = true;
+
+    // Semi-usually the drawTargets are already closed at this point, but sometimes Ganesh
+    // needs to flush mid-draw. In that case, the SkGpuDevice's drawTargets won't be closed
+    // but need to be flushed anyway. Closing such drawTargets here will mean new
+    // drawTargets will be created to replace them if the SkGpuDevice(s) write to them again.
+    this->makeClosed();
 
     // Loop over all batches and generate geometry
     for (; fFirstUnpreparedBatch < fBatches.count(); ++fFirstUnpreparedBatch) {
@@ -406,6 +413,9 @@ template <class Left, class Right> static bool intersect(const Left& a, const Ri
 }
 
 void GrDrawTarget::recordBatch(GrBatch* batch) {
+    // A closed drawTarget should never receive new/more batches
+    SkASSERT(!fClosed);
+
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw
     // 2) intersect with something

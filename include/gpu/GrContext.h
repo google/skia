@@ -188,6 +188,12 @@ public:
         return fDrawingMgr.textContext(surfaceProps, rt);
     }
 
+    // The caller automatically gets a ref on the returned drawTarget. It must 
+    // be balanced by an unref call.
+    GrDrawTarget* newDrawTarget(GrRenderTarget* rt) {
+        return fDrawingMgr.newDrawTarget(rt);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
@@ -426,7 +432,10 @@ private:
     // each GrRenderTarget/GrDrawTarget and manage the DAG.
     class DrawingMgr {
     public:
-        DrawingMgr() : fDrawTarget(nullptr), fNVPRTextContext(nullptr) {
+        DrawingMgr()
+            : fContext(nullptr)
+            , fAbandoned(false)
+            , fNVPRTextContext(nullptr) {
             sk_bzero(fTextContexts, sizeof(fTextContexts));
         }
 
@@ -435,7 +444,7 @@ private:
         void init(GrContext* context);
 
         void abandon();
-        bool abandoned() const { return NULL == fDrawTarget; }
+        bool abandoned() const { return fAbandoned; }
 
         void reset();
         void flush();
@@ -445,6 +454,8 @@ private:
         GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps);
 
         GrTextContext* textContext(const SkSurfaceProps& props, GrRenderTarget* rt);
+        
+        GrDrawTarget* newDrawTarget(GrRenderTarget* rt);
 
     private:
         void cleanup();
@@ -455,7 +466,9 @@ private:
         static const int kNumDFTOptions = 2;      // DFT or no DFT
 
         GrContext*        fContext;
-        GrDrawTarget*     fDrawTarget;
+
+        bool              fAbandoned;
+        SkTDArray<GrDrawTarget*> fDrawTargets;
 
         GrTextContext*    fNVPRTextContext;
         GrTextContext*    fTextContexts[kNumPixelGeometries][kNumDFTOptions];

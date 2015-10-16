@@ -256,7 +256,7 @@ private:
 
     SkDEBUGCODE(void validate() const;)
 
-    GrDrawContext(GrContext*, GrRenderTarget*, GrDrawTarget*, const SkSurfaceProps* surfaceProps);
+    GrDrawContext(GrContext*, GrRenderTarget*, const SkSurfaceProps* surfaceProps);
 
     void internalDrawPath(GrDrawTarget*,
                           GrPipelineBuilder*,
@@ -270,8 +270,13 @@ private:
     // the drawTarget.
     void drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch);
 
+    GrDrawTarget* getDrawTarget();
+
     GrContext*          fContext;     // owning context -> no ref
     GrRenderTarget*     fRenderTarget;
+
+    // In MDB-mode the drawTarget can be closed by some other drawContext that has picked
+    // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.
     GrDrawTarget*       fDrawTarget;
     GrTextContext*      fTextContext; // lazily gotten from GrContext::DrawingMgr
 

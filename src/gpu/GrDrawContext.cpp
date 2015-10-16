@@ -37,34 +37,52 @@ private:
     GrContext* fContext;
 };
 
+// In MDB mode the reffing of the 'getLastDrawTarget' call's result allows in-progress
+// drawTargets to be picked up and added to by drawContexts lower in the call
+// stack. When this occurs with a closed drawTarget, a new one will be allocated
+// when the drawContext attempts to use it (via getDrawTarget).
 GrDrawContext::GrDrawContext(GrContext* context,
                              GrRenderTarget* rt,
-                             GrDrawTarget* drawTarget,
                              const SkSurfaceProps* surfaceProps)
     : fContext(context)
     , fRenderTarget(rt)
-    , fDrawTarget(SkRef(drawTarget))
+    , fDrawTarget(SkSafeRef(rt->getLastDrawTarget()))
     , fTextContext(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
     SkDEBUGCODE(this->validate();)
-}
-
-GrDrawContext::~GrDrawContext() {
-    SkSafeUnref(fDrawTarget);
 }
 
 #ifdef SK_DEBUG
 void GrDrawContext::validate() const {
     SkASSERT(fRenderTarget);
     ASSERT_OWNED_RESOURCE(fRenderTarget);
+
+    if (fDrawTarget && !fDrawTarget->isClosed()) {
+        SkASSERT(fRenderTarget->getLastDrawTarget() == fDrawTarget);
+    }
 }
 #endif
+
+GrDrawContext::~GrDrawContext() {
+    SkSafeUnref(fDrawTarget);
+}
+
+GrDrawTarget* GrDrawContext::getDrawTarget() {
+    SkDEBUGCODE(this->validate();)
+
+    if (!fDrawTarget || fDrawTarget->isClosed()) {
+        fDrawTarget = fContext->newDrawTarget(fRenderTarget);
+        fRenderTarget->setLastDrawTarget(fDrawTarget);
+    }
+
+    return fDrawTarget;
+}
 
 void GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    fDrawTarget->copySurface(fRenderTarget, src, srcRect, dstPoint);
+    this->getDrawTarget()->copySurface(fRenderTarget, src, srcRect, dstPoint);
 }
 
 
@@ -126,8 +144,8 @@ void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    fDrawTarget->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color, range, draw,
-                                    (GrPathRendering::FillType) fill);
+    this->getDrawTarget()->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color,
+                                              range, draw, (GrPathRendering::FillType) fill);
 }
 
 void GrDrawContext::discard() {
@@ -135,7 +153,7 @@ void GrDrawContext::discard() {
     SkDEBUGCODE(this->validate();)
 
     AutoCheckFlush acf(fContext);
-    fDrawTarget->discard(fRenderTarget);
+    this->getDrawTarget()->discard(fRenderTarget);
 }
 
 void GrDrawContext::clear(const SkIRect* rect,
@@ -145,7 +163,7 @@ void GrDrawContext::clear(const SkIRect* rect,
     SkDEBUGCODE(this->validate();)
 
     AutoCheckFlush acf(fContext);
-    fDrawTarget->clear(rect, color, canIgnoreRect, fRenderTarget);
+    this->getDrawTarget()->clear(rect, color, canIgnoreRect, fRenderTarget);
 }
 
 
@@ -191,11 +209,11 @@ void GrDrawContext::drawPaint(const GrClip& clip,
         AutoCheckFlush acf(fContext);
 
         GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget, clip);
-        fDrawTarget->drawNonAARect(pipelineBuilder,
-                                   paint->getColor(),
-                                   SkMatrix::I(),
-                                   r,
-                                   localMatrix);
+        this->getDrawTarget()->drawNonAARect(pipelineBuilder,
+                                             paint->getColor(),
+                                             SkMatrix::I(),
+                                             r,
+                                             localMatrix);
     }
 }
 
@@ -253,7 +271,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isConstantBlendedColor(&clearColor)) {
-                    fDrawTarget->clear(nullptr, clearColor, true, fRenderTarget);
+                    this->getDrawTarget()->clear(nullptr, clearColor, true, fRenderTarget);
                     return;
                 }
             }
@@ -279,7 +297,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
             viewMatrix.mapRect(&devBoundRect, rect);
             batch.reset(GrRectBatchFactory::CreateAAFill(color, viewMatrix, rect, devBoundRect));
         }
-        fDrawTarget->drawBatch(pipelineBuilder, batch);
+        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
         return;
     }
 
@@ -294,10 +312,10 @@ void GrDrawContext::drawRect(const GrClip& clip,
         // is enabled because it can cause ugly artifacts.
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
                                  snapToPixelCenters);
-        fDrawTarget->drawBatch(pipelineBuilder, batch);
+        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
     } else {
         // filled BW rect
-        fDrawTarget->drawNonAARect(pipelineBuilder, color, viewMatrix, rect);
+        this->getDrawTarget()->drawNonAARect(pipelineBuilder, color, viewMatrix, rect);
     }
 }
 
@@ -312,11 +330,11 @@ void GrDrawContext::drawNonAARectToRect(const GrClip& clip,
     AutoCheckFlush acf(fContext);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    fDrawTarget->drawNonAARect(pipelineBuilder,
-                               paint.getColor(),
-                               viewMatrix,
-                               rectToDraw,
-                               localRect);
+    this->getDrawTarget()->drawNonAARect(pipelineBuilder,
+                                         paint.getColor(),
+                                         viewMatrix,
+                                         rectToDraw,
+                                         localRect);
 }
 
 void GrDrawContext::drawNonAARectWithLocalMatrix(const GrClip& clip,
@@ -330,11 +348,11 @@ void GrDrawContext::drawNonAARectWithLocalMatrix(const GrClip& clip,
     AutoCheckFlush acf(fContext);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    fDrawTarget->drawNonAARect(pipelineBuilder,
-                               paint.getColor(),
-                               viewMatrix,
-                               rectToDraw,
-                               localMatrix);
+    this->getDrawTarget()->drawNonAARect(pipelineBuilder,
+                                         paint.getColor(),
+                                         viewMatrix,
+                                         rectToDraw,
+                                         localMatrix);
 }
 
 void GrDrawContext::drawVertices(const GrClip& clip,
@@ -376,7 +394,7 @@ void GrDrawContext::drawVertices(const GrClip& clip,
                                                                 indexCount, colors, texCoords,
                                                                 bounds));
 
-    fDrawTarget->drawBatch(pipelineBuilder, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -400,7 +418,7 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
     SkAutoTUnref<GrDrawBatch> batch(GrDrawAtlasBatch::Create(geometry, viewMatrix, spriteCount,
                                                              xform, texRect, colors));
     
-    fDrawTarget->drawBatch(pipelineBuilder, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -430,7 +448,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
 
-    if (!GrOvalRenderer::DrawRRect(fDrawTarget,
+    if (!GrOvalRenderer::DrawRRect(this->getDrawTarget(),
                                    pipelineBuilder,
                                    color,
                                    viewMatrix,
@@ -440,7 +458,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rrect);
-        this->internalDrawPath(fDrawTarget, &pipelineBuilder, viewMatrix, color,
+        this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
                                paint.isAntiAlias(), path, strokeInfo);
     }
 }
@@ -463,7 +481,7 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
-    if (!GrOvalRenderer::DrawDRRect(fDrawTarget,
+    if (!GrOvalRenderer::DrawDRRect(this->getDrawTarget(),
                                     pipelineBuilder,
                                     color,
                                     viewMatrix,
@@ -477,7 +495,7 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
         path.setFillType(SkPath::kEvenOdd_FillType);
 
         GrStrokeInfo fillRec(SkStrokeRec::kFill_InitStyle);
-        this->internalDrawPath(fDrawTarget, &pipelineBuilder, viewMatrix, color,
+        this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
                                paint.isAntiAlias(), path, fillRec);
     }
 }
@@ -509,7 +527,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
 
-    if (!GrOvalRenderer::DrawOval(fDrawTarget,
+    if (!GrOvalRenderer::DrawOval(this->getDrawTarget(),
                                   pipelineBuilder,
                                   color,
                                   viewMatrix,
@@ -519,7 +537,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
         SkPath path;
         path.setIsVolatile(true);
         path.addOval(oval);
-        this->internalDrawPath(fDrawTarget, &pipelineBuilder, viewMatrix, color,
+        this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
                                paint.isAntiAlias(), path, strokeInfo);
     }
 }
@@ -582,7 +600,7 @@ void GrDrawContext::drawBatch(const GrClip& clip,
     AutoCheckFlush acf(fContext);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    fDrawTarget->drawBatch(pipelineBuilder, batch);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
 void GrDrawContext::drawPath(const GrClip& clip,
@@ -621,7 +639,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
             if (is_nested_rects(viewMatrix, path, strokeInfo, rects)) {
                 SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateAAFillNestedRects(
                     color, viewMatrix, rects));
-                fDrawTarget->drawBatch(pipelineBuilder, batch);
+                this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
                 return;
             }
         }
@@ -629,7 +647,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
         bool isOval = path.isOval(&ovalRect);
 
         if (isOval && !path.isInverseFillType()) {
-            if (GrOvalRenderer::DrawOval(fDrawTarget,
+            if (GrOvalRenderer::DrawOval(this->getDrawTarget(),
                                          pipelineBuilder,
                                          color,
                                          viewMatrix,
@@ -640,8 +658,8 @@ void GrDrawContext::drawPath(const GrClip& clip,
             }
         }
     }
-    this->internalDrawPath(fDrawTarget, &pipelineBuilder, viewMatrix, color, paint.isAntiAlias(),
-                           path, strokeInfo);
+    this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
+                           paint.isAntiAlias(), path, strokeInfo);
 }
 
 void GrDrawContext::internalDrawPath(GrDrawTarget* target,
@@ -736,5 +754,5 @@ void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* b
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    fDrawTarget->drawBatch(*pipelineBuilder, batch);
+    this->getDrawTarget()->drawBatch(*pipelineBuilder, batch);
 }

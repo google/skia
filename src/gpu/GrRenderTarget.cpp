@@ -11,6 +11,7 @@
 
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
@@ -56,14 +57,24 @@ void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
 
 void GrRenderTarget::onRelease() {
     SkSafeSetNull(fStencilAttachment);
+    fLastDrawTarget = nullptr;
 
     INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
     SkSafeSetNull(fStencilAttachment);
+    fLastDrawTarget = nullptr;
 
     INHERITED::onAbandon();
+}
+
+void GrRenderTarget::setLastDrawTarget(GrDrawTarget* dt) {
+    if (fLastDrawTarget) {
+        SkASSERT(fLastDrawTarget->isClosed());
+    }
+
+    fLastDrawTarget = dt;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
