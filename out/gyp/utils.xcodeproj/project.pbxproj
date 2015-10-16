@@ -615,6 +615,7 @@
 		10120C302949009078978760 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = All;
 			};
 			name = Debug;
@@ -631,6 +632,7 @@
 		3914624EAA8F8D36D7A45BC7 /* Release_Developer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = All;
 			};
 			name = Release_Developer;
@@ -638,6 +640,7 @@
 		52A1FAC13D3CDA2EFF0DC772 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = All;
 			};
 			name = Release;
@@ -736,6 +739,7 @@
 					../include/core,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;
@@ -844,6 +848,7 @@
 					../include/core,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;
@@ -861,6 +866,7 @@
 		7DC76EEA7FAD0C236F54652C /* Coverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = All;
 			};
 			name = Coverage;
@@ -911,6 +917,7 @@
 					../include/core,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;
@@ -971,6 +978,7 @@
 					../include/core,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;

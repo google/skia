@@ -343,6 +343,7 @@
 					../include/pathops,
 					../include/pipe,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_ports;
 				SYMROOT = ../xcodebuild;
@@ -415,6 +416,7 @@
 					../include/pathops,
 					../include/pipe,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_ports;
 				SYMROOT = ../xcodebuild;
@@ -477,6 +479,7 @@
 					../include/pathops,
 					../include/pipe,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_ports;
 				SYMROOT = ../xcodebuild;
@@ -540,6 +543,7 @@
 					../include/pathops,
 					../include/pipe,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_ports;
 				SYMROOT = ../xcodebuild;

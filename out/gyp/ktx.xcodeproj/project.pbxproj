@@ -166,6 +166,7 @@
 					../include/utils/mac,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = SkKTX;
 				SYMROOT = ../xcodebuild;
@@ -262,6 +263,7 @@
 					../include/utils/mac,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = SkKTX;
 				SYMROOT = ../xcodebuild;
@@ -317,6 +319,7 @@
 					../include/utils/mac,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = SkKTX;
 				SYMROOT = ../xcodebuild;
@@ -372,6 +375,7 @@
 					../include/utils/mac,
 					../third_party/etc1,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = SkKTX;
 				SYMROOT = ../xcodebuild;

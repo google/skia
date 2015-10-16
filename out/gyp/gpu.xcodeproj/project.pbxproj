@@ -21,6 +21,7 @@
 		1CC9661A0C60EC8EEC86634E /* GrVertexBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED5CBB775E52E6D86B6C6BFE /* GrVertexBatch.cpp */; };
 		1D15473CA18A0285AB4C675C /* GrAAStrokeRectBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5D724E874CD9D8FC8B693C88 /* GrAAStrokeRectBatch.cpp */; };
 		1ED9D13BA3FDC8C6AD3455D0 /* GrTextureDomain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC4D9316BC086CB3FC75F0F0 /* GrTextureDomain.cpp */; };
+		1F1B6F761BD057050074F7FD /* GrGLCreateNativeInterface_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 500B0D5A2EC98021C53A9BC2 /* GrGLCreateNativeInterface_iOS.cpp */; settings = {ASSET_TAGS = (); }; };
 		207E78F56A6415E1F8477345 /* GrSingleTextureEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224DBF1C4B578FB0A5DBFCC1 /* GrSingleTextureEffect.cpp */; };
 		2189989D88B5F6BED5A3D84A /* GrPathProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92132BC9963CB40756E411AB /* GrPathProcessor.cpp */; };
 		21EF044487160F8109EAE2C7 /* GrNonAAStrokeRectBatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 141E8E56E4CD9CF1B218AD00 /* GrNonAAStrokeRectBatch.cpp */; };
@@ -1407,6 +1408,7 @@
 				C8941382ED8C23114EA75481 /* GrGLSL.cpp in Sources */,
 				2AA92406E62544F3AED7DC81 /* SkGpuDevice.cpp in Sources */,
 				CD50427738C415C4279D41F0 /* SkGr.cpp in Sources */,
+				1F1B6F761BD057050074F7FD /* GrGLCreateNativeInterface_iOS.cpp in Sources */,
 				120F50D08F9416997BF3A5A6 /* SkGrPixelRef.cpp in Sources */,
 				92FBA2C59B1B9B090ADF9365 /* SkGrTexturePixelRef.cpp in Sources */,
 				7E15C5C8AF0C17EDDE4C3755 /* SkImage_Gpu.cpp in Sources */,
@@ -1478,6 +1480,7 @@
 					../third_party/etc1,
 					../third_party/ktx,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_skgpu;
 				SYMROOT = ../xcodebuild;
@@ -1540,6 +1543,7 @@
 					../third_party/etc1,
 					../third_party/ktx,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_skgpu;
 				SYMROOT = ../xcodebuild;
@@ -1610,6 +1614,7 @@
 					../third_party/etc1,
 					../third_party/ktx,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_skgpu;
 				SYMROOT = ../xcodebuild;
@@ -1690,6 +1695,7 @@
 					../third_party/etc1,
 					../third_party/ktx,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_skgpu;
 				SYMROOT = ../xcodebuild;

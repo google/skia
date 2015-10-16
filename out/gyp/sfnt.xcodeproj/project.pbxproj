@@ -241,6 +241,7 @@
 					../include/pipe,
 					../include/utils/mac,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_sfnt;
 				SYMROOT = ../xcodebuild;
@@ -303,6 +304,7 @@
 					../include/pipe,
 					../include/utils/mac,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_sfnt;
 				SYMROOT = ../xcodebuild;
@@ -364,6 +366,7 @@
 					../include/pipe,
 					../include/utils/mac,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_sfnt;
 				SYMROOT = ../xcodebuild;
@@ -416,6 +419,7 @@
 					../include/pipe,
 					../include/utils/mac,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_sfnt;
 				SYMROOT = ../xcodebuild;
