@@ -221,6 +221,7 @@
         '<(skia_src_path)/core/SkRegion.cpp',
         '<(skia_src_path)/core/SkRegionPriv.h',
         '<(skia_src_path)/core/SkRegion_path.cpp',
+        '<(skia_src_path)/core/SkRemote.cpp',
         '<(skia_src_path)/core/SkResourceCache.cpp',
         '<(skia_src_path)/core/SkRRect.cpp',
         '<(skia_src_path)/core/SkRTree.h',

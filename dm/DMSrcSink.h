@@ -304,10 +304,12 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
-class ViaDeferred : public Via {
+class ViaRemote : public Via {
 public:
-    explicit ViaDeferred(Sink* sink) : Via(sink) {}
+    ViaRemote(bool cache, Sink* sink) : Via(sink), fCache(cache) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+private:
+    bool fCache;
 };
 
 class ViaSerialization : public Via {

@@ -23,6 +23,7 @@
 #include "SkRandom.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
+#include "SkRemote.h"
 #include "SkSVGCanvas.h"
 #include "SkScaledCodec.h"
 #include "SkStream.h"
@@ -1013,6 +1014,16 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         SkGPipeWriter pipe;
         const uint32_t kFlags = 0;
         return src.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
+    });
+}
+
+Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
+        SkAutoTDelete<SkRemote::Cache> cache(fCache ? SkRemote::Cache::CreateAlwaysCache()
+                                                    : SkRemote::Cache::CreateNeverCache());
+        SkRemote::Server server(canvas);
+        SkRemote::Client client(cache, &server);
+        return src.draw(&client);
     });
 }
 
