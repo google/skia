@@ -87,6 +87,7 @@ public:
     bool debugIsBefore(const SkTSpan* span) const;
 #endif
     void dump() const;
+    void dumpAll() const;
     void dumpBounded(int id) const;
     void dumpBounds() const;
     void dumpCoin() const;
@@ -244,6 +245,7 @@ private:
                           double* oppT);
     SkTSpan<TCurve, OppCurve>* boundsMax() const;
     void coincidentCheck(SkTSect<OppCurve, TCurve>* sect2);
+    void coincidentForce(SkTSect<OppCurve, TCurve>* sect2, double start1s, double start1e);
     bool coincidentHasT(double t);
     int collapsed() const;
     void computePerpendiculars(SkTSect<OppCurve, TCurve>* sect2, SkTSpan<TCurve, OppCurve>* first,
@@ -385,14 +387,14 @@ void SkTSect<TCurve, OppCurve>::addForPerp(SkTSpan<OppCurve, TCurve>* span, doub
         if (!opp) {
             opp = this->addFollowing(priorSpan);
 #if DEBUG_PERP
-            SkDebugf("%s priorSpan=%d t=%1.9g opp=%d\n", __FUNCTION__, priorSpan->debugID(), t,
-                    opp->debugID());
+            SkDebugf("%s priorSpan=%d t=%1.9g opp=%d\n", __FUNCTION__, priorSpan ?
+                    priorSpan->debugID() : -1, t, opp->debugID());
 #endif
         }
 #if DEBUG_PERP
         opp->dump(); SkDebugf("\n");
-        SkDebugf("%s addBounded span=%d opp=%d\n", __FUNCTION__, priorSpan->debugID(),
-                opp->debugID());
+        SkDebugf("%s addBounded span=%d opp=%d\n", __FUNCTION__, priorSpan ?
+                priorSpan->debugID() : -1, opp->debugID());
 #endif
         opp->addBounded(span, &fHeap);
         span->addBounded(opp, &fHeap);
@@ -792,7 +794,7 @@ void SkTSpan<TCurve, OppCurve>::validatePerpT(double oppT) const {
     const SkTSpanBounded<OppCurve, TCurve>* testBounded = fBounded;
     while (testBounded) {
         const SkTSpan<OppCurve, TCurve>* overlap = testBounded->fBounded;
-        if (between(overlap->fStartT, oppT, overlap->fEndT)) {
+        if (precisely_between(overlap->fStartT, oppT, overlap->fEndT)) {
             return;
         }
         testBounded = testBounded->fNext;
@@ -941,6 +943,39 @@ void SkTSect<TCurve, OppCurve>::coincidentCheck(SkTSect<OppCurve, TCurve>* sect2
             coinStart = this->extractCoincident(sect2, coinStart, last);
         } while (coinStart && !last->fDeleted);
     } while ((first = next));
+}
+
+template<typename TCurve, typename OppCurve>
+void SkTSect<TCurve, OppCurve>::coincidentForce(SkTSect<OppCurve, TCurve>* sect2,
+        double start1s, double start1e) {
+    SkTSpan<TCurve, OppCurve>* first = fHead;
+    SkTSpan<TCurve, OppCurve>* last = this->tail();
+    SkTSpan<OppCurve, TCurve>* oppFirst = sect2->fHead;
+    SkTSpan<OppCurve, TCurve>* oppLast = sect2->tail();
+    bool deleteEmptySpans = this->updateBounded(first, last, oppFirst);
+    deleteEmptySpans |= sect2->updateBounded(oppFirst, oppLast, first);
+    this->removeSpanRange(first, last);
+    sect2->removeSpanRange(oppFirst, oppLast);
+    first->fStartT = start1s;
+    first->fEndT = start1e;
+    first->resetBounds(fCurve);
+    first->fCoinStart.setPerp(fCurve, start1s, fCurve[0], sect2->fCurve);
+    first->fCoinEnd.setPerp(fCurve, start1e, fCurve[TCurve::kPointLast], sect2->fCurve);
+    bool oppMatched = first->fCoinStart.perpT() < first->fCoinEnd.perpT();
+    double oppStartT = SkTMax(0., first->fCoinStart.perpT());
+    double oppEndT = SkTMin(1., first->fCoinEnd.perpT());
+    if (!oppMatched) {
+        SkTSwap(oppStartT, oppEndT);
+    }
+    oppFirst->fStartT = oppStartT;
+    oppFirst->fEndT = oppEndT;
+    oppFirst->resetBounds(sect2->fCurve);
+    this->removeCoincident(first, false);
+    sect2->removeCoincident(oppFirst, true);
+    if (deleteEmptySpans) {
+        this->deleteEmptySpans();
+        sect2->deleteEmptySpans();
+    }
 }
 
 template<typename TCurve, typename OppCurve>
@@ -1226,6 +1261,9 @@ int SkTSect<TCurve, OppCurve>::intersects(SkTSpan<TCurve, OppCurve>* span,
     if (span->fIsLine && oppSpan->fIsLine) {
         SkIntersections i;
         int sects = this->linesIntersect(span, opp, oppSpan, &i);
+        if (sects == 2) {
+            return *oppResult = 1;
+        }
         if (!sects) {
             return -1;
         }
@@ -1256,6 +1294,29 @@ int SkTSect<TCurve, OppCurve>::linesIntersect(SkTSpan<TCurve, OppCurve>* span,
     }
     if (!oppRayI.intersectRay(this->fCurve, oppLine)) {
         return 0;
+    }
+    // if the ends of each line intersect the opposite curve, the lines are coincident
+    if (thisRayI.used() > 1) {
+        int ptMatches = 0;
+        for (int tIndex = 0; tIndex < thisRayI.used(); ++tIndex) {
+            for (int lIndex = 0; lIndex < (int) SK_ARRAY_COUNT(thisLine.fPts); ++lIndex) {
+                ptMatches += thisRayI.pt(tIndex).approximatelyEqual(thisLine.fPts[lIndex]);
+            }
+        }
+        if (ptMatches == 2) {
+            return 2;
+        }
+    }
+    if (oppRayI.used() > 1) {
+        int ptMatches = 0;
+        for (int oIndex = 0; oIndex < oppRayI.used(); ++oIndex) {
+            for (int lIndex = 0; lIndex < (int) SK_ARRAY_COUNT(thisLine.fPts); ++lIndex) {
+                ptMatches += oppRayI.pt(oIndex).approximatelyEqual(oppLine.fPts[lIndex]);
+            }
+        }
+        if (ptMatches == 2) {
+            return 2;
+        }
     }
     do {
         // pick the closest pair of points
@@ -1921,6 +1982,10 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
     }
     span1->addBounded(span2, &sect1->fHeap);
     span2->addBounded(span1, &sect2->fHeap);
+    const int kMaxCoinLoopCount = 8;
+    int coinLoopCount = kMaxCoinLoopCount;
+    double start1s SK_INIT_TO_AVOID_WARNING;
+    double start1e SK_INIT_TO_AVOID_WARNING;
     do {
         // find the largest bounds
         SkTSpan<TCurve, OppCurve>* largest1 = sect1->boundsMax();
@@ -1955,12 +2020,32 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
         }
         sect1->validate();
         sect2->validate();
+#if DEBUG_T_SECT_LOOP_COUNT
+        intersections->debugBumpLoopCount(SkIntersections::kIterations_DebugLoop);
+#endif
         // if there are 9 or more continuous spans on both sects, suspect coincidence
         if (sect1->fActiveCount >= COINCIDENT_SPAN_COUNT
                 && sect2->fActiveCount >= COINCIDENT_SPAN_COUNT) {
+            if (coinLoopCount == kMaxCoinLoopCount) {
+                start1s = sect1->fHead->fStartT;
+                start1e = sect1->tail()->fEndT;
+            }
             sect1->coincidentCheck(sect2);
             sect1->validate();
             sect2->validate();
+#if DEBUG_T_SECT_LOOP_COUNT
+            intersections->debugBumpLoopCount(SkIntersections::kCoinCheck_DebugLoop);
+#endif
+            if (!--coinLoopCount) {
+                /* All known working cases resolve in two tries. Sadly, cubicConicTests[0]
+                   gets stuck in a loop. It adds an extension to allow a coincident end
+                   perpendicular to track its intersection in the opposite curve. However,
+                   the bounding box of the extension does not intersect the original curve,
+                   so the extension is discarded, only to be added again the next time around. */ 
+                sect1->coincidentForce(sect2, start1s, start1e);
+                sect1->validate();
+                sect2->validate();
+            }
         }
         if (sect1->fActiveCount >= COINCIDENT_SPAN_COUNT
                 && sect2->fActiveCount >= COINCIDENT_SPAN_COUNT) {
@@ -1969,6 +2054,9 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
             sect1->removeByPerpendicular(sect2);
             sect1->validate();
             sect2->validate();
+#if DEBUG_T_SECT_LOOP_COUNT
+            intersections->debugBumpLoopCount(SkIntersections::kComputePerp_DebugLoop);
+#endif
             if (sect1->collapsed() > TCurve::kMaxIntersections) {
                 break;
             }

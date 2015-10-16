@@ -25,6 +25,9 @@ public:
         sk_bzero(fPt2, sizeof(fPt2));
         sk_bzero(fT, sizeof(fT));
         sk_bzero(fNearlySame, sizeof(fNearlySame));
+#if DEBUG_T_SECT_LOOP_COUNT
+        sk_bzero(fDebugLoopCount, sizeof(fDebugLoopCount));
+#endif
         reset();
         fMax = 0;  // require that the caller set the max
     }
@@ -277,7 +280,16 @@ public:
 #endif
     }
 
+    enum DebugLoop {
+        kIterations_DebugLoop,
+        kCoinCheck_DebugLoop,
+        kComputePerp_DebugLoop,
+    };
+
+    void debugBumpLoopCount(DebugLoop );
     int debugCoincidentUsed() const;
+    int debugLoopCount(DebugLoop ) const;
+    void debugResetLoopCount();
     void dump() const;  // implemented for testing only
 
 private:
@@ -298,6 +310,9 @@ private:
     bool fSwap;
 #ifdef SK_DEBUG
     int fDepth;
+#endif
+#if DEBUG_T_SECT_LOOP_COUNT
+    int fDebugLoopCount[3];
 #endif
 };
 

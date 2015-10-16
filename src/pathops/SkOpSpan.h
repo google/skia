@@ -58,13 +58,14 @@ public:
     }
 
     const SkOpAngle* debugAngle(int id) const;
+    bool debugContains(const SkOpPtT* ) const;
+    const SkOpPtT* debugContains(const SkOpSegment* check) const;
     SkOpContour* debugContour(int id);
     int debugLoopLimit(bool report) const;
     bool debugMatchID(int id) const;
     const SkOpPtT* debugPtT(int id) const;
     const SkOpSegment* debugSegment(int id) const;
     const SkOpSpanBase* debugSpan(int id) const;
-    SkOpGlobalState* globalState() const;
     void debugValidate() const;
 
     bool deleted() const {
@@ -82,6 +83,7 @@ public:
     void dumpBase() const;
 
     SkOpPtT* find(SkOpSegment* );
+    SkOpGlobalState* globalState() const;
     void init(SkOpSpanBase* , double t, const SkPoint& , bool dup);
 
     void insert(SkOpPtT* span) {
@@ -204,12 +206,16 @@ public:
         return SkDEBUGRELEASE(fID, -1);
     }
 
+    bool debugAlignedEnd(double t, const SkPoint& pt) const;
+    bool debugAlignedInner() const;
     const SkOpAngle* debugAngle(int id) const;
     bool debugCoinEndLoopCheck() const;
+    bool debugContains(const SkOpSegment* ) const;
     SkOpContour* debugContour(int id);
     const SkOpPtT* debugPtT(int id) const;
     const SkOpSegment* debugSegment(int id) const;
     const SkOpSpanBase* debugSpan(int id) const;
+    const SkOpSpan* debugStarter(SkOpSpanBase const** endPtr) const;
     SkOpGlobalState* globalState() const;
     void debugValidate() const;
 

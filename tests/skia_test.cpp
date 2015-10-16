@@ -30,6 +30,7 @@ DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template TestRegistry* TestRegistry::gHead;
+void (*gVerboseFinalize)() = nullptr;
 
 // The threads report back to this object when they are done.
 class Status {
@@ -214,6 +215,9 @@ int test_main() {
                 "\nFinished %d tests, %d failures, %d skipped. "
                 "(%d internal tests)",
                 toRun, status.failCount(), skipCount, status.testCount());
+        if (gVerboseFinalize) {
+            (*gVerboseFinalize)();
+        }
     }
 
     SkDebugf("\n");

@@ -222,6 +222,23 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
 }
 #endif
 
+
+#if DEBUG_T_SECT_LOOP_COUNT
+
+#include "SkMutex.h"
+
+SK_DECLARE_STATIC_MUTEX(debugWorstLoop);
+
+SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(nullptr));
+
+void ReportPathOpsDebugging() {
+    debugWorstState.debugLoopReport();
+}
+
+extern void (*gVerboseFinalize)();
+
+#endif
+
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
         bool expectSuccess  SkDEBUGPARAMS(const char* testName)) {
     SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
@@ -263,7 +280,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
         return false;
     }
 #if DEBUG_DUMP_SEGMENTS
-    contour.dumpSegments(op);
+    contourList->dumpSegments("seg", op);
 #endif
 
     const int xorOpMask = builder.xorMask();
@@ -287,6 +304,9 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
     if (!HandleCoincidence(contourList, &coincidence, &allocator)) {
         return false;
     }
+#if DEBUG_ALIGNMENT
+    contourList->dumpSegments("aligned");
+#endif
     // construct closed contours
     result->reset();
     result->setFillType(fillType);
@@ -300,9 +320,134 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result,
         *result = *assembled.nativePath();
         result->setFillType(fillType);
     }
+#if DEBUG_T_SECT_LOOP_COUNT
+    {
+        SkAutoMutexAcquire autoM(debugWorstLoop);
+        if (!gVerboseFinalize) {
+            gVerboseFinalize = &ReportPathOpsDebugging;
+        }
+        debugWorstState.debugDoYourWorst(&globalState);
+    }
+#endif
     return true;
 }
 
+#define DEBUG_VERIFY 0
+
+#if DEBUG_VERIFY
+#include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkPaint.h"
+
+const int bitWidth = 64;
+const int bitHeight = 64;
+
+static void debug_scale_matrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
+    SkRect larger = one.getBounds();
+    larger.join(two.getBounds());
+    SkScalar largerWidth = larger.width();
+    if (largerWidth < 4) {
+        largerWidth = 4;
+    }
+    SkScalar largerHeight = larger.height();
+    if (largerHeight < 4) {
+        largerHeight = 4;
+    }
+    SkScalar hScale = (bitWidth - 2) / largerWidth;
+    SkScalar vScale = (bitHeight - 2) / largerHeight;
+    scale.reset();
+    scale.preScale(hScale, vScale);
+    larger.fLeft *= hScale;
+    larger.fRight *= hScale;
+    larger.fTop *= vScale;
+    larger.fBottom *= vScale;
+    SkScalar dx = -16000 > larger.fLeft ? -16000 - larger.fLeft
+            : 16000 < larger.fRight ? 16000 - larger.fRight : 0;
+    SkScalar dy = -16000 > larger.fTop ? -16000 - larger.fTop
+            : 16000 < larger.fBottom ? 16000 - larger.fBottom : 0;
+    scale.preTranslate(dx, dy);
+}
+
+static int debug_paths_draw_the_same(const SkPath& one, const SkPath& two, SkBitmap& bits) {
+    if (bits.width() == 0) {
+        bits.allocN32Pixels(bitWidth * 2, bitHeight);
+    }
+    SkCanvas canvas(bits);
+    canvas.drawColor(SK_ColorWHITE);
+    SkPaint paint;
+    canvas.save();
+    const SkRect& bounds1 = one.getBounds();
+    canvas.translate(-bounds1.fLeft + 1, -bounds1.fTop + 1);
+    canvas.drawPath(one, paint);
+    canvas.restore();
+    canvas.save();
+    canvas.translate(-bounds1.fLeft + 1 + bitWidth, -bounds1.fTop + 1);
+    canvas.drawPath(two, paint);
+    canvas.restore();
+    int errors = 0;
+    for (int y = 0; y < bitHeight - 1; ++y) {
+        uint32_t* addr1 = bits.getAddr32(0, y);
+        uint32_t* addr2 = bits.getAddr32(0, y + 1);
+        uint32_t* addr3 = bits.getAddr32(bitWidth, y);
+        uint32_t* addr4 = bits.getAddr32(bitWidth, y + 1);
+        for (int x = 0; x < bitWidth - 1; ++x) {
+            // count 2x2 blocks
+            bool err = addr1[x] != addr3[x];
+            if (err) {
+                errors += addr1[x + 1] != addr3[x + 1]
+                        && addr2[x] != addr4[x] && addr2[x + 1] != addr4[x + 1];
+            }
+        }
+    }
+    return errors;
+}
+
+#endif
+
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+#if DEBUG_VERIFY
+    if (!OpDebug(one, two, op, result, true  SkDEBUGPARAMS(nullptr))) {
+        SkDebugf("%s did not expect failure\none: fill=%d\n", __FUNCTION__, one.getFillType());
+        one.dumpHex();
+        SkDebugf("two: fill=%d\n", two.getFillType());
+        two.dumpHex();
+        SkASSERT(0);
+        return false;
+    }
+    SkPath pathOut, scaledPathOut;
+    SkRegion rgnA, rgnB, openClip, rgnOut;
+    openClip.setRect(-16000, -16000, 16000, 16000);
+    rgnA.setPath(one, openClip);
+    rgnB.setPath(two, openClip);
+    rgnOut.op(rgnA, rgnB, (SkRegion::Op) op);
+    rgnOut.getBoundaryPath(&pathOut);
+    SkMatrix scale;
+    debug_scale_matrix(one, two, scale);
+    SkRegion scaledRgnA, scaledRgnB, scaledRgnOut;
+    SkPath scaledA, scaledB;
+    scaledA.addPath(one, scale);
+    scaledA.setFillType(one.getFillType());
+    scaledB.addPath(two, scale);
+    scaledB.setFillType(two.getFillType());
+    scaledRgnA.setPath(scaledA, openClip);
+    scaledRgnB.setPath(scaledB, openClip);
+    scaledRgnOut.op(scaledRgnA, scaledRgnB, (SkRegion::Op) op);
+    scaledRgnOut.getBoundaryPath(&scaledPathOut);
+    SkBitmap bitmap;
+    SkPath scaledOut;
+    scaledOut.addPath(*result, scale);
+    scaledOut.setFillType(result->getFillType());
+    int errors = debug_paths_draw_the_same(scaledPathOut, scaledOut, bitmap);
+    const int MAX_ERRORS = 9;
+    if (errors > MAX_ERRORS) {
+        SkDebugf("%s did not expect failure\none: fill=%d\n", __FUNCTION__, one.getFillType());
+        one.dumpHex();
+        SkDebugf("two: fill=%d\n", two.getFillType());
+        two.dumpHex();
+        SkASSERT(0);
+    }
+    return true;
+#else
     return OpDebug(one, two, op, result, true  SkDEBUGPARAMS(nullptr));
+#endif
 }

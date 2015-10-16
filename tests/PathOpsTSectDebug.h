@@ -83,8 +83,10 @@ void SkTSect<TCurve, OppCurve>::dumpBounded(int id) const {
     do {
         if (test->findOppSpan(bounded)) {
             test->dump();
+            SkDebugf(" ");
         }
     } while ((test = test->next()));
+    SkDebugf("\n");
 }
 
 template<typename TCurve, typename OppCurve>
@@ -138,6 +140,24 @@ const SkTSpan<TCurve, OppCurve>* SkTSpan<TCurve, OppCurve>::debugSpan(int id) co
 template<typename TCurve, typename OppCurve>
 const SkTSpan<TCurve, OppCurve>* SkTSpan<TCurve, OppCurve>::debugT(double t) const {
     return SkDEBUGRELEASE(fDebugSect->debugT(t), nullptr);
+}
+
+template<typename TCurve, typename OppCurve>
+void SkTSpan<TCurve, OppCurve>::dumpAll() const {
+    dumpID();
+    SkDebugf("=(%g,%g) [", fStartT, fEndT);
+    const SkTSpanBounded<OppCurve, TCurve>* testBounded = fBounded;
+    while (testBounded) {
+        const SkTSpan<OppCurve, TCurve>* span = testBounded->fBounded;
+        const SkTSpanBounded<OppCurve, TCurve>* next = testBounded->fNext;
+        span->dumpID();
+        SkDebugf("=(%g,%g)", span->fStartT, span->fEndT);
+        if (next) {
+            SkDebugf(" ");
+        }
+        testBounded = next;
+    }
+    SkDebugf("]\n");
 }
 
 template<typename TCurve, typename OppCurve>

@@ -1087,9 +1087,6 @@ static void skpcyclist_friends_gr52(skiatest::Reporter* reporter, const char* fi
     pathB.cubicTo(52.238575f, 207, 50, 204.761429f, 50, 202);
     pathB.lineTo(50, 183);
     pathB.close();
-    // FIXME: this generates quads and cubics that are (correctly) not coincident unlike the old code
-    // however, somewhere the angles are sorted incorrectly and the winding is computed to be -1/-2
-    // but I can't find the error
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
@@ -3768,11 +3765,227 @@ pathB.cubicTo(980.018494f, 1481.22131f, 979.602478f, 1478.38831f, 984.546021f, 1
 
 }
 
+static void skpwww_woothemes_com_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x44472795), SkBits2Float(0x455cdb8d));  // 796.618f, 3533.72f
+path.lineTo(SkBits2Float(0x44467c27), SkBits2Float(0x455cdb8d));  // 793.94f, 3533.72f
+path.lineTo(SkBits2Float(0x44467c27), SkBits2Float(0x455d055d));  // 793.94f, 3536.34f
+path.lineTo(SkBits2Float(0x44472795), SkBits2Float(0x455d055d));  // 796.618f, 3536.34f
+path.lineTo(SkBits2Float(0x44472795), SkBits2Float(0x455cdb8d));  // 796.618f, 3533.72f
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x4446861c), SkBits2Float(0x455cdb8d));  // 794.095f, 3533.72f
+path.cubicTo(SkBits2Float(0x4446a0d8), SkBits2Float(0x455cefbb), SkBits2Float(0x444727a5), SkBits2Float(0x455d055d), SkBits2Float(0x444727a5), SkBits2Float(0x455d055d));  // 794.513f, 3534.98f, 796.619f, 3536.34f, 796.619f, 3536.34f
+path.cubicTo(SkBits2Float(0x4446c5b0), SkBits2Float(0x455cf8a4), SkBits2Float(0x444693af), SkBits2Float(0x455cedad), SkBits2Float(0x44467c1b), SkBits2Float(0x455ce4b8));  // 795.089f, 3535.54f, 794.308f, 3534.85f, 793.939f, 3534.29f
+path.lineTo(SkBits2Float(0x44467d70), SkBits2Float(0x455ce016));  // 793.96f, 3534.01f
+path.cubicTo(SkBits2Float(0x44467fa9), SkBits2Float(0x455cde82), SkBits2Float(0x444682b5), SkBits2Float(0x455cdd03), SkBits2Float(0x4446861c), SkBits2Float(0x455cdb8d));  // 793.995f, 3533.91f, 794.042f, 3533.81f, 794.095f, 3533.72f
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+static void skpwww_gorcraft_ru_1(skiatest::Reporter* reporter, const char* filename) {
+    return; // FIXME : triggers conic/conic sort error
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x44924000), SkBits2Float(0x458e7800));  // 1170, 4559
+path.conicTo(SkBits2Float(0x44930000), SkBits2Float(0x458e7800), SkBits2Float(0x44930000), SkBits2Float(0x458ea800), SkBits2Float(0x3f3504f3));  // 1176, 4559, 1176, 4565, 0.707107f
+path.lineTo(SkBits2Float(0x44930000), SkBits2Float(0x458f7000));  // 1176, 4590
+path.conicTo(SkBits2Float(0x44930000), SkBits2Float(0x458f9800), SkBits2Float(0x44926000), SkBits2Float(0x458f9800), SkBits2Float(0x3f3504f3));  // 1176, 4595, 1171, 4595, 0.707107f
+path.lineTo(SkBits2Float(0x42a60000), SkBits2Float(0x458f9800));  // 83, 4595
+path.conicTo(SkBits2Float(0x429c0471), SkBits2Float(0x458f9800), SkBits2Float(0x429c0000), SkBits2Float(0x458f700c), SkBits2Float(0x3f352d2d));  // 78.0087f, 4595, 78, 4590.01f, 0.707721f
+path.lineTo(SkBits2Float(0x429c0000), SkBits2Float(0x458ea800));  // 78, 4565
+path.conicTo(SkBits2Float(0x429c0000), SkBits2Float(0x458e7800), SkBits2Float(0x42a80000), SkBits2Float(0x458e7800), SkBits2Float(0x3f3504f3));  // 78, 4559, 84, 4559, 0.707107f
+path.lineTo(SkBits2Float(0x44924000), SkBits2Float(0x458e7800));  // 1170, 4559
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x429c0000), SkBits2Float(0x458f7000));  // 78, 4590
+path.lineTo(SkBits2Float(0x429c0000), SkBits2Float(0x458ea800));  // 78, 4565
+path.conicTo(SkBits2Float(0x429c0000), SkBits2Float(0x458e7800), SkBits2Float(0x42a80000), SkBits2Float(0x458e7800), SkBits2Float(0x3f3504f3));  // 78, 4559, 84, 4559, 0.707107f
+path.lineTo(SkBits2Float(0x431e0000), SkBits2Float(0x458e7800));  // 158, 4559
+path.conicTo(SkBits2Float(0x431e0000), SkBits2Float(0x458e7800), SkBits2Float(0x431e0000), SkBits2Float(0x458e7800), SkBits2Float(0x3f3504f3));  // 158, 4559, 158, 4559, 0.707107f
+path.lineTo(SkBits2Float(0x431e0000), SkBits2Float(0x458fa000));  // 158, 4596
+path.conicTo(SkBits2Float(0x431e0000), SkBits2Float(0x458fa000), SkBits2Float(0x431e0000), SkBits2Float(0x458fa000), SkBits2Float(0x3f3504f3));  // 158, 4596, 158, 4596, 0.707107f
+path.lineTo(SkBits2Float(0x42a80000), SkBits2Float(0x458fa000));  // 84, 4596
+path.conicTo(SkBits2Float(0x429c0000), SkBits2Float(0x458fa000), SkBits2Float(0x429c0000), SkBits2Float(0x458f7000), SkBits2Float(0x3f3504f3));  // 78, 4596, 78, 4590, 0.707107f
+path.close();
+
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+}
+
+static void skpwww_neda_net_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x447a0000), SkBits2Float(0x00000000));  // 1000, 0
+path.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+path.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x44b6e000));  // 0, 1463
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x44b6e000));  // 1000, 1463
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x00000000));  // 1000, 0
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x366a410f), SkBits2Float(0x43a38000));  // 3.49066e-06f, 327
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x43a38001));  // 1000, 327
+path.lineTo(SkBits2Float(0x447a0000), SkBits2Float(0x4435c000));  // 1000, 727
+path.lineTo(SkBits2Float(0xb66a410d), SkBits2Float(0x4435c000));  // -3.49066e-06f, 727
+path.lineTo(SkBits2Float(0x366a410f), SkBits2Float(0x43a38000));  // 3.49066e-06f, 327
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+// "http___www_neda_net.skp" dir=87
+static void skpwww_neda_net_2(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 1);
+path.moveTo(SkBits2Float(0x442fc000), SkBits2Float(0x4546a000));  // 703, 3178
+path.lineTo(SkBits2Float(0x441f4000), SkBits2Float(0x4546a000));  // 637, 3178
+path.lineTo(SkBits2Float(0x441f4000), SkBits2Float(0x454ab000));  // 637, 3243
+path.lineTo(SkBits2Float(0x442fc000), SkBits2Float(0x454ab000));  // 703, 3243
+path.lineTo(SkBits2Float(0x442fc000), SkBits2Float(0x4546a000));  // 703, 3178
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x44220e6e), SkBits2Float(0x45469c4c));  // 648.225f, 3177.77f
+path.lineTo(SkBits2Float(0x442fc01c), SkBits2Float(0x45475696));  // 703.002f, 3189.41f
+path.lineTo(SkBits2Float(0x442cf191), SkBits2Float(0x454aa3b5));  // 691.774f, 3242.23f
+path.lineTo(SkBits2Float(0x441f3fe3), SkBits2Float(0x4549e96b));  // 636.998f, 3230.59f
+path.lineTo(SkBits2Float(0x44220e6e), SkBits2Float(0x45469c4c));  // 648.225f, 3177.77f
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, (SkPathOp) 1, filename);
+}
+
+static void skpwww_mybuilder_com_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(1000, 659);
+path.lineTo(1000, 377);
+path.lineTo(455, 377);
+path.lineTo(455, 659);
+path.lineTo(1000, 659);
+path.close();
+    SkPath path1(path);
+    path.reset();
+    path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(921.472f, 414.086f);
+path.lineTo(968.815f, 386.754f);
+path.lineTo(993.069f, 428.761f);
+path.lineTo(945.726f, 456.096f);
+path.lineTo(921.471f, 414.086f);
+path.lineTo(921.472f, 414.086f);
+path.close();
+path.moveTo(971.151f, 422.889f);
+path.cubicTo(966.509f, 414.848f, 957.649f, 411.727f, 950.181f, 416.038f);
+path.lineTo(947.224f, 417.746f);
+path.lineTo(946.979f, 417.887f);
+path.lineTo(947.838f, 419.371f);
+path.lineTo(947.844f, 419.367f);
+path.lineTo(947.868f, 419.353f);
+path.lineTo(947.945f, 419.309f);
+path.cubicTo(947.988f, 419.285f, 947.988f, 419.285f, 948.023f, 419.263f);
+path.cubicTo(948.039f, 419.255f, 948.039f, 419.255f, 948.047f, 419.25f);
+path.lineTo(948.052f, 419.247f);
+path.lineTo(947.196f, 417.762f);
+path.lineTo(947.195f, 417.762f);
+path.lineTo(946.888f, 417.939f);
+path.lineTo(943.39f, 419.959f);
+path.lineTo(944.249f, 421.443f);
+path.lineTo(947.745f, 419.424f);
+path.lineTo(948.05f, 419.247f);
+path.lineTo(948.052f, 419.247f);
+path.lineTo(947.195f, 417.763f);
+path.cubicTo(947.193f, 417.763f, 947.193f, 417.763f, 947.19f, 417.766f);
+path.lineTo(947.166f, 417.779f);
+path.lineTo(947.087f, 417.825f);
+path.lineTo(947.011f, 417.868f);
+path.lineTo(946.987f, 417.883f);
+path.lineTo(946.982f, 417.886f);
+path.lineTo(946.98f, 417.886f);
+path.lineTo(947.839f, 419.37f);
+path.lineTo(948.083f, 419.229f);
+path.lineTo(951.039f, 417.522f);
+path.cubicTo(957.631f, 413.716f, 965.471f, 416.477f, 969.669f, 423.746f);
+path.lineTo(971.153f, 422.889f);
+path.lineTo(971.151f, 422.889f);
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
+static void skpwww_nimble_com_au_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(188.6f, 1988.8f);
+path.lineTo(188.6f, 2041.6f);
+path.cubicTo(188.6f, 2065.4f, 208, 2084.8f, 231.8f, 2084.8f);
+path.cubicTo(255.6f, 2084.8f, 275, 2065.4f, 275, 2041.6f);
+path.lineTo(275.2f, 2041.6f);
+path.lineTo(275.2f, 1988.8f);
+path.lineTo(188.6f, 1988.8f);
+path.close();
+    SkPath path1(path);
+    path.reset();
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(275, 2041.6f);
+path.conicTo(275, 2084.8f, 231.8f, 2084.8f, 0.707107f);
+path.conicTo(188.6f, 2084.8f, 188.6f, 2041.6f, 0.707107f);
+path.conicTo(188.6f, 1998.4f, 231.8f, 1998.4f, 0.707107f);
+path.conicTo(275, 1998.4f, 275, 2041.6f, 0.707107f);
+path.close();
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
+static void skpwww_tinytots_com_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kEvenOdd_FillType);
+path.moveTo(75.96f, 26.318f);
+path.lineTo(70.337f, 26.318f);
+path.lineTo(70.337f, 32.376f);
+path.lineTo(75.96f, 32.376f);
+path.lineTo(75.96f, 26.318f);
+path.close();
+    SkPath path1(path);
+    path.reset();
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(75.88f, 27.873f);
+path.cubicTo(75.929f, 28.138f, 75.956f, 29.196f, 75.96f, 31.046f);
+path.lineTo(72.766f, 32.376f);
+path.cubicTo(72.763f, 30.525f, 72.735f, 29.468f, 72.686f, 29.203f);
+path.cubicTo(72.636f, 28.94f, 72.519f, 28.722f, 72.335f, 28.552f);
+path.cubicTo(72.248f, 28.472f, 72.058f, 28.364f, 71.763f, 28.228f);
+path.cubicTo(72.425f, 27.933f, 72.425f, 27.933f, 73.395f, 27.498f);
+path.cubicTo(72.425f, 27.933f, 72.425f, 27.933f, 71.763f, 28.228f);
+path.cubicTo(71.425f, 28.072f, 70.95f, 27.878f, 70.337f, 27.647f);
+path.lineTo(73.531f, 26.317f);
+path.cubicTo(74.144f, 26.547f, 74.619f, 26.741f, 74.957f, 26.898f);
+path.cubicTo(74.475f, 27.113f, 73.993f, 27.329f, 73.511f, 27.544f);
+path.cubicTo(73.993f, 27.329f, 74.475f, 27.114f, 74.957f, 26.898f);
+path.cubicTo(75.252f, 27.034f, 75.442f, 27.142f, 75.529f, 27.222f);
+path.cubicTo(75.713f, 27.393f, 75.83f, 27.61f, 75.88f, 27.873f);
+    SkPath path2(path);
+    testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = skpwww_cooksnaps_com_32;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(skpwww_gorcraft_ru_1),
+    TEST(skpwww_nimble_com_au_1),
+    TEST(skpwww_mybuilder_com_1),
+    TEST(skpwww_neda_net_2),       // small coincident line segments (fixed)
+    TEST(skpwww_woothemes_com_1),
+    TEST(skpwww_neda_net_1),
+    TEST(skpwww_tinytots_com_1),   // completely coincident reversed cubics (dup)
     TEST(skpwww_educationalcraft_com_4a),
     TEST(skpwww_lptemp_com_3),
     TEST(skpwww_shinydemos_com_5),

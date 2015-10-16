@@ -182,6 +182,15 @@ static void scaleMatrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
     SkScalar vScale = (bitHeight - 2) / largerHeight;
     scale.reset();
     scale.preScale(hScale, vScale);
+    larger.fLeft *= hScale;
+    larger.fRight *= hScale;
+    larger.fTop *= vScale;
+    larger.fBottom *= vScale;
+    SkScalar dx = -16000 > larger.fLeft ? -16000 - larger.fLeft
+            : 16000 < larger.fRight ? 16000 - larger.fRight : 0;
+    SkScalar dy = -16000 > larger.fTop ? -16000 - larger.fTop
+            : 16000 < larger.fBottom ? 16000 - larger.fBottom : 0;
+    scale.postTranslate(dx, dy);
 }
 
 static int pathsDrawTheSame(SkBitmap& bits, const SkPath& scaledOne, const SkPath& scaledTwo,
@@ -310,7 +319,7 @@ static void showPathOpPath(const char* testName, const SkPath& one, const SkPath
     SkPathOpsDebug::ShowOnePath(b, "pathB", false);
     SkDebugf("    testPathOp(reporter, path, pathB, %s, filename);\n", opStrs[shapeOp]);
     SkDebugf("}\n");
-    drawAsciiPaths(scaledOne, scaledTwo, false);
+    drawAsciiPaths(scaledOne, scaledTwo, true);
 }
 
 void ShowTestArray(const char* testName) {

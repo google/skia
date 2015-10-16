@@ -7,7 +7,7 @@
 #ifndef PathOpsTestCommon_DEFINED
 #define PathOpsTestCommon_DEFINED
 
-#include "SkPathOpsConic.h"
+#include "SkPathOpsQuad.h"
 #include "SkTArray.h"
 
 struct SkPathOpsBounds;

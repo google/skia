@@ -4994,11 +4994,42 @@ path.close();
     testSimplify(reporter, path, filename);
 }
 
+static void fuzz_twister(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(0, 600);
+path.lineTo(3.35544e+07f, 600);
+path.lineTo(3.35544e+07f, 0);
+path.lineTo(0, 0);
+path.lineTo(0, 600);
+path.close();
+path.moveTo(63, 600);
+path.lineTo(3.35545e+07f, 600);
+path.lineTo(3.35545e+07f, 0);
+path.lineTo(63, 0);
+path.lineTo(63, 600);
+path.close();
+path.moveTo(93, 600);
+path.lineTo(3.35545e+07f, 600);
+path.lineTo(3.35545e+07f, 0);
+path.lineTo(93, 0);
+path.lineTo(93, 600);
+path.close();
+path.moveTo(123, 600);
+path.lineTo(3.35546e+07f, 600);
+path.lineTo(3.35546e+07f, 0);
+path.lineTo(123, 0);
+path.lineTo(123, 600);
+path.close();
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(fuzz_twister),
     TEST(fuzz994s_3414),
     TEST(fuzz994s_11),
     TEST(cr514118),

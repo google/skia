@@ -433,25 +433,6 @@ void SkOpSegment::calcAngles(SkChunkAlloc* allocator) {
     }
 }
 
-void SkOpSegment::checkAngleCoin(SkOpCoincidence* coincidences, SkChunkAlloc* allocator) {
-    SkOpSpanBase* base = &fHead;
-    SkOpSpan* span;
-    do {
-        SkOpAngle* angle = base->fromAngle();
-        if (angle && angle->fCheckCoincidence) {
-            angle->checkNearCoincidence();
-        }
-        if (base->final()) {
-             break;
-        }
-        span = base->upCast();
-        angle = span->toAngle();
-        if (angle && angle->fCheckCoincidence) {
-            angle->checkNearCoincidence();
-        }
-    } while ((base = span->next()));
-}
-
 bool SkOpSegment::collapsed() const {
     return fVerb == SkPath::kLine_Verb && fHead.pt() == fTail.pt();
 }
@@ -593,14 +574,14 @@ void SkOpSegment::detach(const SkOpSpan* span) {
     SkASSERT(fCount >= fDoneCount);
 }
 
-double SkOpSegment::distSq(double t, SkOpAngle* oppAngle) {
+double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {
     SkDPoint testPt = this->dPtAtT(t);
     SkDLine testPerp = {{ testPt, testPt }};
     SkDVector slope = this->dSlopeAtT(t);
     testPerp[1].fX += slope.fY;
     testPerp[1].fY -= slope.fX;
     SkIntersections i;
-    SkOpSegment* oppSegment = oppAngle->segment();
+    const SkOpSegment* oppSegment = oppAngle->segment();
     (*CurveIntersectRay[oppSegment->verb()])(oppSegment->pts(), oppSegment->weight(), testPerp, &i);
     double closestDistSq = SK_ScalarInfinity;
     for (int index = 0; index < i.used(); ++index) {
@@ -1220,9 +1201,9 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
                 continue;
             }
             SkOpSegment* opp = ptT->span()->segment();
-            if (opp->verb() == SkPath::kLine_Verb) {
-                continue;
-            }
+//            if (opp->verb() == SkPath::kLine_Verb) {
+//                continue;
+//            }
             if (opp->done()) {
                 continue;
             }
@@ -1237,6 +1218,9 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             // FIXME?: this assumes that if the opposite segment is coincident then no more
             // coincidence needs to be detected. This may not be true.
             if (span && span->containsCoincidence(opp)) { 
+                continue;
+            }
+            if (spanBase->segment() == opp) {
                 continue;
             }
             if (spanBase->containsCoinEnd(opp)) {
@@ -1264,6 +1248,9 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
             if (!priorOpp) {
                 continue;
             }
+            if (priorPtT == ptT) {
+                continue;
+            }
             SkOpPtT* oppStart = prior->ptT();
             SkOpPtT* oppEnd = spanBase->ptT();
             bool swapped = priorPtT->fT > ptT->fT;
@@ -1272,11 +1259,19 @@ bool SkOpSegment::missingCoincidence(SkOpCoincidence* coincidences, SkChunkAlloc
                 SkTSwap(oppStart, oppEnd);
             }
             bool flipped = oppStart->fT > oppEnd->fT;
-            bool coincident;
+            bool coincident = false;
             if (coincidences->contains(priorPtT, ptT, oppStart, oppEnd, flipped)) {
                 goto swapBack;
             }
-            coincident = testForCoincidence(priorPtT, ptT, prior, spanBase, opp, 5000);
+            if (opp->verb() == SkPath::kLine_Verb) {
+                coincident = (SkDPoint::ApproximatelyEqual(priorPtT->fPt, oppStart->fPt) ||
+                        SkDPoint::ApproximatelyEqual(priorPtT->fPt, oppEnd->fPt)) &&
+                        (SkDPoint::ApproximatelyEqual(ptT->fPt, oppStart->fPt) ||
+                        SkDPoint::ApproximatelyEqual(ptT->fPt, oppEnd->fPt));
+            }
+            if (!coincident) {
+                coincident = testForCoincidence(priorPtT, ptT, prior, spanBase, opp, 5000);
+            }
             if (coincident) {
             // mark coincidence
                 if (!coincidences->extend(priorPtT, ptT, oppStart, oppEnd)

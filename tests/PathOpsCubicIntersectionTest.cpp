@@ -437,6 +437,12 @@ static void newOneOff(skiatest::Reporter* reporter, int outer, int inner) {
     oneOff(reporter, cubic1, cubic2, false);
 }
 
+static void testsOneOff(skiatest::Reporter* reporter, int index) {
+    const SkDCubic& cubic1 = tests[index][0];
+    const SkDCubic& cubic2 = tests[index][1];
+    oneOff(reporter, cubic1, cubic2, false);
+}
+
 static void oneOffTests(skiatest::Reporter* reporter) {
     for (int outer = 0; outer < testSetCount - 1; ++outer) {
         for (int inner = outer + 1; inner < testSetCount; ++inner) {
@@ -654,6 +660,11 @@ static void cubicIntersectionSelfTest(skiatest::Reporter* reporter) {
 }
 
 static const SkDCubic coinSet[] = {
+    {{{72.350448608398438, 27.966041564941406}, {72.58441162109375, 27.861515045166016},
+        {72.818222045898437, 27.756658554077148}, {73.394996643066406, 27.49799919128418}}},
+    {{{73.394996643066406, 27.49799919128418}, {72.818222045898437, 27.756658554077148},
+        {72.58441162109375, 27.861515045166016}, {72.350448608398438, 27.966041564941406}}},
+
     {{{297.04998779296875, 43.928997039794922}, {297.04998779296875, 43.928997039794922},
         {300.69699096679688, 45.391998291015625}, {306.92498779296875, 43.08599853515625}}},
     {{{297.04998779296875, 43.928997039794922}, {297.04998779296875, 43.928997039794922},
@@ -687,7 +698,11 @@ DEF_TEST(PathOpsCubicCoinOneOff, reporter) {
 }
 
 DEF_TEST(PathOpsCubicIntersectionOneOff, reporter) {
-    newOneOff(reporter, 0, 1);
+    newOneOff(reporter, 66, 70);
+}
+
+DEF_TEST(PathOpsCubicIntersectionTestsOneOff, reporter) {
+    testsOneOff(reporter, 10);
 }
 
 DEF_TEST(PathOpsCubicSelfOneOff, reporter) {

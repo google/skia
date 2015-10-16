@@ -132,9 +132,14 @@ public:
         return SkDEBUGRELEASE(this->globalState()->debugAngle(id), nullptr);
     }
 
+    void debugCheckHealth(const char* id, SkPathOpsDebug::GlitchLog* ) const;
+
     SkOpContour* debugContour(int id) {
         return SkDEBUGRELEASE(this->globalState()->debugContour(id), nullptr);
     }
+
+    void debugMissingCoincidence(const char* id, SkPathOpsDebug::GlitchLog* log,
+                                 const SkOpCoincidence* coincidence) const;
 
     const SkOpPtT* debugPtT(int id) const {
         return SkDEBUGRELEASE(this->globalState()->debugPtT(id), nullptr);
@@ -181,10 +186,10 @@ public:
     void dumpContoursSpan(int segmentID) const;
     void dumpContoursSpans() const;
     void dumpPt(int ) const;
-    void dumpPts() const;
-    void dumpPtsX() const;
+    void dumpPts(const char* prefix = "seg") const;
+    void dumpPtsX(const char* prefix) const;
     void dumpSegment(int ) const;
-    void dumpSegments(SkPathOp op) const;
+    void dumpSegments(const char* prefix = "seg", SkPathOp op = (SkPathOp) -1) const;
     void dumpSpan(int ) const;
     void dumpSpans() const;
 
@@ -245,7 +250,9 @@ public:
         bool result = false;
         do {
             if (fState->angleCoincidence()) {
-                segment->checkAngleCoin(coincidences, allocator);
+#if DEBUG_ANGLE
+                segment->debugCheckAngleCoin();
+#endif
             } else if (segment->missingCoincidence(coincidences, allocator)) {
                 result = true;
     // FIXME: trying again loops forever in issue3651_6

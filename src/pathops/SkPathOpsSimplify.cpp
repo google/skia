@@ -176,7 +176,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
         return false;
     }
 #if DEBUG_DUMP_SEGMENTS
-    contour.dumpSegments((SkPathOp) -1);
+    contour.dumpSegments();
 #endif
     if (!SortContourList(&contourList, false, false)) {
         result->reset();
@@ -196,6 +196,9 @@ bool Simplify(const SkPath& path, SkPath* result) {
     if (!HandleCoincidence(contourList, &coincidence, &allocator)) {
         return false;
     }
+#if DEBUG_DUMP_ALIGNMENT
+    contour.dumpSegments("aligned");
+#endif
     // construct closed contours
     result->reset();
     result->setFillType(fillType);

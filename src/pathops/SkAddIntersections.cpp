@@ -497,6 +497,9 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 default:
                     SkASSERT(0);
             }
+#if DEBUG_T_SECT_LOOP_COUNT
+            test->globalState()->debugAddLoopCount(&ts, wt, wn);
+#endif
             int coinIndex = -1;
             SkOpPtT* coinPtT[2];
             for (int pt = 0; pt < pts; ++pt) {

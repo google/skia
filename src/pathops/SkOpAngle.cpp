@@ -222,53 +222,6 @@ bool SkOpAngle::checkCrossesZero() const {
     return crossesZero;
 }
 
-// loop looking for a pair of angle parts that are too close to be sorted
-/* This is called after other more simple intersection and angle sorting tests have been exhausted.
-   This should be rarely called -- the test below is thorough and time consuming.
-   This checks the distance between start points; the distance between 
-*/
-void SkOpAngle::checkNearCoincidence() {
-    SkOpAngle* test = this;
-    do {
-        SkOpSegment* testSegment = test->segment();
-        double testStartT = test->start()->t();
-        SkDPoint testStartPt = testSegment->dPtAtT(testStartT);
-        double testEndT = test->end()->t();
-        SkDPoint testEndPt = testSegment->dPtAtT(testEndT);
-        double testLenSq = testStartPt.distanceSquared(testEndPt);
-        if (0) {
-            SkDebugf("%s testLenSq=%1.9g id=%d\n", __FUNCTION__, testLenSq, testSegment->debugID());
-        }
-        double testMidT = (testStartT + testEndT) / 2;
-        SkOpAngle* next = test;
-        while ((next = next->fNext) != this) {
-            SkOpSegment* nextSegment = next->segment();
-            double testMidDistSq = testSegment->distSq(testMidT, next);
-            double testEndDistSq = testSegment->distSq(testEndT, next);
-            double nextStartT = next->start()->t();
-            SkDPoint nextStartPt = nextSegment->dPtAtT(nextStartT);
-            double distSq = testStartPt.distanceSquared(nextStartPt);
-            double nextEndT = next->end()->t();
-            double nextMidT = (nextStartT + nextEndT) / 2;
-            double nextMidDistSq = nextSegment->distSq(nextMidT, test);
-            double nextEndDistSq = nextSegment->distSq(nextEndT, test);
-            if (0) {
-                SkDebugf("%s distSq=%1.9g testId=%d nextId=%d\n", __FUNCTION__, distSq,
-                        testSegment->debugID(), nextSegment->debugID());
-                SkDebugf("%s testMidDistSq=%1.9g\n", __FUNCTION__, testMidDistSq);
-                SkDebugf("%s testEndDistSq=%1.9g\n", __FUNCTION__, testEndDistSq);
-                SkDebugf("%s nextMidDistSq=%1.9g\n", __FUNCTION__, nextMidDistSq);
-                SkDebugf("%s nextEndDistSq=%1.9g\n", __FUNCTION__, nextEndDistSq);
-                SkDPoint nextEndPt = nextSegment->dPtAtT(nextEndT);
-                double nextLenSq = nextStartPt.distanceSquared(nextEndPt);
-                SkDebugf("%s nextLenSq=%1.9g\n", __FUNCTION__, nextLenSq);
-                SkDebugf("\n");
-            }
-        }
-        test = test->fNext;
-    } while (test->fNext != this); 
-}
-
 bool SkOpAngle::checkParallel(SkOpAngle* rh) {
     SkDVector scratch[2];
     const SkDVector* sweep, * tweep;

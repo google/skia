@@ -5658,7 +5658,7 @@ path.lineTo(SkBits2Float(0x432c8000), SkBits2Float(0x42c00000));
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, FLAGS_runFail);
+    testPathOpFailCheck(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz487b(skiatest::Reporter* reporter, const char* filename) {
@@ -5756,10 +5756,10 @@ path.close();
 }
 
 static struct TestDesc failTests[] = {
+    TEST(fuzz714),
     TEST(fuzz487a),
     TEST(fuzz433),
     TEST(fuzz1),
-    TEST(fuzz714),
     TEST(fuzz487b),
     TEST(fuzz433b),
     TEST(bufferOverflow),
