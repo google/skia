@@ -248,12 +248,14 @@ public:
      */
     static void WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result);
 
-    /**
-     * Recursively evaluate this filter on the GPU. If the filter has no GPU
-     * implementation, it will be processed in software and uploaded to the GPU.
-     */
-    bool getInputResultGPU(SkImageFilter::Proxy* proxy, const SkBitmap& src, const Context&,
-                           SkBitmap* result, SkIPoint* offset) const;
+    // Helper function which invokes GPU filter processing on the
+    // input at the specified "index". If the input is null, it leaves
+    // "result" and "offset" untouched, and returns true. If the input
+    // has a GPU implementation, it will be invoked directly.
+    // Otherwise, the filter will be processed in software and
+    // uploaded to the GPU.
+    bool filterInputGPU(int index, SkImageFilter::Proxy* proxy, const SkBitmap& src, const Context&,
+                        SkBitmap* result, SkIPoint* offset) const;
 #endif
 
     SK_TO_STRING_PUREVIRT()

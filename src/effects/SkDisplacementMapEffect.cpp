@@ -384,15 +384,12 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                                              SkBitmap* result, SkIPoint* offset) const {
     SkBitmap colorBM = src;
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
-    if (this->getColorInput() && 
-        !this->getColorInput()->getInputResultGPU(proxy, src, ctx, &colorBM, &colorOffset)) {
+    if (!this->filterInputGPU(1, proxy, src, ctx, &colorBM, &colorOffset)) {
         return false;
     }
     SkBitmap displacementBM = src;
     SkIPoint displacementOffset = SkIPoint::Make(0, 0);
-    if (this->getDisplacementInput() &&
-        !this->getDisplacementInput()->getInputResultGPU(proxy, src, ctx, &displacementBM,
-                                                         &displacementOffset)) {
+    if (!this->filterInputGPU(0, proxy, src, ctx, &displacementBM, &displacementOffset)) {
         return false;
     }
     SkIRect bounds;

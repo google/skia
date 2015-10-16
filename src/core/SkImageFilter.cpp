@@ -329,8 +329,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     SkBitmap input = src;
     SkASSERT(fInputCount == 1);
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (this->getInput(0) &&
-        !this->getInput(0)->getInputResultGPU(proxy, src, ctx, &input, &srcOffset)) {
+    if (!this->filterInputGPU(0, proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     GrTexture* srcTexture = input.getTexture();
@@ -466,18 +465,22 @@ void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBit
     result->setPixelRef(new SkGrPixelRef(info, texture))->unref();
 }
 
-bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
-                                      const SkBitmap& src, const Context& ctx,
-                                      SkBitmap* result, SkIPoint* offset) const {
+bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
+                                   const SkBitmap& src, const Context& ctx,
+                                   SkBitmap* result, SkIPoint* offset) const {
+    SkImageFilter* input = this->getInput(index);
+    if (!input) {
+        return true;
+    }
     // Ensure that GrContext calls under filterImage and filterImageGPU below will see an identity
     // matrix with no clip and that the matrix, clip, and render target set before this function was
     // called are restored before we return to the caller.
     GrContext* context = src.getTexture()->getContext();
 
-    if (this->canFilterImageGPU()) {
-        return this->filterImageGPU(proxy, src, ctx, result, offset);
+    if (input->canFilterImageGPU()) {
+        return input->filterImageGPU(proxy, src, ctx, result, offset);
     } else {
-        if (this->filterImage(proxy, src, ctx, result, offset)) {
+        if (input->filterImage(proxy, src, ctx, result, offset)) {
             if (!result->getTexture()) {
                 const SkImageInfo info = result->info();
                 if (kUnknown_SkColorType == info.colorType()) {
