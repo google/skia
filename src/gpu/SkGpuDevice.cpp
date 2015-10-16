@@ -758,13 +758,9 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
         return true;
     }
 
+    // If the image would only produce 4 tiles of the smaller size, don't bother tiling it.
     const size_t area = imageRect.width() * imageRect.height();
     if (area < 4 * kBmpSmallTileSize * kBmpSmallTileSize) {
-        return false;
-    }
-
-    // if the entire image/bitmap is already in our cache then no reason to tile it
-    if (GrIsImageInCache(fContext, imageID, imageRect, nullptr, params)) {
         return false;
     }
 
@@ -782,7 +778,8 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
         return false;
     }
 
-    // Figure out how much of the src we will need based on the src rect and clipping.
+    // Figure out how much of the src we will need based on the src rect and clipping. Reject if
+    // tiling memory savings would be < 50%.
     determine_clipped_src_rect(fRenderTarget, fClip, viewMatrix, imageRect.size(), srcRectPtr,
                                clippedSubset);
     *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.

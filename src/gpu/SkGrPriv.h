@@ -114,9 +114,6 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
                                                  int expectedW, int expectedH,
                                                  const void** outStartOfDataToUpload);
 
-bool GrIsImageInCache(const GrContext* ctx, uint32_t imageID, const SkIRect& subset,
-                      GrTexture* nativeTexture, const GrTextureParams&);
-
 GrTexture* GrCreateTextureForPixels(GrContext*, const GrUniqueKey& optionalKey, GrSurfaceDesc,
                                     SkPixelRef* pixelRefForInvalidationNotificationOrNull,
                                     const void* pixels, size_t rowBytesOrZero);

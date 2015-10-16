@@ -173,14 +173,6 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& sub
     }
 }
 
-static void make_image_keys(uint32_t imageID, const SkIRect& subset, const SkGrStretch& stretch,
-                            GrUniqueKey* key, GrUniqueKey* stretchedKey) {
-    make_unstretched_key(key, imageID, subset);
-    if (SkGrStretch::kNone_Type != stretch.fType) {
-        GrMakeStretchedKey(*key, stretch, stretchedKey);
-    }
-}
-
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
@@ -474,31 +466,6 @@ static SkBitmap stretch_on_cpu(const SkBitmap& bmp, const SkGrStretch& stretch) 
     SkRect dstRect = SkRect::MakeWH(SkIntToScalar(stretch.fWidth), SkIntToScalar(stretch.fHeight));
     canvas.drawBitmapRect(bmp, dstRect, &paint);
     return stretched;
-}
-
-bool GrIsImageInCache(const GrContext* ctx, uint32_t imageID, const SkIRect& subset,
-                      GrTexture* nativeTexture, const GrTextureParams& params) {
-    SkGrStretch stretch;
-    get_stretch(*ctx->caps(), subset.width(), subset.height(), params, &stretch);
-
-    // Handle the case where the bitmap/image is explicitly texture backed.
-    if (nativeTexture) {
-        if (SkGrStretch::kNone_Type == stretch.fType) {
-            return true;
-        }
-        const GrUniqueKey& key = nativeTexture->getUniqueKey();
-        if (!key.isValid()) {
-            return false;
-        }
-        GrUniqueKey stretchedKey;
-        GrMakeStretchedKey(key, stretch, &stretchedKey);
-        return ctx->textureProvider()->existsTextureWithUniqueKey(stretchedKey);
-    }
-
-    GrUniqueKey key, stretchedKey;
-    make_image_keys(imageID, subset, stretch, &key, &stretchedKey);
-    return ctx->textureProvider()->existsTextureWithUniqueKey(
-        (SkGrStretch::kNone_Type == stretch.fType) ? key : stretchedKey);
 }
 
 class Bitmap_GrTextureMaker : public GrTextureMaker {
