@@ -173,20 +173,6 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& p
         return nullptr;
     }
 
-    // textures (at least the texture-key) only support 16bit dimensions, so abort early
-    // if we're too big.
-    if (fBitmap.width() > 0xFFFF || fBitmap.height() > 0xFFFF) {
-        return nullptr;
-    }
-
-    GrUniqueKey key;
-    GrMakeKeyFromImageID(&key, fBitmap.getGenerationID(),
-                         SkIRect::MakeWH(fBitmap.width(), fBitmap.height()),
-                         *ctx->caps(), params);
-
-    if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
-        return tex;
-    }
     return GrRefCachedBitmapTexture(ctx, fBitmap, params);
 #endif
     

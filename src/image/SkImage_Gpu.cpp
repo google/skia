@@ -10,7 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
-#include "GrTextureMaker.h"
+#include "GrTextureParamsAdjuster.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
@@ -64,56 +64,51 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     return true;
 }
 
-static void make_raw_texture_stretched_key(uint32_t imageID, const SkGrStretch& stretch,
+static void make_raw_texture_stretched_key(uint32_t imageID,
+                                           const GrTextureParamsAdjuster::CopyParams& params,
                                            GrUniqueKey* stretchedKey) {
-    SkASSERT(SkGrStretch::kNone_Type != stretch.fType);
-
-    uint32_t width = SkToU16(stretch.fWidth);
-    uint32_t height = SkToU16(stretch.fHeight);
-
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(stretchedKey, kDomain, 3);
+    GrUniqueKey::Builder builder(stretchedKey, kDomain, 4);
     builder[0] = imageID;
-    builder[1] = stretch.fType;
-    builder[2] = width | (height << 16);
-    builder.finish();
+    builder[1] = params.fFilter;
+    builder[2] = params.fWidth;
+    builder[3] = params.fHeight;
 }
 
-class Texture_GrTextureMaker : public GrTextureMaker {
+class Texture_GrTextureParamsAdjuster : public GrTextureParamsAdjuster {
 public:
-    Texture_GrTextureMaker(const SkImage* image, GrTexture* unstretched)
+    Texture_GrTextureParamsAdjuster(const SkImage* image, GrTexture* unstretched)
         : INHERITED(image->width(), image->height())
         , fImage(image)
-        , fUnstretched(unstretched)
+        , fOriginal(unstretched)
     {}
 
 protected:
-    GrTexture* onRefUnstretchedTexture(GrContext* ctx) override {
-        return SkRef(fUnstretched);
+    GrTexture* refOriginalTexture(GrContext* ctx) override {
+        return SkRef(fOriginal);
     }
 
-    bool onMakeStretchedKey(const SkGrStretch& stretch, GrUniqueKey* stretchedKey) override {
-        make_raw_texture_stretched_key(fImage->uniqueID(), stretch, stretchedKey);
-        return stretchedKey->isValid();
+    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override {
+        make_raw_texture_stretched_key(fImage->uniqueID(), copyParams, copyKey);
     }
 
-    void onNotifyStretchCached(const GrUniqueKey& stretchedKey) override {
+    void didCacheCopy(const GrUniqueKey& copyKey) override {
         as_IB(fImage)->notifyAddedToCache();
     }
 
-    bool onGetROBitmap(SkBitmap* bitmap) override {
+    bool getROBitmap(SkBitmap* bitmap) override {
         return as_IB(fImage)->getROPixels(bitmap);
     }
 
 private:
     const SkImage*  fImage;
-    GrTexture*      fUnstretched;
+    GrTexture*      fOriginal;
 
-    typedef GrTextureMaker INHERITED;
+    typedef GrTextureParamsAdjuster INHERITED;
 };
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
-    return Texture_GrTextureMaker(this, fTexture).refCachedTexture(ctx, params);
+    return Texture_GrTextureParamsAdjuster(this, fTexture).refTextureForParams(ctx, params);
 }
 
 bool SkImage_Gpu::isOpaque() const {
