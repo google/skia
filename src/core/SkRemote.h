@@ -58,22 +58,7 @@ namespace SkRemote {
         virtual void strokePath(ID path, ID misc, ID stroke)    = 0;
     };
 
-    struct Cache;
-
-    // TODO: document
-    class LookupScope {
-    public:
-        LookupScope(Cache* cache, Encoder* encoder) : fCache(cache), fEncoder(encoder) {}
-        ~LookupScope() { for (ID id : fToUndefine) { fEncoder->undefine(id); } }
-        void undefineWhenDone(ID id) { fToUndefine.push_back(id); }
-
-        template <typename T>
-        ID lookup(const T&);
-    private:
-        Cache*   fCache;
-        Encoder* fEncoder;
-        SkSTArray<4, ID> fToUndefine;
-    };
+    class LookupScope;
 
     // TODO: document
     struct Cache {

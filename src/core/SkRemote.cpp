@@ -61,6 +61,28 @@ namespace SkRemote {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
+    class LookupScope {
+    public:
+        LookupScope(Cache* cache, Encoder* encoder) : fCache(cache), fEncoder(encoder) {}
+        ~LookupScope() { for (ID id : fToUndefine) { fEncoder->undefine(id); } }
+        void undefineWhenDone(ID id) { fToUndefine.push_back(id); }
+
+        template <typename T>
+        ID lookup(const T& val) {
+            ID id;
+            if (!fCache->lookup(val, &id, this)) {
+                fEncoder->define(id, val);
+            }
+            return id;
+        }
+
+    private:
+        Cache*   fCache;
+        Encoder* fEncoder;
+        SkSTArray<4, ID> fToUndefine;
+    };
+
+
     Cache* Cache::CreateNeverCache() {
         struct NeverCache final : public Cache {
             NeverCache()
@@ -162,15 +184,6 @@ namespace SkRemote {
 
     Client::~Client() {
         fCache->cleanup(fEncoder);
-    }
-
-    template <typename T>
-    ID LookupScope::lookup(const T& val) {
-        ID id;
-        if (!fCache->lookup(val, &id, this)) {
-            fEncoder->define(id, val);
-        }
-        return id;
     }
 
     void Client::willSave()   { fEncoder->save(); }
