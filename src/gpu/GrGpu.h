@@ -11,7 +11,6 @@
 #include "GrPipelineBuilder.h"
 #include "GrProgramDesc.h"
 #include "GrStencil.h"
-#include "GrTextureParamsAdjuster.h"
 #include "GrXferProcessor.h"
 #include "SkPath.h"
 
@@ -378,13 +377,6 @@ public:
                                                                         int height) = 0;
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;
-
-
-    // Determines whether a copy of a texture must be made in order to be compatible with
-    // a given GrTextureParams. If so, the width, height and filter used for the copy are
-    // output via the CopyParams.
-    bool makeCopyForTextureParams(int width, int height, const GrTextureParams&,
-                                 GrTextureParamsAdjuster::CopyParams*) const;
 
     // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return nullptr; }

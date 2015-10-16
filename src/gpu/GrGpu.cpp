@@ -55,37 +55,6 @@ void GrGpu::contextAbandoned() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::makeCopyForTextureParams(int width, int height, const GrTextureParams& textureParams,
-                                     GrTextureParamsAdjuster::CopyParams* copyParams) const {
-    bool doCopy = false;
-    const GrCaps& caps = *this->caps();
-    if (textureParams.isTiled() && !caps.npotTextureTileSupport() &&
-        (!SkIsPow2(width) || !SkIsPow2(height))) {
-        doCopy = true;
-        copyParams->fWidth = GrNextPow2(SkTMax(width, caps.minTextureSize()));
-        copyParams->fHeight = GrNextPow2(SkTMax(height, caps.minTextureSize()));
-    } else if (width < caps.minTextureSize() || height < caps.minTextureSize()) {
-        // The small texture issues appear to be with tiling. Hence it seems ok to scale
-        // them up using the GPU. If issues persist we may need to CPU-stretch.
-        doCopy = true;
-        copyParams->fWidth = SkTMax(width, caps.minTextureSize());
-        copyParams->fHeight = SkTMax(height, caps.minTextureSize());
-    }
-    if (doCopy) {
-        switch (textureParams.filterMode()) {
-            case GrTextureParams::kNone_FilterMode:
-                copyParams->fFilter = GrTextureParams::kNone_FilterMode;
-                break;
-            case GrTextureParams::kBilerp_FilterMode:
-            case GrTextureParams::kMipMap_FilterMode:
-                // We are only ever scaling up so no reason to ever indicate kMipMap.
-                copyParams->fFilter = GrTextureParams::kBilerp_FilterMode;
-                break;
-        }
-    }
-    return doCopy;
-}
-
 static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget) {
     // By default, GrRenderTargets are GL's normal orientation so that they
     // can be drawn to by the outside world without the client having
