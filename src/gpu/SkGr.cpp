@@ -38,6 +38,118 @@
 #  include "etc1.h"
 #endif
 
+GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fWidth = info.width();
+    desc.fHeight = info.height();
+    desc.fConfig = SkImageInfo2GrPixelConfig(info);
+    desc.fSampleCnt = 0;
+    return desc;
+}
+
+static void get_stretch(const GrCaps& caps, int width, int height,
+                        const GrTextureParams& params, SkGrStretch* stretch) {
+    stretch->fType = SkGrStretch::kNone_Type;
+    bool doStretch = false;
+    if (params.isTiled() && !caps.npotTextureTileSupport() &&
+        (!SkIsPow2(width) || !SkIsPow2(height))) {
+        doStretch = true;
+        stretch->fWidth = GrNextPow2(SkTMax(width, caps.minTextureSize()));
+        stretch->fHeight = GrNextPow2(SkTMax(height, caps.minTextureSize()));
+    } else if (width < caps.minTextureSize() || height < caps.minTextureSize()) {
+        // The small texture issues appear to be with tiling. Hence it seems ok to scale them
+        // up using the GPU. If issues persist we may need to CPU-stretch.
+        doStretch = true;
+        stretch->fWidth = SkTMax(width, caps.minTextureSize());
+        stretch->fHeight = SkTMax(height, caps.minTextureSize());
+    }
+    if (doStretch) {
+        switch (params.filterMode()) {
+            case GrTextureParams::kNone_FilterMode:
+                stretch->fType = SkGrStretch::kNearest_Type;
+                break;
+            case GrTextureParams::kBilerp_FilterMode:
+            case GrTextureParams::kMipMap_FilterMode:
+                stretch->fType = SkGrStretch::kBilerp_Type;
+                break;
+        }
+    } else {
+        stretch->fWidth = -1;
+        stretch->fHeight = -1;
+        stretch->fType = SkGrStretch::kNone_Type;
+    }
+}
+
+static void make_unstretched_key(GrUniqueKey* key, uint32_t imageID, const SkIRect& subset) {
+    SkASSERT(SkIsU16(subset.width()));
+    SkASSERT(SkIsU16(subset.height()));
+
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(key, kDomain, 4);
+    builder[0] = imageID;
+    builder[1] = subset.x();
+    builder[2] = subset.y();
+    builder[3] = subset.width() | (subset.height() << 16);
+}
+
+void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& subset,
+                          const GrCaps& caps, const GrTextureParams& params) {
+    SkGrStretch stretch;
+    get_stretch(caps, subset.width(), subset.height(), params, &stretch);
+    if (SkGrStretch::kNone_Type != stretch.fType) {
+        GrUniqueKey tmpKey;
+        make_unstretched_key(&tmpKey, imageID, subset);
+        if (!GrMakeStretchedKey(tmpKey, stretch, key)) {
+            *key = tmpKey;
+        }
+    } else {
+        make_unstretched_key(key, imageID, subset);
+    }
+}
+
+GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
+                                                 int expectedW, int expectedH,
+                                                 const void** outStartOfDataToUpload) {
+    *outStartOfDataToUpload = nullptr;
+#ifndef SK_IGNORE_ETC1_SUPPORT
+    if (!ctx->caps()->isConfigTexturable(kETC1_GrPixelConfig)) {
+        return kUnknown_GrPixelConfig;
+    }
+
+    const uint8_t* bytes = data->bytes();
+    if (data->size() > ETC_PKM_HEADER_SIZE && etc1_pkm_is_valid(bytes)) {
+        // Does the data match the dimensions of the bitmap? If not,
+        // then we don't know how to scale the image to match it...
+        if (etc1_pkm_get_width(bytes) != (unsigned)expectedW ||
+            etc1_pkm_get_height(bytes) != (unsigned)expectedH)
+        {
+            return kUnknown_GrPixelConfig;
+        }
+
+        *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
+        return kETC1_GrPixelConfig;
+    } else if (SkKTXFile::is_ktx(bytes)) {
+        SkKTXFile ktx(data);
+
+        // Is it actually an ETC1 texture?
+        if (!ktx.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
+            return kUnknown_GrPixelConfig;
+        }
+
+        // Does the data match the dimensions of the bitmap? If not,
+        // then we don't know how to scale the image to match it...
+        if (ktx.width() != expectedW || ktx.height() != expectedH) {
+            return kUnknown_GrPixelConfig;
+        }
+
+        *outStartOfDataToUpload = ktx.pixelData();
+        return kETC1_GrPixelConfig;
+    }
+#endif
+    return kUnknown_GrPixelConfig;
+}
+
 /*  Fill out buffer with the compressed format Ganesh expects from a colortable
  based bitmap. [palette (colortable) + indices].
 
@@ -97,38 +209,6 @@ static void build_index8_data(void* buffer, const SkBitmap& bitmap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void get_stretch(const GrCaps& caps, int width, int height,
-                        const GrTextureParams& params, SkGrStretch* stretch) {
-    stretch->fType = SkGrStretch::kNone_Type;
-    bool doStretch = false;
-    if (params.isTiled() && !caps.npotTextureTileSupport() &&
-        (!SkIsPow2(width) || !SkIsPow2(height))) {
-        doStretch = true;
-        stretch->fWidth  = GrNextPow2(SkTMax(width, caps.minTextureSize()));
-        stretch->fHeight = GrNextPow2(SkTMax(height, caps.minTextureSize()));
-    } else if (width < caps.minTextureSize() || height < caps.minTextureSize()) {
-        // The small texture issues appear to be with tiling. Hence it seems ok to scale them
-        // up using the GPU. If issues persist we may need to CPU-stretch.
-        doStretch = true;
-        stretch->fWidth = SkTMax(width, caps.minTextureSize());
-        stretch->fHeight = SkTMax(height, caps.minTextureSize());
-    }
-    if (doStretch) {
-        switch(params.filterMode()) {
-            case GrTextureParams::kNone_FilterMode:
-                stretch->fType = SkGrStretch::kNearest_Type;
-                break;
-            case GrTextureParams::kBilerp_FilterMode:
-            case GrTextureParams::kMipMap_FilterMode:
-                stretch->fType = SkGrStretch::kBilerp_Type;
-                break;
-        }
-    } else {
-        stretch->fWidth  = -1;
-        stretch->fHeight = -1;
-        stretch->fType = SkGrStretch::kNone_Type;
-    }
-}
 
 bool GrMakeStretchedKey(const GrUniqueKey& origKey, const SkGrStretch& stretch,
                         GrUniqueKey* stretchedKey) {
@@ -144,43 +224,6 @@ bool GrMakeStretchedKey(const GrUniqueKey& origKey, const SkGrStretch& stretch,
     }
     SkASSERT(!stretchedKey->isValid());
     return false;
-}
-
-static void make_unstretched_key(GrUniqueKey* key, uint32_t imageID, const SkIRect& subset) {
-    SkASSERT(SkIsU16(subset.width()));
-    SkASSERT(SkIsU16(subset.height()));
-
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kDomain, 4);
-    builder[0] = imageID;
-    builder[1] = subset.x();
-    builder[2] = subset.y();
-    builder[3] = subset.width() | (subset.height() << 16);
-}
-
-void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& subset,
-                          const GrCaps& caps, const GrTextureParams& params) {
-    SkGrStretch stretch;
-    get_stretch(caps, subset.width(), subset.height(), params, &stretch);
-    if (SkGrStretch::kNone_Type != stretch.fType) {
-        GrUniqueKey tmpKey;
-        make_unstretched_key(&tmpKey, imageID, subset);
-        if (!GrMakeStretchedKey(tmpKey, stretch, key)) {
-            *key = tmpKey;
-        }
-    } else {
-        make_unstretched_key(key, imageID, subset);
-    }
-}
-
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fWidth = info.width();
-    desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info);
-    desc.fSampleCnt = 0;
-    return desc;
 }
 
 namespace {
@@ -287,65 +330,6 @@ GrTexture* stretch_texture(GrTexture* inputTexture, const SkGrStretch& stretch,
     return stretched.detach();
 }
 
-GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
-                                                 int expectedW, int expectedH,
-                                                 const void** outStartOfDataToUpload) {
-    *outStartOfDataToUpload = nullptr;
-#ifndef SK_IGNORE_ETC1_SUPPORT
-    if (!ctx->caps()->isConfigTexturable(kETC1_GrPixelConfig)) {
-        return kUnknown_GrPixelConfig;
-    }
-
-    const uint8_t* bytes = data->bytes();
-    if (data->size() > ETC_PKM_HEADER_SIZE && etc1_pkm_is_valid(bytes)) {
-        // Does the data match the dimensions of the bitmap? If not,
-        // then we don't know how to scale the image to match it...
-        if (etc1_pkm_get_width(bytes) != (unsigned)expectedW ||
-            etc1_pkm_get_height(bytes) != (unsigned)expectedH)
-        {
-            return kUnknown_GrPixelConfig;
-        }
-
-        *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
-        return kETC1_GrPixelConfig;
-    } else if (SkKTXFile::is_ktx(bytes)) {
-        SkKTXFile ktx(data);
-
-        // Is it actually an ETC1 texture?
-        if (!ktx.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        // Does the data match the dimensions of the bitmap? If not,
-        // then we don't know how to scale the image to match it...
-        if (ktx.width() != expectedW || ktx.height() != expectedH) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        *outStartOfDataToUpload = ktx.pixelData();
-        return kETC1_GrPixelConfig;
-    }
-#endif
-    return kUnknown_GrPixelConfig;
-}
-
-static GrTexture* load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalKey,
-                                    const SkBitmap &bm, GrSurfaceDesc desc) {
-    SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
-    if (!data) {
-        return nullptr;
-    }
-
-    const void* startOfTexData;
-    desc.fConfig = GrIsCompressedTextureDataSupported(ctx, data, bm.width(), bm.height(),
-                                                      &startOfTexData);
-    if (kUnknown_GrPixelConfig == desc.fConfig) {
-        return nullptr;
-    }
-
-    return GrCreateTextureForPixels(ctx, optionalKey, desc, bm.pixelRef(), startOfTexData, 0);
-}
-
 /*
  *  Once we have made SkImages handle all lazy/deferred/generated content, the YUV apis will
  *  be gone from SkPixelRef, and we can remove this subclass entirely.
@@ -389,6 +373,23 @@ static GrTexture* load_yuv_texture(GrContext* ctx, const GrUniqueKey& optionalKe
         ctx->textureProvider()->assignUniqueKeyToTexture(optionalKey, texture);
     }
     return texture;
+}
+
+static GrTexture* load_etc1_texture(GrContext* ctx, const GrUniqueKey& optionalKey,
+                                    const SkBitmap &bm, GrSurfaceDesc desc) {
+    SkAutoTUnref<SkData> data(bm.pixelRef()->refEncodedData());
+    if (!data) {
+        return nullptr;
+    }
+
+    const void* startOfTexData;
+    desc.fConfig = GrIsCompressedTextureDataSupported(ctx, data, bm.width(), bm.height(),
+                                                      &startOfTexData);
+    if (kUnknown_GrPixelConfig == desc.fConfig) {
+        return nullptr;
+    }
+
+    return GrCreateTextureForPixels(ctx, optionalKey, desc, bm.pixelRef(), startOfTexData, 0);
 }
 
 static GrTexture* create_unstretched_bitmap_texture(GrContext* ctx,
