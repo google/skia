@@ -233,6 +233,35 @@ namespace SkRemote {
         this->onDrawRect(SkRect::MakeLargest(), paint);
     }
 
+    void Client::onDrawText(const void* text, size_t byteLength, SkScalar x,
+                            SkScalar y, const SkPaint& paint) {
+        // Text-as-paths is a temporary hack.
+        // TODO: send SkTextBlobs and SkTypefaces
+        SkPath path;
+        paint.getTextPath(text, byteLength, x, y, &path);
+        this->onDrawPath(path, paint);
+    }
+
+    void Client::onDrawPosText(const void* text, size_t byteLength,
+                               const SkPoint pos[], const SkPaint& paint) {
+        // Text-as-paths is a temporary hack.
+        // TODO: send SkTextBlobs and SkTypefaces
+        SkPath path;
+        paint.getPosTextPath(text, byteLength, pos, &path);
+        this->onDrawPath(path, paint);
+    }
+
+    void Client::onDrawPosTextH(const void* text, size_t byteLength,
+                                const SkScalar xpos[], SkScalar constY,
+                                const SkPaint& paint) {
+        size_t length = paint.countText(text, byteLength);
+        SkAutoTArray<SkPoint> pos(length);
+        for(size_t i = 0; i < length; ++i) {
+            pos[i].set(xpos[i], constY);
+        }
+        this->onDrawPosText(text, byteLength, &pos[0], paint);
+    }
+
     void Client::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
         SkPath path;
         path.addRect(rect);

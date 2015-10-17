@@ -98,6 +98,13 @@ namespace SkRemote {
         void onDrawRect(const SkRect&, const SkPaint&) override;
         void onDrawPaint(const SkPaint&) override;
 
+        void onDrawText(const void*, size_t, SkScalar,
+                        SkScalar, const SkPaint&) override;
+        void onDrawPosText(const void*, size_t, const SkPoint[],
+                           const SkPaint&) override;
+        void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar,
+                            const SkPaint&) override;
+
         Cache*   fCache;
         Encoder* fEncoder;
     };
