@@ -275,7 +275,7 @@ GrTexture* GaussianBlur(GrContext* context,
             SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
 
             SkAutoTUnref<GrDrawContext> dstDrawContext(
-                                            context->drawContext(dstTexture->asRenderTarget()));
+                                             context->drawContext(dstTexture->asRenderTarget()));
             if (!dstDrawContext) {
                 return nullptr;
             }
@@ -309,7 +309,7 @@ GrTexture* GaussianBlur(GrContext* context,
             SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
 
             SkAutoTUnref<GrDrawContext> dstDrawContext(
-                                             context->drawContext(dstTexture->asRenderTarget()));
+                                               context->drawContext(dstTexture->asRenderTarget()));
             if (!dstDrawContext) {
                 return nullptr;
             }
@@ -347,7 +347,7 @@ GrTexture* GaussianBlur(GrContext* context,
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
 
         SkAutoTUnref<GrDrawContext> dstDrawContext(
-                                            context->drawContext(dstTexture->asRenderTarget()));
+                                context->drawContext(dstTexture->asRenderTarget()));
         if (!dstDrawContext) {
             return nullptr;
         }

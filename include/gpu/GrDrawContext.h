@@ -15,6 +15,7 @@
 class GrClip;
 class GrContext;
 class GrDrawBatch;
+class GrDrawingManager;
 class GrDrawTarget;
 class GrPaint;
 class GrPathProcessor;
@@ -252,11 +253,11 @@ public:
 
 private:
     friend class GrAtlasTextContext; // for access to drawBatch
-    friend class GrContext; // for ctor
+    friend class GrDrawingManager; // for ctor
 
     SkDEBUGCODE(void validate() const;)
 
-    GrDrawContext(GrContext*, GrRenderTarget*, const SkSurfaceProps* surfaceProps);
+    GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps);
 
     void internalDrawPath(GrDrawTarget*,
                           GrPipelineBuilder*,
@@ -272,15 +273,15 @@ private:
 
     GrDrawTarget* getDrawTarget();
 
-    GrContext*          fContext;     // owning context -> no ref
-    GrRenderTarget*     fRenderTarget;
+    GrDrawingManager* fDrawingManager;
+    GrRenderTarget*   fRenderTarget;
 
     // In MDB-mode the drawTarget can be closed by some other drawContext that has picked
     // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.
-    GrDrawTarget*       fDrawTarget;
-    GrTextContext*      fTextContext; // lazily gotten from GrContext::DrawingMgr
+    GrDrawTarget*     fDrawTarget;
+    GrTextContext*    fTextContext; // lazily gotten from GrContext::DrawingManager
 
-    SkSurfaceProps      fSurfaceProps;
+    SkSurfaceProps    fSurfaceProps;
 };
 
 #endif

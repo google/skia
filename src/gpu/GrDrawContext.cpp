@@ -10,6 +10,7 @@
 #include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDrawContext.h"
+#include "GrDrawingManager.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"
@@ -23,28 +24,30 @@
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrRectBatchFactory.h"
 
-#define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fContext)
-#define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED  if (fContext->abandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (fContext->abandoned()) { return nullptr; }
+#define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
+#define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->abandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->abandoned()) { return nullptr; }
 
 class AutoCheckFlush {
 public:
-    AutoCheckFlush(GrContext* context) : fContext(context) { SkASSERT(context); }
-    ~AutoCheckFlush() { fContext->flushIfNecessary(); }
+    AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) { 
+        SkASSERT(fDrawingManager);
+    }
+    ~AutoCheckFlush() { fDrawingManager->getContext()->flushIfNecessary(); }
 
 private:
-    GrContext* fContext;
+    GrDrawingManager* fDrawingManager;
 };
 
 // In MDB mode the reffing of the 'getLastDrawTarget' call's result allows in-progress
 // drawTargets to be picked up and added to by drawContexts lower in the call
 // stack. When this occurs with a closed drawTarget, a new one will be allocated
 // when the drawContext attempts to use it (via getDrawTarget).
-GrDrawContext::GrDrawContext(GrContext* context,
+GrDrawContext::GrDrawContext(GrDrawingManager* drawingMgr,
                              GrRenderTarget* rt,
                              const SkSurfaceProps* surfaceProps)
-    : fContext(context)
+    : fDrawingManager(drawingMgr)
     , fRenderTarget(rt)
     , fDrawTarget(SkSafeRef(rt->getLastDrawTarget()))
     , fTextContext(nullptr)
@@ -71,7 +74,7 @@ GrDrawTarget* GrDrawContext::getDrawTarget() {
     SkDEBUGCODE(this->validate();)
 
     if (!fDrawTarget || fDrawTarget->isClosed()) {
-        fDrawTarget = fContext->newDrawTarget(fRenderTarget);
+        fDrawTarget = fDrawingManager->newDrawTarget(fRenderTarget);
         fRenderTarget->setLastDrawTarget(fDrawTarget);
     }
 
@@ -95,7 +98,7 @@ void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
     SkDEBUGCODE(this->validate();)
 
     if (!fTextContext) {
-        fTextContext = fContext->textContext(fSurfaceProps, fRenderTarget);
+        fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
     }
 
     fTextContext->drawText(this, fRenderTarget, clip, grPaint, skPaint, viewMatrix,
@@ -112,7 +115,7 @@ void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
     SkDEBUGCODE(this->validate();)
 
     if (!fTextContext) {
-        fTextContext = fContext->textContext(fSurfaceProps, fRenderTarget);
+        fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
     }
 
     fTextContext->drawPosText(this, fRenderTarget, clip, grPaint, skPaint, viewMatrix, text, byteLength,
@@ -127,7 +130,7 @@ void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
     SkDEBUGCODE(this->validate();)
 
     if (!fTextContext) {
-        fTextContext = fContext->textContext(fSurfaceProps, fRenderTarget);
+        fTextContext = fDrawingManager->textContext(fSurfaceProps, fRenderTarget);
     }
 
     fTextContext->drawTextBlob(this, fRenderTarget,
@@ -152,7 +155,7 @@ void GrDrawContext::discard() {
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
     this->getDrawTarget()->discard(fRenderTarget);
 }
 
@@ -162,7 +165,7 @@ void GrDrawContext::clear(const SkIRect* rect,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
     this->getDrawTarget()->clear(rect, color, canIgnoreRect, fRenderTarget);
 }
 
@@ -206,7 +209,7 @@ void GrDrawContext::drawPaint(const GrClip& clip,
             return;
         }
 
-        AutoCheckFlush acf(fContext);
+        AutoCheckFlush acf(fDrawingManager);
 
         GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget, clip);
         this->getDrawTarget()->drawNonAARect(pipelineBuilder,
@@ -238,7 +241,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
         return;
     }
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
 
@@ -327,7 +330,7 @@ void GrDrawContext::drawNonAARectToRect(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     this->getDrawTarget()->drawNonAARect(pipelineBuilder,
@@ -345,7 +348,7 @@ void GrDrawContext::drawNonAARectWithLocalMatrix(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     this->getDrawTarget()->drawNonAARect(pipelineBuilder,
@@ -368,7 +371,7 @@ void GrDrawContext::drawVertices(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
 
@@ -409,7 +412,7 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
     
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     
@@ -443,7 +446,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
         return;
     }
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
@@ -477,7 +480,7 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
        return;
     }
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
@@ -522,7 +525,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
         return;
     }
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
@@ -597,7 +600,7 @@ void GrDrawContext::drawBatch(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
@@ -625,7 +628,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
     // cache. This presents a potential hazard for buffered drawing. However,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
-    AutoCheckFlush acf(fContext);
+    AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     if (!strokeInfo.isDashed()) {
@@ -689,8 +692,10 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
     const GrStrokeInfo* strokeInfoPtr = &strokeInfo;
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
-    GrPathRenderer* pr = fContext->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr,
-                                                    *strokeInfoPtr, false, type);
+    GrPathRenderer* pr = fDrawingManager->getContext()->getPathRenderer(target, pipelineBuilder,
+                                                                        viewMatrix, *pathPtr,
+                                                                        *strokeInfoPtr, false,
+                                                                        type);
 
     GrStrokeInfo dashlessStrokeInfo(strokeInfo, false);
     if (nullptr == pr && strokeInfo.isDashed()) {
@@ -703,8 +708,9 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
             return;
         }
         strokeInfoPtr = &dashlessStrokeInfo;
-        pr = fContext->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr, *strokeInfoPtr,
-                                       false, type);
+        pr = fDrawingManager->getContext()->getPathRenderer(target, pipelineBuilder, viewMatrix,
+                                                            *pathPtr, *strokeInfoPtr,
+                                                            false, type);
     }
 
     if (nullptr == pr) {
@@ -727,8 +733,9 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
         }
 
         // This time, allow SW renderer
-        pr = fContext->getPathRenderer(target, pipelineBuilder, viewMatrix, *pathPtr, *strokeInfoPtr,
-                                       true, type);
+        pr = fDrawingManager->getContext()->getPathRenderer(target, pipelineBuilder, viewMatrix,
+                                                            *pathPtr, *strokeInfoPtr,
+                                                            true, type);
     }
 
     if (nullptr == pr) {
@@ -740,7 +747,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
 
     GrPathRenderer::DrawPathArgs args;
     args.fTarget = target;
-    args.fResourceProvider = fContext->resourceProvider();
+    args.fResourceProvider = fDrawingManager->getContext()->resourceProvider();
     args.fPipelineBuilder = pipelineBuilder;
     args.fColor = color;
     args.fViewMatrix = &viewMatrix;

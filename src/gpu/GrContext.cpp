@@ -14,6 +14,7 @@
 #include "GrCaps.h"
 #include "GrContextOptions.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawingManager.h"
 #include "GrDrawContext.h"
 #include "GrDrawTarget.h"
 #include "GrGpuResource.h"
@@ -53,18 +54,14 @@
 #include "effects/GrSingleTextureEffect.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
-#define RETURN_IF_ABANDONED if (fDrawingMgr.abandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED if (fDrawingMgr.abandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED if (fDrawingMgr.abandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED if (fDrawingManager->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->abandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED if (fDrawingManager->abandoned()) { return nullptr; }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::DrawingMgr::init(GrContext* context) {
-    fContext = context;
-}
-
-void GrContext::DrawingMgr::cleanup() {
+void GrDrawingManager::cleanup() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->unref();
     }
@@ -82,29 +79,29 @@ void GrContext::DrawingMgr::cleanup() {
     }
 }
 
-GrContext::DrawingMgr::~DrawingMgr() {
+GrDrawingManager::~GrDrawingManager() {
     this->cleanup();
 }
 
-void GrContext::DrawingMgr::abandon() {
+void GrDrawingManager::abandon() {
     fAbandoned = true;
     this->cleanup();
 }
 
-void GrContext::DrawingMgr::reset() {
+void GrDrawingManager::reset() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->reset();
     }
 }
 
-void GrContext::DrawingMgr::flush() {
+void GrDrawingManager::flush() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->flush();
     }
 }
 
-GrTextContext* GrContext::DrawingMgr::textContext(const SkSurfaceProps& props,
-                                                  GrRenderTarget* rt) {
+GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,
+                                             GrRenderTarget* rt) {
     if (this->abandoned()) {
         return nullptr;
     }
@@ -131,14 +128,14 @@ GrTextContext* GrContext::DrawingMgr::textContext(const SkSurfaceProps& props,
     return fTextContexts[props.pixelGeometry()][useDIF];
 }
 
-GrDrawTarget* GrContext::DrawingMgr::newDrawTarget(GrRenderTarget* rt) {
+GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     SkASSERT(fContext);
 
     // When MDB is disabled we always just return the single drawTarget
 #ifndef ENABLE_MDB
     if (fDrawTargets.count()) {
         SkASSERT(fDrawTargets.count() == 1);
-        // DrawingMgr gets the creation ref - this ref is for the caller
+        // DrawingManager gets the creation ref - this ref is for the caller
         return SkRef(fDrawTargets[0]);
     }
 #endif
@@ -147,17 +144,17 @@ GrDrawTarget* GrContext::DrawingMgr::newDrawTarget(GrRenderTarget* rt) {
 
     *fDrawTargets.append() = dt;
 
-    // DrawingMgr gets the creation ref - this ref is for the caller 
+    // DrawingManager gets the creation ref - this ref is for the caller 
     return SkRef(dt);
 }
 
-GrDrawContext* GrContext::DrawingMgr::drawContext(GrRenderTarget* rt, 
-                                                  const SkSurfaceProps* surfaceProps) {
+GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt, 
+                                             const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
     }
 
-    return new GrDrawContext(fContext, rt, surfaceProps);
+    return new GrDrawContext(this, rt, surfaceProps);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +219,7 @@ void GrContext::initCommon() {
 
     fDidTestPMConversions = false;
 
-    fDrawingMgr.init(this);
+    fDrawingManager.reset(new GrDrawingManager(this));
 
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = new GrBatchFontCache(this);
@@ -238,7 +235,7 @@ GrContext::~GrContext() {
 
     this->flush();
 
-    fDrawingMgr.cleanup();
+    fDrawingManager->cleanup();
 
     for (int i = 0; i < fCleanUpData.count(); ++i) {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
@@ -267,7 +264,7 @@ void GrContext::abandonContext() {
     SkSafeSetNull(fPathRendererChain);
     SkSafeSetNull(fSoftwarePathRenderer);
 
-    fDrawingMgr.abandon();
+    fDrawingManager->abandon();
 
     fBatchFontCache->freeAll();
     fLayerCache->freeAll();
@@ -327,9 +324,9 @@ void GrContext::flush(int flagsBitfield) {
     RETURN_IF_ABANDONED
 
     if (kDiscard_FlushBit & flagsBitfield) {
-        fDrawingMgr.reset();
+        fDrawingManager->reset();
     } else {
-        fDrawingMgr.flush();
+        fDrawingManager->flush();
     }
     fResourceCache->notifyFlushOccurred();
     fFlushToReduceCacheSize = false;
@@ -715,6 +712,15 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
     }
     return chosenSampleCount <= fGpu->caps()->maxSampleCount() ?
         chosenSampleCount : 0;
+}
+
+
+GrDrawContext* GrContext::drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps) {
+    return fDrawingManager->drawContext(rt, surfaceProps);
+}
+
+bool GrContext::abandoned() const { 
+    return fDrawingManager->abandoned();
 }
 
 namespace {

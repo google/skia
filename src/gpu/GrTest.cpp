@@ -11,6 +11,7 @@
 #include "GrBatchAtlas.h"
 #include "GrBatchFontCache.h"
 #include "GrContextOptions.h"
+#include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrResourceCache.h"
 #include "GrTextBlobCache.h"
@@ -54,7 +55,7 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    SkAutoTUnref<GrDrawTarget> dt(fDrawingMgr.newDrawTarget(nullptr));
+    SkAutoTUnref<GrDrawTarget> dt(fDrawingManager->newDrawTarget(nullptr));
     tar->init(this, dt);
 }
 
@@ -292,5 +293,5 @@ void GrContext::initMockContext() {
     // We delete these because we want to test the cache starting with zero resources. Also, none of
     // these objects are required for any of tests that use this context. TODO: make stop allocating
     // resources in the buffer pools.
-    fDrawingMgr.abandon();
+    fDrawingManager->abandon();
 }

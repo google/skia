@@ -198,7 +198,7 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     fLegacyBitmap.setInfo(info);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext.reset(fContext->drawContext(rt, &this->surfaceProps()));
+    fDrawContext.reset(this->context()->drawContext(rt, &this->surfaceProps()));
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
@@ -349,7 +349,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
                                                        : SkSurface::kNo_Budgeted;
 
     SkAutoTUnref<GrRenderTarget> newRT(CreateRenderTarget(
-        fRenderTarget->getContext(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt));
+        this->context(), budgeted, this->imageInfo(), fRenderTarget->desc().fSampleCnt));
 
     if (nullptr == newRT) {
         return;
@@ -375,8 +375,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     SkPixelRef* pr = new SkGrPixelRef(fLegacyBitmap.info(), fRenderTarget);
     fLegacyBitmap.setPixelRef(pr)->unref();
 
-    fDrawContext.reset(fRenderTarget->getContext()->drawContext(fRenderTarget,
-                                                                &this->surfaceProps()));
+    fDrawContext.reset(this->context()->drawContext(fRenderTarget, &this->surfaceProps()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,7 @@ struct GrBatchAtlasConfig;
 class GrBatchFontCache;
 class GrCaps;
 struct GrContextOptions;
+class GrDrawingManager;
 class GrDrawContext;
 class GrDrawTarget;
 class GrFragmentProcessor;
@@ -172,7 +173,7 @@ public:
 
     /**
      * Returns a helper object to orchestrate draws.
-     * Callers should take a ref if they rely on the GrDrawContext sticking around.
+     * Callers assume the creation ref of the drawContext
      * NULL will be returned if the context has been abandoned.
      *
      * @param  rt           the render target receiving the draws
@@ -180,19 +181,7 @@ public:
      *
      * @return a draw context
      */
-    GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps = NULL) {
-        return fDrawingMgr.drawContext(rt, surfaceProps);
-    }
-
-    GrTextContext* textContext(const SkSurfaceProps& surfaceProps, GrRenderTarget* rt) {
-        return fDrawingMgr.textContext(surfaceProps, rt);
-    }
-
-    // The caller automatically gets a ref on the returned drawTarget. It must 
-    // be balanced by an unref call.
-    GrDrawTarget* newDrawTarget(GrRenderTarget* rt) {
-        return fDrawingMgr.newDrawTarget(rt);
-    }
+    GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps = NULL);
 
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
@@ -336,7 +325,7 @@ public:
     GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
     GrLayerCache* getLayerCache() { return fLayerCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
-    bool abandoned() const { return fDrawingMgr.abandoned(); }
+    bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
@@ -418,63 +407,10 @@ private:
 
     const uint32_t                  fUniqueID;
 
+    SkAutoTDelete<GrDrawingManager> fDrawingManager;
+
     GrContext(); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
-
-    // Currently the DrawingMgr creates a separate GrTextContext for each
-    // combination of text drawing options (pixel geometry x DFT use)
-    // and hands the appropriate one back given the DrawContext's request.
-    //
-    // It allocates a new GrDrawContext for each GrRenderTarget
-    // but all of them still land in the same GrDrawTarget!
-    //
-    // In the future this class will allocate a new GrDrawContext for
-    // each GrRenderTarget/GrDrawTarget and manage the DAG.
-    class DrawingMgr {
-    public:
-        DrawingMgr()
-            : fContext(nullptr)
-            , fAbandoned(false)
-            , fNVPRTextContext(nullptr) {
-            sk_bzero(fTextContexts, sizeof(fTextContexts));
-        }
-
-        ~DrawingMgr();
-
-        void init(GrContext* context);
-
-        void abandon();
-        bool abandoned() const { return fAbandoned; }
-
-        void reset();
-        void flush();
-
-        // Callers assume the creation ref of the drawContext!
-        // NULL will be returned if the context has been abandoned.
-        GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps);
-
-        GrTextContext* textContext(const SkSurfaceProps& props, GrRenderTarget* rt);
-        
-        GrDrawTarget* newDrawTarget(GrRenderTarget* rt);
-
-    private:
-        void cleanup();
-
-        friend class GrContext;  // for access to fDrawTarget for testing
-
-        static const int kNumPixelGeometries = 5; // The different pixel geometries
-        static const int kNumDFTOptions = 2;      // DFT or no DFT
-
-        GrContext*        fContext;
-
-        bool              fAbandoned;
-        SkTDArray<GrDrawTarget*> fDrawTargets;
-
-        GrTextContext*    fNVPRTextContext;
-        GrTextContext*    fTextContexts[kNumPixelGeometries][kNumDFTOptions];
-    };
-
-    DrawingMgr                      fDrawingMgr;
 
     void initMockContext();
     void initCommon();
