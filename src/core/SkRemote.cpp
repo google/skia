@@ -207,6 +207,15 @@ namespace SkRemote {
         this->onDrawPath(path, paint);
     }
 
+    void Client::onDrawDRRect(const SkRRect& outside,
+                              const SkRRect& inside,
+                              const SkPaint& paint) {
+        SkPath path;
+        path.addRRect(outside);
+        path.addRRect(inside, SkPath::kCCW_Direction);
+        this->onDrawPath(path, paint);
+    }
+
     void Client::onDrawPath(const SkPath& path, const SkPaint& paint) {
         LookupScope ls(fCache, fEncoder);
         ID p = ls.lookup(path),
