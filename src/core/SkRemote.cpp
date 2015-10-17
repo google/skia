@@ -220,6 +220,10 @@ namespace SkRemote {
         }
     }
 
+    void Client::onDrawPaint(const SkPaint& paint) {
+        this->onDrawRect(SkRect::MakeLargest(), paint);
+    }
+
     void Client::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
         SkPath path;
         path.addRect(rect);

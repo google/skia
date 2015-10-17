@@ -95,6 +95,7 @@ namespace SkRemote {
         void onDrawOval(const SkRect&, const SkPaint&) override;
         void onDrawPath(const SkPath&, const SkPaint&) override;
         void onDrawRect(const SkRect&, const SkPaint&) override;
+        void onDrawPaint(const SkPaint&) override;
 
         Cache*   fCache;
         Encoder* fEncoder;
