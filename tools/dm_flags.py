@@ -37,6 +37,7 @@ def get_args(bot):
 
   if '-GCE-' in bot:
     configs.append('sp-8888')
+    configs.extend(['remote-8888', 'remote_cache-8888'])
 
   if 'TegraK1' in bot or 'GTX550Ti' in bot or 'GTX660' in bot or 'GT610' in bot:
     if 'Android' in bot:
