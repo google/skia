@@ -207,6 +207,12 @@ namespace SkRemote {
         this->onDrawPath(path, paint);
     }
 
+    void Client::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
+        SkPath path;
+        path.addRRect(rrect);
+        this->onDrawPath(path, paint);
+    }
+
     void Client::onDrawDRRect(const SkRRect& outside,
                               const SkRRect& inside,
                               const SkPaint& paint) {

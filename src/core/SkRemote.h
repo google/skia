@@ -93,6 +93,7 @@ namespace SkRemote {
         void onClipRect (const SkRect&,  SkRegion::Op, ClipEdgeStyle) override;
 
         void onDrawOval(const SkRect&, const SkPaint&) override;
+        void onDrawRRect(const SkRRect&, const SkPaint&) override;
         void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
         void onDrawPath(const SkPath&, const SkPaint&) override;
         void onDrawRect(const SkRect&, const SkPaint&) override;
