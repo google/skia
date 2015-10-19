@@ -291,7 +291,7 @@ public:
     }
 
 protected:
-    GrTexture* refOriginalTexture(GrContext* ctx) {
+    GrTexture* refOriginalTexture(GrContext* ctx) override {
         GrTexture* tex = fBitmap.getTexture();
         if (tex) {
             return SkRef(tex);
