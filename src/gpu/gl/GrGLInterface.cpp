@@ -544,23 +544,35 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1)) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) ||
-        fExtensions.has("GL_ARB_draw_instanced") ||
-        fExtensions.has("GL_EXT_draw_instanced")) {
-        if (nullptr == fFunctions.fDrawArraysInstanced ||
-            nullptr == fFunctions.fDrawElementsInstanced) {
-            RETURN_FALSE_INTERFACE
-        }
+    if (kGL_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3,1) ||
+            fExtensions.has("GL_EXT_draw_instanced") || fExtensions.has("GL_ARB_draw_instanced")) {
+            if (nullptr == fFunctions.fDrawArraysInstanced ||
+                nullptr == fFunctions.fDrawElementsInstanced) {
+                RETURN_FALSE_INTERFACE
+            }
+        }    
+    } else if (kGLES_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_draw_instanced")) {
+            if (nullptr == fFunctions.fDrawArraysInstanced ||
+                nullptr == fFunctions.fDrawElementsInstanced) {
+                RETURN_FALSE_INTERFACE
+            }
+        }    
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,2)) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) ||
-        fExtensions.has("GL_ARB_instanced_arrays") ||
-        fExtensions.has("GL_EXT_instanced_arrays")) {
-        if (nullptr == fFunctions.fVertexAttribDivisor) {
-            RETURN_FALSE_INTERFACE
-        }
+    if (kGL_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_instanced_arrays")) {
+            if (nullptr == fFunctions.fVertexAttribDivisor) {
+                RETURN_FALSE_INTERFACE
+            }
+        }    
+    } else if (kGLES_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_instanced_arrays")) {
+            if (nullptr == fFunctions.fVertexAttribDivisor) {
+                RETURN_FALSE_INTERFACE
+            }
+        }    
     }
 
     if (fExtensions.has("GL_NV_bindless_texture")) {

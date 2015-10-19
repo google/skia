@@ -317,7 +317,8 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(GetProgramResourceLocation);
     }
 
-    if (glVer >= GR_GL_VER(3,1) || extensions.has("GL_ARB_draw_instanced")) {
+    if (glVer >= GR_GL_VER(3,1) || extensions.has("GL_ARB_draw_instanced") ||
+        extensions.has("GL_EXT_draw_instanced")) {
         GET_PROC(DrawArraysInstanced);
         GET_PROC(DrawElementsInstanced);
     }
