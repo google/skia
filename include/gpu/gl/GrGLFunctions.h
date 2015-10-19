@@ -9,60 +9,9 @@
 #ifndef GrGLFunctions_DEFINED
 #define GrGLFunctions_DEFINED
 
-#include "GrGLConfig.h"
-
+#include "GrGLTypes.h"
 
 extern "C" {
-
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Classifies GL contexts by which standard they implement (currently as Desktop
- * vs. ES).
- */
-enum GrGLStandard {
-    kNone_GrGLStandard,
-    kGL_GrGLStandard,
-    kGLES_GrGLStandard,
-};
-static const int kGrGLStandardCnt = 3;
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- * Declares typedefs for all the GL functions used in GrGLInterface
- */
-
-typedef unsigned int GrGLenum;
-typedef unsigned char GrGLboolean;
-typedef unsigned int GrGLbitfield;
-typedef signed char GrGLbyte;
-typedef char GrGLchar;
-typedef short GrGLshort;
-typedef int GrGLint;
-typedef int GrGLsizei;
-typedef int64_t GrGLint64;
-typedef unsigned char GrGLubyte;
-typedef unsigned short GrGLushort;
-typedef unsigned int GrGLuint;
-typedef uint64_t GrGLuint64;
-typedef float GrGLfloat;
-typedef float GrGLclampf;
-typedef double GrGLdouble;
-typedef double GrGLclampd;
-typedef void GrGLvoid;
-#ifndef SK_IGNORE_64BIT_OPENGL_CHANGES
-#ifdef _WIN64
-typedef signed long long int GrGLintptr;
-typedef signed long long int GrGLsizeiptr;
-#else
-typedef signed long int GrGLintptr;
-typedef signed long int GrGLsizeiptr;
-#endif
-#else
-typedef signed long int GrGLintptr;
-typedef signed long int GrGLsizeiptr;
-#endif
 
 typedef void (GR_GL_FUNCTION_TYPE* GRGLDEBUGPROC)(GrGLenum source,
                                                   GrGLenum type,

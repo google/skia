@@ -9,7 +9,7 @@
 #define GrGLBufferImpl_DEFINED
 
 #include "SkTypes.h"
-#include "gl/GrGLFunctions.h"
+#include "gl/GrGLTypes.h"
 
 class GrGLGpu;
 

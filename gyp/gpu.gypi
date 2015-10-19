@@ -54,6 +54,7 @@
       '<(skia_include_path)/gpu/gl/GrGLFunctions.h',
       '<(skia_include_path)/gpu/gl/GrGLInterface.h',
       '<(skia_include_path)/gpu/gl/GrGLSLPrettyPrint.h',
+      '<(skia_include_path)/gpu/gl/GrGLTypes.h',
 
       '<(skia_src_path)/gpu/GrAutoLocaleSetter.h',
       '<(skia_src_path)/gpu/GrAllocator.h',

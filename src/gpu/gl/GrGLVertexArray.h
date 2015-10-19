@@ -10,7 +10,7 @@
 
 #include "GrTypesPriv.h"
 #include "gl/GrGLDefines.h"
-#include "gl/GrGLFunctions.h"
+#include "gl/GrGLTypes.h"
 #include "SkTArray.h"
 
 class GrGLVertexBuffer;

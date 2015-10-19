@@ -11,8 +11,8 @@
 #include "SkRefCnt.h"
 #include "GrPathRendering.h"
 #include "GrStencil.h"
-#include "gl/GrGLFunctions.h"
 #include "gl/GrGLProgram.h"
+#include "gl/GrGLTypes.h"
 
 class GrGLNameAllocator;
 class GrGLGpu;

@@ -9,7 +9,7 @@
 #define GrGLNoOpInterface_DEFINED
 
 #include "gl/GrGLDefines.h"
-#include "gl/GrGLFunctions.h"
+#include "gl/GrGLTypes.h"
 
 // These are constants/functions that are common to the Null and Debug GL interface implementations.
 
