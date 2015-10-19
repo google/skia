@@ -35,10 +35,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          GrGLInstalledXferProc* xferProcessor,
                          GrGLInstalledFragProcs* fragmentProcessors,
                          SkTArray<UniformHandle>* passSamplerUniforms)
-    : fColor(GrColor_ILLEGAL)
-    , fCoverage(0)
-    , fDstTextureUnit(-1)
-    , fBuiltinUniformHandles(builtinUniforms)
+    : fBuiltinUniformHandles(builtinUniforms)
     , fProgramID(programID)
     , fGeometryProcessor(geometryProcessor)
     , fXferProcessor(xferProcessor)

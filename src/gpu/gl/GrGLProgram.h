@@ -125,9 +125,6 @@ protected:
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;
-    GrColor fColor;
-    uint8_t fCoverage;
-    int fDstTextureUnit;
     BuiltinUniformHandles fBuiltinUniformHandles;
     GrGLuint fProgramID;
 
