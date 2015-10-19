@@ -54,7 +54,8 @@ static void add_arithmetic_code(GrGLFragmentBuilder* fsBuilder,
 
 class GLArithmeticFP : public GrGLFragmentProcessor {
 public:
-    GLArithmeticFP(const GrProcessor&) : fEnforcePMColor(true) {}
+    GLArithmeticFP(const GrArithmeticFP& arithmeticFP)
+        : fEnforcePMColor(arithmeticFP.enforcePMColor()) {}
 
     ~GLArithmeticFP() override {}
 
@@ -191,8 +192,8 @@ private:
 
 class GLArithmeticXP : public GrGLXferProcessor {
 public:
-    GLArithmeticXP(const GrProcessor&)
-        : fEnforcePMColor(true) {
+    GLArithmeticXP(const ArithmeticXP& arithmeticXP)
+        : fEnforcePMColor(arithmeticXP.enforcePMColor()) {
     }
 
     ~GLArithmeticXP() override {}
@@ -260,7 +261,7 @@ GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrProcOptInfo& 
 ///////////////////////////////////////////////////////////////////////////////
 
 GrArithmeticXPFactory::GrArithmeticXPFactory(float k1, float k2, float k3, float k4,
-                                             bool enforcePMColor) 
+                                             bool enforcePMColor)
     : fK1(k1), fK2(k2), fK3(k3), fK4(k4), fEnforcePMColor(enforcePMColor) {
     this->initClassID<GrArithmeticXPFactory>();
 }

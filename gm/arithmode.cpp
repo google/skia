@@ -78,7 +78,7 @@ protected:
         return SkString("arithmode");
     }
 
-    virtual SkISize onISize() { return SkISize::Make(640, 480); }
+    virtual SkISize onISize() { return SkISize::Make(640, 572); }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap src = make_src();
@@ -120,6 +120,40 @@ protected:
             x += gap;
             show_k_text(canvas, x, y, k);
             k += 4;
+            y += SkIntToScalar(src.height() + 12);
+        }
+
+        // Draw two special cases to test enforcePMColor. In these cases, we
+        // draw the dst bitmap twice, the first time it is halved and inverted,
+        // leading to invalid premultiplied colors. If we enforcePMColor, these
+        // invalid values should be clamped, and will not contribute to the
+        // second draw.
+        for (int i = 0; i < 2; i++) {
+            const bool enforcePMColor = (i == 0);
+            SkScalar x = gap;
+            canvas->drawBitmap(dst, x, y, nullptr);
+            x += gap;
+            SkRect rect = SkRect::MakeXYWH(x, y, SkIntToScalar(WW), SkIntToScalar(HH));
+            canvas->saveLayer(&rect, nullptr);
+            SkXfermode* xfer1 = SkArithmeticMode::Create(0, -one / 2, 0, 1, enforcePMColor);
+            SkPaint paint1;
+            paint1.setXfermode(xfer1)->unref();
+            canvas->drawBitmap(dst, x, y, &paint1);
+            SkXfermode* xfer2 = SkArithmeticMode::Create(0, one / 2, -one, 1);
+            SkPaint paint2;
+            paint2.setXfermode(xfer2)->unref();
+            canvas->drawBitmap(dst, x, y, &paint2);
+            canvas->restore();
+            x += gap;
+
+            // Label
+            SkPaint paint;
+            paint.setTextSize(SkIntToScalar(24));
+            paint.setAntiAlias(true);
+            sk_tool_utils::set_portable_typeface(&paint);
+            SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
+            canvas->drawText(str.c_str(), str.size(), x, y + paint.getTextSize(), paint);
+
             y += SkIntToScalar(src.height() + 12);
         }
     }
