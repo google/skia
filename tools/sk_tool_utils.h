@@ -135,6 +135,11 @@ namespace sk_tool_utils {
     void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
 
     void make_big_path(SkPath& path);
+
+    // Return a blurred version of 'src'. This doesn't use a separable filter
+    // so it is slow!
+    SkBitmap slow_blur(const SkBitmap& src, float sigma);
+
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

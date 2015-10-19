@@ -349,4 +349,98 @@ void make_big_path(SkPath& path) {
     #include "BigPathBench.inc"
 }
 
+static float gaussian2d_value(int x, int y, float sigma) {
+    // don't bother with the scale term since we're just going to normalize the
+    // kernel anyways
+    float temp = exp(-(x*x + y*y)/(2*sigma*sigma));
+    return temp;
+}
+
+static float* create_2d_kernel(float sigma, int* filterSize) {
+    // We will actually take 2*halfFilterSize+1 samples (i.e., our filter kernel
+    // sizes are always odd)
+    int halfFilterSize = SkScalarCeilToInt(6*sigma)/2;
+    int wh = *filterSize = 2*halfFilterSize + 1;
+
+    float* temp = new float[wh*wh];
+
+    float filterTot = 0.0f;
+    for (int yOff = 0; yOff < wh; ++yOff) {
+        for (int xOff = 0; xOff < wh; ++xOff) {
+            temp[yOff*wh+xOff] = gaussian2d_value(xOff-halfFilterSize, yOff-halfFilterSize, sigma);
+
+            filterTot += temp[yOff*wh+xOff];
+        }
+    }
+
+    // normalize the kernel
+    for (int yOff = 0; yOff < wh; ++yOff) {
+        for (int xOff = 0; xOff < wh; ++xOff) {
+            temp[yOff*wh+xOff] /= filterTot;
+        }
+    }
+
+    return temp;
+}
+
+static SkPMColor blur_pixel(const SkBitmap& bm, int x, int y, float* kernel, int wh) {
+    SkASSERT(wh & 0x1);
+
+    int halfFilterSize = (wh-1)/2;
+
+    float r = 0.0f, g = 0.0f, b = 0.0f;
+    for (int yOff = 0; yOff < wh; ++yOff) {
+        int ySamp = y + yOff - halfFilterSize;
+
+        if (ySamp < 0) {
+            ySamp = 0;
+        } else if (ySamp > bm.height()-1) {
+            ySamp = bm.height()-1;
+        }
+
+        for (int xOff = 0; xOff < wh; ++xOff) {
+            int xSamp = x + xOff - halfFilterSize;
+
+            if (xSamp < 0) {
+                xSamp = 0;
+            } else if (xSamp > bm.width()-1) {
+                xSamp = bm.width()-1;
+            }
+
+            float filter = kernel[yOff*wh + xOff];
+
+            SkPMColor c = *bm.getAddr32(xSamp, ySamp);
+
+            r += SkGetPackedR32(c) * filter;
+            g += SkGetPackedG32(c) * filter;
+            b += SkGetPackedB32(c) * filter;
+        }
+    }
+
+    U8CPU r8, g8, b8;
+
+    r8 = (U8CPU) (r+0.5f);
+    g8 = (U8CPU) (g+0.5f);
+    b8 = (U8CPU) (b+0.5f);
+
+    return SkPackARGB32(255, r8, g8, b8);
+}
+
+SkBitmap slow_blur(const SkBitmap& src, float sigma) {
+    SkBitmap dst;
+
+    dst.allocN32Pixels(src.width(), src.height(), true);
+
+    int wh;
+    SkAutoTDeleteArray<float> kernel(create_2d_kernel(sigma, &wh));
+
+    for (int y = 0; y < src.height(); ++y) {
+        for (int x = 0; x < src.width(); ++x) {
+            *dst.getAddr32(x, y) = blur_pixel(src, x, y, kernel.get(), wh);
+        }
+    }
+ 
+    return dst;
+}
+
 }  // namespace sk_tool_utils

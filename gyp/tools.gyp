@@ -24,9 +24,11 @@
         'filter',
         'flatten',
         'gpuveto',
+        'imgblur',
+        'imgconv',
+        'imgslice',
         'lua_app',
         'lua_pictures',
-        'imgconv',
         'pinspect',
         'render_pdfs',
         'render_pictures',
@@ -36,7 +38,6 @@
         'skpdiff',
         'skpinfo',
         'skpmaker',
-        'imgslice',
         'test_image_decoder',
         'test_public_includes',
         'whitelist_typefaces',
@@ -310,6 +311,22 @@
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
+      ],
+    },
+    {
+      'target_name': 'imgblur',
+      'type': 'executable',
+      'sources': [
+        '../tools/imgblur.cpp',
+      ],
+      'include_dirs': [
+        '../include/core',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'flags.gyp:flags_common',
+        'skia_lib.gyp:skia_lib',
+        'tools.gyp:sk_tool_utils',
       ],
     },
     {
