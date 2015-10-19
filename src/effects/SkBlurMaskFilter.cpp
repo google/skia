@@ -304,9 +304,9 @@ static SkCachedData* add_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle 
 }
 
 #ifdef SK_IGNORE_FAST_RRECT_BLUR
-SK_CONF_DECLARE( bool, c_analyticBlurRRect, "mask.filter.blur.analyticblurrrect", false, "Use the faster analytic blur approach for ninepatch rects" );
+SK_CONF_DECLARE(bool, c_analyticBlurRRect, "mask.filter.blur.analyticblurrrect", false, "Use the faster analytic blur approach for ninepatch rects");
 #else
-SK_CONF_DECLARE( bool, c_analyticBlurRRect, "mask.filter.blur.analyticblurrrect", true, "Use the faster analytic blur approach for ninepatch round rects" );
+SK_CONF_DECLARE(bool, c_analyticBlurRRect, "mask.filter.blur.analyticblurrrect", true, "Use the faster analytic blur approach for ninepatch round rects");
 #endif
 
 SkMaskFilter::FilterReturn
@@ -444,7 +444,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     return kTrue_FilterReturn;
 }
 
-SK_CONF_DECLARE( bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", true, "Use the faster analytic blur approach for ninepatch rects" );
+SK_CONF_DECLARE(bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", true, "Use the faster analytic blur approach for ninepatch rects");
 
 SkMaskFilter::FilterReturn
 SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
@@ -622,14 +622,35 @@ public:
         if (!blurProfile) {
            return nullptr;
         }
-        return new GrRectBlurEffect(rect, sigma, blurProfile);
+        // in OpenGL ES, mediump floats have a minimum range of 2^14. If we have coordinates bigger
+        // than that, the shader math will end up with infinities and result in the blur effect not
+        // working correctly. To avoid this, we switch into highp when the coordinates are too big.
+        // As 2^14 is the minimum range but the actual range can be bigger, we might end up 
+        // switching to highp sooner than strictly necessary, but most devices that have a bigger 
+        // range for mediump also have mediump being exactly the same as highp (e.g. all non-OpenGL
+        // ES devices), and thus incur no additional penalty for the switch.
+        static const SkScalar kMAX_BLUR_COORD = SkIntToScalar(16000);
+        GrSLPrecision precision;
+        if (SkScalarAbs(rect.top()) > kMAX_BLUR_COORD ||
+            SkScalarAbs(rect.left()) > kMAX_BLUR_COORD ||
+            SkScalarAbs(rect.bottom()) > kMAX_BLUR_COORD ||
+            SkScalarAbs(rect.right()) > kMAX_BLUR_COORD ||
+            SkScalarAbs(rect.width()) > kMAX_BLUR_COORD ||
+            SkScalarAbs(rect.height()) > kMAX_BLUR_COORD) {
+            precision = kHigh_GrSLPrecision;
+        }
+        else {
+            precision = kDefault_GrSLPrecision;
+        }
+        return new GrRectBlurEffect(rect, sigma, blurProfile, precision);
     }
 
     const SkRect& getRect() const { return fRect; }
     float getSigma() const { return fSigma; }
 
 private:
-    GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile);
+    GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile,
+                     GrSLPrecision fPrecision);
 
     GrGLFragmentProcessor* onCreateGLInstance() const override;
 
@@ -644,6 +665,7 @@ private:
     SkRect          fRect;
     float           fSigma;
     GrTextureAccess fBlurProfileAccess;
+    GrSLPrecision   fPrecision;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -652,8 +674,12 @@ private:
 
 class GrGLRectBlurEffect : public GrGLFragmentProcessor {
 public:
-    GrGLRectBlurEffect(const GrProcessor&) {}
+    GrGLRectBlurEffect(const GrProcessor&, GrSLPrecision precision) 
+    : fPrecision(precision) {
+    }
     void emitCode(EmitArgs&) override;
+
+    static void GenKey(GrSLPrecision precision, GrProcessorKeyBuilder* b);
 
 protected:
     void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
@@ -663,6 +689,7 @@ private:
 
     UniformHandle       fProxyRectUniform;
     UniformHandle       fProfileSizeUniform;
+    GrSLPrecision       fPrecision;
 
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -673,24 +700,31 @@ void OutputRectBlurProfileLookup(GrGLFragmentBuilder* fsBuilder,
                                  const char *profileSize, const char *loc,
                                  const char *blurred_width,
                                  const char *sharp_width) {
-    fsBuilder->codeAppendf("\tfloat %s;\n", output);
-    fsBuilder->codeAppendf("\t\t{\n");
-    fsBuilder->codeAppendf("\t\t\tfloat coord = (0.5 * (abs(2.0*%s - %s) - %s))/%s;\n",
+    fsBuilder->codeAppendf("float %s;", output);
+    fsBuilder->codeAppendf("{");
+    fsBuilder->codeAppendf("float coord = ((abs(%s - 0.5 * %s) - 0.5 * %s)) / %s;",
                            loc, blurred_width, sharp_width, profileSize);
-    fsBuilder->codeAppendf("\t\t\t%s = ", output);
+    fsBuilder->codeAppendf("%s = ", output);
     fsBuilder->appendTextureLookup(sampler, "vec2(coord,0.5)");
-    fsBuilder->codeAppend(".a;\n");
-    fsBuilder->codeAppendf("\t\t}\n");
+    fsBuilder->codeAppend(".a;");
+    fsBuilder->codeAppendf("}");
 }
+
+
+void GrGLRectBlurEffect::GenKey(GrSLPrecision precision, GrProcessorKeyBuilder* b) {
+    b->add32(precision);
+}
+
 
 void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
 
     const char *rectName;
     const char *profileSizeName;
 
+    const char* precisionString = GrGLShaderVar::PrecisionString(fPrecision, kGLES_GrGLStandard);
     fProxyRectUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
-                                            kDefault_GrSLPrecision,
+                                            fPrecision,
                                             "proxyRect",
                                             &rectName);
     fProfileSizeUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -703,26 +737,29 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     const char *fragmentPos = fsBuilder->fragmentPosition();
 
     if (args.fInputColor) {
-        fsBuilder->codeAppendf("\tvec4 src=%s;\n", args.fInputColor);
+        fsBuilder->codeAppendf("vec4 src=%s;", args.fInputColor);
     } else {
-        fsBuilder->codeAppendf("\tvec4 src=vec4(1)\n;");
+        fsBuilder->codeAppendf("vec4 src=vec4(1);");
     }
 
-    fsBuilder->codeAppendf("\tvec2 translatedPos = %s.xy - %s.xy;\n", fragmentPos, rectName );
-    fsBuilder->codeAppendf("\tfloat width = %s.z - %s.x;\n", rectName, rectName);
-    fsBuilder->codeAppendf("\tfloat height = %s.w - %s.y;\n", rectName, rectName);
+    fsBuilder->codeAppendf("%s vec2 translatedPos = %s.xy - %s.xy;", precisionString, fragmentPos, 
+                           rectName);
+    fsBuilder->codeAppendf("%s float width = %s.z - %s.x;", precisionString, rectName, rectName);
+    fsBuilder->codeAppendf("%s float height = %s.w - %s.y;", precisionString, rectName, rectName);
 
-    fsBuilder->codeAppendf("\tvec2 smallDims = vec2(width - %s, height-%s);\n", profileSizeName, profileSizeName);
-    fsBuilder->codeAppendf("\tfloat center = 2.0 * floor(%s/2.0 + .25) - 1.0;\n", profileSizeName);
-    fsBuilder->codeAppendf("\tvec2 wh = smallDims - vec2(center,center);\n");
+    fsBuilder->codeAppendf("%s vec2 smallDims = vec2(width - %s, height - %s);", precisionString, 
+                           profileSizeName, profileSizeName);
+    fsBuilder->codeAppendf("%s float center = 2.0 * floor(%s/2.0 + .25) - 1.0;", precisionString,
+                           profileSizeName);
+    fsBuilder->codeAppendf("%s vec2 wh = smallDims - vec2(center,center);", precisionString);
 
     OutputRectBlurProfileLookup(fsBuilder, args.fSamplers[0], "horiz_lookup", profileSizeName,
                                 "translatedPos.x", "width", "wh.x");
-    OutputRectBlurProfileLookup(fsBuilder, args.fSamplers[0], "vert_lookup", profileSizeName,
+    OutputRectBlurProfileLookup(fsBuilder, args.fSamplers[0], "vert_lookup", profileSizeName, 
                                 "translatedPos.y", "height", "wh.y");
 
-    fsBuilder->codeAppendf("\tfloat final = horiz_lookup * vert_lookup;\n");
-    fsBuilder->codeAppendf("\t%s = src * final;\n", args.fOutputColor );
+    fsBuilder->codeAppendf("float final = horiz_lookup * vert_lookup;");
+    fsBuilder->codeAppendf("%s = src * final;", args.fOutputColor);
 }
 
 void GrGLRectBlurEffect::onSetData(const GrGLProgramDataManager& pdman,
@@ -764,10 +801,12 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
     return blurProfile;
 }
 
-GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile)
+GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile,
+                                   GrSLPrecision precision)
     : fRect(rect)
     , fSigma(sigma)
-    , fBlurProfileAccess(blurProfile) {
+    , fBlurProfileAccess(blurProfile)
+    , fPrecision(precision) {
     this->initClassID<GrRectBlurEffect>();
     this->addTextureAccess(&fBlurProfileAccess);
     this->setWillReadFragmentPosition();
@@ -775,11 +814,11 @@ GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *b
 
 void GrRectBlurEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
                                          GrProcessorKeyBuilder* b) const {
-    GrGLRectBlurEffect::GenKey(*this, caps, b);
+    GrGLRectBlurEffect::GenKey(fPrecision, b);
 }
 
 GrGLFragmentProcessor* GrRectBlurEffect::onCreateGLInstance() const {
-    return new GrGLRectBlurEffect(*this);
+    return new GrGLRectBlurEffect(*this, fPrecision);
 }
 
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -940,14 +979,14 @@ const GrFragmentProcessor* GrRRectBlurEffect::Create(GrTextureProvider* texProvi
         smallRRect.setRectXY(smallRect, SkIntToScalar(cornerRadius), SkIntToScalar(cornerRadius));
 
         SkPath path;
-        path.addRRect( smallRRect );
+        path.addRRect(smallRRect);
 
         SkDraw::DrawToMask(path, &mask.fBounds, nullptr, nullptr, &mask,
                            SkMask::kJustRenderImage_CreateMode, SkPaint::kFill_Style);
 
         SkMask blurredMask;
         SkBlurMask::BoxBlur(&blurredMask, mask, sigma, kNormal_SkBlurStyle, kHigh_SkBlurQuality,
-                            nullptr, true );
+                            nullptr, true);
 
         unsigned int texSide = smallRectSide + 2*blurRadius;
         GrSurfaceDesc texDesc;
@@ -1045,29 +1084,29 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
 
     // warp the fragment position to the appropriate part of the 9patch blur texture
 
-    fsBuilder->codeAppendf("\t\tvec2 rectCenter = (%s.xy + %s.zw)/2.0;\n", rectName, rectName);
-    fsBuilder->codeAppendf("\t\tvec2 translatedFragPos = %s.xy - %s.xy;\n", fragmentPos, rectName);
-    fsBuilder->codeAppendf("\t\tfloat threshold = %s + 2.0*%s;\n", cornerRadiusName, blurRadiusName );
-    fsBuilder->codeAppendf("\t\tvec2 middle = %s.zw - %s.xy - 2.0*threshold;\n", rectName, rectName );
+    fsBuilder->codeAppendf("vec2 rectCenter = (%s.xy + %s.zw)/2.0;", rectName, rectName);
+    fsBuilder->codeAppendf("vec2 translatedFragPos = %s.xy - %s.xy;", fragmentPos, rectName);
+    fsBuilder->codeAppendf("float threshold = %s + 2.0*%s;", cornerRadiusName, blurRadiusName);
+    fsBuilder->codeAppendf("vec2 middle = %s.zw - %s.xy - 2.0*threshold;", rectName, rectName);
 
-    fsBuilder->codeAppendf("\t\tif (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x+threshold)) {\n" );
-    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.x = threshold;\n");
-    fsBuilder->codeAppendf("\t\t} else if (translatedFragPos.x >= (middle.x + threshold)) {\n");
-    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.x -= middle.x - 1.0;\n");
-    fsBuilder->codeAppendf("\t\t}\n");
+    fsBuilder->codeAppendf("if (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x+threshold)) {");
+    fsBuilder->codeAppendf("translatedFragPos.x = threshold;\n");
+    fsBuilder->codeAppendf("} else if (translatedFragPos.x >= (middle.x + threshold)) {");
+    fsBuilder->codeAppendf("translatedFragPos.x -= middle.x - 1.0;");
+    fsBuilder->codeAppendf("}");
 
-    fsBuilder->codeAppendf("\t\tif (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y+threshold)) {\n" );
-    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.y = threshold;\n");
-    fsBuilder->codeAppendf("\t\t} else if (translatedFragPos.y >= (middle.y + threshold)) {\n");
-    fsBuilder->codeAppendf("\t\t\ttranslatedFragPos.y -= middle.y - 1.0;\n");
-    fsBuilder->codeAppendf("\t\t}\n");
+    fsBuilder->codeAppendf("if (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y+threshold)) {");
+    fsBuilder->codeAppendf("translatedFragPos.y = threshold;");
+    fsBuilder->codeAppendf("} else if (translatedFragPos.y >= (middle.y + threshold)) {");
+    fsBuilder->codeAppendf("translatedFragPos.y -= middle.y - 1.0;");
+    fsBuilder->codeAppendf("}");
 
-    fsBuilder->codeAppendf("\t\tvec2 proxyDims = vec2(2.0*threshold+1.0);\n");
-    fsBuilder->codeAppendf("\t\tvec2 texCoord = translatedFragPos / proxyDims;\n");
+    fsBuilder->codeAppendf("vec2 proxyDims = vec2(2.0*threshold+1.0);");
+    fsBuilder->codeAppendf("vec2 texCoord = translatedFragPos / proxyDims;");
 
-    fsBuilder->codeAppendf("\t%s = ", args.fOutputColor);
+    fsBuilder->codeAppendf("%s = ", args.fOutputColor);
     fsBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0], "texCoord");
-    fsBuilder->codeAppend(";\n");
+    fsBuilder->codeAppend(";");
 }
 
 void GrGLRRectBlurEffect::onSetData(const GrGLProgramDataManager& pdman,
