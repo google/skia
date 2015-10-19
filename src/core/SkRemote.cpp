@@ -236,7 +236,9 @@ namespace SkRemote {
     }
 
     void Client::onDrawPaint(const SkPaint& paint) {
-        this->onDrawRect(SkRect::MakeLargest(), paint);
+        SkPath path;
+        path.setFillType(SkPath::kInverseWinding_FillType);  // Either inverse FillType works fine.
+        this->onDrawPath(path, paint);
     }
 
     void Client::onDrawText(const void* text, size_t byteLength, SkScalar x,
