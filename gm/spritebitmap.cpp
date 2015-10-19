@@ -141,6 +141,11 @@ typedef SkImageFilter* (*ImageFilterFactory)();
 // hence this cast function
 template <typename T> ImageFilterFactory IFCCast(T arg) { return arg; }
 
+// We expect that applying the filter will keep us in the same domain (raster or gpu)
+static void check_same_domain(SkImage* a, SkImage* b) {
+    SkASSERT(a->isTextureBacked() == b->isTextureBacked());
+}
+
 /**
  *  Compare output of drawSprite and drawBitmap (esp. clipping and imagefilters)
  */
@@ -179,6 +184,9 @@ protected:
             SkIPoint offset1, offset2;
             SkAutoTUnref<SkImage> image1(image0->applyFilter(filter, &offset1, true));
             SkAutoTUnref<SkImage> image2(image0->applyFilter(filter, &offset2, false));
+
+            check_same_domain(image0, image1);
+            check_same_domain(image0, image2);
 
             canvas->save();
             canvas->translate(30, 30);

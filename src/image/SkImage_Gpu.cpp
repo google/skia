@@ -209,33 +209,52 @@ public:
         }
     }
 
-    bool filterImage(const SkImageFilter*, const SkBitmap&, const SkImageFilter::Context&,
-                     SkBitmap*, SkIPoint*) override {
-        return false;
+    bool filterImage(const SkImageFilter* filter, const SkBitmap& src,
+                     const SkImageFilter::Context& ctx, SkBitmap* dst, SkIPoint* offset) override {
+        return filter->canFilterImageGPU() &&
+               filter->filterImageGPU(this, src, ctx, dst, offset);
     }
 };
 
+static SkIRect compute_fast_ibounds(SkImageFilter* filter, const SkIRect& srcBounds) {
+    SkRect fastBounds;
+    fastBounds.set(srcBounds);
+    filter->computeFastBounds(fastBounds, &fastBounds);
+    return fastBounds.roundOut();
+}
+
 SkImage* SkImage_Gpu::onApplyFilter(SkImageFilter* filter, SkIPoint* offsetResult,
                                     bool forceResultToOriginalSize) const {
-    if (!forceResultToOriginalSize || !filter->canFilterImageGPU()) {
-        return this->INHERITED::onApplyFilter(filter, offsetResult, forceResultToOriginalSize);
-    }
+    const SkIRect srcBounds = SkIRect::MakeWH(this->width(), this->height());
 
-    SkBitmap src;
-    GrWrapTextureInBitmap(fTexture, this->width(), this->height(), this->isOpaque(), &src);
+    if (forceResultToOriginalSize) {
+        SkBitmap src;
+        GrWrapTextureInBitmap(fTexture, this->width(), this->height(), this->isOpaque(), &src);
 
-    GrContext* context = fTexture->getContext();
-    SkGpuImageFilterProxy proxy(context);
-    SkImageFilter::Context ctx(SkMatrix::I(),
-                               SkIRect::MakeWH(this->width(), this->height()),
-                               SkImageFilter::Cache::Get());
+        const SkIRect clipBounds = srcBounds;
+        SkGpuImageFilterProxy proxy(fTexture->getContext());
+        SkImageFilter::Context ctx(SkMatrix::I(), clipBounds, SkImageFilter::Cache::Get());
 
-    SkBitmap dst;
-    if (filter->filterImageGPU(&proxy, src, ctx, &dst, offsetResult)) {
+        SkBitmap dst;
+        if (!filter->filterImage(&proxy, src, ctx, &dst, offsetResult)) {
+            return nullptr;
+        }
         return new SkImage_Gpu(dst.width(), dst.height(), kNeedNewImageUniqueID, dst.alphaType(),
                                dst.getTexture(), SkSurface::kNo_Budgeted);
     }
-    return nullptr;
+
+    const SkIRect dstR = compute_fast_ibounds(filter, srcBounds);
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(dstR.width(), dstR.height());
+    SkAutoTUnref<SkSurface> surface(this->onNewSurface(info));
+
+    SkPaint paint;
+    paint.setImageFilter(filter);
+    surface->getCanvas()->drawImage(this, SkIntToScalar(-dstR.x()), SkIntToScalar(-dstR.y()),
+                                    &paint);
+
+    offsetResult->set(dstR.x(), dstR.y());
+    return surface->newImageSnapshot();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
