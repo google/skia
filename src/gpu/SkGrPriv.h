@@ -26,34 +26,18 @@ class SkPaint;
 class SkPixelRef;
 struct SkIRect;
 
-struct SkGrStretch {
-    enum Type {
-        kNone_Type,
-        kBilerp_Type,
-        kNearest_Type
-    } fType;
-    int fWidth;
-    int fHeight;
-};
-
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()
  *  are unique.
  *
- *  The imageID is in the shared namespace (see SkNextID::ImageID()
+ *  The imageID is in the shared namespace (see SkNextID::ImageID())
  *      - SkBitmap/SkPixelRef
  *      - SkImage
  *      - SkImageGenerator
  *
  *  Note: width/height must fit in 16bits for this impl.
  */
-void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds,
-                          const GrCaps&, const GrTextureParams&);
-
-/**
- *  Given an "unstretched" key, and a stretch rec, produce a stretched key.
- */
-bool GrMakeStretchedKey(const GrUniqueKey& origKey, const SkGrStretch&, GrUniqueKey* stretchedKey);
+void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds);
 
 /** Converts an SkPaint to a GrPaint for a given GrContext. The matrix is required in order
     to convert the SkShader (if any) on the SkPaint. The primitive itself has no color. */
@@ -103,21 +87,24 @@ GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
 bool GrPixelConfig2ColorAndProfileType(GrPixelConfig, SkColorType*, SkColorProfileType*);
 
 /**
-*  If the compressed data in the SkData is supported (as a texture format, this returns
-*  the pixel-config that should be used, and sets outStartOfDataToUpload to the ptr into
-*  the data where the actual raw data starts (skipping any header bytes).
-*
-*  If the compressed data is not supported, this returns kUnknown_GrPixelConfig, and
-*  ignores outStartOfDataToUpload.
-*/
+ *  If the compressed data in the SkData is supported (as a texture format, this returns
+ *  the pixel-config that should be used, and sets outStartOfDataToUpload to the ptr into
+ *  the data where the actual raw data starts (skipping any header bytes).
+ *
+ *  If the compressed data is not supported, this returns kUnknown_GrPixelConfig, and
+ *  ignores outStartOfDataToUpload.
+ */
 GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
                                                  int expectedW, int expectedH,
                                                  const void** outStartOfDataToUpload);
 
-GrTexture* GrCreateTextureForPixels(GrContext*, const GrUniqueKey& optionalKey, GrSurfaceDesc,
-                                    SkPixelRef* pixelRefForInvalidationNotificationOrNull,
-                                    const void* pixels, size_t rowBytesOrZero);
 
+/**
+ * Creates a new texture for the bitmap. Does not concern itself with cache keys or texture params.
+ * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
+ * compressed textures and yuv planes.
+ */
+GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
 //////////////////////////////////////////////////////////////////////////////
 
