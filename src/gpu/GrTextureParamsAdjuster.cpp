@@ -141,7 +141,7 @@ GrTexture* GrTextureParamsAdjuster::generateTextureForParams(GrContext* ctx,
             return nullptr;
         }
         SkBitmap stretchedBmp = copy_on_cpu(bitmap, copyParams);
-        return GrUploadBitmapToTexture(ctx, bitmap);
+        return GrUploadBitmapToTexture(ctx, stretchedBmp);
     } else {
         SkAutoTUnref<GrTexture> original(this->refOriginalTexture(ctx));
         if (!original) {
