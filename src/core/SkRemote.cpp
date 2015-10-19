@@ -35,6 +35,14 @@ namespace SkRemote {
             && a.fDither        == b.fDither;
     }
 
+    // Misc carries 10 bytes of data in a 12 byte struct, so we need a custom hash.
+    static_assert(sizeof(Misc) > offsetof(Misc, fDither) + sizeof(Misc().fDither), "");
+    struct MiscHash {
+        uint32_t operator()(const Misc& misc) {
+            return SkChecksum::Murmur3(&misc, offsetof(Misc, fDither) + sizeof(Misc().fDither));
+        }
+    };
+
     Stroke Stroke::CreateFrom(const SkPaint& paint) {
         Stroke stroke = {
             paint.getStrokeWidth(),
@@ -58,6 +66,9 @@ namespace SkRemote {
             && a.fCap   == b.fCap
             && a.fJoin  == b.fJoin;
     }
+
+    // The default SkGoodHash works fine for Stroke, as it's dense.
+    static_assert(sizeof(Stroke) == offsetof(Stroke, fJoin) + sizeof(Stroke().fJoin), "");
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
@@ -162,10 +173,10 @@ namespace SkRemote {
                 return always_cache_helper(stroke, &fStroke, &fNextStroke, id);
             }
 
-            SkTHashMap<SkMatrix, ID> fMatrix;
-            SkTHashMap<Misc,     ID> fMisc;
-            SkTHashMap<SkPath,   ID> fPath;
-            SkTHashMap<Stroke,   ID> fStroke;
+            SkTHashMap<SkMatrix, ID>           fMatrix;
+            SkTHashMap<Misc,     ID, MiscHash> fMisc;
+            SkTHashMap<SkPath,   ID>           fPath;
+            SkTHashMap<Stroke,   ID>           fStroke;
             ID fNextMatrix,
                fNextMisc,
                fNextPath,
