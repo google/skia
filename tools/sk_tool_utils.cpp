@@ -352,7 +352,7 @@ void make_big_path(SkPath& path) {
 static float gaussian2d_value(int x, int y, float sigma) {
     // don't bother with the scale term since we're just going to normalize the
     // kernel anyways
-    float temp = exp(-(x*x + y*y)/(2*sigma*sigma));
+    float temp = expf(-(x*x + y*y)/(2*sigma*sigma));
     return temp;
 }
 

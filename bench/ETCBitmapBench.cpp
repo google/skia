@@ -123,7 +123,7 @@ public:
         : fDecompress(decompress), fBackend(backend) { }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == this->fBackend;
+        return SkToBool(fImage) && backend == this->fBackend;
     }
 
 protected:
