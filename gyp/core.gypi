@@ -275,6 +275,7 @@
         '<(skia_src_path)/core/SkTraceEventCommon.h',
         '<(skia_src_path)/core/SkTSearch.cpp',
         '<(skia_src_path)/core/SkTSort.h',
+        '<(skia_src_path)/core/SkTTopoSort.h',
         '<(skia_src_path)/core/SkTypeface.cpp',
         '<(skia_src_path)/core/SkTypefaceCache.cpp',
         '<(skia_src_path)/core/SkTypefaceCache.h',

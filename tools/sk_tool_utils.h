@@ -12,6 +12,8 @@
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
 #include "SkPixelSerializer.h"
+#include "SkRandom.h"
+#include "SkTDArray.h"
 #include "SkTypeface.h"
 
 class SkBitmap;
@@ -139,6 +141,96 @@ namespace sk_tool_utils {
     // Return a blurred version of 'src'. This doesn't use a separable filter
     // so it is slow!
     SkBitmap slow_blur(const SkBitmap& src, float sigma);
+
+    // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
+    class TopoTestNode {
+    public:
+        TopoTestNode(int id) : fID(id), fOutputPos(-1), fTempMark(false) { }
+
+        void dependsOn(TopoTestNode* src) {
+            *fDependencies.append() = src;
+        }
+
+        int id() const { return fID; }
+        void reset() { fOutputPos = -1; }
+
+        int outputPos() const { return fOutputPos; }
+
+        // check that the topological sort is valid for this node
+        bool check() {
+            if (-1 == fOutputPos) {
+                return false;
+            }
+
+            for (int i = 0; i < fDependencies.count(); ++i) {
+                if (-1 == fDependencies[i]->outputPos()) {
+                    return false;
+                }
+                // This node should've been output after all the nodes on which it depends
+                if (fOutputPos < fDependencies[i]->outputPos()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // The following 7 methods are needed by the topological sort
+        static void SetTempMark(TopoTestNode* node) { node->fTempMark = true; }
+        static void ResetTempMark(TopoTestNode* node) { node->fTempMark = false; }
+        static bool IsTempMarked(TopoTestNode* node) { return node->fTempMark; }
+        static void Output(TopoTestNode* node, int outputPos) { 
+            SkASSERT(-1 != outputPos);
+            node->fOutputPos = outputPos; 
+        }
+        static bool WasOutput(TopoTestNode* node) { return (-1 != node->fOutputPos); }
+        static int NumDependencies(TopoTestNode* node) { return node->fDependencies.count(); }
+        static TopoTestNode* Dependency(TopoTestNode* node, int index) { 
+            return node->fDependencies[index];
+        }
+
+        // Helper functions for TopoSortBench & TopoSortTest
+        static void AllocNodes(SkTDArray<TopoTestNode*>* graph, int num) {
+            graph->setReserve(num);
+
+            for (int i = 0; i < num; ++i) {
+                *graph->append() = new TopoTestNode(i);
+            }
+        }
+
+        static void DeallocNodes(SkTDArray<TopoTestNode*>* graph) {
+            for (int i = 0; i < graph->count(); ++i) {
+                delete (*graph)[i];
+            }
+        }
+
+        #ifdef SK_DEBUG
+        static void Print(const SkTDArray<TopoTestNode*>& graph) {
+            for (int i = 0; i < graph.count(); ++i) {
+                SkDebugf("%d, ", graph[i]->id());
+            }
+            SkDebugf("\n");
+        }
+        #endif
+
+        // randomize the array
+        static void Shuffle(SkTDArray<TopoTestNode*>* graph, SkRandom* rand) {
+            for (int i = graph->count()-1; i > 0; --i) {
+                int swap = rand->nextU() % (i+1);
+
+                TopoTestNode* tmp = (*graph)[i];
+                (*graph)[i] = (*graph)[swap];
+                (*graph)[swap] = tmp;
+            }
+        }
+
+    private:
+        int  fID;
+        int  fOutputPos;
+        bool fTempMark;
+
+        SkTDArray<TopoTestNode*> fDependencies;
+    };
 
 }  // namespace sk_tool_utils
 
