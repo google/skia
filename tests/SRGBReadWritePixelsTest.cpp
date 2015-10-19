@@ -140,8 +140,14 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrTexture* texture, uin
 // TODO: Add tests for copySurface between srgb/linear textures. Add tests for unpremul/premul
 // conversion during read/write along with srgb/linear conversions.
 DEF_GPUTEST(SRGBReadWritePixels, reporter, factory) {
+#if defined(GOOGLE3)
+    // Stack frame size is limited in GOOGLE3.
+    static const int kW = 63;
+    static const int kH = 63;
+#else
     static const int kW = 255;
     static const int kH = 255;
+#endif
     uint32_t origData[kW * kH];
     for (int j = 0; j < kH; ++j) {
         for (int i = 0; i < kW; ++i) {

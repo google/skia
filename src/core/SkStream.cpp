@@ -892,7 +892,12 @@ size_t SkCopyStreamToStorage(SkAutoMalloc* storage, SkStream* stream) {
 
     SkDynamicMemoryWStream tempStream;
     // Arbitrary buffer size.
+#if defined(GOOGLE3)
+    // Stack frame size is limited in GOOGLE3.
+    const size_t bufferSize = 8 * 1024; // 8KB
+#else
     const size_t bufferSize = 256 * 1024; // 256KB
+#endif
     char buffer[bufferSize];
     SkDEBUGCODE(size_t debugLength = 0;)
     do {

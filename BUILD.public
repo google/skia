@@ -219,6 +219,7 @@ DM_INCLUDES = [
 
 COPTS = [
     "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
+    "-Wno-deprecated-declarations",  # Internal use of deprecated methods. :(
 ]
 
 DEFINES = [
