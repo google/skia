@@ -13,8 +13,7 @@
 #include "SkTemplates.h"
 
 class GrContext;
-class GrTextureParams;
-class GrUniqueKey;
+class GrTextureParams; 
 class SkBitmap;
 class SkImage;
 
@@ -61,9 +60,7 @@ private:
     bool generateBitmap(SkBitmap*);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*);
 #if SK_SUPPORT_GPU
-    // Returns the texture. If the cacherator is generating the texture and wants to cache it,
-    // it should use the passed in key (if the key is valid).
-    GrTexture* lockTexture(GrContext*, const GrUniqueKey& key, const SkImage* client);
+    GrTexture* lockUnstretchedTexture(GrContext*, const SkImage* client);
 #endif
 
     class ScopedGenerator {
@@ -86,7 +83,7 @@ private:
     const SkIPoint      fOrigin;
     const uint32_t      fUniqueID;
 
-    friend class Cacherator_GrTextureParamsAdjuster;
+    friend class Cacherator_GrTextureMaker;
 };
 
 #endif

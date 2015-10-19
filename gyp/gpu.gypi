@@ -179,8 +179,6 @@
       '<(skia_src_path)/gpu/GrTextContext.cpp',
       '<(skia_src_path)/gpu/GrTextContext.h',
       '<(skia_src_path)/gpu/GrTexture.cpp',
-      '<(skia_src_path)/gpu/GrTextureParamsAdjuster.h',
-      '<(skia_src_path)/gpu/GrTextureParamsAdjuster.cpp',
       '<(skia_src_path)/gpu/GrTextureProvider.cpp',
       '<(skia_src_path)/gpu/GrTexturePriv.h',
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
