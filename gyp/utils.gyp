@@ -51,9 +51,6 @@
               '../include/utils/mac',
             ],
           },
-          'sources!': [
-            '../src/utils/SkThreadUtils_pthread_other.cpp',
-          ],
         },{ #else if 'skia_os != "mac"'
           'include_dirs!': [
             '../include/utils/mac',
@@ -61,19 +58,12 @@
           'sources!': [
             '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
-            '../src/utils/SkThreadUtils_pthread_mach.cpp',
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
-          'sources!': [
-            '../src/utils/SkThreadUtils_pthread_other.cpp',
-          ],
         },{ #else if 'skia_os not in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]'
           'include_dirs!': [
             '../include/utils/unix',
-          ],
-          'sources!': [
-            '../src/utils/SkThreadUtils_pthread_linux.cpp',
           ],
         }],
         [ 'skia_os == "win"', {
@@ -85,7 +75,6 @@
           'sources!': [
             '../src/utils/SkThreadUtils_pthread.cpp',
             '../src/utils/SkThreadUtils_pthread.h',
-            '../src/utils/SkThreadUtils_pthread_other.cpp',
           ],
         },{ #else if 'skia_os != "win"'
           'include_dirs!': [

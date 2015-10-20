@@ -13,15 +13,14 @@
 struct AddInfo {
     int32_t valueToAdd;
     int timesToAdd;
-    unsigned int processorAffinity;
 };
 
 static int32_t base = 0;
 
 static AddInfo gAdds[] = {
-    { 3, 100, 23 },
-    { 2, 200, 2 },
-    { 7, 150, 17 },
+    { 3, 100 },
+    { 2, 200 },
+    { 7, 150 },
 };
 
 static void addABunchOfTimes(void* data) {
@@ -40,7 +39,6 @@ DEF_TEST(Atomic, reporter) {
     // Start the threads
     for (size_t i = 0; i < SK_ARRAY_COUNT(gAdds); i++) {
         threads[i] = new SkThread(addABunchOfTimes, &gAdds[i]);
-        threads[i]->setProcessorAffinity(gAdds[i].processorAffinity);
         threads[i]->start();
     }
 

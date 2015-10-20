@@ -31,8 +31,6 @@ SRCS = glob(
         "src/ports/**/*",
         "src/utils/android/**/*",
         "src/utils/mac/**/*",
-        "src/utils/SkThreadUtils_pthread_mach.cpp",  # Mac-only. Move to ports?
-        "src/utils/SkThreadUtils_pthread_other.cpp",  # Non-Mac-non-Linux. Move to ports?
         "src/utils/SkThreadUtils_win.cpp",  # Windows-only. Move to ports?
         "src/utils/win/**/*",
         "src/views/sdl/*",

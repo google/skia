@@ -47,8 +47,6 @@ remove_srcs (../src/ports/SkFontHost_fontconfig.cpp
              ../src/ports/SkFontConfigInterface_direct.cpp)
 # Alternative font managers.
 remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
-# Not actually used by Skia.
-remove_srcs (../src/utils/SkThreadUtils_pthread_*.cpp)
 
 # Skia sure ships a lot of code no one uses.
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
@@ -66,8 +64,7 @@ if (NOT UNIX)
                 ../src/ports/SkOSFile_posix.cpp
                 ../src/ports/SkTLS_pthread.cpp
                 ../src/ports/SkTime_Unix.cpp
-                ../src/utils/SkThreadUtils_pthread.cpp
-                ../src/utils/SkThreadUtils_pthread_other.cpp)
+                ../src/utils/SkThreadUtils_pthread.cpp)
 endif()
 if (APPLE OR NOT UNIX)
     remove_srcs(../src/gpu/gl/glx/*
