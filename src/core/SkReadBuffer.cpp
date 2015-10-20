@@ -320,9 +320,6 @@ SkTypeface* SkReadBuffer::readTypeface() {
 
     uint32_t index = fReader.readU32();
     if (0 == index || index > (unsigned)fTFCount) {
-        if (index) {
-            SkDebugf("====== typeface index %d\n", index);
-        }
         return nullptr;
     } else {
         SkASSERT(fTFArray);
