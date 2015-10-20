@@ -10,9 +10,10 @@
 # Usage:
 #      ./tools/create_skia_google3_client.sh <client_name>
 
-source gbash.sh || exit
+prodcertstatus -q || (echo "Please run prodaccess." 1>&2; exit 1)
+source gbash.sh || exit 2
 
-set -x -e
+set -e
 
 CLIENT="$1"
 g4 citc "${CLIENT}"
@@ -22,3 +23,5 @@ REV="$(cat README.google | grep -e "^Version" | sed "s/^Version: \(.*\)/\1/")"
 
 MY_DIR="$(gbash::get_absolute_caller_dir)"
 ${MY_DIR}/git_clone_to_google3.sh --skia_rev "${REV}"
+
+echo "Created client ${CLIENT} synced to ${REV}"

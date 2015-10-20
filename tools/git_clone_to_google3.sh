@@ -10,17 +10,13 @@
 # Usage:
 #      ./tools/git_clone_to_google3.sh
 
-source gbash.sh || exit
+prodcertstatus -q || (echo "Please run prodaccess." 1>&2; exit 1)
+source gbash.sh || exit 2
+
 DEFINE_string skia_rev "" "Git hash of Skia revision to clone, default LKGR."
 gbash::init_google "$@"
 
-set -x -e
-
-# To run this script after making edits, run:
-# g4 revert -k git_clone_to_google3.sh
-# To get the file back into your CL, run:
-# g4 edit git_clone_to_google3.sh
-#g4 opened | grep -q "//depot" && gbash::die "Must run in a clean client."
+set -e
 
 # Checkout LKGR of Skia in a temp location.
 TMP=$(gbash::make_temp_dir)
@@ -49,6 +45,7 @@ rsync -avzJ \
   --include=/dm \
   --include=/gm \
   --include=/include \
+  --include=/resources \
   --exclude=/src/animator \
   --include=/src \
   --include=/tests \

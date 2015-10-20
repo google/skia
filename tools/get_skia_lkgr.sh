@@ -6,9 +6,10 @@
 
 # Outputs the Last Known Good Revision of Skia.
 
-source gbash.sh || exit
+prodcertstatus -q || (echo "Please run prodaccess." 1>&2; exit 1)
+source gbash.sh || exit 2
 
-set -x -e
+set -e
 
 # Retrieve last known good revision. (App-engine script is very flaky, so retry
 # 10 times.)

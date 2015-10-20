@@ -11,9 +11,10 @@
 # Usage:
 #      ./tools/sync_google3.sh
 
-source gbash.sh || exit
+prodcertstatus -q || (echo "Please run prodaccess." 1>&2; exit 1)
+source gbash.sh || exit 2
 
-set -x -e
+set -e
 
 MY_DIR="$(gbash::get_absolute_caller_dir)"
 LKGR="$(${MY_DIR}/get_skia_lkgr.sh)"
@@ -27,6 +28,8 @@ fi
 cd "${GOOGLE3}/third_party/skia/HEAD"
 ${MY_DIR}/git_clone_to_google3.sh --skia_rev "${LKGR}"
 
+echo "Synced client ${CLIENT_NAME} to ${LKGR}"
+
 # Update README.google.
 sed --in-place "s/^Version: .*/Version: ${LKGR}/" README.google
 sed --in-place "s/URL: http:\/\/skia.googlesource.com\/skia\/+archive\/.*\.tar\.gz/URL: http:\/\/skia.googlesource.com\/skia\/+archive\/${LKGR}.tar.gz/" README.google
@@ -39,5 +42,12 @@ g4 reopen
 CHANGE="$(g4 change --desc "Update skia HEAD to ${LKGR}.")"
 CL="$(echo "${CHANGE}" | sed "s/Change \([0-9]\+\) created.*/\1/")"
 
-# Run TAP.
-tap_presubmit -c "${CL}" -p skia
+echo "Created CL ${CL} (http://cl/${CL})"
+
+# Run presubmit (will run TAP tests).
+if g4 presubmit -c "${CL}"; then
+  echo "CL is ready for review and submit at http://cl/${CL}"
+else
+  echo "Presubmit failed for CL ${CL} in client ${CLIENT_NAME}" 1>&2
+  exit 3
+fi

@@ -273,13 +273,12 @@ cc_test(
         "--nogpu",
         "--verbose",
         # TODO(mtklein): maybe investigate why these fail?
-        "--match ~FontMgr ~Gif ~Scalar ~Canvas ~Codec_stripes ~Stream ~skps",
-        # TODO(benjaminwagner): dm can't find resources when running on TAP.
+        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps",
         "--resourcePath %s/resources" % BASE_DIR,
         "--images %s/resources" % BASE_DIR,
     ],
     copts = COPTS,
-    data = glob(["resources/*"]),
+    data = glob(["resources/**/*"]),
     defines = DEFINES,
     includes = DM_INCLUDES,
     deps = DM_EXTERNAL_DEPS + [
