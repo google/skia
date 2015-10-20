@@ -288,8 +288,8 @@ THE SOFTWARE.
 
 
         /* this didn't work, try gzip support! */
-        error2 = FT_Stream_OpenGzip( &face->comp_stream, stream );
-        if ( FT_ERR_EQ( error2, Unimplemented_Feature ) )
+ //       error2 = FT_Stream_OpenGzip( &face->comp_stream, stream );
+ //       if ( FT_ERR_EQ( error2, Unimplemented_Feature ) )
           goto Fail;
 
         error = error2;
