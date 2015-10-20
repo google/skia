@@ -235,7 +235,8 @@ SkImage* SkImage_Gpu::onApplyFilter(SkImageFilter* filter, SkIPoint* offsetResul
 
         const SkIRect clipBounds = srcBounds;
         SkGpuImageFilterProxy proxy(fTexture->getContext());
-        SkImageFilter::Context ctx(SkMatrix::I(), clipBounds, SkImageFilter::Cache::Get());
+        SkAutoTUnref<SkImageFilter::Cache> cache(SkGpuDevice::NewImageFilterCache());
+        SkImageFilter::Context ctx(SkMatrix::I(), clipBounds, cache);
 
         SkBitmap dst;
         if (!filter->filterImage(&proxy, src, ctx, &dst, offsetResult)) {

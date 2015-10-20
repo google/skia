@@ -2015,10 +2015,14 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 #endif
 }
 
+SkImageFilter::Cache* SkGpuDevice::NewImageFilterCache() {
+    return SkImageFilter::Cache::Create(kDefaultImageFilterCacheSize);
+}
+
 SkImageFilter::Cache* SkGpuDevice::getImageFilterCache() {
     // We always return a transient cache, so it is freed after each
     // filter traversal.
-    return SkImageFilter::Cache::Create(kDefaultImageFilterCacheSize);
+    return SkGpuDevice::NewImageFilterCache();
 }
 
 #endif

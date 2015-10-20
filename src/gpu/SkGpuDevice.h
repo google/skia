@@ -135,6 +135,8 @@ public:
                        const SkImageFilter::Context&,
                        SkBitmap* result, SkIPoint* offset);
 
+    static SkImageFilter::Cache* NewImageFilterCache();
+
 protected:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
