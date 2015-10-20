@@ -21,6 +21,7 @@ namespace SkRemote {
         kMisc,
         kPath,
         kStroke,
+        kXfermode,
     };
 
     class ID {
@@ -35,11 +36,10 @@ namespace SkRemote {
         uint64_t val() const { return fVal & ~((uint64_t)0xFF << 56); }
 
         bool operator==(ID o) const { return fVal == o.fVal; }
-        ID operator++(int) {
-            ID prev = *this;
-            fVal++;
+        ID operator++() {
+            ++fVal;
             SkASSERT(this->val() != 0);  // Overflow is particularly bad as it'd change our Type.
-            return prev;
+            return *this;
         }
 
     private:

@@ -45,6 +45,7 @@ namespace SkRemote {
         virtual void define(ID, const Misc&)     = 0;
         virtual void define(ID, const SkPath&)   = 0;
         virtual void define(ID, const Stroke&)   = 0;
+        virtual void define(ID, SkXfermode*)     = 0;
 
         virtual void undefine(ID) = 0;
 
@@ -53,24 +54,37 @@ namespace SkRemote {
 
         virtual void setMatrix(ID matrix) = 0;
 
-        virtual void   clipPath(ID path, SkRegion::Op, bool aa) = 0;
-        virtual void   fillPath(ID path, ID misc)               = 0;
-        virtual void strokePath(ID path, ID misc, ID stroke)    = 0;
+        // TODO: struct CommonIDs { ID misc; ID xfermode; ... }
+        // for IDs that affect both fill + stroke?
+
+        virtual void   clipPath(ID path, SkRegion::Op, bool aa)           = 0;
+        virtual void   fillPath(ID path, ID misc, ID xfermode)            = 0;
+        virtual void strokePath(ID path, ID misc, ID xfermode, ID stroke) = 0;
     };
 
     class LookupScope;
 
-    // TODO: document
+    // The Cache interface encapsulates the caching logic of the Client.
+    //
+    // Each lookup() method must always fill ID* with a valid value,
+    // but ID may be cached.  If so, the lookup() method returns true;
+    // if not the lookup() method returns false and the Client must
+    // then define() this ID -> Thing mapping before using the ID.
+    //
+    // The Caches may also add IDs to the LookupScope's list of IDs to
+    // undefine() on destruction.  This lets the Cache purge IDs.
     struct Cache {
         virtual ~Cache() {}
 
-        static Cache* CreateNeverCache();
-        static Cache* CreateAlwaysCache();
+        static Cache* CreateNeverCache();   // Never caches anything.
+        static Cache* CreateAlwaysCache();  // Caches by value (not deep pointer equality).
+        // TODO: static Cache* CreateDeepCache();  // Caches by deep value.
 
-        virtual bool lookup(const SkMatrix&, ID*, LookupScope*) = 0;
-        virtual bool lookup(const Misc&,     ID*, LookupScope*) = 0;
-        virtual bool lookup(const SkPath&,   ID*, LookupScope*) = 0;
-        virtual bool lookup(const Stroke&,   ID*, LookupScope*) = 0;
+        virtual bool lookup(const SkMatrix&,   ID*, LookupScope*) = 0;
+        virtual bool lookup(const Misc&,       ID*, LookupScope*) = 0;
+        virtual bool lookup(const SkPath&,     ID*, LookupScope*) = 0;
+        virtual bool lookup(const Stroke&,     ID*, LookupScope*) = 0;
+        virtual bool lookup(const SkXfermode*, ID*, LookupScope*) = 0;
 
         virtual void cleanup(Encoder*) = 0;
     };
@@ -120,6 +134,7 @@ namespace SkRemote {
         void define(ID, const Misc&)     override;
         void define(ID, const SkPath&)   override;
         void define(ID, const Stroke&)   override;
+        void define(ID, SkXfermode*)     override;
 
         void undefine(ID) override;
 
@@ -128,13 +143,19 @@ namespace SkRemote {
 
         void setMatrix(ID matrix) override;
 
-        void   clipPath(ID path, SkRegion::Op, bool aa) override;
-        void   fillPath(ID path, ID misc) override;
-        void strokePath(ID path, ID misc, ID stroke) override;
+        void   clipPath(ID path, SkRegion::Op, bool aa)           override;
+        void   fillPath(ID path, ID misc, ID xfermode)            override;
+        void strokePath(ID path, ID misc, ID xfermode, ID stroke) override;
 
+        // Maps ID -> T.
         template <typename T, Type kType>
         class IDMap {
         public:
+            ~IDMap() {
+                // A well-behaved client always cleans up its definitions.
+                SkASSERT(fMap.count() == 0);
+            }
+
             void set(const ID& id, const T& val) {
                 SkASSERT(id.type() == kType);
                 fMap.set(id, val);
@@ -156,10 +177,48 @@ namespace SkRemote {
             SkTHashMap<ID, T> fMap;
         };
 
-        IDMap<SkMatrix, Type::kMatrix> fMatrix;
-        IDMap<Misc    , Type::kMisc  > fMisc;
-        IDMap<SkPath  , Type::kPath  > fPath;
-        IDMap<Stroke  , Type::kStroke> fStroke;
+        // Maps ID -> T*, and keeps the T alive by reffing it.
+        template <typename T, Type kType>
+        class ReffedIDMap {
+        public:
+            ReffedIDMap() {
+                // A null ID always maps to nullptr.
+                fMap.set(ID(kType), nullptr);
+            }
+            ~ReffedIDMap() {
+                // A well-behaved client always cleans up its definitions.
+                SkASSERT(fMap.count() == 1);
+            }
+
+            void set(const ID& id, T* val) {
+                SkASSERT(id.type() == kType && val);
+                fMap.set(id, SkRef(val));
+            }
+
+            void remove(const ID& id) {
+                SkASSERT(id.type() == kType);
+                T** val = fMap.find(id);
+                SkASSERT(val && *val);
+                (*val)->unref();
+                fMap.remove(id);
+            }
+
+            T* find(const ID& id) const {
+                SkASSERT(id.type() == kType);
+                T** val = fMap.find(id);
+                SkASSERT(val);
+                return *val;
+            }
+
+        private:
+            SkTHashMap<ID, T*> fMap;
+        };
+
+        IDMap<SkMatrix, Type::kMatrix>           fMatrix;
+        IDMap<Misc    , Type::kMisc  >           fMisc;
+        IDMap<SkPath  , Type::kPath  >           fPath;
+        IDMap<Stroke  , Type::kStroke>           fStroke;
+        ReffedIDMap<SkXfermode, Type::kXfermode> fXfermode;
 
         SkCanvas* fCanvas;
     };
