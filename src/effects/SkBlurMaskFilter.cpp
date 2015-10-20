@@ -721,7 +721,8 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     const char *rectName;
     const char *profileSizeName;
 
-    const char* precisionString = GrGLShaderVar::PrecisionString(fPrecision, kGLES_GrGLStandard);
+    const char* precisionString = GrGLShaderVar::PrecisionString(
+        fPrecision, args.fBuilder->ctxInfo().standard());
     fProxyRectUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
                                             fPrecision,
