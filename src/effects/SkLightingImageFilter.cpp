@@ -682,7 +682,7 @@ class GrGLLight;
 
 class SkImageFilterLight : public SkRefCnt {
 public:
-
+    
 
     enum LightType {
         kDistant_LightType,
@@ -819,8 +819,8 @@ public:
         // Use X scale and Y scale on Z and average the result
         SkPoint locationZ = SkPoint::Make(fLocation.fZ, fLocation.fZ);
         matrix.mapVectors(&locationZ, 1);
-        SkPoint3 location = SkPoint3::Make(location2.fX,
-                                           location2.fY,
+        SkPoint3 location = SkPoint3::Make(location2.fX, 
+                                           location2.fY, 
                                            SkScalarAve(locationZ.fX, locationZ.fY));
         return new SkPointLight(location, color());
     }
@@ -854,7 +854,7 @@ public:
      : INHERITED(color),
        fLocation(location),
        fTarget(target),
-       fSpecularExponent(specularExponent)
+       fSpecularExponent(SkScalarPin(specularExponent, kSpecularExponentMin, kSpecularExponentMax))
     {
        fS = target - location;
        fast_normalize(&fS);
@@ -984,6 +984,9 @@ protected:
     }
 
 private:
+    static const SkScalar kSpecularExponentMin;
+    static const SkScalar kSpecularExponentMax;
+
     SkPoint3 fLocation;
     SkPoint3 fTarget;
     SkScalar fSpecularExponent;
@@ -994,6 +997,11 @@ private:
 
     typedef SkImageFilterLight INHERITED;
 };
+
+// According to the spec, the specular term should be in the range [1, 128] :
+// http://www.w3.org/TR/SVG/filters.html#feSpecularLightingSpecularExponentAttribute
+const SkScalar SkSpotLight::kSpecularExponentMin = 1.0f;
+const SkScalar SkSpotLight::kSpecularExponentMax = 128.0f;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1985,7 +1993,7 @@ void GrGLSpotLight::emitLightColor(GrGLFPBuilder* builder,
     lightColorBody.appendf("\t\treturn %s * scale * (cosAngle - %s) * %s;\n",
                            color, cosOuter, coneScale);
     lightColorBody.appendf("\t}\n");
-    lightColorBody.appendf("\treturn %s * scale;\n", color);
+    lightColorBody.appendf("\treturn %s;\n", color);
     GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     fsBuilder->emitFunction(kVec3f_GrSLType,
                             "lightColor",
