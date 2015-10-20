@@ -713,7 +713,7 @@ public:
               kAlpha_8_SkColorType,
               kIndex_8_SkColorType,
               kGray_8_SkColorType };
-        fColorTypes.push_back_n(SK_ARRAY_COUNT(colorTypes), colorTypes);
+        fColorTypes.reset(colorTypes, SK_ARRAY_COUNT(colorTypes));
     }
 
     static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic) {
@@ -1117,7 +1117,7 @@ private:
     SkTArray<SkString> fSKPs;
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
-    SkTArray<SkColorType> fColorTypes;
+    SkTArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
     double             fZoomPeriodMs;
 
