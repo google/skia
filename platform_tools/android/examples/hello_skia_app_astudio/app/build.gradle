@@ -1,0 +1,284 @@
+apply plugin: 'com.android.model.application'
+model {
+    android {
+        compileSdkVersion = 22
+        buildToolsVersion = "22.0.1"
+
+        defaultConfig.with {
+            applicationId = "com.example"
+            minSdkVersion.apiLevel = 19
+            targetSdkVersion.apiLevel = 19
+
+
+        }
+    }
+
+    android.dexOptions {
+        preDexLibraries = false
+        javaMaxHeapSize = "4g"
+    }
+
+    // gather up all the includes
+
+
+    android.ndk {
+        moduleName = "skia_android"
+        cppFlags += "-std=c++11"
+
+        // these have to go first - some are multiply defined
+        cppFlags += "-I$project.projectDir/../../../../../platform_tools/android/third_party/externals/jpeg".toString()
+        cppFlags += "-I$project.projectDir/../../../../../platform_tools/android/third_party/externals/png".toString()
+        cppFlags += "-I$project.projectDir/../../../../../platform_tools/android/third_party/externals/expat/lib".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party/externals/freetype/include".toString()
+        CFlags += "-I/Users/heidigaertner/Git/paintLib/skia/third_party/externals/freetype/include"
+        CFlags += "-DFT2_BUILD_LIBRARY"
+        CFlags += "-DFT_ADVANCES_H=<freetype/ftadvanc.h>"
+        CFlags += "-DFT_CONFIG_OPTION_SYSTEM_ZLIB"
+
+        // I can only access projectDir from within one of these blocks
+        FileCollection tree = fileTree(dir: "$project.projectDir/../../../../../include".toString(), include: '**/**')
+        FileCollection srcTree = fileTree(dir: "$project.projectDir/../../../../../src", include: '**/**')
+
+        FileCollection filtered = tree.matching {
+            exclude '**/*.*'
+        }
+
+        FileCollection srcFiltered = srcTree.matching {
+            exclude '**/*.*'
+        }
+
+        // for some reason I can't craft this string myself
+        filtered.visit { element ->
+            String tmp = "-I$element.file"
+            cppFlags += tmp
+
+        }
+
+        srcFiltered.visit { element ->
+            String tmp = "-I$element.file"
+            cppFlags += tmp
+        }
+
+        cppFlags += "-I$project.projectDir/../../../../../third_party/ktx".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party/etc1".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party/externals/libjpeg-turbo".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party/libpng".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party/externals/libwebp/src".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party/libwebp".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party/externals/giflib".toString()
+        cppFlags += "-I$project.projectDir/../../../../../third_party".toString()
+        cppFlags += "-DSK_BUILD_FOR_ANDROID"
+        cppFlags += "-DSK_SUPPORT_GPU"
+        cppFlags += "-DDTURBO_HAS_SKIP"
+        cppFlags += "-DSKIA_IMPLEMENTATION"
+        cppFlags += "-DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG"
+        cppFlags += "-DSK_DEVELOPER"
+        cppFlags += "-DSK_BUILD_FOR_ANDROID_FRAMEWORK"
+        cppFlags += "-DSK_EGL"
+        cppFlags += "-DSK_COMMAND_BUFFER"
+
+
+        println cppFlags
+
+        ldFlags += "-L$project.projectDir/../../../../../out/config/android-nexus_9/Debug".toString()
+        ldFlags += "-L$project.projectDir/../../../../../out/config/android-nexus_9/Debug/obj/gyp".toString()
+        ldFlags += "-L$project.projectDir/../../../../../out/config/android-arm_v7_neon/Debug".toString()
+        ldFlags += "-L$project.projectDir/../../../../../out/config/android-arm_v7_neon/Debug/obj/gyp".toString()
+        ldFlags += "-L$project.projectDir/../../../../../out/config/android-x86/Debug".toString()
+        ldFlags += "-L$project.projectDir/../../../../../out/config/android-x86/Debug/obj/gyp".toString()
+
+        ldFlags += "-w"
+        ldFlags += "-v"
+
+
+        ldLibs += "jnigraphics"
+        ldLibs += "EGL"
+        ldLibs += "log"
+        ldLibs += "android"
+        ldLibs += "GLESv2"
+        ldLibs += "png_static_neon"
+        ldLibs += "skia_ports"
+        ldLibs += "expat"
+        ldLibs += "jpeg"
+        ldLibs += "giflib"
+        ldLibs += "etc1"
+        ldLibs += "webp_enc"
+        ldLibs += "webp_dec"
+        ldLibs += "webp_utils"
+        ldLibs += "webp_demux"
+        ldLibs += "webp_dsp"
+        ldLibs += "webp_dsp_enc"
+        ldLibs += "webp_dsp_neon"
+        ldLibs += "skia_opts"
+        ldLibs += "z"
+
+
+
+
+        ldLibs += "png"
+
+
+    }
+
+    task copyAndroid(type: Copy) {
+        from "$project.projectDir/../../../../../third_party/externals/freeType"
+
+        from "$project.projectDir/../../../../../third_party/ktx"
+        from "$project.projectDir/../../../../../platform_tools/android/third_party/ashmem"
+        from "$project.projectDir/../../../../../platform_tools/android/third_party/cpufeatures"
+        from "$project.projectDir/../../../../../src/ports/SkImageGenerator_skia.cpp"
+        // why this isnt' in the ports lib?
+        into 'src/main/jni/skia/externals'
+
+        include('**/*.cpp')
+        include('**/*.h')
+        include('**/*.c')
+        exclude('**/examples')
+        exclude('**/doc')
+        exclude('**/tests')
+        exclude('**/amiga')
+        exclude('**/builds')
+        exclude('**/autofit.c')
+        exclude('**/*mac.c')
+        exclude('**/gxvfgen.c')
+
+        exclude('**/ftbase.c')
+        exclude('**/bdf.c')
+        exclude('**/cff.c')
+        exclude('**/gxvalid.c')
+        exclude('**/otvalid.c')
+        exclude('**/pcf.c')
+        exclude('**/pfr.c')
+        exclude('**/psaux.c')
+        exclude('**/pshinter.c')
+        exclude('**/psnames.c')
+        exclude('**/raster.c')
+        exclude('**/sfnt.c')
+        exclude('**/smooth.c')
+        exclude('**/truetype.c')
+        exclude('**/ftcache.c')
+        exclude('**/apinames.c')
+        exclude('**/aflatin2.c')
+
+        exclude('**/type1.c')
+        exclude('**/type1cid.c')
+        exclude('**/type42.c')
+        exclude('**/test_*.c')
+
+
+        exclude('**/gzip')
+    }
+
+    task copySkia(type: Copy, dependsOn: 'copyAndroid') {
+        println "$project.projectDir"
+        from "$project.projectDir/../../../../../src/"
+        into 'src/main/jni/skia'
+        include('**/*.cpp')
+        include('**/*.h')
+        include('**/*.c')
+        exclude('**/angle')
+        exclude('**/views')
+        exclude('**/win')
+        exclude('**/glx')
+        exclude('**/iOS')
+        exclude('**/mac')
+        exclude('**/mesa')
+        exclude('**/nacl')
+        exclude('**/animator')
+        exclude('**/doc')
+        exclude('**/device')
+        exclude('**/ports')
+        exclude('**/fonts')
+        exclude('**/xml')
+        exclude('**/opts')
+        exclude('**/*Lua*.*')
+        exclude('**/*linux*.*')
+        exclude('**/*_win*.*')
+        exclude('**/*_mach*.*')
+        exclude('**/SkJpegCodec.cpp')
+        exclude('**/utils/android')
+        exclude('**/svg')
+        exclude('**/GrGLCreateNativeInterface_none.cpp')
+        exclude('**/GrGLCreateNativeInterface_native.cpp')
+        exclude('**/GrGLCreateNativeInterface_egl.cpp')
+        exclude('**/GrGLDefaultInterface_none.cpp')
+
+
+    }
+
+
+
+    android.buildTypes {
+        release {
+            ndk.with {
+                debuggable = true
+            }
+        }
+        debug {
+
+            ndk.with {
+                cppFlags += "-DSK_DEBUG"
+
+            }
+
+        }
+    }
+
+
+    android.sources {
+        main {
+            jni.source.srcDirs += 'src/main/jni'
+            jni.source.srcDirs += '$project.projectDir/build/intermediates/binaries/debug/arm64/obj/arm64-v8a'
+            jni.source.srcDirs += '$project.projectDir/build/intermediates/binaries/debug/arm7/obj/armeabi-v7'
+            jni.source.srcDirs += '$project.projectDir/build/intermediates/binaries/debug/x86/obj/x86'
+
+
+        }
+    }
+
+
+
+
+    android.productFlavors {
+        create("arm7") {
+            ndk.with {
+                // You can customize the NDK configurations for each
+                // productFlavors and buildTypes.
+                abiFilters = ["armeabi-v7a"]
+                versionCode = 3;
+                ldLibs += "skia_opts_neon"
+                cppFlags += "-mfpu=neon"
+                cppFlags += "-DWEBP_USE_NEON"
+                cppFlags += "-DSK_ARM_HAS_NEON"
+
+
+
+
+            }
+        }
+        create("arm64") {
+            ndk.with {
+
+                abiFilters = ["arm64-v8a"]
+                cppFlags += "-DWEBP_USE_NEON"
+
+
+            }
+        }
+
+        create("x86") {
+            ndk.with {
+                abiFilters = ["x86"]
+                versionCode = 6;
+                ldLibs += "skia_opts_ssse3"
+                ldLibs += "skia_opts_sse41"
+
+
+
+
+            }
+        }
+    }
+
+
+}
