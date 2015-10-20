@@ -41,7 +41,7 @@ struct SkDCubic {
         return v03.dot(v01) > 0 && v03.dot(v02) > 0 && v03.dot(v13) > 0 && v03.dot(v23) > 0;
     }
 
-    static bool IsCubic() { return true; }
+    static bool IsConic() { return false; }
 
     const SkDPoint& operator[](int n) const { SkASSERT(n >= 0 && n < kPointCount); return fPts[n]; }
     SkDPoint& operator[](int n) { SkASSERT(n >= 0 && n < kPointCount); return fPts[n]; }

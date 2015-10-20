@@ -45,7 +45,7 @@ struct SkDQuad {
         return result;
     }
 
-    static bool IsCubic() { return false; }
+    static bool IsConic() { return false; }
 
     const SkDQuad& set(const SkPoint pts[kPointCount]) {
         fPts[0] = pts[0];
