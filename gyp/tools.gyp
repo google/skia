@@ -17,12 +17,9 @@
       'target_name': 'tools',
       'type': 'none',
       'dependencies': [
-        'bench_pictures',
         'bitmap_region_decoder',
         'chrome_fuzz',
-        'dump_record',
         'filter',
-        'flatten',
         'gpuveto',
         'imgblur',
         'imgconv',
@@ -31,10 +28,8 @@
         'lua_pictures',
         'pinspect',
         'render_pdfs',
-        'render_pictures',
         'skdiff',
         'skhello',
-        'skp2svg',
         'skpdiff',
         'skpinfo',
         'skpmaker',
@@ -344,50 +339,32 @@
       ],
     },
     {
-      'target_name': 'flatten',
-      'type': 'executable',
-      'sources': [
-        '../tools/flatten.cpp',
-      ],
-      'dependencies': [
-        'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
-      # Superseded by dm, should be removed.
-      'target_name': 'skp2svg',
-      'type': 'executable',
-      'sources': [
-        '../src/svg/skp2svg.cpp',
-        '../tools/LazyDecodeBitmap.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core/',
-        '../src/lazy/',
-        '../tools/',
-      ],
-      'dependencies': [
-        'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-        'svg.gyp:svg',
-        'xml.gyp:xml',
-      ],
+        'target_name': 'lazy_decode_bitmap',
+        'type': 'static_library',
+        'sources': [ '../tools/LazyDecodeBitmap.cpp' ],
+        'include_dirs': [
+            '../include/private',
+            '../src/core',
+            '../src/lazy',
+        ],
+        'dependencies': [
+            'flags.gyp:flags',
+            'skia_lib.gyp:skia_lib'
+        ],
     },
     {
       'target_name': 'gpuveto',
       'type': 'executable',
       'sources': [
         '../tools/gpuveto.cpp',
-        '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
         '../include/private',
         '../src/core/',
         '../src/images',
-        '../src/lazy',
       ],
       'dependencies': [
+        'lazy_decode_bitmap',
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
       ],
@@ -429,11 +406,11 @@
         '../src/core/',
       ],
       'dependencies': [
+        'lazy_decode_bitmap',
         'effects.gyp:effects',
         'flags.gyp:flags',
         'images.gyp:images',
         'lua.gyp:lua',
-        'tools.gyp:picture_renderer',
         'tools.gyp:picture_utils',
         'pdf.gyp:pdf',
         'ports.gyp:ports',
@@ -441,91 +418,11 @@
       ],
     },
     {
-      'target_name': 'render_pictures',
-      'type': 'executable',
-      'sources': [
-        '../tools/render_pictures_main.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core',
-        '../src/images',
-        '../src/lazy',
-        '../src/pipe/utils/',
-      ],
-      'dependencies': [
-        'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_renderer',
-        'tools.gyp:picture_utils',
-      ],
-    },
-    {
-      'target_name': 'bench_pictures',
-      'type': 'executable',
-      'sources': [
-        '../bench/BenchLogger.cpp',
-        '../bench/BenchLogger.h',
-        '../tools/PictureBenchmark.cpp',
-        '../tools/PictureResultsWriter.h',
-        '../tools/bench_pictures_main.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core/',
-        '../bench',
-        '../src/lazy/',
-      ],
-      'dependencies': [
-        'timer',
-        'crash_handler',
-        'flags.gyp:flags',
-        'jsoncpp.gyp:jsoncpp',
-        'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_renderer',
-        'tools.gyp:picture_utils',
-      ],
-      'conditions': [
-        ['skia_android_framework == 1', {
-          'libraries': [ '-lskia' ],
-        }],
-      ],
-    },
-    {
-      'target_name': 'dump_record',
-      'type': 'executable',
-      'sources': [
-        '../tools/dump_record.cpp',
-        '../tools/DumpRecord.cpp',
-        '../tools/LazyDecodeBitmap.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core/',
-        '../src/images',
-        '../src/lazy',
-      ],
-      'dependencies': [
-        'timer',
-        'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
       'target_name': 'picture_renderer',
       'type': 'static_library',
       'sources': [
-        '../tools/image_expectations.h',
-        '../tools/image_expectations.cpp',
-        '../tools/LazyDecodeBitmap.cpp',
         '../tools/PictureRenderer.h',
         '../tools/PictureRenderer.cpp',
-        '../tools/PictureRenderingFlags.h',
-        '../tools/PictureRenderingFlags.cpp',
-        '../tools/CopyTilesRenderer.h',
-        '../tools/CopyTilesRenderer.cpp',
-        '../src/pipe/utils/SamplePipeControllers.h',
-        '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'include_dirs': [
         '../include/private',
@@ -535,14 +432,8 @@
         '../src/pipe/utils/',
         '../src/utils/',
       ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          # needed for JSON headers used within image_expectations.h
-          '../third_party/externals/jsoncpp-chromium/overrides/include/',
-          '../third_party/externals/jsoncpp/include/',
-        ],
-      },
       'dependencies': [
+        'lazy_decode_bitmap',
         'flags.gyp:flags',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
@@ -642,9 +533,9 @@
         '../tools/pinspect.cpp',
       ],
       'dependencies': [
+        'lazy_decode_bitmap',
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_renderer',
       ],
     },
     {

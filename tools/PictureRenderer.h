@@ -26,8 +26,6 @@
 #include "GrContext.h"
 #endif
 
-#include "image_expectations.h"
-
 struct GrContextOptions;
 class SkBitmap;
 class SkCanvas;
@@ -100,14 +98,6 @@ public:
                       const SkString* inputFilename,
                       bool useChecksumBasedFilenames,
                       bool useMultiPictureDraw);
-
-    /**
-     * TODO(epoger): Temporary hack, while we work on http://skbug.com/2584 ('bench_pictures is
-     * timing reading pixels and writing json files'), such that:
-     * - render_pictures can call this method and continue to work
-     * - any other callers (bench_pictures) will skip calls to write() by default
-     */
-    void enableWrites() { fEnableWrites = true; }
 
     /**
      *  Set the viewport so that only the portion listed gets drawn.
@@ -250,10 +240,6 @@ public:
     }
 
     BBoxHierarchyType getBBoxHierarchyType() { return fBBoxHierarchyType; }
-
-    void setJsonSummaryPtr(ImageResultsAndExpectations* jsonSummaryPtr) {
-        fJsonSummaryPtr = jsonSummaryPtr;
-    }
 
     bool isUsingBitmapDevice() {
         return kBitmap_DeviceType == fDeviceType;
@@ -444,9 +430,7 @@ public:
 #else
     PictureRenderer()
 #endif
-        : fJsonSummaryPtr(nullptr)
-        , fDeviceType(kBitmap_DeviceType)
-        , fEnableWrites(false)
+        : fDeviceType(kBitmap_DeviceType)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
         , fHasDrawFilters(false)
         , fScaleFactor(SK_Scalar1)
@@ -472,9 +456,7 @@ protected:
     SkAutoTUnref<const SkPicture> fPicture;
     bool                   fUseChecksumBasedFilenames;
     bool                   fUseMultiPictureDraw;
-    ImageResultsAndExpectations*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
-    bool                   fEnableWrites;
     BBoxHierarchyType      fBBoxHierarchyType;
     bool                   fHasDrawFilters;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];

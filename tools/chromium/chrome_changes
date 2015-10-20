@@ -1,7 +1,0 @@
-# This file contains references to Chrome CLs which are associated with Skia
-# changes. If your Skia change requires a change in Chrome, add a line to this
-# file which contains the codereview issue(s) for the Chrome change, eg:
-# https://codereview.chromium.org/249493003/
-# In the future, these changes will be automatically applied and committed as
-# part of the DEPS roll which contains the Skia change.
-https://codereview.chromium.org/265513005/

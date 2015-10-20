@@ -283,87 +283,6 @@ void PictureRenderer::purgeTextures() {
 #endif
 }
 
-/**
- * Write the canvas to an image file and/or JSON summary.
- *
- * @param canvas Must be non-null. Canvas to be written to a file.
- * @param writePath If nonempty, write the binary image to a file within this directory.
- * @param mismatchPath If nonempty, write the binary image to a file within this directory,
- *     but only if the image does not match expectations.
- * @param inputFilename If we are writing out a binary image, use this to build its filename.
- * @param jsonSummaryPtr If not null, add image results (checksum) to this summary.
- * @param useChecksumBasedFilenames If true, use checksum-based filenames when writing to disk.
- * @param tileNumberPtr If not null, which tile number this image contains.
- *
- * @return bool True if the operation completed successfully.
- */
-static bool write(SkCanvas* canvas, const SkString& writePath, const SkString& mismatchPath,
-                  const SkString& inputFilename, ImageResultsAndExpectations *jsonSummaryPtr,
-                  bool useChecksumBasedFilenames, const int* tileNumberPtr=nullptr) {
-    SkASSERT(canvas != nullptr);
-    if (nullptr == canvas) {
-        return false;
-    }
-
-    SkBitmap bitmap;
-    SkISize size = canvas->getDeviceSize();
-    setup_bitmap(&bitmap, size.width(), size.height());
-
-    canvas->readPixels(&bitmap, 0, 0);
-    force_all_opaque(bitmap);
-    BitmapAndDigest bitmapAndDigest(bitmap);
-
-    SkString escapedInputFilename(inputFilename);
-    replace_char(&escapedInputFilename, '.', '_');
-
-    // TODO(epoger): what about including the config type within outputFilename?  That way,
-    // we could combine results of different config types without conflicting filenames.
-    SkString outputFilename;
-    const char *outputSubdirPtr = nullptr;
-    if (useChecksumBasedFilenames) {
-        ImageDigest *imageDigestPtr = bitmapAndDigest.getImageDigestPtr();
-        outputSubdirPtr = escapedInputFilename.c_str();
-        outputFilename.set(imageDigestPtr->getHashType());
-        outputFilename.append("_");
-        outputFilename.appendU64(imageDigestPtr->getHashValue());
-    } else {
-        outputFilename.set(escapedInputFilename);
-        if (tileNumberPtr) {
-            outputFilename.append("-tile");
-            outputFilename.appendS32(*tileNumberPtr);
-        }
-    }
-    outputFilename.append(".png");
-
-    if (jsonSummaryPtr) {
-        ImageDigest *imageDigestPtr = bitmapAndDigest.getImageDigestPtr();
-        SkString outputRelativePath;
-        if (outputSubdirPtr) {
-            outputRelativePath.set(outputSubdirPtr);
-            outputRelativePath.append("/");  // always use "/", even on Windows
-            outputRelativePath.append(outputFilename);
-        } else {
-            outputRelativePath.set(outputFilename);
-        }
-
-        jsonSummaryPtr->add(inputFilename.c_str(), outputRelativePath.c_str(),
-                            *imageDigestPtr, tileNumberPtr);
-        if (!mismatchPath.isEmpty() &&
-            !jsonSummaryPtr->getExpectation(inputFilename.c_str(),
-                                            tileNumberPtr).matches(*imageDigestPtr)) {
-            if (!write_bitmap_to_disk(bitmap, mismatchPath, outputSubdirPtr, outputFilename)) {
-                return false;
-            }
-        }
-    }
-
-    if (writePath.isEmpty()) {
-        return true;
-    } else {
-        return write_bitmap_to_disk(bitmap, writePath, outputSubdirPtr, outputFilename);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 SkCanvas* RecordPictureRenderer::setupCanvas(int width, int height) {
@@ -417,12 +336,7 @@ bool PipePictureRenderer::render(SkBitmap** out) {
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
     }
-    if (fEnableWrites) {
-        return write(fCanvas, fWritePath, fMismatchPath, fInputFilename, fJsonSummaryPtr,
-                     fUseChecksumBasedFilenames);
-    } else {
-        return true;
-    }
+    return true;
 }
 
 SkString PipePictureRenderer::getConfigNameInternal() {
@@ -462,12 +376,7 @@ bool SimplePictureRenderer::render(SkBitmap** out) {
                            SkScalarCeilToInt(fPicture->cullRect().height()));
         fCanvas->readPixels(*out, 0, 0);
     }
-    if (fEnableWrites) {
-        return write(fCanvas, fWritePath, fMismatchPath, fInputFilename, fJsonSummaryPtr,
-                     fUseChecksumBasedFilenames);
-    } else {
-        return true;
-    }
+    return true;
 }
 
 SkString SimplePictureRenderer::getConfigNameInternal() {
@@ -674,10 +583,6 @@ bool TiledPictureRenderer::postRender(SkCanvas* canvas, const SkIRect& tileRect,
                                       int tileNumber) {
     bool success = true;
 
-    if (fEnableWrites) {
-        success &= write(canvas, fWritePath, fMismatchPath, fInputFilename, fJsonSummaryPtr,
-                         fUseChecksumBasedFilenames, &tileNumber);
-    }
     if (out) {
         if (canvas->readPixels(tempBM, 0, 0)) {
             // Add this tile to the entire bitmap.

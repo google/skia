@@ -52,9 +52,6 @@ SRCS = glob(
         "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
         "src/svg/parser/*",  # Missing SkSVG.h.
 
-        # Dependency on files outside src.
-        "src/svg/skp2svg.cpp",  # Depends on tools/LazyDecodeBitmap.h.
-
         # Not used.
         "src/animator/**/*",
         "src/views/**/*",
