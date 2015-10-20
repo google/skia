@@ -8,6 +8,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkDevice.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
@@ -76,10 +77,6 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
         return false;
     }
 
-    if (!dst->tryAllocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
-        return false;
-    }
-
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
     ctx.ctm().mapVectors(&radius, 1);
@@ -100,12 +97,20 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
         return true;
     }
 
-    SkBitmap temp;
-    if (!temp.tryAllocPixels(dst->info())) {
+    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
+    if (!device) {
         return false;
     }
+    *dst = device->accessBitmap(false);
+    SkAutoLockPixels alp_dst(*dst);
 
     if (width > 0 && height > 0) {
+        SkAutoTUnref<SkBaseDevice> tempDevice(proxy->createDevice(dst->width(), dst->height()));
+        if (!tempDevice) {
+            return false;
+        }
+        SkBitmap temp = tempDevice->accessBitmap(false);
+        SkAutoLockPixels alp_temp(temp);
         callProcX(procX, src, &temp, width, srcBounds);
         SkIRect tmpBounds = SkIRect::MakeWH(srcBounds.width(), srcBounds.height());
         callProcY(procY, temp, dst, height, tmpBounds);

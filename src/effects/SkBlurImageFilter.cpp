@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorPriv.h"
+#include "SkDevice.h"
 #include "SkGpuBlurUtils.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
@@ -90,9 +91,12 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    if (!dst->tryAllocPixels(src.info().makeWH(srcBounds.width(), srcBounds.height()))) {
+    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(srcBounds.width(), srcBounds.height()));
+    if (!device) {
         return false;
     }
+    *dst = device->accessBitmap(false);
+    SkAutoLockPixels alp_dst(*dst);
     dst->getBounds(&dstBounds);
 
     SkVector sigma = mapSigma(fSigma, ctx.ctm());
@@ -113,10 +117,12 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return true;
     }
 
-    SkBitmap temp;
-    if (!temp.tryAllocPixels(dst->info())) {
+    SkAutoTUnref<SkBaseDevice> tempDevice(proxy->createDevice(dst->width(), dst->height()));
+    if (!tempDevice) {
         return false;
     }
+    SkBitmap temp = tempDevice->accessBitmap(false);
+    SkAutoLockPixels alpTemp(temp);
 
     offset->fX = srcBounds.fLeft;
     offset->fY = srcBounds.fTop;
