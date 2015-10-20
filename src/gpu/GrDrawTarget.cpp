@@ -42,6 +42,11 @@ GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
+
+#ifdef SK_DEBUG
+    static int debugID = 0;
+    fDebugID = debugID++;
+#endif
 }
 
 GrDrawTarget::~GrDrawTarget() {
@@ -78,6 +83,29 @@ void GrDrawTarget::addDependency(GrSurface* dependedOn) {
         }
     }
 }
+
+#ifdef SK_DEBUG
+void GrDrawTarget::dump() const {
+    SkDebugf("--------------------------------------------------------------\n");
+    SkDebugf("node: %d\n");
+    SkDebugf("relies On (%d): ", fDependencies.count());
+    for (int i = 0; i < fDependencies.count(); ++i) {
+        SkDebugf("%d, ", fDependencies[i]->fDebugID);
+    }
+    SkDebugf("\n");
+    SkDebugf("batches (%d):\n", fBatches.count());
+    for (int i = 0; i < fBatches.count(); ++i) {
+#if 0
+        SkDebugf("*******************************\n");
+#endif
+        SkDebugf("%d: %s\n", i, fBatches[i]->name());
+#if 0
+        SkString str = fBatches[i]->dumpInfo();
+        SkDebugf("%s\n", str.c_str());
+#endif
+    }
+}
+#endif
 
 bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
                                            const GrProcOptInfo& colorPOI,

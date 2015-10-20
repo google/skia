@@ -100,6 +100,7 @@ void GrDrawingManager::flush() {
     SkASSERT(result);
 
     for (int i = 0; i < fDrawTargets.count(); ++i) {
+        //SkDEBUGCODE(fDrawTargets[i]->dump();)
         fDrawTargets[i]->flush();
     }
 

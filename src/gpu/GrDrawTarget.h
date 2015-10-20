@@ -70,6 +70,11 @@ public:
         return fDependencies.find(dependedOn) >= 0;
     }
 
+    /*
+     * Dump out the drawTarget dependency DAG
+     */
+    SkDEBUGCODE(void dump() const;)
+
     /**
      * Empties the draw buffer of any queued up draws.
      */
@@ -304,6 +309,7 @@ private:
     bool                                        fFlushing;
     int                                         fFirstUnpreparedBatch;
 
+    SkDEBUGCODE(int                             fDebugID;)
     uint32_t                                    fFlags;
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
