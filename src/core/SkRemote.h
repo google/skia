@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRemote_protocol.h"
+#include "SkShader.h"
 #include "SkTHash.h"
 #include "SkTypes.h"
 
@@ -45,6 +46,7 @@ namespace SkRemote {
         virtual void define(ID, const Misc&)     = 0;
         virtual void define(ID, const SkPath&)   = 0;
         virtual void define(ID, const Stroke&)   = 0;
+        virtual void define(ID, SkShader*)       = 0;
         virtual void define(ID, SkXfermode*)     = 0;
 
         virtual void undefine(ID) = 0;
@@ -54,12 +56,12 @@ namespace SkRemote {
 
         virtual void setMatrix(ID matrix) = 0;
 
-        // TODO: struct CommonIDs { ID misc; ID xfermode; ... }
+        // TODO: struct CommonIDs { ID misc, shader, xfermode; ... }
         // for IDs that affect both fill + stroke?
 
-        virtual void   clipPath(ID path, SkRegion::Op, bool aa)           = 0;
-        virtual void   fillPath(ID path, ID misc, ID xfermode)            = 0;
-        virtual void strokePath(ID path, ID misc, ID xfermode, ID stroke) = 0;
+        virtual void   clipPath(ID path, SkRegion::Op, bool aa)                      = 0;
+        virtual void   fillPath(ID path, ID misc, ID shader, ID xfermode)            = 0;
+        virtual void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) = 0;
     };
 
     class LookupScope;
@@ -84,6 +86,7 @@ namespace SkRemote {
         virtual bool lookup(const Misc&,       ID*, LookupScope*) = 0;
         virtual bool lookup(const SkPath&,     ID*, LookupScope*) = 0;
         virtual bool lookup(const Stroke&,     ID*, LookupScope*) = 0;
+        virtual bool lookup(const SkShader*,   ID*, LookupScope*) = 0;
         virtual bool lookup(const SkXfermode*, ID*, LookupScope*) = 0;
 
         virtual void cleanup(Encoder*) = 0;
@@ -134,6 +137,7 @@ namespace SkRemote {
         void define(ID, const Misc&)     override;
         void define(ID, const SkPath&)   override;
         void define(ID, const Stroke&)   override;
+        void define(ID, SkShader*)       override;
         void define(ID, SkXfermode*)     override;
 
         void undefine(ID) override;
@@ -143,9 +147,9 @@ namespace SkRemote {
 
         void setMatrix(ID matrix) override;
 
-        void   clipPath(ID path, SkRegion::Op, bool aa)           override;
-        void   fillPath(ID path, ID misc, ID xfermode)            override;
-        void strokePath(ID path, ID misc, ID xfermode, ID stroke) override;
+        void   clipPath(ID path, SkRegion::Op, bool aa)                      override;
+        void   fillPath(ID path, ID misc, ID shader, ID xfermode)            override;
+        void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) override;
 
         // Maps ID -> T.
         template <typename T, Type kType>
@@ -218,6 +222,7 @@ namespace SkRemote {
         IDMap<Misc    , Type::kMisc  >           fMisc;
         IDMap<SkPath  , Type::kPath  >           fPath;
         IDMap<Stroke  , Type::kStroke>           fStroke;
+        ReffedIDMap<SkShader,   Type::kShader>   fShader;
         ReffedIDMap<SkXfermode, Type::kXfermode> fXfermode;
 
         SkCanvas* fCanvas;

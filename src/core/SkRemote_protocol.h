@@ -21,6 +21,7 @@ namespace SkRemote {
         kMisc,
         kPath,
         kStroke,
+        kShader,
         kXfermode,
     };
 

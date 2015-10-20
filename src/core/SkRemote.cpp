@@ -101,6 +101,7 @@ namespace SkRemote {
                 , fNextMisc    (Type::kMisc)
                 , fNextPath    (Type::kPath)
                 , fNextStroke  (Type::kStroke)
+                , fNextShader  (Type::kShader)
                 , fNextXfermode(Type::kXfermode)
             {}
             void cleanup(Encoder*) override {}
@@ -123,6 +124,13 @@ namespace SkRemote {
             bool lookup(const Stroke&, ID* id, LookupScope* ls) override {
                 return Helper(&fNextStroke, id, ls);
             }
+            bool lookup(const SkShader* shader, ID* id, LookupScope* ls) override {
+                if (!shader) {
+                    *id = ID(Type::kShader);
+                    return true;  // Null IDs are always defined.
+                }
+                return Helper(&fNextShader, id, ls);
+            }
             bool lookup(const SkXfermode* xfermode, ID* id, LookupScope* ls) override {
                 if (!xfermode) {
                     *id = ID(Type::kXfermode);
@@ -135,6 +143,7 @@ namespace SkRemote {
                fNextMisc,
                fNextPath,
                fNextStroke,
+               fNextShader,
                fNextXfermode;
         };
         return new NeverCache;
@@ -197,6 +206,7 @@ namespace SkRemote {
                 , fNextMisc    (Type::kMisc)
                 , fNextPath    (Type::kPath)
                 , fNextStroke  (Type::kStroke)
+                , fNextShader  (Type::kShader)
                 , fNextXfermode(Type::kXfermode)
             {}
 
@@ -206,6 +216,7 @@ namespace SkRemote {
                 fMisc    .foreach(undef);
                 fPath    .foreach(undef);
                 fStroke  .foreach(undef);
+                fShader  .foreach(undef);
                 fXfermode.foreach(undef);
             }
 
@@ -222,6 +233,9 @@ namespace SkRemote {
             bool lookup(const Stroke& stroke, ID* id, LookupScope*) override {
                 return always_cache_lookup(stroke, &fStroke, &fNextStroke, id);
             }
+            bool lookup(const SkShader* shader, ID* id, LookupScope*) override {
+                return always_cache_lookup(shader, &fShader, &fNextShader, id);
+            }
             bool lookup(const SkXfermode* xfermode, ID* id, LookupScope*) override {
                 return always_cache_lookup(xfermode, &fXfermode, &fNextXfermode, id);
             }
@@ -230,12 +244,14 @@ namespace SkRemote {
             SkTHashMap<Misc,     ID, MiscHash>     fMisc;
             SkTHashMap<SkPath,   ID>               fPath;
             SkTHashMap<Stroke,   ID>               fStroke;
+            RefKeyMap<SkShader,   Type::kShader>   fShader;
             RefKeyMap<SkXfermode, Type::kXfermode> fXfermode;
 
             ID fNextMatrix,
                fNextMisc,
                fNextPath,
                fNextStroke,
+               fNextShader,
                fNextXfermode;
         };
         return new AlwaysCache;
@@ -293,13 +309,14 @@ namespace SkRemote {
         LookupScope ls(fCache, fEncoder);
         ID p = ls.lookup(path),
            m = ls.lookup(Misc::CreateFrom(paint)),
+           s = ls.lookup(paint.getShader()),
            x = ls.lookup(paint.getXfermode());
 
         if (paint.getStyle() == SkPaint::kFill_Style) {
-            fEncoder->fillPath(p, m, x);
+            fEncoder->fillPath(p, m, s, x);
         } else {
             // TODO: handle kStrokeAndFill_Style
-            fEncoder->strokePath(p, m, x, ls.lookup(Stroke::CreateFrom(paint)));
+            fEncoder->strokePath(p, m, s, x, ls.lookup(Stroke::CreateFrom(paint)));
         }
     }
 
@@ -363,6 +380,7 @@ namespace SkRemote {
     void Server::define(ID id, const Misc&     v) { fMisc    .set(id, v); }
     void Server::define(ID id, const SkPath&   v) { fPath    .set(id, v); }
     void Server::define(ID id, const Stroke&   v) { fStroke  .set(id, v); }
+    void Server::define(ID id, SkShader*       v) { fShader  .set(id, v); }
     void Server::define(ID id, SkXfermode*     v) { fXfermode.set(id, v); }
 
     void Server::undefine(ID id) {
@@ -371,6 +389,7 @@ namespace SkRemote {
             case Type::kMisc:     return fMisc    .remove(id);
             case Type::kPath:     return fPath    .remove(id);
             case Type::kStroke:   return fStroke  .remove(id);
+            case Type::kShader:   return fShader  .remove(id);
             case Type::kXfermode: return fXfermode.remove(id);
 
             case Type::kNone: SkASSERT(false);
@@ -385,18 +404,20 @@ namespace SkRemote {
     void Server::clipPath(ID path, SkRegion::Op op, bool aa) {
         fCanvas->clipPath(fPath.find(path), op, aa);
     }
-    void Server::fillPath(ID path, ID misc, ID xfermode) {
+    void Server::fillPath(ID path, ID misc, ID shader, ID xfermode) {
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         fMisc.find(misc).applyTo(&paint);
+        paint.setShader  (fShader  .find(shader));
         paint.setXfermode(fXfermode.find(xfermode));
         fCanvas->drawPath(fPath.find(path), paint);
     }
-    void Server::strokePath(ID path, ID misc, ID xfermode, ID stroke) {
+    void Server::strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         fMisc  .find(misc  ).applyTo(&paint);
         fStroke.find(stroke).applyTo(&paint);
+        paint.setShader  (fShader  .find(shader));
         paint.setXfermode(fXfermode.find(xfermode));
         fCanvas->drawPath(fPath.find(path), paint);
     }
