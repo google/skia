@@ -45,7 +45,7 @@
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTraceEvent.h"
-
+#include "SkTTopoSort.h"
 
 #include "batches/GrBatch.h"
 
@@ -95,9 +95,21 @@ void GrDrawingManager::reset() {
 }
 
 void GrDrawingManager::flush() {
+    SkDEBUGCODE(bool result =) 
+                        SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
+    SkASSERT(result);
+
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->flush();
     }
+
+#ifndef ENABLE_MDB
+    // When MDB is disabled we keep reusing the same drawTarget
+    if (fDrawTargets.count()) {
+        SkASSERT(fDrawTargets.count() == 1);
+        fDrawTargets[0]->resetFlag(GrDrawTarget::kWasOutput_Flag);
+    }
+#endif
 }
 
 GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,
@@ -131,8 +143,8 @@ GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,
 GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     SkASSERT(fContext);
 
-    // When MDB is disabled we always just return the single drawTarget
 #ifndef ENABLE_MDB
+    // When MDB is disabled we always just return the single drawTarget
     if (fDrawTargets.count()) {
         SkASSERT(fDrawTargets.count() == 1);
         // DrawingManager gets the creation ref - this ref is for the caller

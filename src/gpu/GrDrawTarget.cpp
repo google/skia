@@ -38,7 +38,7 @@ GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     , fFlushState(fGpu, fResourceProvider, 0)
     , fFlushing(false)
     , fFirstUnpreparedBatch(0)
-    , fClosed(false) {
+    , fFlags(0) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
@@ -49,6 +49,35 @@ GrDrawTarget::~GrDrawTarget() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+// Add a GrDrawTarget-based dependency
+void GrDrawTarget::addDependency(GrDrawTarget* dependedOn) {
+    SkASSERT(!dependedOn->dependsOn(this));  // loops are bad
+
+    if (this->dependsOn(dependedOn)) {
+        return;  // don't add duplicate dependencies
+    }
+
+    *fDependencies.push() = dependedOn;
+}
+
+// Convert from a GrSurface-based dependency to a GrDrawTarget one
+void GrDrawTarget::addDependency(GrSurface* dependedOn) {
+    if (dependedOn->asRenderTarget() && dependedOn->asRenderTarget()->getLastDrawTarget()) {
+        // If it is still receiving dependencies, this DT shouldn't be closed
+        SkASSERT(!this->isClosed());
+
+        GrDrawTarget* dt = dependedOn->asRenderTarget()->getLastDrawTarget();
+        if (dt == this) {
+            // self-read - presumably for dst reads
+        } else {
+            this->addDependency(dt);
+
+            // Can't make it closed in the self-read case
+            dt->makeClosed();
+        }
+    }
+}
 
 bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
                                            const GrProcOptInfo& colorPOI,
@@ -414,7 +443,7 @@ template <class Left, class Right> static bool intersect(const Left& a, const Ri
 
 void GrDrawTarget::recordBatch(GrBatch* batch) {
     // A closed drawTarget should never receive new/more batches
-    SkASSERT(!fClosed);
+    SkASSERT(!this->isClosed());
 
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw

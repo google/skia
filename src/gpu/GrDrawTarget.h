@@ -53,10 +53,22 @@ public:
         // We only close drawTargets When MDB is enabled. When MDB is disabled there is only
         // ever one drawTarget and all calls will be funnelled into it.
 #ifdef ENABLE_MDB
-        fClosed = true;
+        this->setFlag(kClosed_Flag);
 #endif
     }
-    bool isClosed() const { return fClosed; }
+    bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
+
+    /*
+     * Notify this drawTarget that it relies on the contents of 'dependedOn'
+     */
+    void addDependency(GrSurface* dependedOn);
+
+    /*
+     * Does this drawTarget depend on 'dependedOn'?
+     */
+    bool dependsOn(GrDrawTarget* dependedOn) const {
+        return fDependencies.find(dependedOn) >= 0;
+    }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -204,7 +216,53 @@ public:
 
     const CMMAccess cmmAccess() { return CMMAccess(this); }
 
+
 private:
+    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+
+    enum Flags {
+        kClosed_Flag    = 0x01,   //!< This drawTarget can't accept any more batches
+
+        kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
+        kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
+    };
+
+    void setFlag(uint32_t flag) {
+        fFlags |= flag;
+    }
+
+    void resetFlag(uint32_t flag) {
+        fFlags &= ~flag;
+    }
+
+    bool isSetFlag(uint32_t flag) const {
+        return SkToBool(fFlags & flag);
+    }
+
+    struct TopoSortTraits {
+        static void Output(GrDrawTarget* dt, int /* index */) {
+            dt->setFlag(GrDrawTarget::kWasOutput_Flag);
+        }
+        static bool WasOutput(const GrDrawTarget* dt) {
+            return dt->isSetFlag(GrDrawTarget::kWasOutput_Flag);
+        }
+        static void SetTempMark(GrDrawTarget* dt) {
+            dt->setFlag(GrDrawTarget::kTempMark_Flag);
+        }
+        static void ResetTempMark(GrDrawTarget* dt) {
+            dt->resetFlag(GrDrawTarget::kTempMark_Flag);
+        }
+        static bool IsTempMarked(const GrDrawTarget* dt) {
+            return dt->isSetFlag(GrDrawTarget::kTempMark_Flag);
+        }
+        static int NumDependencies(const GrDrawTarget* dt) {
+            return dt->fDependencies.count();
+        }
+        static GrDrawTarget* Dependency(GrDrawTarget* dt, int index) {
+            return dt->fDependencies[index];
+        }
+    };
+
     void recordBatch(GrBatch*);
     bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
                                     const GrScissorState* scissor,
@@ -231,6 +289,8 @@ private:
                            GrScissorState*,
                            const SkRect* devBounds);
 
+    void addDependency(GrDrawTarget* dependedOn);
+
     // Used only by CMM.
     void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
 
@@ -244,7 +304,10 @@ private:
     bool                                        fFlushing;
     int                                         fFirstUnpreparedBatch;
 
-    bool                                        fClosed;
+    uint32_t                                    fFlags;
+
+    // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
+    SkTDArray<GrDrawTarget*>                    fDependencies;
 
     typedef SkRefCnt INHERITED;
 };
