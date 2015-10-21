@@ -684,9 +684,9 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                 return Error::Nonfatal("Divisor is larger than image dimension.\n");
             }
 
-            // Rounding the size of the subsets may leave some pixels uninitialized on the bottom
-            // and right edges of the bitmap.
-            bitmap.eraseColor(0);
+            // Keep track of the final decoded dimensions.
+            int finalScaledWidth = 0;
+            int finalScaledHeight = 0;
             for (int x = 0; x < divisor; x++) {
                 for (int y = 0; y < divisor; y++) {
                     // Calculate the subset dimensions
@@ -704,12 +704,18 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                         return "Could not get supported subset to decode.\n";
                     }
                     options.fSubset = &subset;
-                    void* pixels = bitmap.getAddr(subset.left() / fSampleSize,
-                            subset.top() / fSampleSize);
+                    const int scaledWidthOffset = subset.left() / fSampleSize;
+                    const int scaledHeightOffset = subset.top() / fSampleSize;
+                    void* pixels = bitmap.getAddr(scaledWidthOffset, scaledHeightOffset);
                     SkISize scaledSubsetSize = codec->getSampledSubsetDimensions(fSampleSize,
                             subset);
                     SkImageInfo subsetDecodeInfo = decodeInfo.makeWH(scaledSubsetSize.width(),
                             scaledSubsetSize.height());
+
+                    if (x + 1 == divisor && y + 1 == divisor) {
+                        finalScaledWidth = scaledWidthOffset + scaledSubsetSize.width();
+                        finalScaledHeight = scaledHeightOffset + scaledSubsetSize.height();
+                    }
 
                     switch (codec->getAndroidPixels(subsetDecodeInfo, pixels, bitmap.rowBytes(),
                             &options)) {
@@ -723,7 +729,10 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                     }
                 }
             }
-            canvas->drawBitmap(bitmap, 0, 0);
+
+            SkRect rect = SkRect::MakeXYWH(0, 0, (SkScalar) finalScaledWidth,
+                    (SkScalar) finalScaledHeight);
+            canvas->drawBitmapRect(bitmap, rect, rect, nullptr);
             return "";
         }
         default:
