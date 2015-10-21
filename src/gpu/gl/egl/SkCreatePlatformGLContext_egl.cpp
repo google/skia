@@ -233,27 +233,28 @@ static bool supports_egl_extension(EGLDisplay display, const char* extension) {
 }
 
 SkEGLFenceSync* SkEGLFenceSync::CreateIfSupported(EGLDisplay display) {
-    if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync")) {
+ //   if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync")) {
         return nullptr;
-    }
-    return new SkEGLFenceSync(display);
+ //   }
+ //   return new SkEGLFenceSync(display);
 }
 
 SkPlatformGpuFence SkEGLFenceSync::insertFence() const {
-    return eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
+  //  return eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
 }
 
 bool SkEGLFenceSync::flushAndWaitFence(SkPlatformGpuFence platformFence) const {
-    EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
-    return EGL_CONDITION_SATISFIED_KHR == eglClientWaitSyncKHR(fDisplay,
+  //  EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
+  /*  return EGL_CONDITION_SATISFIED_KHR == eglClientWaitSyncKHR(fDisplay,
                                                                eglsync,
                                                                EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
-                                                               EGL_FOREVER_KHR);
+                                                               EGL_FOREVER_KHR); */
+    return false;
 }
 
 void SkEGLFenceSync::deleteFence(SkPlatformGpuFence platformFence) const {
-    EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
-    eglDestroySyncKHR(fDisplay, eglsync);
+   /* EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
+    eglDestroySyncKHR(fDisplay, eglsync); */
 }
 
 } // anonymous namespace

@@ -54,7 +54,7 @@ public class HelloSkiaActivity extends Activity implements SurfaceHolder.Callbac
         try {
             // Load Skia and then the app shared object in this order
             System.loadLibrary("skia_android");
-            System.loadLibrary("hello_skia_ndk");
+    //        System.loadLibrary("hello_skia_ndk");
 
         } catch (UnsatisfiedLinkError e) {
             Log.d("HelloSkia", "Link Error: " + e);
