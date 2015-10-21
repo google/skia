@@ -8,12 +8,16 @@
 #ifndef SkRemote_DEFINED
 #define SkRemote_DEFINED
 
-#include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkRegion.h"
 #include "SkRemote_protocol.h"
-#include "SkShader.h"
-#include "SkTHash.h"
 #include "SkTypes.h"
+
+class SkCanvas;
+class SkMatrix;
+class SkPath;
+class SkShader;
+class SkXfermode;
 
 // TODO: document
 
@@ -61,8 +65,6 @@ namespace SkRemote {
     struct Encoder {
         virtual ~Encoder() {}
 
-        static Encoder* CreateCachingEncoder(Encoder*);
-
         virtual ID define(const SkMatrix&) = 0;
         virtual ID define(const Misc&)     = 0;
         virtual ID define(const SkPath&)   = 0;
@@ -85,145 +87,14 @@ namespace SkRemote {
         virtual void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) = 0;
     };
 
-    // An SkCanvas that translates to Encoder calls.
-    class Client final : public SkCanvas {
-    public:
-        explicit Client(Encoder*);
+    // None of these factories take ownership of their arguments.
 
-    private:
-        class AutoID;
-
-        template <typename T>
-        AutoID id(const T&);
-
-        void   willSave() override;
-        void didRestore() override;
-
-        void    didConcat(const SkMatrix&) override;
-        void didSetMatrix(const SkMatrix&) override;
-
-        void onClipPath (const SkPath&,  SkRegion::Op, ClipEdgeStyle) override;
-        void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
-        void onClipRect (const SkRect&,  SkRegion::Op, ClipEdgeStyle) override;
-
-        void onDrawOval(const SkRect&, const SkPaint&) override;
-        void onDrawRRect(const SkRRect&, const SkPaint&) override;
-        void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
-        void onDrawPath(const SkPath&, const SkPaint&) override;
-        void onDrawRect(const SkRect&, const SkPaint&) override;
-        void onDrawPaint(const SkPaint&) override;
-
-        void onDrawText(const void*, size_t, SkScalar,
-                        SkScalar, const SkPaint&) override;
-        void onDrawPosText(const void*, size_t, const SkPoint[],
-                           const SkPaint&) override;
-        void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar,
-                            const SkPaint&) override;
-
-        Encoder* fEncoder;
-    };
-
-    // An Encoder that translates back to SkCanvas calls.
-    class Server final : public Encoder {
-    public:
-        explicit Server(SkCanvas*);
-
-    private:
-        ID define(const SkMatrix&) override;
-        ID define(const Misc&)     override;
-        ID define(const SkPath&)   override;
-        ID define(const Stroke&)   override;
-        ID define(SkShader*)       override;
-        ID define(SkXfermode*)     override;
-
-        void undefine(ID) override;
-
-        void    save() override;
-        void restore() override;
-
-        void setMatrix(ID matrix) override;
-
-        void   clipPath(ID path, SkRegion::Op, bool aa)                      override;
-        void   fillPath(ID path, ID misc, ID shader, ID xfermode)            override;
-        void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) override;
-
-        // Maps ID -> T.
-        template <typename T, Type kType>
-        class IDMap {
-        public:
-            ~IDMap() {
-                // A well-behaved client always cleans up its definitions.
-                SkASSERT(fMap.count() == 0);
-            }
-
-            void set(const ID& id, const T& val) {
-                SkASSERT(id.type() == kType);
-                fMap.set(id, val);
-            }
-
-            void remove(const ID& id) {
-                SkASSERT(id.type() == kType);
-                fMap.remove(id);
-            }
-
-            const T& find(const ID& id) const {
-                SkASSERT(id.type() == kType);
-                T* val = fMap.find(id);
-                SkASSERT(val != nullptr);
-                return *val;
-            }
-
-        private:
-            SkTHashMap<ID, T> fMap;
-        };
-
-        // Maps ID -> T*, and keeps the T alive by reffing it.
-        template <typename T, Type kType>
-        class ReffedIDMap {
-        public:
-            ReffedIDMap() {}
-            ~ReffedIDMap() {
-                // A well-behaved client always cleans up its definitions.
-                SkASSERT(fMap.count() == 0);
-            }
-
-            void set(const ID& id, T* val) {
-                SkASSERT(id.type() == kType);
-                fMap.set(id, SkSafeRef(val));
-            }
-
-            void remove(const ID& id) {
-                SkASSERT(id.type() == kType);
-                T** val = fMap.find(id);
-                SkASSERT(val);
-                SkSafeUnref(*val);
-                fMap.remove(id);
-            }
-
-            T* find(const ID& id) const {
-                SkASSERT(id.type() == kType);
-                T** val = fMap.find(id);
-                SkASSERT(val);
-                return *val;
-            }
-
-        private:
-            SkTHashMap<ID, T*> fMap;
-        };
-
-        template <typename Map, typename T>
-        ID define(Type, Map*, const T&);
-
-        IDMap<SkMatrix, Type::kMatrix>           fMatrix;
-        IDMap<Misc    , Type::kMisc  >           fMisc;
-        IDMap<SkPath  , Type::kPath  >           fPath;
-        IDMap<Stroke  , Type::kStroke>           fStroke;
-        ReffedIDMap<SkShader,   Type::kShader>   fShader;
-        ReffedIDMap<SkXfermode, Type::kXfermode> fXfermode;
-
-        SkCanvas* fCanvas;
-        uint64_t fNextID = 0;
-    };
+    // Returns a new SkCanvas that translates to the Encoder API.
+    SkCanvas* NewCanvas(Encoder*);
+    // Returns an Encoder that translates back to the SkCanvas API.
+    Encoder* NewDecoder(SkCanvas*);
+    // Wraps another Encoder with a cache.  TODO: parameterize
+    Encoder* NewCachingEncoder(Encoder*);
 
 }  // namespace SkRemote
 
