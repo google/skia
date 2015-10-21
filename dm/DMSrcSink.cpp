@@ -1163,10 +1163,11 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 
 Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
-        SkAutoTDelete<SkRemote::Cache> cache(fCache ? SkRemote::Cache::CreateAlwaysCache()
-                                                    : SkRemote::Cache::CreateNeverCache());
         SkRemote::Server server(canvas);
-        SkRemote::Client client(cache, &server);
+        SkAutoTDelete<SkRemote::Encoder> cache(fCache
+            ? SkRemote::Encoder::CreateCachingEncoder(&server)
+            : nullptr);
+        SkRemote::Client client(cache.get() ? cache.get() : &server);
         return src.draw(&client);
     });
 }

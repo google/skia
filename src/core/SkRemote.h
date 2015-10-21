@@ -18,7 +18,26 @@
 // TODO: document
 
 namespace SkRemote {
-    // TODO: document
+
+    // General purpose identifier.  Holds a Type and a 56-bit value.
+    class ID {
+    public:
+        ID() {}
+        ID(Type type, uint64_t val) {
+            fVal = (uint64_t)type << 56 | val;
+            SkASSERT(this->type() == type && this->val() == val);
+        }
+
+        Type    type() const { return (Type)(fVal >> 56); }
+        uint64_t val() const { return fVal & ~((uint64_t)0xFF << 56); }
+
+        bool operator==(ID o) const { return fVal == o.fVal; }
+
+    private:
+        uint64_t fVal;
+    };
+
+    // Fields from SkPaint used by stroke, fill, and text draws.
     struct Misc {
         SkColor         fColor;
         SkFilterQuality fFilterQuality;
@@ -28,7 +47,7 @@ namespace SkRemote {
         void applyTo(SkPaint*) const;
     };
 
-    // TODO: document
+    // Fields from SkPaint used by stroke draws only.
     struct Stroke {
         SkScalar fWidth, fMiter;
         SkPaint::Cap  fCap;
@@ -42,12 +61,14 @@ namespace SkRemote {
     struct Encoder {
         virtual ~Encoder() {}
 
-        virtual void define(ID, const SkMatrix&) = 0;
-        virtual void define(ID, const Misc&)     = 0;
-        virtual void define(ID, const SkPath&)   = 0;
-        virtual void define(ID, const Stroke&)   = 0;
-        virtual void define(ID, SkShader*)       = 0;
-        virtual void define(ID, SkXfermode*)     = 0;
+        static Encoder* CreateCachingEncoder(Encoder*);
+
+        virtual ID define(const SkMatrix&) = 0;
+        virtual ID define(const Misc&)     = 0;
+        virtual ID define(const SkPath&)   = 0;
+        virtual ID define(const Stroke&)   = 0;
+        virtual ID define(SkShader*)       = 0;
+        virtual ID define(SkXfermode*)     = 0;
 
         virtual void undefine(ID) = 0;
 
@@ -64,41 +85,17 @@ namespace SkRemote {
         virtual void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) = 0;
     };
 
-    class LookupScope;
-
-    // The Cache interface encapsulates the caching logic of the Client.
-    //
-    // Each lookup() method must always fill ID* with a valid value,
-    // but ID may be cached.  If so, the lookup() method returns true;
-    // if not the lookup() method returns false and the Client must
-    // then define() this ID -> Thing mapping before using the ID.
-    //
-    // The Caches may also add IDs to the LookupScope's list of IDs to
-    // undefine() on destruction.  This lets the Cache purge IDs.
-    struct Cache {
-        virtual ~Cache() {}
-
-        static Cache* CreateNeverCache();   // Never caches anything.
-        static Cache* CreateAlwaysCache();  // Caches by value (not deep pointer equality).
-        // TODO: static Cache* CreateDeepCache();  // Caches by deep value.
-
-        virtual bool lookup(const SkMatrix&,   ID*, LookupScope*) = 0;
-        virtual bool lookup(const Misc&,       ID*, LookupScope*) = 0;
-        virtual bool lookup(const SkPath&,     ID*, LookupScope*) = 0;
-        virtual bool lookup(const Stroke&,     ID*, LookupScope*) = 0;
-        virtual bool lookup(const SkShader*,   ID*, LookupScope*) = 0;
-        virtual bool lookup(const SkXfermode*, ID*, LookupScope*) = 0;
-
-        virtual void cleanup(Encoder*) = 0;
-    };
-
-    // TODO: document
+    // An SkCanvas that translates to Encoder calls.
     class Client final : public SkCanvas {
     public:
-        Client(Cache*, Encoder*);
-        ~Client();
+        explicit Client(Encoder*);
 
     private:
+        class AutoID;
+
+        template <typename T>
+        AutoID id(const T&);
+
         void   willSave() override;
         void didRestore() override;
 
@@ -123,22 +120,21 @@ namespace SkRemote {
         void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar,
                             const SkPaint&) override;
 
-        Cache*   fCache;
         Encoder* fEncoder;
     };
 
-    // TODO: document
+    // An Encoder that translates back to SkCanvas calls.
     class Server final : public Encoder {
     public:
         explicit Server(SkCanvas*);
 
     private:
-        void define(ID, const SkMatrix&) override;
-        void define(ID, const Misc&)     override;
-        void define(ID, const SkPath&)   override;
-        void define(ID, const Stroke&)   override;
-        void define(ID, SkShader*)       override;
-        void define(ID, SkXfermode*)     override;
+        ID define(const SkMatrix&) override;
+        ID define(const Misc&)     override;
+        ID define(const SkPath&)   override;
+        ID define(const Stroke&)   override;
+        ID define(SkShader*)       override;
+        ID define(SkXfermode*)     override;
 
         void undefine(ID) override;
 
@@ -185,25 +181,22 @@ namespace SkRemote {
         template <typename T, Type kType>
         class ReffedIDMap {
         public:
-            ReffedIDMap() {
-                // A null ID always maps to nullptr.
-                fMap.set(ID(kType), nullptr);
-            }
+            ReffedIDMap() {}
             ~ReffedIDMap() {
                 // A well-behaved client always cleans up its definitions.
-                SkASSERT(fMap.count() == 1);
+                SkASSERT(fMap.count() == 0);
             }
 
             void set(const ID& id, T* val) {
-                SkASSERT(id.type() == kType && val);
-                fMap.set(id, SkRef(val));
+                SkASSERT(id.type() == kType);
+                fMap.set(id, SkSafeRef(val));
             }
 
             void remove(const ID& id) {
                 SkASSERT(id.type() == kType);
                 T** val = fMap.find(id);
-                SkASSERT(val && *val);
-                (*val)->unref();
+                SkASSERT(val);
+                SkSafeUnref(*val);
                 fMap.remove(id);
             }
 
@@ -218,6 +211,9 @@ namespace SkRemote {
             SkTHashMap<ID, T*> fMap;
         };
 
+        template <typename Map, typename T>
+        ID define(Type, Map*, const T&);
+
         IDMap<SkMatrix, Type::kMatrix>           fMatrix;
         IDMap<Misc    , Type::kMisc  >           fMisc;
         IDMap<SkPath  , Type::kPath  >           fPath;
@@ -226,6 +222,7 @@ namespace SkRemote {
         ReffedIDMap<SkXfermode, Type::kXfermode> fXfermode;
 
         SkCanvas* fCanvas;
+        uint64_t fNextID = 0;
     };
 
 }  // namespace SkRemote

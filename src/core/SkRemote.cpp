@@ -72,210 +72,141 @@ namespace SkRemote {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-    class LookupScope {
+    class CachingEncoder final : public Encoder {
     public:
-        LookupScope(Cache* cache, Encoder* encoder) : fCache(cache), fEncoder(encoder) {}
-        ~LookupScope() { for (ID id : fToUndefine) { fEncoder->undefine(id); } }
-        void undefineWhenDone(ID id) { fToUndefine.push_back(id); }
-
-        template <typename T>
-        ID lookup(const T& val) {
-            ID id;
-            if (!fCache->lookup(val, &id, this)) {
-                fEncoder->define(id, val);
-            }
-            return id;
-        }
+        explicit CachingEncoder(Encoder* wrapped) : fWrapped(wrapped) {}
 
     private:
-        Cache*   fCache;
-        Encoder* fEncoder;
-        SkSTArray<4, ID> fToUndefine;
-    };
-
-
-    Cache* Cache::CreateNeverCache() {
-        struct NeverCache final : public Cache {
-            NeverCache()
-                : fNextMatrix  (Type::kMatrix)
-                , fNextMisc    (Type::kMisc)
-                , fNextPath    (Type::kPath)
-                , fNextStroke  (Type::kStroke)
-                , fNextShader  (Type::kShader)
-                , fNextXfermode(Type::kXfermode)
-            {}
-            void cleanup(Encoder*) override {}
-
-            static bool Helper(ID* next, ID* id, LookupScope* ls) {
-                *id = ++(*next);
-                ls->undefineWhenDone(*id);
-                return false;
-            }
-
-            bool lookup(const SkMatrix&, ID* id, LookupScope* ls) override {
-                return Helper(&fNextMatrix, id, ls);
-            }
-            bool lookup(const Misc&, ID* id, LookupScope* ls) override {
-                return Helper(&fNextMisc, id, ls);
-            }
-            bool lookup(const SkPath&, ID* id, LookupScope* ls) override {
-                return Helper(&fNextPath, id, ls);
-            }
-            bool lookup(const Stroke&, ID* id, LookupScope* ls) override {
-                return Helper(&fNextStroke, id, ls);
-            }
-            bool lookup(const SkShader* shader, ID* id, LookupScope* ls) override {
-                if (!shader) {
-                    *id = ID(Type::kShader);
-                    return true;  // Null IDs are always defined.
-                }
-                return Helper(&fNextShader, id, ls);
-            }
-            bool lookup(const SkXfermode* xfermode, ID* id, LookupScope* ls) override {
-                if (!xfermode) {
-                    *id = ID(Type::kXfermode);
-                    return true;  // Null IDs are always defined.
-                }
-                return Helper(&fNextXfermode, id, ls);
-            }
-
-            ID fNextMatrix,
-               fNextMisc,
-               fNextPath,
-               fNextStroke,
-               fNextShader,
-               fNextXfermode;
-        };
-        return new NeverCache;
-    }
-
-    // These can't be declared locally inside AlwaysCache because of the templating.  :(
-    namespace {
-        template <typename T, typename Map>
-        static bool always_cache_lookup(const T& val, Map* map, ID* next, ID* id) {
-            if (const ID* found = map->find(val)) {
-                *id = *found;
-                return true;
-            }
-            *id = ++(*next);
-            map->set(val, *id);
-            return false;
-        }
-
-        struct Undefiner {
+        struct Undef {
             Encoder* fEncoder;
-
             template <typename T>
             void operator()(const T&, ID* id) const { fEncoder->undefine(*id); }
         };
 
-        // Maps const T* -> ID, and refs the key.  nullptr always maps to ID(kType).
+        ~CachingEncoder() override {
+            Undef undef{fWrapped};
+            fMatrix  .foreach(undef);
+            fMisc    .foreach(undef);
+            fPath    .foreach(undef);
+            fStroke  .foreach(undef);
+            fShader  .foreach(undef);
+            fXfermode.foreach(undef);
+        }
+
+        template <typename Map, typename T>
+        ID define(Map* map, const T& v) {
+            if (const ID* id = map->find(v)) {
+                return *id;
+            }
+            ID id = fWrapped->define(v);
+            map->set(v, id);
+            return id;
+        }
+
+        ID define(const SkMatrix& v) override { return this->define(&fMatrix,   v); }
+        ID define(const Misc&     v) override { return this->define(&fMisc,     v); }
+        ID define(const SkPath&   v) override { return this->define(&fPath,     v); }
+        ID define(const Stroke&   v) override { return this->define(&fStroke,   v); }
+        ID define(SkShader*       v) override { return this->define(&fShader,   v); }
+        ID define(SkXfermode*     v) override { return this->define(&fXfermode, v); }
+
+        void undefine(ID) override {}
+
+        void    save() override { fWrapped->   save(); }
+        void restore() override { fWrapped->restore(); }
+
+        void setMatrix(ID matrix) override { fWrapped->setMatrix(matrix); }
+
+        void clipPath(ID path, SkRegion::Op op, bool aa) override {
+            fWrapped->clipPath(path, op, aa);
+        }
+        void fillPath(ID path, ID misc, ID shader, ID xfermode) override {
+            fWrapped->fillPath(path, misc, shader, xfermode);
+        }
+        void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) override {
+            fWrapped->strokePath(path, misc, shader, xfermode, stroke);
+        }
+
+        // Maps const T* -> ID, and refs the key.
         template <typename T, Type kType>
         class RefKeyMap {
         public:
             RefKeyMap() {}
-            ~RefKeyMap() { fMap.foreach([](const T* key, ID*) { key->unref(); }); }
+            ~RefKeyMap() { fMap.foreach([](const T* key, ID*) { SkSafeUnref(key); }); }
 
-            void set(const T* key, const ID& id) {
-                SkASSERT(key && id.type() == kType);
-                fMap.set(SkRef(key), id);
+            void set(const T* key, ID id) {
+                SkASSERT(id.type() == kType);
+                fMap.set(SkSafeRef(key), id);
             }
 
             void remove(const T* key) {
-                SkASSERT(key);
                 fMap.remove(key);
-                key->unref();
+                SkSafeUnref(key);
             }
 
             const ID* find(const T* key) const {
-                static const ID nullID(kType);
-                return key ? fMap.find(key) : &nullID;
+                return fMap.find(key);
             }
 
             template <typename Fn>
-            void foreach(const Fn& fn) { fMap.foreach(fn); }
+            void foreach(const Fn& fn) {
+                fMap.foreach(fn);
+            }
         private:
             SkTHashMap<const T*, ID> fMap;
         };
-    } // namespace
 
-    Cache* Cache::CreateAlwaysCache() {
-        struct AlwaysCache final : public Cache {
-            AlwaysCache()
-                : fNextMatrix  (Type::kMatrix)
-                , fNextMisc    (Type::kMisc)
-                , fNextPath    (Type::kPath)
-                , fNextStroke  (Type::kStroke)
-                , fNextShader  (Type::kShader)
-                , fNextXfermode(Type::kXfermode)
-            {}
+        SkTHashMap<SkMatrix, ID>               fMatrix;
+        SkTHashMap<Misc, ID, MiscHash>         fMisc;
+        SkTHashMap<SkPath, ID>                 fPath;
+        SkTHashMap<Stroke, ID>                 fStroke;
+        RefKeyMap<SkShader, Type::kShader>     fShader;
+        RefKeyMap<SkXfermode, Type::kXfermode> fXfermode;
 
-            void cleanup(Encoder* encoder) override {
-                Undefiner undef{encoder};
-                fMatrix  .foreach(undef);
-                fMisc    .foreach(undef);
-                fPath    .foreach(undef);
-                fStroke  .foreach(undef);
-                fShader  .foreach(undef);
-                fXfermode.foreach(undef);
-            }
+        Encoder* fWrapped;
+    };
 
-
-            bool lookup(const SkMatrix& matrix, ID* id, LookupScope*) override {
-                return always_cache_lookup(matrix, &fMatrix, &fNextMatrix, id);
-            }
-            bool lookup(const Misc& misc, ID* id, LookupScope*) override {
-                return always_cache_lookup(misc, &fMisc, &fNextMisc, id);
-            }
-            bool lookup(const SkPath& path, ID* id, LookupScope*) override {
-                return always_cache_lookup(path, &fPath, &fNextPath, id);
-            }
-            bool lookup(const Stroke& stroke, ID* id, LookupScope*) override {
-                return always_cache_lookup(stroke, &fStroke, &fNextStroke, id);
-            }
-            bool lookup(const SkShader* shader, ID* id, LookupScope*) override {
-                return always_cache_lookup(shader, &fShader, &fNextShader, id);
-            }
-            bool lookup(const SkXfermode* xfermode, ID* id, LookupScope*) override {
-                return always_cache_lookup(xfermode, &fXfermode, &fNextXfermode, id);
-            }
-
-            SkTHashMap<SkMatrix, ID>               fMatrix;
-            SkTHashMap<Misc,     ID, MiscHash>     fMisc;
-            SkTHashMap<SkPath,   ID>               fPath;
-            SkTHashMap<Stroke,   ID>               fStroke;
-            RefKeyMap<SkShader,   Type::kShader>   fShader;
-            RefKeyMap<SkXfermode, Type::kXfermode> fXfermode;
-
-            ID fNextMatrix,
-               fNextMisc,
-               fNextPath,
-               fNextStroke,
-               fNextShader,
-               fNextXfermode;
-        };
-        return new AlwaysCache;
-    }
+    Encoder* Encoder::CreateCachingEncoder(Encoder* wrapped) { return new CachingEncoder(wrapped); }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-    Client::Client(Cache* cache, Encoder* encoder)
+    // Calls Encoder::define() when created, Encoder::undefine() when destroyed.
+    class Client::AutoID : ::SkNoncopyable {
+    public:
+        template <typename T>
+        explicit AutoID(Encoder* encoder, const T& val)
+            : fEncoder(encoder)
+            , fID(encoder->define(val)) {}
+        ~AutoID() { if (fEncoder) fEncoder->undefine(fID); }
+
+        AutoID(AutoID&& o) : fEncoder(o.fEncoder), fID(o.fID) {
+            o.fEncoder = nullptr;
+        }
+        AutoID& operator=(AutoID&&) = delete;
+
+        operator ID () const { return fID; }
+
+    private:
+        Encoder* fEncoder;
+        const ID fID;
+    };
+
+    template <typename T>
+    Client::AutoID Client::id(const T& val) { return AutoID(fEncoder, val); }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+    Client::Client(Encoder* encoder)
         : SkCanvas(1,1)
-        , fCache(cache)
         , fEncoder(encoder)
     {}
-
-    Client::~Client() {
-        fCache->cleanup(fEncoder);
-    }
 
     void Client::willSave()   { fEncoder->save(); }
     void Client::didRestore() { fEncoder->restore(); }
 
     void Client::didConcat   (const SkMatrix&) { this->didSetMatrix(this->getTotalMatrix()); }
     void Client::didSetMatrix(const SkMatrix& matrix) {
-        LookupScope ls(fCache, fEncoder);
-        fEncoder->setMatrix(ls.lookup(matrix));
+        fEncoder->setMatrix(this->id(matrix));
     }
 
     void Client::onDrawOval(const SkRect& oval, const SkPaint& paint) {
@@ -306,17 +237,16 @@ namespace SkRemote {
     }
 
     void Client::onDrawPath(const SkPath& path, const SkPaint& paint) {
-        LookupScope ls(fCache, fEncoder);
-        ID p = ls.lookup(path),
-           m = ls.lookup(Misc::CreateFrom(paint)),
-           s = ls.lookup(paint.getShader()),
-           x = ls.lookup(paint.getXfermode());
+        auto p = this->id(path),
+             m = this->id(Misc::CreateFrom(paint)),
+             s = this->id(paint.getShader()),
+             x = this->id(paint.getXfermode());
 
         if (paint.getStyle() == SkPaint::kFill_Style) {
             fEncoder->fillPath(p, m, s, x);
         } else {
             // TODO: handle kStrokeAndFill_Style
-            fEncoder->strokePath(p, m, s, x, ls.lookup(Stroke::CreateFrom(paint)));
+            fEncoder->strokePath(p, m, s, x, this->id(Stroke::CreateFrom(paint)));
         }
     }
 
@@ -368,20 +298,26 @@ namespace SkRemote {
     }
 
     void Client::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-        LookupScope ls(fCache, fEncoder);
-        fEncoder->clipPath(ls.lookup(path), op, edgeStyle == kSoft_ClipEdgeStyle);
+        fEncoder->clipPath(this->id(path), op, edgeStyle == kSoft_ClipEdgeStyle);
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
     Server::Server(SkCanvas* canvas) : fCanvas(canvas) {}
 
-    void Server::define(ID id, const SkMatrix& v) { fMatrix  .set(id, v); }
-    void Server::define(ID id, const Misc&     v) { fMisc    .set(id, v); }
-    void Server::define(ID id, const SkPath&   v) { fPath    .set(id, v); }
-    void Server::define(ID id, const Stroke&   v) { fStroke  .set(id, v); }
-    void Server::define(ID id, SkShader*       v) { fShader  .set(id, v); }
-    void Server::define(ID id, SkXfermode*     v) { fXfermode.set(id, v); }
+    template <typename Map, typename T>
+    ID Server::define(Type type, Map* map, const T& val) {
+        ID id(type, fNextID++);
+        map->set(id, val);
+        return id;
+    }
+
+    ID Server::define(const SkMatrix& v) { return this->define(Type::kMatrix,   &fMatrix,   v); }
+    ID Server::define(const Misc&     v) { return this->define(Type::kMisc,     &fMisc,     v); }
+    ID Server::define(const SkPath&   v) { return this->define(Type::kPath,     &fPath,     v); }
+    ID Server::define(const Stroke&   v) { return this->define(Type::kStroke,   &fStroke,   v); }
+    ID Server::define(SkShader*       v) { return this->define(Type::kShader,   &fShader,   v); }
+    ID Server::define(SkXfermode*     v) { return this->define(Type::kXfermode, &fXfermode, v); }
 
     void Server::undefine(ID id) {
         switch(id.type()) {
@@ -391,8 +327,6 @@ namespace SkRemote {
             case Type::kStroke:   return fStroke  .remove(id);
             case Type::kShader:   return fShader  .remove(id);
             case Type::kXfermode: return fXfermode.remove(id);
-
-            case Type::kNone: SkASSERT(false);
         };
     }
 
