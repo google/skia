@@ -171,20 +171,19 @@ def get_extra_env_vars(builder_dict):
 
 
 cov_skip.extend([lineno(), lineno() + 1])
-def build_targets_from_builder_dict(builder_dict):
+def build_targets_from_builder_dict(builder_dict, do_test_steps, do_perf_steps):
   """Return a list of targets to build, depending on the builder type."""
   if builder_dict['role'] in ('Test', 'Perf') and builder_dict['os'] == 'iOS':
     return ['iOSShell']
-  elif builder_dict['role'] == builder_name_schema.BUILDER_ROLE_TEST:
-    t = ['dm']
-    if builder_dict.get('configuration') == 'Debug':
-      t.append('nanobench')
+  if builder_dict.get('extra_config') == 'Appurify':
+    return ['VisualBenchTest_APK']
+  t = []
+  if do_test_steps:
+    t.append('dm')
+  if do_perf_steps:
+    t.append('nanobench')
+  if t:
     return t
-  elif builder_dict['role'] == builder_name_schema.BUILDER_ROLE_PERF:
-    if builder_dict.get('extra_config') == 'Appurify':
-      return ['VisualBenchTest_APK']
-    else:
-      return ['nanobench']
   else:
     return ['most']
 
@@ -240,7 +239,6 @@ def get_builder_spec(builder_name):
   gyp_defs_list.sort()
   env['GYP_DEFINES'] = ' '.join(gyp_defs_list)
   rv = {
-    'build_targets': build_targets_from_builder_dict(builder_dict),
     'builder_cfg': builder_dict,
     'dm_flags': dm_flags.get_args(builder_name),
     'env': env,
@@ -265,6 +263,8 @@ def get_builder_spec(builder_name):
                          (role == builder_name_schema.BUILDER_ROLE_TEST and
                           configuration == CONFIG_DEBUG) or
                          'Valgrind' in builder_name)
+  rv['build_targets'] = build_targets_from_builder_dict(
+        builder_dict, rv['do_test_steps'], rv['do_perf_steps'])
 
   # Do we upload perf results?
   upload_perf_results = False
