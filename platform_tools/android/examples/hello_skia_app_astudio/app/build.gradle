@@ -272,10 +272,15 @@ model {
                 versionCode = 6;
                 ldLibs += "skia_opts_ssse3"
                 ldLibs += "skia_opts_sse41"
+            }
+        }
 
-
-
-
+        create("x64") {
+            ndk.with {
+                abiFilters = ["x86_64"]
+                versionCode = 6;
+                ldLibs += "skia_opts_ssse3"
+                ldLibs += "skia_opts_sse41"
             }
         }
     }
