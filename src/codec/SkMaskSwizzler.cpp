@@ -8,7 +8,6 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkMaskSwizzler.h"
-#include "SkScaledCodec.h"
 
 static SkSwizzler::ResultAlpha swizzle_mask16_to_n32_opaque(
         void* dstRow, const uint8_t* srcRow, int width, SkMasks* masks,

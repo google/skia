@@ -11,7 +11,6 @@
 #include "SkJpegUtility_codec.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
-#include "SkScaledCodec.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"

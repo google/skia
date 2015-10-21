@@ -226,9 +226,6 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kCodec_Mode:
             folder.append("codec");
             break;
-        case CodecSrc::kScaledCodec_Mode:
-            folder.append("scaled_codec");
-            break;
         case CodecSrc::kScanline_Mode:
             folder.append("scanline");
             break;
@@ -262,6 +259,37 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
     push_src("image", folder, src);
 }
 
+static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
+        CodecSrc::DstColorType dstColorType, int sampleSize) {
+    SkString folder;
+    switch (mode) {
+        case AndroidCodecSrc::kFullImage_Mode:
+            folder.append("scaled_codec");
+            break;
+        case AndroidCodecSrc::kDivisor_Mode:
+            folder.append("scaled_codec_divisor");
+            break;
+    }
+
+    switch (dstColorType) {
+        case CodecSrc::kGrayscale_Always_DstColorType:
+            folder.append("_kGray8");
+            break;
+        case CodecSrc::kIndex8_Always_DstColorType:
+            folder.append("_kIndex8");
+            break;
+        default:
+            break;
+    }
+
+    if (1 != sampleSize) {
+        folder.appendf("_%.3f", get_scale_from_sample_size(sampleSize));
+    }
+
+    AndroidCodecSrc* src = new AndroidCodecSrc(path, mode, dstColorType, sampleSize);
+    push_src("image", folder, src);
+}
+
 static void push_codec_srcs(Path path) {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
     if (!encoded) {
@@ -288,7 +316,9 @@ static void push_codec_srcs(Path path) {
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
             // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
-            // Further discussion on this topic is at skbug.com/3683
+            // Further discussion on this topic is at skbug.com/3683.
+            // This causes us to try to convert grayscale jpegs to kIndex8.  We currently
+            // fail non-fatally in this case.
             colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
             colorTypes[1] = CodecSrc::kGrayscale_Always_DstColorType;
             colorTypes[2] = CodecSrc::kIndex8_Always_DstColorType;
@@ -313,24 +343,34 @@ static void push_codec_srcs(Path path) {
         }
     }
 
-    if (path.endsWith(".ico") || path.endsWith(".ICO")) {
-        // FIXME: skbug.com/4404: ICO does not have the ability to decode scanlines, so we cannot
-        // use SkScaledCodec with it.
+    // skbug.com/4428
+    static const char* const exts[] = {
+        "jpg", "jpeg", "png", "webp",
+        "JPG", "JPEG", "PNG", "WEBP",
+    };
+    bool supported = false;
+    for (const char* ext : exts) {
+        if (path.endsWith(ext)) {
+            supported = true;
+            break;
+        }
+    }
+    if (!supported) {
         return;
     }
 
-    // SkScaledCodec Scales
-    // The native scales are included to make sure that SkScaledCodec defaults to the native
-    // scaling strategy when possible.
-    // 0.1, 0.16, 0.2 etc allow us to test SkScaledCodec with sampleSize 10, 6, 5, etc.
-    // 0.4, 0.7 etc allow to test what happens when the client requests a scale that
-    // does not exactly match a sampleSize or native scaling capability.
-    const float samplingScales[] = { 0.1f, 0.125f, 0.167f, 0.2f, 0.25f, 0.333f, 0.375f, 0.4f, 0.5f,
-            0.6f, 0.625f, 0.750f, 0.8f, 0.875f, 1.0f };
+    const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
-    for (float scale : samplingScales) {
-        for (uint32_t i = 0; i < numColorTypes; i++) {
-            push_codec_src(path, CodecSrc::kScaledCodec_Mode, colorTypes[i], scale);
+    const AndroidCodecSrc::Mode androidModes[] = {
+            AndroidCodecSrc::kFullImage_Mode,
+            AndroidCodecSrc::kDivisor_Mode,
+    };
+
+    for (int sampleSize : sampleSizes) {
+        for (AndroidCodecSrc::Mode mode : androidModes) {
+            for (uint32_t i = 0; i < numColorTypes; i++) {
+                push_android_codec_src(path, mode, colorTypes[i], sampleSize);
+            }
         }
     }
 }

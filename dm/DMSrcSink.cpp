@@ -7,6 +7,7 @@
 
 #include "DMSrcSink.h"
 #include "SamplePipeControllers.h"
+#include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecTools.h"
 #include "SkCommonFlags.h"
@@ -25,11 +26,9 @@
 #include "SkRecorder.h"
 #include "SkRemote.h"
 #include "SkSVGCanvas.h"
-#include "SkScaledCodec.h"
 #include "SkStream.h"
 #include "SkTLogic.h"
 #include "SkXMLWriter.h"
-#include "SkScaledCodec.h"
 #include "SkSwizzler.h"
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
@@ -244,46 +243,47 @@ bool CodecSrc::veto(SinkFlags flags) const {
         || flags.approach != SinkFlags::kDirect;
 }
 
+bool get_decode_info(SkImageInfo* decodeInfo, const SkImageInfo& defaultInfo,
+        SkColorType canvasColorType, CodecSrc::DstColorType dstColorType) {
+    switch (dstColorType) {
+        case CodecSrc::kIndex8_Always_DstColorType:
+            if (kRGB_565_SkColorType == canvasColorType) {
+                return false;
+            }
+            *decodeInfo = defaultInfo.makeColorType(kIndex_8_SkColorType);
+            break;
+        case CodecSrc::kGrayscale_Always_DstColorType:
+            if (kRGB_565_SkColorType == canvasColorType) {
+                return false;
+            }
+            *decodeInfo = defaultInfo.makeColorType(kGray_8_SkColorType);
+            break;
+        default:
+            *decodeInfo = defaultInfo.makeColorType(canvasColorType);
+            break;
+    }
+
+    // FIXME: Currently we cannot draw unpremultiplied sources.
+    if (decodeInfo->alphaType() == kUnpremul_SkAlphaType) {
+        decodeInfo->makeAlphaType(kPremul_SkAlphaType);
+    }
+    return true;
+}
+
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    SkAutoTDelete<SkCodec> codec(NULL);
-    if (kScaledCodec_Mode == fMode) {
-        codec.reset(SkScaledCodec::NewFromData(encoded));
-        // TODO (msarett): This should fall through to a fatal error once we support scaled
-        //                 codecs for all image types.
-        if (nullptr == codec.get()) {
-            return Error::Nonfatal(SkStringPrintf("Couldn't create scaled codec for %s.",
-                    fPath.c_str()));
-        }
-    } else {
-        codec.reset(SkCodec::NewFromData(encoded));
-    }
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    // Choose the color type to decode to
-    SkImageInfo decodeInfo = codec->getInfo();
-    SkColorType canvasColorType = canvas->imageInfo().colorType();
-    switch (fDstColorType) {
-        case kIndex8_Always_DstColorType:
-            decodeInfo = codec->getInfo().makeColorType(kIndex_8_SkColorType);
-            if (kRGB_565_SkColorType == canvasColorType) {
-                return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
-            }
-            break;
-        case kGrayscale_Always_DstColorType:
-            decodeInfo = codec->getInfo().makeColorType(kGray_8_SkColorType);
-            if (kRGB_565_SkColorType == canvasColorType) {
-                return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
-            }
-            break;
-        default:
-            decodeInfo = decodeInfo.makeColorType(canvasColorType);
-            break;
+    SkImageInfo decodeInfo;
+    if (!get_decode_info(&decodeInfo, codec->getInfo(), canvas->imageInfo().colorType(),
+            fDstColorType)) {
+        return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
     }
 
     // Try to scale the image if it is desired
@@ -311,11 +311,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         colorCountPtr = &maxColors;
     }
 
-    // FIXME: Currently we cannot draw unpremultiplied sources.
-    if (decodeInfo.alphaType() == kUnpremul_SkAlphaType) {
-        decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
-    }
-
     SkBitmap bitmap;
     if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
@@ -323,7 +318,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
 
     switch (fMode) {
-        case kScaledCodec_Mode:
         case kCodec_Mode: {
             switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), nullptr,
                     colorPtr, colorCountPtr)) {
@@ -585,14 +579,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize CodecSrc::size() const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(nullptr);
-
-    if (kScaledCodec_Mode == fMode) {
-        codec.reset(SkScaledCodec::NewFromData(encoded));
-    } else {
-        codec.reset(SkCodec::NewFromData(encoded));
-    }
-
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -604,6 +591,163 @@ Name CodecSrc::name() const {
         return SkOSPath::Basename(fPath.c_str());
     }
     return get_scaled_name(fPath, fScale);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+AndroidCodecSrc::AndroidCodecSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType,
+        int sampleSize)
+    : fPath(path)
+    , fMode(mode)
+    , fDstColorType(dstColorType)
+    , fSampleSize(sampleSize)
+{}
+
+bool AndroidCodecSrc::veto(SinkFlags flags) const {
+    // No need to test decoding to non-raster or indirect backend.
+    // TODO: Once we implement GPU paths (e.g. JPEG YUV), we should use a deferred decode to
+    // let the GPU handle it.
+    return flags.type != SinkFlags::kRaster
+        || flags.approach != SinkFlags::kDirect;
+}
+
+Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    if (!encoded) {
+        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+    }
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    if (nullptr == codec.get()) {
+        return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
+    }
+
+    SkImageInfo decodeInfo;
+    if (!get_decode_info(&decodeInfo, codec->getInfo(), canvas->imageInfo().colorType(),
+            fDstColorType)) {
+        return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
+    }
+
+    // Scale the image if it is desired.
+    SkISize size = codec->getSampledDimensions(fSampleSize);
+
+    // Visually inspecting very small output images is not necessary.  We will
+    // cover these cases in unit testing.
+    if ((size.width() <= 10 || size.height() <= 10) && 1 != fSampleSize) {
+        return Error::Nonfatal("Scaling very small images is uninteresting.");
+    }
+    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
+
+    // Construct a color table for the decode if necessary
+    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    SkPMColor* colorPtr = nullptr;
+    int* colorCountPtr = nullptr;
+    int maxColors = 256;
+    if (kIndex_8_SkColorType == decodeInfo.colorType()) {
+        SkPMColor colors[256];
+        colorTable.reset(new SkColorTable(colors, maxColors));
+        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
+        colorCountPtr = &maxColors;
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
+        return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
+                              decodeInfo.width(), decodeInfo.height());
+    }
+
+    // Create options for the codec.
+    SkAndroidCodec::AndroidOptions options;
+    options.fColorPtr = colorPtr;
+    options.fColorCount = colorCountPtr;
+    options.fSampleSize = fSampleSize;
+
+    switch (fMode) {
+        case kFullImage_Mode: {
+            switch (codec->getAndroidPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(),
+                    &options)) {
+                case SkCodec::kSuccess:
+                case SkCodec::kIncompleteInput:
+                    break;
+                case SkCodec::kInvalidConversion:
+                    return Error::Nonfatal("Cannot convert to requested color type.\n");
+                default:
+                    return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
+            }
+            canvas->drawBitmap(bitmap, 0, 0);
+            return "";
+        }
+        case kDivisor_Mode: {
+            const int width = codec->getInfo().width();
+            const int height = codec->getInfo().height();
+            const int divisor = 2;
+            if (width < divisor || height < divisor) {
+                return Error::Nonfatal("Divisor is larger than image dimension.\n");
+            }
+
+            // Rounding the size of the subsets may leave some pixels uninitialized on the bottom
+            // and right edges of the bitmap.
+            bitmap.eraseColor(0);
+            for (int x = 0; x < divisor; x++) {
+                for (int y = 0; y < divisor; y++) {
+                    // Calculate the subset dimensions
+                    int subsetWidth = width / divisor;
+                    int subsetHeight = height / divisor;
+                    const int left = x * subsetWidth;
+                    const int top = y * subsetHeight;
+
+                    // Increase the size of the last subset in each row or column, when the
+                    // divisor does not divide evenly into the image dimensions
+                    subsetWidth += (x + 1 == divisor) ? (width % divisor) : 0;
+                    subsetHeight += (y + 1 == divisor) ? (height % divisor) : 0;
+                    SkIRect subset = SkIRect::MakeXYWH(left, top, subsetWidth, subsetHeight);
+                    if (!codec->getSupportedSubset(&subset)) {
+                        return "Could not get supported subset to decode.\n";
+                    }
+                    options.fSubset = &subset;
+                    void* pixels = bitmap.getAddr(subset.left() / fSampleSize,
+                            subset.top() / fSampleSize);
+                    SkISize scaledSubsetSize = codec->getSampledSubsetDimensions(fSampleSize,
+                            subset);
+                    SkImageInfo subsetDecodeInfo = decodeInfo.makeWH(scaledSubsetSize.width(),
+                            scaledSubsetSize.height());
+
+                    switch (codec->getAndroidPixels(subsetDecodeInfo, pixels, bitmap.rowBytes(),
+                            &options)) {
+                        case SkCodec::kSuccess:
+                        case SkCodec::kIncompleteInput:
+                            break;
+                        case SkCodec::kInvalidConversion:
+                            return Error::Nonfatal("Cannot convert to requested color type.\n");
+                        default:
+                            return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
+                    }
+                }
+            }
+            canvas->drawBitmap(bitmap, 0, 0);
+            return "";
+        }
+        default:
+            SkASSERT(false);
+            return "Error: Should not be reached.\n";
+    }
+}
+
+SkISize AndroidCodecSrc::size() const {
+    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    if (nullptr == codec) {
+        return SkISize::Make(0, 0);
+    }
+    return codec->getSampledDimensions(fSampleSize);
+}
+
+Name AndroidCodecSrc::name() const {
+    // We will replicate the names used by CodecSrc so that images can
+    // be compared in Gold.
+    if (1 == fSampleSize) {
+        return SkOSPath::Basename(fPath.c_str());
+    }
+    return get_scaled_name(fPath, get_scale_from_sample_size(fSampleSize));
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

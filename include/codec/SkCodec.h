@@ -584,6 +584,6 @@ private:
      */
     virtual SkSampler* getSampler(bool createIfNecessary) { return nullptr; }
 
-    friend class SkScaledCodec;
+    friend class SkSampledCodec;
 };
 #endif // SkCodec_DEFINED

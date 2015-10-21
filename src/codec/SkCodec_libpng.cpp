@@ -11,7 +11,6 @@
 #include "SkColorTable.h"
 #include "SkBitmap.h"
 #include "SkMath.h"
-#include "SkScaledCodec.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"

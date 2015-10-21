@@ -6,12 +6,12 @@
  */
 
 #include "Resources.h"
+#include "SkAndroidCodec.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkData.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
-#include "SkScaledCodec.h"
 #include "Test.h"
 
 static SkStreamAsset* resource(const char path[]) {
@@ -56,6 +56,20 @@ static void test_info(skiatest::Reporter* r, SkCodec* codec, const SkImageInfo& 
     SkAutoLockPixels autoLockPixels(bm);
 
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == expectedResult);
+
+    if (goodDigest) {
+        compare_to_good_digest(r, *goodDigest, bm);
+    }
+}
+
+static void test_android_info(skiatest::Reporter* r, SkAndroidCodec* codec, const SkImageInfo& info,
+                              SkCodec::Result expectedResult, const SkMD5::Digest* goodDigest) {
+    SkBitmap bm;
+    bm.allocPixels(info);
+    SkAutoLockPixels autoLockPixels(bm);
+
+    SkCodec::Result result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == expectedResult);
 
     if (goodDigest) {
@@ -124,6 +138,59 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
             }
             // The other non-opaque alpha type should always succeed, but not match.
             test_info(r, codec, info.makeAlphaType(otherAt), expectedResult, nullptr);
+        }
+    }
+}
+
+static void test_android_codec(skiatest::Reporter* r, SkAndroidCodec* codec, SkBitmap& bm,
+        const SkImageInfo& info, const SkISize& size, bool supports565,
+        SkCodec::Result expectedResult, SkMD5::Digest* digest, const SkMD5::Digest* goodDigest) {
+
+    REPORTER_ASSERT(r, info.dimensions() == size);
+    bm.allocPixels(info);
+    SkAutoLockPixels autoLockPixels(bm);
+
+    SkCodec::Result result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == expectedResult);
+
+    md5(bm, digest);
+    if (goodDigest) {
+        REPORTER_ASSERT(r, *digest == *goodDigest);
+    }
+
+    {
+        // Test decoding to 565
+        SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
+        SkCodec::Result expected565 = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
+                expectedResult : SkCodec::kInvalidConversion;
+        test_android_info(r, codec, info565, expected565, nullptr);
+    }
+
+    // Verify that re-decoding gives the same result.  It is interesting to check this after
+    // a decode to 565, since choosing to decode to 565 may result in some of the decode
+    // options being modified.  These options should return to their defaults on another
+    // decode to kN32, so the new digest should match the old digest.
+    test_android_info(r, codec, info, expectedResult, digest);
+
+    {
+        // Check alpha type conversions
+        if (info.alphaType() == kOpaque_SkAlphaType) {
+            test_android_info(r, codec, info.makeAlphaType(kUnpremul_SkAlphaType),
+                    SkCodec::kInvalidConversion, nullptr);
+            test_android_info(r, codec, info.makeAlphaType(kPremul_SkAlphaType),
+                    SkCodec::kInvalidConversion, nullptr);
+        } else {
+            // Decoding to opaque should fail
+            test_android_info(r, codec, info.makeAlphaType(kOpaque_SkAlphaType),
+                    SkCodec::kInvalidConversion, nullptr);
+            SkAlphaType otherAt = info.alphaType();
+            if (kPremul_SkAlphaType == otherAt) {
+                otherAt = kUnpremul_SkAlphaType;
+            } else {
+                otherAt = kPremul_SkAlphaType;
+            }
+            // The other non-opaque alpha type should always succeed, but not match.
+            test_android_info(r, codec, info.makeAlphaType(otherAt), expectedResult, nullptr);
         }
     }
 }
@@ -288,13 +355,13 @@ static void check(skiatest::Reporter* r,
             return;
         }
 
-        SkAutoTDelete<SkCodec> codec(nullptr);
+        SkAutoTDelete<SkAndroidCodec> codec(nullptr);
         if (isIncomplete) {
             size_t size = stream->getLength();
             SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
-            codec.reset(SkScaledCodec::NewFromData(data));
+            codec.reset(SkAndroidCodec::NewFromData(data));
         } else {
-            codec.reset(SkScaledCodec::NewFromStream(stream.detach()));
+            codec.reset(SkAndroidCodec::NewFromStream(stream.detach()));
         }
         if (!codec) {
             ERRORF(r, "Unable to decode '%s'", path);
@@ -303,8 +370,8 @@ static void check(skiatest::Reporter* r,
 
         SkBitmap bm;
         SkMD5::Digest scaledCodecDigest;
-        test_codec(r, codec, bm, info, size, supports565, expectedResult, &scaledCodecDigest,
-                &codecDigest);
+        test_android_codec(r, codec, bm, info, size, supports565, expectedResult,
+                &scaledCodecDigest, &codecDigest);
     }
 
     // If we've just tested incomplete decodes, let's run the same test again on full decodes.
@@ -463,8 +530,9 @@ static void test_invalid_stream(skiatest::Reporter* r, const void* stream, size_
     SkCodec* codec = SkCodec::NewFromStream(new SkMemoryStream(stream, len, false));
     REPORTER_ASSERT(r, !codec);
 
-    codec = SkScaledCodec::NewFromStream(new SkMemoryStream(stream, len, false));
-    REPORTER_ASSERT(r, !codec);
+    SkAndroidCodec* androidCodec =
+            SkAndroidCodec::NewFromStream(new SkMemoryStream(stream, len, false));
+    REPORTER_ASSERT(r, !androidCodec);
 }
 
 // Ensure that SkCodec::NewFromStream handles freeing the passed in SkStream,
@@ -496,8 +564,8 @@ DEF_TEST(Codec_null, r) {
     SkCodec* codec = SkCodec::NewFromStream(nullptr);
     REPORTER_ASSERT(r, !codec);
 
-    codec = SkScaledCodec::NewFromStream(nullptr);
-    REPORTER_ASSERT(r, !codec);
+    SkAndroidCodec* androidCodec = SkAndroidCodec::NewFromStream(nullptr);
+    REPORTER_ASSERT(r, !androidCodec);
 }
 
 static void test_dimensions(skiatest::Reporter* r, const char path[]) {
@@ -507,16 +575,16 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkScaledCodec::NewFromStream(stream.detach()));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.detach()));
     if (!codec) {
         ERRORF(r, "Unable to create codec '%s'", path);
         return;
     }
 
     // Check that the decode is successful for a variety of scales
-    for (float scale = 0.05f; scale < 2.0f; scale += 0.05f) {
+    for (int sampleSize = 1; sampleSize < 10; sampleSize++) {
         // Scale the output dimensions
-        SkISize scaledDims = codec->getScaledDimensions(scale);
+        SkISize scaledDims = codec->getSampledDimensions(sampleSize);
         SkImageInfo scaledInfo = codec->getInfo()
                 .makeWH(scaledDims.width(), scaledDims.height())
                 .makeColorType(kN32_SkColorType);
@@ -526,8 +594,10 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         size_t totalBytes = scaledInfo.getSafeSize(rowBytes);
         SkAutoTMalloc<SkPMColor> pixels(totalBytes);
 
+        SkAndroidCodec::AndroidOptions options;
+        options.fSampleSize = sampleSize;
         SkCodec::Result result =
-                codec->getPixels(scaledInfo, pixels.get(), rowBytes, nullptr, nullptr, nullptr);
+                codec->getAndroidPixels(scaledInfo, pixels.get(), rowBytes, &options);
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     }
 }

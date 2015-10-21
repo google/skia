@@ -31,9 +31,19 @@
 #define COMPUTE_RESULT_ALPHA                    \
     SkSwizzler::GetResult(zeroAlpha, maxAlpha);
 
+// FIXME: Consider sharing with dm, nanbench, and tools.
+inline float get_scale_from_sample_size(int sampleSize) {
+    return 1.0f / ((float) sampleSize);
+}
+
+inline bool is_valid_subset(const SkIRect& subset, const SkISize& imageDims) {
+    return SkIRect::MakeSize(imageDims).contains(subset);
+}
+
 /*
  * returns a scaled dimension based on the original dimension and the sampleSize
  * NOTE: we round down here for scaled dimension to match the behavior of SkImageDecoder
+ * FIXME: I think we should call this get_sampled_dimension().
  */
 inline int get_scaled_dimension(int srcDimension, int sampleSize) {
     if (sampleSize > srcDimension) {

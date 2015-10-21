@@ -7,7 +7,6 @@
 
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
-#include "SkScaledCodec.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
 

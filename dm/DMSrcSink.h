@@ -104,7 +104,6 @@ private:
 class CodecSrc : public Src {
 public:
     enum Mode {
-        kScaledCodec_Mode,
         kCodec_Mode,
         kScanline_Mode,
         kScanline_Subset_Mode,
@@ -127,6 +126,28 @@ private:
     Mode                    fMode;
     DstColorType            fDstColorType;
     float                   fScale;
+};
+
+class AndroidCodecSrc : public Src {
+public:
+    enum Mode {
+        kFullImage_Mode,
+        // Splits the image into multiple subsets using a divisor and decodes the subsets
+        // separately.
+        kDivisor_Mode,
+    };
+
+    AndroidCodecSrc(Path, Mode, CodecSrc::DstColorType, int sampleSize);
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+    bool veto(SinkFlags) const override;
+private:
+    Path                    fPath;
+    Mode                    fMode;
+    CodecSrc::DstColorType  fDstColorType;
+    int                     fSampleSize;
 };
 
 // Allows for testing of various implementations of Android's BitmapRegionDecoder
