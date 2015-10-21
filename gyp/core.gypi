@@ -65,6 +65,7 @@
         '<(skia_src_path)/core/SkCachedData.cpp',
         '<(skia_src_path)/core/SkCanvas.cpp',
         '<(skia_src_path)/core/SkCanvasPriv.h',
+        '<(skia_src_path)/core/SkChecksum.cpp',
         '<(skia_src_path)/core/SkChunkAlloc.cpp',
         '<(skia_src_path)/core/SkClipStack.cpp',
         '<(skia_src_path)/core/SkColor.cpp',
