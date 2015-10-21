@@ -10,7 +10,6 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkMatrixUtils.h"
 #include "SkPicture.h"
@@ -218,28 +217,18 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkM
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
         SkMatrix tileMatrix;
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
-                                 SkMatrix::kFill_ScaleToFit);
-
-        SkAutoTDelete<SkImageGenerator> tileGenerator(
-            SkImageGenerator::NewFromPicture(tileSize, fPicture, &tileMatrix, nullptr));
-        if (!tileGenerator) {
-            return nullptr;
-        }
-
-        // Grab this before the generator goes poof!
-        const SkImageInfo tileInfo = tileGenerator->getInfo();
-
-        SkAutoTUnref<SkImage> tileImage(SkImage::NewFromGenerator(tileGenerator.detach()));
-        if (!tileImage) {
+                             SkMatrix::kFill_ScaleToFit);
+        SkBitmap bm;
+        if (!SkDEPRECATED_InstallDiscardablePixelRef(
+            SkImageGenerator::NewFromPicture(tileSize, fPicture, &tileMatrix, nullptr), &bm)) {
             return nullptr;
         }
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
-        tileShader.reset(tileImage->newShader(fTmx, fTmy, &shaderMatrix));
+        tileShader.reset(CreateBitmapShader(bm, fTmx, fTmy, &shaderMatrix));
 
-        SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get(),
-                                                 tileInfo.getSafeSize(tileInfo.minRowBytes())));
+        SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get(), bm.getSize()));
     }
 
     return tileShader.detach();
