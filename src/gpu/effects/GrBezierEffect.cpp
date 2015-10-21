@@ -9,6 +9,7 @@
 
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
+#include "gl/GrGLUtil.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLConicEffect : public GrGLGeometryProcessor {

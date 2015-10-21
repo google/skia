@@ -167,6 +167,7 @@ void SkSweepGradient::SweepGradientContext::shadeSpan16(int x, int y, uint16_t* 
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
+#include "gl/GrGLContext.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 class GrGLSweepGradient : public GrGLGradientEffect {

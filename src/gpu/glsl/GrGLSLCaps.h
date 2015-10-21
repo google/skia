@@ -65,6 +65,8 @@ public:
         return fGLSLGeneration > k110_GrGLSLGeneration;
     }
 
+    bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
+
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
     /**
@@ -79,6 +81,8 @@ private:
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;
     bool fBindlessTextureSupport : 1;
+    bool fUsesPrecisionModifiers : 1;
+
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

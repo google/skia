@@ -9,6 +9,7 @@
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkFloatingPoint.h"
+#include "gl/GrGLContext.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
@@ -99,11 +100,11 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
                                                           inCoords.c_str());
                 builder->codeAppend(";");
                 
-                builder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
-                                                                   program->ctxInfo().standard()));
+                builder->codeAppend(GrGLShaderVar::PrecisionString(program->glslCaps(),
+                                                                   kHigh_GrSLPrecision));
                 builder->codeAppendf("float x = (%s).x;", inCoords.c_str());
-                builder->codeAppend(GrGLShaderVar::PrecisionString(kHigh_GrSLPrecision,
-                                                                   program->ctxInfo().standard()));
+                builder->codeAppend(GrGLShaderVar::PrecisionString(program->glslCaps(),
+                                                                   kHigh_GrSLPrecision));
                 builder->codeAppendf("float y = (%s).y;", inCoords.c_str());
 
                 builder->codeAppendf("x = abs(2.0*(x - %s.x)/(%s.z - %s.x) - 1.0);",

@@ -6,7 +6,9 @@
  */
 
 #include "GrGLGLSL.h"
+#include "GrGLContext.h"
 #include "GrGLShaderVar.h"
+#include "GrGLUtil.h"
 #include "SkString.h"
 
 bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) {

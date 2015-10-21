@@ -159,7 +159,7 @@ void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
                                             SkString* out) const {
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & visibility) {
-            fUniforms[i].fVariable.appendDecl(this->ctxInfo(), out);
+            fUniforms[i].fVariable.appendDecl(this->glslCaps(), out);
             out->append(";\n");
         }
     }
@@ -167,6 +167,10 @@ void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
 
 const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
     return fGpu->ctxInfo();
+}
+
+const GrGLSLCaps* GrGLProgramBuilder::glslCaps() const {
+    return this->ctxInfo().caps()->glslCaps();
 }
 
 bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {

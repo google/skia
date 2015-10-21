@@ -12,9 +12,11 @@
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLProgramDesc.h"
 #include "gl/GrGLProgramDataManager.h"
+#include "gl/GrGLTypes.h"
 
 #include <stdarg.h>
 
+class GrGLCaps;
 class GrGLContextInfo;
 class GrGLProgramBuilder;
 

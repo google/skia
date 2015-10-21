@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GLBench.h"
+#include "gl/GrGLContext.h"
 #include "gl/GrGLGLSL.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLShaderVar.h"
@@ -114,11 +115,11 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     GrGLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
 
     SkString vshaderTxt(version);
-    aPosition.appendDecl(*ctx, &vshaderTxt);
+    aPosition.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
     vshaderTxt.append(";\n");
-    aColor.appendDecl(*ctx, &vshaderTxt);
+    aColor.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
     vshaderTxt.append(";\n");
-    oColor.appendDecl(*ctx, &vshaderTxt);
+    oColor.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
     vshaderTxt.append(";\n");
 
     vshaderTxt.append(
@@ -136,12 +137,12 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, gl->fStandard,
                                                    &fshaderTxt);
     oColor.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-    oColor.appendDecl(*ctx, &fshaderTxt);
+    oColor.appendDecl(ctx->caps()->glslCaps(), &fshaderTxt);
     fshaderTxt.append(";\n");
 
     const char* fsOutName;
     if (ctx->caps()->glslCaps()->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(*ctx, &fshaderTxt);
+        oFragColor.appendDecl(ctx->caps()->glslCaps(), &fshaderTxt);
         fshaderTxt.append(";\n");
         fsOutName = oFragColor.c_str();
     } else {

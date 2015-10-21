@@ -8,8 +8,9 @@
 #ifndef GrGLProgramDataManager_DEFINED
 #define GrGLProgramDataManager_DEFINED
 
-#include "gl/GrGLShaderVar.h"
 #include "GrAllocator.h"
+#include "gl/GrGLShaderVar.h"
+#include "gl/GrGLTypes.h"
 
 #include "SkTArray.h"
 

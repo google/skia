@@ -17,6 +17,7 @@
 #include "../../GrPipeline.h"
 
 class GrFragmentProcessor;
+class GrGLSLCaps;
 
 // Enough precision to represent 1 / 2048 accurately in printf
 #define GR_SIGNIFICANT_POW2_DECIMAL_DIG 11
@@ -74,6 +75,8 @@ public:
     virtual const char* getUniformCStr(UniformHandle u) const = 0;
 
     virtual const GrGLContextInfo& ctxInfo() const = 0;
+
+    virtual const GrGLSLCaps* glslCaps() const = 0;
 
     virtual GrGLGpu* gpu() const = 0;
 
@@ -249,6 +252,8 @@ public:
     }
 
     const GrGLContextInfo& ctxInfo() const override;
+
+    const GrGLSLCaps* glslCaps() const override;
 
     GrGLGpu* gpu() const override { return fGpu; }
 

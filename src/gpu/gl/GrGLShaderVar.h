@@ -8,8 +8,9 @@
 #ifndef GrGLShaderVar_DEFINED
 #define GrGLShaderVar_DEFINED
 
-#include "GrGLContext.h"
 #include "GrShaderVar.h"
+#include "../glsl/GrGLSL.h"
+#include "../glsl/GrGLSLCaps.h"
 
 #define USE_UNIFORM_FLOAT_ARRAYS true
 
@@ -155,7 +156,7 @@ public:
     /**
      * Write a declaration of this variable to out.
      */
-    void appendDecl(const GrGLContextInfo& ctxInfo, SkString* out) const {
+    void appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
         SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeIsFloatType(fType));
         if (kUpperLeft_Origin == fOrigin) {
             // this is the only place where we specify a layout modifier. If we use other layout
@@ -163,10 +164,10 @@ public:
             out->append("layout(origin_upper_left) ");
         }
         if (this->getTypeModifier() != kNone_TypeModifier) {
-           out->append(TypeModifierString(this->getTypeModifier(), ctxInfo.glslGeneration()));
+           out->append(TypeModifierString(glslCaps, this->getTypeModifier()));
            out->append(" ");
         }
-        out->append(PrecisionString(fPrecision, ctxInfo.standard()));
+        out->append(PrecisionString(glslCaps, fPrecision));
         GrSLType effectiveType = this->getType();
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
@@ -201,9 +202,9 @@ public:
                      fUseUniformFloatArrays ? "" : ".x");
     }
 
-    static const char* PrecisionString(GrSLPrecision p, GrGLStandard standard) {
+    static const char* PrecisionString(const GrGLSLCaps* glslCaps, GrSLPrecision p) {
         // Desktop GLSL has added precision qualifiers but they don't do anything.
-        if (kGLES_GrGLStandard == standard) {
+        if (glslCaps->usesPrecisionModifiers()) {
             switch (p) {
                 case kLow_GrSLPrecision:
                     return "lowp ";
@@ -219,7 +220,8 @@ public:
     }
 
 private:
-    static const char* TypeModifierString(TypeModifier t, GrGLSLGeneration gen) {
+    static const char* TypeModifierString(const GrGLSLCaps* glslCaps, TypeModifier t) {
+        GrGLSLGeneration gen = glslCaps->generation();
         switch (t) {
             case kNone_TypeModifier:
                 return "";

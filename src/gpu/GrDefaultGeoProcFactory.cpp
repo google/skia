@@ -9,6 +9,7 @@
 
 #include "GrInvariantOutput.h"
 #include "gl/GrGLGeometryProcessor.h"
+#include "gl/GrGLUtil.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
 /*

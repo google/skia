@@ -908,6 +908,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #include "effects/GrTextureStripAtlas.h"
 #include "GrInvariantOutput.h"
+#include "gl/GrGLContext.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGr.h"
 

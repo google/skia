@@ -2820,13 +2820,13 @@ void GrGLGpu::createCopyProgram() {
     GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     
     SkString vshaderTxt(version);
-    aVertex.appendDecl(this->ctxInfo(), &vshaderTxt);
+    aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
     vshaderTxt.append(";");
-    uTexCoordXform.appendDecl(this->ctxInfo(), &vshaderTxt);
+    uTexCoordXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
     vshaderTxt.append(";");
-    uPosXform.appendDecl(this->ctxInfo(), &vshaderTxt);
+    uPosXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
     vshaderTxt.append(";");
-    vTexCoord.appendDecl(this->ctxInfo(), &vshaderTxt);
+    vTexCoord.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
     vshaderTxt.append(";");
     
     vshaderTxt.append(
@@ -2842,13 +2842,13 @@ void GrGLGpu::createCopyProgram() {
     GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, this->glStandard(),
                                                    &fshaderTxt);
     vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-    vTexCoord.appendDecl(this->ctxInfo(), &fshaderTxt);
+    vTexCoord.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
     fshaderTxt.append(";");
-    uTexture.appendDecl(this->ctxInfo(), &fshaderTxt);
+    uTexture.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
     fshaderTxt.append(";");
     const char* fsOutName;
     if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(this->ctxInfo(), &fshaderTxt);
+        oFragColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
         fshaderTxt.append(";");
         fsOutName = oFragColor.c_str();
     } else {

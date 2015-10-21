@@ -266,7 +266,7 @@ public:
     bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
     bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }
 
-    GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
+    const GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
     void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);

@@ -92,6 +92,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             glslCaps->fFBFetchColorName = "gl_LastFragColorARM";
             glslCaps->fFBFetchExtensionString = "GL_ARM_shader_framebuffer_fetch";
         }
+        glslCaps->fUsesPrecisionModifiers = true;
     }
 
     glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
