@@ -36,7 +36,7 @@ struct SkDConic {
         return result;
     }
 
-    static bool IsConic() { return true; }
+    static bool IsCubic() { return false; }
 
     const SkDConic& set(const SkPoint pts[kPointCount], SkScalar weight) {
         fPts.set(pts);

@@ -8,14 +8,6 @@
 #include "SkPathOpsTSect.h"
 
 template<typename TCurve, typename OppCurve>
-char SkTCoincident<TCurve, OppCurve>::dumpIsCoincidentStr() const {
-    if (!!fCoincident != fCoincident) {
-        return '?';
-    }
-    return fCoincident ? '*' : 0;
-}
-
-template<typename TCurve, typename OppCurve>
 void SkTCoincident<TCurve, OppCurve>::dump() const {
     SkDebugf("t=%1.9g pt=(%1.9g,%1.9g)%s\n", fPerpT, fPerpPt.fX, fPerpPt.fY,
             fCoincident ? " coincident" : "");
@@ -209,13 +201,11 @@ void SkTSpan<TCurve, OppCurve>::dumpCoin() const {
 
 template<typename TCurve, typename OppCurve>
 void SkTSpan<TCurve, OppCurve>::dumpID() const {
-    char cS = fCoinStart.dumpIsCoincidentStr();
-    if (cS) {
-        SkDebugf("%c", cS);
+    if (fCoinStart.isCoincident()) {
+        SkDebugf("%c", '*');
     }
     SkDebugf("%d", debugID());
-    char cE = fCoinEnd.dumpIsCoincidentStr();
-    if (cE) {
-        SkDebugf("%c", cE);
+    if (fCoinEnd.isCoincident()) {
+        SkDebugf("%c", '*');
     }
 }

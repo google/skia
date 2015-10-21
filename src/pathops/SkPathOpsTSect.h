@@ -11,12 +11,6 @@
 #include "SkIntersections.h"
 #include "SkTSort.h"
 
-#ifdef SK_DEBUG
-typedef uint8_t SkOpDebugBool;
-#else
-typedef bool SkOpDebugBool;
-#endif
-
 /* TCurve and OppCurve are one of { SkDQuadratic, SkDConic, SkDCubic } */
 template<typename TCurve, typename OppCurve>
 class SkTCoincident {
@@ -25,20 +19,10 @@ public:
         this->init();
     }
 
-    void debugInit() {
-#ifdef SK_DEBUG
-        this->fPerpPt.fX = this->fPerpPt.fY = SK_ScalarNaN;
-        this->fPerpT = SK_ScalarNaN;
-        this->fCoincident = 0xFF;
-#endif
-    }
-
-    char dumpIsCoincidentStr() const;
     void dump() const;
 
     bool isCoincident() const {
-        SkASSERT(!!fCoincident == fCoincident);
-        return SkToBool(fCoincident);
+        return fCoincident;
     }
 
     void init() {
@@ -67,7 +51,7 @@ public:
 private:
     SkDPoint fPerpPt;
     double fPerpT;  // perpendicular intersection on opposite curve
-    SkOpDebugBool fCoincident;
+    bool fCoincident;
 };
 
 template<typename TCurve, typename OppCurve> class SkTSect;
@@ -201,11 +185,11 @@ private:
     double fStartT;
     double fEndT;
     double fBoundsMax;
-    SkOpDebugBool fCollapsed;
-    SkOpDebugBool fHasPerp;
-    SkOpDebugBool fIsLinear;
-    SkOpDebugBool fIsLine;
-    SkOpDebugBool fDeleted;
+    bool fCollapsed;
+    bool fHasPerp;
+    bool fIsLinear;
+    bool fIsLine;
+    bool fDeleted;
     SkDEBUGCODE_(SkTSect<TCurve, OppCurve>* fDebugSect);
     PATH_OPS_DEBUG_T_SECT_CODE(int fID);
     friend class SkTSect<TCurve, OppCurve>;
@@ -285,7 +269,6 @@ private:
                                                   SkTSpan<TCurve, OppCurve>** lastPtr);
     int intersects(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp,
                    SkTSpan<OppCurve, TCurve>* oppSpan, int* oppResult);
-    bool isParallel(const SkDLine& thisLine, const SkTSect<OppCurve, TCurve>* opp) const;
     int linesIntersect(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp,
                        SkTSpan<OppCurve, TCurve>* oppSpan, SkIntersections* );
     void markSpanGone(SkTSpan<TCurve, OppCurve>* span);
@@ -845,29 +828,21 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addOne() {
     SkTSpan<TCurve, OppCurve>* result;
     if (fDeleted) {
         result = fDeleted;
+        result->reset();
         fDeleted = result->fNext;
     } else {
         result = new (fHeap.allocThrow(sizeof(SkTSpan<TCurve, OppCurve>)))(
                 SkTSpan<TCurve, OppCurve>);
+        result->fBounded = nullptr;
 #if DEBUG_T_SECT
         ++fDebugAllocatedCount;
 #endif
     }
-    result->reset();
     result->fHasPerp = false;
     result->fDeleted = false;
     ++fActiveCount; 
     PATH_OPS_DEBUG_T_SECT_CODE(result->fID = fDebugCount++ * 2 + fID);
     SkDEBUGCODE(result->fDebugSect = this);
-#ifdef SK_DEBUG
-    result->fPart.debugInit();
-    result->fCoinStart.debugInit();
-    result->fCoinEnd.debugInit();
-    result->fPrev = result->fNext = nullptr;
-    result->fBounds.debugInit();
-    result->fStartT = result->fEndT = result->fBoundsMax = SK_ScalarNaN;
-    result->fCollapsed = result->fIsLinear = result->fIsLine = 0xFF;
-#endif
     return result;
 }
 
@@ -1302,31 +1277,6 @@ int SkTSect<TCurve, OppCurve>::intersects(SkTSpan<TCurve, OppCurve>* span,
     return *oppResult = 1;
 }
 
-template<typename TCurve>
-static bool is_parallel(const SkDLine& thisLine, const TCurve& opp) {
-    if (!opp.IsConic()) {
-        return false; // FIXME : breaks a lot of stuff now
-    }
-    int finds = 0;
-    SkDLine thisPerp;
-    thisPerp.fPts[0].fX = thisLine.fPts[1].fX + (thisLine.fPts[1].fY - thisLine.fPts[0].fY);
-    thisPerp.fPts[0].fY = thisLine.fPts[1].fY + (thisLine.fPts[0].fX - thisLine.fPts[1].fX);
-    thisPerp.fPts[1] = thisLine.fPts[1];
-    SkIntersections perpRayI;
-    perpRayI.intersectRay(opp, thisPerp);
-    for (int pIndex = 0; pIndex < perpRayI.used(); ++pIndex) {
-        finds += perpRayI.pt(pIndex).approximatelyEqual(thisPerp.fPts[1]);
-    }
-    thisPerp.fPts[1].fX = thisLine.fPts[0].fX + (thisLine.fPts[1].fY - thisLine.fPts[0].fY);
-    thisPerp.fPts[1].fY = thisLine.fPts[0].fY + (thisLine.fPts[0].fX - thisLine.fPts[1].fX);
-    thisPerp.fPts[0] = thisLine.fPts[0];
-    perpRayI.intersectRay(opp, thisPerp);
-    for (int pIndex = 0; pIndex < perpRayI.used(); ++pIndex) {
-        finds += perpRayI.pt(pIndex).approximatelyEqual(thisPerp.fPts[0]);
-    }
-    return finds >= 2;
-}
-
 // while the intersection points are sufficiently far apart:
 // construct the tangent lines from the intersections
 // find the point where the tangent line intersects the opposite curve
@@ -1353,7 +1303,7 @@ int SkTSect<TCurve, OppCurve>::linesIntersect(SkTSpan<TCurve, OppCurve>* span,
                 ptMatches += thisRayI.pt(tIndex).approximatelyEqual(thisLine.fPts[lIndex]);
             }
         }
-        if (ptMatches == 2 || is_parallel(thisLine, opp->fCurve)) {
+        if (ptMatches == 2) {
             return 2;
         }
     }
@@ -1364,7 +1314,7 @@ int SkTSect<TCurve, OppCurve>::linesIntersect(SkTSpan<TCurve, OppCurve>* span,
                 ptMatches += oppRayI.pt(oIndex).approximatelyEqual(oppLine.fPts[lIndex]);
             }
         }
-        if (ptMatches == 2|| is_parallel(oppLine, this->fCurve)) {
+        if (ptMatches == 2) {
             return 2;
         }
     }

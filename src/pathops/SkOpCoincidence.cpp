@@ -205,7 +205,7 @@ bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over1e,
     SkASSERT(cs != ce);
     SkOpPtT* os = oppSeg->addMissing(oppTs, coinSeg, allocator);
     SkOpPtT* oe = oppSeg->addMissing(oppTe, coinSeg, allocator);
-//    SkASSERT(os != oe);
+    SkASSERT(os != oe);
     cs->addOpp(os);
     ce->addOpp(oe);
     this->add(cs, ce, os, oe, allocator);
