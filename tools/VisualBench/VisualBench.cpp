@@ -40,7 +40,7 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
 }
 
 VisualBench::~VisualBench() {
-    INHERITED::detach();
+    this->tearDownContext();
 }
 
 void VisualBench::setTitle() {
@@ -68,18 +68,25 @@ bool VisualBench::setupBackend() {
             SkDebugf("Could not go fullscreen!");
         }
     }
-    if (!this->attach(kNativeGL_BackEndType, FLAGS_msaa, &fAttachmentInfo)) {
-        SkDebugf("Not possible to create backend.\n");
-        INHERITED::detach();
-        return false;
-    }
 
-    this->setVsync(false);
     this->resetContext();
     return true;
 }
 
 void VisualBench::resetContext() {
+    this->tearDownContext();
+    this->setupContext();
+}
+
+void VisualBench::setupContext() {
+    if (!this->attach(kNativeGL_BackEndType, FLAGS_msaa, &fAttachmentInfo)) {
+        SkDebugf("Not possible to create backend.\n");
+        INHERITED::detach();
+        SkFAIL("Could not create backend\n");
+    }
+
+    this->setVsync(false);
+
     fSurface.reset(nullptr);
 
     fInterface.reset(GrGLCreateNativeInterface());
@@ -96,6 +103,17 @@ void VisualBench::resetContext() {
 
     // setup rendertargets
     this->setupRenderTarget();
+}
+
+void VisualBench::tearDownContext() {
+    if (fContext) {
+        // We abandon the context in case SkWindow has kept a ref to the surface
+        fContext->abandonContext();
+        fContext.reset();
+        fSurface.reset();
+        fInterface.reset();
+        this->detach();
+    }
 }
 
 void VisualBench::setupRenderTarget() {

@@ -48,6 +48,8 @@ private:
     void resetContext();
     void setupRenderTarget();
     bool onHandleChar(SkUnichar unichar) override;
+    void tearDownContext();
+    void setupContext();
 
     // support framework
     SkAutoTDelete<VisualModule> fModule;

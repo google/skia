@@ -337,7 +337,7 @@ void SkOSWindow::mapWindowAndWait() {
             k##name = (type) GLX_GET_PROC_ADDR(#name); \
         } \
         k##name(__VA_ARGS__); \
-        SkDebugf("using %s\n", #name); \
+        /*SkDebugf("using %s\n", #name);*/ \
         return; \
     }
 
