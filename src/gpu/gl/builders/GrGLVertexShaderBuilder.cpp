@@ -21,7 +21,7 @@ GrGLVertexBuilder::GrGLVertexBuilder(GrGLProgramBuilder* program)
 void GrGLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLVarying* v) {
     fOutputs.push_back();
     fOutputs.back().setType(v->fType);
-    fOutputs.back().setTypeModifier(GrGLShaderVar::kVaryingOut_TypeModifier);
+    fOutputs.back().setTypeModifier(GrGLSLShaderVar::kVaryingOut_TypeModifier);
     fOutputs.back().setPrecision(precision);
     fProgramBuilder->nameVariable(fOutputs.back().accessName(), 'v', name);
     v->fVsOut = fOutputs.back().getName().c_str();
@@ -100,7 +100,7 @@ GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuin
 bool GrGLVertexBuilder::addAttribute(const GrShaderVar& var) {
     SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
     for (int i = 0; i < fInputs.count(); ++i) {
-        const GrGLShaderVar& attr = fInputs[i];
+        const GrGLSLShaderVar& attr = fInputs[i];
         // if attribute already added, don't add it again
         if (attr.getName().equals(var.getName())) {
             return false;

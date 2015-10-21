@@ -13,7 +13,6 @@
 #include "GrGLGeometryProcessor.h"
 #include "GrGLGpu.h"
 #include "GrGLPathRendering.h"
-#include "GrGLShaderVar.h"
 #include "GrGLXferProcessor.h"
 #include "GrPathProcessor.h"
 #include "GrPipeline.h"

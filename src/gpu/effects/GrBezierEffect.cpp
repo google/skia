@@ -501,14 +501,14 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
-    GrGLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
 
     fsBuilder->declAppend(edgeAlpha);
     fsBuilder->declAppend(dklmdx);

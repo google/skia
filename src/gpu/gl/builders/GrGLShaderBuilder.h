@@ -30,8 +30,8 @@ public:
 
     GrGLShaderBuilder(GrGLProgramBuilder* program);
 
-    void addInput(GrGLShaderVar i) { fInputs.push_back(i); }
-    void addOutput(GrGLShaderVar i) { fOutputs.push_back(i); }
+    void addInput(const GrGLSLShaderVar& input) { fInputs.push_back(input); }
+    void addOutput(const GrGLSLShaderVar& output) { fOutputs.push_back(output); }
 
     /*
      * We put texture lookups in the base class because it is TECHNICALLY possible to do texture
@@ -92,13 +92,13 @@ public:
     /**
      * Appends a variable declaration to one of the shaders
      */
-    void declAppend(const GrGLShaderVar& var);
+    void declAppend(const GrGLSLShaderVar& var);
 
     /** Emits a helper function outside of main() in the fragment shader. */
     void emitFunction(GrSLType returnType,
                       const char* name,
                       int argCnt,
-                      const GrGLShaderVar* args,
+                      const GrGLSLShaderVar* args,
                       const char* body,
                       SkString* outName);
 
@@ -125,7 +125,7 @@ public:
     };
 
 protected:
-    typedef GrTAllocator<GrGLShaderVar> VarArray;
+    typedef GrTAllocator<GrGLSLShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
 
     /*

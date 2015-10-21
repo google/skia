@@ -67,7 +67,7 @@ public:
         int arrayCount,
         const char** outName = nullptr) = 0;
 
-    virtual const GrGLShaderVar& getUniformVariable(UniformHandle u) const = 0;
+    virtual const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const = 0;
 
     /**
      * Shortcut for getUniformVariable(u).c_str()
@@ -243,7 +243,7 @@ public:
                                   int arrayCount,
                                   const char** outName) override;
 
-    const GrGLShaderVar& getUniformVariable(UniformHandle u) const override {
+    const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }
 

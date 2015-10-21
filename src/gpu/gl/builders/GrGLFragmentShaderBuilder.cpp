@@ -151,10 +151,10 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
                                  "GL_ARB_fragment_coord_conventions");
             }
             fInputs.push_back().set(kVec4f_GrSLType,
-                                    GrGLShaderVar::kIn_TypeModifier,
+                                    GrGLSLShaderVar::kIn_TypeModifier,
                                     "gl_FragCoord",
                                     kDefault_GrSLPrecision,
-                                    GrGLShaderVar::kUpperLeft_Origin);
+                                    GrGLSLShaderVar::kUpperLeft_Origin);
             fSetupFragPosition = true;
         }
         return "gl_FragCoord";
@@ -232,7 +232,7 @@ void GrGLFragmentShaderBuilder::enableCustomOutput() {
         fHasCustomColorOutput = true;
         fCustomColorOutputIndex = fOutputs.count();
         fOutputs.push_back().set(kVec4f_GrSLType,
-                                 GrGLShaderVar::kOut_TypeModifier,
+                                 GrGLSLShaderVar::kOut_TypeModifier,
                                  declared_color_output_name());
     }
 }
@@ -250,7 +250,7 @@ void GrGLFragmentShaderBuilder::enableSecondaryOutput() {
     // requires the built-in gl_SecondaryFragColorEXT, where as 3.0 requires a custom output.
     const GrGLSLCaps& caps = *fProgramBuilder->gpu()->glCaps().glslCaps();
     if (caps.mustDeclareFragmentShaderOutput()) {
-        fOutputs.push_back().set(kVec4f_GrSLType, GrGLShaderVar::kOut_TypeModifier,
+        fOutputs.push_back().set(kVec4f_GrSLType, GrGLSLShaderVar::kOut_TypeModifier,
                                  declared_secondary_color_output_name());
     }
 }
@@ -298,7 +298,7 @@ void GrGLFragmentShaderBuilder::addVarying(GrGLVarying* v, GrSLPrecision fsPrec)
     if (v->fGsOut) {
         v->fFsIn = v->fGsOut;
     }
-    fInputs.push_back().set(v->fType, GrGLShaderVar::kVaryingIn_TypeModifier, v->fFsIn, fsPrec);
+    fInputs.push_back().set(v->fType, GrGLSLShaderVar::kVaryingIn_TypeModifier, v->fFsIn, fsPrec);
 }
 
 void GrGLFragmentBuilder::onBeforeChildProcEmitCode() {

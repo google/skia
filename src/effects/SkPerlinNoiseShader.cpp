@@ -658,15 +658,15 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     const char* dotLattice  = "dot(((%s.ga + %s.rb * vec2(%s)) * vec2(2.0) - vec2(1.0)), %s);";
 
     // Add noise function
-    static const GrGLShaderVar gPerlinNoiseArgs[] =  {
-        GrGLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLShaderVar(noiseVec, kVec2f_GrSLType)
+    static const GrGLSLShaderVar gPerlinNoiseArgs[] =  {
+        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
+        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType)
     };
 
-    static const GrGLShaderVar gPerlinNoiseStitchArgs[] =  {
-        GrGLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLShaderVar(noiseVec, kVec2f_GrSLType),
-        GrGLShaderVar(stitchData, kVec2f_GrSLType)
+    static const GrGLSLShaderVar gPerlinNoiseStitchArgs[] =  {
+        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
+        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType),
+        GrGLSLShaderVar(stitchData, kVec2f_GrSLType)
     };
 
     SkString noiseCode;

@@ -122,8 +122,8 @@ static void soft_light_component_pos_dst_alpha(GrGLFragmentBuilder* fsBuilder,
 static void add_lum_function(GrGLFragmentBuilder* fsBuilder, SkString* setLumFunction) {
     // Emit a helper that gets the luminance of a color.
     SkString getFunction;
-    GrGLShaderVar getLumArgs[] = {
-        GrGLShaderVar("color", kVec3f_GrSLType),
+    GrGLSLShaderVar getLumArgs[] = {
+        GrGLSLShaderVar("color", kVec3f_GrSLType),
     };
     SkString getLumBody("return dot(vec3(0.3, 0.59, 0.11), color);");
     fsBuilder->emitFunction(kFloat_GrSLType,
@@ -133,10 +133,10 @@ static void add_lum_function(GrGLFragmentBuilder* fsBuilder, SkString* setLumFun
                             &getFunction);
 
     // Emit the set luminance function.
-    GrGLShaderVar setLumArgs[] = {
-        GrGLShaderVar("hueSat", kVec3f_GrSLType),
-        GrGLShaderVar("alpha", kFloat_GrSLType),
-        GrGLShaderVar("lumColor", kVec3f_GrSLType),
+    GrGLSLShaderVar setLumArgs[] = {
+        GrGLSLShaderVar("hueSat", kVec3f_GrSLType),
+        GrGLSLShaderVar("alpha", kFloat_GrSLType),
+        GrGLSLShaderVar("lumColor", kVec3f_GrSLType),
     };
     SkString setLumBody;
     setLumBody.printf("float diff = %s(lumColor - hueSat);", getFunction.c_str());
@@ -167,7 +167,7 @@ static void add_lum_function(GrGLFragmentBuilder* fsBuilder, SkString* setLumFun
 static void add_sat_function(GrGLFragmentBuilder* fsBuilder, SkString* setSatFunction) {
     // Emit a helper that gets the saturation of a color
     SkString getFunction;
-    GrGLShaderVar getSatArgs[] = { GrGLShaderVar("color", kVec3f_GrSLType) };
+    GrGLSLShaderVar getSatArgs[] = { GrGLSLShaderVar("color", kVec3f_GrSLType) };
     SkString getSatBody;
     getSatBody.printf("return max(max(color.r, color.g), color.b) - "
                       "min(min(color.r, color.g), color.b);");
@@ -182,11 +182,11 @@ static void add_sat_function(GrGLFragmentBuilder* fsBuilder, SkString* setSatFun
     // problems on PowerVR drivers. So instead it returns a vec3 where r, g ,b are the
     // adjusted min, mid, and max inputs, respectively.
     SkString helperFunction;
-    GrGLShaderVar helperArgs[] = {
-        GrGLShaderVar("minComp", kFloat_GrSLType),
-        GrGLShaderVar("midComp", kFloat_GrSLType),
-        GrGLShaderVar("maxComp", kFloat_GrSLType),
-        GrGLShaderVar("sat", kFloat_GrSLType),
+    GrGLSLShaderVar helperArgs[] = {
+        GrGLSLShaderVar("minComp", kFloat_GrSLType),
+        GrGLSLShaderVar("midComp", kFloat_GrSLType),
+        GrGLSLShaderVar("maxComp", kFloat_GrSLType),
+        GrGLSLShaderVar("sat", kFloat_GrSLType),
     };
     static const char kHelperBody[] = "if (minComp < maxComp) {"
         "vec3 result;"
@@ -203,9 +203,9 @@ static void add_sat_function(GrGLFragmentBuilder* fsBuilder, SkString* setSatFun
                             kHelperBody,
                             &helperFunction);
 
-    GrGLShaderVar setSatArgs[] = {
-        GrGLShaderVar("hueLumColor", kVec3f_GrSLType),
-        GrGLShaderVar("satColor", kVec3f_GrSLType),
+    GrGLSLShaderVar setSatArgs[] = {
+        GrGLSLShaderVar("hueLumColor", kVec3f_GrSLType),
+        GrGLSLShaderVar("satColor", kVec3f_GrSLType),
     };
     const char* helpFunc = helperFunction.c_str();
     SkString setSatBody;

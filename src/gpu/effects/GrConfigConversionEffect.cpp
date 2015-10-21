@@ -25,7 +25,7 @@ public:
 
     virtual void emitCode(EmitArgs& args) override {
         // Using highp for GLES here in order to avoid some precision issues on specific GPUs.
-        GrGLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
+        GrGLSLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
         SkString tmpDecl;
         tmpVar.appendDecl(args.fBuilder->glslCaps(), &tmpDecl);
 

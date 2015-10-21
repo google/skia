@@ -62,13 +62,13 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
 
     SkString cubicBlendName;
 
-    static const GrGLShaderVar gCubicBlendArgs[] = {
-        GrGLShaderVar("coefficients",  kMat44f_GrSLType),
-        GrGLShaderVar("t",             kFloat_GrSLType),
-        GrGLShaderVar("c0",            kVec4f_GrSLType),
-        GrGLShaderVar("c1",            kVec4f_GrSLType),
-        GrGLShaderVar("c2",            kVec4f_GrSLType),
-        GrGLShaderVar("c3",            kVec4f_GrSLType),
+    static const GrGLSLShaderVar gCubicBlendArgs[] = {
+        GrGLSLShaderVar("coefficients",  kMat44f_GrSLType),
+        GrGLSLShaderVar("t",             kFloat_GrSLType),
+        GrGLSLShaderVar("c0",            kVec4f_GrSLType),
+        GrGLSLShaderVar("c1",            kVec4f_GrSLType),
+        GrGLSLShaderVar("c2",            kVec4f_GrSLType),
+        GrGLSLShaderVar("c3",            kVec4f_GrSLType),
     };
     GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);

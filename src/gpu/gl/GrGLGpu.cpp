@@ -2811,13 +2811,13 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 void GrGLGpu::createCopyProgram() {
     const char* version = GrGLGetGLSLVersionDecl(this->ctxInfo());
 
-    GrGLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
+    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                  GrShaderVar::kUniform_TypeModifier);
-    GrGLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    GrGLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    GrGLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
-    GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     
     SkString vshaderTxt(version);
     aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);

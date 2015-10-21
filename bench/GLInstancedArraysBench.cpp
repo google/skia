@@ -14,9 +14,9 @@
 #include "gl/GrGLContext.h"
 #include "gl/GrGLGLSL.h"
 #include "gl/GrGLInterface.h"
-#include "gl/GrGLShaderVar.h"
 #include "gl/GrGLUtil.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLShaderVar.h"
 
 /*
  * This is a native GL benchmark for instanced arrays vs vertex buffer objects.  To benchmark this
@@ -110,9 +110,9 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     const char* version = GrGLGetGLSLVersionDecl(*ctx);
 
     // setup vertex shader
-    GrGLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLSLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
 
     SkString vshaderTxt(version);
     aPosition.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
@@ -132,7 +132,7 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     const GrGLInterface* gl = ctx->interface();
 
     // setup fragment shader
-    GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
     GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, gl->fStandard,
                                                    &fshaderTxt);

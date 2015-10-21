@@ -14,9 +14,9 @@
 #include "gl/GrGLContext.h"
 #include "gl/GrGLGLSL.h"
 #include "gl/GrGLInterface.h"
-#include "gl/GrGLShaderVar.h"
 #include "gl/GrGLUtil.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLShaderVar.h"
 #include <stdio.h>
 
 /*
@@ -68,9 +68,9 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     const char* version = GrGLGetGLSLVersionDecl(*ctx);
 
     // setup vertex shader
-    GrGLShaderVar aPosition("a_position", kVec4f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    SkTArray<GrGLShaderVar> aVars;
-    SkTArray<GrGLShaderVar> oVars;
+    GrGLSLShaderVar aPosition("a_position", kVec4f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    SkTArray<GrGLSLShaderVar> aVars;
+    SkTArray<GrGLSLShaderVar> oVars;
 
     SkString vshaderTxt(version);
     aPosition.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
@@ -79,7 +79,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     for (uint32_t i = 0; i < attribs; i++) {
         SkString aname;
         aname.appendf("a_color_%d", i);
-        aVars.push_back(GrGLShaderVar(aname.c_str(),
+        aVars.push_back(GrGLSLShaderVar(aname.c_str(),
                                       kVec4f_GrSLType,
                                       GrShaderVar::kAttribute_TypeModifier));
         aVars.back().appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
@@ -90,7 +90,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     for (uint32_t i = 0; i < maxAttribs; i++) {
         SkString oname;
         oname.appendf("o_color_%d", i);
-        oVars.push_back(GrGLShaderVar(oname.c_str(),
+        oVars.push_back(GrGLSLShaderVar(oname.c_str(),
                                       kVec4f_GrSLType,
                                       GrShaderVar::kVaryingOut_TypeModifier));
         oVars.back().appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
@@ -116,7 +116,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     const GrGLInterface* gl = ctx->interface();
 
     // setup fragment shader
-    GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
     GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, gl->fStandard,
                                                    &fshaderTxt);

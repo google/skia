@@ -14,9 +14,9 @@
 #include "gl/GrGLContext.h"
 #include "gl/GrGLGLSL.h"
 #include "gl/GrGLInterface.h"
-#include "gl/GrGLShaderVar.h"
 #include "gl/GrGLUtil.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLShaderVar.h"
 
 #include <stdio.h>
 
@@ -100,10 +100,10 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // corner of the screen than the previous circle.
 
     // set up vertex shader; this is a trivial vertex shader that passes through position and color
-    GrGLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
-    GrGLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLSLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLSLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
 
     SkString vshaderTxt(version);
     aPosition.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
@@ -130,7 +130,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // coded center and compare that to some hard-coded circle radius to compute a coverage.
     // Then, this coverage is mixed with the coverage from the previous stage and passed to the
     // next stage.
-    GrGLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
     GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, gl->fStandard,
                                                    &fshaderTxt);

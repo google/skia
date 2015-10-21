@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLShaderVar_DEFINED
-#define GrGLShaderVar_DEFINED
+#ifndef GrGLSLShaderVar_DEFINED
+#define GrGLSLShaderVar_DEFINED
 
 #include "GrShaderVar.h"
 #include "../glsl/GrGLSL.h"
@@ -17,7 +17,7 @@
 /**
  * Represents a variable in a shader
  */
-class GrGLShaderVar : public GrShaderVar {
+class GrGLSLShaderVar : public GrShaderVar {
 public:
     /**
      * See GL_ARB_fragment_coord_conventions.
@@ -30,14 +30,14 @@ public:
     /**
      * Defaults to a float with no precision specifier
      */
-    GrGLShaderVar()
+    GrGLSLShaderVar()
         : GrShaderVar()
         , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
     }
 
-    GrGLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray,
-                  GrSLPrecision precision = kDefault_GrSLPrecision)
+    GrGLSLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray,
+                    GrSLPrecision precision = kDefault_GrSLPrecision)
         : GrShaderVar(name, type, arrayCount, precision)
         , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
@@ -46,22 +46,22 @@ public:
         fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
     }
 
-    GrGLShaderVar(const char* name, GrSLType type, TypeModifier typeModifier,
-                  int arrayCount = kNonArray, GrSLPrecision precision = kDefault_GrSLPrecision)
+    GrGLSLShaderVar(const char* name, GrSLType type, TypeModifier typeModifier,
+                    int arrayCount = kNonArray, GrSLPrecision precision = kDefault_GrSLPrecision)
         : GrShaderVar(name, type, typeModifier, arrayCount, precision)
         , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
     }
 
-    GrGLShaderVar(const GrShaderVar& var)
+    GrGLSLShaderVar(const GrShaderVar& var)
         : GrShaderVar(var)
         , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != var.getType());
     }
 
-    GrGLShaderVar(const GrGLShaderVar& var)
+    GrGLSLShaderVar(const GrGLSLShaderVar& var)
         : GrShaderVar(var.c_str(), var.getType(), var.getTypeModifier(),
                       var.getArrayCount(), var.getPrecision())
         , fOrigin(var.fOrigin)

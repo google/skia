@@ -65,7 +65,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", args.fOutputColor);
 
     int width = this->width();
-    const GrGLShaderVar& kernel = args.fBuilder->getUniformVariable(fKernelUni);
+    const GrGLSLShaderVar& kernel = args.fBuilder->getUniformVariable(fKernelUni);
     const char* imgInc = args.fBuilder->getUniformCStr(fImageIncrementUni);
 
     fsBuilder->codeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords2D.c_str(), fRadius, imgInc);

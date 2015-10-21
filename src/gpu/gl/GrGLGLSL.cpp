@@ -7,7 +7,6 @@
 
 #include "GrGLGLSL.h"
 #include "GrGLContext.h"
-#include "GrGLShaderVar.h"
 #include "GrGLUtil.h"
 #include "SkString.h"
 

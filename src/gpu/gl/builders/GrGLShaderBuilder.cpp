@@ -11,8 +11,8 @@
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLContext.h"
 #include "gl/GrGLGpu.h"
-#include "gl/GrGLShaderVar.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLShaderVar.h"
 
 namespace {
 void append_texture_lookup(SkString* out,
@@ -67,7 +67,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGLProgramBuilder* program)
     this->main() = "void main() {";
 }
 
-void GrGLShaderBuilder::declAppend(const GrGLShaderVar& var) {
+void GrGLShaderBuilder::declAppend(const GrGLSLShaderVar& var) {
     SkString tempDecl;
     var.appendDecl(fProgramBuilder->glslCaps(), &tempDecl);
     this->codeAppendf("%s;", tempDecl.c_str());
@@ -76,7 +76,7 @@ void GrGLShaderBuilder::declAppend(const GrGLShaderVar& var) {
 void GrGLShaderBuilder::emitFunction(GrSLType returnType,
                                      const char* name,
                                      int argCnt,
-                                     const GrGLShaderVar* args,
+                                     const GrGLSLShaderVar* args,
                                      const char* body,
                                      SkString* outName) {
     this->functions().append(GrGLSLTypeString(returnType));
