@@ -67,8 +67,7 @@ private:
 class BigKeyProcessor : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create() {
-        static BigKeyProcessor gBigKeyProcessor;
-        return SkRef(&gBigKeyProcessor);
+        return new BigKeyProcessor;
     }
 
     const char* name() const override { return "Big Ole Key"; }

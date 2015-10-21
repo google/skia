@@ -17,8 +17,7 @@
 class DitherEffect : public GrFragmentProcessor {
 public:
     static GrFragmentProcessor* Create() {
-        static DitherEffect gDitherEffect;
-        return SkRef(&gDitherEffect);
+        return new DitherEffect;
     }
 
     virtual ~DitherEffect() {};
