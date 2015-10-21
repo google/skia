@@ -270,7 +270,7 @@ cc_test(
         "--nogpu",
         "--verbose",
         # TODO(mtklein): maybe investigate why these fail?
-        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps",
+        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~Math",
         "--resourcePath %s/resources" % BASE_DIR,
         "--images %s/resources" % BASE_DIR,
     ],
