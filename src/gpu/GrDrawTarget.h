@@ -45,7 +45,7 @@ class GrDrawTarget final : public SkRefCnt {
 public:
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
-    GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider*);
+    GrDrawTarget(GrGpu* gpu, GrResourceProvider*);
 
     ~GrDrawTarget() override;
 
@@ -314,7 +314,6 @@ private:
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
     SkTDArray<GrDrawTarget*>                    fDependencies;
-    GrRenderTarget*                             fRenderTarget;
 
     typedef SkRefCnt INHERITED;
 };

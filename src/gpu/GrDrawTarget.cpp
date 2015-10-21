@@ -32,14 +32,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider)
+GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fFlushState(fGpu, fResourceProvider, 0)
     , fFlushing(false)
     , fFirstUnpreparedBatch(0)
-    , fFlags(0)
-    , fRenderTarget(rt) {
+    , fFlags(0) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
@@ -51,10 +50,6 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
 }
 
 GrDrawTarget::~GrDrawTarget() {
-    if (fRenderTarget && this == fRenderTarget->getLastDrawTarget()) {
-        fRenderTarget->setLastDrawTarget(nullptr);
-    }
-
     fGpu->unref();
 }
 
@@ -187,7 +182,7 @@ void GrDrawTarget::flush() {
     // drawTargets will be created to replace them if the SkGpuDevice(s) write to them again.
     this->makeClosed();
 
-    // Loop over the batches that haven't yet generated their geometry
+    // Loop over all batches and generate geometry
     for (; fFirstUnpreparedBatch < fBatches.count(); ++fFirstUnpreparedBatch) {
         fBatches[fFirstUnpreparedBatch]->prepare(&fFlushState);
     }
@@ -231,10 +226,6 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBat
     if (!this->installPipelineInDrawBatch(&pipelineBuilder, &scissorState, batch)) {
         return;
     }
-
-#ifdef ENABLE_MDB
-    batch->pipeline()->addDependenciesTo(fRenderTarget);
-#endif
 
     this->recordBatch(batch);
 }
@@ -467,10 +458,6 @@ void GrDrawTarget::copySurface(GrSurface* dst,
                                const SkIPoint& dstPoint) {
     GrBatch* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
     if (batch) {
-#ifdef ENABLE_MDB
-        this->addDependency(src);
-#endif
-
         this->recordBatch(batch);
         batch->unref();
     }

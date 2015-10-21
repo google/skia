@@ -71,10 +71,7 @@ void GrRenderTarget::onAbandon() {
 
 void GrRenderTarget::setLastDrawTarget(GrDrawTarget* dt) {
     if (fLastDrawTarget) {
-        // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
         SkASSERT(fLastDrawTarget->isClosed());
-#endif
     }
 
     fLastDrawTarget = dt;
