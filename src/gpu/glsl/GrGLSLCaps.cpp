@@ -18,6 +18,9 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fFBFetchNeedsCustomOutput = false;
     fBindlessTextureSupport = false;
     fUsesPrecisionModifiers = false;
+    fCanUseAnyFunctionInShader = true;
+    fForceHighPrecisionNDSTransform = false;
+    fVersionDeclString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
@@ -44,6 +47,9 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
     r.appendf("Bindless texture support: %s\n", (fBindlessTextureSupport ? "YES" : "NO"));
     r.appendf("Uses precision modifiers: %s\n", (fUsesPrecisionModifiers ? "YES" : "NO"));
+    r.appendf("Can Use any() function: %s\n", (fCanUseAnyFunctionInShader ? "YES" : "NO"));
+    r.appendf("Force high precision on NDS transform: %s\n", (fForceHighPrecisionNDSTransform ?
+                                                              "YES" : "NO"));
     r.appendf("Advanced blend equation interaction: %s\n",
               kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;

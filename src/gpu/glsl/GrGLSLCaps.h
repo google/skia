@@ -45,6 +45,8 @@ public:
 
     bool bindlessTextureSupport() const { return fBindlessTextureSupport; }
 
+    const char* versionDeclString() const { return fVersionDeclString; }
+
     const char* fbFetchColorName() const { return fFBFetchColorName; }
 
     const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
@@ -67,6 +69,11 @@ public:
 
     bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
 
+    // Returns whether we can use the glsl funciton any() in our shader code.
+    bool canUseAnyFunctionInShader() const { return fCanUseAnyFunctionInShader; }
+
+    bool forceHighPrecisionNDSTransform() const { return fForceHighPrecisionNDSTransform; }
+
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
     /**
@@ -82,7 +89,10 @@ private:
     bool fFBFetchNeedsCustomOutput : 1;
     bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
+    bool fCanUseAnyFunctionInShader : 1;
+    bool fForceHighPrecisionNDSTransform : 1;
 
+    const char* fVersionDeclString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

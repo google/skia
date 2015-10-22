@@ -65,42 +65,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GrGLVersion version = ctxInfo.version();
 
     /**************************************************************************
-    * Caps specific to GrGLSLCaps
-    **************************************************************************/
-
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
-    glslCaps->fGLSLGeneration = ctxInfo.glslGeneration();
-
-    if (kGLES_GrGLStandard == standard) {
-        if (ctxInfo.hasExtension("GL_EXT_shader_framebuffer_fetch")) {
-            glslCaps->fFBFetchNeedsCustomOutput = (version >= GR_GL_VER(3, 0));
-            glslCaps->fFBFetchSupport = true;
-            glslCaps->fFBFetchColorName = "gl_LastFragData[0]";
-            glslCaps->fFBFetchExtensionString = "GL_EXT_shader_framebuffer_fetch";
-        }
-        else if (ctxInfo.hasExtension("GL_NV_shader_framebuffer_fetch")) {
-            // Actually, we haven't seen an ES3.0 device with this extension yet, so we don't know
-            glslCaps->fFBFetchNeedsCustomOutput = false;
-            glslCaps->fFBFetchSupport = true;
-            glslCaps->fFBFetchColorName = "gl_LastFragData[0]";
-            glslCaps->fFBFetchExtensionString = "GL_NV_shader_framebuffer_fetch";
-        }
-        else if (ctxInfo.hasExtension("GL_ARM_shader_framebuffer_fetch")) {
-            // The arm extension also requires an additional flag which we will set onResetContext
-            glslCaps->fFBFetchNeedsCustomOutput = false;
-            glslCaps->fFBFetchSupport = true;
-            glslCaps->fFBFetchColorName = "gl_LastFragColorARM";
-            glslCaps->fFBFetchExtensionString = "GL_ARM_shader_framebuffer_fetch";
-        }
-        glslCaps->fUsesPrecisionModifiers = true;
-    }
-
-    glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
-
-    // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
-    glslCaps->fDropsTileOnZeroDivide = kQualcomm_GrGLVendor == ctxInfo.vendor();
-
-    /**************************************************************************
      * Caps specific to GrGLCaps
      **************************************************************************/
 
@@ -319,51 +283,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 #endif
 
     /**************************************************************************
-    * GrShaderCaps fields
-    **************************************************************************/
-
-    glslCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
-
-    // For now these two are equivalent but we could have dst read in shader via some other method
-    glslCaps->fDstReadInShaderSupport = glslCaps->fFBFetchSupport;
-
-    // Enable supported shader-related caps
-    if (kGL_GrGLStandard == standard) {
-        glslCaps->fDualSourceBlendingSupport = (ctxInfo.version() >= GR_GL_VER(3, 3) ||
-            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
-            GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
-        glslCaps->fShaderDerivativeSupport = true;
-        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
-        glslCaps->fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&
-            ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
-    }
-    else {
-        glslCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
-
-        glslCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
-            ctxInfo.hasExtension("GL_OES_standard_derivatives");
-    }
-
-    // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case.
-    if (fMultisampleDisableSupport && glslCaps->fDualSourceBlendingSupport) {
-        // We understand "mixed samples" to mean the collective capability of 3 different extensions
-        glslCaps->fMixedSamplesSupport =
-            ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") &&
-            ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage") &&
-            ctxInfo.hasExtension("GL_EXT_raster_multisample");
-    }
-    // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
-    if (kNVIDIA_GrGLDriver == ctxInfo.driver() && fShaderCaps->mixedSamplesSupport()) {
-        fDiscardRenderTargetSupport = false;
-        fInvalidateFBType = kNone_InvalidateFBType;
-    }
-    glslCaps->fProgrammableSampleLocationsSupport =
-        ctxInfo.hasExtension("GL_NV_sample_locations") ||
-        ctxInfo.hasExtension("GL_ARB_sample_locations");
-
-
-    /**************************************************************************
      * GrCaps fields
      **************************************************************************/
 
@@ -513,12 +432,154 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                  ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }
 
+    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+
     this->initConfigTexturableTable(ctxInfo, gli, srgbSupport);
     this->initConfigRenderableTable(ctxInfo, srgbSupport);
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
 
     this->applyOptionsOverrides(contextOptions);
     glslCaps->applyOptionsOverrides(contextOptions);
+}
+
+const char* get_glsl_version_decl_string(const GrGLContextInfo& info) {
+    switch (info.glslGeneration()) {
+        case k110_GrGLSLGeneration:
+            if (kGLES_GrGLStandard == info.standard()) {
+                // ES2s shader language is based on version 1.20 but is version
+                // 1.00 of the ES language.
+                return "#version 100\n";
+            } else {
+                SkASSERT(kGL_GrGLStandard == info.standard());
+                return "#version 110\n";
+            }
+        case k130_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == info.standard());
+            return "#version 130\n";
+        case k140_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == info.standard());
+            return "#version 140\n";
+        case k150_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == info.standard());
+            if (info.caps()->isCoreProfile()) {
+                return "#version 150\n";
+            } else {
+                return "#version 150 compatibility\n";
+            }
+        case k330_GrGLSLGeneration:
+            if (kGLES_GrGLStandard == info.standard()) {
+                return "#version 300 es\n";
+            } else {
+                SkASSERT(kGL_GrGLStandard == info.standard());
+                if (info.caps()->isCoreProfile()) {
+                    return "#version 330\n";
+                } else {
+                    return "#version 330 compatibility\n";
+                }
+            }
+        case k310es_GrGLSLGeneration:
+            SkASSERT(kGLES_GrGLStandard == info.standard());
+            return "#version 310 es\n";
+    }
+    return "<no version>";
+}
+
+void GrGLCaps::initGLSL(const GrContextOptions& contextOptions,
+                        const GrGLContextInfo& ctxInfo,
+                        const GrGLInterface* gli) {
+    GrGLStandard standard = ctxInfo.standard();
+    GrGLVersion version = ctxInfo.version();
+
+    /**************************************************************************
+    * Caps specific to GrGLSLCaps
+    **************************************************************************/
+
+    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+    glslCaps->fGLSLGeneration = ctxInfo.glslGeneration();
+
+    if (kGLES_GrGLStandard == standard) {
+        if (ctxInfo.hasExtension("GL_EXT_shader_framebuffer_fetch")) {
+            glslCaps->fFBFetchNeedsCustomOutput = (version >= GR_GL_VER(3, 0));
+            glslCaps->fFBFetchSupport = true;
+            glslCaps->fFBFetchColorName = "gl_LastFragData[0]";
+            glslCaps->fFBFetchExtensionString = "GL_EXT_shader_framebuffer_fetch";
+        }
+        else if (ctxInfo.hasExtension("GL_NV_shader_framebuffer_fetch")) {
+            // Actually, we haven't seen an ES3.0 device with this extension yet, so we don't know
+            glslCaps->fFBFetchNeedsCustomOutput = false;
+            glslCaps->fFBFetchSupport = true;
+            glslCaps->fFBFetchColorName = "gl_LastFragData[0]";
+            glslCaps->fFBFetchExtensionString = "GL_NV_shader_framebuffer_fetch";
+        }
+        else if (ctxInfo.hasExtension("GL_ARM_shader_framebuffer_fetch")) {
+            // The arm extension also requires an additional flag which we will set onResetContext
+            glslCaps->fFBFetchNeedsCustomOutput = false;
+            glslCaps->fFBFetchSupport = true;
+            glslCaps->fFBFetchColorName = "gl_LastFragColorARM";
+            glslCaps->fFBFetchExtensionString = "GL_ARM_shader_framebuffer_fetch";
+        }
+        glslCaps->fUsesPrecisionModifiers = true;
+    }
+
+    glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
+
+    // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
+    glslCaps->fDropsTileOnZeroDivide = kQualcomm_GrGLVendor == ctxInfo.vendor();
+
+    // On the NexusS and GalaxyNexus, the use of 'any' causes the compilation error "Calls to any
+    // function that may require a gradient calculation inside a conditional block may return
+    // undefined results". This appears to be an issue with the 'any' call since even the simple
+    // "result=black; if (any()) result=white;" code fails to compile. This issue comes into play
+    // from our GrTextureDomain processor.
+    glslCaps->fCanUseAnyFunctionInShader = kImagination_GrGLVendor != ctxInfo.vendor();
+
+    glslCaps->fForceHighPrecisionNDSTransform = kARM_GrGLVendor != ctxInfo.vendor();
+
+    glslCaps->fVersionDeclString = get_glsl_version_decl_string(ctxInfo);
+
+    /**************************************************************************
+    * GrShaderCaps fields
+    **************************************************************************/
+
+    glslCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
+
+    // For now these two are equivalent but we could have dst read in shader via some other method
+    glslCaps->fDstReadInShaderSupport = glslCaps->fFBFetchSupport;
+
+    // Enable supported shader-related caps
+    if (kGL_GrGLStandard == standard) {
+        glslCaps->fDualSourceBlendingSupport = (ctxInfo.version() >= GR_GL_VER(3, 3) ||
+            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
+            GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
+        glslCaps->fShaderDerivativeSupport = true;
+        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
+        glslCaps->fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&
+            ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
+    }
+    else {
+        glslCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
+
+        glslCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
+            ctxInfo.hasExtension("GL_OES_standard_derivatives");
+    }
+
+    // We need dual source blending and the ability to disable multisample in order to support mixed
+    // samples in every corner case.
+    if (fMultisampleDisableSupport && glslCaps->fDualSourceBlendingSupport) {
+        // We understand "mixed samples" to mean the collective capability of 3 different extensions
+        glslCaps->fMixedSamplesSupport =
+            ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") &&
+            ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage") &&
+            ctxInfo.hasExtension("GL_EXT_raster_multisample");
+    }
+    // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
+    if (kNVIDIA_GrGLDriver == ctxInfo.driver() && fShaderCaps->mixedSamplesSupport()) {
+        fDiscardRenderTargetSupport = false;
+        fInvalidateFBType = kNone_InvalidateFBType;
+    }
+    glslCaps->fProgrammableSampleLocationsSupport =
+        ctxInfo.hasExtension("GL_NV_sample_locations") ||
+        ctxInfo.hasExtension("GL_ARB_sample_locations");
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
