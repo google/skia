@@ -34,8 +34,7 @@ public:
     };
     static void GetDateTime(DateTime*);
 
-    static SkMSec GetMSecs() { return (SkMSec)(GetNSecs() * 1e-6); }
-    static double GetNSecs();
+    static SkMSec GetMSecs();
 };
 
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN32)
