@@ -2809,7 +2809,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 
 
 void GrGLGpu::createCopyProgram() {
-    const char* version = this->glCaps().glslCaps()->versionDeclString();
+    const char* version = GrGLGetGLSLVersionDecl(this->ctxInfo());
 
     GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
     GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,

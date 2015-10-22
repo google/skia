@@ -48,6 +48,48 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
     }
 }
 
+const char* GrGLGetGLSLVersionDecl(const GrGLContextInfo& info) {
+    switch (info.glslGeneration()) {
+        case k110_GrGLSLGeneration:
+            if (kGLES_GrGLStandard == info.standard()) {
+                // ES2s shader language is based on version 1.20 but is version
+                // 1.00 of the ES language.
+                return "#version 100\n";
+            } else {
+                SkASSERT(kGL_GrGLStandard == info.standard());
+                return "#version 110\n";
+            }
+        case k130_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == info.standard());
+            return "#version 130\n";
+        case k140_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == info.standard());
+            return "#version 140\n";
+        case k150_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == info.standard());
+            if (info.caps()->isCoreProfile()) {
+                return "#version 150\n";
+            } else {
+                return "#version 150 compatibility\n";
+            }
+        case k330_GrGLSLGeneration:
+            if (kGLES_GrGLStandard == info.standard()) {
+                return "#version 300 es\n";
+            } else {
+                SkASSERT(kGL_GrGLStandard == info.standard());
+                if (info.caps()->isCoreProfile()) {
+                    return "#version 330\n";
+                } else {
+                    return "#version 330 compatibility\n";
+                }
+            }
+        case k310es_GrGLSLGeneration:
+            SkASSERT(kGLES_GrGLStandard == info.standard());
+            return "#version 310 es\n";
+    }
+    return "<no version>";
+}
+
 void GrGLAppendGLSLDefaultFloatPrecisionDeclaration(GrSLPrecision p, GrGLStandard s, SkString* out) {
     // Desktop GLSL has added precision qualifiers but they don't do anything.
     if (kGLES_GrGLStandard == s) {

@@ -192,14 +192,14 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
 const char* GrGLFragmentShaderBuilder::dstColor() {
     fHasReadDstColor = true;
 
-    const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
-    if (glslCaps->fbFetchSupport()) {
+    GrGLGpu* gpu = fProgramBuilder->gpu();
+    if (gpu->glCaps().glslCaps()->fbFetchSupport()) {
         this->addFeature(1 << (GrGLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
-                         glslCaps->fbFetchExtensionString());
+                         gpu->glCaps().glslCaps()->fbFetchExtensionString());
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
-        const char* fbFetchColorName = glslCaps->fbFetchColorName();
-        if (glslCaps->fbFetchNeedsCustomOutput()) {
+        const char* fbFetchColorName = gpu->glCaps().glslCaps()->fbFetchColorName();
+        if (gpu->glCaps().glslCaps()->fbFetchNeedsCustomOutput()) {
             this->enableCustomOutput();
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = declared_color_output_name();
@@ -213,7 +213,7 @@ const char* GrGLFragmentShaderBuilder::dstColor() {
 void GrGLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
 
-    const GrGLSLCaps& caps = *fProgramBuilder->glslCaps();
+    const GrGLSLCaps& caps = *fProgramBuilder->gpu()->glCaps().glslCaps();
     if (!caps.mustEnableAdvBlendEqs()) {
         return;
     }
@@ -268,7 +268,7 @@ const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
                                                         SkTDArray<GrGLuint>* shaderIds) {
     GrGLGpu* gpu = fProgramBuilder->gpu();
-    this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
+    this->versionDecl() = GrGLGetGLSLVersionDecl(gpu->ctxInfo());
     GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
                                                    gpu->glStandard(),
                                                    &this->precisionQualifier());

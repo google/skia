@@ -93,7 +93,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
-    const char* version = ctx->caps()->glslCaps()->versionDeclString();
+    const char* version = GrGLGetGLSLVersionDecl(*ctx);
 
     // this shader draws fNumStages overlapping circles of increasing opacity (coverage) and
     // decreasing size, with the center of each subsequent circle closer to the bottom-right

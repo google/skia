@@ -65,7 +65,7 @@ private:
 
 GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t attribs,
                                               uint32_t maxAttribs) {
-    const char* version = ctx->caps()->glslCaps()->versionDeclString();
+    const char* version = GrGLGetGLSLVersionDecl(*ctx);
 
     // setup vertex shader
     GrGLSLShaderVar aPosition("a_position", kVec4f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
