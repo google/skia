@@ -33,8 +33,6 @@
 #include "SkTypes.h"
 #include "SkXfermode.h"
 
-//#define ENABLE_MDB 1
-
 class GrBatch;
 class GrBatchFlushState;
 class GrClip;
@@ -47,7 +45,7 @@ class GrDrawTarget final : public SkRefCnt {
 public:
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
-    GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider*);
+    GrDrawTarget(GrGpu* gpu, GrResourceProvider*);
 
     ~GrDrawTarget() override;
 
@@ -59,10 +57,6 @@ public:
 #endif
     }
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
-
-    // TODO: this entry point is only needed in the non-MDB world. Remove when
-    // we make the switch to MDB
-    void clearRT() { fRenderTarget = nullptr; }
 
     /*
      * Notify this drawTarget that it relies on the contents of 'dependedOn'
@@ -320,7 +314,6 @@ private:
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
     SkTDArray<GrDrawTarget*>                    fDependencies;
-    GrRenderTarget*                             fRenderTarget;
 
     typedef SkRefCnt INHERITED;
 };
