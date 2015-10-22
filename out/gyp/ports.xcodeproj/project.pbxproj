@@ -347,6 +347,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_ports;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -421,6 +422,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_ports;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -485,6 +487,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_ports;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -550,6 +553,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_ports;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
