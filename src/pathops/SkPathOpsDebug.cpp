@@ -404,6 +404,10 @@ SkDCubic SkDQuad::debugToCubic() const {
     return cubic;
 }
 
+void SkDRect::debugInit() {
+    fLeft = fTop = fRight = fBottom = SK_ScalarNaN;
+}
+
 #include "SkOpAngle.h"
 #include "SkOpSegment.h"
 
@@ -1113,7 +1117,9 @@ void SkOpCoincidence::debugAddExpanded(const char* id, SkPathOpsDebug::GlitchLog
     if (!coin) {
         coin = this->fTop;
     }
-    SkASSERT(coin);
+    if (!coin) {
+        return;
+    }
     do {
         const SkOpPtT* startPtT = coin->fCoinPtTStart;
         const SkOpPtT* oStartPtT = coin->fOppPtTStart;

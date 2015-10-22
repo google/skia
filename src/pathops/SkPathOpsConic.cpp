@@ -96,7 +96,27 @@ SkDPoint SkDConic::ptAtT(double t) const {
     return result;
 }
 
-/* see quad subdivide for rationale */
+/* see quad subdivide for point rationale */
+/* w rationale : the mid point between t1 and t2 could be determined from the computed a/b/c
+   values if the computed w was known. Since we know the mid point at (t1+t2)/2, we'll assume
+   that it is the same as the point on the new curve t==(0+1)/2.
+
+    d / dz == conic_poly(dst, unknownW, .5) / conic_weight(unknownW, .5);
+
+    conic_poly(dst, unknownW, .5)
+                  =   a / 4 + (b * unknownW) / 2 + c / 4
+                  =  (a + c) / 4 + (bx * unknownW) / 2
+
+    conic_weight(unknownW, .5)
+                  =   unknownW / 2 + 1 / 2
+
+    d / dz                  == ((a + c) / 2 + b * unknownW) / (unknownW + 1)
+    d / dz * (unknownW + 1) ==  (a + c) / 2 + b * unknownW
+              unknownW       = ((a + c) / 2 - d / dz) / (d / dz - b)
+
+    Thus, w is the ratio of the distance from the mid of end points to the on-curve point, and the
+    distance of the on-curve point to the control point.
+ */
 SkDConic SkDConic::subDivide(double t1, double t2) const {
     double ax, ay, az;
     if (t1 == 0) {
@@ -133,11 +153,13 @@ SkDConic SkDConic::subDivide(double t1, double t2) const {
     double bx = 2 * dx - (ax + cx) / 2;
     double by = 2 * dy - (ay + cy) / 2;
     double bz = 2 * dz - (az + cz) / 2;
-    double dt = t2 - t1;
-    double dt_1 = 1 - dt;
-    SkScalar w = SkDoubleToScalar((1 + dt * (fWeight - 1))
-            / sqrt(dt * dt + 2 * dt * dt_1 * fWeight + dt_1 * dt_1));
-    SkDConic dst = {{{{ax / az, ay / az}, {bx / bz, by / bz}, {cx / cz, cy / cz}}}, w };
+    SkDConic dst = {{{{ax / az, ay / az}, {bx / bz, by / bz}, {cx / cz, cy / cz}}}, 0 };
+    SkDPoint dMidAC = { (dst.fPts[0].fX + dst.fPts[2].fX) / 2,
+                        (dst.fPts[0].fY + dst.fPts[2].fY) / 2 };
+    SkDPoint dMid = { dx / dz, dy / dz };
+    SkDVector dWNumer = dMidAC - dMid;
+    SkDVector dWDenom = dMid - dst.fPts[1];
+    dst.fWeight = dWNumer.length() / dWDenom.length();
     return dst;
 }
 

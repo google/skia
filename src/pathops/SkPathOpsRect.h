@@ -24,6 +24,8 @@ struct SkDRect {
                 && approximately_between(fTop, pt.fY, fBottom);
     }
 
+    void debugInit();
+
     bool intersects(const SkDRect& r) const {
         SkASSERT(fLeft <= fRight);
         SkASSERT(fTop <= fBottom);
