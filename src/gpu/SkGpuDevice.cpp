@@ -1433,7 +1433,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
-        SkImageFilter::Context ctx(matrix, clipBounds, cache);
+        SkImageFilter::Context ctx(matrix, clipBounds, cache, SkImageFilter::kApprox_SizeConstraint);
         if (this->filterTexture(fContext, texture, w, h, filter, ctx, &filteredBitmap,
                                 &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
@@ -1553,7 +1553,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
         SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
-        SkImageFilter::Context ctx(matrix, clipBounds, cache);
+        SkImageFilter::Context ctx(matrix, clipBounds, cache, SkImageFilter::kApprox_SizeConstraint);
         if (this->filterTexture(fContext, devTex, device->width(), device->height(),
                                 filter, ctx, &filteredBitmap, &offset)) {
             devTex = filteredBitmap.getTexture();

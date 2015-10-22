@@ -1234,7 +1234,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     *result = SkGpuBlurUtils::GaussianBlur(context, src, isNormalBlur && canOverwriteSrc,
-                                           clipRect, false, xformedSigma, xformedSigma);
+                                           clipRect, false, xformedSigma, xformedSigma,
+                                           GrTextureProvider::kApprox_SizeConstraint);
     if (nullptr == *result) {
         return false;
     }

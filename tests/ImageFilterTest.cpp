@@ -319,7 +319,7 @@ static void test_crop_rects(SkImageFilter::Proxy* proxy, skiatest::Reporter* rep
         SkIPoint offset;
         SkString str;
         str.printf("filter %d", static_cast<int>(i));
-        SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr);
+        SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr, SkImageFilter::kApprox_SizeConstraint);
         REPORTER_ASSERT_MESSAGE(reporter, filter->filterImage(proxy, bitmap, ctx,
                                 &result, &offset), str.c_str());
         REPORTER_ASSERT_MESSAGE(reporter, offset.fX == 20 && offset.fY == 30, str.c_str());
@@ -364,12 +364,12 @@ static void test_negative_blur_sigma(SkImageFilter::Proxy* proxy, skiatest::Repo
     SkBitmap positiveResult1, negativeResult1;
     SkBitmap positiveResult2, negativeResult2;
     SkIPoint offset;
-    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr);
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr, SkImageFilter::kApprox_SizeConstraint);
     positiveFilter->filterImage(proxy, gradient, ctx, &positiveResult1, &offset);
     negativeFilter->filterImage(proxy, gradient, ctx, &negativeResult1, &offset);
     SkMatrix negativeScale;
     negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
-    SkImageFilter::Context negativeCTX(negativeScale, SkIRect::MakeLargest(), nullptr);
+    SkImageFilter::Context negativeCTX(negativeScale, SkIRect::MakeLargest(), nullptr, SkImageFilter::kApprox_SizeConstraint);
     positiveFilter->filterImage(proxy, gradient, negativeCTX, &negativeResult2, &offset);
     negativeFilter->filterImage(proxy, gradient, negativeCTX, &positiveResult2, &offset);
     SkAutoLockPixels lockP1(positiveResult1);
@@ -882,7 +882,7 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
 
     SkBitmap result;
     SkIPoint offset;
-    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(1, 1, 1, 1), nullptr);
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(1, 1, 1, 1), nullptr, SkImageFilter::kApprox_SizeConstraint);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(2, 2);
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -1133,7 +1133,7 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
     SkAutoTUnref<SkImageFilter> composedFilter(SkComposeImageFilter::Create(blurFilter, offsetFilter.get()));
     SkBitmap result;
     SkIPoint offset;
-    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr);
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr, SkImageFilter::kApprox_SizeConstraint);
     REPORTER_ASSERT(reporter, composedFilter->filterImage(&proxy, bitmap, ctx, &result, &offset));
     REPORTER_ASSERT(reporter, offset.fX == 1 && offset.fY == 0);
 }
@@ -1151,7 +1151,7 @@ DEF_TEST(PartialCropRect, reporter) {
     SkAutoTUnref<SkImageFilter> filter(make_grayscale(nullptr, &cropRect));
     SkBitmap result;
     SkIPoint offset;
-    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr);
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), nullptr, SkImageFilter::kApprox_SizeConstraint);
     REPORTER_ASSERT(reporter, filter->filterImage(&proxy, bitmap, ctx, &result, &offset));
     REPORTER_ASSERT(reporter, offset.fX == 0);
     REPORTER_ASSERT(reporter, offset.fY == 0);

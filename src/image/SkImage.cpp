@@ -116,7 +116,8 @@ SkImage* SkImage_Base::onApplyFilter(SkImageFilter* filter, SkIPoint* offsetResu
     if (forceResultToOriginalSize) {
         const SkIRect clipBounds = srcBounds;
         SkRasterImageFilterProxy proxy;
-        SkImageFilter::Context ctx(SkMatrix::I(), clipBounds, SkImageFilter::Cache::Get());
+        SkImageFilter::Context ctx(SkMatrix::I(), clipBounds, SkImageFilter::Cache::Get(),
+                                   SkImageFilter::kExact_SizeConstraint);
 
         SkBitmap dst;
         if (filter->filterImage(&proxy, src, ctx, &dst, offsetResult)) {

@@ -24,7 +24,10 @@ SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrText
     , fAlphaType(at)
     , fBudgeted(budgeted)
     , fAddedRasterVersionToCache(false)
-    {}
+{
+    SkASSERT(tex->width() == w);
+    SkASSERT(tex->height() == h);
+}
 
 SkImage_Gpu::~SkImage_Gpu() {
     if (fAddedRasterVersionToCache.load()) {
@@ -236,7 +239,7 @@ SkImage* SkImage_Gpu::onApplyFilter(SkImageFilter* filter, SkIPoint* offsetResul
         const SkIRect clipBounds = srcBounds;
         SkGpuImageFilterProxy proxy(fTexture->getContext());
         SkAutoTUnref<SkImageFilter::Cache> cache(SkGpuDevice::NewImageFilterCache());
-        SkImageFilter::Context ctx(SkMatrix::I(), clipBounds, cache);
+        SkImageFilter::Context ctx(SkMatrix::I(), clipBounds, cache, SkImageFilter::kExact_SizeConstraint);
 
         SkBitmap dst;
         if (!filter->filterImage(&proxy, src, ctx, &dst, offsetResult)) {

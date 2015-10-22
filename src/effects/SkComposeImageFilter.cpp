@@ -35,8 +35,8 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
 
     SkMatrix outerMatrix(ctx.ctm());
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
-    Context outerContext(outerMatrix, ctx.clipBounds(), ctx.cache());
-    if (!this->filterInput(0, proxy, tmp, outerContext, result, &outerOffset)) {
+    Context outerContext(outerMatrix, ctx.clipBounds(), ctx.cache(), ctx.sizeConstraint());
+    if (!this->filterInput(0, proxy, tmp, outerContext, result, &outerOffset, false)) {
         return false;
     }
 

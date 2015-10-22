@@ -212,13 +212,15 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     offset->fX = rect.fLeft;
     offset->fY = rect.fTop;
     rect.offset(-srcOffset);
+    auto constraint = GrTextureProvider::FromImageFilter(ctx.sizeConstraint());
     SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),
                                                              source,
                                                              false,
                                                              SkRect::Make(rect),
                                                              true,
                                                              sigma.x(),
-                                                             sigma.y()));
+                                                             sigma.y(),
+                                                             constraint));
     if (!tex) {
         return false;
     }

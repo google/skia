@@ -311,7 +311,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     // This cache is transient, and is freed (along with all its contained
     // textures) when it goes out of scope.
     SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kDefaultCacheSize));
-    SkImageFilter::Context filterContext(totMat, clipBounds, cache);
+    SkImageFilter::Context filterContext(totMat, clipBounds, cache, SkImageFilter::kApprox_SizeConstraint);
 
     SkImageFilter::DeviceProxy proxy(device);
     const SkBitmap src = wrap_texture(layer->texture());
