@@ -236,15 +236,3 @@
     Memcheck:Addr2
     fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
 }
-#FIXME (scroggo). skbug.com/4478
-{
-   subset_translate_bench_skbug_4478
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:_Znwm
-   fun:_ZN20SubsetTranslateBench6onDrawEiP8SkCanvas
-   fun:_ZN9Benchmark4drawEiP8SkCanvas
-   fun:_ZL4timeiP9BenchmarkP6Target
-   fun:_Z14nanobench_mainv
-   fun:main
-}
