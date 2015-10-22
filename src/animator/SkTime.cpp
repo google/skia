@@ -28,15 +28,6 @@ void SkTime::GetDateTime(DateTime* t) {
     }
 }
 
-SkMSec SkTime::GetMSecs() {
-#ifdef SK_DEBUG
-    if (gForceTickCount != (SkMSec) -1) {
-        return gForceTickCount;
-    }
-#endif
-    return ::GetTickCount();
-}
-
 #elif defined(xSK_BUILD_FOR_MAC)
 
 #include <time.h>
@@ -56,15 +47,6 @@ void SkTime::GetDateTime(DateTime* t) {
         t->fMinute      = SkToU8(syst.tm_min);
         t->fSecond      = SkToU8(syst.tm_sec);
     }
-}
-
-SkMSec SkTime::GetMSecs() {
-    UnsignedWide    wide;
-    ::Microseconds(&wide);
-
-    int64_t s = ((int64_t)wide.hi << 32) | wide.lo;
-    s = (s + 500) / 1000;   // rounded divide
-    return (SkMSec)s;
 }
 
 #endif

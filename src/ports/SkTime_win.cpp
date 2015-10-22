@@ -39,14 +39,3 @@ void SkTime::GetDateTime(DateTime* dt)
         dt->fSecond     = SkToU8(st.wSecond);
     }
 }
-
-SkMSec SkTime::GetMSecs()
-{
-    FILETIME        ft;
-    LARGE_INTEGER   li;
-    GetSystemTimeAsFileTime(&ft);
-    li.LowPart  = ft.dwLowDateTime;
-    li.HighPart = ft.dwHighDateTime;
-    __int64 t  = li.QuadPart;       /* In 100-nanosecond intervals */
-    return (SkMSec)(t / 10000);               /* In milliseconds */
-}
