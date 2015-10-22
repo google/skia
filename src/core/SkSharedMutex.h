@@ -69,4 +69,14 @@ inline void SkSharedMutex::assertHeld() const {};
 inline void SkSharedMutex::assertHeldShared() const {};
 #endif  // SK_DEBUG
 
+class SkAutoSharedMutexShared {
+public:
+    SkAutoSharedMutexShared(SkSharedMutex& lock) : fLock(lock) { lock.acquireShared(); }
+    ~SkAutoSharedMutexShared() { fLock.releaseShared(); }
+private:
+    SkSharedMutex& fLock;
+};
+
+#define SkAutoSharedMutexShared(...) SK_REQUIRE_LOCAL_VAR(SkAutoSharedMutexShared)
+
 #endif // SkSharedLock_DEFINED

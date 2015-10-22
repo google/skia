@@ -105,7 +105,21 @@ private:
     Lock* fMutex;
 };
 
+// SkAutoTExclusive is a lighter weight version of SkAutoTAcquire. It assumes that there is a valid
+// mutex, thus removing the check for the null pointer.
+template <typename Lock>
+class SkAutoTExclusive {
+public:
+    SkAutoTExclusive(Lock& lock) : fLock(lock) { lock.acquire(); }
+    ~SkAutoTExclusive() { fLock.release(); }
+private:
+    Lock &fLock;
+};
+
 typedef SkAutoTAcquire<SkBaseMutex> SkAutoMutexAcquire;
 #define SkAutoMutexAcquire(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexAcquire)
+
+typedef SkAutoTExclusive<SkMutex> SkAutoMutexExclusive;
+#define SkAutoMutexExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexExclusive)
 
 #endif//SkMutex_DEFINED
