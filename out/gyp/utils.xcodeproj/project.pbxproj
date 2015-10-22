@@ -741,6 +741,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
@@ -850,6 +851,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
@@ -919,6 +921,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
@@ -980,6 +983,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_utils;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
