@@ -1269,6 +1269,7 @@
 		4BF79F8FE5C192E739906057 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = All;
 			};
 			name = Debug;
@@ -1890,6 +1891,7 @@
 		C957CFD5BA04AAA8AAC08C78 /* Release_Developer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = All;
 			};
 			name = Release_Developer;
@@ -1959,6 +1961,7 @@
 		D97CF84DA5BFAC25CEA15BEF /* Coverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = All;
 			};
 			name = Coverage;
@@ -2294,6 +2297,7 @@
 		FE44FA849DFD7558712ADEFF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = All;
 			};
 			name = Release;
