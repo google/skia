@@ -6,24 +6,26 @@
  */
 
 #include "SkBitmapRegionCanvas.h"
+#include "SkBitmapRegionCodec.h"
 #include "SkBitmapRegionDecoderInterface.h"
 #include "SkBitmapRegionSampler.h"
+#include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkImageDecoder.h"
 
 SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(
-        SkStreamRewindable* stream, Strategy strategy) {
-    SkAutoTDelete<SkStreamRewindable> streamDeleter(stream);
+        SkData* data, Strategy strategy) {
     switch (strategy) {
         case kOriginal_Strategy: {
+            SkAutoTDelete<SkStreamRewindable> stream(new SkMemoryStream(data));
             SkImageDecoder* decoder = SkImageDecoder::Factory(stream);
             int width, height;
             if (nullptr == decoder) {
                 SkCodecPrintf("Error: Could not create image decoder.\n");
                 return nullptr;
             }
-            if (!decoder->buildTileIndex(streamDeleter.detach(), &width, &height)) {
+            if (!decoder->buildTileIndex(stream.detach(), &width, &height)) {
                 SkCodecPrintf("Error: Could not build tile index.\n");
                 delete decoder;
                 return nullptr;
@@ -31,7 +33,7 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
             return new SkBitmapRegionSampler(decoder, width, height);
         }
         case kCanvas_Strategy: {
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(streamDeleter.detach()));
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
             if (nullptr == codec) {
                 SkCodecPrintf("Error: Failed to create decoder.\n");
                 return nullptr;
@@ -45,6 +47,14 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
                     return nullptr;
             }
             return new SkBitmapRegionCanvas(codec.detach());
+        }
+        case kAndroidCodec_Strategy: {
+            SkAutoTDelete<SkAndroidCodec> codec = SkAndroidCodec::NewFromData(data);
+            if (NULL == codec) {
+                SkCodecPrintf("Error: Failed to create codec.\n");
+                return NULL;
+            }
+            return new SkBitmapRegionCodec(codec.detach());
         }
         default:
             SkASSERT(false);

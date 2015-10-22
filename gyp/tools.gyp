@@ -52,6 +52,7 @@
       'type': 'static_library',
       'sources': [
         '../tools/SkBitmapRegionCanvas.cpp',
+        '../tools/SkBitmapRegionCodec.cpp',
         '../tools/SkBitmapRegionDecoderInterface.cpp',
         '../tools/SkBitmapRegionSampler.cpp',
       ],

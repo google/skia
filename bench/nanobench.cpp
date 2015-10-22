@@ -596,9 +596,8 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
 static bool valid_brd_bench(SkData* encoded, SkBitmapRegionDecoderInterface::Strategy strategy,
         SkColorType colorType, uint32_t sampleSize, uint32_t minOutputSize, int* width,
         int* height) {
-    SkStreamRewindable* stream = new SkMemoryStream(encoded);
     SkAutoTDelete<SkBitmapRegionDecoderInterface> brd(
-            SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(stream, strategy));
+            SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(encoded, strategy));
     if (nullptr == brd.get()) {
         // This is indicates that subset decoding is not supported for a particular image format.
         return false;
@@ -962,8 +961,9 @@ public:
             SkBitmapRegionDecoderInterface::Strategy    fStrategy;
             const char*                                 fName;
         } strategies[] = {
-            { SkBitmapRegionDecoderInterface::kOriginal_Strategy,   "BRD" },
-            { SkBitmapRegionDecoderInterface::kCanvas_Strategy,     "BRD_canvas" },
+            { SkBitmapRegionDecoderInterface::kOriginal_Strategy,    "BRD" },
+            { SkBitmapRegionDecoderInterface::kCanvas_Strategy,      "BRD_canvas" },
+            { SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy, "BRD_android_codec" },
         };
 
         // We intend to create benchmarks that model the use cases in

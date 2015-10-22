@@ -19,19 +19,18 @@ class SkBitmapRegionDecoderInterface {
 public:
 
     enum Strategy {
-        kCanvas_Strategy,   // Draw to the canvas, uses SkCodec
-        kOriginal_Strategy, // Sampling, uses SkImageDecoder
-        // TODO (msarett): Add strategy for SkScaledCodec
+        kCanvas_Strategy,       // Draw to the canvas, uses SkCodec
+        kOriginal_Strategy,     // Sampling, uses SkImageDecoder
+        kAndroidCodec_Strategy, // Uses SkAndroidCodec for scaling and subsetting
     };
 
     /*
-     * @param stream   Encoded image stream, takes ownership
+     * @param data     Refs the data while this object exists, unrefs on destruction
      * @param strategy Strategy used for scaling and subsetting
-     * @return         Tries to create an SkBitmapRegionDecoder, returns NULL
-     *                 on failure
+     * @return         Tries to create an SkBitmapRegionDecoder, returns NULL on failure
      */
     static SkBitmapRegionDecoderInterface* CreateBitmapRegionDecoder(
-            SkStreamRewindable* stream, Strategy strategy);
+            SkData* data, Strategy strategy);
 
     /*
      * Decode a scaled region of the encoded image stream

@@ -30,6 +30,9 @@ BitmapRegionDecoderBench::BitmapRegionDecoderBench(const char* baseName, SkData*
         case SkBitmapRegionDecoderInterface::kCanvas_Strategy:
             strategyName = "Canvas";
             break;
+        case SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy:
+            strategyName = "AndroidCodec";
+            break;
         default:
             SkASSERT(false);
             strategyName = "";
@@ -54,8 +57,7 @@ bool BitmapRegionDecoderBench::isSuitableFor(Backend backend) {
 }
 
 void BitmapRegionDecoderBench::onDelayedSetup() {
-    SkStreamRewindable* stream = new SkMemoryStream(fData);
-    fBRD.reset(SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(stream, fStrategy));
+    fBRD.reset(SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(fData, fStrategy));
 }
 
 void BitmapRegionDecoderBench::onDraw(int n, SkCanvas* canvas) {

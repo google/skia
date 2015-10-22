@@ -16,30 +16,6 @@ SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkCodec* decoder)
 {}
 
 /*
- * Chooses the correct image subset offsets and dimensions for the partial decode.
- *
- * @return true if the subset is completely contained within the image
- *         false otherwise
- */
-static bool set_subset_region(int inputOffset, int inputDimension,
-        int imageOriginalDimension, int* imageSubsetOffset, int* outOffset,
-        int* imageSubsetDimension) {
-
-    // This must be at least zero, we can't start decoding the image at a negative coordinate.
-    *imageSubsetOffset = SkTMax(0, inputOffset);
-
-    // If inputOffset is less than zero, we decode to an offset location in the output bitmap.
-    *outOffset = *imageSubsetOffset - inputOffset;
-
-    // Use imageSusetOffset to make sure we don't decode pixels past the edge of the image.
-    // Use outOffset to make sure we don't decode pixels past the edge of the region.
-    *imageSubsetDimension = SkTMin(imageOriginalDimension - *imageSubsetOffset,
-            inputDimension - *outOffset);
-
-    return (*outOffset == 0) && (*imageSubsetDimension == inputDimension);
-}
-
-/*
  * Three differences from the Android version:
  *     Returns a Skia bitmap instead of an Android bitmap.
  *     Android version attempts to reuse a recycled bitmap.
@@ -56,48 +32,25 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
         return nullptr;
     }
 
-    // The client may not necessarily request a region that is fully within
-    // the image.  We may need to do some calculation to determine what part
-    // of the image to decode.
-
-    // The left offset of the portion of the image we want, where zero
-    // indicates the left edge of the image.
-    int imageSubsetX;
+    // Fix the input sampleSize if necessary.
+    if (sampleSize < 1) {
+        sampleSize = 1;
+    }
 
     // The size of the output bitmap is determined by the size of the
-    // requested region, not by the size of the intersection of the region
-    // and the image dimensions.  If inputX is negative, we will need to
-    // place decoded pixels into the output bitmap starting at a left offset.
-    // If this is non-zero, imageSubsetX must be zero.
+    // requested subset, not by the size of the intersection of the subset
+    // and the image dimensions.
+    // If inputX is negative, we will need to place decoded pixels into the
+    // output bitmap starting at a left offset.  Call this outX.
+    // If outX is non-zero, subsetX must be zero.
+    // If inputY is negative, we will need to place decoded pixels into the
+    // output bitmap starting at a top offset.  Call this outY.
+    // If outY is non-zero, subsetY must be zero.
     int outX;
-
-    // The width of the portion of the image that we will write to the output
-    // bitmap.  If the region is not fully contained within the image, this
-    // will not be the same as inputWidth.
-    int imageSubsetWidth;
-    bool imageContainsEntireSubset = set_subset_region(inputX, inputWidth, this->width(),
-            &imageSubsetX, &outX, &imageSubsetWidth);
-
-    // The top offset of the portion of the image we want, where zero
-    // indicates the top edge of the image.
-    int imageSubsetY;
-
-    // The size of the output bitmap is determined by the size of the
-    // requested region, not by the size of the intersection of the region
-    // and the image dimensions.  If inputY is negative, we will need to
-    // place decoded pixels into the output bitmap starting at a top offset.
-    // If this is non-zero, imageSubsetY must be zero.
     int outY;
-
-    // The height of the portion of the image that we will write to the output
-    // bitmap.  If the region is not fully contained within the image, this
-    // will not be the same as inputHeight.
-    int imageSubsetHeight;
-    imageContainsEntireSubset &= set_subset_region(inputY, inputHeight, this->height(),
-            &imageSubsetY, &outY, &imageSubsetHeight);
-
-    if (imageSubsetWidth <= 0 || imageSubsetHeight <= 0) {
-        SkCodecPrintf("Error: Region must intersect part of the image.\n");
+    SkIRect subset = SkIRect::MakeXYWH(inputX, inputY, inputWidth, inputHeight);
+    SubsetType type = adjust_subset_rect(fDecoder->getInfo().dimensions(), &subset, &outX, &outY);
+    if (SubsetType::kOutside_SubsetType == type) {
         return nullptr;
     }
 
@@ -108,7 +61,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     }
     SkImageInfo decodeInfo = SkImageInfo::Make(this->width(), this->height(),
             dstColorType, dstAlphaType);
-    
+
     // Start the scanline decoder
     SkCodec::Result r = fDecoder->startScanlineDecode(decodeInfo);
     if (SkCodec::kSuccess != r) {
@@ -118,20 +71,20 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
 
     // Allocate a bitmap for the unscaled decode
     SkBitmap tmp;
-    SkImageInfo tmpInfo = decodeInfo.makeWH(this->width(), imageSubsetHeight);
+    SkImageInfo tmpInfo = decodeInfo.makeWH(this->width(), subset.height());
     if (!tmp.tryAllocPixels(tmpInfo)) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
         return nullptr;
     }
 
     // Skip the unneeded rows
-    if (!fDecoder->skipScanlines(imageSubsetY)) {
+    if (!fDecoder->skipScanlines(subset.y())) {
         SkCodecPrintf("Error: Failed to skip scanlines.\n");
         return nullptr;
     }
 
     // Decode the necessary rows
-    fDecoder->getScanlines(tmp.getAddr(0, 0), imageSubsetHeight, tmp.rowBytes());
+    fDecoder->getScanlines(tmp.getAddr(0, 0), subset.height(), tmp.rowBytes());
 
     // Calculate the size of the output
     const int outWidth = get_scaled_dimension(inputWidth, sampleSize);
@@ -152,18 +105,18 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // TODO (msarett): This could be skipped if memory is zero initialized.
     //                 This would matter if this code is moved to Android and
     //                 uses Android bitmaps.
-    if (!imageContainsEntireSubset) {
+    if (SubsetType::kPartiallyInside_SubsetType == type) {
         bitmap->eraseColor(0);
     }
 
     // Use a canvas to crop and scale to the destination bitmap
     SkCanvas canvas(*bitmap);
     // TODO (msarett): Maybe we can take advantage of the fact that SkRect uses floats?
-    SkRect src = SkRect::MakeXYWH((SkScalar) imageSubsetX, (SkScalar) 0,
-            (SkScalar) imageSubsetWidth, (SkScalar) imageSubsetHeight);
+    SkRect src = SkRect::MakeXYWH((SkScalar) subset.x(), (SkScalar) 0,
+            (SkScalar) subset.width(), (SkScalar) subset.height());
     SkRect dst = SkRect::MakeXYWH((SkScalar) (outX / sampleSize), (SkScalar) (outY / sampleSize),
-            (SkScalar) get_scaled_dimension(imageSubsetWidth, sampleSize),
-            (SkScalar) get_scaled_dimension(imageSubsetHeight, sampleSize));
+            (SkScalar) get_scaled_dimension(subset.width(), sampleSize),
+            (SkScalar) get_scaled_dimension(subset.height(), sampleSize));
     SkPaint paint;
     // Overwrite the dst with the src pixels
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);

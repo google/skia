@@ -392,6 +392,15 @@ static bool brd_color_type_supported(SkBitmapRegionDecoderInterface::Strategy st
                 default:
                     return false;
             }
+        case SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy:
+            switch (dstColorType) {
+                case CodecSrc::kGetFromCanvas_DstColorType:
+                case CodecSrc::kIndex8_Always_DstColorType:
+                case CodecSrc::kGrayscale_Always_DstColorType:
+                    return true;
+                default:
+                    return false;
+            }
         default:
             SkASSERT(false);
             return false;
@@ -407,6 +416,9 @@ static void push_brd_src(Path path, SkBitmapRegionDecoderInterface::Strategy str
             break;
         case SkBitmapRegionDecoderInterface::kOriginal_Strategy:
             folder.append("brd_sample");
+            break;
+        case SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy:
+            folder.append("brd_android_codec");
             break;
         default:
             SkASSERT(false);
@@ -450,7 +462,8 @@ static void push_brd_srcs(Path path) {
 
     const SkBitmapRegionDecoderInterface::Strategy strategies[] = {
             SkBitmapRegionDecoderInterface::kCanvas_Strategy,
-            SkBitmapRegionDecoderInterface::kOriginal_Strategy
+            SkBitmapRegionDecoderInterface::kOriginal_Strategy,
+            SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy,
     };
 
     const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -458,14 +471,14 @@ static void push_brd_srcs(Path path) {
     // We will only test to one backend (8888), but we will test all of the
     // color types that we need to decode to on this backend.
     const CodecSrc::DstColorType dstColorTypes[] = {
-        CodecSrc::kGetFromCanvas_DstColorType,
-        CodecSrc::kIndex8_Always_DstColorType,
-        CodecSrc::kGrayscale_Always_DstColorType,
+            CodecSrc::kGetFromCanvas_DstColorType,
+            CodecSrc::kIndex8_Always_DstColorType,
+            CodecSrc::kGrayscale_Always_DstColorType,
     };
 
     const BRDSrc::Mode modes[] = {
-        BRDSrc::kFullImage_Mode,
-        BRDSrc::kDivisor_Mode
+            BRDSrc::kFullImage_Mode,
+            BRDSrc::kDivisor_Mode,
     };
 
     for (SkBitmapRegionDecoderInterface::Strategy strategy : strategies) {

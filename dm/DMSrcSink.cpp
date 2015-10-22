@@ -88,8 +88,7 @@ static SkBitmapRegionDecoderInterface* create_brd(Path path,
     if (!encoded) {
         return NULL;
     }
-    return SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(new SkMemoryStream(encoded),
-            strategy);
+    return SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(encoded, strategy);
 }
 
 Error BRDSrc::draw(SkCanvas* canvas) const {
