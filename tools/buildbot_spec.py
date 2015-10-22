@@ -261,8 +261,12 @@ def get_builder_spec(builder_name):
   rv['do_test_steps'] = role == builder_name_schema.BUILDER_ROLE_TEST
   rv['do_perf_steps'] = (role == builder_name_schema.BUILDER_ROLE_PERF or
                          (role == builder_name_schema.BUILDER_ROLE_TEST and
-                          configuration == CONFIG_DEBUG) or
-                         'Valgrind' in builder_name)
+                          configuration == CONFIG_DEBUG))
+  if 'Valgrind' in builder_name:
+    rv['do_perf_steps'] = True
+  if 'GalaxyS4' in builder_name:
+    rv['do_perf_steps'] = False
+
   rv['build_targets'] = build_targets_from_builder_dict(
         builder_dict, rv['do_test_steps'], rv['do_perf_steps'])
 
@@ -309,6 +313,7 @@ def self_test():
         'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
         'Housekeeper-PerCommit',
         'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+        'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Debug',
         'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Release-Appurify',
         'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
         'Test-ChromeOS-GCC-Link-CPU-AVX-x86_64-Debug',
