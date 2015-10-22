@@ -165,6 +165,8 @@ protected:
         fResolveRect.setLargestInverted();
     }
 
+    ~GrRenderTarget() override;
+
     // override of GrResource
     void onAbandon() override;
     void onRelease() override;

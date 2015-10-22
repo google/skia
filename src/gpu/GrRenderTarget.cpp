@@ -16,6 +16,13 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 
+GrRenderTarget::~GrRenderTarget() {
+    if (fLastDrawTarget) {
+        fLastDrawTarget->clearRT();
+    }
+    SkSafeUnref(fLastDrawTarget);
+}
+
 void GrRenderTarget::discard() {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
@@ -57,24 +64,26 @@ void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
 
 void GrRenderTarget::onRelease() {
     SkSafeSetNull(fStencilAttachment);
-    fLastDrawTarget = nullptr;
 
     INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
     SkSafeSetNull(fStencilAttachment);
-    fLastDrawTarget = nullptr;
 
     INHERITED::onAbandon();
 }
 
 void GrRenderTarget::setLastDrawTarget(GrDrawTarget* dt) {
     if (fLastDrawTarget) {
+        // The non-MDB world never closes so we can't check this condition
+#ifdef ENABLE_MDB
         SkASSERT(fLastDrawTarget->isClosed());
+#endif
+        fLastDrawTarget->clearRT();
     }
 
-    fLastDrawTarget = dt;
+    SkRefCnt_SafeAssign(fLastDrawTarget, dt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
