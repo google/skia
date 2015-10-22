@@ -39,7 +39,7 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
     SkASSERT(!fRtAdjustName);
 
     GrSLPrecision precision = kDefault_GrSLPrecision;
-    if (fProgramBuilder->ctxInfo().vendor() == kARM_GrGLVendor) {
+    if (fProgramBuilder->glslCaps()->forceHighPrecisionNDSTransform()) {
         precision = kHigh_GrSLPrecision;
     }
 
@@ -89,7 +89,7 @@ void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
 
 bool
 GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) {
-    this->versionDecl() = GrGLGetGLSLVersionDecl(fProgramBuilder->ctxInfo());
+    this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kVertex_Visibility, &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());

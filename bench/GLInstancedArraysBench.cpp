@@ -107,7 +107,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
-    const char* version = GrGLGetGLSLVersionDecl(*ctx);
+    const char* version = ctx->caps()->glslCaps()->versionDeclString();
 
     // setup vertex shader
     GrGLSLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
