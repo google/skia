@@ -805,7 +805,7 @@ public:
 
         /**
          *  If kFast is specified, the implementation may sample outside of the src-rect
-         *  (if specified) by at most 1 pixel when filtering. This allows greater flexibility
+         *  (if specified) by half the width of filter. This allows greater flexibility
          *  to the implementation and can make the draw much faster.
          */
         kFast_SrcRectConstraint,
@@ -885,7 +885,7 @@ public:
     void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
                         const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint);
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
-                       SrcRectConstraint = kStrict_SrcRectConstraint);
+                        SrcRectConstraint = kStrict_SrcRectConstraint);
 
     /**
      *  Draw the bitmap stretched differentially to fit into dst.
