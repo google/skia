@@ -34,3 +34,10 @@ void SkTime::GetDateTime(DateTime* dt)
         dt->fSecond     = SkToU8(tstruct->tm_sec);
     }
 }
+
+SkMSec SkTime::GetMSecs()
+{
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    return (SkMSec) (tv.tv_sec * 1000 + tv.tv_usec / 1000 ); // microseconds to milliseconds
+}
