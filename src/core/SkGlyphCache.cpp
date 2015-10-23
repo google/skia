@@ -293,14 +293,7 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-
-class AutoAcquire {
-public:
-    AutoAcquire(SkSpinlock& lock) : fLock(lock) { fLock.acquire(); }
-    ~AutoAcquire() { fLock.release(); }
-private:
-    SkSpinlock& fLock;
-};
+typedef SkAutoTExclusive<SkSpinlock> Exclusive;
 
 size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
     static const size_t minLimit = 256 * 1024;
@@ -308,7 +301,7 @@ size_t SkGlyphCache_Globals::setCacheSizeLimit(size_t newLimit) {
         newLimit = minLimit;
     }
 
-    AutoAcquire ac(fLock);
+    Exclusive ac(fLock);
 
     size_t prevLimit = fCacheSizeLimit;
     fCacheSizeLimit = newLimit;
@@ -321,7 +314,7 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
         newCount = 0;
     }
 
-    AutoAcquire ac(fLock);
+    Exclusive ac(fLock);
 
     int prevCount = fCacheCountLimit;
     fCacheCountLimit = newCount;
@@ -330,7 +323,7 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
 }
 
 void SkGlyphCache_Globals::purgeAll() {
-    AutoAcquire ac(fLock);
+    Exclusive ac(fLock);
     this->internalPurge(fTotalMemoryUsed);
 }
 
@@ -353,7 +346,7 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     SkGlyphCache*         cache;
 
     {
-        AutoAcquire ac(globals.fLock);
+        Exclusive ac(globals.fLock);
 
         globals.validate();
 
@@ -466,7 +459,7 @@ void SkGlyphCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
 
 void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
     SkGlyphCache_Globals& globals = get_globals();
-    AutoAcquire           ac(globals.fLock);
+    Exclusive ac(globals.fLock);
     SkGlyphCache*         cache;
 
     globals.validate();
@@ -479,7 +472,7 @@ void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGlyphCache_Globals::attachCacheToHead(SkGlyphCache* cache) {
-    AutoAcquire ac(fLock);
+    Exclusive ac(fLock);
 
     this->validate();
     cache->validate();
