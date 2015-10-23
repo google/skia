@@ -40,7 +40,6 @@
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
           'link_settings': {
             'libraries': [
-              '-lrt',
               '-lpthread',
             ],
           },
