@@ -132,39 +132,11 @@
     {
       'target_name' : 'timer',
       'type': 'static_library',
-      'sources': [
-        '../tools/timer/Timer.cpp',
-        '../tools/timer/TimerData.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core',
-        '../src/gpu',
-      ],
+      'sources': [ '../tools/timer/Timer.cpp' ],
       'direct_dependent_settings': {
         'include_dirs': ['../tools/timer'],
       },
-      'dependencies': [
-        'skia_lib.gyp:skia_lib',
-        'jsoncpp.gyp:jsoncpp',
-      ],
-      'conditions': [
-        ['skia_gpu == 1', {
-          'sources': [ '../tools/timer/GpuTimer.cpp' ],
-        }],
-        [ 'skia_os in ["mac", "ios"]', {
-          'sources': [ '../tools/timer/SysTimer_mach.cpp' ],
-        }],
-        [ 'skia_os == "win"', {
-          'sources': [ '../tools/timer/SysTimer_windows.cpp' ],
-        }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android", "chromeos"]', {
-          'sources': [ '../tools/timer/SysTimer_posix.cpp' ],
-        }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
-          'link_settings': { 'libraries': [ '-lrt' ] },
-        }],
-      ],
+      'dependencies': [ 'skia_lib.gyp:skia_lib' ],
     },
     {
       'target_name': 'skdiff',
