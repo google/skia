@@ -704,6 +704,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_opts_neon;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1254,6 +1255,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_opts_neon;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1823,6 +1825,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_opts_neon;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -2398,6 +2401,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = skia_opts_neon;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
