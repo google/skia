@@ -99,11 +99,7 @@ bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInB
     }
     gpu->bufferData(fDesc.fID, fBufferType, fDesc.fDynamic, fDesc.fSizeInBytes, src,
                     srcSizeInBytes);
-#if GR_GL_USE_BUFFER_DATA_NULL_HINT
-    fGLSizeInBytes = fDesc.fSizeInBytes;
-#else
     fGLSizeInBytes = srcSizeInBytes;
-#endif
     VALIDATE();
     return true;
 }
