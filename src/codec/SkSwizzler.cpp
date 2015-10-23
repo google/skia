@@ -480,6 +480,89 @@ static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_premul_skipZ(
     return COMPUTE_RESULT_ALPHA;
 }
 
+// kCMYK
+//
+// CMYK is stored as four bytes per pixel.
+//
+// We will implement a crude conversion from CMYK -> RGB using formulas
+// from easyrgb.com.
+//
+// CMYK -> CMY
+// C = C * (1 - K) + K
+// M = M * (1 - K) + K
+// Y = Y * (1 - K) + K
+//
+// libjpeg actually gives us inverted CMYK, so we must subtract the
+// original terms from 1.
+// CMYK -> CMY
+// C = (1 - C) * (1 - (1 - K)) + (1 - K)
+// M = (1 - M) * (1 - (1 - K)) + (1 - K)
+// Y = (1 - Y) * (1 - (1 - K)) + (1 - K)
+//
+// Simplifying the above expression.
+// CMYK -> CMY
+// C = 1 - CK
+// M = 1 - MK
+// Y = 1 - YK
+//
+// CMY -> RGB
+// R = (1 - C) * 255
+// G = (1 - M) * 255
+// B = (1 - Y) * 255
+//
+// Therefore the full conversion is below.  This can be verified at
+// www.rapidtables.com (assuming inverted CMYK).
+// CMYK -> RGB
+// R = C * K * 255
+// G = M * K * 255
+// B = Y * K * 255
+//
+// As a final note, we have treated the CMYK values as if they were on
+// a scale from 0-1, when in fact they are 8-bit ints scaling from 0-255.
+// We must divide each CMYK component by 255 to obtain the true conversion
+// we should perform.
+// CMYK -> RGB
+// R = C * K / 255
+// G = M * K / 255
+// B = Y * K / 255
+static SkSwizzler::ResultAlpha swizzle_cmyk_to_n32(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
+        int bpp, int deltaSrc, int offset, const SkPMColor ctable[]) {
+
+    src += offset;
+    SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
+    for (int x = 0; x < dstWidth; x++) {
+        const uint8_t r = SkMulDiv255Round(src[0], src[3]);
+        const uint8_t g = SkMulDiv255Round(src[1], src[3]);
+        const uint8_t b = SkMulDiv255Round(src[2], src[3]);
+
+        dst[x] = SkPackARGB32NoCheck(0xFF, r, g, b);
+        src += deltaSrc;
+    }
+
+    // CMYK is always opaque
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
+static SkSwizzler::ResultAlpha swizzle_cmyk_to_565(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
+        int bpp, int deltaSrc, int offset, const SkPMColor ctable[]) {
+
+    src += offset;
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < dstWidth; x++) {
+        const uint8_t r = SkMulDiv255Round(src[0], src[3]);
+        const uint8_t g = SkMulDiv255Round(src[1], src[3]);
+        const uint8_t b = SkMulDiv255Round(src[2], src[3]);
+
+        dst[x] = SkPack888ToRGB16(r, g, b);
+        src += deltaSrc;
+    }
+
+    // CMYK is always opaque
+    return SkSwizzler::kOpaque_ResultAlpha;
+}
+
 /**
     FIXME: This was my idea to cheat in order to continue taking advantage of skipping zeroes.
     This would be fine for drawing normally, but not for drawing with transfer modes. Being
@@ -672,6 +755,19 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                 default:
                     break;
             }
+            break;
+        case kCMYK:
+            switch (dstInfo.colorType()) {
+                case kN32_SkColorType:
+                    proc = &swizzle_cmyk_to_n32;
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_cmyk_to_565;
+                    break;
+                default:
+                    break;
+            }
+            break;
         default:
             break;
     }

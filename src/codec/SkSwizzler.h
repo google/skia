@@ -33,6 +33,7 @@ public:
         kRGBA,
         kBGRA,
         kRGB_565,
+        kCMYK,
     };
 
     /*
@@ -97,6 +98,7 @@ public:
             case kRGBA:
             case kBGRX:
             case kBGRA:
+            case kCMYK:
                 return 32;
             default:
                 SkASSERT(false);
