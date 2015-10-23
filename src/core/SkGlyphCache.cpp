@@ -19,15 +19,7 @@
 //#define SPEW_PURGE_STATUS
 
 namespace {
-
 const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
-
-// Used to pass context to the sk_trace_dump_visitor.
-struct SkGlyphCacheDumpContext {
-    int* counter;
-    SkTraceMemoryDump* dump;
-};
-
 }  // namespace
 
 // Returns the shared globals
@@ -433,11 +425,7 @@ void SkGlyphCache::Dump() {
 }
 
 static void sk_trace_dump_visitor(const SkGlyphCache& cache, void* context) {
-    SkGlyphCacheDumpContext* dumpContext = static_cast<SkGlyphCacheDumpContext*>(context);
-    SkTraceMemoryDump* dump = dumpContext->dump;
-    int* counter = dumpContext->counter;
-    int index = *counter;
-    *counter += 1;
+    SkTraceMemoryDump* dump = static_cast<SkTraceMemoryDump*>(context);
 
     const SkTypeface* face = cache.getScalerContext()->getTypeface();
     const SkScalerContextRec& rec = cache.getScalerContext()->getRec();
@@ -451,8 +439,8 @@ static void sk_trace_dump_visitor(const SkGlyphCache& cache, void* context) {
         }
     }
 
-    SkString dumpName = SkStringPrintf("%s/%s_%d/index_%d",
-                                       gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, index);
+    SkString dumpName = SkStringPrintf("%s/%s_%d/%p",
+                                       gGlyphCacheDumpName, fontName.c_str(), rec.fFontID, &cache);
 
     dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", cache.getMemoryUsed());
     dump->dumpNumericValue(dumpName.c_str(), "glyph_count", "objects", cache.countCachedGlyphs());
@@ -473,9 +461,7 @@ void SkGlyphCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
         return;
     }
 
-    int counter = 0;
-    SkGlyphCacheDumpContext context = { &counter, dump };
-    SkGlyphCache::VisitAll(sk_trace_dump_visitor, &context);
+    SkGlyphCache::VisitAll(sk_trace_dump_visitor, dump);
 }
 
 void SkGlyphCache::VisitAll(Visitor visitor, void* context) {
