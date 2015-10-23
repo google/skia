@@ -195,26 +195,8 @@ bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInB
     // Note that we're cheating on the size here. Currently no methods
     // allow a partial update that preserves contents of non-updated
     // portions of the buffer (map() does a glBufferData(..size, nullptr..))
-    bool doSubData = false;
-#if GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND
-    static int N = 0;
-    // 128 was chosen experimentally. At 256 a slight hitchiness was noticed
-    // when dragging a Chromium window around with a canvas tab backgrounded.
-    doSubData = 0 == (N % 128);
-    ++N;
-#endif
-    if (doSubData) {
-        // The workaround is to do a glBufferData followed by glBufferSubData.
-        // Chromium's command buffer may turn a glBufferSubData where the size
-        // exactly matches the buffer size into a glBufferData. So we tack 1
-        // extra byte onto the glBufferData.
-        fGLSizeInBytes = srcSizeInBytes + 1;
-        GL_CALL(gpu, BufferData(fBufferType, fGLSizeInBytes, nullptr, usage));
-        GL_CALL(gpu, BufferSubData(fBufferType, 0, srcSizeInBytes, src));
-    } else {
-        fGLSizeInBytes = srcSizeInBytes;
-        GL_CALL(gpu, BufferData(fBufferType, fGLSizeInBytes, src, usage));
-    }
+    fGLSizeInBytes = srcSizeInBytes;
+    GL_CALL(gpu, BufferData(fBufferType, fGLSizeInBytes, src, usage));
 #endif
     return true;
 }
