@@ -1596,7 +1596,7 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t curren
         case GrGLCaps::kMapBuffer_MapBufferType:
             this->bindBuffer(id, type);
             // Let driver know it can discard the old data
-            if (currentSize != requestedSize) {
+            if (GR_GL_USE_BUFFER_DATA_NULL_HINT || currentSize != requestedSize) {
                 GL_CALL(BufferData(type, requestedSize, nullptr,
                                    dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
             }
@@ -1634,10 +1634,26 @@ void GrGLGpu::bufferData(GrGLuint id, GrGLenum type, bool dynamic, size_t curren
     this->bindBuffer(id, type);
     GrGLenum usage = dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW;
 
+#if GR_GL_USE_BUFFER_DATA_NULL_HINT
+    if (currentSize == srcSizeInBytes) {
+        GL_CALL(BufferData(type, (GrGLsizeiptr) srcSizeInBytes, src, usage));
+    } else {
+        // Before we call glBufferSubData we give the driver a hint using
+        // glBufferData with nullptr. This makes the old buffer contents
+        // inaccessible to future draws. The GPU may still be processing
+        // draws that reference the old contents. With this hint it can
+        // assign a different allocation for the new contents to avoid
+        // flushing the gpu past draws consuming the old contents.
+        // TODO I think we actually want to try calling bufferData here
+        GL_CALL(BufferData(type, currentSize, nullptr, usage));
+        GL_CALL(BufferSubData(type, 0, (GrGLsizeiptr) srcSizeInBytes, src));
+    }
+#else
     // Note that we're cheating on the size here. Currently no methods
     // allow a partial update that preserves contents of non-updated
     // portions of the buffer (map() does a glBufferData(..size, nullptr..))
     GL_CALL(BufferData(type, srcSizeInBytes, src, usage));
+#endif
 }
 
 void GrGLGpu::unmapBuffer(GrGLuint id, GrGLenum type, void* mapPtr) {
