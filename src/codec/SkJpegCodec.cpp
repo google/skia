@@ -23,69 +23,6 @@ extern "C" {
     #include "jpeglib.h"
 }
 
-/*
- * Convert a row of CMYK samples to RGBA in place.
- * Note that this method moves the row pointer.
- * @param width the number of pixels in the row that is being converted
- *              CMYK is stored as four bytes per pixel
- */
-static void convert_CMYK_to_RGBA(uint8_t* row, uint32_t width) {
-    // We will implement a crude conversion from CMYK -> RGB using formulas
-    // from easyrgb.com.
-    //
-    // CMYK -> CMY
-    // C = C * (1 - K) + K
-    // M = M * (1 - K) + K
-    // Y = Y * (1 - K) + K
-    //
-    // libjpeg actually gives us inverted CMYK, so we must subtract the
-    // original terms from 1.
-    // CMYK -> CMY
-    // C = (1 - C) * (1 - (1 - K)) + (1 - K)
-    // M = (1 - M) * (1 - (1 - K)) + (1 - K)
-    // Y = (1 - Y) * (1 - (1 - K)) + (1 - K)
-    //
-    // Simplifying the above expression.
-    // CMYK -> CMY
-    // C = 1 - CK
-    // M = 1 - MK
-    // Y = 1 - YK
-    //
-    // CMY -> RGB
-    // R = (1 - C) * 255
-    // G = (1 - M) * 255
-    // B = (1 - Y) * 255
-    //
-    // Therefore the full conversion is below.  This can be verified at
-    // www.rapidtables.com (assuming inverted CMYK).
-    // CMYK -> RGB
-    // R = C * K * 255
-    // G = M * K * 255
-    // B = Y * K * 255
-    //
-    // As a final note, we have treated the CMYK values as if they were on
-    // a scale from 0-1, when in fact they are 8-bit ints scaling from 0-255.
-    // We must divide each CMYK component by 255 to obtain the true conversion
-    // we should perform.
-    // CMYK -> RGB
-    // R = C * K / 255
-    // G = M * K / 255
-    // B = Y * K / 255
-    for (uint32_t x = 0; x < width; x++, row += 4) {
-#if defined(SK_PMCOLOR_IS_RGBA)
-        row[0] = SkMulDiv255Round(row[0], row[3]);
-        row[1] = SkMulDiv255Round(row[1], row[3]);
-        row[2] = SkMulDiv255Round(row[2], row[3]);
-#else
-        uint8_t tmp = row[0];
-        row[0] = SkMulDiv255Round(row[2], row[3]);
-        row[1] = SkMulDiv255Round(row[1], row[3]);
-        row[2] = SkMulDiv255Round(tmp, row[3]);
-#endif
-        row[3] = 0xFF;
-    }
-}
-
 bool SkJpegCodec::IsJpeg(SkStream* stream) {
     static const uint8_t jpegSig[] = { 0xFF, 0xD8, 0xFF };
     char buffer[sizeof(jpegSig)];
@@ -263,10 +200,7 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             return true;
         case kRGB_565_SkColorType:
             if (isCMYK) {
-                // FIXME (msarett): We need to support 565 here.  It's not hard to do, considering
-                // we already convert CMYK to RGBA, I just need to do it.  I think it might be
-                // best to do this in SkSwizzler and also move convert_CMYK_to_RGBA into SkSwizzler.
-                return false;
+                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
 #if defined(GOOGLE3)
                 return false;
@@ -365,9 +299,22 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     // If it's not, we want to know because it means our strategy is not optimal.
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
+    if (JCS_CMYK == dinfo->out_color_space) {
+        this->initializeSwizzler(dstInfo, options);
+    }
+
     // Perform the decode a single row at a time
     uint32_t dstHeight = dstInfo.height();
-    JSAMPLE* dstRow = (JSAMPLE*) dst;
+
+    JSAMPLE* dstRow;
+    if (fSwizzler) {
+        // write data to storage row, then sample using swizzler
+        dstRow = fSrcRow;
+    } else {
+        // write data directly to dst
+        dstRow = (JSAMPLE*) dst;
+    }
+
     for (uint32_t y = 0; y < dstHeight; y++) {
         // Read rows of the image
         uint32_t lines = jpeg_read_scanlines(dinfo, &dstRow, 1);
@@ -379,13 +326,13 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
             return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
         }
 
-        // Convert to RGBA if necessary
-        if (JCS_CMYK == dinfo->out_color_space) {
-            convert_CMYK_to_RGBA(dstRow, dstInfo.width());
+        if (fSwizzler) {
+            // use swizzler to sample row
+            fSwizzler->swizzle(dst, dstRow);
+            dst = SkTAddOffset<JSAMPLE>(dst, dstRowBytes);
+        } else {
+            dstRow = SkTAddOffset<JSAMPLE>(dstRow, dstRowBytes);
         }
-
-        // Move to the next row
-        dstRow = SkTAddOffset<JSAMPLE>(dstRow, dstRowBytes);
     }
 
     return kSuccess;
@@ -393,26 +340,30 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
     SkSwizzler::SrcConfig srcConfig = SkSwizzler::kUnknown;
-    switch (dstInfo.colorType()) {
-        case kGray_8_SkColorType:
-            srcConfig = SkSwizzler::kGray;
-            break;
-        case kRGBA_8888_SkColorType:
-            srcConfig = SkSwizzler::kRGBX;
-            break;
-        case kBGRA_8888_SkColorType:
-            srcConfig = SkSwizzler::kBGRX;
-            break;
-        case kRGB_565_SkColorType:
-            srcConfig = SkSwizzler::kRGB_565;
-            break;
-        default:
-            // This function should only be called if the colorType is supported by jpeg
+    if (JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
+        srcConfig = SkSwizzler::kCMYK;
+    } else {
+        switch (dstInfo.colorType()) {
+            case kGray_8_SkColorType:
+                srcConfig = SkSwizzler::kGray;
+                break;
+            case kRGBA_8888_SkColorType:
+                srcConfig = SkSwizzler::kRGBX;
+                break;
+            case kBGRA_8888_SkColorType:
+                srcConfig = SkSwizzler::kBGRX;
+                break;
+            case kRGB_565_SkColorType:
+                srcConfig = SkSwizzler::kRGB_565;
+                break;
+            default:
+                // This function should only be called if the colorType is supported by jpeg
 #if defined(GOOGLE3)
-            SK_CRASH();
+                SK_CRASH();
 #else
-            SkASSERT(false);
+                SkASSERT(false);
 #endif
+        }
     }
 
     fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, dstInfo, options));
@@ -454,8 +405,9 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-    // We will need a swizzler if we are performing a subset decode
-    if (options.fSubset) {
+    // We will need a swizzler if we are performing a subset decode or
+    // converting from CMYK.
+    if (options.fSubset || JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
         this->initializeSwizzler(dstInfo, options);
     }
 
@@ -485,12 +437,7 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
             return y;
         }
 
-        // Convert to RGBA if necessary
-        if (JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
-            convert_CMYK_to_RGBA(dstRow, fDecoderMgr->dinfo()->output_width);
-        }
-
-        if(fSwizzler) {
+        if (fSwizzler) {
             // use swizzler to sample row
             fSwizzler->swizzle(dst, dstRow);
             dst = SkTAddOffset<JSAMPLE>(dst, rowBytes);

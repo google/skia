@@ -408,7 +408,7 @@ DEF_TEST(Codec, r) {
     check(r, "randPixels.gif", SkISize::Make(8, 8), true, false, true, false);
 
     // JPG
-    check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, false);
+    check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, true);
     check(r, "color_wheel.jpg", SkISize::Make(128, 128), true, false);
     // grayscale.jpg is too small to test incomplete
     check(r, "grayscale.jpg", SkISize::Make(128, 128), true, false, true, false);
