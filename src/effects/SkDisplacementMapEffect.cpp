@@ -420,7 +420,8 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     desc.fHeight = bounds.height();
     desc.fConfig = kSkia8888_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
+    auto constraint = GrTextureProvider::FromImageFilter(ctx.sizeConstraint());
+    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createTexture(desc, constraint));
 
     if (!dst) {
         return false;
