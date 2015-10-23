@@ -37,8 +37,6 @@ public:
     GrGLuint bufferID() const { return fDesc.fID; }
     size_t baseOffset() const { return reinterpret_cast<size_t>(fCPUData); }
 
-    void bind(GrGLGpu* gpu) const;
-
     void* map(GrGLGpu* gpu);
     void unmap(GrGLGpu* gpu);
     bool isMapped() const;

@@ -95,6 +95,20 @@ public:
                           const GrPrimitiveProcessor&,
                           const GrPipeline&) const override;
 
+    // id and type (GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER) of buffer to bind
+    void bindBuffer(GrGLuint id, GrGLenum type);
+
+    void releaseBuffer(GrGLuint id, GrGLenum type);
+
+    // sizes are in bytes
+    void* mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t currentSize,
+                    size_t requestedSize);
+
+    void unmapBuffer(GrGLuint id, GrGLenum type, void* mapPtr);
+
+    void bufferData(GrGLuint id, GrGLenum type, bool dynamic, size_t currentSize,
+                    const void* src, size_t srcSizeInBytes);
+
     const GrGLContext* glContextForTesting() const override {
         return &this->glContext();
     }

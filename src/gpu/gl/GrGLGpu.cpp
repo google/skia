@@ -1561,6 +1561,119 @@ void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
     }
 }
 
+void GrGLGpu::bindBuffer(GrGLuint id, GrGLenum type) {
+    this->handleDirtyContext();
+    if (GR_GL_ARRAY_BUFFER == type) {
+        this->bindVertexBuffer(id);
+    } else {
+        SkASSERT(GR_GL_ELEMENT_ARRAY_BUFFER == type);
+        this->bindIndexBufferAndDefaultVertexArray(id);
+    }
+}
+
+void GrGLGpu::releaseBuffer(GrGLuint id, GrGLenum type) {
+    this->handleDirtyContext();
+    GL_CALL(DeleteBuffers(1, &id));
+    if (GR_GL_ARRAY_BUFFER == type) {
+        this->notifyVertexBufferDelete(id);
+    } else {
+        SkASSERT(GR_GL_ELEMENT_ARRAY_BUFFER == type);
+        this->notifyIndexBufferDelete(id);
+    }
+}
+
+// GL_STREAM_DRAW triggers an optimization in Chromium's GPU process where a client's vertex buffer
+// objects are implemented as client-side-arrays on tile-deferred architectures.
+#define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
+
+void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t currentSize,
+                         size_t requestedSize) {
+    void* mapPtr = nullptr;
+    // Handling dirty context is done in the bindBuffer call
+    switch (this->glCaps().mapBufferType()) {
+        case GrGLCaps::kNone_MapBufferType:
+            break;
+        case GrGLCaps::kMapBuffer_MapBufferType:
+            this->bindBuffer(id, type);
+            // Let driver know it can discard the old data
+            if (GR_GL_USE_BUFFER_DATA_NULL_HINT || currentSize != requestedSize) {
+                GL_CALL(BufferData(type, requestedSize, nullptr,
+                                   dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
+            }
+            GL_CALL_RET(mapPtr, MapBuffer(type, GR_GL_WRITE_ONLY));
+            break;
+        case GrGLCaps::kMapBufferRange_MapBufferType: {
+            this->bindBuffer(id, type);
+            // Make sure the GL buffer size agrees with fDesc before mapping.
+            if (currentSize != requestedSize) {
+                GL_CALL(BufferData(type, requestedSize, nullptr,
+                                   dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
+            }
+            static const GrGLbitfield kAccess = GR_GL_MAP_INVALIDATE_BUFFER_BIT |
+                                                GR_GL_MAP_WRITE_BIT;
+            GL_CALL_RET(mapPtr, MapBufferRange(type, 0, requestedSize, kAccess));
+            break;
+        }
+        case GrGLCaps::kChromium_MapBufferType:
+            this->bindBuffer(id, type);
+            // Make sure the GL buffer size agrees with fDesc before mapping.
+            if (currentSize != requestedSize) {
+                GL_CALL(BufferData(type, requestedSize, nullptr,
+                                   dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
+            }
+            GL_CALL_RET(mapPtr, MapBufferSubData(type, 0, requestedSize, GR_GL_WRITE_ONLY));
+            break;
+    }
+    return mapPtr;
+}
+
+void GrGLGpu::bufferData(GrGLuint id, GrGLenum type, bool dynamic, size_t currentSize,
+                         const void* src, size_t srcSizeInBytes) {
+    SkASSERT(srcSizeInBytes <= currentSize);
+    // bindbuffer handles dirty context
+    this->bindBuffer(id, type);
+    GrGLenum usage = dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW;
+
+#if GR_GL_USE_BUFFER_DATA_NULL_HINT
+    if (currentSize == srcSizeInBytes) {
+        GL_CALL(BufferData(type, (GrGLsizeiptr) srcSizeInBytes, src, usage));
+    } else {
+        // Before we call glBufferSubData we give the driver a hint using
+        // glBufferData with nullptr. This makes the old buffer contents
+        // inaccessible to future draws. The GPU may still be processing
+        // draws that reference the old contents. With this hint it can
+        // assign a different allocation for the new contents to avoid
+        // flushing the gpu past draws consuming the old contents.
+        // TODO I think we actually want to try calling bufferData here
+        GL_CALL(BufferData(type, currentSize, nullptr, usage));
+        GL_CALL(BufferSubData(type, 0, (GrGLsizeiptr) srcSizeInBytes, src));
+    }
+#else
+    // Note that we're cheating on the size here. Currently no methods
+    // allow a partial update that preserves contents of non-updated
+    // portions of the buffer (map() does a glBufferData(..size, nullptr..))
+    GL_CALL(BufferData(type, srcSizeInBytes, src, usage));
+#endif
+}
+
+void GrGLGpu::unmapBuffer(GrGLuint id, GrGLenum type, void* mapPtr) {
+    // bind buffer handles the dirty context
+    switch (this->glCaps().mapBufferType()) {
+        case GrGLCaps::kNone_MapBufferType:
+            SkDEBUGFAIL("Shouldn't get here.");
+            return;
+        case GrGLCaps::kMapBuffer_MapBufferType: // fall through
+        case GrGLCaps::kMapBufferRange_MapBufferType:
+            this->bindBuffer(id, type);
+            GL_CALL(UnmapBuffer(type));
+            break;
+        case GrGLCaps::kChromium_MapBufferType:
+            this->bindBuffer(id, type);
+            GL_CALL(UnmapBufferSubData(mapPtr));
+            break;
+    }
+}
+
 void GrGLGpu::disableScissor() {
     if (kNo_TriState != fHWScissorSettings.fEnabled) {
         GL_CALL(Disable(GR_GL_SCISSOR_TEST));

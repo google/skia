@@ -411,6 +411,12 @@ protected:
         *preference = SkTMax(*preference, elevation);
     }
 
+    void handleDirtyContext() {
+        if (fResetBits) {
+            this->resetContext();
+        }
+    }
+
     Stats                                   fStats;
     SkAutoTDelete<GrPathRendering>          fPathRendering;
     // Subclass must initialize this in its constructor.
@@ -484,12 +490,6 @@ private:
         this->onResetContext(fResetBits);
         fResetBits = 0;
         ++fResetTimestamp;
-    }
-
-    void handleDirtyContext() {
-        if (fResetBits) {
-            this->resetContext();
-        }
     }
 
     ResetTimestamp                                                      fResetTimestamp;
