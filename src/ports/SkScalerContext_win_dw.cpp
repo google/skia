@@ -37,17 +37,7 @@
  */
 SK_DECLARE_STATIC_MUTEX(DWriteFactoryMutex);
 
-class Exclusive {
-public:
-    Exclusive(SkBaseMutex& mutex) : fMutex(mutex) {
-        fMutex.acquire();
-    }
-    ~Exclusive() {
-        fMutex.release();
-    }
-private:
-    SkBaseMutex& fMutex;
-};
+typedef SkAutoMutexExclusive Exclusive;
 
 static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;

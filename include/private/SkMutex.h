@@ -119,7 +119,7 @@ private:
 typedef SkAutoTAcquire<SkBaseMutex> SkAutoMutexAcquire;
 #define SkAutoMutexAcquire(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexAcquire)
 
-typedef SkAutoTExclusive<SkMutex> SkAutoMutexExclusive;
+typedef SkAutoTExclusive<SkBaseMutex> SkAutoMutexExclusive;
 #define SkAutoMutexExclusive(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexExclusive)
 
 #endif//SkMutex_DEFINED
