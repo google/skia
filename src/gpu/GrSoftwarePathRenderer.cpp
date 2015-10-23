@@ -28,8 +28,7 @@ namespace {
 // gets device coord bounds of path (not considering the fill) and clip. The
 // path bounds will be a subset of the clip bounds. returns false if
 // path bounds would be empty.
-bool get_path_and_clip_bounds(const GrDrawTarget* target,
-                              const GrPipelineBuilder* pipelineBuilder,
+bool get_path_and_clip_bounds(const GrPipelineBuilder* pipelineBuilder,
                               const SkPath& path,
                               const SkMatrix& matrix,
                               SkIRect* devPathBounds,
@@ -110,7 +109,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     SkIRect devPathBounds, devClipBounds;
-    if (!get_path_and_clip_bounds(args.fTarget, args.fPipelineBuilder, *args.fPath,
+    if (!get_path_and_clip_bounds(args.fPipelineBuilder, *args.fPath,
                                   *args.fViewMatrix, &devPathBounds, &devClipBounds)) {
         if (args.fPath->isInverseFillType()) {
             draw_around_inv_path(args.fTarget, args.fPipelineBuilder, args.fColor,

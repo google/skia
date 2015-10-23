@@ -47,7 +47,6 @@ static const GrFragmentProcessor* create_fp_for_mask(GrTexture* result, const Sk
 }
 
 static bool path_needs_SW_renderer(GrContext* context,
-                                   const GrDrawTarget* gpu,
                                    const GrPipelineBuilder& pipelineBuilder,
                                    const SkMatrix& viewMatrix,
                                    const SkPath& origPath,
@@ -63,8 +62,8 @@ static bool path_needs_SW_renderer(GrContext* context,
                                          GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
 
-    return nullptr == context->getPathRenderer(gpu, &pipelineBuilder, viewMatrix, *path, stroke,
-                                            false, type);
+    return nullptr == context->getPathRenderer(&pipelineBuilder, viewMatrix, *path, stroke,
+                                               false, type);
 }
 
 GrClipMaskManager::GrClipMaskManager(GrDrawTarget* drawTarget)
@@ -99,7 +98,7 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
         if (Element::kRect_Type != element->getType()) {
             SkPath path;
             element->asPath(&path);
-            if (path_needs_SW_renderer(this->getContext(), fDrawTarget, pipelineBuilder, translate,
+            if (path_needs_SW_renderer(this->getContext(), pipelineBuilder, translate,
                                        path, stroke, element->isAA())) {
                 return true;
             }
@@ -413,7 +412,7 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
                 GrPathRendererChain::DrawType type;
                 type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
-                pr = this->getContext()->getPathRenderer(fDrawTarget, pipelineBuilder, viewMatrix,
+                pr = this->getContext()->getPathRenderer(pipelineBuilder, viewMatrix,
                                                          path, stroke, false, type);
             }
             if (nullptr == pr) {
@@ -455,7 +454,7 @@ bool GrClipMaskManager::canStencilAndDrawElement(GrPipelineBuilder* pipelineBuil
         GrPathRendererChain::DrawType type = element->isAA() ?
             GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
             GrPathRendererChain::kStencilAndColor_DrawType;
-        *pr = this->getContext()->getPathRenderer(fDrawTarget, pipelineBuilder, SkMatrix::I(), path,
+        *pr = this->getContext()->getPathRenderer(pipelineBuilder, SkMatrix::I(), path,
                                                   stroke, false, type);
         return SkToBool(*pr);
     }
@@ -760,8 +759,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 if (fillInverted) {
                     clipPath.toggleInverseFillType();
                 }
-                pr = this->getContext()->getPathRenderer(fDrawTarget,
-                                                         &pipelineBuilder,
+                pr = this->getContext()->getPathRenderer(&pipelineBuilder,
                                                          viewMatrix,
                                                          clipPath,
                                                          stroke,

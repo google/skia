@@ -461,7 +461,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rrect);
-        this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
+        this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
                                paint.isAntiAlias(), path, strokeInfo);
     }
 }
@@ -498,7 +498,7 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
         path.setFillType(SkPath::kEvenOdd_FillType);
 
         GrStrokeInfo fillRec(SkStrokeRec::kFill_InitStyle);
-        this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
+        this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
                                paint.isAntiAlias(), path, fillRec);
     }
 }
@@ -540,7 +540,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
         SkPath path;
         path.setIsVolatile(true);
         path.addOval(oval);
-        this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
+        this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
                                paint.isAntiAlias(), path, strokeInfo);
     }
 }
@@ -661,12 +661,11 @@ void GrDrawContext::drawPath(const GrClip& clip,
             }
         }
     }
-    this->internalDrawPath(this->getDrawTarget(), &pipelineBuilder, viewMatrix, color,
+    this->internalDrawPath(&pipelineBuilder, viewMatrix, color,
                            paint.isAntiAlias(), path, strokeInfo);
 }
 
-void GrDrawContext::internalDrawPath(GrDrawTarget* target,
-                                     GrPipelineBuilder* pipelineBuilder,
+void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
                                      const SkMatrix& viewMatrix,
                                      GrColor color,
                                      bool useAA,
@@ -692,7 +691,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
     const GrStrokeInfo* strokeInfoPtr = &strokeInfo;
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
-    GrPathRenderer* pr = fDrawingManager->getContext()->getPathRenderer(target, pipelineBuilder,
+    GrPathRenderer* pr = fDrawingManager->getContext()->getPathRenderer(pipelineBuilder,
                                                                         viewMatrix, *pathPtr,
                                                                         *strokeInfoPtr, false,
                                                                         type);
@@ -708,7 +707,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
             return;
         }
         strokeInfoPtr = &dashlessStrokeInfo;
-        pr = fDrawingManager->getContext()->getPathRenderer(target, pipelineBuilder, viewMatrix,
+        pr = fDrawingManager->getContext()->getPathRenderer(pipelineBuilder, viewMatrix,
                                                             *pathPtr, *strokeInfoPtr,
                                                             false, type);
     }
@@ -733,7 +732,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
         }
 
         // This time, allow SW renderer
-        pr = fDrawingManager->getContext()->getPathRenderer(target, pipelineBuilder, viewMatrix,
+        pr = fDrawingManager->getContext()->getPathRenderer(pipelineBuilder, viewMatrix,
                                                             *pathPtr, *strokeInfoPtr,
                                                             true, type);
     }
@@ -746,7 +745,7 @@ void GrDrawContext::internalDrawPath(GrDrawTarget* target,
     }
 
     GrPathRenderer::DrawPathArgs args;
-    args.fTarget = target;
+    args.fTarget = this->getDrawTarget();
     args.fResourceProvider = fDrawingManager->getContext()->resourceProvider();
     args.fPipelineBuilder = pipelineBuilder;
     args.fColor = color;

@@ -259,8 +259,7 @@ private:
 
     GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps);
 
-    void internalDrawPath(GrDrawTarget*,
-                          GrPipelineBuilder*,
+    void internalDrawPath(GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
                           GrColor,
                           bool useAA,

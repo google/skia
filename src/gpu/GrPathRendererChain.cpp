@@ -39,7 +39,7 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
     return pr;
 }
 
-GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
+GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrShaderCaps* shaderCaps,
                                                      const GrPipelineBuilder* pipelineBuilder,
                                                      const SkMatrix& viewMatrix,
                                                      const SkPath& path,
@@ -69,7 +69,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
 
     for (int i = 0; i < fChain.count(); ++i) {
         GrPathRenderer::CanDrawPathArgs args;
-        args.fShaderCaps = target->caps()->shaderCaps();
+        args.fShaderCaps = shaderCaps;
         args.fPipelineBuilder = pipelineBuilder;
         args.fViewMatrix = &viewMatrix;
         args.fPath = &path;

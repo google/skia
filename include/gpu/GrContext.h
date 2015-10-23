@@ -334,7 +334,6 @@ public:
     void getTestTarget(GrTestTarget*);
 
     GrPathRenderer* getPathRenderer(
-                    const GrDrawTarget* target,
                     const GrPipelineBuilder*,
                     const SkMatrix& viewMatrix,
                     const SkPath& path,
