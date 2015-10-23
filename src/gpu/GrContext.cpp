@@ -74,11 +74,11 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
     if (!fGpu) {
         return false;
     }
-    this->initCommon();
+    this->initCommon(options);
     return true;
 }
 
-void GrContext::initCommon() {
+void GrContext::initCommon(const GrContextOptions& options) {
     fCaps = SkRef(fGpu->caps());
     fResourceCache = new GrResourceCache(fCaps);
     fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
@@ -88,7 +88,9 @@ void GrContext::initCommon() {
 
     fDidTestPMConversions = false;
 
-    fDrawingManager.reset(new GrDrawingManager(this));
+    GrDrawTarget::Options dtOptions;
+    dtOptions.fImmediateMode = options.fImmediateMode;
+    fDrawingManager.reset(new GrDrawingManager(this, dtOptions));
 
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = new GrBatchFontCache(this);

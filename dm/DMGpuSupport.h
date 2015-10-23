@@ -55,7 +55,9 @@ public:
     void dumpGpuStats(SkString*) const {}
 };
 
-struct GrContextOptions {};
+struct GrContextOptions {
+    bool fImmediateMode;
+};
 
 class GrContextFactory {
 public:

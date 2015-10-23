@@ -8,6 +8,7 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
+#include "GrDrawTarget.h"
 #include "SkTDArray.h"
 
 class GrContext;
@@ -40,9 +41,10 @@ public:
     GrContext* getContext() { return fContext; }
 
 private:
-    GrDrawingManager(GrContext* context)
+    GrDrawingManager(GrContext* context, GrDrawTarget::Options options)
         : fContext(context)
         , fAbandoned(false)
+        , fOptions(options)
         , fNVPRTextContext(nullptr) {
         sk_bzero(fTextContexts, sizeof(fTextContexts));
     }
@@ -57,13 +59,14 @@ private:
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
-    GrContext*        fContext;
+    GrContext*                  fContext;
 
-    bool              fAbandoned;
-    SkTDArray<GrDrawTarget*> fDrawTargets;
+    bool                        fAbandoned;
+    SkTDArray<GrDrawTarget*>    fDrawTargets;
+    GrDrawTarget::Options       fOptions;
 
-    GrTextContext*    fNVPRTextContext;
-    GrTextContext*    fTextContexts[kNumPixelGeometries][kNumDFTOptions];
+    GrTextContext*              fNVPRTextContext;
+    GrTextContext*              fTextContexts[kNumPixelGeometries][kNumDFTOptions];
 };
 
 #endif

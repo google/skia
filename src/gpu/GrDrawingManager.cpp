@@ -105,7 +105,8 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     }
 #endif
 
-    GrDrawTarget* dt = new GrDrawTarget(fContext->getGpu(), fContext->resourceProvider());
+    GrDrawTarget* dt = new GrDrawTarget(fContext->getGpu(), fContext->resourceProvider(),
+                                        fOptions);
 
     *fDrawTargets.append() = dt;
 

@@ -917,8 +917,13 @@ int GPUSink::enclave() const {
 
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
 
+DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
+
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions options;
+    if (FLAGS_imm) {
+        options.fImmediateMode = true;
+    }
     src.modifyGrContextOptions(&options);
 
     GrContextFactory factory(options);

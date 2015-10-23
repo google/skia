@@ -32,13 +32,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider)
+GrDrawTarget::GrDrawTarget(GrGpu* gpu, GrResourceProvider* resourceProvider,
+                           const Options& options)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fFlushState(fGpu, fResourceProvider, 0)
     , fFlushing(false)
     , fFirstUnpreparedBatch(0)
-    , fFlags(0) {
+    , fFlags(0)
+    , fOptions(options) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
@@ -472,6 +474,8 @@ template <class Left, class Right> static bool intersect(const Left& a, const Ri
 void GrDrawTarget::recordBatch(GrBatch* batch) {
     // A closed drawTarget should never receive new/more batches
     SkASSERT(!this->isClosed());
+    // Should never have batches queued up when in immediate mode.
+    SkASSERT(!fOptions.fImmediateMode || !fBatches.count());
 
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw
@@ -523,6 +527,9 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
     if (fBatches.count() > kMaxLookback) {
         SkASSERT(fBatches.count() - kMaxLookback - fFirstUnpreparedBatch == 1);
         fBatches[fFirstUnpreparedBatch++]->prepare(&fFlushState);
+    }
+    if (fOptions.fImmediateMode) {
+        this->flush();
     }
 }
 

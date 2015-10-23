@@ -43,9 +43,13 @@ class GrPathRangeDraw;
 
 class GrDrawTarget final : public SkRefCnt {
 public:
+    struct Options {
+        bool fImmediateMode;
+    };
+
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
-    GrDrawTarget(GrGpu* gpu, GrResourceProvider*);
+    GrDrawTarget(GrGpu* gpu, GrResourceProvider*, const Options& options);
 
     ~GrDrawTarget() override;
 
@@ -221,7 +225,6 @@ public:
 
     const CMMAccess cmmAccess() { return CMMAccess(this); }
 
-
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
 
@@ -311,6 +314,7 @@ private:
 
     SkDEBUGCODE(int                             fDebugID;)
     uint32_t                                    fFlags;
+    Options                                     fOptions;
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
     SkTDArray<GrDrawTarget*>                    fDependencies;
