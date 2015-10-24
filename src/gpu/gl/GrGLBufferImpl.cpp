@@ -167,6 +167,9 @@ bool GrGLBufferImpl::isMapped() const {
 bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInBytes) {
     SkASSERT(!this->isMapped());
     VALIDATE();
+    
+    gpu->handleDirtyContext(); // we need to make sure we haven't bound a different VB
+    
     if (srcSizeInBytes > fDesc.fSizeInBytes) {
         return false;
     }

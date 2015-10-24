@@ -394,6 +394,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     if (resetBits & kProgram_GrGLBackendState) {
         fHWProgramID = 0;
     }
+    
 }
 
 static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget) {
