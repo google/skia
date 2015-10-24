@@ -72,11 +72,16 @@ SkPicture* SkPictureRecorder::endRecordingAsPicture() {
         drawableList ? drawableList->newDrawableSnapshot() : nullptr;
 
     if (fBBH.get()) {
+        SkAutoTMalloc<SkRect> bounds(fRecord->count());
         if (saveLayerData) {
-            SkRecordComputeLayers(fCullRect, *fRecord, pictList, fBBH.get(), saveLayerData);
+            SkRecordComputeLayers(fCullRect, *fRecord, bounds, pictList, saveLayerData);
         } else {
-            SkRecordFillBounds(fCullRect, *fRecord, fBBH.get());
+            SkRecordFillBounds(fCullRect, *fRecord, bounds);
         }
+        fBBH->insert(bounds, fRecord->count());
+
+        // Now that we've calculated content bounds, we can update fCullRect, often trimming it.
+        // TODO: get updated fCullRect from bounds instead of forcing the BBH to return it?
         SkRect bbhBound = fBBH->getRootBound();
         SkASSERT((bbhBound.isEmpty() || fCullRect.contains(bbhBound))
             || (bbhBound.isEmpty() && fCullRect.isEmpty()));
@@ -153,14 +158,12 @@ protected:
         }
 
         SkAutoTUnref<SkLayerInfo> saveLayerData;
-
         if (fBBH && fDoSaveLayerInfo) {
+            // TODO: can we avoid work by not allocating / filling these bounds?
+            SkAutoTMalloc<SkRect> scratchBounds(fRecord->count());
             saveLayerData.reset(new SkLayerInfo);
 
-            SkBBoxHierarchy* bbh = nullptr;    // we've already computed fBBH (received in constructor)
-            // TODO: update saveLayer info computation to reuse the already computed
-            // bounds in 'fBBH'
-            SkRecordComputeLayers(fBounds, *fRecord, pictList, bbh, saveLayerData);
+            SkRecordComputeLayers(fBounds, *fRecord, scratchBounds, pictList, saveLayerData);
         }
 
         size_t subPictureBytes = 0;
@@ -183,7 +186,9 @@ SkDrawable* SkPictureRecorder::endRecordingAsDrawable() {
     SkRecordOptimize(fRecord);
 
     if (fBBH.get()) {
-        SkRecordFillBounds(fCullRect, *fRecord, fBBH.get());
+        SkAutoTMalloc<SkRect> bounds(fRecord->count());
+        SkRecordFillBounds(fCullRect, *fRecord, bounds);
+        fBBH->insert(bounds, fRecord->count());
     }
 
     SkDrawable* drawable =

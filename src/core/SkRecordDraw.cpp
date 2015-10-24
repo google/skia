@@ -150,20 +150,15 @@ template <> void Draw::draw(const DrawDrawable& r) {
 // in for all the control ops we stashed away.
 class FillBounds : SkNoncopyable {
 public:
-    FillBounds(const SkRect& cullRect, const SkRecord& record)
+    FillBounds(const SkRect& cullRect, const SkRecord& record, SkRect bounds[])
         : fNumRecords(record.count())
         , fCullRect(cullRect)
-        , fBounds(record.count())
-    {
-        // Calculate bounds for all ops.  This won't go quite in order, so we'll need
-        // to store the bounds separately then feed them in to the BBH later in order.
+        , fBounds(bounds) {
         fCTM = &SkMatrix::I();
         fCurrentClipBounds = fCullRect;
     }
 
-    void setCurrentOp(int currentOp) { fCurrentOp = currentOp; }
-
-    void cleanUp(SkBBoxHierarchy* bbh) {
+    void cleanUp() {
         // If we have any lingering unpaired Saves, simulate restores to make
         // sure all ops in those Save blocks have their bounds calculated.
         while (!fSaveStack.isEmpty()) {
@@ -174,12 +169,10 @@ public:
         while (!fControlIndices.isEmpty()) {
             this->popControl(fCullRect);
         }
-
-        // Finally feed all stored bounds into the BBH.  They'll be returned in this order.
-        if (bbh) {
-            bbh->insert(fBounds.get(), fNumRecords);
-        }
     }
+
+    void setCurrentOp(int currentOp) { fCurrentOp = currentOp; }
+
 
     template <typename T> void operator()(const T& op) {
         this->updateCTM(op);
@@ -580,7 +573,7 @@ private:
     const SkRect fCullRect;
 
     // Conservative identity-space bounds for each op in the SkRecord.
-    SkAutoTMalloc<Bounds> fBounds;
+    Bounds* fBounds;
 
     // We walk fCurrentOp through the SkRecord, as we go using updateCTM()
     // and updateClipBounds() to maintain the exact CTM (fCTM) and conservative
@@ -597,26 +590,26 @@ private:
 // SkRecord visitor to gather saveLayer/restore information.
 class CollectLayers : SkNoncopyable {
 public:
-    CollectLayers(const SkRect& cullRect, const SkRecord& record,
+    CollectLayers(const SkRect& cullRect, const SkRecord& record, SkRect bounds[],
                   const SkBigPicture::SnapshotArray* pictList, SkLayerInfo* accelData)
         : fSaveLayersInStack(0)
         , fAccelData(accelData)
         , fPictList(pictList)
-        , fFillBounds(cullRect, record)
+        , fFillBounds(cullRect, record, bounds)
     {}
 
-    void setCurrentOp(int currentOp) { fFillBounds.setCurrentOp(currentOp); }
-
-    void cleanUp(SkBBoxHierarchy* bbh) {
+    void cleanUp() {
         // fFillBounds must perform its cleanUp first so that all the bounding
         // boxes associated with unbalanced restores are updated (prior to
         // fetching their bound in popSaveLayerInfo).
-        fFillBounds.cleanUp(bbh);
-
+        fFillBounds.cleanUp();
         while (!fSaveLayerStack.isEmpty()) {
             this->popSaveLayerInfo();
         }
     }
+
+    void setCurrentOp(int currentOp) { fFillBounds.setCurrentOp(currentOp); }
+
 
     template <typename T> void operator()(const T& op) {
         fFillBounds(op);
@@ -792,27 +785,22 @@ private:
 
 }  // namespace SkRecords
 
-void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkBBoxHierarchy* bbh) {
-    SkRecords::FillBounds visitor(cullRect, record);
-
+void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkRect bounds[]) {
+    SkRecords::FillBounds visitor(cullRect, record, bounds);
     for (int curOp = 0; curOp < record.count(); curOp++) {
         visitor.setCurrentOp(curOp);
         record.visit<void>(curOp, visitor);
     }
-
-    visitor.cleanUp(bbh);
+    visitor.cleanUp();
 }
 
-void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
-                           const SkBigPicture::SnapshotArray* pictList, SkBBoxHierarchy* bbh,
-                           SkLayerInfo* data) {
-    SkRecords::CollectLayers visitor(cullRect, record, pictList, data);
-
+void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record, SkRect bounds[],
+                           const SkBigPicture::SnapshotArray* pictList, SkLayerInfo* data) {
+    SkRecords::CollectLayers visitor(cullRect, record, bounds, pictList, data);
     for (int curOp = 0; curOp < record.count(); curOp++) {
         visitor.setCurrentOp(curOp);
         record.visit<void>(curOp, visitor);
     }
-
-    visitor.cleanUp(bbh);
+    visitor.cleanUp();
 }
 

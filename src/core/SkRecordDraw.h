@@ -17,12 +17,14 @@
 class SkDrawable;
 class SkLayerInfo;
 
-// Fill a BBH to be used by SkRecordDraw to accelerate playback.
-void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&, SkBBoxHierarchy*);
+// Calculate conservative identity space bounds for each op in the record.
+void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&, SkRect bounds[]);
 
-void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord& record,
-                           const SkBigPicture::SnapshotArray*,
-                           SkBBoxHierarchy* bbh, SkLayerInfo* data);
+// SkRecordFillBounds(), and gathers information about saveLayers and stores it for later
+// use (e.g., layer hoisting). The gathered information is sufficient to determine
+// where each saveLayer will land and which ops in the picture it represents.
+void SkRecordComputeLayers(const SkRect& cullRect, const SkRecord&, SkRect bounds[],
+                           const SkBigPicture::SnapshotArray*, SkLayerInfo* data);
 
 // Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
 void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePicts[],
