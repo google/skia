@@ -490,6 +490,7 @@ private:
     GrContext*                                                          fContext;
 
     friend class GrPathRendering;
+    friend class GrGLBufferImpl;
     typedef SkRefCnt INHERITED;
 };
 
