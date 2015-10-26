@@ -2257,6 +2257,12 @@ void SampleView::onDraw(SkCanvas* canvas) {
     for (int i = 0; i < fRepeatCount; i++) {
         SkAutoCanvasRestore acr(canvas, true);
         this->onDrawContent(canvas);
+#if SK_SUPPORT_GPU
+        // Ensure the GrContext doesn't batch across draw loops.
+        if (GrContext* context = canvas->getGrContext()) {
+            context->flush();
+        }
+#endif
     }
 }
 

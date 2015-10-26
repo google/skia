@@ -17,6 +17,10 @@
 #include "VisualFlags.h"
 #include "VisualSKPBench.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#endif
+
 DEFINE_bool(cpu, false, "Run in CPU mode?");
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
@@ -52,6 +56,12 @@ private:
         for (int i = 0; i < loops; i++) {
             canvas->drawPath(fPath, paint);
             canvas->drawRect(rect, perlinPaint);
+#if SK_SUPPORT_GPU
+            // Ensure the GrContext doesn't batch across draw loops.
+            if (GrContext* context = canvas->getGrContext()) {
+                context->flush();
+            }
+#endif
         }
     }
     SkPath fPath;

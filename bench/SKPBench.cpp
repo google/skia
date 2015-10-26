@@ -10,6 +10,10 @@
 #include "SkMultiPictureDraw.h"
 #include "SkSurface.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#endif
+
 // These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
 DEFINE_int32(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
 DEFINE_int32(CPUbenchTileH, 256, "Tile height used for CPU SKP playback.");
@@ -115,6 +119,12 @@ void SKPBench::onDraw(int loops, SkCanvas* canvas) {
             this->drawPicture();
         }
     }
+#if SK_SUPPORT_GPU
+    // Ensure the GrContext doesn't batch across draw loops.
+    if (GrContext* context = canvas->getGrContext()) {
+        context->flush();
+    }
+#endif
 }
 
 void SKPBench::drawMPDPicture() {
