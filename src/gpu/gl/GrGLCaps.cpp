@@ -64,9 +64,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
-    this->initGLSL(ctxInfo);
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
-
     /**************************************************************************
      * Caps specific to GrGLCaps
      **************************************************************************/
@@ -288,6 +285,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/
+
+    // This must be called after fCoreProfile is set on the GrGLCaps
+    this->initGLSL(ctxInfo);
+    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
 
     glslCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
 
