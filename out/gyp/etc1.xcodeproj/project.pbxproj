@@ -7,12 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6B45ED159320449BA20454F1 /* etc1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79AD1BA057CC42194B445049 /* etc1.cpp */; };
+		1FDEEE981BD0560D00623F0F /* etc1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79AD1BA057CC42194B445049 /* etc1.cpp */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1FDEEE891BD0559D00623F0F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1AFEE0901CDB8CF4D2FD6727 /* etc1.gyp */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = etc1.gyp; sourceTree = "<group>"; };
-		58D65910B589341DD97198F8 /* libetc1.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libetc1.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FDEEE8B1BD0559D00623F0F /* libetc1.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libetc1.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F0E8D55E8D80BD336A283BE /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
 		79AD1BA057CC42194B445049 /* etc1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = etc1.cpp; sourceTree = "<group>"; };
 		C11962F0CB929E802503DD25 /* common_conditions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_conditions.gypi; sourceTree = "<group>"; };
@@ -21,7 +33,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		D66D18E0717712AC1B3638A6 /* Frameworks */ = {
+		1FDEEE881BD0559D00623F0F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -34,7 +46,7 @@
 		39AF12B9169A745E5F467F7B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				58D65910B589341DD97198F8 /* libetc1.a */,
+				1FDEEE8B1BD0559D00623F0F /* libetc1.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,20 +84,21 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1E238A18338BD7C314DA6FB9 /* libetc1 */ = {
+		1FDEEE8A1BD0559D00623F0F /* etc1 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1F4E16D88ED18B9989786DE9 /* Build configuration list for PBXNativeTarget "libetc1" */;
+			buildConfigurationList = 1FDEEE911BD0559D00623F0F /* Build configuration list for PBXNativeTarget "etc1" */;
 			buildPhases = (
-				673D8504CB3C4A54AE1F594A /* Sources */,
-				D66D18E0717712AC1B3638A6 /* Frameworks */,
+				1FDEEE871BD0559D00623F0F /* Sources */,
+				1FDEEE881BD0559D00623F0F /* Frameworks */,
+				1FDEEE891BD0559D00623F0F /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = libetc1;
+			name = etc1;
 			productName = etc1;
-			productReference = 58D65910B589341DD97198F8 /* libetc1.a */;
+			productReference = 1FDEEE8B1BD0559D00623F0F /* libetc1.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -95,196 +108,209 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+				TargetAttributes = {
+					1FDEEE8A1BD0559D00623F0F = {
+						CreatedOnToolsVersion = 7.0;
+					};
+				};
 			};
 			buildConfigurationList = 928FB0C479E23F9F28B22B04 /* Build configuration list for PBXProject "etc1" */;
 			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = D9C14394EC12C123FF139867;
 			projectDirPath = ../../gyp;
 			projectRoot = "";
 			targets = (
-				1E238A18338BD7C314DA6FB9 /* libetc1 */,
+				1FDEEE8A1BD0559D00623F0F /* etc1 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		673D8504CB3C4A54AE1F594A /* Sources */ = {
+		1FDEEE871BD0559D00623F0F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B45ED159320449BA20454F1 /* etc1.cpp in Sources */,
+				1FDEEE981BD0560D00623F0F /* etc1.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		0456A30FF9B31E1C52987B4B /* Release_Developer */ = {
+		1FDEEE921BD0559D00623F0F /* Coverage */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = x86_64;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
-				EXECUTABLE_PREFIX = lib;
-				GCC_CW_ASM_SYNTAX = NO;
-				GCC_ENABLE_CPP_EXCEPTIONS = NO;
-				GCC_ENABLE_CPP_RTTI = NO;
-				GCC_ENABLE_PASCAL_STRINGS = NO;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SK_INTERNAL,
-					SK_GAMMA_SRGB,
-					SK_GAMMA_APPLY_TO_A8,
-					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-					"SK_SUPPORT_GPU=1",
-					"SK_SUPPORT_OPENCL=0",
-					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
-					SK_BUILD_FOR_IOS,
-					NDEBUG,
-					"SK_DEVELOPER=1",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_THREADSAFE_STATICS = NO;
-				HEADER_SEARCH_PATHS = ../third_party/etc1;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				PRODUCT_NAME = etc1;
-				SYMROOT = ../xcodebuild;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wextra",
-					"-Winit-self",
-					"-Wpointer-arith",
-					"-Wsign-compare",
-					"-Wno-unused-parameter",
-				);
-			};
-			name = Release_Developer;
-		};
-		135B27A6824EA3981E003F11 /* Coverage */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = x86_64;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
-				EXECUTABLE_PREFIX = lib;
-				GCC_CW_ASM_SYNTAX = NO;
-				GCC_ENABLE_CPP_EXCEPTIONS = NO;
-				GCC_ENABLE_CPP_RTTI = NO;
-				GCC_ENABLE_PASCAL_STRINGS = NO;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SK_INTERNAL,
-					SK_GAMMA_SRGB,
-					SK_GAMMA_APPLY_TO_A8,
-					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-					"SK_SUPPORT_GPU=1",
-					"SK_SUPPORT_OPENCL=0",
-					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
-					SK_BUILD_FOR_IOS,
+					"DEBUG=1",
+					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_THREADSAFE_STATICS = NO;
-				HEADER_SEARCH_PATHS = ../third_party/etc1;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				PRODUCT_NAME = etc1;
-				SYMROOT = ../xcodebuild;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wextra",
-					"-Winit-self",
-					"-Wpointer-arith",
-					"-Wsign-compare",
-					"-Wno-unused-parameter",
-				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 			};
 			name = Coverage;
 		};
-		32D5E20634FC742466D21973 /* Release */ = {
+		1FDEEE931BD0559D00623F0F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = x86_64;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
-				EXECUTABLE_PREFIX = lib;
-				GCC_CW_ASM_SYNTAX = NO;
-				GCC_ENABLE_CPP_EXCEPTIONS = NO;
-				GCC_ENABLE_CPP_RTTI = NO;
-				GCC_ENABLE_PASCAL_STRINGS = NO;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SK_INTERNAL,
-					SK_GAMMA_SRGB,
-					SK_GAMMA_APPLY_TO_A8,
-					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-					"SK_SUPPORT_GPU=1",
-					"SK_SUPPORT_OPENCL=0",
-					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
-					SK_BUILD_FOR_IOS,
-					NDEBUG,
+					"DEBUG=1",
+					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_THREADSAFE_STATICS = NO;
-				HEADER_SEARCH_PATHS = ../third_party/etc1;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				PRODUCT_NAME = etc1;
-				SYMROOT = ../xcodebuild;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wextra",
-					"-Winit-self",
-					"-Wpointer-arith",
-					"-Wsign-compare",
-					"-Wno-unused-parameter",
-				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		1FDEEE941BD0559D00623F0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		4B1CBE55708ECA8377271E14 /* Debug */ = {
+		1FDEEE951BD0559D00623F0F /* Release_Developer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = x86_64;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
-				EXECUTABLE_PREFIX = lib;
-				GCC_CW_ASM_SYNTAX = NO;
-				GCC_ENABLE_CPP_EXCEPTIONS = NO;
-				GCC_ENABLE_CPP_RTTI = NO;
-				GCC_ENABLE_PASCAL_STRINGS = NO;
-				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SK_INTERNAL,
-					SK_GAMMA_SRGB,
-					SK_GAMMA_APPLY_TO_A8,
-					"SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-					"SK_SUPPORT_GPU=1",
-					"SK_SUPPORT_OPENCL=0",
-					"SK_FORCE_DISTANCE_FIELD_TEXT=0",
-					SK_BUILD_FOR_IOS,
-					"SK_DEVELOPER=1",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_THREADSAFE_STATICS = NO;
-				HEADER_SEARCH_PATHS = ../third_party/etc1;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				PRODUCT_NAME = etc1;
-				SYMROOT = ../xcodebuild;
-				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wextra",
-					"-Winit-self",
-					"-Wpointer-arith",
-					"-Wsign-compare",
-					"-Wno-unused-parameter",
-				);
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				VALIDATE_PRODUCT = YES;
 			};
-			name = Debug;
+			name = Release_Developer;
 		};
 		6F14EB7A6CAFB12E2870D28C /* Coverage */ = {
 			isa = XCBuildConfiguration;
@@ -321,15 +347,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1F4E16D88ED18B9989786DE9 /* Build configuration list for PBXNativeTarget "libetc1" */ = {
+		1FDEEE911BD0559D00623F0F /* Build configuration list for PBXNativeTarget "etc1" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				135B27A6824EA3981E003F11 /* Coverage */,
-				4B1CBE55708ECA8377271E14 /* Debug */,
-				32D5E20634FC742466D21973 /* Release */,
-				0456A30FF9B31E1C52987B4B /* Release_Developer */,
+				1FDEEE921BD0559D00623F0F /* Coverage */,
+				1FDEEE931BD0559D00623F0F /* Debug */,
+				1FDEEE941BD0559D00623F0F /* Release */,
+				1FDEEE951BD0559D00623F0F /* Release_Developer */,
 			);
-			defaultConfigurationIsVisible = 1;
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Coverage;
 		};
 		928FB0C479E23F9F28B22B04 /* Build configuration list for PBXProject "etc1" */ = {

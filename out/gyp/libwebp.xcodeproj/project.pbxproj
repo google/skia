@@ -950,6 +950,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_utils;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -998,6 +999,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_demux;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1045,6 +1047,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_enc;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1134,6 +1137,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dec;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1228,6 +1232,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dec;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1276,6 +1281,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_enc;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1324,6 +1330,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_utils;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1372,6 +1379,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dec;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1498,6 +1506,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_utils;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1546,6 +1555,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dsp;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1594,6 +1604,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_utils;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1682,6 +1693,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_demux;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1776,6 +1788,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dsp;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1833,6 +1846,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dec;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1987,6 +2001,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dsp;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -2034,6 +2049,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_enc;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -2252,6 +2268,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_demux;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -2308,6 +2325,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_dsp;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -2355,6 +2373,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_demux;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -2403,6 +2422,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = webp_enc;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
