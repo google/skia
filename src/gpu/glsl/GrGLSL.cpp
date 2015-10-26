@@ -6,6 +6,7 @@
  */
 
 #include "GrGLSL.h"
+#include "GrGLSLCaps.h"
 #include "SkString.h"
 
 bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
@@ -20,6 +21,26 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
             return true;
     }
     return false;
+}
+
+void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
+                                                  const GrGLSLCaps& glslCaps,
+                                                  SkString* out) {
+    if (glslCaps.usesPrecisionModifiers()) {
+        switch (p) {
+            case kHigh_GrSLPrecision:
+                out->append("precision highp float;\n");
+                break;
+            case kMedium_GrSLPrecision:
+                out->append("precision mediump float;\n");
+                break;
+            case kLow_GrSLPrecision:
+                out->append("precision lowp float;\n");
+                break;
+            default:
+                SkFAIL("Unknown precision value.");
+        }
+    }
 }
 
 void GrGLSLMulVarBy4f(SkString* outAppend, const char* vec4VarName, const GrGLSLExpr4& mulFactor) {

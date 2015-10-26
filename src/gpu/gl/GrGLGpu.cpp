@@ -18,6 +18,7 @@
 #include "GrTypes.h"
 #include "GrVertices.h"
 #include "builders/GrGLShaderStringBuilder.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
@@ -2952,8 +2953,9 @@ void GrGLGpu::createCopyProgram() {
     );
 
     SkString fshaderTxt(version);
-    GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, this->glStandard(),
-                                                   &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
+                                                 *this->glCaps().glslCaps(),
+                                                 &fshaderTxt);
     vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
     vTexCoord.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
     fshaderTxt.append(";");

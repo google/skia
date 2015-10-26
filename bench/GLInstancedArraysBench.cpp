@@ -12,9 +12,9 @@
 #if SK_SUPPORT_GPU
 #include "GLBench.h"
 #include "gl/GrGLContext.h"
-#include "gl/GrGLGLSL.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLShaderVar.h"
 
@@ -107,7 +107,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
-    const char* version = ctx->caps()->glslCaps()->versionDeclString();
+    const GrGLSLCaps* glslCaps = ctx->caps()->glslCaps();
+    const char* version = glslCaps->versionDeclString();
 
     // setup vertex shader
     GrGLSLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
@@ -115,11 +116,11 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     GrGLSLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
 
     SkString vshaderTxt(version);
-    aPosition.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
+    aPosition.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
-    aColor.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
+    aColor.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
-    oColor.appendDecl(ctx->caps()->glslCaps(), &vshaderTxt);
+    oColor.appendDecl(glslCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
 
     vshaderTxt.append(
@@ -134,15 +135,14 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     // setup fragment shader
     GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
-    GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, gl->fStandard,
-                                                   &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
     oColor.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-    oColor.appendDecl(ctx->caps()->glslCaps(), &fshaderTxt);
+    oColor.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
 
     const char* fsOutName;
-    if (ctx->caps()->glslCaps()->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(ctx->caps()->glslCaps(), &fshaderTxt);
+    if (glslCaps->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(glslCaps, &fshaderTxt);
         fshaderTxt.append(";\n");
         fsOutName = oFragColor.c_str();
     } else {

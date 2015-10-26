@@ -21,10 +21,5 @@ class GrGLContextInfo;
  */
 bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation);
 
-/**
- * Adds a line of GLSL code to declare the default precision for float types.
- */
-void GrGLAppendGLSLDefaultFloatPrecisionDeclaration(GrSLPrecision, GrGLStandard, SkString* out);
-
 
 #endif

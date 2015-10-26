@@ -8,7 +8,7 @@
 #include "GrGLFragmentShaderBuilder.h"
 #include "GrGLProgramBuilder.h"
 #include "gl/GrGLGpu.h"
-#include "gl/GrGLGLSL.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 
 #define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
@@ -267,17 +267,16 @@ const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 
 bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
                                                         SkTDArray<GrGLuint>* shaderIds) {
-    GrGLGpu* gpu = fProgramBuilder->gpu();
     this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
-    GrGLAppendGLSLDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                   gpu->glStandard(),
-                                                   &this->precisionQualifier());
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
+                                                 *fProgramBuilder->glslCaps(),
+                                                 &this->precisionQualifier());
     this->compileAndAppendLayoutQualifiers();
     fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility,
                                         &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
     // We shouldn't have declared outputs on 1.10
-    SkASSERT(k110_GrGLSLGeneration != gpu->glslGeneration() || fOutputs.empty());
+    SkASSERT(k110_GrGLSLGeneration != fProgramBuilder->gpu()->glslGeneration() || fOutputs.empty());
     this->appendDecls(fOutputs, &this->outputs());
     return this->finalize(programId, GR_GL_FRAGMENT_SHADER, shaderIds);
 }

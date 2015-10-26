@@ -48,21 +48,3 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
     }
 }
 
-void GrGLAppendGLSLDefaultFloatPrecisionDeclaration(GrSLPrecision p, GrGLStandard s, SkString* out) {
-    // Desktop GLSL has added precision qualifiers but they don't do anything.
-    if (kGLES_GrGLStandard == s) {
-        switch (p) {
-            case kHigh_GrSLPrecision:
-                out->append("precision highp float;\n");
-                break;
-            case kMedium_GrSLPrecision:
-                out->append("precision mediump float;\n");
-                break;
-            case kLow_GrSLPrecision:
-                out->append("precision lowp float;\n");
-                break;
-            default:
-                SkFAIL("Unknown precision value.");
-        }
-    }
-}
