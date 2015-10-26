@@ -116,8 +116,6 @@
       'sources': [
         '../src/utils/android/SkAndroidSDKCanvas.h',
         '../src/utils/android/SkAndroidSDKCanvas.cpp',
-        '../src/utils/android/SkHwuiRenderer.h',
-        '../src/utils/android/SkHwuiRenderer.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

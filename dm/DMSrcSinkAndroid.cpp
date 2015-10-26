@@ -10,24 +10,24 @@
 
 #include "SkAndroidSDKCanvas.h"
 #include "SkCanvas.h"
-#include "SkHwuiRenderer.h"
 #include "SkiaCanvasProxy.h"
 #include "SkStream.h"
+#include <utils/TestWindowContext.h>
 
 /* These functions are only compiled in the Android Framework. */
 
 namespace DM {
 
 Error HWUISink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
-    SkHwuiRenderer renderer;
-    renderer.initialize(src.size());
+    android::uirenderer::TestWindowContext renderer;
+    renderer.initialize(src.size().width(), src.size().height());
     SkCanvas* canvas = renderer.prepareToDraw();
     Error err = src.draw(canvas);
     if (!err.isEmpty()) {
         return err;
     }
     renderer.finishDrawing();
-    renderer.proxy->fence();
+    renderer.fence();
     renderer.capturePixels(dst);
     return "";
 }
