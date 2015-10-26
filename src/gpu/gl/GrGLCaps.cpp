@@ -64,6 +64,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
+    this->initGLSL(ctxInfo);
+    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+
     /**************************************************************************
      * Caps specific to GrGLCaps
      **************************************************************************/
@@ -283,9 +286,56 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 #endif
 
     /**************************************************************************
+    * GrShaderCaps fields
+    **************************************************************************/
+
+    glslCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
+
+    // For now these two are equivalent but we could have dst read in shader via some other method.
+    // Before setting this, initGLSL() must have been called.
+    glslCaps->fDstReadInShaderSupport = glslCaps->fFBFetchSupport;
+
+    // Enable supported shader-related caps
+    if (kGL_GrGLStandard == standard) {
+        glslCaps->fDualSourceBlendingSupport = (ctxInfo.version() >= GR_GL_VER(3, 3) ||
+            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
+            GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
+        glslCaps->fShaderDerivativeSupport = true;
+        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
+        glslCaps->fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&
+            ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
+    }
+    else {
+        glslCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
+
+        glslCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
+            ctxInfo.hasExtension("GL_OES_standard_derivatives");
+    }
+
+    // We need dual source blending and the ability to disable multisample in order to support mixed
+    // samples in every corner case.
+    if (fMultisampleDisableSupport && glslCaps->fDualSourceBlendingSupport) {
+        // We understand "mixed samples" to mean the collective capability of 3 different extensions
+        glslCaps->fMixedSamplesSupport =
+            ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") &&
+            ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage") &&
+            ctxInfo.hasExtension("GL_EXT_raster_multisample");
+    }
+    // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
+    if (kNVIDIA_GrGLDriver == ctxInfo.driver() && fShaderCaps->mixedSamplesSupport()) {
+        fDiscardRenderTargetSupport = false;
+        fInvalidateFBType = kNone_InvalidateFBType;
+    }
+    glslCaps->fProgrammableSampleLocationsSupport =
+        ctxInfo.hasExtension("GL_NV_sample_locations") ||
+        ctxInfo.hasExtension("GL_ARB_sample_locations");
+
+    /**************************************************************************
      * GrCaps fields
      **************************************************************************/
 
+    // fPathRenderingSupport and fMixedSampleSupport must be set before calling initFSAASupport.
+    // Both of these are set in the GrShaderCaps.
     this->initFSAASupport(ctxInfo, gli);
     this->initBlendEqationSupport(ctxInfo);
     this->initStencilFormats(ctxInfo);
@@ -385,6 +435,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                            kQualcomm_GrGLVendor != ctxInfo.vendor();
 #endif
 
+    // initFSAASupport() must have been called before this point
     if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxSampleCount);
     } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
@@ -437,10 +488,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                  ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }
 
-    // Must init GLSLCaps after setting GLCaps
-    this->initGLSL(contextOptions, ctxInfo, gli);
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
-
     this->initConfigTexturableTable(ctxInfo, gli, srgbSupport);
     this->initConfigRenderableTable(ctxInfo, srgbSupport);
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
@@ -492,9 +539,7 @@ const char* get_glsl_version_decl_string(GrGLStandard standard, GrGLSLGeneration
     return "<no version>";
 }
 
-void GrGLCaps::initGLSL(const GrContextOptions& contextOptions,
-                        const GrGLContextInfo& ctxInfo,
-                        const GrGLInterface* gli) {
+void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
@@ -546,50 +591,6 @@ void GrGLCaps::initGLSL(const GrContextOptions& contextOptions,
 
     glslCaps->fVersionDeclString = get_glsl_version_decl_string(standard, glslCaps->fGLSLGeneration,
                                                                 fIsCoreProfile);
-
-    /**************************************************************************
-    * GrShaderCaps fields
-    **************************************************************************/
-
-    glslCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
-
-    // For now these two are equivalent but we could have dst read in shader via some other method
-    glslCaps->fDstReadInShaderSupport = glslCaps->fFBFetchSupport;
-
-    // Enable supported shader-related caps
-    if (kGL_GrGLStandard == standard) {
-        glslCaps->fDualSourceBlendingSupport = (ctxInfo.version() >= GR_GL_VER(3, 3) ||
-            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
-            GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
-        glslCaps->fShaderDerivativeSupport = true;
-        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
-        glslCaps->fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&
-            ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
-    }
-    else {
-        glslCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
-
-        glslCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
-            ctxInfo.hasExtension("GL_OES_standard_derivatives");
-    }
-
-    // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case.
-    if (fMultisampleDisableSupport && glslCaps->fDualSourceBlendingSupport) {
-        // We understand "mixed samples" to mean the collective capability of 3 different extensions
-        glslCaps->fMixedSamplesSupport =
-            ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") &&
-            ctxInfo.hasExtension("GL_NV_sample_mask_override_coverage") &&
-            ctxInfo.hasExtension("GL_EXT_raster_multisample");
-    }
-    // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
-    if (kNVIDIA_GrGLDriver == ctxInfo.driver() && fShaderCaps->mixedSamplesSupport()) {
-        fDiscardRenderTargetSupport = false;
-        fInvalidateFBType = kNone_InvalidateFBType;
-    }
-    glslCaps->fProgrammableSampleLocationsSupport =
-        ctxInfo.hasExtension("GL_NV_sample_locations") ||
-        ctxInfo.hasExtension("GL_ARB_sample_locations");
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

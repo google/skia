@@ -270,7 +270,7 @@ public:
 
 private:
     void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
-    void initGLSL(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
+    void initGLSL(const GrGLContextInfo&);
     bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
     /**
