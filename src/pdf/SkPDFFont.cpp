@@ -25,9 +25,11 @@
 #include "SkUtils.h"
 
 #if defined (GOOGLE3)
-    // #including #defines doesn't work in with this build system.
-    #include "typography/font/sfntly/src/sample/chromium/font_subsetter.h"
-    #define SK_SFNTLY_SUBSETTER  // For the benefit of #ifdefs below.
+    #if !defined (SK_BUILD_FOR_ANDROID)
+        // #including #defines doesn't work with this build system.
+        #include "typography/font/sfntly/src/sample/chromium/font_subsetter.h"
+        #define SK_SFNTLY_SUBSETTER  // For the benefit of #ifdefs below.
+    #endif
 #elif defined (SK_SFNTLY_SUBSETTER)
     #include SK_SFNTLY_SUBSETTER
 #endif

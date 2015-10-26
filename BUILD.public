@@ -11,7 +11,6 @@ SRCS = glob(
         "include/private/*.h",
         "src/**/*.h",
         "src/**/*.cpp",
-        "src/**/*.c",
 
         # Third Party
         "third_party/etc1/*.cpp",
@@ -24,6 +23,9 @@ SRCS = glob(
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
         "src/gpu/gl/android/*",
+        "src/gpu/gl/egl/*",
+        "src/gpu/gl/glx/*",
+        "src/gpu/gl/nacl/*",
         "src/gpu/gl/iOS/*",
         "src/gpu/gl/mac/*",
         "src/gpu/gl/win/*",
@@ -41,10 +43,9 @@ SRCS = glob(
         # TODO(mtklein): Move to opts?
         "src/doc/SkDocument_PDF_None.cpp",  # We use SkDocument_PDF.cpp.
         "src/fonts/*fontconfig*",
-        "src/gpu/gl/egl/*",  # Conflicts with gpu/gl/glx.
-        "src/gpu/gl/nacl/*",  # Conflicts with gpu/gl/glx.
-        "src/gpu/gl/GrGLDefaultInterface_none.cpp",  # Conflicts with src/gpu/gl/GrGLDefaultInterface_native.cpp
-        "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",  # Conflicts with src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp
+        "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+        "src/gpu/gl/GrGLDefaultInterface_native.cpp",
+        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
         "src/gpu/gl/angle/*",  # Requires SK_ANGLE define.
@@ -62,8 +63,11 @@ SRCS = glob(
 )
 
 # Platform-dependent SRCS for google3-default platform.
-PLATFORM_SRCS = glob(
+SRCS_UNIX = glob(
     [
+        "src/gpu/gl/GrGLDefaultInterface_native.cpp",
+        "src/gpu/gl/glx/**/*.cpp",
+        "src/gpu/gl/glx/**/*.h",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
@@ -74,12 +78,14 @@ PLATFORM_SRCS = glob(
         "src/opts/*mips*",
         "src/opts/*NEON*",
         "src/opts/*neon*",
+        # Included in :opts_ssse3 library.
         "src/opts/*SSSE3*",
         "src/opts/*ssse3*",
+        # Included in :opts_sse4 library.
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
-        "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBitmapProcState_opts_none.cpp",
+        "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
         "src/ports/*android*",
         "src/ports/*chromium*",
@@ -98,6 +104,52 @@ PLATFORM_SRCS = glob(
         "src/ports/SkTLS_none.cpp",
     ],
 )
+
+# Platform-dependent SRCS for google3-default Android.
+SRCS_ANDROID = glob(
+    [
+        # TODO(benjaminwagner): Figure out how to compile with EGL.
+        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
+        "src/gpu/gl/nacl/SkCreatePlatformGLContext_nacl.cpp",
+        "src/opts/**/*.cpp",
+        "src/opts/**/*.h",
+        "src/ports/**/*.cpp",
+        "src/ports/**/*.h",
+    ],
+    exclude = [
+        "src/opts/*mips*",
+        "src/opts/*SSE2*",
+        "src/opts/*SSSE3*",
+        "src/opts/*ssse3*",
+        "src/opts/*SSE4*",
+        "src/opts/*sse4*",
+        "src/opts/*x86*",
+        "src/opts/SkBitmapProcState_opts_none.cpp",
+        "src/opts/SkBlitMask_opts_none.cpp",
+        "src/opts/SkBlitRow_opts_none.cpp",
+        "src/ports/*chromium*",
+        "src/ports/*CG*",
+        "src/ports/*fontconfig*",
+        "src/ports/*FontConfig*",
+        "src/ports/*mac*",
+        "src/ports/*mozalloc*",
+        "src/ports/*nacl*",
+        "src/ports/*win*",
+        "src/ports/SkDebug_stdio.cpp",
+        "src/ports/SkFontMgr_custom_directory_factory.cpp",
+        "src/ports/SkFontMgr_custom_embedded_factory.cpp",
+        "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkImageDecoder_WIC.cpp",
+        "src/ports/SkImageDecoder_empty.cpp",
+        "src/ports/SkImageGenerator_none.cpp",
+        "src/ports/SkTLS_none.cpp",
+    ],
+)
+
+PLATFORM_SRCS = select({
+    CONDITION_ANDROID: SRCS_ANDROID,
+    "//conditions:default": SRCS_UNIX,
+})
 
 SRCS_SSSE3 = glob(
     [
@@ -156,6 +208,19 @@ INCLUDES = [
     "third_party/ktx",
 ]
 
+DEPS_UNIX = [
+    ":opts_sse4",
+    ":opts_ssse3",
+]
+
+DEPS_ANDROID = []
+
+DEPS = select({
+    CONDITION_ANDROID: DEPS_ANDROID + EXTERNAL_DEPS_ANDROID,
+    "//conditions:default": DEPS_UNIX + EXTERNAL_DEPS_UNIX,
+})
+
+# Platform-independent SRCS for DM.
 DM_SRCS = glob(
     [
         "dm/*.cpp",
@@ -190,15 +255,30 @@ DM_SRCS = glob(
         "tools/timer/*.h",
     ],
     exclude = [
+        "dm/DMSrcSinkAndroid.cpp",  # Android-only.
+        "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
+        "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
-        "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
-        "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
-        "dm/DMSrcSinkAndroid.cpp",  # Android-only.
-        "tools/timer/SysTimer_windows.cpp",
         "tools/timer/SysTimer_mach.cpp",
+        "tools/timer/SysTimer_windows.cpp",
     ],
 )
+
+DM_SRCS_UNIX = []
+
+DM_SRCS_ANDROID = glob(
+    [
+        # Depends on Android HWUI library that is not available in google3.
+        #"dm/DMSrcSinkAndroid.cpp",
+        "tests/FontMgrAndroidParserTest.cpp",
+    ],
+)
+
+DM_PLATFORM_SRCS = select({
+    CONDITION_ANDROID: DM_SRCS_ANDROID,
+    "//conditions:default": DM_SRCS_UNIX,
+})
 
 DM_INCLUDES = [
     "gm",
@@ -207,6 +287,7 @@ DM_INCLUDES = [
     "src/fonts",
     "src/pathops",
     "src/pipe/utils",
+    "src/ports",
     "src/utils/debugger",
     "tests",
     "tools",
@@ -214,12 +295,32 @@ DM_INCLUDES = [
     "tools/timer",
 ]
 
-COPTS = [
+COPTS_ANDROID = [
+    "-mfpu=neon",
+]
+
+COPTS_UNIX = [
     "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
     "-Wno-deprecated-declarations",  # Internal use of deprecated methods. :(
 ]
 
-DEFINES = [
+COPTS = select({
+    CONDITION_ANDROID: COPTS_ANDROID,
+    "//conditions:default": COPTS_UNIX,
+})
+
+DEFINES_ANDROID = [
+    "SK_BUILD_FOR_ANDROID",
+    # TODO(benjaminwagner): Try to get png library updated?
+    "SK_PNG_NO_INDEX_SUPPORTED",
+]
+
+DEFINES_UNIX = [
+    "SK_BUILD_FOR_UNIX",
+    "SK_SAMPLES_FOR_X",
+]
+
+DEFINES_ALL = [
     # It'd be nice for fastbuild, dbg -> SK_DEBUG, opt -> SK_RELEASE.
     "SK_RELEASE",
     # Chrome DEFINES.
@@ -227,11 +328,20 @@ DEFINES = [
     "SK_USE_FREETYPE_EMBOLDEN",
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
-    "SK_BUILD_FOR_UNIX",
-    "SK_SAMPLES_FOR_X",
 ]
 
-LINKOPTS = ["-ldl"]
+DEFINES = select({
+    CONDITION_ANDROID: DEFINES_ANDROID,
+    "//conditions:default": DEFINES_UNIX,
+}) + DEFINES_ALL
+
+LINKOPTS = select({
+    CONDITION_ANDROID: [
+        "-ldl",
+        "-lEGL",
+    ],
+    "//conditions:default": ["-ldl"],
+})
 
 cc_library(
     name = "opts_ssse3",
@@ -258,16 +368,13 @@ cc_library(
     includes = INCLUDES,
     linkopts = LINKOPTS,
     visibility = [":skia_clients"],
-    deps = EXTERNAL_DEPS + [
-        ":opts_sse4",
-        ":opts_ssse3",
-    ],
+    deps = DEPS,
 )
 
 cc_test(
     name = "dm",
     size = "large",
-    srcs = DM_SRCS,
+    srcs = DM_SRCS + DM_PLATFORM_SRCS,
     args = [
         "--nogpu",
         "--verbose",

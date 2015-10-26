@@ -11,7 +11,12 @@
 
 #include <stdlib.h>
 
-DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
+#if defined(GOOGLE3) && defined(SK_BUILD_FOR_ANDROID)
+    // I don't know why, but this is defined by //base only for Android.
+    DECLARE_bool(undefok)
+#else
+    DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
+#endif
 
 template <typename T> static void ignore_result(const T&) {}
 

@@ -18,6 +18,14 @@ import re
 def noop(*args, **kwargs):
   pass
 
+def select_simulator(d):
+  result = []
+  for k in d:
+    result.append("*** BEGIN %s ***" % k)
+    result.extend(d[k])
+    result.append("*** END %s ***" % k)
+  return result
+
 DOUBLE_STAR_RE = re.compile(r'/\*\*/')
 STAR_RE = re.compile(r'\*')
 DOUBLE_STAR_PLACEHOLDER = "xxxdoublestarxxx"
@@ -63,13 +71,16 @@ def BUILD_glob(include, exclude=()):
 # Python code.  This pulls its variable definitions (SRCS, HDRS,
 # DEFINES, etc.) into local_names.
 global_names = {
-  'exports_files': noop,
   'cc_library': noop,
   'cc_test': noop,
+  'exports_files': noop,
   'glob': BUILD_glob,
-  'EXTERNAL_DEPS': [],
+  'select': select_simulator,
   'BASE_DIR': "",
+  'CONDITION_ANDROID': "CONDITION_ANDROID",
   'DM_EXTERNAL_DEPS': [],
+  'EXTERNAL_DEPS_ANDROID': [],
+  'EXTERNAL_DEPS_UNIX': [],
 }
 local_names = {}
 execfile('BUILD.public', global_names, local_names)
