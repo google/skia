@@ -134,8 +134,6 @@
       'dependencies': [
         'debugger_qt_mocs',
         'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_renderer',
-        'tools.gyp:timer',
       ],
       'cflags': [
         # Clang gets confused by QWeakPointer, see http://llvm.org/bugs/show_bug.cgi?id=13127
