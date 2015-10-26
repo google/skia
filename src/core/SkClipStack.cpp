@@ -136,14 +136,17 @@ void SkClipStack::Element::asPath(SkPath* path) const {
     switch (fType) {
         case kEmpty_Type:
             path->reset();
+            path->setIsVolatile(true);
             break;
         case kRect_Type:
             path->reset();
             path->addRect(this->getRect());
+            path->setIsVolatile(true);
             break;
         case kRRect_Type:
             path->reset();
             path->addRRect(fRRect);
+            path->setIsVolatile(true);
             break;
         case kPath_Type:
             *path = *fPath.get();

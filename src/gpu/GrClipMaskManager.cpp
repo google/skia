@@ -448,7 +448,6 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
         default: {
             SkPath path;
             element->asPath(&path);
-            path.setIsVolatile(true);
             if (path.isInverseFillType()) {
                 path.toggleInverseFillType();
             }
