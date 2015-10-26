@@ -13,7 +13,7 @@ VisualStreamTimingModule::VisualStreamTimingModule(VisualBench* owner, bool preW
     : fInitState(kReset_InitState)
     , fPreWarmBeforeSample(preWarmBeforeSample)
     , fOwner(owner) {
-    fBenchmarkStream.reset(new VisualBenchmarkStream);
+    fBenchmarkStream.reset(new VisualBenchmarkStream(owner->getSurfaceProps()));
 }
 
 inline void VisualStreamTimingModule::handleInitState(SkCanvas* canvas) {

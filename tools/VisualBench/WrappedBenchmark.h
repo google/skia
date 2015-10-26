@@ -17,7 +17,11 @@
 class WrappedBenchmark : public Benchmark {
 public:
     // Takes ownership of caller's ref on `bench`.
-    explicit WrappedBenchmark(Benchmark* bench) : fBench(bench) {}
+    explicit WrappedBenchmark(const SkSurfaceProps& surfaceProps, Benchmark* bench)
+        : fSurfaceProps(surfaceProps)
+        , fBench(bench) {}
+
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
     const char* onGetName()       override { return fBench->getName(); }
     const char* onGetUniqueName() override { return fBench->getUniqueName(); }
@@ -52,6 +56,7 @@ public:
 private:
     virtual SkSurface* setupOffScreen(SkCanvas*)=0;
 
+    SkSurfaceProps          fSurfaceProps;
     SkAutoTUnref<SkSurface> fOffScreen;
     SkAutoTUnref<Benchmark> fBench;
 };
@@ -59,11 +64,12 @@ private:
 // Create a raster surface for off screen rendering
 class CpuWrappedBenchmark : public WrappedBenchmark {
 public:
-    explicit CpuWrappedBenchmark(Benchmark* bench) : INHERITED(bench) {}
+    explicit CpuWrappedBenchmark(const SkSurfaceProps& surfaceProps, Benchmark* bench)
+        : INHERITED(surfaceProps, bench) {}
 
 private:
     SkSurface* setupOffScreen(SkCanvas* canvas) override {
-        return SkSurface::NewRaster(canvas->imageInfo());
+        return SkSurface::NewRaster(canvas->imageInfo(), &this->surfaceProps());
     }
 
     typedef WrappedBenchmark INHERITED;
@@ -72,8 +78,9 @@ private:
 // Create an MSAA & NVPR-enabled GPU backend
 class NvprWrappedBenchmark : public WrappedBenchmark {
 public:
-    explicit NvprWrappedBenchmark(Benchmark* bench, int numSamples)
-        : INHERITED(bench)
+    explicit NvprWrappedBenchmark(const SkSurfaceProps& surfaceProps, Benchmark* bench,
+                                  int numSamples)
+        : INHERITED(surfaceProps, bench)
         , fNumSamples(numSamples) {}
 
 private:
@@ -81,7 +88,8 @@ private:
         return SkSurface::NewRenderTarget(canvas->getGrContext(),
                                           SkSurface::kNo_Budgeted,
                                           canvas->imageInfo(),
-                                          fNumSamples);
+                                          fNumSamples,
+                                          &this->surfaceProps());
     }
 
     int fNumSamples;

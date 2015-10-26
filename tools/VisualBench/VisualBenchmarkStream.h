@@ -18,7 +18,7 @@ DECLARE_string(match);
 
 class VisualBenchmarkStream {
 public:
-    VisualBenchmarkStream();
+    VisualBenchmarkStream(const SkSurfaceProps&);
 
     static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic);
 
@@ -28,6 +28,7 @@ public:
 private:
     Benchmark* innerNext();
 
+    SkSurfaceProps fSurfaceProps;
     const BenchRegistry* fBenches;
     const skiagm::GMRegistry* fGMs;
     SkTArray<SkString> fSKPs;

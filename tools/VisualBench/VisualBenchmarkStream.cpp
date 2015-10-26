@@ -57,8 +57,9 @@ private:
     SkPath fPath;
 };
 
-VisualBenchmarkStream::VisualBenchmarkStream()
-    : fBenches(BenchRegistry::Head())
+VisualBenchmarkStream::VisualBenchmarkStream(const SkSurfaceProps& surfaceProps)
+    : fSurfaceProps(surfaceProps)
+    , fBenches(BenchRegistry::Head())
     , fGMs(skiagm::GMRegistry::Head())
     , fSourceType(nullptr)
     , fBenchType(nullptr)
@@ -119,9 +120,9 @@ Benchmark* VisualBenchmarkStream::next() {
 
     // TODO move this all to --config
     if (bench && FLAGS_cpu) {
-        bench = new CpuWrappedBenchmark(bench);
+        bench = new CpuWrappedBenchmark(fSurfaceProps, bench);
     } else if (bench && FLAGS_nvpr) {
-        bench = new NvprWrappedBenchmark(bench, 4);
+        bench = new NvprWrappedBenchmark(fSurfaceProps, bench, 4);
     }
 
     fBenchmark.reset(bench);

@@ -24,12 +24,18 @@
 
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 DEFINE_bool2(interactive, n, false, "Run in interactive mode.");
+DEFINE_bool2(dif, d, false, "Use device-independent fonts.");
 
 VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd) {
     SkCommandLineFlags::Parse(argc, argv);
 
-    // this has to happen after commandline parsing
+    // these have to happen after commandline parsing
+    if (FLAGS_dif) {
+        const SkSurfaceProps& props(INHERITED::getSurfaceProps());
+        uint32_t flags = SkSurfaceProps::kUseDeviceIndependentFonts_Flag | props.flags();
+        INHERITED::setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
+    }
     fModule.reset(new VisualLightweightBenchModule(this));
     if (FLAGS_interactive) {
         fModule.reset(new VisualInteractiveModule(this));
