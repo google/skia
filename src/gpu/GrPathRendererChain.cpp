@@ -40,7 +40,7 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrShaderCaps* shaderCaps,
-                                                     const GrPipelineBuilder& pipelineBuilder,
+                                                     const GrPipelineBuilder* pipelineBuilder,
                                                      const SkMatrix& viewMatrix,
                                                      const SkPath& path,
                                                      const GrStrokeInfo& stroke,
@@ -66,15 +66,15 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrShaderCaps* shaderC
         minStencilSupport = GrPathRenderer::kNoSupport_StencilSupport;
     }
 
-    GrPathRenderer::CanDrawPathArgs args;
-    args.fShaderCaps = shaderCaps;
-    args.fPipelineBuilder = &pipelineBuilder;
-    args.fViewMatrix = &viewMatrix;
-    args.fPath = &path;
-    args.fStroke = &stroke;
-    args.fAntiAlias = antiAlias;
 
     for (int i = 0; i < fChain.count(); ++i) {
+        GrPathRenderer::CanDrawPathArgs args;
+        args.fShaderCaps = shaderCaps;
+        args.fPipelineBuilder = pipelineBuilder;
+        args.fViewMatrix = &viewMatrix;
+        args.fPath = &path;
+        args.fStroke = &stroke;
+        args.fAntiAlias = antiAlias;
         if (fChain[i]->canDrawPath(args)) {
             if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
                 GrPathRenderer::StencilSupport support =

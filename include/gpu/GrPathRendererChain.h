@@ -56,7 +56,7 @@ public:
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
         StencilSupport in GrPathRenderer.h. */
     GrPathRenderer* getPathRenderer(const GrShaderCaps* shaderCaps,
-                                    const GrPipelineBuilder&,
+                                    const GrPipelineBuilder*,
                                     const SkMatrix& viewMatrix,
                                     const SkPath& path,
                                     const GrStrokeInfo& stroke,
