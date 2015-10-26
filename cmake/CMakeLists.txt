@@ -60,8 +60,8 @@ if (NOT WIN32)
 endif()
 if (NOT UNIX)
     remove_srcs(../src/doc/SkDocument_XPS_None.cpp
+                ../src/ports/*_posix.cpp
                 ../src/ports/SkDebug_stdio.cpp
-                ../src/ports/SkOSFile_posix.cpp
                 ../src/ports/SkTLS_pthread.cpp
                 ../src/ports/SkTime_Unix.cpp
                 ../src/utils/SkThreadUtils_pthread.cpp)
