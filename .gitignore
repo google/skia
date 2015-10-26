@@ -29,3 +29,4 @@ platform_tools/chromeos/toolchain
 tools/skp/page_sets/data/*.json
 tools/skp/page_sets/data/*.wpr
 xcodebuild
+**/xcuserdata
