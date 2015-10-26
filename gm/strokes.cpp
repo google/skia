@@ -158,6 +158,42 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+class TeenyStrokesGM : public skiagm::GM {
+
+    SkString onShortName() override {
+        return SkString("teenyStrokes");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(W, H*2);
+    }
+
+    static void line(SkScalar scale, SkCanvas* canvas, SkColor color) {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setColor(color);
+        canvas->translate(50, 0);
+	    canvas->save();
+        p.setStrokeWidth(scale * 5);
+	    canvas->scale(1 / scale, 1 / scale);
+        canvas->drawLine(20 * scale, 20 * scale, 20 * scale, 100 * scale, p);
+        canvas->drawLine(20 * scale, 20 * scale, 100 * scale, 100 * scale, p);
+        canvas->restore();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        line(0.00005f, canvas, SK_ColorBLACK);
+        line(0.000045f, canvas, SK_ColorRED);
+        line(0.0000035f, canvas, SK_ColorGREEN);
+        line(0.000003f, canvas, SK_ColorBLUE);
+        line(0.000002f, canvas, SK_ColorBLACK);
+    }
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+
 class Strokes2GM : public skiagm::GM {
     SkPath fPath;
 protected:
@@ -418,3 +454,4 @@ static skiagm::GMRegistry R3(F3);
 static skiagm::GMRegistry R4(F4);
 
 DEF_GM( return new ZeroLenStrokesGM; )
+DEF_GM( return new TeenyStrokesGM; )

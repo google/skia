@@ -51,10 +51,11 @@ static inline bool degenerate_vector(const SkVector& v) {
     return !SkPoint::CanNormalize(v.fX, v.fY);
 }
 
-static bool set_normal_unitnormal(const SkPoint& before, const SkPoint& after,
+static bool set_normal_unitnormal(const SkPoint& before, const SkPoint& after, SkScalar scale,
                                   SkScalar radius,
                                   SkVector* normal, SkVector* unitNormal) {
-    if (!unitNormal->setNormalize(after.fX - before.fX, after.fY - before.fY)) {
+    if (!unitNormal->setNormalize((after.fX - before.fX) * scale,
+            (after.fY - before.fY) * scale)) {
         return false;
     }
     unitNormal->rotateCCW();
@@ -244,7 +245,7 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
     SkScalar    prevX = fPrevPt.fX;
     SkScalar    prevY = fPrevPt.fY;
 
-    if (!set_normal_unitnormal(fPrevPt, currPt, fRadius, normal, unitNormal)) {
+    if (!set_normal_unitnormal(fPrevPt, currPt, fResScale, fRadius, normal, unitNormal)) {
         if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper) {
             return false;
         }
@@ -367,7 +368,7 @@ void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
 
 void SkPathStroker::lineTo(const SkPoint& currPt) {
     if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper
-            && SkPath::IsLineDegenerate(fPrevPt, currPt, false)) {
+            && fPrevPt.equalsWithinTolerance(currPt, SK_ScalarNearlyZero * fInvResScale)) {
         return;
     }
     SkVector    normal, unitNormal;
@@ -381,7 +382,7 @@ void SkPathStroker::lineTo(const SkPoint& currPt) {
 
 void SkPathStroker::setQuadEndNormal(const SkPoint quad[3], const SkVector& normalAB,
         const SkVector& unitNormalAB, SkVector* normalBC, SkVector* unitNormalBC) {
-    if (!set_normal_unitnormal(quad[1], quad[2], fRadius, normalBC, unitNormalBC)) {
+    if (!set_normal_unitnormal(quad[1], quad[2], fResScale, fRadius, normalBC, unitNormalBC)) {
         *normalBC = normalAB;
         *unitNormalBC = unitNormalAB;
     }
