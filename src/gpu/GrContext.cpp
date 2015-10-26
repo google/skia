@@ -541,7 +541,7 @@ void GrContext::flushSurfaceWrites(GrSurface* surface) {
  * Due to its expense, the software path renderer has split out so it can
  * can be individually allowed/disallowed via the "allowSW" boolean.
  */
-GrPathRenderer* GrContext::getPathRenderer(const GrPipelineBuilder* pipelineBuilder,
+GrPathRenderer* GrContext::getPathRenderer(const GrPipelineBuilder& pipelineBuilder,
                                            const SkMatrix& viewMatrix,
                                            const SkPath& path,
                                            const GrStrokeInfo& stroke,

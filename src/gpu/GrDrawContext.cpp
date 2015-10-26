@@ -691,7 +691,7 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
     const GrStrokeInfo* strokeInfoPtr = &strokeInfo;
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
-    GrPathRenderer* pr = fDrawingManager->getContext()->getPathRenderer(pipelineBuilder,
+    GrPathRenderer* pr = fDrawingManager->getContext()->getPathRenderer(*pipelineBuilder,
                                                                         viewMatrix, *pathPtr,
                                                                         *strokeInfoPtr, false,
                                                                         type);
@@ -707,7 +707,7 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
             return;
         }
         strokeInfoPtr = &dashlessStrokeInfo;
-        pr = fDrawingManager->getContext()->getPathRenderer(pipelineBuilder, viewMatrix,
+        pr = fDrawingManager->getContext()->getPathRenderer(*pipelineBuilder, viewMatrix,
                                                             *pathPtr, *strokeInfoPtr,
                                                             false, type);
     }
@@ -732,7 +732,7 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
         }
 
         // This time, allow SW renderer
-        pr = fDrawingManager->getContext()->getPathRenderer(pipelineBuilder, viewMatrix,
+        pr = fDrawingManager->getContext()->getPathRenderer(*pipelineBuilder, viewMatrix,
                                                             *pathPtr, *strokeInfoPtr,
                                                             true, type);
     }

@@ -46,24 +46,71 @@ static const GrFragmentProcessor* create_fp_for_mask(GrTexture* result, const Sk
                                          kDevice_GrCoordSet);
 }
 
+// Does the path in 'element' require SW rendering? If so, return true (and,
+// optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
+// 'prOut' to the non-SW path renderer that will do the job).
 static bool path_needs_SW_renderer(GrContext* context,
                                    const GrPipelineBuilder& pipelineBuilder,
                                    const SkMatrix& viewMatrix,
-                                   const SkPath& origPath,
-                                   const GrStrokeInfo& stroke,
-                                   bool doAA) {
-    // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
-    SkTCopyOnFirstWrite<SkPath> path(origPath);
-    if (path->isInverseFillType()) {
-        path.writable()->toggleInverseFillType();
-    }
-    // last (false) parameter disallows use of the SW path renderer
-    GrPathRendererChain::DrawType type = doAA ?
-                                         GrPathRendererChain::kColorAntiAlias_DrawType :
-                                         GrPathRendererChain::kColor_DrawType;
+                                   const Element* element,
+                                   GrPathRenderer** prOut,
+                                   bool needsStencil) {
+    if (Element::kRect_Type == element->getType()) {
+        // rects can always be drawn directly w/o using the software path
+        // TODO: skip rrects once we're drawing them directly.
+        return false;
+    } else {
+        // We shouldn't get here with an empty clip element.
+        SkASSERT(Element::kEmpty_Type != element->getType());
 
-    return nullptr == context->getPathRenderer(&pipelineBuilder, viewMatrix, *path, stroke,
-                                               false, type);
+        // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
+        SkPath path;
+        element->asPath(&path);
+        if (path.isInverseFillType()) {
+            path.toggleInverseFillType();
+        }
+        GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
+
+        GrPathRendererChain::DrawType type;
+    
+        if (needsStencil) {
+            type = element->isAA()
+                            ? GrPathRendererChain::kStencilAndColorAntiAlias_DrawType
+                            : GrPathRendererChain::kStencilAndColor_DrawType;
+        } else {
+            type = element->isAA()
+                            ? GrPathRendererChain::kColorAntiAlias_DrawType
+                            : GrPathRendererChain::kColor_DrawType;    
+        }
+
+        // the 'false' parameter disallows use of the SW path renderer
+        GrPathRenderer* pr = context->getPathRenderer(pipelineBuilder, viewMatrix, path,
+                                                      stroke, false, type);
+        if (prOut) {
+            *prOut = pr;
+        }
+        return SkToBool(!pr);
+    }
+}
+
+// Determines whether it is possible to draw the element to both the stencil buffer and the
+// alpha mask simultaneously. If so and the element is a path a compatible path renderer is
+// also returned.
+static bool can_stencil_and_draw_element(GrContext* context,
+                                         GrPipelineBuilder* pipelineBuilder,
+                                         GrTexture* texture,
+                                         const SkMatrix& viewMatrix,
+                                         const SkClipStack::Element* element,
+                                         GrPathRenderer** pr) {
+    pipelineBuilder->setRenderTarget(texture->asRenderTarget());
+
+    static const bool kNeedsStencil = true;
+    return !path_needs_SW_renderer(context,
+                                   *pipelineBuilder,
+                                   viewMatrix,
+                                   element,
+                                   pr,
+                                   kNeedsStencil);
 }
 
 GrClipMaskManager::GrClipMaskManager(GrDrawTarget* drawTarget)
@@ -84,24 +131,22 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
-    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
-    SkMatrix translate;
-    translate.setTranslate(clipToMaskOffset);
+    const SkMatrix translate = SkMatrix::MakeTrans(clipToMaskOffset.fX, clipToMaskOffset.fY);
 
     for (GrReducedClip::ElementList::Iter iter(elements.headIter()); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        // rects can always be drawn directly w/o using the software path
-        // Skip rrects once we're drawing them directly.
-        if (Element::kRect_Type != element->getType()) {
-            SkPath path;
-            element->asPath(&path);
-            if (path_needs_SW_renderer(this->getContext(), pipelineBuilder, translate,
-                                       path, stroke, element->isAA())) {
-                return true;
-            }
+
+        SkRegion::Op op = element->getOp();
+        bool invert = element->isInverseFilled();
+        bool needsStencil = invert || 
+                            SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op;
+
+        if (path_needs_SW_renderer(this->getContext(), pipelineBuilder, translate,
+                                   element, nullptr, needsStencil)) {
+            return true;
         }
     }
     return false;
@@ -412,7 +457,7 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
                 GrPathRendererChain::DrawType type;
                 type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
-                pr = this->getContext()->getPathRenderer(pipelineBuilder, viewMatrix,
+                pr = this->getContext()->getPathRenderer(*pipelineBuilder, viewMatrix,
                                                          path, stroke, false, type);
             }
             if (nullptr == pr) {
@@ -432,32 +477,6 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
         }
     }
     return true;
-}
-
-bool GrClipMaskManager::canStencilAndDrawElement(GrPipelineBuilder* pipelineBuilder,
-                                                 GrTexture* target,
-                                                 GrPathRenderer** pr,
-                                                 const SkClipStack::Element* element) {
-    pipelineBuilder->setRenderTarget(target->asRenderTarget());
-
-    if (Element::kRect_Type == element->getType()) {
-        return true;
-    } else {
-        // We shouldn't get here with an empty clip element.
-        SkASSERT(Element::kEmpty_Type != element->getType());
-        SkPath path;
-        element->asPath(&path);
-        if (path.isInverseFillType()) {
-            path.toggleInverseFillType();
-        }
-        GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
-        GrPathRendererChain::DrawType type = element->isAA() ?
-            GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
-            GrPathRendererChain::kStencilAndColor_DrawType;
-        *pr = this->getContext()->getPathRenderer(pipelineBuilder, SkMatrix::I(), path,
-                                                  stroke, false, type);
-        return SkToBool(*pr);
-    }
 }
 
 void GrClipMaskManager::mergeMask(GrPipelineBuilder* pipelineBuilder,
@@ -555,8 +574,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
-    SkMatrix translate;
-    translate.setTranslate(clipToMaskOffset);
+    const SkMatrix translate = SkMatrix::MakeTrans(clipToMaskOffset.fX, clipToMaskOffset.fY);
 
     // The texture may be larger than necessary, this rect represents the part of the texture
     // we populate with a rasterization of the clip.
@@ -586,13 +604,16 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
             pipelineBuilder.setClip(clip);
             GrPathRenderer* pr = nullptr;
-            bool useTemp = !this->canStencilAndDrawElement(&pipelineBuilder, texture, &pr, element);
+            bool useTemp = !can_stencil_and_draw_element(this->getContext(), &pipelineBuilder,
+                                                         texture, translate, element, &pr);
             GrTexture* dst;
             // This is the bounds of the clip element in the space of the alpha-mask. The temporary
             // mask buffer can be substantially larger than the actually clip stack element. We
             // touch the minimum number of pixels necessary and use decal mode to combine it with
             // the accumulator.
             SkIRect maskSpaceElementIBounds;
+
+            SkASSERT(!useTemp);
 
             if (useTemp) {
                 if (invert) {
@@ -759,7 +780,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 if (fillInverted) {
                     clipPath.toggleInverseFillType();
                 }
-                pr = this->getContext()->getPathRenderer(&pipelineBuilder,
+                pr = this->getContext()->getPathRenderer(pipelineBuilder,
                                                          viewMatrix,
                                                          clipPath,
                                                          stroke,
