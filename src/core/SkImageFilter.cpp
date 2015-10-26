@@ -496,23 +496,19 @@ bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
     }
     Context ctx(origCtx.ctm(), origCtx.clipBounds(), origCtx.cache(), constraint);
 
-    if (input->canFilterImageGPU()) {
-        return input->filterImageGPU(proxy, src, ctx, result, offset);
-    } else {
-        if (input->filterImage(proxy, src, ctx, result, offset)) {
-            if (!result->getTexture()) {
-                const SkImageInfo info = result->info();
-                if (kUnknown_SkColorType == info.colorType()) {
-                    return false;
-                }
-                SkAutoTUnref<GrTexture> resultTex(
-                    GrRefCachedBitmapTexture(context, *result,GrTextureParams::ClampNoFilter()));
-                result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
+    if (input->filterImage(proxy, src, ctx, result, offset)) {
+        if (!result->getTexture()) {
+            const SkImageInfo info = result->info();
+            if (kUnknown_SkColorType == info.colorType()) {
+                return false;
             }
-            return true;
-        } else {
-            return false;
+            SkAutoTUnref<GrTexture> resultTex(
+                GrRefCachedBitmapTexture(context, *result,GrTextureParams::ClampNoFilter()));
+            result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
         }
+        return true;
+    } else {
+        return false;
     }
 }
 #endif

@@ -7,6 +7,7 @@
 
 #include "Benchmark.h"
 #include "SkBlurImageFilter.h"
+#include "SkDisplacementMapEffect.h"
 #include "SkCanvas.h"
 #include "SkMergeImageFilter.h"
 
@@ -44,4 +45,35 @@ private:
     typedef Benchmark INHERITED;
 };
 
+// Exercise a blur filter connected to both inputs of an SkDisplacementMapEffect.
+
+class ImageFilterDisplacedBlur : public Benchmark {
+public:
+    ImageFilterDisplacedBlur() {}
+
+protected:
+    const char* onGetName() override {
+        return "image_filter_displaced_blur";
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int j = 0; j < loops; j++) {
+            SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(4.0f, 4.0f));
+            SkDisplacementMapEffect::ChannelSelectorType xSelector = SkDisplacementMapEffect::kR_ChannelSelectorType;
+            SkDisplacementMapEffect::ChannelSelectorType ySelector = SkDisplacementMapEffect::kB_ChannelSelectorType;
+            SkScalar scale = 2;
+            SkAutoTUnref<SkImageFilter> displ(SkDisplacementMapEffect::Create(xSelector, ySelector, scale,
+                                                                              blur.get(), blur.get()));
+            SkPaint paint;
+            paint.setImageFilter(displ);
+            SkRect rect = SkRect::Make(SkIRect::MakeWH(400, 400));
+            canvas->drawRect(rect, paint);
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
 DEF_BENCH(return new ImageFilterDAGBench;)
+DEF_BENCH(return new ImageFilterDisplacedBlur;)
