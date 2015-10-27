@@ -13,7 +13,7 @@
 #include "SkCodec_libpng.h"
 #include "SkCodec_wbmp.h"
 #include "SkCodecPriv.h"
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(GOOGLE3)
 #include "SkJpegCodec.h"
 #endif
 #include "SkStream.h"
@@ -26,7 +26,7 @@ struct DecoderProc {
 
 static const DecoderProc gDecoderProcs[] = {
     { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(GOOGLE3)
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
 #endif
     { SkWebpCodec::IsWebp, SkWebpCodec::NewFromStream },

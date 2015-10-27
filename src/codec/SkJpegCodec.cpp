@@ -87,11 +87,7 @@ SkJpegCodec::SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream,
  * Return the row bytes of a particular image type and width
  */
 static int get_row_bytes(const j_decompress_ptr dinfo) {
-#if defined (GOOGLE3)
-    int colorBytes = dinfo->out_color_components;
-#else
     int colorBytes = (dinfo->out_color_space == JCS_RGB565) ? 2 : dinfo->out_color_components;
-#endif
     return dinfo->output_width * colorBytes;
 
 }
@@ -187,14 +183,10 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             } else {
                 // Check the byte ordering of the RGBA color space for the
                 // current platform
-#if defined(GOOGLE3)
-                return false;
-#else
-    #if defined(SK_PMCOLOR_IS_RGBA)
+#if defined(SK_PMCOLOR_IS_RGBA)
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-    #else
+#else
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
-    #endif
 #endif
             }
             return true;
@@ -202,12 +194,8 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else {
-#if defined(GOOGLE3)
-                return false;
-#else
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
-#endif
             }
             return true;
         case kGray_8_SkColorType:
@@ -358,11 +346,7 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
                 break;
             default:
                 // This function should only be called if the colorType is supported by jpeg
-#if defined(GOOGLE3)
-                SK_CRASH();
-#else
                 SkASSERT(false);
-#endif
         }
     }
 

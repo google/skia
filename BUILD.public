@@ -48,6 +48,7 @@ SRCS = glob(
         "src/gpu/gl/GrGLDefaultInterface_none.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
+        "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
         "src/gpu/gl/angle/*",  # Requires SK_ANGLE define.
         "src/gpu/gl/command_buffer/*",  # unknown type name 'HMODULE'
         "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
