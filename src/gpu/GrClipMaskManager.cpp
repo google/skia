@@ -46,24 +46,64 @@ static const GrFragmentProcessor* create_fp_for_mask(GrTexture* result, const Sk
                                          kDevice_GrCoordSet);
 }
 
+// Does the path in 'element' require SW rendering? If so, return true (and,
+// optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
+// 'prOut' to the non-SW path renderer that will do the job).
 static bool path_needs_SW_renderer(GrContext* context,
                                    const GrPipelineBuilder& pipelineBuilder,
                                    const SkMatrix& viewMatrix,
-                                   const SkPath& origPath,
-                                   const GrStrokeInfo& stroke,
-                                   bool doAA) {
-    // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
-    SkTCopyOnFirstWrite<SkPath> path(origPath);
-    if (path->isInverseFillType()) {
-        path.writable()->toggleInverseFillType();
-    }
-    // last (false) parameter disallows use of the SW path renderer
-    GrPathRendererChain::DrawType type = doAA ?
-                                         GrPathRendererChain::kColorAntiAlias_DrawType :
-                                         GrPathRendererChain::kColor_DrawType;
+                                   const Element* element,
+                                   GrPathRenderer** prOut,
+                                   bool tryStencilFirst) {
+    if (Element::kRect_Type == element->getType()) {
+        // rects can always be drawn directly w/o using the software path
+        // TODO: skip rrects once we're drawing them directly.
+        if (prOut) {
+            *prOut = nullptr;
+        }
+        return false;
+    } else {
+        // We shouldn't get here with an empty clip element.
+        SkASSERT(Element::kEmpty_Type != element->getType());
 
-    return nullptr == context->getPathRenderer(&pipelineBuilder, viewMatrix, *path, stroke,
-                                               false, type);
+        // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
+        SkPath path;
+        element->asPath(&path);
+        if (path.isInverseFillType()) {
+            path.toggleInverseFillType();
+        }
+        GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
+    
+        GrPathRendererChain::DrawType type;
+        
+        if (tryStencilFirst) {
+            type = element->isAA()
+                            ? GrPathRendererChain::kStencilAndColorAntiAlias_DrawType
+                            : GrPathRendererChain::kStencilAndColor_DrawType;
+        } else {
+            type = element->isAA()
+                            ? GrPathRendererChain::kColorAntiAlias_DrawType
+                            : GrPathRendererChain::kColor_DrawType;    
+        }
+    
+        // the 'false' parameter disallows use of the SW path renderer
+        GrPathRenderer* pr = context->getPathRenderer(&pipelineBuilder, viewMatrix, path,
+                                                      stroke, false, type);
+        if (tryStencilFirst && !pr) {
+            // If the path can't be stenciled, createAlphaClipMask falls back to color rendering
+            // it into a temporary buffer. If that fails then SW is truly required.
+            type = element->isAA()
+                            ? GrPathRendererChain::kColorAntiAlias_DrawType
+                            : GrPathRendererChain::kColor_DrawType;  
+
+            pr = context->getPathRenderer(&pipelineBuilder, viewMatrix, path, stroke, false, type);
+        }
+
+        if (prOut) {
+            *prOut = pr;
+        }
+        return SkToBool(!pr);
+    }
 }
 
 GrClipMaskManager::GrClipMaskManager(GrDrawTarget* drawTarget)
@@ -84,7 +124,6 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
-    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
@@ -93,15 +132,16 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
 
     for (GrReducedClip::ElementList::Iter iter(elements.headIter()); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        // rects can always be drawn directly w/o using the software path
-        // Skip rrects once we're drawing them directly.
-        if (Element::kRect_Type != element->getType()) {
-            SkPath path;
-            element->asPath(&path);
-            if (path_needs_SW_renderer(this->getContext(), pipelineBuilder, translate,
-                                       path, stroke, element->isAA())) {
-                return true;
-            }
+
+        SkRegion::Op op = element->getOp();
+        bool invert = element->isInverseFilled();
+        bool tryStencilFirst = invert || 
+                               SkRegion::kIntersect_Op == op ||
+                               SkRegion::kReverseDifference_Op == op;
+
+        if (path_needs_SW_renderer(this->getContext(), pipelineBuilder, translate,
+                                   element, nullptr, tryStencilFirst)) {
+            return true;
         }
     }
     return false;
@@ -324,6 +364,8 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
                                                    elements,
                                                    clipToMaskOffset,
                                                    clipSpaceIBounds));
+            // If createAlphaClipMask fails it means useSWOnlyPath has a bug
+            SkASSERT(result);
         }
 
         if (result) {
