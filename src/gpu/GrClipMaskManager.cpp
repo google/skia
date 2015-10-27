@@ -87,7 +87,7 @@ static bool path_needs_SW_renderer(GrContext* context,
         }
     
         // the 'false' parameter disallows use of the SW path renderer
-        GrPathRenderer* pr = context->getPathRenderer(&pipelineBuilder, viewMatrix, path,
+        GrPathRenderer* pr = context->getPathRenderer(pipelineBuilder, viewMatrix, path,
                                                       stroke, false, type);
         if (tryStencilFirst && !pr) {
             // If the path can't be stenciled, createAlphaClipMask falls back to color rendering
@@ -96,7 +96,7 @@ static bool path_needs_SW_renderer(GrContext* context,
                             ? GrPathRendererChain::kColorAntiAlias_DrawType
                             : GrPathRendererChain::kColor_DrawType;  
 
-            pr = context->getPathRenderer(&pipelineBuilder, viewMatrix, path, stroke, false, type);
+            pr = context->getPathRenderer(pipelineBuilder, viewMatrix, path, stroke, false, type);
         }
 
         if (prOut) {
@@ -127,8 +127,7 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
-    SkMatrix translate;
-    translate.setTranslate(clipToMaskOffset);
+    const SkMatrix translate = SkMatrix::MakeTrans(clipToMaskOffset.fX, clipToMaskOffset.fY);
 
     for (GrReducedClip::ElementList::Iter iter(elements.headIter()); iter.get(); iter.next()) {
         const Element* element = iter.get();
@@ -452,7 +451,7 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
                 GrPathRendererChain::DrawType type;
                 type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
-                pr = this->getContext()->getPathRenderer(pipelineBuilder, viewMatrix,
+                pr = this->getContext()->getPathRenderer(*pipelineBuilder, viewMatrix,
                                                          path, stroke, false, type);
             }
             if (nullptr == pr) {
@@ -494,7 +493,7 @@ bool GrClipMaskManager::canStencilAndDrawElement(GrPipelineBuilder* pipelineBuil
         GrPathRendererChain::DrawType type = element->isAA() ?
             GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
             GrPathRendererChain::kStencilAndColor_DrawType;
-        *pr = this->getContext()->getPathRenderer(pipelineBuilder, SkMatrix::I(), path,
+        *pr = this->getContext()->getPathRenderer(*pipelineBuilder, SkMatrix::I(), path,
                                                   stroke, false, type);
         return SkToBool(*pr);
     }
@@ -595,8 +594,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
-    SkMatrix translate;
-    translate.setTranslate(clipToMaskOffset);
+    const SkMatrix translate = SkMatrix::MakeTrans(clipToMaskOffset.fX, clipToMaskOffset.fY);
 
     // The texture may be larger than necessary, this rect represents the part of the texture
     // we populate with a rasterization of the clip.
@@ -799,7 +797,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 if (fillInverted) {
                     clipPath.toggleInverseFillType();
                 }
-                pr = this->getContext()->getPathRenderer(&pipelineBuilder,
+                pr = this->getContext()->getPathRenderer(pipelineBuilder,
                                                          viewMatrix,
                                                          clipPath,
                                                          stroke,
