@@ -23,6 +23,7 @@
 #include "SkPath.h"
 #include "SkScalerContext.h"
 #include "SkScalerContext_win_dw.h"
+#include "SkSharedMutex.h"
 #include "SkTScopedComPtr.h"
 #include "SkTypeface_win_dw.h"
 
@@ -35,9 +36,10 @@
  * In versions 8 and 8.1 of Windows, some calls in DWrite are not thread safe.
  * The DWriteFactoryMutex protects the calls that are problematic.
  */
-SK_DECLARE_STATIC_MUTEX(DWriteFactoryMutex);
+static SkSharedMutex DWriteFactoryMutex;
 
-typedef SkAutoMutexExclusive Exclusive;
+typedef SkAutoTExclusive<SkSharedMutex> Exclusive;
+typedef SkAutoSharedMutexShared Shared;
 
 static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
@@ -365,7 +367,7 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
 
     DWRITE_FONT_METRICS dwfm;
     {
-        Exclusive l(DWriteFactoryMutex);
+        Shared l(DWriteFactoryMutex);
         fTypeface->fDWriteFontFace->GetMetrics(&dwfm);
     }
     SkScalar advanceX = SkScalarMulDiv(fTextSizeMeasure,
@@ -414,9 +416,10 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
     run.glyphIndices = &glyphId;
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
+
+    SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
     {
         Exclusive l(DWriteFactoryMutex);
-        SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
         HRM(fTypeface->fFactory->CreateGlyphRunAnalysis(
             &run,
             1.0f, // pixelsPerDip,
@@ -427,7 +430,9 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
             0.0f, // baselineOriginY,
             &glyphRunAnalysis),
             "Could not create glyph run analysis.");
-
+    }
+    {
+        Shared l(DWriteFactoryMutex);
         HRM(glyphRunAnalysis->GetAlphaTextureBounds(textureType, bbox),
             "Could not get texture bounds.");
     }
@@ -669,18 +674,20 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
     {
-        Exclusive l(DWriteFactoryMutex);
-        SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
-        HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
-            1.0f, // pixelsPerDip,
-            &fXform,
-            renderingMode,
-            fMeasuringMode,
-            0.0f, // baselineOriginX,
-            0.0f, // baselineOriginY,
-            &glyphRunAnalysis),
-            "Could not create glyph run analysis.");
 
+        SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
+        {
+            Exclusive l(DWriteFactoryMutex);
+            HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
+                1.0f, // pixelsPerDip,
+                &fXform,
+                renderingMode,
+                fMeasuringMode,
+                0.0f, // baselineOriginX,
+                0.0f, // baselineOriginY,
+                &glyphRunAnalysis),
+                "Could not create glyph run analysis.");
+        }
         //NOTE: this assumes that the glyph has already been measured
         //with an exact same glyph run analysis.
         RECT bbox;
@@ -688,11 +695,14 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
         bbox.top = glyph.fTop;
         bbox.right = glyph.fLeft + glyph.fWidth;
         bbox.bottom = glyph.fTop + glyph.fHeight;
-        HRNM(glyphRunAnalysis->CreateAlphaTexture(textureType,
-            &bbox,
-            fBits.begin(),
-            sizeNeeded),
-            "Could not draw mask.");
+        {
+            Shared l(DWriteFactoryMutex);
+            HRNM(glyphRunAnalysis->CreateAlphaTexture(textureType,
+                &bbox,
+                fBits.begin(),
+                sizeNeeded),
+                "Could not draw mask.");
+        }
     }
     return fBits.begin();
 }
