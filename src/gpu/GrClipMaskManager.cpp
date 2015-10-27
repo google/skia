@@ -54,7 +54,7 @@ static bool path_needs_SW_renderer(GrContext* context,
                                    const SkMatrix& viewMatrix,
                                    const Element* element,
                                    GrPathRenderer** prOut,
-                                   bool tryStencilFirst) {
+                                   bool needsStencil) {
     if (Element::kRect_Type == element->getType()) {
         // rects can always be drawn directly w/o using the software path
         // TODO: skip rrects once we're drawing them directly.
@@ -76,7 +76,7 @@ static bool path_needs_SW_renderer(GrContext* context,
     
         GrPathRendererChain::DrawType type;
         
-        if (tryStencilFirst) {
+        if (needsStencil) {
             type = element->isAA()
                             ? GrPathRendererChain::kStencilAndColorAntiAlias_DrawType
                             : GrPathRendererChain::kStencilAndColor_DrawType;
@@ -89,21 +89,31 @@ static bool path_needs_SW_renderer(GrContext* context,
         // the 'false' parameter disallows use of the SW path renderer
         GrPathRenderer* pr = context->getPathRenderer(pipelineBuilder, viewMatrix, path,
                                                       stroke, false, type);
-        if (tryStencilFirst && !pr) {
-            // If the path can't be stenciled, createAlphaClipMask falls back to color rendering
-            // it into a temporary buffer. If that fails then SW is truly required.
-            type = element->isAA()
-                            ? GrPathRendererChain::kColorAntiAlias_DrawType
-                            : GrPathRendererChain::kColor_DrawType;  
-
-            pr = context->getPathRenderer(pipelineBuilder, viewMatrix, path, stroke, false, type);
-        }
-
         if (prOut) {
             *prOut = pr;
         }
         return SkToBool(!pr);
     }
+}
+
+// Determines whether it is possible to draw the element to both the stencil buffer and the
+// alpha mask simultaneously. If so and the element is a path a compatible path renderer is
+// also returned.
+static bool can_stencil_and_draw_element(GrContext* context,
+                                         GrPipelineBuilder* pipelineBuilder,
+                                         GrTexture* texture,
+                                         const SkMatrix& viewMatrix,
+                                         const SkClipStack::Element* element,
+                                         GrPathRenderer** pr) {
+    pipelineBuilder->setRenderTarget(texture->asRenderTarget());
+
+    static const bool kNeedsStencil = true;
+    return !path_needs_SW_renderer(context,
+                                   *pipelineBuilder,
+                                   viewMatrix,
+                                   element,
+                                   pr,
+                                   kNeedsStencil);
 }
 
 GrClipMaskManager::GrClipMaskManager(GrDrawTarget* drawTarget)
@@ -134,12 +144,11 @@ bool GrClipMaskManager::useSWOnlyPath(const GrPipelineBuilder& pipelineBuilder,
 
         SkRegion::Op op = element->getOp();
         bool invert = element->isInverseFilled();
-        bool tryStencilFirst = invert || 
-                               SkRegion::kIntersect_Op == op ||
-                               SkRegion::kReverseDifference_Op == op;
+        bool needsStencil = invert || 
+                            SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op;
 
         if (path_needs_SW_renderer(this->getContext(), pipelineBuilder, translate,
-                                   element, nullptr, tryStencilFirst)) {
+                                   element, nullptr, needsStencil)) {
             return true;
         }
     }
@@ -473,32 +482,6 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
     return true;
 }
 
-bool GrClipMaskManager::canStencilAndDrawElement(GrPipelineBuilder* pipelineBuilder,
-                                                 GrTexture* target,
-                                                 GrPathRenderer** pr,
-                                                 const SkClipStack::Element* element) {
-    pipelineBuilder->setRenderTarget(target->asRenderTarget());
-
-    if (Element::kRect_Type == element->getType()) {
-        return true;
-    } else {
-        // We shouldn't get here with an empty clip element.
-        SkASSERT(Element::kEmpty_Type != element->getType());
-        SkPath path;
-        element->asPath(&path);
-        if (path.isInverseFillType()) {
-            path.toggleInverseFillType();
-        }
-        GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
-        GrPathRendererChain::DrawType type = element->isAA() ?
-            GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
-            GrPathRendererChain::kStencilAndColor_DrawType;
-        *pr = this->getContext()->getPathRenderer(*pipelineBuilder, SkMatrix::I(), path,
-                                                  stroke, false, type);
-        return SkToBool(*pr);
-    }
-}
-
 void GrClipMaskManager::mergeMask(GrPipelineBuilder* pipelineBuilder,
                                   GrTexture* dstMask,
                                   GrTexture* srcMask,
@@ -624,7 +607,13 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
             pipelineBuilder.setClip(clip);
             GrPathRenderer* pr = nullptr;
-            bool useTemp = !this->canStencilAndDrawElement(&pipelineBuilder, texture, &pr, element);
+            bool useTemp = !can_stencil_and_draw_element(this->getContext(), &pipelineBuilder,
+                                                         texture, translate, element, &pr);
+
+            // useSWOnlyPath should now filter out all cases where gpu-side mask merging is
+            // performed. See skbug.com/4519 for rationale and details.
+            SkASSERT(!useTemp);
+
             GrTexture* dst;
             // This is the bounds of the clip element in the space of the alpha-mask. The temporary
             // mask buffer can be substantially larger than the actually clip stack element. We
