@@ -264,7 +264,7 @@ bool get_decode_info(SkImageInfo* decodeInfo, const SkImageInfo& defaultInfo,
 
     // FIXME: Currently we cannot draw unpremultiplied sources.
     if (decodeInfo->alphaType() == kUnpremul_SkAlphaType) {
-        decodeInfo->makeAlphaType(kPremul_SkAlphaType);
+        *decodeInfo = decodeInfo->makeAlphaType(kPremul_SkAlphaType);
     }
     return true;
 }
