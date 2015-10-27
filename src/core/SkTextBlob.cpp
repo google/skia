@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 
 #include "SkReadBuffer.h"
 #include "SkTypeface.h"
@@ -220,7 +220,7 @@ void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fBounds);
 
     SkPaint runPaint;
-    RunIterator it(this);
+    SkTextBlobRunIterator it(this);
     while (!it.done()) {
         SkASSERT(it.glyphCount() > 0);
 
@@ -294,58 +294,58 @@ unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
     return pos;
 }
 
-SkTextBlob::RunIterator::RunIterator(const SkTextBlob* blob)
-    : fCurrentRun(RunRecord::First(blob))
+SkTextBlobRunIterator::SkTextBlobRunIterator(const SkTextBlob* blob)
+    : fCurrentRun(SkTextBlob::RunRecord::First(blob))
     , fRemainingRuns(blob->fRunCount) {
     SkDEBUGCODE(fStorageTop = (uint8_t*)blob + blob->fStorageSize;)
 }
 
-bool SkTextBlob::RunIterator::done() const {
+bool SkTextBlobRunIterator::done() const {
     return fRemainingRuns <= 0;
 }
 
-void SkTextBlob::RunIterator::next() {
+void SkTextBlobRunIterator::next() {
     SkASSERT(!this->done());
 
     if (!this->done()) {
         SkDEBUGCODE(fCurrentRun->validate(fStorageTop);)
-        fCurrentRun = RunRecord::Next(fCurrentRun);
+        fCurrentRun = SkTextBlob::RunRecord::Next(fCurrentRun);
         fRemainingRuns--;
     }
 }
 
-uint32_t SkTextBlob::RunIterator::glyphCount() const {
+uint32_t SkTextBlobRunIterator::glyphCount() const {
     SkASSERT(!this->done());
     return fCurrentRun->glyphCount();
 }
 
-const uint16_t* SkTextBlob::RunIterator::glyphs() const {
+const uint16_t* SkTextBlobRunIterator::glyphs() const {
     SkASSERT(!this->done());
     return fCurrentRun->glyphBuffer();
 }
 
-const SkScalar* SkTextBlob::RunIterator::pos() const {
+const SkScalar* SkTextBlobRunIterator::pos() const {
     SkASSERT(!this->done());
     return fCurrentRun->posBuffer();
 }
 
-const SkPoint& SkTextBlob::RunIterator::offset() const {
+const SkPoint& SkTextBlobRunIterator::offset() const {
     SkASSERT(!this->done());
     return fCurrentRun->offset();
 }
 
-SkTextBlob::GlyphPositioning SkTextBlob::RunIterator::positioning() const {
+SkTextBlob::GlyphPositioning SkTextBlobRunIterator::positioning() const {
     SkASSERT(!this->done());
     return fCurrentRun->positioning();
 }
 
-void SkTextBlob::RunIterator::applyFontToPaint(SkPaint* paint) const {
+void SkTextBlobRunIterator::applyFontToPaint(SkPaint* paint) const {
     SkASSERT(!this->done());
 
     fCurrentRun->font().applyToPaint(paint);
 }
 
-bool SkTextBlob::RunIterator::isLCD() const {
+bool SkTextBlobRunIterator::isLCD() const {
     return SkToBool(fCurrentRun->font().flags() & SkPaint::kLCDRenderText_Flag);
 }
 

@@ -228,7 +228,7 @@ GrColor GrAtlasTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd
 // textblob is being built and cache it.  However, for the time being textblobs mostly only have 1
 // run so this is not a big deal to compute here.
 bool GrAtlasTextContext::HasLCD(const SkTextBlob* blob) {
-    SkTextBlob::RunIterator it(blob);
+    SkTextBlobRunIterator it(blob);
     for (; !it.done(); it.next()) {
         if (it.isLCD()) {
             return true;
@@ -496,7 +496,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
 
     // Regenerate textblob
     SkPaint runPaint = skPaint;
-    SkTextBlob::RunIterator it(blob);
+    SkTextBlobRunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
         int glyphCount = it.glyphCount();
         size_t textLen = glyphCount * sizeof(uint16_t);
@@ -2050,7 +2050,7 @@ private:
 };
 
 void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc, GrRenderTarget* rt,
-                                         const SkTextBlob::RunIterator& it, 
+                                         const SkTextBlobRunIterator& it, 
                                          const GrClip& clip, const SkPaint& skPaint,
                                          SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
                                          const SkIRect& clipBounds, SkScalar x, SkScalar y) {
@@ -2190,7 +2190,7 @@ void GrAtlasTextContext::flush(const SkTextBlob* blob,
 
     GrColor color = grPaint.getColor();
 
-    SkTextBlob::RunIterator it(blob);
+    SkTextBlobRunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
         if (cacheBlob->fRuns[run].fDrawAsPaths) {
             this->flushRunAsPaths(dc, rt, it, clip, skPaint,

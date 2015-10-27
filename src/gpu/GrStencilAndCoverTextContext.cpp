@@ -19,6 +19,7 @@
 #include "SkGpuDevice.h"
 #include "SkGrPriv.h"
 #include "SkPath.h"
+#include "SkTextBlobRunIterator.h"
 #include "SkTextMapStateProc.h"
 #include "SkTextFormatParams.h"
 
@@ -204,7 +205,7 @@ void GrStencilAndCoverTextContext::TextBlob::init(const SkTextBlob* skBlob,
                                                   const SkPaint& skPaint) {
     fCpuMemorySize = sizeof(TextBlob);
     SkPaint runPaint(skPaint);
-    for (SkTextBlob::RunIterator iter(skBlob); !iter.done(); iter.next()) {
+    for (SkTextBlobRunIterator iter(skBlob); !iter.done(); iter.next()) {
         iter.applyFontToPaint(&runPaint); // No need to re-seed the paint.
         TextRun* run = SkNEW_INSERT_AT_LLIST_TAIL(this, TextRun, (runPaint));
 

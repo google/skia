@@ -17,7 +17,7 @@
 #include "SkRasterClip.h"
 #include "SkRSXform.h"
 #include "SkShader.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 
 SkBaseDevice::SkBaseDevice(const SkSurfaceProps& surfaceProps)
@@ -103,7 +103,7 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
 
     SkPaint runPaint = paint;
 
-    SkTextBlob::RunIterator it(blob);
+    SkTextBlobRunIterator it(blob);
     for (;!it.done(); it.next()) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();

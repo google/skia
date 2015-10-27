@@ -46,36 +46,14 @@ public:
      */
     static const SkTextBlob* CreateFromBuffer(SkReadBuffer&);
 
-private:
     enum GlyphPositioning {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
         kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
     };
 
+private:
     class RunRecord;
-
-    class RunIterator {
-    public:
-        RunIterator(const SkTextBlob* blob);
-
-        bool done() const;
-        void next();
-
-        uint32_t glyphCount() const;
-        const uint16_t* glyphs() const;
-        const SkScalar* pos() const;
-        const SkPoint& offset() const;
-        void applyFontToPaint(SkPaint*) const;
-        GlyphPositioning positioning() const;
-        bool isLCD() const;
-
-    private:
-        const RunRecord* fCurrentRun;
-        int              fRemainingRuns;
-
-        SkDEBUGCODE(uint8_t* fStorageTop;)
-    };
 
     SkTextBlob(int runCount, const SkRect& bounds);
 
@@ -92,13 +70,8 @@ private:
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
-    friend class GrAtlasTextContext;
-    friend class GrStencilAndCoverTextContext;
-    friend class GrTextBlobCache;
-    friend class GrTextContext;
-    friend class SkBaseDevice;
     friend class SkTextBlobBuilder;
-    friend class TextBlobTester;
+    friend class SkTextBlobRunIterator;
 
     const int        fRunCount;
     const SkRect     fBounds;

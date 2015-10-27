@@ -7,7 +7,7 @@
 
 #include "SkPaint.h"
 #include "SkPoint.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 
 #include "Test.h"
 
@@ -196,7 +196,7 @@ private:
 
         SkAutoTUnref<const SkTextBlob> blob(builder.build());
 
-        SkTextBlob::RunIterator it(blob);
+        SkTextBlobRunIterator it(blob);
         for (unsigned i = 0; i < outCount; ++i) {
             REPORTER_ASSERT(reporter, !it.done());
             REPORTER_ASSERT(reporter, out[i].pos == it.positioning());

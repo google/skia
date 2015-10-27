@@ -12,7 +12,7 @@
 
 #include "GrAtlasTextBlob.h"
 #include "GrGeometryProcessor.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 
 #ifdef GR_TEST_UTILS
 #include "GrBatchTest.h"
@@ -73,7 +73,7 @@ private:
                                   GrGlyph*);
 
     inline void flushRunAsPaths(GrDrawContext*, GrRenderTarget*,
-                                const SkTextBlob::RunIterator&, const GrClip& clip,
+                                const SkTextBlobRunIterator&, const GrClip& clip,
                                 const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                                 SkScalar y);

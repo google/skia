@@ -17,7 +17,7 @@
 #include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
 #include "SkGrPriv.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 #include "SkTextMapStateProc.h"
 #include "SkTextToPathIter.h"
 
@@ -116,7 +116,7 @@ void GrTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
                                  SkDrawFilter* drawFilter, const SkIRect& clipBounds) {
     SkPaint runPaint = skPaint;
 
-    SkTextBlob::RunIterator it(blob);
+    SkTextBlobRunIterator it(blob);
     for (;!it.done(); it.next()) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
