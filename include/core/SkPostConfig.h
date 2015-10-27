@@ -295,12 +295,15 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if defined(__clang__) || defined(__GNUC__)
-#  define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
-#  define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #define SK_PREFETCH(ptr)       _mm_prefetch(ptr, _MM_HINT_T0)
+    #define SK_WRITE_PREFETCH(ptr) _mm_prefetch(ptr, _MM_HINT_T0)
+#elif defined(__GNUC__)
+    #define SK_PREFETCH(ptr)       __builtin_prefetch(ptr)
+    #define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
 #else
-#  define SK_PREFETCH(ptr)
-#  define SK_WRITE_PREFETCH(ptr)
+    #define SK_PREFETCH(ptr)
+    #define SK_WRITE_PREFETCH(ptr)
 #endif
 
 //////////////////////////////////////////////////////////////////////
