@@ -145,6 +145,7 @@
       'skia_shared_lib%': 0,
       'skia_opencl%': 0,
       'skia_force_distance_field_text%': 0,
+      'skia_is_bot%': '<!(python -c "import os; print os.environ.get(\'CHROME_HEADLESS\', 0)")',
 
       # These variables determine the default optimization level for different
       # compilers.
@@ -222,7 +223,7 @@
     'skia_gpu%': '<(skia_gpu)',
     'skia_vulkan%': '<(skia_vulkan)',
     'skia_win_exceptions%': 0,
-    'skia_win_ltcg%': 1,
+    'skia_win_ltcg%': '<(skia_is_bot)',
     'skia_osx_deployment_target%': '<(skia_osx_deployment_target)',
     'skia_pdf%': '<(skia_pdf)',
     'skia_pdf_generate_pdfa%': 0,  # emit larger PDF/A-2b file
@@ -235,7 +236,7 @@
     'skia_win_debuggers_path%': '<(skia_win_debuggers_path)',
     'skia_disable_inlining%': 0,
     'skia_moz2d%': 0,
-    'skia_is_bot%': '<!(python -c "import os; print os.environ.get(\'CHROME_HEADLESS\', 0)")',
+    'skia_is_bot%': '<(skia_is_bot)',
     'skia_egl%': '<(skia_egl)',
     'skia_fast%': 0,
     'skia_fast_flags': [
