@@ -90,8 +90,8 @@ SkIRect generate_random_subset(SkRandom* rand, int w, int h) {
 }
 
 static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, const SkImageInfo& info,
-        const SkISize& size, bool supports565, SkCodec::Result expectedResult,
-        SkMD5::Digest* digest, const SkMD5::Digest* goodDigest) {
+        const SkISize& size, SkCodec::Result expectedResult, SkMD5::Digest* digest,
+        const SkMD5::Digest* goodDigest) {
 
     REPORTER_ASSERT(r, info.dimensions() == size);
     bm.allocPixels(info);
@@ -108,7 +108,7 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
     {
         // Test decoding to 565
         SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
-        SkCodec::Result expected565 = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
+        SkCodec::Result expected565 = info.alphaType() == kOpaque_SkAlphaType ?
                 expectedResult : SkCodec::kInvalidConversion;
         test_info(r, codec, info565, expected565, nullptr);
     }
@@ -143,8 +143,8 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
 }
 
 static void test_android_codec(skiatest::Reporter* r, SkAndroidCodec* codec, SkBitmap& bm,
-        const SkImageInfo& info, const SkISize& size, bool supports565,
-        SkCodec::Result expectedResult, SkMD5::Digest* digest, const SkMD5::Digest* goodDigest) {
+        const SkImageInfo& info, const SkISize& size, SkCodec::Result expectedResult,
+        SkMD5::Digest* digest, const SkMD5::Digest* goodDigest) {
 
     REPORTER_ASSERT(r, info.dimensions() == size);
     bm.allocPixels(info);
@@ -161,7 +161,7 @@ static void test_android_codec(skiatest::Reporter* r, SkAndroidCodec* codec, SkB
     {
         // Test decoding to 565
         SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
-        SkCodec::Result expected565 = (supports565 && info.alphaType() == kOpaque_SkAlphaType) ?
+        SkCodec::Result expected565 = info.alphaType() == kOpaque_SkAlphaType ?
                 expectedResult : SkCodec::kInvalidConversion;
         test_android_info(r, codec, info565, expected565, nullptr);
     }
@@ -216,7 +216,6 @@ static void check(skiatest::Reporter* r,
                   SkISize size,
                   bool supportsScanlineDecoding,
                   bool supportsSubsetDecoding,
-                  bool supports565 = true,
                   bool supportsIncomplete = true) {
 
     SkAutoTDelete<SkStream> stream(resource(path));
@@ -244,7 +243,7 @@ static void check(skiatest::Reporter* r,
     SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     SkBitmap bm;
     SkCodec::Result expectedResult = isIncomplete ? SkCodec::kIncompleteInput : SkCodec::kSuccess;
-    test_codec(r, codec, bm, info, size, supports565, expectedResult, &codecDigest, nullptr);
+    test_codec(r, codec, bm, info, size, expectedResult, &codecDigest, nullptr);
 
     // Scanline decoding follows.
     // Need to call startScanlineDecode() first.
@@ -370,13 +369,13 @@ static void check(skiatest::Reporter* r,
 
         SkBitmap bm;
         SkMD5::Digest scaledCodecDigest;
-        test_android_codec(r, codec, bm, info, size, supports565, expectedResult,
+        test_android_codec(r, codec, bm, info, size, expectedResult,
                 &scaledCodecDigest, &codecDigest);
     }
 
     // If we've just tested incomplete decodes, let's run the same test again on full decodes.
     if (isIncomplete) {
-        check(r, path, size, supportsScanlineDecoding, supportsSubsetDecoding, supports565, false);
+        check(r, path, size, supportsScanlineDecoding, supportsSubsetDecoding, false);
     }
 }
 
@@ -396,42 +395,42 @@ DEF_TEST(Codec, r) {
     // FIXME: We are not ready to test incomplete ICOs
     // These two tests examine interestingly different behavior:
     // Decodes an embedded BMP image
-    check(r, "color_wheel.ico", SkISize::Make(128, 128), false, false, true, false);
+    check(r, "color_wheel.ico", SkISize::Make(128, 128), false, false, false);
     // Decodes an embedded PNG image
-    check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false, true, false);
+    check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false, false);
 
     // GIF
     // FIXME: We are not ready to test incomplete GIFs
-    check(r, "box.gif", SkISize::Make(200, 55), true, false, true, false);
-    check(r, "color_wheel.gif", SkISize::Make(128, 128), true, false, true, false);
+    check(r, "box.gif", SkISize::Make(200, 55), true, false, false);
+    check(r, "color_wheel.gif", SkISize::Make(128, 128), true, false, false);
     // randPixels.gif is too small to test incomplete
-    check(r, "randPixels.gif", SkISize::Make(8, 8), true, false, true, false);
+    check(r, "randPixels.gif", SkISize::Make(8, 8), true, false, false);
 
     // JPG
-    check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, true);
+    check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false);
     check(r, "color_wheel.jpg", SkISize::Make(128, 128), true, false);
     // grayscale.jpg is too small to test incomplete
-    check(r, "grayscale.jpg", SkISize::Make(128, 128), true, false, true, false);
+    check(r, "grayscale.jpg", SkISize::Make(128, 128), true, false, false);
     check(r, "mandrill_512_q075.jpg", SkISize::Make(512, 512), true, false);
     // randPixels.jpg is too small to test incomplete
-    check(r, "randPixels.jpg", SkISize::Make(8, 8), true, false, true, false);
+    check(r, "randPixels.jpg", SkISize::Make(8, 8), true, false, false);
 
     // PNG
-    check(r, "arrow.png", SkISize::Make(187, 312), true, false, true, false);
-    check(r, "baby_tux.png", SkISize::Make(240, 246), true, false, true, false);
-    check(r, "color_wheel.png", SkISize::Make(128, 128), true, false, true, false);
-    check(r, "half-transparent-white-pixel.png", SkISize::Make(1, 1), true, false, true, false);
-    check(r, "mandrill_128.png", SkISize::Make(128, 128), true, false, true, false);
-    check(r, "mandrill_16.png", SkISize::Make(16, 16), true, false, true, false);
-    check(r, "mandrill_256.png", SkISize::Make(256, 256), true, false, true, false);
-    check(r, "mandrill_32.png", SkISize::Make(32, 32), true, false, true, false);
-    check(r, "mandrill_512.png", SkISize::Make(512, 512), true, false, true, false);
-    check(r, "mandrill_64.png", SkISize::Make(64, 64), true, false, true, false);
-    check(r, "plane.png", SkISize::Make(250, 126), true, false, true, false);
+    check(r, "arrow.png", SkISize::Make(187, 312), true, false, false);
+    check(r, "baby_tux.png", SkISize::Make(240, 246), true, false, false);
+    check(r, "color_wheel.png", SkISize::Make(128, 128), true, false, false);
+    check(r, "half-transparent-white-pixel.png", SkISize::Make(1, 1), true, false, false);
+    check(r, "mandrill_128.png", SkISize::Make(128, 128), true, false, false);
+    check(r, "mandrill_16.png", SkISize::Make(16, 16), true, false, false);
+    check(r, "mandrill_256.png", SkISize::Make(256, 256), true, false, false);
+    check(r, "mandrill_32.png", SkISize::Make(32, 32), true, false, false);
+    check(r, "mandrill_512.png", SkISize::Make(512, 512), true, false, false);
+    check(r, "mandrill_64.png", SkISize::Make(64, 64), true, false, false);
+    check(r, "plane.png", SkISize::Make(250, 126), true, false, false);
     // FIXME: We are not ready to test incomplete interlaced pngs
-    check(r, "plane_interlaced.png", SkISize::Make(250, 126), true, false, true, false);
-    check(r, "randPixels.png", SkISize::Make(8, 8), true, false, true, false);
-    check(r, "yellow_rose.png", SkISize::Make(400, 301), true, false, true, false);
+    check(r, "plane_interlaced.png", SkISize::Make(250, 126), true, false, false);
+    check(r, "randPixels.png", SkISize::Make(8, 8), true, false, false);
+    check(r, "yellow_rose.png", SkISize::Make(400, 301), true, false, false);
 }
 
 // Test interlaced PNG in stripes, similar to DM's kStripe_Mode
