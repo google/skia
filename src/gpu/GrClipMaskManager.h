@@ -34,9 +34,11 @@ class GrAppliedClip : public SkNoncopyable {
 public:
     GrAppliedClip() {}
     const GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP; }
+    const GrScissorState& scissorState() const { return fScissorState; }
 
 private:
     SkAutoTUnref<const GrFragmentProcessor> fClipCoverageFP;
+    GrScissorState                          fScissorState;
     friend class GrClipMaskManager;
 
     typedef SkNoncopyable INHERITED;
@@ -63,7 +65,6 @@ public:
      */
     bool setupClipping(const GrPipelineBuilder&,
                        GrPipelineBuilder::AutoRestoreStencil*,
-                       GrScissorState*,
                        const SkRect* devBounds,
                        GrAppliedClip*);
 

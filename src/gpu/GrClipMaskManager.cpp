@@ -209,7 +209,6 @@ bool GrClipMaskManager::getAnalyticClipProcessor(const GrReducedClip::ElementLis
 // scissor, or entirely software
 bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
                                       GrPipelineBuilder::AutoRestoreStencil* ars,
-                                      GrScissorState* scissorState,
                                       const SkRect* devBounds,
                                       GrAppliedClip* out) {
     if (kRespectClip_StencilClipMode == fClipMode) {
@@ -242,7 +241,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         case GrClip::kIRect_ClipType: {
             SkIRect scissor = clip.irect();
             if (scissor.intersect(clipSpaceRTIBounds)) {
-                scissorState->set(scissor);
+                out->fScissorState.set(scissor);
                 this->setPipelineBuilderStencil(pipelineBuilder, ars);
                 return true;
             }
@@ -293,7 +292,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
             scissorSpaceIBounds.offset(-clip.origin());
             if (nullptr == devBounds ||
                 !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
-                scissorState->set(scissorSpaceIBounds);
+                out->fScissorState.set(scissorSpaceIBounds);
             }
             this->setPipelineBuilderStencil(pipelineBuilder, ars);
             out->fClipCoverageFP.reset(clipFP);
@@ -353,7 +352,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     // use both stencil and scissor test to the bounds for the final draw.
     SkIRect scissorSpaceIBounds(clipSpaceIBounds);
     scissorSpaceIBounds.offset(clipSpaceToStencilSpaceOffset);
-    scissorState->set(scissorSpaceIBounds);
+    out->fScissorState.set(scissorSpaceIBounds);
     this->setPipelineBuilderStencil(pipelineBuilder, ars);
     return true;
 }

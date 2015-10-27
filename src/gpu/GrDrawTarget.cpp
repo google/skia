@@ -211,11 +211,9 @@ void GrDrawTarget::reset() {
 
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch) {
     // Setup clip
-    GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &scissorState, &batch->bounds(),
-                                         &clip)) {
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &batch->bounds(), &clip)) {
         return;
     }
     GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
@@ -225,7 +223,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBat
     }
 
     GrPipeline::CreateArgs args;
-    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &scissorState, batch)) {
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(), batch)) {
         return;
     }
 
@@ -276,10 +274,9 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
     // Setup clip
-    GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &scissorState, nullptr, &clip)) {
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, nullptr, &clip)) {
         return;
     }
 
@@ -297,7 +294,7 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
 
     GrBatch* batch = GrStencilPathBatch::Create(viewMatrix,
                                                 pipelineBuilder.isHWAntialias(),
-                                                stencilSettings, scissorState,
+                                                stencilSettings, clip.scissorState(),
                                                 pipelineBuilder.getRenderTarget(),
                                                 path);
     this->recordBatch(batch);
@@ -338,11 +335,9 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     // handling stencil settings WRT interactions between pipeline(builder), clipmaskmanager, and
     // batches.
 
-    GrScissorState scissorState;
     GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
-    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &scissorState, &batch->bounds(),
-                                         &clip)) {
+    if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &batch->bounds(), &clip)) {
         return;
     }
 
@@ -360,7 +355,7 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     batch->setStencilSettings(stencilSettings);
 
     GrPipeline::CreateArgs args;
-    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &scissorState, batch)) {
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(), batch)) {
         return;
     }
 
