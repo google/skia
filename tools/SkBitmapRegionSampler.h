@@ -34,6 +34,8 @@ public:
         return true;
     }
 
+    SkEncodedFormat getEncodedFormat() override { return (SkEncodedFormat) fDecoder->getFormat(); }
+
 private:
 
     SkAutoTDelete<SkImageDecoder> fDecoder;

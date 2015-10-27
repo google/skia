@@ -26,6 +26,8 @@ public:
 
     bool conversionSupported(SkColorType colorType) override;
 
+    SkEncodedFormat getEncodedFormat() override { return fCodec->getEncodedFormat(); }
+
 private:
 
     SkAutoTDelete<SkAndroidCodec> fCodec;

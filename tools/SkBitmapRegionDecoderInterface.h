@@ -9,6 +9,7 @@
 #define SkBitmapRegionDecoder_DEFINED
 
 #include "SkBitmap.h"
+#include "SkEncodedFormat.h"
 #include "SkStream.h"
 
 /*
@@ -31,6 +32,14 @@ public:
      */
     static SkBitmapRegionDecoderInterface* CreateBitmapRegionDecoder(
             SkData* data, Strategy strategy);
+
+    /*
+     * @param stream   Takes ownership of the stream
+     * @param strategy Strategy used for scaling and subsetting
+     * @return         Tries to create an SkBitmapRegionDecoder, returns NULL on failure
+     */
+    static SkBitmapRegionDecoderInterface* CreateBitmapRegionDecoder(
+            SkStreamRewindable* stream, Strategy strategy);
 
     /*
      * Decode a scaled region of the encoded image stream
@@ -58,6 +67,8 @@ public:
      * @return true if we support the requested color type and false otherwise
      */
     virtual bool conversionSupported(SkColorType colorType) = 0;
+
+    virtual SkEncodedFormat getEncodedFormat() = 0;
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }

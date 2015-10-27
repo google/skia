@@ -30,6 +30,8 @@ public:
 
     bool conversionSupported(SkColorType colorType) override;
 
+    SkEncodedFormat getEncodedFormat() override { return fDecoder->getEncodedFormat(); }
+
 private:
 
     SkAutoTDelete<SkCodec> fDecoder;
