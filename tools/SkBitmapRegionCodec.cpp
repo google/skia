@@ -15,15 +15,9 @@ SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
     , fCodec(codec)
 {}
 
-/*
- * Three differences from the Android version:
- *     Returns a skia bitmap instead of an Android bitmap.
- *     Android version attempts to reuse a recycled bitmap.
- *     Removed the options object and used parameters for color type and sample size.
- */
-// FIXME: Should this function should take in SkIRect?
-SkBitmap* SkBitmapRegionCodec::decodeRegion(int inputX, int inputY, int inputWidth, int inputHeight,
-        int sampleSize, SkColorType dstColorType) {
+bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+        const SkIRect& desiredSubset, int sampleSize, SkColorType dstColorType,
+        bool requireUnpremul) {
 
     // Fix the input sampleSize if necessary.
     if (sampleSize < 1) {
@@ -41,23 +35,23 @@ SkBitmap* SkBitmapRegionCodec::decodeRegion(int inputX, int inputY, int inputWid
     // If outY is non-zero, subsetY must be zero.
     int outX;
     int outY;
-    SkIRect subset = SkIRect::MakeXYWH(inputX, inputY, inputWidth, inputHeight);
+    SkIRect subset = desiredSubset;
     SubsetType type = adjust_subset_rect(fCodec->getInfo().dimensions(), &subset, &outX, &outY);
     if (SubsetType::kOutside_SubsetType == type) {
-        return nullptr;
+        return false;
     }
 
     // Ask the codec for a scaled subset
     if (!fCodec->getSupportedSubset(&subset)) {
         SkCodecPrintf("Error: Could not get subset.\n");
-        return nullptr;
+        return false;
     }
     SkISize scaledSize = fCodec->getSampledSubsetDimensions(sampleSize, subset);
 
     // Create the image info for the decode
     SkAlphaType dstAlphaType = fCodec->getInfo().alphaType();
-    if (kUnpremul_SkAlphaType == dstAlphaType) {
-        dstAlphaType = kPremul_SkAlphaType;
+    if (kOpaque_SkAlphaType != dstAlphaType) {
+        dstAlphaType = requireUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
     }
     SkImageInfo decodeInfo = SkImageInfo::Make(scaledSize.width(), scaledSize.height(),
             dstColorType, dstAlphaType);
@@ -83,7 +77,6 @@ SkBitmap* SkBitmapRegionCodec::decodeRegion(int inputX, int inputY, int inputWid
     }
 
     // Initialize the destination bitmap
-    SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());
     int scaledOutX = 0;
     int scaledOutY = 0;
     int scaledOutWidth = scaledSize.width();
@@ -92,17 +85,18 @@ SkBitmap* SkBitmapRegionCodec::decodeRegion(int inputX, int inputY, int inputWid
         scaledOutX = outX / sampleSize;
         scaledOutY = outY / sampleSize;
         // We need to be safe here because getSupportedSubset() may have modified the subset.
-        const int extraX = SkTMax(0, inputWidth - outX - subset.width());
-        const int extraY = SkTMax(0, inputHeight - outY - subset.height());
+        const int extraX = SkTMax(0, desiredSubset.width() - outX - subset.width());
+        const int extraY = SkTMax(0, desiredSubset.height() - outY - subset.height());
         const int scaledExtraX = extraX / sampleSize;
         const int scaledExtraY = extraY / sampleSize;
         scaledOutWidth += scaledOutX + scaledExtraX;
         scaledOutHeight += scaledOutY + scaledExtraY;
     }
     SkImageInfo outInfo = decodeInfo.makeWH(scaledOutWidth, scaledOutHeight);
-    if (!bitmap->tryAllocPixels(outInfo, nullptr, colorTable.get())) {
+    bitmap->setInfo(outInfo, outInfo.minRowBytes());
+    if (!bitmap->tryAllocPixels(allocator, colorTable.get())) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
-        return nullptr;
+        return false;
     }
 
     // Zero the bitmap if the region is not completely within the image.
@@ -129,10 +123,10 @@ SkBitmap* SkBitmapRegionCodec::decodeRegion(int inputX, int inputY, int inputWid
     SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, rowBytes, &options);
     if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
         SkCodecPrintf("Error: Could not get pixels.\n");
-        return nullptr;
+        return false;
     }
 
-    return bitmap.detach();
+    return true;
 }
 
 bool SkBitmapRegionCodec::conversionSupported(SkColorType colorType) {

@@ -603,9 +603,12 @@ static bool valid_brd_bench(SkData* encoded, SkBitmapRegionDecoderInterface::Str
         return false;
     }
 
-    SkAutoTDelete<SkBitmap> bitmap(brd->decodeRegion(0, 0, brd->width(), brd->height(), 1,
-            colorType));
-    if (nullptr == bitmap.get() || colorType != bitmap->colorType()) {
+    SkBitmap bitmap;
+    if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, brd->width(), brd->height()),
+            1, colorType, false)) {
+        return false;
+    }
+    if (colorType != bitmap.colorType()) {
         // This indicates that conversion to the requested color type is not supported for the
         // particular image.
         return false;

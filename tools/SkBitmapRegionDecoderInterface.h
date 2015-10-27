@@ -35,26 +35,24 @@ public:
     /*
      * Decode a scaled region of the encoded image stream
      *
-     * @param start_x    X-coordinate of upper-left corner of region.
-     *                   This coordinate is unscaled, relative to the original dimensions.
-     * @param start_y    Y-coordinate of upper-left corner of region.
-     *                   This coordinate is unscaled, relative to the original dimensions.
-     * @param width      Width of the region to decode.
-     *                   This distance is unscaled, relative to the original dimensions.
-     * @param height     Height of the region to decode.
-     *                   This distance is unscaled, relative to the original dimensions.
-     * @param sampleSize An integer downscaling factor for the decode.
-     * @param colorType  Preferred output colorType.
-     *                   New implementations should return NULL if they do not support
-     *                   decoding to this color type.
-     *                   The old kOriginal_Strategy will decode to a default color type
-     *                   if this color type is unsupported.
-     * @return           Pointer to a bitmap of the decoded region on success, NULL on
-     *                   failure.
+     * @param bitmap          Container for decoded pixels.  It is assumed that the pixels
+     *                        are initially unallocated and will be allocated by this function.
+     * @param allocator       Allocator for the pixels.  If this is NULL, the default
+     *                        allocator (HeapAllocator) will be used.
+     * @param desiredSubset   Subset of the original image to decode.
+     * @param sampleSize      An integer downscaling factor for the decode.
+     * @param colorType       Preferred output colorType.
+     *                        New implementations should return NULL if they do not support
+     *                        decoding to this color type.
+     *                        The old kOriginal_Strategy will decode to a default color type
+     *                        if this color type is unsupported.
+     * @param requireUnpremul If the image is not opaque, we will use this to determine the
+     *                        alpha type to use.
+     *
      */
-    virtual SkBitmap* decodeRegion(int start_x, int start_y, int width,
-                                   int height, int sampleSize,
-                                   SkColorType colorType) = 0;
+    virtual bool decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+                              const SkIRect& desiredSubset, int sampleSize,
+                              SkColorType colorType, bool requireUnpremul) = 0;
     /*
      * @param  Requested destination color type
      * @return true if we support the requested color type and false otherwise

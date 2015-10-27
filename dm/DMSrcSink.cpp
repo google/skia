@@ -125,12 +125,18 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
     }
     switch (fMode) {
         case kFullImage_Mode: {
-            SkAutoTDelete<SkBitmap> bitmap(brd->decodeRegion(0, 0, width, height, fSampleSize,
-                    colorType));
-            if (nullptr == bitmap.get() || colorType != bitmap->colorType()) {
+            SkBitmap bitmap;
+            if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, width, height),
+                    fSampleSize, colorType, false)) {
+                // FIXME: Make this a fatal error.  We need to disable webps for kCanvas_Strategy
+                // because we have not implemented kCanvas_Strategy for webp.  We may also need to
+                // deal with color conversion errors for kOriginal_Strategy.
+                return Error::Nonfatal("Cannot decode region.\n");
+            }
+            if (colorType != bitmap.colorType()) {
                 return Error::Nonfatal("Cannot convert to color type.\n");
             }
-            canvas->drawBitmap(*bitmap, 0, 0);
+            canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
         case kDivisor_Mode: {
@@ -178,13 +184,20 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     const int decodeTop = top - unscaledBorder;
                     const uint32_t decodeWidth = subsetWidth + unscaledBorder * 2;
                     const uint32_t decodeHeight = subsetHeight + unscaledBorder * 2;
-                    SkAutoTDelete<SkBitmap> bitmap(brd->decodeRegion(decodeLeft,
-                            decodeTop, decodeWidth, decodeHeight, fSampleSize, colorType));
-                    if (nullptr == bitmap.get() || colorType != bitmap->colorType()) {
+                    SkBitmap bitmap;
+                    if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(decodeLeft,
+                            decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false)) {
+                        // FIXME: Make this a fatal error.  We need to disable webps for
+                        // kCanvas_Strategy because we have not implemented kCanvas_Strategy for
+                        // webp.  We may also need to deal with color conversion errors for
+                        // kOriginal_Strategy.
+                        return Error::Nonfatal("Cannot not decode region.\n");
+                    }
+                    if (colorType != bitmap.colorType()) {
                         return Error::Nonfatal("Cannot convert to color type.\n");
                     }
 
-                    canvas->drawBitmapRect(*bitmap,
+                    canvas->drawBitmapRect(bitmap,
                             SkRect::MakeXYWH((SkScalar) scaledBorder, (SkScalar) scaledBorder,
                                     (SkScalar) (subsetWidth / fSampleSize),
                                     (SkScalar) (subsetHeight / fSampleSize)),

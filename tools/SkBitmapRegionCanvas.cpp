@@ -15,22 +15,26 @@ SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkCodec* decoder)
     , fDecoder(decoder)
 {}
 
-/*
- * Three differences from the Android version:
- *     Returns a Skia bitmap instead of an Android bitmap.
- *     Android version attempts to reuse a recycled bitmap.
- *     Removed the options object and used parameters for color type and
- *     sample size.
- */
-SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
-                                             int inputWidth, int inputHeight,
-                                             int sampleSize,
-                                             SkColorType dstColorType) {
+bool SkBitmapRegionCanvas::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+        const SkIRect& desiredSubset, int sampleSize, SkColorType dstColorType,
+        bool requireUnpremul) {
     // Reject color types not supported by this method
     if (kIndex_8_SkColorType == dstColorType || kGray_8_SkColorType == dstColorType) {
         SkCodecPrintf("Error: Color type not supported.\n");
-        return nullptr;
+        return false;
     }
+
+    // Reject requests for unpremultiplied alpha
+    if (requireUnpremul) {
+        SkCodecPrintf("Error: Alpha type not supported.\n");
+        return false;
+    }
+    SkAlphaType dstAlphaType = fDecoder->getInfo().alphaType();
+    if (kUnpremul_SkAlphaType == dstAlphaType) {
+        dstAlphaType = kPremul_SkAlphaType;
+    }
+
+    // FIXME: Can we add checks and support kIndex8 or unpremultiplied alpha in special cases?
 
     // Fix the input sampleSize if necessary.
     if (sampleSize < 1) {
@@ -48,17 +52,13 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // If outY is non-zero, subsetY must be zero.
     int outX;
     int outY;
-    SkIRect subset = SkIRect::MakeXYWH(inputX, inputY, inputWidth, inputHeight);
+    SkIRect subset = desiredSubset;
     SubsetType type = adjust_subset_rect(fDecoder->getInfo().dimensions(), &subset, &outX, &outY);
     if (SubsetType::kOutside_SubsetType == type) {
-        return nullptr;
+        return false;
     }
 
     // Create the image info for the decode
-    SkAlphaType dstAlphaType = fDecoder->getInfo().alphaType();
-    if (kUnpremul_SkAlphaType == dstAlphaType) {
-        dstAlphaType = kPremul_SkAlphaType;
-    }
     SkImageInfo decodeInfo = SkImageInfo::Make(this->width(), this->height(),
             dstColorType, dstAlphaType);
 
@@ -66,7 +66,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     SkCodec::Result r = fDecoder->startScanlineDecode(decodeInfo);
     if (SkCodec::kSuccess != r) {
         SkCodecPrintf("Error: Could not start scanline decoder.\n");
-        return nullptr;
+        return false;
     }
 
     // Allocate a bitmap for the unscaled decode
@@ -74,28 +74,28 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     SkImageInfo tmpInfo = decodeInfo.makeWH(this->width(), subset.height());
     if (!tmp.tryAllocPixels(tmpInfo)) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
-        return nullptr;
+        return false;
     }
 
     // Skip the unneeded rows
     if (!fDecoder->skipScanlines(subset.y())) {
         SkCodecPrintf("Error: Failed to skip scanlines.\n");
-        return nullptr;
+        return false;
     }
 
     // Decode the necessary rows
     fDecoder->getScanlines(tmp.getAddr(0, 0), subset.height(), tmp.rowBytes());
 
     // Calculate the size of the output
-    const int outWidth = get_scaled_dimension(inputWidth, sampleSize);
-    const int outHeight = get_scaled_dimension(inputHeight, sampleSize);
+    const int outWidth = get_scaled_dimension(desiredSubset.width(), sampleSize);
+    const int outHeight = get_scaled_dimension(desiredSubset.height(), sampleSize);
 
     // Initialize the destination bitmap
-    SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());
     SkImageInfo dstInfo = decodeInfo.makeWH(outWidth, outHeight);
-    if (!bitmap->tryAllocPixels(dstInfo)) {
+    bitmap->setInfo(dstInfo, dstInfo.minRowBytes());
+    if (!bitmap->tryAllocPixels(allocator, nullptr)) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
-        return nullptr;
+        return false;
     }
 
     // Zero the bitmap if the region is not completely within the image.
@@ -123,7 +123,7 @@ SkBitmap* SkBitmapRegionCanvas::decodeRegion(int inputX, int inputY,
     // TODO (msarett): Test multiple filter qualities.  kNone is the default.
     canvas.drawBitmapRect(tmp, src, dst, &paint);
 
-    return bitmap.detach();
+    return true;
 }
 
 bool SkBitmapRegionCanvas::conversionSupported(SkColorType colorType) {

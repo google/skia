@@ -61,10 +61,8 @@ void BitmapRegionDecoderBench::onDelayedSetup() {
 }
 
 void BitmapRegionDecoderBench::onDraw(int n, SkCanvas* canvas) {
-    SkAutoTDelete<SkBitmap> bitmap;
     for (int i = 0; i < n; i++) {
-        bitmap.reset(fBRD->decodeRegion(fSubset.left(), fSubset.top(), fSubset.width(),
-                fSubset.height(), fSampleSize, fColorType));
-        SkASSERT(nullptr != bitmap.get());
+        SkBitmap bm;
+        SkAssertResult(fBRD->decodeRegion(&bm, nullptr, fSubset, fSampleSize, fColorType, false));
     }
 }

@@ -22,15 +22,9 @@ public:
      */
     SkBitmapRegionSampler(SkImageDecoder* decoder, int width, int height);
 
-    /*
-     * Three differences from the Android version:
-     *     Returns a Skia bitmap instead of an Android bitmap.
-     *     Android version attempts to reuse a recycled bitmap.
-     *     Removed the options object and used parameters for color type and
-     *     sample size.
-     */
-    SkBitmap* decodeRegion(int start_x, int start_y, int width, int height,
-                           int sampleSize, SkColorType prefColorType) override;
+    bool decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+                      const SkIRect& desiredSubset, int sampleSize,
+                      SkColorType colorType, bool requireUnpremul) override;
 
     bool conversionSupported(SkColorType colorType) override {
         // SkBitmapRegionSampler does not allow the client to check if the conversion
