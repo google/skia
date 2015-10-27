@@ -44,6 +44,13 @@ SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegi
                 SkCodecPrintf("Error: Failed to create decoder.\n");
                 return nullptr;
             }
+
+            if (SkEncodedFormat::kWEBP_SkEncodedFormat == codec->getEncodedFormat()) {
+                // FIXME: Support webp using a special case.  Webp does not support
+                //        scanline decoding.
+                return nullptr;
+            }
+
             switch (codec->getScanlineOrder()) {
                 case SkCodec::kTopDown_SkScanlineOrder:
                 case SkCodec::kNone_SkScanlineOrder:

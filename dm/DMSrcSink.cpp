@@ -128,10 +128,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             SkBitmap bitmap;
             if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, width, height),
                     fSampleSize, colorType, false)) {
-                // FIXME: Make this a fatal error.  We need to disable webps for kCanvas_Strategy
-                // because we have not implemented kCanvas_Strategy for webp.  We may also need to
-                // deal with color conversion errors for kOriginal_Strategy.
-                return Error::Nonfatal("Cannot decode region.\n");
+                return "Cannot decode region.\n";
             }
             if (colorType != bitmap.colorType()) {
                 return Error::Nonfatal("Cannot convert to color type.\n");
@@ -187,11 +184,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     SkBitmap bitmap;
                     if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(decodeLeft,
                             decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false)) {
-                        // FIXME: Make this a fatal error.  We need to disable webps for
-                        // kCanvas_Strategy because we have not implemented kCanvas_Strategy for
-                        // webp.  We may also need to deal with color conversion errors for
-                        // kOriginal_Strategy.
-                        return Error::Nonfatal("Cannot not decode region.\n");
+                        return "Cannot not decode region.\n";
                     }
                     if (colorType != bitmap.colorType()) {
                         return Error::Nonfatal("Cannot convert to color type.\n");
