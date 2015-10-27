@@ -5,13 +5,51 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include <EGL/egl.h>
-
 #include "SkOnce.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/command_buffer/SkCommandBufferGLContext.h"
 #include "../ports/SkOSLibrary.h"
+
+#if defined SK_BUILD_FOR_MAC
+
+// EGL doesn't exist on the mac, so expose what we need to get the command buffer's EGL running.
+typedef void *EGLDisplay;
+typedef unsigned int EGLBoolean;
+typedef void *EGLConfig;
+typedef void *EGLSurface;
+typedef void *EGLContext;
+typedef int32_t EGLint;
+typedef void* EGLNativeDisplayType;
+typedef void* EGLNativeWindowType;
+typedef void (*__eglMustCastToProperFunctionPointerType)(void);
+#define EGL_FALSE 0
+#define EGL_OPENGL_ES2_BIT 0x0004
+#define EGL_CONTEXT_CLIENT_VERSION 0x3098
+#define EGL_NO_SURFACE ((EGLSurface)0)
+#define EGL_NO_DISPLAY ((EGLDisplay)0)
+#define EGL_NO_CONTEXT ((EGLContext)0)
+#define EGL_DEFAULT_DISPLAY ((EGLNativeDisplayType)0)
+#define EGL_SURFACE_TYPE 0x3033
+#define EGL_PBUFFER_BIT 0x0001
+#define EGL_RENDERABLE_TYPE 0x3040
+#define EGL_RED_SIZE 0x3024
+#define EGL_GREEN_SIZE 0x3023
+#define EGL_BLUE_SIZE 0x3022
+#define EGL_ALPHA_SIZE 0x3021
+#define EGL_DEPTH_SIZE 0x3025
+#define EGL_STENCIL_SIZE 0x3025
+#define EGL_SAMPLES 0x3031
+#define EGL_SAMPLE_BUFFERS 0x3032
+#define EGL_NONE 0x3038
+#define EGL_WIDTH 0x3057
+#define EGL_HEIGHT 0x3056
+
+#else
+
+#include <EGL/egl.h>
+
+#endif
 
 typedef EGLDisplay (*GetDisplayProc)(EGLNativeDisplayType display_id);
 typedef EGLBoolean (*InitializeProc)(EGLDisplay dpy, EGLint *major, EGLint *minor);
@@ -48,6 +86,8 @@ static void load_command_buffer_functions() {
     if (!gLibrary) {
 #if defined _WIN32
         gLibrary = DynamicLoadLibrary("command_buffer_gles2.dll");
+#elif defined SK_BUILD_FOR_MAC
+        gLibrary = DynamicLoadLibrary("libcommand_buffer_gles2.dylib");
 #else
         gLibrary = DynamicLoadLibrary("libcommand_buffer_gles2.so");
 #endif // defined _WIN32
@@ -72,15 +112,11 @@ static void load_command_buffer_functions() {
                                             gfCreateContext && gfDestroyContext && gfMakeCurrent &&
                                             gfSwapBuffers && gfGetProcAddress;
 
-        }                        
-    }                            
+        }
+    }
 }
 
 static GrGLFuncPtr command_buffer_get_gl_proc(void* ctx, const char name[]) {
-    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcedureAddress(ctx, name);
-    if (proc) {
-        return proc;
-    }
     if (!gfFunctionsLoadedSuccessfully) {
         return nullptr;
     }
@@ -167,7 +203,7 @@ void SkCommandBufferGLContext::initializeGLContext(void* nativeWindow, const int
     gfChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs);
 
     if (nativeWindow) {
-        fSurface = gfCreateWindowSurface(fDisplay, surfaceConfig, 
+        fSurface = gfCreateWindowSurface(fDisplay, surfaceConfig,
                                          (EGLNativeWindowType)nativeWindow, surfaceAttribs);
     } else {
         fSurface = gfCreatePbufferSurface(fDisplay, surfaceConfig, surfaceAttribs);

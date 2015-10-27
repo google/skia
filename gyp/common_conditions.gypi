@@ -617,10 +617,16 @@
       ],
     }],
 
-    [ 'skia_command_buffer', {
+    [ 'skia_command_buffer and skia_os == "linux"', {
       'ldflags': [
           '-Wl,-rpath,\$$ORIGIN/lib',
       ],
+    }],
+
+    [ 'skia_command_buffer and skia_os == "mac"', {
+      'xcode_settings': {
+          'LD_RUNPATH_SEARCH_PATHS': ['@executable_path/.'],
+      },
     }],
 
   ], # end 'conditions'
