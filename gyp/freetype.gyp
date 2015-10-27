@@ -88,14 +88,6 @@
         # TODO: merge this back in here?
         'freetype.gypi',
       ],
-      'include_dirs': [
-        '../third_party/freetype/include_overrides',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '../third_party/freetype/include_overrides',
-        ],
-      },
       'conditions': [
         [ 'skia_os == "android"', {
           # These flags are used by the Android OS.  They are probably overkill

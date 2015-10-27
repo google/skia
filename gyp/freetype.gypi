@@ -23,7 +23,9 @@
     '../third_party/externals/freetype/src/base/ftsynth.c',      # optional, see <freetype/ftsynth.h>
     '../third_party/externals/freetype/src/base/fttype1.c',      # optional, see <freetype/t1tables.h>
     '../third_party/externals/freetype/src/base/ftwinfnt.c',     # optional, see <freetype/ftwinfnt.h>
-    '../third_party/externals/freetype/src/base/ftxf86.c',       # optional, see <freetype/ftxf86.h>
+    '../third_party/externals/freetype/src/base/ftfntfmt.c',     # optional, see <freetype/ftfntfmt.h>
+    '../third_party/externals/freetype/src/gzip/ftgzip.c',       # required for sfnt/sfnt.c
+                                                                 # (with FT_CONFIG_OPTION_USE_ZLIB)
 
     # font drivers (optional; at least one is needed)
     '../third_party/externals/freetype/src/cff/cff.c',           # CFF/OpenType font driver
@@ -40,6 +42,7 @@
     '../third_party/externals/freetype/src/psnames/psnames.c',   # PostScript glyph names support
   ],
   'include_dirs': [
+    '../third_party/freetype',
     '../third_party/externals/freetype/internal',
     '../third_party/externals/freetype/builds',
     '../third_party/externals/freetype/include',
@@ -47,6 +50,8 @@
   ],
   'defines': [
     'FT2_BUILD_LIBRARY',
+    'FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>',
+    'FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>',
   ],
   'conditions': [
     [ 'skia_warnings_as_errors', {
