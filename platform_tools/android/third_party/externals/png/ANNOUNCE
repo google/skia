@@ -1,0 +1,65 @@
+
+Libpng 1.2.46 - July 9, 2011
+
+This is a public release of libpng, intended for use in production codes.
+
+Files available for download:
+
+Source files with LF line endings (for Unix/Linux) and with a
+"configure" script
+
+   libpng-1.2.46.tar.xz (LZMA-compressed, recommended)
+   libpng-1.2.46.tar.gz
+   libpng-1.2.46.tar.bz2
+
+Source files with LF line endings (for Unix/Linux) without the
+"configure" script
+
+   libpng-1.2.46-no-config.tar.xz (LZMA-compressed, recommended)
+   libpng-1.2.46-no-config.tar.gz
+   libpng-1.2.46-no-config.tar.bz2
+
+Source files with CRLF line endings (for Windows), without the
+"configure" script
+
+   lpng1246.zip
+   lpng1246.7z
+   lpng1246.tar.bz2
+
+Project files
+
+   libpng-1.2.46-project-netware.zip
+   libpng-1.2.46-project-wince.zip
+
+Other information:
+
+   libpng-1.2.46-README.txt
+   libpng-1.2.46-KNOWNBUGS.txt
+   libpng-1.2.46-LICENSE.txt
+   libpng-1.2.46-Y2K-compliance.txt
+   libpng-1.2.46-[previous version]-diff.txt
+
+Changes since the last public release (1.2.43):
+
+version 1.2.45 [July 9, 2011]
+
+  Fixed uninitialized memory read in png_format_buffer() (Bug
+    report by Frank Busse, related to CVE-2004-0421).
+  Pass "" instead of '\0' to png_default_error() in png_err().  This mistake
+    was introduced in libpng-1.2.20beta01.
+  Check for up->location !PNG_AFTER_IDAT when writing unknown chunks
+    before IDAT.
+  Ported bugfix in pngrtran.c from 1.5.3: when expanding a paletted image,
+    always expand to RGBA if transparency is present.
+  Check for integer overflow in png_set_rgb_to_gray().
+  Check for sCAL chunk too short.
+  Added CMakeLists.txt, projects/xcode, and pnggccrd.c to EXTRA_DIST in
+    Makefile.am and Makefile.in
+  Udated copyright year to 2011.
+
+Send comments/corrections/commendations to png-mng-implement at lists.sf.net
+(subscription required; visit
+https://lists.sourceforge.net/lists/listinfo/png-mng-implement
+to subscribe) or to glennrp at users.sourceforge.net
+
+Glenn R-P

@@ -1,0 +1,7 @@
+Please use ./import_expat.sh to update. For example to import from a tar and rebuild:
+
+    (croot && cd external/expat && ./import_expat.sh ~/Downloads/expat-2.1.0.tar.gz && mm -j32 -B)
+
+When updating to new versions, please remove any unnecessary build
+files to make the diff of what we are using clearer. It is reasonable
+to keep new docs, examples, and tests for reference.
