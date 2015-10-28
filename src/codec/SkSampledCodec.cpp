@@ -9,8 +9,6 @@
 #include "SkCodecPriv.h"
 #include "SkSampledCodec.h"
 
-// FIXME: Rename this file to SkSampledCodec.cpp
-
 SkSampledCodec::SkSampledCodec(SkCodec* codec)
     : INHERITED(codec->getInfo())
     , fCodec(codec)

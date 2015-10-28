@@ -48,7 +48,7 @@
         '../src/codec/SkMaskSwizzler.cpp',
         '../src/codec/SkMasks.cpp',
         '../src/codec/SkSampler.cpp',
-        '../src/codec/SkScaledCodec.cpp',
+        '../src/codec/SkSampledCodec.cpp',
         '../src/codec/SkSwizzler.cpp',
         '../src/codec/SkWebpAdapterCodec.cpp',
         '../src/codec/SkWebpCodec.cpp',
