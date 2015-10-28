@@ -209,7 +209,7 @@ static void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int ke
             }
             sptr += srcStrideX;
             if (srcDirection == BlurDirection::kY) {
-                SK_PREFETCH(reinterpret_cast<const char*>(sptr + (rightOffset + 1) * srcStrideX));
+                SK_PREFETCH(sptr + (rightOffset + 1) * srcStrideX);
             }
             dptr += dstStrideX;
         }
