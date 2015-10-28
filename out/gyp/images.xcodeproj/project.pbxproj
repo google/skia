@@ -81,13 +81,6 @@
 			remoteGlobalIDString = 5CD5E1D3003869662AF52285;
 			remoteInfo = libwebp_dsp_enc;
 		};
-		CC88AE5355BCE25574BA35E1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = B23F1F5D2FEFDE58FC20E40F;
-			remoteInfo = libjpeg;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -131,7 +124,6 @@
 		D68D63F4BD2E48F107F60B54 /* SkScaledBitmapSampler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkScaledBitmapSampler.cpp; sourceTree = "<group>"; };
 		E626DAAFCE093385B561B7F7 /* SkImageDecoder_ktx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_ktx.cpp; sourceTree = "<group>"; };
 		EAA1D075DE3F9C9844C003FD /* SkMovie.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SkMovie.cpp; sourceTree = "<group>"; };
-		F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libjpeg.xcodeproj; path = ../out/gyp/libjpeg.xcodeproj; sourceTree = SOURCE_ROOT; };
 		F746C9CB2E37CF1C3B992CEB /* common_variables.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; path = common_variables.gypi; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -191,7 +183,6 @@
 		3B47B8B3BEE47F4FE399CB9B /* Projects */ = {
 			isa = PBXGroup;
 			children = (
-				F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */,
 				947C74B4D0D63B271B324921 /* libwebp.xcodeproj */,
 			);
 			name = Projects;
@@ -243,13 +234,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		BEF8E62D986F08370031B1A0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		D2AD04FF889C7D01F282353D /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -292,7 +276,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				CAF5BEE0F04065C5517A7EED /* PBXTargetDependency */,
 				E7C1FD019EC250EE7A703BD0 /* PBXTargetDependency */,
 			);
 			name = images;
@@ -318,10 +301,6 @@
 			mainGroup = FD56A47878CA02263945824E;
 			projectDirPath = ../../gyp;
 			projectReferences = (
-				{
-					ProductGroup = BEF8E62D986F08370031B1A0 /* Products */;
-					ProjectRef = F4E7081FD51934F1B24DF9C6 /* libjpeg.xcodeproj */;
-				},
 				{
 					ProductGroup = AEEE95E6EE78C9F84721D155 /* Products */;
 					ProjectRef = 947C74B4D0D63B271B324921 /* libwebp.xcodeproj */;
@@ -412,11 +391,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		CAF5BEE0F04065C5517A7EED /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = libjpeg;
-			targetProxy = CC88AE5355BCE25574BA35E1 /* PBXContainerItemProxy */;
-		};
 		E7C1FD019EC250EE7A703BD0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = libwebp;
@@ -481,8 +455,11 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_images;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -553,8 +530,11 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_images;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -615,8 +595,11 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_images;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -696,8 +679,11 @@
 					../include/utils,
 					../src/utils,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = skia_images;
+				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
 				WARNING_CFLAGS = (
 					"-Wall",
