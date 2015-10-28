@@ -269,7 +269,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
+#if 0 // Disabled due to http://skbug.com/4454
     fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
+#else
+    fBindUniformLocationSupport = false;
+#endif
 
 #ifdef SK_BUILD_FOR_WIN
     // We're assuming that on Windows Chromium we're using ANGLE.

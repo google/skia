@@ -474,8 +474,7 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
 }
 
 void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
-    bool usingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != nullptr;
-    if (!usingBindUniform) {
+    if (!fGpu->glCaps().bindUniformLocationSupport()) {
         int count = fUniforms.count();
         for (int i = 0; i < count; ++i) {
             GrGLint location;
