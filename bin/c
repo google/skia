@@ -13,14 +13,14 @@ fi
 
 if [ ! -f $CLEAN.log ]; then
     git checkout $CLEAN
-    ./gyp_skia >/dev/null
+    python gyp_skia >/dev/null
     ninja -C out/Release nanobench
     out/Release/nanobench $@ --samples $SAMPLES -v 2> $CLEAN.log
 fi
 
 git checkout $BRANCH
-./gyp_skia >/dev/null
+python gyp_skia >/dev/null
 ninja -C out/Release nanobench
 out/Release/nanobench $@ --samples $SAMPLES -v 2> $BRANCH.log
 
-./bin/compare $CLEAN.log $BRANCH.log
+python bin/compare $CLEAN.log $BRANCH.log

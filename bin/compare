@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
-import numpy
 import sys
-from scipy.stats import mannwhitneyu
-from scipy.stats import sem
+
+have_scipy = True
+try:
+    import scipy.stats
+except:
+    have_scipy = False
 
 SIGNIFICANCE_THRESHOLD = 0.0001
 
@@ -32,15 +35,17 @@ for (path, d) in [(args.baseline, a), (args.experiment, b)]:
 
 common = set(a.keys()).intersection(b.keys())
 
+def mean(xs):
+    return sum(xs) / len(xs)
+
 ps = []
 for key in common:
-    _, p = mannwhitneyu(a[key], b[key])    # Non-parametric t-test.  Doesn't assume normal dist.
-    if args.use_means:
-        am, bm = numpy.mean(a[key]), numpy.mean(b[key])
-        asem, bsem = sem(a[key]), sem(b[key])
-    else:
-        am, bm = min(a[key]), min(b[key])
-        asem, bsem = 0, 0
+    p, asem, bsem = 0, 0, 0
+    m = mean if args.use_means else min
+    am, bm = m(a[key]), m(b[key])
+    if have_scipy:
+        _, p = scipy.stats.mannwhitneyu(a[key], b[key])
+        asem, bsem = scipy.stats.sem(a[key]), sem(b[key])
     ps.append((bm/am, p, key, am, bm, asem, bsem))
 ps.sort(reverse=True)
 
