@@ -464,6 +464,10 @@
     [ 'skia_os == "mac"',
       {
         'defines': [ 'SK_BUILD_FOR_MAC' ],
+        'conditions': [
+            # ANGLE for mac hits -Wunneeded-internal-declaration if this isn't set.
+            [ 'skia_angle', { 'defines': [ 'YY_NO_INPUT' ], } ],
+        ],
         'configurations': {
           'Coverage': {
             'xcode_settings': {

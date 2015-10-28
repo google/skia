@@ -27,6 +27,8 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         // We load the ANGLE library and never let it go
 #if defined _WIN32
         gANGLELib = DynamicLoadLibrary("libGLESv2.dll");
+#elif defined SK_BUILD_FOR_MAC
+        gANGLELib = DynamicLoadLibrary("libGLESv2.dylib");
 #else
         gANGLELib = DynamicLoadLibrary("libGLESv2.so");
 #endif // defined _WIN32
