@@ -41,6 +41,10 @@ extern void SkPDFImageDumpStats();
 
 #include <stdlib.h>
 
+#ifndef SK_BUILD_FOR_WIN32
+    #include <unistd.h>
+#endif
+
 DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
