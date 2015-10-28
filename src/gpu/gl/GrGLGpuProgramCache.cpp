@@ -11,6 +11,7 @@
 #include "GrProcessor.h"
 #include "GrGLFragmentProcessor.h"
 #include "GrGLPathRendering.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #include "SkRTConf.h"
 #include "SkTSearch.h"
 
@@ -19,7 +20,7 @@ SK_CONF_DECLARE(bool, c_DisplayCache, "gpu.displayCache", false,
                 "Display program cache usage.");
 #endif
 
-typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGLGpu::ProgramCache::Entry {
     

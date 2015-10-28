@@ -13,6 +13,7 @@
 #include "GrGLProgramDesc.h"
 #include "GrGLTexture.h"
 #include "GrGLProgramDataManager.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 #include "SkString.h"
 #include "SkXfermode.h"
@@ -74,7 +75,7 @@ public:
          * pos.x = dot(v.xy, pos.xz)
          * pos.y = dot(v.zw, pos.yz)
          */
-        void getRTAdjustmentVec(GrGLfloat* destVec) {
+        void getRTAdjustmentVec(float* destVec) {
             destVec[0] = 2.f / fRenderTargetSize.fWidth;
             destVec[1] = -1.f;
             if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
@@ -97,7 +98,7 @@ public:
                  SkTArray<const GrTextureAccess*>* textureBindings);
 
 protected:
-    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
     typedef GrGLProgramDataManager::SeparableVaryingInfoArray SeparableVaryingInfoArray;
 

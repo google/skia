@@ -135,7 +135,7 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
             fRenderTargetState.fRenderTargetSize = size;
             fRenderTargetState.fRenderTargetOrigin = rt->origin();
 
-            GrGLfloat rtAdjustmentVec[4];
+            float rtAdjustmentVec[4];
             fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
             fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
         }

@@ -15,6 +15,7 @@
 
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLCircleBlurFragmentProcessor : public GrGLFragmentProcessor {
 public:
@@ -22,10 +23,10 @@ public:
     void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fDataUniform;
+    GrGLSLProgramDataManager::UniformHandle fDataUniform;
 
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -63,7 +64,7 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
     fsBuilder->codeAppendf("%s = src * intensity;\n", args.fOutputColor );
 }
 
-void GrGLCircleBlurFragmentProcessor::onSetData(const GrGLProgramDataManager& pdman,
+void GrGLCircleBlurFragmentProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
                                                 const GrProcessor& proc) {
     const GrCircleBlurFragmentProcessor& cbfp = proc.cast<GrCircleBlurFragmentProcessor>();
     const SkRect& circle = cbfp.circle();

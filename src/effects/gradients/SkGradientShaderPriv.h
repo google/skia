@@ -297,6 +297,7 @@ static inline int next_dither_toggle16(int toggle) {
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrInvariantOutput;
 
@@ -401,7 +402,7 @@ public:
     virtual ~GrGLGradientEffect();
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 protected:
     /**
@@ -444,10 +445,10 @@ private:
     GR_STATIC_ASSERT(kBaseKeyBitCnt <= 32);
 
     SkScalar fCachedYCoord;
-    GrGLProgramDataManager::UniformHandle fFSYUni;
-    GrGLProgramDataManager::UniformHandle fColorStartUni;
-    GrGLProgramDataManager::UniformHandle fColorMidUni;
-    GrGLProgramDataManager::UniformHandle fColorEndUni;
+    GrGLSLProgramDataManager::UniformHandle fFSYUni;
+    GrGLSLProgramDataManager::UniformHandle fColorStartUni;
+    GrGLSLProgramDataManager::UniformHandle fColorMidUni;
+    GrGLSLProgramDataManager::UniformHandle fColorEndUni;
 
     typedef GrGLFragmentProcessor INHERITED;
 };

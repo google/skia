@@ -17,6 +17,7 @@
 #include "gl/GrGLXferProcessor.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 /**
  * Wraps the shader outputs and HW blend state that comprise a Porter Duff blend mode with coverage.
@@ -450,7 +451,7 @@ private:
                             args.fOutputPrimary, args.fInputColor, args.fInputCoverage);
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLXferProcessor INHERITED;
 };
@@ -550,7 +551,7 @@ private:
         GrGLSLBlend::AppendMode(fsBuilder, srcColor, dstColor, outColor, xp.getXfermode());
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLXferProcessor INHERITED;
 };
@@ -628,7 +629,7 @@ private:
                                args.fInputCoverage);
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {};
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {};
 
     typedef GrGLXferProcessor INHERITED;
 };

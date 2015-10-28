@@ -11,6 +11,7 @@
 #include "gl/GrGLContext.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 //////////////////////////////////////////////////////////////////////////////
 class AARectEffect : public GrFragmentProcessor {
@@ -87,10 +88,10 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fRectUniform;
+    GrGLSLProgramDataManager::UniformHandle fRectUniform;
     SkRect                                fPrevRect;
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -138,7 +139,8 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
                            (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLAARectEffect::onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& processor) {
+void GLAARectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                               const GrProcessor& processor) {
     const AARectEffect& aare = processor.cast<AARectEffect>();
     const SkRect& rect = aare.getRect();
     if (rect != fPrevRect) {
@@ -173,10 +175,10 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fEdgeUniform;
+    GrGLSLProgramDataManager::UniformHandle fEdgeUniform;
     SkScalar                              fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -222,7 +224,8 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
                            (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GrGLConvexPolyEffect::onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& effect) {
+void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                     const GrProcessor& effect) {
     const GrConvexPolyEffect& cpe = effect.cast<GrConvexPolyEffect>();
     size_t byteSize = 3 * cpe.getEdgeCount() * sizeof(SkScalar);
     if (0 != memcmp(fPrevEdges, cpe.getEdges(), byteSize)) {

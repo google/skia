@@ -20,6 +20,7 @@
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrMagnifierEffect : public GrSingleTextureEffect {
 
@@ -95,7 +96,7 @@ private:
 };
 
 // For brevity
-typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLFragmentProcessor {
 public:
@@ -104,7 +105,7 @@ public:
     virtual void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     UniformHandle       fOffsetVar;
@@ -171,8 +172,8 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend(modulate.c_str());
 }
 
-void GrGLMagnifierEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                  const GrProcessor& effect) {
+void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                    const GrProcessor& effect) {
     const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
     pdman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
     pdman.set2f(fInvZoomVar, zoom.x_inv_zoom(), zoom.y_inv_zoom());

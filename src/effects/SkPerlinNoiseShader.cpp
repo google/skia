@@ -22,6 +22,7 @@
 #include "effects/GrConstColorProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #endif
 
 static const int kBlockSize = 256;
@@ -492,15 +493,15 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
 
-    GrGLProgramDataManager::UniformHandle fStitchDataUni;
-    SkPerlinNoiseShader::Type             fType;
-    bool                                  fStitchTiles;
-    int                                   fNumOctaves;
-    GrGLProgramDataManager::UniformHandle fBaseFrequencyUni;
+    GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
+    SkPerlinNoiseShader::Type               fType;
+    bool                                    fStitchTiles;
+    int                                     fNumOctaves;
+    GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
 private:
     typedef GrGLFragmentProcessor INHERITED;
@@ -894,7 +895,8 @@ void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
     b->add32(key);
 }
 
-void GrGLPerlinNoise::onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& processor) {
+void GrGLPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
+                                const GrProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
 
     const GrPerlinNoiseEffect& turbulence = processor.cast<GrPerlinNoiseEffect>();

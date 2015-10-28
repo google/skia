@@ -59,6 +59,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class AlphaThresholdEffect : public GrFragmentProcessor {
 
@@ -126,12 +127,12 @@ public:
     virtual void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
 
-    GrGLProgramDataManager::UniformHandle fInnerThresholdVar;
-    GrGLProgramDataManager::UniformHandle fOuterThresholdVar;
+    GrGLSLProgramDataManager::UniformHandle fInnerThresholdVar;
+    GrGLSLProgramDataManager::UniformHandle fOuterThresholdVar;
 
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -182,7 +183,7 @@ void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
                            (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr4("color")).c_str());
 }
 
-void GrGLAlphaThresholdEffect::onSetData(const GrGLProgramDataManager& pdman,
+void GrGLAlphaThresholdEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                        const GrProcessor& proc) {
     const AlphaThresholdEffect& alpha_threshold = proc.cast<AlphaThresholdEffect>();
     pdman.set1f(fInnerThresholdVar, alpha_threshold.innerThreshold());

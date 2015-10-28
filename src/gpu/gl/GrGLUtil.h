@@ -141,7 +141,7 @@ void GrGLClearErr(const GrGLInterface* gl);
 /**
  * Helper for converting SkMatrix to a column-major GL float array
  */
-template<int MatrixSize> void GrGLGetMatrix(GrGLfloat* dest, const SkMatrix& src);
+template<int MatrixSize> void GrGLGetMatrix(float* dest, const SkMatrix& src);
 
 ////////////////////////////////////////////////////////////////////////////////
 

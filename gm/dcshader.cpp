@@ -13,6 +13,7 @@
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #include "Resources.h"
 #include "SkReadBuffer.h"
 #include "SkShader.h"
@@ -76,7 +77,7 @@ public:
                                     "%s = color * %s;",
                                     args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
             }
-            void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override {}
+            void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override {}
         };
         return new DCGLFP;
     }

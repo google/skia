@@ -132,6 +132,7 @@ private:
 #include "GrTextureAccess.h"
 #include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
 
@@ -237,7 +238,7 @@ public:
         }
 
     protected:
-        void onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& proc) override {
+        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
             const LightingFP& lightingFP = proc.cast<LightingFP>();
 
             const SkVector3& lightDir = lightingFP.lightDir();
@@ -267,16 +268,16 @@ public:
 
     private:
         SkVector3 fLightDir;
-        GrGLProgramDataManager::UniformHandle fLightDirUni;
+        GrGLSLProgramDataManager::UniformHandle fLightDirUni;
 
         SkColor3f fLightColor;
-        GrGLProgramDataManager::UniformHandle fLightColorUni;
+        GrGLSLProgramDataManager::UniformHandle fLightColorUni;
 
         SkColor3f fAmbientColor;
-        GrGLProgramDataManager::UniformHandle fAmbientColorUni;
+        GrGLSLProgramDataManager::UniformHandle fAmbientColorUni;
 
         SkVector fInvNormRotation;
-        GrGLProgramDataManager::UniformHandle fXformUni;
+        GrGLSLProgramDataManager::UniformHandle fXformUni;
     };
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {

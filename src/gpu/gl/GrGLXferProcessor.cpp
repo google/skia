@@ -10,6 +10,7 @@
 #include "GrXferProcessor.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 void GrGLXferProcessor::emitCode(const EmitArgs& args) {
     if (!args.fXP.willReadDstColor()) {
@@ -77,11 +78,11 @@ void GrGLXferProcessor::emitCode(const EmitArgs& args) {
     }
 }
 
-void GrGLXferProcessor::setData(const GrGLProgramDataManager& pdm, const GrXferProcessor& xp) {
+void GrGLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
     if (xp.getDstTexture()) {
         if (fDstTopLeftUni.isValid()) {
-            pdm.set2f(fDstTopLeftUni, static_cast<GrGLfloat>(xp.dstTextureOffset().fX),
-                      static_cast<GrGLfloat>(xp.dstTextureOffset().fY));
+            pdm.set2f(fDstTopLeftUni, static_cast<float>(xp.dstTextureOffset().fX),
+                      static_cast<float>(xp.dstTextureOffset().fY));
             pdm.set2f(fDstScaleUni, 1.f / xp.getDstTexture()->width(),
                       1.f / xp.getDstTexture()->height());
         } else {

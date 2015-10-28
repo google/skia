@@ -19,6 +19,7 @@
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLXferProcessor.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
@@ -118,7 +119,7 @@ void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* na
     }
 }
 
-GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(
+GrGLSLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(
                                                                 uint32_t visibility,
                                                                 GrSLType type,
                                                                 GrSLPrecision precision,
@@ -152,7 +153,7 @@ GrGLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(
     if (outName) {
         *outName = uni.fVariable.c_str();
     }
-    return GrGLProgramDataManager::UniformHandle(fUniforms.count() - 1);
+    return GrGLSLProgramDataManager::UniformHandle(fUniforms.count() - 1);
 }
 
 void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,

@@ -8,7 +8,8 @@
 #ifndef GrGLXferProcessor_DEFINED
 #define GrGLXferProcessor_DEFINED
 
-#include "GrGLFragmentProcessor.h"
+#include "GrGLProcessor.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLXPBuilder;
 class GrXferProcessor;
@@ -56,7 +57,7 @@ public:
         to have an identical processor key as the one that created this GrGLXferProcessor. This
         function calls onSetData on the subclass of GrGLXferProcessor
      */
-    void setData(const GrGLProgramDataManager& pdm, const GrXferProcessor& xp);
+    void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp);
 
 private:
     /**
@@ -78,10 +79,10 @@ private:
         SkFAIL("emitBlendCodeForDstRead not implemented.");
     }
 
-    virtual void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) = 0;
+    virtual void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) = 0;
 
-    GrGLProgramDataManager::UniformHandle fDstTopLeftUni;
-    GrGLProgramDataManager::UniformHandle fDstScaleUni;
+    GrGLSLProgramDataManager::UniformHandle fDstTopLeftUni;
+    GrGLSLProgramDataManager::UniformHandle fDstScaleUni;
 
     typedef GrGLProcessor INHERITED;
 };

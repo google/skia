@@ -81,7 +81,7 @@ private:
         }
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {};
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {};
 
     typedef GrGLXferProcessor INHERITED;
 };

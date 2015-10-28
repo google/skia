@@ -11,7 +11,7 @@
 #include "GrGLFragmentShaderBuilder.h"
 #include "GrGLGeometryShaderBuilder.h"
 #include "GrGLVertexShaderBuilder.h"
-#include "../GrGLProgramDataManager.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #include "../GrGLPrimitiveProcessor.h"
 #include "../GrGLXferProcessor.h"
 #include "../../GrPipeline.h"
@@ -42,7 +42,7 @@ public:
 
     virtual ~GrGLUniformBuilder() {}
 
-    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::SeparableVaryingHandle SeparableVaryingHandle;
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.

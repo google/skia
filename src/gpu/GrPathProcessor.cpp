@@ -71,10 +71,11 @@ public:
         }
     }
 
-    void setData(const GrGLProgramDataManager& pd, const GrPrimitiveProcessor& primProc) override {
+    void setData(const GrGLSLProgramDataManager& pd,
+                 const GrPrimitiveProcessor& primProc) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         if (pathProc.opts().readsColor() && pathProc.color() != fColor) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(pathProc.color(), c);
             pd.set4fv(fColorUniform, 1, c);
             fColor = pathProc.color();
@@ -82,7 +83,7 @@ public:
     }
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLProgramDataManager& pdman,
+                          const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& coordTransforms) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();

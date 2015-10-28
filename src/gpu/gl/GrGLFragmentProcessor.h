@@ -8,11 +8,11 @@
 #ifndef GrGLFragmentProcessor_DEFINED
 #define GrGLFragmentProcessor_DEFINED
 
-#include "GrGLProgramDataManager.h"
 #include "GrGLProcessor.h"
-#include "GrTextureAccess.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLFPBuilder;
+class GrGLSLCaps;
 
 class GrGLFragmentProcessor {
 public:
@@ -24,7 +24,7 @@ public:
         }
     }
 
-    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
     typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
 
@@ -70,7 +70,7 @@ public:
 
     virtual void emitCode(EmitArgs&) = 0;
 
-    void setData(const GrGLProgramDataManager& pdman, const GrFragmentProcessor& processor);
+    void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
@@ -101,7 +101,7 @@ protected:
     parameter is guaranteed to be of the same type that created this GrGLFragmentProcessor and
     to have an identical processor key as the one that created this GrGLFragmentProcessor.  */
     // TODO update this to pass in GrFragmentProcessor
-    virtual void onSetData(const GrGLProgramDataManager&, const GrProcessor&) {}
+    virtual void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) {}
 
 private:
     void internalEmitChild(int, const char*, const char*, EmitArgs&);

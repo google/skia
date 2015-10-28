@@ -10,6 +10,7 @@
 #include "gl/GrGLXferProcessor.h"
 #include "gl/builders/GrGLFragmentShaderBuilder.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 /**
  * This xfer processor disables color writing. Thus color and coverage and ignored and no blending
@@ -66,7 +67,7 @@ private:
         fsBuilder->codeAppendf("%s = vec4(0);", args.fOutputPrimary);
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLXferProcessor INHERITED;
 };

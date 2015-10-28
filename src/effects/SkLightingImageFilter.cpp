@@ -23,12 +23,13 @@
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLDiffuseLightingEffect;
 class GrGLSpecularLightingEffect;
 
 // For brevity
-typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 #endif
 
 namespace {
@@ -39,13 +40,13 @@ const SkScalar gOneHalf = 0.5f;
 const SkScalar gOneQuarter = 0.25f;
 
 #if SK_SUPPORT_GPU
-void setUniformPoint3(const GrGLProgramDataManager& pdman, UniformHandle uni,
+void setUniformPoint3(const GrGLSLProgramDataManager& pdman, UniformHandle uni,
                       const SkPoint3& point) {
-    GR_STATIC_ASSERT(sizeof(SkPoint3) == 3 * sizeof(GrGLfloat));
+    GR_STATIC_ASSERT(sizeof(SkPoint3) == 3 * sizeof(float));
     pdman.set3fv(uni, 1, &point.fX);
 }
 
-void setUniformNormal3(const GrGLProgramDataManager& pdman, UniformHandle uni,
+void setUniformNormal3(const GrGLSLProgramDataManager& pdman, UniformHandle uni,
                        const SkPoint3& point) {
     setUniformPoint3(pdman, uni, point);
 }
@@ -611,7 +612,7 @@ public:
 
     // This is called from GrGLLightingEffect's setData(). Subclasses of GrGLLight must call
     // INHERITED::setData().
-    virtual void setData(const GrGLProgramDataManager&, const SkImageFilterLight* light) const;
+    virtual void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const;
 
 protected:
     /**
@@ -631,7 +632,7 @@ private:
 class GrGLDistantLight : public GrGLLight {
 public:
     virtual ~GrGLDistantLight() {}
-    void setData(const GrGLProgramDataManager&, const SkImageFilterLight* light) const override;
+    void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
     void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
 
 private:
@@ -644,7 +645,7 @@ private:
 class GrGLPointLight : public GrGLLight {
 public:
     virtual ~GrGLPointLight() {}
-    void setData(const GrGLProgramDataManager&, const SkImageFilterLight* light) const override;
+    void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
     void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
 
 private:
@@ -657,7 +658,7 @@ private:
 class GrGLSpotLight : public GrGLLight {
 public:
     virtual ~GrGLSpotLight() {}
-    void setData(const GrGLProgramDataManager&, const SkImageFilterLight* light) const override;
+    void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
     void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
     void emitLightColor(GrGLFPBuilder*, const char *surfaceToLight) override;
 
@@ -1519,7 +1520,7 @@ protected:
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::onSetData();
      */
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
     virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) = 0;
 
@@ -1540,7 +1541,7 @@ public:
     void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1556,7 +1557,7 @@ public:
     void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1742,8 +1743,8 @@ void GrGLLightingEffect::GenKey(const GrProcessor& proc,
     b->add32(lighting.boundaryMode() << 2 | lighting.light()->type());
 }
 
-void GrGLLightingEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                 const GrProcessor& proc) {
+void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                   const GrProcessor& proc) {
     const GrLightingEffect& lighting = proc.cast<GrLightingEffect>();
     GrTexture* texture = lighting.texture(0);
     float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
@@ -1784,8 +1785,8 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString* 
                                                       funcName);
 }
 
-void GrGLDiffuseLightingEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                        const GrProcessor& proc) {
+void GrGLDiffuseLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                          const GrProcessor& proc) {
     INHERITED::onSetData(pdman, proc);
     const GrDiffuseLightingEffect& diffuse = proc.cast<GrDiffuseLightingEffect>();
     pdman.set1f(fKDUni, diffuse.kd());
@@ -1874,8 +1875,8 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString*
                                                       funcName);
 }
 
-void GrGLSpecularLightingEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                         const GrProcessor& effect) {
+void GrGLSpecularLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                           const GrProcessor& effect) {
     INHERITED::onSetData(pdman, effect);
     const GrSpecularLightingEffect& spec = effect.cast<GrSpecularLightingEffect>();
     pdman.set1f(fKSUni, spec.ks());
@@ -1893,7 +1894,7 @@ void GrGLLight::emitLightColor(GrGLFPBuilder* builder, const char *surfaceToLigh
     builder->getFragmentShaderBuilder()->codeAppend(builder->getUniformCStr(this->lightColorUni()));
 }
 
-void GrGLLight::setData(const GrGLProgramDataManager& pdman,
+void GrGLLight::setData(const GrGLSLProgramDataManager& pdman,
                         const SkImageFilterLight* light) const {
     setUniformPoint3(pdman, fColorUni,
                      light->color().makeScale(SkScalarInvert(SkIntToScalar(255))));
@@ -1901,7 +1902,7 @@ void GrGLLight::setData(const GrGLProgramDataManager& pdman,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLDistantLight::setData(const GrGLProgramDataManager& pdman,
+void GrGLDistantLight::setData(const GrGLSLProgramDataManager& pdman,
                                const SkImageFilterLight* light) const {
     INHERITED::setData(pdman, light);
     SkASSERT(light->type() == SkImageFilterLight::kDistant_LightType);
@@ -1919,7 +1920,7 @@ void GrGLDistantLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLPointLight::setData(const GrGLProgramDataManager& pdman,
+void GrGLPointLight::setData(const GrGLSLProgramDataManager& pdman,
                              const SkImageFilterLight* light) const {
     INHERITED::setData(pdman, light);
     SkASSERT(light->type() == SkImageFilterLight::kPoint_LightType);
@@ -1939,7 +1940,7 @@ void GrGLPointLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLSpotLight::setData(const GrGLProgramDataManager& pdman,
+void GrGLSpotLight::setData(const GrGLSLProgramDataManager& pdman,
                             const SkImageFilterLight* light) const {
     INHERITED::setData(pdman, light);
     SkASSERT(light->type() == SkImageFilterLight::kSpot_LightType);

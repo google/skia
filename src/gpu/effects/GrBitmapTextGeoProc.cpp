@@ -12,6 +12,7 @@
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLBitmapTextGeoProc : public GrGLGeometryProcessor {
 public:
@@ -78,10 +79,10 @@ public:
         }
     }
 
-    void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
         const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(btgp.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
             fColor = btgp.color();
@@ -89,7 +90,7 @@ public:
     }
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLProgramDataManager& pdman,
+                          const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
         this->setTransformDataHelper<GrBitmapTextGeoProc>(primProc, pdman, index, transforms);

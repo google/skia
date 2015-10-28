@@ -10,6 +10,7 @@
 #include "GrCoordTransform.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
@@ -231,12 +232,12 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
                 }
 
             private:
-                void onSetData(const GrGLProgramDataManager& pdman,
+                void onSetData(const GrGLSLProgramDataManager& pdman,
                                const GrProcessor& fp) override {
                     GrColor color = fp.cast<ReplaceInputFragmentProcessor>().fColor;
                     if (!fHaveSetColor || color != fPreviousColor) {
-                        static const GrGLfloat scale = 1.f / 255.f;
-                        GrGLfloat floatColor[4] = {
+                        static const float scale = 1.f / 255.f;
+                        float floatColor[4] = {
                             GrColorUnpackR(color) * scale,
                             GrColorUnpackG(color) * scale,
                             GrColorUnpackB(color) * scale,
@@ -248,7 +249,7 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
                     }
                 }
 
-                GrGLProgramDataManager::UniformHandle fColorUni;
+                GrGLSLProgramDataManager::UniformHandle fColorUni;
                 bool    fHaveSetColor;
                 GrColor fPreviousColor;
             };

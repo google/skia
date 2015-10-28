@@ -29,6 +29,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #endif
 
 SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
@@ -682,10 +683,10 @@ public:
     static void GenKey(GrSLPrecision precision, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle       fProxyRectUniform;
     UniformHandle       fProfileSizeUniform;
@@ -763,7 +764,7 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppendf("%s = src * final;", args.fOutputColor);
 }
 
-void GrGLRectBlurEffect::onSetData(const GrGLProgramDataManager& pdman,
+void GrGLRectBlurEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                    const GrProcessor& proc) {
     const GrRectBlurEffect& rbe = proc.cast<GrRectBlurEffect>();
     SkRect rect = rbe.getRect();
@@ -1047,12 +1048,12 @@ public:
     virtual void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fProxyRectUniform;
-    GrGLProgramDataManager::UniformHandle fCornerRadiusUniform;
-    GrGLProgramDataManager::UniformHandle fBlurRadiusUniform;
+    GrGLSLProgramDataManager::UniformHandle fProxyRectUniform;
+    GrGLSLProgramDataManager::UniformHandle fCornerRadiusUniform;
+    GrGLSLProgramDataManager::UniformHandle fBlurRadiusUniform;
     typedef GrGLFragmentProcessor INHERITED;
 };
 
@@ -1110,8 +1111,8 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend(";");
 }
 
-void GrGLRRectBlurEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                  const GrProcessor& proc) {
+void GrGLRRectBlurEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                    const GrProcessor& proc) {
     const GrRRectBlurEffect& brre = proc.cast<GrRRectBlurEffect>();
     SkRRect rrect = brre.getRRect();
 

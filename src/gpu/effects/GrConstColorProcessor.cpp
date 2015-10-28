@@ -8,6 +8,7 @@
 #include "effects/GrConstColorProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GLConstColorProcessor : public GrGLFragmentProcessor {
 public:
@@ -39,14 +40,14 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLProgramDataManager& pdm, const GrProcessor& processor) override {
+    void onSetData(const GrGLSLProgramDataManager& pdm, const GrProcessor& processor) override {
         GrColor color = processor.cast<GrConstColorProcessor>().color();
         // We use the "illegal" color value as an uninit sentinel. However, ut isn't inherently
         // illegal to use this processor with unpremul colors. So we correctly handle the case
         // when the "illegal" color is used but we will always upload it.
         if (GrColor_ILLEGAL == color || fPrevColor != color) {
-            static const GrGLfloat scale = 1.f / 255.f;
-            GrGLfloat floatColor[4] = {
+            static const float scale = 1.f / 255.f;
+            float floatColor[4] = {
                 GrColorUnpackR(color) * scale,
                 GrColorUnpackG(color) * scale,
                 GrColorUnpackB(color) * scale,
@@ -58,7 +59,7 @@ protected:
     }
 
 private:
-    GrGLProgramDataManager::UniformHandle fColorUniform;
+    GrGLSLProgramDataManager::UniformHandle fColorUniform;
     GrColor                               fPrevColor;
 
     typedef GrGLFragmentProcessor INHERITED;

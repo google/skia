@@ -306,7 +306,8 @@ GrGLRenderer GrGLGetRenderer(const GrGLInterface* gl) {
     return GrGLGetRendererFromString((const char*) v);
 }
 
-template<> void GrGLGetMatrix<3>(GrGLfloat* dest, const SkMatrix& src) {
+template<> void GrGLGetMatrix<3>(float* dest, const SkMatrix& src) {
+    GR_STATIC_ASSERT(sizeof(float) == sizeof (GrGLfloat));
     // Col 0
     dest[0] = SkScalarToFloat(src[SkMatrix::kMScaleX]);
     dest[1] = SkScalarToFloat(src[SkMatrix::kMSkewY]);
@@ -323,7 +324,8 @@ template<> void GrGLGetMatrix<3>(GrGLfloat* dest, const SkMatrix& src) {
     dest[8] = SkScalarToFloat(src[SkMatrix::kMPersp2]);
 }
 
-template<> void GrGLGetMatrix<4>(GrGLfloat* dest, const SkMatrix& src) {
+template<> void GrGLGetMatrix<4>(float* dest, const SkMatrix& src) {
+    GR_STATIC_ASSERT(sizeof(float) == sizeof (GrGLfloat));
     // Col 0
     dest[0]  = SkScalarToFloat(src[SkMatrix::kMScaleX]);
     dest[1]  = SkScalarToFloat(src[SkMatrix::kMSkewY]);

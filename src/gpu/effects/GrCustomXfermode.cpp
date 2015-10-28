@@ -22,6 +22,7 @@
 #include "gl/GrGLProgramDataManager.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 bool GrCustomXfermode::IsSupportedMode(SkXfermode::Mode mode) {
     return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastMode;
@@ -168,7 +169,7 @@ private:
         GrGLSLBlend::AppendMode(fsBuilder, srcColor, dstColor, outColor, xp.mode());
     }
 
-    void onSetData(const GrGLProgramDataManager&, const GrXferProcessor&) override {}
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLXferProcessor INHERITED;
 };

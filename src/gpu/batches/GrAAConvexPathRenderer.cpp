@@ -28,6 +28,7 @@
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
@@ -605,10 +606,11 @@ public:
             b->add32(key);
         }
 
-        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
             if (qe.color() != fColor) {
-                GrGLfloat c[4];
+                float c[4];
                 GrColorToRGBAFloat(qe.color(), c);
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = qe.color();
@@ -616,7 +618,7 @@ public:
         }
 
         void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLProgramDataManager& pdman,
+                              const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
             this->setTransformDataHelper<QuadEdgeEffect>(primProc, pdman, index, transforms);

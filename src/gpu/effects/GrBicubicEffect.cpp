@@ -8,6 +8,7 @@
 #include "GrBicubicEffect.h"
 #include "GrInvariantOutput.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 #define DS(x) SkDoubleToScalar(x)
 
@@ -32,10 +33,10 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle               fCoefficientsUni;
     UniformHandle               fImageIncrementUni;
@@ -105,8 +106,8 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                            GrGLSLExpr4(args.fInputColor)).c_str());
 }
 
-void GrGLBicubicEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                const GrProcessor& processor) {
+void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                  const GrProcessor& processor) {
     const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
     const GrTexture& texture = *processor.texture(0);
     float imageIncrement[2];

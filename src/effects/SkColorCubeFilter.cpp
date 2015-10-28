@@ -20,6 +20,7 @@
 #include "SkGr.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -183,11 +184,11 @@ public:
         static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
     protected:
-        void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+        void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
     private:
-        GrGLProgramDataManager::UniformHandle fColorCubeSizeUni;
-        GrGLProgramDataManager::UniformHandle fColorCubeInvSizeUni;
+        GrGLSLProgramDataManager::UniformHandle fColorCubeSizeUni;
+        GrGLSLProgramDataManager::UniformHandle fColorCubeInvSizeUni;
 
         typedef GrGLFragmentProcessor INHERITED;
     };
@@ -291,8 +292,8 @@ void GrColorCubeEffect::GLProcessor::emitCode(EmitArgs& args) {
                            cubeIdx, nonZeroAlpha, args.fInputColor);
 }
 
-void GrColorCubeEffect::GLProcessor::onSetData(const GrGLProgramDataManager& pdman,
-                                             const GrProcessor& proc) {
+void GrColorCubeEffect::GLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
+                                               const GrProcessor& proc) {
     const GrColorCubeEffect& colorCube = proc.cast<GrColorCubeEffect>();
     SkScalar size = SkIntToScalar(colorCube.colorCubeSize());
     pdman.set1f(fColorCubeSizeUni, SkScalarToFloat(size));

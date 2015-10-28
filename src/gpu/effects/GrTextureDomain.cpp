@@ -12,6 +12,7 @@
 #include "gl/GrGLContext.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
     : fIndex(index) {
@@ -142,12 +143,12 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
     }
 }
 
-void GrTextureDomain::GLDomain::setData(const GrGLProgramDataManager& pdman,
+void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
                                         GrSurfaceOrigin textureOrigin) {
     SkASSERT(textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
-        GrGLfloat values[kPrevDomainCount] = {
+        float values[kPrevDomainCount] = {
             SkScalarToFloat(textureDomain.domain().left()),
             SkScalarToFloat(textureDomain.domain().top()),
             SkScalarToFloat(textureDomain.domain().right()),
@@ -161,9 +162,9 @@ void GrTextureDomain::GLDomain::setData(const GrGLProgramDataManager& pdman,
             // of elements so that values = (l, t, r, b).
             SkTSwap(values[1], values[3]);
         }
-        if (0 != memcmp(values, fPrevDomain, kPrevDomainCount * sizeof(GrGLfloat))) {
+        if (0 != memcmp(values, fPrevDomain, kPrevDomainCount * sizeof(float))) {
             pdman.set4fv(fDomainUni, 1, values);
-            memcpy(fPrevDomain, values, kPrevDomainCount * sizeof(GrGLfloat));
+            memcpy(fPrevDomain, values, kPrevDomainCount * sizeof(float));
         }
     }
 }
@@ -180,7 +181,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrTextureDomain::GLDomain         fGLDomain;
@@ -200,8 +201,8 @@ void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
                             args.fInputColor);
 }
 
-void GrGLTextureDomainEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                      const GrProcessor& processor) {
+void GrGLTextureDomainEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                        const GrProcessor& processor) {
     const GrTextureDomainEffect& textureDomainEffect = processor.cast<GrTextureDomainEffect>();
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
     fGLDomain.setData(pdman, domain, processor.texture(0)->origin());

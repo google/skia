@@ -24,6 +24,7 @@
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -821,10 +822,10 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrPrimitiveProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLProgramDataManager& pdman,
+                          const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
         this->setTransformDataHelper<DashingCircleEffect>(primProc, pdman, index, transforms);
@@ -896,11 +897,11 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fsBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
 }
 
-void GLDashingCircleEffect::setData(const GrGLProgramDataManager& pdman,
+void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
                                     const GrPrimitiveProcessor& processor) {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
-        GrGLfloat c[4];
+        float c[4];
         GrColorToRGBAFloat(dce.color(), c);
         pdman.set4fv(fColorUniform, 1, c);
         fColor = dce.color();
@@ -1032,10 +1033,10 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager&, const GrPrimitiveProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLProgramDataManager& pdman,
+                          const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
         this->setTransformDataHelper<DashingLineEffect>(primProc, pdman, index, transforms);
@@ -1120,11 +1121,11 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fsBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
 }
 
-void GLDashingLineEffect::setData(const GrGLProgramDataManager& pdman,
+void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
                                   const GrPrimitiveProcessor& processor) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     if (de.color() != fColor) {
-        GrGLfloat c[4];
+        float c[4];
         GrColorToRGBAFloat(de.color(), c);
         pdman.set4fv(fColorUniform, 1, c);
         fColor = de.color();

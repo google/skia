@@ -910,6 +910,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "GrInvariantOutput.h"
 #include "gl/GrGLContext.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #include "SkGr.h"
 
 GrGLGradientEffect::GrGLGradientEffect()
@@ -946,8 +947,8 @@ void GrGLGradientEffect::emitUniforms(GrGLFPBuilder* builder, const GrGradientEf
     }
 }
 
-static inline void set_color_uni(const GrGLProgramDataManager& pdman,
-                                 const GrGLProgramDataManager::UniformHandle uni,
+static inline void set_color_uni(const GrGLSLProgramDataManager& pdman,
+                                 const GrGLSLProgramDataManager::UniformHandle uni,
                                  const SkColor* color) {
        pdman.set4f(uni,
                    SkColorGetR(*color) / 255.f,
@@ -956,8 +957,8 @@ static inline void set_color_uni(const GrGLProgramDataManager& pdman,
                    SkColorGetA(*color) / 255.f);
 }
 
-static inline void set_mul_color_uni(const GrGLProgramDataManager& pdman,
-                                     const GrGLProgramDataManager::UniformHandle uni,
+static inline void set_mul_color_uni(const GrGLSLProgramDataManager& pdman,
+                                     const GrGLSLProgramDataManager::UniformHandle uni,
                                      const SkColor* color){
        float a = SkColorGetA(*color) / 255.f;
        float aDiv255 = a / 255.f;
@@ -968,8 +969,8 @@ static inline void set_mul_color_uni(const GrGLProgramDataManager& pdman,
                    a);
 }
 
-void GrGLGradientEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                 const GrProcessor& processor) {
+void GrGLGradientEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                   const GrProcessor& processor) {
 
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 

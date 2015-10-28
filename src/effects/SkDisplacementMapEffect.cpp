@@ -19,6 +19,7 @@
 #include "effects/GrTextureDomain.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #endif
 
 namespace {
@@ -314,12 +315,12 @@ public:
     const GrTextureDomain::GLDomain& glDomain() const { return fGLDomain; }
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     SkDisplacementMapEffect::ChannelSelectorType fXChannelSelector;
     SkDisplacementMapEffect::ChannelSelectorType fYChannelSelector;
-    GrGLProgramDataManager::UniformHandle fScaleUni;
+    GrGLSLProgramDataManager::UniformHandle fScaleUni;
     GrTextureDomain::GLDomain fGLDomain;
 
     typedef GrGLFragmentProcessor INHERITED;
@@ -610,8 +611,8 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     fsBuilder->codeAppend(";\n");
 }
 
-void GrGLDisplacementMapEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                        const GrProcessor& proc) {
+void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                          const GrProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
     GrTexture* colorTex = displacementMap.texture(1);
     SkScalar scaleX = displacementMap.scale().fX / colorTex->width();

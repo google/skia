@@ -131,18 +131,19 @@ public:
             b->add32(key);
         }
 
-        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
             if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
                 fViewMatrix = dgp.viewMatrix();
-                GrGLfloat viewMatrix[3 * 3];
+                float viewMatrix[3 * 3];
                 GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
 
             if (dgp.color() != fColor && !dgp.hasVertexColor()) {
-                GrGLfloat c[4];
+                float c[4];
                 GrColorToRGBAFloat(dgp.color(), c);
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = dgp.color();
@@ -156,7 +157,7 @@ public:
         }
 
         void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLProgramDataManager& pdman,
+                              const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
             this->setTransformDataHelper<DefaultGeoProc>(primProc, pdman, index, transforms);

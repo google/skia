@@ -186,7 +186,7 @@ void GrGLPathRendering::onDrawPaths(const DrawPathArgs& args, const GrPathRange*
 void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint program, GrGLint location,
                                                              GrGLenum genMode, GrGLint components,
                                                              const SkMatrix& matrix) {
-    GrGLfloat coefficients[3 * 3];
+    float coefficients[3 * 3];
     SkASSERT(components >= 1 && components <= 3);
 
     coefficients[0] = SkScalarToFloat(matrix[SkMatrix::kMScaleX]);
@@ -224,7 +224,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
     fHWProjectionMatrixState.fRenderTargetSize = renderTargetSize;
     fHWProjectionMatrixState.fRenderTargetOrigin = renderTargetOrigin;
 
-    GrGLfloat glMatrix[4 * 4];
+    float glMatrix[4 * 4];
     fHWProjectionMatrixState.getRTAdjustedGLMatrix<4>(glMatrix);
     GL_CALL(MatrixLoadf(GR_GL_PATH_PROJECTION, glMatrix));
 }

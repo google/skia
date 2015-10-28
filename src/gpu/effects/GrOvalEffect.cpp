@@ -12,6 +12,7 @@
 #include "SkRect.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -98,12 +99,12 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fCircleUniform;
-    SkPoint                               fPrevCenter;
-    SkScalar                              fPrevRadius;
+    GrGLSLProgramDataManager::UniformHandle fCircleUniform;
+    SkPoint                                 fPrevCenter;
+    SkScalar                                fPrevRadius;
 
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -153,7 +154,8 @@ void GLCircleEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
     b->add32(ce.getEdgeType());
 }
 
-void GLCircleEffect::onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& processor) {
+void GLCircleEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                               const GrProcessor& processor) {
     const CircleEffect& ce = processor.cast<CircleEffect>();
     if (ce.getRadius() != fPrevRadius || ce.getCenter() != fPrevCenter) {
         SkScalar radius = ce.getRadius();
@@ -269,12 +271,12 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fEllipseUniform;
-    SkPoint                               fPrevCenter;
-    SkVector                              fPrevRadii;
+    GrGLSLProgramDataManager::UniformHandle fEllipseUniform;
+    SkPoint                                 fPrevCenter;
+    SkVector                                fPrevRadii;
 
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -334,7 +336,8 @@ void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,
     b->add32(ee.getEdgeType());
 }
 
-void GLEllipseEffect::onSetData(const GrGLProgramDataManager& pdman, const GrProcessor& effect) {
+void GLEllipseEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                const GrProcessor& effect) {
     const EllipseEffect& ee = effect.cast<EllipseEffect>();
     if (ee.getRadii() != fPrevRadii || ee.getCenter() != fPrevCenter) {
         SkScalar invRXSqd = 1.f / (ee.getRadii().fX * ee.getRadii().fX);

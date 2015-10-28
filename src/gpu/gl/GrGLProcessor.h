@@ -8,9 +8,10 @@
 #ifndef GrGLProcessor_DEFINED
 #define GrGLProcessor_DEFINED
 
-#include "GrGLProgramDataManager.h"
 #include "GrProcessor.h"
+#include "GrShaderVar.h"
 #include "GrTextureAccess.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 /** @file
     This file contains specializations for OpenGL of the shader stages declared in
@@ -29,7 +30,7 @@
 // TODO delete this and make TextureSampler its own thing
 class GrGLProcessor {
 public:
-    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     /**
      * Passed to GrGLProcessors so they can add transformed coordinates to their shader code.

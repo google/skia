@@ -368,6 +368,7 @@
       '<(skia_src_path)/gpu/glsl/GrGLSL_impl.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLProgramDataManager.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLShaderVar.h',
 
       # Sk files

@@ -25,6 +25,7 @@
 #include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 // TODO(joshualitt) - Break this file up during GrBatch post implementation cleanup
 
@@ -139,10 +140,11 @@ public:
             b->add32(key);
         }
 
-        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp) override {
             const CircleEdgeEffect& ce = gp.cast<CircleEdgeEffect>();
             if (ce.color() != fColor) {
-                GrGLfloat c[4];
+                float c[4];
                 GrColorToRGBAFloat(ce.color(), c);
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = ce.color();
@@ -150,7 +152,7 @@ public:
         }
 
         void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLProgramDataManager& pdman,
+                              const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
             this->setTransformDataHelper<CircleEdgeEffect>(primProc, pdman, index, transforms);
@@ -307,10 +309,10 @@ public:
             b->add32(key);
         }
 
-        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
             const EllipseEdgeEffect& ee = gp.cast<EllipseEdgeEffect>();
             if (ee.color() != fColor) {
-                GrGLfloat c[4];
+                float c[4];
                 GrColorToRGBAFloat(ee.color(), c);
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = ee.color();
@@ -318,7 +320,7 @@ public:
         }
 
         void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLProgramDataManager& pdman,
+                              const GrGLSLProgramDataManager& pdman,
                               int index,
                               const SkTArray<const GrCoordTransform*, true>& transforms) override {
             this->setTransformDataHelper<EllipseEdgeEffect>(primProc, pdman, index, transforms);
@@ -497,18 +499,19 @@ public:
             b->add32(key);
         }
 
-        void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrPrimitiveProcessor& gp) override {
             const DIEllipseEdgeEffect& dee = gp.cast<DIEllipseEdgeEffect>();
 
             if (!dee.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dee.viewMatrix())) {
                 fViewMatrix = dee.viewMatrix();
-                GrGLfloat viewMatrix[3 * 3];
+                float viewMatrix[3 * 3];
                 GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
 
             if (dee.color() != fColor) {
-                GrGLfloat c[4];
+                float c[4];
                 GrColorToRGBAFloat(dee.color(), c);
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = dee.color();

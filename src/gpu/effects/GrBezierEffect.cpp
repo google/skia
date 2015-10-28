@@ -11,6 +11,7 @@
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLUtil.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
@@ -22,19 +23,19 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager& pdman,
+    void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
         const GrConicEffect& ce = primProc.cast<GrConicEffect>();
 
         if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
             fViewMatrix = ce.viewMatrix();
-            GrGLfloat viewMatrix[3 * 3];
+            float viewMatrix[3 * 3];
             GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
         if (ce.color() != fColor) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(ce.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
             fColor = ce.color();
@@ -47,7 +48,7 @@ public:
     }
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLProgramDataManager& pdman,
+                          const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
         this->setTransformDataHelper<GrConicEffect>(primProc, pdman, index, transforms);
@@ -238,19 +239,19 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager& pdman,
+    void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
         const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
 
         if (!qe.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(qe.viewMatrix())) {
             fViewMatrix = qe.viewMatrix();
-            GrGLfloat viewMatrix[3 * 3];
+            float viewMatrix[3 * 3];
             GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
         if (qe.color() != fColor) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(qe.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
             fColor = qe.color();
@@ -263,7 +264,7 @@ public:
     }
 
     void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLProgramDataManager& pdman,
+                          const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
         this->setTransformDataHelper<GrQuadEffect>(primProc, pdman, index, transforms);
@@ -440,19 +441,19 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLProgramDataManager& pdman,
+    void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
         const GrCubicEffect& ce = primProc.cast<GrCubicEffect>();
 
         if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
             fViewMatrix = ce.viewMatrix();
-            GrGLfloat viewMatrix[3 * 3];
+            float viewMatrix[3 * 3];
             GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
         if (ce.color() != fColor) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(ce.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
             fColor = ce.color();

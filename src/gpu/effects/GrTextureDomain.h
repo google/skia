@@ -10,6 +10,7 @@
 
 #include "GrSingleTextureEffect.h"
 #include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLProgramBuilder;
 class GrGLShaderBuilder;
@@ -122,7 +123,7 @@ public:
          * Call this from GrGLProcessor::setData() to upload uniforms necessary for the texture
          * domain. The rectangle is automatically adjusted to account for the texture's origin.
          */
-        void setData(const GrGLProgramDataManager& pdman, const GrTextureDomain& textureDomain,
+        void setData(const GrGLSLProgramDataManager& pdman, const GrTextureDomain& textureDomain,
                      GrSurfaceOrigin textureOrigin);
 
         enum {
@@ -140,10 +141,10 @@ public:
 
     private:
         static const int kPrevDomainCount = 4;
-        SkDEBUGCODE(Mode                      fMode;)
-        GrGLProgramDataManager::UniformHandle fDomainUni;
-        SkString                              fDomainName;
-        GrGLfloat                             fPrevDomain[kPrevDomainCount];
+        SkDEBUGCODE(Mode                        fMode;)
+        GrGLSLProgramDataManager::UniformHandle fDomainUni;
+        SkString                                fDomainName;
+        float                                   fPrevDomain[kPrevDomainCount];
     };
 
 protected:

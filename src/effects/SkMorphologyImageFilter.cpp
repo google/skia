@@ -21,6 +21,7 @@
 #include "effects/Gr1DKernelEffect.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 #endif
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
@@ -262,7 +263,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
@@ -271,8 +272,8 @@ private:
     Gr1DKernelEffect::Direction           fDirection;
     bool                                  fUseRange;
     GrMorphologyEffect::MorphologyType    fType;
-    GrGLProgramDataManager::UniformHandle fPixelSizeUni;
-    GrGLProgramDataManager::UniformHandle fRangeUni;
+    GrGLSLProgramDataManager::UniformHandle fPixelSizeUni;
+    GrGLSLProgramDataManager::UniformHandle fRangeUni;
 
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -363,7 +364,7 @@ void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
     b->add32(key);
 }
 
-void GrGLMorphologyEffect::onSetData(const GrGLProgramDataManager& pdman,
+void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                    const GrProcessor& proc) {
     const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
     GrTexture& texture = *m.texture(0);

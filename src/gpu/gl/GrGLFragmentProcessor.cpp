@@ -10,7 +10,7 @@
 #include "builders/GrGLFragmentShaderBuilder.h"
 #include "builders/GrGLProgramBuilder.h"
 
-void GrGLFragmentProcessor::setData(const GrGLProgramDataManager& pdman,
+void GrGLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
                                     const GrFragmentProcessor& processor) {
     this->onSetData(pdman, processor);
     SkASSERT(fChildProcessors.count() == processor.numChildProcessors());

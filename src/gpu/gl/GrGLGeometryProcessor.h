@@ -24,7 +24,7 @@ public:
 
     // By default we use the identity matrix
     void setTransformData(const GrPrimitiveProcessor&,
-                          const GrGLProgramDataManager& pdman,
+                          const GrGLSLProgramDataManager& pdman,
                           int index,
                           const SkTArray<const GrCoordTransform*, true>& transforms) override {
         this->setTransformDataMatrix(SkMatrix::I(), pdman, index, transforms);
@@ -33,7 +33,7 @@ public:
     // A helper which subclasses can use if needed
     template <class GeometryProcessor>
     void setTransformDataHelper(const GrPrimitiveProcessor& primProc,
-                                const GrGLProgramDataManager& pdman,
+                                const GrGLSLProgramDataManager& pdman,
                                 int index,
                                 const SkTArray<const GrCoordTransform*, true>& transforms) {
         const GeometryProcessor& gp = primProc.cast<GeometryProcessor>();
@@ -87,7 +87,7 @@ protected:
 
 private:
     void setTransformDataMatrix(const SkMatrix& localMatrix,
-                                const GrGLProgramDataManager& pdman,
+                                const GrGLSLProgramDataManager& pdman,
                                 int index,
                                 const SkTArray<const GrCoordTransform*, true>& transforms) {
         SkSTArray<2, Transform, true>& procTransforms = fInstalledTransforms[index];

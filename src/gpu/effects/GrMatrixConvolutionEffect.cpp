@@ -8,6 +8,7 @@
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLMatrixConvolutionEffect : public GrGLFragmentProcessor {
 public:
@@ -17,10 +18,10 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    typedef GrGLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     SkISize                     fKernelSize;
     bool                        fConvolveAlpha;
 
@@ -111,8 +112,8 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
     b->add32(GrTextureDomain::GLDomain::DomainKey(m.domain()));
 }
 
-void GrGLMatrixConvolutionEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                          const GrProcessor& processor) {
+void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                            const GrProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
     GrTexture& texture = *conv.texture(0);
     // the code we generated was for a specific kernel size

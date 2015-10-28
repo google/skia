@@ -14,6 +14,7 @@
 #include "SkRRect.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 // The effects defined here only handle rrect radii >= kRadiusMin.
 static const SkScalar kRadiusMin = SK_ScalarHalf;
@@ -133,11 +134,11 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fInnerRectUniform;
-    GrGLProgramDataManager::UniformHandle fRadiusPlusHalfUniform;
+    GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
+    GrGLSLProgramDataManager::UniformHandle fRadiusPlusHalfUniform;
     SkRRect                               fPrevRRect;
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -281,8 +282,8 @@ void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrGLSLCap
     b->add32((crre.getCircularCornerFlags() << 3) | crre.getEdgeType());
 }
 
-void GLCircularRRectEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                    const GrProcessor& processor) {
+void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                      const GrProcessor& processor) {
     const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
     const SkRRect& rrect = crre.getRRect();
     if (rrect != fPrevRRect) {
@@ -479,11 +480,11 @@ public:
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    GrGLProgramDataManager::UniformHandle fInnerRectUniform;
-    GrGLProgramDataManager::UniformHandle fInvRadiiSqdUniform;
+    GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
+    GrGLSLProgramDataManager::UniformHandle fInvRadiiSqdUniform;
     SkRRect                               fPrevRRect;
     typedef GrGLFragmentProcessor INHERITED;
 };
@@ -572,8 +573,8 @@ void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps
     b->add32(erre.getRRect().getType() | erre.getEdgeType() << 3);
 }
 
-void GLEllipticalRRectEffect::onSetData(const GrGLProgramDataManager& pdman,
-                                      const GrProcessor& effect) {
+void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
+                                        const GrProcessor& effect) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
     const SkRRect& rrect = erre.getRRect();
     if (rrect != fPrevRRect) {

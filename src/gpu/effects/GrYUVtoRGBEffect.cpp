@@ -12,6 +12,7 @@
 #include "GrProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 namespace {
 
@@ -52,9 +53,9 @@ public:
 
     class GLProcessor : public GrGLFragmentProcessor {
     public:
-        static const GrGLfloat kJPEGConversionMatrix[16];
-        static const GrGLfloat kRec601ConversionMatrix[16];
-        static const GrGLfloat kRec709ConversionMatrix[16];
+        static const float kJPEGConversionMatrix[16];
+        static const float kRec601ConversionMatrix[16];
+        static const float kRec709ConversionMatrix[16];
 
         // this class always generates the same code.
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
@@ -81,8 +82,8 @@ public:
         }
 
     protected:
-        virtual void onSetData(const GrGLProgramDataManager& pdman,
-                             const GrProcessor& processor) override {
+        virtual void onSetData(const GrGLSLProgramDataManager& pdman,
+                               const GrProcessor& processor) override {
             const YUVtoRGBEffect& yuvEffect = processor.cast<YUVtoRGBEffect>();
             switch (yuvEffect.getColorSpace()) {
                 case kJPEG_SkYUVColorSpace:
@@ -98,7 +99,7 @@ public:
         }
 
     private:
-        GrGLProgramDataManager::UniformHandle fMatrixUni;
+        GrGLSLProgramDataManager::UniformHandle fMatrixUni;
 
         typedef GrGLFragmentProcessor INHERITED;
     };
@@ -152,17 +153,17 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-const GrGLfloat YUVtoRGBEffect::GLProcessor::kJPEGConversionMatrix[16] = {
+const float YUVtoRGBEffect::GLProcessor::kJPEGConversionMatrix[16] = {
     1.0f,  0.0f,      1.402f,  -0.701f,
     1.0f, -0.34414f, -0.71414f, 0.529f,
     1.0f,  1.772f,    0.0f,    -0.886f,
     0.0f,  0.0f,      0.0f,     1.0};
-const GrGLfloat YUVtoRGBEffect::GLProcessor::kRec601ConversionMatrix[16] = {
+const float YUVtoRGBEffect::GLProcessor::kRec601ConversionMatrix[16] = {
     1.164f,  0.0f,    1.596f, -0.87075f,
     1.164f, -0.391f, -0.813f,  0.52925f,
     1.164f,  2.018f,  0.0f,   -1.08175f,
     0.0f,    0.0f,    0.0f,    1.0};
-const GrGLfloat YUVtoRGBEffect::GLProcessor::kRec709ConversionMatrix[16] = {
+const float YUVtoRGBEffect::GLProcessor::kRec709ConversionMatrix[16] = {
     1.164f,  0.0f,    1.793f, -0.96925f,
     1.164f, -0.213f, -0.533f,  0.30025f,
     1.164f,  2.112f,  0.0f,   -1.12875f,

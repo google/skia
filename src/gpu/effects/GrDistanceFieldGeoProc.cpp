@@ -15,6 +15,7 @@
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
@@ -143,7 +144,7 @@ public:
         fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
 #ifdef SK_GAMMA_APPLY_TO_A8
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = proc.cast<GrDistanceFieldA8TextGeoProc>();
         float distanceAdjust = dfTexEffect.getDistanceAdjust();
@@ -156,13 +157,13 @@ public:
 
         if (!dfa8gp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfa8gp.viewMatrix())) {
             fViewMatrix = dfa8gp.viewMatrix();
-            GrGLfloat viewMatrix[3 * 3];
+            float viewMatrix[3 * 3];
             GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
         if (dfa8gp.color() != fColor && !dfa8gp.hasVertexColor()) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(dfa8gp.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
             fColor = dfa8gp.color();
@@ -370,7 +371,7 @@ public:
         fsBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
         SkASSERT(fTextureSizeUni.isValid());
 
         GrTexture* texture = proc.texture(0);
@@ -386,13 +387,13 @@ public:
 
         if (!dfpgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfpgp.viewMatrix())) {
             fViewMatrix = dfpgp.viewMatrix();
-            GrGLfloat viewMatrix[3 * 3];
+            float viewMatrix[3 * 3];
             GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
         if (dfpgp.color() != fColor) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(dfpgp.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
             fColor = dfpgp.color();
@@ -639,7 +640,7 @@ public:
         fsBuilder->codeAppendf("%s = val;", args.fOutputCoverage);
     }
 
-    void setData(const GrGLProgramDataManager& pdman,
+    void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& processor) override {
         SkASSERT(fDistanceAdjustUni.isValid());
 
@@ -655,13 +656,13 @@ public:
 
         if (!dflcd.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dflcd.viewMatrix())) {
             fViewMatrix = dflcd.viewMatrix();
-            GrGLfloat viewMatrix[3 * 3];
+            float viewMatrix[3 * 3];
             GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
         if (dflcd.color() != fColor) {
-            GrGLfloat c[4];
+            float c[4];
             GrColorToRGBAFloat(dflcd.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
             fColor = dflcd.color();
