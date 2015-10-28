@@ -174,10 +174,17 @@ static inline uint16x4_t expand(SkPMColor p) {
 
 #endif
 
+#define PREFETCH_RPTR \
+    if (srcDirection == BlurDirection::kY) { \
+        SK_PREFETCH(rptr); \
+    }
+
 template<BlurDirection srcDirection, BlurDirection dstDirection>
 static void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
                      int leftOffset, int rightOffset, int width, int height) {
-    int rightBorder = SkMin32(rightOffset + 1, width);
+    int incrementStart = SkMax32(-rightOffset - 1, -width);
+    int incrementEnd = SkMax32(width - rightOffset - 1, 0);
+    int decrementStart = SkMin32(leftOffset, width);
     int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
     int dstStrideX = dstDirection == BlurDirection::kX ? 1 : height;
     int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
@@ -189,29 +196,40 @@ static void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int ke
 
     for (int y = 0; y < height; ++y) {
         INIT_SUMS
-        const SkPMColor* p = src;
-        for (int i = 0; i < rightBorder; ++i) {
-            INCREMENT_SUMS(*p);
-            p += srcStrideX;
-        }
-
-        const SkPMColor* sptr = src;
+        const SkPMColor* lptr = src;
+        const SkPMColor* rptr = src;
         SkColor* dptr = dst;
-        for (int x = 0; x < width; ++x) {
+        int x;
+        for (x = incrementStart; x < 0; ++x) {
+            INCREMENT_SUMS(*rptr);
+            rptr += srcStrideX;
+            PREFETCH_RPTR
+        }
+        for (; x < decrementStart && x < incrementEnd; ++x) {
             STORE_SUMS
-            if (x >= leftOffset) {
-                SkColor l = *(sptr - leftOffset * srcStrideX);
-                DECREMENT_SUMS(l);
-            }
-            if (x + rightOffset + 1 < width) {
-                SkColor r = *(sptr + (rightOffset + 1) * srcStrideX);
-                INCREMENT_SUMS(r);
-            }
-            sptr += srcStrideX;
-            if (srcDirection == BlurDirection::kY) {
-                SK_PREFETCH(sptr + (rightOffset + 1) * srcStrideX);
-            }
             dptr += dstStrideX;
+            INCREMENT_SUMS(*rptr);
+            rptr += srcStrideX;
+            PREFETCH_RPTR
+        }
+        for (x = decrementStart; x < incrementEnd; ++x) {
+            STORE_SUMS
+            dptr += dstStrideX;
+            INCREMENT_SUMS(*rptr);
+            rptr += srcStrideX;
+            PREFETCH_RPTR
+            DECREMENT_SUMS(*lptr);
+            lptr += srcStrideX;
+        }
+        for (x = incrementEnd; x < decrementStart; ++x) {
+            STORE_SUMS
+            dptr += dstStrideX;
+        }
+        for (; x < width; ++x) {
+            STORE_SUMS
+            dptr += dstStrideX;
+            DECREMENT_SUMS(*lptr);
+            lptr += srcStrideX;
         }
         src += srcStrideY;
         dst += dstStrideY;
