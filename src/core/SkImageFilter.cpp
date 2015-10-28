@@ -391,11 +391,15 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
 }
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
-                                  const SkIPoint& srcOffset, SkIRect* bounds) const {
-    SkIRect srcBounds;
-    src.getBounds(&srcBounds);
-    srcBounds.offset(srcOffset);
-    return fCropRect.applyTo(srcBounds, ctx, bounds);
+                                  const SkIPoint& srcOffset, SkIRect* dstBounds,
+                                  SkIRect* srcBounds) const {
+    SkIRect storage;
+    if (!srcBounds) {
+        srcBounds = &storage;
+    }
+    src.getBounds(srcBounds);
+    srcBounds->offset(srcOffset);
+    return fCropRect.applyTo(*srcBounds, ctx, dstBounds) && srcBounds->intersect(*dstBounds);
 }
 
 bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitmap& src,

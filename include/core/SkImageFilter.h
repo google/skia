@@ -368,14 +368,18 @@ protected:
         return false;
     }
 
-    /** Computes source bounds as the src bitmap bounds offset by srcOffset.
-     *  Apply the transformed crop rect to the bounds if any of the
-     *  corresponding edge flags are set. Intersects the result against the
-     *  context's clipBounds, and returns the result in "bounds". If there is
-     *  no intersection, returns false and leaves "bounds" unchanged.
+    /** Given a "src" bitmap and its "srcOffset", computes source and
+     *  destination bounds for this filter. Initial bounds are the
+     *  "src" bitmap bounds offset by "srcOffset". "dstBounds" are
+     *  computed by transforming the crop rect by the context's CTM,
+     *  applying it to the initial bounds, and intersecting the result
+     *  with the context's clip bounds.  "srcBounds" (if non-null) are
+     *  computed by intersecting the initial bounds with "dstBounds", to
+     *  ensure that we never sample outside of the crop rect (this restriction
+     *  may be relaxed in the future).
      */
     bool applyCropRect(const Context&, const SkBitmap& src, const SkIPoint& srcOffset,
-                       SkIRect* bounds) const;
+                       SkIRect* dstBounds, SkIRect* srcBounds = nullptr) const;
 
     /** Same as the above call, except that if the resulting crop rect is not
      *  entirely contained by the source bitmap's bounds, it creates a new
