@@ -21,6 +21,7 @@
 class GrDrawTarget;
 class GrPathRenderer;
 class GrPathRendererChain;
+class GrResourceProvider;
 class GrTexture;
 class SkPath;
 
@@ -72,6 +73,8 @@ public:
 
 private:
     inline GrContext* getContext();
+    inline const GrCaps* caps() const;
+    inline GrResourceProvider* resourceProvider();
 
     /**
      * Informs the helper function adjustStencilParams() about how the stencil
@@ -133,15 +136,6 @@ private:
                      GrTexture* target,
                      const SkClipStack::Element*,
                      GrPathRenderer* pr = nullptr);
-
-    void mergeMask(GrPipelineBuilder*,
-                   GrTexture* dstMask,
-                   GrTexture* srcMask,
-                   SkRegion::Op op,
-                   const SkIRect& dstBound,
-                   const SkIRect& srcBound);
-
-    GrTexture* createTempMask(int width, int height);
 
     /**
      * Called prior to return control back the GrGpu in setupClipping. It updates the
