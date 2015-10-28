@@ -25,7 +25,6 @@
 #include "SubsetTranslateBench.h"
 #include "SubsetZoomBench.h"
 #include "Stats.h"
-#include "Timer.h"
 
 #include "SkBitmapRegionDecoderInterface.h"
 #include "SkBBoxHierarchy.h"
@@ -59,8 +58,6 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-static const int kTimedSampling = 0;
-
 static const int kAutoTuneLoops = 0;
 
 static const int kDefaultLoops =
@@ -87,8 +84,7 @@ static SkString to_string(int n) {
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
-DEFINE_string(samplingTime, "0", "Amount of time to run each bench. Takes precedence over samples."
-                                 "Must be \"0\", \"%%lfs\", or \"%%lfms\"");
+DEFINE_int32(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
 DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
 DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
@@ -113,6 +109,8 @@ DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 DEFINE_bool(pngBuildTileIndex, false, "If supported, use png buildTileIndex/decodeSubset.");
 DEFINE_bool(jpgBuildTileIndex, false, "If supported, use jpg buildTileIndex/decodeSubset.");
+
+static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {
     if (FLAGS_verbose) return SkStringPrintf("%llu", (uint64_t)(ms*1e6));
@@ -210,26 +208,23 @@ static double time(int loops, Benchmark* bench, Target* target) {
         canvas->clear(SK_ColorWHITE);
     }
     bench->preDraw(canvas);
-    WallTimer timer;
-    timer.start();
+    double start = now_ms();
     canvas = target->beginTiming(canvas);
     bench->draw(loops, canvas);
     if (canvas) {
         canvas->flush();
     }
     target->endTiming();
-    timer.end();
+    double elapsed = now_ms() - start;
     bench->postDraw(canvas);
-    return timer.fWall;
+    return elapsed;
 }
 
 static double estimate_timer_overhead() {
     double overhead = 0;
     for (int i = 0; i < FLAGS_overheadLoops; i++) {
-        WallTimer timer;
-        timer.start();
-        timer.end();
-        overhead += timer.fWall;
+        double start = now_ms();
+        overhead += now_ms() - start;
     }
     return overhead / FLAGS_overheadLoops;
 }
@@ -1160,24 +1155,6 @@ int nanobench_main() {
         FLAGS_verbose = true;
     }
 
-    double samplingTimeMs = 0;
-    if (0 != strcmp("0", FLAGS_samplingTime[0])) {
-        SkSTArray<8, char> timeUnit;
-        timeUnit.push_back_n(static_cast<int>(strlen(FLAGS_samplingTime[0])) + 1);
-        if (2 != sscanf(FLAGS_samplingTime[0], "%lf%s", &samplingTimeMs, timeUnit.begin()) ||
-            (0 != strcmp("s", timeUnit.begin()) && 0 != strcmp("ms", timeUnit.begin()))) {
-            SkDebugf("Invalid --samplingTime \"%s\". Must be \"0\", \"%%lfs\", or \"%%lfms\"\n",
-                     FLAGS_samplingTime[0]);
-            exit(0);
-        }
-        if (0 == strcmp("s", timeUnit.begin())) {
-            samplingTimeMs *= 1000;
-        }
-        if (samplingTimeMs) {
-            FLAGS_samples = kTimedSampling;
-        }
-    }
-
     if (kAutoTuneLoops != FLAGS_loops) {
         FLAGS_samples     = 1;
         FLAGS_gpuFrameLag = 0;
@@ -1221,7 +1198,7 @@ int nanobench_main() {
         SkDebugf("Fixed number of loops; times would only be misleading so we won't print them.\n");
     } else if (FLAGS_quiet) {
         SkDebugf("median\tbench\tconfig\n");
-    } else if (kTimedSampling == FLAGS_samples) {
+    } else if (FLAGS_ms) {
         SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
     } else {
         SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
@@ -1261,23 +1238,17 @@ int nanobench_main() {
                 ? setup_gpu_bench(target, bench.get(), maxFrameLag)
                 : setup_cpu_bench(overhead, target, bench.get());
 
-            if (kTimedSampling != FLAGS_samples) {
+            if (FLAGS_ms) {
+                samples.reset();
+                auto stop = now_ms() + FLAGS_ms;
+                do {
+                    samples.push_back(time(loops, bench, target) / loops);
+                } while (now_ms() < stop);
+            } else {
                 samples.reset(FLAGS_samples);
                 for (int s = 0; s < FLAGS_samples; s++) {
                     samples[s] = time(loops, bench, target) / loops;
                 }
-            } else if (samplingTimeMs) {
-                samples.reset();
-                if (FLAGS_verbose) {
-                    SkDebugf("Begin sampling %s for %ims\n",
-                             bench->getUniqueName(), static_cast<int>(samplingTimeMs));
-                }
-                WallTimer timer;
-                timer.start();
-                do {
-                    samples.push_back(time(loops, bench, target) / loops);
-                    timer.end();
-                } while (timer.fWall < samplingTimeMs);
             }
 
             bench->perCanvasPostDraw(canvas);
@@ -1331,8 +1302,7 @@ int nanobench_main() {
                         , HUMANIZE(stats.mean)
                         , HUMANIZE(stats.max)
                         , stddev_percent
-                        , kTimedSampling != FLAGS_samples ? stats.plot.c_str()
-                                                          : to_string(samples.count()).c_str()
+                        , FLAGS_ms ? to_string(samples.count()).c_str() : stats.plot.c_str()
                         , config
                         , bench->getUniqueName()
                         );
