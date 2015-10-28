@@ -1,0 +1,105 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    '-Dgetlocaledecpoint()='"'"'.'"'"'' -DLUA_USE_POSIX -DSK_DEVELOPER=1
+includes = -I../../../../../../paintLib/skia/third_party/lua/src
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -fuse-ld=gold -g
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/third_party/lua/src/lua.lapi.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lapi.c
+build obj/third_party/lua/src/lua.lcode.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lcode.c
+build obj/third_party/lua/src/lua.lctype.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lctype.c
+build obj/third_party/lua/src/lua.ldebug.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/ldebug.c
+build obj/third_party/lua/src/lua.ldo.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/ldo.c
+build obj/third_party/lua/src/lua.ldump.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/ldump.c
+build obj/third_party/lua/src/lua.lfunc.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lfunc.c
+build obj/third_party/lua/src/lua.lgc.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lgc.c
+build obj/third_party/lua/src/lua.llex.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/llex.c
+build obj/third_party/lua/src/lua.lmem.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lmem.c
+build obj/third_party/lua/src/lua.lobject.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lobject.c
+build obj/third_party/lua/src/lua.lopcodes.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lopcodes.c
+build obj/third_party/lua/src/lua.lparser.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lparser.c
+build obj/third_party/lua/src/lua.lstate.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lstate.c
+build obj/third_party/lua/src/lua.lstring.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lstring.c
+build obj/third_party/lua/src/lua.ltable.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/ltable.c
+build obj/third_party/lua/src/lua.ltm.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/ltm.c
+build obj/third_party/lua/src/lua.lundump.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lundump.c
+build obj/third_party/lua/src/lua.lvm.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lvm.c
+build obj/third_party/lua/src/lua.lzio.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lzio.c
+build obj/third_party/lua/src/lua.lauxlib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lauxlib.c
+build obj/third_party/lua/src/lua.lbaselib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lbaselib.c
+build obj/third_party/lua/src/lua.lbitlib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lbitlib.c
+build obj/third_party/lua/src/lua.lcorolib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lcorolib.c
+build obj/third_party/lua/src/lua.ldblib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/ldblib.c
+build obj/third_party/lua/src/lua.liolib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/liolib.c
+build obj/third_party/lua/src/lua.lmathlib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lmathlib.c
+build obj/third_party/lua/src/lua.loslib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/loslib.c
+build obj/third_party/lua/src/lua.lstrlib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/lstrlib.c
+build obj/third_party/lua/src/lua.ltablib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/ltablib.c
+build obj/third_party/lua/src/lua.loadlib.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/loadlib.c
+build obj/third_party/lua/src/lua.linit.o: cc $
+    ../../../../../../paintLib/skia/third_party/lua/src/linit.c
+
+build obj/gyp/liblua.a: alink_thin obj/third_party/lua/src/lua.lapi.o $
+    obj/third_party/lua/src/lua.lcode.o $
+    obj/third_party/lua/src/lua.lctype.o $
+    obj/third_party/lua/src/lua.ldebug.o obj/third_party/lua/src/lua.ldo.o $
+    obj/third_party/lua/src/lua.ldump.o obj/third_party/lua/src/lua.lfunc.o $
+    obj/third_party/lua/src/lua.lgc.o obj/third_party/lua/src/lua.llex.o $
+    obj/third_party/lua/src/lua.lmem.o $
+    obj/third_party/lua/src/lua.lobject.o $
+    obj/third_party/lua/src/lua.lopcodes.o $
+    obj/third_party/lua/src/lua.lparser.o $
+    obj/third_party/lua/src/lua.lstate.o $
+    obj/third_party/lua/src/lua.lstring.o $
+    obj/third_party/lua/src/lua.ltable.o obj/third_party/lua/src/lua.ltm.o $
+    obj/third_party/lua/src/lua.lundump.o obj/third_party/lua/src/lua.lvm.o $
+    obj/third_party/lua/src/lua.lzio.o $
+    obj/third_party/lua/src/lua.lauxlib.o $
+    obj/third_party/lua/src/lua.lbaselib.o $
+    obj/third_party/lua/src/lua.lbitlib.o $
+    obj/third_party/lua/src/lua.lcorolib.o $
+    obj/third_party/lua/src/lua.ldblib.o $
+    obj/third_party/lua/src/lua.liolib.o $
+    obj/third_party/lua/src/lua.lmathlib.o $
+    obj/third_party/lua/src/lua.loslib.o $
+    obj/third_party/lua/src/lua.lstrlib.o $
+    obj/third_party/lua/src/lua.ltablib.o $
+    obj/third_party/lua/src/lua.loadlib.o obj/third_party/lua/src/lua.linit.o

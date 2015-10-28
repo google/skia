@@ -1,0 +1,49 @@
+build obj/gyp/HelloWorld.actions_depends.stamp: stamp $
+    obj/gyp/libandroid_output.a skia_launcher lib/libskia_android.so.TOC $
+    libskia_views.a libskia_xml.a
+
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DSK_DEVELOPER=1
+includes = -I../../../../../../paintLib/skia/include/gpu $
+    -I../../../../../../paintLib/skia/include/c $
+    -I../../../../../../paintLib/skia/include/config $
+    -I../../../../../../paintLib/skia/include/core $
+    -I../../../../../../paintLib/skia/include/pathops $
+    -I../../../../../../paintLib/skia/include/pipe $
+    -I../../../../../../paintLib/skia/include/codec $
+    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
+    -I../../../../../../paintLib/skia/include/effects $
+    -I../../../../../../paintLib/skia/include/images $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
+    -I../../../../../../paintLib/skia/include/ports $
+    -I../../../../../../paintLib/skia/src/sfnt $
+    -I../../../../../../paintLib/skia/include/utils $
+    -I../../../../../../paintLib/skia/src/utils $
+    -I../../../../../../paintLib/skia/include/views $
+    -I../../../../../../paintLib/skia/include/xml
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
+    -fuse-ld=gold -g
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/example/HelloWorld.HelloWorld.o: cxx $
+    ../../../../../../paintLib/skia/example/HelloWorld.cpp
+
+ldflags = -march=armv7-a
+libs = -llog
+build lib/libHelloWorld.so lib/libHelloWorld.so.TOC: solink $
+    obj/example/HelloWorld.HelloWorld.o obj/gyp/libandroid_output.a $
+    libskia_views.a libskia_xml.a | lib/libskia_android.so.TOC skia_launcher
+  ld = $ldxx
+  soname = libHelloWorld.so
+  lib = lib/libHelloWorld.so
+  link_file_list = lib/libHelloWorld.so.rsp
+  solibs = lib/libskia_android.so

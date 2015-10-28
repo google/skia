@@ -1,0 +1,1036 @@
+build obj/gyp/visualbench.actions_depends.stamp: stamp $
+    obj/gyp/libandroid_output.a skia_launcher obj/gyp/libetc1.a $
+    obj/gyp/libflags.a obj/gyp/libjsoncpp.a libskia_skgputest.a $
+    lib/libskia_android.so.TOC obj/gyp/libbitmap_region_decoder.a $
+    obj/gyp/libproc_stats.a obj/gyp/libsk_tool_utils.a obj/gyp/libtimer.a $
+    libskia_views.a obj/gyp/libnative_app_glue.a obj/gyp/libresources.a $
+    libskia_xml.a
+
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DSK_DEVELOPER=1
+includes = -I../../../../../../paintLib/skia/bench $
+    -I../../../../../../paintLib/skia/include/gpu $
+    -I../../../../../../paintLib/skia/include/private $
+    -I../../../../../../paintLib/skia/src/core $
+    -I../../../../../../paintLib/skia/src/effects $
+    -I../../../../../../paintLib/skia/src/images $
+    -I../../../../../../paintLib/skia/gm $
+    -I../../../../../../paintLib/skia/src/utils/debugger $
+    -I../../../../../../paintLib/skia/src/lazy $
+    -I../../../../../../paintLib/skia/third_party/etc1 $
+    -I../../../../../../paintLib/skia/tools/flags $
+    -I../../../../../../paintLib/skia/third_party/externals/jsoncpp/include $
+    -I../../../../../../paintLib/skia/src/gpu $
+    -I../../../../../../paintLib/src/gpu $
+    -I../../../../../../paintLib/skia/include/c $
+    -I../../../../../../paintLib/skia/include/config $
+    -I../../../../../../paintLib/skia/include/core $
+    -I../../../../../../paintLib/skia/include/pathops $
+    -I../../../../../../paintLib/skia/include/pipe $
+    -I../../../../../../paintLib/skia/include/codec $
+    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
+    -I../../../../../../paintLib/skia/include/effects $
+    -I../../../../../../paintLib/skia/include/images $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
+    -I../../../../../../paintLib/skia/include/ports $
+    -I../../../../../../paintLib/skia/src/sfnt $
+    -I../../../../../../paintLib/skia/include/utils $
+    -I../../../../../../paintLib/skia/src/utils $
+    -I../../../../../../paintLib/skia/tools $
+    -I../../../../../../paintLib/skia/tools/timer $
+    -I../../../../../../paintLib/skia/include/views $
+    -I../../../../../../paintLib/skia/include/xml $
+    -I../../../../../../paintLib/skia/tools/timer $
+    -I../../../../../../paintLib/skia/tools/VisualBench $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/native_app_glue
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
+    -fuse-ld=gold -g
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/gm/visualbench.gm.o: cxx ../../../../../../paintLib/skia/gm/gm.cpp
+build obj/tools/VisualBench/visualbench.TimingStateMachine.o: cxx $
+    ../../../../../../paintLib/skia/tools/VisualBench/TimingStateMachine.cpp
+build obj/tools/VisualBench/visualbench.VisualBench.o: cxx $
+    ../../../../../../paintLib/skia/tools/VisualBench/VisualBench.cpp
+build obj/tools/VisualBench/visualbench.VisualBenchmarkStream.o: cxx $
+    ../../../../../../paintLib/skia/tools/VisualBench/VisualBenchmarkStream.cpp
+build obj/tools/VisualBench/visualbench.VisualFlags.o: cxx $
+    ../../../../../../paintLib/skia/tools/VisualBench/VisualFlags.cpp
+build obj/tools/VisualBench/visualbench.VisualInteractiveModule.o: cxx $
+    ../../../../../../paintLib/skia/tools/VisualBench/VisualInteractiveModule.cpp
+build obj/tools/VisualBench/visualbench.VisualLightweightBenchModule.o: cxx $
+    ../../../../../../paintLib/skia/tools/VisualBench/VisualLightweightBenchModule.cpp
+build obj/tools/VisualBench/visualbench.VisualSKPBench.o: cxx $
+    ../../../../../../paintLib/skia/tools/VisualBench/VisualSKPBench.cpp
+build obj/bench/visualbench.AAClipBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/AAClipBench.cpp
+build obj/bench/visualbench.AlternatingColorPatternBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/AlternatingColorPatternBench.cpp
+build obj/bench/visualbench.BenchLogger.o: cxx $
+    ../../../../../../paintLib/skia/bench/BenchLogger.cpp
+build obj/bench/visualbench.Benchmark.o: cxx $
+    ../../../../../../paintLib/skia/bench/Benchmark.cpp
+build obj/bench/visualbench.BezierBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BezierBench.cpp
+build obj/bench/visualbench.BigPathBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BigPathBench.cpp
+build obj/bench/visualbench.BitmapBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BitmapBench.cpp
+build obj/bench/visualbench.BitmapRectBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BitmapRectBench.cpp
+build obj/bench/visualbench.BitmapRegionDecoderBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BitmapRegionDecoderBench.cpp
+build obj/bench/visualbench.BitmapScaleBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BitmapScaleBench.cpp
+build obj/bench/visualbench.BlurBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BlurBench.cpp
+build obj/bench/visualbench.BlurImageFilterBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BlurImageFilterBench.cpp
+build obj/bench/visualbench.BlurRectBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BlurRectBench.cpp
+build obj/bench/visualbench.BlurRectsBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BlurRectsBench.cpp
+build obj/bench/visualbench.BlurRoundRectBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/BlurRoundRectBench.cpp
+build obj/bench/visualbench.ChartBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ChartBench.cpp
+build obj/bench/visualbench.ChecksumBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ChecksumBench.cpp
+build obj/bench/visualbench.ChromeBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ChromeBench.cpp
+build obj/bench/visualbench.CmapBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/CmapBench.cpp
+build obj/bench/visualbench.CodecBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/CodecBench.cpp
+build obj/bench/visualbench.ColorCubeBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ColorCubeBench.cpp
+build obj/bench/visualbench.ColorFilterBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ColorFilterBench.cpp
+build obj/bench/visualbench.ColorPrivBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ColorPrivBench.cpp
+build obj/bench/visualbench.ControlBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ControlBench.cpp
+build obj/bench/visualbench.CoverageBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/CoverageBench.cpp
+build obj/bench/visualbench.DashBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/DashBench.cpp
+build obj/bench/visualbench.DecodingBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/DecodingBench.cpp
+build obj/bench/visualbench.DisplacementBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/DisplacementBench.cpp
+build obj/bench/visualbench.DrawBitmapAABench.o: cxx $
+    ../../../../../../paintLib/skia/bench/DrawBitmapAABench.cpp
+build obj/bench/visualbench.ETCBitmapBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ETCBitmapBench.cpp
+build obj/bench/visualbench.FSRectBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/FSRectBench.cpp
+build obj/bench/visualbench.FontCacheBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/FontCacheBench.cpp
+build obj/bench/visualbench.FontScalerBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/FontScalerBench.cpp
+build obj/bench/visualbench.GLBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GLBench.cpp
+build obj/bench/visualbench.GLInstancedArraysBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GLInstancedArraysBench.cpp
+build obj/bench/visualbench.GLVec4ScalarBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GLVec4ScalarBench.cpp
+build obj/bench/visualbench.GLVertexAttributesBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GLVertexAttributesBench.cpp
+build obj/bench/visualbench.GMBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GMBench.cpp
+build obj/bench/visualbench.GameBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GameBench.cpp
+build obj/bench/visualbench.GeometryBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GeometryBench.cpp
+build obj/bench/visualbench.GrMemoryPoolBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GrMemoryPoolBench.cpp
+build obj/bench/visualbench.GrResourceCacheBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GrResourceCacheBench.cpp
+build obj/bench/visualbench.GradientBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/GradientBench.cpp
+build obj/bench/visualbench.HairlinePathBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/HairlinePathBench.cpp
+build obj/bench/visualbench.ImageBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ImageBench.cpp
+build obj/bench/visualbench.ImageCacheBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ImageCacheBench.cpp
+build obj/bench/visualbench.ImageFilterCollapse.o: cxx $
+    ../../../../../../paintLib/skia/bench/ImageFilterCollapse.cpp
+build obj/bench/visualbench.ImageFilterDAGBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ImageFilterDAGBench.cpp
+build obj/bench/visualbench.InterpBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/InterpBench.cpp
+build obj/bench/visualbench.LightingBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/LightingBench.cpp
+build obj/bench/visualbench.LineBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/LineBench.cpp
+build obj/bench/visualbench.MagnifierBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MagnifierBench.cpp
+build obj/bench/visualbench.MathBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MathBench.cpp
+build obj/bench/visualbench.Matrix44Bench.o: cxx $
+    ../../../../../../paintLib/skia/bench/Matrix44Bench.cpp
+build obj/bench/visualbench.MatrixBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MatrixBench.cpp
+build obj/bench/visualbench.MatrixConvolutionBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MatrixConvolutionBench.cpp
+build obj/bench/visualbench.MemoryBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MemoryBench.cpp
+build obj/bench/visualbench.MemsetBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MemsetBench.cpp
+build obj/bench/visualbench.MergeBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MergeBench.cpp
+build obj/bench/visualbench.MipMapBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MipMapBench.cpp
+build obj/bench/visualbench.MorphologyBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MorphologyBench.cpp
+build obj/bench/visualbench.MutexBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/MutexBench.cpp
+build obj/bench/visualbench.PatchBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PatchBench.cpp
+build obj/bench/visualbench.PatchGridBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PatchGridBench.cpp
+build obj/bench/visualbench.PathBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PathBench.cpp
+build obj/bench/visualbench.PathIterBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PathIterBench.cpp
+build obj/bench/visualbench.PerlinNoiseBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PerlinNoiseBench.cpp
+build obj/bench/visualbench.PictureNestingBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PictureNestingBench.cpp
+build obj/bench/visualbench.PictureOverheadBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PictureOverheadBench.cpp
+build obj/bench/visualbench.PicturePlaybackBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PicturePlaybackBench.cpp
+build obj/bench/visualbench.PremulAndUnpremulAlphaOpsBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/PremulAndUnpremulAlphaOpsBench.cpp
+build obj/bench/visualbench.RTreeBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RTreeBench.cpp
+build obj/bench/visualbench.ReadPixBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ReadPixBench.cpp
+build obj/bench/visualbench.RecordingBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RecordingBench.cpp
+build obj/bench/visualbench.RectBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RectBench.cpp
+build obj/bench/visualbench.RectanizerBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RectanizerBench.cpp
+build obj/bench/visualbench.RectoriBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RectoriBench.cpp
+build obj/bench/visualbench.RefCntBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RefCntBench.cpp
+build obj/bench/visualbench.RegionBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RegionBench.cpp
+build obj/bench/visualbench.RegionContainBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RegionContainBench.cpp
+build obj/bench/visualbench.RepeatTileBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RepeatTileBench.cpp
+build obj/bench/visualbench.RotatedRectBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/RotatedRectBench.cpp
+build obj/bench/visualbench.SKPAnimationBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/SKPAnimationBench.cpp
+build obj/bench/visualbench.SKPBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/SKPBench.cpp
+build obj/bench/visualbench.ScalarBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ScalarBench.cpp
+build obj/bench/visualbench.ShaderMaskBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/ShaderMaskBench.cpp
+build obj/bench/visualbench.Sk4fBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/Sk4fBench.cpp
+build obj/bench/visualbench.SkGlyphCacheBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/SkGlyphCacheBench.cpp
+build obj/bench/visualbench.SkipZeroesBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/SkipZeroesBench.cpp
+build obj/bench/visualbench.SortBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/SortBench.cpp
+build obj/bench/visualbench.StrokeBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/StrokeBench.cpp
+build obj/bench/visualbench.TableBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/TableBench.cpp
+build obj/bench/visualbench.TextBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/TextBench.cpp
+build obj/bench/visualbench.TextBlobBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/TextBlobBench.cpp
+build obj/bench/visualbench.TileBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/TileBench.cpp
+build obj/bench/visualbench.VertBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/VertBench.cpp
+build obj/bench/visualbench.WritePixelsBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/WritePixelsBench.cpp
+build obj/bench/visualbench.WriterBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/WriterBench.cpp
+build obj/bench/visualbench.XfermodeBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/XfermodeBench.cpp
+build obj/bench/subset/visualbench.SubsetSingleBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/subset/SubsetSingleBench.cpp
+build obj/bench/subset/visualbench.SubsetTranslateBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/subset/SubsetTranslateBench.cpp
+build obj/bench/subset/visualbench.SubsetZoomBench.o: cxx $
+    ../../../../../../paintLib/skia/bench/subset/SubsetZoomBench.cpp
+build obj/gm/visualbench.aaclip.o: cxx $
+    ../../../../../../paintLib/skia/gm/aaclip.cpp
+build obj/gm/visualbench.aarectmodes.o: cxx $
+    ../../../../../../paintLib/skia/gm/aarectmodes.cpp
+build obj/gm/visualbench.aaxfermodes.o: cxx $
+    ../../../../../../paintLib/skia/gm/aaxfermodes.cpp
+build obj/gm/visualbench.addarc.o: cxx $
+    ../../../../../../paintLib/skia/gm/addarc.cpp
+build obj/gm/visualbench.all_bitmap_configs.o: cxx $
+    ../../../../../../paintLib/skia/gm/all_bitmap_configs.cpp
+build obj/gm/visualbench.alphagradients.o: cxx $
+    ../../../../../../paintLib/skia/gm/alphagradients.cpp
+build obj/gm/visualbench.anisotropic.o: cxx $
+    ../../../../../../paintLib/skia/gm/anisotropic.cpp
+build obj/gm/visualbench.annotated_text.o: cxx $
+    ../../../../../../paintLib/skia/gm/annotated_text.cpp
+build obj/gm/visualbench.arcofzorro.o: cxx $
+    ../../../../../../paintLib/skia/gm/arcofzorro.cpp
+build obj/gm/visualbench.arithmode.o: cxx $
+    ../../../../../../paintLib/skia/gm/arithmode.cpp
+build obj/gm/visualbench.astcbitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/astcbitmap.cpp
+build obj/gm/visualbench.badpaint.o: cxx $
+    ../../../../../../paintLib/skia/gm/badpaint.cpp
+build obj/gm/visualbench.beziereffects.o: cxx $
+    ../../../../../../paintLib/skia/gm/beziereffects.cpp
+build obj/gm/visualbench.beziers.o: cxx $
+    ../../../../../../paintLib/skia/gm/beziers.cpp
+build obj/gm/visualbench.bigblurs.o: cxx $
+    ../../../../../../paintLib/skia/gm/bigblurs.cpp
+build obj/gm/visualbench.bigmatrix.o: cxx $
+    ../../../../../../paintLib/skia/gm/bigmatrix.cpp
+build obj/gm/visualbench.bigrrectaaeffect.o: cxx $
+    ../../../../../../paintLib/skia/gm/bigrrectaaeffect.cpp
+build obj/gm/visualbench.bigtext.o: cxx $
+    ../../../../../../paintLib/skia/gm/bigtext.cpp
+build obj/gm/visualbench.bigtileimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/bigtileimagefilter.cpp
+build obj/gm/visualbench.bitmapcopy.o: cxx $
+    ../../../../../../paintLib/skia/gm/bitmapcopy.cpp
+build obj/gm/visualbench.bitmapfilters.o: cxx $
+    ../../../../../../paintLib/skia/gm/bitmapfilters.cpp
+build obj/gm/visualbench.bitmappremul.o: cxx $
+    ../../../../../../paintLib/skia/gm/bitmappremul.cpp
+build obj/gm/visualbench.bitmaprect.o: cxx $
+    ../../../../../../paintLib/skia/gm/bitmaprect.cpp
+build obj/gm/visualbench.bitmaprecttest.o: cxx $
+    ../../../../../../paintLib/skia/gm/bitmaprecttest.cpp
+build obj/gm/visualbench.bitmapshader.o: cxx $
+    ../../../../../../paintLib/skia/gm/bitmapshader.cpp
+build obj/gm/visualbench.bleed.o: cxx $
+    ../../../../../../paintLib/skia/gm/bleed.cpp
+build obj/gm/visualbench.blend.o: cxx $
+    ../../../../../../paintLib/skia/gm/blend.cpp
+build obj/gm/visualbench.blurcircles.o: cxx $
+    ../../../../../../paintLib/skia/gm/blurcircles.cpp
+build obj/gm/visualbench.blurquickreject.o: cxx $
+    ../../../../../../paintLib/skia/gm/blurquickreject.cpp
+build obj/gm/visualbench.blurrect.o: cxx $
+    ../../../../../../paintLib/skia/gm/blurrect.cpp
+build obj/gm/visualbench.blurroundrect.o: cxx $
+    ../../../../../../paintLib/skia/gm/blurroundrect.cpp
+build obj/gm/visualbench.blurs.o: cxx $
+    ../../../../../../paintLib/skia/gm/blurs.cpp
+build obj/gm/visualbench.bmpfilterqualityrepeat.o: cxx $
+    ../../../../../../paintLib/skia/gm/bmpfilterqualityrepeat.cpp
+build obj/gm/visualbench.cgm.o: cc ../../../../../../paintLib/skia/gm/cgm.c
+build obj/gm/visualbench.cgms.o: cxx $
+    ../../../../../../paintLib/skia/gm/cgms.cpp
+build obj/gm/visualbench.circles.o: cxx $
+    ../../../../../../paintLib/skia/gm/circles.cpp
+build obj/gm/visualbench.circularclips.o: cxx $
+    ../../../../../../paintLib/skia/gm/circularclips.cpp
+build obj/gm/visualbench.clip_strokerect.o: cxx $
+    ../../../../../../paintLib/skia/gm/clip_strokerect.cpp
+build obj/gm/visualbench.clipdrawdraw.o: cxx $
+    ../../../../../../paintLib/skia/gm/clipdrawdraw.cpp
+build obj/gm/visualbench.clippedbitmapshaders.o: cxx $
+    ../../../../../../paintLib/skia/gm/clippedbitmapshaders.cpp
+build obj/gm/visualbench.cmykjpeg.o: cxx $
+    ../../../../../../paintLib/skia/gm/cmykjpeg.cpp
+build obj/gm/visualbench.colorcube.o: cxx $
+    ../../../../../../paintLib/skia/gm/colorcube.cpp
+build obj/gm/visualbench.coloremoji.o: cxx $
+    ../../../../../../paintLib/skia/gm/coloremoji.cpp
+build obj/gm/visualbench.colorfilterimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/colorfilterimagefilter.cpp
+build obj/gm/visualbench.colorfilters.o: cxx $
+    ../../../../../../paintLib/skia/gm/colorfilters.cpp
+build obj/gm/visualbench.colormatrix.o: cxx $
+    ../../../../../../paintLib/skia/gm/colormatrix.cpp
+build obj/gm/visualbench.colortype.o: cxx $
+    ../../../../../../paintLib/skia/gm/colortype.cpp
+build obj/gm/visualbench.colortypexfermode.o: cxx $
+    ../../../../../../paintLib/skia/gm/colortypexfermode.cpp
+build obj/gm/visualbench.colorwheel.o: cxx $
+    ../../../../../../paintLib/skia/gm/colorwheel.cpp
+build obj/gm/visualbench.complexclip.o: cxx $
+    ../../../../../../paintLib/skia/gm/complexclip.cpp
+build obj/gm/visualbench.complexclip2.o: cxx $
+    ../../../../../../paintLib/skia/gm/complexclip2.cpp
+build obj/gm/visualbench.complexclip3.o: cxx $
+    ../../../../../../paintLib/skia/gm/complexclip3.cpp
+build obj/gm/visualbench.composeshader.o: cxx $
+    ../../../../../../paintLib/skia/gm/composeshader.cpp
+build obj/gm/visualbench.concavepaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/concavepaths.cpp
+build obj/gm/visualbench.conicpaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/conicpaths.cpp
+build obj/gm/visualbench.constcolorprocessor.o: cxx $
+    ../../../../../../paintLib/skia/gm/constcolorprocessor.cpp
+build obj/gm/visualbench.convex_all_line_paths.o: cxx $
+    ../../../../../../paintLib/skia/gm/convex_all_line_paths.cpp
+build obj/gm/visualbench.convexpaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/convexpaths.cpp
+build obj/gm/visualbench.convexpolyclip.o: cxx $
+    ../../../../../../paintLib/skia/gm/convexpolyclip.cpp
+build obj/gm/visualbench.convexpolyeffect.o: cxx $
+    ../../../../../../paintLib/skia/gm/convexpolyeffect.cpp
+build obj/gm/visualbench.copyTo4444.o: cxx $
+    ../../../../../../paintLib/skia/gm/copyTo4444.cpp
+build obj/gm/visualbench.cubicpaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/cubicpaths.cpp
+build obj/gm/visualbench.dashcubics.o: cxx $
+    ../../../../../../paintLib/skia/gm/dashcubics.cpp
+build obj/gm/visualbench.dashing.o: cxx $
+    ../../../../../../paintLib/skia/gm/dashing.cpp
+build obj/gm/visualbench.dcshader.o: cxx $
+    ../../../../../../paintLib/skia/gm/dcshader.cpp
+build obj/gm/visualbench.degeneratesegments.o: cxx $
+    ../../../../../../paintLib/skia/gm/degeneratesegments.cpp
+build obj/gm/visualbench.dftext.o: cxx $
+    ../../../../../../paintLib/skia/gm/dftext.cpp
+build obj/gm/visualbench.discard.o: cxx $
+    ../../../../../../paintLib/skia/gm/discard.cpp
+build obj/gm/visualbench.displacement.o: cxx $
+    ../../../../../../paintLib/skia/gm/displacement.cpp
+build obj/gm/visualbench.distantclip.o: cxx $
+    ../../../../../../paintLib/skia/gm/distantclip.cpp
+build obj/gm/visualbench.downsamplebitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/downsamplebitmap.cpp
+build obj/gm/visualbench.draw_bitmap_rect_skbug4374.o: cxx $
+    ../../../../../../paintLib/skia/gm/draw_bitmap_rect_skbug4374.cpp
+build obj/gm/visualbench.drawable.o: cxx $
+    ../../../../../../paintLib/skia/gm/drawable.cpp
+build obj/gm/visualbench.drawatlas.o: cxx $
+    ../../../../../../paintLib/skia/gm/drawatlas.cpp
+build obj/gm/visualbench.drawatlascolor.o: cxx $
+    ../../../../../../paintLib/skia/gm/drawatlascolor.cpp
+build obj/gm/visualbench.drawbitmaprect.o: cxx $
+    ../../../../../../paintLib/skia/gm/drawbitmaprect.cpp
+build obj/gm/visualbench.drawfilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/drawfilter.cpp
+build obj/gm/visualbench.drawlooper.o: cxx $
+    ../../../../../../paintLib/skia/gm/drawlooper.cpp
+build obj/gm/visualbench.drawminibitmaprect.o: cxx $
+    ../../../../../../paintLib/skia/gm/drawminibitmaprect.cpp
+build obj/gm/visualbench.dropshadowimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/dropshadowimagefilter.cpp
+build obj/gm/visualbench.drrect.o: cxx $
+    ../../../../../../paintLib/skia/gm/drrect.cpp
+build obj/gm/visualbench.dstreadshuffle.o: cxx $
+    ../../../../../../paintLib/skia/gm/dstreadshuffle.cpp
+build obj/gm/visualbench.emboss.o: cxx $
+    ../../../../../../paintLib/skia/gm/emboss.cpp
+build obj/gm/visualbench.emptypath.o: cxx $
+    ../../../../../../paintLib/skia/gm/emptypath.cpp
+build obj/gm/visualbench.etc1bitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/etc1bitmap.cpp
+build obj/gm/visualbench.extractbitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/extractbitmap.cpp
+build obj/gm/visualbench.factory.o: cxx $
+    ../../../../../../paintLib/skia/gm/factory.cpp
+build obj/gm/visualbench.fadefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/fadefilter.cpp
+build obj/gm/visualbench.fatpathfill.o: cxx $
+    ../../../../../../paintLib/skia/gm/fatpathfill.cpp
+build obj/gm/visualbench.filltypes.o: cxx $
+    ../../../../../../paintLib/skia/gm/filltypes.cpp
+build obj/gm/visualbench.filltypespersp.o: cxx $
+    ../../../../../../paintLib/skia/gm/filltypespersp.cpp
+build obj/gm/visualbench.filterbitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/filterbitmap.cpp
+build obj/gm/visualbench.filterfastbounds.o: cxx $
+    ../../../../../../paintLib/skia/gm/filterfastbounds.cpp
+build obj/gm/visualbench.filterindiabox.o: cxx $
+    ../../../../../../paintLib/skia/gm/filterindiabox.cpp
+build obj/gm/visualbench.fontcache.o: cxx $
+    ../../../../../../paintLib/skia/gm/fontcache.cpp
+build obj/gm/visualbench.fontmgr.o: cxx $
+    ../../../../../../paintLib/skia/gm/fontmgr.cpp
+build obj/gm/visualbench.fontscaler.o: cxx $
+    ../../../../../../paintLib/skia/gm/fontscaler.cpp
+build obj/gm/visualbench.fontscalerdistortable.o: cxx $
+    ../../../../../../paintLib/skia/gm/fontscalerdistortable.cpp
+build obj/gm/visualbench.gammatext.o: cxx $
+    ../../../../../../paintLib/skia/gm/gammatext.cpp
+build obj/gm/visualbench.getpostextpath.o: cxx $
+    ../../../../../../paintLib/skia/gm/getpostextpath.cpp
+build obj/gm/visualbench.giantbitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/giantbitmap.cpp
+build obj/gm/visualbench.glyph_pos.o: cxx $
+    ../../../../../../paintLib/skia/gm/glyph_pos.cpp
+build obj/gm/visualbench.glyph_pos_align.o: cxx $
+    ../../../../../../paintLib/skia/gm/glyph_pos_align.cpp
+build obj/gm/visualbench.gradientDirtyLaundry.o: cxx $
+    ../../../../../../paintLib/skia/gm/gradientDirtyLaundry.cpp
+build obj/gm/visualbench.gradient_matrix.o: cxx $
+    ../../../../../../paintLib/skia/gm/gradient_matrix.cpp
+build obj/gm/visualbench.gradients.o: cxx $
+    ../../../../../../paintLib/skia/gm/gradients.cpp
+build obj/gm/visualbench.gradients_2pt_conical.o: cxx $
+    ../../../../../../paintLib/skia/gm/gradients_2pt_conical.cpp
+build obj/gm/visualbench.gradients_no_texture.o: cxx $
+    ../../../../../../paintLib/skia/gm/gradients_no_texture.cpp
+build obj/gm/visualbench.gradtext.o: cxx $
+    ../../../../../../paintLib/skia/gm/gradtext.cpp
+build obj/gm/visualbench.grayscalejpg.o: cxx $
+    ../../../../../../paintLib/skia/gm/grayscalejpg.cpp
+build obj/gm/visualbench.hairlines.o: cxx $
+    ../../../../../../paintLib/skia/gm/hairlines.cpp
+build obj/gm/visualbench.hairmodes.o: cxx $
+    ../../../../../../paintLib/skia/gm/hairmodes.cpp
+build obj/gm/visualbench.hittestpath.o: cxx $
+    ../../../../../../paintLib/skia/gm/hittestpath.cpp
+build obj/gm/visualbench.image.o: cxx $
+    ../../../../../../paintLib/skia/gm/image.cpp
+build obj/gm/visualbench.image_pict.o: cxx $
+    ../../../../../../paintLib/skia/gm/image_pict.cpp
+build obj/gm/visualbench.image_shader.o: cxx $
+    ../../../../../../paintLib/skia/gm/image_shader.cpp
+build obj/gm/visualbench.imagealphathreshold.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagealphathreshold.cpp
+build obj/gm/visualbench.imageblur.o: cxx $
+    ../../../../../../paintLib/skia/gm/imageblur.cpp
+build obj/gm/visualbench.imageblur2.o: cxx $
+    ../../../../../../paintLib/skia/gm/imageblur2.cpp
+build obj/gm/visualbench.imageblurtiled.o: cxx $
+    ../../../../../../paintLib/skia/gm/imageblurtiled.cpp
+build obj/gm/visualbench.imagefilters.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefilters.cpp
+build obj/gm/visualbench.imagefiltersbase.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefiltersbase.cpp
+build obj/gm/visualbench.imagefiltersclipped.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefiltersclipped.cpp
+build obj/gm/visualbench.imagefilterscropexpand.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefilterscropexpand.cpp
+build obj/gm/visualbench.imagefilterscropped.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefilterscropped.cpp
+build obj/gm/visualbench.imagefiltersgraph.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefiltersgraph.cpp
+build obj/gm/visualbench.imagefiltersscaled.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefiltersscaled.cpp
+build obj/gm/visualbench.imagefiltersstroked.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefiltersstroked.cpp
+build obj/gm/visualbench.imagefilterstransformed.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefilterstransformed.cpp
+build obj/gm/visualbench.imagefromyuvtextures.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagefromyuvtextures.cpp
+build obj/gm/visualbench.imagemagnifier.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagemagnifier.cpp
+build obj/gm/visualbench.imageresizetiled.o: cxx $
+    ../../../../../../paintLib/skia/gm/imageresizetiled.cpp
+build obj/gm/visualbench.imagesource.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagesource.cpp
+build obj/gm/visualbench.imagesource2.o: cxx $
+    ../../../../../../paintLib/skia/gm/imagesource2.cpp
+build obj/gm/visualbench.internal_links.o: cxx $
+    ../../../../../../paintLib/skia/gm/internal_links.cpp
+build obj/gm/visualbench.inversepaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/inversepaths.cpp
+build obj/gm/visualbench.largeglyphblur.o: cxx $
+    ../../../../../../paintLib/skia/gm/largeglyphblur.cpp
+build obj/gm/visualbench.lcdblendmodes.o: cxx $
+    ../../../../../../paintLib/skia/gm/lcdblendmodes.cpp
+build obj/gm/visualbench.lcdoverlap.o: cxx $
+    ../../../../../../paintLib/skia/gm/lcdoverlap.cpp
+build obj/gm/visualbench.lcdtext.o: cxx $
+    ../../../../../../paintLib/skia/gm/lcdtext.cpp
+build obj/gm/visualbench.lerpmode.o: cxx $
+    ../../../../../../paintLib/skia/gm/lerpmode.cpp
+build obj/gm/visualbench.lighting.o: cxx $
+    ../../../../../../paintLib/skia/gm/lighting.cpp
+build obj/gm/visualbench.lightingshader.o: cxx $
+    ../../../../../../paintLib/skia/gm/lightingshader.cpp
+build obj/gm/visualbench.linepaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/linepaths.cpp
+build obj/gm/visualbench.lumafilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/lumafilter.cpp
+build obj/gm/visualbench.matrixconvolution.o: cxx $
+    ../../../../../../paintLib/skia/gm/matrixconvolution.cpp
+build obj/gm/visualbench.matriximagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/matriximagefilter.cpp
+build obj/gm/visualbench.megalooper.o: cxx $
+    ../../../../../../paintLib/skia/gm/megalooper.cpp
+build obj/gm/visualbench.mipmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/mipmap.cpp
+build obj/gm/visualbench.mixedtextblobs.o: cxx $
+    ../../../../../../paintLib/skia/gm/mixedtextblobs.cpp
+build obj/gm/visualbench.modecolorfilters.o: cxx $
+    ../../../../../../paintLib/skia/gm/modecolorfilters.cpp
+build obj/gm/visualbench.morphology.o: cxx $
+    ../../../../../../paintLib/skia/gm/morphology.cpp
+build obj/gm/visualbench.multipicturedraw.o: cxx $
+    ../../../../../../paintLib/skia/gm/multipicturedraw.cpp
+build obj/gm/visualbench.nested.o: cxx $
+    ../../../../../../paintLib/skia/gm/nested.cpp
+build obj/gm/visualbench.ninepatchstretch.o: cxx $
+    ../../../../../../paintLib/skia/gm/ninepatchstretch.cpp
+build obj/gm/visualbench.nonclosedpaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/nonclosedpaths.cpp
+build obj/gm/visualbench.offsetimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/offsetimagefilter.cpp
+build obj/gm/visualbench.ovals.o: cxx $
+    ../../../../../../paintLib/skia/gm/ovals.cpp
+build obj/gm/visualbench.patch.o: cxx $
+    ../../../../../../paintLib/skia/gm/patch.cpp
+build obj/gm/visualbench.patchgrid.o: cxx $
+    ../../../../../../paintLib/skia/gm/patchgrid.cpp
+build obj/gm/visualbench.path_stroke_with_zero_length.o: cxx $
+    ../../../../../../paintLib/skia/gm/path_stroke_with_zero_length.cpp
+build obj/gm/visualbench.patheffects.o: cxx $
+    ../../../../../../paintLib/skia/gm/patheffects.cpp
+build obj/gm/visualbench.pathfill.o: cxx $
+    ../../../../../../paintLib/skia/gm/pathfill.cpp
+build obj/gm/visualbench.pathinterior.o: cxx $
+    ../../../../../../paintLib/skia/gm/pathinterior.cpp
+build obj/gm/visualbench.pathopsinverse.o: cxx $
+    ../../../../../../paintLib/skia/gm/pathopsinverse.cpp
+build obj/gm/visualbench.pathopsskpclip.o: cxx $
+    ../../../../../../paintLib/skia/gm/pathopsskpclip.cpp
+build obj/gm/visualbench.pathreverse.o: cxx $
+    ../../../../../../paintLib/skia/gm/pathreverse.cpp
+build obj/gm/visualbench.peekpixels.o: cxx $
+    ../../../../../../paintLib/skia/gm/peekpixels.cpp
+build obj/gm/visualbench.perlinnoise.o: cxx $
+    ../../../../../../paintLib/skia/gm/perlinnoise.cpp
+build obj/gm/visualbench.perspshaders.o: cxx $
+    ../../../../../../paintLib/skia/gm/perspshaders.cpp
+build obj/gm/visualbench.picture.o: cxx $
+    ../../../../../../paintLib/skia/gm/picture.cpp
+build obj/gm/visualbench.pictureimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/pictureimagefilter.cpp
+build obj/gm/visualbench.pictureimagegenerator.o: cxx $
+    ../../../../../../paintLib/skia/gm/pictureimagegenerator.cpp
+build obj/gm/visualbench.pictureshader.o: cxx $
+    ../../../../../../paintLib/skia/gm/pictureshader.cpp
+build obj/gm/visualbench.pictureshadertile.o: cxx $
+    ../../../../../../paintLib/skia/gm/pictureshadertile.cpp
+build obj/gm/visualbench.pixelsnap.o: cxx $
+    ../../../../../../paintLib/skia/gm/pixelsnap.cpp
+build obj/gm/visualbench.plus.o: cxx $
+    ../../../../../../paintLib/skia/gm/plus.cpp
+build obj/gm/visualbench.points.o: cxx $
+    ../../../../../../paintLib/skia/gm/points.cpp
+build obj/gm/visualbench.poly2poly.o: cxx $
+    ../../../../../../paintLib/skia/gm/poly2poly.cpp
+build obj/gm/visualbench.polygons.o: cxx $
+    ../../../../../../paintLib/skia/gm/polygons.cpp
+build obj/gm/visualbench.quadpaths.o: cxx $
+    ../../../../../../paintLib/skia/gm/quadpaths.cpp
+build obj/gm/visualbench.recordopts.o: cxx $
+    ../../../../../../paintLib/skia/gm/recordopts.cpp
+build obj/gm/visualbench.rects.o: cxx $
+    ../../../../../../paintLib/skia/gm/rects.cpp
+build obj/gm/visualbench.repeated_bitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/repeated_bitmap.cpp
+build obj/gm/visualbench.resizeimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/resizeimagefilter.cpp
+build obj/gm/visualbench.roundrects.o: cxx $
+    ../../../../../../paintLib/skia/gm/roundrects.cpp
+build obj/gm/visualbench.rrect.o: cxx $
+    ../../../../../../paintLib/skia/gm/rrect.cpp
+build obj/gm/visualbench.rrects.o: cxx $
+    ../../../../../../paintLib/skia/gm/rrects.cpp
+build obj/gm/visualbench.samplerstress.o: cxx $
+    ../../../../../../paintLib/skia/gm/samplerstress.cpp
+build obj/gm/visualbench.scaledstrokes.o: cxx $
+    ../../../../../../paintLib/skia/gm/scaledstrokes.cpp
+build obj/gm/visualbench.selftest.o: cxx $
+    ../../../../../../paintLib/skia/gm/selftest.cpp
+build obj/gm/visualbench.shaderbounds.o: cxx $
+    ../../../../../../paintLib/skia/gm/shaderbounds.cpp
+build obj/gm/visualbench.shadertext.o: cxx $
+    ../../../../../../paintLib/skia/gm/shadertext.cpp
+build obj/gm/visualbench.shadertext2.o: cxx $
+    ../../../../../../paintLib/skia/gm/shadertext2.cpp
+build obj/gm/visualbench.shadertext3.o: cxx $
+    ../../../../../../paintLib/skia/gm/shadertext3.cpp
+build obj/gm/visualbench.shadows.o: cxx $
+    ../../../../../../paintLib/skia/gm/shadows.cpp
+build obj/gm/visualbench.shallowgradient.o: cxx $
+    ../../../../../../paintLib/skia/gm/shallowgradient.cpp
+build obj/gm/visualbench.simpleaaclip.o: cxx $
+    ../../../../../../paintLib/skia/gm/simpleaaclip.cpp
+build obj/gm/visualbench.skbug1719.o: cxx $
+    ../../../../../../paintLib/skia/gm/skbug1719.cpp
+build obj/gm/visualbench.smallarc.o: cxx $
+    ../../../../../../paintLib/skia/gm/smallarc.cpp
+build obj/gm/visualbench.smallimage.o: cxx $
+    ../../../../../../paintLib/skia/gm/smallimage.cpp
+build obj/gm/visualbench.spritebitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/spritebitmap.cpp
+build obj/gm/visualbench.srcmode.o: cxx $
+    ../../../../../../paintLib/skia/gm/srcmode.cpp
+build obj/gm/visualbench.stlouisarch.o: cxx $
+    ../../../../../../paintLib/skia/gm/stlouisarch.cpp
+build obj/gm/visualbench.stringart.o: cxx $
+    ../../../../../../paintLib/skia/gm/stringart.cpp
+build obj/gm/visualbench.strokefill.o: cxx $
+    ../../../../../../paintLib/skia/gm/strokefill.cpp
+build obj/gm/visualbench.strokerect.o: cxx $
+    ../../../../../../paintLib/skia/gm/strokerect.cpp
+build obj/gm/visualbench.strokerects.o: cxx $
+    ../../../../../../paintLib/skia/gm/strokerects.cpp
+build obj/gm/visualbench.strokes.o: cxx $
+    ../../../../../../paintLib/skia/gm/strokes.cpp
+build obj/gm/visualbench.stroketext.o: cxx $
+    ../../../../../../paintLib/skia/gm/stroketext.cpp
+build obj/gm/visualbench.surface.o: cxx $
+    ../../../../../../paintLib/skia/gm/surface.cpp
+build obj/gm/visualbench.tablecolorfilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/tablecolorfilter.cpp
+build obj/gm/visualbench.tallstretchedbitmaps.o: cxx $
+    ../../../../../../paintLib/skia/gm/tallstretchedbitmaps.cpp
+build obj/gm/visualbench.testimagefilters.o: cxx $
+    ../../../../../../paintLib/skia/gm/testimagefilters.cpp
+build obj/gm/visualbench.texdata.o: cxx $
+    ../../../../../../paintLib/skia/gm/texdata.cpp
+build obj/gm/visualbench.textblob.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblob.cpp
+build obj/gm/visualbench.textblobcolortrans.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblobcolortrans.cpp
+build obj/gm/visualbench.textblobgeometrychange.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblobgeometrychange.cpp
+build obj/gm/visualbench.textbloblooper.o: cxx $
+    ../../../../../../paintLib/skia/gm/textbloblooper.cpp
+build obj/gm/visualbench.textblobmixedsizes.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblobmixedsizes.cpp
+build obj/gm/visualbench.textblobrandomfont.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblobrandomfont.cpp
+build obj/gm/visualbench.textblobshader.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblobshader.cpp
+build obj/gm/visualbench.textblobtransforms.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblobtransforms.cpp
+build obj/gm/visualbench.textblobuseaftergpufree.o: cxx $
+    ../../../../../../paintLib/skia/gm/textblobuseaftergpufree.cpp
+build obj/gm/visualbench.texteffects.o: cxx $
+    ../../../../../../paintLib/skia/gm/texteffects.cpp
+build obj/gm/visualbench.texturedomaineffect.o: cxx $
+    ../../../../../../paintLib/skia/gm/texturedomaineffect.cpp
+build obj/gm/visualbench.thinrects.o: cxx $
+    ../../../../../../paintLib/skia/gm/thinrects.cpp
+build obj/gm/visualbench.thinstrokedrects.o: cxx $
+    ../../../../../../paintLib/skia/gm/thinstrokedrects.cpp
+build obj/gm/visualbench.tiledscaledbitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/tiledscaledbitmap.cpp
+build obj/gm/visualbench.tileimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/tileimagefilter.cpp
+build obj/gm/visualbench.tilemodes.o: cxx $
+    ../../../../../../paintLib/skia/gm/tilemodes.cpp
+build obj/gm/visualbench.tilemodes_scaled.o: cxx $
+    ../../../../../../paintLib/skia/gm/tilemodes_scaled.cpp
+build obj/gm/visualbench.tinybitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/tinybitmap.cpp
+build obj/gm/visualbench.transparency.o: cxx $
+    ../../../../../../paintLib/skia/gm/transparency.cpp
+build obj/gm/visualbench.typeface.o: cxx $
+    ../../../../../../paintLib/skia/gm/typeface.cpp
+build obj/gm/visualbench.variedtext.o: cxx $
+    ../../../../../../paintLib/skia/gm/variedtext.cpp
+build obj/gm/visualbench.vertices.o: cxx $
+    ../../../../../../paintLib/skia/gm/vertices.cpp
+build obj/gm/visualbench.verttext.o: cxx $
+    ../../../../../../paintLib/skia/gm/verttext.cpp
+build obj/gm/visualbench.verttext2.o: cxx $
+    ../../../../../../paintLib/skia/gm/verttext2.cpp
+build obj/gm/visualbench.verylargebitmap.o: cxx $
+    ../../../../../../paintLib/skia/gm/verylargebitmap.cpp
+build obj/gm/visualbench.xfermodeimagefilter.o: cxx $
+    ../../../../../../paintLib/skia/gm/xfermodeimagefilter.cpp
+build obj/gm/visualbench.xfermodes.o: cxx $
+    ../../../../../../paintLib/skia/gm/xfermodes.cpp
+build obj/gm/visualbench.xfermodes2.o: cxx $
+    ../../../../../../paintLib/skia/gm/xfermodes2.cpp
+build obj/gm/visualbench.xfermodes3.o: cxx $
+    ../../../../../../paintLib/skia/gm/xfermodes3.cpp
+build obj/gm/visualbench.yuvtorgbeffect.o: cxx $
+    ../../../../../../paintLib/skia/gm/yuvtorgbeffect.cpp
+build obj/src/utils/debugger/visualbench.SkDrawCommand.o: cxx $
+    ../../../../../../paintLib/skia/src/utils/debugger/SkDrawCommand.cpp
+build obj/src/utils/debugger/visualbench.SkDebugCanvas.o: cxx $
+    ../../../../../../paintLib/skia/src/utils/debugger/SkDebugCanvas.cpp
+build obj/src/utils/debugger/visualbench.SkObjectParser.o: cxx $
+    ../../../../../../paintLib/skia/src/utils/debugger/SkObjectParser.cpp
+build $
+    obj/platform_tools/android/apps/visualbench/src/main/jni/visualbench.SkOSWindow_AndroidNative.o: $
+    cxx $
+    ../../../../../../paintLib/skia/platform_tools/android/apps/visualbench/src/main/jni/SkOSWindow_AndroidNative.cpp
+build $
+    obj/platform_tools/android/apps/visualbench/src/main/jni/visualbench.main.o: $
+    cxx $
+    ../../../../../../paintLib/skia/platform_tools/android/apps/visualbench/src/main/jni/main.cpp
+
+ldflags = -march=armv7-a
+libs = -llog -landroid -lGLESv2 -lEGL
+build lib/libvisualbench.so lib/libvisualbench.so.TOC: solink $
+    obj/gm/visualbench.gm.o $
+    obj/tools/VisualBench/visualbench.TimingStateMachine.o $
+    obj/tools/VisualBench/visualbench.VisualBench.o $
+    obj/tools/VisualBench/visualbench.VisualBenchmarkStream.o $
+    obj/tools/VisualBench/visualbench.VisualFlags.o $
+    obj/tools/VisualBench/visualbench.VisualInteractiveModule.o $
+    obj/tools/VisualBench/visualbench.VisualLightweightBenchModule.o $
+    obj/tools/VisualBench/visualbench.VisualSKPBench.o $
+    obj/bench/visualbench.AAClipBench.o $
+    obj/bench/visualbench.AlternatingColorPatternBench.o $
+    obj/bench/visualbench.BenchLogger.o obj/bench/visualbench.Benchmark.o $
+    obj/bench/visualbench.BezierBench.o $
+    obj/bench/visualbench.BigPathBench.o $
+    obj/bench/visualbench.BitmapBench.o $
+    obj/bench/visualbench.BitmapRectBench.o $
+    obj/bench/visualbench.BitmapRegionDecoderBench.o $
+    obj/bench/visualbench.BitmapScaleBench.o $
+    obj/bench/visualbench.BlurBench.o $
+    obj/bench/visualbench.BlurImageFilterBench.o $
+    obj/bench/visualbench.BlurRectBench.o $
+    obj/bench/visualbench.BlurRectsBench.o $
+    obj/bench/visualbench.BlurRoundRectBench.o $
+    obj/bench/visualbench.ChartBench.o $
+    obj/bench/visualbench.ChecksumBench.o $
+    obj/bench/visualbench.ChromeBench.o obj/bench/visualbench.CmapBench.o $
+    obj/bench/visualbench.CodecBench.o $
+    obj/bench/visualbench.ColorCubeBench.o $
+    obj/bench/visualbench.ColorFilterBench.o $
+    obj/bench/visualbench.ColorPrivBench.o $
+    obj/bench/visualbench.ControlBench.o $
+    obj/bench/visualbench.CoverageBench.o obj/bench/visualbench.DashBench.o $
+    obj/bench/visualbench.DecodingBench.o $
+    obj/bench/visualbench.DisplacementBench.o $
+    obj/bench/visualbench.DrawBitmapAABench.o $
+    obj/bench/visualbench.ETCBitmapBench.o $
+    obj/bench/visualbench.FSRectBench.o $
+    obj/bench/visualbench.FontCacheBench.o $
+    obj/bench/visualbench.FontScalerBench.o obj/bench/visualbench.GLBench.o $
+    obj/bench/visualbench.GLInstancedArraysBench.o $
+    obj/bench/visualbench.GLVec4ScalarBench.o $
+    obj/bench/visualbench.GLVertexAttributesBench.o $
+    obj/bench/visualbench.GMBench.o obj/bench/visualbench.GameBench.o $
+    obj/bench/visualbench.GeometryBench.o $
+    obj/bench/visualbench.GrMemoryPoolBench.o $
+    obj/bench/visualbench.GrResourceCacheBench.o $
+    obj/bench/visualbench.GradientBench.o $
+    obj/bench/visualbench.HairlinePathBench.o $
+    obj/bench/visualbench.ImageBench.o $
+    obj/bench/visualbench.ImageCacheBench.o $
+    obj/bench/visualbench.ImageFilterCollapse.o $
+    obj/bench/visualbench.ImageFilterDAGBench.o $
+    obj/bench/visualbench.InterpBench.o $
+    obj/bench/visualbench.LightingBench.o obj/bench/visualbench.LineBench.o $
+    obj/bench/visualbench.MagnifierBench.o $
+    obj/bench/visualbench.MathBench.o obj/bench/visualbench.Matrix44Bench.o $
+    obj/bench/visualbench.MatrixBench.o $
+    obj/bench/visualbench.MatrixConvolutionBench.o $
+    obj/bench/visualbench.MemoryBench.o obj/bench/visualbench.MemsetBench.o $
+    obj/bench/visualbench.MergeBench.o obj/bench/visualbench.MipMapBench.o $
+    obj/bench/visualbench.MorphologyBench.o $
+    obj/bench/visualbench.MutexBench.o obj/bench/visualbench.PatchBench.o $
+    obj/bench/visualbench.PatchGridBench.o $
+    obj/bench/visualbench.PathBench.o obj/bench/visualbench.PathIterBench.o $
+    obj/bench/visualbench.PerlinNoiseBench.o $
+    obj/bench/visualbench.PictureNestingBench.o $
+    obj/bench/visualbench.PictureOverheadBench.o $
+    obj/bench/visualbench.PicturePlaybackBench.o $
+    obj/bench/visualbench.PremulAndUnpremulAlphaOpsBench.o $
+    obj/bench/visualbench.RTreeBench.o obj/bench/visualbench.ReadPixBench.o $
+    obj/bench/visualbench.RecordingBench.o $
+    obj/bench/visualbench.RectBench.o $
+    obj/bench/visualbench.RectanizerBench.o $
+    obj/bench/visualbench.RectoriBench.o $
+    obj/bench/visualbench.RefCntBench.o obj/bench/visualbench.RegionBench.o $
+    obj/bench/visualbench.RegionContainBench.o $
+    obj/bench/visualbench.RepeatTileBench.o $
+    obj/bench/visualbench.RotatedRectBench.o $
+    obj/bench/visualbench.SKPAnimationBench.o $
+    obj/bench/visualbench.SKPBench.o obj/bench/visualbench.ScalarBench.o $
+    obj/bench/visualbench.ShaderMaskBench.o $
+    obj/bench/visualbench.Sk4fBench.o $
+    obj/bench/visualbench.SkGlyphCacheBench.o $
+    obj/bench/visualbench.SkipZeroesBench.o $
+    obj/bench/visualbench.SortBench.o obj/bench/visualbench.StrokeBench.o $
+    obj/bench/visualbench.TableBench.o obj/bench/visualbench.TextBench.o $
+    obj/bench/visualbench.TextBlobBench.o obj/bench/visualbench.TileBench.o $
+    obj/bench/visualbench.VertBench.o $
+    obj/bench/visualbench.WritePixelsBench.o $
+    obj/bench/visualbench.WriterBench.o $
+    obj/bench/visualbench.XfermodeBench.o $
+    obj/bench/subset/visualbench.SubsetSingleBench.o $
+    obj/bench/subset/visualbench.SubsetTranslateBench.o $
+    obj/bench/subset/visualbench.SubsetZoomBench.o $
+    obj/gm/visualbench.aaclip.o obj/gm/visualbench.aarectmodes.o $
+    obj/gm/visualbench.aaxfermodes.o obj/gm/visualbench.addarc.o $
+    obj/gm/visualbench.all_bitmap_configs.o $
+    obj/gm/visualbench.alphagradients.o obj/gm/visualbench.anisotropic.o $
+    obj/gm/visualbench.annotated_text.o obj/gm/visualbench.arcofzorro.o $
+    obj/gm/visualbench.arithmode.o obj/gm/visualbench.astcbitmap.o $
+    obj/gm/visualbench.badpaint.o obj/gm/visualbench.beziereffects.o $
+    obj/gm/visualbench.beziers.o obj/gm/visualbench.bigblurs.o $
+    obj/gm/visualbench.bigmatrix.o obj/gm/visualbench.bigrrectaaeffect.o $
+    obj/gm/visualbench.bigtext.o obj/gm/visualbench.bigtileimagefilter.o $
+    obj/gm/visualbench.bitmapcopy.o obj/gm/visualbench.bitmapfilters.o $
+    obj/gm/visualbench.bitmappremul.o obj/gm/visualbench.bitmaprect.o $
+    obj/gm/visualbench.bitmaprecttest.o obj/gm/visualbench.bitmapshader.o $
+    obj/gm/visualbench.bleed.o obj/gm/visualbench.blend.o $
+    obj/gm/visualbench.blurcircles.o obj/gm/visualbench.blurquickreject.o $
+    obj/gm/visualbench.blurrect.o obj/gm/visualbench.blurroundrect.o $
+    obj/gm/visualbench.blurs.o obj/gm/visualbench.bmpfilterqualityrepeat.o $
+    obj/gm/visualbench.cgm.o obj/gm/visualbench.cgms.o $
+    obj/gm/visualbench.circles.o obj/gm/visualbench.circularclips.o $
+    obj/gm/visualbench.clip_strokerect.o obj/gm/visualbench.clipdrawdraw.o $
+    obj/gm/visualbench.clippedbitmapshaders.o obj/gm/visualbench.cmykjpeg.o $
+    obj/gm/visualbench.colorcube.o obj/gm/visualbench.coloremoji.o $
+    obj/gm/visualbench.colorfilterimagefilter.o $
+    obj/gm/visualbench.colorfilters.o obj/gm/visualbench.colormatrix.o $
+    obj/gm/visualbench.colortype.o obj/gm/visualbench.colortypexfermode.o $
+    obj/gm/visualbench.colorwheel.o obj/gm/visualbench.complexclip.o $
+    obj/gm/visualbench.complexclip2.o obj/gm/visualbench.complexclip3.o $
+    obj/gm/visualbench.composeshader.o obj/gm/visualbench.concavepaths.o $
+    obj/gm/visualbench.conicpaths.o $
+    obj/gm/visualbench.constcolorprocessor.o $
+    obj/gm/visualbench.convex_all_line_paths.o $
+    obj/gm/visualbench.convexpaths.o obj/gm/visualbench.convexpolyclip.o $
+    obj/gm/visualbench.convexpolyeffect.o obj/gm/visualbench.copyTo4444.o $
+    obj/gm/visualbench.cubicpaths.o obj/gm/visualbench.dashcubics.o $
+    obj/gm/visualbench.dashing.o obj/gm/visualbench.dcshader.o $
+    obj/gm/visualbench.degeneratesegments.o obj/gm/visualbench.dftext.o $
+    obj/gm/visualbench.discard.o obj/gm/visualbench.displacement.o $
+    obj/gm/visualbench.distantclip.o obj/gm/visualbench.downsamplebitmap.o $
+    obj/gm/visualbench.draw_bitmap_rect_skbug4374.o $
+    obj/gm/visualbench.drawable.o obj/gm/visualbench.drawatlas.o $
+    obj/gm/visualbench.drawatlascolor.o obj/gm/visualbench.drawbitmaprect.o $
+    obj/gm/visualbench.drawfilter.o obj/gm/visualbench.drawlooper.o $
+    obj/gm/visualbench.drawminibitmaprect.o $
+    obj/gm/visualbench.dropshadowimagefilter.o obj/gm/visualbench.drrect.o $
+    obj/gm/visualbench.dstreadshuffle.o obj/gm/visualbench.emboss.o $
+    obj/gm/visualbench.emptypath.o obj/gm/visualbench.etc1bitmap.o $
+    obj/gm/visualbench.extractbitmap.o obj/gm/visualbench.factory.o $
+    obj/gm/visualbench.fadefilter.o obj/gm/visualbench.fatpathfill.o $
+    obj/gm/visualbench.filltypes.o obj/gm/visualbench.filltypespersp.o $
+    obj/gm/visualbench.filterbitmap.o obj/gm/visualbench.filterfastbounds.o $
+    obj/gm/visualbench.filterindiabox.o obj/gm/visualbench.fontcache.o $
+    obj/gm/visualbench.fontmgr.o obj/gm/visualbench.fontscaler.o $
+    obj/gm/visualbench.fontscalerdistortable.o $
+    obj/gm/visualbench.gammatext.o obj/gm/visualbench.getpostextpath.o $
+    obj/gm/visualbench.giantbitmap.o obj/gm/visualbench.glyph_pos.o $
+    obj/gm/visualbench.glyph_pos_align.o $
+    obj/gm/visualbench.gradientDirtyLaundry.o $
+    obj/gm/visualbench.gradient_matrix.o obj/gm/visualbench.gradients.o $
+    obj/gm/visualbench.gradients_2pt_conical.o $
+    obj/gm/visualbench.gradients_no_texture.o obj/gm/visualbench.gradtext.o $
+    obj/gm/visualbench.grayscalejpg.o obj/gm/visualbench.hairlines.o $
+    obj/gm/visualbench.hairmodes.o obj/gm/visualbench.hittestpath.o $
+    obj/gm/visualbench.image.o obj/gm/visualbench.image_pict.o $
+    obj/gm/visualbench.image_shader.o $
+    obj/gm/visualbench.imagealphathreshold.o obj/gm/visualbench.imageblur.o $
+    obj/gm/visualbench.imageblur2.o obj/gm/visualbench.imageblurtiled.o $
+    obj/gm/visualbench.imagefilters.o obj/gm/visualbench.imagefiltersbase.o $
+    obj/gm/visualbench.imagefiltersclipped.o $
+    obj/gm/visualbench.imagefilterscropexpand.o $
+    obj/gm/visualbench.imagefilterscropped.o $
+    obj/gm/visualbench.imagefiltersgraph.o $
+    obj/gm/visualbench.imagefiltersscaled.o $
+    obj/gm/visualbench.imagefiltersstroked.o $
+    obj/gm/visualbench.imagefilterstransformed.o $
+    obj/gm/visualbench.imagefromyuvtextures.o $
+    obj/gm/visualbench.imagemagnifier.o $
+    obj/gm/visualbench.imageresizetiled.o obj/gm/visualbench.imagesource.o $
+    obj/gm/visualbench.imagesource2.o obj/gm/visualbench.internal_links.o $
+    obj/gm/visualbench.inversepaths.o obj/gm/visualbench.largeglyphblur.o $
+    obj/gm/visualbench.lcdblendmodes.o obj/gm/visualbench.lcdoverlap.o $
+    obj/gm/visualbench.lcdtext.o obj/gm/visualbench.lerpmode.o $
+    obj/gm/visualbench.lighting.o obj/gm/visualbench.lightingshader.o $
+    obj/gm/visualbench.linepaths.o obj/gm/visualbench.lumafilter.o $
+    obj/gm/visualbench.matrixconvolution.o $
+    obj/gm/visualbench.matriximagefilter.o obj/gm/visualbench.megalooper.o $
+    obj/gm/visualbench.mipmap.o obj/gm/visualbench.mixedtextblobs.o $
+    obj/gm/visualbench.modecolorfilters.o obj/gm/visualbench.morphology.o $
+    obj/gm/visualbench.multipicturedraw.o obj/gm/visualbench.nested.o $
+    obj/gm/visualbench.ninepatchstretch.o $
+    obj/gm/visualbench.nonclosedpaths.o $
+    obj/gm/visualbench.offsetimagefilter.o obj/gm/visualbench.ovals.o $
+    obj/gm/visualbench.patch.o obj/gm/visualbench.patchgrid.o $
+    obj/gm/visualbench.path_stroke_with_zero_length.o $
+    obj/gm/visualbench.patheffects.o obj/gm/visualbench.pathfill.o $
+    obj/gm/visualbench.pathinterior.o obj/gm/visualbench.pathopsinverse.o $
+    obj/gm/visualbench.pathopsskpclip.o obj/gm/visualbench.pathreverse.o $
+    obj/gm/visualbench.peekpixels.o obj/gm/visualbench.perlinnoise.o $
+    obj/gm/visualbench.perspshaders.o obj/gm/visualbench.picture.o $
+    obj/gm/visualbench.pictureimagefilter.o $
+    obj/gm/visualbench.pictureimagegenerator.o $
+    obj/gm/visualbench.pictureshader.o $
+    obj/gm/visualbench.pictureshadertile.o obj/gm/visualbench.pixelsnap.o $
+    obj/gm/visualbench.plus.o obj/gm/visualbench.points.o $
+    obj/gm/visualbench.poly2poly.o obj/gm/visualbench.polygons.o $
+    obj/gm/visualbench.quadpaths.o obj/gm/visualbench.recordopts.o $
+    obj/gm/visualbench.rects.o obj/gm/visualbench.repeated_bitmap.o $
+    obj/gm/visualbench.resizeimagefilter.o obj/gm/visualbench.roundrects.o $
+    obj/gm/visualbench.rrect.o obj/gm/visualbench.rrects.o $
+    obj/gm/visualbench.samplerstress.o obj/gm/visualbench.scaledstrokes.o $
+    obj/gm/visualbench.selftest.o obj/gm/visualbench.shaderbounds.o $
+    obj/gm/visualbench.shadertext.o obj/gm/visualbench.shadertext2.o $
+    obj/gm/visualbench.shadertext3.o obj/gm/visualbench.shadows.o $
+    obj/gm/visualbench.shallowgradient.o obj/gm/visualbench.simpleaaclip.o $
+    obj/gm/visualbench.skbug1719.o obj/gm/visualbench.smallarc.o $
+    obj/gm/visualbench.smallimage.o obj/gm/visualbench.spritebitmap.o $
+    obj/gm/visualbench.srcmode.o obj/gm/visualbench.stlouisarch.o $
+    obj/gm/visualbench.stringart.o obj/gm/visualbench.strokefill.o $
+    obj/gm/visualbench.strokerect.o obj/gm/visualbench.strokerects.o $
+    obj/gm/visualbench.strokes.o obj/gm/visualbench.stroketext.o $
+    obj/gm/visualbench.surface.o obj/gm/visualbench.tablecolorfilter.o $
+    obj/gm/visualbench.tallstretchedbitmaps.o $
+    obj/gm/visualbench.testimagefilters.o obj/gm/visualbench.texdata.o $
+    obj/gm/visualbench.textblob.o obj/gm/visualbench.textblobcolortrans.o $
+    obj/gm/visualbench.textblobgeometrychange.o $
+    obj/gm/visualbench.textbloblooper.o $
+    obj/gm/visualbench.textblobmixedsizes.o $
+    obj/gm/visualbench.textblobrandomfont.o $
+    obj/gm/visualbench.textblobshader.o $
+    obj/gm/visualbench.textblobtransforms.o $
+    obj/gm/visualbench.textblobuseaftergpufree.o $
+    obj/gm/visualbench.texteffects.o $
+    obj/gm/visualbench.texturedomaineffect.o obj/gm/visualbench.thinrects.o $
+    obj/gm/visualbench.thinstrokedrects.o $
+    obj/gm/visualbench.tiledscaledbitmap.o $
+    obj/gm/visualbench.tileimagefilter.o obj/gm/visualbench.tilemodes.o $
+    obj/gm/visualbench.tilemodes_scaled.o obj/gm/visualbench.tinybitmap.o $
+    obj/gm/visualbench.transparency.o obj/gm/visualbench.typeface.o $
+    obj/gm/visualbench.variedtext.o obj/gm/visualbench.vertices.o $
+    obj/gm/visualbench.verttext.o obj/gm/visualbench.verttext2.o $
+    obj/gm/visualbench.verylargebitmap.o $
+    obj/gm/visualbench.xfermodeimagefilter.o obj/gm/visualbench.xfermodes.o $
+    obj/gm/visualbench.xfermodes2.o obj/gm/visualbench.xfermodes3.o $
+    obj/gm/visualbench.yuvtorgbeffect.o $
+    obj/src/utils/debugger/visualbench.SkDrawCommand.o $
+    obj/src/utils/debugger/visualbench.SkDebugCanvas.o $
+    obj/src/utils/debugger/visualbench.SkObjectParser.o $
+    obj/platform_tools/android/apps/visualbench/src/main/jni/visualbench.SkOSWindow_AndroidNative.o $
+    obj/platform_tools/android/apps/visualbench/src/main/jni/visualbench.main.o $
+    obj/gyp/libandroid_output.a obj/gyp/libetc1.a obj/gyp/libflags.a $
+    obj/gyp/libjsoncpp.a libskia_skgputest.a $
+    obj/gyp/libbitmap_region_decoder.a obj/gyp/libproc_stats.a $
+    obj/gyp/libsk_tool_utils.a obj/gyp/libtimer.a libskia_views.a $
+    obj/gyp/libnative_app_glue.a obj/gyp/libresources.a libskia_xml.a | $
+    lib/libskia_android.so.TOC skia_launcher
+  ld = $ldxx
+  soname = libvisualbench.so
+  lib = lib/libvisualbench.so
+  link_file_list = lib/libvisualbench.so.rsp
+  solibs = lib/libskia_android.so

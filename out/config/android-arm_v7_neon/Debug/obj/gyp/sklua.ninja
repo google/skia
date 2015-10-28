@@ -1,0 +1,55 @@
+build obj/gyp/sklua.actions_depends.stamp: stamp $
+    obj/gyp/libandroid_output.a skia_launcher obj/gyp/liblua.a $
+    libskia_pdf.a lib/libskia_android.so.TOC obj/gyp/libsfntly.a $
+    obj/gyp/libicuuc.a
+
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DSK_SUPPORT_PDF=1 -DSK_DEVELOPER=1
+includes = -I../../../../../../paintLib/skia/include/private $
+    -I../../../../../../paintLib/skia/src/gpu $
+    -I../../../../../../paintLib/skia/src/core $
+    -I../../../../../../paintLib/skia/third_party/lua/src $
+    -I../../../../../../paintLib/skia/include/core $
+    -I../../../../../../paintLib/skia/include/c $
+    -I../../../../../../paintLib/skia/include/config $
+    -I../../../../../../paintLib/skia/include/pathops $
+    -I../../../../../../paintLib/skia/include/pipe $
+    -I../../../../../../paintLib/skia/include/codec $
+    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
+    -I../../../../../../paintLib/skia/include/effects $
+    -I../../../../../../paintLib/skia/include/images $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
+    -I../../../../../../paintLib/skia/include/ports $
+    -I../../../../../../paintLib/skia/src/sfnt $
+    -I../../../../../../paintLib/skia/include/utils $
+    -I../../../../../../paintLib/skia/src/utils $
+    -I../../../../../../paintLib/skia/include/gpu
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
+    -fuse-ld=gold -g
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/src/utils/sklua.SkLuaCanvas.o: cxx $
+    ../../../../../../paintLib/skia/src/utils/SkLuaCanvas.cpp
+build obj/src/utils/sklua.SkLua.o: cxx $
+    ../../../../../../paintLib/skia/src/utils/SkLua.cpp
+
+ldflags = -march=armv7-a -Wl,-rpath,\$$ORIGIN,--enable-new-dtags
+libs = -llog -lz
+build skia.so skia.so.TOC: solink obj/src/utils/sklua.SkLuaCanvas.o $
+    obj/src/utils/sklua.SkLua.o obj/gyp/libandroid_output.a $
+    obj/gyp/liblua.a libskia_pdf.a obj/gyp/libsfntly.a obj/gyp/libicuuc.a | $
+    lib/libskia_android.so.TOC skia_launcher
+  ld = $ldxx
+  soname = skia.so
+  lib = skia.so
+  link_file_list = skia.so.rsp
+  solibs = lib/libskia_android.so
