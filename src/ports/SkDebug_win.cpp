@@ -21,11 +21,9 @@ void SkDebugf(const char format[], ...) {
     va_list args;
 
     va_start(args, format);
-    vprintf(format, args);
+    vfprintf(stderr, format, args);
     va_end(args);
-    // When we crash on Windows we often are missing a lot of prints. Since we don't really care
-    // about SkDebugf performance we flush after every print.
-//    fflush(stdout);
+    fflush(stderr);
 
     va_start(args, format);
     vsnprintf(buffer, kBufferSize, format, args);
