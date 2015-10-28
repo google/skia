@@ -28,7 +28,10 @@
         #include <cpuid.h>
         static void cpuid(uint32_t abcd[4]) { __get_cpuid(1, abcd+0, abcd+1, abcd+2, abcd+3); }
     #endif
-#elif !defined(SK_ARM_HAS_NEON) && defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID)
+#elif !defined(SK_ARM_HAS_NEON)      && \
+       defined(SK_CPU_ARM32)         && \
+       defined(SK_BUILD_FOR_ANDROID) && \
+      !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     #include <cpu-features.h>
 #endif
 
@@ -76,7 +79,10 @@ namespace SkOpts {
         cpuid(abcd);
         if (abcd[2] & (1<< 9)) { Init_ssse3(); }
         if (abcd[2] & (1<<19)) { Init_sse41(); }
-    #elif !defined(SK_ARM_HAS_NEON) && defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID)
+    #elif !defined(SK_ARM_HAS_NEON)      && \
+           defined(SK_CPU_ARM32)         && \
+           defined(SK_BUILD_FOR_ANDROID) && \
+          !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
         if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) { Init_neon(); }
     #endif
     }
