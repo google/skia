@@ -23,7 +23,7 @@ void SkDebugf(const char format[], ...) {
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);
-    fflush(stderr);
+    fflush(stderr);  // stderr seems to be buffered on Windows.
 
     va_start(args, format);
     vsnprintf(buffer, kBufferSize, format, args);
