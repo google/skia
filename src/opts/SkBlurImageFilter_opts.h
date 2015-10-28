@@ -67,6 +67,21 @@ static inline __m128i mullo_epi32(__m128i a, __m128i b) {
 
 #elif defined(SK_ARM_HAS_NEON)
 
+// val = (sum * scale * 2 + 0x8000) >> 16
+#define STORE_SUMS_DOUBLE \
+    uint16x8_t resultPixels = vreinterpretq_u16_s16(vqrdmulhq_s16( \
+        vreinterpretq_s16_u16(sum), vreinterpretq_s16_u16(scale))); \
+    if (dstDirection == BlurDirection::kX) { \
+        uint32x2_t px2 = vreinterpret_u32_u8(vmovn_u16(resultPixels)); \
+        vst1_lane_u32(dptr +     0, px2, 0); \
+        vst1_lane_u32(dptr + width, px2, 1); \
+    } else { \
+        vst1_u8((uint8_t*)dptr, vmovn_u16(resultPixels)); \
+    }
+
+#define INCREMENT_SUMS_DOUBLE(p) sum = vaddw_u8(sum, load_2_pixels(p))
+#define DECREMENT_SUMS_DOUBLE(p) sum = vsubw_u8(sum, load_2_pixels(p))
+
 // Fast path for kernel sizes between 2 and 127, working on two rows at a time.
 template<BlurDirection srcDirection, BlurDirection dstDirection>
 void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int kernelSize,
@@ -84,7 +99,9 @@ void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int 
             return vld1_u8((uint8_t*)s);
         }
     };
-    const int rightBorder = SkMin32(rightOffset + 1, width);
+    int incrementStart = SkMax32(-rightOffset - 1, -width);
+    int incrementEnd = SkMax32(width - rightOffset - 1, 0);
+    int decrementStart = SkMin32(leftOffset, width);
     const int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
     const int dstStrideX = dstDirection == BlurDirection::kX ? 1 : *height;
     const int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
@@ -93,34 +110,37 @@ void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int 
 
     for (; *height >= 2; *height -= 2) {
         uint16x8_t sum = vdupq_n_u16(0);
-        const SkPMColor* p = *src;
-        for (int i = 0; i < rightBorder; i++) {
-            sum = vaddw_u8(sum, load_2_pixels(p));
-            p += srcStrideX;
-        }
-
-        const SkPMColor* sptr = *src;
+        const SkPMColor* lptr = *src;
+        const SkPMColor* rptr = *src;
         SkPMColor* dptr = *dst;
-        for (int x = 0; x < width; x++) {
-            // val = (sum * scale * 2 + 0x8000) >> 16
-            uint16x8_t resultPixels = vreinterpretq_u16_s16(vqrdmulhq_s16(
-                vreinterpretq_s16_u16(sum), vreinterpretq_s16_u16(scale)));
-            if (dstDirection == BlurDirection::kX) {
-                uint32x2_t px2 = vreinterpret_u32_u8(vmovn_u16(resultPixels));
-                vst1_lane_u32(dptr +     0, px2, 0);
-                vst1_lane_u32(dptr + width, px2, 1);
-            } else {
-                vst1_u8((uint8_t*)dptr, vmovn_u16(resultPixels));
-            }
-
-            if (x >= leftOffset) {
-                sum = vsubw_u8(sum, load_2_pixels(sptr - leftOffset * srcStrideX));
-            }
-            if (x + rightOffset + 1 < width) {
-                sum = vaddw_u8(sum, load_2_pixels(sptr + (rightOffset + 1) * srcStrideX));
-            }
-            sptr += srcStrideX;
+        int x;
+        for (x = incrementStart; x < 0; ++x) {
+            INCREMENT_SUMS_DOUBLE(rptr);
+            rptr += srcStrideX;
+        }
+        for (; x < decrementStart && x < incrementEnd; ++x) {
+            STORE_SUMS_DOUBLE
             dptr += dstStrideX;
+            INCREMENT_SUMS_DOUBLE(rptr);
+            rptr += srcStrideX;
+        }
+        for (x = decrementStart; x < incrementEnd; ++x) {
+            STORE_SUMS_DOUBLE
+            dptr += dstStrideX;
+            INCREMENT_SUMS_DOUBLE(rptr);
+            rptr += srcStrideX;
+            DECREMENT_SUMS_DOUBLE(lptr);
+            lptr += srcStrideX;
+        }
+        for (x = incrementEnd; x < decrementStart; ++x) {
+            STORE_SUMS_DOUBLE
+            dptr += dstStrideX;
+        }
+        for (; x < width; ++x) {
+            STORE_SUMS_DOUBLE
+            dptr += dstStrideX;
+            DECREMENT_SUMS_DOUBLE(lptr);
+            lptr += srcStrideX;
         }
         *src += srcStrideY * 2;
         *dst += dstStrideY * 2;
