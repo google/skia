@@ -57,21 +57,11 @@ void GrGpu::contextAbandoned() {}
 
 bool GrGpu::makeCopyForTextureParams(int width, int height, const GrTextureParams& textureParams,
                                      GrTextureParamsAdjuster::CopyParams* copyParams) const {
-    bool doCopy = false;
     const GrCaps& caps = *this->caps();
     if (textureParams.isTiled() && !caps.npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
-        doCopy = true;
-        copyParams->fWidth = GrNextPow2(SkTMax(width, caps.minTextureSize()));
-        copyParams->fHeight = GrNextPow2(SkTMax(height, caps.minTextureSize()));
-    } else if (width < caps.minTextureSize() || height < caps.minTextureSize()) {
-        // The small texture issues appear to be with tiling. Hence it seems ok to scale
-        // them up using the GPU. If issues persist we may need to CPU-stretch.
-        doCopy = true;
-        copyParams->fWidth = SkTMax(width, caps.minTextureSize());
-        copyParams->fHeight = SkTMax(height, caps.minTextureSize());
-    }
-    if (doCopy) {
+        copyParams->fWidth = GrNextPow2(width);
+        copyParams->fHeight = GrNextPow2(height);
         switch (textureParams.filterMode()) {
             case GrTextureParams::kNone_FilterMode:
                 copyParams->fFilter = GrTextureParams::kNone_FilterMode;
@@ -82,8 +72,9 @@ bool GrGpu::makeCopyForTextureParams(int width, int height, const GrTextureParam
                 copyParams->fFilter = GrTextureParams::kBilerp_FilterMode;
                 break;
         }
+        return true;
     }
-    return doCopy;
+    return false;
 }
 
 static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget) {

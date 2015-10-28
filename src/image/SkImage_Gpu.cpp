@@ -87,8 +87,6 @@ public:
     {}
 
 protected:
-    GrTexture* peekOriginalTexture() override { return fOriginal; }
-
     GrTexture* refOriginalTexture(GrContext* ctx) override {
         return SkRef(fOriginal);
     }
@@ -99,10 +97,6 @@ protected:
 
     void didCacheCopy(const GrUniqueKey& copyKey) override {
         as_IB(fImage)->notifyAddedToCache();
-    }
-
-    bool getROBitmap(SkBitmap* bitmap) override {
-        return as_IB(fImage)->getROPixels(bitmap);
     }
 
 private:

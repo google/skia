@@ -106,7 +106,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fMaxRenderTargetSize = 1;
     fMaxTextureSize = 1;
-    fMinTextureSize = 1;
     fMaxSampleCount = 0;
 
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
@@ -122,7 +121,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
-    fMinTextureSize = SkTMax(fMinTextureSize, options.fMinTextureSizeOverride);
 }
 
 static SkString map_flags_to_string(uint32_t flags) {
@@ -172,7 +170,6 @@ SkString GrCaps::dump() const {
     }
 
     r.appendf("Max Texture Size                   : %d\n", fMaxTextureSize);
-    r.appendf("Min Texture Size                   : %d\n", fMinTextureSize);
     r.appendf("Max Render Target Size             : %d\n", fMaxRenderTargetSize);
     r.appendf("Max Sample Count                   : %d\n", fMaxSampleCount);
 

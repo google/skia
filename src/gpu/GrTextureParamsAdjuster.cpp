@@ -79,28 +79,6 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const CopyParams& copyPar
     return copy.detach();
 }
 
-static SkBitmap copy_on_cpu(const SkBitmap& bmp, const CopyParams& copyParams) {
-    SkBitmap stretched;
-    stretched.allocN32Pixels(copyParams.fWidth, copyParams.fHeight);
-    SkCanvas canvas(stretched);
-    SkPaint paint;
-    switch (copyParams.fFilter) {
-        case GrTextureParams::kNone_FilterMode:
-            paint.setFilterQuality(kNone_SkFilterQuality);
-            break;
-        case GrTextureParams::kBilerp_FilterMode:
-            paint.setFilterQuality(kLow_SkFilterQuality);
-            break;
-        case GrTextureParams::kMipMap_FilterMode:
-            paint.setFilterQuality(kMedium_SkFilterQuality);
-            break;
-    }
-    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(copyParams.fWidth),
-                                    SkIntToScalar(copyParams.fHeight));
-    canvas.drawBitmapRect(bmp, dstRect, &paint);
-    return stretched;
-}
-
 GrTexture* GrTextureParamsAdjuster::refTextureForParams(GrContext* ctx,
                                                         const GrTextureParams& params) {
     CopyParams copyParams;
@@ -131,22 +109,9 @@ GrTexture* GrTextureParamsAdjuster::refTextureForParams(GrContext* ctx,
 
 GrTexture* GrTextureParamsAdjuster::generateTextureForParams(GrContext* ctx,
                                                              const CopyParams& copyParams) {
-    if ((this->width() < ctx->caps()->minTextureSize() ||
-         this->height() < ctx->caps()->minTextureSize()) && !this->peekOriginalTexture())
-    {
-        // we can't trust our ability to use HW to perform the stretch, so we request
-        // a raster instead, and perform the stretch on the CPU.
-        SkBitmap bitmap;
-        if (!this->getROBitmap(&bitmap)) {
-            return nullptr;
-        }
-        SkBitmap stretchedBmp = copy_on_cpu(bitmap, copyParams);
-        return GrUploadBitmapToTexture(ctx, stretchedBmp);
-    } else {
-        SkAutoTUnref<GrTexture> original(this->refOriginalTexture(ctx));
-        if (!original) {
-            return nullptr;
-        }
-        return copy_on_gpu(original, copyParams);
+    SkAutoTUnref<GrTexture> original(this->refOriginalTexture(ctx));
+    if (!original) {
+        return nullptr;
     }
+    return copy_on_gpu(original, copyParams);
 }

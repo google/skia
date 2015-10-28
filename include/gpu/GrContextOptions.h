@@ -15,7 +15,6 @@ struct GrContextOptions {
         : fDrawPathToCompressedTexture(false)
         , fSuppressPrints(false)
         , fMaxTextureSizeOverride(SK_MaxS32)
-        , fMinTextureSizeOverride(0)
         , fSuppressDualSourceBlending(false)
         , fGeometryBufferMapThreshold(-1)
         , fUseDrawInsteadOfPartialRenderTargetWrite(false)
@@ -34,7 +33,6 @@ struct GrContextOptions {
         detected values. */
 
     int  fMaxTextureSizeOverride;
-    int  fMinTextureSizeOverride;
     bool fSuppressDualSourceBlending;
 
     /** the threshold in bytes above which we will use a buffer mapping API to map vertex and index

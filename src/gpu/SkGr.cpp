@@ -217,11 +217,6 @@ static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfac
 GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
     SkASSERT(!bmp.getTexture());
 
-    if (bmp.width() < ctx->caps()->minTextureSize() ||
-        bmp.height() < ctx->caps()->minTextureSize()) {
-        return nullptr;
-    }
-
     SkBitmap tmpBitmap;
     const SkBitmap* bitmap = &bmp;
 
@@ -291,8 +286,6 @@ public:
     }
 
 protected:
-    GrTexture* peekOriginalTexture() override { return fBitmap.getTexture();  }
-
     GrTexture* refOriginalTexture(GrContext* ctx) override {
         GrTexture* tex = fBitmap.getTexture();
         if (tex) {
@@ -322,12 +315,6 @@ protected:
 
     void didCacheCopy(const GrUniqueKey& copyKey) override {
         InstallInvalidator(copyKey, fBitmap.pixelRef());
-    }
-
-    bool getROBitmap(SkBitmap* bitmap) override {
-        SkASSERT(!fBitmap.getTexture());
-        *bitmap = fBitmap;
-        return true;
     }
 
 private:

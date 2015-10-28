@@ -43,10 +43,6 @@ public:
     GrTexture* refTextureForParams(GrContext*, const GrTextureParams&);
 
 protected:
-    /** If the original is a inherently texture that can be returned for "free" then return it
-        without ref'ing it. Otherwise, return null. */
-    virtual GrTexture* peekOriginalTexture() = 0;
-
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker
      *  to make this efficient ... if the texture is being generated, the maker must handle
@@ -66,9 +62,8 @@ protected:
      *  Return a new (uncached) texture that is the stretch of the maker's original.
      *
      *  The base-class handles general logic for this, and only needs access to the following
-     *  methods:
-     *  - onRefOriginalTexture()
-     *  - onGetROBitmap()
+     *  method:
+     *  - refOriginalTexture()
      *
      *  Subclass may override this if they can handle creating the texture more directly than
      *  by copying.
@@ -81,13 +76,6 @@ protected:
      *  wants to note that for when the maker is destroyed.
      */
     virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
-
-    /**
-     *  Some GPUs are unreliable w/ very small texture sizes. If we run into that case, this
-     *  method will be called (in service of onGenerateParamsTexture) to return a raster version
-     *  of the original texture.
-     */
-    virtual bool getROBitmap(SkBitmap*) = 0;
 
     /** Helper for creating a key for a copy from an original key. */
     static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,

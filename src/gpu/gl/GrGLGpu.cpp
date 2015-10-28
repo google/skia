@@ -1184,7 +1184,7 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 }
 
 int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
-    int size = this->caps()->minTextureSize();
+    static const int kSize = 16;
     if (kUnknownStencilIndex == fPixelConfigToStencilIndex[config]) {
         // Default to unsupported
         fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
@@ -1226,8 +1226,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         GL_ALLOC_CALL(this->glInterface(), TexImage2D(GR_GL_TEXTURE_2D,
                                                       0, internalFormat,
-                                                      size,
-                                                      size,
+                                                      kSize,
+                                                      kSize,
                                                       0,
                                                       externalFormat,
                                                       externalType,
@@ -1266,7 +1266,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
             CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
             GL_ALLOC_CALL(this->glInterface(), RenderbufferStorage(GR_GL_RENDERBUFFER,
                                                                    sFmt.fInternalFormat,
-                                                                   size, size));
+                                                                   kSize, kSize));
             if (GR_GL_NO_ERROR == GR_GL_GET_ERROR(this->glInterface())) {
                 GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                 GR_GL_STENCIL_ATTACHMENT,
@@ -1818,8 +1818,8 @@ static bool read_pixels_pays_for_y_flip(GrRenderTarget* renderTarget, const GrGL
     }
 
     // If the read is really small or smaller than the min texture size, don't force a draw.
-    int minSize = SkTMax(32, caps.minTextureSize());
-    if (width < minSize || height < minSize) {
+    static const int kMinSize = 32;
+    if (width < kMinSize || height < kMinSize) {
         return false;
     }
 
@@ -1857,9 +1857,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
-    tempDrawInfo->fUseExactScratch = this->glCaps().partialFBOReadIsSlow() &&
-                                     width >= this->caps()->minTextureSize() &&
-                                     height >= this->caps()->minTextureSize();
+    tempDrawInfo->fUseExactScratch = this->glCaps().partialFBOReadIsSlow();
 
     // Start off assuming that any temp draw should be to the readConfig, then check if that will
     // be inefficient.

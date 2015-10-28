@@ -287,8 +287,6 @@ public:
     }
 
 protected:
-    GrTexture* peekOriginalTexture() override { return nullptr; }
-
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //    GrTexture* generateTextureForParams(GrContext*, const SkGrStretch&) override;
@@ -307,10 +305,6 @@ protected:
         if (fClient) {
             as_IB(fClient)->notifyAddedToCache();
         }
-    }
-
-    bool getROBitmap(SkBitmap* bitmap) override {
-        return fCacher->lockAsBitmap(bitmap, fClient);
     }
 
 private:
