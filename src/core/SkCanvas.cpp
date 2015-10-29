@@ -38,9 +38,7 @@
 #include "GrRenderTarget.h"
 #endif
 
-#ifndef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
 #define SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
-#endif
 
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
@@ -412,7 +410,6 @@ static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
     return SkColorFilter::CreateComposeFilter(imgCF, paintCF);
 }
 
-#ifndef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
 /**
  * There are many bounds in skia. A circle's bounds is just its center extended by its radius.
  * However, if we stroke a circle, then the "bounds" of that is larger, since it will now draw
@@ -434,7 +431,6 @@ static const SkRect& apply_paint_to_bounds_sans_imagefilter(const SkPaint& paint
         return rawBounds;
     }
 }
-#endif
 
 class AutoDrawLooper {
 public:
@@ -478,13 +474,11 @@ public:
             SkPaint tmp;
             tmp.setImageFilter(fPaint->getImageFilter());
             tmp.setXfermode(fPaint->getXfermode());
-#ifndef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
             SkRect storage;
             if (rawBounds) {
                 // Make rawBounds include all paint outsets except for those due to image filters.
                 rawBounds = &apply_paint_to_bounds_sans_imagefilter(*fPaint, *rawBounds, &storage);
             }
-#endif
             (void)canvas->internalSaveLayer(rawBounds, &tmp, SkCanvas::kARGB_ClipLayer_SaveFlag,
                                             SkCanvas::kFullLayer_SaveLayerStrategy);
             fTempLayerForImageFilter = true;
@@ -2016,17 +2010,10 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
         } else {
             r.set(pts, SkToInt(count));
         }
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint.computeFastStrokeBounds(r, &storage);
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint.computeFastStrokeBounds(r, &storage))) {
             return;
         }
         bounds = &r;
-#endif
     }
 
     SkASSERT(pts != nullptr);
@@ -2050,17 +2037,10 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
         SkRect tmp(r);
         tmp.sort();
 
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint.computeFastBounds(tmp, &storage);
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint.computeFastBounds(tmp, &storage))) {
             return;
         }
         bounds = &r;
-#endif
     }
 
     LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kRect_Type, bounds, false)
@@ -2077,17 +2057,10 @@ void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint.computeFastBounds(oval, &storage);
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
             return;
         }
         bounds = &oval;
-#endif
     }
 
     LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, bounds)
@@ -2104,17 +2077,10 @@ void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint.computeFastBounds(rrect.getBounds(), &storage);
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint.computeFastBounds(rrect.getBounds(), &storage))) {
             return;
         }
         bounds = &rrect.getBounds();
-#endif
     }
 
     if (rrect.isRect()) {
@@ -2141,17 +2107,10 @@ void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint.computeFastBounds(outer.getBounds(), &storage);
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint.computeFastBounds(outer.getBounds(), &storage))) {
             return;
         }
         bounds = &outer.getBounds();
-#endif
     }
 
     LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, bounds)
@@ -2173,17 +2132,10 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     const SkRect* bounds = nullptr;
     if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
         const SkRect& pathBounds = path.getBounds();
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint.computeFastBounds(pathBounds, &storage);
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint.computeFastBounds(pathBounds, &storage))) {
             return;
         }
         bounds = &pathBounds;
-#endif
     }
 
     const SkRect& r = path.getBounds();
@@ -2208,14 +2160,6 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     SkRect bounds = SkRect::MakeXYWH(x, y,
                                      SkIntToScalar(image->width()), SkIntToScalar(image->height()));
     if (nullptr == paint || paint->canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        if (paint) {
-            paint->computeFastBounds(bounds, &bounds);
-        }
-        if (this->quickReject(bounds)) {
-            return;
-        }
-#else
         SkRect tmp = bounds;
         if (paint) {
             paint->computeFastBounds(tmp, &tmp);
@@ -2223,7 +2167,6 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         if (this->quickReject(tmp)) {
             return;
         }
-#endif
     }
     
     SkLazyPaint lazy;
@@ -2246,14 +2189,6 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     SkRect storage;
     const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        if (paint) {
-            bounds = &paint->computeFastBounds(dst, &storage);
-        }
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         storage = dst;
         if (paint) {
             paint->computeFastBounds(dst, &storage);
@@ -2261,7 +2196,6 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
         if (this->quickReject(storage)) {
             return;
         }
-#endif
     }
     SkLazyPaint lazy;
     if (nullptr == paint) {
@@ -2298,18 +2232,11 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
     if (paint->canComputeFastBounds()) {
         bitmap.getBounds(&storage);
         matrix.mapRect(&storage);
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint->computeFastBounds(storage, &storage);
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         SkRect tmp = storage;
         if (this->quickReject(paint->computeFastBounds(tmp, &tmp))) {
             return;
         }
         bounds = &storage;
-#endif
     }
 
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
@@ -2332,18 +2259,9 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     SkRect storage;
     const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        if (paint) {
-            bounds = &paint->computeFastBounds(dst, &storage);
-        }
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
-#endif
     }
 
     SkLazyPaint lazy;
@@ -2375,18 +2293,9 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
     SkRect storage;
     const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        if (paint) {
-            bounds = &paint->computeFastBounds(dst, &storage);
-        }
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
-#endif
     }
     
     SkLazyPaint lazy;
@@ -2411,18 +2320,9 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
     SkRect storage;
     const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        if (paint) {
-            bounds = &paint->computeFastBounds(dst, &storage);
-        }
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
-#endif
     }
     
     SkLazyPaint lazy;
@@ -2595,19 +2495,11 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
         storage = blob->bounds().makeOffset(x, y);
-#ifdef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
-        bounds = &paint.computeFastBounds(storage, &storage);
-
-        if (this->quickReject(*bounds)) {
-            return;
-        }
-#else
         SkRect tmp;
         if (this->quickReject(paint.computeFastBounds(storage, &tmp))) {
             return;
         }
         bounds = &storage;
-#endif
     }
 
     // We cannot filter in the looper as we normally do, because the paint is
