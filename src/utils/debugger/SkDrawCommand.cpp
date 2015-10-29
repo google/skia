@@ -387,8 +387,13 @@ SkDrawImageCommand::SkDrawImageCommand(const SkImage* image, SkScalar left, SkSc
     , fLeft(left)
     , fTop(top) {
 
+    fInfo.push(SkObjectParser::ImageToString(image));
+    fInfo.push(SkObjectParser::ScalarToString(left, "Left: "));
+    fInfo.push(SkObjectParser::ScalarToString(top, "Top: "));
+
     if (paint) {
         fPaint.set(*paint);
+        fInfo.push(SkObjectParser::PaintToString(*paint));
     }
 }
 
