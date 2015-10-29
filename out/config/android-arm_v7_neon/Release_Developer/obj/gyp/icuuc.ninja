@@ -7,8 +7,7 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DU_HIDE_DATA_SYMBOL -DU_USING_ICU_NAMESPACE=0 -DHAVE_DLOPEN=0 $
     -DUCONFIG_NO_NON_HTML5_CONVERSION=1 -DU_STATIC_IMPLEMENTATION -DNDEBUG $
     -DSK_DEVELOPER=1
-includes = $
-    -I../../../../../../paintLib/skia/third_party/externals/icu/source/common
+includes = -I../../../../third_party/externals/icu/source/common
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
@@ -19,388 +18,382 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor $
 arflags = 
 
 build obj/third_party/externals/icu/source/common/icuuc.appendable.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/appendable.cpp
+    ../../../../third_party/externals/icu/source/common/appendable.cpp
 build obj/third_party/externals/icu/source/common/icuuc.bmpset.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/bmpset.cpp
+    ../../../../third_party/externals/icu/source/common/bmpset.cpp
 build obj/third_party/externals/icu/source/common/icuuc.brkeng.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/brkeng.cpp
+    ../../../../third_party/externals/icu/source/common/brkeng.cpp
 build obj/third_party/externals/icu/source/common/icuuc.brkiter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/brkiter.cpp
+    ../../../../third_party/externals/icu/source/common/brkiter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.bytestream.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/bytestream.cpp
+    ../../../../third_party/externals/icu/source/common/bytestream.cpp
 build obj/third_party/externals/icu/source/common/icuuc.bytestrie.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/bytestrie.cpp
+    ../../../../third_party/externals/icu/source/common/bytestrie.cpp
 build obj/third_party/externals/icu/source/common/icuuc.bytestriebuilder.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/bytestriebuilder.cpp
+    ../../../../third_party/externals/icu/source/common/bytestriebuilder.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.bytestrieiterator.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/bytestrieiterator.cpp
+    ../../../../third_party/externals/icu/source/common/bytestrieiterator.cpp
 build obj/third_party/externals/icu/source/common/icuuc.caniter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/caniter.cpp
+    ../../../../third_party/externals/icu/source/common/caniter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.chariter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/chariter.cpp
+    ../../../../third_party/externals/icu/source/common/chariter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.charstr.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/charstr.cpp
+    ../../../../third_party/externals/icu/source/common/charstr.cpp
 build obj/third_party/externals/icu/source/common/icuuc.cmemory.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/cmemory.c
+    ../../../../third_party/externals/icu/source/common/cmemory.c
 build obj/third_party/externals/icu/source/common/icuuc.cstring.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/cstring.c
+    ../../../../third_party/externals/icu/source/common/cstring.c
 build obj/third_party/externals/icu/source/common/icuuc.cwchar.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/cwchar.c
+    ../../../../third_party/externals/icu/source/common/cwchar.c
 build obj/third_party/externals/icu/source/common/icuuc.dictbe.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/dictbe.cpp
+    ../../../../third_party/externals/icu/source/common/dictbe.cpp
 build obj/third_party/externals/icu/source/common/icuuc.dictionarydata.o: $
-    cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/dictionarydata.cpp
+    cxx ../../../../third_party/externals/icu/source/common/dictionarydata.cpp
 build obj/third_party/externals/icu/source/common/icuuc.dtintrv.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/dtintrv.cpp
+    ../../../../third_party/externals/icu/source/common/dtintrv.cpp
 build obj/third_party/externals/icu/source/common/icuuc.errorcode.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/errorcode.cpp
+    ../../../../third_party/externals/icu/source/common/errorcode.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.filterednormalizer2.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/filterednormalizer2.cpp
+    ../../../../third_party/externals/icu/source/common/filterednormalizer2.cpp
 build obj/third_party/externals/icu/source/common/icuuc.icudataver.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/icudataver.c
+    ../../../../third_party/externals/icu/source/common/icudataver.c
 build obj/third_party/externals/icu/source/common/icuuc.icuplug.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/icuplug.cpp
+    ../../../../third_party/externals/icu/source/common/icuplug.cpp
 build obj/third_party/externals/icu/source/common/icuuc.listformatter.o: $
-    cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/listformatter.cpp
+    cxx ../../../../third_party/externals/icu/source/common/listformatter.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.loadednormalizer2impl.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/loadednormalizer2impl.cpp
+    ../../../../third_party/externals/icu/source/common/loadednormalizer2impl.cpp
 build obj/third_party/externals/icu/source/common/icuuc.locavailable.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/locavailable.cpp
+    ../../../../third_party/externals/icu/source/common/locavailable.cpp
 build obj/third_party/externals/icu/source/common/icuuc.locbased.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/locbased.cpp
+    ../../../../third_party/externals/icu/source/common/locbased.cpp
 build obj/third_party/externals/icu/source/common/icuuc.locdispnames.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/locdispnames.cpp
+    ../../../../third_party/externals/icu/source/common/locdispnames.cpp
 build obj/third_party/externals/icu/source/common/icuuc.locid.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/locid.cpp
+    ../../../../third_party/externals/icu/source/common/locid.cpp
 build obj/third_party/externals/icu/source/common/icuuc.loclikely.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/loclikely.cpp
+    ../../../../third_party/externals/icu/source/common/loclikely.cpp
 build obj/third_party/externals/icu/source/common/icuuc.locmap.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/locmap.c
+    ../../../../third_party/externals/icu/source/common/locmap.c
 build obj/third_party/externals/icu/source/common/icuuc.locresdata.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/locresdata.cpp
+    ../../../../third_party/externals/icu/source/common/locresdata.cpp
 build obj/third_party/externals/icu/source/common/icuuc.locutil.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/locutil.cpp
+    ../../../../third_party/externals/icu/source/common/locutil.cpp
 build obj/third_party/externals/icu/source/common/icuuc.messagepattern.o: $
-    cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/messagepattern.cpp
+    cxx ../../../../third_party/externals/icu/source/common/messagepattern.cpp
 build obj/third_party/externals/icu/source/common/icuuc.normalizer2.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/normalizer2.cpp
+    ../../../../third_party/externals/icu/source/common/normalizer2.cpp
 build obj/third_party/externals/icu/source/common/icuuc.normalizer2impl.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/normalizer2impl.cpp
+    ../../../../third_party/externals/icu/source/common/normalizer2impl.cpp
 build obj/third_party/externals/icu/source/common/icuuc.normlzr.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/normlzr.cpp
+    ../../../../third_party/externals/icu/source/common/normlzr.cpp
 build obj/third_party/externals/icu/source/common/icuuc.parsepos.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/parsepos.cpp
+    ../../../../third_party/externals/icu/source/common/parsepos.cpp
 build obj/third_party/externals/icu/source/common/icuuc.patternprops.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/patternprops.cpp
+    ../../../../third_party/externals/icu/source/common/patternprops.cpp
 build obj/third_party/externals/icu/source/common/icuuc.propname.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/propname.cpp
+    ../../../../third_party/externals/icu/source/common/propname.cpp
 build obj/third_party/externals/icu/source/common/icuuc.propsvec.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/propsvec.c
+    ../../../../third_party/externals/icu/source/common/propsvec.c
 build obj/third_party/externals/icu/source/common/icuuc.punycode.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/punycode.cpp
+    ../../../../third_party/externals/icu/source/common/punycode.cpp
 build obj/third_party/externals/icu/source/common/icuuc.putil.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/putil.cpp
+    ../../../../third_party/externals/icu/source/common/putil.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbi.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbi.cpp
+    ../../../../third_party/externals/icu/source/common/rbbi.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbidata.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbidata.cpp
+    ../../../../third_party/externals/icu/source/common/rbbidata.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbinode.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbinode.cpp
+    ../../../../third_party/externals/icu/source/common/rbbinode.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbirb.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbirb.cpp
+    ../../../../third_party/externals/icu/source/common/rbbirb.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbiscan.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbiscan.cpp
+    ../../../../third_party/externals/icu/source/common/rbbiscan.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbisetb.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbisetb.cpp
+    ../../../../third_party/externals/icu/source/common/rbbisetb.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbistbl.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbistbl.cpp
+    ../../../../third_party/externals/icu/source/common/rbbistbl.cpp
 build obj/third_party/externals/icu/source/common/icuuc.rbbitblb.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/rbbitblb.cpp
+    ../../../../third_party/externals/icu/source/common/rbbitblb.cpp
 build obj/third_party/externals/icu/source/common/icuuc.resbund.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/resbund.cpp
+    ../../../../third_party/externals/icu/source/common/resbund.cpp
 build obj/third_party/externals/icu/source/common/icuuc.resbund_cnv.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/resbund_cnv.cpp
+    ../../../../third_party/externals/icu/source/common/resbund_cnv.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ruleiter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ruleiter.cpp
+    ../../../../third_party/externals/icu/source/common/ruleiter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.schriter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/schriter.cpp
+    ../../../../third_party/externals/icu/source/common/schriter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.serv.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/serv.cpp
+    ../../../../third_party/externals/icu/source/common/serv.cpp
 build obj/third_party/externals/icu/source/common/icuuc.servlk.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/servlk.cpp
+    ../../../../third_party/externals/icu/source/common/servlk.cpp
 build obj/third_party/externals/icu/source/common/icuuc.servlkf.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/servlkf.cpp
+    ../../../../third_party/externals/icu/source/common/servlkf.cpp
 build obj/third_party/externals/icu/source/common/icuuc.servls.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/servls.cpp
+    ../../../../third_party/externals/icu/source/common/servls.cpp
 build obj/third_party/externals/icu/source/common/icuuc.servnotf.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/servnotf.cpp
+    ../../../../third_party/externals/icu/source/common/servnotf.cpp
 build obj/third_party/externals/icu/source/common/icuuc.servrbf.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/servrbf.cpp
+    ../../../../third_party/externals/icu/source/common/servrbf.cpp
 build obj/third_party/externals/icu/source/common/icuuc.servslkf.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/servslkf.cpp
+    ../../../../third_party/externals/icu/source/common/servslkf.cpp
 build obj/third_party/externals/icu/source/common/icuuc.sharedobject.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/sharedobject.cpp
+    ../../../../third_party/externals/icu/source/common/sharedobject.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.simplepatternformatter.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/simplepatternformatter.cpp
+    ../../../../third_party/externals/icu/source/common/simplepatternformatter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.stringpiece.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/stringpiece.cpp
+    ../../../../third_party/externals/icu/source/common/stringpiece.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.stringtriebuilder.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/stringtriebuilder.cpp
+    ../../../../third_party/externals/icu/source/common/stringtriebuilder.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uarrsort.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uarrsort.c
+    ../../../../third_party/externals/icu/source/common/uarrsort.c
 build obj/third_party/externals/icu/source/common/icuuc.ubidi.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ubidi.c
+    ../../../../third_party/externals/icu/source/common/ubidi.c
 build obj/third_party/externals/icu/source/common/icuuc.ubidi_props.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ubidi_props.c
+    ../../../../third_party/externals/icu/source/common/ubidi_props.c
 build obj/third_party/externals/icu/source/common/icuuc.ubidiln.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ubidiln.c
+    ../../../../third_party/externals/icu/source/common/ubidiln.c
 build obj/third_party/externals/icu/source/common/icuuc.ubidiwrt.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ubidiwrt.c
+    ../../../../third_party/externals/icu/source/common/ubidiwrt.c
 build obj/third_party/externals/icu/source/common/icuuc.ubrk.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ubrk.cpp
+    ../../../../third_party/externals/icu/source/common/ubrk.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucase.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucase.cpp
+    ../../../../third_party/externals/icu/source/common/ucase.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucasemap.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucasemap.cpp
+    ../../../../third_party/externals/icu/source/common/ucasemap.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.ucasemap_titlecase_brkiter.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucasemap_titlecase_brkiter.cpp
+    ../../../../third_party/externals/icu/source/common/ucasemap_titlecase_brkiter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucat.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucat.c
+    ../../../../third_party/externals/icu/source/common/ucat.c
 build obj/third_party/externals/icu/source/common/icuuc.uchar.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uchar.c
+    ../../../../third_party/externals/icu/source/common/uchar.c
 build obj/third_party/externals/icu/source/common/icuuc.ucharstrie.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucharstrie.cpp
+    ../../../../third_party/externals/icu/source/common/ucharstrie.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.ucharstriebuilder.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucharstriebuilder.cpp
+    ../../../../third_party/externals/icu/source/common/ucharstriebuilder.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.ucharstrieiterator.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucharstrieiterator.cpp
+    ../../../../third_party/externals/icu/source/common/ucharstrieiterator.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uchriter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uchriter.cpp
+    ../../../../third_party/externals/icu/source/common/uchriter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucln_cmn.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucln_cmn.cpp
+    ../../../../third_party/externals/icu/source/common/ucln_cmn.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucmndata.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucmndata.c
+    ../../../../third_party/externals/icu/source/common/ucmndata.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv.c
+    ../../../../third_party/externals/icu/source/common/ucnv.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv2022.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv2022.cpp
+    ../../../../third_party/externals/icu/source/common/ucnv2022.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_bld.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_bld.cpp
+    ../../../../third_party/externals/icu/source/common/ucnv_bld.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_cb.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_cb.c
+    ../../../../third_party/externals/icu/source/common/ucnv_cb.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_cnv.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_cnv.c
+    ../../../../third_party/externals/icu/source/common/ucnv_cnv.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_ct.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_ct.c
+    ../../../../third_party/externals/icu/source/common/ucnv_ct.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_err.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_err.c
+    ../../../../third_party/externals/icu/source/common/ucnv_err.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_ext.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_ext.cpp
+    ../../../../third_party/externals/icu/source/common/ucnv_ext.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_io.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_io.cpp
+    ../../../../third_party/externals/icu/source/common/ucnv_io.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_lmb.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_lmb.c
+    ../../../../third_party/externals/icu/source/common/ucnv_lmb.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_set.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_set.c
+    ../../../../third_party/externals/icu/source/common/ucnv_set.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_u16.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_u16.c
+    ../../../../third_party/externals/icu/source/common/ucnv_u16.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_u32.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_u32.c
+    ../../../../third_party/externals/icu/source/common/ucnv_u32.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_u7.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_u7.c
+    ../../../../third_party/externals/icu/source/common/ucnv_u7.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnv_u8.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnv_u8.c
+    ../../../../third_party/externals/icu/source/common/ucnv_u8.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnvbocu.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvbocu.cpp
+    ../../../../third_party/externals/icu/source/common/ucnvbocu.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucnvdisp.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvdisp.c
+    ../../../../third_party/externals/icu/source/common/ucnvdisp.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnvhz.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvhz.c
+    ../../../../third_party/externals/icu/source/common/ucnvhz.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnvisci.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvisci.c
+    ../../../../third_party/externals/icu/source/common/ucnvisci.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnvlat1.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvlat1.c
+    ../../../../third_party/externals/icu/source/common/ucnvlat1.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnvmbcs.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvmbcs.cpp
+    ../../../../third_party/externals/icu/source/common/ucnvmbcs.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucnvscsu.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvscsu.c
+    ../../../../third_party/externals/icu/source/common/ucnvscsu.c
 build obj/third_party/externals/icu/source/common/icuuc.ucnvsel.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucnvsel.cpp
+    ../../../../third_party/externals/icu/source/common/ucnvsel.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ucol_swp.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ucol_swp.cpp
+    ../../../../third_party/externals/icu/source/common/ucol_swp.cpp
 build obj/third_party/externals/icu/source/common/icuuc.udata.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/udata.cpp
+    ../../../../third_party/externals/icu/source/common/udata.cpp
 build obj/third_party/externals/icu/source/common/icuuc.udatamem.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/udatamem.c
+    ../../../../third_party/externals/icu/source/common/udatamem.c
 build obj/third_party/externals/icu/source/common/icuuc.udataswp.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/udataswp.c
+    ../../../../third_party/externals/icu/source/common/udataswp.c
 build obj/third_party/externals/icu/source/common/icuuc.uenum.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uenum.c
+    ../../../../third_party/externals/icu/source/common/uenum.c
 build obj/third_party/externals/icu/source/common/icuuc.uhash.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uhash.c
+    ../../../../third_party/externals/icu/source/common/uhash.c
 build obj/third_party/externals/icu/source/common/icuuc.uhash_us.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uhash_us.cpp
+    ../../../../third_party/externals/icu/source/common/uhash_us.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uidna.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uidna.cpp
+    ../../../../third_party/externals/icu/source/common/uidna.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uinit.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uinit.cpp
+    ../../../../third_party/externals/icu/source/common/uinit.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uinvchar.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uinvchar.c
+    ../../../../third_party/externals/icu/source/common/uinvchar.c
 build obj/third_party/externals/icu/source/common/icuuc.uiter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uiter.cpp
+    ../../../../third_party/externals/icu/source/common/uiter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ulist.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ulist.c
+    ../../../../third_party/externals/icu/source/common/ulist.c
 build obj/third_party/externals/icu/source/common/icuuc.uloc.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uloc.cpp
+    ../../../../third_party/externals/icu/source/common/uloc.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uloc_keytype.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uloc_keytype.cpp
+    ../../../../third_party/externals/icu/source/common/uloc_keytype.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uloc_tag.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uloc_tag.c
+    ../../../../third_party/externals/icu/source/common/uloc_tag.c
 build obj/third_party/externals/icu/source/common/icuuc.umapfile.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/umapfile.c
+    ../../../../third_party/externals/icu/source/common/umapfile.c
 build obj/third_party/externals/icu/source/common/icuuc.umath.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/umath.c
+    ../../../../third_party/externals/icu/source/common/umath.c
 build obj/third_party/externals/icu/source/common/icuuc.umutex.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/umutex.cpp
+    ../../../../third_party/externals/icu/source/common/umutex.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unames.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unames.cpp
+    ../../../../third_party/externals/icu/source/common/unames.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unifiedcache.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unifiedcache.cpp
+    ../../../../third_party/externals/icu/source/common/unifiedcache.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unifilt.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unifilt.cpp
+    ../../../../third_party/externals/icu/source/common/unifilt.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unifunct.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unifunct.cpp
+    ../../../../third_party/externals/icu/source/common/unifunct.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uniset.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uniset.cpp
+    ../../../../third_party/externals/icu/source/common/uniset.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uniset_closure.o: $
-    cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uniset_closure.cpp
+    cxx ../../../../third_party/externals/icu/source/common/uniset_closure.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uniset_props.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uniset_props.cpp
+    ../../../../third_party/externals/icu/source/common/uniset_props.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unisetspan.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unisetspan.cpp
+    ../../../../third_party/externals/icu/source/common/unisetspan.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unistr.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unistr.cpp
+    ../../../../third_party/externals/icu/source/common/unistr.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unistr_case.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unistr_case.cpp
+    ../../../../third_party/externals/icu/source/common/unistr_case.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.unistr_case_locale.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unistr_case_locale.cpp
+    ../../../../third_party/externals/icu/source/common/unistr_case_locale.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unistr_cnv.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unistr_cnv.cpp
+    ../../../../third_party/externals/icu/source/common/unistr_cnv.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unistr_props.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unistr_props.cpp
+    ../../../../third_party/externals/icu/source/common/unistr_props.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.unistr_titlecase_brkiter.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unistr_titlecase_brkiter.cpp
+    ../../../../third_party/externals/icu/source/common/unistr_titlecase_brkiter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unorm.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unorm.cpp
+    ../../../../third_party/externals/icu/source/common/unorm.cpp
 build obj/third_party/externals/icu/source/common/icuuc.unormcmp.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/unormcmp.cpp
+    ../../../../third_party/externals/icu/source/common/unormcmp.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uobject.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uobject.cpp
+    ../../../../third_party/externals/icu/source/common/uobject.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uprops.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uprops.cpp
+    ../../../../third_party/externals/icu/source/common/uprops.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ures_cnv.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ures_cnv.c
+    ../../../../third_party/externals/icu/source/common/ures_cnv.c
 build obj/third_party/externals/icu/source/common/icuuc.uresbund.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uresbund.cpp
+    ../../../../third_party/externals/icu/source/common/uresbund.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uresdata.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uresdata.c
+    ../../../../third_party/externals/icu/source/common/uresdata.c
 build obj/third_party/externals/icu/source/common/icuuc.usc_impl.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/usc_impl.c
+    ../../../../third_party/externals/icu/source/common/usc_impl.c
 build obj/third_party/externals/icu/source/common/icuuc.uscript.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uscript.c
+    ../../../../third_party/externals/icu/source/common/uscript.c
 build obj/third_party/externals/icu/source/common/icuuc.uscript_props.o: $
-    cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uscript_props.cpp
+    cxx ../../../../third_party/externals/icu/source/common/uscript_props.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uset.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uset.cpp
+    ../../../../third_party/externals/icu/source/common/uset.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uset_props.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uset_props.cpp
+    ../../../../third_party/externals/icu/source/common/uset_props.cpp
 build obj/third_party/externals/icu/source/common/icuuc.usetiter.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/usetiter.cpp
+    ../../../../third_party/externals/icu/source/common/usetiter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ushape.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ushape.cpp
+    ../../../../third_party/externals/icu/source/common/ushape.cpp
 build obj/third_party/externals/icu/source/common/icuuc.usprep.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/usprep.cpp
+    ../../../../third_party/externals/icu/source/common/usprep.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustack.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustack.cpp
+    ../../../../third_party/externals/icu/source/common/ustack.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustr_cnv.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustr_cnv.cpp
+    ../../../../third_party/externals/icu/source/common/ustr_cnv.cpp
 build $
     obj/third_party/externals/icu/source/common/icuuc.ustr_titlecase_brkiter.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustr_titlecase_brkiter.cpp
+    ../../../../third_party/externals/icu/source/common/ustr_titlecase_brkiter.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustr_wcs.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustr_wcs.cpp
+    ../../../../third_party/externals/icu/source/common/ustr_wcs.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustrcase.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustrcase.cpp
+    ../../../../third_party/externals/icu/source/common/ustrcase.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustrcase_locale.o: $
     cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustrcase_locale.cpp
+    ../../../../third_party/externals/icu/source/common/ustrcase_locale.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustrenum.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustrenum.cpp
+    ../../../../third_party/externals/icu/source/common/ustrenum.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustrfmt.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustrfmt.c
+    ../../../../third_party/externals/icu/source/common/ustrfmt.c
 build obj/third_party/externals/icu/source/common/icuuc.ustring.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustring.cpp
+    ../../../../third_party/externals/icu/source/common/ustring.cpp
 build obj/third_party/externals/icu/source/common/icuuc.ustrtrns.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/ustrtrns.cpp
+    ../../../../third_party/externals/icu/source/common/ustrtrns.cpp
 build obj/third_party/externals/icu/source/common/icuuc.utext.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/utext.cpp
+    ../../../../third_party/externals/icu/source/common/utext.cpp
 build obj/third_party/externals/icu/source/common/icuuc.utf_impl.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/utf_impl.c
+    ../../../../third_party/externals/icu/source/common/utf_impl.c
 build obj/third_party/externals/icu/source/common/icuuc.util.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/util.cpp
+    ../../../../third_party/externals/icu/source/common/util.cpp
 build obj/third_party/externals/icu/source/common/icuuc.util_props.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/util_props.cpp
+    ../../../../third_party/externals/icu/source/common/util_props.cpp
 build obj/third_party/externals/icu/source/common/icuuc.utrace.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/utrace.c
+    ../../../../third_party/externals/icu/source/common/utrace.c
 build obj/third_party/externals/icu/source/common/icuuc.utrie.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/utrie.cpp
+    ../../../../third_party/externals/icu/source/common/utrie.cpp
 build obj/third_party/externals/icu/source/common/icuuc.utrie2.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/utrie2.cpp
+    ../../../../third_party/externals/icu/source/common/utrie2.cpp
 build obj/third_party/externals/icu/source/common/icuuc.utrie2_builder.o: $
-    cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/utrie2_builder.cpp
+    cxx ../../../../third_party/externals/icu/source/common/utrie2_builder.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uts46.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uts46.cpp
+    ../../../../third_party/externals/icu/source/common/uts46.cpp
 build obj/third_party/externals/icu/source/common/icuuc.utypes.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/utypes.c
+    ../../../../third_party/externals/icu/source/common/utypes.c
 build obj/third_party/externals/icu/source/common/icuuc.uvector.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uvector.cpp
+    ../../../../third_party/externals/icu/source/common/uvector.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uvectr32.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uvectr32.cpp
+    ../../../../third_party/externals/icu/source/common/uvectr32.cpp
 build obj/third_party/externals/icu/source/common/icuuc.uvectr64.o: cxx $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/uvectr64.cpp
+    ../../../../third_party/externals/icu/source/common/uvectr64.cpp
 build obj/third_party/externals/icu/source/common/icuuc.wintz.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/source/common/wintz.c
+    ../../../../third_party/externals/icu/source/common/wintz.c
 build obj/third_party/externals/icu/android/icuuc.icudtl_dat.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/icu/android/icudtl_dat.S
+    ../../../../third_party/externals/icu/android/icudtl_dat.S
 
 build obj/gyp/libicuuc.a: alink_thin $
     obj/third_party/externals/icu/source/common/icuuc.appendable.o $

@@ -15,7 +15,7 @@ arflags =
 build $
     obj/platform_tools/android/third_party/native_app_glue/native_app_glue.android_native_app_glue.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/native_app_glue/android_native_app_glue.c
+    ../../../../platform_tools/android/third_party/native_app_glue/android_native_app_glue.c
 
 build obj/gyp/libnative_app_glue.a: alink_thin $
     obj/platform_tools/android/third_party/native_app_glue/native_app_glue.android_native_app_glue.o

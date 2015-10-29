@@ -29082,13 +29082,10 @@ dlopen U
 dlsym U
 eglBindAPI U
 eglChooseConfig U
-eglClientWaitSyncKHR U
 eglCreateContext U
 eglCreatePbufferSurface U
-eglCreateSyncKHR U
 eglDestroyContext U
 eglDestroySurface U
-eglDestroySyncKHR U
 eglGetDisplay U
 eglGetError U
 eglGetProcAddress U

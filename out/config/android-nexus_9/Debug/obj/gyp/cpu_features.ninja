@@ -15,7 +15,7 @@ arflags =
 build $
     obj/platform_tools/android/third_party/cpufeatures/cpu_features.cpu-features.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/cpufeatures/cpu-features.c
+    ../../../../platform_tools/android/third_party/cpufeatures/cpu-features.c
 
 build obj/gyp/libcpu_features.a: alink_thin $
     obj/platform_tools/android/third_party/cpufeatures/cpu_features.cpu-features.o

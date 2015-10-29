@@ -4,27 +4,18 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
     -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
     '-DSK_SFNTLY_SUBSETTER="font_subsetter.h"' -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/include/private $
-    -I../../../../../../paintLib/skia/src/core $
-    -I../../../../../../paintLib/skia/src/pdf $
-    -I../../../../../../paintLib/skia/src/image $
-    -I../../../../../../paintLib/skia/src/utils $
-    -I../../../../../../paintLib/skia/include/c $
-    -I../../../../../../paintLib/skia/include/config $
-    -I../../../../../../paintLib/skia/include/core $
-    -I../../../../../../paintLib/skia/include/pathops $
-    -I../../../../../../paintLib/skia/include/pipe $
-    -I../../../../../../paintLib/skia/include/codec $
-    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
-    -I../../../../../../paintLib/skia/include/effects $
-    -I../../../../../../paintLib/skia/include/images $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
-    -I../../../../../../paintLib/skia/include/ports $
-    -I../../../../../../paintLib/skia/src/sfnt $
-    -I../../../../../../paintLib/skia/include/utils $
-    -I../../../../../../paintLib/skia/include/gpu $
-    -I../../../../../../paintLib/skia/third_party/externals/sfntly/sample/chromium
+includes = -I../../../../include/private -I../../../../src/core $
+    -I../../../../src/pdf -I../../../../src/image -I../../../../src/utils $
+    -I../../../../include/c -I../../../../include/config $
+    -I../../../../include/core -I../../../../include/pathops $
+    -I../../../../include/pipe -I../../../../include/codec $
+    -I../../../../third_party/externals/libjpeg-turbo $
+    -I../../../../include/effects -I../../../../include/images $
+    -I../../../../platform_tools/android/third_party/externals/png $
+    -I../../../../platform_tools/android/third_party/externals/jpeg $
+    -I../../../../include/ports -I../../../../src/sfnt $
+    -I../../../../include/utils -I../../../../include/gpu $
+    -I../../../../third_party/externals/sfntly/sample/chromium
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -fuse-ld=gold -g
@@ -33,33 +24,23 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/src/doc/pdf.SkDocument_PDF.o: cxx $
-    ../../../../../../paintLib/skia/src/doc/SkDocument_PDF.cpp
-build obj/src/pdf/pdf.SkDeflate.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkDeflate.cpp
-build obj/src/pdf/pdf.SkJpegInfo.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkJpegInfo.cpp
-build obj/src/pdf/pdf.SkPDFBitmap.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFBitmap.cpp
-build obj/src/pdf/pdf.SkPDFCanon.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFCanon.cpp
-build obj/src/pdf/pdf.SkPDFDevice.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFDevice.cpp
-build obj/src/pdf/pdf.SkPDFFont.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFFont.cpp
+    ../../../../src/doc/SkDocument_PDF.cpp
+build obj/src/pdf/pdf.SkDeflate.o: cxx ../../../../src/pdf/SkDeflate.cpp
+build obj/src/pdf/pdf.SkJpegInfo.o: cxx ../../../../src/pdf/SkJpegInfo.cpp
+build obj/src/pdf/pdf.SkPDFBitmap.o: cxx ../../../../src/pdf/SkPDFBitmap.cpp
+build obj/src/pdf/pdf.SkPDFCanon.o: cxx ../../../../src/pdf/SkPDFCanon.cpp
+build obj/src/pdf/pdf.SkPDFDevice.o: cxx ../../../../src/pdf/SkPDFDevice.cpp
+build obj/src/pdf/pdf.SkPDFFont.o: cxx ../../../../src/pdf/SkPDFFont.cpp
 build obj/src/pdf/pdf.SkPDFFormXObject.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFFormXObject.cpp
+    ../../../../src/pdf/SkPDFFormXObject.cpp
 build obj/src/pdf/pdf.SkPDFGraphicState.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFGraphicState.cpp
+    ../../../../src/pdf/SkPDFGraphicState.cpp
 build obj/src/pdf/pdf.SkPDFResourceDict.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFResourceDict.cpp
-build obj/src/pdf/pdf.SkPDFShader.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFShader.cpp
-build obj/src/pdf/pdf.SkPDFStream.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFStream.cpp
-build obj/src/pdf/pdf.SkPDFTypes.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFTypes.cpp
-build obj/src/pdf/pdf.SkPDFUtils.o: cxx $
-    ../../../../../../paintLib/skia/src/pdf/SkPDFUtils.cpp
+    ../../../../src/pdf/SkPDFResourceDict.cpp
+build obj/src/pdf/pdf.SkPDFShader.o: cxx ../../../../src/pdf/SkPDFShader.cpp
+build obj/src/pdf/pdf.SkPDFStream.o: cxx ../../../../src/pdf/SkPDFStream.cpp
+build obj/src/pdf/pdf.SkPDFTypes.o: cxx ../../../../src/pdf/SkPDFTypes.cpp
+build obj/src/pdf/pdf.SkPDFUtils.o: cxx ../../../../src/pdf/SkPDFUtils.cpp
 
 build libskia_pdf.a: alink obj/src/doc/pdf.SkDocument_PDF.o $
     obj/src/pdf/pdf.SkDeflate.o obj/src/pdf/pdf.SkJpegInfo.o $

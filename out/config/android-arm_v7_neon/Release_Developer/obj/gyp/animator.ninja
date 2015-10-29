@@ -4,26 +4,18 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DNDEBUG -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/include/animator $
-    -I../../../../../../paintLib/skia/include/private $
-    -I../../../../../../paintLib/skia/src/utils $
-    -I../../../../../../paintLib/skia/include/c $
-    -I../../../../../../paintLib/skia/include/config $
-    -I../../../../../../paintLib/skia/include/core $
-    -I../../../../../../paintLib/skia/include/pathops $
-    -I../../../../../../paintLib/skia/include/pipe $
-    -I../../../../../../paintLib/skia/include/codec $
-    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
-    -I../../../../../../paintLib/skia/include/effects $
-    -I../../../../../../paintLib/skia/include/images $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
-    -I../../../../../../paintLib/skia/include/ports $
-    -I../../../../../../paintLib/skia/src/sfnt $
-    -I../../../../../../paintLib/skia/include/utils $
-    -I../../../../../../paintLib/skia/include/gpu $
-    -I../../../../../../paintLib/skia/include/views $
-    -I../../../../../../paintLib/skia/include/xml
+includes = -I../../../../include/animator -I../../../../include/private $
+    -I../../../../src/utils -I../../../../include/c $
+    -I../../../../include/config -I../../../../include/core $
+    -I../../../../include/pathops -I../../../../include/pipe $
+    -I../../../../include/codec $
+    -I../../../../third_party/externals/libjpeg-turbo $
+    -I../../../../include/effects -I../../../../include/images $
+    -I../../../../platform_tools/android/third_party/externals/png $
+    -I../../../../platform_tools/android/third_party/externals/jpeg $
+    -I../../../../include/ports -I../../../../src/sfnt $
+    -I../../../../include/utils -I../../../../include/gpu $
+    -I../../../../include/views -I../../../../include/xml
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
@@ -33,153 +25,153 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/src/animator/animator.SkADrawable.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkADrawable.cpp
+    ../../../../src/animator/SkADrawable.cpp
 build obj/src/animator/animator.SkAnimateActive.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkAnimateActive.cpp
+    ../../../../src/animator/SkAnimateActive.cpp
 build obj/src/animator/animator.SkAnimateBase.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkAnimateBase.cpp
+    ../../../../src/animator/SkAnimateBase.cpp
 build obj/src/animator/animator.SkAnimateField.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkAnimateField.cpp
+    ../../../../src/animator/SkAnimateField.cpp
 build obj/src/animator/animator.SkAnimateMaker.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkAnimateMaker.cpp
+    ../../../../src/animator/SkAnimateMaker.cpp
 build obj/src/animator/animator.SkAnimateSet.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkAnimateSet.cpp
+    ../../../../src/animator/SkAnimateSet.cpp
 build obj/src/animator/animator.SkAnimator.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkAnimator.cpp
+    ../../../../src/animator/SkAnimator.cpp
 build obj/src/animator/animator.SkAnimatorScript.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkAnimatorScript.cpp
+    ../../../../src/animator/SkAnimatorScript.cpp
 build obj/src/animator/animator.SkBoundable.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkBoundable.cpp
+    ../../../../src/animator/SkBoundable.cpp
 build obj/src/animator/animator.SkBuildCondensedInfo.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkBuildCondensedInfo.cpp
+    ../../../../src/animator/SkBuildCondensedInfo.cpp
 build obj/src/animator/animator.SkDisplayable.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayable.cpp
+    ../../../../src/animator/SkDisplayable.cpp
 build obj/src/animator/animator.SkDisplayAdd.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayAdd.cpp
+    ../../../../src/animator/SkDisplayAdd.cpp
 build obj/src/animator/animator.SkDisplayApply.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayApply.cpp
+    ../../../../src/animator/SkDisplayApply.cpp
 build obj/src/animator/animator.SkDisplayBounds.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayBounds.cpp
+    ../../../../src/animator/SkDisplayBounds.cpp
 build obj/src/animator/animator.SkDisplayEvent.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayEvent.cpp
+    ../../../../src/animator/SkDisplayEvent.cpp
 build obj/src/animator/animator.SkDisplayEvents.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayEvents.cpp
+    ../../../../src/animator/SkDisplayEvents.cpp
 build obj/src/animator/animator.SkDisplayInclude.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayInclude.cpp
+    ../../../../src/animator/SkDisplayInclude.cpp
 build obj/src/animator/animator.SkDisplayInput.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayInput.cpp
+    ../../../../src/animator/SkDisplayInput.cpp
 build obj/src/animator/animator.SkDisplayList.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayList.cpp
+    ../../../../src/animator/SkDisplayList.cpp
 build obj/src/animator/animator.SkDisplayMath.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayMath.cpp
+    ../../../../src/animator/SkDisplayMath.cpp
 build obj/src/animator/animator.SkDisplayMovie.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayMovie.cpp
+    ../../../../src/animator/SkDisplayMovie.cpp
 build obj/src/animator/animator.SkDisplayNumber.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayNumber.cpp
+    ../../../../src/animator/SkDisplayNumber.cpp
 build obj/src/animator/animator.SkDisplayPost.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayPost.cpp
+    ../../../../src/animator/SkDisplayPost.cpp
 build obj/src/animator/animator.SkDisplayRandom.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayRandom.cpp
+    ../../../../src/animator/SkDisplayRandom.cpp
 build obj/src/animator/animator.SkDisplayScreenplay.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayScreenplay.cpp
+    ../../../../src/animator/SkDisplayScreenplay.cpp
 build obj/src/animator/animator.SkDisplayType.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayType.cpp
+    ../../../../src/animator/SkDisplayType.cpp
 build obj/src/animator/animator.SkDisplayTypes.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayTypes.cpp
+    ../../../../src/animator/SkDisplayTypes.cpp
 build obj/src/animator/animator.SkDisplayXMLParser.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDisplayXMLParser.cpp
+    ../../../../src/animator/SkDisplayXMLParser.cpp
 build obj/src/animator/animator.SkDraw3D.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDraw3D.cpp
+    ../../../../src/animator/SkDraw3D.cpp
 build obj/src/animator/animator.SkDrawBitmap.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawBitmap.cpp
+    ../../../../src/animator/SkDrawBitmap.cpp
 build obj/src/animator/animator.SkDrawBlur.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawBlur.cpp
+    ../../../../src/animator/SkDrawBlur.cpp
 build obj/src/animator/animator.SkDrawClip.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawClip.cpp
+    ../../../../src/animator/SkDrawClip.cpp
 build obj/src/animator/animator.SkDrawColor.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawColor.cpp
+    ../../../../src/animator/SkDrawColor.cpp
 build obj/src/animator/animator.SkDrawDash.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawDash.cpp
+    ../../../../src/animator/SkDrawDash.cpp
 build obj/src/animator/animator.SkDrawDiscrete.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawDiscrete.cpp
+    ../../../../src/animator/SkDrawDiscrete.cpp
 build obj/src/animator/animator.SkDrawEmboss.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawEmboss.cpp
+    ../../../../src/animator/SkDrawEmboss.cpp
 build obj/src/animator/animator.SkDrawExtraPathEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawExtraPathEffect.cpp
+    ../../../../src/animator/SkDrawExtraPathEffect.cpp
 build obj/src/animator/animator.SkDrawFull.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawFull.cpp
+    ../../../../src/animator/SkDrawFull.cpp
 build obj/src/animator/animator.SkDrawGradient.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawGradient.cpp
+    ../../../../src/animator/SkDrawGradient.cpp
 build obj/src/animator/animator.SkDrawGroup.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawGroup.cpp
+    ../../../../src/animator/SkDrawGroup.cpp
 build obj/src/animator/animator.SkDrawLine.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawLine.cpp
+    ../../../../src/animator/SkDrawLine.cpp
 build obj/src/animator/animator.SkDrawMatrix.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawMatrix.cpp
+    ../../../../src/animator/SkDrawMatrix.cpp
 build obj/src/animator/animator.SkDrawOval.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawOval.cpp
+    ../../../../src/animator/SkDrawOval.cpp
 build obj/src/animator/animator.SkDrawPaint.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawPaint.cpp
+    ../../../../src/animator/SkDrawPaint.cpp
 build obj/src/animator/animator.SkDrawPath.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawPath.cpp
+    ../../../../src/animator/SkDrawPath.cpp
 build obj/src/animator/animator.SkDrawPoint.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawPoint.cpp
+    ../../../../src/animator/SkDrawPoint.cpp
 build obj/src/animator/animator.SkDrawRectangle.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawRectangle.cpp
+    ../../../../src/animator/SkDrawRectangle.cpp
 build obj/src/animator/animator.SkDrawSaveLayer.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawSaveLayer.cpp
+    ../../../../src/animator/SkDrawSaveLayer.cpp
 build obj/src/animator/animator.SkDrawShader.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawShader.cpp
+    ../../../../src/animator/SkDrawShader.cpp
 build obj/src/animator/animator.SkDrawText.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawText.cpp
+    ../../../../src/animator/SkDrawText.cpp
 build obj/src/animator/animator.SkDrawTextBox.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawTextBox.cpp
+    ../../../../src/animator/SkDrawTextBox.cpp
 build obj/src/animator/animator.SkDrawTo.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDrawTo.cpp
+    ../../../../src/animator/SkDrawTo.cpp
 build obj/src/animator/animator.SkDump.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkDump.cpp
+    ../../../../src/animator/SkDump.cpp
 build obj/src/animator/animator.SkGetCondensedInfo.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkGetCondensedInfo.cpp
+    ../../../../src/animator/SkGetCondensedInfo.cpp
 build obj/src/animator/animator.SkHitClear.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkHitClear.cpp
+    ../../../../src/animator/SkHitClear.cpp
 build obj/src/animator/animator.SkHitTest.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkHitTest.cpp
+    ../../../../src/animator/SkHitTest.cpp
 build obj/src/animator/animator.SkMatrixParts.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkMatrixParts.cpp
+    ../../../../src/animator/SkMatrixParts.cpp
 build obj/src/animator/animator.SkMemberInfo.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkMemberInfo.cpp
+    ../../../../src/animator/SkMemberInfo.cpp
 build obj/src/animator/animator.SkOpArray.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkOpArray.cpp
+    ../../../../src/animator/SkOpArray.cpp
 build obj/src/animator/animator.SkOperandIterpolator.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkOperandIterpolator.cpp
+    ../../../../src/animator/SkOperandIterpolator.cpp
 build obj/src/animator/animator.SkPaintPart.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkPaintPart.cpp
+    ../../../../src/animator/SkPaintPart.cpp
 build obj/src/animator/animator.SkParseSVGPath.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkParseSVGPath.cpp
+    ../../../../src/animator/SkParseSVGPath.cpp
 build obj/src/animator/animator.SkPathParts.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkPathParts.cpp
+    ../../../../src/animator/SkPathParts.cpp
 build obj/src/animator/animator.SkPostParts.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkPostParts.cpp
+    ../../../../src/animator/SkPostParts.cpp
 build obj/src/animator/animator.SkScript.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkScript.cpp
+    ../../../../src/animator/SkScript.cpp
 build obj/src/animator/animator.SkScriptDecompile.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkScriptDecompile.cpp
+    ../../../../src/animator/SkScriptDecompile.cpp
 build obj/src/animator/animator.SkScriptRuntime.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkScriptRuntime.cpp
+    ../../../../src/animator/SkScriptRuntime.cpp
 build obj/src/animator/animator.SkScriptTokenizer.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkScriptTokenizer.cpp
+    ../../../../src/animator/SkScriptTokenizer.cpp
 build obj/src/animator/animator.SkSnapshot.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkSnapshot.cpp
+    ../../../../src/animator/SkSnapshot.cpp
 build obj/src/animator/animator.SkTextOnPath.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkTextOnPath.cpp
+    ../../../../src/animator/SkTextOnPath.cpp
 build obj/src/animator/animator.SkTextToPath.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkTextToPath.cpp
+    ../../../../src/animator/SkTextToPath.cpp
 build obj/src/animator/animator.SkTime.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkTime.cpp
+    ../../../../src/animator/SkTime.cpp
 build obj/src/animator/animator.SkTypedArray.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkTypedArray.cpp
+    ../../../../src/animator/SkTypedArray.cpp
 build obj/src/animator/animator.SkXMLAnimatorWriter.o: cxx $
-    ../../../../../../paintLib/skia/src/animator/SkXMLAnimatorWriter.cpp
+    ../../../../src/animator/SkXMLAnimatorWriter.cpp
 
 build libskia_animator.a: alink obj/src/animator/animator.SkADrawable.o $
     obj/src/animator/animator.SkAnimateActive.o $

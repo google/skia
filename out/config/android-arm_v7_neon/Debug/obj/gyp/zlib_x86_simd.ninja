@@ -14,9 +14,9 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/third_party/externals/zlib/zlib_x86_simd.crc_folding.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/zlib/crc_folding.c
+    ../../../../third_party/externals/zlib/crc_folding.c
 build obj/third_party/externals/zlib/zlib_x86_simd.fill_window_sse.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/zlib/fill_window_sse.c
+    ../../../../third_party/externals/zlib/fill_window_sse.c
 
 build obj/gyp/libzlib_x86_simd.a: alink_thin $
     obj/third_party/externals/zlib/zlib_x86_simd.crc_folding.o $

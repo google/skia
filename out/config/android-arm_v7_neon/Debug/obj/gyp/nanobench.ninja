@@ -12,38 +12,24 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/bench/subset $
-    -I../../../../../../paintLib/skia/bench $
-    -I../../../../../../paintLib/skia/include/private $
-    -I../../../../../../paintLib/skia/src/core $
-    -I../../../../../../paintLib/skia/src/effects $
-    -I../../../../../../paintLib/skia/src/gpu $
-    -I../../../../../../paintLib/skia/src/utils $
-    -I../../../../../../paintLib/skia/tools $
-    -I../../../../../../paintLib/skia/gm $
-    -I../../../../../../paintLib/skia/src/utils/debugger $
-    -I../../../../../../paintLib/skia/src/images $
-    -I../../../../../../paintLib/skia/src/lazy $
-    -I../../../../../../paintLib/skia/tools/flags $
-    -I../../../../../../paintLib/skia/third_party/externals/jsoncpp/include $
-    -I../../../../../../paintLib/skia/include/c $
-    -I../../../../../../paintLib/skia/include/config $
-    -I../../../../../../paintLib/skia/include/core $
-    -I../../../../../../paintLib/skia/include/pathops $
-    -I../../../../../../paintLib/skia/include/pipe $
-    -I../../../../../../paintLib/skia/include/codec $
-    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
-    -I../../../../../../paintLib/skia/include/effects $
-    -I../../../../../../paintLib/skia/include/images $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
-    -I../../../../../../paintLib/skia/include/ports $
-    -I../../../../../../paintLib/skia/src/sfnt $
-    -I../../../../../../paintLib/skia/include/utils $
-    -I../../../../../../paintLib/skia/include/gpu $
-    -I../../../../../../paintLib/skia/tools/timer $
-    -I../../../../../../paintLib/skia/third_party/etc1 $
-    -I../../../../../../paintLib/src/gpu
+includes = -I../../../../bench/subset -I../../../../bench $
+    -I../../../../include/private -I../../../../src/core $
+    -I../../../../src/effects -I../../../../src/gpu -I../../../../src/utils $
+    -I../../../../tools -I../../../../gm -I../../../../src/utils/debugger $
+    -I../../../../src/images -I../../../../src/lazy $
+    -I../../../../tools/flags $
+    -I../../../../third_party/externals/jsoncpp/include $
+    -I../../../../include/c -I../../../../include/config $
+    -I../../../../include/core -I../../../../include/pathops $
+    -I../../../../include/pipe -I../../../../include/codec $
+    -I../../../../third_party/externals/libjpeg-turbo $
+    -I../../../../include/effects -I../../../../include/images $
+    -I../../../../platform_tools/android/third_party/externals/png $
+    -I../../../../platform_tools/android/third_party/externals/jpeg $
+    -I../../../../include/ports -I../../../../src/sfnt $
+    -I../../../../include/utils -I../../../../include/gpu $
+    -I../../../../tools/timer -I../../../../third_party/etc1 $
+    -I../../../../../src/gpu
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
@@ -52,706 +38,486 @@ cflags_c =
 cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
-build obj/gm/nanobench.gm.o: cxx ../../../../../../paintLib/skia/gm/gm.cpp
-build obj/bench/nanobench.AAClipBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/AAClipBench.cpp
+build obj/gm/nanobench.gm.o: cxx ../../../../gm/gm.cpp
+build obj/bench/nanobench.AAClipBench.o: cxx ../../../../bench/AAClipBench.cpp
 build obj/bench/nanobench.AlternatingColorPatternBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/AlternatingColorPatternBench.cpp
-build obj/bench/nanobench.BenchLogger.o: cxx $
-    ../../../../../../paintLib/skia/bench/BenchLogger.cpp
-build obj/bench/nanobench.Benchmark.o: cxx $
-    ../../../../../../paintLib/skia/bench/Benchmark.cpp
-build obj/bench/nanobench.BezierBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BezierBench.cpp
+    ../../../../bench/AlternatingColorPatternBench.cpp
+build obj/bench/nanobench.BenchLogger.o: cxx ../../../../bench/BenchLogger.cpp
+build obj/bench/nanobench.Benchmark.o: cxx ../../../../bench/Benchmark.cpp
+build obj/bench/nanobench.BezierBench.o: cxx ../../../../bench/BezierBench.cpp
 build obj/bench/nanobench.BigPathBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BigPathBench.cpp
-build obj/bench/nanobench.BitmapBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BitmapBench.cpp
+    ../../../../bench/BigPathBench.cpp
+build obj/bench/nanobench.BitmapBench.o: cxx ../../../../bench/BitmapBench.cpp
 build obj/bench/nanobench.BitmapRectBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BitmapRectBench.cpp
+    ../../../../bench/BitmapRectBench.cpp
 build obj/bench/nanobench.BitmapRegionDecoderBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BitmapRegionDecoderBench.cpp
+    ../../../../bench/BitmapRegionDecoderBench.cpp
 build obj/bench/nanobench.BitmapScaleBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BitmapScaleBench.cpp
-build obj/bench/nanobench.BlurBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BlurBench.cpp
+    ../../../../bench/BitmapScaleBench.cpp
+build obj/bench/nanobench.BlurBench.o: cxx ../../../../bench/BlurBench.cpp
 build obj/bench/nanobench.BlurImageFilterBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BlurImageFilterBench.cpp
+    ../../../../bench/BlurImageFilterBench.cpp
 build obj/bench/nanobench.BlurRectBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BlurRectBench.cpp
+    ../../../../bench/BlurRectBench.cpp
 build obj/bench/nanobench.BlurRectsBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BlurRectsBench.cpp
+    ../../../../bench/BlurRectsBench.cpp
 build obj/bench/nanobench.BlurRoundRectBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/BlurRoundRectBench.cpp
-build obj/bench/nanobench.ChartBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ChartBench.cpp
+    ../../../../bench/BlurRoundRectBench.cpp
+build obj/bench/nanobench.ChartBench.o: cxx ../../../../bench/ChartBench.cpp
 build obj/bench/nanobench.ChecksumBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ChecksumBench.cpp
-build obj/bench/nanobench.ChromeBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ChromeBench.cpp
-build obj/bench/nanobench.CmapBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/CmapBench.cpp
-build obj/bench/nanobench.CodecBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/CodecBench.cpp
+    ../../../../bench/ChecksumBench.cpp
+build obj/bench/nanobench.ChromeBench.o: cxx ../../../../bench/ChromeBench.cpp
+build obj/bench/nanobench.CmapBench.o: cxx ../../../../bench/CmapBench.cpp
+build obj/bench/nanobench.CodecBench.o: cxx ../../../../bench/CodecBench.cpp
 build obj/bench/nanobench.ColorCubeBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ColorCubeBench.cpp
+    ../../../../bench/ColorCubeBench.cpp
 build obj/bench/nanobench.ColorFilterBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ColorFilterBench.cpp
+    ../../../../bench/ColorFilterBench.cpp
 build obj/bench/nanobench.ColorPrivBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ColorPrivBench.cpp
+    ../../../../bench/ColorPrivBench.cpp
 build obj/bench/nanobench.ControlBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ControlBench.cpp
+    ../../../../bench/ControlBench.cpp
 build obj/bench/nanobench.CoverageBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/CoverageBench.cpp
-build obj/bench/nanobench.DashBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/DashBench.cpp
+    ../../../../bench/CoverageBench.cpp
+build obj/bench/nanobench.DashBench.o: cxx ../../../../bench/DashBench.cpp
 build obj/bench/nanobench.DecodingBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/DecodingBench.cpp
+    ../../../../bench/DecodingBench.cpp
 build obj/bench/nanobench.DisplacementBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/DisplacementBench.cpp
+    ../../../../bench/DisplacementBench.cpp
 build obj/bench/nanobench.DrawBitmapAABench.o: cxx $
-    ../../../../../../paintLib/skia/bench/DrawBitmapAABench.cpp
+    ../../../../bench/DrawBitmapAABench.cpp
 build obj/bench/nanobench.ETCBitmapBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ETCBitmapBench.cpp
-build obj/bench/nanobench.FSRectBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/FSRectBench.cpp
+    ../../../../bench/ETCBitmapBench.cpp
+build obj/bench/nanobench.FSRectBench.o: cxx ../../../../bench/FSRectBench.cpp
 build obj/bench/nanobench.FontCacheBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/FontCacheBench.cpp
+    ../../../../bench/FontCacheBench.cpp
 build obj/bench/nanobench.FontScalerBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/FontScalerBench.cpp
-build obj/bench/nanobench.GLBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GLBench.cpp
+    ../../../../bench/FontScalerBench.cpp
+build obj/bench/nanobench.GLBench.o: cxx ../../../../bench/GLBench.cpp
 build obj/bench/nanobench.GLInstancedArraysBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GLInstancedArraysBench.cpp
+    ../../../../bench/GLInstancedArraysBench.cpp
 build obj/bench/nanobench.GLVec4ScalarBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GLVec4ScalarBench.cpp
+    ../../../../bench/GLVec4ScalarBench.cpp
 build obj/bench/nanobench.GLVertexAttributesBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GLVertexAttributesBench.cpp
-build obj/bench/nanobench.GMBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GMBench.cpp
-build obj/bench/nanobench.GameBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GameBench.cpp
+    ../../../../bench/GLVertexAttributesBench.cpp
+build obj/bench/nanobench.GMBench.o: cxx ../../../../bench/GMBench.cpp
+build obj/bench/nanobench.GameBench.o: cxx ../../../../bench/GameBench.cpp
 build obj/bench/nanobench.GeometryBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GeometryBench.cpp
+    ../../../../bench/GeometryBench.cpp
 build obj/bench/nanobench.GrMemoryPoolBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GrMemoryPoolBench.cpp
+    ../../../../bench/GrMemoryPoolBench.cpp
 build obj/bench/nanobench.GrResourceCacheBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GrResourceCacheBench.cpp
+    ../../../../bench/GrResourceCacheBench.cpp
 build obj/bench/nanobench.GradientBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/GradientBench.cpp
+    ../../../../bench/GradientBench.cpp
 build obj/bench/nanobench.HairlinePathBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/HairlinePathBench.cpp
-build obj/bench/nanobench.ImageBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ImageBench.cpp
+    ../../../../bench/HairlinePathBench.cpp
+build obj/bench/nanobench.ImageBench.o: cxx ../../../../bench/ImageBench.cpp
 build obj/bench/nanobench.ImageCacheBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ImageCacheBench.cpp
+    ../../../../bench/ImageCacheBench.cpp
 build obj/bench/nanobench.ImageFilterCollapse.o: cxx $
-    ../../../../../../paintLib/skia/bench/ImageFilterCollapse.cpp
+    ../../../../bench/ImageFilterCollapse.cpp
 build obj/bench/nanobench.ImageFilterDAGBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ImageFilterDAGBench.cpp
-build obj/bench/nanobench.InterpBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/InterpBench.cpp
+    ../../../../bench/ImageFilterDAGBench.cpp
+build obj/bench/nanobench.InterpBench.o: cxx ../../../../bench/InterpBench.cpp
 build obj/bench/nanobench.LightingBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/LightingBench.cpp
-build obj/bench/nanobench.LineBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/LineBench.cpp
+    ../../../../bench/LightingBench.cpp
+build obj/bench/nanobench.LineBench.o: cxx ../../../../bench/LineBench.cpp
 build obj/bench/nanobench.MagnifierBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MagnifierBench.cpp
-build obj/bench/nanobench.MathBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MathBench.cpp
+    ../../../../bench/MagnifierBench.cpp
+build obj/bench/nanobench.MathBench.o: cxx ../../../../bench/MathBench.cpp
 build obj/bench/nanobench.Matrix44Bench.o: cxx $
-    ../../../../../../paintLib/skia/bench/Matrix44Bench.cpp
-build obj/bench/nanobench.MatrixBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MatrixBench.cpp
+    ../../../../bench/Matrix44Bench.cpp
+build obj/bench/nanobench.MatrixBench.o: cxx ../../../../bench/MatrixBench.cpp
 build obj/bench/nanobench.MatrixConvolutionBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MatrixConvolutionBench.cpp
-build obj/bench/nanobench.MemoryBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MemoryBench.cpp
-build obj/bench/nanobench.MemsetBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MemsetBench.cpp
-build obj/bench/nanobench.MergeBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MergeBench.cpp
-build obj/bench/nanobench.MipMapBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MipMapBench.cpp
+    ../../../../bench/MatrixConvolutionBench.cpp
+build obj/bench/nanobench.MemoryBench.o: cxx ../../../../bench/MemoryBench.cpp
+build obj/bench/nanobench.MemsetBench.o: cxx ../../../../bench/MemsetBench.cpp
+build obj/bench/nanobench.MergeBench.o: cxx ../../../../bench/MergeBench.cpp
+build obj/bench/nanobench.MipMapBench.o: cxx ../../../../bench/MipMapBench.cpp
 build obj/bench/nanobench.MorphologyBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MorphologyBench.cpp
-build obj/bench/nanobench.MutexBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/MutexBench.cpp
-build obj/bench/nanobench.PatchBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PatchBench.cpp
+    ../../../../bench/MorphologyBench.cpp
+build obj/bench/nanobench.MutexBench.o: cxx ../../../../bench/MutexBench.cpp
+build obj/bench/nanobench.PatchBench.o: cxx ../../../../bench/PatchBench.cpp
 build obj/bench/nanobench.PatchGridBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PatchGridBench.cpp
-build obj/bench/nanobench.PathBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PathBench.cpp
+    ../../../../bench/PatchGridBench.cpp
+build obj/bench/nanobench.PathBench.o: cxx ../../../../bench/PathBench.cpp
 build obj/bench/nanobench.PathIterBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PathIterBench.cpp
+    ../../../../bench/PathIterBench.cpp
 build obj/bench/nanobench.PerlinNoiseBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PerlinNoiseBench.cpp
+    ../../../../bench/PerlinNoiseBench.cpp
 build obj/bench/nanobench.PictureNestingBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PictureNestingBench.cpp
+    ../../../../bench/PictureNestingBench.cpp
 build obj/bench/nanobench.PictureOverheadBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PictureOverheadBench.cpp
+    ../../../../bench/PictureOverheadBench.cpp
 build obj/bench/nanobench.PicturePlaybackBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PicturePlaybackBench.cpp
+    ../../../../bench/PicturePlaybackBench.cpp
 build obj/bench/nanobench.PremulAndUnpremulAlphaOpsBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/PremulAndUnpremulAlphaOpsBench.cpp
-build obj/bench/nanobench.RTreeBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RTreeBench.cpp
+    ../../../../bench/PremulAndUnpremulAlphaOpsBench.cpp
+build obj/bench/nanobench.RTreeBench.o: cxx ../../../../bench/RTreeBench.cpp
 build obj/bench/nanobench.ReadPixBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ReadPixBench.cpp
+    ../../../../bench/ReadPixBench.cpp
 build obj/bench/nanobench.RecordingBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RecordingBench.cpp
-build obj/bench/nanobench.RectBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RectBench.cpp
+    ../../../../bench/RecordingBench.cpp
+build obj/bench/nanobench.RectBench.o: cxx ../../../../bench/RectBench.cpp
 build obj/bench/nanobench.RectanizerBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RectanizerBench.cpp
+    ../../../../bench/RectanizerBench.cpp
 build obj/bench/nanobench.RectoriBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RectoriBench.cpp
-build obj/bench/nanobench.RefCntBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RefCntBench.cpp
-build obj/bench/nanobench.RegionBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RegionBench.cpp
+    ../../../../bench/RectoriBench.cpp
+build obj/bench/nanobench.RefCntBench.o: cxx ../../../../bench/RefCntBench.cpp
+build obj/bench/nanobench.RegionBench.o: cxx ../../../../bench/RegionBench.cpp
 build obj/bench/nanobench.RegionContainBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RegionContainBench.cpp
+    ../../../../bench/RegionContainBench.cpp
 build obj/bench/nanobench.RepeatTileBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RepeatTileBench.cpp
+    ../../../../bench/RepeatTileBench.cpp
 build obj/bench/nanobench.RotatedRectBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/RotatedRectBench.cpp
+    ../../../../bench/RotatedRectBench.cpp
 build obj/bench/nanobench.SKPAnimationBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/SKPAnimationBench.cpp
-build obj/bench/nanobench.SKPBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/SKPBench.cpp
-build obj/bench/nanobench.ScalarBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ScalarBench.cpp
+    ../../../../bench/SKPAnimationBench.cpp
+build obj/bench/nanobench.SKPBench.o: cxx ../../../../bench/SKPBench.cpp
+build obj/bench/nanobench.ScalarBench.o: cxx ../../../../bench/ScalarBench.cpp
 build obj/bench/nanobench.ShaderMaskBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/ShaderMaskBench.cpp
-build obj/bench/nanobench.Sk4fBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/Sk4fBench.cpp
+    ../../../../bench/ShaderMaskBench.cpp
+build obj/bench/nanobench.Sk4fBench.o: cxx ../../../../bench/Sk4fBench.cpp
 build obj/bench/nanobench.SkGlyphCacheBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/SkGlyphCacheBench.cpp
+    ../../../../bench/SkGlyphCacheBench.cpp
 build obj/bench/nanobench.SkipZeroesBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/SkipZeroesBench.cpp
-build obj/bench/nanobench.SortBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/SortBench.cpp
-build obj/bench/nanobench.StrokeBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/StrokeBench.cpp
-build obj/bench/nanobench.TableBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/TableBench.cpp
-build obj/bench/nanobench.TextBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/TextBench.cpp
+    ../../../../bench/SkipZeroesBench.cpp
+build obj/bench/nanobench.SortBench.o: cxx ../../../../bench/SortBench.cpp
+build obj/bench/nanobench.StrokeBench.o: cxx ../../../../bench/StrokeBench.cpp
+build obj/bench/nanobench.TableBench.o: cxx ../../../../bench/TableBench.cpp
+build obj/bench/nanobench.TextBench.o: cxx ../../../../bench/TextBench.cpp
 build obj/bench/nanobench.TextBlobBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/TextBlobBench.cpp
-build obj/bench/nanobench.TileBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/TileBench.cpp
-build obj/bench/nanobench.VertBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/VertBench.cpp
+    ../../../../bench/TextBlobBench.cpp
+build obj/bench/nanobench.TileBench.o: cxx ../../../../bench/TileBench.cpp
+build obj/bench/nanobench.VertBench.o: cxx ../../../../bench/VertBench.cpp
 build obj/bench/nanobench.WritePixelsBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/WritePixelsBench.cpp
-build obj/bench/nanobench.WriterBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/WriterBench.cpp
+    ../../../../bench/WritePixelsBench.cpp
+build obj/bench/nanobench.WriterBench.o: cxx ../../../../bench/WriterBench.cpp
 build obj/bench/nanobench.XfermodeBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/XfermodeBench.cpp
-build obj/bench/nanobench.nanobench.o: cxx $
-    ../../../../../../paintLib/skia/bench/nanobench.cpp
+    ../../../../bench/XfermodeBench.cpp
+build obj/bench/nanobench.nanobench.o: cxx ../../../../bench/nanobench.cpp
 build obj/bench/subset/nanobench.SubsetSingleBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/subset/SubsetSingleBench.cpp
+    ../../../../bench/subset/SubsetSingleBench.cpp
 build obj/bench/subset/nanobench.SubsetTranslateBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/subset/SubsetTranslateBench.cpp
+    ../../../../bench/subset/SubsetTranslateBench.cpp
 build obj/bench/subset/nanobench.SubsetZoomBench.o: cxx $
-    ../../../../../../paintLib/skia/bench/subset/SubsetZoomBench.cpp
-build obj/gm/nanobench.aaclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/aaclip.cpp
-build obj/gm/nanobench.aarectmodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/aarectmodes.cpp
-build obj/gm/nanobench.aaxfermodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/aaxfermodes.cpp
-build obj/gm/nanobench.addarc.o: cxx $
-    ../../../../../../paintLib/skia/gm/addarc.cpp
+    ../../../../bench/subset/SubsetZoomBench.cpp
+build obj/gm/nanobench.aaclip.o: cxx ../../../../gm/aaclip.cpp
+build obj/gm/nanobench.aarectmodes.o: cxx ../../../../gm/aarectmodes.cpp
+build obj/gm/nanobench.aaxfermodes.o: cxx ../../../../gm/aaxfermodes.cpp
+build obj/gm/nanobench.addarc.o: cxx ../../../../gm/addarc.cpp
 build obj/gm/nanobench.all_bitmap_configs.o: cxx $
-    ../../../../../../paintLib/skia/gm/all_bitmap_configs.cpp
-build obj/gm/nanobench.alphagradients.o: cxx $
-    ../../../../../../paintLib/skia/gm/alphagradients.cpp
-build obj/gm/nanobench.anisotropic.o: cxx $
-    ../../../../../../paintLib/skia/gm/anisotropic.cpp
-build obj/gm/nanobench.annotated_text.o: cxx $
-    ../../../../../../paintLib/skia/gm/annotated_text.cpp
-build obj/gm/nanobench.arcofzorro.o: cxx $
-    ../../../../../../paintLib/skia/gm/arcofzorro.cpp
-build obj/gm/nanobench.arithmode.o: cxx $
-    ../../../../../../paintLib/skia/gm/arithmode.cpp
-build obj/gm/nanobench.astcbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/astcbitmap.cpp
-build obj/gm/nanobench.badpaint.o: cxx $
-    ../../../../../../paintLib/skia/gm/badpaint.cpp
-build obj/gm/nanobench.beziereffects.o: cxx $
-    ../../../../../../paintLib/skia/gm/beziereffects.cpp
-build obj/gm/nanobench.beziers.o: cxx $
-    ../../../../../../paintLib/skia/gm/beziers.cpp
-build obj/gm/nanobench.bigblurs.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigblurs.cpp
-build obj/gm/nanobench.bigmatrix.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigmatrix.cpp
+    ../../../../gm/all_bitmap_configs.cpp
+build obj/gm/nanobench.alphagradients.o: cxx ../../../../gm/alphagradients.cpp
+build obj/gm/nanobench.anisotropic.o: cxx ../../../../gm/anisotropic.cpp
+build obj/gm/nanobench.annotated_text.o: cxx ../../../../gm/annotated_text.cpp
+build obj/gm/nanobench.arcofzorro.o: cxx ../../../../gm/arcofzorro.cpp
+build obj/gm/nanobench.arithmode.o: cxx ../../../../gm/arithmode.cpp
+build obj/gm/nanobench.astcbitmap.o: cxx ../../../../gm/astcbitmap.cpp
+build obj/gm/nanobench.badpaint.o: cxx ../../../../gm/badpaint.cpp
+build obj/gm/nanobench.beziereffects.o: cxx ../../../../gm/beziereffects.cpp
+build obj/gm/nanobench.beziers.o: cxx ../../../../gm/beziers.cpp
+build obj/gm/nanobench.bigblurs.o: cxx ../../../../gm/bigblurs.cpp
+build obj/gm/nanobench.bigmatrix.o: cxx ../../../../gm/bigmatrix.cpp
 build obj/gm/nanobench.bigrrectaaeffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigrrectaaeffect.cpp
-build obj/gm/nanobench.bigtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigtext.cpp
+    ../../../../gm/bigrrectaaeffect.cpp
+build obj/gm/nanobench.bigtext.o: cxx ../../../../gm/bigtext.cpp
 build obj/gm/nanobench.bigtileimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigtileimagefilter.cpp
-build obj/gm/nanobench.bitmapcopy.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmapcopy.cpp
-build obj/gm/nanobench.bitmapfilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmapfilters.cpp
-build obj/gm/nanobench.bitmappremul.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmappremul.cpp
-build obj/gm/nanobench.bitmaprect.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmaprect.cpp
-build obj/gm/nanobench.bitmaprecttest.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmaprecttest.cpp
-build obj/gm/nanobench.bitmapshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmapshader.cpp
-build obj/gm/nanobench.bleed.o: cxx $
-    ../../../../../../paintLib/skia/gm/bleed.cpp
-build obj/gm/nanobench.blend.o: cxx $
-    ../../../../../../paintLib/skia/gm/blend.cpp
-build obj/gm/nanobench.blurcircles.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurcircles.cpp
+    ../../../../gm/bigtileimagefilter.cpp
+build obj/gm/nanobench.bitmapcopy.o: cxx ../../../../gm/bitmapcopy.cpp
+build obj/gm/nanobench.bitmapfilters.o: cxx ../../../../gm/bitmapfilters.cpp
+build obj/gm/nanobench.bitmappremul.o: cxx ../../../../gm/bitmappremul.cpp
+build obj/gm/nanobench.bitmaprect.o: cxx ../../../../gm/bitmaprect.cpp
+build obj/gm/nanobench.bitmaprecttest.o: cxx ../../../../gm/bitmaprecttest.cpp
+build obj/gm/nanobench.bitmapshader.o: cxx ../../../../gm/bitmapshader.cpp
+build obj/gm/nanobench.bleed.o: cxx ../../../../gm/bleed.cpp
+build obj/gm/nanobench.blend.o: cxx ../../../../gm/blend.cpp
+build obj/gm/nanobench.blurcircles.o: cxx ../../../../gm/blurcircles.cpp
 build obj/gm/nanobench.blurquickreject.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurquickreject.cpp
-build obj/gm/nanobench.blurrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurrect.cpp
-build obj/gm/nanobench.blurroundrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurroundrect.cpp
-build obj/gm/nanobench.blurs.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurs.cpp
+    ../../../../gm/blurquickreject.cpp
+build obj/gm/nanobench.blurrect.o: cxx ../../../../gm/blurrect.cpp
+build obj/gm/nanobench.blurroundrect.o: cxx ../../../../gm/blurroundrect.cpp
+build obj/gm/nanobench.blurs.o: cxx ../../../../gm/blurs.cpp
 build obj/gm/nanobench.bmpfilterqualityrepeat.o: cxx $
-    ../../../../../../paintLib/skia/gm/bmpfilterqualityrepeat.cpp
-build obj/gm/nanobench.cgm.o: cc ../../../../../../paintLib/skia/gm/cgm.c
-build obj/gm/nanobench.cgms.o: cxx ../../../../../../paintLib/skia/gm/cgms.cpp
-build obj/gm/nanobench.circles.o: cxx $
-    ../../../../../../paintLib/skia/gm/circles.cpp
-build obj/gm/nanobench.circularclips.o: cxx $
-    ../../../../../../paintLib/skia/gm/circularclips.cpp
+    ../../../../gm/bmpfilterqualityrepeat.cpp
+build obj/gm/nanobench.cgm.o: cc ../../../../gm/cgm.c
+build obj/gm/nanobench.cgms.o: cxx ../../../../gm/cgms.cpp
+build obj/gm/nanobench.circles.o: cxx ../../../../gm/circles.cpp
+build obj/gm/nanobench.circularclips.o: cxx ../../../../gm/circularclips.cpp
 build obj/gm/nanobench.clip_strokerect.o: cxx $
-    ../../../../../../paintLib/skia/gm/clip_strokerect.cpp
-build obj/gm/nanobench.clipdrawdraw.o: cxx $
-    ../../../../../../paintLib/skia/gm/clipdrawdraw.cpp
+    ../../../../gm/clip_strokerect.cpp
+build obj/gm/nanobench.clipdrawdraw.o: cxx ../../../../gm/clipdrawdraw.cpp
 build obj/gm/nanobench.clippedbitmapshaders.o: cxx $
-    ../../../../../../paintLib/skia/gm/clippedbitmapshaders.cpp
-build obj/gm/nanobench.cmykjpeg.o: cxx $
-    ../../../../../../paintLib/skia/gm/cmykjpeg.cpp
-build obj/gm/nanobench.colorcube.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorcube.cpp
-build obj/gm/nanobench.coloremoji.o: cxx $
-    ../../../../../../paintLib/skia/gm/coloremoji.cpp
+    ../../../../gm/clippedbitmapshaders.cpp
+build obj/gm/nanobench.cmykjpeg.o: cxx ../../../../gm/cmykjpeg.cpp
+build obj/gm/nanobench.colorcube.o: cxx ../../../../gm/colorcube.cpp
+build obj/gm/nanobench.coloremoji.o: cxx ../../../../gm/coloremoji.cpp
 build obj/gm/nanobench.colorfilterimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorfilterimagefilter.cpp
-build obj/gm/nanobench.colorfilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorfilters.cpp
-build obj/gm/nanobench.colormatrix.o: cxx $
-    ../../../../../../paintLib/skia/gm/colormatrix.cpp
-build obj/gm/nanobench.colortype.o: cxx $
-    ../../../../../../paintLib/skia/gm/colortype.cpp
+    ../../../../gm/colorfilterimagefilter.cpp
+build obj/gm/nanobench.colorfilters.o: cxx ../../../../gm/colorfilters.cpp
+build obj/gm/nanobench.colormatrix.o: cxx ../../../../gm/colormatrix.cpp
+build obj/gm/nanobench.colortype.o: cxx ../../../../gm/colortype.cpp
 build obj/gm/nanobench.colortypexfermode.o: cxx $
-    ../../../../../../paintLib/skia/gm/colortypexfermode.cpp
-build obj/gm/nanobench.colorwheel.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorwheel.cpp
-build obj/gm/nanobench.complexclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/complexclip.cpp
-build obj/gm/nanobench.complexclip2.o: cxx $
-    ../../../../../../paintLib/skia/gm/complexclip2.cpp
-build obj/gm/nanobench.complexclip3.o: cxx $
-    ../../../../../../paintLib/skia/gm/complexclip3.cpp
-build obj/gm/nanobench.composeshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/composeshader.cpp
-build obj/gm/nanobench.concavepaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/concavepaths.cpp
-build obj/gm/nanobench.conicpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/conicpaths.cpp
+    ../../../../gm/colortypexfermode.cpp
+build obj/gm/nanobench.colorwheel.o: cxx ../../../../gm/colorwheel.cpp
+build obj/gm/nanobench.complexclip.o: cxx ../../../../gm/complexclip.cpp
+build obj/gm/nanobench.complexclip2.o: cxx ../../../../gm/complexclip2.cpp
+build obj/gm/nanobench.complexclip3.o: cxx ../../../../gm/complexclip3.cpp
+build obj/gm/nanobench.composeshader.o: cxx ../../../../gm/composeshader.cpp
+build obj/gm/nanobench.concavepaths.o: cxx ../../../../gm/concavepaths.cpp
+build obj/gm/nanobench.conicpaths.o: cxx ../../../../gm/conicpaths.cpp
 build obj/gm/nanobench.constcolorprocessor.o: cxx $
-    ../../../../../../paintLib/skia/gm/constcolorprocessor.cpp
+    ../../../../gm/constcolorprocessor.cpp
 build obj/gm/nanobench.convex_all_line_paths.o: cxx $
-    ../../../../../../paintLib/skia/gm/convex_all_line_paths.cpp
-build obj/gm/nanobench.convexpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/convexpaths.cpp
-build obj/gm/nanobench.convexpolyclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/convexpolyclip.cpp
+    ../../../../gm/convex_all_line_paths.cpp
+build obj/gm/nanobench.convexpaths.o: cxx ../../../../gm/convexpaths.cpp
+build obj/gm/nanobench.convexpolyclip.o: cxx ../../../../gm/convexpolyclip.cpp
 build obj/gm/nanobench.convexpolyeffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/convexpolyeffect.cpp
-build obj/gm/nanobench.copyTo4444.o: cxx $
-    ../../../../../../paintLib/skia/gm/copyTo4444.cpp
-build obj/gm/nanobench.cubicpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/cubicpaths.cpp
-build obj/gm/nanobench.dashcubics.o: cxx $
-    ../../../../../../paintLib/skia/gm/dashcubics.cpp
-build obj/gm/nanobench.dashing.o: cxx $
-    ../../../../../../paintLib/skia/gm/dashing.cpp
-build obj/gm/nanobench.dcshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/dcshader.cpp
+    ../../../../gm/convexpolyeffect.cpp
+build obj/gm/nanobench.copyTo4444.o: cxx ../../../../gm/copyTo4444.cpp
+build obj/gm/nanobench.cubicpaths.o: cxx ../../../../gm/cubicpaths.cpp
+build obj/gm/nanobench.dashcubics.o: cxx ../../../../gm/dashcubics.cpp
+build obj/gm/nanobench.dashing.o: cxx ../../../../gm/dashing.cpp
+build obj/gm/nanobench.dcshader.o: cxx ../../../../gm/dcshader.cpp
 build obj/gm/nanobench.degeneratesegments.o: cxx $
-    ../../../../../../paintLib/skia/gm/degeneratesegments.cpp
-build obj/gm/nanobench.dftext.o: cxx $
-    ../../../../../../paintLib/skia/gm/dftext.cpp
-build obj/gm/nanobench.discard.o: cxx $
-    ../../../../../../paintLib/skia/gm/discard.cpp
-build obj/gm/nanobench.displacement.o: cxx $
-    ../../../../../../paintLib/skia/gm/displacement.cpp
-build obj/gm/nanobench.distantclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/distantclip.cpp
+    ../../../../gm/degeneratesegments.cpp
+build obj/gm/nanobench.dftext.o: cxx ../../../../gm/dftext.cpp
+build obj/gm/nanobench.discard.o: cxx ../../../../gm/discard.cpp
+build obj/gm/nanobench.displacement.o: cxx ../../../../gm/displacement.cpp
+build obj/gm/nanobench.distantclip.o: cxx ../../../../gm/distantclip.cpp
 build obj/gm/nanobench.downsamplebitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/downsamplebitmap.cpp
+    ../../../../gm/downsamplebitmap.cpp
 build obj/gm/nanobench.draw_bitmap_rect_skbug4374.o: cxx $
-    ../../../../../../paintLib/skia/gm/draw_bitmap_rect_skbug4374.cpp
-build obj/gm/nanobench.drawable.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawable.cpp
-build obj/gm/nanobench.drawatlas.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawatlas.cpp
-build obj/gm/nanobench.drawatlascolor.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawatlascolor.cpp
-build obj/gm/nanobench.drawbitmaprect.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawbitmaprect.cpp
-build obj/gm/nanobench.drawfilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawfilter.cpp
-build obj/gm/nanobench.drawlooper.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawlooper.cpp
+    ../../../../gm/draw_bitmap_rect_skbug4374.cpp
+build obj/gm/nanobench.drawable.o: cxx ../../../../gm/drawable.cpp
+build obj/gm/nanobench.drawatlas.o: cxx ../../../../gm/drawatlas.cpp
+build obj/gm/nanobench.drawatlascolor.o: cxx ../../../../gm/drawatlascolor.cpp
+build obj/gm/nanobench.drawbitmaprect.o: cxx ../../../../gm/drawbitmaprect.cpp
+build obj/gm/nanobench.drawfilter.o: cxx ../../../../gm/drawfilter.cpp
+build obj/gm/nanobench.drawlooper.o: cxx ../../../../gm/drawlooper.cpp
 build obj/gm/nanobench.drawminibitmaprect.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawminibitmaprect.cpp
+    ../../../../gm/drawminibitmaprect.cpp
 build obj/gm/nanobench.dropshadowimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/dropshadowimagefilter.cpp
-build obj/gm/nanobench.drrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/drrect.cpp
-build obj/gm/nanobench.dstreadshuffle.o: cxx $
-    ../../../../../../paintLib/skia/gm/dstreadshuffle.cpp
-build obj/gm/nanobench.emboss.o: cxx $
-    ../../../../../../paintLib/skia/gm/emboss.cpp
-build obj/gm/nanobench.emptypath.o: cxx $
-    ../../../../../../paintLib/skia/gm/emptypath.cpp
-build obj/gm/nanobench.etc1bitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/etc1bitmap.cpp
-build obj/gm/nanobench.extractbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/extractbitmap.cpp
-build obj/gm/nanobench.factory.o: cxx $
-    ../../../../../../paintLib/skia/gm/factory.cpp
-build obj/gm/nanobench.fadefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/fadefilter.cpp
-build obj/gm/nanobench.fatpathfill.o: cxx $
-    ../../../../../../paintLib/skia/gm/fatpathfill.cpp
-build obj/gm/nanobench.filltypes.o: cxx $
-    ../../../../../../paintLib/skia/gm/filltypes.cpp
-build obj/gm/nanobench.filltypespersp.o: cxx $
-    ../../../../../../paintLib/skia/gm/filltypespersp.cpp
-build obj/gm/nanobench.filterbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/filterbitmap.cpp
+    ../../../../gm/dropshadowimagefilter.cpp
+build obj/gm/nanobench.drrect.o: cxx ../../../../gm/drrect.cpp
+build obj/gm/nanobench.dstreadshuffle.o: cxx ../../../../gm/dstreadshuffle.cpp
+build obj/gm/nanobench.emboss.o: cxx ../../../../gm/emboss.cpp
+build obj/gm/nanobench.emptypath.o: cxx ../../../../gm/emptypath.cpp
+build obj/gm/nanobench.etc1bitmap.o: cxx ../../../../gm/etc1bitmap.cpp
+build obj/gm/nanobench.extractbitmap.o: cxx ../../../../gm/extractbitmap.cpp
+build obj/gm/nanobench.factory.o: cxx ../../../../gm/factory.cpp
+build obj/gm/nanobench.fadefilter.o: cxx ../../../../gm/fadefilter.cpp
+build obj/gm/nanobench.fatpathfill.o: cxx ../../../../gm/fatpathfill.cpp
+build obj/gm/nanobench.filltypes.o: cxx ../../../../gm/filltypes.cpp
+build obj/gm/nanobench.filltypespersp.o: cxx ../../../../gm/filltypespersp.cpp
+build obj/gm/nanobench.filterbitmap.o: cxx ../../../../gm/filterbitmap.cpp
 build obj/gm/nanobench.filterfastbounds.o: cxx $
-    ../../../../../../paintLib/skia/gm/filterfastbounds.cpp
-build obj/gm/nanobench.filterindiabox.o: cxx $
-    ../../../../../../paintLib/skia/gm/filterindiabox.cpp
-build obj/gm/nanobench.fontcache.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontcache.cpp
-build obj/gm/nanobench.fontmgr.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontmgr.cpp
-build obj/gm/nanobench.fontscaler.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontscaler.cpp
+    ../../../../gm/filterfastbounds.cpp
+build obj/gm/nanobench.filterindiabox.o: cxx ../../../../gm/filterindiabox.cpp
+build obj/gm/nanobench.fontcache.o: cxx ../../../../gm/fontcache.cpp
+build obj/gm/nanobench.fontmgr.o: cxx ../../../../gm/fontmgr.cpp
+build obj/gm/nanobench.fontscaler.o: cxx ../../../../gm/fontscaler.cpp
 build obj/gm/nanobench.fontscalerdistortable.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontscalerdistortable.cpp
-build obj/gm/nanobench.gammatext.o: cxx $
-    ../../../../../../paintLib/skia/gm/gammatext.cpp
-build obj/gm/nanobench.getpostextpath.o: cxx $
-    ../../../../../../paintLib/skia/gm/getpostextpath.cpp
-build obj/gm/nanobench.giantbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/giantbitmap.cpp
-build obj/gm/nanobench.glyph_pos.o: cxx $
-    ../../../../../../paintLib/skia/gm/glyph_pos.cpp
+    ../../../../gm/fontscalerdistortable.cpp
+build obj/gm/nanobench.gammatext.o: cxx ../../../../gm/gammatext.cpp
+build obj/gm/nanobench.getpostextpath.o: cxx ../../../../gm/getpostextpath.cpp
+build obj/gm/nanobench.giantbitmap.o: cxx ../../../../gm/giantbitmap.cpp
+build obj/gm/nanobench.glyph_pos.o: cxx ../../../../gm/glyph_pos.cpp
 build obj/gm/nanobench.glyph_pos_align.o: cxx $
-    ../../../../../../paintLib/skia/gm/glyph_pos_align.cpp
+    ../../../../gm/glyph_pos_align.cpp
 build obj/gm/nanobench.gradientDirtyLaundry.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradientDirtyLaundry.cpp
+    ../../../../gm/gradientDirtyLaundry.cpp
 build obj/gm/nanobench.gradient_matrix.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradient_matrix.cpp
-build obj/gm/nanobench.gradients.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradients.cpp
+    ../../../../gm/gradient_matrix.cpp
+build obj/gm/nanobench.gradients.o: cxx ../../../../gm/gradients.cpp
 build obj/gm/nanobench.gradients_2pt_conical.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradients_2pt_conical.cpp
+    ../../../../gm/gradients_2pt_conical.cpp
 build obj/gm/nanobench.gradients_no_texture.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradients_no_texture.cpp
-build obj/gm/nanobench.gradtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradtext.cpp
-build obj/gm/nanobench.grayscalejpg.o: cxx $
-    ../../../../../../paintLib/skia/gm/grayscalejpg.cpp
-build obj/gm/nanobench.hairlines.o: cxx $
-    ../../../../../../paintLib/skia/gm/hairlines.cpp
-build obj/gm/nanobench.hairmodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/hairmodes.cpp
-build obj/gm/nanobench.hittestpath.o: cxx $
-    ../../../../../../paintLib/skia/gm/hittestpath.cpp
-build obj/gm/nanobench.image.o: cxx $
-    ../../../../../../paintLib/skia/gm/image.cpp
-build obj/gm/nanobench.image_pict.o: cxx $
-    ../../../../../../paintLib/skia/gm/image_pict.cpp
-build obj/gm/nanobench.image_shader.o: cxx $
-    ../../../../../../paintLib/skia/gm/image_shader.cpp
+    ../../../../gm/gradients_no_texture.cpp
+build obj/gm/nanobench.gradtext.o: cxx ../../../../gm/gradtext.cpp
+build obj/gm/nanobench.grayscalejpg.o: cxx ../../../../gm/grayscalejpg.cpp
+build obj/gm/nanobench.hairlines.o: cxx ../../../../gm/hairlines.cpp
+build obj/gm/nanobench.hairmodes.o: cxx ../../../../gm/hairmodes.cpp
+build obj/gm/nanobench.hittestpath.o: cxx ../../../../gm/hittestpath.cpp
+build obj/gm/nanobench.image.o: cxx ../../../../gm/image.cpp
+build obj/gm/nanobench.image_pict.o: cxx ../../../../gm/image_pict.cpp
+build obj/gm/nanobench.image_shader.o: cxx ../../../../gm/image_shader.cpp
 build obj/gm/nanobench.imagealphathreshold.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagealphathreshold.cpp
-build obj/gm/nanobench.imageblur.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageblur.cpp
-build obj/gm/nanobench.imageblur2.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageblur2.cpp
-build obj/gm/nanobench.imageblurtiled.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageblurtiled.cpp
-build obj/gm/nanobench.imagefilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilters.cpp
+    ../../../../gm/imagealphathreshold.cpp
+build obj/gm/nanobench.imageblur.o: cxx ../../../../gm/imageblur.cpp
+build obj/gm/nanobench.imageblur2.o: cxx ../../../../gm/imageblur2.cpp
+build obj/gm/nanobench.imageblurtiled.o: cxx ../../../../gm/imageblurtiled.cpp
+build obj/gm/nanobench.imagefilters.o: cxx ../../../../gm/imagefilters.cpp
 build obj/gm/nanobench.imagefiltersbase.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersbase.cpp
+    ../../../../gm/imagefiltersbase.cpp
 build obj/gm/nanobench.imagefiltersclipped.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersclipped.cpp
+    ../../../../gm/imagefiltersclipped.cpp
 build obj/gm/nanobench.imagefilterscropexpand.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilterscropexpand.cpp
+    ../../../../gm/imagefilterscropexpand.cpp
 build obj/gm/nanobench.imagefilterscropped.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilterscropped.cpp
+    ../../../../gm/imagefilterscropped.cpp
 build obj/gm/nanobench.imagefiltersgraph.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersgraph.cpp
+    ../../../../gm/imagefiltersgraph.cpp
 build obj/gm/nanobench.imagefiltersscaled.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersscaled.cpp
+    ../../../../gm/imagefiltersscaled.cpp
 build obj/gm/nanobench.imagefiltersstroked.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersstroked.cpp
+    ../../../../gm/imagefiltersstroked.cpp
 build obj/gm/nanobench.imagefilterstransformed.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilterstransformed.cpp
+    ../../../../gm/imagefilterstransformed.cpp
 build obj/gm/nanobench.imagefromyuvtextures.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefromyuvtextures.cpp
-build obj/gm/nanobench.imagemagnifier.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagemagnifier.cpp
+    ../../../../gm/imagefromyuvtextures.cpp
+build obj/gm/nanobench.imagemagnifier.o: cxx ../../../../gm/imagemagnifier.cpp
 build obj/gm/nanobench.imageresizetiled.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageresizetiled.cpp
-build obj/gm/nanobench.imagesource.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagesource.cpp
-build obj/gm/nanobench.imagesource2.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagesource2.cpp
-build obj/gm/nanobench.internal_links.o: cxx $
-    ../../../../../../paintLib/skia/gm/internal_links.cpp
-build obj/gm/nanobench.inversepaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/inversepaths.cpp
-build obj/gm/nanobench.largeglyphblur.o: cxx $
-    ../../../../../../paintLib/skia/gm/largeglyphblur.cpp
-build obj/gm/nanobench.lcdblendmodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/lcdblendmodes.cpp
-build obj/gm/nanobench.lcdoverlap.o: cxx $
-    ../../../../../../paintLib/skia/gm/lcdoverlap.cpp
-build obj/gm/nanobench.lcdtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/lcdtext.cpp
-build obj/gm/nanobench.lerpmode.o: cxx $
-    ../../../../../../paintLib/skia/gm/lerpmode.cpp
-build obj/gm/nanobench.lighting.o: cxx $
-    ../../../../../../paintLib/skia/gm/lighting.cpp
-build obj/gm/nanobench.lightingshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/lightingshader.cpp
-build obj/gm/nanobench.linepaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/linepaths.cpp
-build obj/gm/nanobench.lumafilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/lumafilter.cpp
+    ../../../../gm/imageresizetiled.cpp
+build obj/gm/nanobench.imagesource.o: cxx ../../../../gm/imagesource.cpp
+build obj/gm/nanobench.imagesource2.o: cxx ../../../../gm/imagesource2.cpp
+build obj/gm/nanobench.internal_links.o: cxx ../../../../gm/internal_links.cpp
+build obj/gm/nanobench.inversepaths.o: cxx ../../../../gm/inversepaths.cpp
+build obj/gm/nanobench.largeglyphblur.o: cxx ../../../../gm/largeglyphblur.cpp
+build obj/gm/nanobench.lcdblendmodes.o: cxx ../../../../gm/lcdblendmodes.cpp
+build obj/gm/nanobench.lcdoverlap.o: cxx ../../../../gm/lcdoverlap.cpp
+build obj/gm/nanobench.lcdtext.o: cxx ../../../../gm/lcdtext.cpp
+build obj/gm/nanobench.lerpmode.o: cxx ../../../../gm/lerpmode.cpp
+build obj/gm/nanobench.lighting.o: cxx ../../../../gm/lighting.cpp
+build obj/gm/nanobench.lightingshader.o: cxx ../../../../gm/lightingshader.cpp
+build obj/gm/nanobench.linepaths.o: cxx ../../../../gm/linepaths.cpp
+build obj/gm/nanobench.lumafilter.o: cxx ../../../../gm/lumafilter.cpp
 build obj/gm/nanobench.matrixconvolution.o: cxx $
-    ../../../../../../paintLib/skia/gm/matrixconvolution.cpp
+    ../../../../gm/matrixconvolution.cpp
 build obj/gm/nanobench.matriximagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/matriximagefilter.cpp
-build obj/gm/nanobench.megalooper.o: cxx $
-    ../../../../../../paintLib/skia/gm/megalooper.cpp
-build obj/gm/nanobench.mipmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/mipmap.cpp
-build obj/gm/nanobench.mixedtextblobs.o: cxx $
-    ../../../../../../paintLib/skia/gm/mixedtextblobs.cpp
+    ../../../../gm/matriximagefilter.cpp
+build obj/gm/nanobench.megalooper.o: cxx ../../../../gm/megalooper.cpp
+build obj/gm/nanobench.mipmap.o: cxx ../../../../gm/mipmap.cpp
+build obj/gm/nanobench.mixedtextblobs.o: cxx ../../../../gm/mixedtextblobs.cpp
 build obj/gm/nanobench.modecolorfilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/modecolorfilters.cpp
-build obj/gm/nanobench.morphology.o: cxx $
-    ../../../../../../paintLib/skia/gm/morphology.cpp
+    ../../../../gm/modecolorfilters.cpp
+build obj/gm/nanobench.morphology.o: cxx ../../../../gm/morphology.cpp
 build obj/gm/nanobench.multipicturedraw.o: cxx $
-    ../../../../../../paintLib/skia/gm/multipicturedraw.cpp
-build obj/gm/nanobench.nested.o: cxx $
-    ../../../../../../paintLib/skia/gm/nested.cpp
+    ../../../../gm/multipicturedraw.cpp
+build obj/gm/nanobench.nested.o: cxx ../../../../gm/nested.cpp
 build obj/gm/nanobench.ninepatchstretch.o: cxx $
-    ../../../../../../paintLib/skia/gm/ninepatchstretch.cpp
-build obj/gm/nanobench.nonclosedpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/nonclosedpaths.cpp
+    ../../../../gm/ninepatchstretch.cpp
+build obj/gm/nanobench.nonclosedpaths.o: cxx ../../../../gm/nonclosedpaths.cpp
 build obj/gm/nanobench.offsetimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/offsetimagefilter.cpp
-build obj/gm/nanobench.ovals.o: cxx $
-    ../../../../../../paintLib/skia/gm/ovals.cpp
-build obj/gm/nanobench.patch.o: cxx $
-    ../../../../../../paintLib/skia/gm/patch.cpp
-build obj/gm/nanobench.patchgrid.o: cxx $
-    ../../../../../../paintLib/skia/gm/patchgrid.cpp
+    ../../../../gm/offsetimagefilter.cpp
+build obj/gm/nanobench.ovals.o: cxx ../../../../gm/ovals.cpp
+build obj/gm/nanobench.patch.o: cxx ../../../../gm/patch.cpp
+build obj/gm/nanobench.patchgrid.o: cxx ../../../../gm/patchgrid.cpp
 build obj/gm/nanobench.path_stroke_with_zero_length.o: cxx $
-    ../../../../../../paintLib/skia/gm/path_stroke_with_zero_length.cpp
-build obj/gm/nanobench.patheffects.o: cxx $
-    ../../../../../../paintLib/skia/gm/patheffects.cpp
-build obj/gm/nanobench.pathfill.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathfill.cpp
-build obj/gm/nanobench.pathinterior.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathinterior.cpp
-build obj/gm/nanobench.pathopsinverse.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathopsinverse.cpp
-build obj/gm/nanobench.pathopsskpclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathopsskpclip.cpp
-build obj/gm/nanobench.pathreverse.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathreverse.cpp
-build obj/gm/nanobench.peekpixels.o: cxx $
-    ../../../../../../paintLib/skia/gm/peekpixels.cpp
-build obj/gm/nanobench.perlinnoise.o: cxx $
-    ../../../../../../paintLib/skia/gm/perlinnoise.cpp
-build obj/gm/nanobench.perspshaders.o: cxx $
-    ../../../../../../paintLib/skia/gm/perspshaders.cpp
-build obj/gm/nanobench.picture.o: cxx $
-    ../../../../../../paintLib/skia/gm/picture.cpp
+    ../../../../gm/path_stroke_with_zero_length.cpp
+build obj/gm/nanobench.patheffects.o: cxx ../../../../gm/patheffects.cpp
+build obj/gm/nanobench.pathfill.o: cxx ../../../../gm/pathfill.cpp
+build obj/gm/nanobench.pathinterior.o: cxx ../../../../gm/pathinterior.cpp
+build obj/gm/nanobench.pathopsinverse.o: cxx ../../../../gm/pathopsinverse.cpp
+build obj/gm/nanobench.pathopsskpclip.o: cxx ../../../../gm/pathopsskpclip.cpp
+build obj/gm/nanobench.pathreverse.o: cxx ../../../../gm/pathreverse.cpp
+build obj/gm/nanobench.peekpixels.o: cxx ../../../../gm/peekpixels.cpp
+build obj/gm/nanobench.perlinnoise.o: cxx ../../../../gm/perlinnoise.cpp
+build obj/gm/nanobench.perspshaders.o: cxx ../../../../gm/perspshaders.cpp
+build obj/gm/nanobench.picture.o: cxx ../../../../gm/picture.cpp
 build obj/gm/nanobench.pictureimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureimagefilter.cpp
+    ../../../../gm/pictureimagefilter.cpp
 build obj/gm/nanobench.pictureimagegenerator.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureimagegenerator.cpp
-build obj/gm/nanobench.pictureshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureshader.cpp
+    ../../../../gm/pictureimagegenerator.cpp
+build obj/gm/nanobench.pictureshader.o: cxx ../../../../gm/pictureshader.cpp
 build obj/gm/nanobench.pictureshadertile.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureshadertile.cpp
-build obj/gm/nanobench.pixelsnap.o: cxx $
-    ../../../../../../paintLib/skia/gm/pixelsnap.cpp
-build obj/gm/nanobench.plus.o: cxx ../../../../../../paintLib/skia/gm/plus.cpp
-build obj/gm/nanobench.points.o: cxx $
-    ../../../../../../paintLib/skia/gm/points.cpp
-build obj/gm/nanobench.poly2poly.o: cxx $
-    ../../../../../../paintLib/skia/gm/poly2poly.cpp
-build obj/gm/nanobench.polygons.o: cxx $
-    ../../../../../../paintLib/skia/gm/polygons.cpp
-build obj/gm/nanobench.quadpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/quadpaths.cpp
-build obj/gm/nanobench.recordopts.o: cxx $
-    ../../../../../../paintLib/skia/gm/recordopts.cpp
-build obj/gm/nanobench.rects.o: cxx $
-    ../../../../../../paintLib/skia/gm/rects.cpp
+    ../../../../gm/pictureshadertile.cpp
+build obj/gm/nanobench.pixelsnap.o: cxx ../../../../gm/pixelsnap.cpp
+build obj/gm/nanobench.plus.o: cxx ../../../../gm/plus.cpp
+build obj/gm/nanobench.points.o: cxx ../../../../gm/points.cpp
+build obj/gm/nanobench.poly2poly.o: cxx ../../../../gm/poly2poly.cpp
+build obj/gm/nanobench.polygons.o: cxx ../../../../gm/polygons.cpp
+build obj/gm/nanobench.quadpaths.o: cxx ../../../../gm/quadpaths.cpp
+build obj/gm/nanobench.recordopts.o: cxx ../../../../gm/recordopts.cpp
+build obj/gm/nanobench.rects.o: cxx ../../../../gm/rects.cpp
 build obj/gm/nanobench.repeated_bitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/repeated_bitmap.cpp
+    ../../../../gm/repeated_bitmap.cpp
 build obj/gm/nanobench.resizeimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/resizeimagefilter.cpp
-build obj/gm/nanobench.roundrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/roundrects.cpp
-build obj/gm/nanobench.rrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/rrect.cpp
-build obj/gm/nanobench.rrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/rrects.cpp
-build obj/gm/nanobench.samplerstress.o: cxx $
-    ../../../../../../paintLib/skia/gm/samplerstress.cpp
-build obj/gm/nanobench.scaledstrokes.o: cxx $
-    ../../../../../../paintLib/skia/gm/scaledstrokes.cpp
-build obj/gm/nanobench.selftest.o: cxx $
-    ../../../../../../paintLib/skia/gm/selftest.cpp
-build obj/gm/nanobench.shaderbounds.o: cxx $
-    ../../../../../../paintLib/skia/gm/shaderbounds.cpp
-build obj/gm/nanobench.shadertext.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadertext.cpp
-build obj/gm/nanobench.shadertext2.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadertext2.cpp
-build obj/gm/nanobench.shadertext3.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadertext3.cpp
-build obj/gm/nanobench.shadows.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadows.cpp
+    ../../../../gm/resizeimagefilter.cpp
+build obj/gm/nanobench.roundrects.o: cxx ../../../../gm/roundrects.cpp
+build obj/gm/nanobench.rrect.o: cxx ../../../../gm/rrect.cpp
+build obj/gm/nanobench.rrects.o: cxx ../../../../gm/rrects.cpp
+build obj/gm/nanobench.samplerstress.o: cxx ../../../../gm/samplerstress.cpp
+build obj/gm/nanobench.scaledstrokes.o: cxx ../../../../gm/scaledstrokes.cpp
+build obj/gm/nanobench.selftest.o: cxx ../../../../gm/selftest.cpp
+build obj/gm/nanobench.shaderbounds.o: cxx ../../../../gm/shaderbounds.cpp
+build obj/gm/nanobench.shadertext.o: cxx ../../../../gm/shadertext.cpp
+build obj/gm/nanobench.shadertext2.o: cxx ../../../../gm/shadertext2.cpp
+build obj/gm/nanobench.shadertext3.o: cxx ../../../../gm/shadertext3.cpp
+build obj/gm/nanobench.shadows.o: cxx ../../../../gm/shadows.cpp
 build obj/gm/nanobench.shallowgradient.o: cxx $
-    ../../../../../../paintLib/skia/gm/shallowgradient.cpp
-build obj/gm/nanobench.simpleaaclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/simpleaaclip.cpp
-build obj/gm/nanobench.skbug1719.o: cxx $
-    ../../../../../../paintLib/skia/gm/skbug1719.cpp
-build obj/gm/nanobench.smallarc.o: cxx $
-    ../../../../../../paintLib/skia/gm/smallarc.cpp
-build obj/gm/nanobench.smallimage.o: cxx $
-    ../../../../../../paintLib/skia/gm/smallimage.cpp
-build obj/gm/nanobench.spritebitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/spritebitmap.cpp
-build obj/gm/nanobench.srcmode.o: cxx $
-    ../../../../../../paintLib/skia/gm/srcmode.cpp
-build obj/gm/nanobench.stlouisarch.o: cxx $
-    ../../../../../../paintLib/skia/gm/stlouisarch.cpp
-build obj/gm/nanobench.stringart.o: cxx $
-    ../../../../../../paintLib/skia/gm/stringart.cpp
-build obj/gm/nanobench.strokefill.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokefill.cpp
-build obj/gm/nanobench.strokerect.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokerect.cpp
-build obj/gm/nanobench.strokerects.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokerects.cpp
-build obj/gm/nanobench.strokes.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokes.cpp
-build obj/gm/nanobench.stroketext.o: cxx $
-    ../../../../../../paintLib/skia/gm/stroketext.cpp
-build obj/gm/nanobench.surface.o: cxx $
-    ../../../../../../paintLib/skia/gm/surface.cpp
+    ../../../../gm/shallowgradient.cpp
+build obj/gm/nanobench.simpleaaclip.o: cxx ../../../../gm/simpleaaclip.cpp
+build obj/gm/nanobench.skbug1719.o: cxx ../../../../gm/skbug1719.cpp
+build obj/gm/nanobench.smallarc.o: cxx ../../../../gm/smallarc.cpp
+build obj/gm/nanobench.smallimage.o: cxx ../../../../gm/smallimage.cpp
+build obj/gm/nanobench.spritebitmap.o: cxx ../../../../gm/spritebitmap.cpp
+build obj/gm/nanobench.srcmode.o: cxx ../../../../gm/srcmode.cpp
+build obj/gm/nanobench.stlouisarch.o: cxx ../../../../gm/stlouisarch.cpp
+build obj/gm/nanobench.stringart.o: cxx ../../../../gm/stringart.cpp
+build obj/gm/nanobench.strokefill.o: cxx ../../../../gm/strokefill.cpp
+build obj/gm/nanobench.strokerect.o: cxx ../../../../gm/strokerect.cpp
+build obj/gm/nanobench.strokerects.o: cxx ../../../../gm/strokerects.cpp
+build obj/gm/nanobench.strokes.o: cxx ../../../../gm/strokes.cpp
+build obj/gm/nanobench.stroketext.o: cxx ../../../../gm/stroketext.cpp
+build obj/gm/nanobench.surface.o: cxx ../../../../gm/surface.cpp
 build obj/gm/nanobench.tablecolorfilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/tablecolorfilter.cpp
+    ../../../../gm/tablecolorfilter.cpp
 build obj/gm/nanobench.tallstretchedbitmaps.o: cxx $
-    ../../../../../../paintLib/skia/gm/tallstretchedbitmaps.cpp
+    ../../../../gm/tallstretchedbitmaps.cpp
 build obj/gm/nanobench.testimagefilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/testimagefilters.cpp
-build obj/gm/nanobench.texdata.o: cxx $
-    ../../../../../../paintLib/skia/gm/texdata.cpp
-build obj/gm/nanobench.textblob.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblob.cpp
+    ../../../../gm/testimagefilters.cpp
+build obj/gm/nanobench.texdata.o: cxx ../../../../gm/texdata.cpp
+build obj/gm/nanobench.textblob.o: cxx ../../../../gm/textblob.cpp
 build obj/gm/nanobench.textblobcolortrans.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobcolortrans.cpp
+    ../../../../gm/textblobcolortrans.cpp
 build obj/gm/nanobench.textblobgeometrychange.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobgeometrychange.cpp
-build obj/gm/nanobench.textbloblooper.o: cxx $
-    ../../../../../../paintLib/skia/gm/textbloblooper.cpp
+    ../../../../gm/textblobgeometrychange.cpp
+build obj/gm/nanobench.textbloblooper.o: cxx ../../../../gm/textbloblooper.cpp
 build obj/gm/nanobench.textblobmixedsizes.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobmixedsizes.cpp
+    ../../../../gm/textblobmixedsizes.cpp
 build obj/gm/nanobench.textblobrandomfont.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobrandomfont.cpp
-build obj/gm/nanobench.textblobshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobshader.cpp
+    ../../../../gm/textblobrandomfont.cpp
+build obj/gm/nanobench.textblobshader.o: cxx ../../../../gm/textblobshader.cpp
 build obj/gm/nanobench.textblobtransforms.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobtransforms.cpp
+    ../../../../gm/textblobtransforms.cpp
 build obj/gm/nanobench.textblobuseaftergpufree.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobuseaftergpufree.cpp
-build obj/gm/nanobench.texteffects.o: cxx $
-    ../../../../../../paintLib/skia/gm/texteffects.cpp
+    ../../../../gm/textblobuseaftergpufree.cpp
+build obj/gm/nanobench.texteffects.o: cxx ../../../../gm/texteffects.cpp
 build obj/gm/nanobench.texturedomaineffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/texturedomaineffect.cpp
-build obj/gm/nanobench.thinrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/thinrects.cpp
+    ../../../../gm/texturedomaineffect.cpp
+build obj/gm/nanobench.thinrects.o: cxx ../../../../gm/thinrects.cpp
 build obj/gm/nanobench.thinstrokedrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/thinstrokedrects.cpp
+    ../../../../gm/thinstrokedrects.cpp
 build obj/gm/nanobench.tiledscaledbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/tiledscaledbitmap.cpp
+    ../../../../gm/tiledscaledbitmap.cpp
 build obj/gm/nanobench.tileimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/tileimagefilter.cpp
-build obj/gm/nanobench.tilemodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/tilemodes.cpp
+    ../../../../gm/tileimagefilter.cpp
+build obj/gm/nanobench.tilemodes.o: cxx ../../../../gm/tilemodes.cpp
 build obj/gm/nanobench.tilemodes_scaled.o: cxx $
-    ../../../../../../paintLib/skia/gm/tilemodes_scaled.cpp
-build obj/gm/nanobench.tinybitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/tinybitmap.cpp
-build obj/gm/nanobench.transparency.o: cxx $
-    ../../../../../../paintLib/skia/gm/transparency.cpp
-build obj/gm/nanobench.typeface.o: cxx $
-    ../../../../../../paintLib/skia/gm/typeface.cpp
-build obj/gm/nanobench.variedtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/variedtext.cpp
-build obj/gm/nanobench.vertices.o: cxx $
-    ../../../../../../paintLib/skia/gm/vertices.cpp
-build obj/gm/nanobench.verttext.o: cxx $
-    ../../../../../../paintLib/skia/gm/verttext.cpp
-build obj/gm/nanobench.verttext2.o: cxx $
-    ../../../../../../paintLib/skia/gm/verttext2.cpp
+    ../../../../gm/tilemodes_scaled.cpp
+build obj/gm/nanobench.tinybitmap.o: cxx ../../../../gm/tinybitmap.cpp
+build obj/gm/nanobench.transparency.o: cxx ../../../../gm/transparency.cpp
+build obj/gm/nanobench.typeface.o: cxx ../../../../gm/typeface.cpp
+build obj/gm/nanobench.variedtext.o: cxx ../../../../gm/variedtext.cpp
+build obj/gm/nanobench.vertices.o: cxx ../../../../gm/vertices.cpp
+build obj/gm/nanobench.verttext.o: cxx ../../../../gm/verttext.cpp
+build obj/gm/nanobench.verttext2.o: cxx ../../../../gm/verttext2.cpp
 build obj/gm/nanobench.verylargebitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/verylargebitmap.cpp
+    ../../../../gm/verylargebitmap.cpp
 build obj/gm/nanobench.xfermodeimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodeimagefilter.cpp
-build obj/gm/nanobench.xfermodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodes.cpp
-build obj/gm/nanobench.xfermodes2.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodes2.cpp
-build obj/gm/nanobench.xfermodes3.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodes3.cpp
-build obj/gm/nanobench.yuvtorgbeffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/yuvtorgbeffect.cpp
+    ../../../../gm/xfermodeimagefilter.cpp
+build obj/gm/nanobench.xfermodes.o: cxx ../../../../gm/xfermodes.cpp
+build obj/gm/nanobench.xfermodes2.o: cxx ../../../../gm/xfermodes2.cpp
+build obj/gm/nanobench.xfermodes3.o: cxx ../../../../gm/xfermodes3.cpp
+build obj/gm/nanobench.yuvtorgbeffect.o: cxx ../../../../gm/yuvtorgbeffect.cpp
 build obj/src/utils/debugger/nanobench.SkDrawCommand.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/debugger/SkDrawCommand.cpp
+    ../../../../src/utils/debugger/SkDrawCommand.cpp
 build obj/src/utils/debugger/nanobench.SkDebugCanvas.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/debugger/SkDebugCanvas.cpp
+    ../../../../src/utils/debugger/SkDebugCanvas.cpp
 build obj/src/utils/debugger/nanobench.SkObjectParser.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/debugger/SkObjectParser.cpp
+    ../../../../src/utils/debugger/SkObjectParser.cpp
 
 ldflags = -march=armv7-a
 libs = -llog

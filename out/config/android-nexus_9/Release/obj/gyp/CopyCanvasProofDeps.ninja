@@ -2,14 +2,14 @@ build obj/gyp/CopyCanvasProofDeps.actions_depends.stamp: stamp $
     lib/libskia_android.so.TOC lib/libcanvasproof.so.TOC
 
 build $
-    ../../../../../../paintLib/skia/platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libskia_android.so: $
+    ../../../../platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libskia_android.so: $
     copy lib/libskia_android.so || $
     obj/gyp/CopyCanvasProofDeps.actions_depends.stamp
 build $
-    ../../../../../../paintLib/skia/platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libcanvasproof.so: $
+    ../../../../platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libcanvasproof.so: $
     copy lib/libcanvasproof.so || $
     obj/gyp/CopyCanvasProofDeps.actions_depends.stamp
 build obj/gyp/CopyCanvasProofDeps.actions_rules_copies.stamp: stamp $
-    ../../../../../../paintLib/skia/platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libskia_android.so $
-    ../../../../../../paintLib/skia/platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libcanvasproof.so
+    ../../../../platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libskia_android.so $
+    ../../../../platform_tools/android/apps/canvasproof/src/main/libs/arm64-v8a/libcanvasproof.so
 

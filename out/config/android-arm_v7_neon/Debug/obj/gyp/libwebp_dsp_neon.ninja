@@ -5,8 +5,8 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DHAVE_CONFIG_H $
     -DWEBP_SWAP_16BIT_CSP -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/third_party/libwebp/webp $
-    -I../../../../../../paintLib/skia/third_party/externals/libwebp
+includes = -I../../../../third_party/libwebp/webp $
+    -I../../../../third_party/externals/libwebp
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp -fuse-ld=gold $
@@ -17,24 +17,19 @@ arflags =
 
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp_neon.dec_neon.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/dec_neon.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/dec_neon.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp_neon.enc_neon.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/enc_neon.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/enc_neon.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp_neon.lossless_neon.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/lossless_neon.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/lossless_neon.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp_neon.lossless_enc_neon.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/lossless_enc_neon.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/lossless_enc_neon.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp_neon.upsampling_neon.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/upsampling_neon.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/upsampling_neon.c
 
 build obj/gyp/libwebp_dsp_neon.a: alink_thin $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp_neon.dec_neon.o $

@@ -5,9 +5,9 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DHAVE_CONFIG_H $
     -DWEBP_SWAP_16BIT_CSP -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/third_party/externals/libwebp $
-    -I../../../../../../paintLib/skia/third_party/libwebp/webp $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/cpufeatures
+includes = -I../../../../third_party/externals/libwebp $
+    -I../../../../third_party/libwebp/webp $
+    -I../../../../platform_tools/android/third_party/cpufeatures
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp -fuse-ld=gold -w -g
@@ -17,94 +17,82 @@ arflags =
 
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.alpha_processing.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/alpha_processing.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/alpha_processing.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.alpha_processing_mips_dsp_r2.o: $
     cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/alpha_processing_mips_dsp_r2.c
+    ../../../../third_party/externals/libwebp/src/dsp/alpha_processing_mips_dsp_r2.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.alpha_processing_sse2.o: $
     cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/alpha_processing_sse2.c
+    ../../../../third_party/externals/libwebp/src/dsp/alpha_processing_sse2.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.alpha_processing_sse41.o: $
     cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/alpha_processing_sse41.c
+    ../../../../third_party/externals/libwebp/src/dsp/alpha_processing_sse41.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.cpu.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/cpu.c
+    ../../../../third_party/externals/libwebp/src/dsp/cpu.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.dec.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/dec.c
+    ../../../../third_party/externals/libwebp/src/dsp/dec.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.dec_clip_tables.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/dec_clip_tables.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/dec_clip_tables.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.dec_mips32.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/dec_mips32.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/dec_mips32.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.dec_mips_dsp_r2.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/dec_mips_dsp_r2.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/dec_mips_dsp_r2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.dec_sse2.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/dec_sse2.c
+    ../../../../third_party/externals/libwebp/src/dsp/dec_sse2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.dec_sse41.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/dec_sse41.c
+    ../../../../third_party/externals/libwebp/src/dsp/dec_sse41.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.enc.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/enc.c
+    ../../../../third_party/externals/libwebp/src/dsp/enc.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.enc_sse2.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/enc_sse2.c
+    ../../../../third_party/externals/libwebp/src/dsp/enc_sse2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.filters.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/filters.c
+    ../../../../third_party/externals/libwebp/src/dsp/filters.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.filters_mips_dsp_r2.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/filters_mips_dsp_r2.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/filters_mips_dsp_r2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.filters_sse2.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/filters_sse2.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/filters_sse2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.lossless.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/lossless.c
+    ../../../../third_party/externals/libwebp/src/dsp/lossless.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.lossless_mips_dsp_r2.o: $
     cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/lossless_mips_dsp_r2.c
+    ../../../../third_party/externals/libwebp/src/dsp/lossless_mips_dsp_r2.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.lossless_sse2.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/lossless_sse2.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/lossless_sse2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.rescaler.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/rescaler.c
+    ../../../../third_party/externals/libwebp/src/dsp/rescaler.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.rescaler_mips32.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/rescaler_mips32.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/rescaler_mips32.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.rescaler_mips_dsp_r2.o: $
     cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/rescaler_mips_dsp_r2.c
+    ../../../../third_party/externals/libwebp/src/dsp/rescaler_mips_dsp_r2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.upsampling.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/upsampling.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/upsampling.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.upsampling_mips_dsp_r2.o: $
     cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/upsampling_mips_dsp_r2.c
+    ../../../../third_party/externals/libwebp/src/dsp/upsampling_mips_dsp_r2.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.upsampling_sse2.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/upsampling_sse2.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/upsampling_sse2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.yuv.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/yuv.c
+    ../../../../third_party/externals/libwebp/src/dsp/yuv.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.yuv_mips32.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/yuv_mips32.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/yuv_mips32.c
 build $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.yuv_mips_dsp_r2.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/yuv_mips_dsp_r2.c
+    cc ../../../../third_party/externals/libwebp/src/dsp/yuv_mips_dsp_r2.c
 build obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.yuv_sse2.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dsp/yuv_sse2.c
+    ../../../../third_party/externals/libwebp/src/dsp/yuv_sse2.c
 
 build obj/gyp/libwebp_dsp.a: alink_thin $
     obj/third_party/externals/libwebp/src/dsp/libwebp_dsp.alpha_processing.o $

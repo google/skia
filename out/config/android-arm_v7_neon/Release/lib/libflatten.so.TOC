@@ -1,0 +1,26 @@
+ 0x0000000e (SONAME)                     Library soname: [libflatten.so]
+_Z14SkForceLinkingb U
+_Z39SkDEPRECATED_InstallDiscardablePixelRefP6SkDataP8SkBitmap U
+_ZN12SkFILEStreamC1EPKc U
+_ZN12SkFILEStreamD1Ev U
+_ZN13SkFILEWStream5flushEv U
+_ZN13SkFILEWStreamC1EPKc U
+_ZN13SkFILEWStreamD1Ev U
+_ZN17SkPictureRecorder14beginRecordingERK6SkRectP12SkBBHFactoryj U
+_ZN17SkPictureRecorder21endRecordingAsPictureEv U
+_ZN17SkPictureRecorderC1Ev U
+_ZN17SkPictureRecorderD1Ev U
+_ZN6SkData11NewWithCopyEPKvj U
+_ZN9SkPicture16CreateFromStreamEP8SkStreamPFbPKvjP8SkBitmapE U
+_ZNK12SkRefCntBase5unrefEv W
+_ZNK9SkPicture9serializeEP9SkWStreamP17SkPixelSerializer U
+__bss_start A
+__cxa_atexit U
+__cxa_finalize U
+__sF U
+_edata A
+_end A
+exit U
+fprintf U
+gSkDebugToStdOut U
+main T

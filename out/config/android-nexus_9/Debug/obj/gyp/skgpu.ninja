@@ -5,20 +5,13 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
     -DGR_CHROME_UTILS=1 -DSK_EGL=1 $
     -DGR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE=1 -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/include/gpu $
-    -I../../../../../../paintLib/skia/include/private $
-    -I../../../../../../paintLib/skia/src/core $
-    -I../../../../../../paintLib/skia/src/gpu $
-    -I../../../../../../paintLib/skia/src/image $
-    -I../../../../../../paintLib/skia/include/c $
-    -I../../../../../../paintLib/skia/include/config $
-    -I../../../../../../paintLib/skia/include/core $
-    -I../../../../../../paintLib/skia/include/pathops $
-    -I../../../../../../paintLib/skia/include/pipe $
-    -I../../../../../../paintLib/skia/include/utils $
-    -I../../../../../../paintLib/skia/src/utils $
-    -I../../../../../../paintLib/skia/third_party/etc1 $
-    -I../../../../../../paintLib/skia/third_party/ktx
+includes = -I../../../../include/gpu -I../../../../include/private $
+    -I../../../../src/core -I../../../../src/gpu -I../../../../src/image $
+    -I../../../../include/c -I../../../../include/config $
+    -I../../../../include/core -I../../../../include/pathops $
+    -I../../../../include/pipe -I../../../../include/utils $
+    -I../../../../src/utils -I../../../../third_party/etc1 $
+    -I../../../../third_party/ktx
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -fuse-ld=gold -g
@@ -26,350 +19,324 @@ cflags_c =
 cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
-build obj/src/gpu/skgpu.GrAtlas.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrAtlas.cpp
+build obj/src/gpu/skgpu.GrAtlas.o: cxx ../../../../src/gpu/GrAtlas.cpp
 build obj/src/gpu/skgpu.GrAtlasTextBlob.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrAtlasTextBlob.cpp
+    ../../../../src/gpu/GrAtlasTextBlob.cpp
 build obj/src/gpu/skgpu.GrAtlasTextContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrAtlasTextContext.cpp
+    ../../../../src/gpu/GrAtlasTextContext.cpp
 build obj/src/gpu/skgpu.GrBatchAtlas.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrBatchAtlas.cpp
+    ../../../../src/gpu/GrBatchAtlas.cpp
 build obj/src/gpu/skgpu.GrBatchFontCache.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrBatchFontCache.cpp
+    ../../../../src/gpu/GrBatchFontCache.cpp
 build obj/src/gpu/skgpu.GrBatchFlushState.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrBatchFlushState.cpp
-build obj/src/gpu/skgpu.GrBatchTest.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrBatchTest.cpp
-build obj/src/gpu/skgpu.GrBlend.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrBlend.cpp
-build obj/src/gpu/skgpu.GrBlurUtils.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrBlurUtils.cpp
+    ../../../../src/gpu/GrBatchFlushState.cpp
+build obj/src/gpu/skgpu.GrBatchTest.o: cxx ../../../../src/gpu/GrBatchTest.cpp
+build obj/src/gpu/skgpu.GrBlend.o: cxx ../../../../src/gpu/GrBlend.cpp
+build obj/src/gpu/skgpu.GrBlurUtils.o: cxx ../../../../src/gpu/GrBlurUtils.cpp
 build obj/src/gpu/skgpu.GrBufferAllocPool.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrBufferAllocPool.cpp
-build obj/src/gpu/skgpu.GrCaps.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrCaps.cpp
-build obj/src/gpu/skgpu.GrClip.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrClip.cpp
+    ../../../../src/gpu/GrBufferAllocPool.cpp
+build obj/src/gpu/skgpu.GrCaps.o: cxx ../../../../src/gpu/GrCaps.cpp
+build obj/src/gpu/skgpu.GrClip.o: cxx ../../../../src/gpu/GrClip.cpp
 build obj/src/gpu/skgpu.GrClipMaskManager.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrClipMaskManager.cpp
-build obj/src/gpu/skgpu.GrContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrContext.cpp
+    ../../../../src/gpu/GrClipMaskManager.cpp
+build obj/src/gpu/skgpu.GrContext.o: cxx ../../../../src/gpu/GrContext.cpp
 build obj/src/gpu/skgpu.GrCoordTransform.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrCoordTransform.cpp
+    ../../../../src/gpu/GrCoordTransform.cpp
 build obj/src/gpu/skgpu.GrDefaultGeoProcFactory.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrDefaultGeoProcFactory.cpp
+    ../../../../src/gpu/GrDefaultGeoProcFactory.cpp
 build obj/src/gpu/skgpu.GrDrawContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrDrawContext.cpp
+    ../../../../src/gpu/GrDrawContext.cpp
 build obj/src/gpu/skgpu.GrDrawTarget.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrDrawTarget.cpp
+    ../../../../src/gpu/GrDrawTarget.cpp
 build obj/src/gpu/skgpu.GrFontScaler.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrFontScaler.cpp
+    ../../../../src/gpu/GrFontScaler.cpp
 build obj/src/gpu/skgpu.GrFragmentProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrFragmentProcessor.cpp
-build obj/src/gpu/skgpu.GrGpu.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrGpu.cpp
+    ../../../../src/gpu/GrFragmentProcessor.cpp
+build obj/src/gpu/skgpu.GrGpu.o: cxx ../../../../src/gpu/GrGpu.cpp
 build obj/src/gpu/skgpu.GrGpuResource.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrGpuResource.cpp
+    ../../../../src/gpu/GrGpuResource.cpp
 build obj/src/gpu/skgpu.GrGpuFactory.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrGpuFactory.cpp
+    ../../../../src/gpu/GrGpuFactory.cpp
 build obj/src/gpu/skgpu.GrInvariantOutput.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrInvariantOutput.cpp
+    ../../../../src/gpu/GrInvariantOutput.cpp
 build obj/src/gpu/skgpu.GrLayerCache.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrLayerCache.cpp
+    ../../../../src/gpu/GrLayerCache.cpp
 build obj/src/gpu/skgpu.GrLayerHoister.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrLayerHoister.cpp
+    ../../../../src/gpu/GrLayerHoister.cpp
 build obj/src/gpu/skgpu.GrMemoryPool.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrMemoryPool.cpp
+    ../../../../src/gpu/GrMemoryPool.cpp
 build obj/src/gpu/skgpu.GrOvalRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrOvalRenderer.cpp
-build obj/src/gpu/skgpu.GrPaint.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPaint.cpp
-build obj/src/gpu/skgpu.GrPath.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPath.cpp
+    ../../../../src/gpu/GrOvalRenderer.cpp
+build obj/src/gpu/skgpu.GrPaint.o: cxx ../../../../src/gpu/GrPaint.cpp
+build obj/src/gpu/skgpu.GrPath.o: cxx ../../../../src/gpu/GrPath.cpp
 build obj/src/gpu/skgpu.GrPathProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPathProcessor.cpp
-build obj/src/gpu/skgpu.GrPathRange.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPathRange.cpp
+    ../../../../src/gpu/GrPathProcessor.cpp
+build obj/src/gpu/skgpu.GrPathRange.o: cxx ../../../../src/gpu/GrPathRange.cpp
 build obj/src/gpu/skgpu.GrPathRendererChain.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPathRendererChain.cpp
+    ../../../../src/gpu/GrPathRendererChain.cpp
 build obj/src/gpu/skgpu.GrPathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPathRenderer.cpp
+    ../../../../src/gpu/GrPathRenderer.cpp
 build obj/src/gpu/skgpu.GrPathRendering.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPathRendering.cpp
-build obj/src/gpu/skgpu.GrPathUtils.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPathUtils.cpp
-build obj/src/gpu/skgpu.GrPipeline.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPipeline.cpp
+    ../../../../src/gpu/GrPathRendering.cpp
+build obj/src/gpu/skgpu.GrPathUtils.o: cxx ../../../../src/gpu/GrPathUtils.cpp
+build obj/src/gpu/skgpu.GrPipeline.o: cxx ../../../../src/gpu/GrPipeline.cpp
 build obj/src/gpu/skgpu.GrPipelineBuilder.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPipelineBuilder.cpp
+    ../../../../src/gpu/GrPipelineBuilder.cpp
 build obj/src/gpu/skgpu.GrPrimitiveProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrPrimitiveProcessor.cpp
+    ../../../../src/gpu/GrPrimitiveProcessor.cpp
 build obj/src/gpu/skgpu.GrProgramElement.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrProgramElement.cpp
-build obj/src/gpu/skgpu.GrProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrProcessor.cpp
+    ../../../../src/gpu/GrProgramElement.cpp
+build obj/src/gpu/skgpu.GrProcessor.o: cxx ../../../../src/gpu/GrProcessor.cpp
 build obj/src/gpu/skgpu.GrProcessorUnitTest.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrProcessorUnitTest.cpp
+    ../../../../src/gpu/GrProcessorUnitTest.cpp
 build obj/src/gpu/skgpu.GrProcOptInfo.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrProcOptInfo.cpp
+    ../../../../src/gpu/GrProcOptInfo.cpp
 build obj/src/gpu/skgpu.GrGpuResourceRef.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrGpuResourceRef.cpp
+    ../../../../src/gpu/GrGpuResourceRef.cpp
 build obj/src/gpu/skgpu.GrRecordReplaceDraw.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrRecordReplaceDraw.cpp
+    ../../../../src/gpu/GrRecordReplaceDraw.cpp
 build obj/src/gpu/skgpu.GrRectanizer_pow2.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrRectanizer_pow2.cpp
+    ../../../../src/gpu/GrRectanizer_pow2.cpp
 build obj/src/gpu/skgpu.GrRectanizer_skyline.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrRectanizer_skyline.cpp
+    ../../../../src/gpu/GrRectanizer_skyline.cpp
 build obj/src/gpu/skgpu.GrRenderTarget.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrRenderTarget.cpp
+    ../../../../src/gpu/GrRenderTarget.cpp
 build obj/src/gpu/skgpu.GrReducedClip.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrReducedClip.cpp
+    ../../../../src/gpu/GrReducedClip.cpp
 build obj/src/gpu/skgpu.GrResourceCache.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrResourceCache.cpp
+    ../../../../src/gpu/GrResourceCache.cpp
 build obj/src/gpu/skgpu.GrResourceProvider.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrResourceProvider.cpp
-build obj/src/gpu/skgpu.GrStencil.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrStencil.cpp
+    ../../../../src/gpu/GrResourceProvider.cpp
+build obj/src/gpu/skgpu.GrStencil.o: cxx ../../../../src/gpu/GrStencil.cpp
 build obj/src/gpu/skgpu.GrStencilAndCoverTextContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrStencilAndCoverTextContext.cpp
+    ../../../../src/gpu/GrStencilAndCoverTextContext.cpp
 build obj/src/gpu/skgpu.GrStencilAttachment.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrStencilAttachment.cpp
+    ../../../../src/gpu/GrStencilAttachment.cpp
 build obj/src/gpu/skgpu.GrStrokeInfo.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrStrokeInfo.cpp
+    ../../../../src/gpu/GrStrokeInfo.cpp
 build obj/src/gpu/skgpu.GrTraceMarker.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrTraceMarker.cpp
-build obj/src/gpu/skgpu.GrTestUtils.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrTestUtils.cpp
+    ../../../../src/gpu/GrTraceMarker.cpp
+build obj/src/gpu/skgpu.GrTestUtils.o: cxx ../../../../src/gpu/GrTestUtils.cpp
 build obj/src/gpu/skgpu.GrSWMaskHelper.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrSWMaskHelper.cpp
+    ../../../../src/gpu/GrSWMaskHelper.cpp
 build obj/src/gpu/skgpu.GrSoftwarePathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrSoftwarePathRenderer.cpp
-build obj/src/gpu/skgpu.GrSurface.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrSurface.cpp
+    ../../../../src/gpu/GrSoftwarePathRenderer.cpp
+build obj/src/gpu/skgpu.GrSurface.o: cxx ../../../../src/gpu/GrSurface.cpp
 build obj/src/gpu/skgpu.GrTextBlobCache.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrTextBlobCache.cpp
+    ../../../../src/gpu/GrTextBlobCache.cpp
 build obj/src/gpu/skgpu.GrTextContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrTextContext.cpp
-build obj/src/gpu/skgpu.GrTexture.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrTexture.cpp
+    ../../../../src/gpu/GrTextContext.cpp
+build obj/src/gpu/skgpu.GrTexture.o: cxx ../../../../src/gpu/GrTexture.cpp
 build obj/src/gpu/skgpu.GrTextureProvider.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrTextureProvider.cpp
+    ../../../../src/gpu/GrTextureProvider.cpp
 build obj/src/gpu/skgpu.GrTextureAccess.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrTextureAccess.cpp
+    ../../../../src/gpu/GrTextureAccess.cpp
 build obj/src/gpu/skgpu.GrXferProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrXferProcessor.cpp
+    ../../../../src/gpu/GrXferProcessor.cpp
 build obj/src/gpu/skgpu.GrYUVProvider.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/GrYUVProvider.cpp
+    ../../../../src/gpu/GrYUVProvider.cpp
 build obj/src/gpu/batches/skgpu.GrAAHairLinePathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrAAHairLinePathRenderer.cpp
+    ../../../../src/gpu/batches/GrAAHairLinePathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrAALinearizingConvexPathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrAALinearizingConvexPathRenderer.cpp
+    ../../../../src/gpu/batches/GrAALinearizingConvexPathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrAAConvexTessellator.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrAAConvexTessellator.cpp
+    ../../../../src/gpu/batches/GrAAConvexTessellator.cpp
 build obj/src/gpu/batches/skgpu.GrAADistanceFieldPathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrAADistanceFieldPathRenderer.cpp
+    ../../../../src/gpu/batches/GrAADistanceFieldPathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrAAConvexPathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrAAConvexPathRenderer.cpp
+    ../../../../src/gpu/batches/GrAAConvexPathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrAAFillRectBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrAAFillRectBatch.cpp
+    ../../../../src/gpu/batches/GrAAFillRectBatch.cpp
 build obj/src/gpu/batches/skgpu.GrAAStrokeRectBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrAAStrokeRectBatch.cpp
+    ../../../../src/gpu/batches/GrAAStrokeRectBatch.cpp
 build obj/src/gpu/batches/skgpu.GrBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrBatch.cpp
+    ../../../../src/gpu/batches/GrBatch.cpp
 build obj/src/gpu/batches/skgpu.GrCopySurfaceBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrCopySurfaceBatch.cpp
+    ../../../../src/gpu/batches/GrCopySurfaceBatch.cpp
 build obj/src/gpu/batches/skgpu.GrDashLinePathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrDashLinePathRenderer.cpp
+    ../../../../src/gpu/batches/GrDashLinePathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrDefaultPathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrDefaultPathRenderer.cpp
+    ../../../../src/gpu/batches/GrDefaultPathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrDrawBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrDrawBatch.cpp
+    ../../../../src/gpu/batches/GrDrawBatch.cpp
 build obj/src/gpu/batches/skgpu.GrDrawAtlasBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrDrawAtlasBatch.cpp
+    ../../../../src/gpu/batches/GrDrawAtlasBatch.cpp
 build obj/src/gpu/batches/skgpu.GrDrawPathBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrDrawPathBatch.cpp
+    ../../../../src/gpu/batches/GrDrawPathBatch.cpp
 build obj/src/gpu/batches/skgpu.GrDrawVerticesBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrDrawVerticesBatch.cpp
+    ../../../../src/gpu/batches/GrDrawVerticesBatch.cpp
 build obj/src/gpu/batches/skgpu.GrNonAAFillRectBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrNonAAFillRectBatch.cpp
+    ../../../../src/gpu/batches/GrNonAAFillRectBatch.cpp
 build obj/src/gpu/batches/skgpu.GrNonAAStrokeRectBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrNonAAStrokeRectBatch.cpp
+    ../../../../src/gpu/batches/GrNonAAStrokeRectBatch.cpp
 build obj/src/gpu/batches/skgpu.GrRectBatchFactory.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrRectBatchFactory.cpp
+    ../../../../src/gpu/batches/GrRectBatchFactory.cpp
 build obj/src/gpu/batches/skgpu.GrStencilAndCoverPathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrStencilAndCoverPathRenderer.cpp
+    ../../../../src/gpu/batches/GrStencilAndCoverPathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrTessellatingPathRenderer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrTessellatingPathRenderer.cpp
+    ../../../../src/gpu/batches/GrTessellatingPathRenderer.cpp
 build obj/src/gpu/batches/skgpu.GrVertexBatch.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/batches/GrVertexBatch.cpp
+    ../../../../src/gpu/batches/GrVertexBatch.cpp
 build obj/src/gpu/effects/skgpu.GrConfigConversionEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrConfigConversionEffect.cpp
+    ../../../../src/gpu/effects/GrConfigConversionEffect.cpp
 build obj/src/gpu/effects/skgpu.GrConstColorProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrConstColorProcessor.cpp
+    ../../../../src/gpu/effects/GrConstColorProcessor.cpp
 build obj/src/gpu/effects/skgpu.GrCoverageSetOpXP.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrCoverageSetOpXP.cpp
+    ../../../../src/gpu/effects/GrCoverageSetOpXP.cpp
 build obj/src/gpu/effects/skgpu.GrCustomXfermode.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrCustomXfermode.cpp
+    ../../../../src/gpu/effects/GrCustomXfermode.cpp
 build obj/src/gpu/effects/skgpu.GrBezierEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrBezierEffect.cpp
+    ../../../../src/gpu/effects/GrBezierEffect.cpp
 build obj/src/gpu/effects/skgpu.GrConvolutionEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrConvolutionEffect.cpp
+    ../../../../src/gpu/effects/GrConvolutionEffect.cpp
 build obj/src/gpu/effects/skgpu.GrConvexPolyEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrConvexPolyEffect.cpp
+    ../../../../src/gpu/effects/GrConvexPolyEffect.cpp
 build obj/src/gpu/effects/skgpu.GrBicubicEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrBicubicEffect.cpp
+    ../../../../src/gpu/effects/GrBicubicEffect.cpp
 build obj/src/gpu/effects/skgpu.GrBitmapTextGeoProc.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrBitmapTextGeoProc.cpp
+    ../../../../src/gpu/effects/GrBitmapTextGeoProc.cpp
 build obj/src/gpu/effects/skgpu.GrDashingEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrDashingEffect.cpp
+    ../../../../src/gpu/effects/GrDashingEffect.cpp
 build obj/src/gpu/effects/skgpu.GrDisableColorXP.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrDisableColorXP.cpp
+    ../../../../src/gpu/effects/GrDisableColorXP.cpp
 build obj/src/gpu/effects/skgpu.GrDistanceFieldGeoProc.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrDistanceFieldGeoProc.cpp
+    ../../../../src/gpu/effects/GrDistanceFieldGeoProc.cpp
 build obj/src/gpu/effects/skgpu.GrDitherEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrDitherEffect.cpp
+    ../../../../src/gpu/effects/GrDitherEffect.cpp
 build obj/src/gpu/effects/skgpu.GrMatrixConvolutionEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrMatrixConvolutionEffect.cpp
+    ../../../../src/gpu/effects/GrMatrixConvolutionEffect.cpp
 build obj/src/gpu/effects/skgpu.GrOvalEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrOvalEffect.cpp
+    ../../../../src/gpu/effects/GrOvalEffect.cpp
 build obj/src/gpu/effects/skgpu.GrPorterDuffXferProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrPorterDuffXferProcessor.cpp
+    ../../../../src/gpu/effects/GrPorterDuffXferProcessor.cpp
 build obj/src/gpu/effects/skgpu.GrRRectEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrRRectEffect.cpp
+    ../../../../src/gpu/effects/GrRRectEffect.cpp
 build obj/src/gpu/effects/skgpu.GrSimpleTextureEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrSimpleTextureEffect.cpp
+    ../../../../src/gpu/effects/GrSimpleTextureEffect.cpp
 build obj/src/gpu/effects/skgpu.GrSingleTextureEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrSingleTextureEffect.cpp
+    ../../../../src/gpu/effects/GrSingleTextureEffect.cpp
 build obj/src/gpu/effects/skgpu.GrTextureDomain.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrTextureDomain.cpp
+    ../../../../src/gpu/effects/GrTextureDomain.cpp
 build obj/src/gpu/effects/skgpu.GrTextureStripAtlas.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrTextureStripAtlas.cpp
+    ../../../../src/gpu/effects/GrTextureStripAtlas.cpp
 build obj/src/gpu/effects/skgpu.GrXfermodeFragmentProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrXfermodeFragmentProcessor.cpp
+    ../../../../src/gpu/effects/GrXfermodeFragmentProcessor.cpp
 build obj/src/gpu/effects/skgpu.GrYUVtoRGBEffect.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/effects/GrYUVtoRGBEffect.cpp
+    ../../../../src/gpu/effects/GrYUVtoRGBEffect.cpp
 build obj/src/gpu/gl/skgpu.GrGLAssembleInterface.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLAssembleInterface.cpp
+    ../../../../src/gpu/gl/GrGLAssembleInterface.cpp
 build obj/src/gpu/gl/skgpu.GrGLSLBlend.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLSLBlend.cpp
+    ../../../../src/gpu/gl/GrGLSLBlend.cpp
 build obj/src/gpu/gl/skgpu.GrGLBufferImpl.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLBufferImpl.cpp
-build obj/src/gpu/gl/skgpu.GrGLCaps.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLCaps.cpp
+    ../../../../src/gpu/gl/GrGLBufferImpl.cpp
+build obj/src/gpu/gl/skgpu.GrGLCaps.o: cxx ../../../../src/gpu/gl/GrGLCaps.cpp
 build obj/src/gpu/gl/skgpu.GrGLContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLContext.cpp
+    ../../../../src/gpu/gl/GrGLContext.cpp
 build obj/src/gpu/gl/skgpu.GrGLGeometryProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLGeometryProcessor.cpp
-build obj/src/gpu/gl/skgpu.GrGLGLSL.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLGLSL.cpp
-build obj/src/gpu/gl/skgpu.GrGLGpu.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLGpu.cpp
+    ../../../../src/gpu/gl/GrGLGeometryProcessor.cpp
+build obj/src/gpu/gl/skgpu.GrGLGLSL.o: cxx ../../../../src/gpu/gl/GrGLGLSL.cpp
+build obj/src/gpu/gl/skgpu.GrGLGpu.o: cxx ../../../../src/gpu/gl/GrGLGpu.cpp
 build obj/src/gpu/gl/skgpu.GrGLGpuProgramCache.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLGpuProgramCache.cpp
+    ../../../../src/gpu/gl/GrGLGpuProgramCache.cpp
 build obj/src/gpu/gl/skgpu.GrGLExtensions.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLExtensions.cpp
+    ../../../../src/gpu/gl/GrGLExtensions.cpp
 build obj/src/gpu/gl/skgpu.GrGLFragmentProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLFragmentProcessor.cpp
+    ../../../../src/gpu/gl/GrGLFragmentProcessor.cpp
 build obj/src/gpu/gl/skgpu.GrGLIndexBuffer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLIndexBuffer.cpp
+    ../../../../src/gpu/gl/GrGLIndexBuffer.cpp
 build obj/src/gpu/gl/skgpu.GrGLInterface.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLInterface.cpp
+    ../../../../src/gpu/gl/GrGLInterface.cpp
 build obj/src/gpu/gl/skgpu.GrGLNameAllocator.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLNameAllocator.cpp
+    ../../../../src/gpu/gl/GrGLNameAllocator.cpp
 build obj/src/gpu/gl/skgpu.GrGLNoOpInterface.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLNoOpInterface.cpp
-build obj/src/gpu/gl/skgpu.GrGLPath.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLPath.cpp
+    ../../../../src/gpu/gl/GrGLNoOpInterface.cpp
+build obj/src/gpu/gl/skgpu.GrGLPath.o: cxx ../../../../src/gpu/gl/GrGLPath.cpp
 build obj/src/gpu/gl/skgpu.GrGLPathRange.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLPathRange.cpp
+    ../../../../src/gpu/gl/GrGLPathRange.cpp
 build obj/src/gpu/gl/skgpu.GrGLPathRendering.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLPathRendering.cpp
+    ../../../../src/gpu/gl/GrGLPathRendering.cpp
 build obj/src/gpu/gl/skgpu.GrGLPrimitiveProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLPrimitiveProcessor.cpp
+    ../../../../src/gpu/gl/GrGLPrimitiveProcessor.cpp
 build obj/src/gpu/gl/skgpu.GrGLProgram.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLProgram.cpp
+    ../../../../src/gpu/gl/GrGLProgram.cpp
 build obj/src/gpu/gl/skgpu.GrGLProgramDesc.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLProgramDesc.cpp
+    ../../../../src/gpu/gl/GrGLProgramDesc.cpp
 build obj/src/gpu/gl/skgpu.GrGLProgramDataManager.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLProgramDataManager.cpp
+    ../../../../src/gpu/gl/GrGLProgramDataManager.cpp
 build obj/src/gpu/gl/skgpu.GrGLRenderTarget.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLRenderTarget.cpp
+    ../../../../src/gpu/gl/GrGLRenderTarget.cpp
 build obj/src/gpu/gl/skgpu.GrGLStencilAttachment.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLStencilAttachment.cpp
+    ../../../../src/gpu/gl/GrGLStencilAttachment.cpp
 build obj/src/gpu/gl/skgpu.GrGLTexture.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLTexture.cpp
+    ../../../../src/gpu/gl/GrGLTexture.cpp
 build obj/src/gpu/gl/skgpu.GrGLTextureRenderTarget.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLTextureRenderTarget.cpp
-build obj/src/gpu/gl/skgpu.GrGLUtil.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLUtil.cpp
+    ../../../../src/gpu/gl/GrGLTextureRenderTarget.cpp
+build obj/src/gpu/gl/skgpu.GrGLUtil.o: cxx ../../../../src/gpu/gl/GrGLUtil.cpp
 build obj/src/gpu/gl/skgpu.GrGLVertexArray.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLVertexArray.cpp
+    ../../../../src/gpu/gl/GrGLVertexArray.cpp
 build obj/src/gpu/gl/skgpu.GrGLVertexBuffer.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLVertexBuffer.cpp
+    ../../../../src/gpu/gl/GrGLVertexBuffer.cpp
 build obj/src/gpu/gl/skgpu.GrGLXferProcessor.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLXferProcessor.cpp
+    ../../../../src/gpu/gl/GrGLXferProcessor.cpp
 build obj/src/gpu/gl/builders/skgpu.GrGLProgramBuilder.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/builders/GrGLProgramBuilder.cpp
+    ../../../../src/gpu/gl/builders/GrGLProgramBuilder.cpp
 build obj/src/gpu/gl/builders/skgpu.GrGLShaderBuilder.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/builders/GrGLShaderBuilder.cpp
+    ../../../../src/gpu/gl/builders/GrGLShaderBuilder.cpp
 build obj/src/gpu/gl/builders/skgpu.GrGLShaderStringBuilder.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/builders/GrGLShaderStringBuilder.cpp
+    ../../../../src/gpu/gl/builders/GrGLShaderStringBuilder.cpp
 build obj/src/gpu/gl/builders/skgpu.GrGLSLPrettyPrint.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/builders/GrGLSLPrettyPrint.cpp
+    ../../../../src/gpu/gl/builders/GrGLSLPrettyPrint.cpp
 build obj/src/gpu/gl/builders/skgpu.GrGLVertexShaderBuilder.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/builders/GrGLVertexShaderBuilder.cpp
+    ../../../../src/gpu/gl/builders/GrGLVertexShaderBuilder.cpp
 build obj/src/gpu/gl/builders/skgpu.GrGLFragmentShaderBuilder.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/builders/GrGLFragmentShaderBuilder.cpp
+    ../../../../src/gpu/gl/builders/GrGLFragmentShaderBuilder.cpp
 build obj/src/gpu/gl/builders/skgpu.GrGLGeometryShaderBuilder.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/builders/GrGLGeometryShaderBuilder.cpp
+    ../../../../src/gpu/gl/builders/GrGLGeometryShaderBuilder.cpp
 build obj/src/gpu/glsl/skgpu.GrGLSLCaps.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/glsl/GrGLSLCaps.cpp
-build obj/src/gpu/glsl/skgpu.GrGLSL.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/glsl/GrGLSL.cpp
-build obj/src/gpu/skgpu.SkGpuDevice.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/SkGpuDevice.cpp
-build obj/src/gpu/skgpu.SkGr.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/SkGr.cpp
+    ../../../../src/gpu/glsl/GrGLSLCaps.cpp
+build obj/src/gpu/glsl/skgpu.GrGLSL.o: cxx ../../../../src/gpu/glsl/GrGLSL.cpp
+build obj/src/gpu/skgpu.SkGpuDevice.o: cxx ../../../../src/gpu/SkGpuDevice.cpp
+build obj/src/gpu/skgpu.SkGr.o: cxx ../../../../src/gpu/SkGr.cpp
 build obj/src/gpu/skgpu.SkGrPixelRef.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/SkGrPixelRef.cpp
+    ../../../../src/gpu/SkGrPixelRef.cpp
 build obj/src/gpu/skgpu.SkGrTexturePixelRef.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/SkGrTexturePixelRef.cpp
+    ../../../../src/gpu/SkGrTexturePixelRef.cpp
 build obj/src/image/skgpu.SkImage_Gpu.o: cxx $
-    ../../../../../../paintLib/skia/src/image/SkImage_Gpu.cpp
+    ../../../../src/image/SkImage_Gpu.cpp
 build obj/src/image/skgpu.SkSurface_Gpu.o: cxx $
-    ../../../../../../paintLib/skia/src/image/SkSurface_Gpu.cpp
+    ../../../../src/image/SkSurface_Gpu.cpp
 build obj/src/gpu/gl/skgpu.SkGLContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/SkGLContext.cpp
+    ../../../../src/gpu/gl/SkGLContext.cpp
 build obj/src/gpu/gl/skgpu.GrGLDefaultInterface_native.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLDefaultInterface_native.cpp
+    ../../../../src/gpu/gl/GrGLDefaultInterface_native.cpp
 build obj/src/gpu/gl/android/skgpu.GrGLCreateNativeInterface_android.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp
+    ../../../../src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp
 build obj/src/gpu/gl/egl/skgpu.SkCreatePlatformGLContext_egl.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/egl/SkCreatePlatformGLContext_egl.cpp
+    ../../../../src/gpu/gl/egl/SkCreatePlatformGLContext_egl.cpp
 build obj/src/gpu/gl/debug/skgpu.GrGLCreateDebugInterface.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrGLCreateDebugInterface.cpp
+    ../../../../src/gpu/gl/debug/GrGLCreateDebugInterface.cpp
 build obj/src/gpu/gl/debug/skgpu.GrBufferObj.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrBufferObj.cpp
+    ../../../../src/gpu/gl/debug/GrBufferObj.cpp
 build obj/src/gpu/gl/debug/skgpu.GrTextureObj.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrTextureObj.cpp
+    ../../../../src/gpu/gl/debug/GrTextureObj.cpp
 build obj/src/gpu/gl/debug/skgpu.GrTextureUnitObj.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrTextureUnitObj.cpp
+    ../../../../src/gpu/gl/debug/GrTextureUnitObj.cpp
 build obj/src/gpu/gl/debug/skgpu.GrFrameBufferObj.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrFrameBufferObj.cpp
+    ../../../../src/gpu/gl/debug/GrFrameBufferObj.cpp
 build obj/src/gpu/gl/debug/skgpu.GrShaderObj.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrShaderObj.cpp
+    ../../../../src/gpu/gl/debug/GrShaderObj.cpp
 build obj/src/gpu/gl/debug/skgpu.GrProgramObj.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrProgramObj.cpp
+    ../../../../src/gpu/gl/debug/GrProgramObj.cpp
 build obj/src/gpu/gl/debug/skgpu.GrDebugGL.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/GrDebugGL.cpp
+    ../../../../src/gpu/gl/debug/GrDebugGL.cpp
 build obj/src/gpu/gl/debug/skgpu.SkDebugGLContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/debug/SkDebugGLContext.cpp
+    ../../../../src/gpu/gl/debug/SkDebugGLContext.cpp
 build obj/src/gpu/gl/skgpu.GrGLCreateNullInterface.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/GrGLCreateNullInterface.cpp
+    ../../../../src/gpu/gl/GrGLCreateNullInterface.cpp
 build obj/src/gpu/gl/skgpu.SkNullGLContext.o: cxx $
-    ../../../../../../paintLib/skia/src/gpu/gl/SkNullGLContext.cpp
+    ../../../../src/gpu/gl/SkNullGLContext.cpp
 build obj/experimental/ChromeUtils/skgpu.SkBorder.o: cxx $
-    ../../../../../../paintLib/skia/experimental/ChromeUtils/SkBorder.cpp
+    ../../../../experimental/ChromeUtils/SkBorder.cpp
 
 build libskia_skgpu.a: alink obj/src/gpu/skgpu.GrAtlas.o $
     obj/src/gpu/skgpu.GrAtlasTextBlob.o $
