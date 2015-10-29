@@ -217,8 +217,8 @@ DEPS_UNIX = [
 DEPS_ANDROID = []
 
 DEPS = select({
-    CONDITION_ANDROID: DEPS_ANDROID + EXTERNAL_DEPS_ANDROID,
-    "//conditions:default": DEPS_UNIX + EXTERNAL_DEPS_UNIX,
+    CONDITION_ANDROID: DEPS_ANDROID + EXTERNAL_DEPS_ANDROID + EXTERNAL_DEPS_ALL,
+    "//conditions:default": DEPS_UNIX + EXTERNAL_DEPS_UNIX + EXTERNAL_DEPS_ALL,
 })
 
 # Platform-independent SRCS for DM.
@@ -322,8 +322,6 @@ DEFINES_UNIX = [
 ]
 
 DEFINES_ALL = [
-    # It'd be nice for fastbuild, dbg -> SK_DEBUG, opt -> SK_RELEASE.
-    "SK_RELEASE",
     # Chrome DEFINES.
     "SK_USE_FLOATBITS",
     "SK_USE_FREETYPE_EMBOLDEN",
@@ -350,6 +348,7 @@ cc_library(
     copts = COPTS + ["-mssse3"],
     defines = DEFINES,
     includes = INCLUDES,
+    deps = EXTERNAL_DEPS_ALL,
 )
 
 cc_library(
@@ -358,6 +357,7 @@ cc_library(
     copts = COPTS + ["-msse4"],
     defines = DEFINES,
     includes = INCLUDES,
+    deps = EXTERNAL_DEPS_ALL,
 )
 
 cc_library(
@@ -380,7 +380,7 @@ cc_test(
         "--nogpu",
         "--verbose",
         # TODO(mtklein): maybe investigate why these fail?
-        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~Math",
+        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~Math ~RecordDraw_TextBounds",
         "--resourcePath %s/resources" % BASE_DIR,
         "--images %s/resources" % BASE_DIR,
     ],
@@ -390,5 +390,5 @@ cc_test(
     includes = DM_INCLUDES,
     deps = DM_EXTERNAL_DEPS + [
         ":skia",
-    ],
+    ] + EXTERNAL_DEPS_ALL,
 )

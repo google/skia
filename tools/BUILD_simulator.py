@@ -79,6 +79,7 @@ global_names = {
   'BASE_DIR': "",
   'CONDITION_ANDROID': "CONDITION_ANDROID",
   'DM_EXTERNAL_DEPS': [],
+  'EXTERNAL_DEPS_ALL': [],
   'EXTERNAL_DEPS_ANDROID': [],
   'EXTERNAL_DEPS_UNIX': [],
 }
