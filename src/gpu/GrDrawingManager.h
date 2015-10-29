@@ -9,10 +9,13 @@
 #define GrDrawingManager_DEFINED
 
 #include "GrDrawTarget.h"
+#include "GrPathRendererChain.h"
+#include "GrPathRenderer.h"
 #include "SkTDArray.h"
 
 class GrContext;
 class GrDrawContext;
+class GrSoftwarePathRenderer;
 class GrTextContext;
 
 // Currently the DrawingManager creates a separate GrTextContext for each
@@ -29,6 +32,7 @@ public:
     ~GrDrawingManager();
 
     bool abandoned() const { return fAbandoned; }
+    void freeGpuResources();
 
     GrDrawContext* drawContext(GrRenderTarget* rt, const SkSurfaceProps* surfaceProps);
 
@@ -40,12 +44,19 @@ public:
 
     GrContext* getContext() { return fContext; }
 
+    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
+                                    bool allowSW,
+                                    GrPathRendererChain::DrawType drawType,
+                                    GrPathRenderer::StencilSupport* stencilSupport = NULL);
+
 private:
     GrDrawingManager(GrContext* context, GrDrawTarget::Options options)
         : fContext(context)
         , fAbandoned(false)
         , fOptions(options)
-        , fNVPRTextContext(nullptr) {
+        , fNVPRTextContext(nullptr)
+        , fPathRendererChain(nullptr)
+        , fSoftwarePathRenderer(nullptr) {
         sk_bzero(fTextContexts, sizeof(fTextContexts));
     }
 
@@ -67,6 +78,9 @@ private:
 
     GrTextContext*              fNVPRTextContext;
     GrTextContext*              fTextContexts[kNumPixelGeometries][kNumDFTOptions];
+
+    GrPathRendererChain*        fPathRendererChain;
+    GrSoftwarePathRenderer*     fSoftwarePathRenderer;
 };
 
 #endif

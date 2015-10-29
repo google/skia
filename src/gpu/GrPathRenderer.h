@@ -10,7 +10,6 @@
 #define GrPathRenderer_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrPathRendererChain.h"
 #include "GrStencil.h"
 #include "GrStrokeInfo.h"
 
@@ -51,13 +50,11 @@ public:
      *                  covered by the path.
      * 3) kNoSupport: This path renderer cannot be used to stencil the path.
      */
-    typedef GrPathRendererChain::StencilSupport StencilSupport;
-    static const StencilSupport kNoSupport_StencilSupport =
-        GrPathRendererChain::kNoSupport_StencilSupport;
-    static const StencilSupport kStencilOnly_StencilSupport =
-        GrPathRendererChain::kStencilOnly_StencilSupport;
-    static const StencilSupport kNoRestriction_StencilSupport =
-        GrPathRendererChain::kNoRestriction_StencilSupport;
+    enum StencilSupport {
+        kNoSupport_StencilSupport,
+        kStencilOnly_StencilSupport,
+        kNoRestriction_StencilSupport,
+    };
 
     /**
      * This function is to get the stencil support for a particular path. The path's fill must
@@ -82,15 +79,17 @@ public:
      */
     struct CanDrawPathArgs {
         const GrShaderCaps*         fShaderCaps;
-        const GrPipelineBuilder*    fPipelineBuilder;// only used by GrStencilAndCoverPathRenderer
         const SkMatrix*             fViewMatrix;
         const SkPath*               fPath;
         const GrStrokeInfo*         fStroke;
         bool                        fAntiAlias;
 
+        // These next two are only used by GrStencilAndCoverPathRenderer
+        bool                        fIsStencilDisabled;
+        bool                        fIsStencilBufferMSAA;
+
         void validate() const {
             SkASSERT(fShaderCaps);
-            SkASSERT(fPipelineBuilder);
             SkASSERT(fViewMatrix);
             SkASSERT(fPath);
             SkASSERT(fStroke);
@@ -151,11 +150,14 @@ public:
 #ifdef SK_DEBUG
         CanDrawPathArgs canArgs;
         canArgs.fShaderCaps = args.fTarget->caps()->shaderCaps();
-        canArgs.fPipelineBuilder = args.fPipelineBuilder;
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fPath = args.fPath;
         canArgs.fStroke = args.fStroke;
         canArgs.fAntiAlias = args.fAntiAlias;
+
+        canArgs.fIsStencilDisabled = args.fPipelineBuilder->getStencil().isDisabled();
+        canArgs.fIsStencilBufferMSAA = 
+                          args.fPipelineBuilder->getRenderTarget()->isStencilBufferMultisampled();
         SkASSERT(this->canDrawPath(canArgs));
         SkASSERT(args.fPipelineBuilder->getStencil().isDisabled() ||
                  kNoRestriction_StencilSupport == this->getStencilSupport(*args.fPath,

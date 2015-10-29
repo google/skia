@@ -11,7 +11,6 @@
 #include "GrClip.h"
 #include "GrColor.h"
 #include "GrPaint.h"
-#include "GrPathRendererChain.h"
 #include "GrRenderTarget.h"
 #include "GrTextureProvider.h"
 #include "SkMatrix.h"
@@ -32,7 +31,6 @@ class GrIndexBuffer;
 class GrLayerCache;
 class GrOvalRenderer;
 class GrPath;
-class GrPathRenderer;
 class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache;
@@ -43,7 +41,6 @@ class GrTextContext;
 class GrTextureParams;
 class GrVertexBuffer;
 class GrStrokeInfo;
-class GrSoftwarePathRenderer;
 class SkTraceMemoryDump;
 
 class SK_API GrContext : public SkRefCnt {
@@ -333,15 +330,6 @@ public:
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*);
 
-    GrPathRenderer* getPathRenderer(
-                    const GrPipelineBuilder&,
-                    const SkMatrix& viewMatrix,
-                    const SkPath& path,
-                    const GrStrokeInfo& stroke,
-                    bool allowSW,
-                    GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
-                    GrPathRendererChain::StencilSupport* stencilSupport = NULL);
-
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
     void printCacheStats() const;
@@ -376,9 +364,6 @@ private:
     SkAutoTDelete<GrLayerCache>     fLayerCache;
     SkAutoTDelete<GrTextBlobCache>  fTextBlobCache;
 
-    GrPathRendererChain*            fPathRendererChain;
-    GrSoftwarePathRenderer*         fSoftwarePathRenderer;
-
     // Set by OverbudgetCB() to request that GrContext flush before exiting a draw.
     bool                            fFlushToReduceCacheSize;
     bool                            fDidTestPMConversions;
@@ -407,6 +392,10 @@ private:
     const uint32_t                  fUniqueID;
 
     SkAutoTDelete<GrDrawingManager> fDrawingManager;
+
+    // TODO: have the CMM use drawContexts and rm this friending
+    friend class GrClipMaskManager; // the CMM is friended just so it can call 'drawingManager'
+    GrDrawingManager* drawingManager() { return fDrawingManager; }
 
     GrContext(); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);

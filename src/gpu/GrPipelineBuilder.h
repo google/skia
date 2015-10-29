@@ -229,11 +229,6 @@ public:
      */
     void setStencil(const GrStencilSettings& settings) { fStencilSettings = settings; }
 
-    /**
-     * Shortcut to disable stencil testing and ops.
-     */
-    void disableStencil() { fStencilSettings.setDisabled(); }
-
     GrStencilSettings* stencil() { return &fStencilSettings; }
 
     /**

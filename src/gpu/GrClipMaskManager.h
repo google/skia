@@ -76,6 +76,18 @@ private:
     inline const GrCaps* caps() const;
     inline GrResourceProvider* resourceProvider();
 
+    static bool PathNeedsSWRenderer(GrContext* context,
+                                    bool isStencilDisabled,
+                                    const GrRenderTarget* rt,
+                                    const SkMatrix& viewMatrix,
+                                    const SkClipStack::Element* element,
+                                    GrPathRenderer** prOut,
+                                    bool needsStencil);
+    static GrPathRenderer* GetPathRenderer(GrContext* context,
+                                           GrTexture* texture,
+                                           const SkMatrix& viewMatrix,
+                                           const SkClipStack::Element* element);
+
     /**
      * Informs the helper function adjustStencilParams() about how the stencil
      * buffer clip is being used.
@@ -125,8 +137,9 @@ private:
                                       const SkIRect& clipSpaceIBounds);
 
    bool useSWOnlyPath(const GrPipelineBuilder&,
-                       const SkVector& clipToMaskOffset,
-                       const GrReducedClip::ElementList& elements);
+                      const GrRenderTarget* rt,
+                      const SkVector& clipToMaskOffset,
+                      const GrReducedClip::ElementList& elements);
 
     // Draws a clip element into the target alpha mask. The caller should have already setup the
     // desired blend operation. Optionally if the caller already selected a path renderer it can

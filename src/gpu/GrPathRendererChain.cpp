@@ -39,18 +39,12 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
     return pr;
 }
 
-GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrShaderCaps* shaderCaps,
-                                                     const GrPipelineBuilder& pipelineBuilder,
-                                                     const SkMatrix& viewMatrix,
-                                                     const SkPath& path,
-                                                     const GrStrokeInfo& stroke,
+GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                                      DrawType drawType,
-                                                     StencilSupport* stencilSupport) {
+                                                     GrPathRenderer::StencilSupport* stencilSupport) {
     if (!fInit) {
         this->init();
     }
-    bool antiAlias = (kColorAntiAlias_DrawType == drawType ||
-                      kStencilAndColorAntiAlias_DrawType == drawType);
 
     GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
                      GrPathRenderer::kStencilOnly_StencilSupport);
@@ -68,17 +62,10 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrShaderCaps* shaderC
 
 
     for (int i = 0; i < fChain.count(); ++i) {
-        GrPathRenderer::CanDrawPathArgs args;
-        args.fShaderCaps = shaderCaps;
-        args.fPipelineBuilder = &pipelineBuilder;
-        args.fViewMatrix = &viewMatrix;
-        args.fPath = &path;
-        args.fStroke = &stroke;
-        args.fAntiAlias = antiAlias;
         if (fChain[i]->canDrawPath(args)) {
             if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
                 GrPathRenderer::StencilSupport support =
-                                                       fChain[i]->getStencilSupport(path, stroke);
+                                        fChain[i]->getStencilSupport(*args.fPath, *args.fStroke);
                 if (support < minStencilSupport) {
                     continue;
                 } else if (stencilSupport) {

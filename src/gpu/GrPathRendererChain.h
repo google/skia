@@ -8,11 +8,12 @@
 #ifndef GrPathRendererChain_DEFINED
 #define GrPathRendererChain_DEFINED
 
+#include "GrPathRenderer.h"
+
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
 class GrContext;
-class GrPathRenderer;
 class GrPipelineBuilder;
 class GrShaderCaps;
 class GrStrokeInfo;
@@ -27,19 +28,9 @@ class SkPath;
  */
 class GrPathRendererChain : public SkRefCnt {
 public:
-    // See comments in GrPathRenderer.h
-    enum StencilSupport {
-        kNoSupport_StencilSupport,
-        kStencilOnly_StencilSupport,
-        kNoRestriction_StencilSupport,
-    };
-
     GrPathRendererChain(GrContext* context);
 
     ~GrPathRendererChain();
-
-    // takes a ref and unrefs in destructor
-    GrPathRenderer* addPathRenderer(GrPathRenderer* pr);
 
     /** Documents how the caller plans to use a GrPathRenderer to draw a path. It affects the PR
         returned by getPathRenderer */
@@ -51,20 +42,20 @@ public:
         kStencilAndColorAntiAlias_DrawType  // draw the stencil and color buffer, with partial
                                             // coverage AA.
     };
+
     /** Returns a GrPathRenderer compatible with the request if one is available. If the caller
         is drawing the path to the stencil buffer then stencilSupport can be used to determine
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
         StencilSupport in GrPathRenderer.h. */
-    GrPathRenderer* getPathRenderer(const GrShaderCaps* shaderCaps,
-                                    const GrPipelineBuilder&,
-                                    const SkMatrix& viewMatrix,
-                                    const SkPath& path,
-                                    const GrStrokeInfo& stroke,
+    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                     DrawType drawType,
-                                    StencilSupport* stencilSupport);
+                                    GrPathRenderer::StencilSupport* stencilSupport);
 
 private:
     GrPathRendererChain();
+
+    // takes a ref and unrefs in destructor
+    GrPathRenderer* addPathRenderer(GrPathRenderer* pr);
 
     void init();
 

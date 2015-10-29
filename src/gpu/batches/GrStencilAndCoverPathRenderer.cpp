@@ -49,11 +49,11 @@ bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     if (args.fStroke->isHairlineStyle()) {
         return false;
     }
-    if (!args.fPipelineBuilder->getStencil().isDisabled()) {
+    if (!args.fIsStencilDisabled) {
         return false;
     }
     if (args.fAntiAlias) {
-        return args.fPipelineBuilder->getRenderTarget()->isStencilBufferMultisampled();
+        return args.fIsStencilBufferMSAA;
     } else {
         return true; // doesn't do per-path AA, relies on the target having MSAA
     }

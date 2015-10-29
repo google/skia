@@ -60,8 +60,6 @@ GrContext::GrContext() : fUniqueID(next_id()) {
     fCaps = nullptr;
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
-    fPathRendererChain = nullptr;
-    fSoftwarePathRenderer = nullptr;
     fBatchFontCache = nullptr;
     fFlushToReduceCacheSize = false;
 }
@@ -118,8 +116,6 @@ GrContext::~GrContext() {
 
     fGpu->unref();
     fCaps->unref();
-    SkSafeUnref(fPathRendererChain);
-    SkSafeUnref(fSoftwarePathRenderer);
 }
 
 void GrContext::abandonContext() {
@@ -129,11 +125,6 @@ void GrContext::abandonContext() {
     fResourceCache->abandonAll();
 
     fGpu->contextAbandoned();
-
-    // a path renderer may be holding onto resources that
-    // are now unusable
-    SkSafeSetNull(fPathRendererChain);
-    SkSafeSetNull(fSoftwarePathRenderer);
 
     fDrawingManager->abandon();
 
@@ -151,9 +142,8 @@ void GrContext::freeGpuResources() {
 
     fBatchFontCache->freeAll();
     fLayerCache->freeAll();
-    // a path renderer may be holding onto resources
-    SkSafeSetNull(fPathRendererChain);
-    SkSafeSetNull(fSoftwarePathRenderer);
+
+    fDrawingManager->freeGpuResources();
 
     fResourceCache->purgeAllUnlocked();
 }
@@ -533,42 +523,6 @@ void GrContext::flushSurfaceWrites(GrSurface* surface) {
     if (surface->surfacePriv().hasPendingWrite()) {
         this->flush();
     }
-}
-
-/*
- * This method finds a path renderer that can draw the specified path on
- * the provided target.
- * Due to its expense, the software path renderer has split out so it can
- * can be individually allowed/disallowed via the "allowSW" boolean.
- */
-GrPathRenderer* GrContext::getPathRenderer(const GrPipelineBuilder& pipelineBuilder,
-                                           const SkMatrix& viewMatrix,
-                                           const SkPath& path,
-                                           const GrStrokeInfo& stroke,
-                                           bool allowSW,
-                                           GrPathRendererChain::DrawType drawType,
-                                           GrPathRendererChain::StencilSupport* stencilSupport) {
-
-    if (!fPathRendererChain) {
-        fPathRendererChain = new GrPathRendererChain(this);
-    }
-
-    GrPathRenderer* pr = fPathRendererChain->getPathRenderer(this->caps()->shaderCaps(),
-                                                             pipelineBuilder,
-                                                             viewMatrix,
-                                                             path,
-                                                             stroke,
-                                                             drawType,
-                                                             stencilSupport);
-
-    if (!pr && allowSW) {
-        if (!fSoftwarePathRenderer) {
-            fSoftwarePathRenderer = new GrSoftwarePathRenderer(this);
-        }
-        pr = fSoftwarePathRenderer;
-    }
-
-    return pr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

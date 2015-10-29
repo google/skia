@@ -680,21 +680,28 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
     // thing WRT to the blend then we'll need some query on the PR.
     bool useCoverageAA = useAA &&
         !pipelineBuilder->getRenderTarget()->isUnifiedMultisampled();
+    bool isStencilDisabled = pipelineBuilder->getStencil().isDisabled();
+    bool isStencilBufferMSAA = pipelineBuilder->getRenderTarget()->isStencilBufferMultisampled();
 
-
-    GrPathRendererChain::DrawType type =
-        useCoverageAA ? GrPathRendererChain::kColorAntiAlias_DrawType :
-                        GrPathRendererChain::kColor_DrawType;
+    const GrPathRendererChain::DrawType type =
+        useCoverageAA ? GrPathRendererChain::kColorAntiAlias_DrawType
+                      : GrPathRendererChain::kColor_DrawType;
 
     const SkPath* pathPtr = &path;
     SkTLazy<SkPath> tmpPath;
     const GrStrokeInfo* strokeInfoPtr = &strokeInfo;
 
+    GrPathRenderer::CanDrawPathArgs canDrawArgs;
+    canDrawArgs.fShaderCaps = fDrawingManager->getContext()->caps()->shaderCaps();
+    canDrawArgs.fViewMatrix = &viewMatrix;
+    canDrawArgs.fPath = pathPtr;
+    canDrawArgs.fStroke = strokeInfoPtr;
+    canDrawArgs.fAntiAlias = useCoverageAA;
+    canDrawArgs.fIsStencilDisabled = isStencilDisabled;
+    canDrawArgs.fIsStencilBufferMSAA = isStencilBufferMSAA;
+
     // Try a 1st time without stroking the path and without allowing the SW renderer
-    GrPathRenderer* pr = fDrawingManager->getContext()->getPathRenderer(*pipelineBuilder,
-                                                                        viewMatrix, *pathPtr,
-                                                                        *strokeInfoPtr, false,
-                                                                        type);
+    GrPathRenderer* pr = fDrawingManager->getPathRenderer(canDrawArgs, false, type);
 
     GrStrokeInfo dashlessStrokeInfo(strokeInfo, false);
     if (nullptr == pr && strokeInfo.isDashed()) {
@@ -707,9 +714,11 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
             return;
         }
         strokeInfoPtr = &dashlessStrokeInfo;
-        pr = fDrawingManager->getContext()->getPathRenderer(*pipelineBuilder, viewMatrix,
-                                                            *pathPtr, *strokeInfoPtr,
-                                                            false, type);
+
+        canDrawArgs.fPath = pathPtr;
+        canDrawArgs.fStroke = strokeInfoPtr;
+
+        pr = fDrawingManager->getPathRenderer(canDrawArgs, false, type);
     }
 
     if (nullptr == pr) {
@@ -731,10 +740,11 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
             strokeInfoPtr = &dashlessStrokeInfo;
         }
 
+        canDrawArgs.fPath = pathPtr;
+        canDrawArgs.fStroke = strokeInfoPtr;
+
         // This time, allow SW renderer
-        pr = fDrawingManager->getContext()->getPathRenderer(*pipelineBuilder, viewMatrix,
-                                                            *pathPtr, *strokeInfoPtr,
-                                                            true, type);
+        pr = fDrawingManager->getPathRenderer(canDrawArgs, true, type);
     }
 
     if (nullptr == pr) {

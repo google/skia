@@ -10,6 +10,7 @@
 #include "GrDrawingManager.h"
 #include "GrDrawTarget.h"
 #include "GrResourceProvider.h"
+#include "GrSoftwarePathRenderer.h"
 #include "GrStencilAndCoverTextContext.h"
 #include "SkTTopoSort.h"
 
@@ -29,6 +30,9 @@ void GrDrawingManager::cleanup() {
         delete fTextContexts[i][1];
         fTextContexts[i][1] = nullptr;
     }
+
+    SkSafeSetNull(fPathRendererChain);
+    SkSafeSetNull(fSoftwarePathRenderer);
 }
 
 GrDrawingManager::~GrDrawingManager() {
@@ -38,6 +42,12 @@ GrDrawingManager::~GrDrawingManager() {
 void GrDrawingManager::abandon() {
     fAbandoned = true;
     this->cleanup();
+}
+
+void GrDrawingManager::freeGpuResources() {
+    // a path renderer may be holding onto resources
+    SkSafeSetNull(fPathRendererChain);
+    SkSafeSetNull(fSoftwarePathRenderer);
 }
 
 void GrDrawingManager::reset() {
@@ -114,7 +124,33 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     return SkRef(dt);
 }
 
-GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt, 
+/*
+ * This method finds a path renderer that can draw the specified path on
+ * the provided target.
+ * Due to its expense, the software path renderer has split out so it can
+ * can be individually allowed/disallowed via the "allowSW" boolean.
+ */
+GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
+                                                  bool allowSW,
+                                                  GrPathRendererChain::DrawType drawType,
+                                                  GrPathRenderer::StencilSupport* stencilSupport) {
+
+    if (!fPathRendererChain) {
+        fPathRendererChain = new GrPathRendererChain(fContext);
+    }
+
+    GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
+    if (!pr && allowSW) {
+        if (!fSoftwarePathRenderer) {
+            fSoftwarePathRenderer = new GrSoftwarePathRenderer(fContext);
+        }
+        pr = fSoftwarePathRenderer;
+    }
+
+    return pr;
+}
+
+GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
                                              const SkSurfaceProps* surfaceProps) {
     if (this->abandoned()) {
         return nullptr;
