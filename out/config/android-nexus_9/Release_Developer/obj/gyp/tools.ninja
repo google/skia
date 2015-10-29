@@ -1,0 +1,12 @@
+build obj/gyp/tools.actions_depends.stamp: stamp $
+    obj/gyp/libandroid_output.a skia_launcher lib/libbench_pictures.so.TOC $
+    obj/gyp/libbitmap_region_decoder.a lib/libchrome_fuzz.so.TOC $
+    lib/libdump_record.so.TOC lib/libfilter.so.TOC lib/libflatten.so.TOC $
+    lib/libgpuveto.so.TOC lib/liblua_app.so.TOC lib/liblua_pictures.so.TOC $
+    lib/libimgconv.so.TOC lib/libpinspect.so.TOC lib/librender_pdfs.so.TOC $
+    lib/librender_pictures.so.TOC lib/libskdiff.so.TOC $
+    lib/libskhello.so.TOC lib/libskp2svg.so.TOC lib/libskpdiff.so.TOC $
+    lib/libskpinfo.so.TOC lib/libskpmaker.so.TOC lib/libimgslice.so.TOC $
+    lib/libtest_image_decoder.so.TOC obj/gyp/libtest_public_includes.a $
+    lib/libwhitelist_typefaces.so.TOC skia.so.TOC
+

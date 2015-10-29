@@ -1,0 +1,15 @@
+build obj/gyp/CopyVisualBenchDeps.actions_depends.stamp: stamp $
+    lib/libskia_android.so.TOC lib/libvisualbench.so.TOC
+
+build $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libskia_android.so: $
+    copy lib/libskia_android.so || $
+    obj/gyp/CopyVisualBenchDeps.actions_depends.stamp
+build $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libvisualbench.so: $
+    copy lib/libvisualbench.so || $
+    obj/gyp/CopyVisualBenchDeps.actions_depends.stamp
+build obj/gyp/CopyVisualBenchDeps.actions_rules_copies.stamp: stamp $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libskia_android.so $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libvisualbench.so
+

@@ -1,0 +1,77 @@
+rule $
+    test_public_includes_target_generate_includes_cpp_ff215c1f141e8ebecc6818f238475d1a
+  command = cd ../../../../../../paintLib/skia/gyp; python $
+      ../tools/generate_includes_cpp.py --ignore $
+      "../include/gpu/gl/GrGLConfig_chrome.h $
+      ../include/ports/SkAtomics_std.h ../include/ports/SkAtomics_atomic.h $
+      ../include/ports/SkAtomics_sync.h $
+      ../include/ports/SkFontMgr_fontconfig.h $
+      ../include/ports/SkTypeface_mac.h ../include/ports/SkTypeface_win.h $
+      ../include/utils/ios ../include/utils/mac ../include/utils/win $
+      ../include/utils/SkDebugUtils.h ../include/utils/SkJSONCPP.h $
+      ../include/views/animated ../include/views/SkOSWindow_Android.h $
+      ../include/views/SkOSWindow_iOS.h ../include/views/SkOSWindow_Mac.h $
+      ../include/views/SkOSWindow_SDL.h ../include/views/SkOSWindow_Unix.h $
+      ../include/views/SkOSWindow_Win.h ../include/views/SkWindow.h" $
+      ../../../paintlib/skia/out/config/android-arm_v7_neon/Release/obj/gyp/test_public_includes.gen/test_public_includes.cpp $
+      ../include/animator ../include/c ../include/config ../include/core $
+      ../include/effects ../include/gpu ../include/images $
+      ../include/pathops ../include/pipe ../include/ports $
+      ../include/svg/parser ../include/utils ../include/views ../include/xml
+  description = ACTION test_public_includes: $
+      generate_includes_cpp_ff215c1f141e8ebecc6818f238475d1a
+  restat = 1
+
+build obj/gyp/test_public_includes.gen/test_public_includes.cpp: $
+    test_public_includes_target_generate_includes_cpp_ff215c1f141e8ebecc6818f238475d1a $
+    ../../../../../../paintLib/skia/tools/generate_includes_cpp.py $
+    ../../../../../../paintLib/skia/include/animator $
+    ../../../../../../paintLib/skia/include/c $
+    ../../../../../../paintLib/skia/include/config $
+    ../../../../../../paintLib/skia/include/core $
+    ../../../../../../paintLib/skia/include/effects $
+    ../../../../../../paintLib/skia/include/gpu $
+    ../../../../../../paintLib/skia/include/images $
+    ../../../../../../paintLib/skia/include/pathops $
+    ../../../../../../paintLib/skia/include/pipe $
+    ../../../../../../paintLib/skia/include/ports $
+    ../../../../../../paintLib/skia/include/svg/parser $
+    ../../../../../../paintLib/skia/include/utils $
+    ../../../../../../paintLib/skia/include/views $
+    ../../../../../../paintLib/skia/include/xml || skia_launcher
+
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DNDEBUG
+includes = -I../../../../../../paintLib/skia/include/animator $
+    -I../../../../../../paintLib/skia/include/c $
+    -I../../../../../../paintLib/skia/include/config $
+    -I../../../../../../paintLib/skia/include/core $
+    -I../../../../../../paintLib/skia/include/effects $
+    -I../../../../../../paintLib/skia/include/gpu $
+    -I../../../../../../paintLib/skia/include/images $
+    -I../../../../../../paintLib/skia/include/pathops $
+    -I../../../../../../paintLib/skia/include/pipe $
+    -I../../../../../../paintLib/skia/include/ports $
+    -I../../../../../../paintLib/skia/include/svg/parser $
+    -I../../../../../../paintLib/skia/include/utils $
+    -I../../../../../../paintLib/skia/include/views $
+    -I../../../../../../paintLib/skia/include/xml
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Werror -march=armv7-a $
+    -mthumb -mfpu=neon -mfloat-abi=softfp -fuse-ld=gold -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build $
+    obj/gyp/obj/gyp/test_public_includes.gen/test_public_includes.test_public_includes.o: $
+    cxx obj/gyp/test_public_includes.gen/test_public_includes.cpp || $
+    obj/gyp/test_public_includes.gen/test_public_includes.cpp
+
+build obj/gyp/libtest_public_includes.a: alink_thin $
+    obj/gyp/obj/gyp/test_public_includes.gen/test_public_includes.test_public_includes.o $
+    || obj/gyp/test_public_includes.gen/test_public_includes.cpp

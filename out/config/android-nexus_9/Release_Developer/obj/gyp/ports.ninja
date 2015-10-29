@@ -1,0 +1,84 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DSK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400 -DSK_CAN_USE_DLOPEN=0 $
+    -DNDEBUG -DSK_DEVELOPER=1
+includes = -I../../../../../../paintLib/skia/include/effects $
+    -I../../../../../../paintLib/skia/include/images $
+    -I../../../../../../paintLib/skia/include/ports $
+    -I../../../../../../paintLib/skia/include/private $
+    -I../../../../../../paintLib/skia/include/utils $
+    -I../../../../../../paintLib/skia/include/utils/win $
+    -I../../../../../../paintLib/skia/src/core $
+    -I../../../../../../paintLib/skia/src/lazy $
+    -I../../../../../../paintLib/skia/src/ports $
+    -I../../../../../../paintLib/skia/src/sfnt $
+    -I../../../../../../paintLib/skia/src/utils $
+    -I../../../../../../paintLib/skia/include/c $
+    -I../../../../../../paintLib/skia/include/config $
+    -I../../../../../../paintLib/skia/include/core $
+    -I../../../../../../paintLib/skia/include/pathops $
+    -I../../../../../../paintLib/skia/include/pipe $
+    -I../../../../../../paintLib/skia/third_party/freetype/include_overrides $
+    -I../../../../../../paintLib/skia/third_party/externals/freetype/include $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/expat/lib
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -fuse-ld=gold -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/src/fonts/ports.SkFontMgr_indirect.o: cxx $
+    ../../../../../../paintLib/skia/src/fonts/SkFontMgr_indirect.cpp
+build obj/src/fonts/ports.SkRemotableFontMgr.o: cxx $
+    ../../../../../../paintLib/skia/src/fonts/SkRemotableFontMgr.cpp
+build obj/src/ports/ports.SkFontMgr_android_factory.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkFontMgr_android_factory.cpp
+build obj/src/ports/ports.SkGlobalInitialization_default.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkGlobalInitialization_default.cpp
+build obj/src/ports/ports.SkMemory_malloc.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkMemory_malloc.cpp
+build obj/src/ports/ports.SkOSFile_posix.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkOSFile_posix.cpp
+build obj/src/ports/ports.SkOSFile_stdio.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkOSFile_stdio.cpp
+build obj/src/ports/ports.SkOSLibrary_posix.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkOSLibrary_posix.cpp
+build obj/src/ports/ports.SkDiscardableMemory_none.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkDiscardableMemory_none.cpp
+build obj/src/ports/ports.SkTime_Unix.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkTime_Unix.cpp
+build obj/src/ports/ports.SkTLS_pthread.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkTLS_pthread.cpp
+build obj/src/ports/ports.SkFontHost_FreeType.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkFontHost_FreeType.cpp
+build obj/src/ports/ports.SkFontHost_FreeType_common.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkFontHost_FreeType_common.cpp
+build obj/src/ports/ports.SkFontMgr_android.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkFontMgr_android.cpp
+build obj/src/ports/ports.SkFontMgr_android_parser.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkFontMgr_android_parser.cpp
+build obj/src/ports/ports.SkFontMgr_custom.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkFontMgr_custom.cpp
+build obj/src/ports/ports.SkDebug_android.o: cxx $
+    ../../../../../../paintLib/skia/src/ports/SkDebug_android.cpp
+
+build libskia_ports.a: alink obj/src/fonts/ports.SkFontMgr_indirect.o $
+    obj/src/fonts/ports.SkRemotableFontMgr.o $
+    obj/src/ports/ports.SkFontMgr_android_factory.o $
+    obj/src/ports/ports.SkGlobalInitialization_default.o $
+    obj/src/ports/ports.SkMemory_malloc.o $
+    obj/src/ports/ports.SkOSFile_posix.o $
+    obj/src/ports/ports.SkOSFile_stdio.o $
+    obj/src/ports/ports.SkOSLibrary_posix.o $
+    obj/src/ports/ports.SkDiscardableMemory_none.o $
+    obj/src/ports/ports.SkTime_Unix.o obj/src/ports/ports.SkTLS_pthread.o $
+    obj/src/ports/ports.SkFontHost_FreeType.o $
+    obj/src/ports/ports.SkFontHost_FreeType_common.o $
+    obj/src/ports/ports.SkFontMgr_android.o $
+    obj/src/ports/ports.SkFontMgr_android_parser.o $
+    obj/src/ports/ports.SkFontMgr_custom.o $
+    obj/src/ports/ports.SkDebug_android.o || libfreetype_static.a

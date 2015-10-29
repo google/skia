@@ -1,0 +1,79 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DNDEBUG
+includes = $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -fuse-ld=gold -w -fvisibility=hidden -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/platform_tools/android/third_party/externals/png/png.png.o: cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/png.c
+build obj/platform_tools/android/third_party/externals/png/png.pngerror.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngerror.c
+build obj/platform_tools/android/third_party/externals/png/png.pnggccrd.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pnggccrd.c
+build obj/platform_tools/android/third_party/externals/png/png.pngget.o: cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngget.c
+build obj/platform_tools/android/third_party/externals/png/png.pngmem.o: cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngmem.c
+build obj/platform_tools/android/third_party/externals/png/png.pngpread.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngpread.c
+build obj/platform_tools/android/third_party/externals/png/png.pngread.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngread.c
+build obj/platform_tools/android/third_party/externals/png/png.pngrio.o: cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngrio.c
+build obj/platform_tools/android/third_party/externals/png/png.pngrtran.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngrtran.c
+build obj/platform_tools/android/third_party/externals/png/png.pngrutil.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngrutil.c
+build obj/platform_tools/android/third_party/externals/png/png.pngset.o: cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngset.c
+build obj/platform_tools/android/third_party/externals/png/png.pngtrans.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngtrans.c
+build obj/platform_tools/android/third_party/externals/png/png.pngvcrd.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngvcrd.c
+build obj/platform_tools/android/third_party/externals/png/png.pngwio.o: cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngwio.c
+build obj/platform_tools/android/third_party/externals/png/png.pngwrite.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngwrite.c
+build obj/platform_tools/android/third_party/externals/png/png.pngwtran.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngwtran.c
+build obj/platform_tools/android/third_party/externals/png/png.pngwutil.o: $
+    cc $
+    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png/pngwutil.c
+
+build obj/gyp/libpng.a: alink_thin $
+    obj/platform_tools/android/third_party/externals/png/png.png.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngerror.o $
+    obj/platform_tools/android/third_party/externals/png/png.pnggccrd.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngget.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngmem.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngpread.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngread.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngrio.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngrtran.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngrutil.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngset.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngtrans.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngvcrd.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngwio.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngwrite.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngwtran.o $
+    obj/platform_tools/android/third_party/externals/png/png.pngwutil.o

@@ -1,0 +1,273 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DSFNTLY_NO_EXCEPTION -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 $
+    -DU_STATIC_IMPLEMENTATION -DNDEBUG
+includes = -I../../../../../../paintLib/skia/third_party/externals/sfntly $
+    -I../../../../../../paintLib/skia/third_party/externals/icu/source/common
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -fuse-ld=gold -fPIC -g -fno-exceptions -fstrict-aliasing -Wall $
+    -Wextra -Winit-self -Wpointer-arith -Wsign-compare $
+    -Wno-unused-parameter -Werror -fuse-ld=gold -O2 -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor $
+    -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build $
+    obj/third_party/externals/sfntly/sample/chromium/sfntly.font_subsetter.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sample/chromium/font_subsetter.cc
+build $
+    obj/third_party/externals/sfntly/sample/chromium/sfntly.subsetter_impl.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sample/chromium/subsetter_impl.cc
+build obj/third_party/externals/sfntly/sfntly/sfntly.font.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/font.cc
+build obj/third_party/externals/sfntly/sfntly/sfntly.font_factory.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/font_factory.cc
+build obj/third_party/externals/sfntly/sfntly/sfntly.tag.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/tag.cc
+build obj/third_party/externals/sfntly/sfntly/data/sfntly.byte_array.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/byte_array.cc
+build obj/third_party/externals/sfntly/sfntly/data/sfntly.font_data.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/font_data.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.font_input_stream.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/font_input_stream.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.font_output_stream.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/font_output_stream.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.growable_memory_byte_array.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/growable_memory_byte_array.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.memory_byte_array.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/memory_byte_array.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.readable_font_data.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/readable_font_data.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.writable_font_data.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/data/writable_font_data.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/port/sfntly.file_input_stream.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/port/file_input_stream.cc
+build obj/third_party/externals/sfntly/sfntly/port/sfntly.lock.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/port/lock.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/port/sfntly.memory_input_stream.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/port/memory_input_stream.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/port/sfntly.memory_output_stream.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/port/memory_output_stream.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.byte_array_table_builder.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/byte_array_table_builder.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.font_data_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/font_data_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.generic_table_builder.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/generic_table_builder.cc
+build obj/third_party/externals/sfntly/sfntly/table/sfntly.header.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/header.cc
+build obj/third_party/externals/sfntly/sfntly/table/sfntly.subtable.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/subtable.cc
+build obj/third_party/externals/sfntly/sfntly/table/sfntly.table.o: cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.table_based_table_builder.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/table_based_table_builder.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.big_glyph_metrics.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/big_glyph_metrics.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.bitmap_glyph.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/bitmap_glyph.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.bitmap_glyph_info.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/bitmap_glyph_info.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.bitmap_size_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/bitmap_size_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.composite_bitmap_glyph.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/composite_bitmap_glyph.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.ebdt_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/ebdt_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.eblc_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/eblc_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.ebsc_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/ebsc_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.glyph_metrics.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/glyph_metrics.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/index_sub_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format1.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/index_sub_table_format1.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format2.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/index_sub_table_format2.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format3.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/index_sub_table_format3.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format4.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/index_sub_table_format4.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format5.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/index_sub_table_format5.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.simple_bitmap_glyph.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/simple_bitmap_glyph.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.small_glyph_metrics.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/bitmap/small_glyph_metrics.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.cmap_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/cmap_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.font_header_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/font_header_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.horizontal_device_metrics_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/horizontal_device_metrics_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.horizontal_header_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/horizontal_header_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.horizontal_metrics_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/horizontal_metrics_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.maximum_profile_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/maximum_profile_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.name_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/name_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.os2_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/core/os2_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/truetype/sfntly.glyph_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/truetype/glyph_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/table/truetype/sfntly.loca_table.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/table/truetype/loca_table.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/tools/subsetter/sfntly.glyph_table_subsetter.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/tools/subsetter/glyph_table_subsetter.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/tools/subsetter/sfntly.subsetter.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/tools/subsetter/subsetter.cc
+build $
+    obj/third_party/externals/sfntly/sfntly/tools/subsetter/sfntly.table_subsetter_impl.o: $
+    cxx $
+    ../../../../../../paintLib/skia/third_party/externals/sfntly/sfntly/tools/subsetter/table_subsetter_impl.cc
+
+build obj/gyp/libsfntly.a: alink_thin $
+    obj/third_party/externals/sfntly/sample/chromium/sfntly.font_subsetter.o $
+    obj/third_party/externals/sfntly/sample/chromium/sfntly.subsetter_impl.o $
+    obj/third_party/externals/sfntly/sfntly/sfntly.font.o $
+    obj/third_party/externals/sfntly/sfntly/sfntly.font_factory.o $
+    obj/third_party/externals/sfntly/sfntly/sfntly.tag.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.byte_array.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.font_data.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.font_input_stream.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.font_output_stream.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.growable_memory_byte_array.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.memory_byte_array.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.readable_font_data.o $
+    obj/third_party/externals/sfntly/sfntly/data/sfntly.writable_font_data.o $
+    obj/third_party/externals/sfntly/sfntly/port/sfntly.file_input_stream.o $
+    obj/third_party/externals/sfntly/sfntly/port/sfntly.lock.o $
+    obj/third_party/externals/sfntly/sfntly/port/sfntly.memory_input_stream.o $
+    obj/third_party/externals/sfntly/sfntly/port/sfntly.memory_output_stream.o $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.byte_array_table_builder.o $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.font_data_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.generic_table_builder.o $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.header.o $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.subtable.o $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.table.o $
+    obj/third_party/externals/sfntly/sfntly/table/sfntly.table_based_table_builder.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.big_glyph_metrics.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.bitmap_glyph.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.bitmap_glyph_info.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.bitmap_size_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.composite_bitmap_glyph.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.ebdt_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.eblc_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.ebsc_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.glyph_metrics.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format1.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format2.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format3.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format4.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.index_sub_table_format5.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.simple_bitmap_glyph.o $
+    obj/third_party/externals/sfntly/sfntly/table/bitmap/sfntly.small_glyph_metrics.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.cmap_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.font_header_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.horizontal_device_metrics_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.horizontal_header_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.horizontal_metrics_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.maximum_profile_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.name_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/core/sfntly.os2_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/truetype/sfntly.glyph_table.o $
+    obj/third_party/externals/sfntly/sfntly/table/truetype/sfntly.loca_table.o $
+    obj/third_party/externals/sfntly/sfntly/tools/subsetter/sfntly.glyph_table_subsetter.o $
+    obj/third_party/externals/sfntly/sfntly/tools/subsetter/sfntly.subsetter.o $
+    obj/third_party/externals/sfntly/sfntly/tools/subsetter/sfntly.table_subsetter_impl.o

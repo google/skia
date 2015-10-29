@@ -1,0 +1,22 @@
+rule $
+    VisualBenchTest_APK_target_SkiaVisualBench_apk_7e9c466ace8689e7fe21e9fbf03d6df5
+  command = cd ../../../../../../paintLib/skia/gyp; $
+      /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/gradlew $
+      :visualbench:assemblearm64DebugAndroidTest $
+      -p/Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench $
+      -PsuppressNativeBuild
+  description = ACTION VisualBenchTest_APK: $
+      SkiaVisualBench_apk_7e9c466ace8689e7fe21e9fbf03d6df5
+  restat = 1
+
+build $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm64-debug-androidTest-unaligned.apk: $
+    VisualBenchTest_APK_target_SkiaVisualBench_apk_7e9c466ace8689e7fe21e9fbf03d6df5 $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/AndroidManifest.xml $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/java/com/skia/VisualBenchActivity.java $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/java/com/skia/VisualBenchTestActivity.java $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libvisualbench.so $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libskia_android.so $
+    || $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm64-debug.apk
+

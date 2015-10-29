@@ -1,0 +1,47 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
+    -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
+    -DHAVE_CONFIG_H -DWEBP_SWAP_16BIT_CSP -DNDEBUG -DSK_DEVELOPER=1
+includes = -I../../../../../../paintLib/skia/third_party/externals/libwebp $
+    -I../../../../../../paintLib/skia/third_party/libwebp/webp
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -fuse-ld=gold -w -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.alpha.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/alpha.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.buffer.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/buffer.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.frame.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/frame.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.idec.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/idec.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.io.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/io.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.quant.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/quant.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.tree.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/tree.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.vp8.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/vp8.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.vp8l.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/vp8l.c
+build obj/third_party/externals/libwebp/src/dec/libwebp_dec.webp.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/dec/webp.c
+
+build obj/gyp/libwebp_dec.a: alink_thin $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.alpha.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.buffer.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.frame.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.idec.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.io.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.quant.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.tree.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.vp8.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.vp8l.o $
+    obj/third_party/externals/libwebp/src/dec/libwebp_dec.webp.o
