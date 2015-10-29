@@ -1,0 +1,580 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DNDEBUG
+includes = -I../../../../../../paintLib/skia/include/c $
+    -I../../../../../../paintLib/skia/include/config $
+    -I../../../../../../paintLib/skia/include/core $
+    -I../../../../../../paintLib/skia/include/pathops $
+    -I../../../../../../paintLib/skia/include/pipe $
+    -I../../../../../../paintLib/skia/include/ports $
+    -I../../../../../../paintLib/skia/include/private $
+    -I../../../../../../paintLib/skia/include/utils $
+    -I../../../../../../paintLib/skia/include/images $
+    -I../../../../../../paintLib/skia/src/core $
+    -I../../../../../../paintLib/skia/src/sfnt $
+    -I../../../../../../paintLib/skia/src/image $
+    -I../../../../../../paintLib/skia/src/opts $
+    -I../../../../../../paintLib/skia/src/utils $
+    -I../../../../../../paintLib/skia/include/gpu $
+    -I../../../../../../paintLib/skia/src/gpu $
+    -I../../../../../../paintLib/skia/platform_tools/android/third_party/cpufeatures
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
+    -fuse-ld=gold -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/src/c/core.sk_paint.o: cxx $
+    ../../../../../../paintLib/skia/src/c/sk_paint.cpp
+build obj/src/c/core.sk_surface.o: cxx $
+    ../../../../../../paintLib/skia/src/c/sk_surface.cpp
+build obj/src/core/core.SkAAClip.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkAAClip.cpp
+build obj/src/core/core.SkAnnotation.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkAnnotation.cpp
+build obj/src/core/core.SkAdvancedTypefaceMetrics.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkAdvancedTypefaceMetrics.cpp
+build obj/src/core/core.SkAlphaRuns.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkAlphaRuns.cpp
+build obj/src/core/core.SkBBHFactory.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBBHFactory.cpp
+build obj/src/core/core.SkBigPicture.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBigPicture.cpp
+build obj/src/core/core.SkBitmap.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmap.cpp
+build obj/src/core/core.SkBitmapCache.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapCache.cpp
+build obj/src/core/core.SkBitmapController.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapController.cpp
+build obj/src/core/core.SkBitmapDevice.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapDevice.cpp
+build obj/src/core/core.SkBitmapFilter.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapFilter.cpp
+build obj/src/core/core.SkBitmapHeap.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapHeap.cpp
+build obj/src/core/core.SkBitmapProcShader.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapProcShader.cpp
+build obj/src/core/core.SkBitmapProcState.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapProcState.cpp
+build obj/src/core/core.SkBitmapProcState_matrixProcs.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapProcState_matrixProcs.cpp
+build obj/src/core/core.SkBitmapProvider.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapProvider.cpp
+build obj/src/core/core.SkBitmapScaler.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBitmapScaler.cpp
+build obj/src/core/core.SkBlitMask_D32.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitMask_D32.cpp
+build obj/src/core/core.SkBlitRow_D16.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitRow_D16.cpp
+build obj/src/core/core.SkBlitRow_D32.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitRow_D32.cpp
+build obj/src/core/core.SkBlitter.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitter.cpp
+build obj/src/core/core.SkBlitter_A8.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitter_A8.cpp
+build obj/src/core/core.SkBlitter_ARGB32.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitter_ARGB32.cpp
+build obj/src/core/core.SkBlitter_RGB16.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitter_RGB16.cpp
+build obj/src/core/core.SkBlitter_Sprite.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBlitter_Sprite.cpp
+build obj/src/core/core.SkBuffer.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkBuffer.cpp
+build obj/src/core/core.SkCachedData.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkCachedData.cpp
+build obj/src/core/core.SkCanvas.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkCanvas.cpp
+build obj/src/core/core.SkChunkAlloc.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkChunkAlloc.cpp
+build obj/src/core/core.SkClipStack.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkClipStack.cpp
+build obj/src/core/core.SkColor.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkColor.cpp
+build obj/src/core/core.SkColorFilter.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkColorFilter.cpp
+build obj/src/core/core.SkColorTable.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkColorTable.cpp
+build obj/src/core/core.SkComposeShader.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkComposeShader.cpp
+build obj/src/core/core.SkConfig8888.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkConfig8888.cpp
+build obj/src/core/core.SkConvolver.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkConvolver.cpp
+build obj/src/core/core.SkCubicClipper.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkCubicClipper.cpp
+build obj/src/core/core.SkData.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkData.cpp
+build obj/src/core/core.SkDataTable.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDataTable.cpp
+build obj/src/core/core.SkDebug.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDebug.cpp
+build obj/src/core/core.SkDeque.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDeque.cpp
+build obj/src/core/core.SkDevice.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDevice.cpp
+build obj/src/core/core.SkDeviceLooper.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDeviceLooper.cpp
+build obj/src/core/core.SkDeviceProfile.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDeviceProfile.cpp
+build obj/src/lazy/core.SkDiscardableMemoryPool.o: cxx $
+    ../../../../../../paintLib/skia/src/lazy/SkDiscardableMemoryPool.cpp
+build obj/src/lazy/core.SkDiscardablePixelRef.o: cxx $
+    ../../../../../../paintLib/skia/src/lazy/SkDiscardablePixelRef.cpp
+build obj/src/core/core.SkDistanceFieldGen.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDistanceFieldGen.cpp
+build obj/src/core/core.SkDither.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDither.cpp
+build obj/src/core/core.SkDraw.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDraw.cpp
+build obj/src/core/core.SkDrawable.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDrawable.cpp
+build obj/src/core/core.SkDrawLooper.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkDrawLooper.cpp
+build obj/src/core/core.SkEdgeBuilder.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkEdgeBuilder.cpp
+build obj/src/core/core.SkEdgeClipper.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkEdgeClipper.cpp
+build obj/src/core/core.SkEdge.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkEdge.cpp
+build obj/src/core/core.SkError.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkError.cpp
+build obj/src/core/core.SkFilterProc.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFilterProc.cpp
+build obj/src/core/core.SkFilterShader.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFilterShader.cpp
+build obj/src/core/core.SkFlattenable.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFlattenable.cpp
+build obj/src/core/core.SkFlattenableSerialization.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFlattenableSerialization.cpp
+build obj/src/core/core.SkFloatBits.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFloatBits.cpp
+build obj/src/core/core.SkFont.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFont.cpp
+build obj/src/core/core.SkFontHost.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFontHost.cpp
+build obj/src/core/core.SkFontMgr.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFontMgr.cpp
+build obj/src/core/core.SkFontStyle.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFontStyle.cpp
+build obj/src/core/core.SkFontDescriptor.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFontDescriptor.cpp
+build obj/src/core/core.SkFontStream.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkFontStream.cpp
+build obj/src/core/core.SkGeometry.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkGeometry.cpp
+build obj/src/core/core.SkGlyphCache.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkGlyphCache.cpp
+build obj/src/core/core.SkGraphics.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkGraphics.cpp
+build obj/src/core/core.SkHalf.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkHalf.cpp
+build obj/src/core/core.SkImageFilter.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkImageFilter.cpp
+build obj/src/core/core.SkImageInfo.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkImageInfo.cpp
+build obj/src/core/core.SkImageCacherator.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkImageCacherator.cpp
+build obj/src/core/core.SkImageGenerator.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkImageGenerator.cpp
+build obj/src/core/core.SkLightingShader.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkLightingShader.cpp
+build obj/src/core/core.SkLineClipper.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkLineClipper.cpp
+build obj/src/core/core.SkLocalMatrixShader.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkLocalMatrixShader.cpp
+build obj/src/core/core.SkMallocPixelRef.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMallocPixelRef.cpp
+build obj/src/core/core.SkMask.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMask.cpp
+build obj/src/core/core.SkMaskCache.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMaskCache.cpp
+build obj/src/core/core.SkMaskFilter.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMaskFilter.cpp
+build obj/src/core/core.SkMaskGamma.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMaskGamma.cpp
+build obj/src/core/core.SkMath.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMath.cpp
+build obj/src/core/core.SkMatrix.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMatrix.cpp
+build obj/src/core/core.SkMatrixImageFilter.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMatrixImageFilter.cpp
+build obj/src/core/core.SkMetaData.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMetaData.cpp
+build obj/src/core/core.SkMipMap.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMipMap.cpp
+build obj/src/core/core.SkMiniRecorder.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMiniRecorder.cpp
+build obj/src/core/core.SkMultiPictureDraw.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkMultiPictureDraw.cpp
+build obj/src/core/core.SkNinePatchIter.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkNinePatchIter.cpp
+build obj/src/core/core.SkOpts.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkOpts.cpp
+build obj/src/core/core.SkPackBits.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPackBits.cpp
+build obj/src/core/core.SkPaint.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPaint.cpp
+build obj/src/core/core.SkPaintPriv.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPaintPriv.cpp
+build obj/src/core/core.SkPath.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPath.cpp
+build obj/src/core/core.SkPathEffect.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPathEffect.cpp
+build obj/src/core/core.SkPathMeasure.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPathMeasure.cpp
+build obj/src/core/core.SkPathRef.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPathRef.cpp
+build obj/src/core/core.SkPicture.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPicture.cpp
+build obj/src/core/core.SkPictureContentInfo.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPictureContentInfo.cpp
+build obj/src/core/core.SkPictureData.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPictureData.cpp
+build obj/src/core/core.SkPictureFlat.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPictureFlat.cpp
+build obj/src/core/core.SkPictureImageGenerator.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPictureImageGenerator.cpp
+build obj/src/core/core.SkPicturePlayback.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPicturePlayback.cpp
+build obj/src/core/core.SkPictureRecord.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPictureRecord.cpp
+build obj/src/core/core.SkPictureRecorder.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPictureRecorder.cpp
+build obj/src/core/core.SkPictureShader.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPictureShader.cpp
+build obj/src/core/core.SkPixelRef.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPixelRef.cpp
+build obj/src/core/core.SkPixmap.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPixmap.cpp
+build obj/src/core/core.SkPoint.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPoint.cpp
+build obj/src/core/core.SkPoint3.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPoint3.cpp
+build obj/src/core/core.SkPtrRecorder.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkPtrRecorder.cpp
+build obj/src/core/core.SkQuadClipper.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkQuadClipper.cpp
+build obj/src/core/core.SkRasterClip.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRasterClip.cpp
+build obj/src/core/core.SkRasterizer.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRasterizer.cpp
+build obj/src/core/core.SkReadBuffer.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkReadBuffer.cpp
+build obj/src/core/core.SkRecord.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRecord.cpp
+build obj/src/core/core.SkRecords.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRecords.cpp
+build obj/src/core/core.SkRecordDraw.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRecordDraw.cpp
+build obj/src/core/core.SkRecordOpts.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRecordOpts.cpp
+build obj/src/core/core.SkRecorder.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRecorder.cpp
+build obj/src/core/core.SkRect.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRect.cpp
+build obj/src/core/core.SkRefDict.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRefDict.cpp
+build obj/src/core/core.SkRegion.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRegion.cpp
+build obj/src/core/core.SkRegion_path.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRegion_path.cpp
+build obj/src/core/core.SkResourceCache.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkResourceCache.cpp
+build obj/src/core/core.SkRRect.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRRect.cpp
+build obj/src/core/core.SkRTree.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRTree.cpp
+build obj/src/core/core.SkRWBuffer.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkRWBuffer.cpp
+build obj/src/core/core.SkScalar.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkScalar.cpp
+build obj/src/core/core.SkScalerContext.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkScalerContext.cpp
+build obj/src/core/core.SkScan.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkScan.cpp
+build obj/src/core/core.SkScan_AntiPath.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkScan_AntiPath.cpp
+build obj/src/core/core.SkScan_Antihair.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkScan_Antihair.cpp
+build obj/src/core/core.SkScan_Hairline.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkScan_Hairline.cpp
+build obj/src/core/core.SkScan_Path.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkScan_Path.cpp
+build obj/src/core/core.SkSemaphore.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkSemaphore.cpp
+build obj/src/core/core.SkShader.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkShader.cpp
+build obj/src/core/core.SkSharedMutex.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkSharedMutex.cpp
+build obj/src/core/core.SkSpinlock.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkSpinlock.cpp
+build obj/src/core/core.SkSpriteBlitter_ARGB32.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkSpriteBlitter_ARGB32.cpp
+build obj/src/core/core.SkSpriteBlitter_RGB16.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkSpriteBlitter_RGB16.cpp
+build obj/src/core/core.SkStream.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkStream.cpp
+build obj/src/core/core.SkString.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkString.cpp
+build obj/src/core/core.SkStringUtils.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkStringUtils.cpp
+build obj/src/core/core.SkStroke.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkStroke.cpp
+build obj/src/core/core.SkStrokeRec.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkStrokeRec.cpp
+build obj/src/core/core.SkStrokerPriv.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkStrokerPriv.cpp
+build obj/src/core/core.SkTaskGroup.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkTaskGroup.cpp
+build obj/src/core/core.SkTextBlob.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkTextBlob.cpp
+build obj/src/core/core.SkTime.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkTime.cpp
+build obj/src/core/core.SkThreadID.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkThreadID.cpp
+build obj/src/core/core.SkTLS.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkTLS.cpp
+build obj/src/core/core.SkTSearch.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkTSearch.cpp
+build obj/src/core/core.SkTypeface.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkTypeface.cpp
+build obj/src/core/core.SkTypefaceCache.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkTypefaceCache.cpp
+build obj/src/core/core.SkUnPreMultiply.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkUnPreMultiply.cpp
+build obj/src/core/core.SkUtils.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkUtils.cpp
+build obj/src/core/core.SkValidatingReadBuffer.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkValidatingReadBuffer.cpp
+build obj/src/core/core.SkVarAlloc.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkVarAlloc.cpp
+build obj/src/core/core.SkVertState.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkVertState.cpp
+build obj/src/core/core.SkWriteBuffer.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkWriteBuffer.cpp
+build obj/src/core/core.SkWriter32.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkWriter32.cpp
+build obj/src/core/core.SkXfermode.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkXfermode.cpp
+build obj/src/core/core.SkXfermodeInterpretation.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkXfermodeInterpretation.cpp
+build obj/src/core/core.SkYUVPlanesCache.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkYUVPlanesCache.cpp
+build obj/src/doc/core.SkDocument.o: cxx $
+    ../../../../../../paintLib/skia/src/doc/SkDocument.cpp
+build obj/src/image/core.SkImage.o: cxx $
+    ../../../../../../paintLib/skia/src/image/SkImage.cpp
+build obj/src/image/core.SkImage_Generator.o: cxx $
+    ../../../../../../paintLib/skia/src/image/SkImage_Generator.cpp
+build obj/src/image/core.SkImage_Raster.o: cxx $
+    ../../../../../../paintLib/skia/src/image/SkImage_Raster.cpp
+build obj/src/image/core.SkImageShader.o: cxx $
+    ../../../../../../paintLib/skia/src/image/SkImageShader.cpp
+build obj/src/image/core.SkSurface.o: cxx $
+    ../../../../../../paintLib/skia/src/image/SkSurface.cpp
+build obj/src/image/core.SkSurface_Raster.o: cxx $
+    ../../../../../../paintLib/skia/src/image/SkSurface_Raster.cpp
+build obj/src/pipe/core.SkGPipeRead.o: cxx $
+    ../../../../../../paintLib/skia/src/pipe/SkGPipeRead.cpp
+build obj/src/pipe/core.SkGPipeWrite.o: cxx $
+    ../../../../../../paintLib/skia/src/pipe/SkGPipeWrite.cpp
+build obj/src/pathops/core.SkAddIntersections.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkAddIntersections.cpp
+build obj/src/pathops/core.SkDConicLineIntersection.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkDConicLineIntersection.cpp
+build obj/src/pathops/core.SkDCubicLineIntersection.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkDCubicLineIntersection.cpp
+build obj/src/pathops/core.SkDCubicToQuads.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkDCubicToQuads.cpp
+build obj/src/pathops/core.SkDLineIntersection.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkDLineIntersection.cpp
+build obj/src/pathops/core.SkDQuadLineIntersection.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkDQuadLineIntersection.cpp
+build obj/src/pathops/core.SkIntersections.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkIntersections.cpp
+build obj/src/pathops/core.SkOpAngle.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpAngle.cpp
+build obj/src/pathops/core.SkOpBuilder.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpBuilder.cpp
+build obj/src/pathops/core.SkOpCoincidence.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpCoincidence.cpp
+build obj/src/pathops/core.SkOpContour.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpContour.cpp
+build obj/src/pathops/core.SkOpCubicHull.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpCubicHull.cpp
+build obj/src/pathops/core.SkOpEdgeBuilder.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpEdgeBuilder.cpp
+build obj/src/pathops/core.SkOpSegment.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpSegment.cpp
+build obj/src/pathops/core.SkOpSpan.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkOpSpan.cpp
+build obj/src/pathops/core.SkPathOpsCommon.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsCommon.cpp
+build obj/src/pathops/core.SkPathOpsConic.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsConic.cpp
+build obj/src/pathops/core.SkPathOpsCubic.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsCubic.cpp
+build obj/src/pathops/core.SkPathOpsCurve.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsCurve.cpp
+build obj/src/pathops/core.SkPathOpsDebug.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsDebug.cpp
+build obj/src/pathops/core.SkPathOpsLine.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsLine.cpp
+build obj/src/pathops/core.SkPathOpsOp.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsOp.cpp
+build obj/src/pathops/core.SkPathOpsPoint.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsPoint.cpp
+build obj/src/pathops/core.SkPathOpsQuad.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsQuad.cpp
+build obj/src/pathops/core.SkPathOpsRect.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsRect.cpp
+build obj/src/pathops/core.SkPathOpsSimplify.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsSimplify.cpp
+build obj/src/pathops/core.SkPathOpsTSect.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsTSect.cpp
+build obj/src/pathops/core.SkPathOpsTightBounds.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsTightBounds.cpp
+build obj/src/pathops/core.SkPathOpsTypes.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsTypes.cpp
+build obj/src/pathops/core.SkPathOpsWinding.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathOpsWinding.cpp
+build obj/src/pathops/core.SkPathWriter.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkPathWriter.cpp
+build obj/src/pathops/core.SkReduceOrder.o: cxx $
+    ../../../../../../paintLib/skia/src/pathops/SkReduceOrder.cpp
+build obj/src/core/core.SkUtilsArm.o: cxx $
+    ../../../../../../paintLib/skia/src/core/SkUtilsArm.cpp
+
+build libskia_core.a: alink obj/src/c/core.sk_paint.o $
+    obj/src/c/core.sk_surface.o obj/src/core/core.SkAAClip.o $
+    obj/src/core/core.SkAnnotation.o $
+    obj/src/core/core.SkAdvancedTypefaceMetrics.o $
+    obj/src/core/core.SkAlphaRuns.o obj/src/core/core.SkBBHFactory.o $
+    obj/src/core/core.SkBigPicture.o obj/src/core/core.SkBitmap.o $
+    obj/src/core/core.SkBitmapCache.o $
+    obj/src/core/core.SkBitmapController.o $
+    obj/src/core/core.SkBitmapDevice.o obj/src/core/core.SkBitmapFilter.o $
+    obj/src/core/core.SkBitmapHeap.o obj/src/core/core.SkBitmapProcShader.o $
+    obj/src/core/core.SkBitmapProcState.o $
+    obj/src/core/core.SkBitmapProcState_matrixProcs.o $
+    obj/src/core/core.SkBitmapProvider.o obj/src/core/core.SkBitmapScaler.o $
+    obj/src/core/core.SkBlitMask_D32.o obj/src/core/core.SkBlitRow_D16.o $
+    obj/src/core/core.SkBlitRow_D32.o obj/src/core/core.SkBlitter.o $
+    obj/src/core/core.SkBlitter_A8.o obj/src/core/core.SkBlitter_ARGB32.o $
+    obj/src/core/core.SkBlitter_RGB16.o $
+    obj/src/core/core.SkBlitter_Sprite.o obj/src/core/core.SkBuffer.o $
+    obj/src/core/core.SkCachedData.o obj/src/core/core.SkCanvas.o $
+    obj/src/core/core.SkChunkAlloc.o obj/src/core/core.SkClipStack.o $
+    obj/src/core/core.SkColor.o obj/src/core/core.SkColorFilter.o $
+    obj/src/core/core.SkColorTable.o obj/src/core/core.SkComposeShader.o $
+    obj/src/core/core.SkConfig8888.o obj/src/core/core.SkConvolver.o $
+    obj/src/core/core.SkCubicClipper.o obj/src/core/core.SkData.o $
+    obj/src/core/core.SkDataTable.o obj/src/core/core.SkDebug.o $
+    obj/src/core/core.SkDeque.o obj/src/core/core.SkDevice.o $
+    obj/src/core/core.SkDeviceLooper.o obj/src/core/core.SkDeviceProfile.o $
+    obj/src/lazy/core.SkDiscardableMemoryPool.o $
+    obj/src/lazy/core.SkDiscardablePixelRef.o $
+    obj/src/core/core.SkDistanceFieldGen.o obj/src/core/core.SkDither.o $
+    obj/src/core/core.SkDraw.o obj/src/core/core.SkDrawable.o $
+    obj/src/core/core.SkDrawLooper.o obj/src/core/core.SkEdgeBuilder.o $
+    obj/src/core/core.SkEdgeClipper.o obj/src/core/core.SkEdge.o $
+    obj/src/core/core.SkError.o obj/src/core/core.SkFilterProc.o $
+    obj/src/core/core.SkFilterShader.o obj/src/core/core.SkFlattenable.o $
+    obj/src/core/core.SkFlattenableSerialization.o $
+    obj/src/core/core.SkFloatBits.o obj/src/core/core.SkFont.o $
+    obj/src/core/core.SkFontHost.o obj/src/core/core.SkFontMgr.o $
+    obj/src/core/core.SkFontStyle.o obj/src/core/core.SkFontDescriptor.o $
+    obj/src/core/core.SkFontStream.o obj/src/core/core.SkGeometry.o $
+    obj/src/core/core.SkGlyphCache.o obj/src/core/core.SkGraphics.o $
+    obj/src/core/core.SkHalf.o obj/src/core/core.SkImageFilter.o $
+    obj/src/core/core.SkImageInfo.o obj/src/core/core.SkImageCacherator.o $
+    obj/src/core/core.SkImageGenerator.o $
+    obj/src/core/core.SkLightingShader.o obj/src/core/core.SkLineClipper.o $
+    obj/src/core/core.SkLocalMatrixShader.o $
+    obj/src/core/core.SkMallocPixelRef.o obj/src/core/core.SkMask.o $
+    obj/src/core/core.SkMaskCache.o obj/src/core/core.SkMaskFilter.o $
+    obj/src/core/core.SkMaskGamma.o obj/src/core/core.SkMath.o $
+    obj/src/core/core.SkMatrix.o obj/src/core/core.SkMatrixImageFilter.o $
+    obj/src/core/core.SkMetaData.o obj/src/core/core.SkMipMap.o $
+    obj/src/core/core.SkMiniRecorder.o $
+    obj/src/core/core.SkMultiPictureDraw.o $
+    obj/src/core/core.SkNinePatchIter.o obj/src/core/core.SkOpts.o $
+    obj/src/core/core.SkPackBits.o obj/src/core/core.SkPaint.o $
+    obj/src/core/core.SkPaintPriv.o obj/src/core/core.SkPath.o $
+    obj/src/core/core.SkPathEffect.o obj/src/core/core.SkPathMeasure.o $
+    obj/src/core/core.SkPathRef.o obj/src/core/core.SkPicture.o $
+    obj/src/core/core.SkPictureContentInfo.o $
+    obj/src/core/core.SkPictureData.o obj/src/core/core.SkPictureFlat.o $
+    obj/src/core/core.SkPictureImageGenerator.o $
+    obj/src/core/core.SkPicturePlayback.o $
+    obj/src/core/core.SkPictureRecord.o $
+    obj/src/core/core.SkPictureRecorder.o $
+    obj/src/core/core.SkPictureShader.o obj/src/core/core.SkPixelRef.o $
+    obj/src/core/core.SkPixmap.o obj/src/core/core.SkPoint.o $
+    obj/src/core/core.SkPoint3.o obj/src/core/core.SkPtrRecorder.o $
+    obj/src/core/core.SkQuadClipper.o obj/src/core/core.SkRasterClip.o $
+    obj/src/core/core.SkRasterizer.o obj/src/core/core.SkReadBuffer.o $
+    obj/src/core/core.SkRecord.o obj/src/core/core.SkRecords.o $
+    obj/src/core/core.SkRecordDraw.o obj/src/core/core.SkRecordOpts.o $
+    obj/src/core/core.SkRecorder.o obj/src/core/core.SkRect.o $
+    obj/src/core/core.SkRefDict.o obj/src/core/core.SkRegion.o $
+    obj/src/core/core.SkRegion_path.o obj/src/core/core.SkResourceCache.o $
+    obj/src/core/core.SkRRect.o obj/src/core/core.SkRTree.o $
+    obj/src/core/core.SkRWBuffer.o obj/src/core/core.SkScalar.o $
+    obj/src/core/core.SkScalerContext.o obj/src/core/core.SkScan.o $
+    obj/src/core/core.SkScan_AntiPath.o obj/src/core/core.SkScan_Antihair.o $
+    obj/src/core/core.SkScan_Hairline.o obj/src/core/core.SkScan_Path.o $
+    obj/src/core/core.SkSemaphore.o obj/src/core/core.SkShader.o $
+    obj/src/core/core.SkSharedMutex.o obj/src/core/core.SkSpinlock.o $
+    obj/src/core/core.SkSpriteBlitter_ARGB32.o $
+    obj/src/core/core.SkSpriteBlitter_RGB16.o obj/src/core/core.SkStream.o $
+    obj/src/core/core.SkString.o obj/src/core/core.SkStringUtils.o $
+    obj/src/core/core.SkStroke.o obj/src/core/core.SkStrokeRec.o $
+    obj/src/core/core.SkStrokerPriv.o obj/src/core/core.SkTaskGroup.o $
+    obj/src/core/core.SkTextBlob.o obj/src/core/core.SkTime.o $
+    obj/src/core/core.SkThreadID.o obj/src/core/core.SkTLS.o $
+    obj/src/core/core.SkTSearch.o obj/src/core/core.SkTypeface.o $
+    obj/src/core/core.SkTypefaceCache.o obj/src/core/core.SkUnPreMultiply.o $
+    obj/src/core/core.SkUtils.o obj/src/core/core.SkValidatingReadBuffer.o $
+    obj/src/core/core.SkVarAlloc.o obj/src/core/core.SkVertState.o $
+    obj/src/core/core.SkWriteBuffer.o obj/src/core/core.SkWriter32.o $
+    obj/src/core/core.SkXfermode.o $
+    obj/src/core/core.SkXfermodeInterpretation.o $
+    obj/src/core/core.SkYUVPlanesCache.o obj/src/doc/core.SkDocument.o $
+    obj/src/image/core.SkImage.o obj/src/image/core.SkImage_Generator.o $
+    obj/src/image/core.SkImage_Raster.o obj/src/image/core.SkImageShader.o $
+    obj/src/image/core.SkSurface.o obj/src/image/core.SkSurface_Raster.o $
+    obj/src/pipe/core.SkGPipeRead.o obj/src/pipe/core.SkGPipeWrite.o $
+    obj/src/pathops/core.SkAddIntersections.o $
+    obj/src/pathops/core.SkDConicLineIntersection.o $
+    obj/src/pathops/core.SkDCubicLineIntersection.o $
+    obj/src/pathops/core.SkDCubicToQuads.o $
+    obj/src/pathops/core.SkDLineIntersection.o $
+    obj/src/pathops/core.SkDQuadLineIntersection.o $
+    obj/src/pathops/core.SkIntersections.o obj/src/pathops/core.SkOpAngle.o $
+    obj/src/pathops/core.SkOpBuilder.o $
+    obj/src/pathops/core.SkOpCoincidence.o $
+    obj/src/pathops/core.SkOpContour.o obj/src/pathops/core.SkOpCubicHull.o $
+    obj/src/pathops/core.SkOpEdgeBuilder.o $
+    obj/src/pathops/core.SkOpSegment.o obj/src/pathops/core.SkOpSpan.o $
+    obj/src/pathops/core.SkPathOpsCommon.o $
+    obj/src/pathops/core.SkPathOpsConic.o $
+    obj/src/pathops/core.SkPathOpsCubic.o $
+    obj/src/pathops/core.SkPathOpsCurve.o $
+    obj/src/pathops/core.SkPathOpsDebug.o $
+    obj/src/pathops/core.SkPathOpsLine.o obj/src/pathops/core.SkPathOpsOp.o $
+    obj/src/pathops/core.SkPathOpsPoint.o $
+    obj/src/pathops/core.SkPathOpsQuad.o $
+    obj/src/pathops/core.SkPathOpsRect.o $
+    obj/src/pathops/core.SkPathOpsSimplify.o $
+    obj/src/pathops/core.SkPathOpsTSect.o $
+    obj/src/pathops/core.SkPathOpsTightBounds.o $
+    obj/src/pathops/core.SkPathOpsTypes.o $
+    obj/src/pathops/core.SkPathOpsWinding.o $
+    obj/src/pathops/core.SkPathWriter.o $
+    obj/src/pathops/core.SkReduceOrder.o obj/src/core/core.SkUtilsArm.o

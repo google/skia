@@ -1,0 +1,63 @@
+defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
+    -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
+    -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $
+    -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
+    -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
+    -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DNDEBUG -DSK_DEVELOPER=1
+includes = -I../../../../../../paintLib/skia/third_party/libpng $
+    -I../../../../../../paintLib/skia/third_party/externals/libpng
+cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
+    -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
+    -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp -fuse-ld=gold -w $
+    -fvisibility=hidden -O2
+cflags_c = 
+cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
+arflags = 
+
+build obj/third_party/externals/libpng/libpng_static.png.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/png.c
+build obj/third_party/externals/libpng/libpng_static.pngerror.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngerror.c
+build obj/third_party/externals/libpng/libpng_static.pngget.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngget.c
+build obj/third_party/externals/libpng/libpng_static.pngmem.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngmem.c
+build obj/third_party/externals/libpng/libpng_static.pngpread.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngpread.c
+build obj/third_party/externals/libpng/libpng_static.pngread.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngread.c
+build obj/third_party/externals/libpng/libpng_static.pngrio.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngrio.c
+build obj/third_party/externals/libpng/libpng_static.pngrtran.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngrtran.c
+build obj/third_party/externals/libpng/libpng_static.pngrutil.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngrutil.c
+build obj/third_party/externals/libpng/libpng_static.pngset.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngset.c
+build obj/third_party/externals/libpng/libpng_static.pngtrans.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngtrans.c
+build obj/third_party/externals/libpng/libpng_static.pngwio.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngwio.c
+build obj/third_party/externals/libpng/libpng_static.pngwrite.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngwrite.c
+build obj/third_party/externals/libpng/libpng_static.pngwtran.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngwtran.c
+build obj/third_party/externals/libpng/libpng_static.pngwutil.o: cc $
+    ../../../../../../paintLib/skia/third_party/externals/libpng/pngwutil.c
+
+build libpng_static.a: alink $
+    obj/third_party/externals/libpng/libpng_static.png.o $
+    obj/third_party/externals/libpng/libpng_static.pngerror.o $
+    obj/third_party/externals/libpng/libpng_static.pngget.o $
+    obj/third_party/externals/libpng/libpng_static.pngmem.o $
+    obj/third_party/externals/libpng/libpng_static.pngpread.o $
+    obj/third_party/externals/libpng/libpng_static.pngread.o $
+    obj/third_party/externals/libpng/libpng_static.pngrio.o $
+    obj/third_party/externals/libpng/libpng_static.pngrtran.o $
+    obj/third_party/externals/libpng/libpng_static.pngrutil.o $
+    obj/third_party/externals/libpng/libpng_static.pngset.o $
+    obj/third_party/externals/libpng/libpng_static.pngtrans.o $
+    obj/third_party/externals/libpng/libpng_static.pngwio.o $
+    obj/third_party/externals/libpng/libpng_static.pngwrite.o $
+    obj/third_party/externals/libpng/libpng_static.pngwtran.o $
+    obj/third_party/externals/libpng/libpng_static.pngwutil.o

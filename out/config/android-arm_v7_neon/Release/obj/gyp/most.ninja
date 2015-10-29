@@ -1,0 +1,13 @@
+build obj/gyp/most.actions_depends.stamp: stamp lib/libskia_android.so.TOC $
+    lib/libnanobench.so.TOC lib/libSampleApp.so.TOC $
+    obj/gyp/tools.actions_depends.stamp lib/libpathops_unittest.so.TOC $
+    lib/libpathops_skpclip.so.TOC lib/libdm.so.TOC $
+    lib/libvisualbench.so.TOC $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/build/outputs/apk/sample_app-arm-debug.apk $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm-debug.apk
+
+build obj/gyp/most.compile_depends.stamp: stamp $
+    obj/gyp/test_public_includes.gen/test_public_includes.cpp $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/build/outputs/apk/sample_app-arm-debug.apk $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm-debug.apk
+

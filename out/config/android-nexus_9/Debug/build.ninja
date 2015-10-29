@@ -1,0 +1,323 @@
+cc =  $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/bin/../toolchains/arm64-r10e-21/bin/aarch64-linux-android-gcc
+cxx =  $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/bin/../toolchains/arm64-r10e-21/bin/aarch64-linux-android-g++
+ld = $cc
+ldxx = $cxx
+ar = $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/bin/../toolchains/arm64-r10e-21/bin/aarch64-linux-android-ar
+nm = nm
+readelf = readelf
+
+pool link_pool
+  depth = 9001
+
+rule cc
+  command = $cc -MMD -MF $out.d $defines $includes $cflags $cflags_c $cflags_pch_c -c $in -o $out
+  description = CC $out
+  depfile = $out.d
+  deps = gcc
+rule cc_s
+  command = $cc $defines $includes $cflags $cflags_c $cflags_pch_c -c $in -o $out
+  description = CC $out
+rule cxx
+  command = $cxx -MMD -MF $out.d $defines $includes $cflags $cflags_cc $cflags_pch_cc -c $in -o $out
+  description = CXX $out
+  depfile = $out.d
+  deps = gcc
+rule alink
+  command = rm -f $out && $ar rcs $arflags $out $in
+  description = AR $out
+rule alink_thin
+  command = rm -f $out && $ar rcsT $arflags $out $in
+  description = AR $out
+rule solink
+  command = if [ ! -e $lib -o ! -e $lib.TOC ]; then $ld -shared $ldflags -o $lib -Wl,-soname=$soname @$link_file_list $
+      && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | cut -f1-2 -d' '; } > $lib.TOC; else $ld -shared $
+      $ldflags -o $lib -Wl,-soname=$soname @$link_file_list && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | $
+      cut -f1-2 -d' '; } > $lib.tmp && if ! cmp -s $lib.tmp $lib.TOC; then mv $lib.tmp $lib.TOC ; fi; fi
+  description = SOLINK $lib
+  pool = link_pool
+  restat = 1
+  rspfile = $link_file_list
+  rspfile_content = -Wl,--whole-archive $in $solibs -Wl,--no-whole-archive $libs
+rule solink_module
+  command = if [ ! -e $lib -o ! -e $lib.TOC ]; then $ld -shared $ldflags -o $lib -Wl,-soname=$soname @$link_file_list $
+      && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | cut -f1-2 -d' '; } > $lib.TOC; else $ld -shared $
+      $ldflags -o $lib -Wl,-soname=$soname @$link_file_list && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | $
+      cut -f1-2 -d' '; } > $lib.tmp && if ! cmp -s $lib.tmp $lib.TOC; then mv $lib.tmp $lib.TOC ; fi; fi
+  description = SOLINK(module) $lib
+  pool = link_pool
+  restat = 1
+  rspfile = $link_file_list
+  rspfile_content = -Wl,--start-group $in -Wl,--end-group $solibs $libs
+rule link
+  command = $ld $ldflags -o $out -Wl,--start-group $in -Wl,--end-group $solibs $libs
+  description = LINK $out
+  pool = link_pool
+rule stamp
+  command = ${postbuilds}touch $out
+  description = STAMP $out
+rule copy
+  command = ln -f $in $out 2>/dev/null || (rm -rf $out && cp -af $in $out)
+  description = COPY $in $out
+
+subninja obj/gyp/experimental.ninja
+subninja obj/gyp/libetc1.ninja
+subninja obj/gyp/yasm-win.ninja
+subninja obj/gyp/cpu_features.ninja
+subninja obj/gyp/skia_launcher.ninja
+subninja obj/gyp/native_app_glue.ninja
+subninja obj/gyp/expat.ninja
+subninja obj/gyp/libwebp_dsp_neon.ninja
+subninja obj/gyp/libjpeg-turbo.ninja
+subninja obj/gyp/libwebp_dsp.ninja
+subninja obj/gyp/libwebp_dec.ninja
+subninja obj/gyp/ashmem.ninja
+subninja obj/gyp/giflib.ninja
+subninja obj/gyp/libwebp_dsp_enc.ninja
+subninja obj/gyp/jsoncpp.ninja
+subninja obj/gyp/libpng_static_neon.ninja
+subninja obj/gyp/jpeg.ninja
+subninja obj/gyp/libwebp_demux.ninja
+subninja obj/gyp/libwebp_utils.ninja
+subninja obj/gyp/icuuc.ninja
+subninja obj/gyp/zlib_x86_simd.ninja
+subninja obj/gyp/lua.ninja
+subninja obj/gyp/png.ninja
+subninja obj/gyp/core.ninja
+subninja obj/gyp/utils.ninja
+subninja obj/gyp/opts_sse41.ninja
+subninja obj/gyp/sfntly.ninja
+subninja obj/gyp/libwebp_enc.ninja
+subninja obj/gyp/opts_avx.ninja
+subninja obj/gyp/opts_sse42.ninja
+subninja obj/gyp/freetype_static.ninja
+subninja obj/gyp/libpng_static.ninja
+subninja obj/gyp/opts_avx2.ninja
+subninja obj/gyp/opts_ssse3.ninja
+subninja obj/gyp/libSkKTX.ninja
+subninja obj/gyp/android_utils.ninja
+subninja obj/gyp/sfnt.ninja
+subninja obj/gyp/ports.ninja
+subninja obj/gyp/libwebp.ninja
+subninja obj/gyp/skgpu.ninja
+subninja obj/gyp/images.ninja
+subninja obj/gyp/codec.ninja
+subninja obj/gyp/effects.ninja
+subninja obj/gyp/opts.ninja
+subninja obj/gyp/opts_neon.ninja
+subninja obj/gyp/skia_lib.ninja
+subninja obj/gyp/xml.ninja
+subninja obj/gyp/flags.ninja
+subninja obj/gyp/nopdf.ninja
+subninja obj/gyp/skgputest.ninja
+subninja obj/gyp/svg.ninja
+subninja obj/gyp/xps.ninja
+subninja obj/gyp/svg_parser.ninja
+subninja obj/gyp/flags_common.ninja
+subninja obj/gyp/pdf.ninja
+subninja obj/gyp/canvasproof.ninja
+subninja obj/gyp/android_output.ninja
+subninja obj/gyp/chrome_fuzz.ninja
+subninja obj/gyp/test_public_includes.ninja
+subninja obj/gyp/views.ninja
+subninja obj/gyp/crash_handler.ninja
+subninja obj/gyp/skp2svg.ninja
+subninja obj/gyp/skimagediff.ninja
+subninja obj/gyp/lua_app.ninja
+subninja obj/gyp/sklua.ninja
+subninja obj/gyp/whitelist_typefaces.ninja
+subninja obj/gyp/skhello.ninja
+subninja obj/gyp/test_image_decoder.ninja
+subninja obj/gyp/skpmaker.ninja
+subninja obj/gyp/CopyCanvasProofDeps.ninja
+subninja obj/gyp/imgslice.ninja
+subninja obj/gyp/animator.ninja
+subninja obj/gyp/timer.ninja
+subninja obj/gyp/skpinfo.ninja
+subninja obj/gyp/skdiff.ninja
+subninja obj/gyp/proc_stats.ninja
+subninja obj/gyp/resources.ninja
+subninja obj/gyp/gpuveto.ninja
+subninja obj/gyp/imgconv.ninja
+subninja obj/gyp/flatten.ninja
+subninja obj/gyp/picture_utils.ninja
+subninja obj/gyp/bitmap_region_decoder.ninja
+subninja obj/gyp/HelloWorld.ninja
+subninja obj/gyp/sk_tool_utils.ninja
+subninja obj/gyp/dump_record.ninja
+subninja obj/gyp/views_animated.ninja
+subninja obj/gyp/pathops_unittest.ninja
+subninja obj/gyp/skpdiff.ninja
+subninja obj/gyp/CanvasProof_APK.ninja
+subninja obj/gyp/visualbench.ninja
+subninja obj/gyp/filter.ninja
+subninja obj/gyp/pathops_skpclip.ninja
+subninja obj/gyp/render_pdfs.ninja
+subninja obj/gyp/picture_renderer.ninja
+subninja obj/gyp/nanobench.ninja
+subninja obj/gyp/render_pictures.ninja
+subninja obj/gyp/pinspect.ninja
+subninja obj/gyp/dm.ninja
+subninja obj/gyp/CopyVisualBenchDeps.ninja
+subninja obj/gyp/SampleApp.ninja
+subninja obj/gyp/VisualBench_APK.ninja
+subninja obj/gyp/bench_pictures.ninja
+subninja obj/gyp/CopySampleAppDeps.ninja
+subninja obj/gyp/lua_pictures.ninja
+subninja obj/gyp/SampleApp_APK.ninja
+subninja obj/gyp/VisualBenchTest_APK.ninja
+subninja obj/gyp/tools.ninja
+subninja obj/gyp/most.ninja
+subninja obj/alltargets.ninja
+
+# Short names for targets.
+build bitmap_region_decoder: phony obj/gyp/libbitmap_region_decoder.a
+build libwebp_dsp: phony obj/gyp/libwebp_dsp.a
+build SampleApp_APK: phony $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/build/outputs/apk/sample_app-arm64-debug.apk
+build nopdf: phony obj/gyp/libnopdf.a
+build test_public_includes: phony obj/gyp/libtest_public_includes.a
+build jpeg: phony obj/gyp/libjpeg.a
+build skhello: phony lib/libskhello.so
+build xml: phony libskia_xml.a
+build libetc1: phony obj/gyp/libetc1.a
+build chrome_fuzz: phony lib/libchrome_fuzz.so
+build views_animated: phony obj/gyp/libviews_animated.a
+build skp2svg: phony lib/libskp2svg.so
+build yasm-win: phony yasm.exe
+build giflib: phony obj/gyp/libgiflib.a
+build skimagediff: phony lib/libskimagediff.so
+build nanobench: phony lib/libnanobench.so
+build skpinfo: phony lib/libskpinfo.so
+build resources: phony obj/gyp/libresources.a
+build skia_lib: phony lib/libskia_android.so
+build freetype: phony libfreetype_static.a
+build dm: phony lib/libdm.so
+build bench_pictures: phony lib/libbench_pictures.so
+build views: phony libskia_views.a
+build sfnt: phony libskia_sfnt.a
+build test_image_decoder: phony lib/libtest_image_decoder.so
+build libSkKTX: phony obj/gyp/libSkKTX.a
+build proc_stats: phony obj/gyp/libproc_stats.a
+build picture_renderer: phony obj/gyp/libpicture_renderer.a
+build render_pictures: phony lib/librender_pictures.so
+build dump_record: phony lib/libdump_record.so
+build libjpeg: phony obj/gyp/libjpeg.a
+build whitelist_typefaces: phony lib/libwhitelist_typefaces.so
+build jsoncpp: phony obj/gyp/libjsoncpp.a
+build pinspect: phony lib/libpinspect.so
+build ports: phony libskia_ports.a
+build CopySampleAppDeps: phony obj/gyp/CopySampleAppDeps.actions_rules_copies.stamp
+build flags_common: phony obj/gyp/libflags_common.a
+build canvasproof: phony lib/libcanvasproof.so
+build opts_ssse3: phony libskia_opts_ssse3.a
+build imgslice: phony lib/libimgslice.so
+build skpmaker: phony lib/libskpmaker.so
+build flatten: phony lib/libflatten.so
+build libwebp: phony obj/gyp/libwebp.actions_depends.stamp
+build freetype_static: phony libfreetype_static.a
+build crash_handler: phony obj/gyp/libcrash_handler.a
+build tools: phony obj/gyp/tools.actions_depends.stamp
+build lua_app: phony lib/liblua_app.so
+build lua: phony obj/gyp/liblua.a
+build opts_avx2: phony libskia_opts_avx2.a
+build sklua: phony skia.so
+build libpng: phony obj/gyp/libpng.a
+build lua_pictures: phony lib/liblua_pictures.so
+build core: phony libskia_core.a
+build sk_tool_utils: phony obj/gyp/libsk_tool_utils.a
+build libwebp_dsp_enc: phony obj/gyp/libwebp_dsp_enc.a
+build libwebp_utils: phony obj/gyp/libwebp_utils.a
+build opts_avx: phony libskia_opts_avx.a
+build skgpu: phony libskia_skgpu.a
+build CanvasProof_APK: phony ../../../../../../paintLib/skia/platform_tools/android/apps/canvasproof/build
+build pathops_skpclip: phony lib/libpathops_skpclip.so
+build libwebp_dsp_neon: phony obj/gyp/libwebp_dsp_neon.a
+build libjpeg-turbo: phony obj/gyp/libjpeg-turbo.a
+build timer: phony obj/gyp/libtimer.a
+build filter: phony lib/libfilter.so
+build gpuveto: phony lib/libgpuveto.so
+build pdf: phony libskia_pdf.a
+build libpng_static_when_possible: phony libpng_static.a
+build experimental: phony obj/gyp/libexperimental.a
+build opts_sse42: phony libskia_opts_sse42.a
+build opts_sse41: phony libskia_opts_sse41.a
+build imgconv: phony lib/libimgconv.so
+build alltargets: phony obj/alltargets.actions_depends.stamp
+build libpng_static_neon: phony obj/gyp/libpng_static_neon.a
+build visualbench: phony lib/libvisualbench.so
+build SampleApp: phony lib/libSampleApp.so
+build xps: phony libskia_xps.a
+build cpu_features: phony obj/gyp/libcpu_features.a
+build skpdiff: phony lib/libskpdiff.so
+build png: phony obj/gyp/libpng.a
+build zlib_x86_simd: phony obj/gyp/libzlib_x86_simd.a
+build ashmem: phony obj/gyp/libashmem.a
+build libwebp_enc: phony obj/gyp/libwebp_enc.a
+build libwebp_demux: phony obj/gyp/libwebp_demux.a
+build native_app_glue: phony obj/gyp/libnative_app_glue.a
+build skgputest: phony libskia_skgputest.a
+build utils: phony libskia_utils.a
+build expat: phony obj/gyp/libexpat.a
+build VisualBench_APK: phony $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm64-debug.apk
+build images: phony libskia_images.a
+build VisualBenchTest_APK: phony $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm64-debug-androidTest-unaligned.apk
+build pathops_unittest: phony lib/libpathops_unittest.so
+build libwebp_dec: phony obj/gyp/libwebp_dec.a
+build opts_neon: phony libskia_opts_neon.a
+build HelloWorld: phony lib/libHelloWorld.so
+build skdiff: phony lib/libskdiff.so
+build codec: phony libskia_codec.a
+build libpng_static: phony libpng_static.a
+build CopyCanvasProofDeps: phony obj/gyp/CopyCanvasProofDeps.actions_rules_copies.stamp
+build most: phony obj/gyp/most.actions_depends.stamp
+build render_pdfs: phony lib/librender_pdfs.so
+build android_output: phony obj/gyp/libandroid_output.a
+build picture_utils: phony obj/gyp/libpicture_utils.a
+build sfntly: phony obj/gyp/libsfntly.a
+build icuuc: phony obj/gyp/libicuuc.a
+build svg: phony libskia_svg.a
+build android_utils: phony libskia_android_utils.a
+build svg_parser: phony libskia_svg_parser.a
+build flags: phony obj/gyp/libflags.a
+build CopyVisualBenchDeps: phony obj/gyp/CopyVisualBenchDeps.actions_rules_copies.stamp
+build everything: phony obj/gyp/most.actions_depends.stamp
+build animator: phony libskia_animator.a
+build opts: phony libskia_opts.a
+build effects: phony libskia_effects.a
+
+# Empty targets (output for completeness).
+build Android_EntryPoint: phony
+build Android_SampleApp: phony
+build Android_VisualBench: phony
+build zlib: phony
+
+build all: phony lib/libimgslice.so lib/libtest_image_decoder.so libskia_animator.a lib/librender_pdfs.so $
+    lib/libimgconv.so libskia_svg.a obj/gyp/most.actions_depends.stamp libpng_static.a obj/gyp/libgiflib.a $
+    lib/libgpuveto.so obj/gyp/libwebp_utils.a obj/gyp/libflags_common.a obj/gyp/libwebp_dsp_neon.a libskia_pdf.a $
+    obj/gyp/libwebp.actions_depends.stamp obj/gyp/libsk_tool_utils.a lib/libskdiff.so $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm64-debug.apk $
+    lib/libskpinfo.so obj/gyp/libexpat.a lib/librender_pictures.so $
+    obj/gyp/CopySampleAppDeps.actions_rules_copies.stamp libskia_xps.a lib/liblua_app.so $
+    obj/gyp/CopyVisualBenchDeps.actions_rules_copies.stamp obj/gyp/libtimer.a lib/liblua_pictures.so $
+    lib/libSampleApp.so obj/gyp/libjpeg-turbo.a obj/gyp/libSkKTX.a lib/libskia_android.so $
+    obj/gyp/libbitmap_region_decoder.a lib/libbench_pictures.so lib/libflatten.so libfreetype_static.a lib/libdm.so $
+    obj/gyp/libpng.a obj/gyp/libwebp_dsp.a obj/gyp/libetc1.a lib/libwhitelist_typefaces.so lib/libfilter.so $
+    libskia_xml.a obj/gyp/libcrash_handler.a libskia_skgpu.a lib/libnanobench.so obj/gyp/libicuuc.a $
+    obj/gyp/libwebp_enc.a obj/gyp/libwebp_dsp_enc.a obj/gyp/liblua.a obj/gyp/libashmem.a $
+    obj/gyp/libpicture_renderer.a libskia_codec.a obj/gyp/libproc_stats.a libskia_effects.a libskia_core.a $
+    obj/gyp/libjpeg.a obj/gyp/libwebp_demux.a lib/libskpdiff.so lib/libskp2svg.so obj/gyp/libflags.a $
+    obj/gyp/libandroid_output.a obj/gyp/libnative_app_glue.a lib/libchrome_fuzz.so libskia_skgputest.a $
+    libskia_utils.a obj/gyp/libjsoncpp.a obj/gyp/tools.actions_depends.stamp lib/libvisualbench.so skia.so $
+    obj/alltargets.actions_depends.stamp obj/gyp/libpng_static_neon.a skia_launcher libskia_ports.a $
+    lib/libpathops_unittest.so $
+    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/build/outputs/apk/sample_app-arm64-debug.apk $
+    libskia_opts.a libskia_sfnt.a obj/gyp/libtest_public_includes.a lib/libskhello.so obj/gyp/libwebp_dec.a $
+    libskia_views.a lib/libdump_record.so lib/libpathops_skpclip.so obj/gyp/libresources.a libskia_images.a $
+    obj/gyp/libviews_animated.a obj/gyp/libexperimental.a obj/gyp/libpicture_utils.a obj/gyp/libcpu_features.a $
+    obj/gyp/libsfntly.a lib/libskpmaker.so lib/libpinspect.so
+default most
