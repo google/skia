@@ -25,7 +25,6 @@
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "batches/GrVertexBatch.h"
-#include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

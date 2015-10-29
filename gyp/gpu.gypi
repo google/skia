@@ -323,7 +323,6 @@
       '<(skia_src_path)/gpu/gl/GrGLPathRendering.h',
       '<(skia_src_path)/gpu/gl/GrGLPrimitiveProcessor.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPrimitiveProcessor.h',
-      '<(skia_src_path)/gpu/gl/GrGLProcessor.h',
       '<(skia_src_path)/gpu/gl/GrGLProgram.cpp',
       '<(skia_src_path)/gpu/gl/GrGLProgram.h',
       '<(skia_src_path)/gpu/gl/GrGLProgramDesc.cpp',
@@ -368,8 +367,10 @@
       '<(skia_src_path)/gpu/glsl/GrGLSL_impl.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLProcessorTypes.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramDataManager.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLShaderVar.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLTextureSampler.h',
 
       # Sk files
       '<(skia_include_path)/gpu/SkGr.h',

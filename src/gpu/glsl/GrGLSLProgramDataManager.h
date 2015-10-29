@@ -10,6 +10,8 @@
 
 #include "SkTypes.h"
 
+class SkMatrix;
+
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the
  * application code.

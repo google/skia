@@ -9,8 +9,9 @@
 #define GrGLPrimitiveProcessor_DEFINED
 
 #include "GrPrimitiveProcessor.h"
-#include "GrGLProcessor.h"
+#include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLTextureSampler.h"
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
@@ -21,11 +22,11 @@ public:
     virtual ~GrGLPrimitiveProcessor() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
 
     typedef SkSTArray<2, const GrCoordTransform*, true> ProcCoords;
     typedef SkSTArray<8, ProcCoords> TransformsIn;
-    typedef SkSTArray<8, GrGLProcessor::TransformedCoordsArray> TransformsOut;
+    typedef SkSTArray<8, GrGLSLTransformedCoordsArray> TransformsOut;
 
     struct EmitArgs {
         EmitArgs(GrGLGPBuilder* pb,
@@ -78,9 +79,9 @@ protected:
 
     struct Transform {
         Transform() : fType(kVoid_GrSLType) { fCurrentValue = SkMatrix::InvalidMatrix(); }
-        GrGLSLProgramDataManager::UniformHandle fHandle;
-        SkMatrix                                fCurrentValue;
-        GrSLType                                fType;
+        UniformHandle  fHandle;
+        SkMatrix       fCurrentValue;
+        GrSLType       fType;
     };
 
     SkSTArray<8, SkSTArray<2, Transform, true> > fInstalledTransforms;

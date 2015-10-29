@@ -118,8 +118,8 @@ bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     }
 }
 
-SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(
-        const GrGLProcessor::TransformedCoordsArray& coords, int index) {
+SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
+                                                     int index) {
     if (kVec3f_GrSLType != coords[index].getType()) {
         SkASSERT(kVec2f_GrSLType == coords[index].getType());
         return coords[index].getName();

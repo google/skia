@@ -20,7 +20,6 @@
 
 #include "builders/GrGLProgramBuilder.h"
 
-class GrGLProcessor;
 class GrGLInstalledProcessors;
 class GrGLProgramBuilder;
 class GrPipeline;
@@ -89,7 +88,7 @@ public:
     };
 
     /**
-     * This function uploads uniforms, calls each GrGLProcessor's setData, and retrieves the
+     * This function uploads uniforms, calls each GrGL*Processor's setData, and retrieves the
      * textures that need to be bound on each unit. It is the caller's responsibility to ensure
      * the program is bound before calling, and to bind the outgoing textures to their respective
      * units upon return. (Each index in the array corresponds to its matching GL texture unit.)

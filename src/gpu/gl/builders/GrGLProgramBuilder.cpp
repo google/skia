@@ -20,6 +20,7 @@
 #include "gl/GrGLXferProcessor.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLTextureSampler.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
@@ -279,7 +280,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
 
     ifp->fGLProc.reset(fp.createGLInstance());
 
-    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(fp.numTextures());
+    SkSTArray<4, GrGLSLTextureSampler> samplers(fp.numTextures());
     this->emitSamplers(fp, &samplers, ifp);
 
     GrGLFragmentProcessor::EmitArgs args(this, fp, outColor, inColor, fOutCoords[index], samplers);
@@ -299,7 +300,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
 
     fGeometryProcessor->fGLProc.reset(gp.createGLInstance(*fGpu->glCaps().glslCaps()));
 
-    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(gp.numTextures());
+    SkSTArray<4, GrGLSLTextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
     GrGLGeometryProcessor::EmitArgs args(this, gp, outColor, outCoverage, samplers,
@@ -335,7 +336,7 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     openBrace.printf("{ // Xfer Processor: %s\n", xp.name());
     fFS.codeAppend(openBrace.c_str());
 
-    SkSTArray<4, GrGLProcessor::TextureSampler> samplers(xp.numTextures());
+    SkSTArray<4, GrGLSLTextureSampler> samplers(xp.numTextures());
     this->emitSamplers(xp, &samplers, fXferProcessor);
 
     GrGLXferProcessor::EmitArgs args(this, xp, colorIn.c_str(), coverageIn.c_str(),
@@ -363,7 +364,7 @@ void GrGLProgramBuilder::verify(const GrFragmentProcessor& fp) {
 
 template <class Proc>
 void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
-                                      GrGLProcessor::TextureSamplerArray* outSamplers,
+                                      GrGLSLTextureSampler::TextureSamplerArray* outSamplers,
                                       GrGLInstalledProc<Proc>* ip) {
     SkDEBUGCODE(ip->fSamplersIdx = fSamplerUniforms.count();)
     int numTextures = processor.numTextures();
@@ -374,7 +375,7 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
         localSamplerUniforms[t] = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                                    kSampler2D_GrSLType, kDefault_GrSLPrecision,
                                                    name.c_str());
-        SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLProcessor::TextureSampler,
+        SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLSLTextureSampler,
                                (localSamplerUniforms[t], processor.textureAccess(t)));
     }
 }

@@ -7,6 +7,7 @@
 
 #include "GrGLFragmentProcessor.h"
 #include "GrFragmentProcessor.h"
+#include "GrProcessor.h"
 #include "builders/GrGLFragmentShaderBuilder.h"
 #include "builders/GrGLProgramBuilder.h"
 
@@ -79,7 +80,7 @@ void GrGLFragmentProcessor::internalEmitChild(int childIndex, const char* inputC
         firstCoordAt += args.fFp.childProcessor(i).numTransforms();
         firstSamplerAt += args.fFp.childProcessor(i).numTextures();
     }
-    TransformedCoordsArray childCoords;
+    GrGLSLTransformedCoordsArray childCoords;
     TextureSamplerArray childSamplers;
     if (childProc.numTransforms() > 0) {
         childCoords.push_back_n(childProc.numTransforms(), &args.fCoords[firstCoordAt]);

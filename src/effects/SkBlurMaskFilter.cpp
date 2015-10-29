@@ -30,6 +30,7 @@
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLTextureSampler.h"
 #endif
 
 SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
@@ -696,7 +697,7 @@ private:
 };
 
 void OutputRectBlurProfileLookup(GrGLFragmentBuilder* fsBuilder,
-                                 const GrGLShaderBuilder::TextureSampler& sampler,
+                                 const GrGLSLTextureSampler& sampler,
                                  const char *output,
                                  const char *profileSize, const char *loc,
                                  const char *blurred_width,

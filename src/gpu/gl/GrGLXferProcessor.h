@@ -8,8 +8,8 @@
 #ifndef GrGLXferProcessor_DEFINED
 #define GrGLXferProcessor_DEFINED
 
-#include "GrGLProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLTextureSampler.h"
 
 class GrGLXPBuilder;
 class GrXferProcessor;
@@ -19,7 +19,7 @@ public:
     GrGLXferProcessor() {}
     virtual ~GrGLXferProcessor() {}
 
-    typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
     struct EmitArgs {
         EmitArgs(GrGLXPBuilder* pb,
                  const GrXferProcessor& xp,
@@ -83,7 +83,5 @@ private:
 
     GrGLSLProgramDataManager::UniformHandle fDstTopLeftUni;
     GrGLSLProgramDataManager::UniformHandle fDstScaleUni;
-
-    typedef GrGLProcessor INHERITED;
 };
 #endif

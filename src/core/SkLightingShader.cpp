@@ -130,7 +130,6 @@ private:
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
-#include "gl/GrGLProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "SkGr.h"

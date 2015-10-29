@@ -19,15 +19,13 @@
 class GrGLCaps;
 class GrGLContextInfo;
 class GrGLProgramBuilder;
+class GrGLSLTextureSampler;
 
 /**
   base class for all shaders builders
 */
 class GrGLShaderBuilder {
 public:
-    typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
-    typedef GrGLProcessor::TextureSampler TextureSampler;
-
     GrGLShaderBuilder(GrGLProgramBuilder* program);
 
     void addInput(const GrGLSLShaderVar& input) { fInputs.push_back(input); }
@@ -45,24 +43,25 @@ public:
      */
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
-        order of the result depends on the GrTextureAccess associated with the TextureSampler. */
+        order of the result depends on the GrTextureAccess associated with the GrGLSLTextureSampler.
+        */
     void appendTextureLookup(SkString* out,
-                             const TextureSampler&,
+                             const GrGLSLTextureSampler&,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
     /** Version of above that appends the result to the fragment shader code instead.*/
-    void appendTextureLookup(const TextureSampler&,
+    void appendTextureLookup(const GrGLSLTextureSampler&,
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType);
 
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
-        always a vec4. modulation and the swizzle specified by TextureSampler must both be vec4 or
-        float. If modulation is "" or nullptr it this function acts as though appendTextureLookup were
-        called. */
+        always a vec4. modulation and the swizzle specified by GrGLSLTextureSampler must both be
+        vec4 or float. If modulation is "" or nullptr it this function acts as though
+        appendTextureLookup were called. */
     void appendTextureLookupAndModulate(const char* modulation,
-                                        const TextureSampler&,
+                                        const GrGLSLTextureSampler&,
                                         const char* coordName,
                                         GrSLType coordType = kVec2f_GrSLType);
 

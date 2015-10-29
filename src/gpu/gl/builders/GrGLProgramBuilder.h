@@ -12,6 +12,7 @@
 #include "GrGLGeometryShaderBuilder.h"
 #include "GrGLVertexShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLTextureSampler.h"
 #include "../GrGLPrimitiveProcessor.h"
 #include "../GrGLXferProcessor.h"
 #include "../../GrPipeline.h"
@@ -330,7 +331,7 @@ protected:
     void verify(const GrFragmentProcessor&);
     template <class Proc>
     void emitSamplers(const GrProcessor&,
-                      GrGLProcessor::TextureSamplerArray* outSamplers,
+                      GrGLSLTextureSampler::TextureSamplerArray* outSamplers,
                       GrGLInstalledProc<Proc>*);
 
     GrGLProgram* finalize();

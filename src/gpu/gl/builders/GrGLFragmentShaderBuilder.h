@@ -10,6 +10,8 @@
 
 #include "GrGLShaderBuilder.h"
 
+#include "glsl/GrGLSLProcessorTypes.h"
+
 class GrGLVarying;
 
 /*
@@ -42,8 +44,7 @@ public:
      * the fragment shader. If the coordinates at index are 3-dimensional, it immediately emits a
      * perspective divide into the fragment shader (xy / z) to convert them to 2D.
      */
-    virtual SkString ensureFSCoords2D(const GrGLProcessor::TransformedCoordsArray& coords,
-                                      int index) = 0;
+    virtual SkString ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords, int index) = 0;
 
 
     /** Returns a variable name that represents the position of the fragment in the FS. The position
@@ -127,7 +128,7 @@ public:
 
     // true public interface, defined explicitly in the abstract interfaces above
     bool enableFeature(GLSLFeature) override;
-    virtual SkString ensureFSCoords2D(const GrGLProcessor::TransformedCoordsArray& coords,
+    virtual SkString ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
                                       int index) override;
     const char* fragmentPosition() override;
     const char* dstColor() override;

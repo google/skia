@@ -13,6 +13,7 @@
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLTextureSampler.h"
 
 GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
     : fIndex(index) {
@@ -45,7 +46,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
                                               const GrTextureDomain& textureDomain,
                                               const char* outColor,
                                               const SkString& inCoords,
-                                              const GrGLProcessor::TextureSampler sampler,
+                                              const GrGLSLTextureSampler& sampler,
                                               const char* inModulateColor) {
     SkASSERT((Mode)-1 == fMode || textureDomain.mode() == fMode);
     SkDEBUGCODE(fMode = textureDomain.mode();)

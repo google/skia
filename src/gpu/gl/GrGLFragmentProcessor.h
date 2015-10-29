@@ -8,9 +8,12 @@
 #ifndef GrGLFragmentProcessor_DEFINED
 #define GrGLFragmentProcessor_DEFINED
 
-#include "GrGLProcessor.h"
+#include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLTextureSampler.h"
 
+class GrProcessor;
+class GrProcessorKeyBuilder;
 class GrGLFPBuilder;
 class GrGLSLCaps;
 
@@ -25,8 +28,7 @@ public:
     }
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLProcessor::TransformedCoordsArray TransformedCoordsArray;
-    typedef GrGLProcessor::TextureSamplerArray TextureSamplerArray;
+    typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -52,7 +54,7 @@ public:
                  const GrFragmentProcessor& fp,
                  const char* outputColor,
                  const char* inputColor,
-                 const TransformedCoordsArray& coords,
+                 const GrGLSLTransformedCoordsArray& coords,
                  const TextureSamplerArray& samplers)
             : fBuilder(builder)
             , fFp(fp)
@@ -64,7 +66,7 @@ public:
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;
-        const TransformedCoordsArray& fCoords;
+        const GrGLSLTransformedCoordsArray& fCoords;
         const TextureSamplerArray& fSamplers;
     };
 
@@ -109,7 +111,6 @@ private:
     SkTArray<GrGLFragmentProcessor*, true> fChildProcessors;
 
     friend class GrFragmentProcessor;
-    typedef GrGLProcessor INHERITED;
 };
 
 #endif

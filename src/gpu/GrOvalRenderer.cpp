@@ -22,7 +22,6 @@
 #include "batches/GrVertexBatch.h"
 #include "effects/GrRRectEffect.h"
 #include "gl/GrGLUtil.h"
-#include "gl/GrGLProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

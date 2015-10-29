@@ -8,6 +8,7 @@
 #include "GrGLGeometryProcessor.h"
 
 #include "builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProcessorTypes.h"
 
 void GrGLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
@@ -56,7 +57,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
             pb->addVarying(strVaryingName.c_str(), &v, precision);
 
             SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
-            SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLProcessor::TransformedCoords,
+            SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLSLTransformedCoords,
                                    (SkString(v.fsIn()), varyingType));
 
             // varying = matrix * coords (logically)
@@ -112,7 +113,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
             vb->codeAppendf("%s = %s;", v.vsOut(), localCoords);
 
             SkNEW_APPEND_TO_TARRAY(&(*tout)[i],
-                                   GrGLProcessor::TransformedCoords,
+                                   GrGLSLTransformedCoords,
                                    (SkString(v.fsIn()), varyingType));
         }
     }

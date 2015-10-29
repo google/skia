@@ -8,8 +8,8 @@
 #include "GrPathProcessor.h"
 
 #include "gl/GrGLGpu.h"
-
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLProcessorTypes.h"
 
 class GrGLPathProcessor : public GrGLPrimitiveProcessor {
 public:
@@ -65,7 +65,7 @@ public:
                         pb->addSeparableVarying(strVaryingName.c_str(), &v).toIndex();
                 fInstalledTransforms[i][t].fType = varyingType;
 
-                SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLProcessor::TransformedCoords,
+                SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLSLTransformedCoords,
                                        (SkString(v.fsIn()), varyingType));
             }
         }
