@@ -684,9 +684,6 @@ private:
     SkMatrix fFUnitMatrix;
 
     Offscreen fOffscreen;
-    AutoCFRelease<CTFontRef> fCTFont;
-    CGAffineTransform fTransform;
-    CGAffineTransform fInvTransform;
 
     /** Unrotated variant of fCTFont.
      *
@@ -698,8 +695,19 @@ private:
      *  This makes kCTFontDefaultOrientation dangerous, because the metrics from
      *  kCTFontHorizontalOrientation are in a different space from kCTFontVerticalOrientation.
      *  With kCTFontVerticalOrientation the advances must be unrotated.
+     *
+     *  Sometimes, creating a copy of a CTFont with the same size but different trasform will select
+     *  different underlying font data. As a result, avoid ever creating more than one CTFont per
+     *  SkScalerContext to ensure that only one CTFont is used.
+     *
+     *  As a result of the above (and other constraints) this font contains the size, but not the
+     *  transform. The transform must always be applied separately.
      */
-    AutoCFRelease<CTFontRef> fCTUnrotatedFont;
+    AutoCFRelease<CTFontRef> fCTFont;
+
+    /** The transform without the font size. */
+    CGAffineTransform fTransform;
+    CGAffineTransform fInvTransform;
 
     AutoCFRelease<CGFontRef> fCGFont;
     SkAutoTMalloc<GlyphRect> fFBoundingBoxes;
@@ -764,10 +772,8 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     // The transform contains everything except the requested text size.
     // Some properties, like 'trak', are based on the text size (before applying the matrix).
     CGFloat textSize = ScalarToCG(scale.y());
-
-    fCTFont.reset(ctfont_create_exact_copy(ctFont, textSize, &fTransform));
+    fCTFont.reset(ctfont_create_exact_copy(ctFont, textSize, nullptr));
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont, nullptr));
-    fCTUnrotatedFont.reset(ctfont_create_exact_copy(ctFont, textSize, nullptr));
 
     // The fUnitMatrix includes the text size (and em) as it is used to scale the raw font data.
     SkScalar emPerFUnit = SkScalarInvert(SkIntToScalar(CGFontGetUnitsPerEm(fCGFont)));
@@ -914,7 +920,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     // So always make the font transform identity and place the transform on the context.
     point = CGPointApplyAffineTransform(point, context.fInvTransform);
 
-    ctFontDrawGlyphs(context.fCTUnrotatedFont, &glyphID, &point, 1, fCG);
+    ctFontDrawGlyphs(context.fCTFont, &glyphID, &point, 1, fCG);
 
     SkASSERT(rowBytesPtr);
     *rowBytesPtr = rowBytes;
@@ -926,16 +932,17 @@ void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkPoint* offset) co
     // Lion and Leopard return cgVertOffset in CG units (pixels, y up).
     CGSize cgVertOffset;
     CTFontGetVerticalTranslationsForGlyphs(fCTFont, &glyphID, &cgVertOffset, 1);
-
-    SkPoint skVertOffset = { CGToScalar(cgVertOffset.width), CGToScalar(cgVertOffset.height) };
     if (isSnowLeopard()) {
+        SkPoint skVertOffset = { CGToScalar(cgVertOffset.width), CGToScalar(cgVertOffset.height) };
         // From FUnits (em space, y up) to SkGlyph units (pixels, y down).
         fFUnitMatrix.mapPoints(&skVertOffset, 1);
-    } else {
-        // From CG units (pixels, y up) to SkGlyph units (pixels, y down).
-        skVertOffset.fY = -skVertOffset.fY;
+        *offset = skVertOffset;
+        return;
     }
-
+    cgVertOffset = CGSizeApplyAffineTransform(cgVertOffset, fTransform);
+    SkPoint skVertOffset = { CGToScalar(cgVertOffset.width), CGToScalar(cgVertOffset.height) };
+    // From CG units (pixels, y up) to SkGlyph units (pixels, y down).
+    skVertOffset.fY = -skVertOffset.fY;
     *offset = skVertOffset;
 }
 
@@ -1024,16 +1031,16 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     // The following block produces cgAdvance in CG units (pixels, y up).
     CGSize cgAdvance;
     if (fVertical) {
-        CTFontGetAdvancesForGlyphs(fCTUnrotatedFont, kCTFontVerticalOrientation,
+        CTFontGetAdvancesForGlyphs(fCTFont, kCTFontVerticalOrientation,
                                    &cgGlyph, &cgAdvance, 1);
         // Vertical advances are returned as widths instead of heights.
         SkTSwap(cgAdvance.height, cgAdvance.width);
         cgAdvance.height = -cgAdvance.height;
     } else {
-        CTFontGetAdvancesForGlyphs(fCTUnrotatedFont, kCTFontHorizontalOrientation,
+        CTFontGetAdvancesForGlyphs(fCTFont, kCTFontHorizontalOrientation,
                                    &cgGlyph, &cgAdvance, 1);
     }
-    cgAdvance = CGSizeApplyAffineTransform(cgAdvance, CTFontGetMatrix(fCTFont));
+    cgAdvance = CGSizeApplyAffineTransform(cgAdvance, fTransform);
     glyph->fAdvanceX =  SkFloatToFixed_Check(cgAdvance.width);
     glyph->fAdvanceY = -SkFloatToFixed_Check(cgAdvance.height);
 
@@ -1078,6 +1085,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         CGRect cgBounds;
         CTFontGetBoundingRectsForGlyphs(fCTFont, kCTFontHorizontalOrientation,
                                         &cgGlyph, &cgBounds, 1);
+        cgBounds = CGRectApplyAffineTransform(cgBounds, fTransform);
 
         // BUG?
         // 0x200B (zero-advance space) seems to return a huge (garbage) bounds, when
@@ -1336,10 +1344,10 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
     AUTO_CG_LOCK();
 
-    CTFontRef font = fCTFont;
     SkScalar scaleX = SK_Scalar1;
     SkScalar scaleY = SK_Scalar1;
 
+    CGAffineTransform xform = fTransform;
     /*
      *  For subpixel positioning, we want to return an unhinted outline, so it
      *  can be positioned nicely at fractional offsets. However, we special-case
@@ -1367,12 +1375,12 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
                 break;
         }
 
-        CGAffineTransform xform = MatrixToCGAffineTransform(m, scaleX, scaleY);
-        font = ctfont_create_exact_copy(fCTFont, 1, &xform);
+        CGAffineTransform scale(CGAffineTransformMakeScale(ScalarToCG(scaleX), ScalarToCG(scaleY)));
+        xform = CGAffineTransformConcat(fTransform, scale);
     }
 
     CGGlyph cgGlyph = (CGGlyph)glyph.getGlyphID();
-    AutoCFRelease<CGPathRef> cgPath(CTFontCreatePathForGlyph(font, cgGlyph, nullptr));
+    AutoCFRelease<CGPathRef> cgPath(CTFontCreatePathForGlyph(fCTFont, cgGlyph, &xform));
 
     path->reset();
     if (cgPath != nullptr) {
@@ -1383,8 +1391,6 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         SkMatrix m;
         m.setScale(SkScalarInvert(scaleX), SkScalarInvert(scaleY));
         path->transform(m);
-        // balance the call to ctfont_create_exact_copy
-        CFSafeRelease(font);
     }
     if (fVertical) {
         SkPoint offset;
