@@ -271,12 +271,26 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Bitmap_GrTextureParamsAdjuster : public GrTextureParamsAdjuster {
+static void install_bmp_key_invalidator(const GrUniqueKey& key, SkPixelRef* pixelRef) {
+    class Invalidator : public SkPixelRef::GenIDChangeListener {
+    public:
+        explicit Invalidator(const GrUniqueKey& key) : fMsg(key) {}
+    private:
+        GrUniqueKeyInvalidatedMessage fMsg;
+
+        void onChange() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
+    };
+
+    pixelRef->addGenIDChangeListener(new Invalidator(key));
+}
+
+class RasterBitmap_GrTextureMaker : public GrTextureMaker {
 public:
-    Bitmap_GrTextureParamsAdjuster(const SkBitmap& bitmap)
+    RasterBitmap_GrTextureMaker(const SkBitmap& bitmap)
         : INHERITED(bitmap.width(), bitmap.height())
         , fBitmap(bitmap)
     {
+        SkASSERT(!bitmap.getTexture());
         if (!bitmap.isVolatile()) {
             SkIPoint origin = bitmap.pixelRefOrigin();
             SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
@@ -287,10 +301,7 @@ public:
 
 protected:
     GrTexture* refOriginalTexture(GrContext* ctx) override {
-        GrTexture* tex = fBitmap.getTexture();
-        if (tex) {
-            return SkRef(tex);
-        }
+        GrTexture* tex;
 
         if (fOriginalKey.isValid()) {
             tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
@@ -302,7 +313,7 @@ protected:
         tex = GrUploadBitmapToTexture(ctx, fBitmap);
         if (tex && fOriginalKey.isValid()) {
             tex->resourcePriv().setUniqueKey(fOriginalKey);
-            InstallInvalidator(fOriginalKey, fBitmap.pixelRef());
+            install_bmp_key_invalidator(fOriginalKey, fBitmap.pixelRef());
         }
         return tex;
     }
@@ -314,34 +325,51 @@ protected:
     }
 
     void didCacheCopy(const GrUniqueKey& copyKey) override {
-        InstallInvalidator(copyKey, fBitmap.pixelRef());
+        install_bmp_key_invalidator(copyKey, fBitmap.pixelRef());
     }
 
 private:
-    static void InstallInvalidator(const GrUniqueKey& key, SkPixelRef* pixelRef) {
-        class Invalidator : public SkPixelRef::GenIDChangeListener {
-        public:
-            explicit Invalidator(const GrUniqueKey& key) : fMsg(key) {}
-        private:
-            GrUniqueKeyInvalidatedMessage fMsg;
-
-            void onChange() override {
-                SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
-            }
-        };
-        Invalidator* listener = new Invalidator(key);
-        pixelRef->addGenIDChangeListener(listener);
-    }
-
     const SkBitmap  fBitmap;
     GrUniqueKey     fOriginalKey;
 
-    typedef GrTextureParamsAdjuster INHERITED;
+    typedef GrTextureMaker INHERITED;
+};
+
+class TextureBitmap_GrTextureAdjuster : public GrTextureAdjuster {
+public:
+    explicit TextureBitmap_GrTextureAdjuster(const SkBitmap* bmp)
+        : INHERITED(bmp->getTexture(), SkIRect::MakeWH(bmp->width(), bmp->height()))
+        , fBmp(bmp) {}
+
+private:
+    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override {
+        if (fBmp->isVolatile()) {
+            return;
+        }
+        // The texture subset must represent the whole bitmap. Texture-backed bitmaps don't support
+        // extractSubset(). Therefore, either the bitmap and the teture are the same size or the
+        // subset's dimensions are the bitmap's dimensions.
+        GrUniqueKey baseKey;
+        GrMakeKeyFromImageID(&baseKey, fBmp->getGenerationID(),
+                             SkIRect::MakeWH(fBmp->width(), fBmp->height()));
+        MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
+    }
+
+    void didCacheCopy(const GrUniqueKey& copyKey) override {
+        install_bmp_key_invalidator(copyKey, fBmp->pixelRef());
+    }
+
+    const SkBitmap* fBmp;
+
+    typedef GrTextureAdjuster INHERITED;
 };
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrTextureParams& params) {
-    return Bitmap_GrTextureParamsAdjuster(bitmap).refTextureForParams(ctx, params);
+    if (bitmap.getTexture()) {
+        return TextureBitmap_GrTextureAdjuster(&bitmap).refTextureSafeForParams(params, nullptr);
+    }
+    return RasterBitmap_GrTextureMaker(bitmap).refTextureForParams(ctx, params);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

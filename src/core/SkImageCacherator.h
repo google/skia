@@ -86,7 +86,7 @@ private:
     const SkIPoint      fOrigin;
     const uint32_t      fUniqueID;
 
-    friend class Cacherator_GrTextureParamsAdjuster;
+    friend class Cacherator_GrTextureMaker;
 };
 
 #endif

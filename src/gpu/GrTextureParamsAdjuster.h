@@ -10,6 +10,7 @@
 
 #include "GrTextureParams.h"
 #include "GrResourceKey.h"
+#include "SkTLazy.h"
 
 class GrContext;
 class GrTexture;
@@ -20,12 +21,12 @@ class SkBitmap;
 /**
  * Different GPUs and API extensions have different requirements with respect to what texture
  * sampling parameters may be used with textures of various types. This class facilitates making
- * texture compatible with a given GrTextureParams. It abstracts the source of the original data
- * which may be an already existing texture, CPU pixels, a codec, ... so that various sources can
- * be used with common code that scales or copies the data to make it compatible with a
- * GrTextureParams.
+ * texture compatible with a given GrTextureParams. There are two immediate subclasses defined
+ * below. One is a base class for sources that are inherently texture-backed (e.g. a texture-backed
+ * SkImage). It supports subsetting the original texture. The other is for use cases where the
+ * source can generate a texture that represents some content (e.g. cpu pixels, SkPicture, ...).
  */
-class GrTextureParamsAdjuster {
+class GrTextureProducer : public SkNoncopyable {
 public:
     struct CopyParams {
         GrTextureParams::FilterMode fFilter;
@@ -33,13 +34,85 @@ public:
         int                         fHeight;
     };
 
-    GrTextureParamsAdjuster(int width, int height) : fWidth(width), fHeight(height) {}
-    virtual ~GrTextureParamsAdjuster() {}
+    virtual ~GrTextureProducer() {}
+
+protected:
+    /** Helper for creating a key for a copy from an original key. */
+    static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,
+                                       const CopyParams& copyParams,
+                                       GrUniqueKey* copyKey) {
+        SkASSERT(!copyKey->isValid());
+        if (origKey.isValid()) {
+            static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+            GrUniqueKey::Builder builder(copyKey, origKey, kDomain, 3);
+            builder[0] = copyParams.fFilter;
+            builder[1] = copyParams.fWidth;
+            builder[2] = copyParams.fHeight;
+        }
+    }
+
+    /**
+    *  If we need to make a copy in order to be compatible with GrTextureParams producer is asked to
+    *  return a key that identifies its original content + the CopyParms parameter. If the producer
+    *  does not want to cache the stretched version (e.g. the producer is volatile), this should
+    *  simply return without initializing the copyKey.
+    */
+    virtual void makeCopyKey(const CopyParams&, GrUniqueKey* copyKey) = 0;
+
+    /**
+    *  If a stretched version of the texture is generated, it may be cached (assuming that
+    *  makeCopyKey() returns true). In that case, the maker is notified in case it
+    *  wants to note that for when the maker is destroyed.
+    */
+    virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
+
+    typedef SkNoncopyable INHERITED;
+};
+
+/** Base class for sources that start out as textures */
+class GrTextureAdjuster : public GrTextureProducer {
+public:
+    /** Makes the subset of the texture safe to use with the given texture parameters.
+        outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
+        the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
+        does not match subset's dimensions then the contents are scaled to fit the copy.*/
+    GrTexture* refTextureSafeForParams(const GrTextureParams&, SkIPoint* outOffset);
+
+protected:
+    /** No subset, use the whole texture */
+    explicit GrTextureAdjuster(GrTexture* original): fOriginal(original) {}
+
+    GrTextureAdjuster(GrTexture* original, const SkIRect& subset);
+
+    GrTexture* originalTexture() { return fOriginal; }
+
+    /** Returns the subset or null for the whole original texture */
+    const SkIRect* subset() { return fSubset.getMaybeNull(); }
+
+private:
+    GrTexture* internalRefTextureSafeForParams(GrTexture*, const SkIRect* subset,
+                                               const GrTextureParams&, SkIPoint* outOffset);
+    SkTLazy<SkIRect>    fSubset;
+    GrTexture*          fOriginal;
+
+    typedef GrTextureProducer INHERITED;
+};
+
+/** 
+ * Base class for sources that start out as something other than a texture (encoded image,
+ * picture, ...).
+ */
+class GrTextureMaker : public GrTextureProducer {
+public:
+
+    GrTextureMaker(int width, int height) : fWidth(width), fHeight(height) {}
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 
-    /** Returns a texture that is safe for use with the params */
+    /** Returns a texture that is safe for use with the params. If the size of the returned texture
+        does not match width()/height() then the contents of the original must be scaled to fit
+        the texture. */
     GrTexture* refTextureForParams(GrContext*, const GrTextureParams&);
 
 protected:
@@ -51,9 +124,9 @@ protected:
     virtual GrTexture* refOriginalTexture(GrContext*) = 0;
 
     /**
-     *  If we need to copy the maker's original texture, the maker is asked to return a key
+     *  If we need to copy the producer's original texture, the producer is asked to return a key
      *  that identifies its original + the CopyParms parameter. If the maker does not want to cache
-     *  the stretched version (e.g. the maker is volatile), this should simply return without
+     *  the stretched version (e.g. the producer is volatile), this should simply return without
      *  initializing the copyKey.
      */
     virtual void makeCopyKey(const CopyParams&, GrUniqueKey* copyKey) = 0;
@@ -70,30 +143,11 @@ protected:
      */
     virtual GrTexture* generateTextureForParams(GrContext*, const CopyParams&);
 
-    /**
-     *  If a stretched version of the texture is generated, it may be cached (assuming that
-     *  onMakeParamsKey() returns true). In that case, the maker is notified in case it
-     *  wants to note that for when the maker is destroyed.
-     */
-    virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
-
-    /** Helper for creating a key for a copy from an original key. */
-    static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,
-                                       const CopyParams& copyParams,
-                                       GrUniqueKey* copyKey) {
-        SkASSERT(!copyKey->isValid());
-        if (origKey.isValid()) {
-            static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-            GrUniqueKey::Builder builder(copyKey, origKey, kDomain, 3);
-            builder[0] = copyParams.fFilter;
-            builder[1] = copyParams.fWidth;
-            builder[2] = copyParams.fHeight;
-        }
-    }
-
 private:
     const int fWidth;
     const int fHeight;
+
+    typedef GrTextureProducer INHERITED;
 };
 
 #endif

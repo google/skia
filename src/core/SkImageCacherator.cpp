@@ -273,9 +273,9 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
 #include "GrTextureParamsAdjuster.h"
 
-class Cacherator_GrTextureParamsAdjuster : public GrTextureParamsAdjuster {
+class Cacherator_GrTextureMaker : public GrTextureMaker {
 public:
-    Cacherator_GrTextureParamsAdjuster(SkImageCacherator* cacher, const SkImage* client)
+    Cacherator_GrTextureMaker(SkImageCacherator* cacher, const SkImage* client)
         : INHERITED(cacher->info().width(), cacher->info().height())
         , fCacher(cacher)
         , fClient(client)
@@ -312,7 +312,7 @@ private:
     const SkImage*          fClient;
     GrUniqueKey             fOriginalKey;
 
-    typedef GrTextureParamsAdjuster INHERITED;
+    typedef GrTextureMaker INHERITED;
 };
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams& params,
@@ -321,7 +321,7 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParam
         return nullptr;
     }
 
-    return Cacherator_GrTextureParamsAdjuster(this, client).refTextureForParams(ctx, params);
+    return Cacherator_GrTextureMaker(this, client).refTextureForParams(ctx, params);
 }
 
 #else

@@ -14,7 +14,7 @@
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
@@ -67,47 +67,31 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     return true;
 }
 
-static void make_raw_texture_stretched_key(uint32_t imageID,
-                                           const GrTextureParamsAdjuster::CopyParams& params,
-                                           GrUniqueKey* stretchedKey) {
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(stretchedKey, kDomain, 4);
-    builder[0] = imageID;
-    builder[1] = params.fFilter;
-    builder[2] = params.fWidth;
-    builder[3] = params.fHeight;
-}
-
-class Texture_GrTextureParamsAdjuster : public GrTextureParamsAdjuster {
+class GpuImage_GrTextureAdjuster : public GrTextureAdjuster {
 public:
-    Texture_GrTextureParamsAdjuster(const SkImage* image, GrTexture* unstretched)
-        : INHERITED(image->width(), image->height())
+    GpuImage_GrTextureAdjuster(const SkImage_Gpu* image)
+        : INHERITED(image->peekTexture())
         , fImage(image)
-        , fOriginal(unstretched)
     {}
 
 protected:
-    GrTexture* refOriginalTexture(GrContext* ctx) override {
-        return SkRef(fOriginal);
+    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override {
+        GrUniqueKey baseKey;
+        GrMakeKeyFromImageID(&baseKey, fImage->uniqueID(),
+                             SkIRect::MakeWH(fImage->width(), fImage->height()));
+        MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
     }
 
-    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override {
-        make_raw_texture_stretched_key(fImage->uniqueID(), copyParams, copyKey);
-    }
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override {
-        as_IB(fImage)->notifyAddedToCache();
-    }
+    void didCacheCopy(const GrUniqueKey& copyKey) override { as_IB(fImage)->notifyAddedToCache(); }
 
 private:
     const SkImage*  fImage;
-    GrTexture*      fOriginal;
 
-    typedef GrTextureParamsAdjuster INHERITED;
+    typedef GrTextureAdjuster INHERITED;
 };
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
-    return Texture_GrTextureParamsAdjuster(this, fTexture).refTextureForParams(ctx, params);
+    return GpuImage_GrTextureAdjuster(this).refTextureSafeForParams(params, nullptr);
 }
 
 bool SkImage_Gpu::isOpaque() const {

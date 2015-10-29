@@ -56,7 +56,7 @@ void GrGpu::contextAbandoned() {}
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrGpu::makeCopyForTextureParams(int width, int height, const GrTextureParams& textureParams,
-                                     GrTextureParamsAdjuster::CopyParams* copyParams) const {
+                                     GrTextureProducer::CopyParams* copyParams) const {
     const GrCaps& caps = *this->caps();
     if (textureParams.isTiled() && !caps.npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {

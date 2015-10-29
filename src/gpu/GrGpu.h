@@ -384,7 +384,7 @@ public:
     // a given GrTextureParams. If so, the width, height and filter used for the copy are
     // output via the CopyParams.
     bool makeCopyForTextureParams(int width, int height, const GrTextureParams&,
-                                 GrTextureParamsAdjuster::CopyParams*) const;
+                                  GrTextureProducer::CopyParams*) const;
 
     // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return nullptr; }

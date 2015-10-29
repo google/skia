@@ -11,24 +11,31 @@
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrGpu.h"
+#include "GrGpuResourcePriv.h"
+#include "GrResourceKey.h"
 #include "GrTexture.h"
 #include "GrTextureParams.h"
 #include "GrTextureProvider.h"
 #include "SkCanvas.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
+#include "effects/GrTextureDomain.h"
 
-typedef GrTextureParamsAdjuster::CopyParams CopyParams;
+typedef GrTextureProducer::CopyParams CopyParams;
 
-static GrTexture* copy_on_gpu(GrTexture* inputTexture, const CopyParams& copyParams) {
+//////////////////////////////////////////////////////////////////////////////
+
+static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
+                              const CopyParams& copyParams) {
+    SkASSERT(!subset || !subset->isEmpty());
     GrContext* context = inputTexture->getContext();
     SkASSERT(context);
     const GrCaps* caps = context->caps();
 
     // Either it's a cache miss or the original wasn't cached to begin with.
     GrSurfaceDesc rtDesc = inputTexture->desc();
-    rtDesc.fFlags =  rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
-    rtDesc.fWidth  = copyParams.fWidth;
+    rtDesc.fFlags = rtDesc.fFlags | kRenderTarget_GrSurfaceFlag;
+    rtDesc.fWidth = copyParams.fWidth;
     rtDesc.fHeight = copyParams.fHeight;
     rtDesc.fConfig = GrMakePixelConfigUncompressed(rtDesc.fConfig);
 
@@ -60,27 +67,107 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const CopyParams& copyPar
         return nullptr;
     }
 
+    // TODO: If no scaling is being performed then use copySurface.
+
     GrPaint paint;
 
-    // If filtering is not desired then we want to ensure all texels in the resampled image are
-    // copies of texels from the original.
-    GrTextureParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
-    paint.addColorTextureProcessor(inputTexture, SkMatrix::I(), params);
+    SkScalar sx;
+    SkScalar sy;
+    if (subset) {
+        sx = 1.f / inputTexture->width();
+        sy = 1.f / inputTexture->height();
+    }
 
-    SkRect rect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
-    SkRect localRect = SkRect::MakeWH(1.f, 1.f);
+    if (copyParams.fFilter != GrTextureParams::kNone_FilterMode && subset &&
+        (subset->width() != copyParams.fWidth || subset->height() != copyParams.fHeight)) {
+        SkRect domain;
+        domain.fLeft = (subset->fLeft + 0.5f) * sx;
+        domain.fTop = (subset->fTop + 0.5f)* sy;
+        domain.fRight = (subset->fRight - 0.5f) * sx;
+        domain.fBottom = (subset->fBottom - 0.5f) * sy;
+        // This would cause us to read values from outside the subset. Surely, the caller knows
+        // better!
+        SkASSERT(copyParams.fFilter != GrTextureParams::kMipMap_FilterMode);
+        paint.addColorFragmentProcessor(
+            GrTextureDomainEffect::Create(inputTexture, SkMatrix::I(), domain,
+                                          GrTextureDomain::kClamp_Mode,
+                                          copyParams.fFilter))->unref();
+    } else {
+        GrTextureParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
+        paint.addColorTextureProcessor(inputTexture, SkMatrix::I(), params);
+    }
+
+    SkRect localRect;
+    if (subset) {
+        localRect = SkRect::Make(*subset);
+        localRect.fLeft *= sx;
+        localRect.fTop *= sy;
+        localRect.fRight *= sx;
+        localRect.fBottom *= sy;
+    } else {
+        localRect = SkRect::MakeWH(1.f, 1.f);
+    }
 
     SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(copy->asRenderTarget()));
     if (!drawContext) {
         return nullptr;
     }
 
-    drawContext->drawNonAARectToRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect, localRect);
+    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
+    drawContext->drawNonAARectToRect(GrClip::WideOpen(), paint, SkMatrix::I(), dstRect, localRect);
     return copy.detach();
 }
 
-GrTexture* GrTextureParamsAdjuster::refTextureForParams(GrContext* ctx,
-                                                        const GrTextureParams& params) {
+GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, const SkIRect& subset)
+    : fOriginal(original) {
+    if (subset.fLeft > 0 || subset.fTop > 0 ||
+        subset.fRight < original->width() || subset.fBottom < original->height()) {
+        fSubset.set(subset);
+    }
+}
+
+GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& params,
+                                                      SkIPoint* outOffset) {
+    GrTexture* texture = this->originalTexture();
+    GrContext* context = texture->getContext();
+    CopyParams copyParams;
+    const SkIRect* subset = this->subset();
+
+    if (!context->getGpu()->makeCopyForTextureParams(texture->width(), texture->height(), params,
+                                                     &copyParams)) {
+        if (outOffset) {
+            if (subset) {
+                outOffset->set(subset->fLeft, subset->fRight);
+            } else {
+                outOffset->set(0, 0);
+            }
+        }
+        return SkRef(texture);
+    }
+    GrUniqueKey key;
+    this->makeCopyKey(copyParams, &key);
+    if (key.isValid()) {
+        GrTexture* result = context->textureProvider()->findAndRefTextureByUniqueKey(key);
+        if (result) {
+            return result;
+        }
+    }
+    GrTexture* result = copy_on_gpu(texture, subset, copyParams);
+    if (result) {
+        if (key.isValid()) {
+            result->resourcePriv().setUniqueKey(key);
+            this->didCacheCopy(key);
+        }
+        if (outOffset) {
+            outOffset->set(0, 0);
+        }
+    }
+    return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrTexture* GrTextureMaker::refTextureForParams(GrContext* ctx, const GrTextureParams& params) {
     CopyParams copyParams;
     if (!ctx->getGpu()->makeCopyForTextureParams(this->width(), this->height(), params,
                                                  &copyParams)) {
@@ -107,11 +194,10 @@ GrTexture* GrTextureParamsAdjuster::refTextureForParams(GrContext* ctx,
     return result;
 }
 
-GrTexture* GrTextureParamsAdjuster::generateTextureForParams(GrContext* ctx,
-                                                             const CopyParams& copyParams) {
+GrTexture* GrTextureMaker::generateTextureForParams(GrContext* ctx, const CopyParams& copyParams) {
     SkAutoTUnref<GrTexture> original(this->refOriginalTexture(ctx));
     if (!original) {
         return nullptr;
     }
-    return copy_on_gpu(original, copyParams);
+    return copy_on_gpu(original, nullptr, copyParams);
 }
