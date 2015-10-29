@@ -118,11 +118,11 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     return copy.detach();
 }
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, const SkIRect& subset)
+GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea)
     : fOriginal(original) {
-    if (subset.fLeft > 0 || subset.fTop > 0 ||
-        subset.fRight < original->width() || subset.fBottom < original->height()) {
-        fSubset.set(subset);
+    if (contentArea.fLeft > 0 || contentArea.fTop > 0 ||
+        contentArea.fRight < original->width() || contentArea.fBottom < original->height()) {
+        fContentArea.set(contentArea);
     }
 }
 
@@ -131,13 +131,19 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& par
     GrTexture* texture = this->originalTexture();
     GrContext* context = texture->getContext();
     CopyParams copyParams;
-    const SkIRect* subset = this->subset();
+    const SkIRect* contentArea = this->contentArea();
 
-    if (!context->getGpu()->makeCopyForTextureParams(texture->width(), texture->height(), params,
-                                                     &copyParams)) {
+    if (contentArea && GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
+        // If we generate a MIP chain for texture it will read pixel values from outside the content
+        // area.
+        copyParams.fWidth = contentArea->width();
+        copyParams.fHeight = contentArea->height();
+        copyParams.fFilter = GrTextureParams::kBilerp_FilterMode;
+    } else if (!context->getGpu()->makeCopyForTextureParams(texture->width(), texture->height(),
+                                                            params, &copyParams)) {
         if (outOffset) {
-            if (subset) {
-                outOffset->set(subset->fLeft, subset->fRight);
+            if (contentArea) {
+                outOffset->set(contentArea->fLeft, contentArea->fRight);
             } else {
                 outOffset->set(0, 0);
             }
@@ -152,7 +158,7 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& par
             return result;
         }
     }
-    GrTexture* result = copy_on_gpu(texture, subset, copyParams);
+    GrTexture* result = copy_on_gpu(texture, contentArea, copyParams);
     if (result) {
         if (key.isValid()) {
             result->resourcePriv().setUniqueKey(key);

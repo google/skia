@@ -346,9 +346,10 @@ private:
         if (fBmp->isVolatile()) {
             return;
         }
-        // The texture subset must represent the whole bitmap. Texture-backed bitmaps don't support
-        // extractSubset(). Therefore, either the bitmap and the teture are the same size or the
-        // subset's dimensions are the bitmap's dimensions.
+        // The content area must represent the whole bitmap. Texture-backed bitmaps don't support
+        // extractSubset(). Therefore, either the bitmap and the texture are the same size or the
+        // content's dimensions are the bitmap's dimensions which is pinned to the upper left
+        // of the texture.
         GrUniqueKey baseKey;
         GrMakeKeyFromImageID(&baseKey, fBmp->getGenerationID(),
                              SkIRect::MakeWH(fBmp->width(), fBmp->height()));

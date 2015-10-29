@@ -69,7 +69,12 @@ protected:
     typedef SkNoncopyable INHERITED;
 };
 
-/** Base class for sources that start out as textures */
+/**
+ * Base class for sources that start out as textures. Optionally allows for a content area subrect.
+ * The intent is not to use content area for subrect rendering. Rather, the pixels outside the
+ * content area have undefined values and shouldn't be read *regardless* of filtering mode or
+ * the SkCanvas::SrcRectConstraint used for subrect draws.
+ */
 class GrTextureAdjuster : public GrTextureProducer {
 public:
     /** Makes the subset of the texture safe to use with the given texture parameters.
@@ -79,20 +84,18 @@ public:
     GrTexture* refTextureSafeForParams(const GrTextureParams&, SkIPoint* outOffset);
 
 protected:
-    /** No subset, use the whole texture */
+    /** The whole texture is content. */
     explicit GrTextureAdjuster(GrTexture* original): fOriginal(original) {}
 
-    GrTextureAdjuster(GrTexture* original, const SkIRect& subset);
+    GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea);
 
     GrTexture* originalTexture() { return fOriginal; }
 
-    /** Returns the subset or null for the whole original texture */
-    const SkIRect* subset() { return fSubset.getMaybeNull(); }
+    /** Returns the content area or null for the whole original texture */
+    const SkIRect* contentArea() { return fContentArea.getMaybeNull(); }
 
 private:
-    GrTexture* internalRefTextureSafeForParams(GrTexture*, const SkIRect* subset,
-                                               const GrTextureParams&, SkIPoint* outOffset);
-    SkTLazy<SkIRect>    fSubset;
+    SkTLazy<SkIRect>    fContentArea;
     GrTexture*          fOriginal;
 
     typedef GrTextureProducer INHERITED;
