@@ -134,7 +134,9 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
 }
 
 SkString* SkObjectParser::PathToString(const SkPath& path) {
-    SkString* mPath = new SkString("Path (");
+    SkString* mPath = new SkString;
+    
+    mPath->appendf("Path (%d) (", path.getGenerationID());
 
     static const char* gFillStrings[] = {
         "Winding", "EvenOdd", "InverseWinding", "InverseEvenOdd"
