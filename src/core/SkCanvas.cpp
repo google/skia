@@ -412,6 +412,7 @@ static SkColorFilter* image_to_color_filter(const SkPaint& paint) {
     return SkColorFilter::CreateComposeFilter(imgCF, paintCF);
 }
 
+#ifndef SK_SAVE_LAYER_BOUNDS_ARE_FILTERED
 /**
  * There are many bounds in skia. A circle's bounds is just its center extended by its radius.
  * However, if we stroke a circle, then the "bounds" of that is larger, since it will now draw
@@ -433,6 +434,7 @@ static const SkRect& apply_paint_to_bounds_sans_imagefilter(const SkPaint& paint
         return rawBounds;
     }
 }
+#endif
 
 class AutoDrawLooper {
 public:
