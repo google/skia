@@ -5,20 +5,15 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DTURBO_HAS_SKIP $
     -DSKIA_PNG_PREFIXED -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/include/codec $
-    -I../../../../../../paintLib/skia/include/private $
-    -I../../../../../../paintLib/skia/src/codec $
-    -I../../../../../../paintLib/skia/src/core $
-    -I../../../../../../paintLib/skia/include/c $
-    -I../../../../../../paintLib/skia/include/config $
-    -I../../../../../../paintLib/skia/include/core $
-    -I../../../../../../paintLib/skia/include/pathops $
-    -I../../../../../../paintLib/skia/include/pipe $
-    -I../../../../../../paintLib/skia/third_party/externals/giflib $
-    -I../../../../../../paintLib/skia/third_party/externals/libwebp/src $
-    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
-    -I../../../../../../paintLib/skia/third_party/externals/libpng $
-    -I../../../../../../paintLib/skia/third_party/libpng
+includes = -I../../../../include/codec -I../../../../include/private $
+    -I../../../../src/codec -I../../../../src/core -I../../../../include/c $
+    -I../../../../include/config -I../../../../include/core $
+    -I../../../../include/pathops -I../../../../include/pipe $
+    -I../../../../third_party/externals/giflib $
+    -I../../../../third_party/externals/libwebp/src $
+    -I../../../../third_party/externals/libjpeg-turbo $
+    -I../../../../third_party/externals/libpng $
+    -I../../../../third_party/libpng
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
@@ -28,39 +23,37 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/src/codec/codec.SkBmpCodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkBmpCodec.cpp
+    ../../../../src/codec/SkBmpCodec.cpp
 build obj/src/codec/codec.SkBmpMaskCodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkBmpMaskCodec.cpp
+    ../../../../src/codec/SkBmpMaskCodec.cpp
 build obj/src/codec/codec.SkBmpRLECodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkBmpRLECodec.cpp
+    ../../../../src/codec/SkBmpRLECodec.cpp
 build obj/src/codec/codec.SkBmpStandardCodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkBmpStandardCodec.cpp
-build obj/src/codec/codec.SkCodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkCodec.cpp
+    ../../../../src/codec/SkBmpStandardCodec.cpp
+build obj/src/codec/codec.SkCodec.o: cxx ../../../../src/codec/SkCodec.cpp
 build obj/src/codec/codec.SkCodec_libgif.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkCodec_libgif.cpp
+    ../../../../src/codec/SkCodec_libgif.cpp
 build obj/src/codec/codec.SkCodec_libico.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkCodec_libico.cpp
+    ../../../../src/codec/SkCodec_libico.cpp
 build obj/src/codec/codec.SkCodec_libpng.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkCodec_libpng.cpp
+    ../../../../src/codec/SkCodec_libpng.cpp
 build obj/src/codec/codec.SkCodec_wbmp.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkCodec_wbmp.cpp
+    ../../../../src/codec/SkCodec_wbmp.cpp
 build obj/src/codec/codec.SkJpegCodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkJpegCodec.cpp
+    ../../../../src/codec/SkJpegCodec.cpp
 build obj/src/codec/codec.SkJpegDecoderMgr.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkJpegDecoderMgr.cpp
+    ../../../../src/codec/SkJpegDecoderMgr.cpp
 build obj/src/codec/codec.SkJpegUtility_codec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkJpegUtility_codec.cpp
+    ../../../../src/codec/SkJpegUtility_codec.cpp
 build obj/src/codec/codec.SkMaskSwizzler.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkMaskSwizzler.cpp
-build obj/src/codec/codec.SkMasks.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkMasks.cpp
+    ../../../../src/codec/SkMaskSwizzler.cpp
+build obj/src/codec/codec.SkMasks.o: cxx ../../../../src/codec/SkMasks.cpp
 build obj/src/codec/codec.SkScaledCodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkScaledCodec.cpp
+    ../../../../src/codec/SkScaledCodec.cpp
 build obj/src/codec/codec.SkSwizzler.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkSwizzler.cpp
+    ../../../../src/codec/SkSwizzler.cpp
 build obj/src/codec/codec.SkWebpCodec.o: cxx $
-    ../../../../../../paintLib/skia/src/codec/SkWebpCodec.cpp
+    ../../../../src/codec/SkWebpCodec.cpp
 
 build libskia_codec.a: alink obj/src/codec/codec.SkBmpCodec.o $
     obj/src/codec/codec.SkBmpMaskCodec.o $

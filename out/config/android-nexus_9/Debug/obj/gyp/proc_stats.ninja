@@ -12,8 +12,7 @@ cflags_c =
 cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
-build obj/tools/proc_stats.ProcStats.o: cxx $
-    ../../../../../../paintLib/skia/tools/ProcStats.cpp
+build obj/tools/proc_stats.ProcStats.o: cxx ../../../../tools/ProcStats.cpp
 
 build obj/gyp/libproc_stats.a: alink_thin obj/tools/proc_stats.ProcStats.o $
     || skia_launcher

@@ -1,5 +1,5 @@
 build yasm.exe: copy $
-    ../../../../../../paintLib/skia/third_party/externals/yasm/binaries/win/yasm.exe
+    ../../../../third_party/externals/yasm/binaries/win/yasm.exe
 defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0 -DSK_SUPPORT_GPU=1 $
     -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCE_FIELD_TEXT=0 $

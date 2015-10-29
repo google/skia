@@ -4,13 +4,12 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
     -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
     -DFT2_BUILD_LIBRARY -DNDEBUG -DSK_DEVELOPER=1
-includes = $
-    -I../../../../../../paintLib/skia/third_party/freetype/include_overrides $
-    -I../../../../../../paintLib/skia/third_party/externals/freetype/internal $
-    -I../../../../../../paintLib/skia/third_party/externals/freetype/builds $
-    -I../../../../../../paintLib/skia/third_party/externals/freetype/include $
-    -I../../../../../../paintLib/skia/third_party/externals/freetype $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png
+includes = -I../../../../third_party/freetype/include_overrides $
+    -I../../../../third_party/externals/freetype/internal $
+    -I../../../../third_party/externals/freetype/builds $
+    -I../../../../third_party/externals/freetype/include $
+    -I../../../../third_party/externals/freetype $
+    -I../../../../platform_tools/android/third_party/externals/png
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -fuse-ld=gold -W -Wall -fPIC -DPIC -DDARWIN_NO_CARBON $
@@ -21,95 +20,71 @@ arflags =
 
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftsystem.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftsystem.c
+    cc ../../../../third_party/externals/freetype/src/base/ftsystem.c
 build obj/third_party/externals/freetype/src/base/freetype_static.ftinit.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftinit.c
+    cc ../../../../third_party/externals/freetype/src/base/ftinit.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftdebug.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftdebug.c
+    cc ../../../../third_party/externals/freetype/src/base/ftdebug.c
 build obj/third_party/externals/freetype/src/base/freetype_static.ftbase.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftbase.c
+    cc ../../../../third_party/externals/freetype/src/base/ftbase.c
 build obj/third_party/externals/freetype/src/base/freetype_static.ftbbox.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftbbox.c
+    cc ../../../../third_party/externals/freetype/src/base/ftbbox.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftglyph.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftglyph.c
+    cc ../../../../third_party/externals/freetype/src/base/ftglyph.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftbitmap.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftbitmap.c
+    cc ../../../../third_party/externals/freetype/src/base/ftbitmap.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftfstype.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftfstype.c
+    cc ../../../../third_party/externals/freetype/src/base/ftfstype.c
 build obj/third_party/externals/freetype/src/base/freetype_static.ftgasp.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftgasp.c
+    cc ../../../../third_party/externals/freetype/src/base/ftgasp.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftlcdfil.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftlcdfil.c
+    cc ../../../../third_party/externals/freetype/src/base/ftlcdfil.c
 build obj/third_party/externals/freetype/src/base/freetype_static.ftmm.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftmm.c
+    cc ../../../../third_party/externals/freetype/src/base/ftmm.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftpatent.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftpatent.c
+    cc ../../../../third_party/externals/freetype/src/base/ftpatent.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftstroke.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftstroke.c
+    cc ../../../../third_party/externals/freetype/src/base/ftstroke.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftsynth.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftsynth.c
+    cc ../../../../third_party/externals/freetype/src/base/ftsynth.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.fttype1.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/fttype1.c
+    cc ../../../../third_party/externals/freetype/src/base/fttype1.c
 build $
     obj/third_party/externals/freetype/src/base/freetype_static.ftwinfnt.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftwinfnt.c
+    cc ../../../../third_party/externals/freetype/src/base/ftwinfnt.c
 build obj/third_party/externals/freetype/src/base/freetype_static.ftxf86.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/base/ftxf86.c
+    cc ../../../../third_party/externals/freetype/src/base/ftxf86.c
 build obj/third_party/externals/freetype/src/cff/freetype_static.cff.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/cff/cff.c
+    ../../../../third_party/externals/freetype/src/cff/cff.c
 build obj/third_party/externals/freetype/src/sfnt/freetype_static.sfnt.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/sfnt/sfnt.c
+    cc ../../../../third_party/externals/freetype/src/sfnt/sfnt.c
 build $
     obj/third_party/externals/freetype/src/truetype/freetype_static.truetype.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/truetype/truetype.c
+    cc ../../../../third_party/externals/freetype/src/truetype/truetype.c
 build $
     obj/third_party/externals/freetype/src/raster/freetype_static.raster.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/raster/raster.c
+    cc ../../../../third_party/externals/freetype/src/raster/raster.c
 build $
     obj/third_party/externals/freetype/src/smooth/freetype_static.smooth.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/smooth/smooth.c
+    cc ../../../../third_party/externals/freetype/src/smooth/smooth.c
 build $
     obj/third_party/externals/freetype/src/autofit/freetype_static.autofit.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/autofit/autofit.c
+    cc ../../../../third_party/externals/freetype/src/autofit/autofit.c
 build $
     obj/third_party/externals/freetype/src/pshinter/freetype_static.pshinter.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/pshinter/pshinter.c
+    cc ../../../../third_party/externals/freetype/src/pshinter/pshinter.c
 build $
     obj/third_party/externals/freetype/src/psnames/freetype_static.psnames.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/freetype/src/psnames/psnames.c
+    cc ../../../../third_party/externals/freetype/src/psnames/psnames.c
 
 build libfreetype_static.a: alink $
     obj/third_party/externals/freetype/src/base/freetype_static.ftsystem.o $

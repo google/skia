@@ -8,23 +8,17 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_ARM_HAS_NEON -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/include/core $
-    -I../../../../../../paintLib/skia/tools/flags $
-    -I../../../../../../paintLib/skia/include/c $
-    -I../../../../../../paintLib/skia/include/config $
-    -I../../../../../../paintLib/skia/include/pathops $
-    -I../../../../../../paintLib/skia/include/pipe $
-    -I../../../../../../paintLib/skia/include/codec $
-    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
-    -I../../../../../../paintLib/skia/include/effects $
-    -I../../../../../../paintLib/skia/include/images $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
-    -I../../../../../../paintLib/skia/include/ports $
-    -I../../../../../../paintLib/skia/src/sfnt $
-    -I../../../../../../paintLib/skia/include/utils $
-    -I../../../../../../paintLib/skia/src/utils $
-    -I../../../../../../paintLib/skia/include/gpu
+includes = -I../../../../include/core -I../../../../tools/flags $
+    -I../../../../include/c -I../../../../include/config $
+    -I../../../../include/pathops -I../../../../include/pipe $
+    -I../../../../include/codec $
+    -I../../../../third_party/externals/libjpeg-turbo $
+    -I../../../../include/effects -I../../../../include/images $
+    -I../../../../platform_tools/android/third_party/externals/png $
+    -I../../../../platform_tools/android/third_party/externals/jpeg $
+    -I../../../../include/ports -I../../../../src/sfnt $
+    -I../../../../include/utils -I../../../../src/utils $
+    -I../../../../include/gpu
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp $
@@ -33,8 +27,7 @@ cflags_c =
 cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
-build obj/tools/imgslice.imgslice.o: cxx $
-    ../../../../../../paintLib/skia/tools/imgslice.cpp
+build obj/tools/imgslice.imgslice.o: cxx ../../../../tools/imgslice.cpp
 
 ldflags = -march=armv7-a
 libs = -llog

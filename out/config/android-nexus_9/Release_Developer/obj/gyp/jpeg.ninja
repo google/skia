@@ -4,9 +4,8 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
     -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
     -DNDEBUG -DSK_DEVELOPER=1
-includes = $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/ashmem
+includes = -I../../../../platform_tools/android/third_party/externals/jpeg $
+    -I../../../../platform_tools/android/third_party/ashmem
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -fuse-ld=gold -w -fvisibility=hidden -DAVOID_TABLES $
@@ -19,169 +18,151 @@ arflags =
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcapimin.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcapimin.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcapimin.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcapistd.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcapistd.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcapistd.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jccoefct.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jccoefct.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jccoefct.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jccolor.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jccolor.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jccolor.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcdctmgr.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcdctmgr.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcdctmgr.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jchuff.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jchuff.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jchuff.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcinit.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcinit.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jcinit.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcmainct.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcmainct.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcmainct.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcmarker.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcmarker.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcmarker.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcmaster.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcmaster.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcmaster.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcomapi.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcomapi.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jcomapi.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcparam.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcparam.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jcparam.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcphuff.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcphuff.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jcphuff.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcprepct.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcprepct.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcprepct.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcsample.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jcsample.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jcsample.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jctrans.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jctrans.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jctrans.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdapimin.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdapimin.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdapimin.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdapistd.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdapistd.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdapistd.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdatadst.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdatadst.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdatadst.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdatasrc.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdatasrc.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdatasrc.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdcoefct.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdcoefct.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdcoefct.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdcolor.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdcolor.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jdcolor.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jddctmgr.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jddctmgr.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jddctmgr.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdhuff.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdhuff.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jdhuff.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdinput.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdinput.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jdinput.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdmainct.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdmainct.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdmainct.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdmarker.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdmarker.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdmarker.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdmaster.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdmaster.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdmaster.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdmerge.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdmerge.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jdmerge.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdphuff.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdphuff.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jdphuff.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdpostct.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdpostct.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdpostct.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdsample.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdsample.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jdsample.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jdtrans.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jdtrans.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jdtrans.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jerror.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jerror.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jerror.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jfdctflt.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jfdctflt.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jfdctflt.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jfdctfst.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jfdctfst.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jfdctfst.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jfdctint.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jfdctint.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jfdctint.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jidctflt.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jidctflt.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jidctflt.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jidctfst.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jidctfst.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jidctfst.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jidctint.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jidctint.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jidctint.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jidctred.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jidctred.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jidctred.c
 build $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jmem-ashmem.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jmem-ashmem.c
+    ../../../../platform_tools/android/third_party/externals/jpeg/jmem-ashmem.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jmemmgr.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jmemmgr.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jmemmgr.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jquant1.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jquant1.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jquant1.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jquant2.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jquant2.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jquant2.c
 build obj/platform_tools/android/third_party/externals/jpeg/jpeg.jutils.o: $
-    cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg/jutils.c
+    cc ../../../../platform_tools/android/third_party/externals/jpeg/jutils.c
 
 build obj/gyp/libjpeg.a: alink_thin $
     obj/platform_tools/android/third_party/externals/jpeg/jpeg.jcapimin.o $

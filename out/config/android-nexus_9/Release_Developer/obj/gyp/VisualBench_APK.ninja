@@ -1,20 +1,20 @@
 rule $
     VisualBench_APK_target_SkiaVisualBench_apk_b7a0a48d868289317af9bae05e2215e1
-  command = cd ../../../../../../paintLib/skia/gyp; $
-      /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/gradlew $
-      :visualbench:assemblearm64Debug $
-      -p/Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench $
+  command = cd ../../../../gyp; $
+      /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/gradlew $
+      :visualbench:assemblearm64Release $
+      -p/Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/visualbench $
       -PsuppressNativeBuild
   description = ACTION VisualBench_APK: $
       SkiaVisualBench_apk_b7a0a48d868289317af9bae05e2215e1
   restat = 1
 
 build $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm64-debug.apk: $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/visualbench/build/outputs/apk/visualbench-arm64-release.apk: $
     VisualBench_APK_target_SkiaVisualBench_apk_b7a0a48d868289317af9bae05e2215e1 $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/AndroidManifest.xml $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/java/com/skia/VisualBenchActivity.java $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libvisualbench.so $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libskia_android.so $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/visualbench/src/main/AndroidManifest.xml $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/visualbench/src/main/java/com/skia/VisualBenchActivity.java $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libvisualbench.so $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/visualbench/src/main/libs/arm64-v8a/libskia_android.so $
     || obj/gyp/CopyVisualBenchDeps.actions_rules_copies.stamp
 

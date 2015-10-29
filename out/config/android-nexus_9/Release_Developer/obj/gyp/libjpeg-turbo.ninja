@@ -4,8 +4,7 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
     -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
     -DWITH_SIMD -DMOTION_JPEG_SUPPORTED -DNO_GETENV -DNDEBUG -DSK_DEVELOPER=1
-includes = $
-    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo
+includes = -I../../../../third_party/externals/libjpeg-turbo
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -fuse-ld=gold -w -O2
@@ -14,97 +13,95 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcapimin.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcapimin.c
+    ../../../../third_party/externals/libjpeg-turbo/jcapimin.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcapistd.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcapistd.c
+    ../../../../third_party/externals/libjpeg-turbo/jcapistd.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jccoefct.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jccoefct.c
+    ../../../../third_party/externals/libjpeg-turbo/jccoefct.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jccolor.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jccolor.c
+    ../../../../third_party/externals/libjpeg-turbo/jccolor.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcdctmgr.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcdctmgr.c
+    ../../../../third_party/externals/libjpeg-turbo/jcdctmgr.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jchuff.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jchuff.c
+    ../../../../third_party/externals/libjpeg-turbo/jchuff.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcinit.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcinit.c
+    ../../../../third_party/externals/libjpeg-turbo/jcinit.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcmainct.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcmainct.c
+    ../../../../third_party/externals/libjpeg-turbo/jcmainct.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcmarker.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcmarker.c
+    ../../../../third_party/externals/libjpeg-turbo/jcmarker.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcmaster.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcmaster.c
+    ../../../../third_party/externals/libjpeg-turbo/jcmaster.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcomapi.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcomapi.c
+    ../../../../third_party/externals/libjpeg-turbo/jcomapi.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcparam.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcparam.c
+    ../../../../third_party/externals/libjpeg-turbo/jcparam.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcphuff.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcphuff.c
+    ../../../../third_party/externals/libjpeg-turbo/jcphuff.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcprepct.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcprepct.c
+    ../../../../third_party/externals/libjpeg-turbo/jcprepct.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcsample.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jcsample.c
+    ../../../../third_party/externals/libjpeg-turbo/jcsample.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdapimin.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdapimin.c
+    ../../../../third_party/externals/libjpeg-turbo/jdapimin.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdapistd.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdapistd.c
+    ../../../../third_party/externals/libjpeg-turbo/jdapistd.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdcoefct.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdcoefct.c
+    ../../../../third_party/externals/libjpeg-turbo/jdcoefct.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdcolor.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdcolor.c
+    ../../../../third_party/externals/libjpeg-turbo/jdcolor.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jddctmgr.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jddctmgr.c
+    ../../../../third_party/externals/libjpeg-turbo/jddctmgr.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdhuff.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdhuff.c
+    ../../../../third_party/externals/libjpeg-turbo/jdhuff.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdinput.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdinput.c
+    ../../../../third_party/externals/libjpeg-turbo/jdinput.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdmainct.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdmainct.c
+    ../../../../third_party/externals/libjpeg-turbo/jdmainct.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdmarker.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdmarker.c
+    ../../../../third_party/externals/libjpeg-turbo/jdmarker.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdmaster.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdmaster.c
+    ../../../../third_party/externals/libjpeg-turbo/jdmaster.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdmerge.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdmerge.c
+    ../../../../third_party/externals/libjpeg-turbo/jdmerge.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdphuff.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdphuff.c
+    ../../../../third_party/externals/libjpeg-turbo/jdphuff.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdpostct.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdpostct.c
+    ../../../../third_party/externals/libjpeg-turbo/jdpostct.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jdsample.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jdsample.c
+    ../../../../third_party/externals/libjpeg-turbo/jdsample.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jerror.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jerror.c
+    ../../../../third_party/externals/libjpeg-turbo/jerror.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jfdctflt.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jfdctflt.c
+    ../../../../third_party/externals/libjpeg-turbo/jfdctflt.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jfdctfst.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jfdctfst.c
+    ../../../../third_party/externals/libjpeg-turbo/jfdctfst.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jfdctint.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jfdctint.c
+    ../../../../third_party/externals/libjpeg-turbo/jfdctint.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jidctflt.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jidctflt.c
+    ../../../../third_party/externals/libjpeg-turbo/jidctflt.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jidctfst.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jidctfst.c
+    ../../../../third_party/externals/libjpeg-turbo/jidctfst.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jidctint.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jidctint.c
+    ../../../../third_party/externals/libjpeg-turbo/jidctint.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jidctred.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jidctred.c
+    ../../../../third_party/externals/libjpeg-turbo/jidctred.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jmemmgr.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jmemmgr.c
+    ../../../../third_party/externals/libjpeg-turbo/jmemmgr.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jmemnobs.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jmemnobs.c
+    ../../../../third_party/externals/libjpeg-turbo/jmemnobs.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jquant1.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jquant1.c
+    ../../../../third_party/externals/libjpeg-turbo/jquant1.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jquant2.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jquant2.c
+    ../../../../third_party/externals/libjpeg-turbo/jquant2.c
 build obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jutils.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/jutils.c
+    ../../../../third_party/externals/libjpeg-turbo/jutils.c
 build $
     obj/third_party/externals/libjpeg-turbo/simd/libjpeg-turbo.jsimd_arm64.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/simd/jsimd_arm64.c
+    cc ../../../../third_party/externals/libjpeg-turbo/simd/jsimd_arm64.c
 build $
     obj/third_party/externals/libjpeg-turbo/simd/libjpeg-turbo.jsimd_arm64_neon.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo/simd/jsimd_arm64_neon.S
+    cc ../../../../third_party/externals/libjpeg-turbo/simd/jsimd_arm64_neon.S
 
 build obj/gyp/libjpeg-turbo.a: alink_thin $
     obj/third_party/externals/libjpeg-turbo/libjpeg-turbo.jcapimin.o $

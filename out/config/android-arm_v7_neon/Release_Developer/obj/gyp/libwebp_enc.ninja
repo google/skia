@@ -5,8 +5,8 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DHAVE_CONFIG_H $
     -DWEBP_SWAP_16BIT_CSP -DNDEBUG -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/third_party/externals/libwebp $
-    -I../../../../../../paintLib/skia/third_party/libwebp/webp
+includes = -I../../../../third_party/externals/libwebp $
+    -I../../../../third_party/libwebp/webp
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp -fuse-ld=gold -w -O2
@@ -15,57 +15,51 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.alpha.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/alpha.c
+    ../../../../third_party/externals/libwebp/src/enc/alpha.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.analysis.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/analysis.c
+    ../../../../third_party/externals/libwebp/src/enc/analysis.c
 build $
     obj/third_party/externals/libwebp/src/enc/libwebp_enc.backward_references.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/backward_references.c
+    cc ../../../../third_party/externals/libwebp/src/enc/backward_references.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.config.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/config.c
+    ../../../../third_party/externals/libwebp/src/enc/config.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.cost.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/cost.c
+    ../../../../third_party/externals/libwebp/src/enc/cost.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.filter.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/filter.c
+    ../../../../third_party/externals/libwebp/src/enc/filter.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.frame.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/frame.c
+    ../../../../third_party/externals/libwebp/src/enc/frame.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.histogram.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/histogram.c
+    ../../../../third_party/externals/libwebp/src/enc/histogram.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.iterator.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/iterator.c
+    ../../../../third_party/externals/libwebp/src/enc/iterator.c
 build $
     obj/third_party/externals/libwebp/src/enc/libwebp_enc.near_lossless.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/near_lossless.c
+    cc ../../../../third_party/externals/libwebp/src/enc/near_lossless.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.picture.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/picture.c
+    ../../../../third_party/externals/libwebp/src/enc/picture.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.picture_csp.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/picture_csp.c
+    cc ../../../../third_party/externals/libwebp/src/enc/picture_csp.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.picture_psnr.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/picture_psnr.c
+    cc ../../../../third_party/externals/libwebp/src/enc/picture_psnr.c
 build $
     obj/third_party/externals/libwebp/src/enc/libwebp_enc.picture_rescale.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/picture_rescale.c
+    cc ../../../../third_party/externals/libwebp/src/enc/picture_rescale.c
 build $
     obj/third_party/externals/libwebp/src/enc/libwebp_enc.picture_tools.o: $
-    cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/picture_tools.c
+    cc ../../../../third_party/externals/libwebp/src/enc/picture_tools.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.quant.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/quant.c
+    ../../../../third_party/externals/libwebp/src/enc/quant.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.syntax.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/syntax.c
+    ../../../../third_party/externals/libwebp/src/enc/syntax.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.token.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/token.c
+    ../../../../third_party/externals/libwebp/src/enc/token.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.tree.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/tree.c
+    ../../../../third_party/externals/libwebp/src/enc/tree.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.vp8l.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/vp8l.c
+    ../../../../third_party/externals/libwebp/src/enc/vp8l.c
 build obj/third_party/externals/libwebp/src/enc/libwebp_enc.webpenc.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/enc/webpenc.c
+    ../../../../third_party/externals/libwebp/src/enc/webpenc.c
 
 build obj/gyp/libwebp_enc.a: alink_thin $
     obj/third_party/externals/libwebp/src/enc/libwebp_enc.alpha.o $

@@ -1,23 +1,23 @@
 rule SampleApp_APK_target_SampleApp_apk_f85648c6a6c6b0d55ff4818f47c7151e
-  command = cd ../../../../../../paintLib/skia/gyp; $
-      /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/gradlew $
-      :sample_app:assemblearm64Debug $
-      -p/Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app $
+  command = cd ../../../../gyp; $
+      /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/gradlew $
+      :sample_app:assemblearm64Release $
+      -p/Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app $
       -PsuppressNativeBuild
   description = ACTION SampleApp_APK: $
       SampleApp_apk_f85648c6a6c6b0d55ff4818f47c7151e
   restat = 1
 
 build $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/build/outputs/apk/sample_app-arm64-debug.apk: $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/build/outputs/apk/sample_app-arm64-release.apk: $
     SampleApp_APK_target_SampleApp_apk_f85648c6a6c6b0d55ff4818f47c7151e $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/AndroidManifest.xml $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.h $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.cpp $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/java/com/skia/SkiaSampleActivity.java $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/java/com/skia/SkiaSampleRenderer.java $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/java/com/skia/SkiaSampleView.java $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/libs/arm64-v8a/libSampleApp.so $
-    /Users/heidigaertner/Git/paintlib/skia/platform_tools/android/apps/sample_app/src/main/libs/arm64-v8a/libskia_android.so $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/AndroidManifest.xml $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.h $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.cpp $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/java/com/skia/SkiaSampleActivity.java $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/java/com/skia/SkiaSampleRenderer.java $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/java/com/skia/SkiaSampleView.java $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/libs/arm64-v8a/libSampleApp.so $
+    /Users/heidigaertner/Git/paintLib/skia/platform_tools/android/apps/sample_app/src/main/libs/arm64-v8a/libskia_android.so $
     || obj/gyp/CopySampleAppDeps.actions_rules_copies.stamp
 

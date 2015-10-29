@@ -15,7 +15,7 @@ arflags =
 build $
     obj/platform_tools/android/third_party/ashmem/cutils/ashmem.ashmem-dev.o: $
     cc $
-    ../../../../../../paintLib/skia/platform_tools/android/third_party/ashmem/cutils/ashmem-dev.c
+    ../../../../platform_tools/android/third_party/ashmem/cutils/ashmem-dev.c
 
 build obj/gyp/libashmem.a: alink_thin $
     obj/platform_tools/android/third_party/ashmem/cutils/ashmem.ashmem-dev.o

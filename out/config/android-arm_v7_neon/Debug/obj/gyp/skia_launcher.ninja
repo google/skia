@@ -14,8 +14,7 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/platform_tools/android/launcher/skia_launcher.skia_launcher.o: $
-    cxx $
-    ../../../../../../paintLib/skia/platform_tools/android/launcher/skia_launcher.cpp
+    cxx ../../../../platform_tools/android/launcher/skia_launcher.cpp
 
 ldflags = -march=armv7-a -pie
 libs = -llog

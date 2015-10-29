@@ -12,41 +12,25 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_BUILD_FOR_ANDROID -DSK_GAMMA_EXPONENT=1.4 -DSK_GAMMA_CONTRAST=0.0 $
     -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG $
     -DSK_SUPPORT_PDF=1 -DNDEBUG
-includes = -I../../../../../../paintLib/skia/include/private $
-    -I../../../../../../paintLib/skia/src/core $
-    -I../../../../../../paintLib/skia/src/effects $
-    -I../../../../../../paintLib/skia/src/gpu $
-    -I../../../../../../paintLib/skia/src/images $
-    -I../../../../../../paintLib/skia/src/lazy $
-    -I../../../../../../paintLib/skia/gm $
-    -I../../../../../../paintLib/skia/samplecode $
-    -I../../../../../../paintLib/skia/src/pipe/utils $
-    -I../../../../../../paintLib/skia/src/utils/debugger $
-    -I../../../../../../paintLib/skia/tools $
-    -I../../../../../../paintLib/skia/third_party/lua/src $
-    -I../../../../../../paintLib/skia/third_party/etc1 $
-    -I../../../../../../paintLib/skia/tools/flags $
-    -I../../../../../../paintLib/skia/include/core $
-    -I../../../../../../paintLib/skia/include/c $
-    -I../../../../../../paintLib/skia/include/config $
-    -I../../../../../../paintLib/skia/include/pathops $
-    -I../../../../../../paintLib/skia/include/pipe $
-    -I../../../../../../paintLib/skia/include/codec $
-    -I../../../../../../paintLib/skia/third_party/externals/libjpeg-turbo $
-    -I../../../../../../paintLib/skia/include/effects $
-    -I../../../../../../paintLib/skia/include/images $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/png $
-    -I../../../../../../paintLib/skia/platform_tools/android/third_party/externals/jpeg $
-    -I../../../../../../paintLib/skia/include/ports $
-    -I../../../../../../paintLib/skia/src/sfnt $
-    -I../../../../../../paintLib/skia/include/utils $
-    -I../../../../../../paintLib/skia/src/utils $
-    -I../../../../../../paintLib/skia/include/gpu $
-    -I../../../../../../paintLib/skia/tools/timer $
-    -I../../../../../../paintLib/skia/include/views $
-    -I../../../../../../paintLib/skia/include/views/animated $
-    -I../../../../../../paintLib/skia/include/xml $
-    -I../../../../../../paintLib/src/gpu
+includes = -I../../../../include/private -I../../../../src/core $
+    -I../../../../src/effects -I../../../../src/gpu $
+    -I../../../../src/images -I../../../../src/lazy -I../../../../gm $
+    -I../../../../samplecode -I../../../../src/pipe/utils $
+    -I../../../../src/utils/debugger -I../../../../tools $
+    -I../../../../third_party/lua/src -I../../../../third_party/etc1 $
+    -I../../../../tools/flags -I../../../../include/core $
+    -I../../../../include/c -I../../../../include/config $
+    -I../../../../include/pathops -I../../../../include/pipe $
+    -I../../../../include/codec $
+    -I../../../../third_party/externals/libjpeg-turbo $
+    -I../../../../include/effects -I../../../../include/images $
+    -I../../../../platform_tools/android/third_party/externals/png $
+    -I../../../../platform_tools/android/third_party/externals/jpeg $
+    -I../../../../include/ports -I../../../../src/sfnt $
+    -I../../../../include/utils -I../../../../src/utils $
+    -I../../../../include/gpu -I../../../../tools/timer $
+    -I../../../../include/views -I../../../../include/views/animated $
+    -I../../../../include/xml -I../../../../../src/gpu
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -Werror -fuse-ld=gold -O2
@@ -54,676 +38,497 @@ cflags_c =
 cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
-build obj/gm/SampleApp.gm.o: cxx ../../../../../../paintLib/skia/gm/gm.cpp
+build obj/gm/SampleApp.gm.o: cxx ../../../../gm/gm.cpp
 build obj/samplecode/SampleApp.GMSampleView.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/GMSampleView.cpp
+    ../../../../samplecode/GMSampleView.cpp
 build obj/samplecode/SampleApp.ClockFaceView.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/ClockFaceView.cpp
+    ../../../../samplecode/ClockFaceView.cpp
 build obj/samplecode/SampleApp.OverView.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/OverView.cpp
+    ../../../../samplecode/OverView.cpp
 build obj/samplecode/SampleApp.Sample2PtRadial.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/Sample2PtRadial.cpp
+    ../../../../samplecode/Sample2PtRadial.cpp
 build obj/samplecode/SampleApp.SampleAAClip.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleAAClip.cpp
+    ../../../../samplecode/SampleAAClip.cpp
 build obj/samplecode/SampleApp.SampleAARects.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleAARects.cpp
+    ../../../../samplecode/SampleAARects.cpp
 build obj/samplecode/SampleApp.SampleAARectModes.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleAARectModes.cpp
+    ../../../../samplecode/SampleAARectModes.cpp
 build obj/samplecode/SampleApp.SampleAll.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleAll.cpp
+    ../../../../samplecode/SampleAll.cpp
 build obj/samplecode/SampleApp.SampleAnimBlur.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleAnimBlur.cpp
+    ../../../../samplecode/SampleAnimBlur.cpp
 build obj/samplecode/SampleApp.SampleApp.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleApp.cpp
+    ../../../../samplecode/SampleApp.cpp
 build obj/samplecode/SampleApp.SampleArc.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleArc.cpp
+    ../../../../samplecode/SampleArc.cpp
 build obj/samplecode/SampleApp.SampleAtlas.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleAtlas.cpp
+    ../../../../samplecode/SampleAtlas.cpp
 build obj/samplecode/SampleApp.SampleBigBlur.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleBigBlur.cpp
+    ../../../../samplecode/SampleBigBlur.cpp
 build obj/samplecode/SampleApp.SampleBigGradient.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleBigGradient.cpp
+    ../../../../samplecode/SampleBigGradient.cpp
 build obj/samplecode/SampleApp.SampleBitmapRect.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleBitmapRect.cpp
+    ../../../../samplecode/SampleBitmapRect.cpp
 build obj/samplecode/SampleApp.SampleBlur.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleBlur.cpp
+    ../../../../samplecode/SampleBlur.cpp
 build obj/samplecode/SampleApp.SampleCamera.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleCamera.cpp
+    ../../../../samplecode/SampleCamera.cpp
 build obj/samplecode/SampleApp.SampleChart.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleChart.cpp
+    ../../../../samplecode/SampleChart.cpp
 build obj/samplecode/SampleApp.SampleCircle.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleCircle.cpp
+    ../../../../samplecode/SampleCircle.cpp
 build obj/samplecode/SampleApp.SampleClip.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleClip.cpp
+    ../../../../samplecode/SampleClip.cpp
 build obj/samplecode/SampleApp.SampleClipDrawMatch.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleClipDrawMatch.cpp
+    ../../../../samplecode/SampleClipDrawMatch.cpp
 build obj/samplecode/SampleApp.SampleClock.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleClock.cpp
+    ../../../../samplecode/SampleClock.cpp
 build obj/samplecode/SampleApp.SampleColorFilter.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleColorFilter.cpp
+    ../../../../samplecode/SampleColorFilter.cpp
 build obj/samplecode/SampleApp.SampleComplexClip.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleComplexClip.cpp
+    ../../../../samplecode/SampleComplexClip.cpp
 build obj/samplecode/SampleApp.SampleConcavePaths.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleConcavePaths.cpp
+    ../../../../samplecode/SampleConcavePaths.cpp
 build obj/samplecode/SampleApp.SampleCull.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleCull.cpp
+    ../../../../samplecode/SampleCull.cpp
 build obj/samplecode/SampleApp.SampleDegenerateTwoPtRadials.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleDegenerateTwoPtRadials.cpp
+    ../../../../samplecode/SampleDegenerateTwoPtRadials.cpp
 build obj/samplecode/SampleApp.SampleDither.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleDither.cpp
+    ../../../../samplecode/SampleDither.cpp
 build obj/samplecode/SampleApp.SampleDitherBitmap.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleDitherBitmap.cpp
+    ../../../../samplecode/SampleDitherBitmap.cpp
 build obj/samplecode/SampleApp.SampleEffects.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleEffects.cpp
+    ../../../../samplecode/SampleEffects.cpp
 build obj/samplecode/SampleApp.SampleEmboss.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleEmboss.cpp
+    ../../../../samplecode/SampleEmboss.cpp
 build obj/samplecode/SampleApp.SampleFatBits.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFatBits.cpp
+    ../../../../samplecode/SampleFatBits.cpp
 build obj/samplecode/SampleApp.SampleFillType.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFillType.cpp
+    ../../../../samplecode/SampleFillType.cpp
 build obj/samplecode/SampleApp.SampleFilter.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFilter.cpp
+    ../../../../samplecode/SampleFilter.cpp
 build obj/samplecode/SampleApp.SampleFilter2.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFilter2.cpp
+    ../../../../samplecode/SampleFilter2.cpp
 build obj/samplecode/SampleApp.SampleFilterQuality.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFilterQuality.cpp
+    ../../../../samplecode/SampleFilterQuality.cpp
 build obj/samplecode/SampleApp.SampleFilterFuzz.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFilterFuzz.cpp
+    ../../../../samplecode/SampleFilterFuzz.cpp
 build obj/samplecode/SampleApp.SampleFontScalerTest.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFontScalerTest.cpp
+    ../../../../samplecode/SampleFontScalerTest.cpp
 build obj/samplecode/SampleApp.SampleFuzz.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleFuzz.cpp
+    ../../../../samplecode/SampleFuzz.cpp
 build obj/samplecode/SampleApp.SampleGradients.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleGradients.cpp
+    ../../../../samplecode/SampleGradients.cpp
 build obj/samplecode/SampleApp.SampleHairCurves.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleHairCurves.cpp
+    ../../../../samplecode/SampleHairCurves.cpp
 build obj/samplecode/SampleApp.SampleHairline.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleHairline.cpp
+    ../../../../samplecode/SampleHairline.cpp
 build obj/samplecode/SampleApp.SampleHairModes.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleHairModes.cpp
+    ../../../../samplecode/SampleHairModes.cpp
 build obj/samplecode/SampleApp.SampleHT.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleHT.cpp
+    ../../../../samplecode/SampleHT.cpp
 build obj/samplecode/SampleApp.SampleIdentityScale.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleIdentityScale.cpp
+    ../../../../samplecode/SampleIdentityScale.cpp
 build obj/samplecode/SampleApp.SampleLayerMask.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleLayerMask.cpp
+    ../../../../samplecode/SampleLayerMask.cpp
 build obj/samplecode/SampleApp.SampleLayers.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleLayers.cpp
+    ../../../../samplecode/SampleLayers.cpp
 build obj/samplecode/SampleApp.SampleLCD.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleLCD.cpp
+    ../../../../samplecode/SampleLCD.cpp
 build obj/samplecode/SampleApp.SampleLighting.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleLighting.cpp
+    ../../../../samplecode/SampleLighting.cpp
 build obj/samplecode/SampleApp.SampleLines.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleLines.cpp
+    ../../../../samplecode/SampleLines.cpp
 build obj/samplecode/SampleApp.SampleLua.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleLua.cpp
+    ../../../../samplecode/SampleLua.cpp
 build obj/samplecode/SampleApp.SampleManyRects.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleManyRects.cpp
+    ../../../../samplecode/SampleManyRects.cpp
 build obj/samplecode/SampleApp.SampleMeasure.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleMeasure.cpp
+    ../../../../samplecode/SampleMeasure.cpp
 build obj/samplecode/SampleApp.SamplePatch.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePatch.cpp
+    ../../../../samplecode/SamplePatch.cpp
 build obj/samplecode/SampleApp.SamplePath.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePath.cpp
+    ../../../../samplecode/SamplePath.cpp
 build obj/samplecode/SampleApp.SamplePathClip.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePathClip.cpp
+    ../../../../samplecode/SamplePathClip.cpp
 build obj/samplecode/SampleApp.SamplePathFuzz.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePathFuzz.cpp
+    ../../../../samplecode/SamplePathFuzz.cpp
 build obj/samplecode/SampleApp.SamplePathEffects.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePathEffects.cpp
+    ../../../../samplecode/SamplePathEffects.cpp
 build obj/samplecode/SampleApp.SamplePictFile.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePictFile.cpp
+    ../../../../samplecode/SamplePictFile.cpp
 build obj/samplecode/SampleApp.SamplePoints.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePoints.cpp
+    ../../../../samplecode/SamplePoints.cpp
 build obj/samplecode/SampleApp.SamplePolyToPoly.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SamplePolyToPoly.cpp
+    ../../../../samplecode/SamplePolyToPoly.cpp
 build obj/samplecode/SampleApp.SampleQuadStroker.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleQuadStroker.cpp
+    ../../../../samplecode/SampleQuadStroker.cpp
 build obj/samplecode/SampleApp.SampleRectanizer.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleRectanizer.cpp
+    ../../../../samplecode/SampleRectanizer.cpp
 build obj/samplecode/SampleApp.SampleRegion.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleRegion.cpp
+    ../../../../samplecode/SampleRegion.cpp
 build obj/samplecode/SampleApp.SampleRepeatTile.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleRepeatTile.cpp
+    ../../../../samplecode/SampleRepeatTile.cpp
 build obj/samplecode/SampleApp.SampleShaders.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleShaders.cpp
+    ../../../../samplecode/SampleShaders.cpp
 build obj/samplecode/SampleApp.SampleShaderText.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleShaderText.cpp
+    ../../../../samplecode/SampleShaderText.cpp
 build obj/samplecode/SampleApp.SampleShip.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleShip.cpp
+    ../../../../samplecode/SampleShip.cpp
 build obj/samplecode/SampleApp.SampleSlides.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleSlides.cpp
+    ../../../../samplecode/SampleSlides.cpp
 build obj/samplecode/SampleApp.SampleStringArt.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleStringArt.cpp
+    ../../../../samplecode/SampleStringArt.cpp
 build obj/samplecode/SampleApp.SampleStrokePath.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleStrokePath.cpp
+    ../../../../samplecode/SampleStrokePath.cpp
 build obj/samplecode/SampleApp.SampleSubpixelTranslate.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleSubpixelTranslate.cpp
+    ../../../../samplecode/SampleSubpixelTranslate.cpp
 build obj/samplecode/SampleApp.SampleText.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleText.cpp
+    ../../../../samplecode/SampleText.cpp
 build obj/samplecode/SampleApp.SampleTextAlpha.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleTextAlpha.cpp
+    ../../../../samplecode/SampleTextAlpha.cpp
 build obj/samplecode/SampleApp.SampleTextBox.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleTextBox.cpp
+    ../../../../samplecode/SampleTextBox.cpp
 build obj/samplecode/SampleApp.SampleTextOnPath.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleTextOnPath.cpp
+    ../../../../samplecode/SampleTextOnPath.cpp
 build obj/samplecode/SampleApp.SampleTextureDomain.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleTextureDomain.cpp
+    ../../../../samplecode/SampleTextureDomain.cpp
 build obj/samplecode/SampleApp.SampleTiling.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleTiling.cpp
+    ../../../../samplecode/SampleTiling.cpp
 build obj/samplecode/SampleApp.SampleTinyBitmap.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleTinyBitmap.cpp
+    ../../../../samplecode/SampleTinyBitmap.cpp
 build obj/samplecode/SampleApp.SampleUnpremul.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleUnpremul.cpp
+    ../../../../samplecode/SampleUnpremul.cpp
 build obj/samplecode/SampleApp.SampleVertices.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleVertices.cpp
+    ../../../../samplecode/SampleVertices.cpp
 build obj/samplecode/SampleApp.SampleXfermodesBlur.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleXfermodesBlur.cpp
+    ../../../../samplecode/SampleXfermodesBlur.cpp
 build obj/samplecode/SampleApp.SampleXfer.o: cxx $
-    ../../../../../../paintLib/skia/samplecode/SampleXfer.cpp
+    ../../../../samplecode/SampleXfer.cpp
 build obj/src/pipe/utils/SampleApp.SamplePipeControllers.o: cxx $
-    ../../../../../../paintLib/skia/src/pipe/utils/SamplePipeControllers.cpp
+    ../../../../src/pipe/utils/SamplePipeControllers.cpp
 build obj/src/utils/SampleApp.SkLuaCanvas.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/SkLuaCanvas.cpp
-build obj/src/utils/SampleApp.SkLua.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/SkLua.cpp
-build obj/gm/SampleApp.aaclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/aaclip.cpp
-build obj/gm/SampleApp.aarectmodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/aarectmodes.cpp
-build obj/gm/SampleApp.aaxfermodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/aaxfermodes.cpp
-build obj/gm/SampleApp.addarc.o: cxx $
-    ../../../../../../paintLib/skia/gm/addarc.cpp
+    ../../../../src/utils/SkLuaCanvas.cpp
+build obj/src/utils/SampleApp.SkLua.o: cxx ../../../../src/utils/SkLua.cpp
+build obj/gm/SampleApp.aaclip.o: cxx ../../../../gm/aaclip.cpp
+build obj/gm/SampleApp.aarectmodes.o: cxx ../../../../gm/aarectmodes.cpp
+build obj/gm/SampleApp.aaxfermodes.o: cxx ../../../../gm/aaxfermodes.cpp
+build obj/gm/SampleApp.addarc.o: cxx ../../../../gm/addarc.cpp
 build obj/gm/SampleApp.all_bitmap_configs.o: cxx $
-    ../../../../../../paintLib/skia/gm/all_bitmap_configs.cpp
-build obj/gm/SampleApp.alphagradients.o: cxx $
-    ../../../../../../paintLib/skia/gm/alphagradients.cpp
-build obj/gm/SampleApp.anisotropic.o: cxx $
-    ../../../../../../paintLib/skia/gm/anisotropic.cpp
-build obj/gm/SampleApp.annotated_text.o: cxx $
-    ../../../../../../paintLib/skia/gm/annotated_text.cpp
-build obj/gm/SampleApp.arcofzorro.o: cxx $
-    ../../../../../../paintLib/skia/gm/arcofzorro.cpp
-build obj/gm/SampleApp.arithmode.o: cxx $
-    ../../../../../../paintLib/skia/gm/arithmode.cpp
-build obj/gm/SampleApp.astcbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/astcbitmap.cpp
-build obj/gm/SampleApp.badpaint.o: cxx $
-    ../../../../../../paintLib/skia/gm/badpaint.cpp
-build obj/gm/SampleApp.beziereffects.o: cxx $
-    ../../../../../../paintLib/skia/gm/beziereffects.cpp
-build obj/gm/SampleApp.beziers.o: cxx $
-    ../../../../../../paintLib/skia/gm/beziers.cpp
-build obj/gm/SampleApp.bigblurs.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigblurs.cpp
-build obj/gm/SampleApp.bigmatrix.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigmatrix.cpp
+    ../../../../gm/all_bitmap_configs.cpp
+build obj/gm/SampleApp.alphagradients.o: cxx ../../../../gm/alphagradients.cpp
+build obj/gm/SampleApp.anisotropic.o: cxx ../../../../gm/anisotropic.cpp
+build obj/gm/SampleApp.annotated_text.o: cxx ../../../../gm/annotated_text.cpp
+build obj/gm/SampleApp.arcofzorro.o: cxx ../../../../gm/arcofzorro.cpp
+build obj/gm/SampleApp.arithmode.o: cxx ../../../../gm/arithmode.cpp
+build obj/gm/SampleApp.astcbitmap.o: cxx ../../../../gm/astcbitmap.cpp
+build obj/gm/SampleApp.badpaint.o: cxx ../../../../gm/badpaint.cpp
+build obj/gm/SampleApp.beziereffects.o: cxx ../../../../gm/beziereffects.cpp
+build obj/gm/SampleApp.beziers.o: cxx ../../../../gm/beziers.cpp
+build obj/gm/SampleApp.bigblurs.o: cxx ../../../../gm/bigblurs.cpp
+build obj/gm/SampleApp.bigmatrix.o: cxx ../../../../gm/bigmatrix.cpp
 build obj/gm/SampleApp.bigrrectaaeffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigrrectaaeffect.cpp
-build obj/gm/SampleApp.bigtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigtext.cpp
+    ../../../../gm/bigrrectaaeffect.cpp
+build obj/gm/SampleApp.bigtext.o: cxx ../../../../gm/bigtext.cpp
 build obj/gm/SampleApp.bigtileimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/bigtileimagefilter.cpp
-build obj/gm/SampleApp.bitmapcopy.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmapcopy.cpp
-build obj/gm/SampleApp.bitmapfilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmapfilters.cpp
-build obj/gm/SampleApp.bitmappremul.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmappremul.cpp
-build obj/gm/SampleApp.bitmaprect.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmaprect.cpp
-build obj/gm/SampleApp.bitmaprecttest.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmaprecttest.cpp
-build obj/gm/SampleApp.bitmapshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/bitmapshader.cpp
-build obj/gm/SampleApp.bleed.o: cxx $
-    ../../../../../../paintLib/skia/gm/bleed.cpp
-build obj/gm/SampleApp.blend.o: cxx $
-    ../../../../../../paintLib/skia/gm/blend.cpp
-build obj/gm/SampleApp.blurcircles.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurcircles.cpp
+    ../../../../gm/bigtileimagefilter.cpp
+build obj/gm/SampleApp.bitmapcopy.o: cxx ../../../../gm/bitmapcopy.cpp
+build obj/gm/SampleApp.bitmapfilters.o: cxx ../../../../gm/bitmapfilters.cpp
+build obj/gm/SampleApp.bitmappremul.o: cxx ../../../../gm/bitmappremul.cpp
+build obj/gm/SampleApp.bitmaprect.o: cxx ../../../../gm/bitmaprect.cpp
+build obj/gm/SampleApp.bitmaprecttest.o: cxx ../../../../gm/bitmaprecttest.cpp
+build obj/gm/SampleApp.bitmapshader.o: cxx ../../../../gm/bitmapshader.cpp
+build obj/gm/SampleApp.bleed.o: cxx ../../../../gm/bleed.cpp
+build obj/gm/SampleApp.blend.o: cxx ../../../../gm/blend.cpp
+build obj/gm/SampleApp.blurcircles.o: cxx ../../../../gm/blurcircles.cpp
 build obj/gm/SampleApp.blurquickreject.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurquickreject.cpp
-build obj/gm/SampleApp.blurrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurrect.cpp
-build obj/gm/SampleApp.blurroundrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurroundrect.cpp
-build obj/gm/SampleApp.blurs.o: cxx $
-    ../../../../../../paintLib/skia/gm/blurs.cpp
+    ../../../../gm/blurquickreject.cpp
+build obj/gm/SampleApp.blurrect.o: cxx ../../../../gm/blurrect.cpp
+build obj/gm/SampleApp.blurroundrect.o: cxx ../../../../gm/blurroundrect.cpp
+build obj/gm/SampleApp.blurs.o: cxx ../../../../gm/blurs.cpp
 build obj/gm/SampleApp.bmpfilterqualityrepeat.o: cxx $
-    ../../../../../../paintLib/skia/gm/bmpfilterqualityrepeat.cpp
-build obj/gm/SampleApp.cgm.o: cc ../../../../../../paintLib/skia/gm/cgm.c
-build obj/gm/SampleApp.cgms.o: cxx ../../../../../../paintLib/skia/gm/cgms.cpp
-build obj/gm/SampleApp.circles.o: cxx $
-    ../../../../../../paintLib/skia/gm/circles.cpp
-build obj/gm/SampleApp.circularclips.o: cxx $
-    ../../../../../../paintLib/skia/gm/circularclips.cpp
+    ../../../../gm/bmpfilterqualityrepeat.cpp
+build obj/gm/SampleApp.cgm.o: cc ../../../../gm/cgm.c
+build obj/gm/SampleApp.cgms.o: cxx ../../../../gm/cgms.cpp
+build obj/gm/SampleApp.circles.o: cxx ../../../../gm/circles.cpp
+build obj/gm/SampleApp.circularclips.o: cxx ../../../../gm/circularclips.cpp
 build obj/gm/SampleApp.clip_strokerect.o: cxx $
-    ../../../../../../paintLib/skia/gm/clip_strokerect.cpp
-build obj/gm/SampleApp.clipdrawdraw.o: cxx $
-    ../../../../../../paintLib/skia/gm/clipdrawdraw.cpp
+    ../../../../gm/clip_strokerect.cpp
+build obj/gm/SampleApp.clipdrawdraw.o: cxx ../../../../gm/clipdrawdraw.cpp
 build obj/gm/SampleApp.clippedbitmapshaders.o: cxx $
-    ../../../../../../paintLib/skia/gm/clippedbitmapshaders.cpp
-build obj/gm/SampleApp.cmykjpeg.o: cxx $
-    ../../../../../../paintLib/skia/gm/cmykjpeg.cpp
-build obj/gm/SampleApp.colorcube.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorcube.cpp
-build obj/gm/SampleApp.coloremoji.o: cxx $
-    ../../../../../../paintLib/skia/gm/coloremoji.cpp
+    ../../../../gm/clippedbitmapshaders.cpp
+build obj/gm/SampleApp.cmykjpeg.o: cxx ../../../../gm/cmykjpeg.cpp
+build obj/gm/SampleApp.colorcube.o: cxx ../../../../gm/colorcube.cpp
+build obj/gm/SampleApp.coloremoji.o: cxx ../../../../gm/coloremoji.cpp
 build obj/gm/SampleApp.colorfilterimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorfilterimagefilter.cpp
-build obj/gm/SampleApp.colorfilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorfilters.cpp
-build obj/gm/SampleApp.colormatrix.o: cxx $
-    ../../../../../../paintLib/skia/gm/colormatrix.cpp
-build obj/gm/SampleApp.colortype.o: cxx $
-    ../../../../../../paintLib/skia/gm/colortype.cpp
+    ../../../../gm/colorfilterimagefilter.cpp
+build obj/gm/SampleApp.colorfilters.o: cxx ../../../../gm/colorfilters.cpp
+build obj/gm/SampleApp.colormatrix.o: cxx ../../../../gm/colormatrix.cpp
+build obj/gm/SampleApp.colortype.o: cxx ../../../../gm/colortype.cpp
 build obj/gm/SampleApp.colortypexfermode.o: cxx $
-    ../../../../../../paintLib/skia/gm/colortypexfermode.cpp
-build obj/gm/SampleApp.colorwheel.o: cxx $
-    ../../../../../../paintLib/skia/gm/colorwheel.cpp
-build obj/gm/SampleApp.complexclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/complexclip.cpp
-build obj/gm/SampleApp.complexclip2.o: cxx $
-    ../../../../../../paintLib/skia/gm/complexclip2.cpp
-build obj/gm/SampleApp.complexclip3.o: cxx $
-    ../../../../../../paintLib/skia/gm/complexclip3.cpp
-build obj/gm/SampleApp.composeshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/composeshader.cpp
-build obj/gm/SampleApp.concavepaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/concavepaths.cpp
-build obj/gm/SampleApp.conicpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/conicpaths.cpp
+    ../../../../gm/colortypexfermode.cpp
+build obj/gm/SampleApp.colorwheel.o: cxx ../../../../gm/colorwheel.cpp
+build obj/gm/SampleApp.complexclip.o: cxx ../../../../gm/complexclip.cpp
+build obj/gm/SampleApp.complexclip2.o: cxx ../../../../gm/complexclip2.cpp
+build obj/gm/SampleApp.complexclip3.o: cxx ../../../../gm/complexclip3.cpp
+build obj/gm/SampleApp.composeshader.o: cxx ../../../../gm/composeshader.cpp
+build obj/gm/SampleApp.concavepaths.o: cxx ../../../../gm/concavepaths.cpp
+build obj/gm/SampleApp.conicpaths.o: cxx ../../../../gm/conicpaths.cpp
 build obj/gm/SampleApp.constcolorprocessor.o: cxx $
-    ../../../../../../paintLib/skia/gm/constcolorprocessor.cpp
+    ../../../../gm/constcolorprocessor.cpp
 build obj/gm/SampleApp.convex_all_line_paths.o: cxx $
-    ../../../../../../paintLib/skia/gm/convex_all_line_paths.cpp
-build obj/gm/SampleApp.convexpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/convexpaths.cpp
-build obj/gm/SampleApp.convexpolyclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/convexpolyclip.cpp
+    ../../../../gm/convex_all_line_paths.cpp
+build obj/gm/SampleApp.convexpaths.o: cxx ../../../../gm/convexpaths.cpp
+build obj/gm/SampleApp.convexpolyclip.o: cxx ../../../../gm/convexpolyclip.cpp
 build obj/gm/SampleApp.convexpolyeffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/convexpolyeffect.cpp
-build obj/gm/SampleApp.copyTo4444.o: cxx $
-    ../../../../../../paintLib/skia/gm/copyTo4444.cpp
-build obj/gm/SampleApp.cubicpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/cubicpaths.cpp
-build obj/gm/SampleApp.dashcubics.o: cxx $
-    ../../../../../../paintLib/skia/gm/dashcubics.cpp
-build obj/gm/SampleApp.dashing.o: cxx $
-    ../../../../../../paintLib/skia/gm/dashing.cpp
-build obj/gm/SampleApp.dcshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/dcshader.cpp
+    ../../../../gm/convexpolyeffect.cpp
+build obj/gm/SampleApp.copyTo4444.o: cxx ../../../../gm/copyTo4444.cpp
+build obj/gm/SampleApp.cubicpaths.o: cxx ../../../../gm/cubicpaths.cpp
+build obj/gm/SampleApp.dashcubics.o: cxx ../../../../gm/dashcubics.cpp
+build obj/gm/SampleApp.dashing.o: cxx ../../../../gm/dashing.cpp
+build obj/gm/SampleApp.dcshader.o: cxx ../../../../gm/dcshader.cpp
 build obj/gm/SampleApp.degeneratesegments.o: cxx $
-    ../../../../../../paintLib/skia/gm/degeneratesegments.cpp
-build obj/gm/SampleApp.dftext.o: cxx $
-    ../../../../../../paintLib/skia/gm/dftext.cpp
-build obj/gm/SampleApp.discard.o: cxx $
-    ../../../../../../paintLib/skia/gm/discard.cpp
-build obj/gm/SampleApp.displacement.o: cxx $
-    ../../../../../../paintLib/skia/gm/displacement.cpp
-build obj/gm/SampleApp.distantclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/distantclip.cpp
+    ../../../../gm/degeneratesegments.cpp
+build obj/gm/SampleApp.dftext.o: cxx ../../../../gm/dftext.cpp
+build obj/gm/SampleApp.discard.o: cxx ../../../../gm/discard.cpp
+build obj/gm/SampleApp.displacement.o: cxx ../../../../gm/displacement.cpp
+build obj/gm/SampleApp.distantclip.o: cxx ../../../../gm/distantclip.cpp
 build obj/gm/SampleApp.downsamplebitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/downsamplebitmap.cpp
+    ../../../../gm/downsamplebitmap.cpp
 build obj/gm/SampleApp.draw_bitmap_rect_skbug4374.o: cxx $
-    ../../../../../../paintLib/skia/gm/draw_bitmap_rect_skbug4374.cpp
-build obj/gm/SampleApp.drawable.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawable.cpp
-build obj/gm/SampleApp.drawatlas.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawatlas.cpp
-build obj/gm/SampleApp.drawatlascolor.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawatlascolor.cpp
-build obj/gm/SampleApp.drawbitmaprect.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawbitmaprect.cpp
-build obj/gm/SampleApp.drawfilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawfilter.cpp
-build obj/gm/SampleApp.drawlooper.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawlooper.cpp
+    ../../../../gm/draw_bitmap_rect_skbug4374.cpp
+build obj/gm/SampleApp.drawable.o: cxx ../../../../gm/drawable.cpp
+build obj/gm/SampleApp.drawatlas.o: cxx ../../../../gm/drawatlas.cpp
+build obj/gm/SampleApp.drawatlascolor.o: cxx ../../../../gm/drawatlascolor.cpp
+build obj/gm/SampleApp.drawbitmaprect.o: cxx ../../../../gm/drawbitmaprect.cpp
+build obj/gm/SampleApp.drawfilter.o: cxx ../../../../gm/drawfilter.cpp
+build obj/gm/SampleApp.drawlooper.o: cxx ../../../../gm/drawlooper.cpp
 build obj/gm/SampleApp.drawminibitmaprect.o: cxx $
-    ../../../../../../paintLib/skia/gm/drawminibitmaprect.cpp
+    ../../../../gm/drawminibitmaprect.cpp
 build obj/gm/SampleApp.dropshadowimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/dropshadowimagefilter.cpp
-build obj/gm/SampleApp.drrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/drrect.cpp
-build obj/gm/SampleApp.dstreadshuffle.o: cxx $
-    ../../../../../../paintLib/skia/gm/dstreadshuffle.cpp
-build obj/gm/SampleApp.emboss.o: cxx $
-    ../../../../../../paintLib/skia/gm/emboss.cpp
-build obj/gm/SampleApp.emptypath.o: cxx $
-    ../../../../../../paintLib/skia/gm/emptypath.cpp
-build obj/gm/SampleApp.etc1bitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/etc1bitmap.cpp
-build obj/gm/SampleApp.extractbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/extractbitmap.cpp
-build obj/gm/SampleApp.factory.o: cxx $
-    ../../../../../../paintLib/skia/gm/factory.cpp
-build obj/gm/SampleApp.fadefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/fadefilter.cpp
-build obj/gm/SampleApp.fatpathfill.o: cxx $
-    ../../../../../../paintLib/skia/gm/fatpathfill.cpp
-build obj/gm/SampleApp.filltypes.o: cxx $
-    ../../../../../../paintLib/skia/gm/filltypes.cpp
-build obj/gm/SampleApp.filltypespersp.o: cxx $
-    ../../../../../../paintLib/skia/gm/filltypespersp.cpp
-build obj/gm/SampleApp.filterbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/filterbitmap.cpp
+    ../../../../gm/dropshadowimagefilter.cpp
+build obj/gm/SampleApp.drrect.o: cxx ../../../../gm/drrect.cpp
+build obj/gm/SampleApp.dstreadshuffle.o: cxx ../../../../gm/dstreadshuffle.cpp
+build obj/gm/SampleApp.emboss.o: cxx ../../../../gm/emboss.cpp
+build obj/gm/SampleApp.emptypath.o: cxx ../../../../gm/emptypath.cpp
+build obj/gm/SampleApp.etc1bitmap.o: cxx ../../../../gm/etc1bitmap.cpp
+build obj/gm/SampleApp.extractbitmap.o: cxx ../../../../gm/extractbitmap.cpp
+build obj/gm/SampleApp.factory.o: cxx ../../../../gm/factory.cpp
+build obj/gm/SampleApp.fadefilter.o: cxx ../../../../gm/fadefilter.cpp
+build obj/gm/SampleApp.fatpathfill.o: cxx ../../../../gm/fatpathfill.cpp
+build obj/gm/SampleApp.filltypes.o: cxx ../../../../gm/filltypes.cpp
+build obj/gm/SampleApp.filltypespersp.o: cxx ../../../../gm/filltypespersp.cpp
+build obj/gm/SampleApp.filterbitmap.o: cxx ../../../../gm/filterbitmap.cpp
 build obj/gm/SampleApp.filterfastbounds.o: cxx $
-    ../../../../../../paintLib/skia/gm/filterfastbounds.cpp
-build obj/gm/SampleApp.filterindiabox.o: cxx $
-    ../../../../../../paintLib/skia/gm/filterindiabox.cpp
-build obj/gm/SampleApp.fontcache.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontcache.cpp
-build obj/gm/SampleApp.fontmgr.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontmgr.cpp
-build obj/gm/SampleApp.fontscaler.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontscaler.cpp
+    ../../../../gm/filterfastbounds.cpp
+build obj/gm/SampleApp.filterindiabox.o: cxx ../../../../gm/filterindiabox.cpp
+build obj/gm/SampleApp.fontcache.o: cxx ../../../../gm/fontcache.cpp
+build obj/gm/SampleApp.fontmgr.o: cxx ../../../../gm/fontmgr.cpp
+build obj/gm/SampleApp.fontscaler.o: cxx ../../../../gm/fontscaler.cpp
 build obj/gm/SampleApp.fontscalerdistortable.o: cxx $
-    ../../../../../../paintLib/skia/gm/fontscalerdistortable.cpp
-build obj/gm/SampleApp.gammatext.o: cxx $
-    ../../../../../../paintLib/skia/gm/gammatext.cpp
-build obj/gm/SampleApp.getpostextpath.o: cxx $
-    ../../../../../../paintLib/skia/gm/getpostextpath.cpp
-build obj/gm/SampleApp.giantbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/giantbitmap.cpp
-build obj/gm/SampleApp.glyph_pos.o: cxx $
-    ../../../../../../paintLib/skia/gm/glyph_pos.cpp
+    ../../../../gm/fontscalerdistortable.cpp
+build obj/gm/SampleApp.gammatext.o: cxx ../../../../gm/gammatext.cpp
+build obj/gm/SampleApp.getpostextpath.o: cxx ../../../../gm/getpostextpath.cpp
+build obj/gm/SampleApp.giantbitmap.o: cxx ../../../../gm/giantbitmap.cpp
+build obj/gm/SampleApp.glyph_pos.o: cxx ../../../../gm/glyph_pos.cpp
 build obj/gm/SampleApp.glyph_pos_align.o: cxx $
-    ../../../../../../paintLib/skia/gm/glyph_pos_align.cpp
+    ../../../../gm/glyph_pos_align.cpp
 build obj/gm/SampleApp.gradientDirtyLaundry.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradientDirtyLaundry.cpp
+    ../../../../gm/gradientDirtyLaundry.cpp
 build obj/gm/SampleApp.gradient_matrix.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradient_matrix.cpp
-build obj/gm/SampleApp.gradients.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradients.cpp
+    ../../../../gm/gradient_matrix.cpp
+build obj/gm/SampleApp.gradients.o: cxx ../../../../gm/gradients.cpp
 build obj/gm/SampleApp.gradients_2pt_conical.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradients_2pt_conical.cpp
+    ../../../../gm/gradients_2pt_conical.cpp
 build obj/gm/SampleApp.gradients_no_texture.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradients_no_texture.cpp
-build obj/gm/SampleApp.gradtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/gradtext.cpp
-build obj/gm/SampleApp.grayscalejpg.o: cxx $
-    ../../../../../../paintLib/skia/gm/grayscalejpg.cpp
-build obj/gm/SampleApp.hairlines.o: cxx $
-    ../../../../../../paintLib/skia/gm/hairlines.cpp
-build obj/gm/SampleApp.hairmodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/hairmodes.cpp
-build obj/gm/SampleApp.hittestpath.o: cxx $
-    ../../../../../../paintLib/skia/gm/hittestpath.cpp
-build obj/gm/SampleApp.image.o: cxx $
-    ../../../../../../paintLib/skia/gm/image.cpp
-build obj/gm/SampleApp.image_pict.o: cxx $
-    ../../../../../../paintLib/skia/gm/image_pict.cpp
-build obj/gm/SampleApp.image_shader.o: cxx $
-    ../../../../../../paintLib/skia/gm/image_shader.cpp
+    ../../../../gm/gradients_no_texture.cpp
+build obj/gm/SampleApp.gradtext.o: cxx ../../../../gm/gradtext.cpp
+build obj/gm/SampleApp.grayscalejpg.o: cxx ../../../../gm/grayscalejpg.cpp
+build obj/gm/SampleApp.hairlines.o: cxx ../../../../gm/hairlines.cpp
+build obj/gm/SampleApp.hairmodes.o: cxx ../../../../gm/hairmodes.cpp
+build obj/gm/SampleApp.hittestpath.o: cxx ../../../../gm/hittestpath.cpp
+build obj/gm/SampleApp.image.o: cxx ../../../../gm/image.cpp
+build obj/gm/SampleApp.image_pict.o: cxx ../../../../gm/image_pict.cpp
+build obj/gm/SampleApp.image_shader.o: cxx ../../../../gm/image_shader.cpp
 build obj/gm/SampleApp.imagealphathreshold.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagealphathreshold.cpp
-build obj/gm/SampleApp.imageblur.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageblur.cpp
-build obj/gm/SampleApp.imageblur2.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageblur2.cpp
-build obj/gm/SampleApp.imageblurtiled.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageblurtiled.cpp
-build obj/gm/SampleApp.imagefilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilters.cpp
+    ../../../../gm/imagealphathreshold.cpp
+build obj/gm/SampleApp.imageblur.o: cxx ../../../../gm/imageblur.cpp
+build obj/gm/SampleApp.imageblur2.o: cxx ../../../../gm/imageblur2.cpp
+build obj/gm/SampleApp.imageblurtiled.o: cxx ../../../../gm/imageblurtiled.cpp
+build obj/gm/SampleApp.imagefilters.o: cxx ../../../../gm/imagefilters.cpp
 build obj/gm/SampleApp.imagefiltersbase.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersbase.cpp
+    ../../../../gm/imagefiltersbase.cpp
 build obj/gm/SampleApp.imagefiltersclipped.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersclipped.cpp
+    ../../../../gm/imagefiltersclipped.cpp
 build obj/gm/SampleApp.imagefilterscropexpand.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilterscropexpand.cpp
+    ../../../../gm/imagefilterscropexpand.cpp
 build obj/gm/SampleApp.imagefilterscropped.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilterscropped.cpp
+    ../../../../gm/imagefilterscropped.cpp
 build obj/gm/SampleApp.imagefiltersgraph.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersgraph.cpp
+    ../../../../gm/imagefiltersgraph.cpp
 build obj/gm/SampleApp.imagefiltersscaled.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersscaled.cpp
+    ../../../../gm/imagefiltersscaled.cpp
 build obj/gm/SampleApp.imagefiltersstroked.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefiltersstroked.cpp
+    ../../../../gm/imagefiltersstroked.cpp
 build obj/gm/SampleApp.imagefilterstransformed.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefilterstransformed.cpp
+    ../../../../gm/imagefilterstransformed.cpp
 build obj/gm/SampleApp.imagefromyuvtextures.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagefromyuvtextures.cpp
-build obj/gm/SampleApp.imagemagnifier.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagemagnifier.cpp
+    ../../../../gm/imagefromyuvtextures.cpp
+build obj/gm/SampleApp.imagemagnifier.o: cxx ../../../../gm/imagemagnifier.cpp
 build obj/gm/SampleApp.imageresizetiled.o: cxx $
-    ../../../../../../paintLib/skia/gm/imageresizetiled.cpp
-build obj/gm/SampleApp.imagesource.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagesource.cpp
-build obj/gm/SampleApp.imagesource2.o: cxx $
-    ../../../../../../paintLib/skia/gm/imagesource2.cpp
-build obj/gm/SampleApp.internal_links.o: cxx $
-    ../../../../../../paintLib/skia/gm/internal_links.cpp
-build obj/gm/SampleApp.inversepaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/inversepaths.cpp
-build obj/gm/SampleApp.largeglyphblur.o: cxx $
-    ../../../../../../paintLib/skia/gm/largeglyphblur.cpp
-build obj/gm/SampleApp.lcdblendmodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/lcdblendmodes.cpp
-build obj/gm/SampleApp.lcdoverlap.o: cxx $
-    ../../../../../../paintLib/skia/gm/lcdoverlap.cpp
-build obj/gm/SampleApp.lcdtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/lcdtext.cpp
-build obj/gm/SampleApp.lerpmode.o: cxx $
-    ../../../../../../paintLib/skia/gm/lerpmode.cpp
-build obj/gm/SampleApp.lighting.o: cxx $
-    ../../../../../../paintLib/skia/gm/lighting.cpp
-build obj/gm/SampleApp.lightingshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/lightingshader.cpp
-build obj/gm/SampleApp.linepaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/linepaths.cpp
-build obj/gm/SampleApp.lumafilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/lumafilter.cpp
+    ../../../../gm/imageresizetiled.cpp
+build obj/gm/SampleApp.imagesource.o: cxx ../../../../gm/imagesource.cpp
+build obj/gm/SampleApp.imagesource2.o: cxx ../../../../gm/imagesource2.cpp
+build obj/gm/SampleApp.internal_links.o: cxx ../../../../gm/internal_links.cpp
+build obj/gm/SampleApp.inversepaths.o: cxx ../../../../gm/inversepaths.cpp
+build obj/gm/SampleApp.largeglyphblur.o: cxx ../../../../gm/largeglyphblur.cpp
+build obj/gm/SampleApp.lcdblendmodes.o: cxx ../../../../gm/lcdblendmodes.cpp
+build obj/gm/SampleApp.lcdoverlap.o: cxx ../../../../gm/lcdoverlap.cpp
+build obj/gm/SampleApp.lcdtext.o: cxx ../../../../gm/lcdtext.cpp
+build obj/gm/SampleApp.lerpmode.o: cxx ../../../../gm/lerpmode.cpp
+build obj/gm/SampleApp.lighting.o: cxx ../../../../gm/lighting.cpp
+build obj/gm/SampleApp.lightingshader.o: cxx ../../../../gm/lightingshader.cpp
+build obj/gm/SampleApp.linepaths.o: cxx ../../../../gm/linepaths.cpp
+build obj/gm/SampleApp.lumafilter.o: cxx ../../../../gm/lumafilter.cpp
 build obj/gm/SampleApp.matrixconvolution.o: cxx $
-    ../../../../../../paintLib/skia/gm/matrixconvolution.cpp
+    ../../../../gm/matrixconvolution.cpp
 build obj/gm/SampleApp.matriximagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/matriximagefilter.cpp
-build obj/gm/SampleApp.megalooper.o: cxx $
-    ../../../../../../paintLib/skia/gm/megalooper.cpp
-build obj/gm/SampleApp.mipmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/mipmap.cpp
-build obj/gm/SampleApp.mixedtextblobs.o: cxx $
-    ../../../../../../paintLib/skia/gm/mixedtextblobs.cpp
+    ../../../../gm/matriximagefilter.cpp
+build obj/gm/SampleApp.megalooper.o: cxx ../../../../gm/megalooper.cpp
+build obj/gm/SampleApp.mipmap.o: cxx ../../../../gm/mipmap.cpp
+build obj/gm/SampleApp.mixedtextblobs.o: cxx ../../../../gm/mixedtextblobs.cpp
 build obj/gm/SampleApp.modecolorfilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/modecolorfilters.cpp
-build obj/gm/SampleApp.morphology.o: cxx $
-    ../../../../../../paintLib/skia/gm/morphology.cpp
+    ../../../../gm/modecolorfilters.cpp
+build obj/gm/SampleApp.morphology.o: cxx ../../../../gm/morphology.cpp
 build obj/gm/SampleApp.multipicturedraw.o: cxx $
-    ../../../../../../paintLib/skia/gm/multipicturedraw.cpp
-build obj/gm/SampleApp.nested.o: cxx $
-    ../../../../../../paintLib/skia/gm/nested.cpp
+    ../../../../gm/multipicturedraw.cpp
+build obj/gm/SampleApp.nested.o: cxx ../../../../gm/nested.cpp
 build obj/gm/SampleApp.ninepatchstretch.o: cxx $
-    ../../../../../../paintLib/skia/gm/ninepatchstretch.cpp
-build obj/gm/SampleApp.nonclosedpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/nonclosedpaths.cpp
+    ../../../../gm/ninepatchstretch.cpp
+build obj/gm/SampleApp.nonclosedpaths.o: cxx ../../../../gm/nonclosedpaths.cpp
 build obj/gm/SampleApp.offsetimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/offsetimagefilter.cpp
-build obj/gm/SampleApp.ovals.o: cxx $
-    ../../../../../../paintLib/skia/gm/ovals.cpp
-build obj/gm/SampleApp.patch.o: cxx $
-    ../../../../../../paintLib/skia/gm/patch.cpp
-build obj/gm/SampleApp.patchgrid.o: cxx $
-    ../../../../../../paintLib/skia/gm/patchgrid.cpp
+    ../../../../gm/offsetimagefilter.cpp
+build obj/gm/SampleApp.ovals.o: cxx ../../../../gm/ovals.cpp
+build obj/gm/SampleApp.patch.o: cxx ../../../../gm/patch.cpp
+build obj/gm/SampleApp.patchgrid.o: cxx ../../../../gm/patchgrid.cpp
 build obj/gm/SampleApp.path_stroke_with_zero_length.o: cxx $
-    ../../../../../../paintLib/skia/gm/path_stroke_with_zero_length.cpp
-build obj/gm/SampleApp.patheffects.o: cxx $
-    ../../../../../../paintLib/skia/gm/patheffects.cpp
-build obj/gm/SampleApp.pathfill.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathfill.cpp
-build obj/gm/SampleApp.pathinterior.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathinterior.cpp
-build obj/gm/SampleApp.pathopsinverse.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathopsinverse.cpp
-build obj/gm/SampleApp.pathopsskpclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathopsskpclip.cpp
-build obj/gm/SampleApp.pathreverse.o: cxx $
-    ../../../../../../paintLib/skia/gm/pathreverse.cpp
-build obj/gm/SampleApp.peekpixels.o: cxx $
-    ../../../../../../paintLib/skia/gm/peekpixels.cpp
-build obj/gm/SampleApp.perlinnoise.o: cxx $
-    ../../../../../../paintLib/skia/gm/perlinnoise.cpp
-build obj/gm/SampleApp.perspshaders.o: cxx $
-    ../../../../../../paintLib/skia/gm/perspshaders.cpp
-build obj/gm/SampleApp.picture.o: cxx $
-    ../../../../../../paintLib/skia/gm/picture.cpp
+    ../../../../gm/path_stroke_with_zero_length.cpp
+build obj/gm/SampleApp.patheffects.o: cxx ../../../../gm/patheffects.cpp
+build obj/gm/SampleApp.pathfill.o: cxx ../../../../gm/pathfill.cpp
+build obj/gm/SampleApp.pathinterior.o: cxx ../../../../gm/pathinterior.cpp
+build obj/gm/SampleApp.pathopsinverse.o: cxx ../../../../gm/pathopsinverse.cpp
+build obj/gm/SampleApp.pathopsskpclip.o: cxx ../../../../gm/pathopsskpclip.cpp
+build obj/gm/SampleApp.pathreverse.o: cxx ../../../../gm/pathreverse.cpp
+build obj/gm/SampleApp.peekpixels.o: cxx ../../../../gm/peekpixels.cpp
+build obj/gm/SampleApp.perlinnoise.o: cxx ../../../../gm/perlinnoise.cpp
+build obj/gm/SampleApp.perspshaders.o: cxx ../../../../gm/perspshaders.cpp
+build obj/gm/SampleApp.picture.o: cxx ../../../../gm/picture.cpp
 build obj/gm/SampleApp.pictureimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureimagefilter.cpp
+    ../../../../gm/pictureimagefilter.cpp
 build obj/gm/SampleApp.pictureimagegenerator.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureimagegenerator.cpp
-build obj/gm/SampleApp.pictureshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureshader.cpp
+    ../../../../gm/pictureimagegenerator.cpp
+build obj/gm/SampleApp.pictureshader.o: cxx ../../../../gm/pictureshader.cpp
 build obj/gm/SampleApp.pictureshadertile.o: cxx $
-    ../../../../../../paintLib/skia/gm/pictureshadertile.cpp
-build obj/gm/SampleApp.pixelsnap.o: cxx $
-    ../../../../../../paintLib/skia/gm/pixelsnap.cpp
-build obj/gm/SampleApp.plus.o: cxx ../../../../../../paintLib/skia/gm/plus.cpp
-build obj/gm/SampleApp.points.o: cxx $
-    ../../../../../../paintLib/skia/gm/points.cpp
-build obj/gm/SampleApp.poly2poly.o: cxx $
-    ../../../../../../paintLib/skia/gm/poly2poly.cpp
-build obj/gm/SampleApp.polygons.o: cxx $
-    ../../../../../../paintLib/skia/gm/polygons.cpp
-build obj/gm/SampleApp.quadpaths.o: cxx $
-    ../../../../../../paintLib/skia/gm/quadpaths.cpp
-build obj/gm/SampleApp.recordopts.o: cxx $
-    ../../../../../../paintLib/skia/gm/recordopts.cpp
-build obj/gm/SampleApp.rects.o: cxx $
-    ../../../../../../paintLib/skia/gm/rects.cpp
+    ../../../../gm/pictureshadertile.cpp
+build obj/gm/SampleApp.pixelsnap.o: cxx ../../../../gm/pixelsnap.cpp
+build obj/gm/SampleApp.plus.o: cxx ../../../../gm/plus.cpp
+build obj/gm/SampleApp.points.o: cxx ../../../../gm/points.cpp
+build obj/gm/SampleApp.poly2poly.o: cxx ../../../../gm/poly2poly.cpp
+build obj/gm/SampleApp.polygons.o: cxx ../../../../gm/polygons.cpp
+build obj/gm/SampleApp.quadpaths.o: cxx ../../../../gm/quadpaths.cpp
+build obj/gm/SampleApp.recordopts.o: cxx ../../../../gm/recordopts.cpp
+build obj/gm/SampleApp.rects.o: cxx ../../../../gm/rects.cpp
 build obj/gm/SampleApp.repeated_bitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/repeated_bitmap.cpp
+    ../../../../gm/repeated_bitmap.cpp
 build obj/gm/SampleApp.resizeimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/resizeimagefilter.cpp
-build obj/gm/SampleApp.roundrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/roundrects.cpp
-build obj/gm/SampleApp.rrect.o: cxx $
-    ../../../../../../paintLib/skia/gm/rrect.cpp
-build obj/gm/SampleApp.rrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/rrects.cpp
-build obj/gm/SampleApp.samplerstress.o: cxx $
-    ../../../../../../paintLib/skia/gm/samplerstress.cpp
-build obj/gm/SampleApp.scaledstrokes.o: cxx $
-    ../../../../../../paintLib/skia/gm/scaledstrokes.cpp
-build obj/gm/SampleApp.selftest.o: cxx $
-    ../../../../../../paintLib/skia/gm/selftest.cpp
-build obj/gm/SampleApp.shaderbounds.o: cxx $
-    ../../../../../../paintLib/skia/gm/shaderbounds.cpp
-build obj/gm/SampleApp.shadertext.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadertext.cpp
-build obj/gm/SampleApp.shadertext2.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadertext2.cpp
-build obj/gm/SampleApp.shadertext3.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadertext3.cpp
-build obj/gm/SampleApp.shadows.o: cxx $
-    ../../../../../../paintLib/skia/gm/shadows.cpp
+    ../../../../gm/resizeimagefilter.cpp
+build obj/gm/SampleApp.roundrects.o: cxx ../../../../gm/roundrects.cpp
+build obj/gm/SampleApp.rrect.o: cxx ../../../../gm/rrect.cpp
+build obj/gm/SampleApp.rrects.o: cxx ../../../../gm/rrects.cpp
+build obj/gm/SampleApp.samplerstress.o: cxx ../../../../gm/samplerstress.cpp
+build obj/gm/SampleApp.scaledstrokes.o: cxx ../../../../gm/scaledstrokes.cpp
+build obj/gm/SampleApp.selftest.o: cxx ../../../../gm/selftest.cpp
+build obj/gm/SampleApp.shaderbounds.o: cxx ../../../../gm/shaderbounds.cpp
+build obj/gm/SampleApp.shadertext.o: cxx ../../../../gm/shadertext.cpp
+build obj/gm/SampleApp.shadertext2.o: cxx ../../../../gm/shadertext2.cpp
+build obj/gm/SampleApp.shadertext3.o: cxx ../../../../gm/shadertext3.cpp
+build obj/gm/SampleApp.shadows.o: cxx ../../../../gm/shadows.cpp
 build obj/gm/SampleApp.shallowgradient.o: cxx $
-    ../../../../../../paintLib/skia/gm/shallowgradient.cpp
-build obj/gm/SampleApp.simpleaaclip.o: cxx $
-    ../../../../../../paintLib/skia/gm/simpleaaclip.cpp
-build obj/gm/SampleApp.skbug1719.o: cxx $
-    ../../../../../../paintLib/skia/gm/skbug1719.cpp
-build obj/gm/SampleApp.smallarc.o: cxx $
-    ../../../../../../paintLib/skia/gm/smallarc.cpp
-build obj/gm/SampleApp.smallimage.o: cxx $
-    ../../../../../../paintLib/skia/gm/smallimage.cpp
-build obj/gm/SampleApp.spritebitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/spritebitmap.cpp
-build obj/gm/SampleApp.srcmode.o: cxx $
-    ../../../../../../paintLib/skia/gm/srcmode.cpp
-build obj/gm/SampleApp.stlouisarch.o: cxx $
-    ../../../../../../paintLib/skia/gm/stlouisarch.cpp
-build obj/gm/SampleApp.stringart.o: cxx $
-    ../../../../../../paintLib/skia/gm/stringart.cpp
-build obj/gm/SampleApp.strokefill.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokefill.cpp
-build obj/gm/SampleApp.strokerect.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokerect.cpp
-build obj/gm/SampleApp.strokerects.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokerects.cpp
-build obj/gm/SampleApp.strokes.o: cxx $
-    ../../../../../../paintLib/skia/gm/strokes.cpp
-build obj/gm/SampleApp.stroketext.o: cxx $
-    ../../../../../../paintLib/skia/gm/stroketext.cpp
-build obj/gm/SampleApp.surface.o: cxx $
-    ../../../../../../paintLib/skia/gm/surface.cpp
+    ../../../../gm/shallowgradient.cpp
+build obj/gm/SampleApp.simpleaaclip.o: cxx ../../../../gm/simpleaaclip.cpp
+build obj/gm/SampleApp.skbug1719.o: cxx ../../../../gm/skbug1719.cpp
+build obj/gm/SampleApp.smallarc.o: cxx ../../../../gm/smallarc.cpp
+build obj/gm/SampleApp.smallimage.o: cxx ../../../../gm/smallimage.cpp
+build obj/gm/SampleApp.spritebitmap.o: cxx ../../../../gm/spritebitmap.cpp
+build obj/gm/SampleApp.srcmode.o: cxx ../../../../gm/srcmode.cpp
+build obj/gm/SampleApp.stlouisarch.o: cxx ../../../../gm/stlouisarch.cpp
+build obj/gm/SampleApp.stringart.o: cxx ../../../../gm/stringart.cpp
+build obj/gm/SampleApp.strokefill.o: cxx ../../../../gm/strokefill.cpp
+build obj/gm/SampleApp.strokerect.o: cxx ../../../../gm/strokerect.cpp
+build obj/gm/SampleApp.strokerects.o: cxx ../../../../gm/strokerects.cpp
+build obj/gm/SampleApp.strokes.o: cxx ../../../../gm/strokes.cpp
+build obj/gm/SampleApp.stroketext.o: cxx ../../../../gm/stroketext.cpp
+build obj/gm/SampleApp.surface.o: cxx ../../../../gm/surface.cpp
 build obj/gm/SampleApp.tablecolorfilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/tablecolorfilter.cpp
+    ../../../../gm/tablecolorfilter.cpp
 build obj/gm/SampleApp.tallstretchedbitmaps.o: cxx $
-    ../../../../../../paintLib/skia/gm/tallstretchedbitmaps.cpp
+    ../../../../gm/tallstretchedbitmaps.cpp
 build obj/gm/SampleApp.testimagefilters.o: cxx $
-    ../../../../../../paintLib/skia/gm/testimagefilters.cpp
-build obj/gm/SampleApp.texdata.o: cxx $
-    ../../../../../../paintLib/skia/gm/texdata.cpp
-build obj/gm/SampleApp.textblob.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblob.cpp
+    ../../../../gm/testimagefilters.cpp
+build obj/gm/SampleApp.texdata.o: cxx ../../../../gm/texdata.cpp
+build obj/gm/SampleApp.textblob.o: cxx ../../../../gm/textblob.cpp
 build obj/gm/SampleApp.textblobcolortrans.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobcolortrans.cpp
+    ../../../../gm/textblobcolortrans.cpp
 build obj/gm/SampleApp.textblobgeometrychange.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobgeometrychange.cpp
-build obj/gm/SampleApp.textbloblooper.o: cxx $
-    ../../../../../../paintLib/skia/gm/textbloblooper.cpp
+    ../../../../gm/textblobgeometrychange.cpp
+build obj/gm/SampleApp.textbloblooper.o: cxx ../../../../gm/textbloblooper.cpp
 build obj/gm/SampleApp.textblobmixedsizes.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobmixedsizes.cpp
+    ../../../../gm/textblobmixedsizes.cpp
 build obj/gm/SampleApp.textblobrandomfont.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobrandomfont.cpp
-build obj/gm/SampleApp.textblobshader.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobshader.cpp
+    ../../../../gm/textblobrandomfont.cpp
+build obj/gm/SampleApp.textblobshader.o: cxx ../../../../gm/textblobshader.cpp
 build obj/gm/SampleApp.textblobtransforms.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobtransforms.cpp
+    ../../../../gm/textblobtransforms.cpp
 build obj/gm/SampleApp.textblobuseaftergpufree.o: cxx $
-    ../../../../../../paintLib/skia/gm/textblobuseaftergpufree.cpp
-build obj/gm/SampleApp.texteffects.o: cxx $
-    ../../../../../../paintLib/skia/gm/texteffects.cpp
+    ../../../../gm/textblobuseaftergpufree.cpp
+build obj/gm/SampleApp.texteffects.o: cxx ../../../../gm/texteffects.cpp
 build obj/gm/SampleApp.texturedomaineffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/texturedomaineffect.cpp
-build obj/gm/SampleApp.thinrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/thinrects.cpp
+    ../../../../gm/texturedomaineffect.cpp
+build obj/gm/SampleApp.thinrects.o: cxx ../../../../gm/thinrects.cpp
 build obj/gm/SampleApp.thinstrokedrects.o: cxx $
-    ../../../../../../paintLib/skia/gm/thinstrokedrects.cpp
+    ../../../../gm/thinstrokedrects.cpp
 build obj/gm/SampleApp.tiledscaledbitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/tiledscaledbitmap.cpp
+    ../../../../gm/tiledscaledbitmap.cpp
 build obj/gm/SampleApp.tileimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/tileimagefilter.cpp
-build obj/gm/SampleApp.tilemodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/tilemodes.cpp
+    ../../../../gm/tileimagefilter.cpp
+build obj/gm/SampleApp.tilemodes.o: cxx ../../../../gm/tilemodes.cpp
 build obj/gm/SampleApp.tilemodes_scaled.o: cxx $
-    ../../../../../../paintLib/skia/gm/tilemodes_scaled.cpp
-build obj/gm/SampleApp.tinybitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/tinybitmap.cpp
-build obj/gm/SampleApp.transparency.o: cxx $
-    ../../../../../../paintLib/skia/gm/transparency.cpp
-build obj/gm/SampleApp.typeface.o: cxx $
-    ../../../../../../paintLib/skia/gm/typeface.cpp
-build obj/gm/SampleApp.variedtext.o: cxx $
-    ../../../../../../paintLib/skia/gm/variedtext.cpp
-build obj/gm/SampleApp.vertices.o: cxx $
-    ../../../../../../paintLib/skia/gm/vertices.cpp
-build obj/gm/SampleApp.verttext.o: cxx $
-    ../../../../../../paintLib/skia/gm/verttext.cpp
-build obj/gm/SampleApp.verttext2.o: cxx $
-    ../../../../../../paintLib/skia/gm/verttext2.cpp
+    ../../../../gm/tilemodes_scaled.cpp
+build obj/gm/SampleApp.tinybitmap.o: cxx ../../../../gm/tinybitmap.cpp
+build obj/gm/SampleApp.transparency.o: cxx ../../../../gm/transparency.cpp
+build obj/gm/SampleApp.typeface.o: cxx ../../../../gm/typeface.cpp
+build obj/gm/SampleApp.variedtext.o: cxx ../../../../gm/variedtext.cpp
+build obj/gm/SampleApp.vertices.o: cxx ../../../../gm/vertices.cpp
+build obj/gm/SampleApp.verttext.o: cxx ../../../../gm/verttext.cpp
+build obj/gm/SampleApp.verttext2.o: cxx ../../../../gm/verttext2.cpp
 build obj/gm/SampleApp.verylargebitmap.o: cxx $
-    ../../../../../../paintLib/skia/gm/verylargebitmap.cpp
+    ../../../../gm/verylargebitmap.cpp
 build obj/gm/SampleApp.xfermodeimagefilter.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodeimagefilter.cpp
-build obj/gm/SampleApp.xfermodes.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodes.cpp
-build obj/gm/SampleApp.xfermodes2.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodes2.cpp
-build obj/gm/SampleApp.xfermodes3.o: cxx $
-    ../../../../../../paintLib/skia/gm/xfermodes3.cpp
-build obj/gm/SampleApp.yuvtorgbeffect.o: cxx $
-    ../../../../../../paintLib/skia/gm/yuvtorgbeffect.cpp
+    ../../../../gm/xfermodeimagefilter.cpp
+build obj/gm/SampleApp.xfermodes.o: cxx ../../../../gm/xfermodes.cpp
+build obj/gm/SampleApp.xfermodes2.o: cxx ../../../../gm/xfermodes2.cpp
+build obj/gm/SampleApp.xfermodes3.o: cxx ../../../../gm/xfermodes3.cpp
+build obj/gm/SampleApp.yuvtorgbeffect.o: cxx ../../../../gm/yuvtorgbeffect.cpp
 build obj/src/utils/debugger/SampleApp.SkDrawCommand.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/debugger/SkDrawCommand.cpp
+    ../../../../src/utils/debugger/SkDrawCommand.cpp
 build obj/src/utils/debugger/SampleApp.SkDebugCanvas.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/debugger/SkDebugCanvas.cpp
+    ../../../../src/utils/debugger/SkDebugCanvas.cpp
 build obj/src/utils/debugger/SampleApp.SkObjectParser.o: cxx $
-    ../../../../../../paintLib/skia/src/utils/debugger/SkObjectParser.cpp
+    ../../../../src/utils/debugger/SkObjectParser.cpp
 build $
     obj/platform_tools/android/apps/sample_app/src/main/jni/SampleApp.com_skia_SkiaSampleRenderer.o: $
     cxx $
-    ../../../../../../paintLib/skia/platform_tools/android/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.cpp
+    ../../../../platform_tools/android/apps/sample_app/src/main/jni/com_skia_SkiaSampleRenderer.cpp
 
 ldflags = 
 libs = -llog -lz

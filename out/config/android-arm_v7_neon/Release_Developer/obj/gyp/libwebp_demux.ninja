@@ -5,8 +5,8 @@ defines = -DSK_INTERNAL -DSK_GAMMA_APPLY_TO_A8 $
     -DSK_GAMMA_CONTRAST=0.0 -DSKIA_DLL -DSKIA_IMPLEMENTATION=1 $
     -DSK_SUPPORT_LEGACY_CLIPTOLAYERFLAG -DHAVE_CONFIG_H $
     -DWEBP_SWAP_16BIT_CSP -DNDEBUG -DSK_DEVELOPER=1
-includes = -I../../../../../../paintLib/skia/third_party/externals/libwebp $
-    -I../../../../../../paintLib/skia/third_party/libwebp/webp
+includes = -I../../../../third_party/externals/libwebp $
+    -I../../../../third_party/libwebp/webp
 cflags = -fPIC -g -fno-exceptions -fstrict-aliasing -Wall -Wextra $
     -Winit-self -Wpointer-arith -Wsign-compare -Wno-unused-parameter $
     -march=armv7-a -mthumb -mfpu=neon -mfloat-abi=softfp -fuse-ld=gold -w -O2
@@ -15,7 +15,7 @@ cflags_cc = -std=c++11 -fno-rtti -fno-threadsafe-statics -Wnon-virtual-dtor
 arflags = 
 
 build obj/third_party/externals/libwebp/src/demux/libwebp_demux.demux.o: cc $
-    ../../../../../../paintLib/skia/third_party/externals/libwebp/src/demux/demux.c
+    ../../../../third_party/externals/libwebp/src/demux/demux.c
 
 build obj/gyp/libwebp_demux.a: alink_thin $
     obj/third_party/externals/libwebp/src/demux/libwebp_demux.demux.o

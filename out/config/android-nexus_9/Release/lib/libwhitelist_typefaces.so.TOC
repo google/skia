@@ -1,0 +1,19 @@
+ 0x000000000000000e (SONAME)             Library soname: [libwhitelist_typefaces.so]
+_Z14CheckChecksumsv U
+_Z14SkForceLinkingb U
+_Z17GenerateChecksumsv U
+_Z8SkDebugfPKcz U
+_Z9tool_mainiPPc T
+_ZN10SkGraphics4InitEv U
+__bss_end__ B
+__bss_start B
+__bss_start__ B
+__cxa_atexit U
+__cxa_finalize U
+__end__ B
+_bss_end__ B
+_edata D
+_end B
+gSkDebugToStdOut U
+main T
+strcmp U
