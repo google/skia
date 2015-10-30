@@ -14,6 +14,8 @@
 #include "GrStencilAndCoverTextContext.h"
 #include "SkTTopoSort.h"
 
+//#define ENABLE_MDB 1
+
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->unref();
@@ -117,7 +119,7 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     }
 #endif
 
-    GrDrawTarget* dt = new GrDrawTarget(fContext->getGpu(), fContext->resourceProvider(),
+    GrDrawTarget* dt = new GrDrawTarget(rt, fContext->getGpu(), fContext->resourceProvider(),
                                         fOptions);
 
     *fDrawTargets.append() = dt;

@@ -8,6 +8,7 @@
 #include "GrPipeline.h"
 
 #include "GrCaps.h"
+#include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
@@ -128,6 +129,35 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     return pipeline;
+}
+
+static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
+    for (int i = 0; i < proc->numChildProcessors(); ++i) {
+        // need to recurse
+        add_dependencies_for_processor(&proc->childProcessor(i), rt);
+    }
+
+    for (int i = 0; i < proc->numTextures(); ++i) {
+        GrTexture* texture = proc->textureAccess(i).getTexture();
+        SkASSERT(rt->getLastDrawTarget());
+        rt->getLastDrawTarget()->addDependency(texture);
+    }
+}
+
+void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
+    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+        add_dependencies_for_processor(fFragmentProcessors[i].get(), rt);
+    }
+
+    if (fXferProcessor.get()) {
+        const GrXferProcessor* xfer = fXferProcessor.get();
+
+        for (int i = 0; i < xfer->numTextures(); ++i) {
+            GrTexture* texture = xfer->textureAccess(i).getTexture();   
+            SkASSERT(rt->getLastDrawTarget());
+            rt->getLastDrawTarget()->addDependency(texture);
+        }
+    }
 }
 
 void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelineBuilder,
