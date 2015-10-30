@@ -589,12 +589,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
         SkRegion::Op op = element->getOp();
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
-            GrPipelineBuilder pipelineBuilder;
 
-            pipelineBuilder.setClip(clip);
-            pipelineBuilder.setRenderTarget(texture->asRenderTarget());
-
-            SkASSERT(pipelineBuilder.getStencil().isDisabled());
             GrPathRenderer* pr = GetPathRenderer(this->getContext(),
                                                  texture, translate, element);
             if (Element::kRect_Type != element->getType() && !pr) {
@@ -605,21 +600,29 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 continue;
             }
 
-            // draw directly into the result with the stencil set to make the pixels affected
-            // by the clip shape be non-zero.
-            GR_STATIC_CONST_SAME_STENCIL(kStencilInElement,
-                                         kReplace_StencilOp,
-                                         kReplace_StencilOp,
-                                         kAlways_StencilFunc,
-                                         0xffff,
-                                         0xffff,
-                                         0xffff);
-            pipelineBuilder.setStencil(kStencilInElement);
-            set_coverage_drawing_xpf(op, invert, &pipelineBuilder);
+            {
+                GrPipelineBuilder pipelineBuilder;
 
-            if (!this->drawElement(&pipelineBuilder, translate, texture, element, pr)) {
-                texture->resourcePriv().removeUniqueKey();
-                return nullptr;
+                pipelineBuilder.setClip(clip);
+                pipelineBuilder.setRenderTarget(texture->asRenderTarget());
+                SkASSERT(pipelineBuilder.getStencil().isDisabled());
+
+                // draw directly into the result with the stencil set to make the pixels affected
+                // by the clip shape be non-zero.
+                GR_STATIC_CONST_SAME_STENCIL(kStencilInElement,
+                                             kReplace_StencilOp,
+                                             kReplace_StencilOp,
+                                             kAlways_StencilFunc,
+                                             0xffff,
+                                             0xffff,
+                                             0xffff);
+                pipelineBuilder.setStencil(kStencilInElement);
+                set_coverage_drawing_xpf(op, invert, &pipelineBuilder);
+
+                if (!this->drawElement(&pipelineBuilder, translate, texture, element, pr)) {
+                    texture->resourcePriv().removeUniqueKey();
+                    return nullptr;
+                }
             }
 
             {

@@ -31,7 +31,8 @@ void GrDrawingManager::cleanup() {
         fTextContexts[i][1] = nullptr;
     }
 
-    SkSafeSetNull(fPathRendererChain);
+    delete fPathRendererChain;
+    fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
 }
 
@@ -46,7 +47,8 @@ void GrDrawingManager::abandon() {
 
 void GrDrawingManager::freeGpuResources() {
     // a path renderer may be holding onto resources
-    SkSafeSetNull(fPathRendererChain);
+    delete fPathRendererChain;
+    fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
 }
 

@@ -10,15 +10,10 @@
 
 #include "GrPathRenderer.h"
 
-#include "SkRefCnt.h"
+#include "SkTypes.h"
 #include "SkTArray.h"
 
 class GrContext;
-class GrPipelineBuilder;
-class GrShaderCaps;
-class GrStrokeInfo;
-class SkMatrix;
-class SkPath;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be
@@ -26,7 +21,7 @@ class SkPath;
  * path renderer to the list implement the GrPathRenderer::AddPathRenderers
  * function.
  */
-class GrPathRendererChain : public SkRefCnt {
+class GrPathRendererChain : public SkNoncopyable {
 public:
     GrPathRendererChain(GrContext* context);
 
@@ -52,21 +47,13 @@ public:
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
 private:
-    GrPathRendererChain();
-
     // takes a ref and unrefs in destructor
     GrPathRenderer* addPathRenderer(GrPathRenderer* pr);
-
-    void init();
 
     enum {
         kPreAllocCount = 8,
     };
-    bool fInit;
-    GrContext*                                          fOwner;
     SkSTArray<kPreAllocCount, GrPathRenderer*, true>    fChain;
-
-    typedef SkRefCnt INHERITED;
 };
 
 #endif

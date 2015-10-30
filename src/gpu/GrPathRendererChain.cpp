@@ -22,9 +22,21 @@
 #include "batches/GrStencilAndCoverPathRenderer.h"
 #include "batches/GrTessellatingPathRenderer.h"
 
-GrPathRendererChain::GrPathRendererChain(GrContext* context)
-    : fInit(false)
-    , fOwner(context) {
+GrPathRendererChain::GrPathRendererChain(GrContext* context) {
+    const GrCaps& caps = *context->caps();
+    this->addPathRenderer(new GrDashLinePathRenderer)->unref();
+
+    if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(context->resourceProvider(),
+                                                                   caps)) {
+        this->addPathRenderer(pr)->unref();
+    }
+    this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
+    this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
+    this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
+    this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
+    this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
+    this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
+                                                    caps.stencilWrapOpsSupport()))->unref();
 }
 
 GrPathRendererChain::~GrPathRendererChain() {
@@ -42,10 +54,6 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
 GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                                      DrawType drawType,
                                                      GrPathRenderer::StencilSupport* stencilSupport) {
-    if (!fInit) {
-        this->init();
-    }
-
     GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
                      GrPathRenderer::kStencilOnly_StencilSupport);
     GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
@@ -59,7 +67,6 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrPathRenderer::CanDr
     } else {
         minStencilSupport = GrPathRenderer::kNoSupport_StencilSupport;
     }
-
 
     for (int i = 0; i < fChain.count(); ++i) {
         if (fChain[i]->canDrawPath(args)) {
@@ -76,23 +83,4 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrPathRenderer::CanDr
         }
     }
     return nullptr;
-}
-
-void GrPathRendererChain::init() {
-    SkASSERT(!fInit);
-    const GrCaps& caps = *fOwner->caps();
-    this->addPathRenderer(new GrDashLinePathRenderer)->unref();
-
-    if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(fOwner->resourceProvider(),
-                                                                   caps)) {
-        this->addPathRenderer(pr)->unref();
-    }
-    this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
-    this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
-    this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
-    this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
-    this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
-    this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
-                                                    caps.stencilWrapOpsSupport()))->unref();
-    fInit = true;
 }
