@@ -46,7 +46,13 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fBitmaps = record.fBitmaps;
     fPaints  = record.fPaints;
-    fPaths   = record.fPaths;
+
+    fPaths.reset(record.fPaths.count());
+    record.fPaths.foreach([this](const SkPath& path, int n) {
+        // These indices are logically 1-based, but we need to serialize them
+        // 0-based to keep the deserializing SkPictureData::getPath() working.
+        fPaths[n-1] = path;
+    });
 
     this->initForPlayback();
 

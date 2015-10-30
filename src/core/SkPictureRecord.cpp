@@ -587,7 +587,7 @@ void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, c
         size += sizeof(*src);   // + rect
     }
     size += sizeof(dst);        // + rect
-    
+
     size_t initialOffset = this->addDraw(DRAW_IMAGE_RECT, &size);
     SkASSERT(initialOffset+get_paint_offset(DRAW_IMAGE_RECT, size)
              == fWriter.bytesWritten());
@@ -603,7 +603,7 @@ void SkPictureRecord::onDrawImageNine(const SkImage* img, const SkIRect& center,
                                       const SkPaint* paint) {
     // id + paint_index + image_index + center + dst
     size_t size = 3 * kUInt32Size + sizeof(SkIRect) + sizeof(SkRect);
-    
+
     size_t initialOffset = this->addDraw(DRAW_IMAGE_NINE, &size);
     SkASSERT(initialOffset+get_paint_offset(DRAW_IMAGE_NINE, size) == fWriter.bytesWritten());
     this->addPaintPtr(paint);
@@ -863,7 +863,7 @@ void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[],
         flags |= DRAW_ATLAS_HAS_CULL;
         size += sizeof(SkRect);
     }
-    
+
     size_t initialOffset = this->addDraw(DRAW_ATLAS, &size);
     SkASSERT(initialOffset+get_paint_offset(DRAW_ATLAS, size) == fWriter.bytesWritten());
     this->addPaintPtr(paint);
@@ -987,8 +987,12 @@ void SkPictureRecord::addPaintPtr(const SkPaint* paint) {
 }
 
 int SkPictureRecord::addPathToHeap(const SkPath& path) {
-    fPaths.push_back(path);
-    return fPaths.count();
+    if (int* n = fPaths.find(path)) {
+        return *n;
+    }
+    int n = fPaths.count() + 1;  // 0 is reserved for null / error.
+    fPaths.set(path, n);
+    return n;
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {

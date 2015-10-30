@@ -14,6 +14,7 @@
 #include "SkPictureData.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
+#include "SkTHash.h"
 #include "SkWriter32.h"
 
 // These macros help with packing and unpacking a single byte value and
@@ -226,7 +227,11 @@ private:
 
     SkTArray<SkBitmap> fBitmaps;
     SkTArray<SkPaint>  fPaints;
-    SkTArray<SkPath>   fPaths;
+
+    struct PathHash {
+        uint32_t operator()(const SkPath& p) { return p.getGenerationID(); }
+    };
+    SkTHashMap<SkPath, int, PathHash> fPaths;
 
     SkWriter32 fWriter;
 
