@@ -987,8 +987,8 @@ void SkTSect<TCurve, OppCurve>::coincidentForce(SkTSect<OppCurve, TCurve>* sect2
     first->fCoinStart.setPerp(fCurve, start1s, fCurve[0], sect2->fCurve);
     first->fCoinEnd.setPerp(fCurve, start1e, fCurve[TCurve::kPointLast], sect2->fCurve);
     bool oppMatched = first->fCoinStart.perpT() < first->fCoinEnd.perpT();
-    double oppStartT = SkTMax(0., first->fCoinStart.perpT());
-    double oppEndT = SkTMin(1., first->fCoinEnd.perpT());
+    double oppStartT = first->fCoinStart.perpT() == -1 ? 0 : SkTMax(0., first->fCoinStart.perpT());
+    double oppEndT = first->fCoinEnd.perpT() == -1 ? 1 : SkTMin(1., first->fCoinEnd.perpT());
     if (!oppMatched) {
         SkTSwap(oppStartT, oppEndT);
     }
@@ -2086,7 +2086,7 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
 #if DEBUG_T_SECT_LOOP_COUNT
             intersections->debugBumpLoopCount(SkIntersections::kCoinCheck_DebugLoop);
 #endif
-            if (!--coinLoopCount) {
+            if (!--coinLoopCount && sect1->fHead && sect2->fHead) {
                 /* All known working cases resolve in two tries. Sadly, cubicConicTests[0]
                    gets stuck in a loop. It adds an extension to allow a coincident end
                    perpendicular to track its intersection in the opposite curve. However,
@@ -2127,8 +2127,12 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
         }
         SkASSERT(sect2->fCoincident);  // courtesy check : coincidence only looks at sect 1
         do {
-            SkASSERT(coincident->fCoinStart.isCoincident());
-            SkASSERT(coincident->fCoinEnd.isCoincident());
+            if (!coincident->fCoinStart.isCoincident()) {
+                continue;
+            }
+            if (!coincident->fCoinEnd.isCoincident()) {
+                continue;
+            }
             int index = intersections->insertCoincident(coincident->fStartT,
                     coincident->fCoinStart.perpT(), coincident->fPart[0]);
             if ((intersections->insertCoincident(coincident->fEndT,

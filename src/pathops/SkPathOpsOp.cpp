@@ -111,7 +111,9 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
                         if (!unsortable && simple->hasMove()
                                 && current->verb() != SkPath::kLine_Verb
                                 && !simple->isClosed()) {
-                            current->addCurveTo(start, end, simple, true);
+                            if (!current->addCurveTo(start, end, simple)) {
+                                return false;
+                            }
                     #if DEBUG_ACTIVE_SPANS
                             if (!simple->isClosed()) {
                                 DebugShowActiveSpans(contourList);
@@ -125,7 +127,9 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
                             current->debugID(), start->pt().fX, start->pt().fY,
                             end->pt().fX, end->pt().fY);
         #endif
-                    current->addCurveTo(start, end, simple, true);
+                    if (!current->addCurveTo(start, end, simple)) {
+                        return false;
+                    }
                     current = next;
                     start = nextStart;
                     end = nextEnd;
@@ -133,7 +137,9 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
                 if (current->activeWinding(start, end) && !simple->isClosed()) {
                     SkOpSpan* spanStart = start->starter(end);
                     if (!spanStart->done()) {
-                        current->addCurveTo(start, end, simple, true);
+                        if (!current->addCurveTo(start, end, simple)) {
+                            return false;
+                        }
                         current->markDone(spanStart);
                     }
                 }

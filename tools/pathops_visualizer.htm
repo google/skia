@@ -4,238 +4,144 @@
 
 Skia UnitTests: --match PathOpsSkp$ --resourcePath resources\ SK_DEBUG
 
-<div id="skpwww_gorcraft_ru_1">
-seg=1 {{{{1170, 4559}, {1176, 4559}, {1176, 4565}}}, 0.707106769f}
-seg=2 {{{1176, 4565}, {1176, 4590}}}
-seg=3 {{{{1176, 4590}, {1176, 4595}, {1171, 4595}}}, 0.707106769f}
-seg=4 {{{1171, 4595}, {83, 4595}}}
-seg=5 {{{{83, 4595}, {78.0086746f, 4595}, {78, 4590.00586f}}}, 0.707720578f}
-seg=6 {{{78, 4590.00586f}, {78, 4565}}}
-seg=7 {{{{78, 4565}, {78, 4559}, {84, 4559}}}, 0.707106769f}
-seg=8 {{{84, 4559}, {1170, 4559}}}
-op union
-seg=9 {{{78, 4590}, {78, 4565}}}
-seg=10 {{{{78, 4565}, {78, 4559}, {84, 4559}}}, 0.707106769f}
-seg=11 {{{84, 4559}, {158, 4559}}}
-seg=12 {{{158, 4559}, {158, 4596}}}
-seg=13 {{{158, 4596}, {84, 4596}}}
-seg=14 {{{{84, 4596}, {78, 4596}, {78, 4590}}}, 0.707106769f}
-debugShowConicLineIntersection wtTs[0]=1 {{{{1170,4559}, {1176,4559}, {1176,4565}}}, 0.707106769} {{1176,4565}} wnTs[0]=0 {{{1176,4565}, {1176,4590}}}
-debugShowConicLineIntersection wtTs[0]=0 {{{{1170,4559}, {1176,4559}, {1176,4565}}}, 0.707106769} {{1170,4559}} wnTs[0]=1 {{{84,4559}, {1170,4559}}}
-debugShowConicLineIntersection wtTs[0]=0 {{{{1176,4590}, {1176,4595}, {1171,4595}}}, 0.707106769} {{1176,4590}} wnTs[0]=1 {{{1176,4565}, {1176,4590}}}
-debugShowConicLineIntersection wtTs[0]=1 {{{{1176,4590}, {1176,4595}, {1171,4595}}}, 0.707106769} {{1171,4595}} wnTs[0]=0 {{{1171,4595}, {83,4595}}}
-debugShowConicLineIntersection wtTs[0]=0 {{{{83,4595}, {78.0086746,4595}, {78,4590.00586}}}, 0.707720578} {{83,4595}} wnTs[0]=1 {{{1171,4595}, {83,4595}}}
-debugShowConicLineIntersection wtTs[0]=1 {{{{83,4595}, {78.0086746,4595}, {78,4590.00586}}}, 0.707720578} {{78,4590.00586}} wnTs[0]=0 {{{78,4590.00586}, {78,4565}}}
-debugShowConicLineIntersection wtTs[0]=0 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{78,4565}} wnTs[0]=1 {{{78,4590.00586}, {78,4565}}}
-debugShowConicLineIntersection wtTs[0]=1 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{84,4559}} wnTs[0]=0 {{{84,4559}, {1170,4559}}}
-debugShowLineIntersection wtTs[0]=0.972972973 {{{158,4559}, {158,4596}}} {{158,4595}} wnTs[0]=0.931066 {{{1171,4595}, {83,4595}}}
-SkOpSegment::addT insert t=0.931066176 segID=4 spanID=29
-SkOpSegment::addT insert t=0.972972973 segID=12 spanID=30
-debugShowConicLineIntersection no intersect {{{{84,4596}, {78,4596}, {78,4590}}}, 0.707106769} {{{1171,4595}, {83,4595}}}
-debugShowConicLineIntersection no intersect {{{{83,4595}, {78.0086746,4595}, {78,4590.00586}}}, 0.707720578} {{{78,4590}, {78,4565}}}
-debugShowConicIntersection wtTs[0]=0.999339899 {{{{83,4595}, {78.0086746,4595}, {78,4590.00586}}}, 0.707720578} {{78.0000076,4590.01074}} wnTs[0]=0.99876 {{{{84,4596}, {78,4596}, {78,4590}}}, 0.707106769}
-SkOpSegment::addT insert t=0.999339899 segID=5 spanID=31
-SkOpSegment::addT insert t=0.998759893 segID=14 spanID=32
-debugShowLineIntersection wtTs[0]=0 {{{78,4590}, {78,4565}}} {{78,4590}} wtTs[1]=1 {{78,4565}} wnTs[0]=0.00023432 {{{78,4590.00586}, {78,4565}}} wnTs[1]=1
-SkOpSegment::addT insert t=0.000234320081 segID=6 spanID=33
-debugShowConicLineIntersection wtTs[0]=0 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{78,4565}} wnTs[0]=1 {{{78,4590.00586}, {78,4565}}}
-debugShowConicLineIntersection wtTs[0]=1 {{{{84,4596}, {78,4596}, {78,4590}}}, 0.707106769} {{78,4590}} wnTs[0]=0.00023432 {{{78,4590.00586}, {78,4565}}}
-debugShowConicLineIntersection wtTs[0]=0 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{78,4565}} wnTs[0]=1 {{{78,4590}, {78,4565}}}
-debugShowConicIntersection wtTs[0]=0 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{78,4565}} wtTs[1]=1 {{84,4559}} wnTs[0]=0 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} wnTs[1]=1
-debugShowConicLineIntersection wtTs[0]=1 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{84,4559}} wnTs[0]=0 {{{84,4559}, {158,4559}}}
-debugShowConicLineIntersection wtTs[0]=1 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{84,4559}} wnTs[0]=0 {{{84,4559}, {1170,4559}}}
-debugShowLineIntersection wtTs[0]=0 {{{84,4559}, {158,4559}}} {{84,4559}} wtTs[1]=1 {{158,4559}} wnTs[0]=0 {{{84,4559}, {1170,4559}}} wnTs[1]=0.0681399632
-SkOpSegment::addT insert t=0.0681399632 segID=8 spanID=34
-debugShowLineIntersection wtTs[0]=0 {{{158,4559}, {158,4596}}} {{158,4559}} wnTs[0]=0.06814 {{{84,4559}, {1170,4559}}}
-debugShowConicLineIntersection wtTs[0]=0 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{78,4565}} wnTs[0]=1 {{{78,4590}, {78,4565}}}
-debugShowConicLineIntersection wtTs[0]=1 {{{{84,4596}, {78,4596}, {78,4590}}}, 0.707106769} {{78,4590}} wnTs[0]=0 {{{78,4590}, {78,4565}}}
-debugShowConicLineIntersection wtTs[0]=1 {{{{78,4565}, {78,4559}, {84,4559}}}, 0.707106769} {{84,4559}} wnTs[0]=0 {{{84,4559}, {158,4559}}}
-debugShowLineIntersection wtTs[0]=0 {{{158,4559}, {158,4596}}} {{158,4559}} wnTs[0]=1 {{{84,4559}, {158,4559}}}
-debugShowLineIntersection wtTs[0]=0 {{{158,4596}, {84,4596}}} {{158,4596}} wnTs[0]=1 {{{158,4559}, {158,4596}}}
-debugShowConicLineIntersection wtTs[0]=0 {{{{84,4596}, {78,4596}, {78,4590}}}, 0.707106769} {{84,4596}} wnTs[0]=1 {{{158,4596}, {84,4596}}}
-SkOpSegment::markDone id=8 (84,4559 1170,4559) t=0 [15] (84,4559) tEnd=0.0681399632 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
-SkOpSegment::markDone id=10 (78,4565 78,4559 84,4559) t=0 [19] (78,4565) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
-SkOpSegment::markDone id=6 (78,4590.00586 78,4565) t=0.000234320081 [33] (78,4590) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
-SkOpSegment::sortAngles [4] tStart=0.931066176 [29]
-SkOpAngle::after [4/1] 31/31 tStart=0.931066176 tEnd=0 < [12/14] 7/7 tStart=0.972972973 tEnd=0 < [4/2] 15/15 tStart=0.931066176 tEnd=1  T 4
-SkOpAngle::afterPart {{{158,4595}, {1171,4595}}} id=4
-SkOpAngle::afterPart {{{158,4595}, {158,4559}}} id=12
-SkOpAngle::afterPart {{{158,4595}, {83,4595}}} id=4
-SkOpAngle::after [4/1] 31/31 tStart=0.931066176 tEnd=0 < [12/15] 23/23 tStart=0.972972973 tEnd=1 < [12/14] 7/7 tStart=0.972972973 tEnd=0  F 4
-SkOpAngle::afterPart {{{158,4595}, {1171,4595}}} id=4
-SkOpAngle::afterPart {{{158,4595}, {158,4596}}} id=12
-SkOpAngle::afterPart {{{158,4595}, {158,4559}}} id=12
-SkOpAngle::after [12/14] 7/7 tStart=0.972972973 tEnd=0 < [12/15] 23/23 tStart=0.972972973 tEnd=1 < [4/2] 15/15 tStart=0.931066176 tEnd=1  F 4
-SkOpAngle::afterPart {{{158,4595}, {158,4559}}} id=12
-SkOpAngle::afterPart {{{158,4595}, {158,4596}}} id=12
-SkOpAngle::afterPart {{{158,4595}, {83,4595}}} id=4
-SkOpAngle::after [4/2] 15/15 tStart=0.931066176 tEnd=1 < [12/15] 23/23 tStart=0.972972973 tEnd=1 < [4/1] 31/31 tStart=0.931066176 tEnd=0  T 4
-SkOpAngle::afterPart {{{158,4595}, {83,4595}}} id=4
-SkOpAngle::afterPart {{{158,4595}, {158,4596}}} id=12
-SkOpAngle::afterPart {{{158,4595}, {1171,4595}}} id=4
-SkOpSegment::sortAngles [5] tStart=0.999339899 [31]
-SkOpAngle::after [5/3] 25/29 tStart=0.999339899 tEnd=0 < [14/16] 25/29 tStart=0.998759893 tEnd=0 < [5/4] 9/9 tStart=0.999339899 tEnd=1  F 12
-SkOpAngle::afterPart {{{{78.0000076,4590.01074}, {78.0133288,4595}, {83,4595}}}, 0.708050251} id=5
-SkOpAngle::afterPart {{{{78.0000076,4590.01074}, {78.0105173,4596}, {84,4596}}}, 0.707726777} id=14
-SkOpAngle::afterPart {{{{78.0000076,4590.01074}, {78.0000041,4590.00819}, {78,4590.00586}}}, 1} id=5
-SkOpAngle::after [5/3] 25/29 tStart=0.999339899 tEnd=0 < [14/17] 9/9 tStart=0.998759893 tEnd=1 < [5/4] 9/9 tStart=0.999339899 tEnd=1  T 11
-SkOpAngle::afterPart {{{{78.0000076,4590.01074}, {78.0133288,4595}, {83,4595}}}, 0.708050251} id=5
-SkOpAngle::afterPart {{{{78.0000076,4590.01074}, {78,4590.00526}, {78,4590}}}, 0.999999642} id=14
-SkOpAngle::afterPart {{{{78.0000076,4590.01074}, {78.0000041,4590.00819}, {78,4590.00586}}}, 1} id=5
-SkOpSegment::sortAngles [6] tStart=0.000234320081 [33]
-SkOpAngle::after [6/5] 23/23 tStart=0.000234320081 tEnd=0 < [9/9] 7/7 tStart=0 tEnd=1 < [14/18] 21/21 tStart=1 tEnd=0.998759893  T 4
-SkOpAngle::afterPart {{{78,4590}, {78,4590.00586}}} id=6
-SkOpAngle::afterPart {{{78,4590}, {78,4565}}} id=9
-SkOpAngle::afterPart {{{{78,4590}, {78,4590.00526}, {78.0000076,4590.01074}}}, 0.999999642} id=14
-SkOpSegment::sortAngles [7] tStart=0 [13]
-SkOpSegment::sortAngles [7] tStart=1 [14]
-SkOpSegment::sortAngles [8] tStart=0.0681399632 [34]
-SkOpAngle::after [8/8] 31/31 tStart=0.0681399632 tEnd=1 < [11/12] 15/15 tStart=1 tEnd=0 < [12/13] 23/23 tStart=0 tEnd=0.972972973  T 4
-SkOpAngle::afterPart {{{158,4559}, {1170,4559}}} id=8
-SkOpAngle::afterPart {{{158,4559}, {84,4559}}} id=11
-SkOpAngle::afterPart {{{158,4559}, {158,4595}}} id=12
-SkOpSegment::sortAngles [9] tStart=0 [17]
-SkOpSegment::sortAngles [9] tStart=1 [18]
-SkOpSegment::sortAngles [11] tStart=0 [21]
-SkOpSegment::sortAngles [11] tStart=1 [22]
-SkOpSegment::sortAngles [12] tStart=0 [23]
-SkOpSegment::sortAngles [12] tStart=0.972972973 [30]
-SkOpSegment::sortAngles [14] tStart=0.998759893 [32]
-SkOpSegment::sortAngles [14] tStart=1 [28]
-SkOpCoincidence::debugShowCoincidence - id=11 t=0 tEnd=1
-SkOpCoincidence::debugShowCoincidence + id=8 t=0 tEnd=0.0681399632
-SkOpCoincidence::debugShowCoincidence - id=7 t=0 tEnd=1
-SkOpCoincidence::debugShowCoincidence + id=10 t=0 tEnd=1
-SkOpCoincidence::debugShowCoincidence - id=9 t=0 tEnd=1
-SkOpCoincidence::debugShowCoincidence + id=6 t=0.000234320081 tEnd=1
-SkOpSegment::debugShowActiveSpans id=1 (1170,4559 1176,4559 1176,4565 0.707106769f) t=0 (1170,4559) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=2 (1176,4565 1176,4590) t=0 (1176,4565) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (1176,4590 1176,4595 1171,4595 0.707106769f) t=0 (1176,4590) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (1171,4595 83,4595) t=0 (1171,4595) tEnd=0.931066176 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (1171,4595 83,4595) t=0.931066176 (158,4595) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (83,4595 78.0086746,4595 78,4590.00586 0.707720578f) t=0 (83,4595) tEnd=0.999339899 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (83,4595 78.0086746,4595 78,4590.00586 0.707720578f) t=0.999339899 (78.0000076,4590.01074) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (78,4590.00586 78,4565) t=0 (78,4590.00586) tEnd=0.000234320081 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=7 (78,4565 78,4559 84,4559 0.707106769f) t=0 (78,4565) tEnd=1 windSum=? oppSum=? windValue=1 oppValue=1
-SkOpSegment::debugShowActiveSpans id=8 (84,4559 1170,4559) t=0.0681399632 (158,4559) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=9 (78,4590 78,4565) t=0 (78,4590) tEnd=1 windSum=? oppSum=? windValue=1 oppValue=1
-SkOpSegment::debugShowActiveSpans id=11 (84,4559 158,4559) t=0 (84,4559) tEnd=1 windSum=? oppSum=? windValue=1 oppValue=1
-SkOpSegment::debugShowActiveSpans id=12 (158,4559 158,4596) t=0 (158,4559) tEnd=0.972972973 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (158,4559 158,4596) t=0.972972973 (158,4595) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (158,4596 84,4596) t=0 (158,4596) tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (84,4596 78,4596 78,4590 0.707106769f) t=0 (84,4596) tEnd=0.998759893 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (84,4596 78,4596 78,4590 0.707106769f) t=0.998759893 (78.0000076,4590.01074) tEnd=1 windSum=? windValue=1
-SkOpSpan::sortableTop dir=kTop seg=1 t=0.5 pt=(1174.24268,4560.75732)
-SkOpSpan::sortableTop [0] valid=1 operand=0 span=1 ccw=1 seg=1 {{{{1170, 4559}, {1176, 4559}, {1176, 4565}}}, 0.707106769f} t=0.5 pt=(1174.24268,4560.75732) slope=(2.56066015,2.56066015)
-SkOpSegment::markWinding id=1 (1170,4559 1176,4559 1176,4565) t=0 [1] (1170,4559) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::markWinding id=2 (1176,4565 1176,4590) t=0 [3] (1176,4565) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markWinding id=3 (1176,4590 1176,4595 1171,4595) t=0 [5] (1176,4590) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markWinding id=4 (1171,4595 83,4595) t=0 [7] (1171,4595) tEnd=0.931066176 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markWinding id=1 (1170,4559 1176,4559 1176,4565) t=0 [1] (1170,4559) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::markWinding id=8 (84,4559 1170,4559) t=0.0681399632 [34] (158,4559) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::activeOp id=1 t=1 tEnd=0 op=union miFrom=0 miTo=1 suFrom=0 suTo=0 result=1
-SkOpSegment::findNextOp simple
-SkOpSegment::markDone id=1 (1170,4559 1176,4559 1176,4565) t=0 [1] (1170,4559) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-bridgeOp current id=1 from=(1176,4565) to=(1170,4559)
-path.moveTo(1176,4565);
-path.conicTo(1176,4559, 1170,4559, 0.707106769);
-SkOpSegment::markWinding id=11 (84,4559 158,4559) t=0 [21] (84,4559) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=1
-SkOpSegment::markWinding id=7 (78,4565 78,4559 84,4559) t=0 [13] (78,4565) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=1
-SkOpSegment::markWinding id=9 (78,4590 78,4565) t=0 [17] (78,4590) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=1
-SkOpSegment::markAngle last segment=9 span=17 windSum=-1 
-SkOpSegment::markWinding id=12 (158,4559 158,4596) t=0 [23] (158,4559) tEnd=0.972972973 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markAngle last segment=12 span=30 windSum=? 
-SkOpSegment::findNextOp
-SkOpAngle::dumpOne [8/8] next=11/12 sect=31/31  s=0.0681399632 [34] e=1 [16] sgn=-1 windVal=1 windSum=-1 oppVal=0 oppSum=0
-SkOpAngle::dumpOne [11/12] next=12/13 sect=15/15  s=1 [22] e=0 [21] sgn=1 windVal=1 windSum=-1 oppVal=1 oppSum=-1 operand
-SkOpAngle::dumpOne [12/13] next=8/8 sect=23/23  s=0 [23] e=0.972972973 [30] sgn=-1 windVal=1 windSum=-1 oppVal=0 oppSum=-1 operand
-SkOpSegment::activeOp id=11 t=1 tEnd=0 op=union miFrom=0 miTo=1 suFrom=0 suTo=1 result=1
-SkOpSegment::findNextOp chase.append segment=9 span=17 windSum=-1
-SkOpSegment::activeOp id=12 t=0 tEnd=0.972972973 op=union miFrom=1 miTo=1 suFrom=1 suTo=0 result=0
-SkOpSegment::markDone id=12 (158,4559 158,4596) t=0 [23] (158,4559) tEnd=0.972972973 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::findNextOp chase.append segment=12 span=30 windSum=-2147483647
-SkOpSegment::markDone id=8 (84,4559 1170,4559) t=0.0681399632 [34] (158,4559) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::findNextOp from:[8] to:[11] start=6561036 end=6560932
-bridgeOp current id=8 from=(1170,4559) to=(158,4559)
-SkOpSegment::findNextOp simple
-SkOpSegment::markDone id=11 (84,4559 158,4559) t=0 [21] (84,4559) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1 oppValue=1
-bridgeOp current id=11 from=(158,4559) to=(84,4559)
-SkOpSegment::findNextOp simple
-SkOpSegment::markDone id=7 (78,4565 78,4559 84,4559) t=0 [13] (78,4565) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1 oppValue=1
-bridgeOp current id=7 from=(84,4559) to=(78,4565)
-path.lineTo(84,4559);
-path.conicTo(78,4559, 78,4565, 0.707106769);
-SkOpSegment::markWinding id=14 (84,4596 78,4596 78,4590) t=0.998759893 [32] (78.0000076,4590.01074) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markAngle last segment=14 span=32 windSum=-1 
-SkOpSegment::markWinding id=6 (78,4590.00586 78,4565) t=0 [11] (78,4590.00586) tEnd=0.000234320081 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markWinding id=5 (83,4595 78.0086746,4595 78,4590.00586) t=0.999339899 [31] (78.0000076,4590.01074) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markAngle last segment=5 span=31 windSum=-1 
-SkOpSegment::findNextOp
-SkOpAngle::dumpOne [9/9] next=14/18 sect=7/7  s=0 [17] e=1 [18] sgn=-1 windVal=1 windSum=-1 oppVal=1 oppSum=-1 operand
-SkOpAngle::dumpOne [14/18] next=6/5 sect=21/21  s=1 [28] e=0.998759893 [32] sgn=1 windVal=1 windSum=-1 oppVal=0 oppSum=0 operand
-SkOpAngle::dumpOne [6/5] next=9/9 sect=23/23  s=0.000234320081 [33] e=0 [11] sgn=1 windVal=1 windSum=-1 oppVal=0 oppSum=-1
-SkOpSegment::activeOp id=14 t=1 tEnd=0.998759893 op=union miFrom=0 miTo=0 suFrom=0 suTo=1 result=1
-SkOpSegment::findNextOp chase.append segment=14 span=32 windSum=-1
-SkOpSegment::activeOp id=6 t=0.000234320081 tEnd=0 op=union miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
-SkOpSegment::markDone id=6 (78,4590.00586 78,4565) t=0 [11] (78,4590.00586) tEnd=0.000234320081 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::markDone id=5 (83,4595 78.0086746,4595 78,4590.00586) t=0.999339899 [31] (78.0000076,4590.01074) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::findNextOp chase.append segment=5 span=31 windSum=-1
-SkOpSegment::markDone id=9 (78,4590 78,4565) t=0 [17] (78,4590) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1 oppValue=1
-SkOpSegment::findNextOp from:[9] to:[14] start=6561756 end=6562204
-bridgeOp current id=9 from=(78,4565) to=(78,4590)
-SkOpSegment::markWinding id=14 (84,4596 78,4596 78,4590) t=0 [27] (84,4596) tEnd=0.998759893 newWindSum=-2 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markWinding id=13 (158,4596 84,4596) t=0 [25] (158,4596) tEnd=1 newWindSum=-2 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markWinding id=12 (158,4559 158,4596) t=0.972972973 [30] (158,4595) tEnd=1 newWindSum=-2 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markAngle last segment=12 span=30 windSum=-2 
-SkOpSegment::markWinding id=5 (83,4595 78.0086746,4595 78,4590.00586) t=0 [9] (83,4595) tEnd=0.999339899 newWindSum=-1 newOppSum=-2 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markWinding id=4 (1171,4595 83,4595) t=0.931066176 [29] (158,4595) tEnd=1 newWindSum=-1 newOppSum=-2 oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markAngle last segment=4 span=29 windSum=-1 
-SkOpSegment::findNextOp
-SkOpAngle::dumpOne [14/17] next=5/4 sect=9/9  s=0.998759893 [32] e=1 [28] sgn=-1 windVal=1 windSum=-1 oppVal=0 oppSum=0 operand
-SkOpAngle::dumpOne [5/4] next=14/16 sect=9/9  s=0.999339899 [31] e=1 [10] sgn=-1 windVal=1 windSum=-1 oppVal=0 oppSum=-1 done
-SkOpAngle::dumpOne [14/16] next=5/3 sect=25/29  s=0.998759893 [32] e=0 [27] sgn=1 windVal=1 windSum=-2 oppVal=0 oppSum=0 operand
-SkOpAngle::dumpOne [5/3] next=14/17 sect=25/29  s=0.999339899 [31] e=0 [9] sgn=1 windVal=1 windSum=-1 oppVal=0 oppSum=-2
-SkOpSegment::activeOp id=5 t=0.999339899 tEnd=1 op=union miFrom=0 miTo=1 suFrom=0 suTo=0 result=1
-SkOpSegment::activeOp id=14 t=0.998759893 tEnd=0 op=union miFrom=1 miTo=1 suFrom=0 suTo=1 result=0
-SkOpSegment::markDone id=14 (84,4596 78,4596 78,4590) t=0 [27] (84,4596) tEnd=0.998759893 newWindSum=-2 newOppSum=0 oppSum=0 windSum=-2 windValue=1 oppValue=0
-SkOpSegment::markDone id=13 (158,4596 84,4596) t=0 [25] (158,4596) tEnd=1 newWindSum=-2 newOppSum=0 oppSum=0 windSum=-2 windValue=1 oppValue=0
-SkOpSegment::markDone id=12 (158,4559 158,4596) t=0.972972973 [30] (158,4595) tEnd=1 newWindSum=-2 newOppSum=0 oppSum=0 windSum=-2 windValue=1 oppValue=0
-SkOpSegment::activeOp id=5 t=0.999339899 tEnd=0 op=union miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
-SkOpSegment::markDone id=5 (83,4595 78.0086746,4595 78,4590.00586) t=0 [9] (83,4595) tEnd=0.999339899 newWindSum=-1 newOppSum=-2 oppSum=-2 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::markDone id=4 (1171,4595 83,4595) t=0.931066176 [29] (158,4595) tEnd=1 newWindSum=-1 newOppSum=-2 oppSum=-2 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::findNextOp chase.append segment=4 span=29 windSum=-1
-SkOpSegment::markDone id=14 (84,4596 78,4596 78,4590) t=0.998759893 [32] (78.0000076,4590.01074) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-SkOpSegment::findNextOp from:[14] to:[5] start=6562100 end=6559532
-bridgeOp current id=14 from=(78,4590) to=(78.0000076,4590.01074)
-path.lineTo(78,4590);
-path.conicTo(78,4590.00537, 78.0000076,4590.01074, 0.999999642);
-SkOpSegment::debugShowActiveSpans id=2 (1176,4565 1176,4590) t=0 (1176,4565) tEnd=1 windSum=-1 oppSum=0 windValue=1 oppValue=0
-SkOpSegment::debugShowActiveSpans id=3 (1176,4590 1176,4595 1171,4595 0.707106769f) t=0 (1176,4590) tEnd=1 windSum=-1 oppSum=0 windValue=1 oppValue=0
-SkOpSegment::debugShowActiveSpans id=4 (1171,4595 83,4595) t=0 (1171,4595) tEnd=0.931066176 windSum=-1 oppSum=0 windValue=1 oppValue=0
-SkOpSegment::activeOp id=4 t=0.931066176 tEnd=0 op=union miFrom=0 miTo=1 suFrom=0 suTo=0 result=1
-SkOpSegment::findNextOp simple
-SkOpSegment::markDone id=4 (1171,4595 83,4595) t=0 [7] (1171,4595) tEnd=0.931066176 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-bridgeOp current id=4 from=(158,4595) to=(1171,4595)
-SkOpSegment::findNextOp simple
-SkOpSegment::markDone id=3 (1176,4590 1176,4595 1171,4595) t=0 [5] (1176,4590) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-bridgeOp current id=3 from=(1171,4595) to=(1176,4590)
-path.moveTo(158,4595);
-path.lineTo(1171,4595);
-path.conicTo(1176,4595, 1176,4590, 0.707106769);
-SkOpSegment::findNextOp simple
-SkOpSegment::markDone id=2 (1176,4565 1176,4590) t=0 [3] (1176,4565) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
-bridgeOp current id=2 from=(1176,4590) to=(1176,4565)
-path.lineTo(1176,4565);
+<div id="reduced">
+seg=1 {{{{377.218994f, -141.981003f}, {40.578701f, -201.339996f}, {23.1854992f, -102.697998f}}}, 0.707107008f}
+seg=2 {{{23.1854992f, -102.697998f}, {377.218994f, -141.981003f}}}
+seg=3 {{{{306.588013f, -227.983994f}, {212.464996f, -262.242004f}, {95.5512009f, 58.9763985f}}}, 0.707107008f}
+seg=4 {{{95.5512009f, 58.9763985f}, {306.588013f, -227.983994f}}}
+debugShowConicLineIntersection wtTs[0]=0 {{{{306.588013,-227.983994}, {212.464996,-262.242004}, {95.5512009,58.9763985}}}, 0.707107008} {{306.588013,-227.983994}} wtTs[1]=1 {{95.5512009,58.9763985}} wnTs[0]=1 {{{95.5512009,58.9763985}, {306.588013,-227.983994}}} wnTs[1]=0
+debugShowConicIntersection no intersect {{{{306.588013,-227.983994}, {212.464996,-262.242004}, {95.5512009,58.9763985}}}, 0.707107008} {{{{377.218994,-141.981003}, {40.578701,-201.339996}, {23.1854992,-102.697998}}}, 0.707107008}
+debugShowConicLineIntersection wtTs[0]=0.602960898 {{{{306.588013,-227.983994}, {212.464996,-262.242004}, {95.5512009,58.9763985}}}, 0.707107008} {{180.284241,-120.129433}} wnTs[0]=0.44374 {{{23.1854992,-102.697998}, {377.218994,-141.981003}}}
+addT insert t=0.602960898 segID=3 spanID=9
+addT insert t=0.443739761 segID=2 spanID=10
+debugShowConicLineIntersection wtTs[0]=0.245788566 {{{{377.218994,-141.981003}, {40.578701,-201.339996}, {23.1854992,-102.697998}}}, 0.707107008} {{254.22023,-156.776138}} wnTs[0]=0.751855 {{{95.5512009,58.9763985}, {306.588013,-227.983994}}}
+addT insert t=0.751854746 segID=4 spanID=11
+addT insert t=0.245788566 segID=1 spanID=12
+debugShowLineIntersection wtTs[0]=0.64393017 {{{95.5512009,58.9763985}, {306.588013,-227.983994}}} {{231.444168,-125.806053}} wnTs[0]=0.588246 {{{23.1854992,-102.697998}, {377.218994,-141.981003}}}
+addT insert t=0.64393017 segID=4 spanID=13
+addT insert t=0.588245674 segID=2 spanID=14
+debugShowConicLineIntersection wtTs[0]=0 {{{{377.218994,-141.981003}, {40.578701,-201.339996}, {23.1854992,-102.697998}}}, 0.707107008} {{377.218994,-141.981003}} wtTs[1]=1 {{23.1854992,-102.697998}} wnTs[0]=1 {{{23.1854992,-102.697998}, {377.218994,-141.981003}}} wnTs[1]=0
+sortAngles [3] tStart=0.602960898 [9]
+after [3/1] 5/1 tStart=0.602960898 tEnd=0 < [2/9] 17/17 tStart=0.443739761 tEnd=0 < [3/2] 21/21 tStart=0.602960898 tEnd=1  T 4
+afterPart {{{{180.284241,-120.129433}, {257.850781,-245.722913}, {306.588013,-227.983994}}}, 1.02163982} id=3
+afterPart {{{180.284241,-120.129433}, {23.1854992,-102.697998}}} id=2
+afterPart {{{{180.284241,-120.129433}, {132.69398,-43.0726727}, {95.5512009,58.9763985}}}, 0.497736931} id=3
+after [3/1] 5/1 tStart=0.602960898 tEnd=0 < [2/10] 1/1 tStart=0.443739761 tEnd=0.588245674 < [2/9] 17/17 tStart=0.443739761 tEnd=0  F 12
+afterPart {{{{180.284241,-120.129433}, {257.850781,-245.722913}, {306.588013,-227.983994}}}, 1.02163982} id=3
+afterPart {{{180.284241,-120.129433}, {231.444168,-125.806053}}} id=2
+afterPart {{{180.284241,-120.129433}, {23.1854992,-102.697998}}} id=2
+after [2/9] 17/17 tStart=0.443739761 tEnd=0 < [2/10] 1/1 tStart=0.443739761 tEnd=0.588245674 < [3/2] 21/21 tStart=0.602960898 tEnd=1  F 4
+afterPart {{{180.284241,-120.129433}, {23.1854992,-102.697998}}} id=2
+afterPart {{{180.284241,-120.129433}, {231.444168,-125.806053}}} id=2
+afterPart {{{{180.284241,-120.129433}, {132.69398,-43.0726727}, {95.5512009,58.9763985}}}, 0.497736931} id=3
+after [3/2] 21/21 tStart=0.602960898 tEnd=1 < [2/10] 1/1 tStart=0.443739761 tEnd=0.588245674 < [3/1] 5/1 tStart=0.602960898 tEnd=0  T 11
+afterPart {{{{180.284241,-120.129433}, {132.69398,-43.0726727}, {95.5512009,58.9763985}}}, 0.497736931} id=3
+afterPart {{{180.284241,-120.129433}, {231.444168,-125.806053}}} id=2
+afterPart {{{{180.284241,-120.129433}, {257.850781,-245.722913}, {306.588013,-227.983994}}}, 1.02163982} id=3
+sortAngles [4] tStart=0.64393017 [13]
+after [4/3] 21/21 tStart=0.64393017 tEnd=0 < [2/11] 17/17 tStart=0.588245674 tEnd=0.443739761 < [4/4] 5/5 tStart=0.64393017 tEnd=0.751854746  F 4
+afterPart {{{231.444168,-125.806053}, {95.5512009,58.9763985}}} id=4
+afterPart {{{231.444168,-125.806053}, {180.284241,-120.129433}}} id=2
+afterPart {{{231.444168,-125.806053}, {254.22023,-156.776138}}} id=4
+after [4/3] 21/21 tStart=0.64393017 tEnd=0 < [2/12] 1/1 tStart=0.588245674 tEnd=1 < [4/4] 5/5 tStart=0.64393017 tEnd=0.751854746  T 4
+afterPart {{{231.444168,-125.806053}, {95.5512009,58.9763985}}} id=4
+afterPart {{{231.444168,-125.806053}, {377.218994,-141.981003}}} id=2
+afterPart {{{231.444168,-125.806053}, {254.22023,-156.776138}}} id=4
+sortAngles [4] tStart=0.751854746 [11]
+after [4/5] 21/21 tStart=0.751854746 tEnd=0.64393017 < [1/7] 29/29 tStart=0.245788566 tEnd=0 < [4/6] 5/5 tStart=0.751854746 tEnd=1  T 4
+afterPart {{{254.22023,-156.776138}, {231.444168,-125.806053}}} id=4
+afterPart {{{{254.22023,-156.776138}, {314.172616,-153.097823}, {377.218994,-141.981003}}}, 0.580018938} id=1
+afterPart {{{254.22023,-156.776138}, {306.588013,-227.983994}}} id=4
+after [4/5] 21/21 tStart=0.751854746 tEnd=0.64393017 < [1/8] 13/17 tStart=0.245788566 tEnd=1 < [1/7] 29/29 tStart=0.245788566 tEnd=0  F 4
+afterPart {{{254.22023,-156.776138}, {231.444168,-125.806053}}} id=4
+afterPart {{{{254.22023,-156.776138}, {35.0915133,-170.22053}, {23.1854992,-102.697998}}}, 0.920844734} id=1
+afterPart {{{{254.22023,-156.776138}, {314.172616,-153.097823}, {377.218994,-141.981003}}}, 0.580018938} id=1
+after [1/7] 29/29 tStart=0.245788566 tEnd=0 < [1/8] 13/17 tStart=0.245788566 tEnd=1 < [4/6] 5/5 tStart=0.751854746 tEnd=1  F 4
+afterPart {{{{254.22023,-156.776138}, {314.172616,-153.097823}, {377.218994,-141.981003}}}, 0.580018938} id=1
+afterPart {{{{254.22023,-156.776138}, {35.0915133,-170.22053}, {23.1854992,-102.697998}}}, 0.920844734} id=1
+afterPart {{{254.22023,-156.776138}, {306.588013,-227.983994}}} id=4
+after [4/6] 5/5 tStart=0.751854746 tEnd=1 < [1/8] 13/17 tStart=0.245788566 tEnd=1 < [4/5] 21/21 tStart=0.751854746 tEnd=0.64393017  T 4
+afterPart {{{254.22023,-156.776138}, {306.588013,-227.983994}}} id=4
+afterPart {{{{254.22023,-156.776138}, {35.0915133,-170.22053}, {23.1854992,-102.697998}}}, 0.920844734} id=1
+afterPart {{{254.22023,-156.776138}, {231.444168,-125.806053}}} id=4
+sortAngles [1] tStart=0.245788566 [12]
+sortAngles [2] tStart=0.443739761 [10]
+sortAngles [2] tStart=0.588245674 [14]
+sortableTop dir=kTop seg=3 t=0.301480449 pt=(252.731339,-209.870193)
+sortableTop [0] valid=1 operand=0 span=5 ccw=0 seg=3 {{{{306.588013f, -227.983994f}, {212.464996f, -262.242004f}, {95.5512009f, 58.9763985f}}}, 0.707107008f} t=0.301480449 pt=(252.731339,-209.870193) slope=(-84.4303791,69.255817)
+markWinding id=3 (306.588013,-227.983994 212.464996,-262.242004 95.5512009,58.9763985) t=0 [5] (306.588013,-227.983994) tEnd=0.602960898 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+markWinding id=3 (306.588013,-227.983994 212.464996,-262.242004 95.5512009,58.9763985) t=0 [5] (306.588013,-227.983994) tEnd=0.602960898 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+markWinding id=4 (95.5512009,58.9763985 306.588013,-227.983994) t=0.751854746 [11] (254.22023,-156.776138) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+findNextWinding simple
+markDone id=3 (306.588013,-227.983994 212.464996,-262.242004 95.5512009,58.9763985) t=0 [5] (306.588013,-227.983994) tEnd=0.602960898 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+bridgeWinding current id=3 from=(180.284241,-120.129433) to=(306.588013,-227.983994)
+path.moveTo(180.284241,-120.129433);
+path.conicTo(257.850769,-245.722916, 306.588013,-227.983994, 1.02163982);
+markWinding id=1 (377.218994,-141.981003 40.578701,-201.339996 23.1854992,-102.697998) t=0.245788566 [12] (254.22023,-156.776138) tEnd=1 newWindSum=2 windSum=? windValue=1
+markWinding id=2 (23.1854992,-102.697998 377.218994,-141.981003) t=0 [3] (23.1854992,-102.697998) tEnd=0.443739761 newWindSum=2 windSum=? windValue=1
+markAngle last seg=2 span=10 windSum=?
+markWinding id=4 (95.5512009,58.9763985 306.588013,-227.983994) t=0.64393017 [13] (231.444168,-125.806053) tEnd=0.751854746 newWindSum=2 windSum=? windValue=1
+markAngle last seg=4 span=13 windSum=2
+markWinding id=1 (377.218994,-141.981003 40.578701,-201.339996 23.1854992,-102.697998) t=0 [1] (377.218994,-141.981003) tEnd=0.245788566 newWindSum=1 windSum=? windValue=1
+markWinding id=2 (23.1854992,-102.697998 377.218994,-141.981003) t=0.588245674 [14] (231.444168,-125.806053) tEnd=1 newWindSum=1 windSum=? windValue=1
+markAngle last seg=2 span=14 windSum=1
+findNextWinding
+dumpOne [4/6] next=1/8 sect=5/5  s=0.751854746 [11] e=1 [8] sgn=-1 windVal=1 windSum=1 oppVal=0 oppSum=0
+dumpOne [1/8] next=4/5 sect=13/17  s=0.245788566 [12] e=1 [2] sgn=-1 windVal=1 windSum=2
+dumpOne [4/5] next=1/7 sect=21/21  s=0.751854746 [11] e=0.64393017 [13] sgn=1 windVal=1 windSum=2
+dumpOne [1/7] next=4/6 sect=29/29  s=0.245788566 [12] e=0 [1] sgn=1 windVal=1 windSum=1
+markDone id=1 (377.218994,-141.981003 40.578701,-201.339996 23.1854992,-102.697998) t=0.245788566 [12] (254.22023,-156.776138) tEnd=1 newWindSum=2 newOppSum=? oppSum=? windSum=2 windValue=1 oppValue=0
+markDone id=2 (23.1854992,-102.697998 377.218994,-141.981003) t=0 [3] (23.1854992,-102.697998) tEnd=0.443739761 newWindSum=2 newOppSum=? oppSum=? windSum=2 windValue=1 oppValue=0
+findNextWinding chase.append segment=2 span=10 windSum=-2147483647
+markDone id=4 (95.5512009,58.9763985 306.588013,-227.983994) t=0.64393017 [13] (231.444168,-125.806053) tEnd=0.751854746 newWindSum=2 newOppSum=? oppSum=? windSum=2 windValue=1 oppValue=0
+findNextWinding chase.append segment=4 span=13 windSum=2
+findNextWinding chase.append segment=2 span=14 windSum=1
+markDone id=4 (95.5512009,58.9763985 306.588013,-227.983994) t=0.751854746 [11] (254.22023,-156.776138) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+findNextWinding from:[4] to:[1] start=50334624 end=1606415336
+bridgeWinding current id=4 from=(306.588013,-227.983994) to=(254.22023,-156.776138)
+findNextWinding simple
+markDone id=1 (377.218994,-141.981003 40.578701,-201.339996 23.1854992,-102.697998) t=0 [1] (377.218994,-141.981003) tEnd=0.245788566 newWindSum=1 newOppSum=? oppSum=? windSum=1 windValue=1 oppValue=0
+bridgeWinding current id=1 from=(254.22023,-156.776138) to=(377.218994,-141.981003)
+path.lineTo(254.22023,-156.776138);
+path.conicTo(314.172607,-153.097824, 377.218994,-141.981003, 0.580018938);
+markWinding id=2 (23.1854992,-102.697998 377.218994,-141.981003) t=0.443739761 [10] (180.284241,-120.129433) tEnd=0.588245674 newWindSum=2 windSum=? windValue=1
+markAngle last seg=2 span=10 windSum=2
+markWinding id=4 (95.5512009,58.9763985 306.588013,-227.983994) t=0 [7] (95.5512009,58.9763985) tEnd=0.64393017 newWindSum=1 windSum=? windValue=1
+markWinding id=3 (306.588013,-227.983994 212.464996,-262.242004 95.5512009,58.9763985) t=0.602960898 [9] (180.284241,-120.129433) tEnd=1 newWindSum=1 windSum=? windValue=1
+markAngle last seg=3 span=9 windSum=1
+findNextWinding
+dumpOne [2/12] next=4/4 sect=1/1  s=0.588245674 [14] e=1 [4] sgn=-1 windVal=1 windSum=1
+dumpOne [4/4] next=2/11 sect=5/5  s=0.64393017 [13] e=0.751854746 [11] sgn=-1 windVal=1 windSum=2 done
+dumpOne [2/11] next=4/3 sect=17/17  s=0.588245674 [14] e=0.443739761 [10] sgn=1 windVal=1 windSum=2
+dumpOne [4/3] next=2/12 sect=21/21  s=0.64393017 [13] e=0 [7] sgn=1 windVal=1 windSum=1
+markDone id=2 (23.1854992,-102.697998 377.218994,-141.981003) t=0.443739761 [10] (180.284241,-120.129433) tEnd=0.588245674 newWindSum=2 newOppSum=? oppSum=? windSum=2 windValue=1 oppValue=0
+findNextWinding chase.append segment=3 span=9 windSum=1
+markDone id=2 (23.1854992,-102.697998 377.218994,-141.981003) t=0.588245674 [14] (231.444168,-125.806053) tEnd=1 newWindSum=1 newOppSum=? oppSum=? windSum=1 windValue=1 oppValue=0
+findNextWinding from:[2] to:[4] start=50334760 end=50333904
+bridgeWinding current id=2 from=(377.218994,-141.981003) to=(231.444168,-125.806053)
+findNextWinding simple
+markDone id=4 (95.5512009,58.9763985 306.588013,-227.983994) t=0 [7] (95.5512009,58.9763985) tEnd=0.64393017 newWindSum=1 newOppSum=? oppSum=? windSum=1 windValue=1 oppValue=0
+bridgeWinding current id=4 from=(231.444168,-125.806053) to=(95.5512009,58.9763985)
+path.lineTo(231.444168,-125.806053);
+findNextWinding
+dumpOne [3/2] next=2/10 sect=21/21  s=0.602960898 [9] e=1 [6] sgn=-1 windVal=1 windSum=1
+dumpOne [2/10] next=3/1 sect=1/1  s=0.443739761 [10] e=0.588245674 [14] sgn=-1 windVal=1 windSum=2 done
+dumpOne [3/1] next=2/9 sect=5/1  s=0.602960898 [9] e=0 [5] sgn=1 windVal=1 windSum=1 oppVal=0 oppSum=0 done
+dumpOne [2/9] next=3/2 sect=17/17  s=0.443739761 [10] e=0 [3] sgn=1 windVal=1 windSum=2 done
+markDone id=3 (306.588013,-227.983994 212.464996,-262.242004 95.5512009,58.9763985) t=0.602960898 [9] (180.284241,-120.129433) tEnd=1 newWindSum=1 newOppSum=? oppSum=? windSum=1 windValue=1 oppValue=0
+findNextWinding from:[3] to:[2] start=50334352 end=50333208
+bridgeWinding current id=3 from=(95.5512009,58.9763985) to=(180.284241,-120.129433)
+path.lineTo(95.5512009,58.9763985);
+path.conicTo(132.693985,-43.0726738, 180.284241,-120.129433, 0.497736931);
+path.close();
 </div>
-
-
 
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
-    skpwww_gorcraft_ru_1,
+    reduced,
 ];
 
 var decimal_places = 3; // make this 3 to show more precision

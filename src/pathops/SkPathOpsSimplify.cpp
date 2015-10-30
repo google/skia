@@ -11,7 +11,7 @@
 #include "SkPathWriter.h"
 
 static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
-        SkChunkAlloc* allocator) {
+        SkChunkAlloc* allocator, bool* closable) {
     bool unsortable = false;
     do {
         SkOpSpan* span = FindSortableTop(contourList);
@@ -37,7 +37,9 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
                         if (!unsortable && simple->hasMove()
                                 && current->verb() != SkPath::kLine_Verb
                                 && !simple->isClosed()) {
-                            current->addCurveTo(start, end, simple, true);
+                            if (!current->addCurveTo(start, end, simple)) {
+                                return false;
+                            }
                     #if DEBUG_ACTIVE_SPANS
                             if (!simple->isClosed()) {
                                 DebugShowActiveSpans(contourList);
@@ -51,7 +53,9 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
                     current->debugID(), start->pt().fX, start->pt().fY,
                     end->pt().fX, end->pt().fY);
         #endif
-                    current->addCurveTo(start, end, simple, true);
+                    if (!current->addCurveTo(start, end, simple)) {
+                        return false;
+                    }
                     current = next;
                     start = nextStart;
                     end = nextEnd;
@@ -59,7 +63,9 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
                 if (current->activeWinding(start, end) && !simple->isClosed()) {
                     SkOpSpan* spanStart = start->starter(end);
                     if (!spanStart->done()) {
-                        current->addCurveTo(start, end, simple, true);
+                        if (!current->addCurveTo(start, end, simple)) {
+                            return false;
+                        }
                         current->markDone(spanStart);
                     }
                 }
@@ -88,17 +94,18 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple,
             }
         } while (true);
     } while (true);
-    return simple->someAssemblyRequired();
+    *closable = !simple->someAssemblyRequired();
+    return true;
 }
 
 // returns true if all edges were processed
 static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
-        SkChunkAlloc* allocator) {
+        SkChunkAlloc* allocator, bool* closable) {
     SkOpSegment* current;
     SkOpSpanBase* start;
     SkOpSpanBase* end;
     bool unsortable = false;
-    bool closable = true;
+    *closable = true;
     while ((current = FindUndone(contourList, &start, &end))) {
         do {
     #if DEBUG_ACTIVE_SPANS
@@ -114,7 +121,9 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
                 if (!unsortable && simple->hasMove()
                         && current->verb() != SkPath::kLine_Verb
                         && !simple->isClosed()) {
-                    current->addCurveTo(start, end, simple, true);
+                    if (!current->addCurveTo(start, end, simple)) {
+                        return false;
+                    }
             #if DEBUG_ACTIVE_SPANS
                     if (!simple->isClosed()) {
                         DebugShowActiveSpans(contourList);
@@ -128,7 +137,9 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
                     current->debugID(), start->pt().fX, start->pt().fY,
                     end->pt().fX, end->pt().fY);
         #endif
-            current->addCurveTo(start, end, simple, true);
+            if (!current->addCurveTo(start, end, simple)) {
+                return false;
+            }
             current = next;
             start = nextStart;
             end = nextEnd;
@@ -137,17 +148,19 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple,
             SkASSERT(unsortable);
             SkOpSpan* spanStart = start->starter(end);
             if (!spanStart->done()) {
-                current->addCurveTo(start, end, simple, true);
+                if (!current->addCurveTo(start, end, simple)) {
+                    return false;
+                }
                 current->markDone(spanStart);
             }
-            closable = false;
+            *closable = false;
         }
         simple->close();
     #if DEBUG_ACTIVE_SPANS
         DebugShowActiveSpans(contourList);
     #endif
     }
-    return closable;
+    return true;
 }
 
 // FIXME : add this as a member of SkPath
@@ -203,8 +216,13 @@ bool Simplify(const SkPath& path, SkPath* result) {
     result->reset();
     result->setFillType(fillType);
     SkPathWriter wrapper(*result);
-    if (builder.xorMask() == kWinding_PathOpsMask ? bridgeWinding(contourList, &wrapper, &allocator)
-                : !bridgeXor(contourList, &wrapper, &allocator))
+    bool closable;
+    if (builder.xorMask() == kWinding_PathOpsMask
+            ? !bridgeWinding(contourList, &wrapper, &allocator, &closable)
+            : !bridgeXor(contourList, &wrapper, &allocator, &closable)) {
+        return false;
+    }
+    if (!closable)
     {  // if some edges could not be resolved, assemble remaining fragments
         SkPath temp;
         temp.setFillType(fillType);

@@ -361,6 +361,7 @@ void SkOpSpan::init(SkOpSegment* segment, SkOpSpan* prev, double t, const SkPoin
     fTopTTry = 0;
     fChased = fDone = false;
     segment->bumpCount();
+    fAlreadyAdded = false;
 }
 
 void SkOpSpan::setOppSum(int oppSum) {

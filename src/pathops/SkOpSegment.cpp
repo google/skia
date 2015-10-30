@@ -240,8 +240,11 @@ void SkOpSegment::addAlignIntersection(SkOpPtT& endPtT, SkPoint& oldPt,
     } while ((current = current->next()));
 }
 
-void SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
-        SkPathWriter* path, bool active) const {
+bool SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
+        SkPathWriter* path) const {
+    if (start->starter(end)->alreadyAdded()) {
+        return false;
+    }
     SkOpCurve edge;
     const SkPoint* ePtr;
     SkScalar eWeight;
@@ -254,46 +257,45 @@ void SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
         ePtr = edge.fPts;
         eWeight = edge.fWeight;
     }
-    if (active) {
-        bool reverse = ePtr == fPts && start != &fHead;
-        if (reverse) {
-            path->deferredMoveLine(ePtr[SkPathOpsVerbToPoints(fVerb)]);
-            switch (fVerb) {
-                case SkPath::kLine_Verb:
-                    path->deferredLine(ePtr[0]);
-                    break;
-                case SkPath::kQuad_Verb:
-                    path->quadTo(ePtr[1], ePtr[0]);
-                    break;
-                case SkPath::kConic_Verb:
-                    path->conicTo(ePtr[1], ePtr[0], eWeight);
-                    break;
-                case SkPath::kCubic_Verb:
-                    path->cubicTo(ePtr[2], ePtr[1], ePtr[0]);
-                    break;
-                default:
-                    SkASSERT(0);
-            }
-       } else {
-            path->deferredMoveLine(ePtr[0]);
-            switch (fVerb) {
-                case SkPath::kLine_Verb:
-                    path->deferredLine(ePtr[1]);
-                    break;
-                case SkPath::kQuad_Verb:
-                    path->quadTo(ePtr[1], ePtr[2]);
-                    break;
-                case SkPath::kConic_Verb:
-                    path->conicTo(ePtr[1], ePtr[2], eWeight);
-                    break;
-                case SkPath::kCubic_Verb:
-                    path->cubicTo(ePtr[1], ePtr[2], ePtr[3]);
-                    break;
-                default:
-                    SkASSERT(0);
-            }
+    bool reverse = ePtr == fPts && start != &fHead;
+    if (reverse) {
+        path->deferredMoveLine(ePtr[SkPathOpsVerbToPoints(fVerb)]);
+        switch (fVerb) {
+            case SkPath::kLine_Verb:
+                path->deferredLine(ePtr[0]);
+                break;
+            case SkPath::kQuad_Verb:
+                path->quadTo(ePtr[1], ePtr[0]);
+                break;
+            case SkPath::kConic_Verb:
+                path->conicTo(ePtr[1], ePtr[0], eWeight);
+                break;
+            case SkPath::kCubic_Verb:
+                path->cubicTo(ePtr[2], ePtr[1], ePtr[0]);
+                break;
+            default:
+                SkASSERT(0);
+        }
+    } else {
+        path->deferredMoveLine(ePtr[0]);
+        switch (fVerb) {
+            case SkPath::kLine_Verb:
+                path->deferredLine(ePtr[1]);
+                break;
+            case SkPath::kQuad_Verb:
+                path->quadTo(ePtr[1], ePtr[2]);
+                break;
+            case SkPath::kConic_Verb:
+                path->conicTo(ePtr[1], ePtr[2], eWeight);
+                break;
+            case SkPath::kCubic_Verb:
+                path->cubicTo(ePtr[1], ePtr[2], ePtr[3]);
+                break;
+            default:
+                SkASSERT(0);
         }
     }
+    return true;
 }
 
 SkOpPtT* SkOpSegment::addMissing(double t, SkOpSegment* opp, SkChunkAlloc* allocator) {

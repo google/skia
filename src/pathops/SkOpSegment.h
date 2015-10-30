@@ -69,8 +69,7 @@ public:
         return this;
     }
 
-    void addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end, SkPathWriter* path,
-                    bool active) const;
+    bool addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end, SkPathWriter* path) const;
 
     SkOpAngle* addEndSpan(SkChunkAlloc* allocator) {
         SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(allocator);

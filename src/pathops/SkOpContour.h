@@ -397,14 +397,14 @@ public:
     void toPartialBackward(SkPathWriter* path) const {
         const SkOpSegment* segment = fTail;
         do {
-            segment->addCurveTo(segment->tail(), segment->head(), path, true);
+            SkAssertResult(segment->addCurveTo(segment->tail(), segment->head(), path));
         } while ((segment = segment->prev()));
     }
 
     void toPartialForward(SkPathWriter* path) const {
         const SkOpSegment* segment = &fHead;
         do {
-            segment->addCurveTo(segment->head(), segment->tail(), path, true);
+            SkAssertResult(segment->addCurveTo(segment->head(), segment->tail(), path));
         } while ((segment = segment->next()));
     }
 
