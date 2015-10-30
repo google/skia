@@ -39,11 +39,15 @@ def get_args(bot):
     configs.append('sp-8888')
     configs.extend(['remote-8888', 'remote_cache-8888'])
 
-  if 'TegraK1' in bot or 'GTX550Ti' in bot or 'GTX660' in bot or 'GT610' in bot:
-    if 'Android' in bot:
-      configs.append('nvprmsaa4')
-    else:
-      configs.append('nvprmsaa16')
+  if '-TSAN' not in bot:
+    if ('TegraK1'  in bot or
+        'GTX550Ti' in bot or
+        'GTX660'   in bot or
+        'GT610'    in bot):
+      if 'Android' in bot:
+        configs.append('nvprmsaa4')
+      else:
+        configs.append('nvprmsaa16')
 
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.  The Tegra2 and Tegra3 just don't support it.
