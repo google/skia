@@ -36,16 +36,7 @@ static int horizontal_line(const SkDQuad& quad, SkDQuad& reduction) {
 
 static int check_linear(const SkDQuad& quad,
         int minX, int maxX, int minY, int maxY, SkDQuad& reduction) {
-    int startIndex = 0;
-    int endIndex = 2;
-    while (quad[startIndex].approximatelyEqual(quad[endIndex])) {
-        --endIndex;
-        if (endIndex == 0) {
-            SkDebugf("%s shouldn't get here if all four points are about equal", __FUNCTION__);
-            SkASSERT(0);
-        }
-    }
-    if (!quad.isLinear(startIndex, endIndex)) {
+    if (!quad.isLinear(0, 2)) {
         return 0;
     }
     // four are colinear: return line formed by outside
@@ -156,16 +147,7 @@ static int check_quadratic(const SkDCubic& cubic, SkDCubic& reduction) {
 
 static int check_linear(const SkDCubic& cubic,
         int minX, int maxX, int minY, int maxY, SkDCubic& reduction) {
-    int startIndex = 0;
-    int endIndex = 3;
-    while (cubic[startIndex].approximatelyEqual(cubic[endIndex])) {
-        --endIndex;
-        if (endIndex == 0) {
-            endIndex = 3;
-            break;
-        }
-    }
-    if (!cubic.isLinear(startIndex, endIndex)) {
+    if (!cubic.isLinear(0, 3)) {
         return 0;
     }
     // four are colinear: return line formed by outside
