@@ -827,7 +827,7 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     }
     params.setFilterMode(textureFilterMode);
 
-    int maxTileSize = fContext->caps()->maxTextureSize() - 2 * tileFilterPad;
+    int maxTileSize = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
 
     // these are output, which we safely ignore, as we just want to know the predicate
     int outTileSize;
@@ -1071,11 +1071,11 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     // FIXME: the tiled bitmap code path doesn't currently support
     // anti-aliased edges, we work around that for now by drawing directly
     // if the image size exceeds maximum texture size.
-    int maxTextureSize = fContext->caps()->maxTextureSize();
+    int maxTileSize = fContext->caps()->maxTileSize();
     bool drawAA = !fRenderTarget->isUnifiedMultisampled() &&
                   paint.isAntiAlias() &&
-                  bitmap.width() <= maxTextureSize &&
-                  bitmap.height() <= maxTextureSize;
+                  bitmap.width() <= maxTileSize &&
+                  bitmap.height() <= maxTileSize;
 
     if (paint.getMaskFilter() || drawAA) {
         // Convert the bitmap to a shader so that the rect can be drawn
@@ -1150,7 +1150,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     }
     params.setFilterMode(textureFilterMode);
 
-    int maxTileSize = fContext->caps()->maxTextureSize() - 2 * tileFilterPad;
+    maxTileSize = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
     int tileSize;
 
     SkIRect clippedSrcRect;
@@ -1279,8 +1279,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      SkCanvas::SrcRectConstraint constraint,
                                      bool bicubic,
                                      bool needsTextureDomain) {
-    SkASSERT(bitmap.width() <= fContext->caps()->maxTextureSize() &&
-             bitmap.height() <= fContext->caps()->maxTextureSize());
+    SkASSERT(bitmap.width() <= fContext->caps()->maxTileSize() &&
+             bitmap.height() <= fContext->caps()->maxTileSize());
 
     GrTexture* texture;
     AutoBitmapTexture abt(fContext, bitmap, params, &texture);

@@ -121,6 +121,12 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
+    // If the max tile override is zero, it means we should use the max texture size.
+    if (!options.fMaxTileSizeOverride || options.fMaxTileSizeOverride > fMaxTextureSize) {
+        fMaxTileSize = fMaxTextureSize;
+    } else {
+        fMaxTileSize = options.fMaxTileSizeOverride;
+    }
 }
 
 static SkString map_flags_to_string(uint32_t flags) {

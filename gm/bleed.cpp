@@ -215,7 +215,7 @@ protected:
 
         // To exercise the GPU's tiling path we need a texture
         // too big for the GPU to handle in one go
-        gBleedRec[fBT].fBmpMaker(&fBitmapBig, 2*kMaxTextureSize, 2*kMaxTextureSize);
+        gBleedRec[fBT].fBmpMaker(&fBitmapBig, 2*kMaxTileSize, 2*kMaxTileSize);
         fImageBig.reset(SkImage::NewFromBitmap(fBitmapBig));
 
         fShader.reset(gBleedRec[fBT].fShaderMaker());
@@ -378,7 +378,7 @@ protected:
 
 #if SK_SUPPORT_GPU
     void modifyGrContextOptions(GrContextOptions* options) override {
-        options->fMaxTextureSizeOverride = kMaxTextureSize;
+        options->fMaxTileSizeOverride = kMaxTileSize;
     }
 #endif
 
@@ -400,7 +400,7 @@ private:
     static const int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
 
     static const int kSmallTextureSize = 6;
-    static const int kMaxTextureSize = 32;
+    static const int kMaxTileSize = 32;
 
     SkBitmap fBitmapSmall;
     SkBitmap fBitmapBig;
@@ -418,7 +418,5 @@ DEF_GM( return new BleedGM(kUseBitmap_BleedTest); )
 DEF_GM( return new BleedGM(kUseImage_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaBitmap_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaImage_BleedTest); )
-#if 0  // Currently crashes GPU backend
 DEF_GM(return new BleedGM(kUseAlphaBitmapShader_BleedTest); )
 DEF_GM(return new BleedGM(kUseAlphaImageShader_BleedTest); )
-#endif

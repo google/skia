@@ -15,6 +15,7 @@ struct GrContextOptions {
         : fDrawPathToCompressedTexture(false)
         , fSuppressPrints(false)
         , fMaxTextureSizeOverride(SK_MaxS32)
+        , fMaxTileSizeOverride(0)
         , fSuppressDualSourceBlending(false)
         , fGeometryBufferMapThreshold(-1)
         , fUseDrawInsteadOfPartialRenderTargetWrite(false)
@@ -33,6 +34,9 @@ struct GrContextOptions {
         detected values. */
 
     int  fMaxTextureSizeOverride;
+    /** If non-zero, overrides the maximum size of a tile for sw-backed images and bitmaps rendered
+        by SkGpuDevice. */
+    int  fMaxTileSizeOverride;
     bool fSuppressDualSourceBlending;
 
     /** the threshold in bytes above which we will use a buffer mapping API to map vertex and index
