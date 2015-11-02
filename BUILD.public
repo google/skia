@@ -90,7 +90,6 @@ SRCS_UNIX = glob(
         "src/opts/SkBlitRow_opts_none.cpp",
         "src/ports/*android*",
         "src/ports/*chromium*",
-        "src/ports/*CG*",
         "src/ports/*fontconfig*",
         "src/ports/*FontConfig*",
         "src/ports/*mac*",
@@ -99,6 +98,7 @@ SRCS_UNIX = glob(
         "src/ports/*win*",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkImageDecoder_CG.cpp",
         "src/ports/SkImageDecoder_WIC.cpp",
         "src/ports/SkImageDecoder_empty.cpp",
         "src/ports/SkImageGenerator_none.cpp",
@@ -129,7 +129,6 @@ SRCS_ANDROID = glob(
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
         "src/ports/*chromium*",
-        "src/ports/*CG*",
         "src/ports/*fontconfig*",
         "src/ports/*FontConfig*",
         "src/ports/*mac*",
@@ -140,6 +139,7 @@ SRCS_ANDROID = glob(
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkImageDecoder_CG.cpp",
         "src/ports/SkImageDecoder_WIC.cpp",
         "src/ports/SkImageDecoder_empty.cpp",
         "src/ports/SkImageGenerator_none.cpp",
@@ -370,6 +370,7 @@ cc_library(
     linkopts = LINKOPTS,
     visibility = [":skia_clients"],
     deps = DEPS,
+    alwayslink = 1,
 )
 
 cc_test(
