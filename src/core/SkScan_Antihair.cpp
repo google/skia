@@ -847,7 +847,11 @@ static void inner_scanline(FDot8 L, int top, FDot8 R, U8CPU alpha,
     SkASSERT(L < R);
 
     if ((L >> 8) == ((R - 1) >> 8)) {  // 1x1 pixel
-        blitter->blitV(L >> 8, top, 1, InvAlphaMul(alpha, R - L));
+        FDot8 widClamp = R - L;
+        // border case clamp 256 to 255 instead of going through call_hline_blitter
+        // see skbug/4406
+        widClamp = widClamp - (widClamp >> 8);
+        blitter->blitV(L >> 8, top, 1, InvAlphaMul(alpha, widClamp));
         return;
     }
 
