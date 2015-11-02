@@ -24,7 +24,8 @@
 cd "$(dirname "$0")/.."
 
 if ! [ -f .gclient ] ; then
-    gclient config --name . --unmanaged 'https://skia.googlesource.com/skia'
+    gclient config --unmanaged 'https://skia.googlesource.com/skia'
+    printf ',s/"skia"/"."/\nwq\n' | ed .gclient
 fi
 
 if ! [ -f DEPS ]; then
