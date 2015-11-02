@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
 #include "SkImageDecoder.h"
@@ -401,3 +404,5 @@ static SkImageDecoder::Format get_format_cg(SkStreamRewindable* stream) {
 }
 
 static SkImageDecoder_FormatReg gFormatReg(get_format_cg);
+
+#endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
+
 #include "SkOSFile.h"
 
 #include "SkTFitsIn.h"
@@ -240,3 +243,5 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir) {
     }
     return self.fHandle != (HANDLE)~0 && get_the_file(self.fHandle, name, dataPtr, getDir);
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

@@ -6,6 +6,7 @@
  */
 
 #include "SkTypes.h"
+#if !defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_ANDROID)
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -16,3 +17,4 @@ void SkDebugf(const char format[], ...) {
     vfprintf(stderr, format, args);
     va_end(args);
 }
+#endif//!defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_ANDROID)

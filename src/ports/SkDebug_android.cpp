@@ -6,6 +6,8 @@
  */
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_ANDROID)
+
 #include <stdio.h>
 
 #define LOG_TAG "skia"
@@ -30,3 +32,5 @@ void SkDebugf(const char format[], ...) {
 
     va_end(args1);
 }
+
+#endif//defined(SK_BUILD_FOR_ANDROID)

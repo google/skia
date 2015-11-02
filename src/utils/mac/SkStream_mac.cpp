@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+
 #include "SkCGUtils.h"
 #include "SkStream.h"
 
@@ -74,3 +77,5 @@ CGDataProviderRef SkCreateDataProviderFromData(SkData* data) {
     return CGDataProviderCreateWithData(data, data->data(), data->size(),
                                             unref_proc);
 }
+
+#endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

@@ -6,6 +6,7 @@
  */
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkThreadUtils.h"
 #include "SkThreadUtils_win.h"
@@ -96,3 +97,5 @@ void SkThread::join() {
 
     WaitForSingleObject(winData->fHandle, INFINITE);
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

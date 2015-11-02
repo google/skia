@@ -6,6 +6,8 @@
  */
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
+
 #undef GetGlyphIndices
 
 #include "SkDWrite.h"
@@ -776,3 +778,5 @@ void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
 
     path->transform(fSkXform);
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

@@ -9,6 +9,7 @@
 
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 static const size_t kBufferSize = 2048;
 
@@ -31,3 +32,4 @@ void SkDebugf(const char format[], ...) {
 
     OutputDebugStringA(buffer);
 }
+#endif//defined(SK_BUILD_FOR_WIN32)

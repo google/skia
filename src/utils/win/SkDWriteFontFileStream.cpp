@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkTypes.h"
 #include "SkDWriteFontFileStream.h"
@@ -229,3 +231,5 @@ HRESULT STDMETHODCALLTYPE SkDWriteFontFileStreamWrapper::GetLastWriteTime(UINT64
     *lastWriteTime = 0;
     return E_NOTIMPL;
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

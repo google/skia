@@ -6,6 +6,7 @@
  */
 
 #include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #ifndef UNICODE
 #define UNICODE
@@ -2265,3 +2266,4 @@ SkBaseDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*
     return new SkXPSDevice(this->fXpsFactory.get());
 }
 
+#endif//defined(SK_BUILD_FOR_WIN32)

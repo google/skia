@@ -5,9 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)  // And SKIA_GDI?
+
 #include "SkFontMgr.h"
 #include "SkTypeface_win.h"
 
 SkFontMgr* SkFontMgr::Factory() {
     return SkFontMgr_New_GDI();
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

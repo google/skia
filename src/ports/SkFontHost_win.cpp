@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
+
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBase64.h"
 #include "SkColorPriv.h"
@@ -2511,3 +2514,5 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFontMgr* SkFontMgr_New_GDI() { return new SkFontMgrGDI; }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

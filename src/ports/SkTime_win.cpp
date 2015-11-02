@@ -5,6 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 
 #include "SkTime.h"
@@ -39,3 +41,4 @@ void SkTime::GetDateTime(DateTime* dt)
         dt->fSecond     = SkToU8(st.wSecond);
     }
 }
+#endif//defined(SK_BUILD_FOR_WIN32)

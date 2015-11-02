@@ -5,6 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_MAC)
 
 
 #include "gl/GrGLInterface.h"
@@ -56,3 +58,5 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     GLProcGetter getter;
     return GrGLAssembleGLInterface(&getter, mac_get_gl_proc);
 }
+
+#endif//defined(SK_BUILD_FOR_MAC)

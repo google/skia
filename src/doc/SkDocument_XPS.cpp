@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
+
 #include "SkDocument.h"
 #include "SkXPSDevice.h"
 #include "SkStream.h"
@@ -75,3 +78,5 @@ SkDocument* SkDocument::CreateXPS(const char path[], SkScalar dpi) {
     }
     return new SkDocument_XPS(stream.detach(), delete_wstream, dpi);
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

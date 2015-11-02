@@ -52,16 +52,8 @@ remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
 remove_srcs (../src/animator/* ../src/*nacl* ../src/svg/* ../src/views/* ../src/xml/*)
 
 # Remove OS-specific source files.
-if (NOT WIN32)
-    remove_srcs(../src/*XPS*
-                ../src/*_win*.cpp
-                ../src/ports/SkImageDecoder_WIC.cpp
-                ../src/utils/win/*)
-endif()
 if (NOT UNIX)
-    remove_srcs(../src/doc/SkDocument_XPS_None.cpp
-                ../src/ports/*_posix.cpp
-                ../src/ports/SkDebug_stdio.cpp
+    remove_srcs(../src/ports/*_posix.cpp
                 ../src/ports/SkTLS_pthread.cpp
                 ../src/ports/SkTime_Unix.cpp
                 ../src/utils/SkThreadUtils_pthread.cpp)
@@ -71,15 +63,6 @@ if (APPLE OR NOT UNIX)
                 ../src/images/SkImageDecoder_FactoryDefault.cpp
                 ../src/ports/SkFontMgr_fontconfig*.cpp
                 ../src/*FreeType*)
-endif()
-if (NOT ANDROID)
-    remove_srcs(../src/*Hwui* ../src/*android*)
-endif()
-if (NOT APPLE)
-    remove_srcs(../src/*darwin*
-                ../src/ports/SkImageDecoder_CG.cpp
-                ../src/utils/mac/*
-                ../src/*_mac*)
 endif()
 
 # Remove processor-specific source files.
@@ -128,6 +111,7 @@ set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
 
 # Detect our optional dependencies.
 # If we can't find them, don't build the parts of Skia that use them.
+find_package (EXPAT)
 find_package (Lua)
 find_package (ZLIB)
 # No find_package for libwebp as far as I can tell, so simulate it here.
@@ -147,6 +131,13 @@ if (UNIX AND NOT APPLE)
 endif()
 
 # TODO: macro away this if (found) ... else() ... endif() stuff.
+
+if (EXPAT_FOUND)
+    list (APPEND private_includes ${EXPAT_INCLUDE_DIRS})
+    list (APPEND libs             ${EXPAT_LIBRARIES})
+else()
+    remove_srcs (../src/ports/SkFontMgr_android_parser.cpp)
+endif()
 
 if (GIF_FOUND)
     list (APPEND private_includes ${GIF_INCLUDE_DIRS})

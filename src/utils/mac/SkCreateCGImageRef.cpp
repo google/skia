@@ -5,6 +5,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+
 #include "SkCGUtils.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
@@ -306,3 +310,5 @@ bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef image, SkISize* scaleTo
     *dst = tmp;
     return true;
 }
+
+#endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

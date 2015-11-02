@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
+
 #include "SkDWrite.h"
 #include "SkDWriteFontFileStream.h"
 #include "SkFontMgr.h"
@@ -1103,3 +1106,4 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr* proxy) {
     }
     return new SkFontMgr_Indirect(impl.get(), proxy);
 }
+#endif//defined(SK_BUILD_FOR_WIN32)

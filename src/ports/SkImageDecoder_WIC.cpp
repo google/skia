@@ -8,6 +8,8 @@
 
 #include "SkTypes.h"
 
+#if defined(SK_BUILD_FOR_WIN32)
+
 // Workaround for:
 // http://connect.microsoft.com/VisualStudio/feedback/details/621653/
 // http://crbug.com/225822
@@ -462,3 +464,5 @@ static SkImageDecoder::Format get_format_wic(SkStreamRewindable* stream) {
 }
 
 static SkImageDecoder_FormatReg gFormatReg(get_format_wic);
+
+#endif // defined(SK_BUILD_FOR_WIN32)

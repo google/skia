@@ -6,6 +6,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
+
 #include "SkWGL.h"
 
 #include "SkTDArray.h"
@@ -455,3 +458,5 @@ SkWGLPbufferContext::SkWGLPbufferContext(HPBUFFER pbuffer, HDC dc, HGLRC glrc)
     , fDC(dc)
     , fGLRC(glrc) {
 }
+
+#endif//defined(SK_BUILD_FOR_WIN32)

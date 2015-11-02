@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+// Despite the name and location, this is portable code.
+
 #include "SkFontMgr_android_parser.h"
 #include "SkStream.h"
 #include "SkTDArray.h"

@@ -7,6 +7,7 @@
  */
 
 #include "SkTypes.h"  // Keep this before any #ifdef ...
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
 #ifdef SK_BUILD_FOR_MAC
 #import <ApplicationServices/ApplicationServices.h>
@@ -2491,3 +2492,5 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFontMgr* SkFontMgr::Factory() { return new SkFontMgr_Mac; }
+
+#endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

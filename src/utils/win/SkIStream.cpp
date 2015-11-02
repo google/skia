@@ -6,6 +6,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -275,3 +277,4 @@ HRESULT STDMETHODCALLTYPE SkWIStream::Stat(STATSTG* pStatstg
     pStatstg->grfMode = STGM_WRITE;
     return S_OK;
 }
+#endif//defined(SK_BUILD_FOR_WIN32)

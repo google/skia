@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkDWrite.h"
 #include "SkDWriteFontFileStream.h"
@@ -504,3 +506,4 @@ SkRemotableFontMgr* SkRemotableFontMgr_New_DirectWrite() {
 
     return new SkRemotableFontMgr_DirectWrite(sysFontCollection.get(), localeName, localeNameLen);
 }
+#endif//defined(SK_BUILD_FOR_WIN32)
