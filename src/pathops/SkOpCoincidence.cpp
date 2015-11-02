@@ -91,8 +91,14 @@ bool SkOpCoincidence::addExpanded(SkChunkAlloc* allocator
             if (!test->ptT()->contains(oTest->ptT())) {
                 // use t ranges to guess which one is missing
                 double startRange = coin->fCoinPtTEnd->fT - startPtT->fT;
+                if (!startRange) {
+                    return false;
+                }
                 double startPart = (test->t() - startPtT->fT) / startRange;
                 double oStartRange = coin->fOppPtTEnd->fT - oStartPtT->fT;
+                if (!oStartRange) {
+                    return false;
+                }
                 double oStartPart = (oTest->t() - oStartPtT->fT) / oStartRange;
                 if (startPart == oStartPart) {
                     return false;
