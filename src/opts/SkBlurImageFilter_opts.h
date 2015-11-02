@@ -84,8 +84,8 @@ static inline __m128i mullo_epi32(__m128i a, __m128i b) {
 
 // Fast path for kernel sizes between 2 and 127, working on two rows at a time.
 template<BlurDirection srcDirection, BlurDirection dstDirection>
-int box_blur_double(const SkPMColor** src, int srcStride, const SkIRect& srcBounds, SkPMColor** dst, int kernelSize,
-                     int leftOffset, int rightOffset, int width, int height) {
+void box_blur_double(const SkPMColor** src, int srcStride, SkPMColor** dst, int kernelSize,
+                     int leftOffset, int rightOffset, int width, int* height) {
     // Load 2 pixels from adjacent rows.
     auto load_2_pixels = [&](const SkPMColor* s) {
         if (srcDirection == BlurDirection::kX) {
@@ -99,21 +99,16 @@ int box_blur_double(const SkPMColor** src, int srcStride, const SkIRect& srcBoun
             return vld1_u8((uint8_t*)s);
         }
     };
-    int left = srcBounds.left();
-    int right = srcBounds.right();
-    int top = srcBounds.top();
-    int bottom = srcBounds.bottom();
-    int incrementStart = SkMax32(left - rightOffset - 1, -width);
-    int incrementEnd = SkMax32(right - rightOffset - 1, 0);
-    int decrementStart = SkMin32(left + leftOffset, width);
-    int decrementEnd = SkMin32(right + leftOffset, width);
+    int incrementStart = SkMax32(-rightOffset - 1, -width);
+    int incrementEnd = SkMax32(width - rightOffset - 1, 0);
+    int decrementStart = SkMin32(leftOffset, width);
     const int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
-    const int dstStrideX = dstDirection == BlurDirection::kX ? 1 : height;
+    const int dstStrideX = dstDirection == BlurDirection::kX ? 1 : *height;
     const int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
     const int dstStrideY = dstDirection == BlurDirection::kX ? width : 1;
     const uint16x8_t scale = vdupq_n_u16((1 << 15) / kernelSize);
 
-    for (; bottom - top >= 2; top += 2) {
+    for (; *height >= 2; *height -= 2) {
         uint16x8_t sum = vdupq_n_u16(0);
         const SkPMColor* lptr = *src;
         const SkPMColor* rptr = *src;
@@ -122,12 +117,6 @@ int box_blur_double(const SkPMColor** src, int srcStride, const SkIRect& srcBoun
         for (x = incrementStart; x < 0; ++x) {
             INCREMENT_SUMS_DOUBLE(rptr);
             rptr += srcStrideX;
-        }
-        // Clear to zero when sampling to the left our domain. "sum" is zero here because we
-        // initialized it above, and the preceeding loop has no effect in this case.
-        for (x = 0; x < incrementStart; ++x) {
-            STORE_SUMS_DOUBLE
-            dptr += dstStrideX;
         }
         for (; x < decrementStart && x < incrementEnd; ++x) {
             STORE_SUMS_DOUBLE
@@ -147,22 +136,15 @@ int box_blur_double(const SkPMColor** src, int srcStride, const SkIRect& srcBoun
             STORE_SUMS_DOUBLE
             dptr += dstStrideX;
         }
-        for (; x < decrementEnd; ++x) {
+        for (; x < width; ++x) {
             STORE_SUMS_DOUBLE
             dptr += dstStrideX;
             DECREMENT_SUMS_DOUBLE(lptr);
             lptr += srcStrideX;
         }
-        // Clear to zero when sampling to the right of our domain. "sum" is zero here because we
-        // added on then subtracted off all of the pixels, leaving zero.
-        for (; x < width; ++x) {
-            STORE_SUMS_DOUBLE
-            dptr += dstStrideX;
-        }
         *src += srcStrideY * 2;
         *dst += dstStrideY * 2;
     }
-    return top;
 }
 
 // ARGB -> 0A0R 0G0B
@@ -184,9 +166,8 @@ static inline uint16x4_t expand(SkPMColor p) {
 
 #define DOUBLE_ROW_OPTIMIZATION \
     if (1 < kernelSize && kernelSize < 128) { \
-        top = box_blur_double<srcDirection, dstDirection>(&src, srcStride, srcBounds, &dst, \
-                                                          kernelSize, leftOffset, rightOffset, \
-                                                          width, height); \
+        box_blur_double<srcDirection, dstDirection>(&src, srcStride, &dst, kernelSize, \
+                                                    leftOffset, rightOffset, width, &height); \
     }
 
 #else  // Neither NEON nor >=SSE2.
@@ -219,16 +200,11 @@ static inline uint16x4_t expand(SkPMColor p) {
     }
 
 template<BlurDirection srcDirection, BlurDirection dstDirection>
-static void box_blur(const SkPMColor* src, int srcStride, const SkIRect& srcBounds, SkPMColor* dst,
-                     int kernelSize, int leftOffset, int rightOffset, int width, int height) {
-    int left = srcBounds.left();
-    int right = srcBounds.right();
-    int top = srcBounds.top();
-    int bottom = srcBounds.bottom();
-    int incrementStart = SkMax32(left - rightOffset - 1, -width);
-    int incrementEnd = SkMax32(right - rightOffset - 1, 0);
-    int decrementStart = SkMin32(left + leftOffset, width);
-    int decrementEnd = SkMin32(right + leftOffset, width);
+static void box_blur(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
+                     int leftOffset, int rightOffset, int width, int height) {
+    int incrementStart = SkMax32(-rightOffset - 1, -width);
+    int incrementEnd = SkMax32(width - rightOffset - 1, 0);
+    int decrementStart = SkMin32(leftOffset, width);
     int srcStrideX = srcDirection == BlurDirection::kX ? 1 : srcStride;
     int dstStrideX = dstDirection == BlurDirection::kX ? 1 : height;
     int srcStrideY = srcDirection == BlurDirection::kX ? srcStride : 1;
@@ -236,19 +212,9 @@ static void box_blur(const SkPMColor* src, int srcStride, const SkIRect& srcBoun
     INIT_SCALE
     INIT_HALF
 
-    // Clear to zero when sampling above our domain.
-    for (int y = 0; y < top; y++) {
-        SkColor* dptr = dst;
-        for (int x = 0; x < width; ++x) {
-            *dptr = 0;
-            dptr += dstStrideX;
-        }
-        dst += dstStrideY;
-    }
-
     DOUBLE_ROW_OPTIMIZATION
 
-    for (int y = top; y < bottom; ++y) {
+    for (int y = 0; y < height; ++y) {
         INIT_SUMS
         const SkPMColor* lptr = src;
         const SkPMColor* rptr = src;
@@ -258,11 +224,6 @@ static void box_blur(const SkPMColor* src, int srcStride, const SkIRect& srcBoun
             INCREMENT_SUMS(*rptr);
             rptr += srcStrideX;
             PREFETCH_RPTR
-        }
-        // Clear to zero when sampling to the left of our domain.
-        for (x = 0; x < incrementStart; ++x) {
-            *dptr = 0;
-            dptr += dstStrideX;
         }
         for (; x < decrementStart && x < incrementEnd; ++x) {
             STORE_SUMS
@@ -284,27 +245,13 @@ static void box_blur(const SkPMColor* src, int srcStride, const SkIRect& srcBoun
             STORE_SUMS
             dptr += dstStrideX;
         }
-        for (; x < decrementEnd; ++x) {
+        for (; x < width; ++x) {
             STORE_SUMS
             dptr += dstStrideX;
             DECREMENT_SUMS(*lptr);
             lptr += srcStrideX;
         }
-        // Clear to zero when sampling to the right of our domain.
-        for (; x < width; ++x) {
-            *dptr = 0;
-            dptr += dstStrideX;
-        }
         src += srcStrideY;
-        dst += dstStrideY;
-    }
-    // Clear to zero when sampling below our domain.
-    for (int y = bottom; y < height; ++y) {
-        SkColor* dptr = dst;
-        for (int x = 0; x < width; ++x) {
-            *dptr = 0;
-            dptr += dstStrideX;
-        }
         dst += dstStrideY;
     }
 }
