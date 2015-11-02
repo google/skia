@@ -178,10 +178,13 @@ void GrGLShaderBuilder::finalize(uint32_t visibility) {
     SkASSERT(!fFinalized);
     this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();
+    SkASSERT(visibility);
     fProgramBuilder->appendUniformDecls((GrGLProgramBuilder::ShaderVisibility) visibility,
                                         &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
-    SkASSERT(k110_GrGLSLGeneration != fProgramBuilder->glslCaps()->generation() ||
+    // We should not have any outputs in the fragment shader when using version 1.10
+    SkASSERT(GrGLProgramBuilder::kFragment_Visibility != visibility ||
+             k110_GrGLSLGeneration != fProgramBuilder->glslCaps()->generation() ||
              fOutputs.empty());
     this->appendDecls(fOutputs, &this->outputs());
     this->onFinalize();
