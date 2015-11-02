@@ -591,6 +591,10 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
 
     glslCaps->fVersionDeclString = get_glsl_version_decl_string(standard, glslCaps->fGLSLGeneration,
                                                                 fIsCoreProfile);
+
+    if (kGLES_GrGLStandard == standard && k110_GrGLSLGeneration == glslCaps->fGLSLGeneration) {
+        glslCaps->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
+    }
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

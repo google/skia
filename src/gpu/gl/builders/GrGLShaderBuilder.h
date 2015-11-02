@@ -8,16 +8,12 @@
 #ifndef GrGLShaderBuilder_DEFINED
 #define GrGLShaderBuilder_DEFINED
 
-#include "SkTArray.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/GrGLProgramDesc.h"
-#include "gl/GrGLProgramDataManager.h"
-#include "gl/GrGLTypes.h"
+#include "GrAllocator.h"
+#include "glsl/GrGLSLShaderVar.h"
+#include "SkTDArray.h"
 
 #include <stdarg.h>
 
-class GrGLCaps;
-class GrGLContextInfo;
 class GrGLProgramBuilder;
 class GrGLSLTextureSampler;
 
@@ -27,6 +23,7 @@ class GrGLSLTextureSampler;
 class GrGLShaderBuilder {
 public:
     GrGLShaderBuilder(GrGLProgramBuilder* program);
+    virtual ~GrGLShaderBuilder() {}
 
     void addInput(const GrGLSLShaderVar& input) { fInputs.push_back(input); }
     void addOutput(const GrGLSLShaderVar& output) { fOutputs.push_back(output); }
@@ -65,10 +62,6 @@ public:
                                         const char* coordName,
                                         GrSLType coordType = kVec2f_GrSLType);
 
-    /** If texture swizzling is available using tex parameters then it is preferred over mangling
-        the generated shader code. This potentially allows greater reuse of cached shaders. */
-    static const GrGLenum* GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps);
-
     /**
     * Called by GrGLProcessors to add code to one of the shaders.
     */
@@ -100,6 +93,11 @@ public:
                       const GrGLSLShaderVar* args,
                       const char* body,
                       SkString* outName);
+
+    /*
+     * Combines the various parts of the shader to create a single finalized shader string.
+     */
+    void finalize(uint32_t visibility);
 
     /*
      * Get parent builder for adding uniforms
@@ -173,7 +171,8 @@ protected:
     SkString& functions() { return fShaderStrings[kFunctions]; }
     SkString& main() { return fShaderStrings[kMain]; }
     SkString& code() { return fShaderStrings[fCodeIndex]; }
-    bool finalize(GrGLuint programId, GrGLenum type, SkTDArray<GrGLuint>* shaderIds);
+
+    virtual void onFinalize() = 0;
 
     enum {
         kVersionDecl,

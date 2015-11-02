@@ -87,16 +87,6 @@ void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
     return;
 }
 
-bool
-GrGLVertexBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) {
-    this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
-    this->compileAndAppendLayoutQualifiers();
-    fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kVertex_Visibility, &this->uniforms());
-    this->appendDecls(fInputs, &this->inputs());
-    this->appendDecls(fOutputs, &this->outputs());
-    return this->finalize(programId, GR_GL_VERTEX_SHADER, shaderIds);
-}
-
 bool GrGLVertexBuilder::addAttribute(const GrShaderVar& var) {
     SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
     for (int i = 0; i < fInputs.count(); ++i) {

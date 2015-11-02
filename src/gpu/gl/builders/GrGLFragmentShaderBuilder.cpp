@@ -6,6 +6,7 @@
  */
 
 #include "GrGLFragmentShaderBuilder.h"
+#include "GrRenderTarget.h"
 #include "GrGLProgramBuilder.h"
 #include "gl/GrGLGpu.h"
 #include "glsl/GrGLSL.h"
@@ -59,26 +60,8 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
                      kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation);
 }
 
-GrGLFragmentShaderBuilder::DstReadKey
-GrGLFragmentShaderBuilder::KeyForDstRead(const GrTexture* dstTexture, const GrGLCaps& caps) {
-    uint32_t key = kYesDstRead_DstReadKeyBit;
-    if (caps.glslCaps()->fbFetchSupport()) {
-        return key;
-    }
-    SkASSERT(dstTexture);
-    if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(dstTexture->config())) {
-        // The fact that the config is alpha-only must be considered when generating code.
-        key |= kUseAlphaConfig_DstReadKeyBit;
-    }
-    if (kTopLeft_GrSurfaceOrigin == dstTexture->origin()) {
-        key |= kTopLeftOrigin_DstReadKeyBit;
-    }
-    SkASSERT(static_cast<DstReadKey>(key) == key);
-    return static_cast<DstReadKey>(key);
-}
-
 GrGLFragmentShaderBuilder::FragPosKey
-GrGLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst, const GrGLCaps&) {
+GrGLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst) {
     if (kTopLeft_GrSurfaceOrigin == dst->origin()) {
         return kTopLeftFragPosRead_FragPosKey;
     } else {
@@ -101,14 +84,12 @@ GrGLFragmentShaderBuilder::GrGLFragmentShaderBuilder(GrGLProgramBuilder* program
 bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     switch (feature) {
         case kStandardDerivatives_GLSLFeature: {
-            GrGLGpu* gpu = fProgramBuilder->gpu();
-            if (!gpu->glCaps().shaderCaps()->shaderDerivativeSupport()) {
+            if (!fProgramBuilder->glslCaps()->shaderDerivativeSupport()) {
                 return false;
             }
-            if (kGLES_GrGLStandard == gpu->glStandard() &&
-                k110_GrGLSLGeneration == gpu->glslGeneration()) {
-                this->addFeature(1 << kStandardDerivatives_GLSLFeature,
-                                 "GL_OES_standard_derivatives");
+            const char* extension = fProgramBuilder->glslCaps()->shaderDerivativeExtensionString();
+            if (extension) {
+                this->addFeature(1 << kStandardDerivatives_GLSLFeature, extension);
             }
             return true;
         }
@@ -248,7 +229,7 @@ void GrGLFragmentShaderBuilder::enableSecondaryOutput() {
     // and vice versa, since it is not allowed to use a built-in gl_FragColor and a custom
     // output. The condition also co-incides with the condition in whici GLES SL 2.0
     // requires the built-in gl_SecondaryFragColorEXT, where as 3.0 requires a custom output.
-    const GrGLSLCaps& caps = *fProgramBuilder->gpu()->glCaps().glslCaps();
+    const GrGLSLCaps& caps = *fProgramBuilder->glslCaps();
     if (caps.mustDeclareFragmentShaderOutput()) {
         fOutputs.push_back().set(kVec4f_GrSLType, GrGLSLShaderVar::kOut_TypeModifier,
                                  declared_secondary_color_output_name());
@@ -265,20 +246,10 @@ const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
                                                   : "gl_SecondaryFragColorEXT";
 }
 
-bool GrGLFragmentShaderBuilder::compileAndAttachShaders(GrGLuint programId,
-                                                        SkTDArray<GrGLuint>* shaderIds) {
-    this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
+void GrGLFragmentShaderBuilder::onFinalize() {
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
                                                  *fProgramBuilder->glslCaps(),
                                                  &this->precisionQualifier());
-    this->compileAndAppendLayoutQualifiers();
-    fProgramBuilder->appendUniformDecls(GrGLProgramBuilder::kFragment_Visibility,
-                                        &this->uniforms());
-    this->appendDecls(fInputs, &this->inputs());
-    // We shouldn't have declared outputs on 1.10
-    SkASSERT(k110_GrGLSLGeneration != fProgramBuilder->gpu()->glslGeneration() || fOutputs.empty());
-    this->appendDecls(fOutputs, &this->outputs());
-    return this->finalize(programId, GR_GL_FRAGMENT_SHADER, shaderIds);
 }
 
 void GrGLFragmentShaderBuilder::bindFragmentShaderLocations(GrGLuint programID) {

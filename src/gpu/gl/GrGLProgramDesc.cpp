@@ -159,8 +159,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     if (pipeline.readsFragPosition()) {
         header->fFragPosKey =
-                GrGLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget(),
-                                                                  gpu->glCaps());
+                GrGLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget());
     } else {
         header->fFragPosKey = 0;
     }

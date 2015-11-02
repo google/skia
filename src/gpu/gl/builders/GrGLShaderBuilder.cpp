@@ -6,11 +6,8 @@
  */
 
 #include "GrGLShaderBuilder.h"
-#include "GrGLProgramBuilder.h"
-#include "GrGLShaderStringBuilder.h"
-#include "gl/GrGLCaps.h"
-#include "gl/GrGLContext.h"
 #include "gl/GrGLGpu.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLTextureSampler.h"
@@ -123,23 +120,6 @@ void GrGLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
     this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
 }
 
-
-const GrGLenum* GrGLShaderBuilder::GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps) {
-    if (caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(config)) {
-        if (caps.textureRedSupport()) {
-            static const GrGLenum gRedSmear[] = { GR_GL_RED, GR_GL_RED, GR_GL_RED, GR_GL_RED };
-            return gRedSmear;
-        } else {
-            static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
-                                                    GR_GL_ALPHA, GR_GL_ALPHA };
-            return gAlphaSmear;
-        }
-    } else {
-        static const GrGLenum gStraight[] = { GR_GL_RED, GR_GL_GREEN, GR_GL_BLUE, GR_GL_ALPHA };
-        return gStraight;
-    }
-}
-
 void GrGLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
     if (!(featureBit & fFeaturesAddedMask)) {
         this->extensions().appendf("#extension %s: require\n", extensionName);
@@ -168,8 +148,8 @@ void GrGLShaderBuilder::appendTextureLookup(const char* samplerName,
 }
 
 void GrGLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
-    SkASSERT(fProgramBuilder->gpu()->glslGeneration() >= k330_GrGLSLGeneration ||
-             fProgramBuilder->gpu()->glCaps().glslCaps()->mustEnableAdvBlendEqs());
+    SkASSERT(fProgramBuilder->glslCaps()->generation() >= k330_GrGLSLGeneration ||
+             fProgramBuilder->glslCaps()->mustEnableAdvBlendEqs());
     fLayoutParams[interface].push_back() = param;
 }
 
@@ -194,9 +174,17 @@ void GrGLShaderBuilder::compileAndAppendLayoutQualifiers() {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(interfaceQualifierNames) == kLastInterfaceQualifier + 1);
 }
 
-bool
-GrGLShaderBuilder::finalize(GrGLuint programId, GrGLenum type, SkTDArray<GrGLuint>* shaderIds) {
+void GrGLShaderBuilder::finalize(uint32_t visibility) {
     SkASSERT(!fFinalized);
+    this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
+    this->compileAndAppendLayoutQualifiers();
+    fProgramBuilder->appendUniformDecls((GrGLProgramBuilder::ShaderVisibility) visibility,
+                                        &this->uniforms());
+    this->appendDecls(fInputs, &this->inputs());
+    SkASSERT(k110_GrGLSLGeneration != fProgramBuilder->glslCaps()->generation() ||
+             fOutputs.empty());
+    this->appendDecls(fOutputs, &this->outputs());
+    this->onFinalize();
     // append the 'footer' to code
     this->code().append("}");
 
@@ -205,22 +193,6 @@ GrGLShaderBuilder::finalize(GrGLuint programId, GrGLenum type, SkTDArray<GrGLuin
         fCompilerStringLengths[i] = (int)fShaderStrings[i].size();
     }
 
-    GrGLGpu* gpu = fProgramBuilder->gpu();
-    GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
-                                                   programId,
-                                                   type,
-                                                   fCompilerStrings.begin(),
-                                                   fCompilerStringLengths.begin(),
-                                                   fCompilerStrings.count(),
-                                                   gpu->stats());
-
     fFinalized = true;
-
-    if (!shaderId) {
-        return false;
-    }
-
-    *shaderIds->append() = shaderId;
-
-    return true;
 }
+

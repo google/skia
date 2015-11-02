@@ -11,6 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "Resources.h"

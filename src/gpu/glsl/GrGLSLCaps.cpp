@@ -21,6 +21,7 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fCanUseAnyFunctionInShader = true;
     fForceHighPrecisionNDSTransform = false;
     fVersionDeclString = nullptr;
+    fShaderDerivativeExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;

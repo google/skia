@@ -2396,6 +2396,22 @@ static inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
     return gWrapModes[tm];
 }
 
+const GrGLenum* GrGLGpu::GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps) {
+    if (caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(config)) {
+        if (caps.textureRedSupport()) {
+            static const GrGLenum gRedSmear[] = { GR_GL_RED, GR_GL_RED, GR_GL_RED, GR_GL_RED };
+            return gRedSmear;
+        } else {
+            static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
+                                                    GR_GL_ALPHA, GR_GL_ALPHA };
+            return gAlphaSmear;
+        }
+    } else {
+        static const GrGLenum gStraight[] = { GR_GL_RED, GR_GL_GREEN, GR_GL_BLUE, GR_GL_ALPHA };
+        return gStraight;
+    }
+}
+
 void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture) {
     SkASSERT(texture);
 
@@ -2462,7 +2478,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
     newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
     memcpy(newTexParams.fSwizzleRGBA,
-           GrGLShaderBuilder::GetTexParamSwizzle(texture->config(), this->glCaps()),
+           GetTexParamSwizzle(texture->config(), this->glCaps()),
            sizeof(newTexParams.fSwizzleRGBA));
     if (setAll || newTexParams.fMagFilter != oldTexParams.fMagFilter) {
         this->setTextureUnit(unitIdx);

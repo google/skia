@@ -74,6 +74,14 @@ public:
 
     bool forceHighPrecisionNDSTransform() const { return fForceHighPrecisionNDSTransform; }
 
+    // Returns the string of an extension that must be enabled in the shader to support
+    // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
+    // this function, the caller should check that shaderDerivativeSupport exists.
+    const char* shaderDerivativeExtensionString() const {
+        SkASSERT(this->shaderDerivativeSupport());
+        return fShaderDerivativeExtensionString;
+    }
+
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
     /**
@@ -93,6 +101,8 @@ private:
     bool fForceHighPrecisionNDSTransform : 1;
 
     const char* fVersionDeclString;
+
+    const char* fShaderDerivativeExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

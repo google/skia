@@ -11,6 +11,7 @@
 #include "GrGLFragmentShaderBuilder.h"
 #include "GrGLGeometryShaderBuilder.h"
 #include "GrGLVertexShaderBuilder.h"
+#include "gl/GrGLProgramDataManager.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 #include "../GrGLPrimitiveProcessor.h"
@@ -18,6 +19,7 @@
 #include "../../GrPipeline.h"
 
 class GrFragmentProcessor;
+class GrGLContextInfo;
 class GrGLSLCaps;
 
 // Enough precision to represent 1 / 2048 accurately in printf
@@ -44,7 +46,7 @@ public:
     virtual ~GrGLUniformBuilder() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLProgramDataManager::SeparableVaryingHandle SeparableVaryingHandle;
+    typedef GrGLSLProgramDataManager::SeparableVaryingHandle SeparableVaryingHandle;
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of ShaderVisibility values indicating from which shaders the
@@ -334,6 +336,10 @@ protected:
                       GrGLSLTextureSampler::TextureSamplerArray* outSamplers,
                       GrGLInstalledProc<Proc>*);
 
+    bool compileAndAttachShaders(GrGLShaderBuilder& shader,
+                                 GrGLuint programId,
+                                 GrGLenum type,
+                                 SkTDArray<GrGLuint>* shaderIds); 
     GrGLProgram* finalize();
     virtual void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);

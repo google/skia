@@ -37,8 +37,3 @@ void GrGLGeometryBuilder::addVarying(const char* name, GrSLPrecision precision, 
     }
 }
 
-bool GrGLGeometryBuilder::compileAndAttachShaders(GrGLuint programId,
-        SkTDArray<GrGLuint>* shaderIds) {
-    SkFAIL("Geometry shaders are not currently supported");
-    return false;
-}

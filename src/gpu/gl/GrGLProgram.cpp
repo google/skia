@@ -17,6 +17,7 @@
 #include "GrPathProcessor.h"
 #include "GrPipeline.h"
 #include "GrXferProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "SkXfermode.h"
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)

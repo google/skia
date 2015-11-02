@@ -10,8 +10,10 @@
 
 #include "GrGLShaderBuilder.h"
 
+#include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 
+class GrRenderTarget;
 class GrGLVarying;
 
 /*
@@ -111,18 +113,12 @@ private:
 // TODO rename to Fragment Builder
 class GrGLFragmentShaderBuilder : public GrGLXPFragmentBuilder {
 public:
-    typedef uint8_t DstReadKey;
     typedef uint8_t FragPosKey;
-
-    /** Returns a key for adding code to read the dst texture color in service of effects that
-        require reading the dst. It must not return 0 because 0 indicates that there is no dst
-        texture at all (in which case this function should not be called). */
-    static DstReadKey KeyForDstRead(const GrTexture* dsttexture, const GrGLCaps&);
 
     /** Returns a key for reading the fragment location. This should only be called if there is an
        effect that will requires the fragment position. If the fragment position is not required,
        the key is 0. */
-    static FragPosKey KeyForFragmentPosition(const GrRenderTarget* dst, const GrGLCaps&);
+    static FragPosKey KeyForFragmentPosition(const GrRenderTarget* dst);
 
     GrGLFragmentShaderBuilder(GrGLProgramBuilder* program, uint8_t fragPosKey);
 
@@ -141,7 +137,6 @@ private:
     void enableSecondaryOutput();
     const char* getPrimaryColorOutputName() const;
     const char* getSecondaryColorOutputName() const;
-    bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds);
     void bindFragmentShaderLocations(GrGLuint programID);
 
     // As GLProcessors emit code, there are some conditions we need to verify.  We use the below
@@ -158,6 +153,8 @@ private:
      */
     void addVarying(GrGLVarying*, GrSLPrecision);
 
+    void onFinalize() override;
+
     /**
      * Features that should only be enabled by GrGLFragmentShaderBuilder itself.
      */
@@ -166,14 +163,6 @@ private:
         kBlendEquationAdvanced_GLSLPrivateFeature,
         kBlendFuncExtended_GLSLPrivateFeature,
         kLastGLSLPrivateFeature = kBlendFuncExtended_GLSLPrivateFeature
-    };
-
-    // Interpretation of DstReadKey when generating code
-    enum {
-        kNoDstRead_DstReadKey           = 0,
-        kYesDstRead_DstReadKeyBit       = 0x1, // Set if we do a dst-copy-read.
-        kUseAlphaConfig_DstReadKeyBit   = 0x2, // Set if dst-copy config is alpha only.
-        kTopLeftOrigin_DstReadKeyBit    = 0x4, // Set if dst-copy origin is top-left.
     };
 
     // Interpretation of FragPosKey when generating code

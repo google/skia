@@ -13,11 +13,13 @@
 #include "GrTexture.h"
 #include "SkRTConf.h"
 #include "SkTraceEvent.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/GrGLXferProcessor.h"
+#include "gl/builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
@@ -380,6 +382,28 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
     }
 }
 
+bool GrGLProgramBuilder::compileAndAttachShaders(GrGLShaderBuilder& shader,
+                                                 GrGLuint programId,
+                                                 GrGLenum type,
+                                                 SkTDArray<GrGLuint>* shaderIds) {
+    GrGLGpu* gpu = this->gpu();
+    GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
+                                                   programId,
+                                                   type,
+                                                   shader.fCompilerStrings.begin(),
+                                                   shader.fCompilerStringLengths.begin(),
+                                                   shader.fCompilerStrings.count(),
+                                                   gpu->stats());
+
+    if (!shaderId) {
+        return false;
+    }
+
+    *shaderIds->append() = shaderId;
+
+    return true;
+}
+
 GrGLProgram* GrGLProgramBuilder::finalize() {
     // verify we can get a program id
     GrGLuint programID;
@@ -390,8 +414,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     // compile shaders and bind attributes / uniforms
     SkTDArray<GrGLuint> shadersToDelete;
-
-    if (!fVS.compileAndAttachShaders(programID, &shadersToDelete)) {
+    fVS.finalize(kVertex_Visibility);
+    if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
     }
@@ -402,7 +426,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         fVS.bindVertexAttributes(programID);
     }
 
-    if (!fFS.compileAndAttachShaders(programID, &shadersToDelete)) {
+    fFS.finalize(kFragment_Visibility);
+    if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
     }

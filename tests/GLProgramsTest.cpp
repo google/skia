@@ -30,6 +30,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLPathRendering.h"
 #include "gl/builders/GrGLProgramBuilder.h"

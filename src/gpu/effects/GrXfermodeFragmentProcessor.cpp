@@ -9,6 +9,7 @@
 
 #include "GrFragmentProcessor.h"
 #include "effects/GrConstColorProcessor.h"
+#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLSLBlend.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "SkGrPriv.h"
