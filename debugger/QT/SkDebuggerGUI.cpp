@@ -6,9 +6,7 @@
  */
 
 #include "SkDebuggerGUI.h"
-#include "SkPictureData.h"
-#include "SkPicturePlayback.h"
-#include "SkPictureRecord.h"
+#include "SkPicture.h"
 #include <QListWidgetItem>
 #include <QtGui>
 #include "sk_tool_utils.h"
