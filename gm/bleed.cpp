@@ -11,10 +11,12 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkUtils.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextOptions.h"
+#include "SkGr.h"
 #endif
 
 static void draw_bitmap_rect(SkCanvas* canvas, const SkBitmap& bitmap, const SkImage*,
@@ -27,6 +29,52 @@ static void draw_image_rect(SkCanvas* canvas, const SkBitmap&, const SkImage* im
                             const SkRect& src, const SkRect& dst,
                             const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
     canvas->drawImageRect(image, src, dst, paint, constraint);
+}
+
+// Upload the tight-fitting sw-backed bitmap to a loose-fitting gpu-backed texture before drawing
+static void draw_texture_bitmap_rect(SkCanvas* canvas, const SkBitmap& bitmap, const SkImage*,
+                                     const SkRect& src, const SkRect& dst,
+                                     const SkPaint* paint,
+                                     SkCanvas::SrcRectConstraint constraint) {
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+        // For non-GPU canvases fallback to drawing the bitmap directly.
+        canvas->drawBitmapRect(bitmap, src, dst, paint, constraint);
+        return;
+    }
+#if SK_SUPPORT_GPU
+    GrSurfaceDesc desc;
+    desc.fConfig = kAlpha_8_SkColorType == bitmap.colorType() ? kAlpha_8_GrPixelConfig :
+                                                                kSkia8888_GrPixelConfig;
+    // Add some padding to the right and beneath the bitmap contents to exercise the case where
+    // the texture is larger than the bitmap. Outsets chosen to be small and different.
+    desc.fWidth = bitmap.width() + 16;
+    desc.fHeight = bitmap.height() + 23;
+    SkAutoTUnref<GrTexture> texture(context->textureProvider()->createTexture(desc, true));
+    if (!texture) {
+        return;
+    }
+    // Init the whole texture to 0 in the alpha case or solid green in the 32bit rgba case.
+    SkAutoLockPixels al(bitmap);
+    if (kAlpha_8_GrPixelConfig == texture->config()) {
+        SkAutoMalloc pixels(texture->width() * texture->height());
+        memset(pixels.get(), 0, texture->width() * texture->height());
+        texture->writePixels(0, 0, texture->width(), texture->height(), desc.fConfig, pixels.get(), 0);
+    } else {
+        SkAutoMalloc pixels(texture->width() * texture->height() * sizeof(uint32_t));
+        SkOpts::memset32((uint32_t*)pixels.get(), 0xFF00FF00, texture->width()*texture->height());
+        texture->writePixels(0, 0, texture->width(), texture->height(), desc.fConfig, pixels.get(), 0);
+    }
+
+    // Upload the bitmap contents to the upper left.
+    texture->writePixels(0, 0, bitmap.width(), bitmap.height(), desc.fConfig, bitmap.getPixels(),
+                         bitmap.rowBytes());
+
+    // Wrap the texture in a bitmap and draw it.
+    SkBitmap textureBmp;
+    GrWrapTextureInBitmap(texture, bitmap.width(), bitmap.height(), true, &textureBmp);
+    canvas->drawBitmapRect(textureBmp, src, dst, paint, constraint);
+#endif
 }
 
 // Create a black&white checked texture with 2 1-pixel rings
@@ -172,10 +220,13 @@ static SkShader* make_null_shader() { return nullptr; }
 
 enum BleedTest {
     kUseBitmap_BleedTest,
+    kUseTextureBitmap_BleedTest,
     kUseImage_BleedTest,
     kUseAlphaBitmap_BleedTest,
+    kUseAlphaTextureBitmap_BleedTest,
     kUseAlphaImage_BleedTest,
     kUseAlphaBitmapShader_BleedTest,
+    kUseAlphaTextureBitmapShader_BleedTest,
     kUseAlphaImageShader_BleedTest,
 };
 
@@ -186,12 +237,15 @@ const struct {
     void(*fDraw)(SkCanvas*, const SkBitmap&, const SkImage*, const SkRect&, const SkRect&,
                  const SkPaint*, SkCanvas::SrcRectConstraint);
 } gBleedRec[] = {
-    { "bleed",                     make_ringed_color_bitmap, make_null_shader,  draw_bitmap_rect },
-    { "bleed_image",               make_ringed_color_bitmap, make_null_shader,  draw_image_rect  },
-    { "bleed_alpha_bmp",           make_ringed_alpha_bitmap, make_null_shader,  draw_bitmap_rect },
-    { "bleed_alpha_image",         make_ringed_alpha_bitmap, make_null_shader,  draw_image_rect  },
-    { "bleed_alpha_bmp_shader",    make_ringed_alpha_bitmap, make_shader,       draw_bitmap_rect },
-    { "bleed_alpha_image_shader",  make_ringed_alpha_bitmap, make_shader,       draw_image_rect  },
+    { "bleed",                          make_ringed_color_bitmap, make_null_shader,  draw_bitmap_rect         },
+    { "bleed_texture_bmp",              make_ringed_color_bitmap, make_null_shader,  draw_texture_bitmap_rect },
+    { "bleed_image",                    make_ringed_color_bitmap, make_null_shader,  draw_image_rect          },
+    { "bleed_alpha_bmp",                make_ringed_alpha_bitmap, make_null_shader,  draw_bitmap_rect         },
+    { "bleed_alpha_texture_bmp",        make_ringed_alpha_bitmap, make_null_shader,  draw_texture_bitmap_rect },
+    { "bleed_alpha_image",              make_ringed_alpha_bitmap, make_null_shader,  draw_image_rect          },
+    { "bleed_alpha_bmp_shader",         make_ringed_alpha_bitmap, make_shader,       draw_bitmap_rect         },
+    { "bleed_alpha_texture_bmp_shader", make_ringed_alpha_bitmap, make_shader,       draw_texture_bitmap_rect },
+    { "bleed_alpha_image_shader",       make_ringed_alpha_bitmap, make_shader,       draw_image_rect          },
 };
 
 // This GM exercises the drawBitmapRect constraints
@@ -414,9 +468,13 @@ private:
     typedef GM INHERITED;
 };
 
+
 DEF_GM( return new BleedGM(kUseBitmap_BleedTest); )
+DEF_GM( return new BleedGM(kUseTextureBitmap_BleedTest); )
 DEF_GM( return new BleedGM(kUseImage_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaBitmap_BleedTest); )
+DEF_GM( return new BleedGM(kUseAlphaTextureBitmap_BleedTest); )
 DEF_GM( return new BleedGM(kUseAlphaImage_BleedTest); )
-DEF_GM(return new BleedGM(kUseAlphaBitmapShader_BleedTest); )
-DEF_GM(return new BleedGM(kUseAlphaImageShader_BleedTest); )
+DEF_GM( return new BleedGM(kUseAlphaBitmapShader_BleedTest); )
+DEF_GM( return new BleedGM(kUseAlphaTextureBitmapShader_BleedTest); )
+DEF_GM( return new BleedGM(kUseAlphaImageShader_BleedTest); )

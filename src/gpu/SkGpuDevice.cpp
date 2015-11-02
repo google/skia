@@ -1279,8 +1279,14 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      SkCanvas::SrcRectConstraint constraint,
                                      bool bicubic,
                                      bool needsTextureDomain) {
-    SkASSERT(bitmap.width() <= fContext->caps()->maxTileSize() &&
-             bitmap.height() <= fContext->caps()->maxTileSize());
+    // We should have already handled bitmaps larger than the max texture size.
+    SkASSERT(bitmap.width() <= fContext->caps()->maxTextureSize() &&
+             bitmap.height() <= fContext->caps()->maxTextureSize());
+    // Unless the bitmap is inherently texture-backed, we should be respecting the max tile size
+    // by the time we get here.
+    SkASSERT(bitmap.getTexture() ||
+             (bitmap.width() <= fContext->caps()->maxTileSize() &&
+              bitmap.height() <= fContext->caps()->maxTileSize()));
 
     GrTexture* texture;
     AutoBitmapTexture abt(fContext, bitmap, params, &texture);
