@@ -82,7 +82,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkIRect srcBounds, dstBounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &srcBounds, &src)) {
+    if (!this->applyCropRect(ctx, src, srcOffset, &dstBounds, &srcBounds)) {
         return false;
     }
 
@@ -91,13 +91,12 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(srcBounds.width(), srcBounds.height()));
+    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstBounds.width(), dstBounds.height()));
     if (!device) {
         return false;
     }
     *dst = device->accessBitmap(false);
     SkAutoLockPixels alp_dst(*dst);
-    dst->getBounds(&dstBounds);
 
     SkVector sigma = mapSigma(fSigma, ctx.ctm());
 
@@ -112,8 +111,8 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
 
     if (kernelSizeX == 0 && kernelSizeY == 0) {
         src.copyTo(dst, dst->colorType());
-        offset->fX = srcBounds.fLeft;
-        offset->fY = srcBounds.fTop;
+        offset->fX = dstBounds.fLeft;
+        offset->fY = dstBounds.fTop;
         return true;
     }
 
@@ -124,13 +123,16 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     SkBitmap temp = tempDevice->accessBitmap(false);
     SkAutoLockPixels alpTemp(temp);
 
-    offset->fX = srcBounds.fLeft;
-    offset->fY = srcBounds.fTop;
-    srcBounds.offset(-srcOffset);
-    const SkPMColor* s = src.getAddr32(srcBounds.left(), srcBounds.top());
+    offset->fX = dstBounds.fLeft;
+    offset->fY = dstBounds.fTop;
     SkPMColor* t = temp.getAddr32(0, 0);
     SkPMColor* d = dst->getAddr32(0, 0);
     int w = dstBounds.width(), h = dstBounds.height();
+    const SkPMColor* s = src.getAddr32(srcBounds.x() - srcOffset.x(), srcBounds.y() - srcOffset.y());
+    srcBounds.offset(-dstBounds.x(), -dstBounds.y());
+    dstBounds.offset(-dstBounds.x(), -dstBounds.y());
+    SkIRect srcBoundsT = SkIRect::MakeLTRB(srcBounds.top(), srcBounds.left(), srcBounds.bottom(), srcBounds.right());
+    SkIRect dstBoundsT = SkIRect::MakeWH(dstBounds.height(), dstBounds.width());
     int sw = src.rowBytesAsPixels();
 
     /**
@@ -152,20 +154,20 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
      * images, and all memory reads are contiguous.
      */
     if (kernelSizeX > 0 && kernelSizeY > 0) {
-        SkOpts::box_blur_xx(s, sw,  t, kernelSizeX,  lowOffsetX,  highOffsetX, w, h);
-        SkOpts::box_blur_xx(t,  w,  d, kernelSizeX,  highOffsetX, lowOffsetX,  w, h);
-        SkOpts::box_blur_xy(d,  w,  t, kernelSizeX3, highOffsetX, highOffsetX, w, h);
-        SkOpts::box_blur_xx(t,  h,  d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
-        SkOpts::box_blur_xx(d,  h,  t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
-        SkOpts::box_blur_xy(t,  h,  d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
+        SkOpts::box_blur_xx(s, sw,  srcBounds,  t, kernelSizeX,  lowOffsetX,  highOffsetX, w, h);
+        SkOpts::box_blur_xx(t,  w,  dstBounds,  d, kernelSizeX,  highOffsetX, lowOffsetX,  w, h);
+        SkOpts::box_blur_xy(d,  w,  dstBounds,  t, kernelSizeX3, highOffsetX, highOffsetX, w, h);
+        SkOpts::box_blur_xx(t,  h,  dstBoundsT, d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
+        SkOpts::box_blur_xx(d,  h,  dstBoundsT, t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
+        SkOpts::box_blur_xy(t,  h,  dstBoundsT, d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
     } else if (kernelSizeX > 0) {
-        SkOpts::box_blur_xx(s, sw,  d, kernelSizeX,  lowOffsetX,  highOffsetX, w, h);
-        SkOpts::box_blur_xx(d,  w,  t, kernelSizeX,  highOffsetX, lowOffsetX,  w, h);
-        SkOpts::box_blur_xx(t,  w,  d, kernelSizeX3, highOffsetX, highOffsetX, w, h);
+        SkOpts::box_blur_xx(s, sw,  srcBounds,  d, kernelSizeX,  lowOffsetX,  highOffsetX, w, h);
+        SkOpts::box_blur_xx(d,  w,  dstBounds,  t, kernelSizeX,  highOffsetX, lowOffsetX,  w, h);
+        SkOpts::box_blur_xx(t,  w,  dstBounds,  d, kernelSizeX3, highOffsetX, highOffsetX, w, h);
     } else if (kernelSizeY > 0) {
-        SkOpts::box_blur_yx(s, sw,  d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
-        SkOpts::box_blur_xx(d,  h,  t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
-        SkOpts::box_blur_xy(t,  h,  d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
+        SkOpts::box_blur_yx(s, sw,  srcBoundsT, d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
+        SkOpts::box_blur_xx(d,  h,  dstBoundsT, t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
+        SkOpts::box_blur_xy(t,  h,  dstBoundsT, d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
     }
     return true;
 }
