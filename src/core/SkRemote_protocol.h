@@ -19,8 +19,15 @@ namespace SkRemote {
         kMisc,
         kPath,
         kStroke,
+        kPathEffect,
         kShader,
         kXfermode,
+        kMaskFilter,
+        kColorFilter,
+        kRasterizer,
+        kDrawLooper,
+        kImageFilter,
+        kAnnotation,
     };
 
 }  // namespace SkRemote

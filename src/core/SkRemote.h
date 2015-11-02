@@ -69,8 +69,15 @@ namespace SkRemote {
         virtual ID define(const Misc&)     = 0;
         virtual ID define(const SkPath&)   = 0;
         virtual ID define(const Stroke&)   = 0;
+        virtual ID define(SkPathEffect*)   = 0;
         virtual ID define(SkShader*)       = 0;
         virtual ID define(SkXfermode*)     = 0;
+        virtual ID define(SkMaskFilter*)   = 0;
+        virtual ID define(SkColorFilter*)  = 0;
+        virtual ID define(SkRasterizer*)   = 0;
+        virtual ID define(SkDrawLooper*)   = 0;
+        virtual ID define(SkImageFilter*)  = 0;
+        virtual ID define(SkAnnotation*)   = 0;
 
         virtual void undefine(ID) = 0;
 
@@ -79,12 +86,15 @@ namespace SkRemote {
 
         virtual void setMatrix(ID matrix) = 0;
 
-        // TODO: struct CommonIDs { ID misc, shader, xfermode; ... }
-        // for IDs that affect both fill + stroke?
+        // TODO: do these all belong here in CommonIDs?
+        struct CommonIDs {
+            ID misc, patheffect, shader, xfermode, maskfilter,
+               colorfilter, rasterizer, looper, imagefilter, annotation;
+        };
 
-        virtual void   clipPath(ID path, SkRegion::Op, bool aa)                      = 0;
-        virtual void   fillPath(ID path, ID misc, ID shader, ID xfermode)            = 0;
-        virtual void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) = 0;
+        virtual void   clipPath(ID path, SkRegion::Op, bool aa) = 0;
+        virtual void   fillPath(ID path, CommonIDs)             = 0;
+        virtual void strokePath(ID path, CommonIDs, ID stroke)  = 0;
     };
 
     // None of these factories take ownership of their arguments.

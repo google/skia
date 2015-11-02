@@ -5,8 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "SkAnnotation.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
+#include "SkDrawLooper.h"
+#include "SkImageFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPath.h"
+#include "SkPathEffect.h"
+#include "SkRasterizer.h"
 #include "SkRect.h"
 #include "SkRemote.h"
 #include "SkShader.h"
@@ -103,8 +110,53 @@ namespace SkRemote {
             const ID fID;
         };
 
+        // Like AutoID, but for CommonIDs.
+        class AutoCommonIDs : ::SkNoncopyable {
+        public:
+            explicit AutoCommonIDs(Encoder* encoder, const SkPaint& paint)
+                : fEncoder(encoder) {
+                fIDs.misc        = fEncoder->define(Misc::CreateFrom(paint));
+                fIDs.patheffect  = fEncoder->define(paint.getPathEffect());
+                fIDs.shader      = fEncoder->define(paint.getShader());
+                fIDs.xfermode    = fEncoder->define(paint.getXfermode());
+                fIDs.maskfilter  = fEncoder->define(paint.getMaskFilter());
+                fIDs.colorfilter = fEncoder->define(paint.getColorFilter());
+                fIDs.rasterizer  = fEncoder->define(paint.getRasterizer());
+                fIDs.looper      = fEncoder->define(paint.getLooper());
+                fIDs.imagefilter = fEncoder->define(paint.getImageFilter());
+                fIDs.annotation  = fEncoder->define(paint.getAnnotation());
+            }
+            ~AutoCommonIDs() {
+                if (fEncoder) {
+                    fEncoder->undefine(fIDs.misc);
+                    fEncoder->undefine(fIDs.patheffect);
+                    fEncoder->undefine(fIDs.shader);
+                    fEncoder->undefine(fIDs.xfermode);
+                    fEncoder->undefine(fIDs.maskfilter);
+                    fEncoder->undefine(fIDs.colorfilter);
+                    fEncoder->undefine(fIDs.rasterizer);
+                    fEncoder->undefine(fIDs.looper);
+                    fEncoder->undefine(fIDs.imagefilter);
+                    fEncoder->undefine(fIDs.annotation);
+                }
+            }
+
+            AutoCommonIDs(AutoCommonIDs&& o) : fEncoder(o.fEncoder), fIDs(o.fIDs) {
+                o.fEncoder = nullptr;
+            }
+            AutoID& operator=(AutoID&&) = delete;
+
+            operator Encoder::CommonIDs () const { return fIDs; }
+
+        private:
+            Encoder*           fEncoder;
+            Encoder::CommonIDs fIDs;
+        };
+
         template <typename T>
         AutoID id(const T& val) { return AutoID(fEncoder, val); }
+
+        AutoCommonIDs commonIDs(const SkPaint& paint) { return AutoCommonIDs(fEncoder, paint); }
 
         void   willSave() override { fEncoder->   save(); }
         void didRestore() override { fEncoder->restore(); }
@@ -141,16 +193,14 @@ namespace SkRemote {
         }
 
         void onDrawPath(const SkPath& path, const SkPaint& paint) override {
-            auto p = this->id(path),
-                 m = this->id(Misc::CreateFrom(paint)),
-                 s = this->id(paint.getShader()),
-                 x = this->id(paint.getXfermode());
+            auto common = this->commonIDs(paint);
+            auto p = this->id(path);
 
             if (paint.getStyle() == SkPaint::kFill_Style) {
-                fEncoder->fillPath(p, m, s, x);
+                fEncoder->fillPath(p, common);
             } else {
                 // TODO: handle kStrokeAndFill_Style
-                fEncoder->strokePath(p, m, s, x, this->id(Stroke::CreateFrom(paint)));
+                fEncoder->strokePath(p, common, this->id(Stroke::CreateFrom(paint)));
             }
         }
 
@@ -223,22 +273,52 @@ namespace SkRemote {
             return id;
         }
 
-        ID define(const SkMatrix& v) override {return this->define(Type::kMatrix,   &fMatrix,   v);}
-        ID define(const Misc&     v) override {return this->define(Type::kMisc,     &fMisc,     v);}
-        ID define(const SkPath&   v) override {return this->define(Type::kPath,     &fPath,     v);}
-        ID define(const Stroke&   v) override {return this->define(Type::kStroke,   &fStroke,   v);}
-        ID define(SkShader*       v) override {return this->define(Type::kShader,   &fShader,   v);}
-        ID define(SkXfermode*     v) override {return this->define(Type::kXfermode, &fXfermode, v);}
+    #define O override
+        ID define(const SkMatrix& v) O {return this->define(Type::kMatrix,      &fMatrix,      v);}
+        ID define(const Misc&     v) O {return this->define(Type::kMisc,        &fMisc,        v);}
+        ID define(const SkPath&   v) O {return this->define(Type::kPath,        &fPath,        v);}
+        ID define(const Stroke&   v) O {return this->define(Type::kStroke,      &fStroke,      v);}
+        ID define(SkPathEffect*   v) O {return this->define(Type::kPathEffect,  &fPathEffect,  v);}
+        ID define(SkShader*       v) O {return this->define(Type::kShader,      &fShader,      v);}
+        ID define(SkXfermode*     v) O {return this->define(Type::kXfermode,    &fXfermode,    v);}
+        ID define(SkMaskFilter*   v) O {return this->define(Type::kMaskFilter,  &fMaskFilter,  v);}
+        ID define(SkColorFilter*  v) O {return this->define(Type::kColorFilter, &fColorFilter, v);}
+        ID define(SkRasterizer*   v) O {return this->define(Type::kRasterizer,  &fRasterizer,  v);}
+        ID define(SkDrawLooper*   v) O {return this->define(Type::kDrawLooper,  &fDrawLooper,  v);}
+        ID define(SkImageFilter*  v) O {return this->define(Type::kImageFilter, &fImageFilter, v);}
+        ID define(SkAnnotation*   v) O {return this->define(Type::kAnnotation,  &fAnnotation,  v);}
+    #undef O
+
 
         void undefine(ID id) override {
             switch(id.type()) {
-                case Type::kMatrix:   return fMatrix  .remove(id);
-                case Type::kMisc:     return fMisc    .remove(id);
-                case Type::kPath:     return fPath    .remove(id);
-                case Type::kStroke:   return fStroke  .remove(id);
-                case Type::kShader:   return fShader  .remove(id);
-                case Type::kXfermode: return fXfermode.remove(id);
+                case Type::kMatrix:      return fMatrix     .remove(id);
+                case Type::kMisc:        return fMisc       .remove(id);
+                case Type::kPath:        return fPath       .remove(id);
+                case Type::kStroke:      return fStroke     .remove(id);
+                case Type::kPathEffect:  return fPathEffect .remove(id);
+                case Type::kShader:      return fShader     .remove(id);
+                case Type::kXfermode:    return fXfermode   .remove(id);
+                case Type::kMaskFilter:  return fMaskFilter .remove(id);
+                case Type::kColorFilter: return fColorFilter.remove(id);
+                case Type::kRasterizer:  return fRasterizer .remove(id);
+                case Type::kDrawLooper:  return fDrawLooper .remove(id);
+                case Type::kImageFilter: return fImageFilter.remove(id);
+                case Type::kAnnotation:  return fAnnotation .remove(id);
             };
+        }
+
+        void applyCommon(const CommonIDs& common, SkPaint* paint) const {
+            fMisc.find(common.misc).applyTo(paint);
+            paint->setPathEffect (fPathEffect .find(common.patheffect));
+            paint->setShader     (fShader     .find(common.shader));
+            paint->setXfermode   (fXfermode   .find(common.xfermode));
+            paint->setMaskFilter (fMaskFilter .find(common.maskfilter));
+            paint->setColorFilter(fColorFilter.find(common.colorfilter));
+            paint->setRasterizer (fRasterizer .find(common.rasterizer));
+            paint->setLooper     (fDrawLooper .find(common.looper));
+            paint->setImageFilter(fImageFilter.find(common.imagefilter));
+            paint->setAnnotation (fAnnotation .find(common.annotation));
         }
 
         void    save() override { fCanvas->save(); }
@@ -249,21 +329,17 @@ namespace SkRemote {
         void clipPath(ID path, SkRegion::Op op, bool aa) override {
             fCanvas->clipPath(fPath.find(path), op, aa);
         }
-        void fillPath(ID path, ID misc, ID shader, ID xfermode) override {
+        void fillPath(ID path, CommonIDs common) override {
             SkPaint paint;
             paint.setStyle(SkPaint::kFill_Style);
-            fMisc.find(misc).applyTo(&paint);
-            paint.setShader  (fShader  .find(shader));
-            paint.setXfermode(fXfermode.find(xfermode));
+            this->applyCommon(common, &paint);
             fCanvas->drawPath(fPath.find(path), paint);
         }
-        void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) override {
+        void strokePath(ID path, CommonIDs common, ID stroke) override {
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
-            fMisc  .find(misc  ).applyTo(&paint);
+            this->applyCommon(common, &paint);
             fStroke.find(stroke).applyTo(&paint);
-            paint.setShader  (fShader  .find(shader));
-            paint.setXfermode(fXfermode.find(xfermode));
             fCanvas->drawPath(fPath.find(path), paint);
         }
 
@@ -332,12 +408,19 @@ namespace SkRemote {
         };
 
 
-        IDMap<SkMatrix        , Type::kMatrix>   fMatrix;
-        IDMap<Misc            , Type::kMisc  >   fMisc;
-        IDMap<SkPath          , Type::kPath  >   fPath;
-        IDMap<Stroke          , Type::kStroke>   fStroke;
-        ReffedIDMap<SkShader  , Type::kShader>   fShader;
-        ReffedIDMap<SkXfermode, Type::kXfermode> fXfermode;
+              IDMap<SkMatrix     , Type::kMatrix     > fMatrix;
+              IDMap<Misc         , Type::kMisc       > fMisc;
+              IDMap<SkPath       , Type::kPath       > fPath;
+              IDMap<Stroke       , Type::kStroke     > fStroke;
+        ReffedIDMap<SkPathEffect , Type::kPathEffect > fPathEffect;
+        ReffedIDMap<SkShader     , Type::kShader     > fShader;
+        ReffedIDMap<SkXfermode   , Type::kXfermode   > fXfermode;
+        ReffedIDMap<SkMaskFilter , Type::kMaskFilter > fMaskFilter;
+        ReffedIDMap<SkColorFilter, Type::kColorFilter> fColorFilter;
+        ReffedIDMap<SkRasterizer , Type::kRasterizer > fRasterizer;
+        ReffedIDMap<SkDrawLooper , Type::kDrawLooper > fDrawLooper;
+        ReffedIDMap<SkImageFilter, Type::kImageFilter> fImageFilter;
+        ReffedIDMap<SkAnnotation , Type::kAnnotation > fAnnotation;
 
         SkCanvas* fCanvas;
         uint64_t fNextID = 0;
@@ -360,12 +443,19 @@ namespace SkRemote {
 
         ~CachingEncoder() override {
             Undef undef{fWrapped};
-            fMatrix  .foreach(undef);
-            fMisc    .foreach(undef);
-            fPath    .foreach(undef);
-            fStroke  .foreach(undef);
-            fShader  .foreach(undef);
-            fXfermode.foreach(undef);
+            fMatrix     .foreach(undef);
+            fMisc       .foreach(undef);
+            fPath       .foreach(undef);
+            fPathEffect .foreach(undef);
+            fStroke     .foreach(undef);
+            fShader     .foreach(undef);
+            fXfermode   .foreach(undef);
+            fMaskFilter .foreach(undef);
+            fColorFilter.foreach(undef);
+            fRasterizer .foreach(undef);
+            fDrawLooper .foreach(undef);
+            fImageFilter.foreach(undef);
+            fAnnotation .foreach(undef);
         }
 
         template <typename Map, typename T>
@@ -378,12 +468,19 @@ namespace SkRemote {
             return id;
         }
 
-        ID define(const SkMatrix& v) override { return this->define(&fMatrix,   v); }
-        ID define(const Misc&     v) override { return this->define(&fMisc,     v); }
-        ID define(const SkPath&   v) override { return this->define(&fPath,     v); }
-        ID define(const Stroke&   v) override { return this->define(&fStroke,   v); }
-        ID define(SkShader*       v) override { return this->define(&fShader,   v); }
-        ID define(SkXfermode*     v) override { return this->define(&fXfermode, v); }
+        ID define(const SkMatrix& v) override { return this->define(&fMatrix     , v); }
+        ID define(const Misc&     v) override { return this->define(&fMisc       , v); }
+        ID define(const SkPath&   v) override { return this->define(&fPath       , v); }
+        ID define(const Stroke&   v) override { return this->define(&fStroke     , v); }
+        ID define(SkPathEffect*   v) override { return this->define(&fPathEffect , v); }
+        ID define(SkShader*       v) override { return this->define(&fShader     , v); }
+        ID define(SkXfermode*     v) override { return this->define(&fXfermode   , v); }
+        ID define(SkMaskFilter*   v) override { return this->define(&fMaskFilter , v); }
+        ID define(SkColorFilter*  v) override { return this->define(&fColorFilter, v); }
+        ID define(SkRasterizer*   v) override { return this->define(&fRasterizer , v); }
+        ID define(SkDrawLooper*   v) override { return this->define(&fDrawLooper , v); }
+        ID define(SkImageFilter*  v) override { return this->define(&fImageFilter, v); }
+        ID define(SkAnnotation*   v) override { return this->define(&fAnnotation , v); }
 
         void undefine(ID) override {}
 
@@ -395,11 +492,11 @@ namespace SkRemote {
         void clipPath(ID path, SkRegion::Op op, bool aa) override {
             fWrapped->clipPath(path, op, aa);
         }
-        void fillPath(ID path, ID misc, ID shader, ID xfermode) override {
-            fWrapped->fillPath(path, misc, shader, xfermode);
+        void fillPath(ID path, CommonIDs common) override {
+            fWrapped->fillPath(path, common);
         }
-        void strokePath(ID path, ID misc, ID shader, ID xfermode, ID stroke) override {
-            fWrapped->strokePath(path, misc, shader, xfermode, stroke);
+        void strokePath(ID path, CommonIDs common, ID stroke) override {
+            fWrapped->strokePath(path, common, stroke);
         }
 
         // Maps const T* -> ID, and refs the key.
@@ -431,12 +528,19 @@ namespace SkRemote {
             SkTHashMap<const T*, ID> fMap;
         };
 
-        SkTHashMap<SkMatrix, ID>               fMatrix;
-        SkTHashMap<Misc, ID, MiscHash>         fMisc;
-        SkTHashMap<SkPath, ID>                 fPath;
-        SkTHashMap<Stroke, ID>                 fStroke;
-        RefKeyMap<SkShader, Type::kShader>     fShader;
-        RefKeyMap<SkXfermode, Type::kXfermode> fXfermode;
+        SkTHashMap<SkMatrix, ID>                     fMatrix;
+        SkTHashMap<Misc, ID, MiscHash>               fMisc;
+        SkTHashMap<SkPath, ID>                       fPath;
+        SkTHashMap<Stroke, ID>                       fStroke;
+        RefKeyMap<SkPathEffect , Type::kPathEffect > fPathEffect;
+        RefKeyMap<SkShader     , Type::kShader     > fShader;
+        RefKeyMap<SkXfermode   , Type::kXfermode   > fXfermode;
+        RefKeyMap<SkMaskFilter , Type::kMaskFilter > fMaskFilter;
+        RefKeyMap<SkColorFilter, Type::kColorFilter> fColorFilter;
+        RefKeyMap<SkRasterizer , Type::kRasterizer > fRasterizer;
+        RefKeyMap<SkDrawLooper , Type::kDrawLooper > fDrawLooper;
+        RefKeyMap<SkImageFilter, Type::kImageFilter> fImageFilter;
+        RefKeyMap<SkAnnotation , Type::kAnnotation > fAnnotation;
 
         Encoder* fWrapped;
     };
