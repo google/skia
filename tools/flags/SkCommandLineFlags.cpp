@@ -11,8 +11,8 @@
 
 #include <stdlib.h>
 
-#if defined(GOOGLE3) && defined(SK_BUILD_FOR_ANDROID)
-    // I don't know why, but this is defined by //base only for Android.
+#if defined(GOOGLE3) && (defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS))
+    // I don't know why, but this is defined by //base only for non-Linux.
     DECLARE_bool(undefok)
 #else
     DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");

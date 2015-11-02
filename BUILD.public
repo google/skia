@@ -147,8 +147,52 @@ SRCS_ANDROID = glob(
     ],
 )
 
+# Platform-dependent SRCS for google3-default iOS.
+SRCS_IOS = glob(
+    [
+        "src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp",
+        "src/opts/**/*.cpp",
+        "src/opts/**/*.h",
+        "src/ports/**/*.cpp",
+        "src/ports/**/*.h",
+    ],
+    exclude = [
+        "src/opts/*mips*",
+        "src/opts/*NEON*",
+        "src/opts/*neon*",
+        "src/opts/*SSE2*",
+        "src/opts/*SSSE3*",
+        "src/opts/*ssse3*",
+        "src/opts/*SSE4*",
+        "src/opts/*sse4*",
+        "src/opts/*x86*",
+        "src/opts/SkBitmapProcState_opts_none.cpp",
+        "src/opts/SkBlitMask_opts_none.cpp",
+        "src/opts/SkBlitRow_opts_none.cpp",
+        "src/ports/*android*",
+        "src/ports/*chromium*",
+        "src/ports/*fontconfig*",
+        "src/ports/*FontConfig*",
+        "src/ports/*FreeType*",
+        "src/ports/*mozalloc*",
+        "src/ports/*nacl*",
+        "src/ports/*win*",
+        "src/ports/SkDebug_stdio.cpp",
+        "src/ports/SkFontMgr_custom.cpp",
+        "src/ports/SkFontMgr_custom_directory_factory.cpp",
+        "src/ports/SkFontMgr_custom_embedded_factory.cpp",
+        "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkImageDecoder_CG.cpp",
+        "src/ports/SkImageDecoder_WIC.cpp",
+        "src/ports/SkImageDecoder_empty.cpp",
+        "src/ports/SkImageGenerator_none.cpp",
+        "src/ports/SkTLS_none.cpp",
+    ],
+)
+
 PLATFORM_SRCS = select({
     CONDITION_ANDROID: SRCS_ANDROID,
+    CONDITION_IOS: SRCS_IOS,
     "//conditions:default": SRCS_UNIX,
 })
 
@@ -195,6 +239,8 @@ INCLUDES = [
     "include/ports",
     "include/private",
     "include/utils",
+    "include/utils/mac",
+    "include/utils/win",
     "include/svg",
     "include/xml",
     "src/core",
@@ -209,6 +255,7 @@ INCLUDES = [
     "third_party/ktx",
 ]
 
+# Dependencies.
 DEPS_UNIX = [
     ":opts_sse4",
     ":opts_ssse3",
@@ -216,10 +263,13 @@ DEPS_UNIX = [
 
 DEPS_ANDROID = []
 
+DEPS_IOS = []
+
 DEPS = select({
-    CONDITION_ANDROID: DEPS_ANDROID + EXTERNAL_DEPS_ANDROID + EXTERNAL_DEPS_ALL,
-    "//conditions:default": DEPS_UNIX + EXTERNAL_DEPS_UNIX + EXTERNAL_DEPS_ALL,
-})
+    CONDITION_ANDROID: DEPS_ANDROID + EXTERNAL_DEPS_ANDROID,
+    CONDITION_IOS: DEPS_IOS + EXTERNAL_DEPS_IOS,
+    "//conditions:default": DEPS_UNIX + EXTERNAL_DEPS_UNIX,
+}) + EXTERNAL_DEPS_ALL
 
 # Platform-independent SRCS for DM.
 DM_SRCS = glob(
@@ -300,6 +350,9 @@ COPTS_ANDROID = [
     "-mfpu=neon",
 ]
 
+COPTS_IOS = [
+]
+
 COPTS_UNIX = [
     "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
     "-Wno-deprecated-declarations",  # Internal use of deprecated methods. :(
@@ -307,6 +360,7 @@ COPTS_UNIX = [
 
 COPTS = select({
     CONDITION_ANDROID: COPTS_ANDROID,
+    CONDITION_IOS: COPTS_IOS,
     "//conditions:default": COPTS_UNIX,
 })
 
@@ -314,6 +368,11 @@ DEFINES_ANDROID = [
     "SK_BUILD_FOR_ANDROID",
     # TODO(benjaminwagner): Try to get png library updated?
     "SK_PNG_NO_INDEX_SUPPORTED",
+]
+
+DEFINES_IOS = [
+    "SK_BUILD_FOR_IOS",
+    "SK_IGNORE_ETC1_SUPPORT",
 ]
 
 DEFINES_UNIX = [
@@ -331,6 +390,7 @@ DEFINES_ALL = [
 
 DEFINES = select({
     CONDITION_ANDROID: DEFINES_ANDROID,
+    CONDITION_IOS: DEFINES_IOS,
     "//conditions:default": DEFINES_UNIX,
 }) + DEFINES_ALL
 
