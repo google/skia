@@ -8,8 +8,6 @@
 
 #include "GrGLSLCaps.h"
 
-#include "GrContextOptions.h"
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
@@ -27,9 +25,6 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
-
-    fMustSwizzleInShader = false;
-    memset(fConfigSwizzle, 0, sizeof(fConfigSwizzle));
 }
 
 SkString GrGLSLCaps::dump() const {
@@ -59,11 +54,5 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Advanced blend equation interaction: %s\n",
               kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;
-}
-
-void GrGLSLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
-    if (options.fUseShaderSwizzling) {
-        fMustSwizzleInShader = true;
-    }
 }
 

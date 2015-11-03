@@ -19,18 +19,19 @@ public:
 
     GrGLSLTextureSampler(UniformHandle uniform, const GrTextureAccess& access)
         : fSamplerUniform(uniform)
-        , fConfig(access.getTexture()->config()) {
-        SkASSERT(kUnknown_GrPixelConfig != fConfig);
+        , fConfigComponentMask(GrPixelConfigComponentMask(access.getTexture()->config())) {
+        SkASSERT(0 != fConfigComponentMask);
         memcpy(fSwizzle, access.getSwizzle(), 5);
     }
 
-    GrPixelConfig config() const { return fConfig; }
+    // bitfield of GrColorComponentFlags present in the texture's config.
+    uint32_t configComponentMask() const { return fConfigComponentMask; }
     // this is .abcd
     const char* swizzle() const { return fSwizzle; }
 
 private:
     UniformHandle fSamplerUniform;
-    GrPixelConfig fConfig;
+    uint32_t      fConfigComponentMask;
     char          fSwizzle[5];
 
     friend class GrGLShaderBuilder;

@@ -100,7 +100,6 @@ protected:
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
 
 private:
-    virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
     typedef SkRefCnt INHERITED;
 };
 
@@ -275,8 +274,6 @@ protected:
     bool fConfigTextureSupport[kGrPixelConfigCnt];
 
 private:
-    virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
-
     bool fSupressPrints : 1;
     bool fDrawPathMasksToCompressedTextureSupport : 1;
 

@@ -8,7 +8,6 @@
 
 #include "GrGLCaps.h"
 
-#include "GrContextOptions.h"
 #include "GrGLContext.h"
 #include "glsl/GrGLSLCaps.h"
 #include "SkTSearch.h"
@@ -28,6 +27,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMaxFragmentTextureUnits = 0;
     fRGBA8RenderbufferSupport = false;
     fBGRAIsInternalFormat = false;
+    fTextureSwizzleSupport = false;
     fUnpackRowLengthSupport = false;
     fUnpackFlipYSupport = false;
     fPackRowLengthSupport = false;
@@ -91,6 +91,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fRGBA8RenderbufferSupport = version >= GR_GL_VER(3,0) ||
                                     ctxInfo.hasExtension("GL_OES_rgb8_rgba8") ||
                                     ctxInfo.hasExtension("GL_ARM_rgba8");
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        fTextureSwizzleSupport = version >= GR_GL_VER(3,3) ||
+                                 ctxInfo.hasExtension("GL_ARB_texture_swizzle");
+    } else {
+        fTextureSwizzleSupport = version >= GR_GL_VER(3,0);
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -492,8 +499,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     this->initConfigTexturableTable(ctxInfo, gli, srgbSupport);
     this->initConfigRenderableTable(ctxInfo, srgbSupport);
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
-    // Requires fTexutreSwizzleSupport and fTextureRedSupport to be set before this point.
-    this->initConfigSwizzleTable(ctxInfo, glslCaps);
 
     this->applyOptionsOverrides(contextOptions);
     glslCaps->applyOptionsOverrides(contextOptions);
@@ -1172,6 +1177,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
     r.appendf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));
     r.appendf("BGRA is an internal format: %s\n", (fBGRAIsInternalFormat ? "YES": "NO"));
+    r.appendf("Support texture swizzle: %s\n", (fTextureSwizzleSupport ? "YES": "NO"));
     r.appendf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
     r.appendf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
     r.appendf("Pack Row length support: %s\n", (fPackRowLengthSupport ? "YES": "NO"));
@@ -1282,40 +1288,6 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
     }
 }
 
-void GrGLCaps::initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps* glslCaps) {
-    GrGLStandard standard = ctxInfo.standard();
-    GrGLVersion version = ctxInfo.version();
 
-    if (kGL_GrGLStandard == standard) {
-        glslCaps->fMustSwizzleInShader = version >= GR_GL_VER(3,3) ||
-                                         ctxInfo.hasExtension("GL_ARB_texture_swizzle");
-    } else {
-        glslCaps->fMustSwizzleInShader = version >= GR_GL_VER(3,0);
-    }
-
-    glslCaps->fConfigSwizzle[kUnknown_GrPixelConfig] = nullptr;
-    if (fTextureRedSupport) {
-        glslCaps->fConfigSwizzle[kAlpha_8_GrPixelConfig] = "rrrr";
-        glslCaps->fConfigSwizzle[kAlpha_half_GrPixelConfig] = "rrrr";
-    } else {
-        glslCaps->fConfigSwizzle[kAlpha_8_GrPixelConfig] = "aaaa";
-        glslCaps->fConfigSwizzle[kAlpha_half_GrPixelConfig] = "aaaa";
-    }
-    glslCaps->fConfigSwizzle[kIndex_8_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kRGB_565_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kRGBA_4444_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kRGBA_8888_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kBGRA_8888_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kSRGBA_8888_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kETC1_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kLATC_GrPixelConfig] = "rrrr";
-    glslCaps->fConfigSwizzle[kR11_EAC_GrPixelConfig] = "rrrr";
-    glslCaps->fConfigSwizzle[kASTC_12x12_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kRGBA_float_GrPixelConfig] = "rgba";
-    glslCaps->fConfigSwizzle[kRGBA_half_GrPixelConfig] = "rgba";
-
-}
-
-void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {}
 
 

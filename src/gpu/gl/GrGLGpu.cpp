@@ -2404,34 +2404,19 @@ static inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
     return gWrapModes[tm];
 }
 
-static GrGLenum get_component_enum_from_char(char component) {
-    switch (component) {
-        case 'r':
-           return GR_GL_RED;
-        case 'g':
-           return GR_GL_GREEN;
-        case 'b':
-           return GR_GL_BLUE;
-        case 'a':
-           return GR_GL_ALPHA;
-        default:
-            SkFAIL("Unsupported component");
-            return 0;
-    }
-}
-
-/** If texture swizzling is available using tex parameters then it is preferred over mangling
-  the generated shader code. This potentially allows greater reuse of cached shaders. */
-static void get_tex_param_swizzle(GrPixelConfig config,
-                                  const GrGLSLCaps& caps,
-                                  GrGLenum* glSwizzle) {
-    const char* swizzle = "rgba";
-    if (!caps.mustSwizzleInShader()) {
-        swizzle = caps.getSwizzleMap(config);
-    }
-
-    for (int i = 0; i < 4; ++i) {
-        glSwizzle[i] = get_component_enum_from_char(swizzle[i]);
+const GrGLenum* GrGLGpu::GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps) {
+    if (caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(config)) {
+        if (caps.textureRedSupport()) {
+            static const GrGLenum gRedSmear[] = { GR_GL_RED, GR_GL_RED, GR_GL_RED, GR_GL_RED };
+            return gRedSmear;
+        } else {
+            static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
+                                                    GR_GL_ALPHA, GR_GL_ALPHA };
+            return gAlphaSmear;
+        }
+    } else {
+        static const GrGLenum gStraight[] = { GR_GL_RED, GR_GL_GREEN, GR_GL_BLUE, GR_GL_ALPHA };
+        return gStraight;
     }
 }
 
@@ -2500,7 +2485,9 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
 
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
     newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
-    get_tex_param_swizzle(texture->config(), *this->glCaps().glslCaps(), newTexParams.fSwizzleRGBA);
+    memcpy(newTexParams.fSwizzleRGBA,
+           GetTexParamSwizzle(texture->config(), this->glCaps()),
+           sizeof(newTexParams.fSwizzleRGBA));
     if (setAll || newTexParams.fMagFilter != oldTexParams.fMagFilter) {
         this->setTextureUnit(unitIdx);
         GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAG_FILTER, newTexParams.fMagFilter));
@@ -2517,7 +2504,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
         this->setTextureUnit(unitIdx);
         GL_CALL(TexParameteri(target, GR_GL_TEXTURE_WRAP_T, newTexParams.fWrapT));
     }
-    if (!this->glCaps().glslCaps()->mustSwizzleInShader() &&
+    if (this->glCaps().textureSwizzleSupport() &&
         (setAll || memcmp(newTexParams.fSwizzleRGBA,
                           oldTexParams.fSwizzleRGBA,
                           sizeof(newTexParams.fSwizzleRGBA)))) {

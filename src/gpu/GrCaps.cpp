@@ -77,7 +77,6 @@ SkString GrShaderCaps::dump() const {
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
-    this->onApplyOptionsOverrides(options);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -128,7 +127,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     } else {
         fMaxTileSize = options.fMaxTileSizeOverride;
     }
-    this->onApplyOptionsOverrides(options);
 }
 
 static SkString map_flags_to_string(uint32_t flags) {

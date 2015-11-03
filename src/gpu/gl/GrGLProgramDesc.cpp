@@ -18,14 +18,26 @@
  * present in the texture's config. swizzleComponentMask indicates the channels present in the
  * shader swizzle.
  */
-static bool swizzle_requires_alpha_remapping(const GrGLSLCaps& caps, GrPixelConfig config) {
-    if (!caps.mustSwizzleInShader()) {
+static bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
+                                             uint32_t configComponentMask,
+                                             uint32_t swizzleComponentMask) {
+    if (caps.textureSwizzleSupport()) {
         // Any remapping is handled using texture swizzling not shader modifications.
         return false;
     }
-    const char* swizzleMap = caps.getSwizzleMap(config);
-    
-    return SkToBool(memcmp(swizzleMap, "rgba", 4));
+    // check if the texture is alpha-only
+    if (kA_GrColorComponentFlag == configComponentMask) {
+        if (caps.textureRedSupport() && (kA_GrColorComponentFlag & swizzleComponentMask)) {
+            // we must map the swizzle 'a's to 'r'.
+            return true;
+        }
+        if (kRGB_GrColorComponentFlags & swizzleComponentMask) {
+            // The 'r', 'g', and/or 'b's must be mapped to 'a' according to our semantics that
+            // alpha-only textures smear alpha across all four channels when read.
+            return true;
+        }
+    }
+    return false;
 }
 
 static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
@@ -33,7 +45,8 @@ static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
     int numTextures = proc.numTextures();
     for (int t = 0; t < numTextures; ++t) {
         const GrTextureAccess& access = proc.textureAccess(t);
-        if (swizzle_requires_alpha_remapping(*caps.glslCaps(), access.getTexture()->config())) {
+        uint32_t configComponentMask = GrPixelConfigComponentMask(access.getTexture()->config());
+        if (swizzle_requires_alpha_remapping(caps, configComponentMask, access.swizzleMask())) {
             key |= 1 << t;
         }
     }
