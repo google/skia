@@ -81,16 +81,17 @@ namespace SkRemote {
 
         virtual void undefine(ID) = 0;
 
-        virtual void    save() = 0;
-        virtual void restore() = 0;
-
-        virtual void setMatrix(ID matrix) = 0;
-
         // TODO: do these all belong here in CommonIDs?
         struct CommonIDs {
             ID misc, patheffect, shader, xfermode, maskfilter,
                colorfilter, rasterizer, looper, imagefilter, annotation;
         };
+
+        virtual void    save() = 0;
+        virtual void restore() = 0;
+        virtual void saveLayer(ID bounds, CommonIDs, SkCanvas::SaveFlags) = 0;
+
+        virtual void setMatrix(ID matrix) = 0;
 
         virtual void   clipPath(ID path, SkRegion::Op, bool aa) = 0;
         virtual void   fillPath(ID path, CommonIDs)             = 0;
