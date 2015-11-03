@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# Copyright 2015 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This script will update Skia's dependenciess as necessary and run
+# gyp if needed.
+
+# Depends on: Posix-compliant shell, Python, and Git.
+#
+# Example usage:
+#
+#   git clone https://skia.googlesource.com/skia
+#   cd skia
+#   bin/deps-and-gyp
+#   ninja -C out/Debug && out/Debug/dm
+#
+# Once changes are made to DEPS or gyp/ or the source, call:
+#
+#   bin/deps-and-gyp
+
+if [ "$SKIA_OUT" ]; then
+    mkdir -p "$SKIA_OUT" || exit
+    # get non-relative path of $SKIA_OUT before changing directory.
+    SKIA_OUT="$(cd "$SKIA_OUT"; pwd)"
+fi
+
+cd "$(dirname "$0")/.."
+
+if ! [ -f DEPS ]; then
+    echo DEPS file missing >&2
+    exit 1
+fi
+
+if [ "$(git hash-object DEPS)" != "$(git config sync-deps.last)" ] ; then
+    GIT_SYNC_DEPS_QUIET=1 python tools/git-sync-deps || exit
+    git config sync-deps.last "$(git hash-object DEPS)"
+fi
+
+catifexists() { if [ -f "$1" ]; then cat "$1"; fi; }
+
+gyp_hasher() {
+    {
+        echo "$CC"
+        echo "$CXX"
+        echo "$GYP_GENERATORS"
+        echo "$GYP_DEFINES"
+        find gyp -type f -print -exec git hash-object {} \;
+        find bench gm tests -name '*.c*' | LANG= sort
+    } | git hash-object --stdin
+}
+
+: ${SKIA_OUT:=out}
+GYP_HASH=$(gyp_hasher)
+HASH_PATH="${SKIA_OUT}/gyp_hash"
+if [ "$GYP_HASH" != "$(catifexists "$HASH_PATH")" ]; then
+    python ./gyp_skia || exit
+    echo "$GYP_HASH" > "$HASH_PATH"
+fi
