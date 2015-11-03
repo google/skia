@@ -9,8 +9,10 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
+#include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
+#include "SkNinePatchIter.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
@@ -160,6 +162,12 @@ namespace SkRemote {
 
         void   willSave() override { fEncoder->   save(); }
         void didRestore() override { fEncoder->restore(); }
+        SaveLayerStrategy willSaveLayer(const SkRect* bounds,
+                                        const SkPaint* paint,
+                                        SaveFlags flags) override {
+            // TODO
+            return kNoLayer_SaveLayerStrategy;
+        }
 
         void    didConcat(const SkMatrix&) override { this->didSetMatrix(this->getTotalMatrix()); }
         void didSetMatrix(const SkMatrix& matrix) override {
@@ -210,6 +218,138 @@ namespace SkRemote {
             this->onDrawPath(path, paint);
         }
 
+        void onDrawPoints(PointMode mode,
+                          size_t count,
+                          const SkPoint pts[],
+                          const SkPaint& paint) override {
+            // TODO
+        }
+
+        void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) override {
+            // TODO
+            this->INHERITED::onDrawDrawable(drawable, matrix);
+        }
+
+        void onDrawPicture(const SkPicture* pic,
+                           const SkMatrix* matrix,
+                           const SkPaint* paint) override {
+            // TODO
+            this->INHERITED::onDrawPicture(pic, matrix, paint);
+        }
+
+        void onDrawVertices(VertexMode vmode,
+                            int vertexCount,
+                            const SkPoint vertices[],
+                            const SkPoint texs[],
+                            const SkColor colors[],
+                            SkXfermode* xmode,
+                            const uint16_t indices[],
+                            int indexCount,
+                            const SkPaint& paint) override {
+            // TODO
+        }
+
+        void onDrawPatch(const SkPoint cubics[12],
+                         const SkColor colors[4],
+                         const SkPoint texCoords[4],
+                         SkXfermode* xmode,
+                         const SkPaint& paint) override {
+            // TODO
+        }
+
+        void onDrawAtlas(const SkImage* atlas,
+                         const SkRSXform xform[],
+                         const SkRect tex[],
+                         const SkColor colors[],
+                         int count,
+                         SkXfermode::Mode mode,
+                         const SkRect* cull,
+                         const SkPaint* paint) override {
+            // TODO
+        }
+
+        void onDrawBitmap(const SkBitmap& bitmap,
+                          SkScalar left,
+                          SkScalar top,
+                          const SkPaint* paint) override {
+            auto src = SkRect::MakeWH(bitmap.width(), bitmap.height()),
+                 dst = src.makeOffset(left, top);
+            this->onDrawBitmapRect(bitmap, &src, dst, paint, kStrict_SrcRectConstraint);
+        }
+
+        void onDrawBitmapRect(const SkBitmap& bitmap,
+                              const SkRect* src,
+                              const SkRect& dst,
+                              const SkPaint* paint,
+                              SrcRectConstraint constraint) override {
+            SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+            this->onDrawImageRect(image, src, dst, paint, constraint);
+        }
+
+        void onDrawImage(const SkImage* image,
+                         SkScalar left,
+                         SkScalar top,
+                         const SkPaint* paint) override {
+            if (!image) {
+                return;
+            }
+            auto src = SkRect::MakeWH(image->width(), image->height()),
+                 dst = src.makeOffset(left, top);
+            this->onDrawImageRect(image, &src, dst, paint, kStrict_SrcRectConstraint);
+        }
+
+        void onDrawImageRect(const SkImage* image,
+                             const SkRect* src,
+                             const SkRect& dst,
+                             const SkPaint* paint,
+                             SrcRectConstraint constraint) override {
+            // TODO: this is all a (likely buggy) hack to get images drawing quickly.
+            if (!image) {
+                return;
+            }
+
+            auto bounds = SkRect::MakeWH(image->width(), image->height());
+            if (!src) {
+                src = &bounds;
+            }
+            auto matrix = SkMatrix::MakeRectToRect(*src, dst, SkMatrix::kFill_ScaleToFit);
+
+            SkAutoTUnref<SkImage> subset;
+            if (src) {
+                if (!bounds.intersect(*src)) {
+                    return;
+                }
+                subset.reset(image->newSubset(bounds.roundOut()));
+                image = subset;
+            }
+
+            auto paintWithShader = paint ? *paint : SkPaint();
+            SkAutoTUnref<SkShader> shader(
+                image->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &matrix));
+            paintWithShader.setShader(shader);
+
+            this->onDrawRect(dst, paintWithShader);
+        }
+
+        void onDrawBitmapNine(const SkBitmap& bitmap,
+                              const SkIRect& center,
+                              const SkRect& dst,
+                              const SkPaint* paint) override {
+            SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+            this->onDrawImageNine(image, center, dst, paint);
+        }
+
+        void onDrawImageNine(const SkImage* image,
+                             const SkIRect& center,
+                             const SkRect& dst,
+                             const SkPaint* paint) override {
+            SkNinePatchIter iter(image->width(), image->height(), center, dst);
+            SkRect s,d;
+            while (iter.next(&s, &d)) {
+                this->onDrawImageRect(image, &s, d, paint, kStrict_SrcRectConstraint);
+            }
+        }
+
         void onDrawText(const void* text, size_t byteLength,
                         SkScalar x, SkScalar y, const SkPaint& paint) override {
             // Text-as-paths is a temporary hack.
@@ -238,23 +378,33 @@ namespace SkRemote {
             this->onDrawPosText(text, byteLength, &pos[0], paint);
         }
 
+        // All clip calls need to call their parent method or we'll not get any quick rejects.
         void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override {
+            this->INHERITED::onClipRect(rect, op, edgeStyle);
             SkPath path;
             path.addRect(rect);
             this->onClipPath(path, op, edgeStyle);
         }
 
         void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override {
+            this->INHERITED::onClipRRect(rrect, op, edgeStyle);
             SkPath path;
             path.addRRect(rrect);
             this->onClipPath(path, op, edgeStyle);
         }
 
         void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) override {
+            this->INHERITED::onClipPath(path, op, edgeStyle);
             fEncoder->clipPath(this->id(path), op, edgeStyle == kSoft_ClipEdgeStyle);
         }
 
+        void onClipRegion(const SkRegion& region, SkRegion::Op op) override {
+            this->INHERITED::onClipRegion(region, op);
+            // TODO
+        }
+
         Encoder* fEncoder;
+        typedef SkCanvas INHERITED;
     };
 
     SkCanvas* NewCanvas(Encoder* encoder) { return new Canvas(encoder); }
