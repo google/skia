@@ -34,10 +34,7 @@ if ! [ -f DEPS ]; then
     exit 1
 fi
 
-if [ "$(git hash-object DEPS)" != "$(git config sync-deps.last)" ] ; then
-    GIT_SYNC_DEPS_QUIET=1 python tools/git-sync-deps || exit
-    git config sync-deps.last "$(git hash-object DEPS)"
-fi
+GIT_SYNC_DEPS_QUIET=1 python tools/git-sync-deps || exit
 
 catifexists() { if [ -f "$1" ]; then cat "$1"; fi; }
 
