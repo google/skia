@@ -91,7 +91,7 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
         } else {
             paint.setXfermode(nullptr);
         }
-        canvas.drawBitmap(input, SkIntToScalar(pos.x() - x0), SkIntToScalar(pos.y() - y0), &paint);
+        canvas.drawSprite(input, pos.x() - x0, pos.y() - y0, &paint);
         didProduceResult = true;
     }
 
