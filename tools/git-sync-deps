@@ -133,6 +133,13 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
     sys.stdout.write('%s\n  SYNC IS DISABLED.\n' % directory)
     return
 
+  if 0 == subprocess.call(
+      [git, 'checkout', '--quiet', checkoutable], cwd=directory):
+    # if this succeeds, skip slow `git fetch`.
+    if verbose:
+      sys.stdout.write('%s\n  @ %s\n' % (directory, checkoutable))
+    return
+
   subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
 
   subprocess.check_call(
@@ -176,7 +183,7 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
     if '@' in dependencies[directory]:
       repo, checkoutable = dependencies[directory].split('@', 1)
     else:
-      repo, checkoutable = dependencies[directory], 'origin/master'
+      raise Exception("please specify commit or tag")
 
     relative_directory = os.path.join(deps_file_directory, directory)
 
