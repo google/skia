@@ -472,7 +472,12 @@ static void push_brd_srcs(Path path) {
             SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy,
     };
 
-    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    // Test on a variety of sampleSizes, making sure to include:
+    // - 2, 4, and 8, which are natively supported by jpeg
+    // - multiples of 2 which are not divisible by 4 (analogous for 4)
+    // - larger powers of two, since BRD clients generally use powers of 2
+    // We will only produce output for the larger sizes on large images.
+    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 24, 32, 64 };
 
     // We will only test to one backend (8888), but we will test all of the
     // color types that we need to decode to on this backend.

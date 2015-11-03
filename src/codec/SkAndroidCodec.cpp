@@ -53,6 +53,11 @@ SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
         return SkISize::Make(0, 0);
     }
 
+    // Fast path for when we are not scaling.
+    if (1 == sampleSize) {
+        return fInfo.dimensions();
+    }
+
     return this->onGetSampledDimensions(sampleSize);
 }
 
@@ -77,9 +82,9 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
         return SkISize::Make(0, 0);
     }
 
-    // If the subset is the entire image, for consistency, use onGetSampledDimensions().
+    // If the subset is the entire image, for consistency, use getSampledDimensions().
     if (fInfo.dimensions() == subset.size()) {
-        return onGetSampledDimensions(sampleSize);
+        return this->getSampledDimensions(sampleSize);
     }
 
     // This should perhaps call a virtual function, but currently both of our subclasses
@@ -103,6 +108,15 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* 
     } else if (options->fSubset) {
         if (!is_valid_subset(*options->fSubset, fInfo.dimensions())) {
             return SkCodec::kInvalidParameters;
+        }
+
+        if (SkIRect::MakeSize(fInfo.dimensions()) == *options->fSubset) {
+            // The caller wants the whole thing, rather than a subset. Modify
+            // the AndroidOptions passed to onGetAndroidPixels to not specify
+            // a subset.
+            defaultOptions = *options;
+            defaultOptions.fSubset = nullptr;
+            options = &defaultOptions;
         }
     }
 

@@ -33,6 +33,19 @@ protected:
             AndroidOptions& options) override;
 
 private:
+    /**
+     *  Find the best way to account for native scaling.
+     *
+     *  Return a size that fCodec can scale to, and adjust sampleSize to finish scaling.
+     *
+     *  @param sampleSize As an input, the requested sample size.
+     *                    As an output, sampling needed after letting fCodec
+     *                    scale to the returned dimensions.
+     *  @param nativeSampleSize Optional output parameter. Will be set to the
+     *                          effective sample size done by fCodec.
+     *  @return SkISize The size that fCodec should scale to.
+     */
+    SkISize accountForNativeScaling(int* sampleSize, int* nativeSampleSize = nullptr) const;
 
     /**
      *  This fulfills the same contract as onGetAndroidPixels().

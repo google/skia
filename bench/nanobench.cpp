@@ -978,7 +978,7 @@ public:
         //     All use cases we are aware of only scale by powers of two.
         //     PNG decodes use the indicated sampling strategy regardless of the sample size, so
         //         these tests are sufficient to provide good coverage of our scaling options.
-        const uint32_t sampleSizes[] = { 1, 2, 4, 8, 16 };
+        const uint32_t sampleSizes[] = { 1, 2, 4, 8, 16, 32, 64 };
         const uint32_t minOutputSize = 512;
         while (fCurrentBRDImage < fImages.count()) {
             while (fCurrentBRDStrategy < (int) SK_ARRAY_COUNT(strategies)) {
