@@ -205,6 +205,7 @@ public:
         GLPtr<GrGLFinishProc> fFinish;
         GLPtr<GrGLFlushProc> fFlush;
         GLPtr<GrGLFlushMappedBufferRangeProc> fFlushMappedBufferRange;
+        GLPtr<GrGLFramebufferParameteriProc> fFramebufferParameteri;
         GLPtr<GrGLFramebufferRenderbufferProc> fFramebufferRenderbuffer;
         GLPtr<GrGLFramebufferTexture2DProc> fFramebufferTexture2D;
         GLPtr<GrGLFramebufferTexture2DMultisampleProc> fFramebufferTexture2DMultisample;

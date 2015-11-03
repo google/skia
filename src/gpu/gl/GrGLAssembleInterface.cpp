@@ -269,6 +269,10 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         return nullptr;
     }
 
+    if (glVer >= GR_GL_VER(4,3)) {
+        GET_PROC(FramebufferParameteri);
+    }
+
     if (extensions.has("GL_NV_path_rendering")) {
         GET_PROC_SUFFIX(MatrixLoadf, EXT);
         GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
@@ -624,6 +628,11 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(CheckFramebufferStatus);
     GET_PROC(DeleteFramebuffers);
     GET_PROC(DeleteRenderbuffers);
+
+    if (version >= GR_GL_VER(3,1)) {
+        GET_PROC(FramebufferParameteri);
+    }
+
     GET_PROC(FramebufferRenderbuffer);
     GET_PROC(FramebufferTexture2D);
 

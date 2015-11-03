@@ -2035,9 +2035,17 @@ void GrGLGpu::setColocatedSampleLocations(GrRenderTarget* rt, bool useColocatedS
         return;
     }
 
-    GL_CALL(NamedFramebufferParameteri(target->renderFBOID(),
-                                       GR_GL_FRAMEBUFFER_PROGRAMMABLE_SAMPLE_LOCATIONS,
-                                       useColocatedSampleLocations));
+    if (kGL_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(4,5)) {
+        GL_CALL(NamedFramebufferParameteri(target->renderFBOID(),
+                                           GR_GL_FRAMEBUFFER_PROGRAMMABLE_SAMPLE_LOCATIONS,
+                                           useColocatedSampleLocations));
+    } else {
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
+        GL_CALL(FramebufferParameteri(GR_GL_FRAMEBUFFER,
+                                      GR_GL_FRAMEBUFFER_PROGRAMMABLE_SAMPLE_LOCATIONS,
+                                      useColocatedSampleLocations));
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+    }
 
     target->flagAsUsingColocatedSampleLocations(useColocatedSampleLocations);
 }
