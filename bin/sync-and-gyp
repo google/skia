@@ -8,35 +8,33 @@
 # This script will update Skia's dependenciess as necessary and run
 # gyp if needed.
 
-# Example usage (assumes Posix-standard shell, git installed):
+# Depends on: Posix-compliant shell, Python, and Git.
 #
-#   git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-#   export PATH="${PWD}/depot_tools:${PATH}"
+# Example usage:
+#
 #   git clone https://skia.googlesource.com/skia
 #   cd skia
-#   bin/sync-and-gyp && ninja -C out/Debug
-#   out/Debug/dm
+#   bin/sync-and-gyp
+#   ninja -C out/Debug && out/Debug/dm
 #
-# Once changes are made to DEPS or gyp/ or the source, recompile Skia with:
+# Once changes are made to DEPS or gyp/ or the source, call:
 #
-#   ${skiadir}/bin/sync-and-gyp && ninja -C ${skiadir}/out/Debug
+#   bin/sync-and-gyp
+
+if [ "$SKIA_OUT" ]; then
+    mkdir -p "$SKIA_OUT" || exit
+    # get non-relative path of $SKIA_OUT before changing directory.
+    SKIA_OUT="$(cd "$SKIA_OUT"; pwd)"
+fi
 
 cd "$(dirname "$0")/.."
-
-if ! [ -f .gclient ] ; then
-    gclient config --unmanaged 'https://skia.googlesource.com/skia'
-    printf ',s/"skia"/"."/\nwq\n' | ed .gclient
-fi
 
 if ! [ -f DEPS ]; then
     echo DEPS file missing >&2
     exit 1
 fi
 
-if [ "$(git hash-object DEPS)" != "$(git config sync-deps.last)" ] ; then
-    gclient sync || exit
-    git config sync-deps.last "$(git hash-object DEPS)"
-fi
+GIT_SYNC_DEPS_QUIET=1 python tools/git-sync-deps || exit
 
 catifexists() { if [ -f "$1" ]; then cat "$1"; fi; }
 
