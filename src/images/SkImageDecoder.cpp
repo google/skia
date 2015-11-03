@@ -206,8 +206,8 @@ bool SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
 
     SkCanvas canvas(*dst);
-    canvas.drawSprite(*src, (srcX - dstX) / sampleSize,
-                            (srcY - dstY) / sampleSize,
+    canvas.drawBitmap(*src, SkIntToScalar((srcX - dstX) / sampleSize),
+                            SkIntToScalar((srcY - dstY) / sampleSize),
                             &paint);
     return true;
 }
