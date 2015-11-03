@@ -949,6 +949,7 @@ SkScalerContext_FreeType::~SkScalerContext_FreeType() {
     this face with other context (at different sizes).
 */
 FT_Error SkScalerContext_FreeType::setupSize() {
+    gFTMutex.assertHeld();
     FT_Error err = FT_Activate_Size(fFTSize);
     if (err != 0) {
         SkDEBUGF(("SkScalerContext_FreeType::FT_Activate_Size(%s %s, 0x%x, 0x%x) returned 0x%x\n",
@@ -968,10 +969,12 @@ unsigned SkScalerContext_FreeType::generateGlyphCount() {
 }
 
 uint16_t SkScalerContext_FreeType::generateCharToGlyph(SkUnichar uni) {
+    SkAutoMutexAcquire  ac(gFTMutex);
     return SkToU16(FT_Get_Char_Index( fFace, uni ));
 }
 
 SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
+    SkAutoMutexAcquire  ac(gFTMutex);
     // iterate through each cmap entry, looking for matching glyph indices
     FT_UInt glyphIndex;
     SkUnichar charCode = FT_Get_First_Char( fFace, &glyphIndex );
