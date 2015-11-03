@@ -126,14 +126,6 @@ protected:
     void appendDecls(const VarArray& vars, SkString* out) const;
 
     /*
-     * this super low level function is just for use internally to builders
-     */
-    void appendTextureLookup(const char* samplerName,
-                             const char* coordName,
-                             uint32_t configComponentMask,
-                             const char* swizzle);
-
-    /*
      * A general function which enables an extension in a shader if the feature bit is not present
      */
     void addFeature(uint32_t featureBit, const char* extensionName);

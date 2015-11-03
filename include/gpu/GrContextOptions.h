@@ -19,7 +19,8 @@ struct GrContextOptions {
         , fSuppressDualSourceBlending(false)
         , fGeometryBufferMapThreshold(-1)
         , fUseDrawInsteadOfPartialRenderTargetWrite(false)
-        , fImmediateMode(false) {}
+        , fImmediateMode(false)
+        , fUseShaderSwizzling(false) {}
 
     // EXPERIMENTAL
     // May be removed in the future, or may become standard depending
@@ -50,6 +51,10 @@ struct GrContextOptions {
     /** The GrContext operates in immedidate mode. It will issue all draws to the backend API
         immediately. Intended to ease debugging. */
     bool fImmediateMode;
+
+    /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
+        swizzling. */
+    bool fUseShaderSwizzling;
 };
 
 #endif

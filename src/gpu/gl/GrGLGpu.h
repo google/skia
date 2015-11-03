@@ -128,11 +128,6 @@ public:
     bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject id) const override;
 
-    /** If texture swizzling is available using tex parameters then it is preferred over mangling
-        the generated shader code. This potentially allows greater reuse of cached shaders. */
-    static const GrGLenum* GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps);
-
-
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 
