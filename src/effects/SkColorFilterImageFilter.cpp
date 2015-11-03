@@ -79,8 +79,7 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
 
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setColorFilter(fColorFilter);
-    canvas.drawBitmap(src, SkIntToScalar(srcOffset.fX - bounds.fLeft),
-                           SkIntToScalar(srcOffset.fY - bounds.fTop), &paint);
+    canvas.drawSprite(src, srcOffset.fX - bounds.fLeft, srcOffset.fY - bounds.fTop, &paint);
 
     *result = device.get()->accessBitmap(false);
     offset->fX = bounds.fLeft;

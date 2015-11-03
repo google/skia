@@ -46,9 +46,9 @@ static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canva
         canvas->drawBitmapRect(bm, src, dst, layer->paint(), SkCanvas::kStrict_SrcRectConstraint);
         canvas->restore();
     } else {
-        canvas->drawBitmap(bm,
-                           SkIntToScalar(layer->srcIR().fLeft + layer->offset().fX),
-                           SkIntToScalar(layer->srcIR().fTop + layer->offset().fY),
+        canvas->drawSprite(bm,
+                           layer->srcIR().fLeft + layer->offset().fX,
+                           layer->srcIR().fTop + layer->offset().fY,
                            layer->paint());
     }
 }

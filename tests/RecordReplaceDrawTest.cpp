@@ -142,7 +142,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool useBBH) {
         assert_type<SkRecords::Save>(r, rerecord, 0);
         index += 1;
     }
-    assert_type<SkRecords::DrawBitmap>(r, rerecord, index + 0);
+    assert_type<SkRecords::DrawSprite>(r, rerecord, index + 0);
     assert_type<SkRecords::DrawRect>(r, rerecord, index + 1);
     if (4 == recount) {
         assert_type<SkRecords::Restore>(r, rerecord, 3);
