@@ -57,8 +57,6 @@
 
       '<(skia_src_path)/gpu/GrAutoLocaleSetter.h',
       '<(skia_src_path)/gpu/GrAllocator.h',
-      '<(skia_src_path)/gpu/GrAtlas.cpp',
-      '<(skia_src_path)/gpu/GrAtlas.h',
       '<(skia_src_path)/gpu/GrAtlasTextBlob.cpp',
       '<(skia_src_path)/gpu/GrAtlasTextBlob.h',
       '<(skia_src_path)/gpu/GrAtlasTextContext.cpp',
@@ -104,6 +102,8 @@
       '<(skia_src_path)/gpu/GrGpuFactory.h',
       '<(skia_src_path)/gpu/GrIndexBuffer.h',
       '<(skia_src_path)/gpu/GrInvariantOutput.cpp',
+      '<(skia_src_path)/gpu/GrLayerAtlas.cpp',
+      '<(skia_src_path)/gpu/GrLayerAtlas.h',
       '<(skia_src_path)/gpu/GrLayerCache.cpp',
       '<(skia_src_path)/gpu/GrLayerCache.h',
       '<(skia_src_path)/gpu/GrLayerHoister.cpp',

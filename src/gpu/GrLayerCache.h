@@ -8,7 +8,9 @@
 #ifndef GrLayerCache_DEFINED
 #define GrLayerCache_DEFINED
 
-#include "GrAtlas.h"
+
+#include "GrLayerAtlas.h"
+#include "GrTexture.h"
 #include "GrRect.h"
 
 #include "SkChecksum.h"
@@ -31,7 +33,9 @@ public:
     static uint32_t Hash(const uint32_t& key) { return SkChecksum::Mix(key); }
 
     // GrPictureInfo proper
-    GrPictureInfo(uint32_t pictureID) : fPictureID(pictureID) {
+    GrPictureInfo(uint32_t pictureID) 
+        : fPictureID(pictureID)
+        , fPlotUsage(kNumPlots) {
 #if !GR_CACHE_HOISTED_LAYERS
         memset(fPlotUses, 0, sizeof(fPlotUses));
 #endif
@@ -56,7 +60,7 @@ public:
 #endif
 
     const uint32_t fPictureID;
-    GrAtlas::ClientPlotUsage  fPlotUsage;
+    GrLayerAtlas::ClientPlotUsage  fPlotUsage;
 
 #if !GR_CACHE_HOISTED_LAYERS
 private:
@@ -206,18 +210,18 @@ public:
     void setOffset(const SkIPoint& offset) { fOffset = offset; }
     const SkIPoint& offset() const { return fOffset; }
 
-    void setPlot(GrPlot* plot) {
+    void setPlot(GrLayerAtlas::Plot* plot) {
         SkASSERT(nullptr == plot || nullptr == fPlot);
         fPlot = plot;
     }
-    GrPlot* plot() { return fPlot; }
+    GrLayerAtlas::Plot* plot() { return fPlot; }
 
     bool isAtlased() const { return SkToBool(fPlot); }
 
     void setLocked(bool locked) { fLocked = locked; }
     bool locked() const { return fLocked; }
 
-    SkDEBUGCODE(const GrPlot* plot() const { return fPlot; })
+    SkDEBUGCODE(const GrLayerAtlas::Plot* plot() const { return fPlot; })
     SkDEBUGCODE(void validate(const GrTexture* backingTexture) const;)
 
 private:
@@ -255,7 +259,7 @@ private:
 
     // For atlased layers, fPlot stores the atlas plot in which the layer rests.
     // It is always nullptr for non-atlased layers.
-    GrPlot*         fPlot;
+    GrLayerAtlas::Plot* fPlot;
 
     // The number of actively hoisted layers using this cached image (e.g.,
     // extant GrHoistedLayers pointing at this object). This object will
@@ -356,8 +360,8 @@ private:
     static const int kPlotWidth = kAtlasTextureWidth / kNumPlotsX;
     static const int kPlotHeight = kAtlasTextureHeight / kNumPlotsY;
 
-    GrContext*                fContext;  // pointer back to owning context
-    SkAutoTDelete<GrAtlas>    fAtlas;    // TODO: could lazily allocate
+    GrContext*                  fContext;  // pointer back to owning context
+    SkAutoTDelete<GrLayerAtlas> fAtlas;    // TODO: could lazily allocate
 
     // We cache this information here (rather then, say, on the owning picture)
     // because we want to be able to clean it up as needed (e.g., if a picture
@@ -391,7 +395,7 @@ private:
     // Remove all the layers (and unlock any resources) associated with 'pictureID'
     void purge(uint32_t pictureID);
 
-    void purgePlot(GrPlot* plot);
+    void purgePlot(GrLayerAtlas::Plot* plot);
 
     // Try to find a purgeable plot and clear it out. Return true if a plot
     // was purged; false otherwise.

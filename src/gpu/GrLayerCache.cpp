@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlas.h"
+#include "GrLayerAtlas.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrGpu.h"
@@ -104,9 +104,9 @@ void GrLayerCache::initAtlas() {
     GR_STATIC_ASSERT(kNumPlotsX*kNumPlotsX == GrPictureInfo::kNumPlots);
 
     SkISize textureSize = SkISize::Make(kAtlasTextureWidth, kAtlasTextureHeight);
-    fAtlas.reset(new GrAtlas(fContext->getGpu(), kSkia8888_GrPixelConfig,
-                             kRenderTarget_GrSurfaceFlag, textureSize, kNumPlotsX, kNumPlotsY,
-                             false));
+    fAtlas.reset(new GrLayerAtlas(fContext->textureProvider(), kSkia8888_GrPixelConfig,
+                                  kRenderTarget_GrSurfaceFlag, textureSize,
+                                  kNumPlotsX, kNumPlotsY));
 }
 
 void GrLayerCache::freeAll() {
@@ -205,9 +205,9 @@ bool GrLayerCache::tryToAtlas(GrCachedLayer* layer,
 
         SkIPoint16 loc;
         for (int i = 0; i < 2; ++i) { // extra pass in case we fail to add but are able to purge
-            GrPlot* plot = fAtlas->addToAtlas(&pictInfo->fPlotUsage,
-                                              desc.fWidth, desc.fHeight,
-                                              nullptr, &loc);
+            GrLayerAtlas::Plot* plot = fAtlas->addToAtlas(&pictInfo->fPlotUsage,
+                                                          desc.fWidth, desc.fHeight,
+                                                          &loc);
             // addToAtlas can allocate the backing texture
             SkDEBUGCODE(avl.setBackingTexture(fAtlas->getTexture()));
             if (plot) {
@@ -290,7 +290,7 @@ void GrLayerCache::unlock(GrCachedLayer* layer) {
         pictInfo->decPlotUsage(plotID);
 
         if (0 == pictInfo->plotUsage(plotID)) {
-            GrAtlas::RemovePlot(&pictInfo->fPlotUsage, layer->plot());
+            pictInfo->fPlotUsage.removePlot(layer->plot());
 
             if (pictInfo->fPlotUsage.isEmpty()) {
                 fPictureHash.remove(pictInfo->fPictureID);
@@ -393,9 +393,9 @@ bool GrLayerCache::purgePlot() {
     SkDEBUGCODE(GrAutoValidateCache avc(this);)
     SkASSERT(fAtlas);
 
-    GrAtlas::PlotIter iter;
-    GrPlot* plot;
-    for (plot = fAtlas->iterInit(&iter, GrAtlas::kLRUFirst_IterOrder);
+    GrLayerAtlas::PlotIter iter;
+    GrLayerAtlas::Plot* plot;
+    for (plot = fAtlas->iterInit(&iter, GrLayerAtlas::kLRUFirst_IterOrder);
          plot;
          plot = iter.prev()) {
         if (fPlotLocks[plot->id()] > 0) {
@@ -409,7 +409,7 @@ bool GrLayerCache::purgePlot() {
     return false;
 }
 
-void GrLayerCache::purgePlot(GrPlot* plot) {
+void GrLayerCache::purgePlot(GrLayerAtlas::Plot* plot) {
     SkASSERT(0 == fPlotLocks[plot->id()]);
 
     // We need to find all the layers in 'plot' and remove them.
@@ -437,7 +437,7 @@ void GrLayerCache::purgePlot(GrPlot* plot) {
 #if !GR_CACHE_HOISTED_LAYERS
             SkASSERT(0 == pictInfo->plotUsage(plot->id()));
 #endif
-            GrAtlas::RemovePlot(&pictInfo->fPlotUsage, plot);
+            pictInfo->fPlotUsage.removePlot(plot);
 
             if (pictInfo->fPlotUsage.isEmpty()) {
                 fPictureHash.remove(pictInfo->fPictureID);
@@ -446,7 +446,7 @@ void GrLayerCache::purgePlot(GrPlot* plot) {
         }
     }
 
-    plot->resetRects();
+    plot->reset();
 }
 
 #if !GR_CACHE_HOISTED_LAYERS
@@ -455,9 +455,9 @@ void GrLayerCache::purgeAll() {
         return;
     }
 
-    GrAtlas::PlotIter iter;
-    GrPlot* plot;
-    for (plot = fAtlas->iterInit(&iter, GrAtlas::kLRUFirst_IterOrder);
+    GrLayerAtlas::PlotIter iter;
+    GrLayerAtlas::Plot* plot;
+    for (plot = fAtlas->iterInit(&iter, GrLayerAtlas::kLRUFirst_IterOrder);
          plot;
          plot = iter.prev()) {
         SkASSERT(0 == fPlotLocks[plot->id()]);
