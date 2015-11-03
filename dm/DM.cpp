@@ -75,6 +75,8 @@ using namespace DM;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
+
 SK_DECLARE_STATIC_MUTEX(gFailuresMutex);
 static SkTArray<SkString> gFailures;
 
@@ -830,8 +832,7 @@ struct Task {
         }
 
         SkString log;
-        WallTimer timer;
-        timer.start();
+        auto timerStart = now_ms();
         if (!FLAGS_dryRun && note.isEmpty()) {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
@@ -841,7 +842,7 @@ struct Task {
             start(task->sink.tag, task->src.tag, task->src.options, name.c_str());
             Error err = task->sink->draw(*task->src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
-                timer.end();
+                auto elapsed = now_ms() - timerStart;
                 if (err.isFatal()) {
                     fail(SkStringPrintf("%s %s %s %s: %s",
                                         task->sink.tag,
@@ -852,7 +853,7 @@ struct Task {
                 } else {
                     note.appendf(" (skipped: %s)", err.c_str());
                 }
-                done(timer.fWall, task->sink.tag, task->src.tag, task->src.options,
+                done(elapsed, task->sink.tag, task->src.tag, task->src.options,
                      name, note, log);
                 return;
             }
@@ -906,9 +907,8 @@ struct Task {
                 }
             }
         }
-        timer.end();
-        done(timer.fWall, task->sink.tag, task->src.tag.c_str(), task->src.options.c_str(), name,
-                note, log);
+        done(now_ms()-timerStart, task->sink.tag, task->src.tag.c_str(), task->src.options.c_str(),
+             name, note, log);
     }
 
     static void WriteToDisk(const Task& task,
@@ -1032,8 +1032,7 @@ static void run_test(skiatest::Test* test) {
         note.appendf(" (--blacklist %s)", whyBlacklisted.c_str());
     }
 
-    WallTimer timer;
-    timer.start();
+    auto timerStart = now_ms();
     if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
         start("unit", "test", "", test->name);
         GrContextFactory factory;
@@ -1042,8 +1041,7 @@ static void run_test(skiatest::Test* test) {
         }
         test->proc(&reporter, &factory);
     }
-    timer.end();
-    done(timer.fWall, "unit", "test", "", test->name, note, "");
+    done(now_ms()-timerStart, "unit", "test", "", test->name, note, "");
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

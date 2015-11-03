@@ -14,6 +14,8 @@ DEFINE_int32(gpuFrameLag, 5, "Overestimate of maximum number of frames GPU is al
 DEFINE_int32(frames, 5, "Number of frames of each skp to render per sample.");
 DEFINE_double(loopMs, 5, "Each benchmark will be tuned until it takes loopsMs millseconds.");
 
+static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
+
 TimingStateMachine::TimingStateMachine()
     : fCurrentFrame(0)
     , fLoops(1)
@@ -28,7 +30,7 @@ TimingStateMachine::ParentEvents TimingStateMachine::nextFrame(bool preWarmBetwe
         case kPreWarm_State: {
             if (fCurrentFrame >= FLAGS_gpuFrameLag) {
                 fCurrentFrame = 0;
-                fTimer.start();
+                fStartTime = now_ms();
                 fState = kTiming_State;
             } else {
                 fCurrentFrame++;
@@ -63,7 +65,7 @@ TimingStateMachine::ParentEvents TimingStateMachine::nextFrame(bool preWarmBetwe
                         if (preWarmBetweenSamples) {
                             fState = kPreWarm_State;
                         } else {
-                            fTimer.start(); // start timing again, don't change state
+                            fStartTime = now_ms();
                         }
                     } else {
                         fCurrentFrame++;
@@ -78,13 +80,11 @@ TimingStateMachine::ParentEvents TimingStateMachine::nextFrame(bool preWarmBetwe
 }
 
 inline double TimingStateMachine::elapsed() {
-    fTimer.end();
-    return fTimer.fWall;
+    return now_ms() - fStartTime;
 }
 
 void TimingStateMachine::resetTimingState() {
     fCurrentFrame = 0;
-    fTimer = WallTimer();
 }
 
 void TimingStateMachine::recordMeasurement() {
