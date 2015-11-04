@@ -17,6 +17,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPath;
 class SkShader;
+class SkTextBlob;
 class SkXfermode;
 
 // TODO: document
@@ -65,19 +66,20 @@ namespace SkRemote {
     struct Encoder {
         virtual ~Encoder() {}
 
-        virtual ID define(const SkMatrix&) = 0;
-        virtual ID define(const Misc&)     = 0;
-        virtual ID define(const SkPath&)   = 0;
-        virtual ID define(const Stroke&)   = 0;
-        virtual ID define(SkPathEffect*)   = 0;
-        virtual ID define(SkShader*)       = 0;
-        virtual ID define(SkXfermode*)     = 0;
-        virtual ID define(SkMaskFilter*)   = 0;
-        virtual ID define(SkColorFilter*)  = 0;
-        virtual ID define(SkRasterizer*)   = 0;
-        virtual ID define(SkDrawLooper*)   = 0;
-        virtual ID define(SkImageFilter*)  = 0;
-        virtual ID define(SkAnnotation*)   = 0;
+        virtual ID define(const SkMatrix&)   = 0;
+        virtual ID define(const Misc&)       = 0;
+        virtual ID define(const SkPath&)     = 0;
+        virtual ID define(const Stroke&)     = 0;
+        virtual ID define(const SkTextBlob*) = 0;
+        virtual ID define(SkPathEffect*)     = 0;
+        virtual ID define(SkShader*)         = 0;
+        virtual ID define(SkXfermode*)       = 0;
+        virtual ID define(SkMaskFilter*)     = 0;
+        virtual ID define(SkColorFilter*)    = 0;
+        virtual ID define(SkRasterizer*)     = 0;
+        virtual ID define(SkDrawLooper*)     = 0;
+        virtual ID define(SkImageFilter*)    = 0;
+        virtual ID define(SkAnnotation*)     = 0;
 
         virtual void undefine(ID) = 0;
 
@@ -93,9 +95,11 @@ namespace SkRemote {
 
         virtual void setMatrix(ID matrix) = 0;
 
-        virtual void   clipPath(ID path, SkRegion::Op, bool aa) = 0;
-        virtual void   fillPath(ID path, CommonIDs)             = 0;
-        virtual void strokePath(ID path, CommonIDs, ID stroke)  = 0;
+        virtual void   clipPath(ID path, SkRegion::Op, bool aa)         = 0;
+        virtual void   fillPath(ID path, CommonIDs)                     = 0;
+        virtual void strokePath(ID path, CommonIDs, ID stroke)          = 0;
+        virtual void   fillText(ID text, SkPoint, CommonIDs)            = 0;
+        virtual void strokeText(ID text, SkPoint, CommonIDs, ID stroke) = 0;
     };
 
     // None of these factories take ownership of their arguments.

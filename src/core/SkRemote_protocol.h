@@ -19,6 +19,7 @@ namespace SkRemote {
         kMisc,
         kPath,
         kStroke,
+        kTextBlob,
         kPathEffect,
         kShader,
         kXfermode,

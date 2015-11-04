@@ -20,6 +20,7 @@
 #include "SkRemote.h"
 #include "SkShader.h"
 #include "SkTHash.h"
+#include "SkTextBlob.h"
 
 namespace SkRemote {
 
@@ -358,6 +359,22 @@ namespace SkRemote {
             }
         }
 
+        void onDrawTextBlob(const SkTextBlob* text,
+                            SkScalar x,
+                            SkScalar y,
+                            const SkPaint& paint) override {
+            SkPoint offset{x,y};
+            auto t = this->id(text);
+            auto common = this->commonIDs(paint);
+
+            if (paint.getStyle() == SkPaint::kFill_Style) {
+                fEncoder->fillText(t, offset, common);
+            } else {
+                // TODO: handle kStrokeAndFill_Style
+                fEncoder->strokeText(t, offset, common, this->id(Stroke::CreateFrom(paint)));
+            }
+        }
+
         void onDrawText(const void* text, size_t byteLength,
                         SkScalar x, SkScalar y, const SkPaint& paint) override {
             // Text-as-paths is a temporary hack.
@@ -432,19 +449,20 @@ namespace SkRemote {
         }
 
     #define O override
-        ID define(const SkMatrix& v) O {return this->define(Type::kMatrix,      &fMatrix,      v);}
-        ID define(const Misc&     v) O {return this->define(Type::kMisc,        &fMisc,        v);}
-        ID define(const SkPath&   v) O {return this->define(Type::kPath,        &fPath,        v);}
-        ID define(const Stroke&   v) O {return this->define(Type::kStroke,      &fStroke,      v);}
-        ID define(SkPathEffect*   v) O {return this->define(Type::kPathEffect,  &fPathEffect,  v);}
-        ID define(SkShader*       v) O {return this->define(Type::kShader,      &fShader,      v);}
-        ID define(SkXfermode*     v) O {return this->define(Type::kXfermode,    &fXfermode,    v);}
-        ID define(SkMaskFilter*   v) O {return this->define(Type::kMaskFilter,  &fMaskFilter,  v);}
-        ID define(SkColorFilter*  v) O {return this->define(Type::kColorFilter, &fColorFilter, v);}
-        ID define(SkRasterizer*   v) O {return this->define(Type::kRasterizer,  &fRasterizer,  v);}
-        ID define(SkDrawLooper*   v) O {return this->define(Type::kDrawLooper,  &fDrawLooper,  v);}
-        ID define(SkImageFilter*  v) O {return this->define(Type::kImageFilter, &fImageFilter, v);}
-        ID define(SkAnnotation*   v) O {return this->define(Type::kAnnotation,  &fAnnotation,  v);}
+        ID define(const SkMatrix&   v)O{return this->define(Type::kMatrix,      &fMatrix,      v);}
+        ID define(const Misc&       v)O{return this->define(Type::kMisc,        &fMisc,        v);}
+        ID define(const SkPath&     v)O{return this->define(Type::kPath,        &fPath,        v);}
+        ID define(const Stroke&     v)O{return this->define(Type::kStroke,      &fStroke,      v);}
+        ID define(const SkTextBlob* v)O{return this->define(Type::kTextBlob,    &fTextBlob,    v);}
+        ID define(SkPathEffect*     v)O{return this->define(Type::kPathEffect,  &fPathEffect,  v);}
+        ID define(SkShader*         v)O{return this->define(Type::kShader,      &fShader,      v);}
+        ID define(SkXfermode*       v)O{return this->define(Type::kXfermode,    &fXfermode,    v);}
+        ID define(SkMaskFilter*     v)O{return this->define(Type::kMaskFilter,  &fMaskFilter,  v);}
+        ID define(SkColorFilter*    v)O{return this->define(Type::kColorFilter, &fColorFilter, v);}
+        ID define(SkRasterizer*     v)O{return this->define(Type::kRasterizer,  &fRasterizer,  v);}
+        ID define(SkDrawLooper*     v)O{return this->define(Type::kDrawLooper,  &fDrawLooper,  v);}
+        ID define(SkImageFilter*    v)O{return this->define(Type::kImageFilter, &fImageFilter, v);}
+        ID define(SkAnnotation*     v)O{return this->define(Type::kAnnotation,  &fAnnotation,  v);}
     #undef O
 
 
@@ -454,6 +472,7 @@ namespace SkRemote {
                 case Type::kMisc:        return fMisc       .remove(id);
                 case Type::kPath:        return fPath       .remove(id);
                 case Type::kStroke:      return fStroke     .remove(id);
+                case Type::kTextBlob:    return fTextBlob   .remove(id);
                 case Type::kPathEffect:  return fPathEffect .remove(id);
                 case Type::kShader:      return fShader     .remove(id);
                 case Type::kXfermode:    return fXfermode   .remove(id);
@@ -505,6 +524,18 @@ namespace SkRemote {
             this->applyCommon(common, &paint);
             fStroke.find(stroke).applyTo(&paint);
             fCanvas->drawPath(fPath.find(path), paint);
+        }
+        void fillText(ID text, SkPoint offset, CommonIDs common) override {
+            SkPaint paint;
+            paint.setStyle(SkPaint::kFill_Style);
+            this->applyCommon(common, &paint);
+            fCanvas->drawTextBlob(fTextBlob.find(text), offset.x(), offset.y(), paint);
+        }
+        void strokeText(ID text, SkPoint offset, CommonIDs common, ID stroke) override {
+            SkPaint paint;
+            this->applyCommon(common, &paint);
+            fStroke.find(stroke).applyTo(&paint);
+            fCanvas->drawTextBlob(fTextBlob.find(text), offset.x(), offset.y(), paint);
         }
 
         // Maps ID -> T.
@@ -572,19 +603,20 @@ namespace SkRemote {
         };
 
 
-              IDMap<SkMatrix     , Type::kMatrix     > fMatrix;
-              IDMap<Misc         , Type::kMisc       > fMisc;
-              IDMap<SkPath       , Type::kPath       > fPath;
-              IDMap<Stroke       , Type::kStroke     > fStroke;
-        ReffedIDMap<SkPathEffect , Type::kPathEffect > fPathEffect;
-        ReffedIDMap<SkShader     , Type::kShader     > fShader;
-        ReffedIDMap<SkXfermode   , Type::kXfermode   > fXfermode;
-        ReffedIDMap<SkMaskFilter , Type::kMaskFilter > fMaskFilter;
-        ReffedIDMap<SkColorFilter, Type::kColorFilter> fColorFilter;
-        ReffedIDMap<SkRasterizer , Type::kRasterizer > fRasterizer;
-        ReffedIDMap<SkDrawLooper , Type::kDrawLooper > fDrawLooper;
-        ReffedIDMap<SkImageFilter, Type::kImageFilter> fImageFilter;
-        ReffedIDMap<SkAnnotation , Type::kAnnotation > fAnnotation;
+              IDMap<SkMatrix        , Type::kMatrix     > fMatrix;
+              IDMap<Misc            , Type::kMisc       > fMisc;
+              IDMap<SkPath          , Type::kPath       > fPath;
+              IDMap<Stroke          , Type::kStroke     > fStroke;
+        ReffedIDMap<const SkTextBlob, Type::kTextBlob   > fTextBlob;
+        ReffedIDMap<SkPathEffect    , Type::kPathEffect > fPathEffect;
+        ReffedIDMap<SkShader        , Type::kShader     > fShader;
+        ReffedIDMap<SkXfermode      , Type::kXfermode   > fXfermode;
+        ReffedIDMap<SkMaskFilter    , Type::kMaskFilter > fMaskFilter;
+        ReffedIDMap<SkColorFilter   , Type::kColorFilter> fColorFilter;
+        ReffedIDMap<SkRasterizer    , Type::kRasterizer > fRasterizer;
+        ReffedIDMap<SkDrawLooper    , Type::kDrawLooper > fDrawLooper;
+        ReffedIDMap<SkImageFilter   , Type::kImageFilter> fImageFilter;
+        ReffedIDMap<SkAnnotation    , Type::kAnnotation > fAnnotation;
 
         SkCanvas* fCanvas;
         uint64_t fNextID = 0;
@@ -610,8 +642,9 @@ namespace SkRemote {
             fMatrix     .foreach(undef);
             fMisc       .foreach(undef);
             fPath       .foreach(undef);
-            fPathEffect .foreach(undef);
             fStroke     .foreach(undef);
+            fTextBlob   .foreach(undef);
+            fPathEffect .foreach(undef);
             fShader     .foreach(undef);
             fXfermode   .foreach(undef);
             fMaskFilter .foreach(undef);
@@ -632,19 +665,20 @@ namespace SkRemote {
             return id;
         }
 
-        ID define(const SkMatrix& v) override { return this->define(&fMatrix     , v); }
-        ID define(const Misc&     v) override { return this->define(&fMisc       , v); }
-        ID define(const SkPath&   v) override { return this->define(&fPath       , v); }
-        ID define(const Stroke&   v) override { return this->define(&fStroke     , v); }
-        ID define(SkPathEffect*   v) override { return this->define(&fPathEffect , v); }
-        ID define(SkShader*       v) override { return this->define(&fShader     , v); }
-        ID define(SkXfermode*     v) override { return this->define(&fXfermode   , v); }
-        ID define(SkMaskFilter*   v) override { return this->define(&fMaskFilter , v); }
-        ID define(SkColorFilter*  v) override { return this->define(&fColorFilter, v); }
-        ID define(SkRasterizer*   v) override { return this->define(&fRasterizer , v); }
-        ID define(SkDrawLooper*   v) override { return this->define(&fDrawLooper , v); }
-        ID define(SkImageFilter*  v) override { return this->define(&fImageFilter, v); }
-        ID define(SkAnnotation*   v) override { return this->define(&fAnnotation , v); }
+        ID define(const SkMatrix&   v) override { return this->define(&fMatrix     , v); }
+        ID define(const Misc&       v) override { return this->define(&fMisc       , v); }
+        ID define(const SkPath&     v) override { return this->define(&fPath       , v); }
+        ID define(const Stroke&     v) override { return this->define(&fStroke     , v); }
+        ID define(const SkTextBlob* v) override { return this->define(&fTextBlob   , v); }
+        ID define(SkPathEffect*     v) override { return this->define(&fPathEffect , v); }
+        ID define(SkShader*         v) override { return this->define(&fShader     , v); }
+        ID define(SkXfermode*       v) override { return this->define(&fXfermode   , v); }
+        ID define(SkMaskFilter*     v) override { return this->define(&fMaskFilter , v); }
+        ID define(SkColorFilter*    v) override { return this->define(&fColorFilter, v); }
+        ID define(SkRasterizer*     v) override { return this->define(&fRasterizer , v); }
+        ID define(SkDrawLooper*     v) override { return this->define(&fDrawLooper , v); }
+        ID define(SkImageFilter*    v) override { return this->define(&fImageFilter, v); }
+        ID define(SkAnnotation*     v) override { return this->define(&fAnnotation , v); }
 
         void undefine(ID) override {}
 
@@ -664,6 +698,12 @@ namespace SkRemote {
         }
         void strokePath(ID path, CommonIDs common, ID stroke) override {
             fWrapped->strokePath(path, common, stroke);
+        }
+        void fillText(ID text, SkPoint offset, CommonIDs common) override {
+            fWrapped->fillText(text, offset, common);
+        }
+        void strokeText(ID text, SkPoint offset, CommonIDs common, ID stroke) override {
+            fWrapped->strokeText(text, offset, common, stroke);
         }
 
         // Maps const T* -> ID, and refs the key.
@@ -695,19 +735,20 @@ namespace SkRemote {
             SkTHashMap<const T*, ID> fMap;
         };
 
-        SkTHashMap<SkMatrix, ID>                     fMatrix;
-        SkTHashMap<Misc, ID, MiscHash>               fMisc;
-        SkTHashMap<SkPath, ID>                       fPath;
-        SkTHashMap<Stroke, ID>                       fStroke;
-        RefKeyMap<SkPathEffect , Type::kPathEffect > fPathEffect;
-        RefKeyMap<SkShader     , Type::kShader     > fShader;
-        RefKeyMap<SkXfermode   , Type::kXfermode   > fXfermode;
-        RefKeyMap<SkMaskFilter , Type::kMaskFilter > fMaskFilter;
-        RefKeyMap<SkColorFilter, Type::kColorFilter> fColorFilter;
-        RefKeyMap<SkRasterizer , Type::kRasterizer > fRasterizer;
-        RefKeyMap<SkDrawLooper , Type::kDrawLooper > fDrawLooper;
-        RefKeyMap<SkImageFilter, Type::kImageFilter> fImageFilter;
-        RefKeyMap<SkAnnotation , Type::kAnnotation > fAnnotation;
+        SkTHashMap<SkMatrix, ID>                        fMatrix;
+        SkTHashMap<Misc, ID, MiscHash>                  fMisc;
+        SkTHashMap<SkPath, ID>                          fPath;
+        SkTHashMap<Stroke, ID>                          fStroke;
+        RefKeyMap<const SkTextBlob, Type::kTextBlob   > fTextBlob;
+        RefKeyMap<SkPathEffect    , Type::kPathEffect > fPathEffect;
+        RefKeyMap<SkShader        , Type::kShader     > fShader;
+        RefKeyMap<SkXfermode      , Type::kXfermode   > fXfermode;
+        RefKeyMap<SkMaskFilter    , Type::kMaskFilter > fMaskFilter;
+        RefKeyMap<SkColorFilter   , Type::kColorFilter> fColorFilter;
+        RefKeyMap<SkRasterizer    , Type::kRasterizer > fRasterizer;
+        RefKeyMap<SkDrawLooper    , Type::kDrawLooper > fDrawLooper;
+        RefKeyMap<SkImageFilter   , Type::kImageFilter> fImageFilter;
+        RefKeyMap<SkAnnotation    , Type::kAnnotation > fAnnotation;
 
         Encoder* fWrapped;
     };
