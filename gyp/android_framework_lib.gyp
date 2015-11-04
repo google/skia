@@ -16,6 +16,7 @@
         'opts.gyp:opts',
         'pdf.gyp:pdf',
         'ports.gyp:ports',
+        'tools.gyp:bitmap_region_decoder',
         'utils.gyp:utils',
       ],
     },
