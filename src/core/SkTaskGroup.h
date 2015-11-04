@@ -53,6 +53,8 @@ private:
 // Returns best estimate of number of CPU cores available to use.
 int sk_num_cores();
 
+int sk_parallel_for_thread_count();
+
 // Call f(i) for i in [0, end).
 template <typename Func>
 void sk_parallel_for(int end, const Func& f) {

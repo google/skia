@@ -18,8 +18,10 @@ DEF_TEST(OncePtr, r) {
         return new int(5);
     };
 
-    SkAtomic<int> force_a_race(sk_num_cores());
-
+    SkAtomic<int> force_a_race(sk_parallel_for_thread_count());
+    if (force_a_race < 1) {
+        return;
+    }
     sk_parallel_for(sk_num_cores()*4, [&](size_t) {
         force_a_race.fetch_add(-1);
         while (force_a_race.load() > 0);

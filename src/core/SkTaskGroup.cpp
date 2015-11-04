@@ -196,6 +196,7 @@ private:
     static ThreadPool* gGlobal;
 
     friend struct SkTaskGroup::Enabler;
+    friend int ::sk_parallel_for_thread_count();
 };
 ThreadPool* ThreadPool::gGlobal = nullptr;
 
@@ -219,3 +220,9 @@ void SkTaskGroup::batch (void (*fn)(void*), void* args, int N, size_t stride) {
     ThreadPool::Batch(fn, args, N, stride, &fPending);
 }
 
+int sk_parallel_for_thread_count() {
+    if (ThreadPool::gGlobal != nullptr) {
+        return ThreadPool::gGlobal->fThreads.count();
+    }
+    return 0;
+}
