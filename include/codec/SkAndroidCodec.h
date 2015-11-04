@@ -192,7 +192,7 @@ public:
     //        this getPixels() when it is a slightly different API than SkCodec's getPixels().
     //        Maybe this should be decode() or decodeSubset()?
     SkCodec::Result getAndroidPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-            AndroidOptions* options);
+            const AndroidOptions* options);
 
     /**
      *  Simplified version of getAndroidPixels() where we supply the default AndroidOptions.
@@ -213,7 +213,7 @@ protected:
     virtual bool onGetSupportedSubset(SkIRect* desiredSubset) const = 0;
 
     virtual SkCodec::Result onGetAndroidPixels(const SkImageInfo& info, void* pixels,
-            size_t rowBytes, AndroidOptions& options) = 0;
+            size_t rowBytes, const AndroidOptions& options) = 0;
 
 private:
 

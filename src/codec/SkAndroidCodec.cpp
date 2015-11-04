@@ -94,7 +94,7 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
 }
 
 SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* pixels,
-        size_t rowBytes, AndroidOptions* options) {
+        size_t rowBytes, const AndroidOptions* options) {
     if (!pixels) {
         return SkCodec::kInvalidParameters;
     }

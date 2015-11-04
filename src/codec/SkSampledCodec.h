@@ -30,7 +30,7 @@ protected:
     bool onGetSupportedSubset(SkIRect* desiredSubset) const override { return true; }
 
     SkCodec::Result onGetAndroidPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-            AndroidOptions& options) override;
+            const AndroidOptions& options) override;
 
 private:
     /**
@@ -55,7 +55,7 @@ private:
      *  provide the scale by sampling.
      */
     SkCodec::Result sampledDecode(const SkImageInfo& info, void* pixels, size_t rowBytes,
-            AndroidOptions& options);
+            const AndroidOptions& options);
 
     SkAutoTDelete<SkCodec> fCodec;
 

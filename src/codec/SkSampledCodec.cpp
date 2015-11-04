@@ -70,7 +70,7 @@ SkISize SkSampledCodec::onGetSampledDimensions(int sampleSize) const {
 }
 
 SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void* pixels,
-        size_t rowBytes, AndroidOptions& options) {
+        size_t rowBytes, const AndroidOptions& options) {
     // Create an Options struct for the codec.
     SkCodec::Options codecOptions;
     codecOptions.fZeroInitialized = options.fZeroInitialized;
@@ -135,7 +135,7 @@ SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void
 
 
 SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pixels,
-        size_t rowBytes, AndroidOptions& options) {
+        size_t rowBytes, const AndroidOptions& options) {
     // We should only call this function when sampling.
     SkASSERT(options.fSampleSize > 1);
 
