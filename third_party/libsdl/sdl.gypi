@@ -8,16 +8,10 @@
     {
       'target_name': 'sdl',
       'product_name': 'sdl',
-      'type': 'shared_library',
+      'type': 'static_library',
       'include_dirs': [
         '<(base_dir)/<(skia_os)',
         '<(src_dir)/include',
-      ],
-      'includes': [
-        'sdl_sources.gypi',
-      ],
-      'sources': [
-        '<@(sdl_sources)',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

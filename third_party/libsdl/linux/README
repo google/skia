@@ -1,5 +1,5 @@
 To generate SDL_config.h run:
-1) ../../externals/sdl/configure
+1) ../../externals/sdl/configure --disable-audio --disable-joystick --disable-haptic --disable-power --disable-video-wayland --disable-video-mir --disable-video-dummy --disable-dbus --disable-ibus --disable-libudev
 2) make -j32
 3) if you save the awk output, then you can get a list of files required for
    the build with this awk one liner:

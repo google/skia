@@ -18,8 +18,6 @@
 
 class SK_API SkGLContext : public SkRefCnt {
 public:
-
-
     ~SkGLContext() override;
 
     bool isValid() const { return NULL != gl(); }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -7,221 +6,228 @@
  */
 #include "SkOSWindow_SDL.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkGLCanvas.h"
-#include "SkOSMenu.h"
-#include "SkTime.h"
 
-static void post_SkEvent_event() {
-    SDL_Event evt;
-    evt.type = SDL_USEREVENT;
-    evt.user.type = SDL_USEREVENT;
-    evt.user.code = 0;
-    evt.user.data1 = nullptr;
-    evt.user.data2 = nullptr;
-    SDL_PushEvent(&evt);
+#include <GL/gl.h>
+
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
+
+static void handle_error() {
+    const char* error = SDL_GetError();
+    SkDebugf("SDL Error: %s\n", error);
+    SDL_ClearError();
 }
 
-static bool skia_setBitmapFromSurface(SkBitmap* dst, SDL_Surface* src) {
-    SkColorType ct;
-    SkAlphaType at;
-
-    switch (src->format->BytesPerPixel) {
-        case 2:
-            ct = kRGB_565_SkColorType;
-            at = kOpaque_SkAlphaType;
-            break;
-        case 4:
-            ct = kN32_SkColorType;
-            at = kPremul_SkAlphaType;
-            break;
-        default:
-            return false;
+SkOSWindow::SkOSWindow(void* screen) : fQuit(false) , fGLContext(nullptr) {
+    //Create window
+    SDL_Init(SDL_INIT_VIDEO|SDL_INIT_GAMECONTROLLER|SDL_INIT_EVENTS);
+    fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                               SCREEN_WIDTH, SCREEN_HEIGHT,
+                               SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN );
+    if (!fWindow) {
+        handle_error();
+        return;
     }
-
-    return dst->installPixels(SkImageInfo::Make(src->w, src->h, ct, at), src->pixels, src->pitch);
-}
-
-SkOSWindow::SkOSWindow(void* screen) {
-    fScreen = reinterpret_cast<SDL_Surface*>(screen);
-    this->resize(fScreen->w, fScreen->h);
-
-    uint32_t rmask = SK_R32_MASK << SK_R32_SHIFT;
-    uint32_t gmask = SK_G32_MASK << SK_G32_SHIFT;
-    uint32_t bmask = SK_B32_MASK << SK_B32_SHIFT;
-    uint32_t amask = SK_A32_MASK << SK_A32_SHIFT;
-
-    if (fScreen->flags & SDL_OPENGL) {
-        fSurface = nullptr;
-        fGLCanvas = new SkGLCanvas;
-        fGLCanvas->setViewport(fScreen->w, fScreen->h);
-    } else {
-        fGLCanvas = nullptr;
-        fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, fScreen->w, fScreen->h,
-                                        32, rmask, gmask, bmask, amask);
-    }
+    SDL_StartTextInput();
+    this->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 SkOSWindow::~SkOSWindow() {
-    delete fGLCanvas;
-    if (fSurface) {
-        SDL_FreeSurface(fSurface);
+    if (fGLContext) {
+        SDL_GL_DeleteContext(fGLContext);
+    }
+
+    //Destroy window
+    SDL_DestroyWindow(fWindow);
+
+    //Quit SDL subsystems
+    SDL_Quit();
+}
+
+void SkOSWindow::detach() {
+    if (fGLContext) {
+        SDL_GL_DeleteContext(fGLContext);
+        fGLContext = nullptr;
     }
 }
 
-#include <OpenGL/gl.h>
+bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*) {
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-void SkOSWindow::doDraw() {
-    if (fGLCanvas) {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-        glEnable(GL_TEXTURE_2D);
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-        int count = fGLCanvas->save();
-        this->draw(fGLCanvas);
-        fGLCanvas->restoreToCount(count);
-        SDL_GL_SwapBuffers( );
-    } else {
-        if ( SDL_MUSTLOCK(fSurface) ) {
-            if ( SDL_LockSurface(fSurface) < 0 ) {
-                return;
-            }
-        }
+    if (msaaSampleCount > 0) {
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaaSampleCount);
+    }
 
-        SkBitmap bitmap;
+    fGLContext = SDL_GL_CreateContext(fWindow);
+    if (!fGLContext) {
+        handle_error();
+        return false;
+    }
 
-        if (skia_setBitmapFromSurface(&bitmap, fSurface)) {
-            SkCanvas canvas(bitmap);
-            this->draw(&canvas);
-        }
+    int success =  SDL_GL_MakeCurrent(fWindow, fGLContext);
+    if (success != 0) {
+        handle_error();
+        return false;
+    }
 
-        if ( SDL_MUSTLOCK(fSurface) ) {
-            SDL_UnlockSurface(fSurface);
-        }
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glClearColor(1, 1, 1, 1);
+    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        int result = SDL_BlitSurface(fSurface, nullptr, fScreen, nullptr);
-        if (result) {
-            SkDebugf("------- SDL_BlitSurface returned %d\n", result);
-        }
-        SDL_UpdateRect(fScreen, 0, 0, fScreen->w, fScreen->h);
+    return true;
+}
+
+void SkOSWindow::present() {
+    SDL_GL_SwapWindow(fWindow);
+}
+
+bool SkOSWindow::makeFullscreen() {
+    SDL_SetWindowFullscreen(fWindow, SDL_WINDOW_FULLSCREEN);
+    return true;
+}
+
+void SkOSWindow::setVsync(bool vsync) {
+    SDL_GL_SetSwapInterval(vsync ? 1 : 0);
+}
+
+void SkOSWindow::closeWindow() {
+    fQuit = true;
+}
+
+static SkKey convert_sdlkey_to_skkey(SDL_Keycode src) {
+    switch (src) {
+        case SDLK_UP:
+            return kUp_SkKey;
+        case SDLK_DOWN:
+            return kDown_SkKey;
+        case SDLK_LEFT:
+            return kLeft_SkKey;
+        case SDLK_RIGHT:
+            return kRight_SkKey;
+        case SDLK_HOME:
+            return kHome_SkKey;
+        case SDLK_END:
+            return kEnd_SkKey;
+        case SDLK_ASTERISK:
+            return kStar_SkKey;
+        case SDLK_HASH:
+            return kHash_SkKey;
+        case SDLK_0:
+            return k0_SkKey;
+        case SDLK_1:
+            return k1_SkKey;
+        case SDLK_2:
+            return k2_SkKey;
+        case SDLK_3:
+            return k3_SkKey;
+        case SDLK_4:
+            return k4_SkKey;
+        case SDLK_5:
+            return k5_SkKey;
+        case SDLK_6:
+            return k6_SkKey;
+        case SDLK_7:
+            return k7_SkKey;
+        case SDLK_8:
+            return k8_SkKey;
+        case SDLK_9:
+            return k9_SkKey;
+        default:
+            return kNONE_SkKey;
     }
 }
 
-static SkKey find_skkey(SDLKey src) {
-    // this array must match the enum order in SkKey.h
-    static const SDLKey gKeys[] = {
-        SDLK_UNKNOWN,
-        SDLK_UNKNOWN,   // left softkey
-        SDLK_UNKNOWN,   // right softkey
-        SDLK_UNKNOWN,   // home
-        SDLK_UNKNOWN,   // back
-        SDLK_UNKNOWN,   // send
-        SDLK_UNKNOWN,   // end
-        SDLK_0,
-        SDLK_1,
-        SDLK_2,
-        SDLK_3,
-        SDLK_4,
-        SDLK_5,
-        SDLK_6,
-        SDLK_7,
-        SDLK_8,
-        SDLK_9,
-        SDLK_ASTERISK,
-        SDLK_HASH,
-        SDLK_UP,
-        SDLK_DOWN,
-        SDLK_LEFT,
-        SDLK_RIGHT,
-        SDLK_RETURN,    // OK
-        SDLK_UNKNOWN,   // volume up
-        SDLK_UNKNOWN,   // volume down
-        SDLK_UNKNOWN,   // power
-        SDLK_UNKNOWN,   // camera
-    };
+void SkOSWindow::handleEvents() {
+    SkEvent::ServiceQueueTimer();
+    SkEvent::ProcessEvent();
 
-    const SDLKey* array = gKeys;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gKeys); i++) {
-        if (array[i] == src) {
-            return static_cast<SkKey>(i);
-        }
-    }
-    return kNONE_SkKey;
-}
-
-void SkOSWindow::handleSDLEvent(const SDL_Event& event) {
-    switch (event.type) {
-        case SDL_VIDEORESIZE:
-            this->resize(event.resize.w, event.resize.h);
-            break;
-        case SDL_VIDEOEXPOSE:
-            this->doDraw();
-            break;
-        case SDL_MOUSEMOTION:
-            if (event.motion.state == SDL_PRESSED) {
-                this->handleClick(event.motion.x, event.motion.y,
-                                   SkView::Click::kMoved_State);
-            }
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            this->handleClick(event.button.x, event.button.y,
-                               event.button.state == SDL_PRESSED ?
-                               SkView::Click::kDown_State :
-                               SkView::Click::kUp_State);
-            break;
-        case SDL_KEYDOWN: {
-            SkKey sk = find_skkey(event.key.keysym.sym);
-            if (kNONE_SkKey != sk) {
-                if (event.key.state == SDL_PRESSED) {
-                    this->handleKey(sk);
-                } else {
-                    this->handleKeyUp(sk);
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_MOUSEMOTION:
+                if (event.motion.state == SDL_PRESSED) {
+                    this->handleClick(event.motion.x, event.motion.y,
+                                     SkView::Click::kMoved_State, nullptr);
                 }
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+                this->handleClick(event.button.x, event.button.y,
+                                  event.button.state == SDL_PRESSED ?
+                                  SkView::Click::kDown_State :
+                                  SkView::Click::kUp_State, nullptr);
+                break;
+            case SDL_KEYDOWN: {
+                SDL_Keycode key = event.key.keysym.sym;
+                SkKey sk = convert_sdlkey_to_skkey(key);
+                if (kNONE_SkKey != sk) {
+                    if (event.key.state == SDL_PRESSED) {
+                        this->handleKey(sk);
+                    } else {
+                        this->handleKeyUp(sk);
+                    }
+                } else if (key == SDLK_ESCAPE) {
+                    fQuit = true;
+                }
+                break;
             }
-            break;
+            case SDL_TEXTINPUT: {
+                size_t len = strlen(event.text.text);
+                for (size_t i = 0; i < len; i++) {
+                    this->handleChar((SkUnichar)event.text.text[i]);
+                }
+                break;
+            }
+            case SDL_QUIT:
+                fQuit = true;
+                break;
+            default:
+                break;
         }
-        case SDL_USEREVENT:
-            if (SkEvent::ProcessEvent()) {
-                post_SkEvent_event();
-            }
-            break;
     }
 }
 
-void SkOSWindow::onHandleInval(const SkIRect& r) {
-    SDL_Event evt;
-    evt.type = SDL_VIDEOEXPOSE;
-    evt.expose.type = SDL_VIDEOEXPOSE;
-    SDL_PushEvent(&evt);
-}
 
 void SkOSWindow::onSetTitle(const char title[]) {
-    SDL_WM_SetCaption(title, nullptr);
+    SDL_SetWindowTitle(fWindow, title);
 }
-
-void SkOSWindow::onAddMenu(const SkOSMenu* sk_menu) {}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void SkEvent::SignalNonEmptyQueue() {
-    SkDebugf("-------- signal nonempty\n");
-    post_SkEvent_event();
+    // nothing to do, since we spin on our event-queue
 }
 
-static Uint32 timer_callback(Uint32 interval) {
-//    SkDebugf("-------- timercallback %d\n", interval);
-    SkEvent::ServiceQueueTimer();
+void SkEvent::SignalQueueTimer(SkMSec delay) {
+    // just need to record the delay time. We handle waking up for it in
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#include "SkApplication.h"
+#include "SkEvent.h"
+#include "SkWindow.h"
+
+int main(int argc, char** argv){
+    SkOSWindow* window = create_sk_window(nullptr, argc, argv);
+
+    // drain any events that occurred before |window| was assigned.
+    while (SkEvent::ProcessEvent());
+
+    // Start normal Skia sequence
+    application_init();
+
+    window->loop();
+
+    delete window;
+    application_term();
     return 0;
-}
-
-void SkEvent::SignalQueueTimer(SkMSec delay)
-{
-    SDL_SetTimer(0, nullptr);
-    if (delay) {
-        SDL_SetTimer(delay, timer_callback);
-    }
 }

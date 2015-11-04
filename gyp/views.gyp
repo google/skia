@@ -9,6 +9,9 @@
 #  * Basic widgets and controls.
 
 {
+  'variables': {
+    'skia_use_sdl%': 0,
+  },
   'targets': [
     {
       'target_name': 'views',
@@ -60,6 +63,11 @@
         '../src/views/SkViewPriv.h',
         '../src/views/SkWidgets.cpp',
         '../src/views/SkWindow.cpp',
+            
+        # Unix
+        '../src/views/unix/SkOSWindow_Unix.cpp',
+        '../src/views/unix/keysym2ucs.c',
+        '../src/views/unix/skia_unix.cpp',
 
         # Mac
         '../src/views/mac/SkEventNotifier.h',
@@ -71,21 +79,9 @@
         '../src/views/mac/SkOSWindow_Mac.mm',
         '../src/views/mac/skia_mac.mm',
 
-        # SDL
-        '../src/views/sdl/SkOSWindow_SDL.cpp',
-
-        # *nix
-        '../src/views/unix/SkOSWindow_Unix.cpp',
-        '../src/views/unix/keysym2ucs.c',
-        '../src/views/unix/skia_unix.cpp',
-
         # Windows
         '../src/views/win/SkOSWindow_win.cpp',
         '../src/views/win/skia_win.cpp',
-
-      ],
-      'sources!' : [
-        '../src/views/sdl/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
@@ -139,6 +135,25 @@
         [ 'skia_gpu == 1', {
           'include_dirs': [
             '../include/gpu',
+          ],
+        }],
+        [ 'skia_use_sdl == 1', {
+          'defines': [
+            'SK_USE_SDL',
+          ],
+          'dependencies': [
+            'sdl.gyp:sdl',
+          ],
+          'sources!': [
+            '../src/views/unix/SkOSWindow_Unix.cpp',
+            '../src/views/unix/keysym2ucs.c',
+            '../src/views/unix/skia_unix.cpp',
+          ],
+          'sources': [
+            '../src/views/sdl/SkOSWindow_SDL.cpp',
+          ],
+          'export_dependent_settings': [
+            'sdl.gyp:sdl',
           ],
         }],
       ],
