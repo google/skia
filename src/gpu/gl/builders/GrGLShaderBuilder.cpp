@@ -6,46 +6,67 @@
  */
 
 #include "GrGLShaderBuilder.h"
-#include "gl/GrGLGpu.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLTextureSampler.h"
 
-namespace {
-void append_texture_lookup(SkString* out,
-                           GrGLGpu* gpu,
-                           const char* samplerName,
-                           const char* coordName,
-                           uint32_t configComponentMask,
-                           const char* swizzle,
-                           GrSLType varyingType = kVec2f_GrSLType) {
+static void map_swizzle(const char* swizzleMap, const char* swizzle, char* mangledSwizzle) {
+    int i;
+    for (i = 0; '\0' != swizzle[i]; ++i) {
+        switch (swizzle[i]) {
+            case 'r':
+                mangledSwizzle[i] = swizzleMap[0];
+                break;
+            case 'g':
+                mangledSwizzle[i] = swizzleMap[1];
+                break;
+            case 'b':
+                mangledSwizzle[i] = swizzleMap[2];
+                break;
+            case 'a':
+                mangledSwizzle[i] = swizzleMap[3];
+                break;
+            default:
+                SkFAIL("Unsupported swizzle");
+        }
+    }
+    mangledSwizzle[i] ='\0';
+}
+
+static void append_texture_lookup(SkString* out,
+                                  const GrGLSLCaps* glslCaps,
+                                  const char* samplerName,
+                                  const char* coordName,
+                                  GrPixelConfig config,
+                                  const char* swizzle,
+                                  GrSLType varyingType = kVec2f_GrSLType) {
     SkASSERT(coordName);
 
     out->appendf("%s(%s, %s)",
-                 GrGLSLTexture2DFunctionName(varyingType, gpu->glslGeneration()),
+                 GrGLSLTexture2DFunctionName(varyingType, glslCaps->generation()),
                  samplerName,
                  coordName);
 
     char mangledSwizzle[5];
 
-    // The swizzling occurs using texture params instead of shader-mangling if ARB_texture_swizzle
-    // is available.
-    if (!gpu->glCaps().textureSwizzleSupport() &&
-        (kA_GrColorComponentFlag == configComponentMask)) {
-        char alphaChar = gpu->glCaps().textureRedSupport() ? 'r' : 'a';
-        int i;
-        for (i = 0; '\0' != swizzle[i]; ++i) {
-            mangledSwizzle[i] = alphaChar;
+    // This refers to any swizzling we may need to get from some backend internal format to the
+    // format used in GrPixelConfig. Some backends will automatically do the sizzling for us.
+    if (glslCaps->mustSwizzleInShader()) {
+        const char* swizzleMap = glslCaps->getSwizzleMap(config);
+        // if the map is simply 'rgba' then we don't need to do any manual swizzling to get us to
+        // a GrPixelConfig format.
+        if (memcmp(swizzleMap, "rgba", 4)) {
+            // Manually 'swizzle' the swizzle using our mapping
+            map_swizzle(swizzleMap, swizzle, mangledSwizzle);
+            swizzle = mangledSwizzle;
         }
-        mangledSwizzle[i] ='\0';
-        swizzle = mangledSwizzle;
     }
+
     // For shader prettiness we omit the swizzle rather than appending ".rgba".
     if (memcmp(swizzle, "rgba", 4)) {
         out->appendf(".%s", swizzle);
     }
-}
 }
 
 GrGLShaderBuilder::GrGLShaderBuilder(GrGLProgramBuilder* program)
@@ -97,10 +118,10 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             const char* coordName,
                                             GrSLType varyingType) const {
     append_texture_lookup(out,
-                          fProgramBuilder->gpu(),
+                          fProgramBuilder->glslCaps(),
                           fProgramBuilder->getUniformCStr(sampler.fSamplerUniform),
                           coordName,
-                          sampler.configComponentMask(),
+                          sampler.config(),
                           sampler.swizzle(),
                           varyingType);
 }
@@ -132,19 +153,6 @@ void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
         vars[i].appendDecl(fProgramBuilder->glslCaps(), out);
         out->append(";\n");
     }
-}
-
-void GrGLShaderBuilder::appendTextureLookup(const char* samplerName,
-                                            const char* coordName,
-                                            uint32_t configComponentMask,
-                                            const char* swizzle) {
-    append_texture_lookup(&this->code(),
-                          fProgramBuilder->gpu(),
-                          samplerName,
-                          coordName,
-                          configComponentMask,
-                          swizzle,
-                          kVec2f_GrSLType);
 }
 
 void GrGLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {

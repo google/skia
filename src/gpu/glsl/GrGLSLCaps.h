@@ -82,6 +82,15 @@ public:
         return fShaderDerivativeExtensionString;
     }
 
+    bool mustSwizzleInShader() const { return fMustSwizzleInShader; }
+
+    /**
+     * Returns a string which represents how to map from an internal GLFormat to a given
+     * GrPixelConfig. The function mustSwizzleInShader determines whether this swizzle is applied
+     * in the generated shader code or using sample state in the 3D API.
+     */
+    const char* getSwizzleMap(GrPixelConfig config) const { return fConfigSwizzle[config]; }
+
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
     /**
@@ -90,6 +99,8 @@ public:
     SkString dump() const override;
 
 private:
+    void onApplyOptionsOverrides(const GrContextOptions& options) override;
+
     GrGLSLGeneration fGLSLGeneration;
     
     bool fDropsTileOnZeroDivide : 1;
@@ -108,6 +119,9 @@ private:
     const char* fFBFetchExtensionString;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
+
+    bool        fMustSwizzleInShader;
+    const char* fConfigSwizzle[kGrPixelConfigCnt];
 
     friend class GrGLCaps;  // For initialization.
 

@@ -171,9 +171,6 @@ public:
      */
     bool bgraIsInternalFormat() const { return fBGRAIsInternalFormat; }
 
-    /// GL_ARB_texture_swizzle support
-    bool textureSwizzleSupport() const { return fTextureSwizzleSupport; }
-
     /// Is there support for GL_UNPACK_ROW_LENGTH
     bool unpackRowLengthSupport() const { return fUnpackRowLengthSupport; }
 
@@ -273,6 +270,8 @@ private:
     void initGLSL(const GrGLContextInfo&);
     bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
+    void onApplyOptionsOverrides(const GrContextOptions& options) override;
+
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
      * performing glCheckFrameBufferStatus for the same config.
@@ -323,6 +322,8 @@ private:
                                   const GrGLInterface* intf,
                                   GrGLSLCaps* glslCaps);
 
+    void initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps* glslCaps);
+
     // tracks configs that have been verified to pass the FBO completeness when
     // used as a color attachment
     VerifiedColorConfigs fVerifiedColorConfigs;
@@ -340,7 +341,6 @@ private:
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAIsInternalFormat : 1;
-    bool fTextureSwizzleSupport : 1;
     bool fUnpackRowLengthSupport : 1;
     bool fUnpackFlipYSupport : 1;
     bool fPackRowLengthSupport : 1;
