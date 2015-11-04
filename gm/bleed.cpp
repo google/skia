@@ -142,7 +142,7 @@ static void make_ringed_color_bitmap(SkBitmap* result, int width, int height) {
     result->setImmutable();
 }
 
-/** Makes a alpha bitmap with 1 wide rect/ring of 1s, an inset of 0s, and the interior is a 2x2
+/** Makes a alpha bitmap with 1 wide rect/ring of 0s, an inset of 1s, and the interior is a 2x2
     checker board of 3/4 and 1/2. The inner checkers are large enough to fill the interior with
     the 2x2 checker grid. */
 static void make_ringed_alpha_bitmap(SkBitmap* result, int width, int height) {
@@ -164,48 +164,48 @@ static void make_ringed_alpha_bitmap(SkBitmap* result, int width, int height) {
     scanline = result->getAddr8(0, 1);
     scanline[0] = kOne;
     for (int x = 1; x < width - 1; ++x) {
-        scanline[x] = kZero;
+        scanline[x] = kOne;
     }
-    scanline[width - 1] = kOne;
+    scanline[width - 1] = kZero;
 
     for (int y = 2; y < height / 2; ++y) {
         scanline = result->getAddr8(0, y);
-        scanline[0] = kOne;
-        scanline[1] = kZero;
+        scanline[0] = kZero;
+        scanline[1] = kOne;
         for (int x = 2; x < width / 2; ++x) {
             scanline[x] = k3Q;
         }
         for (int x = width / 2; x < width - 2; ++x) {
             scanline[x] = kHalf;
         }
-        scanline[width - 2] = kZero;
-        scanline[width - 1] = kOne;
+        scanline[width - 2] = kOne;
+        scanline[width - 1] = kZero;
     }
 
     for (int y = height / 2; y < height - 2; ++y) {
         scanline = result->getAddr8(0, y);
-        scanline[0] = kOne;
-        scanline[1] = kZero;
+        scanline[0] = kZero;
+        scanline[1] = kOne;
         for (int x = 2; x < width / 2; ++x) {
             scanline[x] = kHalf;
         }
         for (int x = width / 2; x < width - 2; ++x) {
             scanline[x] = k3Q;
         }
-        scanline[width - 2] = kZero;
-        scanline[width - 1] = kOne;
+        scanline[width - 2] = kOne;
+        scanline[width - 1] = kZero;
     }
 
     scanline = result->getAddr8(0, height - 2);
-    scanline[0] = kOne;
+    scanline[0] = kZero;
     for (int x = 1; x < width - 1; ++x) {
-        scanline[x] = kZero;
+        scanline[x] = kOne;
     }
-    scanline[width - 1] = kOne;
+    scanline[width - 1] = kZero;
 
     scanline = result->getAddr8(0, height - 1);
     for (int x = 0; x < width; ++x) {
-        scanline[x] = kOne;
+        scanline[x] = kZero;
     }
     result->setImmutable();
 }
