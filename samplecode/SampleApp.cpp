@@ -705,10 +705,35 @@ static bool compareSampleTitle(const SkViewFactory* first, const SkViewFactory* 
     return strcmp(getSampleTitle(first).c_str(), getSampleTitle(second).c_str()) < 0;
 }
 
+static int find_by_title(const SkViewFactory* const* factories, int count, const char title[]) {
+    for (int i = 0; i < count; i++) {
+        if (getSampleTitle(factories[i]).equals(title)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static void restrict_samples(SkTDArray<const SkViewFactory*>& factories, const SkString titles[],
+                             int count) {
+    int newCount = 0;
+    for (int i = 0; i < count; ++i) {
+        int index = find_by_title(factories.begin(), factories.count(), titles[i].c_str());
+        if (index >= 0) {
+            SkTSwap(factories.begin()[newCount], factories.begin()[index]);
+            newCount += 1;
+        }
+    }
+    if (newCount) {
+        factories.setCount(newCount);
+    }
+}
+
 DEFINE_string(slide, "", "Start on this sample.");
 DEFINE_int32(msaa, 0, "Request multisampling with this count.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
+DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
 DEFINE_bool(sort, false, "Sort samples by title.");
 DEFINE_bool(list, false, "List samples?");
 DEFINE_bool(gpu, false, "Start up with gpu?");
@@ -756,6 +781,25 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         while (reg) {
             *fSamples.append() = reg->factory();
             reg = reg->next();
+        }
+    }
+
+    if (!FLAGS_sequence.isEmpty()) {
+        // The sequence file just contains a list (separated by CRs) of the samples or GM:gms
+        // you want to restrict to. Only these will appear when you cycle through.
+        // If none are found, or the file is empty, then it will be ignored, and all samples
+        // will be available.
+        SkFILEStream stream(FLAGS_sequence[0]);
+        if (stream.isValid()) {
+            size_t len = stream.getLength();
+            SkAutoMalloc storage(len + 1);
+            char* buffer = (char*)storage.get();
+            stream.read(buffer, len);
+            buffer[len] = 0;
+
+            SkTArray<SkString> titles;
+            SkStrSplit(buffer, "\n\r", &titles);
+            restrict_samples(fSamples, titles.begin(), titles.count());
         }
     }
 
