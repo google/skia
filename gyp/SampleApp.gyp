@@ -31,6 +31,7 @@
         '../samplecode/ClockFaceView.cpp',
         '../samplecode/OverView.cpp',
         '../samplecode/OverView.h',
+        '../samplecode/PerlinPatch.cpp',
         '../samplecode/Sample2PtRadial.cpp',
         '../samplecode/SampleAAClip.cpp',
         '../samplecode/SampleAARects.cpp',
