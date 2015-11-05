@@ -400,7 +400,7 @@ const GrFragmentProcessor* SkBitmapProcShader::asFragmentProcessor(GrContext* co
         return nullptr;
     }
 
-    SkAutoTUnref<GrFragmentProcessor> inner;
+    SkAutoTUnref<const GrFragmentProcessor> inner;
     if (doBicubic) {
         inner.reset(GrBicubicEffect::Create(texture, matrix, tm));
     } else {
