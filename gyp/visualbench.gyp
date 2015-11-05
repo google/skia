@@ -45,7 +45,7 @@
         'views.gyp:views',
       ],
       'conditions' : [
-        [ 'skia_os == "android"', {
+        [ 'skia_os == "android" and skia_use_sdl == 0', {
           'dependencies': [
             'android_deps.gyp:Android_VisualBench',
             'android_deps.gyp:native_app_glue',

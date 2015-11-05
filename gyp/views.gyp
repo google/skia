@@ -9,9 +9,6 @@
 #  * Basic widgets and controls.
 
 {
-  'variables': {
-    'skia_use_sdl%': 0,
-  },
   'targets': [
     {
       'target_name': 'views',

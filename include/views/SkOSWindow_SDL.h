@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkOSWindow_SDL_DEFINED
 #define SkOSWindow_SDL_DEFINED
@@ -14,14 +12,14 @@
 #include "SDL_opengl.h"
 #include "SkWindow.h"
 
-
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void* screen);
     virtual ~SkOSWindow();
 
-    static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay) { SkFAIL("not implemented\n");
-    return false;
+    static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay) {
+        SkFAIL("not implemented\n");
+        return false;
     }
 
     enum SkBackEndTypes {
@@ -50,10 +48,13 @@ public:
 
 protected:
     void onSetTitle(const char title[]) override;
+    void onHandleInval(const SkIRect&) override;
+    void onPDFSaved(const char title[], const char desc[], const char path[]) override;
 
 private:
     void handleEvents();
     bool fQuit;
+    uint32_t fWindowFlags;
     SDL_Window* fWindow;
     SDL_GLContext fGLContext;
 

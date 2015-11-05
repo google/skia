@@ -16,6 +16,7 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '<(src_dir)/include',
+          '<(src_dir)/src',
         ]
       },
       'cflags': [
@@ -26,6 +27,11 @@
         ['skia_os == "linux"', {
           'includes': [
             'linux/sdl_linux.gypi',
+          ]
+        }],
+        ['skia_os == "android"', {
+          'includes': [
+            'android/sdl_android.gypi',
           ]
         }],
       ],
