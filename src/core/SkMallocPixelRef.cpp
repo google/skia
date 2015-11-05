@@ -48,9 +48,10 @@ SkMallocPixelRef* SkMallocPixelRef::NewDirect(const SkImageInfo& info,
 }
 
 
-SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
-                                                size_t requestedRowBytes,
-                                                SkColorTable* ctable) {
+ SkMallocPixelRef* SkMallocPixelRef::NewUsing(void*(*alloc)(size_t),
+                                              const SkImageInfo& info,
+                                              size_t requestedRowBytes,
+                                              SkColorTable* ctable) {
     if (!is_valid(info, ctable)) {
         return nullptr;
     }
@@ -78,12 +79,25 @@ SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
 
     size_t size = sk_64_asS32(bigSize);
     SkASSERT(size >= info.getSafeSize(rowBytes));
-    void* addr = sk_malloc_flags(size, 0);
+    void* addr = alloc(size);
     if (nullptr == addr) {
         return nullptr;
     }
 
     return new SkMallocPixelRef(info, addr, rowBytes, ctable, sk_free_releaseproc, nullptr);
+}
+
+SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
+                                                size_t rowBytes,
+                                                SkColorTable* ctable) {
+    auto sk_malloc_nothrow = [](size_t size) { return sk_malloc_flags(size, 0); };
+    return NewUsing(sk_malloc_nothrow, info, rowBytes, ctable);
+}
+
+SkMallocPixelRef* SkMallocPixelRef::NewZeroed(const SkImageInfo& info,
+                                              size_t rowBytes,
+                                              SkColorTable* ctable) {
+    return NewUsing(sk_calloc, info, rowBytes, ctable);
 }
 
 SkMallocPixelRef* SkMallocPixelRef::NewWithProc(const SkImageInfo& info,
@@ -200,4 +214,9 @@ size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
 SkPixelRef* SkMallocPixelRef::PRFactory::create(const SkImageInfo& info, size_t rowBytes,
                                                 SkColorTable* ctable) {
     return SkMallocPixelRef::NewAllocate(info, rowBytes, ctable);
+}
+
+SkPixelRef* SkMallocPixelRef::ZeroedPRFactory::create(const SkImageInfo& info, size_t rowBytes,
+                                                      SkColorTable* ctable) {
+    return SkMallocPixelRef::NewZeroed(info, rowBytes, ctable);
 }

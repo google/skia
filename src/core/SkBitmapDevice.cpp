@@ -8,6 +8,7 @@
 #include "SkBitmapDevice.h"
 #include "SkConfig8888.h"
 #include "SkDraw.h"
+#include "SkMallocPixelRef.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -94,12 +95,18 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         if (!bitmap.setInfo(info)) {
             return nullptr;
         }
-    } else {
+    } else if (bitmap.info().isOpaque()) {
+        // If this bitmap is opaque, we don't have any sensible default color,
+        // so we just return uninitialized pixels.
         if (!bitmap.tryAllocPixels(info)) {
             return nullptr;
         }
-        if (!bitmap.info().isOpaque()) {
-            bitmap.eraseColor(SK_ColorTRANSPARENT);
+    } else {
+        // This bitmap has transparency, so we'll zero the pixels (to transparent).
+        // We use a ZeroedPRFactory as a faster alloc-then-eraseColor(SK_ColorTRANSPARENT).
+        SkMallocPixelRef::ZeroedPRFactory factory;
+        if (!bitmap.tryAllocPixels(info, &factory, nullptr/*color table*/)) {
+            return nullptr;
         }
     }
 

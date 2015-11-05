@@ -43,6 +43,12 @@ public:
                                          size_t rowBytes, SkColorTable*);
 
     /**
+     *  Identical to NewAllocate, except all pixel bytes are zeroed.
+     */
+    static SkMallocPixelRef* NewZeroed(const SkImageInfo& info,
+                                       size_t rowBytes, SkColorTable*);
+
+    /**
      *  Return a new SkMallocPixelRef with the provided pixel storage,
      *  rowBytes, and optional colortable. On destruction, ReleaseProc
      *  will be called.
@@ -81,9 +87,12 @@ public:
 
     class PRFactory : public SkPixelRefFactory {
     public:
-        virtual SkPixelRef* create(const SkImageInfo&,
-                                   size_t rowBytes,
-                                   SkColorTable*) override;
+        SkPixelRef* create(const SkImageInfo&, size_t rowBytes, SkColorTable*) override;
+    };
+
+    class ZeroedPRFactory : public SkPixelRefFactory {
+    public:
+        SkPixelRef* create(const SkImageInfo&, size_t rowBytes, SkColorTable*) override;
     };
 
 protected:
@@ -97,6 +106,12 @@ protected:
     size_t getAllocatedSizeInBytes() const override;
 
 private:
+    // Uses alloc to implement NewAllocate or NewZeroed.
+    static SkMallocPixelRef* NewUsing(void*(*alloc)(size_t),
+                                      const SkImageInfo&,
+                                      size_t rowBytes,
+                                      SkColorTable*);
+
     void*           fStorage;
     SkColorTable*   fCTable;
     size_t          fRB;
