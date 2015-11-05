@@ -215,11 +215,12 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
                             dstHeight, y + 1);
                     return SkCodec::kIncompleteInput;
                 }
-                int linesToSkip = SkTMin(sampleY - 1, dstHeight - y - 1);
-                if (!fCodec->skipScanlines(linesToSkip)) {
-                    fCodec->fillIncompleteImage(info, pixels, rowBytes, options.fZeroInitialized,
-                            dstHeight, y + 1);
-                    return SkCodec::kIncompleteInput;
+                if (y < dstHeight - 1) {
+                    if (!fCodec->skipScanlines(sampleY - 1)) {
+                        fCodec->fillIncompleteImage(info, pixels, rowBytes,
+                                options.fZeroInitialized, dstHeight, y + 1);
+                        return SkCodec::kIncompleteInput;
+                    }
                 }
                 pixelPtr = SkTAddOffset<void>(pixelPtr, rowBytes);
             }
