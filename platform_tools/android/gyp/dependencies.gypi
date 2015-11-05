@@ -14,6 +14,9 @@
 # tested.
 
 {
+  'variables': {
+    'skia_warnings_as_errors': 0,
+  },
   'targets': [
     {
       'target_name': 'native_app_glue',

@@ -238,7 +238,6 @@
     'skia_moz2d%': 0,
     'skia_is_bot%': '<(skia_is_bot)',
     'skia_egl%': '<(skia_egl)',
-    'skia_use_sdl%': 0,
     'skia_fast%': 0,
     'skia_fast_flags': [
         '-O3',                   # Even for Debug builds.

@@ -127,7 +127,7 @@ private:
 #elif defined(SK_BUILD_FOR_ANDROID)
     #include "SkOSWindow_Android.h"
 #elif defined(SK_BUILD_FOR_UNIX)
-    #include "SkOSWindow_Unix.h"
+  #include "SkOSWindow_Unix.h"
 #elif defined(SK_BUILD_FOR_IOS)
     #include "SkOSWindow_iOS.h"
 #endif
