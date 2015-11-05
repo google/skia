@@ -893,7 +893,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
         return false;
     }
 
-    drawContext->drawNonAARectWithLocalMatrix(clip, *grp, SkMatrix::I(), rect, inverse);
+    drawContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(), rect, inverse);
     return true;
 }
 
@@ -1174,7 +1174,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrTextureProvider* texProvid
         return false;
     }
 
-    drawContext->drawNonAARectWithLocalMatrix(clip, *grp, SkMatrix::I(), proxyRect, inverse);
+    drawContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(), proxyRect, inverse);
     return true;
 }
 

@@ -322,11 +322,11 @@ void GrDrawContext::drawRect(const GrClip& clip,
     }
 }
 
-void GrDrawContext::drawNonAARectToRect(const GrClip& clip,
-                                        const GrPaint& paint,
-                                        const SkMatrix& viewMatrix,
-                                        const SkRect& rectToDraw,
-                                        const SkRect& localRect) {
+void GrDrawContext::fillRectToRect(const GrClip& clip,
+                                   const GrPaint& paint,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rectToDraw,
+                                   const SkRect& localRect) {
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -340,11 +340,11 @@ void GrDrawContext::drawNonAARectToRect(const GrClip& clip,
                                          localRect);
 }
 
-void GrDrawContext::drawNonAARectWithLocalMatrix(const GrClip& clip,
-                                                 const GrPaint& paint,
-                                                 const SkMatrix& viewMatrix,
-                                                 const SkRect& rectToDraw,
-                                                 const SkMatrix& localMatrix) {
+void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
+                                            const GrPaint& paint,
+                                            const SkMatrix& viewMatrix,
+                                            const SkRect& rectToDraw,
+                                            const SkMatrix& localMatrix) {
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 

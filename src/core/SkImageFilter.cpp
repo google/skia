@@ -380,7 +380,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
 
         SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
         if (drawContext) {
-            drawContext->drawNonAARectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+            drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
             WrapTexture(dst, bounds.width(), bounds.height(), result);
             return true;

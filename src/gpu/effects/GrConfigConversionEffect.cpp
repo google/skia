@@ -231,11 +231,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             break;
         }
 
-        readDrawContext->drawNonAARectToRect(GrClip::WideOpen(),
-                                             paint1,
-                                             SkMatrix::I(),
-                                             kDstRect,
-                                             kSrcRect);
+        readDrawContext->fillRectToRect(GrClip::WideOpen(),
+                                        paint1,
+                                        SkMatrix::I(),
+                                        kDstRect,
+                                        kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
@@ -247,11 +247,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             failed = true;
             break;
         }
-        tempDrawContext->drawNonAARectToRect(GrClip::WideOpen(),
-                                             paint2,
-                                             SkMatrix::I(),
-                                             kDstRect,
-                                             kSrcRect);
+        tempDrawContext->fillRectToRect(GrClip::WideOpen(),
+                                        paint2,
+                                        SkMatrix::I(),
+                                        kDstRect,
+                                        kSrcRect);
 
         paint3.addColorFragmentProcessor(pmToUPM2);
 
@@ -261,11 +261,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             break;
         }
 
-        readDrawContext->drawNonAARectToRect(GrClip::WideOpen(),
-                                             paint3,
-                                             SkMatrix::I(),
-                                             kDstRect,
-                                             kSrcRect);
+        readDrawContext->fillRectToRect(GrClip::WideOpen(),
+                                        paint3,
+                                        SkMatrix::I(),
+                                        kDstRect,
+                                        kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);
 

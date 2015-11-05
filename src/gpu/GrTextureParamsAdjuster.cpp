@@ -114,7 +114,7 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     }
 
     SkRect dstRect = SkRect::MakeWH(SkIntToScalar(rtDesc.fWidth), SkIntToScalar(rtDesc.fHeight));
-    drawContext->drawNonAARectToRect(GrClip::WideOpen(), paint, SkMatrix::I(), dstRect, localRect);
+    drawContext->fillRectToRect(GrClip::WideOpen(), paint, SkMatrix::I(), dstRect, localRect);
     return copy.detach();
 }
 

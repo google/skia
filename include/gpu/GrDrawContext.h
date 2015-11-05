@@ -111,27 +111,27 @@ public:
                   const GrStrokeInfo* strokeInfo = NULL);
 
     /**
-     * Maps a rectangle of shader coordinates to a rectangle and draws that rectangle
+     * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
      *
      * @param paint         describes how to color pixels.
      * @param viewMatrix    transformation matrix which applies to rectToDraw
      * @param rectToDraw    the rectangle to draw
      * @param localRect     the rectangle of shader coordinates applied to rectToDraw
      */
-    void drawNonAARectToRect(const GrClip&,
-                             const GrPaint& paint,
-                             const SkMatrix& viewMatrix,
-                             const SkRect& rectToDraw,
-                             const SkRect& localRect);
+    void fillRectToRect(const GrClip&,
+                        const GrPaint& paint,
+                        const SkMatrix& viewMatrix,
+                        const SkRect& rectToDraw,
+                        const SkRect& localRect);
 
     /**
-     * Draws a non-AA rect with paint and a localMatrix
+     * Fills a rect with a paint and a localMatrix.
      */
-    void drawNonAARectWithLocalMatrix(const GrClip& clip,
-                                      const GrPaint& paint,
-                                      const SkMatrix& viewMatrix,
-                                      const SkRect& rect,
-                                      const SkMatrix& localMatrix);
+    void fillRectWithLocalMatrix(const GrClip& clip,
+                                 const GrPaint& paint,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRect& rect,
+                                 const SkMatrix& localMatrix);
 
     /**
      *  Draw a roundrect using a paint.

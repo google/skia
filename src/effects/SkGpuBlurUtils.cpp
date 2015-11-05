@@ -60,7 +60,7 @@ static void convolve_gaussian_1d(GrDrawContext* drawContext,
         texture, direction, radius, sigma, useBounds, bounds));
     paint.addColorFragmentProcessor(conv);
     SkMatrix localMatrix = SkMatrix::MakeTrans(srcOffset.x(), srcOffset.y());
-    drawContext->drawNonAARectWithLocalMatrix(clip, paint, SkMatrix::I(), dstRect, localMatrix);
+    drawContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(), dstRect, localMatrix);
 }
 
 static void convolve_gaussian_2d(GrDrawContext* drawContext,
@@ -83,7 +83,7 @@ static void convolve_gaussian_2d(GrDrawContext* drawContext,
             useBounds ? GrTextureDomain::kClamp_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(conv);
-    drawContext->drawNonAARectWithLocalMatrix(clip, paint, SkMatrix::I(), dstRect, localMatrix);
+    drawContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(), dstRect, localMatrix);
 }
 
 static void convolve_gaussian(GrDrawContext* drawContext,
@@ -222,7 +222,7 @@ GrTexture* GaussianBlur(GrContext* context,
         if (!dstDrawContext) {
             return nullptr;
         }
-        dstDrawContext->drawNonAARectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+        dstDrawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
         srcDrawContext.swap(dstDrawContext);
         srcRect = dstRect;
@@ -345,7 +345,7 @@ GrTexture* GaussianBlur(GrContext* context,
         if (!dstDrawContext) {
             return nullptr;
         }
-        dstDrawContext->drawNonAARectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+        dstDrawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
         srcDrawContext.swap(dstDrawContext);
         srcRect = dstRect;

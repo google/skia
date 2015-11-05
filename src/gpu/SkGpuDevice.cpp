@@ -1384,7 +1384,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         // matrices directly on the texture processor.
         fDrawContext->drawRect(fClip, grPaint, viewMatrix, dstRect);
     } else {
-        fDrawContext->drawNonAARectToRect(fClip, grPaint, viewMatrix, dstRect, paintRect);
+        fDrawContext->fillRectToRect(fClip, grPaint, viewMatrix, dstRect, paintRect);
     }
 }
 
@@ -1466,17 +1466,17 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
-    fDrawContext->drawNonAARectToRect(fClip,
-                                      grPaint,
-                                      SkMatrix::I(),
-                                      SkRect::MakeXYWH(SkIntToScalar(left),
-                                                       SkIntToScalar(top),
-                                                       SkIntToScalar(w),
-                                                       SkIntToScalar(h)),
-                                      SkRect::MakeXYWH(0,
-                                                       0,
-                                                       SK_Scalar1 * w / texture->width(),
-                                                       SK_Scalar1 * h / texture->height()));
+    fDrawContext->fillRectToRect(fClip,
+                                 grPaint,
+                                 SkMatrix::I(),
+                                 SkRect::MakeXYWH(SkIntToScalar(left),
+                                                  SkIntToScalar(top),
+                                                  SkIntToScalar(w),
+                                                  SkIntToScalar(h)),
+                                 SkRect::MakeXYWH(0,
+                                                  0,
+                                                  SK_Scalar1 * w / texture->width(),
+                                                  SK_Scalar1 * h / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
@@ -1596,7 +1596,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     SkRect srcRect = SkRect::MakeWH(SK_Scalar1 * w / devTex->width(),
                                     SK_Scalar1 * h / devTex->height());
 
-    fDrawContext->drawNonAARectToRect(fClip, grPaint, SkMatrix::I(), dstRect, srcRect);
+    fDrawContext->fillRectToRect(fClip, grPaint, SkMatrix::I(), dstRect, srcRect);
 }
 
 bool SkGpuDevice::canHandleImageFilter(const SkImageFilter* filter) {

@@ -42,7 +42,7 @@ static bool draw_mask(GrDrawContext* drawContext,
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    drawContext->drawNonAARectWithLocalMatrix(clip, *grp, SkMatrix::I(), maskRect, inverse);
+    drawContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(), maskRect, inverse);
     return true;
 }
 

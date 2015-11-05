@@ -477,7 +477,7 @@ void apply_morphology_rect(GrDrawContext* drawContext,
                                                                radius,
                                                                morphType,
                                                                bounds))->unref();
-    drawContext->drawNonAARectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
+    drawContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                      SkRect::Make(srcRect));
 }
 
@@ -494,8 +494,8 @@ void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
                                                                direction,
                                                                radius,
                                                                morphType))->unref();
-    drawContext->drawNonAARectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
-                                     SkRect::Make(srcRect));
+    drawContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
+                                SkRect::Make(srcRect));
 }
 
 void apply_morphology_pass(GrDrawContext* drawContext,
