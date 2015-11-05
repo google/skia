@@ -692,9 +692,11 @@ bool SkOSWindow::makeFullscreen() {
     if (fFullscreen) {
         return true;
     }
+#if SK_SUPPORT_GPU
     if (fHGLRC) {
         this->detachGL();
     }
+#endif // SK_SUPPORT_GPU
     // This is hacked together from various sources on the web. It can certainly be improved and be
     // made more robust.
 
