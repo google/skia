@@ -187,6 +187,7 @@
           'action_name': 'SkiaVisualBench_apk',
           'inputs': [
             '<(android_base)/apps/visualbench/src/main/AndroidManifest.xml',
+            '<(android_base)/apps/visualbench/src/main/java/org/libsdl/app/SDLActivity.java',
             '<(android_base)/apps/visualbench/src/main/java/com/skia/VisualBenchActivity.java',
             '<(android_base)/apps/visualbench/src/main/java/com/skia/VisualBenchTestActivity.java',
             '<(android_base)/apps/visualbench/src/main/libs/<(android_arch)/libvisualbench.so',
@@ -205,6 +206,72 @@
             '<(android_base)/apps/gradlew',
             ':visualbench:assemble<(android_variant)DebugAndroidTest',
             '-p<(android_base)/apps/visualbench',
+            '-PsuppressNativeBuild',
+          ],
+        },
+      ],
+    },
+    # TODO all of this duplicated code can be removed when SDL becomes the default
+    # Currently, to use this you have to override skia_use_sdl
+    {
+      'target_name': 'CopyVisualBenchSDLDeps',
+      'type': 'none',
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'visualbench.gyp:visualbench',
+      ],
+
+      'copies': [
+        # Copy all shared libraries into the Android app's libs folder.  Note
+        # that this copy requires us to build SkiaAndroidApp after those
+        # libraries, so that they exist by the time it occurs.  If there are no
+        # libraries to copy, this will cause an error in Make, but the app will
+        # still build.
+        {
+          'destination': '<(android_base)/apps/visualbenchsdl/src/main/libs/<(android_arch)',
+          'conditions': [
+            [ 'skia_shared_lib', {
+              'files': [
+                '<(SHARED_LIB_DIR)/libskia_android.so',
+                '<(SHARED_LIB_DIR)/libvisualbench.so',
+              ]}, {
+              'files': [
+                '<(SHARED_LIB_DIR)/libvisualbench.so',
+             ]}
+           ],
+          ],
+        },
+      ],
+    },
+    {
+      'target_name': 'VisualBenchSDL_APK',
+      'type': 'none',
+      'dependencies': [
+        'CopyVisualBenchSDLDeps',
+      ],
+      'actions': [
+        {
+          'action_name': 'SkiaVisualBenchSDL_apk',
+          'inputs': [
+            '<(android_base)/apps/visualbenchsdl/src/main/AndroidManifest.xml',
+            '<(android_base)/apps/visualbenchsdl/src/main/java/org/libsdl/app/SDLActivity.java',
+            '<(android_base)/apps/visualbenchsdl/src/main/java/com/skia/VisualBenchActivity.java',
+            '<(android_base)/apps/visualbenchsdl/src/main/libs/<(android_arch)/libvisualbench.so',
+          ],
+          'conditions': [
+            [ 'skia_shared_lib', {
+              'inputs': [
+                '<(android_base)/apps/visualbenchsdl/src/main/libs/<(android_arch)/libskia_android.so',
+              ],
+            }],
+          ],
+          'outputs': [
+            '<(android_base)/apps/visualbenchsdl/build/outputs/apk/visualbench-<(android_variant)-<(android_apk_suffix)',
+          ],
+          'action': [
+            '<(android_base)/apps/gradlew',
+            ':visualbenchsdl:assemble<(android_variant)<(android_buildtype)',
+            '-p<(android_base)/apps/visualbenchsdl',
             '-PsuppressNativeBuild',
           ],
         },

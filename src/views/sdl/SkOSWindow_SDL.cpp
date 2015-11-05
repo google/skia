@@ -7,7 +7,11 @@
 #include "SkOSWindow_SDL.h"
 #include "SkCanvas.h"
 
+#if defined(SK_BUILD_FOR_ANDROID)
+#include <GLES/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -19,17 +23,50 @@ static void handle_error() {
 }
 
 SkOSWindow::SkOSWindow(void* screen) : fQuit(false) , fGLContext(nullptr) {
-    //Create window
-    SDL_Init(SDL_INIT_VIDEO|SDL_INIT_GAMECONTROLLER|SDL_INIT_EVENTS);
-    fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               SCREEN_WIDTH, SCREEN_HEIGHT,
-                               SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN );
+#if defined(SK_BUILD_FOR_ANDROID)
+    // TODO we should try and get a 3.0 context first
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    fWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
+                   SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP |
+                   SDL_WINDOW_ALLOW_HIGHDPI;
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_StartTextInput();
+
+    fWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+#endif
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+        handle_error();
+        return;
+    }
+
+    SDL_DisplayMode dm;
+    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+        handle_error();
+        return;
+    }
+
+    fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                               dm.w, dm.h, fWindowFlags);
+
     if (!fWindow) {
         handle_error();
         return;
     }
-    SDL_StartTextInput();
-    this->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    this->resize(SkIntToScalar(dm.w), SkIntToScalar(dm.h));
 }
 
 SkOSWindow::~SkOSWindow() {
@@ -49,21 +86,31 @@ void SkOSWindow::detach() {
         SDL_GL_DeleteContext(fGLContext);
         fGLContext = nullptr;
     }
+
+#if defined(SK_BUILD_FOR_ANDROID)
+    if (fWindow) {
+        // Destroy window
+        // Not totally sure why, but we have to do this or swapbuffers will hang
+        SDL_DestroyWindow(fWindow);
+        fWindow = nullptr;
+    }
+#endif
 }
 
-bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo*) {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info) {
+    if (!fWindow) {
+        fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                   SCREEN_WIDTH, SCREEN_HEIGHT,
+                                   fWindowFlags);
+    }
 
     if (msaaSampleCount > 0) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaaSampleCount);
     }
+
+    info->fSampleCount = msaaSampleCount;
+    info->fStencilBits = 8;
 
     fGLContext = SDL_GL_CreateContext(fWindow);
     if (!fGLContext) {
@@ -77,7 +124,7 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, Attachme
         return false;
     }
 
-    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glViewport(0, 0, SkScalarFloorToInt(this->width()), SkScalarFloorToInt(this->height()));
     glClearColor(1, 1, 1, 1);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -209,14 +256,23 @@ void SkEvent::SignalQueueTimer(SkMSec delay) {
     // just need to record the delay time. We handle waking up for it in
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+void SkOSWindow::onHandleInval(const SkIRect& rect) {
+}
 
+void SkOSWindow::onPDFSaved(const char title[], const char desc[], const char path[]) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SkApplication.h"
 #include "SkEvent.h"
 #include "SkWindow.h"
 
-int main(int argc, char** argv){
+#if defined(SK_BUILD_FOR_ANDROID)
+int SDL_main(int argc, char** argv) {
+#else
+int main(int argc, char** argv) {
+#endif
     SkOSWindow* window = create_sk_window(nullptr, argc, argv);
 
     // drain any events that occurred before |window| was assigned.
