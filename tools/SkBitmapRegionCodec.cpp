@@ -9,6 +9,7 @@
 #include "SkAndroidCodec.h"
 #include "SkCodecPriv.h"
 #include "SkCodecTools.h"
+#include "SkPixelRef.h"
 
 SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
     : INHERITED(codec->getInfo().width(), codec->getInfo().height())
@@ -93,7 +94,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* al
         scaledOutHeight += scaledOutY + scaledExtraY;
     }
     SkImageInfo outInfo = decodeInfo.makeWH(scaledOutWidth, scaledOutHeight);
-    bitmap->setInfo(outInfo, outInfo.minRowBytes());
+    bitmap->setInfo(outInfo);
     if (!bitmap->tryAllocPixels(allocator, colorTable.get())) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
         return false;
@@ -119,7 +120,14 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* al
     options.fColorPtr = colorPtr;
     options.fColorCount = colorCountPtr;
     void* dst = bitmap->getAddr(scaledOutX, scaledOutY);
-    size_t rowBytes = bitmap->rowBytes();
+
+    // FIXME: skbug.com/4538
+    // It is important that we use the rowBytes on the pixelRef.  They may not be
+    // set properly on the bitmap.
+    SkPixelRef* pr = SkRef(bitmap->pixelRef());
+    size_t rowBytes = pr->rowBytes();
+    bitmap->setInfo(outInfo, rowBytes);
+    bitmap->setPixelRef(pr)->unref();
     SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, rowBytes, &options);
     if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
         SkCodecPrintf("Error: Could not get pixels.\n");
