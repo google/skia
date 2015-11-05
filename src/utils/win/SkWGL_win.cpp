@@ -126,6 +126,9 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                   int formatCount,
                                   HDC dc,
                                   int desiredSampleCount) const {
+    if (formatCount <= 0) {
+        return -1;
+    }
     PixelFormat desiredFormat = {
         0,
         desiredSampleCount,
