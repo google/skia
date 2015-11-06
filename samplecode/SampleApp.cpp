@@ -1847,6 +1847,10 @@ void SampleWindow::toggleFPS() {
 }
 
 void SampleWindow::toggleDistanceFieldFonts() {
+    // reset backend
+    fDevManager->tearDownBackend(this);
+    fDevManager->setUpBackend(this, fMSAASampleCount);
+
     SkSurfaceProps props = this->getSurfaceProps();
     uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
     this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));

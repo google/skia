@@ -11,10 +11,12 @@
 #include "GrBatchAtlas.h"
 #include "GrBatchFontCache.h"
 #include "GrContextOptions.h"
+#include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrResourceCache.h"
 #include "GrTextBlobCache.h"
+#include "SkGrPriv.h"
 #include "SkString.h"
 
 namespace GrTest {
@@ -95,6 +97,35 @@ void GrContext::printGpuStats() const {
     SkString out;
     this->dumpGpuStats(&out);
     SkDebugf("%s", out.c_str());
+}
+
+void GrContext::drawFontCache(const SkRect& rect, GrMaskFormat format, const SkPaint& paint,
+                              GrRenderTarget* target) {
+    GrBatchFontCache* cache = this->getBatchFontCache();
+
+    GrTexture* atlas = cache->getTexture(format);
+
+    SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(target));
+    // TODO: add drawContext method to encapsulate this.
+
+    GrPaint grPaint;
+    SkMatrix mat;
+    mat.reset();
+    if (!SkPaintToGrPaint(this, paint, mat, &grPaint)) {
+        return;
+    }
+    SkMatrix textureMat;
+    textureMat.reset();
+    // TODO: use setScaleTranslate()
+    textureMat[SkMatrix::kMScaleX] = 1.0f/rect.width();
+    textureMat[SkMatrix::kMScaleY] = 1.0f/rect.height();
+    textureMat[SkMatrix::kMTransX] = -rect.fLeft/rect.width();
+    textureMat[SkMatrix::kMTransY] = -rect.fTop/rect.height();
+
+    grPaint.addColorTextureProcessor(atlas, textureMat);
+
+    GrClip clip;
+    drawContext->drawRect(clip, grPaint, mat, rect);
 }
 
 #if GR_GPU_STATS
