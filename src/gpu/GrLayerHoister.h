@@ -33,6 +33,13 @@ public:
 //  UnlockLayers should be called once to allow the texture resources to be recycled
 class GrLayerHoister {
 public:
+    /** Attempt to reattach layers that may have been atlased in the past
+     */
+    static void Begin(GrContext* context);
+
+    /** Release cache resources
+     */
+    static void End(GrContext* context);
 
     /** Find the layers in 'topLevelPicture' that can be atlased. Note that the discovered
         layers can be inside nested sub-pictures.

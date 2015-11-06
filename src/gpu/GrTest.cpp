@@ -109,47 +109,27 @@ void GrGpu::Stats::dump(SkString* out) {
 #endif
 
 #if GR_CACHE_STATS
+void GrResourceCache::getStats(Stats* stats) const {
+    stats->reset();
+
+    stats->fTotal = this->getResourceCount();
+    stats->fNumNonPurgeable = fNonpurgeableResources.count();
+    stats->fNumPurgeable = fPurgeableQueue.count();
+
+    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        stats->update(fNonpurgeableResources[i]);
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        stats->update(fPurgeableQueue.at(i));
+    }
+}
+
 void GrResourceCache::dumpStats(SkString* out) const {
     this->validate();
 
-    int locked = fNonpurgeableResources.count();
-
-    struct Stats {
-        int fScratch;
-        int fExternal;
-        int fBorrowed;
-        int fAdopted;
-        size_t fUnbudgetedSize;
-
-        Stats() : fScratch(0), fExternal(0), fBorrowed(0), fAdopted(0), fUnbudgetedSize(0) {}
-
-        void update(GrGpuResource* resource) {
-            if (resource->cacheAccess().isScratch()) {
-                ++fScratch;
-            }
-            if (resource->cacheAccess().isExternal()) {
-                ++fExternal;
-            }
-            if (resource->cacheAccess().isBorrowed()) {
-                ++fBorrowed;
-            }
-            if (resource->cacheAccess().isAdopted()) {
-                ++fAdopted;
-            }
-            if (!resource->resourcePriv().isBudgeted()) {
-                fUnbudgetedSize += resource->gpuMemorySize();
-            }
-        }
-    };
-
     Stats stats;
 
-    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
-        stats.update(fNonpurgeableResources[i]);
-    }
-    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
-        stats.update(fPurgeableQueue.at(i));
-    }
+    this->getStats(&stats);
 
     float countUtilization = (100.f * fBudgetedCount) / fMaxCount;
     float byteUtilization = (100.f * fBudgetedBytes) / fMaxBytes;
@@ -157,8 +137,9 @@ void GrResourceCache::dumpStats(SkString* out) const {
     out->appendf("Budget: %d items %d bytes\n", fMaxCount, (int)fMaxBytes);
     out->appendf("\t\tEntry Count: current %d"
                  " (%d budgeted, %d external(%d borrowed, %d adopted), %d locked, %d scratch %.2g%% full), high %d\n",
-                 this->getResourceCount(), fBudgetedCount, stats.fExternal, stats.fBorrowed,
-                 stats.fAdopted, locked, stats.fScratch, countUtilization, fHighWaterCount);
+                 stats.fTotal, fBudgetedCount, stats.fExternal, stats.fBorrowed,
+                 stats.fAdopted, stats.fNumNonPurgeable, stats.fScratch, countUtilization,
+                 fHighWaterCount);
     out->appendf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
                  SkToInt(fBytes), SkToInt(fBudgetedBytes), byteUtilization,
                  SkToInt(stats.fUnbudgetedSize), SkToInt(fHighWaterBytes));

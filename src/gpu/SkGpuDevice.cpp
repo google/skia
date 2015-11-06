@@ -1986,6 +1986,8 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
 
     SkMatrix initialMatrix = mainCanvas->getTotalMatrix();
 
+    GrLayerHoister::Begin(fContext);
+
     GrLayerHoister::FindLayersToAtlas(fContext, mainPicture,
                                       initialMatrix,
                                       clipBounds,
@@ -2014,6 +2016,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* mainCanvas, const SkPicture
     GrLayerHoister::UnlockLayers(fContext, recycled);
     GrLayerHoister::UnlockLayers(fContext, atlasedNeedRendering);
     GrLayerHoister::UnlockLayers(fContext, atlasedRecycled);
+    GrLayerHoister::End(fContext);
 
     return true;
 #else
