@@ -143,17 +143,15 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
         static const char* kTempName = "tmpXYFragCoord";
         static const char* kCoordName = "fragCoordYDown";
         if (!fSetupFragPosition) {
-            // temporarily change the stage index because we're inserting non-stage code.
-            GrGLProgramBuilder::AutoStageRestore asr(fProgramBuilder);
             SkASSERT(!fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
             const char* rtHeightName;
 
             fProgramBuilder->fUniformHandles.fRTHeightUni =
-                    fProgramBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                kFloat_GrSLType,
-                                                kDefault_GrSLPrecision,
-                                                "RTHeight",
-                                                &rtHeightName);
+                    fProgramBuilder->addFragPosUniform(GrGLProgramBuilder::kFragment_Visibility,
+                                                       kFloat_GrSLType,
+                                                       kDefault_GrSLPrecision,
+                                                       "RTHeight",
+                                                       &rtHeightName);
 
             // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
             // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,

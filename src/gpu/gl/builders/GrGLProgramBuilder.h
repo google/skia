@@ -68,7 +68,11 @@ public:
         GrSLPrecision precision,
         const char* name,
         int arrayCount,
-        const char** outName = nullptr) = 0;
+        const char** outName = nullptr) {
+        return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
+                                             outName);
+    }
+
 
     virtual const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const = 0;
 
@@ -86,6 +90,15 @@ public:
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
      */
+private:
+    virtual UniformHandle internalAddUniformArray(
+        uint32_t visibility,
+        GrSLType type,
+        GrSLPrecision precision,
+        const char* name,
+        bool mangleName,
+        int arrayCount,
+        const char** outName) = 0;
 };
 
 // TODO move this into GrGLGPBuilder and move them both out of this file
@@ -239,13 +252,6 @@ public:
      */
     static GrGLProgram* CreateProgram(const DrawArgs&, GrGLGpu*);
 
-    UniformHandle addUniformArray(uint32_t visibility,
-                                  GrSLType type,
-                                  GrSLPrecision precision,
-                                  const char* name,
-                                  int arrayCount,
-                                  const char** outName) override;
-
     const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }
@@ -298,10 +304,29 @@ protected:
     const GrProgramDesc& desc() const { return *fArgs.fDesc; }
     const GrProgramDesc::KeyHeader& header() const { return fArgs.fDesc->header(); }
 
+    UniformHandle internalAddUniformArray(uint32_t visibility,
+                                          GrSLType type,
+                                          GrSLPrecision precision,
+                                          const char* name,
+                                          bool mangleName,
+                                          int arrayCount,
+                                          const char** outName) override;
+
+    // Used to add a uniform for frag position without mangling the name of the uniform inside of a
+    // stage.
+    UniformHandle addFragPosUniform(uint32_t visibility,
+                                    GrSLType type,
+                                    GrSLPrecision precision,
+                                    const char* name,
+                                    const char** outName) {
+        SkDebugf("in my frag pos thing\n");
+        return this->internalAddUniformArray(visibility, type, precision, name, false, 0, outName);
+    }
+
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
-    // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
-    // generating stage code.
-    void nameVariable(SkString* out, char prefix, const char* name);
+    // char (unless the prefix is '\0'). It also will mangle the name to be stage-specific unless
+    // explicitly asked not to.
+    void nameVariable(SkString* out, char prefix, const char* name, bool mangle = true);
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     // If GrGLSLExpr4 has a valid name then it will use that instead
     void nameExpression(GrGLSLExpr4*, const char* baseName);
@@ -356,22 +381,11 @@ protected:
     // stage offset for variable name mangling, and also ensures verfication variables in the
     // fragment shader are cleared.
     void reset() {
-        this->enterStage();
         this->addStage();
         fFS.reset();
     }
     void addStage() { fStageIndex++; }
 
-    // This simple class exits the stage and then restores the stage when it goes out of scope
-    class AutoStageRestore {
-    public:
-        AutoStageRestore(GrGLProgramBuilder* pb)
-            : fPB(pb), fOutOfStage(pb->fOutOfStage) { pb->exitStage(); }
-        ~AutoStageRestore() { fPB->fOutOfStage = fOutOfStage; }
-    private:
-        GrGLProgramBuilder* fPB;
-        bool fOutOfStage;
-    };
     class AutoStageAdvance {
     public:
         AutoStageAdvance(GrGLProgramBuilder* pb)
@@ -380,12 +394,10 @@ protected:
             // Each output to the fragment processor gets its own code section
             fPB->fFS.nextStage();
         }
-        ~AutoStageAdvance() { fPB->exitStage(); }
+        ~AutoStageAdvance() {}
     private:
         GrGLProgramBuilder* fPB;
     };
-    void exitStage() { fOutOfStage = true; }
-    void enterStage() { fOutOfStage = false; }
     int stageIndex() const { return fStageIndex; }
 
     const char* rtAdjustment() const { return "rtAdjustment"; }
@@ -397,7 +409,6 @@ protected:
     GrGLVertexBuilder fVS;
     GrGLGeometryBuilder fGS;
     GrGLFragmentShaderBuilder fFS;
-    bool fOutOfStage;
     int fStageIndex;
 
     GrGLInstalledGeoProc* fGeometryProcessor;

@@ -56,7 +56,6 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
     : fVS(this)
     , fGS(this)
     , fFS(this, args.fDesc->header().fFragPosKey)
-    , fOutOfStage(true)
     , fStageIndex(-1)
     , fGeometryProcessor(nullptr)
     , fXferProcessor(nullptr)
@@ -107,13 +106,13 @@ GrGLProgramBuilder::SeparableVaryingHandle GrGLProgramBuilder::addSeparableVaryi
     return SeparableVaryingHandle(varyingInfo.fLocation);
 }
 
-void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name) {
+void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name, bool mangle) {
     if ('\0' == prefix) {
         *out = name;
     } else {
         out->printf("%c%s", prefix, name);
     }
-    if (!fOutOfStage) {
+    if (mangle) {
         if (out->endsWith('_')) {
             // Names containing "__" are reserved.
             out->append("x");
@@ -122,11 +121,12 @@ void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* na
     }
 }
 
-GrGLSLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(
+GrGLSLProgramDataManager::UniformHandle GrGLProgramBuilder::internalAddUniformArray(
                                                                 uint32_t visibility,
                                                                 GrSLType type,
                                                                 GrSLPrecision precision,
                                                                 const char* name,
+                                                                bool mangleName,
                                                                 int count,
                                                                 const char** outName) {
     SkASSERT(name && strlen(name));
@@ -148,7 +148,7 @@ GrGLSLProgramDataManager::UniformHandle GrGLProgramBuilder::addUniformArray(
     if ('u' == name[0]) {
         prefix = '\0';
     }
-    this->nameVariable(uni.fVariable.accessName(), prefix, name);
+    this->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);
     uni.fVariable.setArrayCount(count);
     uni.fVisibility = visibility;
     uni.fVariable.setPrecision(precision);
