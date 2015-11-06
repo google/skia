@@ -59,12 +59,36 @@ static void fill_stream(SkWStream* out, char value, size_t n) {
     out->write(buffer, n % sizeof(buffer));
 }
 
+// TODO(reed@): Decide if these five functions belong in SkColorPriv.h
+static bool SkIsBGRA(SkColorType ct) {
+    SkASSERT(kBGRA_8888_SkColorType == ct || kRGBA_8888_SkColorType == ct);
+    return kBGRA_8888_SkColorType == ct;
+}
+
+// Interpret value as the given 4-byte SkColorType (BGRA_8888 or
+// RGBA_8888) and return the appropriate component.  Each component
+// should be interpreted according to the associated SkAlphaType and
+// SkColorProfileType.
+static U8CPU SkGetA32Component(uint32_t value, SkColorType ct) {
+    return (value >> (SkIsBGRA(ct) ? SK_BGRA_A32_SHIFT : SK_RGBA_A32_SHIFT)) & 0xFF;
+}
+static U8CPU SkGetR32Component(uint32_t value, SkColorType ct) {
+    return (value >> (SkIsBGRA(ct) ? SK_BGRA_R32_SHIFT : SK_RGBA_R32_SHIFT)) & 0xFF;
+}
+static U8CPU SkGetG32Component(uint32_t value, SkColorType ct) {
+    return (value >> (SkIsBGRA(ct) ? SK_BGRA_G32_SHIFT : SK_RGBA_G32_SHIFT)) & 0xFF;
+}
+static U8CPU SkGetB32Component(uint32_t value, SkColorType ct) {
+    return (value >> (SkIsBGRA(ct) ? SK_BGRA_B32_SHIFT : SK_RGBA_B32_SHIFT)) & 0xFF;
+}
+
+
 // unpremultiply and extract R, G, B components.
-static void pmcolor_to_rgb24(SkPMColor pmColor, uint8_t* rgb) {
-    uint32_t s = SkUnPreMultiply::GetScale(SkGetPackedA32(pmColor));
-    rgb[0] = SkUnPreMultiply::ApplyScale(s, SkGetPackedR32(pmColor));
-    rgb[1] = SkUnPreMultiply::ApplyScale(s, SkGetPackedG32(pmColor));
-    rgb[2] = SkUnPreMultiply::ApplyScale(s, SkGetPackedB32(pmColor));
+static void pmcolor_to_rgb24(uint32_t color, uint8_t* rgb, SkColorType ct) {
+    uint32_t s = SkUnPreMultiply::GetScale(SkGetA32Component(color, ct));
+    rgb[0] = SkUnPreMultiply::ApplyScale(s, SkGetR32Component(color, ct));
+    rgb[1] = SkUnPreMultiply::ApplyScale(s, SkGetG32Component(color, ct));
+    rgb[2] = SkUnPreMultiply::ApplyScale(s, SkGetB32Component(color, ct));
 }
 
 /* It is necessary to average the color component of transparent
@@ -79,8 +103,8 @@ static void pmcolor_to_rgb24(SkPMColor pmColor, uint8_t* rgb) {
 static void get_neighbor_avg_color(const SkBitmap& bm,
                                    int xOrig,
                                    int yOrig,
-                                   uint8_t rgb[3]) {
-    SkASSERT(kN32_SkColorType == bm.colorType());
+                                   uint8_t rgb[3],
+                                   SkColorType ct) {
     unsigned a = 0, r = 0, g = 0, b = 0;
     // Clamp the range to the edge of the bitmap.
     int ymin = SkTMax(0, yOrig - 1);
@@ -88,13 +112,13 @@ static void get_neighbor_avg_color(const SkBitmap& bm,
     int xmin = SkTMax(0, xOrig - 1);
     int xmax = SkTMin(xOrig + 1, bm.width() - 1);
     for (int y = ymin; y <= ymax; ++y) {
-        SkPMColor* scanline = bm.getAddr32(0, y);
+        uint32_t* scanline = bm.getAddr32(0, y);
         for (int x = xmin; x <= xmax; ++x) {
-            SkPMColor pmColor = scanline[x];
-            a += SkGetPackedA32(pmColor);
-            r += SkGetPackedR32(pmColor);
-            g += SkGetPackedG32(pmColor);
-            b += SkGetPackedB32(pmColor);
+            uint32_t color = scanline[x];
+            a += SkGetA32Component(color, ct);
+            r += SkGetR32Component(color, ct);
+            g += SkGetG32Component(color, ct);
+            b += SkGetB32Component(color, ct);
         }
     }
     if (a > 0) {
@@ -122,9 +146,10 @@ static const SkBitmap& not4444(const SkBitmap& input, SkBitmap* copy) {
 
 static size_t pdf_color_component_count(SkColorType ct) {
     switch (ct) {
-        case kN32_SkColorType:
         case kRGB_565_SkColorType:
         case kARGB_4444_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             return 3;
         case kAlpha_8_SkColorType:
         case kIndex_8_SkColorType:
@@ -147,20 +172,22 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
     SkBitmap copy;
     const SkBitmap& bm = not4444(bitmap, &copy);
     SkAutoLockPixels autoLockPixels(bm);
-    switch (bm.colorType()) {
-        case kN32_SkColorType: {
-            SkASSERT(3 == pdf_color_component_count(bitmap.colorType()));
+    SkColorType colorType = bm.colorType();
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
+            SkASSERT(3 == pdf_color_component_count(colorType));
             SkAutoTMalloc<uint8_t> scanline(3 * bm.width());
             for (int y = 0; y < bm.height(); ++y) {
-                const SkPMColor* src = bm.getAddr32(0, y);
+                const uint32_t* src = bm.getAddr32(0, y);
                 uint8_t* dst = scanline.get();
                 for (int x = 0; x < bm.width(); ++x) {
-                    SkPMColor color = *src++;
-                    U8CPU alpha = SkGetPackedA32(color);
+                    uint32_t color = *src++;
+                    U8CPU alpha = SkGetA32Component(color, colorType);
                     if (alpha != SK_AlphaTRANSPARENT) {
-                        pmcolor_to_rgb24(color, dst);
+                        pmcolor_to_rgb24(color, dst, colorType);
                     } else {
-                        get_neighbor_avg_color(bm, x, y, dst);
+                        get_neighbor_avg_color(bm, x, y, dst, colorType);
                     }
                     dst += 3;
                 }
@@ -169,7 +196,7 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
             return;
         }
         case kRGB_565_SkColorType: {
-            SkASSERT(3 == pdf_color_component_count(bitmap.colorType()));
+            SkASSERT(3 == pdf_color_component_count(colorType));
             SkAutoTMalloc<uint8_t> scanline(3 * bm.width());
             for (int y = 0; y < bm.height(); ++y) {
                 const uint16_t* src = bm.getAddr16(0, y);
@@ -185,12 +212,12 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
             return;
         }
         case kAlpha_8_SkColorType:
-            SkASSERT(1 == pdf_color_component_count(bitmap.colorType()));
+            SkASSERT(1 == pdf_color_component_count(colorType));
             fill_stream(out, '\x00', pixel_count(bm));
             return;
         case kGray_8_SkColorType:
         case kIndex_8_SkColorType:
-            SkASSERT(1 == pdf_color_component_count(bitmap.colorType()));
+            SkASSERT(1 == pdf_color_component_count(colorType));
             // these two formats need no transformation to serialize.
             for (int y = 0; y < bm.height(); ++y) {
                 out->write(bm.getAddr8(0, y), bm.width());
@@ -213,14 +240,16 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
     SkBitmap copy;
     const SkBitmap& bm = not4444(bitmap, &copy);
     SkAutoLockPixels autoLockPixels(bm);
-    switch (bm.colorType()) {
-        case kN32_SkColorType: {
+    SkColorType colorType = bm.colorType();
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
             SkAutoTMalloc<uint8_t> scanline(bm.width());
             for (int y = 0; y < bm.height(); ++y) {
                 uint8_t* dst = scanline.get();
                 const SkPMColor* src = bm.getAddr32(0, y);
                 for (int x = 0; x < bm.width(); ++x) {
-                    *dst++ = SkGetPackedA32(*src++);
+                    *dst++ = SkGetA32Component(*src++, colorType);
                 }
                 out->write(scanline.get(), bm.width());
             }
@@ -280,7 +309,7 @@ static SkPDFArray* make_indexed_color_space(const SkColorTable* table) {
     uint8_t* tablePtr = reinterpret_cast<uint8_t*>(tableArray);
     const SkPMColor* colors = table->readColors();
     for (int i = 0; i < table->count(); i++) {
-        pmcolor_to_rgb24(colors[i], tablePtr);
+        pmcolor_to_rgb24(colors[i], tablePtr, kN32_SkColorType);
         tablePtr += 3;
     }
     SkString tableString(tableArray, 3 * table->count());
