@@ -52,10 +52,6 @@ SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
                 "Suppress most PNG warnings when calling image decode "
                 "functions.");
 
-#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_PNG_NO_INDEX_SUPPORTED)
-#define SK_PNG_INDEX_SUPPORTED
-#endif
-
 class SkPNGImageIndex {
 public:
     // Takes ownership of stream.

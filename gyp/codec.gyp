@@ -18,6 +18,8 @@
       'dependencies': [
         'core.gyp:*',
         'giflib.gyp:giflib',
+        'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
+        'libpng.gyp:libpng',
         'libwebp.gyp:libwebp',
       ],
       'cflags':[
@@ -58,37 +60,9 @@
           '../include/codec',
         ],
       },
-      'conditions': [
-        [ 'skia_android_framework == 1',
-          {
-            # TODO(djsollen): this is a temporary dependency until we can update
-            # the android framework to a more recent version of libpng.
-            'dependencies': [
-              'libpng.gyp:libpng',
-            ],
-            # TODO(msarett): Add libjpeg-turbo to Android so we can compile SkJpegCodec
-            # for the framework.
-            'sources!': [
-              '../src/codec/SkJpegCodec.cpp',
-              '../src/codec/SkJpegDecoderMgr.cpp',
-              '../src/codec/SkJpegUtility_codec.cpp',
-            ],
-          }, {  # !skia_android_framework
-            'dependencies': [
-              # TODO(msarett): Add libjpeg-turbo to Android so this can be a global
-              # dependency.
-              'libjpeg-turbo.gyp:libjpeg-turbo',
-              'libpng.gyp:libpng_static',
-            ],
-            'export_dependent_settings': [
-              'libjpeg-turbo.gyp:libjpeg-turbo',
-            ],
-            'defines': [
-              'TURBO_HAS_SKIP',
-            ],
-          }
-        ]
-      ]
+      'defines': [
+        'TURBO_HAS_SKIP',
+      ],
     },
   ],
 }

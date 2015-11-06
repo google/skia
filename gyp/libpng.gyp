@@ -12,19 +12,6 @@
       'target_name': 'libpng',
       'type': 'none',
       'conditions': [
-        [ 'skia_os == "android"', {
-            'dependencies':              [ 'android_deps.gyp:png' ],
-            'export_dependent_settings': [ 'android_deps.gyp:png' ],
-        },{
-            'dependencies':              [ 'libpng.gyp:libpng_static' ],
-            'export_dependent_settings': [ 'libpng.gyp:libpng_static' ],
-        }]
-      ]
-    },
-    {
-      'target_name': 'libpng_static_when_possible',
-      'type': 'none',
-      'conditions': [
         [ 'skia_android_framework', {
             'dependencies':              [ 'android_deps.gyp:png' ],
             'export_dependent_settings': [ 'android_deps.gyp:png' ],

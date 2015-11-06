@@ -8,10 +8,6 @@
 
 #include "SkJpegUtility.h"
 
-#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_JPEG_NO_INDEX_SUPPORTED)
-#define SK_JPEG_INDEX_SUPPORTED
-#endif
-
 /////////////////////////////////////////////////////////////////////
 static void sk_init_source(j_decompress_ptr cinfo) {
     skjpeg_source_mgr*  src = (skjpeg_source_mgr*)cinfo->src;

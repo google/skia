@@ -54,10 +54,6 @@ SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderErrors,
                 "Suppress most JPG error messages when decode "
                 "function fails.");
 
-#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_JPEG_NO_INDEX_SUPPORTED)
-#define SK_JPEG_INDEX_SUPPORTED
-#endif
-
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

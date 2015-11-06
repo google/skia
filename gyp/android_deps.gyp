@@ -52,14 +52,14 @@
             },
           },
           {
-            'target_name': 'jpeg',
+            'target_name': 'libjpeg-turbo',
             'type': 'none',
             'direct_dependent_settings': {
               'libraries' : [
-                '-ljpeg',
+                '-ljpeg-turbo',
               ],
               'include_dirs': [
-                'external/jpeg',
+                'external/libjpeg-turbo',
               ],
             },
           },
