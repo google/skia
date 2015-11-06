@@ -182,52 +182,7 @@ public:
 
     void notifyFlushOccurred();
 
-#if GR_CACHE_STATS
-    struct Stats {
-        int fTotal;
-        int fNumPurgeable;
-        int fNumNonPurgeable;
-
-        int fScratch;
-        int fExternal;
-        int fBorrowed;
-        int fAdopted;
-        size_t fUnbudgetedSize;
-
-        Stats() { this->reset(); }
-
-        void reset() {
-            fTotal = 0;
-            fNumPurgeable = 0;
-            fNumNonPurgeable = 0;
-            fScratch = 0;
-            fExternal = 0;
-            fBorrowed = 0;
-            fAdopted = 0;
-            fUnbudgetedSize = 0;
-        }
-
-        void update(GrGpuResource* resource) {
-            if (resource->cacheAccess().isScratch()) {
-                ++fScratch;
-            }
-            if (resource->cacheAccess().isExternal()) {
-                ++fExternal;
-            }
-            if (resource->cacheAccess().isBorrowed()) {
-                ++fBorrowed;
-            }
-            if (resource->cacheAccess().isAdopted()) {
-                ++fAdopted;
-            }
-            if (!resource->resourcePriv().isBudgeted()) {
-                fUnbudgetedSize += resource->gpuMemorySize();
-            }
-        }
-    };
-
-    void getStats(Stats*) const;
-
+#if GR_GPU_STATS
     void dumpStats(SkString*) const;
 #endif
 

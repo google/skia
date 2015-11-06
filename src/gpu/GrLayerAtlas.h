@@ -9,13 +9,15 @@
 #ifndef GrLayerAtlas_DEFINED
 #define GrLayerAtlas_DEFINED
 
-#include "GrTexture.h"
+#include "GrTypes.h"
 
 #include "SkPoint.h"
+#include "SkSize.h"
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
 
 class GrLayerAtlas;
+class GrTexture;
 class GrTextureProvider;
 class GrRectanizer;
 
@@ -107,22 +109,9 @@ public:
     // nullptr is returned if there is no more space in the atlas.
     Plot* addToAtlas(ClientPlotUsage*, int width, int height, SkIPoint16* loc);
 
-    GrTexture* getTextureOrNull() const {
-        return fTexture;
-    }
-
     GrTexture* getTexture() const {
-        SkASSERT(fTexture);
         return fTexture;
     }
-
-    bool reattachBackingTexture();
-
-    void detachBackingTexture() {
-        fTexture.reset(nullptr);
-    }
-
-    void resetPlots();
 
     enum IterOrder {
         kLRUFirst_IterOrder,
@@ -138,14 +127,12 @@ public:
     }
 
 private:
-    void createBackingTexture();
-
     void makeMRU(Plot* plot);
 
     GrTextureProvider* fTexProvider;
     GrPixelConfig      fPixelConfig;
     GrSurfaceFlags     fFlags;
-    SkAutoTUnref<GrTexture> fTexture;
+    GrTexture*         fTexture;
 
     SkISize            fBackingTextureSize;
 

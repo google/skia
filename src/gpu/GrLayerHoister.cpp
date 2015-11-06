@@ -322,7 +322,7 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     }
 
     SkIRect newRect = SkIRect::MakeWH(filteredBitmap.width(), filteredBitmap.height());
-    layer->setTexture(filteredBitmap.getTexture(), newRect, false);
+    layer->setTexture(filteredBitmap.getTexture(), newRect);
     layer->setOffset(offset);
 }
 
@@ -380,22 +380,13 @@ void GrLayerHoister::UnlockLayers(GrContext* context,
     SkDEBUGCODE(layerCache->validate();)
 }
 
-void GrLayerHoister::Begin(GrContext* context) {
-    GrLayerCache* layerCache = context->getLayerCache();
-
-    layerCache->begin();
-}
-
-void GrLayerHoister::End(GrContext* context) {
-    GrLayerCache* layerCache = context->getLayerCache();
-
+void GrLayerHoister::PurgeCache(GrContext* context) {
 #if !GR_CACHE_HOISTED_LAYERS
+    GrLayerCache* layerCache = context->getLayerCache();
 
     // This code completely clears out the atlas. It is required when
     // caching is disabled so the atlas doesn't fill up and force more
     // free floating layers
     layerCache->purgeAll();
 #endif
-
-    layerCache->end();
 }

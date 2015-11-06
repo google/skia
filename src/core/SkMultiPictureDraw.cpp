@@ -116,8 +116,6 @@ void SkMultiPictureDraw::draw(bool flush) {
     // drawing the canvas that requires them.
     SkTDArray<GrHoistedLayer> atlasedNeedRendering, atlasedRecycled;
 
-    GrLayerHoister::Begin(context);
-
     for (int i = 0; i < count; ++i) {
         const DrawData& data = fGPUDrawData[i];
         // we only expect 1 context for all the canvases
@@ -201,7 +199,9 @@ void SkMultiPictureDraw::draw(bool flush) {
 #if !defined(SK_IGNORE_GPU_LAYER_HOISTING) && SK_SUPPORT_GPU
     GrLayerHoister::UnlockLayers(context, atlasedNeedRendering);
     GrLayerHoister::UnlockLayers(context, atlasedRecycled);
-    GrLayerHoister::End(context);
+#if !GR_CACHE_HOISTED_LAYERS
+    GrLayerHoister::PurgeCache(context);
+#endif
 #endif
 }
 

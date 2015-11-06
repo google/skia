@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "GrGpuResourcePriv.h"
 #include "GrLayerAtlas.h"
 #include "GrRectanizer.h"
 #include "GrTextureProvider.h"
@@ -44,32 +43,6 @@ void GrLayerAtlas::Plot::reset() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GR_DECLARE_STATIC_UNIQUE_KEY(gLayerAtlasKey);
-static const GrUniqueKey& get_layer_atlas_key() {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gLayerAtlasKey);
-    return gLayerAtlasKey;
-}
-
-bool GrLayerAtlas::reattachBackingTexture() {
-    SkASSERT(!fTexture);
-
-    fTexture.reset(fTexProvider->findAndRefTextureByUniqueKey(get_layer_atlas_key()));
-    return SkToBool(fTexture);
-}
-
-void GrLayerAtlas::createBackingTexture() {
-    SkASSERT(!fTexture);
-
-    GrSurfaceDesc desc;
-    desc.fFlags = fFlags;
-    desc.fWidth = fBackingTextureSize.width();
-    desc.fHeight = fBackingTextureSize.height();
-    desc.fConfig = fPixelConfig;
-
-    fTexture.reset(fTexProvider->createTexture(desc, true, nullptr, 0));
-
-    fTexture->resourcePriv().setUniqueKey(get_layer_atlas_key());
-}
 
 GrLayerAtlas::GrLayerAtlas(GrTextureProvider* texProvider, GrPixelConfig config, 
                            GrSurfaceFlags flags,
@@ -79,6 +52,7 @@ GrLayerAtlas::GrLayerAtlas(GrTextureProvider* texProvider, GrPixelConfig config,
     fPixelConfig = config;
     fFlags = flags;
     fBackingTextureSize = backingTextureSize;
+    fTexture = nullptr;
 
     int textureWidth = fBackingTextureSize.width();
     int textureHeight = fBackingTextureSize.height();
@@ -107,14 +81,8 @@ GrLayerAtlas::GrLayerAtlas(GrTextureProvider* texProvider, GrPixelConfig config,
     }
 }
 
-void GrLayerAtlas::resetPlots() {
-    PlotIter iter;
-    for (Plot* plot = iter.init(fPlotList, PlotIter::kHead_IterStart); plot; plot = iter.next()) {
-        plot->reset();
-    }
-}
-
 GrLayerAtlas::~GrLayerAtlas() {
+    SkSafeUnref(fTexture);
     delete[] fPlotArray;
 }
 
@@ -143,7 +111,14 @@ GrLayerAtlas::Plot* GrLayerAtlas::addToAtlas(ClientPlotUsage* usage,
 
     // before we get a new plot, make sure we have a backing texture
     if (nullptr == fTexture) {
-        this->createBackingTexture();
+        // TODO: Update this to use the cache rather than directly creating a texture.
+        GrSurfaceDesc desc;
+        desc.fFlags = fFlags;
+        desc.fWidth = fBackingTextureSize.width();
+        desc.fHeight = fBackingTextureSize.height();
+        desc.fConfig = fPixelConfig;
+
+        fTexture = fTexProvider->createTexture(desc, true, nullptr, 0);
         if (nullptr == fTexture) {
             return nullptr;
         }
