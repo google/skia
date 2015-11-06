@@ -1,0 +1,4 @@
+Arcs
+GM:aaclip
+GM:xfermodes
+GM:addarc
