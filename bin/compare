@@ -45,7 +45,7 @@ for key in common:
     am, bm = m(a[key]), m(b[key])
     if have_scipy:
         _, p = scipy.stats.mannwhitneyu(a[key], b[key])
-        asem, bsem = scipy.stats.sem(a[key]), sem(b[key])
+        asem, bsem = scipy.stats.sem(a[key]), scipy.stats.sem(b[key])
     ps.append((bm/am, p, key, am, bm, asem, bsem))
 ps.sort(reverse=True)
 
