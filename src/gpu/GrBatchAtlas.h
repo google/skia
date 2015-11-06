@@ -17,8 +17,6 @@
 class BatchPlot;
 class GrRectanizer;
 
-typedef SkTInternalLList<BatchPlot> GrBatchPlotList;
-
 struct GrBatchAtlasConfig {
     int numPlotsX() const { return fWidth / fPlotWidth; }
     int numPlotsY() const { return fHeight / fPlotWidth; }
@@ -120,6 +118,8 @@ public:
     }
 
 private:
+    typedef SkTInternalLList<BatchPlot> GrBatchPlotList;
+
     static uint32_t GetIndexFromID(AtlasID id) {
         return id & 0xffff;
     }
@@ -136,11 +136,8 @@ private:
     inline void processEviction(AtlasID);
 
     GrTexture* fTexture;
-    uint32_t fNumPlotsX;
-    uint32_t fNumPlotsY;
-    uint32_t fPlotWidth;
-    uint32_t fPlotHeight;
-    size_t fBPP;
+    SkDEBUGCODE(uint32_t fNumPlots;)
+
     uint64_t fAtlasGeneration;
 
     struct EvictionData {
