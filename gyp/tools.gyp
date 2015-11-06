@@ -63,6 +63,11 @@
       'dependencies': [
         'skia_lib.gyp:skia_lib',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../tools',
+        ],
+      },
     },
     {
       'target_name': 'chrome_fuzz',
