@@ -381,15 +381,15 @@ static void push_codec_srcs(Path path) {
     }
 }
 
-static bool brd_color_type_supported(SkBitmapRegionDecoderInterface::Strategy strategy,
+static bool brd_color_type_supported(SkBitmapRegionDecoder::Strategy strategy,
         CodecSrc::DstColorType dstColorType) {
     switch (strategy) {
-        case SkBitmapRegionDecoderInterface::kCanvas_Strategy:
+        case SkBitmapRegionDecoder::kCanvas_Strategy:
             if (CodecSrc::kGetFromCanvas_DstColorType == dstColorType) {
                 return true;
             }
             return false;
-        case SkBitmapRegionDecoderInterface::kOriginal_Strategy:
+        case SkBitmapRegionDecoder::kOriginal_Strategy:
             switch (dstColorType) {
                 case CodecSrc::kGetFromCanvas_DstColorType:
                 case CodecSrc::kIndex8_Always_DstColorType:
@@ -398,7 +398,7 @@ static bool brd_color_type_supported(SkBitmapRegionDecoderInterface::Strategy st
                 default:
                     return false;
             }
-        case SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy:
+        case SkBitmapRegionDecoder::kAndroidCodec_Strategy:
             switch (dstColorType) {
                 case CodecSrc::kGetFromCanvas_DstColorType:
                 case CodecSrc::kIndex8_Always_DstColorType:
@@ -413,17 +413,17 @@ static bool brd_color_type_supported(SkBitmapRegionDecoderInterface::Strategy st
     }
 }
 
-static void push_brd_src(Path path, SkBitmapRegionDecoderInterface::Strategy strategy,
+static void push_brd_src(Path path, SkBitmapRegionDecoder::Strategy strategy,
         CodecSrc::DstColorType dstColorType, BRDSrc::Mode mode, uint32_t sampleSize) {
     SkString folder;
     switch (strategy) {
-        case SkBitmapRegionDecoderInterface::kCanvas_Strategy:
+        case SkBitmapRegionDecoder::kCanvas_Strategy:
             folder.append("brd_canvas");
             break;
-        case SkBitmapRegionDecoderInterface::kOriginal_Strategy:
+        case SkBitmapRegionDecoder::kOriginal_Strategy:
             folder.append("brd_sample");
             break;
-        case SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy:
+        case SkBitmapRegionDecoder::kAndroidCodec_Strategy:
             folder.append("brd_android_codec");
             break;
         default:
@@ -466,10 +466,10 @@ static void push_brd_src(Path path, SkBitmapRegionDecoderInterface::Strategy str
 
 static void push_brd_srcs(Path path) {
 
-    const SkBitmapRegionDecoderInterface::Strategy strategies[] = {
-            SkBitmapRegionDecoderInterface::kCanvas_Strategy,
-            SkBitmapRegionDecoderInterface::kOriginal_Strategy,
-            SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy,
+    const SkBitmapRegionDecoder::Strategy strategies[] = {
+            SkBitmapRegionDecoder::kCanvas_Strategy,
+            SkBitmapRegionDecoder::kOriginal_Strategy,
+            SkBitmapRegionDecoder::kAndroidCodec_Strategy,
     };
 
     // Test on a variety of sampleSizes, making sure to include:
@@ -492,12 +492,12 @@ static void push_brd_srcs(Path path) {
             BRDSrc::kDivisor_Mode,
     };
 
-    for (SkBitmapRegionDecoderInterface::Strategy strategy : strategies) {
+    for (SkBitmapRegionDecoder::Strategy strategy : strategies) {
 
         // We disable png testing for kOriginal_Strategy because the implementation leaks
         // memory in our forked libpng.
         // TODO (msarett): Decide if we want to test pngs in this mode and how we might do this.
-        if (SkBitmapRegionDecoderInterface::kOriginal_Strategy == strategy &&
+        if (SkBitmapRegionDecoder::kOriginal_Strategy == strategy &&
                 (path.endsWith(".png") || path.endsWith(".PNG"))) {
             continue;
         }
@@ -506,7 +506,7 @@ static void push_brd_srcs(Path path) {
             // kOriginal_Strategy does not work for jpegs that are scaled to non-powers of two.
             // We don't need to test this.  We know it doesn't work, and it causes images with
             // uninitialized memory to show up on Gold.
-            if (SkBitmapRegionDecoderInterface::kOriginal_Strategy == strategy &&
+            if (SkBitmapRegionDecoder::kOriginal_Strategy == strategy &&
                     (path.endsWith(".jpg") || path.endsWith(".JPG") ||
                     path.endsWith(".jpeg") || path.endsWith(".JPEG")) && !SkIsPow2(sampleSize)) {
                 continue;

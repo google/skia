@@ -26,7 +26,7 @@
 #include "SubsetZoomBench.h"
 #include "Stats.h"
 
-#include "SkBitmapRegionDecoderInterface.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkBBoxHierarchy.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
@@ -588,11 +588,11 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
     return true;
 }
 
-static bool valid_brd_bench(SkData* encoded, SkBitmapRegionDecoderInterface::Strategy strategy,
+static bool valid_brd_bench(SkData* encoded, SkBitmapRegionDecoder::Strategy strategy,
         SkColorType colorType, uint32_t sampleSize, uint32_t minOutputSize, int* width,
         int* height) {
-    SkAutoTDelete<SkBitmapRegionDecoderInterface> brd(
-            SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(encoded, strategy));
+    SkAutoTDelete<SkBitmapRegionDecoder> brd(
+            SkBitmapRegionDecoder::Create(encoded, strategy));
     if (nullptr == brd.get()) {
         // This is indicates that subset decoding is not supported for a particular image format.
         return false;
@@ -956,12 +956,12 @@ public:
         // Run the BRDBenches
         // We will benchmark multiple BRD strategies.
         static const struct {
-            SkBitmapRegionDecoderInterface::Strategy    fStrategy;
+            SkBitmapRegionDecoder::Strategy    fStrategy;
             const char*                                 fName;
         } strategies[] = {
-            { SkBitmapRegionDecoderInterface::kOriginal_Strategy,    "BRD" },
-            { SkBitmapRegionDecoderInterface::kCanvas_Strategy,      "BRD_canvas" },
-            { SkBitmapRegionDecoderInterface::kAndroidCodec_Strategy, "BRD_android_codec" },
+            { SkBitmapRegionDecoder::kOriginal_Strategy,    "BRD" },
+            { SkBitmapRegionDecoder::kCanvas_Strategy,      "BRD_canvas" },
+            { SkBitmapRegionDecoder::kAndroidCodec_Strategy, "BRD_android_codec" },
         };
 
         // We intend to create benchmarks that model the use cases in
@@ -986,10 +986,10 @@ public:
                 fBenchType = strategies[fCurrentBRDStrategy].fName;
 
                 const SkString& path = fImages[fCurrentBRDImage];
-                const SkBitmapRegionDecoderInterface::Strategy strategy =
+                const SkBitmapRegionDecoder::Strategy strategy =
                         strategies[fCurrentBRDStrategy].fStrategy;
 
-                if (SkBitmapRegionDecoderInterface::kOriginal_Strategy == strategy) {
+                if (SkBitmapRegionDecoder::kOriginal_Strategy == strategy) {
                     // Disable png and jpeg for SkImageDecoder:
                     if (!FLAGS_jpgBuildTileIndex) {
                         if (path.endsWith("JPEG") || path.endsWith("JPG") ||

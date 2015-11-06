@@ -6,7 +6,7 @@
  */
 
 #include "SkBitmap.h"
-#include "SkBitmapRegionDecoderInterface.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkImageDecoder.h"
 #include "SkTemplates.h"
 
@@ -14,7 +14,7 @@
  * This class aims to duplicate the current implementation of
  * SkBitmapRegionDecoder in Android.
  */
-class SkBitmapRegionSampler : public SkBitmapRegionDecoderInterface {
+class SkBitmapRegionSampler : public SkBitmapRegionDecoder {
 public:
 
     /*
@@ -40,6 +40,6 @@ private:
 
     SkAutoTDelete<SkImageDecoder> fDecoder;
 
-    typedef SkBitmapRegionDecoderInterface INHERITED;
+    typedef SkBitmapRegionDecoder INHERITED;
 
 };

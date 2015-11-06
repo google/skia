@@ -6,13 +6,13 @@
  */
 
 #include "SkBitmap.h"
-#include "SkBitmapRegionDecoderInterface.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkAndroidCodec.h"
 
 /*
  * This class implements SkBitmapRegionDecoder using an SkAndroidCodec.
  */
-class SkBitmapRegionCodec : public SkBitmapRegionDecoderInterface {
+class SkBitmapRegionCodec : public SkBitmapRegionDecoder {
 public:
 
     /*
@@ -32,6 +32,6 @@ private:
 
     SkAutoTDelete<SkAndroidCodec> fCodec;
 
-    typedef SkBitmapRegionDecoderInterface INHERITED;
+    typedef SkBitmapRegionDecoder INHERITED;
 
 };

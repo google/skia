@@ -7,20 +7,20 @@
 
 #include "SkBitmapRegionCanvas.h"
 #include "SkBitmapRegionCodec.h"
-#include "SkBitmapRegionDecoderInterface.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkBitmapRegionSampler.h"
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkImageDecoder.h"
 
-SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(
+SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
         SkData* data, Strategy strategy) {
-    return SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(new SkMemoryStream(data),
+    return SkBitmapRegionDecoder::Create(new SkMemoryStream(data),
             strategy);
 }
 
-SkBitmapRegionDecoderInterface* SkBitmapRegionDecoderInterface::CreateBitmapRegionDecoder(
+SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
         SkStreamRewindable* stream, Strategy strategy) {
     SkAutoTDelete<SkStreamRewindable> streamDeleter(stream);
     switch (strategy) {

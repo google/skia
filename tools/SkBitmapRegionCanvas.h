@@ -6,7 +6,7 @@
  */
 
 #include "SkBitmap.h"
-#include "SkBitmapRegionDecoderInterface.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkCodec.h"
 
 /*
@@ -16,7 +16,7 @@
  */
 // FIXME (msarett): This implementation does not support WEBP, because WEBP
 // does not have a scanline decoder.
-class SkBitmapRegionCanvas : public SkBitmapRegionDecoderInterface {
+class SkBitmapRegionCanvas : public SkBitmapRegionDecoder {
 public:
 
     /*
@@ -36,6 +36,6 @@ private:
 
     SkAutoTDelete<SkCodec> fDecoder;
 
-    typedef SkBitmapRegionDecoderInterface INHERITED;
+    typedef SkBitmapRegionDecoder INHERITED;
 
 };

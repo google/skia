@@ -9,7 +9,7 @@
 #define BitmapRegionDecoderBench_DEFINED
 
 #include "Benchmark.h"
-#include "SkBitmapRegionDecoderInterface.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
@@ -27,7 +27,7 @@ class BitmapRegionDecoderBench : public Benchmark {
 public:
     // Calls encoded->ref()
     BitmapRegionDecoderBench(const char* basename, SkData* encoded,
-            SkBitmapRegionDecoderInterface::Strategy strategy, SkColorType colorType,
+            SkBitmapRegionDecoder::Strategy strategy, SkColorType colorType,
             uint32_t sampleSize, const SkIRect& subset);
 
 protected:
@@ -38,9 +38,9 @@ protected:
 
 private:
     SkString                                       fName;
-    SkAutoTDelete<SkBitmapRegionDecoderInterface>  fBRD;
+    SkAutoTDelete<SkBitmapRegionDecoder>           fBRD;
     SkAutoTUnref<SkData>                           fData;
-    const SkBitmapRegionDecoderInterface::Strategy fStrategy;
+    const SkBitmapRegionDecoder::Strategy          fStrategy;
     const SkColorType                              fColorType;
     const uint32_t                                 fSampleSize;
     const SkIRect                                  fSubset;
