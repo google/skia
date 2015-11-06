@@ -42,9 +42,6 @@
           # Needed for generated pnglibconf.h and pngprefix.h
           '../third_party/libpng',
         ],
-        'defines': [
-          'SKIA_PNG_PREFIXED',
-        ],
       },
       'cflags': [
         '-w',

@@ -12,10 +12,6 @@
 #include "SkRefCnt.h"
 #include "SkSwizzler.h"
 
-#ifdef SKIA_PNG_PREFIXED
-    // this must proceed png.h
-    #include "pngprefix.h"
-#endif
 #include "png.h"
 
 class SkStream;
