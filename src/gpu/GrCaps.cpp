@@ -15,7 +15,6 @@ GrShaderCaps::GrShaderCaps() {
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
-    fMixedSamplesSupport = false;
     fProgrammableSampleLocationsSupport = false;
     fShaderPrecisionVaries = false;
 }
@@ -52,7 +51,6 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Path Rendering Support                : %s\n", gNY[fPathRenderingSupport]);
     r.appendf("Dst Read In Shader Support            : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Dual Source Blending Support          : %s\n", gNY[fDualSourceBlendingSupport]);
-    r.appendf("Mixed Samples Support                 : %s\n", gNY[fMixedSamplesSupport]);
     r.appendf("Programmable Sample Locations Support : %s\n", gNY[fProgrammableSampleLocationsSupport]);
 
     r.appendf("Shader Float Precisions (varies: %s)  :\n", gNY[fShaderPrecisionVaries]);
@@ -94,6 +92,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fCompressedTexSubImageSupport = false;
     fOversizedStencilSupport = false;
     fTextureBarrierSupport = false;
+    fMixedSamplesSupport = false;
     fSupportsInstancedDraws = false;
     fFullClearIsFree = false;
     fMustClearUploadedBufferData = false;
@@ -165,6 +164,7 @@ SkString GrCaps::dump() const {
     r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
+    r.appendf("Mixed Samples Support              : %s\n", gNY[fMixedSamplesSupport]);
     r.appendf("Supports instanced draws           : %s\n", gNY[fSupportsInstancedDraws]);
     r.appendf("Full screen clear is free          : %s\n", gNY[fFullClearIsFree]);
     r.appendf("Must clear buffer memory           : %s\n", gNY[fMustClearUploadedBufferData]);

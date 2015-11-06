@@ -333,7 +333,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         // "opacity", which can then be blended into the color buffer to accomplish antialiasing.
         // Enable coverage modulation suitable for premultiplied alpha colors.
         // This state has no effect when not rendering to a mixed sampled target.
-        if (this->glCaps().shaderCaps()->mixedSamplesSupport()) {
+        if (this->caps()->mixedSamplesSupport()) {
             GL_CALL(CoverageModulation(GR_GL_RGBA));
         }
     }
