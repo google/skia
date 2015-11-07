@@ -318,7 +318,7 @@ static void push_codec_srcs(Path path) {
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
             // FIXME: Is this a long term solution for testing wbmps decodes to kIndex8?
-            // Further discussion on this topic is at skbug.com/3683.
+            // Further discussion on this topic is at https://bug.skia.org/3683 .
             // This causes us to try to convert grayscale jpegs to kIndex8.  We currently
             // fail non-fatally in this case.
             colorTypes[0] = CodecSrc::kGetFromCanvas_DstColorType;
@@ -345,7 +345,7 @@ static void push_codec_srcs(Path path) {
         }
     }
 
-    // skbug.com/4428
+    // https://bug.skia.org/4428
     static const char* const exts[] = {
         "jpg", "jpeg", "png", "webp",
         "JPG", "JPEG", "PNG", "WEBP",

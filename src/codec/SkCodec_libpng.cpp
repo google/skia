@@ -340,7 +340,7 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
         *numberPassesPtr = numberPasses;
     }
 
-    // FIXME: Also need to check for sRGB (skbug.com/3471).
+    // FIXME: Also need to check for sRGB ( https://bug.skia.org/3471 ).
 
     if (imageInfo) {
         *imageInfo = SkImageInfo::Make(origWidth, origHeight, skColorType, skAlphaType);

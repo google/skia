@@ -14,7 +14,7 @@ deps = {
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@08429da7955a98ef764fafa223dd7de73f654b2d",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@1afff032c83e26ddf7f2776e8b43de5ad666c1fa",
-  # Slightly ahead of v 0.4.3, to include the fix for skbug.com/4038
+  # Slightly ahead of v 0.4.3, to include the fix for https://bug.skia.org/4038
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@5ff0079ece626f122bfb8e33a5f92b5a68484176",
   "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c4e33043fb071b6ea0a153845da625d7ed633d3d",

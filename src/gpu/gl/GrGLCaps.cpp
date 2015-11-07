@@ -164,7 +164,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // All the above srgb extensions support toggling srgb writes
         fSRGBWriteControl = srgbSupport;
     } else {
-        // See http://skbug.com/4148 for PowerVR issue.
+        // See https://bug.skia.org/4148 for PowerVR issue.
         srgbSupport = kPowerVRRogue_GrGLRenderer != ctxInfo.renderer() &&
                       (ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
@@ -262,7 +262,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
-#if 0 // Disabled due to http://skbug.com/4454
+#if 0 // Disabled due to https://bug.skia.org/4454
     fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
 #else
     fBindUniformLocationSupport = false;
@@ -789,7 +789,7 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     fConfigTextureSupport[kRGBA_4444_GrPixelConfig] = true;
     fConfigTextureSupport[kRGBA_8888_GrPixelConfig] = true;
 
-    // Disable this for now, while we investigate skbug.com/4333
+    // Disable this for now, while we investigate https://bug.skia.org/4333
     if (false) {
         // Check for 8-bit palette..
         GrGLint numFormats;

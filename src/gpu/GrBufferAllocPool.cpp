@@ -320,7 +320,7 @@ GrGeometryBuffer* GrBufferAllocPool::getBuffer(size_t size) {
     GrResourceProvider* rp = fGpu->getContext()->resourceProvider();
 
     static const GrResourceProvider::BufferUsage kUsage = GrResourceProvider::kDynamic_BufferUsage;
-    // Shouldn't have to use this flag (http://skbug.com/4156)
+    // Shouldn't have to use this flag (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
     if (kIndex_BufferType == fBufferType) {
         return rp->createIndexBuffer(size, kUsage, kFlags);

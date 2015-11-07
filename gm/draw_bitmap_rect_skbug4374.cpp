@@ -6,7 +6,7 @@
  */
 #include "Resources.h"
 #include "gm.h"
-// http://skbug.com/4374
+// https://bug.skia.org/4374
 DEF_SIMPLE_GM(draw_bitmap_rect_skbug4734, canvas, 64, 64) {
     SkBitmap source;
     if (GetResourceAsBitmap("randPixels.png", &source)) {

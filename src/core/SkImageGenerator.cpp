@@ -148,7 +148,7 @@ bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo* in
     if (!bitmap->tryAllocPixels(allocator, ctable)) {
         // SkResourceCache's custom allcator can'thandle ctables, so it may fail on
         // kIndex_8_SkColorTable.
-        // skbug.com/4355
+        // https://bug.skia.org/4355
 #if 1
         // ignroe the allocator, and see if we can succeed without it
         if (!bitmap->tryAllocPixels(nullptr, ctable)) {

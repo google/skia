@@ -323,7 +323,7 @@ protected:
             }
         }
 
-        // test old entry point (skbug.com/3786)
+        // test old entry point ( https://bug.skia.org/3786 )
         {
             canvas->save();
 

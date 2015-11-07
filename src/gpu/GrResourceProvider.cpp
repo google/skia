@@ -158,7 +158,7 @@ GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
 
     // We don't want to flush the context so we claim we're in the middle of flushing so as to
     // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (http://skbug.com/4156)
+    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
     GrTexture* texture = this->createApproxTexture(desc, kFlags);
     if (!texture) {

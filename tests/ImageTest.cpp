@@ -38,7 +38,7 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
     REPORTER_ASSERT(reporter, widthA == b->width());
     REPORTER_ASSERT(reporter, heightA == b->height());
 #if 0
-    // see skbug.com/3965
+    // see https://bug.skia.org/3965
     bool AO = a->isOpaque();
     bool BO = b->isOpaque();
     REPORTER_ASSERT(reporter, AO == BO);
@@ -347,7 +347,7 @@ DEF_GPUTEST(SkImage_Gpu2Cpu, reporter, factory) {
 }
 #endif
 
-// http://skbug.com/4390
+// https://bug.skia.org/4390
 DEF_TEST(ImageFromIndex8Bitmap, r) {
     SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
     SkBitmap bm;

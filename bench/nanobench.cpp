@@ -519,7 +519,7 @@ static bool run_subset_bench(const SkString& path, bool useCodec) {
 
     // Test png in SkCodec, and optionally on SkImageDecoder. SkImageDecoder is
     // disabled by default because it leaks memory.
-    // skbug.com/4360
+    // https://bug.skia.org/4360
     if ((useCodec || FLAGS_pngBuildTileIndex) && (path.endsWith("png") || path.endsWith("PNG"))) {
         return true;
     }
@@ -567,7 +567,7 @@ static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool
             SkDebugf("Could not create decoder for %s.  Skipping bench.\n", path.c_str());
             return false;
         }
-        //FIXME: See skbug.com/3921
+        //FIXME: See https://bug.skia.org/3921
         if (kIndex_8_SkColorType == colorType || kGray_8_SkColorType == colorType) {
             SkDebugf("Cannot use image subset decoder for %s with color type %s.  "
                     "Skipping bench.\n", path.c_str(), color_type_to_str(colorType));
@@ -974,7 +974,7 @@ public:
         // (sampleSize*512)x(sampleSize*512).
         // There are a few good reasons to only test on power of two sample sizes at this time:
         //     JPEG decodes using kOriginal_Strategy are broken for non-powers of two.
-        //         skbug.com/4319
+        //         https://bug.skia.org/4319
         //     All use cases we are aware of only scale by powers of two.
         //     PNG decodes use the indicated sampling strategy regardless of the sample size, so
         //         these tests are sufficient to provide good coverage of our scaling options.

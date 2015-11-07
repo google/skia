@@ -11,7 +11,7 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 
-// skbug.com/1316 shows that this cubic, when slightly clipped, creates big
+// https://bug.skia.org/1316 shows that this cubic, when slightly clipped, creates big
 // (incorrect) changes to its control points.
 class ClippedCubicGM : public skiagm::GM {
 public:

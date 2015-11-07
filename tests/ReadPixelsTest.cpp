@@ -446,7 +446,7 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
 
 // make_ringed_bitmap was lifted from gm/bleed.cpp, as that GM was what showed the following
 // bug when a change was made to SkImage_Raster.cpp. It is possible that other test bitmaps
-// would also tickle skbug.com/4351 but this one is know to do it, so I've pasted the code
+// would also tickle https://bug.skia.org/4351 but this one is know to do it, so I've pasted the code
 // here so we have a dependable repro case.
 
 // Create a black&white checked texture with 2 1-pixel rings
@@ -558,7 +558,7 @@ static void dump_to_file(const char name[], SkData* data) {
  *  These two techniques result in the same pixels (ala readPixels)
  *  but when we draw them (rotated+scaled) we don't always get the same results.
  *
- *  skbug.com/4351
+ *  https://bug.skia.org/4351
  */
 DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
     GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);

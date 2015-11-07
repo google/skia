@@ -163,7 +163,7 @@ template<bool hasAlpha>
     // thought this was 32 bit only, but subsequent tests show that some 64 bit gcc compiles
     // suffer here too.
     //
-    // Dropping to -O2 disables -ftree-vectorize.  GCC 4.6 needs noinline.  http://skbug.com/2575
+    // Dropping to -O2 disables -ftree-vectorize.  GCC 4.6 needs noinline.  https://bug.skia.org/2575
     #if SK_HAS_ATTRIBUTE(optimize) && defined(SK_RELEASE)
         #define SK_MAYBE_DISABLE_VECTORIZATION __attribute__((optimize("O2"), noinline))
     #else

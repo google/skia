@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 # This allows us to build libwebp with a custom config.h file. It is currently
-# needed to work around skbug.com/4037, but perhaps we might have another need
+# needed to work around https://bug.skia.org/4037 , but perhaps we might have another need
 # for it in the future.
 {
   'include_dirs': [

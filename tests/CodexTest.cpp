@@ -196,7 +196,7 @@ static void test_android_codec(skiatest::Reporter* r, SkAndroidCodec* codec, SkB
 }
 
 // FIXME: SkScaledCodec is currently only supported for types used by BRD
-// skbug.com/4428
+// https://bug.skia.org/4428
 static bool supports_scaled_codec(const char path[]) {
     static const char* const exts[] = {
         "jpg", "jpeg", "png", "webp"

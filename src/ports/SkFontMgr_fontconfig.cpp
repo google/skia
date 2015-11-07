@@ -61,7 +61,7 @@ class SkData;
 namespace {
 
 // Fontconfig is not threadsafe before 2.10.91. Before that, we lock with a global mutex.
-// See http://skbug.com/1497 for background.
+// See https://bug.skia.org/1497 for background.
 SK_DECLARE_STATIC_MUTEX(gFCMutex);
 
 #ifdef SK_DEBUG

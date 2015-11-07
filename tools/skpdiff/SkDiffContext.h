@@ -165,7 +165,7 @@ private:
     struct DiffRecord {
         // TODO(djsollen): Some of these fields are required, while others are optional
         // (e.g., fRgbDiffPath is only filled in if SkDifferentPixelsMetric
-        // was run).  Figure out a way to note that.  See http://skbug.com/2712
+        // was run).  Figure out a way to note that.  See https://bug.skia.org/2712
         // ('allow skpdiff to report different sets of result fields for
         // different comparison algorithms')
         SkString           fCommonName;

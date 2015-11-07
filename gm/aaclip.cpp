@@ -196,7 +196,7 @@ DEF_GM( return new CGImageGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// skbug.com/3716
+// https://bug.skia.org/3716
 class ClipCubicGM : public skiagm::GM {
     const SkScalar W = 100;
     const SkScalar H = 240;

@@ -1299,7 +1299,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     check_convexity(reporter, dent, SkPath::kConcave_Convexity);
     check_direction(reporter, dent, SkPathPriv::kCW_FirstDirection);
 
-    // http://skbug.com/2235
+    // https://bug.skia.org/2235
     SkPath strokedSin;
     for (int i = 0; i < 2000; i++) {
         SkScalar x = SkIntToScalar(i) / 2;
@@ -1726,7 +1726,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     // Test that multiple move commands do not cause asserts.
 
     // At the time of writing, this would not modify cached convexity. This caused an assert while
-    // checking conservative containment again. http://skbug.com/1460
+    // checking conservative containment again. https://bug.skia.org/1460
     path.moveTo(SkIntToScalar(100), SkIntToScalar(100));
 #if 0
     REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,

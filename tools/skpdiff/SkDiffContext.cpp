@@ -145,7 +145,7 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
         if (!differ->diff(&baselineBitmap, &testBitmap, bitmapsToCreate, &diffData.fResult)) {
             // if the diff failed, record -1 as the result
             // TODO(djsollen): Record more detailed information about exactly what failed.
-            // (Image dimension mismatch? etc.)  See http://skbug.com/2710 ('make skpdiff
+            // (Image dimension mismatch? etc.)  See https://bug.skia.org/2710 ('make skpdiff
             // report more detail when it fails to compare two images')
             diffData.fResult.result = -1;
             continue;
@@ -179,7 +179,7 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
             // a particular differ and storing them as toplevel fields within
             // newRecord, we should extend outputRecords() to report optional
             // fields for each differ (not just "result" and "pointsOfInterest").
-            // See http://skbug.com/2712 ('allow skpdiff to report different sets
+            // See https://bug.skia.org/2712 ('allow skpdiff to report different sets
             // of result fields for different comparison algorithms')
             newRecord->fMaxRedDiff = diffData.fResult.maxRedDiff;
             newRecord->fMaxGreenDiff = diffData.fResult.maxGreenDiff;
@@ -272,7 +272,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
 
     // TODO(djsollen): Would it be better to use the jsoncpp library to write out the JSON?
     // This manual approach is probably more efficient, but it sure is ugly.
-    // See http://skbug.com/2713 ('make skpdiff use jsoncpp library to write out
+    // See https://bug.skia.org/2713 ('make skpdiff use jsoncpp library to write out
     // JSON output, instead of manual writeText() calls?')
     stream.writeText("    \"records\": [\n");
     while (currentRecord) {

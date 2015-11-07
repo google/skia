@@ -572,7 +572,7 @@ static bool not_supported_for_layers(const SkPaint& layerPaint) {
     // Note that this rendering is done at "screen" resolution (100dpi), not
     // printer resolution.
     // TODO: It may be possible to express some filters natively using PDF
-    // to improve quality and file size (http://skbug.com/3043)
+    // to improve quality and file size (https://bug.skia.org/3043)
 
     // TODO: should we return true if there is a colorfilter?
     return layerPaint.getImageFilter() != nullptr;
@@ -1274,7 +1274,7 @@ static void draw_transparent_text(SkPDFDevice* device,
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& srcPaint) {
     if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
-        // http://skbug.com/3866
+        // https://bug.skia.org/3866
         SkPath path;
         srcPaint.getTextPath(text, len, x, y, &path);
         this->drawPath(d, path, srcPaint, &SkMatrix::I(), true);
@@ -2349,7 +2349,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     }
 
     if (SkColorFilter* colorFilter = paint.getColorFilter()) {
-        // TODO(http://skbug.com/4378): implement colorfilter on other
+        // TODO(https://bug.skia.org/4378): implement colorfilter on other
         // draw calls.  This code here works for all
         // drawBitmap*()/drawImage*() calls amd ImageFilters (which
         // rasterize a layer on this backend).  Fortuanely, this seems

@@ -37,7 +37,7 @@ AUTHORS_FILE_NAME = 'AUTHORS'
 
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
 
-# Path to CQ bots feature is described in skbug.com/4364
+# Path to CQ bots feature is described in https://bug.skia.org/4364
 PATH_PREFIX_TO_EXTRA_TRYBOTS = {
     # pylint: disable=line-too-long
     'cmake/': 'client.skia.compile:Build-Mac10.9-Clang-x86_64-Release-CMake-Trybot,Build-Ubuntu-GCC-x86_64-Release-CMake-Trybot',
@@ -133,7 +133,7 @@ def _IfDefChecks(input_api, output_api):
     results.append(
         output_api.PresubmitError(
             'The following files have #if or #ifdef before includes:\n%s\n\n'
-            'See skbug.com/3362 for why this should be fixed.' %
+            'See https://bug.skia.org/3362 for why this should be fixed.' %
                 '\n'.join(failing_files)))
   return results
 

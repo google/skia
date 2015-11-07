@@ -26,7 +26,7 @@ static void make_bitmap(SkBitmap* bitmap, const SkImageInfo& info, SkBitmap::All
     }
 }
 
-// http://skbug.com/2894
+// https://bug.skia.org/2894
 DEF_TEST(BitmapCache_add_rect, reporter) {
     SkResourceCache::DiscardableFactory factory = SkResourceCache::GetDiscardableFactory();
     SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();

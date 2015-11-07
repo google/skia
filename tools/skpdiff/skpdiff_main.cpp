@@ -8,7 +8,7 @@
 // TODO(djsollen): Rename this whole package (perhaps to "SkMultiDiffer").
 // It's not just for "pdiff" (perceptual diffs)--it's a harness that allows
 // the execution of an arbitrary set of difference algorithms.
-// See http://skbug.com/2711 ('rename skpdiff')
+// See https://bug.skia.org/2711 ('rename skpdiff')
 
 #include "SkTypes.h"
 

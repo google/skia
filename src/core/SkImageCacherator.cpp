@@ -94,7 +94,7 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
         return generator->tryGenerateBitmap(bitmap, fInfo, allocator);
     } else {
         // need to handle subsetting, so we first generate the full size version, and then
-        // "read" from it to get our subset. See skbug.com/4213
+        // "read" from it to get our subset. See https://bug.skia.org/4213
 
         SkBitmap full;
         if (!generator->tryGenerateBitmap(&full, genInfo, allocator)) {

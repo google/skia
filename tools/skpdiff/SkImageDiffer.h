@@ -25,7 +25,7 @@ public:
         double result;
         int poiCount;
         // TODO(djsollen): Figure out a way that the differ can report which of the
-        // optional fields it has filled in.  See http://skbug.com/2712 ('allow
+        // optional fields it has filled in.  See https://bug.skia.org/2712 ('allow
         // skpdiff to report different sets of result fields for different comparison algorithms')
         SkBitmap poiAlphaMask; // optional
         SkBitmap rgbDiffBitmap; // optional

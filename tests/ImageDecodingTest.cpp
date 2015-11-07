@@ -323,7 +323,7 @@ DEF_TEST(ImageDecoding_unpremul, reporter) {
         }
     }
 }
-#endif // SK_BUILD_FOR_UNIX/ANDROID skbug.com/2388
+#endif // SK_BUILD_FOR_UNIX/ANDROID https://bug.skia.org/2388
 
 #ifdef SK_DEBUG
 // Test inside SkScaledBitmapSampler.cpp

@@ -202,7 +202,7 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
         }
     }
 
-    // skbug.com/3239 -- its possible that we can hit the following inconsistency:
+    // https://bug.skia.org/3239 -- its possible that we can hit the following inconsistency:
     //     rad == bounds.bottom - bounds.top
     //     bounds.bottom - radius < bounds.top
     //     YIKES

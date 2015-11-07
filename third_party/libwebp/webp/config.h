@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-// FIXME: Workaround for skbug.com/4037
+// FIXME: Workaround for https://bug.skia.org/4037
 // Some of our test machines have an older version of clang that does not
 // have
 //    __builtin_bswap16

@@ -31,7 +31,7 @@ class SkTypeface;
  *
  * This currently inherits from GrTextureProvider non-publically to force callers to provider
  * make a flags (pendingIO) decision and not use the GrTP methods that don't take flags. This
- * can be relaxed once http://skbug.com/4156 is fixed.
+ * can be relaxed once https://bug.skia.org/4156 is fixed.
  */
 class GrResourceProvider : protected GrTextureProvider {
 public:
@@ -98,7 +98,7 @@ public:
          *  set when accessing resources during a GrDrawTarget flush. This includes the execution of
          *  GrBatch objects. The reason is that these memory operations are done immediately and
          *  will occur out of order WRT the operations being flushed.
-         *  Make this automatic: http://skbug.com/4156
+         *  Make this automatic: https://bug.skia.org/4156
          */
         kNoPendingIO_Flag = kNoPendingIO_ScratchTextureFlag,
     };

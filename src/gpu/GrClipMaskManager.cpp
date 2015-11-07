@@ -594,7 +594,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                                                  texture, translate, element);
             if (Element::kRect_Type != element->getType() && !pr) {
                 // useSWOnlyPath should now filter out all cases where gpu-side mask merging would
-                // be performed (i.e., pr would be NULL for a non-rect path). See skbug.com/4519
+                // be performed (i.e., pr would be NULL for a non-rect path). See https://bug.skia.org/4519
                 // for rationale and details.
                 SkASSERT(0);
                 continue;

@@ -123,13 +123,13 @@
         'conditions' : [
           # Gyp's ninja generator depends on these specially named
           # configurations to build 64-bit on Windows.
-          # See http://skbug.com/2348
+          # See https://bug.skia.org/2348
           #
           # We handle the 64- vs 32-bit variations elsewhere, so I think it's
           # OK for us to just make these inherit non-archwidth-specific
           # configurations without modification.
           #
-          # See http://skbug.com/2442 : These targets cause problems in the
+          # See https://bug.skia.org/2442 : These targets cause problems in the
           # MSVS build, so only include them if gyp is generating a ninja build.
           [ '"ninja" in "<!(echo %GYP_GENERATORS%)"', {
             'configurations': {
@@ -604,7 +604,7 @@
             'defines': [
               'SKIA_DLL',
               'SKIA_IMPLEMENTATION=1',
-              # Needed until we fix skbug.com/2440.
+              # Needed until we fix https://bug.skia.org/2440 .
               'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
             ],
           }],
