@@ -70,7 +70,7 @@ public:
                 fTex[currIndex] = SkRect::MakeLTRB(0.0f, 0.0f,
                                                    SkIntToScalar(fAtlas->width()),
                                                    SkIntToScalar(fAtlas->height()));
-                fXform[currIndex] = SkRSXform::MakeFromRadians(0.1f, SK_ScalarPI*0.5f,
+                fXform[currIndex] = SkRSXform::MakeFromRadians(2.0f, SK_ScalarPI*0.5f,
                                                                xPos, yPos, anchorX, anchorY);
                 currIndex++;
             }
@@ -78,7 +78,7 @@ public:
         fTex[currIndex] = SkRect::MakeLTRB(0.0f, 0.0f,
                                            SkIntToScalar(fAtlas->width()),
                                            SkIntToScalar(fAtlas->height()));
-        fXform[currIndex] = SkRSXform::MakeFromRadians(0.5f, SK_ScalarPI*0.5f,
+        fXform[currIndex] = SkRSXform::MakeFromRadians(2.0f, SK_ScalarPI*0.5f,
                                                        kWidth*0.5f, kHeight*0.5f, anchorX, anchorY);
         
         fCurrentTime = 0;
@@ -147,10 +147,7 @@ protected:
         }
         
         fProc(canvas, fAtlas, fXform, fTex, nullptr, kGrid*kGrid+1, nullptr, &paint);
-        paint.setColor(SK_ColorBLACK);
-        canvas->drawRect(SkRect::MakeXYWH(0, 0, 200, 24), paint);
-        paint.setColor(SK_ColorWHITE);
-        canvas->drawText(outString.c_str(), outString.size(), 5, 15, paint);
+        canvas->drawText(outString.c_str(), outString.size(), 100.f, 100.f, paint);
 
         this->inval(nullptr);
     }

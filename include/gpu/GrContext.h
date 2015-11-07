@@ -349,10 +349,6 @@ public:
     /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    /** Draw font cache texture to render target */
-    void drawFontCache(const SkRect& rect, GrMaskFormat format, const SkPaint& paint,
-                       GrRenderTarget* target);
-
 private:
     GrGpu*                          fGpu;
     const GrCaps*                   fCaps;
