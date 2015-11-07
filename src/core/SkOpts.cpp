@@ -23,10 +23,24 @@
 #if defined(SK_CPU_X86)
     #if defined(SK_BUILD_FOR_WIN32)
         #include <intrin.h>
-        static void cpuid(uint32_t abcd[4]) { __cpuid((int*)abcd, 1); }
+        static void cpuid (uint32_t abcd[4]) { __cpuid  ((int*)abcd, 1);    }
+        static void cpuid7(uint32_t abcd[4]) { __cpuidex((int*)abcd, 7, 0); }
+        static uint64_t xgetbv(uint32_t xcr) { return _xgetbv(xcr); }
     #else
         #include <cpuid.h>
-        static void cpuid(uint32_t abcd[4]) { __get_cpuid(1, abcd+0, abcd+1, abcd+2, abcd+3); }
+        #if !defined(__cpuid_count)  // Old Mac Clang doesn't have this defined.
+            #define  __cpuid_count(eax, ecx, a, b, c, d) \
+                __asm__("cpuid" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "0"(eax), "2"(ecx))
+        #endif
+        static void cpuid (uint32_t abcd[4]) { __get_cpuid(1, abcd+0, abcd+1, abcd+2, abcd+3); }
+        static void cpuid7(uint32_t abcd[4]) {
+            __cpuid_count(7, 0, abcd[0], abcd[1], abcd[2], abcd[3]);
+        }
+        static uint64_t xgetbv(uint32_t xcr) {
+            uint32_t eax, edx;
+            __asm__ __volatile__ ( "xgetbv" : "=a"(eax), "=d"(edx) : "c"(xcr));
+            return (uint64_t)(edx) << 32 | eax;
+        }
     #endif
 #elif !defined(SK_ARM_HAS_NEON)      && \
        defined(SK_CPU_ARM32)         && \
@@ -70,7 +84,9 @@ namespace SkOpts {
     void Init_ssse3();
     void Init_sse41();
     void Init_neon();
-    //TODO: _dsp2, _armv7, _armv8, _x86, _x86_64, _sse42, _avx, avx2, ... ?
+    void Init_avx()  { SkDEBUGCODE( SkDebugf("avx detected\n"); ) }
+    void Init_avx2() { SkDEBUGCODE( SkDebugf("avx2 detected\n"); ) }
+    //TODO: _dsp2, _armv7, _armv8, _x86, _x86_64, _sse42, ... ?
 
     static void init() {
         // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?
@@ -79,6 +95,18 @@ namespace SkOpts {
         cpuid(abcd);
         if (abcd[2] & (1<< 9)) { Init_ssse3(); }
         if (abcd[2] & (1<<19)) { Init_sse41(); }
+
+        // AVX detection's kind of a pain.  This is cribbed from Chromium.
+        if ( (  abcd[2] & (7<<26)) == (7<<26) &&    // Check bits 26-28 of ecx are all set,
+             (xgetbv(0) & 6      ) == 6          ){ // and  check the OS supports XSAVE.
+            Init_avx();
+
+            // AVX2 additionally needs bit 5 set on ebx after calling cpuid(7).
+            uint32_t abcd7[] = {0,0,0,0};
+            cpuid7(abcd7);
+            if (abcd7[1] & (1<<5)) { Init_avx2(); }
+        }
+
     #elif !defined(SK_ARM_HAS_NEON)      && \
            defined(SK_CPU_ARM32)         && \
            defined(SK_BUILD_FOR_ANDROID) && \
