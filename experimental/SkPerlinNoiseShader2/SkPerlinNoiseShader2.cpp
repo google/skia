@@ -1076,7 +1076,7 @@ private:
 
 class GrImprovedPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static GrFragmentProcessor* Create(SkScalar octaves, SkScalar z, 
+    static GrFragmentProcessor* Create(int octaves, SkScalar z, 
                                        SkPerlinNoiseShader2::PaintingData* paintingData,
                                        GrTexture* permutationsTexture, GrTexture* gradientTexture,
                                        const SkMatrix& matrix) {
@@ -1292,11 +1292,11 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     fsBuilder->codeAppendf("vec2 coords = %s * %s;", vCoords.c_str(), baseFrequencyUni);
     fsBuilder->codeAppendf("float r = %s(vec3(coords, %s), %s);", noiseOctavesFuncName.c_str(), 
                            zUni, octavesUni);
-    fsBuilder->codeAppendf("float g = %s(vec3(coords, %s + 1000.0), %s);", 
+    fsBuilder->codeAppendf("float g = %s(vec3(coords, %s + 0000.0), %s);", 
                            noiseOctavesFuncName.c_str(), zUni, octavesUni);
-    fsBuilder->codeAppendf("float b = %s(vec3(coords, %s + 2000.0), %s);", 
+    fsBuilder->codeAppendf("float b = %s(vec3(coords, %s + 0000.0), %s);", 
                            noiseOctavesFuncName.c_str(), zUni, octavesUni);
-    fsBuilder->codeAppendf("float a = %s(vec3(coords, %s + 3000.0), %s);", 
+    fsBuilder->codeAppendf("float a = %s(vec3(coords, %s + 0000.0), %s);", 
                            noiseOctavesFuncName.c_str(), zUni, octavesUni);
     fsBuilder->codeAppendf("%s = vec4(r, g, b, a);", args.fOutputColor);
 
@@ -1322,7 +1322,7 @@ void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
     const SkVector& baseFrequency = noise.baseFrequency();
     pdman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);
 
-    pdman.set1f(fOctavesUni, noise.octaves());
+    pdman.set1f(fOctavesUni, SkIntToScalar(noise.octaves()));
 
     pdman.set1f(fZUni, noise.z());
 }

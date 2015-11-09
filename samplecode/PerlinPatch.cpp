@@ -10,7 +10,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPatchUtils.h"
-#include "SkPerlinNoiseShader.h"
+#include "SkPerlinNoiseShader2/SkPerlinNoiseShader2.h"
 #include "SkComposeShader.h"
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
@@ -94,25 +94,21 @@ public:
         fPts[11].set(150, 150);
 
         const SkColor colors[SkPatchUtils::kNumCorners] = {
-            SK_ColorBLUE, SK_ColorYELLOW
+            0xFF5555FF, 0xFF8888FF, 0xFFCCCCFF
         };
-
-        fShader0 = SkGradientShader::CreateRadial(SkPoint::Make(128.0f, 128.0f),
-                                                  180.0f,
+        const SkPoint points[2] = { SkPoint::Make(0.0f, 0.0f),
+                                    SkPoint::Make(100.0f, 100.0f) };
+        fShader0 = SkGradientShader::CreateLinear(points,
                                                   colors,
                                                   NULL,
-                                                  2,
+                                                  3,
                                                   SkShader::kMirror_TileMode,
                                                   0,
                                                   NULL);
-        fShader1 = SkPerlinNoiseShader::CreateTurbulence(fXFreq, fYFreq, 2, fSeed, NULL);
-        fShaderCompose = new SkComposeShader(fShader0, fShader1);
     }
 
     virtual ~PerlinPatchView() {
         SkSafeUnref(fShader0);
-        SkSafeUnref(fShader1);
-        SkSafeUnref(fShaderCompose);
     }
 protected:
     // overrides from SkEventSink
@@ -125,6 +121,7 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
+        fSeed += 0.005f;
         return true;
     }
 
@@ -147,10 +144,17 @@ protected:
         
         SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(SkXfermode::kSrc_Mode));
 
+        SkScalar scaleFreq = 2.0;
+        fShader1 = SkPerlinNoiseShader2::CreateImprovedNoise(fXFreq/scaleFreq, fYFreq/scaleFreq, 4,
+                                                             fSeed);
+        fShaderCompose = new SkComposeShader(fShader0, fShader1);
+
         paint.setShader(fShaderCompose);
         canvas->drawPatch(fPts, nullptr, texCoords, xfer, paint);
 
         draw_control_points(canvas, fPts);
+        SkSafeUnref(fShader1);
+        SkSafeUnref(fShaderCompose);
     }
 
     class PtClick : public Click {

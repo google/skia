@@ -20,6 +20,7 @@
         '../src/pipe/utils', # For TiledPipeController
         '../src/utils/debugger',
         '../tools',
+        '../experimental',
       ],
       'includes': [
         'gmslides.gypi',
@@ -130,6 +131,10 @@
         #'../experimental/Networking/SampleNetPipeReader.cpp',
         #'../experimental/Networking/SkSockets.cpp',
         #'../experimental/Networking/SkSockets.h',
+
+        # PerlinNoise2
+        '../experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.cpp',
+        '../experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.h',
 
         # TiledPipeController
         '../src/pipe/utils/SamplePipeControllers.h',
