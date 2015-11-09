@@ -319,7 +319,6 @@ protected:
                                     GrSLPrecision precision,
                                     const char* name,
                                     const char** outName) {
-        SkDebugf("in my frag pos thing\n");
         return this->internalAddUniformArray(visibility, type, precision, name, false, 0, outName);
     }
 
