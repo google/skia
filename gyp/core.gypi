@@ -112,6 +112,7 @@
         '<(skia_src_path)/core/SkFilterProc.cpp',
         '<(skia_src_path)/core/SkFilterProc.h',
         '<(skia_src_path)/core/SkFilterShader.cpp',
+        '<(skia_src_path)/core/SkFindAndPlaceGlyph.h',
         '<(skia_src_path)/core/SkFlattenable.cpp',
         '<(skia_src_path)/core/SkFlattenableSerialization.cpp',
         '<(skia_src_path)/core/SkFloatBits.cpp',
