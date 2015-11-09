@@ -1,4 +1,10 @@
-Arcs
-GM:aaclip
-GM:xfermodes
-GM:addarc
+DrawAtlasSim
+DrawAtlas
+DrawShipSim
+DrawShip
+PerlinPatch
+FilterQuality
+GM:xfermodes2
+GM:aaxfermodes
+GM:colortype
+AnimatedText
