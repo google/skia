@@ -164,9 +164,7 @@ GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
     if (!texture) {
         return nullptr;
     }
-    GrBatchAtlas* atlas = new GrBatchAtlas(texture, numPlotsX, numPlotsY);
-    atlas->registerEvictionCallback(func, data);
-    return atlas;
+    return new GrBatchAtlas(texture, numPlotsX, numPlotsY);
 }
 
 GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
