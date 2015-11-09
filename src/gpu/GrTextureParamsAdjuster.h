@@ -10,10 +10,10 @@
 
 #include "GrTextureParams.h"
 #include "GrResourceKey.h"
+#include "GrTexture.h"
 #include "SkTLazy.h"
 
 class GrContext;
-class GrTexture;
 class GrTextureParams;
 class GrUniqueKey;
 class SkBitmap;
@@ -83,16 +83,54 @@ public:
         does not match subset's dimensions then the contents are scaled to fit the copy.*/
     GrTexture* refTextureSafeForParams(const GrTextureParams&, SkIPoint* outOffset);
 
+    enum FilterConstraint {
+        kYes_FilterConstraint,
+        kNo_FilterConstraint,
+    };
+
+    /**
+     * Helper for creating a fragment processor to sample the texture with a given filtering mode.
+     * It attempts to avoids making a copy of the texture and avoid using a texture domain unless
+     * necessary.
+     *
+     * @param textureMatrix                    Matrix to transform local coords by to compute
+     *                                         texture coords.
+     * @param constraintRect                   Subrect of content area to be rendered. Must be
+     *                                         clipped to the content area already.
+     * @param filterConstriant                 Indicates whether filtering is limited to
+     *                                         constraintRect.
+     * @param coordsLimitedToConstraintRect    Is it known that textureMatrix*localCoords is bound
+     *                                         by the portion of the texture indicated by
+     *                                         constraintRect (without consideration of filter
+     *                                         width, just the raw coords).
+     * @param filterOrNullForBicubic           If non-null indicates the filter mode. If null means
+     *                                         use bicubic filtering.
+     **/
+    const GrFragmentProcessor* createFragmentProcessor(
+        const SkMatrix& textureMatrix,
+        const SkRect& constraintRect,
+        FilterConstraint filterConstraint,
+        bool coordsLimitedToConstraintRect,
+        const GrTextureParams::FilterMode* filterOrNullForBicubic);
+
+    GrTexture* originalTexture() const { return fOriginal; }
+
+    void getContentArea(SkIRect* contentArea) const {
+        if (fContentArea.isValid()) {
+            *contentArea = *fContentArea.get();
+        } else {
+            *contentArea = SkIRect::MakeWH(fOriginal->width(), fOriginal->height());
+        }
+    }
+
 protected:
     /** The whole texture is content. */
     explicit GrTextureAdjuster(GrTexture* original): fOriginal(original) {}
 
     GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea);
 
-    GrTexture* originalTexture() { return fOriginal; }
-
     /** Returns the content area or null for the whole original texture */
-    const SkIRect* contentArea() { return fContentArea.getMaybeNull(); }
+    const SkIRect* contentAreaOrNull() { return fContentArea.getMaybeNull(); }
 
 private:
     SkTLazy<SkIRect>    fContentArea;

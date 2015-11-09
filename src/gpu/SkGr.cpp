@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrTextureParamsAdjuster.h"
 #include "GrGpuResourcePriv.h"
+#include "GrImageIDTextureAdjuster.h"
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"
 
@@ -271,7 +272,7 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bmp) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void install_bmp_key_invalidator(const GrUniqueKey& key, SkPixelRef* pixelRef) {
+void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pixelRef) {
     class Invalidator : public SkPixelRef::GenIDChangeListener {
     public:
         explicit Invalidator(const GrUniqueKey& key) : fMsg(key) {}
@@ -313,7 +314,7 @@ protected:
         tex = GrUploadBitmapToTexture(ctx, fBitmap);
         if (tex && fOriginalKey.isValid()) {
             tex->resourcePriv().setUniqueKey(fOriginalKey);
-            install_bmp_key_invalidator(fOriginalKey, fBitmap.pixelRef());
+            GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
         }
         return tex;
     }
@@ -325,7 +326,7 @@ protected:
     }
 
     void didCacheCopy(const GrUniqueKey& copyKey) override {
-        install_bmp_key_invalidator(copyKey, fBitmap.pixelRef());
+        GrInstallBitmapUniqueKeyInvalidator(copyKey, fBitmap.pixelRef());
     }
 
 private:
@@ -335,40 +336,10 @@ private:
     typedef GrTextureMaker INHERITED;
 };
 
-class TextureBitmap_GrTextureAdjuster : public GrTextureAdjuster {
-public:
-    explicit TextureBitmap_GrTextureAdjuster(const SkBitmap* bmp)
-        : INHERITED(bmp->getTexture(), SkIRect::MakeWH(bmp->width(), bmp->height()))
-        , fBmp(bmp) {}
-
-private:
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override {
-        if (fBmp->isVolatile()) {
-            return;
-        }
-        // The content area must represent the whole bitmap. Texture-backed bitmaps don't support
-        // extractSubset(). Therefore, either the bitmap and the texture are the same size or the
-        // content's dimensions are the bitmap's dimensions which is pinned to the upper left
-        // of the texture.
-        GrUniqueKey baseKey;
-        GrMakeKeyFromImageID(&baseKey, fBmp->getGenerationID(),
-                             SkIRect::MakeWH(fBmp->width(), fBmp->height()));
-        MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
-    }
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override {
-        install_bmp_key_invalidator(copyKey, fBmp->pixelRef());
-    }
-
-    const SkBitmap* fBmp;
-
-    typedef GrTextureAdjuster INHERITED;
-};
-
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrTextureParams& params) {
     if (bitmap.getTexture()) {
-        return TextureBitmap_GrTextureAdjuster(&bitmap).refTextureSafeForParams(params, nullptr);
+        return GrBitmapTextureAdjuster(&bitmap).refTextureSafeForParams(params, nullptr);
     }
     return RasterBitmap_GrTextureMaker(bitmap).refTextureForParams(ctx, params);
 }

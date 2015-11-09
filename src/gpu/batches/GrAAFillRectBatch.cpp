@@ -332,6 +332,28 @@ GrDrawBatch* Create(GrColor color,
     return batch;
 }
 
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkMatrix& localMatrix,
+                    const SkRect& rect) {
+    SkRect devRect;
+    viewMatrix.mapRect(&devRect, rect);
+    return Create(color, viewMatrix, localMatrix, rect, devRect);
+}
+
+GrDrawBatch* CreateWithLocalRect(GrColor color,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRect& rect,
+                                 const SkRect& localRect) {
+    SkRect devRect;
+    viewMatrix.mapRect(&devRect, rect);
+    SkMatrix localMatrix;
+    if (!localMatrix.setRectToRect(rect, localRect, SkMatrix::kFill_ScaleToFit)) {
+        return nullptr;
+    }
+    return Create(color, viewMatrix, localMatrix, rect, devRect);
+}
+
 void Append(GrBatch* origBatch,
             GrColor color,
             const SkMatrix& viewMatrix,

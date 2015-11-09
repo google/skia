@@ -13,6 +13,7 @@
 #include "GrFontScaler.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
+#include "GrImageIDTextureAdjuster.h"
 #include "GrLayerHoister.h"
 #include "GrRecordReplaceDraw.h"
 #include "GrStrokeInfo.h"
@@ -841,13 +842,26 @@ void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
                              const SkBitmap& bitmap,
                              const SkMatrix& m,
                              const SkPaint& paint) {
+
+    GrTexture* texture = bitmap.getTexture();
+    if (texture) {
+        CHECK_SHOULD_DRAW(origDraw);
+        bool alphaOnly = kAlpha_8_SkColorType == bitmap.colorType();
+        GrBitmapTextureAdjuster adjuster(&bitmap);
+        SkMatrix viewMatrix;
+        viewMatrix.setConcat(*origDraw.fMatrix, m);
+        this->drawTextureAdjuster(&adjuster, alphaOnly, nullptr, nullptr,
+                                  SkCanvas::kFast_SrcRectConstraint, viewMatrix, fClip, paint);
+        return;
+    }
     SkMatrix concat;
     SkTCopyOnFirstWrite<SkDraw> draw(origDraw);
     if (!m.isIdentity()) {
         concat.setConcat(*draw->fMatrix, m);
         draw.writable()->fMatrix = &concat;
     }
-    this->drawBitmapCommon(*draw, bitmap, nullptr, nullptr, paint, SkCanvas::kStrict_SrcRectConstraint);
+    this->drawBitmapCommon(*draw, bitmap, nullptr, nullptr, paint,
+                           SkCanvas::kStrict_SrcRectConstraint);
 }
 
 // This method outsets 'iRect' by 'outset' all around and then clamps its extents to
@@ -1184,7 +1198,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkRect& srcRect,
                                   const SkIRect& clippedSrcIRect,
                                   const GrTextureParams& params,
-                                  const SkPaint& paint,
+                                  const SkPaint& origPaint,
                                   SkCanvas::SrcRectConstraint constraint,
                                   int tileSize,
                                   bool bicubic) {
@@ -1193,6 +1207,15 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
     // at each tile in cases where 'bitmap' holds an SkDiscardablePixelRef that
     // is larger than the limit of the discardable memory pool.
     SkAutoLockPixels alp(bitmap);
+
+    const SkPaint* paint = &origPaint;
+    SkPaint tempPaint;
+    if (origPaint.isAntiAlias() && !fRenderTarget->isUnifiedMultisampled()) {
+        // Drop antialiasing to avoid seams at tile boundaries.
+        tempPaint = origPaint;
+        tempPaint.setAntiAlias(false);
+        paint = &tempPaint;
+    }
     SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
 
     int nx = bitmap.width() / tileSize;
@@ -1254,7 +1277,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                          viewM,
                                          tileR,
                                          paramsTemp,
-                                         paint,
+                                         *paint,
                                          constraint,
                                          bicubic,
                                          needsTextureDomain);
@@ -1482,6 +1505,15 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
                                  const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
+    if (GrTexture* tex = bitmap.getTexture()) {
+        CHECK_SHOULD_DRAW(origDraw);
+        bool alphaOnly = GrPixelConfigIsAlphaOnly(tex->config());
+        GrBitmapTextureAdjuster adjuster(&bitmap);
+        this->drawTextureAdjuster(&adjuster, alphaOnly, src, &dst, constraint, *origDraw.fMatrix,
+                                  fClip, paint);
+        return;
+    }
+
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc;
 
@@ -1643,7 +1675,14 @@ void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x
                             const SkPaint& paint) {
     SkBitmap bm;
     if (GrTexture* tex = as_IB(image)->peekTexture()) {
-        GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), &bm);
+        CHECK_SHOULD_DRAW(draw);
+        SkMatrix viewMatrix = *draw.fMatrix;
+        viewMatrix.preTranslate(x, y);
+        bool alphaOnly = GrPixelConfigIsAlphaOnly(tex->config());
+        GrImageTextureAdjuster adjuster(as_IB(image));
+        this->drawTextureAdjuster(&adjuster, alphaOnly, nullptr, nullptr,
+                                  SkCanvas::kFast_SrcRectConstraint, viewMatrix, fClip, paint);
+        return;
     } else {
         if (this->shouldTileImage(image, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                   paint.getFilterQuality(), *draw.fMatrix)) {
@@ -1663,23 +1702,26 @@ void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x
 void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
                                 const SkRect& dst, const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
-    SkBitmap bm;
     if (GrTexture* tex = as_IB(image)->peekTexture()) {
-        GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), &bm);
+        CHECK_SHOULD_DRAW(draw);
+        GrImageTextureAdjuster adjuster(as_IB(image));
+        bool alphaOnly = GrPixelConfigIsAlphaOnly(tex->config());
+        this->drawTextureAdjuster(&adjuster, alphaOnly, src, &dst, constraint, *draw.fMatrix,
+                                  fClip, paint);
+        return;
+    }
+    SkBitmap bm;
+    SkMatrix viewMatrix = *draw.fMatrix;
+    viewMatrix.preScale(dst.width() / (src ? src->width() : image->width()),
+                        dst.height() / (src ? src->height() : image->height()));
+    if (this->shouldTileImage(image, src, constraint, paint.getFilterQuality(), viewMatrix)) {
+        // only support tiling as bitmap at the moment, so force raster-version
+        if (!as_IB(image)->getROPixels(&bm)) {
+            return;
+        }
     } else {
-        SkMatrix viewMatrix = *draw.fMatrix;
-        viewMatrix.preScale(dst.width() / (src ? src->width() : image->width()),
-                            dst.height() / (src ? src->height() : image->height()));
-
-        if (this->shouldTileImage(image, src, constraint, paint.getFilterQuality(), viewMatrix)) {
-            // only support tiling as bitmap at the moment, so force raster-version
-            if (!as_IB(image)->getROPixels(&bm)) {
-                return;
-            }
-        } else {
-            if (!wrap_as_bm(this->context(), image, &bm)) {
-                return;
-            }
+        if (!wrap_as_bm(this->context(), image, &bm)) {
+            return;
         }
     }
     this->drawBitmapRect(draw, bm, src, dst, paint, constraint);

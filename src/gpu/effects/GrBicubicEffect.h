@@ -49,7 +49,7 @@ public:
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
     static const GrFragmentProcessor* Create(GrTexture* tex, const SkMatrix& matrix,
-                                             SkShader::TileMode tileModes[2]) {
+                                             const SkShader::TileMode tileModes[2]) {
         return Create(tex, gMitchellCoefficients, matrix, tileModes);
     }
 

@@ -225,6 +225,14 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
            point.fY >= rect.fTop && point.fY <= rect.fBottom;
 }
 
+static bool view_matrix_ok_for_aa_fill_rect(const SkMatrix& viewMatrix) {
+    return viewMatrix.preservesRightAngles();
+}
+
+static bool should_apply_coverage_aa(const GrPaint& paint, GrRenderTarget* rt) {
+    return paint.isAntiAlias() && !rt->isUnifiedMultisampled();
+}
+
 void GrDrawContext::drawRect(const GrClip& clip,
                              const GrPaint& paint,
                              const SkMatrix& viewMatrix,
@@ -282,13 +290,13 @@ void GrDrawContext::drawRect(const GrClip& clip,
     }
 
     GrColor color = paint.getColor();
-    bool needAA = paint.isAntiAlias() &&
-                  !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
+    bool needAA = should_apply_coverage_aa(paint, pipelineBuilder.getRenderTarget());
 
     // The fill path can handle rotation but not skew
     // The stroke path needs the rect to remain axis aligned (no rotation or skew)
     // None of our AA draw rect calls can handle perspective yet
-    bool canApplyAA = width >=0 ? viewMatrix.rectStaysRect() : viewMatrix.preservesRightAngles();
+    bool canApplyAA = width >=0 ? viewMatrix.rectStaysRect() :
+                                  view_matrix_ok_for_aa_fill_rect(viewMatrix);
 
     if (needAA && canApplyAA) {
         SkASSERT(!viewMatrix.hasPerspective());
@@ -333,11 +341,20 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    this->getDrawTarget()->drawNonAARect(pipelineBuilder,
-                                         paint.getColor(),
-                                         viewMatrix,
-                                         rectToDraw,
-                                         localRect);
+    if (should_apply_coverage_aa(paint, fRenderTarget) &&
+        view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+        SkAutoTUnref<GrDrawBatch> batch(GrAAFillRectBatch::CreateWithLocalRect(
+            paint.getColor(), viewMatrix, rectToDraw, localRect));
+        if (batch) {
+            this->drawBatch(&pipelineBuilder, batch);
+        }
+    } else {
+        this->getDrawTarget()->drawNonAARect(pipelineBuilder,
+                                             paint.getColor(),
+                                             viewMatrix,
+                                             rectToDraw,
+                                             localRect);
+    }
 }
 
 void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
@@ -351,11 +368,18 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    this->getDrawTarget()->drawNonAARect(pipelineBuilder,
-                                         paint.getColor(),
-                                         viewMatrix,
-                                         rectToDraw,
-                                         localMatrix);
+    if (should_apply_coverage_aa(paint, pipelineBuilder.getRenderTarget()) &&
+        view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+        SkAutoTUnref<GrDrawBatch> batch(GrAAFillRectBatch::Create(
+            paint.getColor(), viewMatrix, localMatrix, rectToDraw));
+        this->drawBatch(&pipelineBuilder, batch);
+    } else {
+        this->getDrawTarget()->drawNonAARect(pipelineBuilder,
+                                             paint.getColor(),
+                                             viewMatrix,
+                                             rectToDraw,
+                                             localMatrix);
+    }
 }
 
 void GrDrawContext::drawVertices(const GrClip& clip,
@@ -632,8 +656,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     if (!strokeInfo.isDashed()) {
-        bool useCoverageAA = paint.isAntiAlias() &&
-                !pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
+        bool useCoverageAA = should_apply_coverage_aa(paint, pipelineBuilder.getRenderTarget());
 
         if (useCoverageAA && strokeInfo.getWidth() < 0 && !path.isConvex()) {
             // Concave AA paths are expensive - try to avoid them for special cases

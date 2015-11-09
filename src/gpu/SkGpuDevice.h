@@ -22,6 +22,7 @@ struct SkDrawProcs;
 struct GrSkDrawProcs;
 
 class GrAccelData;
+class GrTextureAdjuster;
 struct GrCachedLayer;
 
 /**
@@ -224,6 +225,7 @@ private:
                             SkCanvas::SrcRectConstraint,
                             bool bicubic,
                             bool needsTextureDomain);
+
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkMatrix& viewMatrix,
                          const SkRect& srcRect,
@@ -233,6 +235,25 @@ private:
                          SkCanvas::SrcRectConstraint,
                          int tileSize,
                          bool bicubic);
+
+    void drawTextureAdjuster(GrTextureAdjuster* adjuster,
+                             bool alphaOnly,
+                             const SkRect* srcRect,
+                             const SkRect* dstRect,
+                             SkCanvas::SrcRectConstraint constraint,
+                             const SkMatrix& viewMatrix,
+                             const GrClip& clip,
+                             const SkPaint& paint);
+
+    void drawTextureAdjusterImpl(GrTextureAdjuster*,
+                                 bool alphaOnly,
+                                 const SkRect& clippedSrcRect,
+                                 const SkRect& clippedDstRect,
+                                 SkCanvas::SrcRectConstraint constraint,
+                                 const SkMatrix& viewMatrix,
+                                 const SkMatrix& srcToDstMatrix,
+                                 const GrClip& clip,
+                                 const SkPaint& paint);
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 

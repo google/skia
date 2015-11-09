@@ -39,6 +39,10 @@ struct SkIRect;
  */
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds);
 
+/** Call this after installing a GrUniqueKey on texture. It will cause the texture's key to be
+    removed should the bitmap's contents change or be destroyed. */
+void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pixelRef);
+
 /** Converts an SkPaint to a GrPaint for a given GrContext. The matrix is required in order
     to convert the SkShader (if any) on the SkPaint. The primitive itself has no color. */
 bool SkPaintToGrPaint(GrContext*,

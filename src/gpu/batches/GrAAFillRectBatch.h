@@ -24,8 +24,18 @@ GrDrawBatch* Create(GrColor color,
 GrDrawBatch* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkMatrix& localMatrix,
+                    const SkRect& rect);
+
+GrDrawBatch* Create(GrColor color,
+                    const SkMatrix& viewMatrix,
+                    const SkMatrix& localMatrix,
                     const SkRect& rect,
                     const SkRect& devRect);
+
+GrDrawBatch* CreateWithLocalRect(GrColor color,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRect& rect,
+                                 const SkRect& localRect);
 
 void Append(GrBatch*,
             GrColor,

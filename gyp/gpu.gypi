@@ -100,6 +100,8 @@
       '<(skia_src_path)/gpu/GrGpuResource.cpp',
       '<(skia_src_path)/gpu/GrGpuFactory.cpp',
       '<(skia_src_path)/gpu/GrGpuFactory.h',
+      '<(skia_src_path)/gpu/GrImageIDTextureAdjuster.cpp',
+      '<(skia_src_path)/gpu/GrImageIDTextureAdjuster.h',
       '<(skia_src_path)/gpu/GrIndexBuffer.h',
       '<(skia_src_path)/gpu/GrInvariantOutput.cpp',
       '<(skia_src_path)/gpu/GrLayerAtlas.cpp',
@@ -381,6 +383,7 @@
 
       '<(skia_src_path)/gpu/SkGpuDevice.cpp',
       '<(skia_src_path)/gpu/SkGpuDevice.h',
+      '<(skia_src_path)/gpu/SkGpuDevice_drawTexture.cpp',
       '<(skia_src_path)/gpu/SkGr.cpp',
       '<(skia_src_path)/gpu/SkGrPixelRef.cpp',
       '<(skia_src_path)/gpu/SkGrPriv.h',
