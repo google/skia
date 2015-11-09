@@ -33,7 +33,7 @@ namespace {  // See SkNx.h
     case 31: return op(v, 31); } return fVec
 
 template <>
-class SkNf<2, float> {
+class SkNf<2> {
 public:
     SkNf(float32x2_t vec) : fVec(vec) {}
 
@@ -113,81 +113,6 @@ public:
     float32x2_t fVec;
 };
 
-#if defined(SK_CPU_ARM64)
-template <>
-class SkNf<2, double> {
-public:
-    SkNf(float64x2_t vec) : fVec(vec) {}
-
-    SkNf() {}
-    explicit SkNf(double val)           : fVec(vdupq_n_f64(val))  {}
-    static SkNf Load(const double vals[2]) { return vld1q_f64(vals); }
-    SkNf(double a, double b) { fVec = (float64x2_t) { a, b }; }
-
-    void store(double vals[2]) const { vst1q_f64(vals, fVec); }
-
-    SkNf operator + (const SkNf& o) const { return vaddq_f64(fVec, o.fVec); }
-    SkNf operator - (const SkNf& o) const { return vsubq_f64(fVec, o.fVec); }
-    SkNf operator * (const SkNf& o) const { return vmulq_f64(fVec, o.fVec); }
-    SkNf operator / (const SkNf& o) const { return vdivq_f64(fVec, o.fVec); }
-
-    // vreinterpretq_f64_u64 and vreinterpretq_f64_u32 don't seem to exist....  weird.
-    SkNf operator==(const SkNf& o) const { return (float64x2_t)(vceqq_f64(fVec, o.fVec)); }
-    SkNf operator <(const SkNf& o) const { return (float64x2_t)(vcltq_f64(fVec, o.fVec)); }
-    SkNf operator >(const SkNf& o) const { return (float64x2_t)(vcgtq_f64(fVec, o.fVec)); }
-    SkNf operator<=(const SkNf& o) const { return (float64x2_t)(vcleq_f64(fVec, o.fVec)); }
-    SkNf operator>=(const SkNf& o) const { return (float64x2_t)(vcgeq_f64(fVec, o.fVec)); }
-    SkNf operator != (const SkNf& o) const {
-        return (float64x2_t)(vmvnq_u32(vreinterpretq_u32_u64(vceqq_f64(fVec, o.fVec))));
-    }
-
-    static SkNf Min(const SkNf& l, const SkNf& r) { return vminq_f64(l.fVec, r.fVec); }
-    static SkNf Max(const SkNf& l, const SkNf& r) { return vmaxq_f64(l.fVec, r.fVec); }
-
-    SkNf  sqrt() const { return vsqrtq_f64(fVec);  }
-
-    SkNf rsqrt0() const { return vrsqrteq_f64(fVec); }
-    SkNf rsqrt1() const {
-        float64x2_t est0 = this->rsqrt0().fVec;
-        return vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est0, est0)), est0);
-    }
-    SkNf rsqrt2() const {
-        float64x2_t est1 = this->rsqrt1().fVec;
-        return vmulq_f64(vrsqrtsq_f64(fVec, vmulq_f64(est1, est1)), est1);
-    }
-
-    SkNf approxInvert() const {
-        float64x2_t est0 = vrecpeq_f64(fVec),
-                    est1 = vmulq_f64(vrecpsq_f64(est0, fVec), est0);
-        return est1;
-    }
-
-    SkNf invert() const {
-        float64x2_t est1 = this->approxInvert().fVec,
-                    est2 = vmulq_f64(vrecpsq_f64(est1, fVec), est1),
-                    est3 = vmulq_f64(vrecpsq_f64(est2, fVec), est2);
-        return est3;
-    }
-
-    template <int k> double kth() const {
-        SkASSERT(0 <= k && k < 2);
-        return vgetq_lane_f64(fVec, k&1);
-    }
-
-    // vreinterpretq_u64_f64 doesn't seem to exist....  weird.
-    bool allTrue() const {
-        auto v = (uint64x2_t)(fVec);
-        return vgetq_lane_u64(v,0) && vgetq_lane_u64(v,1);
-    }
-    bool anyTrue() const {
-        auto v = (uint64x2_t)(fVec);
-        return vgetq_lane_u64(v,0) || vgetq_lane_u64(v,1);
-    }
-
-    float64x2_t fVec;
-};
-#endif//defined(SK_CPU_ARM64)
-
 template <>
 class SkNi<4, int> {
 public:
@@ -216,7 +141,7 @@ public:
 };
 
 template <>
-class SkNf<4, float> {
+class SkNf<4> {
 public:
     SkNf(float32x4_t vec) : fVec(vec) {}
 
@@ -239,8 +164,6 @@ public:
         uint8x8_t   fix8    = vqmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));
         vst1_lane_u32((uint32_t*)bytes, (uint32x2_t)fix8, 0);
     }
-
-    SkNi<4, int> castTrunc() const { return vcvtq_s32_f32(fVec); }
 
     SkNf approxInvert() const {
         float32x4_t est0 = vrecpeq_f32(fVec),

@@ -10,12 +10,12 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-template <int N, typename T>
+template <int N>
 static void test_Nf(skiatest::Reporter* r) {
 
-    auto assert_nearly_eq = [&](double eps, const SkNf<N,T>& v, T a, T b, T c, T d) {
-        auto close = [=](T a, T b) { return fabs(a-b) <= eps; };
-        T vals[4];
+    auto assert_nearly_eq = [&](float eps, const SkNf<N>& v, float a, float b, float c, float d) {
+        auto close = [=](float a, float b) { return fabsf(a-b) <= eps; };
+        float vals[4];
         v.store(vals);
         bool ok = close(vals[0], a) && close(vals[1], b)
                && close(v.template kth<0>(), a) && close(v.template kth<1>(), b);
@@ -26,15 +26,15 @@ static void test_Nf(skiatest::Reporter* r) {
             REPORTER_ASSERT(r, ok);
         }
     };
-    auto assert_eq = [&](const SkNf<N,T>& v, T a, T b, T c, T d) {
+    auto assert_eq = [&](const SkNf<N>& v, float a, float b, float c, float d) {
         return assert_nearly_eq(0, v, a,b,c,d);
     };
 
-    T vals[] = {3, 4, 5, 6};
-    SkNf<N,T> a = SkNf<N,T>::Load(vals),
-              b(a),
-              c = a;
-    SkNf<N,T> d;
+    float vals[] = {3, 4, 5, 6};
+    SkNf<N> a = SkNf<N>::Load(vals),
+            b(a),
+            c = a;
+    SkNf<N> d;
     d = a;
 
     assert_eq(a, 3, 4, 5, 6);
@@ -47,20 +47,20 @@ static void test_Nf(skiatest::Reporter* r) {
     assert_eq(a*b-b, 6, 12, 20, 30);
     assert_eq((a*b).sqrt(), 3, 4, 5, 6);
     assert_eq(a/b, 1, 1, 1, 1);
-    assert_eq(SkNf<N,T>(0)-a, -3, -4, -5, -6);
+    assert_eq(SkNf<N>(0)-a, -3, -4, -5, -6);
 
-    SkNf<N,T> fours(4);
+    SkNf<N> fours(4);
 
     assert_eq(fours.sqrt(), 2,2,2,2);
-    assert_nearly_eq(0.001, fours.rsqrt0(), 0.5, 0.5, 0.5, 0.5);
-    assert_nearly_eq(0.001, fours.rsqrt1(), 0.5, 0.5, 0.5, 0.5);
-    assert_nearly_eq(0.001, fours.rsqrt2(), 0.5, 0.5, 0.5, 0.5);
+    assert_nearly_eq(0.001f, fours.rsqrt0(), 0.5, 0.5, 0.5, 0.5);
+    assert_nearly_eq(0.001f, fours.rsqrt1(), 0.5, 0.5, 0.5, 0.5);
+    assert_nearly_eq(0.001f, fours.rsqrt2(), 0.5, 0.5, 0.5, 0.5);
 
-    assert_eq(              fours.      invert(), 0.25, 0.25, 0.25, 0.25);
-    assert_nearly_eq(0.001, fours.approxInvert(), 0.25, 0.25, 0.25, 0.25);
+    assert_eq(               fours.      invert(), 0.25, 0.25, 0.25, 0.25);
+    assert_nearly_eq(0.001f, fours.approxInvert(), 0.25, 0.25, 0.25, 0.25);
 
-    assert_eq(SkNf<N,T>::Min(a, fours), 3, 4, 4, 4);
-    assert_eq(SkNf<N,T>::Max(a, fours), 4, 4, 5, 6);
+    assert_eq(SkNf<N>::Min(a, fours), 3, 4, 4, 4);
+    assert_eq(SkNf<N>::Max(a, fours), 4, 4, 5, 6);
 
     // Test some comparisons.  This is not exhaustive.
     REPORTER_ASSERT(r, (a == b).allTrue());
@@ -75,11 +75,8 @@ static void test_Nf(skiatest::Reporter* r) {
 }
 
 DEF_TEST(SkNf, r) {
-    test_Nf<2, float>(r);
-    test_Nf<2, double>(r);
-
-    test_Nf<4, float>(r);
-    test_Nf<4, double>(r);
+    test_Nf<2>(r);
+    test_Nf<4>(r);
 }
 
 template <int N, typename T>

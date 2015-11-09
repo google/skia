@@ -14,7 +14,7 @@ namespace {  // See SkNx.h
 
 
 template <>
-class SkNf<2, float> {
+class SkNf<2> {
 public:
     SkNf(const __m128& vec) : fVec(vec) {}
 
@@ -63,53 +63,6 @@ public:
 };
 
 template <>
-class SkNf<2, double> {
-public:
-    SkNf(const __m128d& vec) : fVec(vec) {}
-
-    SkNf() {}
-    explicit SkNf(double val)           : fVec( _mm_set1_pd(val) ) {}
-    static SkNf Load(const double vals[2]) { return _mm_loadu_pd(vals); }
-    SkNf(double a, double b) : fVec(_mm_setr_pd(a,b)) {}
-
-    void store(double vals[2]) const { _mm_storeu_pd(vals, fVec); }
-
-    SkNf operator + (const SkNf& o) const { return _mm_add_pd(fVec, o.fVec); }
-    SkNf operator - (const SkNf& o) const { return _mm_sub_pd(fVec, o.fVec); }
-    SkNf operator * (const SkNf& o) const { return _mm_mul_pd(fVec, o.fVec); }
-    SkNf operator / (const SkNf& o) const { return _mm_div_pd(fVec, o.fVec); }
-
-    SkNf operator == (const SkNf& o) const { return _mm_cmpeq_pd (fVec, o.fVec); }
-    SkNf operator != (const SkNf& o) const { return _mm_cmpneq_pd(fVec, o.fVec); }
-    SkNf operator  < (const SkNf& o) const { return _mm_cmplt_pd (fVec, o.fVec); }
-    SkNf operator  > (const SkNf& o) const { return _mm_cmpgt_pd (fVec, o.fVec); }
-    SkNf operator <= (const SkNf& o) const { return _mm_cmple_pd (fVec, o.fVec); }
-    SkNf operator >= (const SkNf& o) const { return _mm_cmpge_pd (fVec, o.fVec); }
-
-    static SkNf Min(const SkNf& l, const SkNf& r) { return _mm_min_pd(l.fVec, r.fVec); }
-    static SkNf Max(const SkNf& l, const SkNf& r) { return _mm_max_pd(l.fVec, r.fVec); }
-
-    SkNf  sqrt() const { return _mm_sqrt_pd(fVec);  }
-    SkNf rsqrt0() const { return _mm_cvtps_pd(_mm_rsqrt_ps(_mm_cvtpd_ps(fVec))); }
-    SkNf rsqrt1() const { return this->rsqrt0(); }
-    SkNf rsqrt2() const { return this->rsqrt1(); }
-
-    SkNf       invert() const { return SkNf(1) / *this; }
-    SkNf approxInvert() const { return _mm_cvtps_pd(_mm_rcp_ps(_mm_cvtpd_ps(fVec))); }
-
-    template <int k> double kth() const {
-        SkASSERT(0 <= k && k < 2);
-        union { __m128d v; double ds[2]; } pun = {fVec};
-        return pun.ds[k&1];
-    }
-
-    bool allTrue() const { return 0xffff == _mm_movemask_epi8(_mm_castpd_si128(fVec)); }
-    bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castpd_si128(fVec)); }
-
-    __m128d fVec;
-};
-
-template <>
 class SkNi<4, int> {
 public:
     SkNi(const __m128i& vec) : fVec(vec) {}
@@ -148,7 +101,7 @@ public:
 };
 
 template <>
-class SkNf<4, float> {
+class SkNf<4> {
 public:
     SkNf(const __m128& vec) : fVec(vec) {}
 
@@ -178,8 +131,6 @@ public:
                 fix8    = _mm_packus_epi16(fix8_16, fix8_16);
         *(int*)bytes = _mm_cvtsi128_si32(fix8);
     }
-
-    SkNi<4, int> castTrunc() const { return _mm_cvttps_epi32(fVec); }
 
     SkNf operator + (const SkNf& o) const { return _mm_add_ps(fVec, o.fVec); }
     SkNf operator - (const SkNf& o) const { return _mm_sub_ps(fVec, o.fVec); }
