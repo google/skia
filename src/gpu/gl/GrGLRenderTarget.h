@@ -9,6 +9,7 @@
 #ifndef GrGLRenderTarget_DEFINED
 #define GrGLRenderTarget_DEFINED
 
+#include "GrGpu.h"
 #include "GrGLIRect.h"
 #include "GrRenderTarget.h"
 #include "SkScalar.h"
@@ -70,19 +71,14 @@ public:
     // components seperately.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
-    /**
-     * @return true if sample locations colocated at pixel center have been set for this
-     *         render target.  Requires support for NV_sample_locations.
-     */
-    bool usesColocatedSampleLocations() const {
-        return fUsesColocatedSampleLocations;
+    bool getCachedCoCenteredSamplesState(GrGpu::ResetTimestamp* stamp) const {
+        *stamp = fHasCoCenteredSamplesTimestamp;
+        return fHasCoCenteredSamples;
     }
 
-    /**
-     * Flag render target as using or not using sample locations colocated at pixel center.
-     */
-    void flagAsUsingColocatedSampleLocations(bool useColocatedSampleLocations) {
-        fUsesColocatedSampleLocations = useColocatedSampleLocations;
+    void setCachedCoCenteredSamplesState(bool hasCoCenteredSamples, GrGpu::ResetTimestamp stamp) {
+        fHasCoCenteredSamples = hasCoCenteredSamples;
+        fHasCoCenteredSamplesTimestamp = stamp;
     }
 
 protected:
@@ -114,26 +110,24 @@ private:
     // The number total number of samples, including both MSAA and resolve texture samples.
     int totalSamples() const;
 
-    GrGLuint    fRTFBOID;
-    GrGLuint    fTexFBOID;
-    GrGLuint    fMSColorRenderbufferID;
+    GrGLuint                fRTFBOID;
+    GrGLuint                fTexFBOID;
+    GrGLuint                fMSColorRenderbufferID;
+    bool                    fHasCoCenteredSamples;
+    GrGpu::ResetTimestamp   fHasCoCenteredSamplesTimestamp;
 
     // We track this separately from GrGpuResource because this may be both a texture and a render
     // target, and the texture may be wrapped while the render target is not.
-    LifeCycle   fRTLifecycle;
+    LifeCycle               fRTLifecycle;
 
     // when we switch to this render target we want to set the viewport to
     // only render to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left)
-    GrGLIRect   fViewport;
+    GrGLIRect               fViewport;
 
     // onGpuMemorySize() needs to know the VRAM footprint of the FBO(s). However, abandon and
     // release zero out the IDs and the cache needs to know the size even after those actions.
-    size_t      fGpuMemorySize;
-
-    // True if sample locations colocated at pixel center are currently in use, false if default
-    // sample locations are currently in use.
-    bool        fUsesColocatedSampleLocations;
+    size_t                  fGpuMemorySize;
 
     typedef GrRenderTarget INHERITED;
 };

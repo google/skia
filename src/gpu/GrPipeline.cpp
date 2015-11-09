@@ -59,12 +59,15 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     pipeline->fRenderTarget.reset(builder.fRenderTarget.get());
     SkASSERT(pipeline->fRenderTarget);
-    pipeline->fScissorState = *args.fScissor;
+    pipeline->fScissorState = args.fClip->scissorState();
     pipeline->fStencilSettings = builder.getStencil();
     pipeline->fDrawFace = builder.getDrawFace();
 
     pipeline->fFlags = 0;
-    if (builder.isHWAntialias()) {
+    if (args.fClip->isCoCenteredMultisampledDraw()) {
+        SkASSERT(args.fCaps->programmableSampleLocationsSupport() && !builder.isHWAntialias());
+        pipeline->fFlags |= (kHWAA_Flag | kCoCenteredSamples_Flag);
+    } else if (builder.isHWAntialias()) {
         pipeline->fFlags |= kHWAA_Flag;
     }
     if (builder.snapVerticesToPixelCenters()) {

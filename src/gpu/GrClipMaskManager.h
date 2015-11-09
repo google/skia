@@ -33,13 +33,23 @@ class SkPath;
  */
 class GrAppliedClip : public SkNoncopyable {
 public:
-    GrAppliedClip() {}
+    GrAppliedClip() : fIsCoCenteredMultisampledDraw(false) {}
+
     const GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP; }
     const GrScissorState& scissorState() const { return fScissorState; }
+
+    /**
+     * This is used to perform a multisampled clip test when the draw requires MSAA to be disabled.
+     * It will allow the stencil test to run multisampled by turning on hardware MSAA, but co-locate
+     * the draw's samples at pixel center so it will still feel like MSAA is disabled.
+     */
+    bool isCoCenteredMultisampledDraw() const { return fIsCoCenteredMultisampledDraw; }
 
 private:
     SkAutoTUnref<const GrFragmentProcessor> fClipCoverageFP;
     GrScissorState                          fScissorState;
+    bool                                    fIsCoCenteredMultisampledDraw;
+
     friend class GrClipMaskManager;
 
     typedef SkNoncopyable INHERITED;

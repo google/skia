@@ -43,7 +43,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
-    fMultisampleDisableSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
@@ -253,6 +252,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (kGL_GrGLStandard == standard) {
+        fProgrammableSampleLocationsSupport =
+            ctxInfo.version() >= GR_GL_VER(4, 3) &&
+            (ctxInfo.hasExtension("GL_ARB_sample_locations") ||
+             ctxInfo.hasExtension("GL_NV_sample_locations"));
+    } else {
+        fProgrammableSampleLocationsSupport =
+            ctxInfo.version() >= GR_GL_VER(3, 1) &&
+            ctxInfo.hasExtension("GL_NV_sample_locations");
+    }
+
+    if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 0)) {
             fBindFragDataLocationSupport = true;
         }
@@ -308,17 +318,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
         glslCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
-    }
-
-    if (kGL_GrGLStandard == standard) {
-        glslCaps->fProgrammableSampleLocationsSupport =
-            ctxInfo.version() >= GR_GL_VER(4, 3) &&
-            (ctxInfo.hasExtension("GL_ARB_sample_locations") ||
-             ctxInfo.hasExtension("GL_NV_sample_locations"));
-    } else {
-        glslCaps->fProgrammableSampleLocationsSupport =
-            ctxInfo.version() >= GR_GL_VER(3, 1) &&
-            ctxInfo.hasExtension("GL_NV_sample_locations");
     }
 
     /**************************************************************************
@@ -1183,7 +1182,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Instanced drawing support: %s\n", (fInstancedDrawingSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
-    r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));

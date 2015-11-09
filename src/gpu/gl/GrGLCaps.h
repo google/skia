@@ -213,11 +213,6 @@ public:
     /// Is there support for ES2 compatability?
     bool ES2CompatibilitySupport() const { return fES2CompatibilitySupport; }
 
-    /// Can we call glDisable(GL_MULTISAMPLE)?
-    bool multisampleDisableSupport() const {
-        return fMultisampleDisableSupport;
-    }
-
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const {
         return fUseNonVBOVertexAndIndexDynamicData;
@@ -356,7 +351,6 @@ private:
     bool fDirectStateAccessSupport : 1;
     bool fDebugSupport : 1;
     bool fES2CompatibilitySupport : 1;
-    bool fMultisampleDisableSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fBindFragDataLocationSupport : 1;

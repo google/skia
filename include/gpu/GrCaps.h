@@ -62,7 +62,6 @@ public:
     bool pathRenderingSupport() const { return fPathRenderingSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
-    bool programmableSampleLocationsSupport() const { return fProgrammableSampleLocationsSupport; }
 
     /**
     * Get the precision info for a variable of type kFloat_GrSLType, kVec2f_GrSLType, etc in a
@@ -92,7 +91,6 @@ protected:
     bool fPathRenderingSupport : 1;
     bool fDstReadInShaderSupport : 1;
     bool fDualSourceBlendingSupport : 1;
-    bool fProgrammableSampleLocationsSupport : 1;
 
     bool fShaderPrecisionVaries;
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
@@ -128,6 +126,8 @@ public:
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
+    bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
+    bool programmableSampleLocationsSupport() const { return fProgrammableSampleLocationsSupport; }
     bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
@@ -246,6 +246,8 @@ protected:
     bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
+    bool fMultisampleDisableSupport                  : 1;
+    bool fProgrammableSampleLocationsSupport         : 1;
     bool fMixedSamplesSupport                        : 1;
     bool fSupportsInstancedDraws                     : 1;
     bool fFullClearIsFree                            : 1;

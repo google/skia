@@ -278,9 +278,7 @@ private:
     };
 
     void recordBatch(GrBatch*);
-    bool installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
-                                    const GrScissorState* scissor,
-                                    GrDrawBatch* batch);
+    bool installPipelineInDrawBatch(const GrPipelineBuilder*, const GrAppliedClip*, GrDrawBatch*);
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
