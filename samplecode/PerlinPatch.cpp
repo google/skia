@@ -75,23 +75,24 @@ class PerlinPatchView : public SampleView {
 public:
     PerlinPatchView() : fXFreq(0.025f), fYFreq(0.025f), fSeed(0.0f),
                         fTexX(100.0), fTexY(50.0), fTexScale(1.0f) {
+        const SkScalar s = 2;
         // The order of the colors and points is clockwise starting at upper-left corner.
         //top points
-        fPts[0].set(100, 100);
-        fPts[1].set(150, 50);
-        fPts[2].set(250, 150);
-        fPts[3].set(300, 100);
+        fPts[0].set(100 * s, 100 * s);
+        fPts[1].set(150 * s, 50 * s);
+        fPts[2].set(250 * s, 150 * s);
+        fPts[3].set(300 * s, 100 * s);
         //right points
-        fPts[4].set(275, 150);
-        fPts[5].set(350, 250);
+        fPts[4].set(275 * s, 150 * s);
+        fPts[5].set(350 * s, 250 * s);
         //bottom points
-        fPts[6].set(300, 300);
-        fPts[7].set(250, 250);
+        fPts[6].set(300 * s, 300 * s);
+        fPts[7].set(250 * s, 250 * s);
         //left points
-        fPts[8].set(150, 350);
-        fPts[9].set(100, 300);
-        fPts[10].set(50, 250);
-        fPts[11].set(150, 150);
+        fPts[8].set(150 * s, 350 * s);
+        fPts[9].set(100 * s, 300 * s);
+        fPts[10].set(50 * s, 250 * s);
+        fPts[11].set(150 * s, 150 * s);
 
         const SkColor colors[SkPatchUtils::kNumCorners] = {
             0xFF5555FF, 0xFF8888FF, 0xFFCCCCFF

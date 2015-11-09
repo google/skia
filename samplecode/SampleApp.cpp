@@ -1441,6 +1441,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
     // Do this after presentGL and other finishing, rather than in afterChild
     if (fMeasureFPS) {
+        orig->flush();
         fTimer.end();
         fMeasureFPS_Time += fTimer.fWall;
     }

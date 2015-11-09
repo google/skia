@@ -127,7 +127,7 @@ protected:
         canvas->restore();
 
         paint.setTextSize(16);
-        canvas->drawText(outString.c_str(), outString.size(), 512.f, 540.f, paint);
+//        canvas->drawText(outString.c_str(), outString.size(), 512.f, 540.f, paint);
         canvas->drawText(modeString.c_str(), modeString.size(), 768.f, 540.f, paint);
     }
 

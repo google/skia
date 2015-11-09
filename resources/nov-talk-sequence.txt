@@ -1,7 +1,5 @@
 DrawAtlasSim
 DrawAtlas
-DrawShipSim
-DrawShip
 PerlinPatch
 FilterQuality
 GM:xfermodes2
