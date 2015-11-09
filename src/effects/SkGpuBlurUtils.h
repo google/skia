@@ -26,9 +26,9 @@ namespace SkGpuBlurUtils {
     * @param srcTexture      The source texture to be blurred.
     * @param canClobberSrc   If true, srcTexture may be overwritten, and
     *                        may be returned as the result.
-    * @param dstBounds       The destination bounds, relative to the source texture.
-    * @param srcBounds       The source bounds, relative to the source texture. If non-null,
-    *                        no pixels will be sampled outside of this rectangle.
+    * @param rect            The destination rectangle.
+    * @param cropToRect      If true, do not sample any pixels outside the
+    *                        source rect.
     * @param sigmaX          The blur's standard deviation in X.
     * @param sigmaY          The blur's standard deviation in Y.
     * @return the blurred texture, which may be srcTexture reffed, or a
@@ -37,8 +37,8 @@ namespace SkGpuBlurUtils {
     GrTexture* GaussianBlur(GrContext* context,
                             GrTexture* srcTexture,
                             bool canClobberSrc,
-                            const SkRect& dstBounds,
-                            const SkRect* srcBounds,
+                            const SkRect& rect,
+                            bool cropToRect,
                             float sigmaX,
                             float sigmaY,
                             GrTextureProvider::SizeConstraint);
