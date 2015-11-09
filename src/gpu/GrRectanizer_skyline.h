@@ -19,9 +19,9 @@ public:
         this->reset();
     }
 
-    virtual ~GrRectanizerSkyline() { }
+    ~GrRectanizerSkyline() override { }
 
-    void reset() override{
+    void reset() override {
         fAreaSoFar = 0;
         fSkyline.reset();
         SkylineSegment* seg = fSkyline.append(1);

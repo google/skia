@@ -125,7 +125,7 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace
         desc.fSampleCnt = 0;
 
         texture.reset(context->textureProvider()->createTexture(desc, false, nullptr, 0));
-        layer->setTexture(texture, SkIRect::MakeWH(kWidth, kHeight));
+        layer->setTexture(texture, SkIRect::MakeWH(kWidth, kHeight), false);
     }
 
     SkRecord rerecord;
