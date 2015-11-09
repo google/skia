@@ -12,15 +12,17 @@
 // This lets us exploit vld4/vst4 and represent SkPx as planar uint8x8x4_t,
 // Wide as planar uint16x8x4_t, and Alpha as a single uint8x8_t plane.
 
-struct SkPx_neon {
+namespace neon {
+
+struct SkPx {
     static const int N = 8;
 
     uint8x8x4_t fVec;
-    SkPx_neon(uint8x8x4_t vec) : fVec(vec) {}
+    SkPx(uint8x8x4_t vec) : fVec(vec) {}
 
-    static SkPx_neon Dup(uint32_t px) { return vld4_dup_u8((const uint8_t*)&px); }
-    static SkPx_neon Load(const uint32_t* px) { return vld4_u8((const uint8_t*)px); }
-    static SkPx_neon Load(const uint32_t* px, int n) {
+    static SkPx Dup(uint32_t px) { return vld4_dup_u8((const uint8_t*)&px); }
+    static SkPx Load(const uint32_t* px) { return vld4_u8((const uint8_t*)px); }
+    static SkPx Load(const uint32_t* px, int n) {
         SkASSERT(0 < n && n < 8);
         uint8x8x4_t v = vld4_dup_u8((const uint8_t*)px);  // n>=1, so start all lanes with pixel 0.
         switch (n) {
@@ -108,7 +110,7 @@ struct SkPx_neon {
             }};
         }
 
-        SkPx_neon addNarrowHi(const SkPx_neon& o) const {
+        SkPx addNarrowHi(const SkPx& o) const {
             return (uint8x8x4_t) {{
                 vshrn_n_u16(vaddw_u8(fVec.val[0], o.fVec.val[0]), 8),
                 vshrn_n_u16(vaddw_u8(fVec.val[1], o.fVec.val[1]), 8),
@@ -132,7 +134,7 @@ struct SkPx_neon {
     Wide widenHi() const { return this->widenLo().shl<8>(); }
     Wide widenLoHi() const { return this->widenLo() + this->widenHi(); }
 
-    SkPx_neon operator+(const SkPx_neon& o) const {
+    SkPx operator+(const SkPx& o) const {
         return (uint8x8x4_t) {{
             vadd_u8(fVec.val[0], o.fVec.val[0]),
             vadd_u8(fVec.val[1], o.fVec.val[1]),
@@ -140,7 +142,7 @@ struct SkPx_neon {
             vadd_u8(fVec.val[3], o.fVec.val[3]),
         }};
     }
-    SkPx_neon operator-(const SkPx_neon& o) const {
+    SkPx operator-(const SkPx& o) const {
         return (uint8x8x4_t) {{
             vsub_u8(fVec.val[0], o.fVec.val[0]),
             vsub_u8(fVec.val[1], o.fVec.val[1]),
@@ -148,7 +150,7 @@ struct SkPx_neon {
             vsub_u8(fVec.val[3], o.fVec.val[3]),
         }};
     }
-    SkPx_neon saturatedAdd(const SkPx_neon& o) const {
+    SkPx saturatedAdd(const SkPx& o) const {
         return (uint8x8x4_t) {{
             vqadd_u8(fVec.val[0], o.fVec.val[0]),
             vqadd_u8(fVec.val[1], o.fVec.val[1]),
@@ -165,11 +167,11 @@ struct SkPx_neon {
             vmull_u8(fVec.val[3], a.fA),
         }};
     }
-    SkPx_neon approxMulDiv255(const Alpha& a) const {
+    SkPx approxMulDiv255(const Alpha& a) const {
         return (*this * a).addNarrowHi(*this);
     }
 
-    SkPx_neon addAlpha(const Alpha& a) const {
+    SkPx addAlpha(const Alpha& a) const {
         return (uint8x8x4_t) {{
             fVec.val[0],
             fVec.val[1],
@@ -178,6 +180,9 @@ struct SkPx_neon {
         }};
     }
 };
-typedef SkPx_neon SkPx;
+
+}  // namespace neon
+
+typedef neon::SkPx SkPx;
 
 #endif//SkPx_neon_DEFINED

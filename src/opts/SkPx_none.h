@@ -11,18 +11,20 @@
 // Nothing fancy here.  We're the backup _none case after all.
 // Our declared sweet spot is simply a single pixel at a time.
 
-struct SkPx_none {
+namespace none {
+
+struct SkPx {
     static const int N = 1;
     uint8_t f8[4];
 
-    SkPx_none(uint32_t px) { memcpy(f8, &px, 4); }
-    SkPx_none(uint8_t x, uint8_t y, uint8_t z, uint8_t a) {
+    SkPx(uint32_t px) { memcpy(f8, &px, 4); }
+    SkPx(uint8_t x, uint8_t y, uint8_t z, uint8_t a) {
         f8[0] = x; f8[1] = y; f8[2] = z; f8[3] = a;
     }
 
-    static SkPx_none Dup(uint32_t px) { return px; }
-    static SkPx_none Load(const uint32_t* px) { return *px; }
-    static SkPx_none Load(const uint32_t* px, int n) {
+    static SkPx Dup(uint32_t px) { return px; }
+    static SkPx Load(const uint32_t* px) { return *px; }
+    static SkPx Load(const uint32_t* px, int n) {
         SkASSERT(false);  // There are no 0<n<1.
         return 0;
     }
@@ -65,9 +67,9 @@ struct SkPx_none {
             return Wide(f16[0]>>bits, f16[1]>>bits, f16[2]>>bits, f16[3]>>bits);
         }
 
-        SkPx_none addNarrowHi(const SkPx_none& o) const {
+        SkPx addNarrowHi(const SkPx& o) const {
             Wide sum = (*this + o.widenLo()).shr<8>();
-            return SkPx_none(sum.f16[0], sum.f16[1], sum.f16[2], sum.f16[3]);
+            return SkPx(sum.f16[0], sum.f16[1], sum.f16[2], sum.f16[3]);
         }
     };
 
@@ -77,14 +79,14 @@ struct SkPx_none {
     Wide widenHi() const { return this->widenLo().shl<8>(); }
     Wide widenLoHi() const { return this->widenLo() + this->widenHi(); }
 
-    SkPx_none operator+(const SkPx_none& o) const {
-        return SkPx_none(f8[0]+o.f8[0], f8[1]+o.f8[1], f8[2]+o.f8[2], f8[3]+o.f8[3]);
+    SkPx operator+(const SkPx& o) const {
+        return SkPx(f8[0]+o.f8[0], f8[1]+o.f8[1], f8[2]+o.f8[2], f8[3]+o.f8[3]);
     }
-    SkPx_none operator-(const SkPx_none& o) const {
-        return SkPx_none(f8[0]-o.f8[0], f8[1]-o.f8[1], f8[2]-o.f8[2], f8[3]-o.f8[3]);
+    SkPx operator-(const SkPx& o) const {
+        return SkPx(f8[0]-o.f8[0], f8[1]-o.f8[1], f8[2]-o.f8[2], f8[3]-o.f8[3]);
     }
-    SkPx_none saturatedAdd(const SkPx_none& o) const {
-        return SkPx_none(SkTMax(0, SkTMin(255, f8[0]+o.f8[0])),
+    SkPx saturatedAdd(const SkPx& o) const {
+        return SkPx(SkTMax(0, SkTMin(255, f8[0]+o.f8[0])),
                          SkTMax(0, SkTMin(255, f8[1]+o.f8[1])),
                          SkTMax(0, SkTMin(255, f8[2]+o.f8[2])),
                          SkTMax(0, SkTMin(255, f8[3]+o.f8[3])));
@@ -93,14 +95,17 @@ struct SkPx_none {
     Wide operator*(const Alpha& a) const {
         return Wide(f8[0]*a.fA, f8[1]*a.fA, f8[2]*a.fA, f8[3]*a.fA);
     }
-    SkPx_none approxMulDiv255(const Alpha& a) const {
+    SkPx approxMulDiv255(const Alpha& a) const {
         return (*this * a).addNarrowHi(*this);
     }
 
-    SkPx_none addAlpha(const Alpha& a) const {
-        return SkPx_none(f8[0], f8[1], f8[2], f8[3]+a.fA);
+    SkPx addAlpha(const Alpha& a) const {
+        return SkPx(f8[0], f8[1], f8[2], f8[3]+a.fA);
     }
 };
-typedef SkPx_none SkPx;
+
+}  // namespace none
+
+typedef none::SkPx SkPx;
 
 #endif//SkPx_none_DEFINED

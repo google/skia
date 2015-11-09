@@ -8,24 +8,26 @@
 #ifndef SkPx_sse_DEFINED
 #define SkPx_sse_DEFINED
 
-// SkPx_sse's sweet spot is to work with 4 pixels at a time,
+// sse::SkPx's sweet spot is to work with 4 pixels at a time,
 // stored interlaced, just as they sit in memory: rgba rgba rgba rgba.
 
-// SkPx_sse's best way to work with alphas is similar,
+// sse::SkPx's best way to work with alphas is similar,
 // replicating the 4 alphas 4 times each across the pixel: aaaa aaaa aaaa aaaa.
 
 // When working with fewer than 4 pixels, we load the pixels in the low lanes,
 // usually filling the top lanes with zeros (but who cares, might be junk).
 
-struct SkPx_sse {
+namespace sse {
+
+struct SkPx {
     static const int N = 4;
 
     __m128i fVec;
-    SkPx_sse(__m128i vec) : fVec(vec) {}
+    SkPx(__m128i vec) : fVec(vec) {}
 
-    static SkPx_sse Dup(uint32_t px) { return _mm_set1_epi32(px); }
-    static SkPx_sse Load(const uint32_t* px) { return _mm_loadu_si128((const __m128i*)px); }
-    static SkPx_sse Load(const uint32_t* px, int n) {
+    static SkPx Dup(uint32_t px) { return _mm_set1_epi32(px); }
+    static SkPx Load(const uint32_t* px) { return _mm_loadu_si128((const __m128i*)px); }
+    static SkPx Load(const uint32_t* px, int n) {
         SkASSERT(n > 0 && n < 4);
         switch (n) {
             case 1: return _mm_cvtsi32_si128(px[0]);
@@ -96,7 +98,7 @@ struct SkPx_sse {
             return Wide(_mm_srli_epi16(fLo, bits), _mm_srli_epi16(fHi, bits));
         }
 
-        SkPx_sse addNarrowHi(const SkPx_sse& o) const {
+        SkPx addNarrowHi(const SkPx& o) const {
             Wide sum = (*this + o.widenLo()).shr<8>();
             return _mm_packus_epi16(sum.fLo, sum.fHi);
         }
@@ -125,9 +127,9 @@ struct SkPx_sse {
                     _mm_unpackhi_epi8(fVec, fVec));
     }
 
-    SkPx_sse    operator+(const SkPx_sse& o) const { return _mm_add_epi8(fVec, o.fVec); }
-    SkPx_sse    operator-(const SkPx_sse& o) const { return _mm_sub_epi8(fVec, o.fVec); }
-    SkPx_sse saturatedAdd(const SkPx_sse& o) const { return _mm_adds_epi8(fVec, o.fVec); }
+    SkPx    operator+(const SkPx& o) const { return _mm_add_epi8(fVec, o.fVec); }
+    SkPx    operator-(const SkPx& o) const { return _mm_sub_epi8(fVec, o.fVec); }
+    SkPx saturatedAdd(const SkPx& o) const { return _mm_adds_epi8(fVec, o.fVec); }
 
     Wide operator*(const Alpha& a) const {
         __m128i pLo = _mm_unpacklo_epi8(  fVec, _mm_setzero_si128()),
@@ -136,15 +138,17 @@ struct SkPx_sse {
                 aHi = _mm_unpackhi_epi8(a.fVec, _mm_setzero_si128());
         return Wide(_mm_mullo_epi16(pLo, aLo), _mm_mullo_epi16(pHi, aHi));
     }
-    SkPx_sse approxMulDiv255(const Alpha& a) const {
+    SkPx approxMulDiv255(const Alpha& a) const {
         return (*this * a).addNarrowHi(*this);
     }
 
-    SkPx_sse addAlpha(const Alpha& a) const {
+    SkPx addAlpha(const Alpha& a) const {
         return _mm_add_epi8(fVec, _mm_and_si128(a.fVec, _mm_set1_epi32(0xFF000000)));
     }
 };
 
-typedef SkPx_sse SkPx;
+}  // namespace sse
+
+typedef sse::SkPx SkPx;
 
 #endif//SkPx_sse_DEFINED
