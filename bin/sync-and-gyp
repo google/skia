@@ -1,58 +1,88 @@
-#!/bin/sh
+#!/usr/bin/env python
 
 # Copyright 2015 Google Inc.
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This script will update Skia's dependenciess as necessary and run
+# This script will update Skia's dependencies as necessary and run
 # gyp if needed.
 
-# Depends on: Posix-compliant shell, Python, and Git.
+# Depends on: Python, and Git.
 #
 # Example usage:
 #
 #   git clone https://skia.googlesource.com/skia
 #   cd skia
-#   bin/sync-and-gyp
+#   python bin/sync-and-gyp
 #   ninja -C out/Debug && out/Debug/dm
 #
 # Once changes are made to DEPS or gyp/ or the source, call:
 #
-#   bin/sync-and-gyp
+#   python bin/sync-and-gyp
 
-if [ "$SKIA_OUT" ]; then
-    mkdir -p "$SKIA_OUT" || exit
-    # get non-relative path of $SKIA_OUT before changing directory.
-    SKIA_OUT="$(cd "$SKIA_OUT"; pwd)"
-fi
+import fnmatch
+import hashlib
+import subprocess
+import os
 
-cd "$(dirname "$0")/.."
+skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
 
-if ! [ -f DEPS ]; then
-    echo DEPS file missing >&2
-    exit 1
-fi
+skia_out = os.environ.get("SKIA_OUT")
+if skia_out:
+  skia_out = os.path.abspath(skia_out)
+  hash_path = os.path.join(skia_out, 'gyp_hash')
+else:
+  hash_path = os.path.join('out', 'gyp_hash')
 
-GIT_SYNC_DEPS_QUIET=1 python tools/git-sync-deps || exit
+os.chdir(skia_dir)
 
-catifexists() { if [ -f "$1" ]; then cat "$1"; fi; }
+if not os.path.isfile('DEPS'):
+  sys.stderr.write('DEPS file missing')
+  exit(1)
 
-gyp_hasher() {
-    {
-        echo "$CC"
-        echo "$CXX"
-        echo "$GYP_GENERATORS"
-        echo "$GYP_DEFINES"
-        find gyp -type f -print -exec git hash-object {} \;
-        find bench gm tests -name '*.c*' | LANG= sort
-    } | git hash-object --stdin
-}
+env = os.environ.copy()
+env["GIT_SYNC_DEPS_QUIET"] = "1"
+subprocess.call(['python', 'tools/git-sync-deps'], env=env)
 
-: ${SKIA_OUT:=out}
-GYP_HASH=$(gyp_hasher)
-HASH_PATH="${SKIA_OUT}/gyp_hash"
-if [ "$GYP_HASH" != "$(catifexists "$HASH_PATH")" ]; then
-    python ./gyp_skia || exit
-    echo "$GYP_HASH" > "$HASH_PATH"
-fi
+hasher = hashlib.sha1()
+
+for var in ['AR', 'AR_host', 'AR_target',
+            'CC', 'CC_host', 'CC_target',
+            'CFLAGS', 'CFLAGS_host',
+            'CPPFLAGS', 'CPPFLAGS_host',
+            'CXX', 'CXX_host', 'CXX_target',
+            'GYP_DEFINES', 'GYP_GENERATORS',
+            'NM', 'NM_host', 'NM_target',
+            'READELF', 'READELF_host', 'READELF_target']:
+  hasher.update(os.environ.get(var, '') + '\n')
+
+def listfiles(folder, matchfilter):
+  for root, folders, files in os.walk(folder):
+    for filename in files:
+      if fnmatch.fnmatch(filename, matchfilter):
+        yield os.path.join(root, filename)
+
+for filename in sorted(listfiles('gyp', '*')):
+  with open(filename, 'r') as f:
+    hasher.update(f.read())
+
+for dir in ['bench', 'gm', 'tests']:
+  for filename in sorted(listfiles(dir, '*.c*')):
+    hasher.update(filename + '\n')
+
+gyp_hash = hasher.hexdigest()
+
+def cat_if_exists(path):
+  if os.path.exists(path):
+    with open(path, 'r') as f:
+      return f.read()
+  return ''
+
+if cat_if_exists(hash_path).strip() != gyp_hash:
+  env = os.environ.copy()
+  if skia_out:
+    env['SKIA_OUT'] = skia_out
+  subprocess.call(['python', './gyp_skia'], env=env)
+  with open(hash_path, 'w') as o:
+    o.write(gyp_hash)
