@@ -34,6 +34,11 @@
             'android/sdl_android.gypi',
           ]
         }],
+        ['skia_os == "mac"', {
+          'includes': [
+            'mac/sdl_mac.gypi',
+          ]
+        }],
       ],
     },
   ],

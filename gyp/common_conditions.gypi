@@ -388,6 +388,11 @@
         '<@(skia_for_android_framework_defines)',
       ],
     }],
+    
+    [ 'skia_use_sdl == 1',
+      {
+        'defines': [ 'SK_USE_SDL' ],
+    }],
 
     [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]',
       {

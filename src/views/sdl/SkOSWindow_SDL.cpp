@@ -9,8 +9,10 @@
 
 #if defined(SK_BUILD_FOR_ANDROID)
 #include <GLES/gl.h>
-#else
+#elif defined(SK_BUILD_FOR_LINUX)
 #include <GL/gl.h>
+#elif defined(SK_BUILD_FOR_MAC)
+#include <gl.h>
 #endif
 
 const int SCREEN_WIDTH = 640;

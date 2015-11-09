@@ -1,0 +1,9 @@
+To generate SDL_config.h run:
+1) ../../externals/sdl/configure --disable-audio --disable-joystick --disable-haptic --disable-power --disable-video-wayland --disable-video-mir --disable-video-dummy --disable-dbus --disable-ibus --disable-libudev
+2) make -j32
+3) if you save the awk output, then you can get a list of files required for
+   the build with this awk one liner:
+   awk '$1 == "/bin/sh" && $2 == "./libtool" && $3 == "--mode=compile" \
+   {pathname=$(NF - 2); n=split(pathname,a,/\//); print a[n]}'
+4) inside of SDL_config.h, make sure to undefine sound and any other features
+   which don't make sense for Skia

@@ -86,7 +86,7 @@
             '../src/gpu',
           ],
         }],
-        [ 'skia_os == "mac"', {
+        [ 'skia_os == "mac" and skia_use_sdl == 0', {
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
@@ -107,7 +107,7 @@
           '../src/views/mac/skia_mac.mm',
           ],
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"] and skia_use_sdl == 0', {
           'link_settings': {
             'libraries': [
               '-lGL',
@@ -142,15 +142,38 @@
             'sdl.gyp:sdl',
           ],
           'sources!': [
-            '../src/views/unix/SkOSWindow_Unix.cpp',
-            '../src/views/unix/keysym2ucs.c',
-            '../src/views/unix/skia_unix.cpp',
+             # linux sources
+             '../src/views/unix/SkOSWindow_Unix.cpp',
+             '../src/views/unix/keysym2ucs.c',
+             '../src/views/unix/skia_unix.cpp',
+
+             # mac sources
+             '../src/views/mac/SkEventNotifier.h',
+             '../src/views/mac/SkEventNotifier.mm',
+             '../src/views/mac/SkTextFieldCell.h',
+             '../src/views/mac/SkTextFieldCell.m',
+             '../src/views/mac/SkNSView.h',
+             '../src/views/mac/SkNSView.mm',
+             '../src/views/mac/SkOSWindow_Mac.mm',
+             '../src/views/mac/skia_mac.mm',
           ],
           'sources': [
             '../src/views/sdl/SkOSWindow_SDL.cpp',
           ],
           'export_dependent_settings': [
             'sdl.gyp:sdl',
+          ],
+          'conditions': [
+            [ 'skia_os == "mac"', {
+              'include_dirs': [
+                  '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework/Headers',
+              ],
+              'link_settings': {
+                'libraries': [
+                  '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
+                ],
+              }
+            }],
           ],
         }],
       ],
