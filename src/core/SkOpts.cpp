@@ -83,9 +83,10 @@ namespace SkOpts {
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
-    void Init_neon();
+    void Init_sse42() { SkDEBUGCODE( SkDebugf("sse 4.2 detected\n"); ) }
     void Init_avx()  { SkDEBUGCODE( SkDebugf("avx detected\n"); ) }
     void Init_avx2() { SkDEBUGCODE( SkDebugf("avx2 detected\n"); ) }
+    void Init_neon();
     //TODO: _dsp2, _armv7, _armv8, _x86, _x86_64, _sse42, ... ?
 
     static void init() {
@@ -95,6 +96,7 @@ namespace SkOpts {
         cpuid(abcd);
         if (abcd[2] & (1<< 9)) { Init_ssse3(); }
         if (abcd[2] & (1<<19)) { Init_sse41(); }
+        if (abcd[2] & (1<<20)) { Init_sse42(); }
 
         // AVX detection's kind of a pain.  This is cribbed from Chromium.
         if ( (  abcd[2] & (7<<26)) == (7<<26) &&    // Check bits 26-28 of ecx are all set,
