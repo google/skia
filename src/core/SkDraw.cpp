@@ -1788,7 +1788,7 @@ private:
 // PositionReaderInterface reads a point from the pos vector.
 // * HorizontalPositions - assumes a common Y for many X values.
 // * ArbitraryPositions - a list of (X,Y) pairs.
-class PositionReaderInterface : SkNoncopyable {
+class PositionReaderInterface {
 public:
     virtual ~PositionReaderInterface() { }
     virtual SkPoint nextPoint() = 0;
@@ -1796,7 +1796,7 @@ public:
 
 class HorizontalPositions final : public PositionReaderInterface {
 public:
-    HorizontalPositions(const SkScalar* positions)
+    explicit HorizontalPositions(const SkScalar* positions)
         : fPositions(positions) { }
 
     SkPoint nextPoint() override {
@@ -1809,7 +1809,7 @@ private:
 
 class ArbitraryPositions final : public PositionReaderInterface {
 public:
-    ArbitraryPositions(const SkScalar* positions)
+    explicit ArbitraryPositions(const SkScalar* positions)
         : fPositions(positions) { }
     SkPoint nextPoint() override {
         SkPoint to_return {fPositions[0], fPositions[1]};
@@ -1828,7 +1828,7 @@ typedef PolymorphicVariant<PositionReaderInterface, HorizontalPositions, Arbitra
 // * TranslationMapper - assumes a translation only matrix.
 // * XScaleMapper - assumes an X scaling and a translation.
 // * GeneralMapper - Does all other matricies.
-class MapperInterface : SkNoncopyable {
+class MapperInterface {
 public:
     virtual ~MapperInterface() {}
     virtual SkPoint map(SkPoint position) const = 0;
