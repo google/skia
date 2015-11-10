@@ -385,15 +385,6 @@ static bool brd_color_type_supported(SkBitmapRegionDecoder::Strategy strategy,
                 return true;
             }
             return false;
-        case SkBitmapRegionDecoder::kOriginal_Strategy:
-            switch (dstColorType) {
-                case CodecSrc::kGetFromCanvas_DstColorType:
-                case CodecSrc::kIndex8_Always_DstColorType:
-                case CodecSrc::kGrayscale_Always_DstColorType:
-                    return true;
-                default:
-                    return false;
-            }
         case SkBitmapRegionDecoder::kAndroidCodec_Strategy:
             switch (dstColorType) {
                 case CodecSrc::kGetFromCanvas_DstColorType:
@@ -415,9 +406,6 @@ static void push_brd_src(Path path, SkBitmapRegionDecoder::Strategy strategy,
     switch (strategy) {
         case SkBitmapRegionDecoder::kCanvas_Strategy:
             folder.append("brd_canvas");
-            break;
-        case SkBitmapRegionDecoder::kOriginal_Strategy:
-            folder.append("brd_sample");
             break;
         case SkBitmapRegionDecoder::kAndroidCodec_Strategy:
             folder.append("brd_android_codec");
@@ -464,7 +452,6 @@ static void push_brd_srcs(Path path) {
 
     const SkBitmapRegionDecoder::Strategy strategies[] = {
             SkBitmapRegionDecoder::kCanvas_Strategy,
-            SkBitmapRegionDecoder::kOriginal_Strategy,
             SkBitmapRegionDecoder::kAndroidCodec_Strategy,
     };
 
@@ -559,7 +546,6 @@ static void gather_srcs() {
                 for (SkString file; it.next(&file); ) {
                     SkString path = SkOSPath::Join(flag, file.c_str());
                     push_src("image", "decode", new ImageSrc(path)); // Decode entire image
-                    push_src("image", "subset", new ImageSrc(path, 2)); // Decode into 2x2 subsets
                     push_codec_srcs(path);
                     if (brd_supported(exts[j])) {
                         push_brd_srcs(path);
@@ -569,7 +555,6 @@ static void gather_srcs() {
         } else if (sk_exists(flag)) {
             // assume that FLAGS_images[i] is a valid image if it is a file.
             push_src("image", "decode", new ImageSrc(flag)); // Decode entire image.
-            push_src("image", "subset", new ImageSrc(flag, 2)); // Decode into 2 x 2 subsets
             push_codec_srcs(flag);
             push_brd_srcs(flag);
         }

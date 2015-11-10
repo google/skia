@@ -179,9 +179,7 @@ private:
 
 class ImageSrc : public Src {
 public:
-    // divisor == 0 means decode the whole image
-    // divisor > 0 means decode in subsets, dividing into a divisor x divisor grid.
-    explicit ImageSrc(Path path, int divisor = 0);
+    explicit ImageSrc(Path path);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -189,7 +187,6 @@ public:
     bool veto(SinkFlags) const override;
 private:
     Path fPath;
-    const int  fDivisor;
 };
 
 class SKPSrc : public Src {

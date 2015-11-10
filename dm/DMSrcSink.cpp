@@ -766,7 +766,7 @@ Name AndroidCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ImageSrc::ImageSrc(Path path, int divisor) : fPath(path), fDivisor(divisor) {}
+ImageSrc::ImageSrc(Path path) : fPath(path) {}
 
 bool ImageSrc::veto(SinkFlags flags) const {
     // No need to test decoding to non-raster or indirect backend.
@@ -781,60 +781,19 @@ Error ImageSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
     const SkColorType dstColorType = canvas->imageInfo().colorType();
-    if (fDivisor == 0) {
-        // Decode the full image.
-        SkBitmap bitmap;
-        if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
-                                          dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
-            return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
-        }
-        if (kRGB_565_SkColorType == dstColorType && !bitmap.isOpaque()) {
-            // Do not draw a bitmap with alpha to a destination without alpha.
-            return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
-        }
-        encoded.reset((SkData*)nullptr);  // Might as well drop this when we're done with it.
-        canvas->drawBitmap(bitmap, 0,0);
-        return "";
-    }
-    // Decode subsets.  This is a little involved.
-    SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encoded));
-    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream.get()));
-    if (!decoder) {
-        return SkStringPrintf("Can't find a good decoder for %s.", fPath.c_str());
-    }
-    stream->rewind();
-    int w,h;
-    if (!decoder->buildTileIndex(stream.detach(), &w, &h)) {
-        return Error::Nonfatal("Subset decoding not supported.");
-    }
 
-    // Divide the image into subsets that cover the entire image.
-    if (fDivisor > w || fDivisor > h) {
-        return Error::Nonfatal(SkStringPrintf("Cannot decode subset: divisor %d is too big"
-                "for %s with dimensions (%d x %d)", fDivisor, fPath.c_str(), w, h));
+    // Decode the full image.
+    SkBitmap bitmap;
+    if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
+                                      dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
+        return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
     }
-    const int subsetWidth  = w / fDivisor,
-              subsetHeight = h / fDivisor;
-    for (int y = 0; y < h; y += subsetHeight) {
-        for (int x = 0; x < w; x += subsetWidth) {
-            SkBitmap subset;
-            SkIRect rect = SkIRect::MakeXYWH(x, y, subsetWidth, subsetHeight);
-            if (!decoder->decodeSubset(&subset, rect, dstColorType)) {
-                return SkStringPrintf("Could not decode subset (%d, %d, %d, %d).",
-                                      x, y, x+subsetWidth, y+subsetHeight);
-            }
-            if (kRGB_565_SkColorType == dstColorType && !subset.isOpaque()) {
-                // Do not draw a bitmap with alpha to a destination without alpha.
-                // This is not an error, but there is nothing interesting to show.
-
-                // This should only happen on the first iteration through the loop.
-                SkASSERT(0 == x && 0 == y);
-
-                return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
-            }
-            canvas->drawBitmap(subset, SkIntToScalar(x), SkIntToScalar(y));
-        }
+    if (kRGB_565_SkColorType == dstColorType && !bitmap.isOpaque()) {
+        // Do not draw a bitmap with alpha to a destination without alpha.
+        return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
     }
+    encoded.reset((SkData*)nullptr);  // Might as well drop this when we're done with it.
+    canvas->drawBitmap(bitmap, 0,0);
     return "";
 }
 
