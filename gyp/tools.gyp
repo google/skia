@@ -54,7 +54,6 @@
         '../tools/SkBitmapRegionCanvas.cpp',
         '../tools/SkBitmapRegionCodec.cpp',
         '../tools/SkBitmapRegionDecoder.cpp',
-        '../tools/SkBitmapRegionSampler.cpp',
       ],
       'include_dirs': [
         '../include/private',

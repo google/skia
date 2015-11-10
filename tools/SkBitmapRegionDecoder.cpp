@@ -8,7 +8,6 @@
 #include "SkBitmapRegionCanvas.h"
 #include "SkBitmapRegionCodec.h"
 #include "SkBitmapRegionDecoder.h"
-#include "SkBitmapRegionSampler.h"
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
@@ -24,20 +23,6 @@ SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
         SkStreamRewindable* stream, Strategy strategy) {
     SkAutoTDelete<SkStreamRewindable> streamDeleter(stream);
     switch (strategy) {
-        case kOriginal_Strategy: {
-            SkImageDecoder* decoder = SkImageDecoder::Factory(streamDeleter);
-            int width, height;
-            if (nullptr == decoder) {
-                SkCodecPrintf("Error: Could not create image decoder.\n");
-                return nullptr;
-            }
-            if (!decoder->buildTileIndex(streamDeleter.detach(), &width, &height)) {
-                SkCodecPrintf("Error: Could not build tile index.\n");
-                delete decoder;
-                return nullptr;
-            }
-            return new SkBitmapRegionSampler(decoder, width, height);
-        }
         case kCanvas_Strategy: {
             SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(streamDeleter.detach()));
             if (nullptr == codec) {

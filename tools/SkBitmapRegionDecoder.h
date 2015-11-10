@@ -21,7 +21,6 @@ public:
 
     enum Strategy {
         kCanvas_Strategy,       // Draw to the canvas, uses SkCodec
-        kOriginal_Strategy,     // Sampling, uses SkImageDecoder
         kAndroidCodec_Strategy, // Uses SkAndroidCodec for scaling and subsetting
     };
 

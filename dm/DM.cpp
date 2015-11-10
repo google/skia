@@ -476,24 +476,7 @@ static void push_brd_srcs(Path path) {
     };
 
     for (SkBitmapRegionDecoder::Strategy strategy : strategies) {
-
-        // We disable png testing for kOriginal_Strategy because the implementation leaks
-        // memory in our forked libpng.
-        // TODO (msarett): Decide if we want to test pngs in this mode and how we might do this.
-        if (SkBitmapRegionDecoder::kOriginal_Strategy == strategy &&
-                (path.endsWith(".png") || path.endsWith(".PNG"))) {
-            continue;
-        }
         for (uint32_t sampleSize : sampleSizes) {
-
-            // kOriginal_Strategy does not work for jpegs that are scaled to non-powers of two.
-            // We don't need to test this.  We know it doesn't work, and it causes images with
-            // uninitialized memory to show up on Gold.
-            if (SkBitmapRegionDecoder::kOriginal_Strategy == strategy &&
-                    (path.endsWith(".jpg") || path.endsWith(".JPG") ||
-                    path.endsWith(".jpeg") || path.endsWith(".JPEG")) && !SkIsPow2(sampleSize)) {
-                continue;
-            }
             for (CodecSrc::DstColorType dstColorType : dstColorTypes) {
                 if (brd_color_type_supported(strategy, dstColorType)) {
                     for (BRDSrc::Mode mode : modes) {
