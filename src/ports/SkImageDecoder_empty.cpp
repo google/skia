@@ -43,21 +43,6 @@ bool SkImageDecoder::DecodeMemory(const void*, size_t, SkBitmap*, SkColorType, M
     return false;
 }
 
-bool SkImageDecoder::buildTileIndex(SkStreamRewindable*, int *width, int *height) {
-    return false;
-}
-
-bool SkImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
-                                      int* /*width*/, int* /*height*/) {
-    delete stream;
-    return false;
-}
-
-
-bool SkImageDecoder::decodeSubset(SkBitmap*, const SkIRect&, SkColorType) {
-    return false;
-}
-
 SkImageDecoder::Format SkImageDecoder::getFormat() const {
     return kUnknown_Format;
 }
@@ -79,11 +64,6 @@ SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator*) {
 }
 
 void SkImageDecoder::setSampleSize(int) {}
-
-bool SkImageDecoder::cropBitmap(SkBitmap*, SkBitmap*, int, int, int, int, int,
-                    int, int) {
-    return false;
-}
 
 bool SkImageDecoder::allocPixelRef(SkBitmap*, SkColorTable*) const {
     return false;

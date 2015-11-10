@@ -103,8 +103,6 @@ public:
     }
 
 protected:
-    bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) override;
-    bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) override;
     Result onDecode(SkStream* stream, SkBitmap* bm, Mode) override;
 
 private:
@@ -158,11 +156,6 @@ private:
 // set a break-point in one place to see all error exists.
 static void print_webp_error(const SkBitmap& bm, const char msg[]) {
     SkDEBUGF(("libwebp error %s [%d %d]", msg, bm.width(), bm.height()));
-}
-
-static bool return_false(const SkBitmap& bm, const char msg[]) {
-    print_webp_error(bm, msg);
-    return false; // must always return false
 }
 
 static SkImageDecoder::Result return_failure(const SkBitmap& bm, const char msg[]) {
@@ -265,24 +258,6 @@ static bool webp_get_config_resize(WebPDecoderConfig* config,
     return true;
 }
 
-static bool webp_get_config_resize_crop(WebPDecoderConfig* config,
-                                        SkBitmap* decodedBitmap,
-                                        const SkIRect& region, bool premultiply) {
-
-    if (!webp_get_config_resize(config, decodedBitmap, region.width(),
-                                region.height(), premultiply)) {
-      return false;
-    }
-
-    config->options.use_cropping = 1;
-    config->options.crop_left = region.fLeft;
-    config->options.crop_top = region.fTop;
-    config->options.crop_width = region.width();
-    config->options.crop_height = region.height();
-
-    return true;
-}
-
 bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap, int width, int height) {
     SkColorType colorType = this->getPrefColorType(k32Bit_SrcDepth, SkToBool(fHasAlpha));
 
@@ -306,99 +281,6 @@ bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap, int width, int
         }
     }
     return decodedBitmap->setInfo(SkImageInfo::Make(width, height, colorType, alphaType));
-}
-
-bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
-                                          int *width, int *height) {
-    SkAutoTDelete<SkStreamRewindable> streamDeleter(stream);
-    int origWidth, origHeight, hasAlpha;
-    if (!webp_parse_header(stream, &origWidth, &origHeight, &hasAlpha)) {
-        return false;
-    }
-
-    if (!stream->rewind()) {
-        SkDebugf("Failed to rewind webp stream!");
-        return false;
-    }
-
-    *width = origWidth;
-    *height = origHeight;
-
-    this->fInputStream.reset(streamDeleter.detach());
-    this->fOrigWidth = origWidth;
-    this->fOrigHeight = origHeight;
-    this->fHasAlpha = hasAlpha;
-
-    return true;
-}
-
-static bool is_config_compatible(const SkBitmap& bitmap) {
-    const SkColorType ct = bitmap.colorType();
-    return ct == kARGB_4444_SkColorType || ct == kRGB_565_SkColorType || ct == kN32_SkColorType;
-}
-
-bool SkWEBPImageDecoder::onDecodeSubset(SkBitmap* decodedBitmap,
-                                        const SkIRect& region) {
-    SkIRect rect = SkIRect::MakeWH(fOrigWidth, fOrigHeight);
-
-    if (!rect.intersect(region)) {
-        // If the requested region is entirely outsides the image, return false
-        return false;
-    }
-
-    const int sampleSize = this->getSampleSize();
-    SkScaledBitmapSampler sampler(rect.width(), rect.height(), sampleSize);
-    const int width = sampler.scaledWidth();
-    const int height = sampler.scaledHeight();
-
-    // The image can be decoded directly to decodedBitmap if
-    //   1. the region is within the image range
-    //   2. bitmap's config is compatible
-    //   3. bitmap's size is same as the required region (after sampled)
-    bool directDecode = (rect == region) &&
-                        (decodedBitmap->isNull() ||
-                         (is_config_compatible(*decodedBitmap) &&
-                         (decodedBitmap->width() == width) &&
-                         (decodedBitmap->height() == height)));
-
-    SkBitmap tmpBitmap;
-    SkBitmap *bitmap = decodedBitmap;
-
-    if (!directDecode) {
-        bitmap = &tmpBitmap;
-    }
-
-    if (bitmap->isNull()) {
-        if (!setDecodeConfig(bitmap, width, height)) {
-            return false;
-        }
-        // alloc from native heap if it is a temp bitmap. (prevent GC)
-        bool allocResult = (bitmap == decodedBitmap)
-                               ? allocPixelRef(bitmap, nullptr)
-                               : bitmap->tryAllocPixels();
-        if (!allocResult) {
-            return return_false(*decodedBitmap, "allocPixelRef");
-        }
-    }
-
-    SkAutoLockPixels alp(*bitmap);
-    WebPDecoderConfig config;
-    if (!webp_get_config_resize_crop(&config, bitmap, rect,
-                                     this->shouldPremultiply())) {
-        return false;
-    }
-
-    // Decode the WebP image data stream using WebP incremental decoding for
-    // the specified cropped image-region.
-    if (!webp_idecode(this->fInputStream, &config)) {
-        return false;
-    }
-
-    if (!directDecode) {
-        return cropBitmap(decodedBitmap, bitmap, sampleSize, region.x(), region.y(),
-                          region.width(), region.height(), rect.x(), rect.y());
-    }
-    return true;
 }
 
 SkImageDecoder::Result SkWEBPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,

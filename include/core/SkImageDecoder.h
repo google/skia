@@ -237,26 +237,6 @@ public:
         return this->decode(stream, bitmap, kUnknown_SkColorType, mode);
     }
 
-    /**
-     * Given a stream, build an index for doing tile-based decode.
-     * The built index will be saved in the decoder, and the image size will
-     * be returned in width and height.
-     *
-     * Takes ownership of the SkStreamRewindable, on success or failure.
-     *
-     * Return true for success or false on failure.
-     */
-    bool buildTileIndex(SkStreamRewindable*, int *width, int *height);
-
-    /**
-     * Decode a rectangle subset in the image.
-     * The method can only be called after buildTileIndex().
-     *
-     * Return true for success.
-     * Return false if the index is never built or failing in decoding.
-     */
-    bool decodeSubset(SkBitmap* bm, const SkIRect& subset, SkColorType pref);
-
     /** Given a stream, this will try to find an appropriate decoder object.
         If none is found, the method returns NULL.
     */
@@ -308,16 +288,6 @@ protected:
     // must be overridden in subclasses. This guy is called by decode(...)
     virtual Result onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
 
-    // If the decoder wants to support tiled based decoding, this method must be overridden.
-    // This is called by buildTileIndex(...)
-    virtual bool onBuildTileIndex(SkStreamRewindable*, int* /*width*/, int* /*height*/);
-
-    // If the decoder wants to support tiled based decoding,
-    // this method must be overridden. This guy is called by decodeRegion(...)
-    virtual bool onDecodeSubset(SkBitmap*, const SkIRect&) {
-        return false;
-    }
-
     /** If planes or rowBytes is NULL, decodes the header and computes componentSizes
         for memory allocation.
         Otherwise, decodes the YUV planes into the provided image planes and
@@ -329,25 +299,6 @@ protected:
                                     SkYUVColorSpace*) {
         return false;
     }
-
-    /*
-     * Crop a rectangle from the src Bitmap to the dest Bitmap. src and dst are
-     * both sampled by sampleSize from an original Bitmap.
-     *
-     * @param dst the destination bitmap.
-     * @param src the source bitmap that is sampled by sampleSize from the
-     *            original bitmap.
-     * @param sampleSize the sample size that src is sampled from the original bitmap.
-     * @param (dstX, dstY) the upper-left point of the dest bitmap in terms of
-     *                     the coordinate in the original bitmap.
-     * @param (width, height) the width and height of the unsampled dst.
-     * @param (srcX, srcY) the upper-left point of the src bitmap in terms of
-     *                     the coordinate in the original bitmap.
-     * @return bool Whether or not it succeeded.
-     */
-    bool cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
-                    int dstX, int dstY, int width, int height,
-                    int srcX, int srcY);
 
     /**
      *  Copy all fields on this decoder to the other decoder. Used by subclasses
