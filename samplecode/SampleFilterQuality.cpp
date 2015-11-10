@@ -41,9 +41,10 @@ static SkShader* make_shader(const SkRect& bounds) {
                                           colors, nullptr, SK_ARRAY_COUNT(colors),
                                           SkShader::kClamp_TileMode);
 #else
-    SkString resourcePath = GetResourcePath("mandrill_128.png");
-    SkAutoTUnref<SkData> data(SkData::NewFromFileName(resourcePath.c_str()));
-    SkAutoTUnref<SkImage> image(SkImage::NewFromEncoded(data));
+    SkAutoTUnref<SkImage> image(GetResourceAsImage("mandrill_128.png"));
+    if (nullptr == image) {
+        return nullptr;
+    }
     return image->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
 #endif
 }
@@ -66,7 +67,7 @@ static SkImage* make_image() {
     path.moveTo(0, 0); path.lineTo(N, 0); path.lineTo(0, N); path.close();
 
     SkPaint paint;
-    paint.setShader(make_shader(SkRect::MakeWH(N, N)))->unref();
+    SkSafeUnref(paint.setShader(make_shader(SkRect::MakeWH(N, N))));
     
     canvas->drawPath(path, paint);
     return surface->newImageSnapshot();
