@@ -18,11 +18,8 @@ static void print_message(const j_common_ptr info, const char caller[]) {
 }
 
 /*
- * Reporting functions for libjpeg
+ * Reporting function for error and warning messages.
  */
-static void emit_message(j_common_ptr info, int) {
-    print_message(info, "emit_message");
-}
 static void output_message(j_common_ptr info) {
     print_message(info, "output_message");
 }
@@ -59,7 +56,6 @@ void JpegDecoderMgr::init() {
     jpeg_create_decompress(&fDInfo);
     fInit = true;
     fDInfo.src = &fSrcMgr;
-    fDInfo.err->emit_message = &emit_message;
     fDInfo.err->output_message = &output_message;
 }
 
