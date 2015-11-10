@@ -10,7 +10,7 @@
 #   make clean
 #   make dm
 #   make bench BUILDTYPE=Release
-#   make gm GYP_DEFINES=skia_scalar=fixed BUILDTYPE=Release
+#   make gm GYP_DEFINES='skia_gpu=0' BUILDTYPE=Release
 #   make all
 
 import os

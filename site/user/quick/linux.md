@@ -136,19 +136,20 @@ To move through the sample app, use the following keypresses:
   * left-arrow key: cycle through rendering methods for each test page
   * other keys are defined in SampleApp.cpp’s SampleWindow::onHandleKey() and SampleWindow::onHandleChar() methods
 
-Build and run gm ("golden master") tests
+Build and run DM ("diamond master") tests
 ----------------------------------------
 
-This will display the return value (0 = success) after running the tests...
+[DM is Skia's unit/correctness test harness](../../dev/testing/testing).
 
-    make -j gm
-    out/Debug/gm -r gm/base-linux ; echo $?
+    make -j dm
+    out/Debug/dm
 
-You can also adjust the type used to represent SkScalar. By default, we use a
-float. To change that, run it as follows:
+The `GYP_DEFINES` environment variable can be used to change Skia's
+compile-time settings.  For example, to disable the Skia GPU backend,
+run it as follows:
 
-    GYP_DEFINES="skia_scalar=fixed" make -j gm
-    out/Debug/gm -r gm/base-linux-fixed ; echo $?
+    GYP_DEFINES='skia_gpu=0' make -j dm
+    out/Debug/dm
 
 Build and run bench (performance testbench)
 -------------------------------------------
