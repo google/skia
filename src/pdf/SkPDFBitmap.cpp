@@ -18,7 +18,17 @@
 void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
     if(as_IB(image)->getROPixels(dst)
        && dst->dimensions() == image->dimensions()) {
-        return;
+        if (dst->colorType() != kIndex_8_SkColorType) {
+            return;
+        }
+        // We must check to see if the bitmap has a color table.
+        SkAutoLockPixels autoLockPixels(*dst);
+        if (!dst->getColorTable()) {
+            // We can't use an indexed bitmap with no colortable.
+            dst->reset();
+        } else {
+            return;
+        }
     }
     // no pixels or wrong size: fill with zeros.
     SkAlphaType at = image->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
@@ -326,8 +336,6 @@ static void emit_image_xobject(SkWStream* stream,
     SkBitmap bitmap;
     image_get_ro_pixels(image, &bitmap);      // TODO(halcanary): test
     SkAutoLockPixels autoLockPixels(bitmap);  // with malformed images.
-    SkASSERT(bitmap.colorType() != kIndex_8_SkColorType ||
-             bitmap.getColorTable());
 
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
