@@ -30,6 +30,11 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd) {
     SkCommandLineFlags::Parse(argc, argv);
 
+    SkDebugf("Command line arguments:");
+    for (int i = 0; i < argc; ++i) {
+        SkDebugf("%s\n", argv[i]);
+    }
+
     // these have to happen after commandline parsing
     if (FLAGS_dif) {
         const SkSurfaceProps& props(INHERITED::getSurfaceProps());
