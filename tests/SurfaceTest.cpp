@@ -118,8 +118,8 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
     static const uint32_t kOrigColor = 0xFFAABBCC;
     SkAutoTArray<uint32_t> pixels(kW * kH);
     sk_memset32(pixels.get(), kOrigColor, kW * kH);
-    GrBackendObject texID = gpu->createTestingOnlyBackendTexture(pixels.get(), kW, kH,
-                                                                 kRGBA_8888_GrPixelConfig);
+    GrBackendObject texHandle = gpu->createTestingOnlyBackendTexture(pixels.get(), kW, kH,
+                                                                     kRGBA_8888_GrPixelConfig);
 
     GrBackendTextureDesc wrappedDesc;
     wrappedDesc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -128,7 +128,7 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
     wrappedDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     wrappedDesc.fSampleCnt = 0;
     wrappedDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-    wrappedDesc.fTextureHandle = texID;
+    wrappedDesc.fTextureHandle = texHandle;
 
     SkAutoTUnref<SkSurface> surface(SkSurface::NewWrappedRenderTarget(ctx, wrappedDesc, nullptr));
     REPORTER_ASSERT(reporter, surface);

@@ -413,10 +413,16 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     if (!this->configToGLFormats(desc.fConfig, false, nullptr, nullptr, nullptr)) {
         return nullptr;
     }
-
-    if (0 == desc.fTextureHandle) {
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
+    if (!desc.fTextureHandle) {
         return nullptr;
     }
+#else
+    const GrGLTextureInfo* info = reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
+    if (!info || !info->fID) {
+        return nullptr;
+    }
+#endif
 
     int maxSize = this->caps()->maxTextureSize();
     if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
@@ -426,9 +432,13 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     GrGLTexture::IDDesc idDesc;
     GrSurfaceDesc surfDesc;
 
-    idDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
+    idDesc.fInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
     // We only support GL_TEXTURE_2D at the moment.
-    idDesc.fTarget = GR_GL_TEXTURE_2D;
+    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
+#else
+    idDesc.fInfo = *info;
+#endif
 
     switch (ownership) {
         case kAdopt_GrWrapOwnership:
@@ -460,7 +470,7 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     if (renderTarget) {
         GrGLRenderTarget::IDDesc rtIDDesc;
         if (!this->createRenderTargetObjects(surfDesc, GrGpuResource::kUncached_LifeCycle,
-                                             idDesc.fTextureID, idDesc.fTarget, &rtIDDesc)) {
+                                             idDesc.fInfo, &rtIDDesc)) {
             return nullptr;
         }
         texture = new GrGLTextureRenderTarget(this, surfDesc, idDesc, rtIDDesc);
@@ -893,8 +903,7 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
 
 bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
                                         GrGpuResource::LifeCycle lifeCycle,
-                                        GrGLuint texID,
-                                        GrGLenum textureTarget,
+                                        const GrGLTextureInfo& texInfo,
                                         GrGLRenderTarget::IDDesc* idDesc) {
     idDesc->fMSColorRenderbufferID = 0;
     idDesc->fRTFBOID = 0;
@@ -971,13 +980,13 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     if (this->glCaps().usesImplicitMSAAResolve() && desc.fSampleCnt > 0) {
         GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
-                                                textureTarget,
-                                                texID, 0, desc.fSampleCnt));
+                                                texInfo.fTarget,
+                                                texInfo.fID, 0, desc.fSampleCnt));
     } else {
         GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                      GR_GL_COLOR_ATTACHMENT0,
-                                     textureTarget,
-                                     texID, 0));
+                                     texInfo.fTarget,
+                                     texInfo.fID, 0));
     }
     if ((desc.fFlags & kCheckAllocation_GrSurfaceFlag) ||
         !this->glCaps().isConfigVerifiedColorAttachment(desc.fConfig)) {
@@ -1027,21 +1036,21 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     GrGLTexture::IDDesc idDesc;
-    GL_CALL(GenTextures(1, &idDesc.fTextureID));
+    GL_CALL(GenTextures(1, &idDesc.fInfo.fID));
     idDesc.fLifeCycle = lifeCycle;
     // We only support GL_TEXTURE_2D at the moment.
-    idDesc.fTarget = GR_GL_TEXTURE_2D;
+    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
 
-    if (!idDesc.fTextureID) {
+    if (!idDesc.fInfo.fID) {
         return return_null_texture();
     }
 
     this->setScratchTextureUnit();
-    GL_CALL(BindTexture(idDesc.fTarget, idDesc.fTextureID));
+    GL_CALL(BindTexture(idDesc.fInfo.fTarget, idDesc.fInfo.fID));
 
     if (renderTarget && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
-        GL_CALL(TexParameteri(idDesc.fTarget,
+        GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                               GR_GL_TEXTURE_USAGE,
                               GR_GL_FRAMEBUFFER_ATTACHMENT));
     }
@@ -1056,34 +1065,33 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     initialTexParams.fMagFilter = GR_GL_NEAREST;
     initialTexParams.fWrapS = GR_GL_CLAMP_TO_EDGE;
     initialTexParams.fWrapT = GR_GL_CLAMP_TO_EDGE;
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_MAG_FILTER,
                           initialTexParams.fMagFilter));
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_MIN_FILTER,
                           initialTexParams.fMinFilter));
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_WRAP_S,
                           initialTexParams.fWrapS));
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_WRAP_T,
                           initialTexParams.fWrapT));
-    if (!this->uploadTexData(desc, idDesc.fTarget, true, 0, 0,
+    if (!this->uploadTexData(desc, idDesc.fInfo.fTarget, true, 0, 0,
                              desc.fWidth, desc.fHeight,
                              desc.fConfig, srcData, rowBytes)) {
-        GL_CALL(DeleteTextures(1, &idDesc.fTextureID));
+        GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
         return return_null_texture();
     }
 
     GrGLTexture* tex;
     if (renderTarget) {
         // unbind the texture from the texture unit before binding it to the frame buffer
-        GL_CALL(BindTexture(idDesc.fTarget, 0));
+        GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
 
-        if (!this->createRenderTargetObjects(desc, lifeCycle, idDesc.fTextureID, idDesc.fTarget,
-                                             &rtIDDesc)) {
-            GL_CALL(DeleteTextures(1, &idDesc.fTextureID));
+        if (!this->createRenderTargetObjects(desc, lifeCycle, idDesc.fInfo, &rtIDDesc)) {
+            GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
             return return_null_texture();
         }
         tex = new GrGLTextureRenderTarget(this, desc, idDesc, rtIDDesc);
@@ -1107,17 +1115,17 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
     }
 
     GrGLTexture::IDDesc idDesc;
-    GL_CALL(GenTextures(1, &idDesc.fTextureID));
+    GL_CALL(GenTextures(1, &idDesc.fInfo.fID));
     idDesc.fLifeCycle = lifeCycle;
     // We only support GL_TEXTURE_2D at the moment.
-    idDesc.fTarget = GR_GL_TEXTURE_2D;
+    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
 
-    if (!idDesc.fTextureID) {
+    if (!idDesc.fInfo.fID) {
         return return_null_texture();
     }
 
     this->setScratchTextureUnit();
-    GL_CALL(BindTexture(idDesc.fTarget, idDesc.fTextureID));
+    GL_CALL(BindTexture(idDesc.fInfo.fTarget, idDesc.fInfo.fID));
 
     // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
     // drivers have a bug where an FBO won't be complete if it includes a
@@ -1129,21 +1137,21 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
     initialTexParams.fMagFilter = GR_GL_NEAREST;
     initialTexParams.fWrapS = GR_GL_CLAMP_TO_EDGE;
     initialTexParams.fWrapT = GR_GL_CLAMP_TO_EDGE;
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_MAG_FILTER,
                           initialTexParams.fMagFilter));
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_MIN_FILTER,
                           initialTexParams.fMinFilter));
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_WRAP_S,
                           initialTexParams.fWrapS));
-    GL_CALL(TexParameteri(idDesc.fTarget,
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_WRAP_T,
                           initialTexParams.fWrapT));
 
-    if (!this->uploadCompressedTexData(desc, idDesc.fTarget, srcData)) {
-        GL_CALL(DeleteTextures(1, &idDesc.fTextureID));
+    if (!this->uploadCompressedTexData(desc, idDesc.fInfo.fTarget, srcData)) {
+        GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
         return return_null_texture();
     }
 
@@ -3220,16 +3228,17 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 }
 
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                              GrPixelConfig config) const {
-    GrGLuint texID;
-    GL_CALL(GenTextures(1, &texID));
+                                                         GrPixelConfig config) const {
+    GrGLTextureInfo* info = new GrGLTextureInfo;
+    info->fTarget = GR_GL_TEXTURE_2D;
+    GL_CALL(GenTextures(1, &info->fID));
     GL_CALL(ActiveTexture(GR_GL_TEXTURE0));
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-    GL_CALL(BindTexture(GR_GL_TEXTURE_2D, texID));
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
+    GL_CALL(BindTexture(info->fTarget, info->fID));
+    GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
+    GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
+    GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
+    GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
 
     GrGLenum internalFormat = 0x0; // suppress warning
     GrGLenum externalFormat = 0x0; // suppress warning
@@ -3237,14 +3246,24 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
 
     this->configToGLFormats(config, false, &internalFormat, &externalFormat, &externalType);
 
-    GL_CALL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat, w, h, 0, externalFormat,
+    GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, w, h, 0, externalFormat,
                        externalType, pixels));
 
-    return texID;
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
+    GrGLuint id = info->fID;
+    delete info;
+    return id;
+#else
+    return reinterpret_cast<GrBackendObject>(info);
+#endif
 }
 
 bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
     GrGLuint texID = (GrGLuint)id;
+#else
+    GrGLuint texID = reinterpret_cast<const GrGLTextureInfo*>(id)->fID;
+#endif
 
     GrGLboolean result;
     GL_CALL_RET(result, IsTexture(texID));
@@ -3253,8 +3272,18 @@ bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
 }
 
 void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id) const {
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
     GrGLuint texID = (GrGLuint)id;
+#else
+    const GrGLTextureInfo* info = reinterpret_cast<const GrGLTextureInfo*>(id);
+    GrGLuint texID = info->fID;
+#endif
+
     GL_CALL(DeleteTextures(1, &texID));
+
+#ifndef SK_IGNORE_GL_TEXTURE_TARGET
+    delete info;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

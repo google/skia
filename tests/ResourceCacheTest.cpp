@@ -183,12 +183,12 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
         return;
     }
 
-    GrBackendObject texIDs[2];
+    GrBackendObject texHandles[2];
     static const int kW = 100;
     static const int kH = 100;
 
-    texIDs[0] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
-    texIDs[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
+    texHandles[0] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
+    texHandles[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
 
     context->resetContext();
 
@@ -197,11 +197,11 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
     desc.fWidth = kW;
     desc.fHeight = kH;
 
-    desc.fTextureHandle = texIDs[0];
+    desc.fTextureHandle = texHandles[0];
     SkAutoTUnref<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
                                      desc, kBorrow_GrWrapOwnership));
 
-    desc.fTextureHandle = texIDs[1];
+    desc.fTextureHandle = texHandles[1];
     SkAutoTUnref<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
                                     desc, kAdopt_GrWrapOwnership));
 
@@ -215,13 +215,13 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
 
     context->flush();
 
-    bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(texIDs[0]);
-    bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(texIDs[1]);
+    bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[0]);
+    bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[1]);
 
     REPORTER_ASSERT(reporter, borrowedIsAlive);
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
-    gpu->deleteTestingOnlyBackendTexture(texIDs[0]);
+    gpu->deleteTestingOnlyBackendTexture(texHandles[0]);
 
     context->resetContext();
 }

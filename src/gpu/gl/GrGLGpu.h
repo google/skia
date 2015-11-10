@@ -304,8 +304,7 @@ private:
                                  int width = -1, int height = -1);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, GrGpuResource::LifeCycle lifeCycle,
-                                   GrGLenum textureTarget, GrGLuint texID,
-                                   GrGLRenderTarget::IDDesc*);
+                                   const GrGLTextureInfo& texInfo, GrGLRenderTarget::IDDesc*);
 
     enum TempFBOTarget {
         kSrc_TempFBOTarget,

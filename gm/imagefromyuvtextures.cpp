@@ -93,7 +93,7 @@ protected:
         fRGBImage.reset(SkImage::NewRasterCopy(rgbBmp.info(), rgbColors, rgbBmp.rowBytes()));
     }
 
-    void createYUVTextures(GrContext* context, GrBackendObject yuvIDs[3]) {
+    void createYUVTextures(GrContext* context, GrBackendObject yuvHandles[3]) {
         const GrGpu* gpu = context->getGpu();
         if (!gpu) {
             return;
@@ -101,15 +101,15 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
-            yuvIDs[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].getPixels(),
-                                                             fYUVBmps[i].width(), 
-                                                             fYUVBmps[i].height(),
-                                                             kAlpha_8_GrPixelConfig);
+            yuvHandles[i] = gpu->createTestingOnlyBackendTexture(fYUVBmps[i].getPixels(),
+                                                                 fYUVBmps[i].width(), 
+                                                                 fYUVBmps[i].height(),
+                                                                 kAlpha_8_GrPixelConfig);
         }
         context->resetContext();
     }
 
-    void deleteYUVTextures(GrContext* context, const GrBackendObject yuvIDs[3]) {
+    void deleteYUVTextures(GrContext* context, const GrBackendObject yuvHandles[3]) {
 
         const GrGpu* gpu = context->getGpu();
         if (!gpu) {
@@ -117,7 +117,7 @@ protected:
         }
 
         for (int i = 0; i < 3; ++i) {
-            gpu->deleteTestingOnlyBackendTexture(yuvIDs[i]);
+            gpu->deleteTestingOnlyBackendTexture(yuvHandles[i]);
         }
 
         context->resetContext();
@@ -131,8 +131,8 @@ protected:
             return;
         }
 
-        GrBackendObject yuvIDs[3];
-        this->createYUVTextures(context, yuvIDs);
+        GrBackendObject yuvHandles[3];
+        this->createYUVTextures(context, yuvHandles);
 
         static const SkScalar kPad = 10.f;
 
@@ -146,10 +146,10 @@ protected:
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             images.push_back(SkImage::NewFromYUVTexturesCopy(context,
                                                              static_cast<SkYUVColorSpace>(space),
-                                                             yuvIDs, sizes,
+                                                             yuvHandles, sizes,
                                                              kTopLeft_GrSurfaceOrigin));
         }
-        this->deleteYUVTextures(context, yuvIDs);
+        this->deleteYUVTextures(context, yuvHandles);
         for (int i = 0; i < images.count(); ++ i) {
             SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
             SkScalar x = kPad;

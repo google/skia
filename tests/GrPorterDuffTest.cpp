@@ -1164,10 +1164,12 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
         return;
     }
 
+    GrBackendObject backendTex =
+        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig);
     GrBackendTextureDesc fakeDesc;
     fakeDesc.fConfig = kRGBA_8888_GrPixelConfig;
     fakeDesc.fWidth = fakeDesc.fHeight = 100;
-    fakeDesc.fTextureHandle = 1;
+    fakeDesc.fTextureHandle = backendTex;
     SkAutoTUnref<GrTexture> fakeTexture(ctx->textureProvider()->wrapBackendTexture(fakeDesc,
         kBorrow_GrWrapOwnership));
     GrXferProcessor::DstTexture fakeDstTexture;
@@ -1213,6 +1215,7 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
             }
         }
     }
+    ctx->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }
 
 #endif
