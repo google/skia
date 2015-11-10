@@ -6,9 +6,9 @@
  */
 
 #include "SkBitmapRegionCanvas.h"
+#include "SkBitmapRegionDecoderPriv.h"
 #include "SkCanvas.h"
 #include "SkCodecPriv.h"
-#include "SkCodecTools.h"
 
 SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkCodec* decoder)
     : INHERITED(decoder->getInfo().width(), decoder->getInfo().height())

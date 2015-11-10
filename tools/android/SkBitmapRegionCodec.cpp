@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapRegionCodec.h"
 #include "SkAndroidCodec.h"
+#include "SkBitmapRegionCodec.h"
+#include "SkBitmapRegionDecoderPriv.h"
 #include "SkCodecPriv.h"
-#include "SkCodecTools.h"
 #include "SkPixelRef.h"
 
 SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)

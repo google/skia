@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkCodecTools_DEFINED
-#define SkCodecTools_DEFINED
+#ifndef SkBitmapRegionDecoderPriv_DEFINED
+#define SkBitmapRegionDecoderPriv_DEFINED
 
 inline float get_scale_from_sample_size(uint32_t sampleSize) {
     return 1.0f / (float) sampleSize;
@@ -60,4 +60,4 @@ inline SubsetType adjust_subset_rect(const SkISize& imageDims, SkIRect* subset, 
     return SubsetType::kFullyInside_SubsetType;
 }
 
-#endif // SkCodecTools_DEFINED
+#endif // SkBitmapRegionDecoderPriv_DEFINED

@@ -11,7 +11,6 @@
     '../src/effects',
     '../src/gpu',
     '../src/utils',
-    '../tools',
   ],
   'sources': [ '<!@(python find.py ../bench "*.cpp")' ],
 

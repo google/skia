@@ -51,9 +51,9 @@
       'target_name': 'bitmap_region_decoder',
       'type': 'static_library',
       'sources': [
-        '../tools/SkBitmapRegionCanvas.cpp',
-        '../tools/SkBitmapRegionCodec.cpp',
-        '../tools/SkBitmapRegionDecoder.cpp',
+        '../tools/android/SkBitmapRegionCanvas.cpp',
+        '../tools/android/SkBitmapRegionCodec.cpp',
+        '../tools/android/SkBitmapRegionDecoder.cpp',
       ],
       'include_dirs': [
         '../include/private',
@@ -64,7 +64,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '../tools',
+          '../tools/android',
         ],
       },
     },

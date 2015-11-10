@@ -16,7 +16,6 @@
     '../src/utils',
     '../src/utils/debugger',
     '../tests',
-    '../tools',
   ],
   'dependencies': [
     'etc1.gyp:libetc1',

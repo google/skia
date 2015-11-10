@@ -8,7 +8,7 @@
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBenchPriv.h"
 #include "SkBitmap.h"
-#include "SkCodecTools.h"
+#include "SkBitmapRegionDecoderPriv.h"
 #include "SkOSFile.h"
 
 BitmapRegionDecoderBench::BitmapRegionDecoderBench(const char* baseName, SkData* encoded,
