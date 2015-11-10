@@ -205,28 +205,30 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     if (!this->filterInputGPU(0, proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
-    SkIRect rect;
-    if (!this->applyCropRect(ctx, proxy, input, &srcOffset, &rect, &input)) {
+    SkIRect srcBounds, dstBounds;
+    if (!this->applyCropRect(ctx, input, srcOffset, &dstBounds, &srcBounds)) {
         return false;
     }
     GrTexture* source = input.getTexture();
     SkVector sigma = mapSigma(fSigma, ctx.ctm());
-    offset->fX = rect.fLeft;
-    offset->fY = rect.fTop;
-    rect.offset(-srcOffset);
+    offset->fX = dstBounds.fLeft;
+    offset->fY = dstBounds.fTop;
+    srcBounds.offset(-srcOffset);
+    dstBounds.offset(-srcOffset);
+    SkRect srcBoundsF(SkRect::Make(srcBounds));
     auto constraint = GrTextureProvider::FromImageFilter(ctx.sizeConstraint());
     SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),
                                                              source,
                                                              false,
-                                                             SkRect::Make(rect),
-                                                             true,
+                                                             SkRect::Make(dstBounds),
+                                                             &srcBoundsF,
                                                              sigma.x(),
                                                              sigma.y(),
                                                              constraint));
     if (!tex) {
         return false;
     }
-    WrapTexture(tex, rect.width(), rect.height(), result);
+    WrapTexture(tex, dstBounds.width(), dstBounds.height(), result);
     return true;
 #else
     SkDEBUGFAIL("Should not call in GPU-less build");
