@@ -79,7 +79,9 @@ class SkOneShotDiscardablePixelRef : public SkPixelRef {
 public:
 
     // Ownership of the discardablememory is transfered to the pixelref
-    SkOneShotDiscardablePixelRef(const SkImageInfo&, SkDiscardableMemory*, size_t rowBytes);
+    // The pixelref will ref() the colortable (if not NULL), and unref() in destructor
+    SkOneShotDiscardablePixelRef(const SkImageInfo&, SkDiscardableMemory*, size_t rowBytes,
+                                 SkColorTable*);
     ~SkOneShotDiscardablePixelRef();
 
 protected:
@@ -93,22 +95,29 @@ private:
     SkDiscardableMemory* fDM;
     size_t               fRB;
     bool                 fFirstTime;
+    SkColorTable*        fCTable;
 
     typedef SkPixelRef INHERITED;
 };
 
 SkOneShotDiscardablePixelRef::SkOneShotDiscardablePixelRef(const SkImageInfo& info,
                                              SkDiscardableMemory* dm,
-                                             size_t rowBytes)
+                                             size_t rowBytes,
+                                             SkColorTable* ctable)
     : INHERITED(info)
     , fDM(dm)
     , fRB(rowBytes)
+    , fCTable(ctable)
 {
     SkASSERT(dm->data());
     fFirstTime = true;
+    SkSafeRef(ctable);
 }
 
-SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() { delete fDM; }
+SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() {
+    delete fDM;
+    SkSafeUnref(fCTable);
+}
 
 bool SkOneShotDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     if (fFirstTime) {
@@ -132,7 +141,7 @@ bool SkOneShotDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
 
 SUCCESS:
     rec->fPixels = fDM->data();
-    rec->fColorTable = nullptr;
+    rec->fColorTable = fCTable;
     rec->fRowBytes = fRB;
     return true;
 }
@@ -166,18 +175,22 @@ bool SkResourceCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap, SkColo
         return false;
     }
 
+    if (kIndex_8_SkColorType == bitmap->colorType()) {
+        if (!ctable) {
+            return false;
+        }
+    } else {
+        ctable = nullptr;
+    }
+
     SkDiscardableMemory* dm = fFactory(size);
     if (nullptr == dm) {
         return false;
     }
 
-    // can we relax this?
-    if (kN32_SkColorType != bitmap->colorType()) {
-        return false;
-    }
-
     SkImageInfo info = bitmap->info();
-    bitmap->setPixelRef(new SkOneShotDiscardablePixelRef(info, dm, bitmap->rowBytes()))->unref();
+    bitmap->setPixelRef(new SkOneShotDiscardablePixelRef(info, dm, bitmap->rowBytes(),
+                                                         ctable))->unref();
     bitmap->lockPixels();
     return bitmap->readyToDraw();
 }

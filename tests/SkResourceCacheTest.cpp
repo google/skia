@@ -14,11 +14,18 @@
 #include "SkPictureRecorder.h"
 #include "SkResourceCache.h"
 #include "SkSurface.h"
+#include "SkTypes.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 static void make_bitmap(SkBitmap* bitmap, const SkImageInfo& info, SkBitmap::Allocator* allocator) {
-    if (allocator) {
+    if (info.colorType() == kIndex_8_SkColorType) {
+        bitmap->setInfo(info);
+        SkPMColor ctStorage[256];
+        memset(ctStorage, 0xFF, sizeof(ctStorage)); // init with opaque-white for the moment
+        SkAutoTUnref<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
+        bitmap->allocPixels(allocator, ctable);
+    } else if (allocator) {
         bitmap->setInfo(info);
         allocator->allocPixelRef(bitmap, 0);
     } else {
@@ -173,53 +180,86 @@ static void test_bitmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
     }
 }
 
-DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
-    SkResourceCache::DiscardableFactory factory = SkResourceCache::GetDiscardableFactory();
-    SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
-    
-    SkAutoTDelete<SkResourceCache> cache;
-    if (factory) {
-        cache.reset(new SkResourceCache(factory));
-    } else {
-        const size_t byteLimit = 100 * 1024;
-        cache.reset(new SkResourceCache(byteLimit));
+#include "SkDiscardableMemoryPool.h"
+
+static SkDiscardableMemoryPool* gPool = 0;
+static SkDiscardableMemory* pool_factory(size_t bytes) {
+    SkASSERT(gPool);
+    return gPool->create(bytes);
+}
+
+static void testBitmapCache_discarded_bitmap(skiatest::Reporter* reporter, SkResourceCache* cache,
+                                             SkResourceCache::DiscardableFactory factory) {
+    SkBitmap::Allocator* allocator = cache->allocator();
+    const SkColorType testTypes[] = {
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType,
+        kIndex_8_SkColorType,
+        kGray_8_SkColorType
+    };
+    for (const SkColorType testType : testTypes) {
+        SkBitmap cachedBitmap;
+        make_bitmap(&cachedBitmap, SkImageInfo::Make(5, 5, testType, kPremul_SkAlphaType),
+                    allocator);
+        cachedBitmap.setImmutable();
+        cachedBitmap.unlockPixels();
+
+        SkBitmap bm;
+        SkIRect rect = SkIRect::MakeWH(5, 5);
+
+        // Add a bitmap to the cache.
+        REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.pixelRef(), rect, cachedBitmap,
+                                                     cache));
+        REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm,
+                                                      cache));
+
+        // Finding more than once works fine.
+        REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm,
+                                                      cache));
+        bm.unlockPixels();
+
+        // Drop the pixels in the bitmap.
+        if (factory) {
+            REPORTER_ASSERT(reporter, gPool->getRAMUsed() > 0);
+            gPool->dumpPool();
+
+            // The bitmap is not in the cache since it has been dropped.
+            REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect,
+                                                           &bm, cache));
+        }
+
+        make_bitmap(&cachedBitmap, SkImageInfo::Make(5, 5, testType, kPremul_SkAlphaType),
+                    allocator);
+        cachedBitmap.setImmutable();
+        cachedBitmap.unlockPixels();
+
+        // We can add the bitmap back to the cache and find it again.
+        REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.pixelRef(), rect, cachedBitmap,
+                                                     cache));
+        REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm,
+                                                      cache));
     }
-    SkBitmap cachedBitmap;
-    make_bitmap(&cachedBitmap, SkImageInfo::MakeN32Premul(5, 5), allocator);
-    cachedBitmap.setImmutable();
-    cachedBitmap.unlockPixels();
-
-    SkBitmap bm;
-    SkIRect rect = SkIRect::MakeWH(5, 5);
-
-    // Add a bitmap to the cache.
-    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.pixelRef(), rect, cachedBitmap, cache));
-    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
-
-    // Finding more than once works fine.
-    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
-    bm.unlockPixels();
-
-    // Drop the pixels in the bitmap.
-    if (factory) {
-        REPORTER_ASSERT(reporter, SkGetGlobalDiscardableMemoryPool()->getRAMUsed() > 0);
-        SkGetGlobalDiscardableMemoryPool()->dumpPool();
-
-        // The bitmap is not in the cache since it has been dropped.
-        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
-    }
-
-    make_bitmap(&cachedBitmap, SkImageInfo::MakeN32Premul(5, 5), allocator);
-    cachedBitmap.setImmutable();
-    cachedBitmap.unlockPixels();
-
-    // We can add the bitmap back to the cache and find it again.
-    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedBitmap.pixelRef(), rect, cachedBitmap, cache));
-    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedBitmap.getGenerationID(), rect, &bm, cache));
-
     test_mipmapcache(reporter, cache);
     test_bitmap_notify(reporter, cache);
     test_mipmap_notify(reporter, cache);
+}
+
+DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
+    const size_t byteLimit = 100 * 1024;
+    {
+        SkResourceCache cache(byteLimit);
+        testBitmapCache_discarded_bitmap(reporter, &cache, nullptr);
+    }
+    {
+        SkAutoTUnref<SkDiscardableMemoryPool> pool(
+            SkDiscardableMemoryPool::Create(byteLimit, nullptr));
+        gPool = pool.get();
+        SkResourceCache::DiscardableFactory factory = pool_factory;
+        SkResourceCache cache(factory);
+        testBitmapCache_discarded_bitmap(reporter, &cache, factory);
+    }
 }
 
 static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& transform,

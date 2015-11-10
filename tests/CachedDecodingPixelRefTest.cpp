@@ -163,17 +163,21 @@ public:
     };
     static int Width() { return 10; }
     static int Height() { return 10; }
-    static uint32_t Color() { return 0xff123456; }
-    TestImageGenerator(TestType type, skiatest::Reporter* reporter)
-    : INHERITED(GetMyInfo()), fType(type), fReporter(reporter) {
+    // value choosen so that there is no loss when converting to to RGB565 and back
+    static SkColor Color() { return 0xff10345a; }
+    static SkPMColor PMColor() { return SkPreMultiplyColor(Color()); }
+
+    TestImageGenerator(TestType type, skiatest::Reporter* reporter,
+                       SkColorType colorType = kN32_SkColorType)
+    : INHERITED(GetMyInfo(colorType)), fType(type), fReporter(reporter) {
         SkASSERT((fType <= kLast_TestType) && (fType >= 0));
     }
     virtual ~TestImageGenerator() { }
 
 protected:
-    static SkImageInfo GetMyInfo() {
-        return SkImageInfo::MakeN32(TestImageGenerator::Width(), TestImageGenerator::Height(),
-                                    kOpaque_SkAlphaType);
+    static SkImageInfo GetMyInfo(SkColorType colorType) {
+        return SkImageInfo::Make(TestImageGenerator::Width(), TestImageGenerator::Height(),
+                                 colorType, kOpaque_SkAlphaType);
     }
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
@@ -183,14 +187,35 @@ protected:
         if (fType != kSucceedGetPixels_TestType) {
             return false;
         }
-        if (info.colorType() != kN32_SkColorType) {
+        if (info.colorType() != kN32_SkColorType && info.colorType() != getInfo().colorType()) {
             return false;
         }
         char* bytePtr = static_cast<char*>(pixels);
-        for (int y = 0; y < info.height(); ++y) {
-            sk_memset32(reinterpret_cast<SkColor*>(bytePtr),
-                        TestImageGenerator::Color(), info.width());
-            bytePtr += rowBytes;
+        switch (info.colorType()) {
+            case kN32_SkColorType:
+                for (int y = 0; y < info.height(); ++y) {
+                    sk_memset32((uint32_t*)bytePtr,
+                                TestImageGenerator::PMColor(), info.width());
+                    bytePtr += rowBytes;
+                }
+                break;
+            case kIndex_8_SkColorType:
+                *ctableCount = 1;
+                ctable[0] = TestImageGenerator::PMColor();
+                for (int y = 0; y < info.height(); ++y) {
+                    memset(bytePtr, 0, info.width());
+                    bytePtr += rowBytes;
+                }
+                break;
+            case kRGB_565_SkColorType:
+                for (int y = 0; y < info.height(); ++y) {
+                    sk_memset16((uint16_t*)bytePtr,
+                        SkPixel32ToPixel16(TestImageGenerator::PMColor()), info.width());
+                    bytePtr += rowBytes;
+                }
+                break;
+            default:
+                return false;
         }
         return true;
     }
@@ -214,7 +239,7 @@ static void check_test_image_generator_bitmap(skiatest::Reporter* reporter,
     int errors = 0;
     for (int y = 0; y < bm.height(); ++y) {
         for (int x = 0; x < bm.width(); ++x) {
-            if (TestImageGenerator::Color() != *bm.getAddr32(x, y)) {
+            if (TestImageGenerator::Color() != bm.getColor(x, y)) {
                 ++errors;
             }
         }
@@ -224,8 +249,9 @@ static void check_test_image_generator_bitmap(skiatest::Reporter* reporter,
 
 static void check_pixelref(TestImageGenerator::TestType type,
                            skiatest::Reporter* reporter,
-                           SkDiscardableMemory::Factory* factory) {
-    SkAutoTDelete<SkImageGenerator> gen(new TestImageGenerator(type, reporter));
+                           SkDiscardableMemory::Factory* factory,
+                           SkColorType colorType) {
+    SkAutoTDelete<SkImageGenerator> gen(new TestImageGenerator(type, reporter, colorType));
     REPORTER_ASSERT(reporter, gen.get() != nullptr);
     SkBitmap lazy;
     bool success = SkDEPRECATED_InstallDiscardablePixelRef(gen.detach(), nullptr, &lazy, factory);
@@ -245,56 +271,77 @@ static void check_pixelref(TestImageGenerator::TestType type,
  *  SkDiscardableMemory::Factory choices.
  */
 DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
-    check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, nullptr);
-    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, nullptr);
+    const SkColorType testColorTypes[] = {
+        kN32_SkColorType,
+        kIndex_8_SkColorType,
+        kRGB_565_SkColorType
+    };
+    for (const SkColorType testColorType : testColorTypes) {
+        check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, nullptr,
+                       testColorType);
+        check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, nullptr,
+                       testColorType);
 
-    SkAutoTUnref<SkDiscardableMemoryPool> pool(
-        SkDiscardableMemoryPool::Create(1, nullptr));
-    REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
-    check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, pool);
-    REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
-    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, pool);
-    REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
+        SkAutoTUnref<SkDiscardableMemoryPool> pool(
+            SkDiscardableMemoryPool::Create(1, nullptr));
+        REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
+        check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, pool,
+                       testColorType);
+        REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
+        check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, pool,
+                       testColorType);
+        REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 
-    SkDiscardableMemoryPool* globalPool = SkGetGlobalDiscardableMemoryPool();
-    // Only acts differently from nullptr on a platform that has a
-    // default discardable memory implementation that differs from the
-    // global DM pool.
-    check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, globalPool);
-    check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, globalPool);
+        SkDiscardableMemoryPool* globalPool = SkGetGlobalDiscardableMemoryPool();
+        // Only acts differently from nullptr on a platform that has a
+        // default discardable memory implementation that differs from the
+        // global DM pool.
+        check_pixelref(TestImageGenerator::kFailGetPixels_TestType, reporter, globalPool,
+                       testColorType);
+        check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType, reporter, globalPool,
+                       testColorType);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 DEF_TEST(Image_NewFromGenerator, r) {
-    TestImageGenerator::TestType testTypes[] = {
+    const TestImageGenerator::TestType testTypes[] = {
         TestImageGenerator::kFailGetPixels_TestType,
         TestImageGenerator::kSucceedGetPixels_TestType,
     };
+    const SkColorType testColorTypes[] = {
+        kN32_SkColorType,
+        kIndex_8_SkColorType,
+        kRGB_565_SkColorType
+    };
     for (size_t i = 0; i < SK_ARRAY_COUNT(testTypes); ++i) {
         TestImageGenerator::TestType test = testTypes[i];
-        SkImageGenerator* gen = new TestImageGenerator(test, r);
-        SkAutoTUnref<SkImage> image(SkImage::NewFromGenerator(gen));
-        if (nullptr == image.get()) {
-            ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed ["
-                   SK_SIZE_T_SPECIFIER "]", i);
-            continue;
-        }
-        REPORTER_ASSERT(r, TestImageGenerator::Width() == image->width());
-        REPORTER_ASSERT(r, TestImageGenerator::Height() == image->height());
-        REPORTER_ASSERT(r, image->isLazyGenerated());
+        for (const SkColorType testColorType : testColorTypes) {
+            SkImageGenerator* gen = new TestImageGenerator(test, r, testColorType);
+            SkAutoTUnref<SkImage> image(SkImage::NewFromGenerator(gen));
+            if (nullptr == image.get()) {
+                ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed ["
+                    SK_SIZE_T_SPECIFIER "]", i);
+                continue;
+            }
+            REPORTER_ASSERT(r, TestImageGenerator::Width() == image->width());
+            REPORTER_ASSERT(r, TestImageGenerator::Height() == image->height());
+            REPORTER_ASSERT(r, image->isLazyGenerated());
 
-        SkBitmap bitmap;
-        bitmap.allocN32Pixels(TestImageGenerator::Width(), TestImageGenerator::Height());
-        SkCanvas canvas(bitmap);
-        const SkColor kDefaultColor = 0xffabcdef;
-        canvas.clear(kDefaultColor);
-        canvas.drawImage(image, 0, 0, nullptr);
-        if (TestImageGenerator::kSucceedGetPixels_TestType == test) {
-            REPORTER_ASSERT(
-                    r, TestImageGenerator::Color() == *bitmap.getAddr32(0, 0));
-        } else {
-            REPORTER_ASSERT(r, kDefaultColor == bitmap.getColor(0,0));
+            SkBitmap bitmap;
+            bitmap.allocN32Pixels(TestImageGenerator::Width(), TestImageGenerator::Height());
+            SkCanvas canvas(bitmap);
+            const SkColor kDefaultColor = 0xffabcdef;
+            canvas.clear(kDefaultColor);
+            canvas.drawImage(image, 0, 0, nullptr);
+            if (TestImageGenerator::kSucceedGetPixels_TestType == test) {
+                REPORTER_ASSERT(
+                    r, TestImageGenerator::Color() == bitmap.getColor(0, 0));
+            }
+            else {
+                REPORTER_ASSERT(r, kDefaultColor == bitmap.getColor(0, 0));
+            }
         }
     }
 }
