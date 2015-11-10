@@ -26,14 +26,12 @@ SubsetSingleBench::SubsetSingleBench(const SkString& path,
                                      uint32_t subsetWidth,
                                      uint32_t subsetHeight,
                                      uint32_t offsetLeft,
-                                     uint32_t offsetTop,
-                                     bool useCodec)
+                                     uint32_t offsetTop)
     : fColorType(colorType)
     , fSubsetWidth(subsetWidth)
     , fSubsetHeight(subsetHeight)
     , fOffsetLeft(offsetLeft)
     , fOffsetTop(offsetTop)
-    , fUseCodec(useCodec)
 {
     // Parse the filename
     SkString baseName = SkOSPath::Basename(path.c_str());
@@ -41,7 +39,7 @@ SubsetSingleBench::SubsetSingleBench(const SkString& path,
     // Choose an informative color name
     const char* colorName = color_type_to_str(fColorType);
 
-    fName.printf("%sSubsetSingle_%dx%d +%d_+%d_%s_%s", fUseCodec ? "Codec" : "Image", fSubsetWidth,
+    fName.printf("CodecSubsetSingle_%dx%d +%d_+%d_%s_%s", fSubsetWidth,
             fSubsetHeight, fOffsetLeft, fOffsetTop, baseName.c_str(), colorName);
 
     // Perform the decode setup
@@ -62,42 +60,30 @@ void SubsetSingleBench::onDraw(int n, SkCanvas* canvas) {
     // used, it will be initialized by the codec.
     int colorCount;
     SkPMColor colors[256];
-    if (fUseCodec) {
-        for (int count = 0; count < n; count++) {
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(fStream->duplicate()));
-            SkASSERT(SkCodec::kOutOfOrder_SkScanlineOrder != codec->getScanlineOrder());
-            const SkImageInfo info = codec->getInfo().makeColorType(fColorType);
+    for (int count = 0; count < n; count++) {
+        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(fStream->duplicate()));
+        SkASSERT(SkCodec::kOutOfOrder_SkScanlineOrder != codec->getScanlineOrder());
+        const SkImageInfo info = codec->getInfo().makeColorType(fColorType);
 
-            // The scanline decoder will handle subsetting in the x-dimension.
-            SkIRect subset = SkIRect::MakeXYWH(fOffsetLeft, 0, fSubsetWidth,
-                    codec->getInfo().height());
-            SkCodec::Options options;
-            options.fSubset = &subset;
+        // The scanline decoder will handle subsetting in the x-dimension.
+        SkIRect subset = SkIRect::MakeXYWH(fOffsetLeft, 0, fSubsetWidth,
+                codec->getInfo().height());
+        SkCodec::Options options;
+        options.fSubset = &subset;
 
-            SkDEBUGCODE(SkCodec::Result result =)
-            codec->startScanlineDecode(info, &options, colors, &colorCount);
-            SkASSERT(result == SkCodec::kSuccess);
+        SkDEBUGCODE(SkCodec::Result result =)
+        codec->startScanlineDecode(info, &options, colors, &colorCount);
+        SkASSERT(result == SkCodec::kSuccess);
 
-            SkBitmap bitmap;
-            SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);
-            alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
+        SkBitmap bitmap;
+        SkImageInfo subsetInfo = info.makeWH(fSubsetWidth, fSubsetHeight);
+        alloc_pixels(&bitmap, subsetInfo, colors, colorCount);
 
-            SkDEBUGCODE(bool success = ) codec->skipScanlines(fOffsetTop);
-            SkASSERT(success);
+        SkDEBUGCODE(bool success = ) codec->skipScanlines(fOffsetTop);
+        SkASSERT(success);
 
-            SkDEBUGCODE(uint32_t lines = ) codec->getScanlines(bitmap.getPixels(), fSubsetHeight,
-                    bitmap.rowBytes());
-            SkASSERT(lines == fSubsetHeight);
-        }
-    } else {
-        for (int count = 0; count < n; count++) {
-            SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(fStream));
-            int width, height;
-            SkAssertResult(decoder->buildTileIndex(fStream->duplicate(), &width, &height));
-            SkBitmap bitmap;
-            SkIRect rect = SkIRect::MakeXYWH(fOffsetLeft, fOffsetTop, fSubsetWidth,
-                    fSubsetHeight);
-            SkAssertResult(decoder->decodeSubset(&bitmap, rect, fColorType));
-        }
+        SkDEBUGCODE(uint32_t lines = ) codec->getScanlines(bitmap.getPixels(), fSubsetHeight,
+                bitmap.rowBytes());
+        SkASSERT(lines == fSubsetHeight);
     }
 }

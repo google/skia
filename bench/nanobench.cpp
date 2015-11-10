@@ -107,8 +107,6 @@ DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
-DEFINE_bool(pngBuildTileIndex, false, "If supported, use png buildTileIndex/decodeSubset.");
-DEFINE_bool(jpgBuildTileIndex, false, "If supported, use jpg buildTileIndex/decodeSubset.");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -499,33 +497,20 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 
 /*
  * We only run our subset benches on files that are supported by BitmapRegionDecoder:
- * i.e. PNG, JPEG, and WEBP. We do *not* test WEBP when using codec, since we do not
- * have a scanline decoder for WEBP, which is necessary for running the subset bench.
- * (Another bench must be used to test WEBP, which decodes subsets natively.)
+ * i.e. PNG, JPEG, and WEBP. We do *not* test WEBP, since we do not have a scanline
+ * decoder for WEBP, which is necessary for running the subset bench. (Another bench
+ * must be used to test WEBP, which decodes subsets natively.)
  */
-static bool run_subset_bench(const SkString& path, bool useCodec) {
+static bool run_subset_bench(const SkString& path) {
     static const char* const exts[] = {
-        "jpg", "jpeg",
-        "JPG", "JPEG",
+        "jpg", "jpeg", "png",
+        "JPG", "JPEG", "PNG",
     };
 
-    if (useCodec || FLAGS_jpgBuildTileIndex) {
-        for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
-            if (path.endsWith(exts[i])) {
-                return true;
-            }
+    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
+        if (path.endsWith(exts[i])) {
+            return true;
         }
-    }
-
-    // Test png in SkCodec, and optionally on SkImageDecoder. SkImageDecoder is
-    // disabled by default because it leaks memory.
-    // https://bug.skia.org/4360
-    if ((useCodec || FLAGS_pngBuildTileIndex) && (path.endsWith("png") || path.endsWith("PNG"))) {
-        return true;
-    }
-
-    if (!useCodec && (path.endsWith("webp") || path.endsWith("WEBP"))) {
-        return true;
     }
 
     return false;
@@ -535,49 +520,31 @@ static bool run_subset_bench(const SkString& path, bool useCodec) {
  * Returns true if set up for a subset decode succeeds, false otherwise
  * If the set-up succeeds, the width and height parameters will be set
  */
-static bool valid_subset_bench(const SkString& path, SkColorType colorType, bool useCodec,
+static bool valid_subset_bench(const SkString& path, SkColorType colorType,
         int* width, int* height) {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
     SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encoded));
 
-    // Check that we can create a codec or image decoder.
-    if (useCodec) {
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
-        if (nullptr == codec) {
-            SkDebugf("Could not create codec for %s.  Skipping bench.\n", path.c_str());
-            return false;
-        }
-
-        // These will be initialized by SkCodec if the color type is kIndex8 and
-        // unused otherwise.
-        SkPMColor colors[256];
-        int colorCount;
-        const SkImageInfo info = codec->getInfo().makeColorType(colorType);
-        if (codec->startScanlineDecode(info, nullptr, colors, &colorCount) != SkCodec::kSuccess)
-        {
-            SkDebugf("Could not create scanline decoder for %s with color type %s.  "
-                    "Skipping bench.\n", path.c_str(), color_type_to_str(colorType));
-            return false;
-        }
-        *width = info.width();
-        *height = info.height();
-    } else {
-        SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
-        if (nullptr == decoder) {
-            SkDebugf("Could not create decoder for %s.  Skipping bench.\n", path.c_str());
-            return false;
-        }
-        //FIXME: See https://bug.skia.org/3921
-        if (kIndex_8_SkColorType == colorType || kGray_8_SkColorType == colorType) {
-            SkDebugf("Cannot use image subset decoder for %s with color type %s.  "
-                    "Skipping bench.\n", path.c_str(), color_type_to_str(colorType));
-            return false;
-        }
-        if (!decoder->buildTileIndex(stream.detach(), width, height)) {
-            SkDebugf("Could not build tile index for %s.  Skipping bench.\n", path.c_str());
-            return false;
-        }
+    // Check that we can create a codec.
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+    if (nullptr == codec) {
+        SkDebugf("Could not create codec for %s.  Skipping bench.\n", path.c_str());
+        return false;
     }
+
+    // These will be initialized by SkCodec if the color type is kIndex8 and
+    // unused otherwise.
+    SkPMColor colors[256];
+    int colorCount;
+    const SkImageInfo info = codec->getInfo().makeColorType(colorType);
+    if (codec->startScanlineDecode(info, nullptr, colors, &colorCount) != SkCodec::kSuccess)
+    {
+        SkDebugf("Could not create scanline decoder for %s with color type %s.  "
+                "Skipping bench.\n", path.c_str(), color_type_to_str(colorType));
+        return false;
+    }
+    *width = info.width();
+    *height = info.height();
 
     // Check if the image is large enough for a meaningful subset benchmark.
     if (*width <= 512 && *height <= 512) {
@@ -601,11 +568,6 @@ static bool valid_brd_bench(SkData* encoded, SkBitmapRegionDecoder::Strategy str
     SkBitmap bitmap;
     if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, brd->width(), brd->height()),
             1, colorType, false)) {
-        return false;
-    }
-    if (colorType != bitmap.colorType()) {
-        // This indicates that conversion to the requested color type is not supported for the
-        // particular image.
         return false;
     }
 
@@ -648,7 +610,6 @@ public:
                       , fCurrentBRDImage(0)
                       , fCurrentColorType(0)
                       , fCurrentSubsetType(0)
-                      , fUseCodec(0)
                       , fCurrentBRDStrategy(0)
                       , fCurrentBRDSampleSize(0)
                       , fCurrentAnimSKP(0) {
@@ -898,69 +859,60 @@ public:
         }
 
         // Run the SubsetBenches
-        bool useCodecOpts[] = { true, false };
-        while (fUseCodec < 2) {
-            bool useCodec = useCodecOpts[fUseCodec];
+        while (fCurrentSubsetImage < fImages.count()) {
             fSourceType = "image";
-            fBenchType = useCodec ? "skcodec" : "skimagedecoder";
-            while (fCurrentSubsetImage < fImages.count()) {
-                const SkString& path = fImages[fCurrentSubsetImage];
-                if (!run_subset_bench(path, useCodec)) {
-                    fCurrentSubsetImage++;
-                    continue;
-                }
-                while (fCurrentColorType < fColorTypes.count()) {
-                    SkColorType colorType = fColorTypes[fCurrentColorType];
-                    while (fCurrentSubsetType <= kLast_SubsetType) {
-                        int width = 0;
-                        int height = 0;
-                        int currentSubsetType = fCurrentSubsetType++;
-                        if (valid_subset_bench(path, colorType, useCodec, &width, &height)) {
-                            switch (currentSubsetType) {
-                                case kTopLeft_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/3,
-                                            height/3, 0, 0, useCodec);
-                                case kTopRight_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/3,
-                                            height/3, 2*width/3, 0, useCodec);
-                                case kMiddle_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/3,
-                                            height/3, width/3, height/3, useCodec);
-                                case kBottomLeft_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/3,
-                                            height/3, 0, 2*height/3, useCodec);
-                                case kBottomRight_SubsetType:
-                                    return new SubsetSingleBench(path, colorType, width/3,
-                                            height/3, 2*width/3, 2*height/3, useCodec);
-                                case kTranslate_SubsetType:
-                                    return new SubsetTranslateBench(path, colorType, 512, 512,
-                                            useCodec);
-                                case kZoom_SubsetType:
-                                    return new SubsetZoomBench(path, colorType, 512, 512,
-                                            useCodec);
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                    fCurrentSubsetType = 0;
-                    fCurrentColorType++;
-                }
-                fCurrentColorType = 0;
+            fBenchType = "skcodec";
+            const SkString& path = fImages[fCurrentSubsetImage];
+            if (!run_subset_bench(path)) {
                 fCurrentSubsetImage++;
+                continue;
             }
-            fCurrentSubsetImage = 0;
-            fUseCodec++;
+            while (fCurrentColorType < fColorTypes.count()) {
+                SkColorType colorType = fColorTypes[fCurrentColorType];
+                while (fCurrentSubsetType <= kLast_SubsetType) {
+                    int width = 0;
+                    int height = 0;
+                    int currentSubsetType = fCurrentSubsetType++;
+                    if (valid_subset_bench(path, colorType, &width, &height)) {
+                        switch (currentSubsetType) {
+                            case kTopLeft_SubsetType:
+                                return new SubsetSingleBench(path, colorType, width/3,
+                                        height/3, 0, 0);
+                            case kTopRight_SubsetType:
+                                return new SubsetSingleBench(path, colorType, width/3,
+                                        height/3, 2*width/3, 0);
+                            case kMiddle_SubsetType:
+                                return new SubsetSingleBench(path, colorType, width/3,
+                                        height/3, width/3, height/3);
+                            case kBottomLeft_SubsetType:
+                                return new SubsetSingleBench(path, colorType, width/3,
+                                        height/3, 0, 2*height/3);
+                            case kBottomRight_SubsetType:
+                                return new SubsetSingleBench(path, colorType, width/3,
+                                        height/3, 2*width/3, 2*height/3);
+                            case kTranslate_SubsetType:
+                                return new SubsetTranslateBench(path, colorType, 512, 512);
+                            case kZoom_SubsetType:
+                                return new SubsetZoomBench(path, colorType, 512, 512);
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                fCurrentSubsetType = 0;
+                fCurrentColorType++;
+            }
+            fCurrentColorType = 0;
+            fCurrentSubsetImage++;
         }
 
         // Run the BRDBenches
         // We will benchmark multiple BRD strategies.
         static const struct {
             SkBitmapRegionDecoder::Strategy    fStrategy;
-            const char*                                 fName;
+            const char*                        fName;
         } strategies[] = {
-            { SkBitmapRegionDecoder::kOriginal_Strategy,    "BRD" },
-            { SkBitmapRegionDecoder::kCanvas_Strategy,      "BRD_canvas" },
+            { SkBitmapRegionDecoder::kCanvas_Strategy,       "BRD_canvas" },
             { SkBitmapRegionDecoder::kAndroidCodec_Strategy, "BRD_android_codec" },
         };
 
@@ -988,24 +940,6 @@ public:
                 const SkString& path = fImages[fCurrentBRDImage];
                 const SkBitmapRegionDecoder::Strategy strategy =
                         strategies[fCurrentBRDStrategy].fStrategy;
-
-                if (SkBitmapRegionDecoder::kOriginal_Strategy == strategy) {
-                    // Disable png and jpeg for SkImageDecoder:
-                    if (!FLAGS_jpgBuildTileIndex) {
-                        if (path.endsWith("JPEG") || path.endsWith("JPG") ||
-                            path.endsWith("jpeg") || path.endsWith("jpg"))
-                        {
-                            fCurrentBRDStrategy++;
-                            continue;
-                        }
-                    }
-                    if (!FLAGS_pngBuildTileIndex) {
-                        if (path.endsWith("PNG") || path.endsWith("png")) {
-                            fCurrentBRDStrategy++;
-                            continue;
-                        }
-                    }
-                }
 
                 while (fCurrentColorType < fColorTypes.count()) {
                     while (fCurrentBRDSampleSize < (int) SK_ARRAY_COUNT(sampleSizes)) {
@@ -1133,7 +1067,6 @@ private:
     int fCurrentBRDImage;
     int fCurrentColorType;
     int fCurrentSubsetType;
-    int fUseCodec;
     int fCurrentBRDStrategy;
     int fCurrentBRDSampleSize;
     int fCurrentAnimSKP;

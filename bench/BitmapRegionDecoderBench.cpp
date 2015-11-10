@@ -24,9 +24,6 @@ BitmapRegionDecoderBench::BitmapRegionDecoderBench(const char* baseName, SkData*
     // Choose a useful name for the region decoding strategy
     const char* strategyName;
     switch (strategy) {
-        case SkBitmapRegionDecoder::kOriginal_Strategy:
-            strategyName = "Original";
-            break;
         case SkBitmapRegionDecoder::kCanvas_Strategy:
             strategyName = "Canvas";
             break;

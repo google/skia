@@ -25,8 +25,7 @@ public:
                       uint32_t subsetWidth,
                       uint32_t subsetHeight,
                       uint32_t offsetLeft,
-                      uint32_t offsetTop,
-                      bool useCodec);
+                      uint32_t offsetTop);
 
 protected:
     const char* onGetName() override;
@@ -40,7 +39,6 @@ private:
     const uint32_t                fSubsetHeight;
     const uint32_t                fOffsetLeft;
     const uint32_t                fOffsetTop;
-    const bool                    fUseCodec;
     SkAutoTDelete<SkMemoryStream> fStream;
     typedef Benchmark INHERITED;
 };
