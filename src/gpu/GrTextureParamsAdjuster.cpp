@@ -352,13 +352,11 @@ const GrFragmentProcessor* GrTextureAdjuster::createFragmentProcessor(
                                   texture->width(), texture->height(),
                                   contentArea, &kBilerp, &domain);
         SkASSERT(kTightCopy_DomainMode != domainMode);
-        filterOrNullForBicubic = &kBilerp;
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {
-            SkASSERT(*filterOrNullForBicubic != GrTextureParams::kMipMap_FilterMode);
             return GrTextureDomainEffect::Create(texture, textureMatrix, domain,
                                                  GrTextureDomain::kClamp_Mode,
                                                  *filterOrNullForBicubic);
