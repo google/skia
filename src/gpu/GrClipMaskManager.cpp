@@ -368,22 +368,8 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         }
     }
 
-    SkASSERT(!pipelineBuilder.isHWAntialias() || rt->isStencilBufferMultisampled());
-
-    bool hasHWAntialias = pipelineBuilder.isHWAntialias();
-
-    if (rt->isStencilBufferMultisampled() && !hasHWAntialias) {
-        if (!this->caps()->multisampleDisableSupport()) {
-            hasHWAntialias = true; // This will be on regardless, it's impossible to turn it off.
-        } else if (this->caps()->programmableSampleLocationsSupport()) {
-            // Enable HW antialias, but leave the draw non-antialiased by co-centering the samples.
-            out->fIsCoCenteredMultisampledDraw = true;
-            hasHWAntialias = true;
-        }
-    }
-
-    // If we have HW antialias, or don't need AA, we can do everything in the stencil buffer.
-    if (!hasHWAntialias && requiresAA) {
+    // If MSAA is enabled we can do everything in the stencil buffer.
+    if (0 == rt->numStencilSamples() && requiresAA) {
         SkAutoTUnref<GrTexture> result;
 
         // The top-left of the mask corresponds to the top-left corner of the bounds.

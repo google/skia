@@ -1500,11 +1500,11 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushHWAAState(glRT, pipeline.isHWAntialiasState());
+    this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !pipeline.getStencil().isDisabled());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, nullptr, pipeline.hasCoCenteredSamples());
+    this->flushRenderTarget(glRT, nullptr);
 
     return true;
 }
@@ -2034,10 +2034,33 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound,
-                                bool coCenterSamples) {
+void GrGLGpu::setColocatedSampleLocations(GrRenderTarget* rt, bool useColocatedSampleLocations) {
+    GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
+    SkASSERT(0 != target->renderFBOID());
+
+    if (!rt->isStencilBufferMultisampled() ||
+        useColocatedSampleLocations == target->usesColocatedSampleLocations()) {
+        return;
+    }
+
+    if (kGL_GrGLStandard == this->glStandard() && this->glVersion() >= GR_GL_VER(4,5)) {
+        GL_CALL(NamedFramebufferParameteri(target->renderFBOID(),
+                                           GR_GL_FRAMEBUFFER_PROGRAMMABLE_SAMPLE_LOCATIONS,
+                                           useColocatedSampleLocations));
+    } else {
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, target->renderFBOID()));
+        GL_CALL(FramebufferParameteri(GR_GL_FRAMEBUFFER,
+                                      GR_GL_FRAMEBUFFER_PROGRAMMABLE_SAMPLE_LOCATIONS,
+                                      useColocatedSampleLocations));
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+    }
+
+    target->flagAsUsingColocatedSampleLocations(useColocatedSampleLocations);
+}
+
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) {
+
     SkASSERT(target);
-    SkASSERT(!coCenterSamples || this->caps()->programmableSampleLocationsSupport());
 
     uint32_t rtID = target->getUniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
@@ -2080,19 +2103,6 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound,
     GrTexture *texture = target->asTexture();
     if (texture) {
         texture->texturePriv().dirtyMipMaps(true);
-    }
-
-    if (this->caps()->programmableSampleLocationsSupport()) {
-        ResetTimestamp timestamp;
-        bool hasCoCenteredSamples = target->getCachedCoCenteredSamplesState(&timestamp);
-        if (timestamp < this->getResetTimestamp() || hasCoCenteredSamples != coCenterSamples) {
-            // The default state for programmable sample locations is already at pixel center, so we
-            // don't assign them. This assumes the client does not modify them outside of Skia.
-            GL_CALL(FramebufferParameteri(GR_GL_FRAMEBUFFER,
-                                          GR_GL_FRAMEBUFFER_PROGRAMMABLE_SAMPLE_LOCATIONS,
-                                          coCenterSamples));
-            target->setCachedCoCenteredSamplesState(coCenterSamples, this->getResetTimestamp());
-        }
     }
 }
 
@@ -2295,10 +2305,20 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
     }
 }
 
-void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
+void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled) {
     SkASSERT(!useHWAA || rt->isStencilBufferMultisampled());
 
-    if (this->caps()->multisampleDisableSupport()) {
+    if (rt->hasMixedSamples() && stencilEnabled &&
+        this->glCaps().glslCaps()->programmableSampleLocationsSupport()) {
+        if (useHWAA) {
+            this->setColocatedSampleLocations(rt, false);
+        } else {
+            this->setColocatedSampleLocations(rt, true);
+        }
+        useHWAA = true;
+    }
+
+    if (this->glCaps().multisampleDisableSupport()) {
         if (useHWAA) {
             if (kYes_TriState != fMSAAEnabled) {
                 GL_CALL(Enable(GR_GL_MULTISAMPLE));
@@ -3099,7 +3119,7 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->flushBlend(blendInfo);
     this->flushColorWrite(true);
     this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
-    this->flushHWAAState(dstRT, false);
+    this->flushHWAAState(dstRT, false, false);
     this->disableScissor();
     GrStencilSettings stencil;
     stencil.setDisabled();

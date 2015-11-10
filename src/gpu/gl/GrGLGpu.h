@@ -269,12 +269,16 @@ private:
     // ensures that such operations don't negatively interact with tracking bound textures.
     void setScratchTextureUnit();
 
+    // colocates all samples at pixel center for render target, if MSAA.
+    // allows drawing coverage based AA shapes in MSAA mode.
+    void setColocatedSampleLocations(GrRenderTarget* rt, bool useColocatedSampleLocations);
+
     // bounds is region that may be modified and therefore has to be resolved.
     // nullptr means whole target. Can be an empty rect.
-    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds, bool coCenterSamples = false);
+    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
     void flushStencil(const GrStencilSettings&);
-    void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
+    void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled);
 
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,

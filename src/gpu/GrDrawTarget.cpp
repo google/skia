@@ -219,9 +219,14 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBat
     if (!fClipMaskManager->setupClipping(pipelineBuilder, &ars, &batch->bounds(), &clip)) {
         return;
     }
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
+    if (clip.clipCoverageFragmentProcessor()) {
+        arfps.set(&pipelineBuilder);
+        arfps.addCoverageFragmentProcessor(clip.clipCoverageFragmentProcessor());
+    }
 
     GrPipeline::CreateArgs args;
-    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip, batch)) {
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(), batch)) {
         return;
     }
 
@@ -344,6 +349,12 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
         return;
     }
 
+    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
+    if (clip.clipCoverageFragmentProcessor()) {
+        arfps.set(&pipelineBuilder);
+        arfps.addCoverageFragmentProcessor(clip.clipCoverageFragmentProcessor());
+    }
+
     // Ensure the render target has a stencil buffer and get the stencil settings.
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
@@ -352,7 +363,7 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     batch->setStencilSettings(stencilSettings);
 
     GrPipeline::CreateArgs args;
-    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip, batch)) {
+    if (!this->installPipelineInDrawBatch(&pipelineBuilder, &clip.scissorState(), batch)) {
         return;
     }
 
@@ -528,19 +539,14 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineBuilder,
-                                              const GrAppliedClip* clip, GrDrawBatch* batch) {
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    if (clip->clipCoverageFragmentProcessor()) {
-        arfps.set(pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(clip->clipCoverageFragmentProcessor());
-    }
-
+                                              const GrScissorState* scissor,
+                                              GrDrawBatch* batch) {
     GrPipeline::CreateArgs args;
     args.fPipelineBuilder = pipelineBuilder;
     args.fCaps = this->caps();
+    args.fScissor = scissor;
     args.fColorPOI = pipelineBuilder->colorProcInfo(batch);
     args.fCoveragePOI = pipelineBuilder->coverageProcInfo(batch);
-    args.fClip = clip;
     if (!this->setupDstReadIfNecessary(*pipelineBuilder, args.fColorPOI,
                                        args.fCoveragePOI, &args.fDstTexture,
                                        batch->bounds())) {

@@ -20,7 +20,6 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
-class GrAppliedClip;
 class GrBatch;
 class GrDeviceCoordTexture;
 class GrPipelineBuilder;
@@ -39,7 +38,7 @@ public:
         const GrCaps*               fCaps;
         GrProcOptInfo               fColorPOI;
         GrProcOptInfo               fCoveragePOI;
-        const GrAppliedClip*        fClip;
+        const GrScissorState*       fScissor;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
@@ -126,7 +125,6 @@ public:
 
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
-    bool hasCoCenteredSamples() const { return SkToBool(fFlags & kCoCenteredSamples_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
         return fXferProcessor->xferBarrierType(fRenderTarget.get(), caps);
@@ -168,7 +166,6 @@ private:
     enum Flags {
         kHWAA_Flag              = 0x1,
         kSnapVertices_Flag      = 0x2,
-        kCoCenteredSamples_Flag = 0x4
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;

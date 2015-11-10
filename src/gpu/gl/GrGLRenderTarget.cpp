@@ -34,11 +34,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, cons
 }
 
 void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
-    fRTFBOID                       = idDesc.fRTFBOID;
-    fTexFBOID                      = idDesc.fTexFBOID;
-    fMSColorRenderbufferID         = idDesc.fMSColorRenderbufferID;
-    fRTLifecycle                   = idDesc.fLifeCycle;
-    fHasCoCenteredSamplesTimestamp = GrGpu::kExpiredTimestamp;
+    fRTFBOID                = idDesc.fRTFBOID;
+    fTexFBOID               = idDesc.fTexFBOID;
+    fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
+    fRTLifecycle            = idDesc.fLifeCycle;
 
     fViewport.fLeft   = 0;
     fViewport.fBottom = 0;
