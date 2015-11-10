@@ -36,9 +36,8 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
                            const Options& options)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
-    , fFlushState(fGpu, fResourceProvider, 0)
+    , fFlushState(fGpu, fResourceProvider)
     , fFlushing(false)
-    , fFirstUnpreparedBatch(0)
     , fFlags(0)
     , fOptions(options)
     , fRenderTarget(rt) {
@@ -190,8 +189,8 @@ void GrDrawTarget::flush() {
     this->makeClosed();
 
     // Loop over the batches that haven't yet generated their geometry
-    for (; fFirstUnpreparedBatch < fBatches.count(); ++fFirstUnpreparedBatch) {
-        fBatches[fFirstUnpreparedBatch]->prepare(&fFlushState);
+    for (int i = 0; i < fBatches.count(); ++i) {
+        fBatches[i]->prepare(&fFlushState);
     }
 
     // Upload all data to the GPU
@@ -209,7 +208,6 @@ void GrDrawTarget::flush() {
 }
 
 void GrDrawTarget::reset() {
-    fFirstUnpreparedBatch = 0;
     fBatches.reset();
     fFlushState.reset();
 }
@@ -522,10 +520,6 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
         GrBATCH_INFO("\t\tFirstBatch\n");
     }
     fBatches.push_back().reset(SkRef(batch));
-    if (fBatches.count() > kMaxLookback) {
-        SkASSERT(fBatches.count() - kMaxLookback - fFirstUnpreparedBatch == 1);
-        fBatches[fFirstUnpreparedBatch++]->prepare(&fFlushState);
-    }
     if (fOptions.fImmediateMode) {
         this->flush();
     }

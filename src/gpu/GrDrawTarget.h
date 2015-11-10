@@ -36,7 +36,6 @@
 //#define ENABLE_MDB 1
 
 class GrBatch;
-class GrBatchFlushState;
 class GrClip;
 class GrCaps;
 class GrPath;
@@ -314,7 +313,6 @@ private:
     GrResourceProvider*                         fResourceProvider;
     GrBatchFlushState                           fFlushState;
     bool                                        fFlushing;
-    int                                         fFirstUnpreparedBatch;
 
     SkDEBUGCODE(int                             fDebugID;)
     uint32_t                                    fFlags;

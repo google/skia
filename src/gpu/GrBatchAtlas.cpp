@@ -331,6 +331,8 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* batchTarget,
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc);
     SkASSERT(verify);
 
+    // Note that this plot will be uploaded inline with the draws whereas the
+    // one it displaced most likely was uploaded asap.
     newPlot->setLastUploadToken(batchTarget->currentToken());
     SkAutoTUnref<GrPlotUploader> uploader(new GrPlotUploader(newPlot, fTexture));
     batchTarget->upload(uploader);

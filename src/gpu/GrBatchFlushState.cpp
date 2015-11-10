@@ -10,15 +10,14 @@
 #include "GrBatchAtlas.h"
 #include "GrPipeline.h"
 
-GrBatchFlushState::GrBatchFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider,
-                                     GrBatchToken lastFlushedToken)
+GrBatchFlushState::GrBatchFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
     : fGpu(gpu)
     , fUploader(gpu)
     , fResourceProvider(resourceProvider)
     , fVertexPool(gpu)
     , fIndexPool(gpu)
-    , fCurrentToken(lastFlushedToken)
-    , fLastFlushedToken(lastFlushedToken) {}
+    , fCurrentToken(0)
+    , fLastFlushedToken(0) {}
 
 void* GrBatchFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
                                          const GrVertexBuffer** buffer, int* startVertex) {

@@ -44,7 +44,7 @@ private:
 /** Tracks the state across all the GrBatches in a GrDrawTarget flush. */
 class GrBatchFlushState {
 public:
-    GrBatchFlushState(GrGpu*, GrResourceProvider*, GrBatchToken lastFlushedToken);
+    GrBatchFlushState(GrGpu*, GrResourceProvider*);
 
     ~GrBatchFlushState() { this->reset(); }
 
