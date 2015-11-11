@@ -32,14 +32,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider,
-                           const Options& options)
+GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
-    , fFlushState(fGpu, fResourceProvider)
     , fFlushing(false)
     , fFlags(0)
-    , fOptions(options)
     , fRenderTarget(rt) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
@@ -176,7 +173,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     return true;
 }
 
-void GrDrawTarget::flush() {
+void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
     if (fFlushing) {
         return;
     }
@@ -190,26 +187,21 @@ void GrDrawTarget::flush() {
 
     // Loop over the batches that haven't yet generated their geometry
     for (int i = 0; i < fBatches.count(); ++i) {
-        fBatches[i]->prepare(&fFlushState);
+        fBatches[i]->prepare(flushState);
     }
+}
 
-    // Upload all data to the GPU
-    fFlushState.preIssueDraws();
-
+void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     // Draw all the generated geometry.
     for (int i = 0; i < fBatches.count(); ++i) {
-        fBatches[i]->draw(&fFlushState);
+        fBatches[i]->draw(flushState);
     }
-
-    SkASSERT(fFlushState.lastFlushedToken() == fFlushState.currentToken());
-    this->reset();
 
     fFlushing = false;
 }
 
 void GrDrawTarget::reset() {
     fBatches.reset();
-    fFlushState.reset();
 }
 
 void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch) {
@@ -481,8 +473,6 @@ template <class Left, class Right> static bool intersect(const Left& a, const Ri
 void GrDrawTarget::recordBatch(GrBatch* batch) {
     // A closed drawTarget should never receive new/more batches
     SkASSERT(!this->isClosed());
-    // Should never have batches queued up when in immediate mode.
-    SkASSERT(!fOptions.fImmediateMode || !fBatches.count());
 
     // Check if there is a Batch Draw we can batch with by linearly searching back until we either
     // 1) check every draw
@@ -531,9 +521,6 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
         GrBATCH_INFO("\t\tFirstBatch\n");
     }
     fBatches.push_back().reset(SkRef(batch));
-    if (fOptions.fImmediateMode) {
-        this->flush();
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

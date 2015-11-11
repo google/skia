@@ -8,7 +8,6 @@
 #ifndef GrDrawTarget_DEFINED
 #define GrDrawTarget_DEFINED
 
-#include "GrBatchFlushState.h"
 #include "GrClip.h"
 #include "GrClipMaskManager.h"
 #include "GrContext.h"
@@ -44,13 +43,9 @@ class GrPathRangeDraw;
 
 class GrDrawTarget final : public SkRefCnt {
 public:
-    struct Options {
-        bool fImmediateMode;
-    };
-
     // The context may not be fully constructed and should not be used during GrDrawTarget
     // construction.
-    GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider*, const Options& options);
+    GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider*);
 
     ~GrDrawTarget() override;
 
@@ -90,10 +85,10 @@ public:
     void reset();
 
     /**
-     * This plays any queued up draws to its GrGpu target. It also resets this object (i.e. flushing
-     * is destructive).
+     * Together these two functions flush all queued up draws to the Gpu.
      */
-    void flush();
+    void prepareBatches(GrBatchFlushState* flushState);
+    void drawBatches(GrBatchFlushState* flushState);
 
     /**
      * Gets the capabilities of the draw target.
@@ -210,8 +205,6 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
-    bool programUnitTest(GrContext* owner, int maxStages);
-
     /** Provides access to internal functions to GrClipMaskManager without friending all of
         GrDrawTarget to CMM. */
     class CMMAccess {
@@ -313,12 +306,10 @@ private:
     GrContext*                                  fContext;
     GrGpu*                                      fGpu;
     GrResourceProvider*                         fResourceProvider;
-    GrBatchFlushState                           fFlushState;
     bool                                        fFlushing;
 
     SkDEBUGCODE(int                             fDebugID;)
     uint32_t                                    fFlags;
-    Options                                     fOptions;
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
     SkTDArray<GrDrawTarget*>                    fDependencies;

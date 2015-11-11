@@ -9,6 +9,7 @@
 #define GrDrawingManager_DEFINED
 
 #include "GrDrawTarget.h"
+#include "GrBatchFlushState.h"
 #include "GrPathRendererChain.h"
 #include "GrPathRenderer.h"
 #include "SkTDArray.h"
@@ -49,14 +50,16 @@ public:
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = NULL);
 
+    static bool ProgramUnitTest(GrContext* context, GrDrawTarget* drawTarget, int maxStages);
+
 private:
-    GrDrawingManager(GrContext* context, GrDrawTarget::Options options)
+    GrDrawingManager(GrContext* context)
         : fContext(context)
         , fAbandoned(false)
-        , fOptions(options)
         , fNVPRTextContext(nullptr)
         , fPathRendererChain(nullptr)
-        , fSoftwarePathRenderer(nullptr) {
+        , fSoftwarePathRenderer(nullptr)
+        , fFlushState(context->getGpu(), context->resourceProvider()) {
         sk_bzero(fTextContexts, sizeof(fTextContexts));
     }
 
@@ -74,13 +77,14 @@ private:
 
     bool                        fAbandoned;
     SkTDArray<GrDrawTarget*>    fDrawTargets;
-    GrDrawTarget::Options       fOptions;
 
     GrTextContext*              fNVPRTextContext;
     GrTextContext*              fTextContexts[kNumPixelGeometries][kNumDFTOptions];
 
     GrPathRendererChain*        fPathRendererChain;
     GrSoftwarePathRenderer*     fSoftwarePathRenderer;
+
+    GrBatchFlushState           fFlushState;
 };
 
 #endif

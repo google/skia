@@ -15,6 +15,7 @@
 #include "GrAutoLocaleSetter.h"
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
+#include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
 #include "GrResourceProvider.h"
@@ -300,7 +301,10 @@ static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* ran
     }
 }
 
-bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
+bool GrDrawingManager::ProgramUnitTest(GrContext* context, GrDrawTarget* drawTarget, int maxStages) {
+
+    GrDrawingManager* drawingManager = context->drawingManager();
+
     // setup dummy textures
     GrSurfaceDesc dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -334,7 +338,7 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
         SkAutoTUnref<GrRenderTarget> rt(random_render_target(
-            context->textureProvider(), &random, this->caps()));
+            context->textureProvider(), &random, context->caps()));
         if (!rt.get()) {
             SkDebugf("Could not allocate render target");
             return false;
@@ -347,16 +351,16 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
         SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
-        GrProcessorTestData ptd(&random, context, fGpu->caps(), dummyTextures);
+        GrProcessorTestData ptd(&random, context, context->caps(), dummyTextures);
         set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
         set_random_xpf(&pipelineBuilder, &ptd);
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        this->drawBatch(pipelineBuilder, batch);
+        drawTarget->drawBatch(pipelineBuilder, batch);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
-    this->flush();
+    drawingManager->flush();
 
     // Validate that GrFPs work correctly without an input.
     GrSurfaceDesc rtDesc;
@@ -365,14 +369,14 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
     rtDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     rtDesc.fConfig = kRGBA_8888_GrPixelConfig;
     SkAutoTUnref<GrRenderTarget> rt(
-        fContext->textureProvider()->createTexture(rtDesc, false)->asRenderTarget());
+        context->textureProvider()->createTexture(rtDesc, false)->asRenderTarget());
     int fpFactoryCnt = GrProcessorTestFactory<GrFragmentProcessor>::Count();
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
             SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
-            GrProcessorTestData ptd(&random, context, this->caps(), dummyTextures);
+            GrProcessorTestData ptd(&random, context, context->caps(), dummyTextures);
             GrPipelineBuilder builder;
             builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
             builder.setRenderTarget(rt);
@@ -384,8 +388,8 @@ bool GrDrawTarget::programUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Create(fp));
             builder.addColorFragmentProcessor(blockFP);
 
-            this->drawBatch(builder, batch);
-            this->flush();
+            drawTarget->drawBatch(builder, batch);
+            drawingManager->flush();
         }
     }
 
@@ -438,9 +442,10 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
                 maxStages = 2;
             }
 #endif
-            GrTestTarget target;
-            context->getTestTarget(&target);
-            REPORTER_ASSERT(reporter, target.target()->programUnitTest(context, maxStages));
+            GrTestTarget testTarget;
+            context->getTestTarget(&testTarget);
+            REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(
+                                            context, testTarget.target(), maxStages));
         }
     }
 }

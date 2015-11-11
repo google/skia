@@ -399,6 +399,7 @@ private:
 
     // TODO: have the CMM use drawContexts and rm this friending
     friend class GrClipMaskManager; // the CMM is friended just so it can call 'drawingManager'
+    friend class GrDrawingManager;  // for access to drawingManager for ProgramUnitTest
     GrDrawingManager* drawingManager() { return fDrawingManager; }
 
     GrContext(); // init must be called after the constructor.

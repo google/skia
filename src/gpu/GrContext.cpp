@@ -86,9 +86,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
 
     fDidTestPMConversions = false;
 
-    GrDrawTarget::Options dtOptions;
-    dtOptions.fImmediateMode = options.fImmediateMode;
-    fDrawingManager.reset(new GrDrawingManager(this, dtOptions));
+    fDrawingManager.reset(new GrDrawingManager(this));
 
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = new GrBatchFontCache(this);

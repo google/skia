@@ -12,7 +12,6 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrBatchFlushState.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"

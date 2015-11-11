@@ -58,6 +58,7 @@ void GrDrawingManager::reset() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->reset();
     }
+    fFlushState.reset();
 }
 
 void GrDrawingManager::flush() {
@@ -65,10 +66,24 @@ void GrDrawingManager::flush() {
                         SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
     SkASSERT(result);
 
+#if 0
     for (int i = 0; i < fDrawTargets.count(); ++i) {
-        //SkDEBUGCODE(fDrawTargets[i]->dump();)
-        fDrawTargets[i]->flush();
+        SkDEBUGCODE(fDrawTargets[i]->dump();)
     }
+#endif
+
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        fDrawTargets[i]->prepareBatches(&fFlushState);
+    }
+
+    // Upload all data to the GPU
+    fFlushState.preIssueDraws();
+
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        fDrawTargets[i]->drawBatches(&fFlushState);
+    }
+
+    SkASSERT(fFlushState.lastFlushedToken() == fFlushState.currentToken());
 
 #ifndef ENABLE_MDB
     // When MDB is disabled we keep reusing the same drawTarget
@@ -77,6 +92,11 @@ void GrDrawingManager::flush() {
         fDrawTargets[0]->resetFlag(GrDrawTarget::kWasOutput_Flag);
     }
 #endif
+
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        fDrawTargets[i]->reset();
+    }
+    fFlushState.reset();
 }
 
 GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,
@@ -119,8 +139,7 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     }
 #endif
 
-    GrDrawTarget* dt = new GrDrawTarget(rt, fContext->getGpu(), fContext->resourceProvider(),
-                                        fOptions);
+    GrDrawTarget* dt = new GrDrawTarget(rt, fContext->getGpu(), fContext->resourceProvider());
 
     *fDrawTargets.append() = dt;
 
