@@ -60,11 +60,15 @@ typedef int32_t             SkFixed;
     inline SkFixed SkIntToFixed(int n)
     {
         SkASSERT(n >= -32768 && n <= 32767);
-        return n << 16;
+        // Left shifting a negative value has undefined behavior in C, so we cast to unsigned before
+        // shifting.
+        return (unsigned)n << 16;
     }
 #else
-    //  force the cast to SkFixed to ensure that the answer is signed (like the debug version)
-    #define SkIntToFixed(n)     (SkFixed)((n) << 16)
+    // Left shifting a negative value has undefined behavior in C, so we cast to unsigned before
+    // shifting. Then we force the cast to SkFixed to ensure that the answer is signed (like the
+    // debug version).
+    #define SkIntToFixed(n)     (SkFixed)((unsigned)(n) << 16)
 #endif
 
 #define SkFixedRoundToInt(x)    (((x) + SK_FixedHalf) >> 16)
