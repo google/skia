@@ -9,6 +9,7 @@
 #define SkBitmapRegionDecoder_DEFINED
 
 #include "SkBitmap.h"
+#include "SkBRDAllocator.h"
 #include "SkEncodedFormat.h"
 #include "SkStream.h"
 
@@ -58,7 +59,7 @@ public:
      *                        alpha type to use.
      *
      */
-    virtual bool decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+    virtual bool decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
                               const SkIRect& desiredSubset, int sampleSize,
                               SkColorType colorType, bool requireUnpremul) = 0;
     /*

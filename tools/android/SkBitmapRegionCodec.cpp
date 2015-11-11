@@ -16,7 +16,7 @@ SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
     , fCodec(codec)
 {}
 
-bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
         const SkIRect& desiredSubset, int sampleSize, SkColorType dstColorType,
         bool requireUnpremul) {
 
@@ -104,10 +104,10 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* al
     // TODO (msarett): Can we make this faster by implementing it to only
     //                 zero parts of the image that we won't overwrite with
     //                 pixels?
-    // TODO (msarett): This could be skipped if memory is zero initialized.
-    //                 This would matter if this code is moved to Android and
-    //                 uses Android bitmaps.
-    if (SubsetType::kPartiallyInside_SubsetType == type) {
+    SkCodec::ZeroInitialized zeroInit = allocator ? allocator->zeroInit() :
+            SkCodec::kNo_ZeroInitialized;
+    if (SubsetType::kPartiallyInside_SubsetType == type &&
+            SkCodec::kNo_ZeroInitialized == zeroInit) {
         void* pixels = bitmap->getPixels();
         size_t bytes = outInfo.getSafeSize(bitmap->rowBytes());
         memset(pixels, 0, bytes);
@@ -119,6 +119,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* al
     options.fSubset = &subset;
     options.fColorPtr = colorPtr;
     options.fColorCount = colorCountPtr;
+    options.fZeroInitialized = zeroInit;
     void* dst = bitmap->getAddr(scaledOutX, scaledOutY);
 
     // FIXME: skbug.com/4538

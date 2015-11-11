@@ -24,7 +24,7 @@ public:
      */
     SkBitmapRegionCanvas(SkCodec* decoder);
 
-    bool decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+    bool decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
                       const SkIRect& desiredSubset, int sampleSize,
                       SkColorType colorType, bool requireUnpremul) override;
 

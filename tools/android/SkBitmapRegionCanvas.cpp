@@ -15,7 +15,7 @@ SkBitmapRegionCanvas::SkBitmapRegionCanvas(SkCodec* decoder)
     , fDecoder(decoder)
 {}
 
-bool SkBitmapRegionCanvas::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* allocator,
+bool SkBitmapRegionCanvas::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
         const SkIRect& desiredSubset, int sampleSize, SkColorType dstColorType,
         bool requireUnpremul) {
     // Reject color types not supported by this method
@@ -102,11 +102,12 @@ bool SkBitmapRegionCanvas::decodeRegion(SkBitmap* bitmap, SkBitmap::Allocator* a
     // TODO (msarett): Can we make this faster by implementing it to only
     //                 zero parts of the image that we won't overwrite with
     //                 pixels?
-    // TODO (msarett): This could be skipped if memory is zero initialized.
-    //                 This would matter if this code is moved to Android and
-    //                 uses Android bitmaps.
     if (SubsetType::kPartiallyInside_SubsetType == type) {
-        bitmap->eraseColor(0);
+        SkCodec::ZeroInitialized zeroInit = allocator ? allocator->zeroInit() :
+                    SkCodec::kNo_ZeroInitialized;
+        if (SkCodec::kNo_ZeroInitialized == zeroInit) {
+            bitmap->eraseColor(0);
+        }
     }
 
     // Use a canvas to crop and scale to the destination bitmap
