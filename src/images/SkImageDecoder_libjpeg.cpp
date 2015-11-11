@@ -223,35 +223,11 @@ static void set_error_mgr(jpeg_decompress_struct* cinfo, skjpeg_error_mgr* error
 }
 
 /**
- *  Common code for turning off upsampling and smoothing. Turning these
- *  off helps performance without showing noticable differences in the
- *  resulting bitmap.
- */
-static void turn_off_visual_optimizations(jpeg_decompress_struct* cinfo) {
-    SkASSERT(cinfo != nullptr);
-    /* this gives about 30% performance improvement. In theory it may
-       reduce the visual quality, in practice I'm not seeing a difference
-     */
-    cinfo->do_fancy_upsampling = 0;
-
-    /* this gives another few percents */
-    cinfo->do_block_smoothing = 0;
-}
-
-/**
  * Common code for setting the dct method.
  */
 static void set_dct_method(const SkImageDecoder& decoder, jpeg_decompress_struct* cinfo) {
     SkASSERT(cinfo != nullptr);
-#ifdef DCT_IFAST_SUPPORTED
-    if (decoder.getPreferQualityOverSpeed()) {
-        cinfo->dct_method = JDCT_ISLOW;
-    } else {
-        cinfo->dct_method = JDCT_IFAST;
-    }
-#else
     cinfo->dct_method = JDCT_ISLOW;
-#endif
 }
 
 SkColorType SkJPEGImageDecoder::getBitmapColorType(jpeg_decompress_struct* cinfo) {
@@ -419,8 +395,6 @@ SkImageDecoder::Result SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* 
 
     SkASSERT(1 == cinfo.scale_num);
     cinfo.scale_denom = sampleSize;
-
-    turn_off_visual_optimizations(&cinfo);
 
     const SkColorType colorType = this->getBitmapColorType(&cinfo);
     const SkAlphaType alphaType = kAlpha_8_SkColorType == colorType ?
@@ -746,8 +720,6 @@ bool SkJPEGImageDecoder::onDecodeYUV8Planes(SkStream* stream, SkISize componentS
 
     SkASSERT(1 == cinfo.scale_num);
     cinfo.scale_denom = 1;
-
-    turn_off_visual_optimizations(&cinfo);
 
 #ifdef ANDROID_RGB
     cinfo.dither_mode = JDITHER_NONE;
