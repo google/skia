@@ -281,8 +281,8 @@ private:
                                                     GrPixelConfig config) const override {
         return 0; 
     }
-    bool isTestingOnlyBackendTexture(GrBackendObject id) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendObject id) const override {}
+    bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
+    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) const override {}
 
     typedef GrGpu INHERITED;
 };

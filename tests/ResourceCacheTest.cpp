@@ -221,7 +221,8 @@ static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* cont
     REPORTER_ASSERT(reporter, borrowedIsAlive);
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
-    gpu->deleteTestingOnlyBackendTexture(texHandles[0]);
+    gpu->deleteTestingOnlyBackendTexture(texHandles[0], !borrowedIsAlive);
+    gpu->deleteTestingOnlyBackendTexture(texHandles[1], !adoptedIsAlive);
 
     context->resetContext();
 }

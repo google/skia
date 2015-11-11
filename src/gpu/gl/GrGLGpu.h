@@ -125,8 +125,8 @@ public:
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config) const override;
-    bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendObject id) const override;
+    bool isTestingOnlyBackendTexture(GrBackendObject) const override;
+    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) const override;
 
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);

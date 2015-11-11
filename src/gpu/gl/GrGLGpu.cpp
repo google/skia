@@ -3291,7 +3291,7 @@ bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
     return (GR_GL_TRUE == result);
 }
 
-void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id) const {
+void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) const {
 #ifdef SK_IGNORE_GL_TEXTURE_TARGET
     GrGLuint texID = (GrGLuint)id;
 #else
@@ -3299,7 +3299,9 @@ void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id) const {
     GrGLuint texID = info->fID;
 #endif
 
-    GL_CALL(DeleteTextures(1, &texID));
+    if (!abandonTexture) {
+        GL_CALL(DeleteTextures(1, &texID));
+    }
 
 #ifndef SK_IGNORE_GL_TEXTURE_TARGET
     delete info;

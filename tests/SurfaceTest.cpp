@@ -169,6 +169,8 @@ static void test_wrapped_texture_surface(skiatest::Reporter* reporter, GrContext
             }
         }
     }
+    gpu->deleteTestingOnlyBackendTexture(texHandle);
+
 }
 #endif
 
