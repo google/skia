@@ -88,7 +88,6 @@ void GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const Sk
     this->getDrawTarget()->copySurface(fRenderTarget, src, srcRect, dstPoint);
 }
 
-
 void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
                              const SkPaint& skPaint,
                              const SkMatrix& viewMatrix,
@@ -103,8 +102,8 @@ void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
 
     fTextContext->drawText(this, fRenderTarget, clip, grPaint, skPaint, viewMatrix,
                            text, byteLength, x, y, clipBounds);
-
 }
+
 void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
                                 const SkPaint& skPaint,
                                 const SkMatrix& viewMatrix,
@@ -122,6 +121,7 @@ void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
                               pos, scalarsPerPosition, offset, clipBounds);
 
 }
+
 void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
                                  const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                  SkScalar x, SkScalar y,

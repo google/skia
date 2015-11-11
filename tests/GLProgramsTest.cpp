@@ -301,8 +301,9 @@ static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* ran
     }
 }
 
-bool GrDrawingManager::ProgramUnitTest(GrContext* context, GrDrawTarget* drawTarget, int maxStages) {
-
+bool GrDrawingManager::ProgramUnitTest(GrContext* context,
+                                       GrDrawTarget* drawTarget,
+                                       int maxStages) {
     GrDrawingManager* drawingManager = context->drawingManager();
 
     // setup dummy textures

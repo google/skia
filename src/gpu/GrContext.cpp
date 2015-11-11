@@ -72,11 +72,11 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
     if (!fGpu) {
         return false;
     }
-    this->initCommon(options);
+    this->initCommon();
     return true;
 }
 
-void GrContext::initCommon(const GrContextOptions& options) {
+void GrContext::initCommon() {
     fCaps = SkRef(fGpu->caps());
     fResourceCache = new GrResourceCache(fCaps);
     fResourceCache->setOverBudgetCallback(OverBudgetCB, this);

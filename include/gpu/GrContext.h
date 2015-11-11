@@ -8,6 +8,7 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
+#include "GrCaps.h"
 #include "GrClip.h"
 #include "GrColor.h"
 #include "GrPaint.h"
@@ -20,7 +21,6 @@
 
 struct GrBatchAtlasConfig;
 class GrBatchFontCache;
-class GrCaps;
 struct GrContextOptions;
 class GrDrawingManager;
 class GrDrawContext;
@@ -205,7 +205,7 @@ public:
     void flush(int flagsBitfield = 0);
 
     void flushIfNecessary() {
-        if (fFlushToReduceCacheSize) {
+        if (fFlushToReduceCacheSize || this->caps()->immediateFlush()) {
             this->flush();
         }
     }
@@ -406,7 +406,7 @@ private:
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
 
     void initMockContext();
-    void initCommon(const GrContextOptions& options);
+    void initCommon();
 
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair

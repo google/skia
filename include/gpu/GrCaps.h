@@ -206,7 +206,9 @@ public:
         return fConfigTextureSupport[config];
     }
 
-    bool suppressPrints() const { return fSupressPrints; }
+    bool suppressPrints() const { return fSuppressPrints; }
+
+    bool immediateFlush() const { return fImmediateFlush; }
 
     bool drawPathMasksToCompressedTexturesSupport() const {
         return fDrawPathMasksToCompressedTextureSupport;
@@ -277,7 +279,8 @@ protected:
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
 
-    bool fSupressPrints : 1;
+    bool fSuppressPrints : 1;
+    bool fImmediateFlush: 1;
     bool fDrawPathMasksToCompressedTextureSupport : 1;
 
     typedef SkRefCnt INHERITED;
