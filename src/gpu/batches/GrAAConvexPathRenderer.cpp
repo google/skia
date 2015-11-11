@@ -548,13 +548,13 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
-            GrGLGPBuilder* pb = args.fPB;
+            GrGLSLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(qe);
 
-            GrGLVertToFrag v(kVec4f_GrSLType);
+            GrGLSLVertToFrag v(kVec4f_GrSLType);
             args.fPB->addVarying("QuadEdge", &v);
             vsBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
 

@@ -919,7 +919,7 @@ GrGLGradientEffect::GrGLGradientEffect()
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientEffect::emitUniforms(GrGLFPBuilder* builder, const GrGradientEffect& ge) {
+void GrGLGradientEffect::emitUniforms(GrGLSLFPBuilder* builder, const GrGradientEffect& ge) {
 
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()) { // 2 Color case
         fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
@@ -1025,7 +1025,7 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
     return key;
 }
 
-void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
+void GrGLGradientEffect::emitColor(GrGLSLFPBuilder* builder,
                                    const GrGradientEffect& ge,
                                    const char* gradientTValue,
                                    const char* outputColor,
@@ -1053,7 +1053,7 @@ void GrGLGradientEffect::emitColor(GrGLFPBuilder* builder,
                                gradientTValue);
         fsBuilder->codeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
                                builder->getUniformVariable(fColorStartUni).c_str());
-        if (kTegra3_GrGLRenderer == builder->ctxInfo().renderer()) {
+        if (!builder->glslCaps()->canUseMinAndAbsTogether()) {
             // The Tegra3 compiler will sometimes never return if we have
             // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
             fsBuilder->codeAppend("\tfloat minAbs = abs(oneMinus2t);\n");

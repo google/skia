@@ -61,7 +61,7 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
-            GrGLGPBuilder* pb = args.fPB;
+            GrGLSLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
             GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
 

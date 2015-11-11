@@ -33,7 +33,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
-        GrGLGPBuilder* pb = args.fPB;
+        GrGLSLGPBuilder* pb = args.fPB;
         GrGLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                 GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -70,8 +70,8 @@ public:
                              args.fTransformsIn, args.fTransformsOut);
 
         // add varyings
-        GrGLVertToFrag recipScale(kFloat_GrSLType);
-        GrGLVertToFrag st(kVec2f_GrSLType);
+        GrGLSLVertToFrag recipScale(kFloat_GrSLType);
+        GrGLSLVertToFrag st(kVec2f_GrSLType);
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
         pb->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
         vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
@@ -83,7 +83,7 @@ public:
         SkScalar recipWidth = 1.0f / atlas->width();
         SkScalar recipHeight = 1.0f / atlas->height();
 
-        GrGLVertToFrag uv(kVec2f_GrSLType);
+        GrGLSLVertToFrag uv(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vsBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", uv.vsOut(),
                                GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
@@ -284,7 +284,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
-        GrGLGPBuilder* pb = args.fPB;
+        GrGLSLGPBuilder* pb = args.fPB;
         GrGLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
                                      GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -294,7 +294,7 @@ public:
         // emit attributes
         vsBuilder->emitAttributes(dfTexEffect);
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
+        GrGLSLVertToFrag v(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
 
         // setup pass through color
@@ -499,7 +499,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextGeoProc>();
-        GrGLGPBuilder* pb = args.fPB;
+        GrGLSLGPBuilder* pb = args.fPB;
 
         GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
@@ -521,8 +521,8 @@ public:
 
         // set up varyings
         bool isUniformScale = SkToBool(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
-        GrGLVertToFrag recipScale(kFloat_GrSLType);
-        GrGLVertToFrag st(kVec2f_GrSLType);
+        GrGLSLVertToFrag recipScale(kFloat_GrSLType);
+        GrGLSLVertToFrag st(kVec2f_GrSLType);
         pb->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
         vsBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
@@ -533,7 +533,7 @@ public:
         SkScalar recipWidth = 1.0f / atlas->width();
         SkScalar recipHeight = 1.0f / atlas->height();
 
-        GrGLVertToFrag uv(kVec2f_GrSLType);
+        GrGLSLVertToFrag uv(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vsBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", uv.vsOut(),
                                GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,

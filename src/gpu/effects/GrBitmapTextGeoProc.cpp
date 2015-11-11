@@ -21,7 +21,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
 
-        GrGLGPBuilder* pb = args.fPB;
+        GrGLSLGPBuilder* pb = args.fPB;
         GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
         // emit attributes
@@ -34,7 +34,7 @@ public:
         SkScalar recipWidth = 1.0f / atlas->width();
         SkScalar recipHeight = 1.0f / atlas->height();
 
-        GrGLVertToFrag v(kVec2f_GrSLType);
+        GrGLSLVertToFrag v(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &v);
         vsBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", v.vsOut(),
                                GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,

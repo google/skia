@@ -160,7 +160,7 @@ private:
         }
     }
 
-    void emitBlendCodeForDstRead(GrGLXPBuilder* pb, const char* srcColor, const char* dstColor,
+    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb, const char* srcColor, const char* dstColor,
                                  const char* outColor, const GrXferProcessor& proc) override {
         const CustomXP& xp = proc.cast<CustomXP>();
         SkASSERT(!xp.hasHWBlendEquation());

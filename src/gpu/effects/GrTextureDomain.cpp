@@ -11,7 +11,7 @@
 #include "SkFloatingPoint.h"
 #include "gl/GrGLContext.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 
@@ -51,7 +51,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
     SkASSERT((Mode)-1 == fMode || textureDomain.mode() == fMode);
     SkDEBUGCODE(fMode = textureDomain.mode();)
 
-    GrGLProgramBuilder* program = builder->getProgramBuilder();
+    GrGLSLProgramBuilder* program = builder->getProgramBuilder();
 
     if (textureDomain.mode() != kIgnore_Mode && !fDomainUni.isValid()) {
         const char* name;
@@ -59,7 +59,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
         if (textureDomain.fIndex >= 0) {
             uniName.appendS32(textureDomain.fIndex);
         }
-        fDomainUni = program->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fDomainUni = program->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                          kVec4f_GrSLType, kDefault_GrSLPrecision,
                                          uniName.c_str(), &name);
         fDomainName = name;

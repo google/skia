@@ -543,7 +543,7 @@ public:
     }
 
 private:
-    void emitBlendCodeForDstRead(GrGLXPBuilder* pb, const char* srcColor, const char* dstColor,
+    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb, const char* srcColor, const char* dstColor,
                                  const char* outColor, const GrXferProcessor& proc) override {
         const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
         GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();

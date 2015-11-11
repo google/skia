@@ -6,10 +6,10 @@
  */
 
 #include "GrGLShaderBuilder.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 
 static void map_swizzle(const char* swizzleMap, const char* swizzle, char* mangledSwizzle) {
     int i;
@@ -69,10 +69,10 @@ static void append_texture_lookup(SkString* out,
     }
 }
 
-GrGLShaderBuilder::GrGLShaderBuilder(GrGLProgramBuilder* program)
+GrGLShaderBuilder::GrGLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
-    , fInputs(GrGLProgramBuilder::kVarsPerBlock)
-    , fOutputs(GrGLProgramBuilder::kVarsPerBlock)
+    , fInputs(GrGLSLProgramBuilder::kVarsPerBlock)
+    , fOutputs(GrGLSLProgramBuilder::kVarsPerBlock)
     , fFeaturesAddedMask(0)
     , fCodeIndex(kCode)
     , fFinalized(false) {
@@ -187,11 +187,11 @@ void GrGLShaderBuilder::finalize(uint32_t visibility) {
     this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();
     SkASSERT(visibility);
-    fProgramBuilder->appendUniformDecls((GrGLProgramBuilder::ShaderVisibility) visibility,
+    fProgramBuilder->appendUniformDecls((GrGLSLProgramBuilder::ShaderVisibility) visibility,
                                         &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
     // We should not have any outputs in the fragment shader when using version 1.10
-    SkASSERT(GrGLProgramBuilder::kFragment_Visibility != visibility ||
+    SkASSERT(GrGLSLProgramBuilder::kFragment_Visibility != visibility ||
              k110_GrGLSLGeneration != fProgramBuilder->glslCaps()->generation() ||
              fOutputs.empty());
     this->appendDecls(fOutputs, &this->outputs());

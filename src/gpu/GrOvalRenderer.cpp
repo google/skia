@@ -95,13 +95,13 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
-            GrGLGPBuilder* pb = args.fPB;
+            GrGLSLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(ce);
 
-            GrGLVertToFrag v(kVec4f_GrSLType);
+            GrGLSLVertToFrag v(kVec4f_GrSLType);
             args.fPB->addVarying("CircleEdge", &v);
             vsBuilder->codeAppendf("%s = %s;", v.vsOut(), ce.inCircleEdge()->fName);
 
@@ -243,18 +243,18 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
-            GrGLGPBuilder* pb = args.fPB;
+            GrGLSLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(ee);
 
-            GrGLVertToFrag ellipseOffsets(kVec2f_GrSLType);
+            GrGLSLVertToFrag ellipseOffsets(kVec2f_GrSLType);
             args.fPB->addVarying("EllipseOffsets", &ellipseOffsets);
             vsBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                    ee.inEllipseOffset()->fName);
 
-            GrGLVertToFrag ellipseRadii(kVec4f_GrSLType);
+            GrGLSLVertToFrag ellipseRadii(kVec4f_GrSLType);
             args.fPB->addVarying("EllipseRadii", &ellipseRadii);
             vsBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
                                    ee.inEllipseRadii()->fName);
@@ -418,18 +418,18 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
-            GrGLGPBuilder* pb = args.fPB;
+            GrGLSLGPBuilder* pb = args.fPB;
             GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(ee);
 
-            GrGLVertToFrag offsets0(kVec2f_GrSLType);
+            GrGLSLVertToFrag offsets0(kVec2f_GrSLType);
             args.fPB->addVarying("EllipseOffsets0", &offsets0);
             vsBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
                                    ee.inEllipseOffsets0()->fName);
 
-            GrGLVertToFrag offsets1(kVec2f_GrSLType);
+            GrGLSLVertToFrag offsets1(kVec2f_GrSLType);
             args.fPB->addVarying("EllipseOffsets1", &offsets1);
             vsBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
                                    ee.inEllipseOffsets1()->fName);

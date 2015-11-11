@@ -10,17 +10,17 @@
 
 #include "GrGLShaderBuilder.h"
 
-class GrGLVarying;
+class GrGLSLVarying;
 
 class GrGLGeometryBuilder : public GrGLShaderBuilder {
 public:
-    GrGLGeometryBuilder(GrGLProgramBuilder* program);
+    GrGLGeometryBuilder(GrGLSLProgramBuilder* program);
 
 private:
     /*
      * an internal call for GrGLFullProgramBuilder to add varyings
      */
-    void addVarying(const char* name, GrSLPrecision precision, GrGLVarying*);
+    void addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying*);
 
     void onFinalize() override {}
 

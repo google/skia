@@ -15,7 +15,7 @@
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
-class GrGLGPBuilder;
+class GrGLSLGPBuilder;
 
 class GrGLPrimitiveProcessor {
 public:
@@ -29,7 +29,7 @@ public:
     typedef SkSTArray<8, GrGLSLTransformedCoordsArray> TransformsOut;
 
     struct EmitArgs {
-        EmitArgs(GrGLGPBuilder* pb,
+        EmitArgs(GrGLSLGPBuilder* pb,
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
@@ -43,7 +43,7 @@ public:
             , fSamplers(samplers)
             , fTransformsIn(transformsIn)
             , fTransformsOut(transformsOut) {}
-        GrGLGPBuilder* fPB;
+        GrGLSLGPBuilder* fPB;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
@@ -75,7 +75,9 @@ public:
                                   const SkTArray<const GrCoordTransform*, true>& transforms) = 0;
 
 protected:
-    void setupUniformColor(GrGLGPBuilder* pb, const char* outputName, UniformHandle* colorUniform);
+    void setupUniformColor(GrGLSLGPBuilder* pb,
+                           const char* outputName,
+                           UniformHandle* colorUniform);
 
     struct Transform {
         Transform() : fType(kVoid_GrSLType) { fCurrentValue = SkMatrix::InvalidMatrix(); }

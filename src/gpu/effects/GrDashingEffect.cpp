@@ -850,19 +850,19 @@ GLDashingCircleEffect::GLDashingCircleEffect() {
 
 void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
-    GrGLGPBuilder* pb = args.fPB;
+    GrGLSLGPBuilder* pb = args.fPB;
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
     // emit attributes
     vsBuilder->emitAttributes(dce);
 
     // XY are dashPos, Z is dashInterval
-    GrGLVertToFrag dashParams(kVec3f_GrSLType);
+    GrGLSLVertToFrag dashParams(kVec3f_GrSLType);
     args.fPB->addVarying("DashParam", &dashParams);
     vsBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
 
     // x refers to circle radius - 0.5, y refers to cicle's center x coord
-    GrGLVertToFrag circleParams(kVec2f_GrSLType);
+    GrGLSLVertToFrag circleParams(kVec2f_GrSLType);
     args.fPB->addVarying("CircleParams", &circleParams);
     vsBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
 
@@ -1054,7 +1054,7 @@ GLDashingLineEffect::GLDashingLineEffect() {
 
 void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
-    GrGLGPBuilder* pb = args.fPB;
+    GrGLSLGPBuilder* pb = args.fPB;
 
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
@@ -1062,13 +1062,13 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     vsBuilder->emitAttributes(de);
 
     // XY refers to dashPos, Z is the dash interval length
-    GrGLVertToFrag inDashParams(kVec3f_GrSLType);
+    GrGLSLVertToFrag inDashParams(kVec3f_GrSLType);
     args.fPB->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
     vsBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
-    GrGLVertToFrag inRectParams(kVec4f_GrSLType);
+    GrGLSLVertToFrag inRectParams(kVec4f_GrSLType);
     args.fPB->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
     vsBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 

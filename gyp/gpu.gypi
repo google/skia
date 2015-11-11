@@ -370,6 +370,8 @@
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLProcessorTypes.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLProgramBuilder.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSLProgramBuilder.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramDataManager.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLShaderVar.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLTextureSampler.h',

@@ -73,14 +73,14 @@ GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
 }
 
 void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    GrGLGPBuilder* pb = args.fPB;
+    GrGLSLGPBuilder* pb = args.fPB;
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     const GrConicEffect& gp = args.fGP.cast<GrConicEffect>();
 
     // emit attributes
     vsBuilder->emitAttributes(gp);
 
-    GrGLVertToFrag v(kVec4f_GrSLType);
+    GrGLSLVertToFrag v(kVec4f_GrSLType);
     args.fPB->addVarying("ConicCoeffs", &v);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
@@ -289,14 +289,14 @@ GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)
 }
 
 void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    GrGLGPBuilder* pb = args.fPB;
+    GrGLSLGPBuilder* pb = args.fPB;
     GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     const GrQuadEffect& gp = args.fGP.cast<GrQuadEffect>();
 
     // emit attributes
     vsBuilder->emitAttributes(gp);
 
-    GrGLVertToFrag v(kVec4f_GrSLType);
+    GrGLSLVertToFrag v(kVec4f_GrSLType);
     args.fPB->addVarying("HairQuadEdge", &v);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
 
@@ -483,7 +483,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit attributes
     vsBuilder->emitAttributes(gp);
 
-    GrGLVertToFrag v(kVec4f_GrSLType);
+    GrGLSLVertToFrag v(kVec4f_GrSLType);
     args.fPB->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
     vsBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inCubicCoeffs()->fName);
 

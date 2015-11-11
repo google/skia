@@ -9,12 +9,12 @@
 #include "GrGLProgramBuilder.h"
 #include "../GrGLGpu.h"
 
-GrGLGeometryBuilder::GrGLGeometryBuilder(GrGLProgramBuilder* program)
+GrGLGeometryBuilder::GrGLGeometryBuilder(GrGLSLProgramBuilder* program)
     : INHERITED(program) {
 
 }
 
-void GrGLGeometryBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLVarying* v) {
+void GrGLGeometryBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying* v) {
     // if we have a GS take each varying in as an array
     // and output as non-array.
     if (v->vsVarying()) {

@@ -250,16 +250,15 @@ void GrGLSweepGradient::emitCode(EmitArgs& args) {
     this->emitUniforms(args.fBuilder, ge);
     SkString coords2D = args.fBuilder->getFragmentShaderBuilder()
                                         ->ensureFSCoords2D(args.fCoords, 0);
-    const GrGLContextInfo& ctxInfo = args.fBuilder->ctxInfo();
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int
     // thus must us -1.0 * %s.x to work correctly
-    if (kIntel_GrGLVendor != ctxInfo.vendor()){
-        t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
+    if (args.fBuilder->glslCaps()->mustForceNegatedAtanParamToFloat()){
+        t.printf("atan(- %s.y, -1.0 * %s.x) * 0.1591549430918 + 0.5",
                  coords2D.c_str(), coords2D.c_str());
     } else {
-        t.printf("atan(- %s.y, -1.0 * %s.x) * 0.1591549430918 + 0.5",
+        t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
                  coords2D.c_str(), coords2D.c_str());
     }
     this->emitColor(args.fBuilder, ge, t.c_str(), args.fOutputColor, args.fInputColor,

@@ -597,7 +597,7 @@ public:
      * This is called by GrGLLightingEffect::emitCode() before either of the two virtual functions
      * below. It adds a vec3f uniform visible in the FS that represents the constant light color.
      */
-    void emitLightColorUniform(GrGLFPBuilder*);
+    void emitLightColorUniform(GrGLSLFPBuilder*);
 
     /**
      * These two functions are called from GrGLLightingEffect's emitCode() function.
@@ -607,8 +607,8 @@ public:
      * the FS. The default of emitLightColor appends the name of the constant light color uniform
      * and so this function only needs to be overridden if the light color varies spatially.
      */
-    virtual void emitSurfaceToLight(GrGLFPBuilder*, const char* z) = 0;
-    virtual void emitLightColor(GrGLFPBuilder*, const char *surfaceToLight);
+    virtual void emitSurfaceToLight(GrGLSLFPBuilder*, const char* z) = 0;
+    virtual void emitLightColor(GrGLSLFPBuilder*, const char *surfaceToLight);
 
     // This is called from GrGLLightingEffect's setData(). Subclasses of GrGLLight must call
     // INHERITED::setData().
@@ -633,7 +633,7 @@ class GrGLDistantLight : public GrGLLight {
 public:
     virtual ~GrGLDistantLight() {}
     void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
-    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
+    void emitSurfaceToLight(GrGLSLFPBuilder*, const char* z) override;
 
 private:
     typedef GrGLLight INHERITED;
@@ -646,7 +646,7 @@ class GrGLPointLight : public GrGLLight {
 public:
     virtual ~GrGLPointLight() {}
     void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
-    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
+    void emitSurfaceToLight(GrGLSLFPBuilder*, const char* z) override;
 
 private:
     typedef GrGLLight INHERITED;
@@ -659,8 +659,8 @@ class GrGLSpotLight : public GrGLLight {
 public:
     virtual ~GrGLSpotLight() {}
     void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
-    void emitSurfaceToLight(GrGLFPBuilder*, const char* z) override;
-    void emitLightColor(GrGLFPBuilder*, const char *surfaceToLight) override;
+    void emitSurfaceToLight(GrGLSLFPBuilder*, const char* z) override;
+    void emitLightColor(GrGLSLFPBuilder*, const char *surfaceToLight) override;
 
 private:
     typedef GrGLLight INHERITED;
@@ -1522,7 +1522,7 @@ protected:
      */
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
-    virtual void emitLightFunc(GrGLFPBuilder*, SkString* funcName) = 0;
+    virtual void emitLightFunc(GrGLSLFPBuilder*, SkString* funcName) = 0;
 
 private:
     typedef GrGLFragmentProcessor INHERITED;
@@ -1538,7 +1538,7 @@ private:
 class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLDiffuseLightingEffect(const GrProcessor&);
-    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
+    void emitLightFunc(GrGLSLFPBuilder*, SkString* funcName) override;
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -1554,7 +1554,7 @@ private:
 class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
     GrGLSpecularLightingEffect(const GrProcessor&);
-    void emitLightFunc(GrGLFPBuilder*, SkString* funcName) override;
+    void emitLightFunc(GrGLSLFPBuilder*, SkString* funcName) override;
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -1763,7 +1763,7 @@ GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrProcessor& proc)
     : INHERITED(proc) {
 }
 
-void GrGLDiffuseLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString* funcName) {
+void GrGLDiffuseLightingEffect::emitLightFunc(GrGLSLFPBuilder* builder, SkString* funcName) {
     const char* kd;
     fKDUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                  kFloat_GrSLType, kDefault_GrSLPrecision,
@@ -1845,7 +1845,7 @@ GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrProcessor& proc)
     : INHERITED(proc) {
 }
 
-void GrGLSpecularLightingEffect::emitLightFunc(GrGLFPBuilder* builder, SkString* funcName) {
+void GrGLSpecularLightingEffect::emitLightFunc(GrGLSLFPBuilder* builder, SkString* funcName) {
     const char* ks;
     const char* shininess;
 
@@ -1884,13 +1884,13 @@ void GrGLSpecularLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void GrGLLight::emitLightColorUniform(GrGLFPBuilder* builder) {
+void GrGLLight::emitLightColorUniform(GrGLSLFPBuilder* builder) {
     fColorUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                     kVec3f_GrSLType, kDefault_GrSLPrecision,
                                     "LightColor");
 }
 
-void GrGLLight::emitLightColor(GrGLFPBuilder* builder, const char *surfaceToLight) {
+void GrGLLight::emitLightColor(GrGLSLFPBuilder* builder, const char *surfaceToLight) {
     builder->getFragmentShaderBuilder()->codeAppend(builder->getUniformCStr(this->lightColorUni()));
 }
 
@@ -1910,7 +1910,7 @@ void GrGLDistantLight::setData(const GrGLSLProgramDataManager& pdman,
     setUniformNormal3(pdman, fDirectionUni, distantLight->direction());
 }
 
-void GrGLDistantLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z) {
+void GrGLDistantLight::emitSurfaceToLight(GrGLSLFPBuilder* builder, const char* z) {
     const char* dir;
     fDirectionUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
@@ -1928,7 +1928,7 @@ void GrGLPointLight::setData(const GrGLSLProgramDataManager& pdman,
     setUniformPoint3(pdman, fLocationUni, pointLight->location());
 }
 
-void GrGLPointLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z) {
+void GrGLPointLight::emitSurfaceToLight(GrGLSLFPBuilder* builder, const char* z) {
     const char* loc;
     fLocationUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
@@ -1953,7 +1953,7 @@ void GrGLSpotLight::setData(const GrGLSLProgramDataManager& pdman,
     setUniformNormal3(pdman, fSUni, spotLight->s());
 }
 
-void GrGLSpotLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z) {
+void GrGLSpotLight::emitSurfaceToLight(GrGLSLFPBuilder* builder, const char* z) {
     const char* location;
     fLocationUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
@@ -1964,7 +1964,7 @@ void GrGLSpotLight::emitSurfaceToLight(GrGLFPBuilder* builder, const char* z) {
             location, fsBuilder->fragmentPosition(), z);
 }
 
-void GrGLSpotLight::emitLightColor(GrGLFPBuilder* builder,
+void GrGLSpotLight::emitLightColor(GrGLSLFPBuilder* builder,
                                    const char *surfaceToLight) {
 
     const char* color = builder->getUniformCStr(this->lightColorUni()); // created by parent class.

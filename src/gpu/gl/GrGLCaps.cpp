@@ -37,7 +37,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fTextureRedSupport = false;
     fImagingSupport = false;
     fTwoFormatLimit = false;
-    fFragCoordsConventionSupport = false;
     fVertexArrayObjectSupport = false;
     fInstancedDrawingSupport = false;
     fDirectStateAccessSupport = false;
@@ -170,14 +169,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
-    }
-
-    // Frag Coords Convention support is not part of ES
-    // Known issue on at least some Intel platforms:
-    // http://code.google.com/p/skia/issues/detail?id=946
-    if (kIntel_GrGLVendor != ctxInfo.vendor() && kGLES_GrGLStandard != standard) {
-        fFragCoordsConventionSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration ||
-                                       ctxInfo.hasExtension("GL_ARB_fragment_coord_conventions");
     }
 
     // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
@@ -592,6 +583,32 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
 
     if (kGLES_GrGLStandard == standard && k110_GrGLSLGeneration == glslCaps->fGLSLGeneration) {
         glslCaps->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
+    }
+
+    // Frag Coords Convention support is not part of ES
+    // Known issue on at least some Intel platforms:
+    // http://code.google.com/p/skia/issues/detail?id=946
+    if (kIntel_GrGLVendor != ctxInfo.vendor() &&
+        kGLES_GrGLStandard != standard &&
+        (ctxInfo.glslGeneration() >= k150_GrGLSLGeneration ||
+         ctxInfo.hasExtension("GL_ARB_fragment_coord_conventions"))) {
+        glslCaps->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+    }
+
+    if (kGLES_GrGLStandard == standard) {
+        glslCaps->fSecondaryOutputExtensionString = "GL_EXT_blend_func_extended";
+    }
+
+    // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0), so we must do
+    // the abs first in a separate expression.
+    if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
+        glslCaps->fCanUseMinAndAbsTogether = false;
+    }
+
+    // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int
+    // thus must us -1.0 * %s.x to work correctly
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+        glslCaps->fMustForceNegatedAtanParamToFloat = true;
     }
 }
 
@@ -1177,8 +1194,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("GL_R support: %s\n", (fTextureRedSupport ? "YES": "NO"));
     r.appendf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
     r.appendf("Two Format Limit: %s\n", (fTwoFormatLimit ? "YES": "NO"));
-    r.appendf("Fragment coord conventions support: %s\n",
-             (fFragCoordsConventionSupport ? "YES": "NO"));
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Instanced drawing support: %s\n", (fInstancedDrawingSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));

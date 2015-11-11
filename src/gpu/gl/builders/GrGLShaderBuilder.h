@@ -14,7 +14,7 @@
 
 #include <stdarg.h>
 
-class GrGLProgramBuilder;
+class GrGLSLProgramBuilder;
 class GrGLSLTextureSampler;
 
 /**
@@ -22,7 +22,7 @@ class GrGLSLTextureSampler;
 */
 class GrGLShaderBuilder {
 public:
-    GrGLShaderBuilder(GrGLProgramBuilder* program);
+    GrGLShaderBuilder(GrGLSLProgramBuilder* program);
     virtual ~GrGLShaderBuilder() {}
 
     void addInput(const GrGLSLShaderVar& input) { fInputs.push_back(input); }
@@ -102,7 +102,7 @@ public:
     /*
      * Get parent builder for adding uniforms
      */
-    GrGLProgramBuilder* getProgramBuilder() { return fProgramBuilder; }
+    GrGLSLProgramBuilder* getProgramBuilder() { return fProgramBuilder; }
 
     /**
      * Helper for begining and ending a block in the shader code.
@@ -179,7 +179,7 @@ protected:
         kCode,
     };
 
-    GrGLProgramBuilder* fProgramBuilder;
+    GrGLSLProgramBuilder* fProgramBuilder;
     SkSTArray<kCode, const char*, true> fCompilerStrings;
     SkSTArray<kCode, int, true> fCompilerStringLengths;
     SkSTArray<kCode, SkString> fShaderStrings;

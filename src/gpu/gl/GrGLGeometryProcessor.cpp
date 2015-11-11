@@ -17,7 +17,7 @@ void GrGLGeometryProcessor::emitCode(EmitArgs& args) {
     vsBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
 }
 
-void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
+void GrGLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
                                            const GrShaderVar& posVar,
                                            const char* localCoords,
                                            const SkMatrix& localMatrix,
@@ -53,7 +53,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
             SkString strVaryingName("MatrixCoord");
             strVaryingName.appendf("_%i_%i", i, t);
 
-            GrGLVertToFrag v(varyingType);
+            GrGLSLVertToFrag v(varyingType);
             pb->addVarying(strVaryingName.c_str(), &v, precision);
 
             SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
@@ -90,7 +90,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
     }
 }
 
-void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
+void GrGLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
                                            const char* localCoords,
                                            const TransformsIn& tin,
                                            TransformsOut* tout) {
@@ -108,7 +108,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
             SkString strVaryingName("MatrixCoord");
             strVaryingName.appendf("_%i_%i", i, t);
 
-            GrGLVertToFrag v(varyingType);
+            GrGLSLVertToFrag v(varyingType);
             pb->addVarying(strVaryingName.c_str(), &v, precision);
             vb->codeAppendf("%s = %s;", v.vsOut(), localCoords);
 
@@ -119,7 +119,7 @@ void GrGLGeometryProcessor::emitTransforms(GrGLGPBuilder* pb,
     }
 }
 
-void GrGLGeometryProcessor::setupPosition(GrGLGPBuilder* pb,
+void GrGLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
                                           GrGPArgs* gpArgs,
                                           const char* posName) {
     GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
@@ -127,7 +127,7 @@ void GrGLGeometryProcessor::setupPosition(GrGLGPBuilder* pb,
     vsBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
 }
 
-void GrGLGeometryProcessor::setupPosition(GrGLGPBuilder* pb,
+void GrGLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
                                           GrGPArgs* gpArgs,
                                           const char* posName,
                                           const SkMatrix& mat,

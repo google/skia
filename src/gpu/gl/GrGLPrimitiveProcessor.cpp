@@ -31,7 +31,7 @@ SkMatrix GrGLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
     return combined;
 }
 
-void GrGLPrimitiveProcessor::setupUniformColor(GrGLGPBuilder* pb,
+void GrGLPrimitiveProcessor::setupUniformColor(GrGLSLGPBuilder* pb,
                                                const char* outputName,
                                                UniformHandle* colorUniform) {
     GrGLFragmentBuilder* fs = pb->getFragmentShaderBuilder();

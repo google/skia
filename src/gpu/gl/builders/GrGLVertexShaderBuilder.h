@@ -9,14 +9,13 @@
 #define GrGLVertexShader_DEFINED
 
 #include "GrGLShaderBuilder.h"
-#include "gl/GrGLTypes.h"
 #include "GrGeometryProcessor.h"
 
-class GrGLVarying;
+class GrGLSLVarying;
 
 class GrGLVertexBuilder : public GrGLShaderBuilder {
 public:
-    GrGLVertexBuilder(GrGLProgramBuilder* program);
+    GrGLVertexBuilder(GrGLSLProgramBuilder* program);
 
     void transformToNormalizedDeviceSpace(const GrShaderVar& posVar);
     void emitAttributes(const GrGeometryProcessor& gp);
@@ -33,12 +32,7 @@ private:
     /*
      * Internal call for GrGLProgramBuilder.addVarying
      */
-    void addVarying(const char* name, GrSLPrecision, GrGLVarying*);
-
-    /*
-     * private helpers for compilation by GrGLProgramBuilder
-     */
-    void bindVertexAttributes(GrGLuint programID);
+    void addVarying(const char* name, GrSLPrecision, GrGLSLVarying*);
 
     // an internal call which checks for uniquness of a var before adding it to the list of inputs
     bool addAttribute(const GrShaderVar& var);

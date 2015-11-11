@@ -10,19 +10,20 @@
 
 #include "GrGLShaderBuilder.h"
 
-#include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 
 class GrRenderTarget;
-class GrGLVarying;
+class GrGLSLVarying;
 
 /*
  * This base class encapsulates the functionality which the GP uses to build fragment shaders
  */
 class GrGLFragmentBuilder : public GrGLShaderBuilder {
 public:
-    GrGLFragmentBuilder(GrGLProgramBuilder* program)
-        : INHERITED(program) {
+    GrGLFragmentBuilder(GrGLSLProgramBuilder* program)
+        : INHERITED(program)
+        , fHasCustomColorOutput(false)
+        , fHasSecondaryOutput(false) {
         fSubstageIndices.push_back(0);
     }
     virtual ~GrGLFragmentBuilder() {}
@@ -62,6 +63,13 @@ public:
 
     const SkString& getMangleString() const { return fMangleString; }
 
+    bool hasCustomColorOutput() const { return fHasCustomColorOutput; }
+    bool hasSecondaryOutput() const { return fHasSecondaryOutput; }
+
+protected:
+    bool fHasCustomColorOutput;
+    bool fHasSecondaryOutput;
+
 private:
     /*
      * State that tracks which child proc in the proc tree is currently emitting code.  This is
@@ -95,7 +103,7 @@ private:
  */
 class GrGLXPFragmentBuilder : public GrGLFragmentBuilder {
 public:
-    GrGLXPFragmentBuilder(GrGLProgramBuilder* program) : INHERITED(program) {}
+    GrGLXPFragmentBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
 
     /** Returns the variable name that holds the color of the destination pixel. This may be nullptr if
         no effect advertised that it will read the destination. */
@@ -120,7 +128,7 @@ public:
        the key is 0. */
     static FragPosKey KeyForFragmentPosition(const GrRenderTarget* dst);
 
-    GrGLFragmentShaderBuilder(GrGLProgramBuilder* program, uint8_t fragPosKey);
+    GrGLFragmentShaderBuilder(GrGLSLProgramBuilder* program, uint8_t fragPosKey);
 
     // true public interface, defined explicitly in the abstract interfaces above
     bool enableFeature(GLSLFeature) override;
@@ -137,7 +145,6 @@ private:
     void enableSecondaryOutput();
     const char* getPrimaryColorOutputName() const;
     const char* getSecondaryColorOutputName() const;
-    void bindFragmentShaderLocations(GrGLuint programID);
 
     // As GLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
@@ -148,10 +155,13 @@ private:
         fHasReadFragmentPosition = false;
     }
 
+    static const char* DeclaredColorOutputName() { return "fsColorOut"; }
+    static const char* DeclaredSecondaryColorOutputName() { return "fsSecondaryColorOut"; }
+
     /*
      * An internal call for GrGLProgramBuilder to use to add varyings to the vertex shader
      */
-    void addVarying(GrGLVarying*, GrSLPrecision);
+    void addVarying(GrGLSLVarying*, GrSLPrecision);
 
     void onFinalize() override;
 
@@ -174,8 +184,6 @@ private:
 
     static const char* kDstTextureColorName;
 
-    bool fHasCustomColorOutput;
-    bool fHasSecondaryOutput;
     bool fSetupFragPosition;
     bool fTopLeftFragPosRead;
     int  fCustomColorOutputIndex;

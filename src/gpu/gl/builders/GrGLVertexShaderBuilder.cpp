@@ -6,19 +6,14 @@
  */
 
 #include "GrGLVertexShaderBuilder.h"
-#include "GrGLProgramBuilder.h"
-#include "../GrGLGLSL.h"
-#include "../GrGLGpu.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 
-#define GL_CALL(X) GR_GL_CALL(fProgramBuilder->gpu()->glInterface(), X)
-#define GL_CALL_RET(R, X) GR_GL_CALL_RET(fProgramBuilder->gpu()->glInterface(), R, X)
-
-GrGLVertexBuilder::GrGLVertexBuilder(GrGLProgramBuilder* program)
+GrGLVertexBuilder::GrGLVertexBuilder(GrGLSLProgramBuilder* program)
     : INHERITED(program)
     , fRtAdjustName(nullptr) {
 }
 
-void GrGLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLVarying* v) {
+void GrGLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying* v) {
     fOutputs.push_back();
     fOutputs.back().setType(v->fType);
     fOutputs.back().setTypeModifier(GrGLSLShaderVar::kVaryingOut_TypeModifier);
@@ -45,7 +40,7 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
 
     // setup RT Uniform
     fProgramBuilder->fUniformHandles.fRTAdjustmentUni =
-            fProgramBuilder->addUniform(GrGLProgramBuilder::kVertex_Visibility,
+            fProgramBuilder->addUniform(GrGLSLProgramBuilder::kVertex_Visibility,
                                         kVec4f_GrSLType, precision,
                                         fProgramBuilder->rtAdjustment(),
                                         &fRtAdjustName);
@@ -77,16 +72,6 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
     this->codeAppend("gl_PointSize = 1.0;");
 }
 
-void GrGLVertexBuilder::bindVertexAttributes(GrGLuint programID) {
-    const GrPrimitiveProcessor& primProc = fProgramBuilder->primitiveProcessor();
-
-    int vaCount = primProc.numAttribs();
-    for (int i = 0; i < vaCount; i++) {
-        GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
-    }
-    return;
-}
-
 bool GrGLVertexBuilder::addAttribute(const GrShaderVar& var) {
     SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
     for (int i = 0; i < fInputs.count(); ++i) {
@@ -99,3 +84,4 @@ bool GrGLVertexBuilder::addAttribute(const GrShaderVar& var) {
     fInputs.push_back(var);
     return true;
 }
+

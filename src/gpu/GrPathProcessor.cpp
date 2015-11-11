@@ -23,7 +23,7 @@ public:
     }
 
     void emitCode(EmitArgs& args) override {
-        GrGLGPBuilder* pb = args.fPB;
+        GrGLSLGPBuilder* pb = args.fPB;
         GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
@@ -47,7 +47,7 @@ public:
         }
     }
 
-    void emitTransforms(GrGLGPBuilder* pb, const TransformsIn& tin, TransformsOut* tout) {
+    void emitTransforms(GrGLSLGPBuilder* pb, const TransformsIn& tin, TransformsOut* tout) {
         tout->push_back_n(tin.count());
         fInstalledTransforms.push_back_n(tin.count());
         for (int i = 0; i < tin.count(); i++) {
@@ -60,7 +60,7 @@ public:
 
                 SkString strVaryingName("MatrixCoord");
                 strVaryingName.appendf("_%i_%i", i, t);
-                GrGLVertToFrag v(varyingType);
+                GrGLSLVertToFrag v(varyingType);
                 fInstalledTransforms[i][t].fHandle =
                         pb->addSeparableVarying(strVaryingName.c_str(), &v).toIndex();
                 fInstalledTransforms[i][t].fType = varyingType;

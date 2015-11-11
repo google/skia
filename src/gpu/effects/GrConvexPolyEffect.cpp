@@ -212,11 +212,6 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
         fsBuilder->codeAppend("\t\talpha *= edge;\n");
     }
 
-    // Woe is me. See https://bug.skia.org/2149 .
-    if (kTegra2_GrGLRenderer == args.fBuilder->ctxInfo().renderer()) {
-        fsBuilder->codeAppend("\t\tif (-1.0 == alpha) {\n\t\t\tdiscard;\n\t\t}\n");
-    }
-
     if (GrProcessorEdgeTypeIsInverseFill(cpe.getEdgeType())) {
         fsBuilder->codeAppend("\talpha = 1.0 - alpha;\n");
     }

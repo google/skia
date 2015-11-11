@@ -27,8 +27,6 @@
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
-const int GrGLProgramBuilder::kVarsPerBlock = 8;
-
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gpu) {
     GrAutoLocaleSetter als("C");
 
@@ -53,13 +51,9 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const DrawArgs& args, GrGLGpu* gp
 /////////////////////////////////////////////////////////////////////////////
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
-    : fVS(this)
-    , fGS(this)
-    , fFS(this, args.fDesc->header().fFragPosKey)
-    , fStageIndex(-1)
+    : INHERITED(args)
     , fGeometryProcessor(nullptr)
     , fXferProcessor(nullptr)
-    , fArgs(args)
     , fGpu(gpu)
     , fUniforms(kVarsPerBlock)
     , fSamplerUniforms(4)
@@ -67,7 +61,7 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
 }
 
 void GrGLProgramBuilder::addVarying(const char* name,
-                                    GrGLVarying* varying,
+                                    GrGLSLVarying* varying,
                                     GrSLPrecision precision) {
     SkASSERT(varying);
     if (varying->vsVarying()) {
@@ -84,7 +78,7 @@ void GrGLProgramBuilder::addVarying(const char* name,
 void GrGLProgramBuilder::addPassThroughAttribute(const GrPrimitiveProcessor::Attribute* input,
                                                  const char* output) {
     GrSLType type = GrVertexAttribTypeToSLType(input->fType);
-    GrGLVertToFrag v(type);
+    GrGLSLVertToFrag v(type);
     this->addVarying(input->fName, &v);
     fVS.codeAppendf("%s = %s;", v.vsOut(), input->fName);
     fFS.codeAppendf("%s = %s;", output, v.fsIn());
@@ -92,7 +86,7 @@ void GrGLProgramBuilder::addPassThroughAttribute(const GrPrimitiveProcessor::Att
 
 GrGLProgramBuilder::SeparableVaryingHandle GrGLProgramBuilder::addSeparableVarying(
                                                                         const char* name,
-                                                                        GrGLVertToFrag* v,
+                                                                        GrGLSLVertToFrag* v,
                                                                         GrSLPrecision fsPrecision) {
     // This call is not used for non-NVPR backends.
     SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport() &&
@@ -104,21 +98,6 @@ GrGLProgramBuilder::SeparableVaryingHandle GrGLProgramBuilder::addSeparableVaryi
     varyingInfo.fVariable = this->getFragmentShaderBuilder()->fInputs.back();
     varyingInfo.fLocation = fSeparableVaryingInfos.count() - 1;
     return SeparableVaryingHandle(varyingInfo.fLocation);
-}
-
-void GrGLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name, bool mangle) {
-    if ('\0' == prefix) {
-        *out = name;
-    } else {
-        out->printf("%c%s", prefix, name);
-    }
-    if (mangle) {
-        if (out->endsWith('_')) {
-            // Names containing "__" are reserved.
-            out->append("x");
-        }
-        out->appendf("_Stage%d%s", fStageIndex, fFS.getMangleString().c_str());
-    }
 }
 
 GrGLSLProgramDataManager::UniformHandle GrGLProgramBuilder::internalAddUniformArray(
@@ -159,8 +138,7 @@ GrGLSLProgramDataManager::UniformHandle GrGLProgramBuilder::internalAddUniformAr
     return GrGLSLProgramDataManager::UniformHandle(fUniforms.count() - 1);
 }
 
-void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
-                                            SkString* out) const {
+void GrGLProgramBuilder::onAppendUniformDecls(ShaderVisibility visibility, SkString* out) const {
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & visibility) {
             fUniforms[i].fVariable.appendDecl(this->glslCaps(), out);
@@ -169,12 +147,8 @@ void GrGLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
     }
 }
 
-const GrGLContextInfo& GrGLProgramBuilder::ctxInfo() const {
-    return fGpu->ctxInfo();
-}
-
 const GrGLSLCaps* GrGLProgramBuilder::glslCaps() const {
-    return this->ctxInfo().caps()->glslCaps();
+    return this->fGpu->ctxInfo().caps()->glslCaps();
 }
 
 bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
@@ -330,7 +304,7 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
         fFS.enableSecondaryOutput();
     }
 
-    if (this->ctxInfo().caps()->glslCaps()->mustDeclareFragmentShaderOutput()) {
+    if (this->glslCaps()->mustDeclareFragmentShaderOutput()) {
         fFS.enableCustomOutput();
     }
 
@@ -423,7 +397,12 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     // NVPR actually requires a vertex shader to compile
     bool useNvpr = primitiveProcessor().isPathRendering();
     if (!useNvpr) {
-        fVS.bindVertexAttributes(programID);
+        const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
+
+        int vaCount = primProc.numAttribs();
+        for (int i = 0; i < vaCount; i++) {
+            GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
+        }
     }
 
     fFS.finalize(kFragment_Visibility);
@@ -460,7 +439,15 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
         }
     }
 
-    fFS.bindFragmentShaderLocations(programID);
+    const GrGLCaps& caps = this->gpu()->glCaps();
+    if (fFS.hasCustomColorOutput() && caps.bindFragDataLocationSupport()) {
+        GL_CALL(BindFragDataLocation(programID, 0,
+                                     GrGLFragmentShaderBuilder::DeclaredColorOutputName()));
+    }
+    if (fFS.hasSecondaryOutput() && caps.glslCaps()->mustDeclareFragmentShaderOutput()) {
+        GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
+                                    GrGLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
+    }
 
     // handle NVPR separable varyings
     if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||

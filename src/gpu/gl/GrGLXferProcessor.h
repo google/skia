@@ -11,7 +11,7 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 
-class GrGLXPBuilder;
+class GrGLSLXPBuilder;
 class GrXferProcessor;
 
 class GrGLXferProcessor {
@@ -21,7 +21,7 @@ public:
 
     typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
     struct EmitArgs {
-        EmitArgs(GrGLXPBuilder* pb,
+        EmitArgs(GrGLSLXPBuilder* pb,
                  const GrXferProcessor& xp,
                  const char* inputColor,
                  const char* inputCoverage,
@@ -36,7 +36,7 @@ public:
             , fOutputSecondary(outputSecondary)
             , fSamplers(samplers) {}
 
-        GrGLXPBuilder* fPB;
+        GrGLSLXPBuilder* fPB;
         const GrXferProcessor& fXP;
         const char* fInputColor;
         const char* fInputCoverage;
@@ -74,8 +74,11 @@ private:
      * the blending logic. The base class applies coverage. A subclass only needs to implement this
      * method if it can construct a GrXferProcessor that reads the dst color.
      */
-    virtual void emitBlendCodeForDstRead(GrGLXPBuilder*, const char* srcColor, const char* dstColor,
-                                         const char* outColor, const GrXferProcessor&) {
+    virtual void emitBlendCodeForDstRead(GrGLSLXPBuilder*,
+                                         const char* srcColor,
+                                         const char* dstColor,
+                                         const char* outColor,
+                                         const GrXferProcessor&) {
         SkFAIL("emitBlendCodeForDstRead not implemented.");
     }
 

@@ -195,9 +195,6 @@ public:
     /// Is GL_ARB_IMAGING supported
     bool imagingSupport() const { return fImagingSupport; }
 
-    /// Is GL_ARB_fragment_coord_conventions supported?
-    bool fragCoordConventionsSupport() const { return fFragCoordsConventionSupport; }
-
     /// Is there support for Vertex Array Objects?
     bool vertexArrayObjectSupport() const { return fVertexArrayObjectSupport; }
 
@@ -350,7 +347,6 @@ private:
     bool fTextureRedSupport : 1;
     bool fImagingSupport  : 1;
     bool fTwoFormatLimit : 1;
-    bool fFragCoordsConventionSupport : 1;
     bool fVertexArrayObjectSupport : 1;
     bool fInstancedDrawingSupport : 1;
     bool fDirectStateAccessSupport : 1;
