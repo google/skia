@@ -68,7 +68,7 @@ SkOSWindow::SkOSWindow(void* screen) : fQuit(false) , fGLContext(nullptr) {
         handle_error();
         return;
     }
-    this->resize(SkIntToScalar(dm.w), SkIntToScalar(dm.h));
+    this->resize(dm.w, dm.h);
 }
 
 SkOSWindow::~SkOSWindow() {

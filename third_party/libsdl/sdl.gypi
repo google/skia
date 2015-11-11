@@ -39,6 +39,11 @@
             'mac/sdl_mac.gypi',
           ]
         }],
+        ['skia_os == "win"', {
+          'includes': [
+            'win/sdl_win.gypi',
+          ]
+        }],
       ],
     },
   ],

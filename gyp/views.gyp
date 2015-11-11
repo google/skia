@@ -156,6 +156,10 @@
              '../src/views/mac/SkNSView.mm',
              '../src/views/mac/SkOSWindow_Mac.mm',
              '../src/views/mac/skia_mac.mm',
+
+             # win sources
+             '../src/views/win/SkOSWindow_win.cpp',
+             '../src/views/win/skia_win.cpp',
           ],
           'sources': [
             '../src/views/sdl/SkOSWindow_SDL.cpp',
