@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 #include "GrGLSLBlend.h"
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //  Advanced (non-coeff) blend helpers
 //////////////////////////////////////////////////////////////////////////////
 
-static void hard_light(GrGLFragmentBuilder* fsBuilder,
+static void hard_light(GrGLSLFragmentBuilder* fsBuilder,
                        const char* final,
                        const char* src,
                        const char* dst) {
@@ -32,7 +32,7 @@ static void hard_light(GrGLFragmentBuilder* fsBuilder,
 }
 
 // Does one component of color-dodge
-static void color_dodge_component(GrGLFragmentBuilder* fsBuilder,
+static void color_dodge_component(GrGLSLFragmentBuilder* fsBuilder,
                                   const char* final,
                                   const char* src,
                                   const char* dst,
@@ -56,7 +56,7 @@ static void color_dodge_component(GrGLFragmentBuilder* fsBuilder,
 }
 
 // Does one component of color-burn
-static void color_burn_component(GrGLFragmentBuilder* fsBuilder,
+static void color_burn_component(GrGLSLFragmentBuilder* fsBuilder,
                                  const char* final,
                                  const char* src,
                                  const char* dst,
@@ -77,7 +77,7 @@ static void color_burn_component(GrGLFragmentBuilder* fsBuilder,
 }
 
 // Does one component of soft-light. Caller should have already checked that dst alpha > 0.
-static void soft_light_component_pos_dst_alpha(GrGLFragmentBuilder* fsBuilder,
+static void soft_light_component_pos_dst_alpha(GrGLSLFragmentBuilder* fsBuilder,
                                                const char* final,
                                                const char* src,
                                                const char* dst,
@@ -119,7 +119,7 @@ static void soft_light_component_pos_dst_alpha(GrGLFragmentBuilder* fsBuilder,
 // hue and saturation of the first color, the luminosity of the second color, and the input
 // alpha. It has this signature:
 //      vec3 set_luminance(vec3 hueSatColor, float alpha, vec3 lumColor).
-static void add_lum_function(GrGLFragmentBuilder* fsBuilder, SkString* setLumFunction) {
+static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumFunction) {
     // Emit a helper that gets the luminance of a color.
     SkString getFunction;
     GrGLSLShaderVar getLumArgs[] = {
@@ -164,7 +164,7 @@ static void add_lum_function(GrGLFragmentBuilder* fsBuilder, SkString* setLumFun
 // Adds a function that creates a color with the hue and luminosity of one input color and
 // the saturation of another color. It will have this signature:
 //      float set_saturation(vec3 hueLumColor, vec3 satColor)
-static void add_sat_function(GrGLFragmentBuilder* fsBuilder, SkString* setSatFunction) {
+static void add_sat_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setSatFunction) {
     // Emit a helper that gets the saturation of a color
     SkString getFunction;
     GrGLSLShaderVar getSatArgs[] = { GrGLSLShaderVar("color", kVec3f_GrSLType) };
@@ -235,7 +235,7 @@ static void add_sat_function(GrGLFragmentBuilder* fsBuilder, SkString* setSatFun
                             setSatFunction);
 }
 
-static void emit_advanced_xfermode_code(GrGLFragmentBuilder* fsBuilder, const char* srcColor,
+static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
                                         const char* dstColor, const char* outputColor,
                                         SkXfermode::Mode mode) {
     SkASSERT(srcColor);
@@ -368,7 +368,7 @@ static void emit_advanced_xfermode_code(GrGLFragmentBuilder* fsBuilder, const ch
 //  Porter-Duff blend helper
 //////////////////////////////////////////////////////////////////////////////
 
-static bool append_porterduff_term(GrGLFragmentBuilder* fsBuilder, SkXfermode::Coeff coeff,
+static bool append_porterduff_term(GrGLSLFragmentBuilder* fsBuilder, SkXfermode::Coeff coeff,
                                    const char* colorName, const char* srcColorName,
                                    const char* dstColorName, bool hasPrevious) {
     if (SkXfermode::kZero_Coeff == coeff) {
@@ -414,7 +414,7 @@ static bool append_porterduff_term(GrGLFragmentBuilder* fsBuilder, SkXfermode::C
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GrGLSLBlend::AppendMode(GrGLFragmentBuilder* fsBuilder, const char* srcColor,
+void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
                              const char* dstColor, const char* outColor,
                              SkXfermode::Mode mode) {
 

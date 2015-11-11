@@ -10,14 +10,14 @@
 
 #include "SkXfermode.h"
 
-class GrGLFragmentBuilder;
+class GrGLSLFragmentBuilder;
 
 namespace GrGLSLBlend {
     /*
      * Appends GLSL code to fsBuilder that assigns a specified blend of the srcColor and dstColor
      * variables to the outColor variable.
      */
-    void AppendMode(GrGLFragmentBuilder* fsBuilder, const char* srcColor,
+    void AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
                     const char* dstColor, const char* outColor, SkXfermode::Mode mode);
 };
 

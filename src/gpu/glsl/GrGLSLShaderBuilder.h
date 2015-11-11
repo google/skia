@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLShaderBuilder_DEFINED
-#define GrGLShaderBuilder_DEFINED
+#ifndef GrGLSLShaderBuilder_DEFINED
+#define GrGLSLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
 #include "glsl/GrGLSLShaderVar.h"
@@ -20,10 +20,10 @@ class GrGLSLTextureSampler;
 /**
   base class for all shaders builders
 */
-class GrGLShaderBuilder {
+class GrGLSLShaderBuilder {
 public:
-    GrGLShaderBuilder(GrGLSLProgramBuilder* program);
-    virtual ~GrGLShaderBuilder() {}
+    GrGLSLShaderBuilder(GrGLSLProgramBuilder* program);
+    virtual ~GrGLSLShaderBuilder() {}
 
     void addInput(const GrGLSLShaderVar& input) { fInputs.push_back(input); }
     void addOutput(const GrGLSLShaderVar& output) { fOutputs.push_back(output); }
@@ -109,7 +109,7 @@ public:
      */
     class ShaderBlock {
     public:
-        ShaderBlock(GrGLShaderBuilder* builder) : fBuilder(builder) {
+        ShaderBlock(GrGLSLShaderBuilder* builder) : fBuilder(builder) {
             SkASSERT(builder);
             fBuilder->codeAppend("{");
         }
@@ -118,7 +118,7 @@ public:
             fBuilder->codeAppend("}");
         }
     private:
-        GrGLShaderBuilder* fBuilder;
+        GrGLSLShaderBuilder* fBuilder;
     };
 
 protected:

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLShaderBuilder.h"
+#include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLTextureSampler.h"
@@ -69,7 +69,7 @@ static void append_texture_lookup(SkString* out,
     }
 }
 
-GrGLShaderBuilder::GrGLShaderBuilder(GrGLSLProgramBuilder* program)
+GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
     , fInputs(GrGLSLProgramBuilder::kVarsPerBlock)
     , fOutputs(GrGLSLProgramBuilder::kVarsPerBlock)
@@ -86,18 +86,18 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGLSLProgramBuilder* program)
     this->main() = "void main() {";
 }
 
-void GrGLShaderBuilder::declAppend(const GrGLSLShaderVar& var) {
+void GrGLSLShaderBuilder::declAppend(const GrGLSLShaderVar& var) {
     SkString tempDecl;
     var.appendDecl(fProgramBuilder->glslCaps(), &tempDecl);
     this->codeAppendf("%s;", tempDecl.c_str());
 }
 
-void GrGLShaderBuilder::emitFunction(GrSLType returnType,
-                                     const char* name,
-                                     int argCnt,
-                                     const GrGLSLShaderVar* args,
-                                     const char* body,
-                                     SkString* outName) {
+void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
+                                       const char* name,
+                                       int argCnt,
+                                       const GrGLSLShaderVar* args,
+                                       const char* body,
+                                       SkString* outName) {
     this->functions().append(GrGLSLTypeString(returnType));
     fProgramBuilder->nameVariable(outName, '\0', name);
     this->functions().appendf(" %s", outName->c_str());
@@ -113,10 +113,10 @@ void GrGLShaderBuilder::emitFunction(GrSLType returnType,
     this->functions().append("}\n\n");
 }
 
-void GrGLShaderBuilder::appendTextureLookup(SkString* out,
-                                            const GrGLSLTextureSampler& sampler,
-                                            const char* coordName,
-                                            GrSLType varyingType) const {
+void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
+                                              const GrGLSLTextureSampler& sampler,
+                                              const char* coordName,
+                                              GrSLType varyingType) const {
     append_texture_lookup(out,
                           fProgramBuilder->glslCaps(),
                           fProgramBuilder->getUniformCStr(sampler.fSamplerUniform),
@@ -126,42 +126,42 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                           varyingType);
 }
 
-void GrGLShaderBuilder::appendTextureLookup(const GrGLSLTextureSampler& sampler,
-                                            const char* coordName,
-                                            GrSLType varyingType) {
+void GrGLSLShaderBuilder::appendTextureLookup(const GrGLSLTextureSampler& sampler,
+                                              const char* coordName,
+                                              GrSLType varyingType) {
     this->appendTextureLookup(&this->code(), sampler, coordName, varyingType);
 }
 
-void GrGLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
-                                                       const GrGLSLTextureSampler& sampler,
-                                                       const char* coordName,
-                                                       GrSLType varyingType) {
+void GrGLSLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
+                                                         const GrGLSLTextureSampler& sampler,
+                                                         const char* coordName,
+                                                         GrSLType varyingType) {
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
     this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
 }
 
-void GrGLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
+void GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
     if (!(featureBit & fFeaturesAddedMask)) {
         this->extensions().appendf("#extension %s: require\n", extensionName);
         fFeaturesAddedMask |= featureBit;
     }
 }
 
-void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
+void GrGLSLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
     for (int i = 0; i < vars.count(); ++i) {
         vars[i].appendDecl(fProgramBuilder->glslCaps(), out);
         out->append(";\n");
     }
 }
 
-void GrGLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
+void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
     SkASSERT(fProgramBuilder->glslCaps()->generation() >= k330_GrGLSLGeneration ||
              fProgramBuilder->glslCaps()->mustEnableAdvBlendEqs());
     fLayoutParams[interface].push_back() = param;
 }
 
-void GrGLShaderBuilder::compileAndAppendLayoutQualifiers() {
+void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
     static const char* interfaceQualifierNames[] = {
         "out"
     };
@@ -178,11 +178,11 @@ void GrGLShaderBuilder::compileAndAppendLayoutQualifiers() {
         this->layoutQualifiers().appendf(") %s;\n", interfaceQualifierNames[interface]);
     }
 
-    GR_STATIC_ASSERT(0 == GrGLShaderBuilder::kOut_InterfaceQualifier);
+    GR_STATIC_ASSERT(0 == GrGLSLShaderBuilder::kOut_InterfaceQualifier);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(interfaceQualifierNames) == kLastInterfaceQualifier + 1);
 }
 
-void GrGLShaderBuilder::finalize(uint32_t visibility) {
+void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
     SkASSERT(!fFinalized);
     this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();

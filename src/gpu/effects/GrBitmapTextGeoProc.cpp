@@ -11,8 +11,10 @@
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 class GrGLBitmapTextGeoProc : public GrGLGeometryProcessor {
 public:
@@ -22,7 +24,7 @@ public:
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
 
         GrGLSLGPBuilder* pb = args.fPB;
-        GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+        GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
         // emit attributes
         vsBuilder->emitAttributes(cte);
@@ -57,7 +59,7 @@ public:
         this->emitTransforms(args.fPB, gpArgs->fPositionVar, cte.inPosition()->fName,
                              cte.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-        GrGLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
             fsBuilder->codeAppendf("%s = ", args.fOutputColor);
             fsBuilder->appendTextureLookupAndModulate(args.fOutputColor,

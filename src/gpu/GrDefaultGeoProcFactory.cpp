@@ -10,7 +10,9 @@
 #include "GrInvariantOutput.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLUtil.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 /*
  * The default Geometry Processor simply takes position and multiplies it by the uniform view
@@ -62,8 +64,8 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLSLGPBuilder* pb = args.fPB;
-            GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
-            GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+            GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+            GrGLSLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(gp);
@@ -105,7 +107,7 @@ public:
                     fs->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
                 } else {
                     const char* fragCoverage;
-                    fCoverageUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                    fCoverageUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                       kFloat_GrSLType,
                                                       kDefault_GrSLPrecision,
                                                       "Coverage",

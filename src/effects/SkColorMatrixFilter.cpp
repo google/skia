@@ -386,7 +386,8 @@ SkColorFilter* SkColorMatrixFilter::newComposed(const SkColorFilter* innerFilter
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class ColorMatrixEffect : public GrFragmentProcessor {
@@ -407,10 +408,10 @@ public:
         GLProcessor(const GrProcessor&) {}
 
         virtual void emitCode(EmitArgs& args) override {
-            fMatrixHandle = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fMatrixHandle = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                 kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                 "ColorMatrix");
-            fVectorHandle = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fVectorHandle = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                 kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                 "ColorMatrixVector");
 
@@ -418,7 +419,7 @@ public:
                 // could optimize this case, but we aren't for now.
                 args.fInputColor = "vec4(1)";
             }
-            GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
             // The max() is to guard against 0 / 0 during unpremul when the incoming color is
             // transparent black.
             fsBuilder->codeAppendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n",

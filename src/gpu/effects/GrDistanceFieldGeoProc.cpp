@@ -14,8 +14,10 @@
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
@@ -34,11 +36,11 @@ public:
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
         GrGLSLGPBuilder* pb = args.fPB;
-        GrGLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
-                GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
+                GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
-        GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+        GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
         // emit attributes
         vsBuilder->emitAttributes(dfTexEffect);
@@ -47,7 +49,7 @@ public:
         // adjust based on gamma
         const char* distanceAdjustUniName = nullptr;
         // width, height, 1/(3*width)
-        fDistanceAdjustUni = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fDistanceAdjustUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
             kFloat_GrSLType, kDefault_GrSLPrecision,
             "DistanceAdjust", &distanceAdjustUniName);
 #endif
@@ -285,11 +287,11 @@ public:
         const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
         GrGLSLGPBuilder* pb = args.fPB;
-        GrGLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         SkAssertResult(fsBuilder->enableFeature(
-                                     GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
+                                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
-        GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+        GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
         // emit attributes
         vsBuilder->emitAttributes(dfTexEffect);
@@ -316,7 +318,7 @@ public:
                              args.fTransformsIn, args.fTransformsOut);
 
         const char* textureSizeUniName = nullptr;
-        fTextureSizeUni = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fTextureSizeUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                          kVec2f_GrSLType, kDefault_GrSLPrecision,
                                          "TextureSize", &textureSizeUniName);
 
@@ -501,7 +503,7 @@ public:
                 args.fGP.cast<GrDistanceFieldLCDTextGeoProc>();
         GrGLSLGPBuilder* pb = args.fPB;
 
-        GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+        GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
         // emit attributes
         vsBuilder->emitAttributes(dfTexEffect);
@@ -541,10 +543,10 @@ public:
                                dfTexEffect.inTextureCoords()->fName);
 
         // add frag shader code
-        GrGLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
 
         SkAssertResult(fsBuilder->enableFeature(
-                GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
+                GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
@@ -595,7 +597,7 @@ public:
 
         // adjust width based on gamma
         const char* distanceAdjustUniName = nullptr;
-        fDistanceAdjustUni = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fDistanceAdjustUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
             kVec3f_GrSLType, kDefault_GrSLPrecision,
             "DistanceAdjust", &distanceAdjustUniName);
         fsBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);

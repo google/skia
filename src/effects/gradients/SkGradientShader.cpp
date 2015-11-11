@@ -909,7 +909,8 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "effects/GrTextureStripAtlas.h"
 #include "GrInvariantOutput.h"
 #include "gl/GrGLContext.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "SkGr.h"
 
@@ -922,26 +923,26 @@ GrGLGradientEffect::~GrGLGradientEffect() { }
 void GrGLGradientEffect::emitUniforms(GrGLSLFPBuilder* builder, const GrGradientEffect& ge) {
 
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()) { // 2 Color case
-        fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fColorStartUni = builder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, kDefault_GrSLPrecision,
                                             "GradientStartColor");
-        fColorEndUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fColorEndUni = builder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
                                            "GradientEndColor");
 
     } else if (SkGradientShaderBase::kThree_GpuColorType == ge.getColorType()) { // 3 Color Case
-        fColorStartUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fColorStartUni = builder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType,  kDefault_GrSLPrecision,
                                              "GradientStartColor");
-        fColorMidUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fColorMidUni = builder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
                                            "GradientMidColor");
-        fColorEndUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fColorEndUni = builder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
                                            "GradientEndColor");
 
     } else { // if not a fast case
-        fFSYUni = builder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fFSYUni = builder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                       kFloat_GrSLType, kDefault_GrSLPrecision,
                                       "GradientYCoordFS");
     }
@@ -1031,7 +1032,7 @@ void GrGLGradientEffect::emitColor(GrGLSLFPBuilder* builder,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
-    GrGLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()){
         fsBuilder->codeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                builder->getUniformVariable(fColorStartUni).c_str(),

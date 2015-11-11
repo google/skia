@@ -9,7 +9,8 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
@@ -152,7 +153,7 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
                 GLFP() {}
 
                 void emitCode(EmitArgs& args) override {
-                    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+                    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
                     this->emitChild(0, nullptr, args);
                     fsBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                 args.fInputColor);
@@ -225,7 +226,7 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
                 GLFP() : fHaveSetColor(false) {}
                 void emitCode(EmitArgs& args) override {
                     const char* colorName;
-                    fColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+                    fColorUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                           kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                           "Color", &colorName);
                     this->emitChild(0, colorName, args);

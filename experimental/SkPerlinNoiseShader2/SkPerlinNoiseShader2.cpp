@@ -21,7 +21,8 @@
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #endif
 
@@ -756,17 +757,17 @@ GrGLPerlinNoise2::GrGLPerlinNoise2(const GrProcessor& processor)
 }
 
 void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fBaseFrequencyUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fBaseFrequencyUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
                                             "baseFrequency");
     const char* baseFrequencyUni = args.fBuilder->getUniformCStr(fBaseFrequencyUni);
 
     const char* stitchDataUni = nullptr;
     if (fStitchTiles) {
-        fStitchDataUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fStitchDataUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
                                              "stitchData");
         stitchDataUni = args.fBuilder->getUniformCStr(fStitchDataUni);
@@ -1005,7 +1006,7 @@ void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
 }
 
 void GrGLPerlinNoise2::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
-                             GrProcessorKeyBuilder* b) {
+                              GrProcessorKeyBuilder* b) {
     const GrPerlinNoise2Effect& turbulence = processor.cast<GrPerlinNoise2Effect>();
 
     uint32_t key = turbulence.numOctaves();
@@ -1169,20 +1170,20 @@ GrGLImprovedPerlinNoise::GrGLImprovedPerlinNoise(const GrProcessor& processor)
 }
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fBaseFrequencyUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fBaseFrequencyUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
                                             "baseFrequency");
     const char* baseFrequencyUni = args.fBuilder->getUniformCStr(fBaseFrequencyUni);
 
-    fOctavesUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fOctavesUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                       kFloat_GrSLType, kDefault_GrSLPrecision,
                                       "octaves");
     const char* octavesUni = args.fBuilder->getUniformCStr(fOctavesUni);
 
-    fZUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fZUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                       kFloat_GrSLType, kDefault_GrSLPrecision,
                                       "z");
     const char* zUni = args.fBuilder->getUniformCStr(fZUni);

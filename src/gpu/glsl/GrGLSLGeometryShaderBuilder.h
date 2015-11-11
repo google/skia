@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLGeometryShaderBuilder_DEFINED
-#define GrGLGeometryShaderBuilder_DEFINED
+#ifndef GrGLSLGeometryShaderBuilder_DEFINED
+#define GrGLSLGeometryShaderBuilder_DEFINED
 
-#include "GrGLShaderBuilder.h"
+#include "GrGLSLShaderBuilder.h"
 
 class GrGLSLVarying;
 
-class GrGLGeometryBuilder : public GrGLShaderBuilder {
+class GrGLSLGeometryBuilder : public GrGLSLShaderBuilder {
 public:
-    GrGLGeometryBuilder(GrGLSLProgramBuilder* program);
+    GrGLSLGeometryBuilder(GrGLSLProgramBuilder* program);
 
 private:
     /*
@@ -26,7 +26,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLShaderBuilder INHERITED;
+    typedef GrGLSLShaderBuilder INHERITED;
 };
 
 #endif

@@ -10,13 +10,16 @@
 
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
-#include "gl/builders/GrGLGeometryShaderBuilder.h"
-#include "gl/builders/GrGLVertexShaderBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLGeometryShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 class GrGLSLCaps;
 class GrGLSLShaderVar;
+
+// Enough precision to represent 1 / 2048 accurately in printf
+#define GR_SIGNIFICANT_POW2_DECIMAL_DIG 11
 
 class GrGLSLUniformBuilder {
 public:
@@ -111,10 +114,10 @@ private:
     const char* fGsOut;
     const char* fFsIn;
 
-    friend class GrGLVertexBuilder;
-    friend class GrGLGeometryBuilder;
-    friend class GrGLXferBuilder;
-    friend class GrGLFragmentShaderBuilder;
+    friend class GrGLSLVertexBuilder;
+    friend class GrGLSLGeometryBuilder;
+    friend class GrGLSLXferBuilder;
+    friend class GrGLSLFragmentShaderBuilder;
 };
 
 struct GrGLSLVertToFrag : public GrGLSLVarying {
@@ -163,8 +166,8 @@ public:
         GrSLPrecision fsPrecision = kDefault_GrSLPrecision) = 0;
 
     // TODO rename getFragmentBuilder
-    virtual GrGLFragmentBuilder* getFragmentShaderBuilder() = 0;
-    virtual GrGLVertexBuilder* getVertexShaderBuilder() = 0;
+    virtual GrGLSLFragmentBuilder* getFragmentShaderBuilder() = 0;
+    virtual GrGLSLVertexBuilder* getVertexShaderBuilder() = 0;
 
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
@@ -175,7 +178,7 @@ public:
 /* a specializations for FPs. Lets the user add uniforms and FS code */
 class GrGLSLFPBuilder : public virtual GrGLSLUniformBuilder {
 public:
-    virtual GrGLFragmentBuilder* getFragmentShaderBuilder() = 0;
+    virtual GrGLSLFragmentBuilder* getFragmentShaderBuilder() = 0;
 
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
@@ -185,7 +188,7 @@ public:
 /* a specializations for XPs. Lets the user add uniforms and FS code */
 class GrGLSLXPBuilder : public virtual GrGLSLUniformBuilder {
 public:
-    virtual GrGLXPFragmentBuilder* getFragmentShaderBuilder() = 0;
+    virtual GrGLSLXPFragmentBuilder* getFragmentShaderBuilder() = 0;
 
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
@@ -198,8 +201,8 @@ class GrGLSLProgramBuilder : public GrGLSLGPBuilder,
 public:
     typedef GrGpu::DrawArgs DrawArgs;
 
-    GrGLXPFragmentBuilder* getFragmentShaderBuilder() override { return &fFS; }
-    GrGLVertexBuilder* getVertexShaderBuilder() override { return &fVS; }
+    GrGLSLXPFragmentBuilder* getFragmentShaderBuilder() override { return &fFS; }
+    GrGLSLVertexBuilder* getVertexShaderBuilder() override { return &fVS; }
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {
@@ -240,9 +243,9 @@ protected:
     // number of each input/output type in a single allocation block, used by many builders
     static const int kVarsPerBlock;
 
-    GrGLVertexBuilder fVS;
-    GrGLGeometryBuilder fGS;
-    GrGLFragmentShaderBuilder fFS;
+    GrGLSLVertexBuilder fVS;
+    GrGLSLGeometryBuilder fGS;
+    GrGLSLFragmentShaderBuilder fFS;
     int fStageIndex;
 
     BuiltinUniformHandles fUniformHandles;
@@ -252,10 +255,10 @@ protected:
 private:
     virtual void onAppendUniformDecls(ShaderVisibility visibility, SkString* out) const = 0;
 
-    friend class GrGLShaderBuilder;
-    friend class GrGLVertexBuilder;
-    friend class GrGLFragmentShaderBuilder;
-    friend class GrGLGeometryBuilder;
+    friend class GrGLSLShaderBuilder;
+    friend class GrGLSLVertexBuilder;
+    friend class GrGLSLFragmentShaderBuilder;
+    friend class GrGLSLGeometryBuilder;
 };
 
 #endif

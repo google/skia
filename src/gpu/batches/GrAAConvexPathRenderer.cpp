@@ -26,7 +26,7 @@
 #include "SkTraceEvent.h"
 #include "batches/GrVertexBatch.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
@@ -549,7 +549,7 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
-            GrGLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(qe);
@@ -570,10 +570,10 @@ public:
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, qe.inPosition()->fName,
                                  qe.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
             SkAssertResult(fsBuilder->enableFeature(
-                    GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fsBuilder->codeAppendf("float edgeAlpha;");
 
             // keep the derivative instructions outside the conditional

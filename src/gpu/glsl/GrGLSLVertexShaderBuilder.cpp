@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLVertexShaderBuilder.h"
+#include "GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
-GrGLVertexBuilder::GrGLVertexBuilder(GrGLSLProgramBuilder* program)
+GrGLSLVertexBuilder::GrGLSLVertexBuilder(GrGLSLProgramBuilder* program)
     : INHERITED(program)
     , fRtAdjustName(nullptr) {
 }
 
-void GrGLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying* v) {
+void GrGLSLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying* v) {
     fOutputs.push_back();
     fOutputs.back().setType(v->fType);
     fOutputs.back().setTypeModifier(GrGLSLShaderVar::kVaryingOut_TypeModifier);
@@ -22,7 +22,7 @@ void GrGLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, Gr
     v->fVsOut = fOutputs.back().getName().c_str();
 }
 
-void GrGLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
+void GrGLSLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
     int vaCount = gp.numAttribs();
     for (int i = 0; i < vaCount; i++) {
         this->addAttribute(&gp.getAttrib(i));
@@ -30,7 +30,7 @@ void GrGLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
     return;
 }
 
-void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
+void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
     SkASSERT(!fRtAdjustName);
 
     GrSLPrecision precision = kDefault_GrSLPrecision;
@@ -72,7 +72,7 @@ void GrGLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posV
     this->codeAppend("gl_PointSize = 1.0;");
 }
 
-bool GrGLVertexBuilder::addAttribute(const GrShaderVar& var) {
+bool GrGLSLVertexBuilder::addAttribute(const GrShaderVar& var) {
     SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
     for (int i = 0; i < fInputs.count(); ++i) {
         const GrGLSLShaderVar& attr = fInputs[i];

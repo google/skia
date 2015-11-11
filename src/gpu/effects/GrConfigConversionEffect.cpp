@@ -12,7 +12,8 @@
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 
 class GrGLConfigConversionEffect : public GrGLFragmentProcessor {
 public:
@@ -29,7 +30,7 @@ public:
         SkString tmpDecl;
         tmpVar.appendDecl(args.fBuilder->glslCaps(), &tmpDecl);
 
-        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
 
         fsBuilder->codeAppendf("%s;", tmpDecl.c_str());
 
@@ -142,7 +143,7 @@ const GrFragmentProcessor* GrConfigConversionEffect::TestCreate(GrProcessorTestD
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrConfigConversionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                 GrProcessorKeyBuilder* b) const {
+                                                   GrProcessorKeyBuilder* b) const {
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }
 

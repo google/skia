@@ -351,17 +351,9 @@
       # Files for building GLSL shaders
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.cpp',
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.h',
-      '<(skia_src_path)/gpu/gl/builders/GrGLShaderBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLShaderBuilder.h',
       '<(skia_src_path)/gpu/gl/builders/GrGLShaderStringBuilder.cpp',
       '<(skia_src_path)/gpu/gl/builders/GrGLShaderStringBuilder.h',
       '<(skia_src_path)/gpu/gl/builders/GrGLSLPrettyPrint.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLVertexShaderBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLVertexShaderBuilder.h',
-      '<(skia_src_path)/gpu/gl/builders/GrGLFragmentShaderBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLFragmentShaderBuilder.h',
-      '<(skia_src_path)/gpu/gl/builders/GrGLGeometryShaderBuilder.cpp',
-      '<(skia_src_path)/gpu/gl/builders/GrGLGeometryShaderBuilder.h',
 
       # GLSL
       '<(skia_src_path)/gpu/glsl/GrGLSL.cpp',
@@ -369,12 +361,20 @@
       '<(skia_src_path)/gpu/glsl/GrGLSL_impl.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLCaps.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSLFragmentShaderBuilder.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLGeometryShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSLGeometryShaderBuilder.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLProcessorTypes.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramBuilder.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramBuilder.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramDataManager.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSLShaderBuilder.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLShaderVar.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLTextureSampler.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLVertexShaderBuilder.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSLVertexShaderBuilder.h',
 
       # Sk files
       '<(skia_include_path)/gpu/SkGr.h',

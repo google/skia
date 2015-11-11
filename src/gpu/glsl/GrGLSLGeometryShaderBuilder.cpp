@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLGeometryShaderBuilder.h"
-#include "GrGLProgramBuilder.h"
-#include "../GrGLGpu.h"
+#include "GrGLSLGeometryShaderBuilder.h"
+#include "GrGLSLProgramBuilder.h"
 
-GrGLGeometryBuilder::GrGLGeometryBuilder(GrGLSLProgramBuilder* program)
+GrGLSLGeometryBuilder::GrGLSLGeometryBuilder(GrGLSLProgramBuilder* program)
     : INHERITED(program) {
 
 }
 
-void GrGLGeometryBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying* v) {
+void GrGLSLGeometryBuilder::addVarying(const char* name,
+                                       GrSLPrecision precision,
+                                       GrGLSLVarying* v) {
     // if we have a GS take each varying in as an array
     // and output as non-array.
     if (v->vsVarying()) {

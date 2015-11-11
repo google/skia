@@ -9,7 +9,9 @@
 
 #include "gl/GrGLGpu.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProcessorTypes.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 
 class GrGLPathProcessor : public GrGLPrimitiveProcessor {
 public:
@@ -24,7 +26,7 @@ public:
 
     void emitCode(EmitArgs& args) override {
         GrGLSLGPBuilder* pb = args.fPB;
-        GrGLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
         // emit transforms
@@ -33,7 +35,7 @@ public:
         // Setup uniform color
         if (pathProc.opts().readsColor()) {
             const char* stagedLocalVarName;
-            fColorUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fColorUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType,
                                            kDefault_GrSLPrecision,
                                            "Color",

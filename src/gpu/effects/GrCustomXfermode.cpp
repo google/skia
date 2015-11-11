@@ -20,8 +20,9 @@
 #include "gl/GrGLSLBlend.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLProgramDataManager.h"
-#include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 bool GrCustomXfermode::IsSupportedMode(SkXfermode::Mode mode) {
@@ -147,7 +148,7 @@ private:
         const CustomXP& xp = args.fXP.cast<CustomXP>();
         SkASSERT(xp.hasHWBlendEquation());
 
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         fsBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
 
         // Apply coverage by multiplying it into the src color before blending. Mixed samples will
@@ -165,7 +166,7 @@ private:
         const CustomXP& xp = proc.cast<CustomXP>();
         SkASSERT(!xp.hasHWBlendEquation());
 
-        GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         GrGLSLBlend::AppendMode(fsBuilder, srcColor, dstColor, outColor, xp.mode());
     }
 

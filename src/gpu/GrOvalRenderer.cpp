@@ -23,8 +23,10 @@
 #include "effects/GrRRectEffect.h"
 #include "gl/GrGLUtil.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 // TODO(joshualitt) - Break this file up during GrBatch post implementation cleanup
 
@@ -96,7 +98,7 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
-            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(ce);
@@ -117,7 +119,7 @@ public:
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ce.inPosition()->fName,
                                  ce.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
-            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
             fsBuilder->codeAppendf("float edgeAlpha = clamp(%s.z * (1.0 - d), 0.0, 1.0);", v.fsIn());
             if (ce.isStroked()) {
@@ -244,7 +246,7 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
-            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(ee);
@@ -272,7 +274,7 @@ public:
                                  ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
 
             // for outer curve
-            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             fsBuilder->codeAppendf("vec2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
                                    ellipseRadii.fsIn());
             fsBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
@@ -419,7 +421,7 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
-            GrGLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
 
             // emit attributes
             vsBuilder->emitAttributes(ee);
@@ -447,9 +449,9 @@ public:
             this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
                                  args.fTransformsIn, args.fTransformsOut);
 
-            GrGLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
             SkAssertResult(fsBuilder->enableFeature(
-                    GrGLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             // for outer curve
             fsBuilder->codeAppendf("vec2 scaledOffset = %s.xy;", offsets0.fsIn());
             fsBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");

@@ -8,8 +8,8 @@
 #include "gl/GrGLXferProcessor.h"
 
 #include "GrXferProcessor.h"
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 void GrGLXferProcessor::emitCode(const EmitArgs& args) {
@@ -18,7 +18,7 @@ void GrGLXferProcessor::emitCode(const EmitArgs& args) {
         return;
     }
 
-    GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+    GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
     const char* dstColor = fsBuilder->dstColor();
 
     if (args.fXP.getDstTexture()) {
@@ -35,12 +35,12 @@ void GrGLXferProcessor::emitCode(const EmitArgs& args) {
         const char* dstTopLeftName;
         const char* dstCoordScaleName;
 
-        fDstTopLeftUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fDstTopLeftUni = args.fPB->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                               kVec2f_GrSLType,
                                               kDefault_GrSLPrecision,
                                               "DstTextureUpperLeft",
                                               &dstTopLeftName);
-        fDstScaleUni = args.fPB->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fDstScaleUni = args.fPB->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                             kVec2f_GrSLType,
                                             kDefault_GrSLPrecision,
                                             "DstTextureCoordScale",

@@ -131,7 +131,8 @@ private:
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
@@ -178,26 +179,26 @@ public:
 
         void emitCode(EmitArgs& args) override {
 
-            GrGLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
 
             // add uniforms
             const char* lightDirUniName = nullptr;
-            fLightDirUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fLightDirUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                      kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                      "LightDir", &lightDirUniName);
 
             const char* lightColorUniName = nullptr;
-            fLightColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fLightColorUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                        "LightColor", &lightColorUniName);
 
             const char* ambientColorUniName = nullptr;
-            fAmbientColorUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fAmbientColorUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                          kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                          "AmbientColor", &ambientColorUniName);
 
             const char* xformUniName = nullptr;
-            fXformUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+            fXformUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                   "Xform", &xformUniName);
 

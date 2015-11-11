@@ -15,12 +15,14 @@
 #include "GrTexture.h"
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "gl/GrGLXferProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 static const bool gUseUnpremul = false;
 
-static void add_arithmetic_code(GrGLFragmentBuilder* fsBuilder,
+static void add_arithmetic_code(GrGLSLFragmentBuilder* fsBuilder,
                                 const char* srcColor,
                                 const char* dstColor,
                                 const char* outputColor,
@@ -60,11 +62,11 @@ public:
     ~GLArithmeticFP() override {}
 
     void emitCode(EmitArgs& args) override {
-        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
         SkString dstColor("dstColor");
         this->emitChild(0, nullptr, &dstColor, args);
 
-        fKUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fKUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                           kVec4f_GrSLType, kDefault_GrSLPrecision,
                                           "k");
         const char* kUni = args.fBuilder->getUniformCStr(fKUni);
@@ -208,9 +210,9 @@ public:
 private:
     void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb, const char* srcColor, const char* dstColor,
                                  const char* outColor, const GrXferProcessor& proc) override {
-        GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
 
-        fKUni = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+        fKUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                kVec4f_GrSLType, kDefault_GrSLPrecision,
                                "k");
         const char* kUni = pb->getUniformCStr(fKUni);

@@ -11,7 +11,7 @@
 #include "GrGLGpu.h"
 #include "GrPipeline.h"
 #include "SkChecksum.h"
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 /**
  * Do we need to either map r,g,b->a or a->r. configComponentMask indicates which channels are
@@ -146,7 +146,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     if (pipeline.readsFragPosition()) {
         header->fFragPosKey =
-                GrGLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget());
+                GrGLSLFragmentShaderBuilder::KeyForFragmentPosition(pipeline.getRenderTarget());
     } else {
         header->fFragPosKey = 0;
     }

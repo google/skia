@@ -7,7 +7,8 @@
 
 #include "GrGLPrimitiveProcessor.h"
 
-#include "builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 SkMatrix GrGLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
                                                     const GrCoordTransform& coordTransform) {
@@ -34,10 +35,10 @@ SkMatrix GrGLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
 void GrGLPrimitiveProcessor::setupUniformColor(GrGLSLGPBuilder* pb,
                                                const char* outputName,
                                                UniformHandle* colorUniform) {
-    GrGLFragmentBuilder* fs = pb->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fs = pb->getFragmentShaderBuilder();
     SkASSERT(colorUniform);
     const char* stagedLocalVarName;
-    *colorUniform = pb->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    *colorUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                    kVec4f_GrSLType,
                                    kDefault_GrSLPrecision,
                                    "Color",

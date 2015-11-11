@@ -12,7 +12,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrPaint.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 // For brevity
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
@@ -169,7 +170,7 @@ private:
 };
 
 void Edge2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                             GrProcessorKeyBuilder* b) const {
+                                               GrProcessorKeyBuilder* b) const {
     GLEdge2PtConicalEffect::GenKey(*this, caps, b);
 }
 
@@ -223,7 +224,7 @@ GLEdge2PtConicalEffect::GLEdge2PtConicalEffect(const GrProcessor&)
 void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
     const Edge2PtConicalEffect& ge = args.fFp.cast<Edge2PtConicalEffect>();
     this->emitUniforms(args.fBuilder, ge);
-    fParamUni = args.fBuilder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
+    fParamUni = args.fBuilder->addUniformArray(GrGLSLProgramBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, kDefault_GrSLPrecision,
                                          "Conical2FSParams", 3);
 
@@ -241,7 +242,7 @@ void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
     SkASSERT(args.fCoords[0].getType() == args.fCoords[1].getType());
     const char* coords2D;
     SkString bVar;
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     if (kVec3f_GrSLType == args.fCoords[0].getType()) {
         fsBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
                                args.fCoords[0].c_str(), args.fCoords[0].c_str(),
@@ -446,7 +447,7 @@ private:
 };
 
 void FocalOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                     GrProcessorKeyBuilder* b) const {
+                                                       GrProcessorKeyBuilder* b) const {
     GLFocalOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
@@ -499,7 +500,7 @@ GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrProcessor
 void GLFocalOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     const FocalOutside2PtConicalEffect& ge = args.fFp.cast<FocalOutside2PtConicalEffect>();
     this->emitUniforms(args.fBuilder, ge);
-    fParamUni = args.fBuilder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
+    fParamUni = args.fBuilder->addUniformArray(GrGLSLProgramBuilder::kFragment_Visibility,
                                          kFloat_GrSLType, kDefault_GrSLPrecision,
                                          "Conical2FSParams", 2);
     SkString tName("t");
@@ -510,7 +511,7 @@ void GLFocalOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     args.fBuilder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -650,7 +651,7 @@ private:
 };
 
 void FocalInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                               GrProcessorKeyBuilder* b) const {
+                                                      GrProcessorKeyBuilder* b) const {
     GLFocalInside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
@@ -702,9 +703,9 @@ GLFocalInside2PtConicalEffect::GLFocalInside2PtConicalEffect(const GrProcessor&)
 void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
     const FocalInside2PtConicalEffect& ge = args.fFp.cast<FocalInside2PtConicalEffect>();
     this->emitUniforms(args.fBuilder, ge);
-    fFocalUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kFloat_GrSLType, kDefault_GrSLPrecision,
-                                    "Conical2FSParams");
+    fFocalUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                          kFloat_GrSLType, kDefault_GrSLPrecision,
+                                          "Conical2FSParams");
     SkString tName("t");
 
     // this is the distance along x-axis from the end center to focal point in
@@ -712,7 +713,7 @@ void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
     GrGLSLShaderVar focal = args.fBuilder->getUniformVariable(fFocalUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -892,7 +893,7 @@ private:
 };
 
 void CircleInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                     GrProcessorKeyBuilder* b) const {
+                                                       GrProcessorKeyBuilder* b) const {
     GLCircleInside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
@@ -947,12 +948,12 @@ GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrProcessor
 void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
     const CircleInside2PtConicalEffect& ge = args.fFp.cast<CircleInside2PtConicalEffect>();
     this->emitUniforms(args.fBuilder, ge);
-    fCenterUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                     "Conical2FSCenter");
-    fParamUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kVec3f_GrSLType, kDefault_GrSLPrecision,
-                                    "Conical2FSParams");
+    fCenterUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                           kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                           "Conical2FSCenter");
+    fParamUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                          kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                          "Conical2FSParams");
     SkString tName("t");
 
     GrGLSLShaderVar center = args.fBuilder->getUniformVariable(fCenterUni);
@@ -962,7 +963,7 @@ void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
     GrGLSLShaderVar params = args.fBuilder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
@@ -1117,7 +1118,7 @@ private:
 };
 
 void CircleOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                      GrProcessorKeyBuilder* b) const {
+                                                        GrProcessorKeyBuilder* b) const {
     GLCircleOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
@@ -1177,12 +1178,12 @@ GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrProcess
 void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     const CircleOutside2PtConicalEffect& ge = args.fFp.cast<CircleOutside2PtConicalEffect>();
     this->emitUniforms(args.fBuilder, ge);
-    fCenterUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                     "Conical2FSCenter");
-    fParamUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                    kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                    "Conical2FSParams");
+    fCenterUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                           kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                           "Conical2FSCenter");
+    fParamUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                          kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                          "Conical2FSParams");
     SkString tName("t");
 
     GrGLSLShaderVar center = args.fBuilder->getUniformVariable(fCenterUni);
@@ -1192,7 +1193,7 @@ void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     GrGLSLShaderVar params = args.fBuilder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 

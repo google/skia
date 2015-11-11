@@ -356,7 +356,7 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
     }
 }
 
-bool GrGLProgramBuilder::compileAndAttachShaders(GrGLShaderBuilder& shader,
+bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                                  GrGLuint programId,
                                                  GrGLenum type,
                                                  SkTDArray<GrGLuint>* shaderIds) {
@@ -442,11 +442,11 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
     const GrGLCaps& caps = this->gpu()->glCaps();
     if (fFS.hasCustomColorOutput() && caps.bindFragDataLocationSupport()) {
         GL_CALL(BindFragDataLocation(programID, 0,
-                                     GrGLFragmentShaderBuilder::DeclaredColorOutputName()));
+                                     GrGLSLFragmentShaderBuilder::DeclaredColorOutputName()));
     }
     if (fFS.hasSecondaryOutput() && caps.glslCaps()->mustDeclareFragmentShaderOutput()) {
         GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
-                                    GrGLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
+                                  GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
     }
 
     // handle NVPR separable varyings

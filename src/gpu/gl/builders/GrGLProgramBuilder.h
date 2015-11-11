@@ -18,11 +18,8 @@
 
 class GrFragmentProcessor;
 class GrGLContextInfo;
-class GrGLShaderBuilder;
+class GrGLSLShaderBuilder;
 class GrGLSLCaps;
-
-// Enough precision to represent 1 / 2048 accurately in printf
-#define GR_SIGNIFICANT_POW2_DECIMAL_DIG 11
 
 /**
  * The below struct represent processors installed in programs.
@@ -135,7 +132,7 @@ private:
                       GrGLSLTextureSampler::TextureSamplerArray* outSamplers,
                       GrGLInstalledProc<Proc>*);
 
-    bool compileAndAttachShaders(GrGLShaderBuilder& shader,
+    bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds); 
@@ -184,10 +181,10 @@ private:
     SkTArray<UniformHandle> fSamplerUniforms;
     SeparableVaryingInfoArray fSeparableVaryingInfos;
 
-    friend class GrGLShaderBuilder;
-    friend class GrGLVertexBuilder;
-    friend class GrGLFragmentShaderBuilder;
-    friend class GrGLGeometryBuilder;
+    friend class GrGLSLShaderBuilder;
+    friend class GrGLSLVertexBuilder;
+    friend class GrGLSLFragmentShaderBuilder;
+    friend class GrGLSLGeometryBuilder;
 
    typedef GrGLSLProgramBuilder INHERITED; 
 };

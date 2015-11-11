@@ -33,8 +33,8 @@
 
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLGpu.h"
-#include "gl/GrGLPathRendering.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 
 /*
  * A dummy processor which just tries to insert a massive key and verify that it can retrieve the
@@ -48,7 +48,7 @@ public:
 
     virtual void emitCode(EmitArgs& args) override {
         // pass through
-        GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
         if (args.fInputColor) {
             fsBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         } else {

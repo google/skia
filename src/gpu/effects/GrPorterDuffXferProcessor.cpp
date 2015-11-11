@@ -15,8 +15,8 @@
 #include "GrXferProcessor.h"
 #include "gl/GrGLSLBlend.h"
 #include "gl/GrGLXferProcessor.h"
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 /**
@@ -381,7 +381,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void append_color_output(const PorterDuffXferProcessor& xp, GrGLXPFragmentBuilder* fsBuilder,
+static void append_color_output(const PorterDuffXferProcessor& xp,
+                                GrGLSLXPFragmentBuilder* fsBuilder,
                                 BlendFormula::OutputType outputType, const char* output,
                                 const char* inColor, const char* inCoverage) {
     switch (outputType) {
@@ -440,7 +441,7 @@ public:
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         const PorterDuffXferProcessor& xp = args.fXP.cast<PorterDuffXferProcessor>();
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         BlendFormula blendFormula = xp.getBlendFormula();
         if (blendFormula.hasSecondaryOutput()) {
@@ -546,7 +547,7 @@ private:
     void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb, const char* srcColor, const char* dstColor,
                                  const char* outColor, const GrXferProcessor& proc) override {
         const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
-        GrGLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
 
         GrGLSLBlend::AppendMode(fsBuilder, srcColor, dstColor, outColor, xp.getXfermode());
     }
@@ -559,7 +560,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 void ShaderPDXferProcessor::onGetGLProcessorKey(const GrGLSLCaps&,
-                                                  GrProcessorKeyBuilder* b) const {
+                                                GrProcessorKeyBuilder* b) const {
     GLShaderPDXferProcessor::GenKey(*this, b);
 }
 
@@ -624,7 +625,7 @@ public:
 
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
         fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
                                args.fInputCoverage);
     }

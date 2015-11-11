@@ -19,7 +19,8 @@
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLTexture.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrMagnifierEffect : public GrSingleTextureEffect {
@@ -121,23 +122,19 @@ GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProcessor&) {
 
 void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
     fOffsetVar = args.fBuilder->addUniform(
-        GrGLProgramBuilder::kFragment_Visibility |
-        GrGLProgramBuilder::kVertex_Visibility,
+        GrGLSLProgramBuilder::kFragment_Visibility,
         kVec2f_GrSLType, kDefault_GrSLPrecision, "Offset");
     fInvZoomVar = args.fBuilder->addUniform(
-        GrGLProgramBuilder::kFragment_Visibility |
-        GrGLProgramBuilder::kVertex_Visibility,
+        GrGLSLProgramBuilder::kFragment_Visibility,
         kVec2f_GrSLType, kDefault_GrSLPrecision, "InvZoom");
     fInvInsetVar = args.fBuilder->addUniform(
-        GrGLProgramBuilder::kFragment_Visibility |
-        GrGLProgramBuilder::kVertex_Visibility,
+        GrGLSLProgramBuilder::kFragment_Visibility,
         kVec2f_GrSLType, kDefault_GrSLPrecision, "InvInset");
     fBoundsVar = args.fBuilder->addUniform(
-        GrGLProgramBuilder::kFragment_Visibility |
-        GrGLProgramBuilder::kVertex_Visibility,
+        GrGLSLProgramBuilder::kFragment_Visibility,
         kVec4f_GrSLType, kDefault_GrSLPrecision, "Bounds");
 
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     fsBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     fsBuilder->codeAppendf("\t\tvec2 zoom_coord = %s + %s * %s;\n",

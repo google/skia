@@ -13,7 +13,7 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLProgramBuilder;
-class GrGLShaderBuilder;
+class GrGLSLShaderBuilder;
 class GrInvariantOutput;
 class GrGLSLTextureSampler;
 struct SkRect;
@@ -113,7 +113,7 @@ public:
          * @param inModulateColor   if non-nullptr the sampled color will be modulated with this
          *                          expression before being written to outColor.
          */
-        void sampleTexture(GrGLShaderBuilder* builder,
+        void sampleTexture(GrGLSLShaderBuilder* builder,
                            const GrTextureDomain& textureDomain,
                            const char* outColor,
                            const SkString& inCoords,

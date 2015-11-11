@@ -14,7 +14,8 @@
 #include "GrTextureProvider.h"
 
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLCircleBlurFragmentProcessor : public GrGLFragmentProcessor {
@@ -39,13 +40,13 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
     // x,y  - the center of the circle
     // z    - the distance at which the intensity starts falling off (e.g., the start of the table)
     // w    - the size of the profile texture
-    fDataUniform = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fDataUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType,
                                              kDefault_GrSLPrecision,
                                              "data",
                                              &dataName);
 
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     const char *fragmentPos = fsBuilder->fragmentPosition();
 
     if (args.fInputColor) {

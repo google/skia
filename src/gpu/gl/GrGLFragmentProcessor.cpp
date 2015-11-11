@@ -8,8 +8,8 @@
 #include "GrGLFragmentProcessor.h"
 #include "GrFragmentProcessor.h"
 #include "GrProcessor.h"
-#include "builders/GrGLFragmentShaderBuilder.h"
-#include "builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 
 void GrGLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
                                     const GrFragmentProcessor& processor) {
@@ -28,7 +28,7 @@ void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
                                       SkString* outputColor, EmitArgs& args) {
 
     SkASSERT(outputColor);
-    GrGLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
     outputColor->append(fb->getMangleString());
     fb->codeAppendf("vec4 %s;", outputColor->c_str());
     this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
@@ -36,7 +36,7 @@ void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
 
 void GrGLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
                                                const char* outputColor, EmitArgs& args) {
-    GrGLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
 
     fb->onBeforeChildProcEmitCode();  // call first so mangleString is updated
 

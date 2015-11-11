@@ -33,7 +33,7 @@ private:
     GrPixelConfig fConfig;
     char          fSwizzle[5];
 
-    friend class GrGLShaderBuilder;
+    friend class GrGLSLShaderBuilder;
 };
 
 #endif

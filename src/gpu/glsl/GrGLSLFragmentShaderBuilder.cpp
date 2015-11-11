@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLFragmentShaderBuilder.h"
+#include "GrGLSLFragmentShaderBuilder.h"
 #include "GrRenderTarget.h"
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
-const char* GrGLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
+const char* GrGLSLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
 
 static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
@@ -54,8 +54,8 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
                      kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation);
 }
 
-GrGLFragmentShaderBuilder::FragPosKey
-GrGLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst) {
+GrGLSLFragmentShaderBuilder::FragPosKey
+GrGLSLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst) {
     if (kTopLeft_GrSurfaceOrigin == dst->origin()) {
         return kTopLeftFragPosRead_FragPosKey;
     } else {
@@ -63,8 +63,8 @@ GrGLFragmentShaderBuilder::KeyForFragmentPosition(const GrRenderTarget* dst) {
     }
 }
 
-GrGLFragmentShaderBuilder::GrGLFragmentShaderBuilder(GrGLSLProgramBuilder* program,
-                                                     uint8_t fragPosKey)
+GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program,
+                                                         uint8_t fragPosKey)
     : INHERITED(program)
     , fSetupFragPosition(false)
     , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == fragPosKey)
@@ -73,7 +73,7 @@ GrGLFragmentShaderBuilder::GrGLFragmentShaderBuilder(GrGLSLProgramBuilder* progr
     , fHasReadFragmentPosition(false) {
 }
 
-bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
+bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     switch (feature) {
         case kStandardDerivatives_GLSLFeature: {
             if (!fProgramBuilder->glslCaps()->shaderDerivativeSupport()) {
@@ -91,8 +91,8 @@ bool GrGLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     }
 }
 
-SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
-                                                     int index) {
+SkString GrGLSLFragmentShaderBuilder::ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
+                                                       int index) {
     if (kVec3f_GrSLType != coords[index].getType()) {
         SkASSERT(kVec2f_GrSLType == coords[index].getType());
         return coords[index].getName();
@@ -107,7 +107,7 @@ SkString GrGLFragmentShaderBuilder::ensureFSCoords2D(const GrGLSLTransformedCoor
     return coords2D;
 }
 
-const char* GrGLFragmentShaderBuilder::fragmentPosition() {
+const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     fHasReadFragmentPosition = true;
 
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
@@ -160,12 +160,12 @@ const char* GrGLFragmentShaderBuilder::fragmentPosition() {
     }
 }
 
-const char* GrGLFragmentShaderBuilder::dstColor() {
+const char* GrGLSLFragmentShaderBuilder::dstColor() {
     fHasReadDstColor = true;
 
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     if (glslCaps->fbFetchSupport()) {
-        this->addFeature(1 << (GrGLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
+        this->addFeature(1 << (GrGLSLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
                          glslCaps->fbFetchExtensionString());
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
@@ -181,7 +181,7 @@ const char* GrGLFragmentShaderBuilder::dstColor() {
     } 
 }
 
-void GrGLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
+void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
 
     const GrGLSLCaps& caps = *fProgramBuilder->glslCaps();
@@ -198,7 +198,7 @@ void GrGLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquat
     }
 }
 
-void GrGLFragmentShaderBuilder::enableCustomOutput() {
+void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fHasCustomColorOutput) {
         fHasCustomColorOutput = true;
         fCustomColorOutputIndex = fOutputs.count();
@@ -208,7 +208,7 @@ void GrGLFragmentShaderBuilder::enableCustomOutput() {
     }
 }
 
-void GrGLFragmentShaderBuilder::enableSecondaryOutput() {
+void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
     SkASSERT(!fHasSecondaryOutput);
     fHasSecondaryOutput = true;
     const GrGLSLCaps& caps = *fProgramBuilder->glslCaps();
@@ -226,23 +226,23 @@ void GrGLFragmentShaderBuilder::enableSecondaryOutput() {
     }
 }
 
-const char* GrGLFragmentShaderBuilder::getPrimaryColorOutputName() const {
+const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
     return fHasCustomColorOutput ? DeclaredColorOutputName() : "gl_FragColor";
 }
 
-const char* GrGLFragmentShaderBuilder::getSecondaryColorOutputName() const {
+const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
     const GrGLSLCaps& caps = *fProgramBuilder->glslCaps();
     return caps.mustDeclareFragmentShaderOutput() ? DeclaredSecondaryColorOutputName()
                                                   : "gl_SecondaryFragColorEXT";
 }
 
-void GrGLFragmentShaderBuilder::onFinalize() {
+void GrGLSLFragmentShaderBuilder::onFinalize() {
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
                                                  *fProgramBuilder->glslCaps(),
                                                  &this->precisionQualifier());
 }
 
-void GrGLFragmentShaderBuilder::addVarying(GrGLSLVarying* v, GrSLPrecision fsPrec) {
+void GrGLSLFragmentShaderBuilder::addVarying(GrGLSLVarying* v, GrSLPrecision fsPrec) {
     v->fFsIn = v->fVsOut;
     if (v->fGsOut) {
         v->fFsIn = v->fGsOut;
@@ -250,7 +250,7 @@ void GrGLFragmentShaderBuilder::addVarying(GrGLSLVarying* v, GrSLPrecision fsPre
     fInputs.push_back().set(v->fType, GrGLSLShaderVar::kVaryingIn_TypeModifier, v->fFsIn, fsPrec);
 }
 
-void GrGLFragmentBuilder::onBeforeChildProcEmitCode() {
+void GrGLSLFragmentBuilder::onBeforeChildProcEmitCode() {
     SkASSERT(fSubstageIndices.count() >= 1);
     fSubstageIndices.push_back(0);
     // second-to-last value in the fSubstageIndices stack is the index of the child proc
@@ -258,7 +258,7 @@ void GrGLFragmentBuilder::onBeforeChildProcEmitCode() {
     fMangleString.appendf("_c%d", fSubstageIndices[fSubstageIndices.count() - 2]);
 }
 
-void GrGLFragmentBuilder::onAfterChildProcEmitCode() {
+void GrGLSLFragmentBuilder::onAfterChildProcEmitCode() {
     SkASSERT(fSubstageIndices.count() >= 2);
     fSubstageIndices.pop_back();
     fSubstageIndices.back()++;

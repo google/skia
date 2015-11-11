@@ -11,7 +11,8 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 namespace {
@@ -63,12 +64,12 @@ public:
         GLProcessor(const GrProcessor&) {}
 
         virtual void emitCode(EmitArgs& args) override {
-            GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
 
             const char* yuvMatrix   = nullptr;
-            fMatrixUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                             kMat44f_GrSLType, kDefault_GrSLPrecision,
-                                             "YUVMatrix", &yuvMatrix);
+            fMatrixUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                                   kMat44f_GrSLType, kDefault_GrSLPrecision,
+                                                   "YUVMatrix", &yuvMatrix);
             fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", args.fOutputColor);
             fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
                                            args.fCoords[0].getType());

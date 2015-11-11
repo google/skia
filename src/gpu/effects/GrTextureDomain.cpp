@@ -42,7 +42,7 @@ GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
+void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               const GrTextureDomain& textureDomain,
                                               const char* outColor,
                                               const SkString& inCoords,
@@ -86,7 +86,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLShaderBuilder* builder,
         }
         case kDecal_Mode: {
             // Add a block since we're going to declare variables.
-            GrGLShaderBuilder::ShaderBlock block(builder);
+            GrGLSLShaderBuilder::ShaderBlock block(builder);
 
             const char* domain = fDomainName.c_str();
             if (!program->glslCaps()->canUseAnyFunctionInShader()) {
@@ -196,7 +196,7 @@ void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
     const GrTextureDomainEffect& textureDomainEffect = args.fFp.cast<GrTextureDomainEffect>();
     const GrTextureDomain& domain = textureDomainEffect.textureDomain();
 
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     fGLDomain.sampleTexture(fsBuilder, domain, args.fOutputColor, coords2D, args.fSamplers[0],
                             args.fInputColor);

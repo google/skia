@@ -19,7 +19,8 @@
 #include "GrTexturePriv.h"
 #include "SkGr.h"
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #endif
 
@@ -244,11 +245,11 @@ void GrColorCubeEffect::GLProcessor::emitCode(EmitArgs& args) {
         args.fInputColor = "vec4(1)";
     }
 
-    fColorCubeSizeUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fColorCubeSizeUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                             kFloat_GrSLType, kDefault_GrSLPrecision,
                                             "Size");
     const char* colorCubeSizeUni = args.fBuilder->getUniformCStr(fColorCubeSizeUni);
-    fColorCubeInvSizeUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fColorCubeInvSizeUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                kFloat_GrSLType, kDefault_GrSLPrecision,
                                                "InvSize");
     const char* colorCubeInvSizeUni = args.fBuilder->getUniformCStr(fColorCubeInvSizeUni);
@@ -262,7 +263,7 @@ void GrColorCubeEffect::GLProcessor::emitCode(EmitArgs& args) {
     // Note: if implemented using texture3D in OpenGL ES older than OpenGL ES 3.0,
     //       the shader might need "#extension GL_OES_texture_3D : enable".
 
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
 
     // Unpremultiply color
     fsBuilder->codeAppendf("\tfloat %s = max(%s.a, 0.00001);\n", nonZeroAlpha, args.fInputColor);

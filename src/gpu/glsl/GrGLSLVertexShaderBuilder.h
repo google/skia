@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLVertexShader_DEFINED
-#define GrGLVertexShader_DEFINED
+#ifndef GrGLSLVertexShader_DEFINED
+#define GrGLSLVertexShader_DEFINED
 
-#include "GrGLShaderBuilder.h"
+#include "GrGLSLShaderBuilder.h"
 #include "GrGeometryProcessor.h"
 
 class GrGLSLVarying;
 
-class GrGLVertexBuilder : public GrGLShaderBuilder {
+class GrGLSLVertexBuilder : public GrGLSLShaderBuilder {
 public:
-    GrGLVertexBuilder(GrGLSLProgramBuilder* program);
+    GrGLSLVertexBuilder(GrGLSLProgramBuilder* program);
 
     void transformToNormalizedDeviceSpace(const GrShaderVar& posVar);
     void emitAttributes(const GrGeometryProcessor& gp);
@@ -43,7 +43,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLShaderBuilder INHERITED;
+    typedef GrGLSLShaderBuilder INHERITED;
 };
 
 #endif

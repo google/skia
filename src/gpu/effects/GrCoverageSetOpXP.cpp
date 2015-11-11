@@ -12,8 +12,8 @@
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
 #include "gl/GrGLXferProcessor.h"
-#include "gl/builders/GrGLFragmentShaderBuilder.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class CoverageSetOpXP : public GrXferProcessor {
 public:
@@ -72,7 +72,7 @@ public:
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         const CoverageSetOpXP& xp = args.fXP.cast<CoverageSetOpXP>();
-        GrGLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
 
         if (xp.invertCoverage()) {
             fsBuilder->codeAppendf("%s = 1.0 - %s;", args.fOutputPrimary, args.fInputCoverage);

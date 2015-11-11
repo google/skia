@@ -58,7 +58,8 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 #include "SkGr.h"
 
 #include "gl/GrGLFragmentProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class AlphaThresholdEffect : public GrFragmentProcessor {
@@ -138,16 +139,14 @@ private:
 };
 
 void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
-    fInnerThresholdVar = args.fBuilder->addUniform(
-        GrGLProgramBuilder::kFragment_Visibility,
-        kFloat_GrSLType, kDefault_GrSLPrecision,
-        "inner_threshold");
-    fOuterThresholdVar = args.fBuilder->addUniform(
-        GrGLProgramBuilder::kFragment_Visibility,
-        kFloat_GrSLType, kDefault_GrSLPrecision,
-        "outer_threshold");
+    fInnerThresholdVar = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                                   kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                   "inner_threshold");
+    fOuterThresholdVar = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
+                                                   kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                   "outer_threshold");
 
-    GrGLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
     SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
     SkString maskCoords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 1);
 
@@ -205,7 +204,7 @@ const GrFragmentProcessor* AlphaThresholdEffect::TestCreate(GrProcessorTestData*
 ///////////////////////////////////////////////////////////////////////////////
 
 void AlphaThresholdEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                             GrProcessorKeyBuilder* b) const {
+                                               GrProcessorKeyBuilder* b) const {
     GrGLAlphaThresholdEffect::GenKey(*this, caps, b);
 }
 
