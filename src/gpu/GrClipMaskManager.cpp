@@ -348,9 +348,9 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
     if (elements.count() <= kMaxAnalyticElements) {
         SkVector clipToRTOffset = { SkIntToScalar(-clip.origin().fX),
                                     SkIntToScalar(-clip.origin().fY) };
-        // When there are multiple color samples we want to do per-sample clipping, not compute
-        // a fractional pixel coverage.
-        bool disallowAnalyticAA = pipelineBuilder.getRenderTarget()->isUnifiedMultisampled();
+        // When there are multiple samples we want to do per-sample clipping, not compute a
+        // fractional pixel coverage.
+        bool disallowAnalyticAA = rt->isUnifiedMultisampled() || pipelineBuilder.hasMixedSamples();
         const GrFragmentProcessor* clipFP = nullptr;
         if (elements.isEmpty() ||
             (requiresAA &&
@@ -368,8 +368,8 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         }
     }
 
-    // If MSAA is enabled we can do everything in the stencil buffer.
-    if (0 == rt->numColorSamples() && requiresAA) {
+    // If the stencil buffer is multisampled we can use it to do everything.
+    if (!rt->isStencilBufferMultisampled() && requiresAA) {
         SkAutoTUnref<GrTexture> result;
 
         // The top-left of the mask corresponds to the top-left corner of the bounds.
@@ -707,7 +707,7 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
             pipelineBuilder.setDisableColorXPFactory();
 
             // if the target is MSAA then we want MSAA enabled when the clip is soft
-            if (rt->isUnifiedMultisampled()) {
+            if (rt->isStencilBufferMultisampled()) {
                 pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, element->isAA());
             }
 
