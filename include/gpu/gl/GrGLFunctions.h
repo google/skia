@@ -339,8 +339,6 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetVertexArrayIntegeri_vProc)(GrGLuin
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetVertexArrayPointeri_vProc)(GrGLuint vaobj, GrGLuint index, GrGLenum pname, GrGLvoid **param);
 typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapNamedBufferRangeProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFlushMappedNamedBufferRangeProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length);
-// OpenGL 4.5
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedFramebufferParameteriProc)(GrGLuint framebuffer, GrGLenum pname, GrGLint param);
 
 /* KHR_debug */
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageControlProc)(GrGLenum source, GrGLenum type, GrGLenum severity, GrGLsizei count, const GrGLuint* ids, GrGLboolean enabled);

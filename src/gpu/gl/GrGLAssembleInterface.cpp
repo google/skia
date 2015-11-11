@@ -451,10 +451,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         }
     }
 
-    if (glVer >= GR_GL_VER(4,5)) {
-        GET_PROC(NamedFramebufferParameteri);
-    }
-
     if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_KHR_debug")) {
         // KHR_debug defines these methods to have no suffix in an OpenGL (not ES) context.
         GET_PROC(DebugMessageControl);

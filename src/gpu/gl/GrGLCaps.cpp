@@ -301,10 +301,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
     }
 
-    glslCaps->fProgrammableSampleLocationsSupport =
-        ctxInfo.hasExtension("GL_NV_sample_locations") ||
-        ctxInfo.hasExtension("GL_ARB_sample_locations");
-
     /**************************************************************************
      * GrCaps fields
      **************************************************************************/

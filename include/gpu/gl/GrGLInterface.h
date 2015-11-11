@@ -489,8 +489,6 @@ public:
         GLPtr<GrGLGetVertexArrayPointeri_vProc> fGetVertexArrayPointeri_v;
         GLPtr<GrGLMapNamedBufferRangeProc> fMapNamedBufferRange;
         GLPtr<GrGLFlushMappedNamedBufferRangeProc> fFlushMappedNamedBufferRange;
-        // OpenGL 4.5
-        GLPtr<GrGLNamedFramebufferParameteriProc> fNamedFramebufferParameteri;
 
         /* KHR_debug */
         GLPtr<GrGLDebugMessageControlProc> fDebugMessageControl;

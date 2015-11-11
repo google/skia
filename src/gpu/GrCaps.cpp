@@ -15,7 +15,6 @@ GrShaderCaps::GrShaderCaps() {
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
-    fProgrammableSampleLocationsSupport = false;
     fShaderPrecisionVaries = false;
 }
 
@@ -46,14 +45,13 @@ static const char* precision_to_string(GrSLPrecision p) {
 SkString GrShaderCaps::dump() const {
     SkString r;
     static const char* gNY[] = { "NO", "YES" };
-    r.appendf("Shader Derivative Support             : %s\n", gNY[fShaderDerivativeSupport]);
-    r.appendf("Geometry Shader Support               : %s\n", gNY[fGeometryShaderSupport]);
-    r.appendf("Path Rendering Support                : %s\n", gNY[fPathRenderingSupport]);
-    r.appendf("Dst Read In Shader Support            : %s\n", gNY[fDstReadInShaderSupport]);
-    r.appendf("Dual Source Blending Support          : %s\n", gNY[fDualSourceBlendingSupport]);
-    r.appendf("Programmable Sample Locations Support : %s\n", gNY[fProgrammableSampleLocationsSupport]);
+    r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
+    r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
+    r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
+    r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
+    r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
 
-    r.appendf("Shader Float Precisions (varies: %s)  :\n", gNY[fShaderPrecisionVaries]);
+    r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 
     for (int s = 0; s < kGrShaderTypeCount; ++s) {
         GrShaderType shaderType = static_cast<GrShaderType>(s);
