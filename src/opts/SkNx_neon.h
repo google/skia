@@ -38,7 +38,7 @@ public:
     SkNf(float32x2_t vec) : fVec(vec) {}
 
     SkNf() {}
-    explicit SkNf(float val)           : fVec(vdup_n_f32(val)) {}
+    SkNf(float val)           : fVec(vdup_n_f32(val)) {}
     static SkNf Load(const float vals[2]) { return vld1_f32(vals); }
     SkNf(float a, float b) { fVec = (float32x2_t) { a, b }; }
 
@@ -119,7 +119,7 @@ public:
     SkNi(const int32x4_t& vec) : fVec(vec) {}
 
     SkNi() {}
-    explicit SkNi(int val) : fVec(vdupq_n_s32(val)) {}
+    SkNi(int val) : fVec(vdupq_n_s32(val)) {}
     static SkNi Load(const int vals[4]) { return vld1q_s32(vals); }
     SkNi(int a, int b, int c, int d) { fVec = (int32x4_t) { a, b, c, d }; }
 
@@ -146,7 +146,7 @@ public:
     SkNf(float32x4_t vec) : fVec(vec) {}
 
     SkNf() {}
-    explicit SkNf(float val)           : fVec(vdupq_n_f32(val)) {}
+    SkNf(float val)           : fVec(vdupq_n_f32(val)) {}
     static SkNf Load(const float vals[4]) { return vld1q_f32(vals); }
     static SkNf FromBytes(const uint8_t vals[4]) {
         uint8x8_t   fix8    = (uint8x8_t)vld1_dup_u32((const uint32_t*)vals);
@@ -246,7 +246,7 @@ public:
     SkNi(const uint16x8_t& vec) : fVec(vec) {}
 
     SkNi() {}
-    explicit SkNi(uint16_t val) : fVec(vdupq_n_u16(val)) {}
+    SkNi(uint16_t val) : fVec(vdupq_n_u16(val)) {}
     static SkNi Load(const uint16_t vals[8]) { return vld1q_u16(vals); }
 
     SkNi(uint16_t a, uint16_t b, uint16_t c, uint16_t d,
@@ -283,7 +283,7 @@ public:
     SkNi(const uint8x16_t& vec) : fVec(vec) {}
 
     SkNi() {}
-    explicit SkNi(uint8_t val) : fVec(vdupq_n_u8(val)) {}
+    SkNi(uint8_t val) : fVec(vdupq_n_u8(val)) {}
     static SkNi Load(const uint8_t vals[16]) { return vld1q_u8(vals); }
 
     SkNi(uint8_t a, uint8_t b, uint8_t c, uint8_t d,

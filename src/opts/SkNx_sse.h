@@ -19,7 +19,7 @@ public:
     SkNf(const __m128& vec) : fVec(vec) {}
 
     SkNf() {}
-    explicit SkNf(float val) : fVec(_mm_set1_ps(val)) {}
+    SkNf(float val) : fVec(_mm_set1_ps(val)) {}
     static SkNf Load(const float vals[2]) {
         return _mm_castsi128_ps(_mm_loadl_epi64((const __m128i*)vals));
     }
@@ -68,7 +68,7 @@ public:
     SkNi(const __m128i& vec) : fVec(vec) {}
 
     SkNi() {}
-    explicit SkNi(int val) : fVec(_mm_set1_epi32(val)) {}
+    SkNi(int val) : fVec(_mm_set1_epi32(val)) {}
     static SkNi Load(const int vals[4]) { return _mm_loadu_si128((const __m128i*)vals); }
     SkNi(int a, int b, int c, int d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
 
@@ -106,7 +106,7 @@ public:
     SkNf(const __m128& vec) : fVec(vec) {}
 
     SkNf() {}
-    explicit SkNf(float val)           : fVec( _mm_set1_ps(val) ) {}
+    SkNf(float val)           : fVec( _mm_set1_ps(val) ) {}
     static SkNf Load(const float vals[4]) { return _mm_loadu_ps(vals); }
 
     static SkNf FromBytes(const uint8_t bytes[4]) {
@@ -178,7 +178,7 @@ public:
     SkNi(const __m128i& vec) : fVec(vec) {}
 
     SkNi() {}
-    explicit SkNi(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
+    SkNi(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
     static SkNi Load(const uint16_t vals[4]) { return _mm_loadl_epi64((const __m128i*)vals); }
     SkNi(uint16_t a, uint16_t b, uint16_t c, uint16_t d) : fVec(_mm_setr_epi16(a,b,c,d,0,0,0,0)) {}
 
@@ -205,7 +205,7 @@ public:
     SkNi(const __m128i& vec) : fVec(vec) {}
 
     SkNi() {}
-    explicit SkNi(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
+    SkNi(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
     static SkNi Load(const uint16_t vals[8]) { return _mm_loadu_si128((const __m128i*)vals); }
     SkNi(uint16_t a, uint16_t b, uint16_t c, uint16_t d,
          uint16_t e, uint16_t f, uint16_t g, uint16_t h) : fVec(_mm_setr_epi16(a,b,c,d,e,f,g,h)) {}
@@ -247,7 +247,7 @@ public:
     SkNi(const __m128i& vec) : fVec(vec) {}
 
     SkNi() {}
-    explicit SkNi(uint8_t val) : fVec(_mm_set1_epi8(val)) {}
+    SkNi(uint8_t val) : fVec(_mm_set1_epi8(val)) {}
     static SkNi Load(const uint8_t vals[16]) { return _mm_loadu_si128((const __m128i*)vals); }
     SkNi(uint8_t a, uint8_t b, uint8_t c, uint8_t d,
          uint8_t e, uint8_t f, uint8_t g, uint8_t h,

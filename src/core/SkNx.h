@@ -31,7 +31,7 @@ class SkNi {
 public:
     SkNi() {}
     SkNi(const SkNi<N/2, T>& lo, const SkNi<N/2, T>& hi) : fLo(lo), fHi(hi) {}
-    explicit SkNi(T val) : fLo(val), fHi(val) {}
+    SkNi(T val) : fLo(val), fHi(val) {}
     static SkNi Load(const T vals[N]) {
         return SkNi(SkNi<N/2,T>::Load(vals), SkNi<N/2,T>::Load(vals+N/2));
     }
@@ -85,7 +85,7 @@ template <int N>
 class SkNf {
 public:
     SkNf() {}
-    explicit SkNf(float val) : fLo(val),  fHi(val) {}
+    SkNf(float val) : fLo(val),  fHi(val) {}
     static SkNf Load(const float vals[N]) {
         return SkNf(SkNf<N/2>::Load(vals), SkNf<N/2>::Load(vals+N/2));
     }
@@ -167,7 +167,7 @@ template <typename T>
 class SkNi<1,T> {
 public:
     SkNi() {}
-    explicit SkNi(T val) : fVal(val) {}
+    SkNi(T val) : fVal(val) {}
     static SkNi Load(const T vals[1]) { return SkNi(vals[0]); }
 
     void store(T vals[1]) const { vals[0] = fVal; }
@@ -205,7 +205,7 @@ template <>
 class SkNf<1> {
 public:
     SkNf() {}
-    explicit SkNf(float val) : fVal(val) {}
+    SkNf(float val) : fVal(val) {}
     static SkNf Load(const float vals[1]) { return SkNf(vals[0]); }
     static SkNf FromBytes(const uint8_t bytes[1]) { return SkNf((float)bytes[0]); }
 
@@ -274,7 +274,9 @@ inline SkNx SkNx_dup(const SkNx& src) { return SkNx_shuffle<Ix>(src); }
 
 // Include platform specific specializations if available.
 #ifndef SKNX_NO_SIMD
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
+        #include "../opts/SkNx_avx.h"
+    #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
         #include "../opts/SkNx_sse.h"
     #elif defined(SK_ARM_HAS_NEON)
         #include "../opts/SkNx_neon.h"
@@ -285,9 +287,10 @@ inline SkNx SkNx_dup(const SkNx& src) { return SkNx_shuffle<Ix>(src); }
 
 typedef SkNf<2> Sk2f;
 typedef SkNf<2> Sk2s;
-
 typedef SkNf<4> Sk4f;
 typedef SkNf<4> Sk4s;
+typedef SkNf<8> Sk8f;
+typedef SkNf<8> Sk8s;
 
 typedef SkNi<8,  uint16_t> Sk8h;
 typedef SkNi<16, uint16_t> Sk16h;
