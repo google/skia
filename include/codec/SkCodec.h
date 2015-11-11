@@ -483,7 +483,7 @@ protected:
      * kGray_8_SkColorType: Black
      * kIndex_8_SkColorType: First color in color table
      */
-    virtual uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+    virtual uint32_t onGetFillValue(SkColorType /*colorType*/, SkAlphaType alphaType) const {
         return kOpaque_SkAlphaType == alphaType ? SK_ColorBLACK : SK_ColorTRANSPARENT;
     }
 
@@ -537,8 +537,8 @@ private:
     }
 
     // Methods for scanline decoding.
-    virtual SkCodec::Result onStartScanlineDecode(const SkImageInfo& dstInfo,
-            const SkCodec::Options& options, SkPMColor ctable[], int* ctableCount) {
+    virtual SkCodec::Result onStartScanlineDecode(const SkImageInfo& /*dstInfo*/,
+            const SkCodec::Options& /*options*/, SkPMColor* /*ctable*/, int* /*ctableCount*/) {
         return kUnimplemented;
     }
 
@@ -555,7 +555,7 @@ private:
         return countLines == this->onGetScanlines(storage.get(), countLines, 0);
     }
 
-    virtual int onGetScanlines(void* dst, int countLines, size_t rowBytes) { return 0; }
+    virtual int onGetScanlines(void* /*dst*/, int /*countLines*/, size_t /*rowBytes*/) { return 0; }
 
     /**
      * On an incomplete decode, getPixels() and getScanlines() will call this function
@@ -582,7 +582,7 @@ private:
      *
      *  Only valid during scanline decoding.
      */
-    virtual SkSampler* getSampler(bool createIfNecessary) { return nullptr; }
+    virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
 
     friend class SkSampledCodec;
 };

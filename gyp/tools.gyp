@@ -589,6 +589,7 @@
         'includes_to_test': [
           '<(skia_include_path)/animator',
           '<(skia_include_path)/c',
+          '<(skia_include_path)/codec',
           '<(skia_include_path)/config',
           '<(skia_include_path)/core',
           '<(skia_include_path)/effects',
