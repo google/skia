@@ -53,21 +53,6 @@ public:
                                SkPaint::Align textAlignment, SkDrawCacheProc& glyphCacheProc,
                                SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph);
 
-    // SpecializedProcessPosText is a version of ProcessPosText that de-virtualizes the
-    // different components used. It returns true if it can handle the situation, otherwise it
-    // returns false. This allows greater inlining freedom to the compiler. Currently, there is
-    // only one specialized variant: sub-pixel position, left-aligned, x-axis-aligned,
-    // translation, and one scalar per position entry.
-    // * This is by far the most common type of text Blink draws.
-    template<typename ProcessOneGlyph>
-    static bool SpecializedProcessPosText(const char* const text, size_t byteLength,
-                                          const SkPoint& offset, const SkMatrix& matrix,
-                                          const SkScalar pos[], int scalarsPerPosition,
-                                          SkPaint::Align textAlignment,
-                                          SkDrawCacheProc& glyphCacheProc,
-                                          SkGlyphCache* cache,
-                                          ProcessOneGlyph&& processOneGlyph);
-
 private:
     // UntaggedVariant is a pile of memory that can hold one of the Ts. It provides a way
     // to initialize that memory in a typesafe way.
@@ -417,6 +402,32 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
     const SkScalar pos[], int scalarsPerPosition, SkPaint::Align textAlignment,
     SkDrawCacheProc& glyphCacheProc, SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph) {
 
+    SkAxisAlignment axisAlignment = SkComputeAxisAlignmentForHText(matrix);
+    uint32_t mtype = matrix.getType();
+
+    // Specialized code for handling the most common case for blink. The while loop is totally
+    // de-virtualized.
+    if (scalarsPerPosition == 1
+        && textAlignment == SkPaint::kLeft_Align
+        && axisAlignment == kX_SkAxisAlignment
+        && cache->isSubpixel()
+        && mtype <= SkMatrix::kTranslate_Mask) {
+        typedef GlyphFindAndPlaceSubpixel<
+            ProcessOneGlyph, SkPaint::kLeft_Align, kX_SkAxisAlignment> Positioner;
+        HorizontalPositions positions{pos};
+        TranslationMapper mapper{matrix, offset};
+        Positioner positioner(cache, glyphCacheProc);
+        const char* cursor = text;
+        const char* stop = text + byteLength;
+        while (cursor < stop) {
+            SkPoint mappedPoint = mapper.TranslationMapper::map(
+                positions.HorizontalPositions::nextPoint());
+            positioner.Positioner::findAndPositionGlyph(
+                &cursor, mappedPoint, skstd::forward<ProcessOneGlyph>(processOneGlyph));
+        }
+        return;
+    }
+
     PositionReader positionReader{
         [&](PositionReader::Variants* to_init) {
             if (2 == scalarsPerPosition) {
@@ -429,7 +440,6 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
 
     Mapper mapper{
         [&](Mapper::Variants* to_init) {
-            uint32_t mtype = matrix.getType();
             if (mtype & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)
                 || scalarsPerPosition == 2) {
                 to_init->initialize<GeneralMapper>(matrix, offset);
@@ -444,7 +454,6 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
     GlyphFindAndPlace<ProcessOneGlyph> findAndPosition{
         [&](typename GlyphFindAndPlace<ProcessOneGlyph>::Variants* to_init) {
             if (cache->isSubpixel()) {
-                SkAxisAlignment axisAlignment = SkComputeAxisAlignmentForHText(matrix);
                 switch (textAlignment) {
                     case SkPaint::kLeft_Align:
                         InitSubpixel<ProcessOneGlyph, SkPaint::kLeft_Align>(
@@ -488,36 +497,5 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
             &text, mappedPoint, skstd::forward<ProcessOneGlyph>(processOneGlyph));
     }
 }
-
-template<typename ProcessOneGlyph>
-inline bool SkFindAndPlaceGlyph::SpecializedProcessPosText(
-    const char* const text, size_t byteLength, const SkPoint& offset, const SkMatrix& matrix,
-    const SkScalar pos[], int scalarsPerPosition, SkPaint::Align textAlignment,
-    SkDrawCacheProc& glyphCacheProc, SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph) {
-    SkAxisAlignment axisAlignment = SkComputeAxisAlignmentForHText(matrix);
-    uint32_t mtype = matrix.getType();
-    if (scalarsPerPosition == 1
-        && textAlignment == SkPaint::kLeft_Align
-        && axisAlignment == kX_SkAxisAlignment
-        && cache->isSubpixel()
-        && mtype <= SkMatrix::kTranslate_Mask) {
-        typedef GlyphFindAndPlaceSubpixel<
-        ProcessOneGlyph, SkPaint::kLeft_Align, kX_SkAxisAlignment> Positioner;
-        HorizontalPositions positions{pos};
-        TranslationMapper mapper{matrix, offset};
-        Positioner positioner(cache, glyphCacheProc);
-        const char* cursor = text;
-        const char* stop = text + byteLength;
-        while (cursor < stop) {
-            SkPoint mappedPoint = mapper.TranslationMapper::map(
-                positions.HorizontalPositions::nextPoint());
-            positioner.Positioner::findAndPositionGlyph(
-                &cursor, mappedPoint, skstd::forward<ProcessOneGlyph>(processOneGlyph));
-        }
-        return true;
-    }
-    return false;
-}
-
 
 #endif  // SkFindAndPositionGlyph_DEFINED

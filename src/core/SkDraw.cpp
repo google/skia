@@ -1748,13 +1748,10 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
         return;
     }
 
-    SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
-    SkAutoGlyphCache    autoCache(paint, &fDevice->surfaceProps(), fMatrix);
-    SkGlyphCache*       cache = autoCache.getCache();
-
+    // The Blitter Choose needs to be live while using the blitter below.
+    SkAutoBlitterChoose    blitterChooser;
     SkAAClipBlitterWrapper wrapper;
-    SkAutoBlitterChoose blitterChooser;
-    SkBlitter* blitter = nullptr;
+    SkBlitter*             blitter = nullptr;
     if (needsRasterTextBlit(*this)) {
         blitterChooser.choose(fDst, *fMatrix, paint);
         blitter = blitterChooser.get();
@@ -1764,23 +1761,21 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
         }
     }
 
+    SkAutoGlyphCache   autoCache(paint, &fDevice->surfaceProps(), fMatrix);
+    SkGlyphCache*      cache = autoCache.getCache();
     SkDraw1Glyph       d1g;
     SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache, paint);
+    SkPaint::Align     textAlignment = paint.getTextAlign();
+    SkDrawCacheProc    glyphCacheProc = paint.getDrawCacheProc();
 
-    auto processOneGlyph =
+    SkFindAndPlaceGlyph::ProcessPosText(
+        text, byteLength, offset, *fMatrix, pos, scalarsPerPosition,
+        textAlignment, glyphCacheProc, cache,
         [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
             position += rounding;
             proc(d1g, SkScalarToFixed(position.fX), SkScalarToFixed(position.fY), glyph);
-        };
-
-    SkPaint::Align textAlignment = paint.getTextAlign();
-    if (!SkFindAndPlaceGlyph::SpecializedProcessPosText(
-        text, byteLength, offset, *fMatrix, pos, scalarsPerPosition,
-        textAlignment, glyphCacheProc, cache, processOneGlyph)) {
-        SkFindAndPlaceGlyph::ProcessPosText(
-            text, byteLength, offset, *fMatrix, pos, scalarsPerPosition,
-            textAlignment, glyphCacheProc, cache, processOneGlyph);
-    }
+        }
+    );
 }
 
 #if defined _WIN32 && _MSC_VER >= 1300

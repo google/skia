@@ -27,6 +27,7 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkDrawProcs.h"
+#include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
 #include "SkGrPriv.h"
@@ -915,137 +916,18 @@ void GrAtlasTextContext::internalDrawBMPPosText(GrAtlasTextBlob* blob, int runIn
     // Get GrFontScaler from cache
     GrFontScaler* fontScaler = GetGrFontScaler(cache);
 
-    const char*        stop = text + byteLength;
-    SkTextAlignProc    alignProc(skPaint.getTextAlign());
-    SkTextMapStateProc tmsProc(viewMatrix, offset, scalarsPerPosition);
-
-    if (cache->isSubpixel()) {
-        // maybe we should skip the rounding if linearText is set
-        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(viewMatrix);
-
-        SkFixed fxMask = ~0;
-        SkFixed fyMask = ~0;
-        SkScalar halfSampleX = SkFixedToScalar(SkGlyph::kSubpixelRound);
-        SkScalar halfSampleY = SkFixedToScalar(SkGlyph::kSubpixelRound);
-        if (kX_SkAxisAlignment == baseline) {
-            fyMask = 0;
-            halfSampleY = SK_ScalarHalf;
-        } else if (kY_SkAxisAlignment == baseline) {
-            fxMask = 0;
-            halfSampleX = SK_ScalarHalf;
+    SkFindAndPlaceGlyph::ProcessPosText(
+        text, byteLength, offset, viewMatrix, pos, scalarsPerPosition,
+        skPaint.getTextAlign(), glyphCacheProc, cache,
+        [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
+            position += rounding;
+            this->bmpAppendGlyph(
+                blob, runIndex, glyph,
+                SkScalarFloorToInt(position.fX), SkScalarFloorToInt(position.fY),
+                color, fontScaler, clipRect);
         }
-
-        if (SkPaint::kLeft_Align == skPaint.getTextAlign()) {
-            while (text < stop) {
-                SkPoint tmsLoc;
-                tmsProc(pos, &tmsLoc);
-                Sk48Dot16 fx = SkScalarTo48Dot16(tmsLoc.fX + halfSampleX);
-                Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + halfSampleY);
-
-                const SkGlyph& glyph = glyphCacheProc(cache, &text,
-                                                      fx & fxMask, fy & fyMask);
-
-                if (glyph.fWidth) {
-                    this->bmpAppendGlyph(blob,
-                                         runIndex,
-                                         glyph,
-                                         Sk48Dot16FloorToInt(fx),
-                                         Sk48Dot16FloorToInt(fy),
-                                         color,
-                                         fontScaler,
-                                         clipRect);
-                }
-                pos += scalarsPerPosition;
-            }
-        } else {
-            while (text < stop) {
-                const char* currentText = text;
-                const SkGlyph& metricGlyph = glyphCacheProc(cache, &text, 0, 0);
-
-                if (metricGlyph.fWidth) {
-                    SkDEBUGCODE(SkFixed prevAdvX = metricGlyph.fAdvanceX;)
-                    SkDEBUGCODE(SkFixed prevAdvY = metricGlyph.fAdvanceY;)
-                    SkPoint tmsLoc;
-                    tmsProc(pos, &tmsLoc);
-                    SkPoint alignLoc;
-                    alignProc(tmsLoc, metricGlyph, &alignLoc);
-
-                    Sk48Dot16 fx = SkScalarTo48Dot16(alignLoc.fX + halfSampleX);
-                    Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + halfSampleY);
-
-                    // have to call again, now that we've been "aligned"
-                    const SkGlyph& glyph = glyphCacheProc(cache, &currentText,
-                                                          fx & fxMask, fy & fyMask);
-                    // the assumption is that the metrics haven't changed
-                    SkASSERT(prevAdvX == glyph.fAdvanceX);
-                    SkASSERT(prevAdvY == glyph.fAdvanceY);
-                    SkASSERT(glyph.fWidth);
-
-                    this->bmpAppendGlyph(blob,
-                                         runIndex,
-                                         glyph,
-                                         Sk48Dot16FloorToInt(fx),
-                                         Sk48Dot16FloorToInt(fy),
-                                         color,
-                                         fontScaler,
-                                         clipRect);
-                }
-                pos += scalarsPerPosition;
-            }
-        }
-    } else {    // not subpixel
-
-        if (SkPaint::kLeft_Align == skPaint.getTextAlign()) {
-            while (text < stop) {
-                // the last 2 parameters are ignored
-                const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
-
-                if (glyph.fWidth) {
-                    SkPoint tmsLoc;
-                    tmsProc(pos, &tmsLoc);
-
-                    Sk48Dot16 fx = SkScalarTo48Dot16(tmsLoc.fX + SK_ScalarHalf); //halfSampleX;
-                    Sk48Dot16 fy = SkScalarTo48Dot16(tmsLoc.fY + SK_ScalarHalf); //halfSampleY;
-                    this->bmpAppendGlyph(blob,
-                                         runIndex,
-                                         glyph,
-                                         Sk48Dot16FloorToInt(fx),
-                                         Sk48Dot16FloorToInt(fy),
-                                         color,
-                                         fontScaler,
-                                         clipRect);
-                }
-                pos += scalarsPerPosition;
-            }
-        } else {
-            while (text < stop) {
-                // the last 2 parameters are ignored
-                const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
-
-                if (glyph.fWidth) {
-                    SkPoint tmsLoc;
-                    tmsProc(pos, &tmsLoc);
-
-                    SkPoint alignLoc;
-                    alignProc(tmsLoc, glyph, &alignLoc);
-
-                    Sk48Dot16 fx = SkScalarTo48Dot16(alignLoc.fX + SK_ScalarHalf); //halfSampleX;
-                    Sk48Dot16 fy = SkScalarTo48Dot16(alignLoc.fY + SK_ScalarHalf); //halfSampleY;
-                    this->bmpAppendGlyph(blob,
-                                         runIndex,
-                                         glyph,
-                                         Sk48Dot16FloorToInt(fx),
-                                         Sk48Dot16FloorToInt(fy),
-                                         color,
-                                         fontScaler,
-                                         clipRect);
-                }
-                pos += scalarsPerPosition;
-            }
-        }
-    }
+    );
 }
-
 
 void GrAtlasTextContext::internalDrawDFText(GrAtlasTextBlob* blob, int runIndex,
                                             const SkPaint& skPaint, GrColor color,
