@@ -60,9 +60,6 @@
         '../src/ports/SkTLS_pthread.cpp',
         '../src/ports/SkTLS_win.cpp',
 
-        '../include/ports/SkAtomics_atomic.h',
-        '../include/ports/SkAtomics_std.h',
-        '../include/ports/SkAtomics_sync.h',
         '../include/ports/SkFontConfigInterface.h',
         '../include/ports/SkFontMgr.h',
         '../include/ports/SkFontMgr_android.h',
