@@ -12,6 +12,11 @@
 
 #include "SkFont.h"
 #include "SkPaint.h"
+
+#include <initializer_list>
+#include <limits>
+#include <vector>
+
 static void test_font(skiatest::Reporter* reporter) {
     uint32_t flags = 0;
     SkAutoTUnref<SkFont> font(SkFont::Create(nullptr, 24, SkFont::kA8_MaskType, flags));
@@ -111,9 +116,533 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
     }
 }
 
+static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
+    static const SkFontID invalidFontID = std::numeric_limits<SkFontID>::max();
+    static const SkFontStyle invalidFontStyle(101, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+
+    class TestTypeface : public SkTypeface {
+    public:
+        TestTypeface(const SkFontStyle& fontStyle, SkFontID id) : SkTypeface(fontStyle, id, false){}
+    protected:
+        SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
+        SkScalerContext* onCreateScalerContext(const SkDescriptor*) const override {
+            return nullptr;
+        }
+        void onFilterRec(SkScalerContextRec*) const override { }
+        virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+            PerGlyphInfo,
+            const uint32_t*, uint32_t) const override { return nullptr; }
+        void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
+        virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
+            uint16_t glyphs[], int glyphCount) const override {
+            if (glyphs && glyphCount > 0) {
+                sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+            }
+            return 0;
+        }
+        int onCountGlyphs() const override { return 0; };
+        int onGetUPEM() const override { return 0; };
+        class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
+        public:
+            bool next(SkTypeface::LocalizedString*) override { return false; }
+        };
+        void onGetFamilyName(SkString* familyName) const override {
+            familyName->reset();
+        }
+        SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
+            return new EmptyLocalizedStrings;
+        };
+        int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
+        size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
+            return 0;
+        }
+    };
+
+    class TestFontStyleSet : public SkFontStyleSet {
+    public:
+        TestFontStyleSet(std::initializer_list<SkFontStyle> styles) : fStyles(styles) {}
+        int count() override { return static_cast<int>(fStyles.size()); }
+        void getStyle(int index, SkFontStyle* style, SkString*) override {
+            if (style) {
+                *style = fStyles[index];
+            }
+        }
+        SkTypeface* createTypeface(int index) override {
+            if (index < 0 || this->count() <= index) {
+                return new TestTypeface(invalidFontStyle, invalidFontID);
+            }
+            return new TestTypeface(fStyles[index], index);
+        }
+        SkTypeface* matchStyle(const SkFontStyle& pattern) override {
+            return this->matchStyleCSS3(pattern);
+        }
+    private:
+        std::vector<SkFontStyle> fStyles;
+    };
+
+    SkFontStyle condensed_normal_100(SkFontStyle::kThin_Weight,  SkFontStyle::kCondensed_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle condensed_normal_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle condensed_italic_100(SkFontStyle::kThin_Weight,  SkFontStyle::kCondensed_Width, SkFontStyle::kItalic_Slant);
+    SkFontStyle condensed_italic_900(SkFontStyle::kBlack_Weight, SkFontStyle::kCondensed_Width, SkFontStyle::kItalic_Slant);
+    SkFontStyle  expanded_normal_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kUpright_Slant);
+    SkFontStyle  expanded_normal_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kUpright_Slant);
+    SkFontStyle  expanded_italic_100(SkFontStyle::kThin_Weight,  SkFontStyle::kExpanded_Width,  SkFontStyle::kItalic_Slant);
+    SkFontStyle  expanded_italic_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kItalic_Slant);
+
+    SkFontStyle normal_normal_100(SkFontStyle::kThin_Weight,       SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_200(SkFontStyle::kExtraLight_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_300(SkFontStyle::kLight_Weight,      SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_400(SkFontStyle::kNormal_Weight,     SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_500(SkFontStyle::kMedium_Weight,     SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_600(SkFontStyle::kSemiBold_Weight,   SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_700(SkFontStyle::kBold_Weight,       SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_800(SkFontStyle::kExtraBold_Weight,  SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontStyle normal_normal_900(SkFontStyle::kBlack_Weight,      SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+
+    struct StyleSetTest {
+        TestFontStyleSet styleSet;
+        struct Case {
+            SkFontStyle pattern;
+            SkFontStyle expectedResult;
+        };
+        std::vector<Case> cases;
+    } tests[] = {
+        {
+            { condensed_normal_100,condensed_normal_900,condensed_italic_100,condensed_italic_900,
+               expanded_normal_100, expanded_normal_900, expanded_italic_100, expanded_italic_900 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { condensed_normal_100,condensed_italic_100,expanded_normal_100,expanded_italic_100 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_100 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_100 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_100 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_100 },
+            },
+        },
+
+        {
+            { condensed_normal_900,condensed_italic_900,expanded_normal_900,expanded_italic_900 },
+            {
+                { condensed_normal_100, condensed_normal_900 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_italic_900 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, expanded_normal_900 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_italic_900 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { condensed_normal_100,condensed_normal_900,expanded_normal_100,expanded_normal_900 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_normal_100 },
+                { condensed_italic_900, condensed_normal_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_normal_100 },
+                { expanded_italic_900, expanded_normal_900 },
+            },
+        },
+
+        {
+            { condensed_normal_100,expanded_normal_100 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_100 },
+                { condensed_italic_100, condensed_normal_100 },
+                { condensed_italic_900, condensed_normal_100 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_100 },
+                { expanded_italic_100, expanded_normal_100 },
+                { expanded_italic_900, expanded_normal_100 },
+            },
+        },
+
+        {
+            { condensed_normal_900,expanded_normal_900 },
+            {
+                { condensed_normal_100, condensed_normal_900 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_normal_900 },
+                { condensed_italic_900, condensed_normal_900 },
+                { expanded_normal_100, expanded_normal_900 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_normal_900 },
+                { expanded_italic_900, expanded_normal_900 },
+            },
+        },
+
+        {
+            { condensed_italic_100,condensed_italic_900,expanded_italic_100,expanded_italic_900 },
+            {
+                { condensed_normal_100, condensed_italic_100 },
+                { condensed_normal_900, condensed_italic_900 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, expanded_italic_100 },
+                { expanded_normal_900, expanded_italic_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { condensed_italic_100,expanded_italic_100 },
+            {
+                { condensed_normal_100, condensed_italic_100 },
+                { condensed_normal_900, condensed_italic_100 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_100 },
+                { expanded_normal_100, expanded_italic_100 },
+                { expanded_normal_900, expanded_italic_100 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_100 },
+            },
+        },
+
+        {
+            { condensed_italic_900,expanded_italic_900 },
+            {
+                { condensed_normal_100, condensed_italic_900 },
+                { condensed_normal_900, condensed_italic_900 },
+                { condensed_italic_100, condensed_italic_900 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, expanded_italic_900 },
+                { expanded_normal_900, expanded_italic_900 },
+                { expanded_italic_100, expanded_italic_900 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { condensed_normal_100,condensed_normal_900,condensed_italic_100,condensed_italic_900 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, condensed_normal_100 },
+                { expanded_normal_900, condensed_normal_900 },
+                { expanded_italic_100, condensed_italic_100 },
+                { expanded_italic_900, condensed_italic_900 },
+            },
+        },
+
+        {
+            { condensed_normal_100,condensed_italic_100 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_100 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_100 },
+                { expanded_normal_100, condensed_normal_100 },
+                { expanded_normal_900, condensed_normal_100 },
+                { expanded_italic_100, condensed_italic_100 },
+                { expanded_italic_900, condensed_italic_100 },
+            },
+        },
+
+        {
+            { condensed_normal_900,condensed_italic_900 },
+            {
+                { condensed_normal_100, condensed_normal_900 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_italic_900 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, condensed_normal_900 },
+                { expanded_normal_900, condensed_normal_900 },
+                { expanded_italic_100, condensed_italic_900 },
+                { expanded_italic_900, condensed_italic_900 },
+            },
+        },
+
+        {
+            { condensed_normal_100,condensed_normal_900 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_normal_100 },
+                { condensed_italic_900, condensed_normal_900 },
+                { expanded_normal_100, condensed_normal_100 },
+                { expanded_normal_900, condensed_normal_900 },
+                { expanded_italic_100, condensed_normal_100 },
+                { expanded_italic_900, condensed_normal_900 },
+            },
+        },
+
+        {
+            { condensed_normal_100 },
+            {
+                { condensed_normal_100, condensed_normal_100 },
+                { condensed_normal_900, condensed_normal_100 },
+                { condensed_italic_100, condensed_normal_100 },
+                { condensed_italic_900, condensed_normal_100 },
+                { expanded_normal_100, condensed_normal_100 },
+                { expanded_normal_900, condensed_normal_100 },
+                { expanded_italic_100, condensed_normal_100 },
+                { expanded_italic_900, condensed_normal_100 },
+            },
+        },
+
+        {
+            { condensed_normal_900 },
+            {
+                { condensed_normal_100, condensed_normal_900 },
+                { condensed_normal_900, condensed_normal_900 },
+                { condensed_italic_100, condensed_normal_900 },
+                { condensed_italic_900, condensed_normal_900 },
+                { expanded_normal_100, condensed_normal_900 },
+                { expanded_normal_900, condensed_normal_900 },
+                { expanded_italic_100, condensed_normal_900 },
+                { expanded_italic_900, condensed_normal_900 },
+            },
+        },
+
+        {
+            { condensed_italic_100,condensed_italic_900 },
+            {
+                { condensed_normal_100, condensed_italic_100 },
+                { condensed_normal_900, condensed_italic_900 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, condensed_italic_100 },
+                { expanded_normal_900, condensed_italic_900 },
+                { expanded_italic_100, condensed_italic_100 },
+                { expanded_italic_900, condensed_italic_900 },
+            },
+        },
+
+        {
+            { condensed_italic_100 },
+            {
+                { condensed_normal_100, condensed_italic_100 },
+                { condensed_normal_900, condensed_italic_100 },
+                { condensed_italic_100, condensed_italic_100 },
+                { condensed_italic_900, condensed_italic_100 },
+                { expanded_normal_100, condensed_italic_100 },
+                { expanded_normal_900, condensed_italic_100 },
+                { expanded_italic_100, condensed_italic_100 },
+                { expanded_italic_900, condensed_italic_100 },
+            },
+        },
+
+        {
+            { condensed_italic_900 },
+            {
+                { condensed_normal_100, condensed_italic_900 },
+                { condensed_normal_900, condensed_italic_900 },
+                { condensed_italic_100, condensed_italic_900 },
+                { condensed_italic_900, condensed_italic_900 },
+                { expanded_normal_100, condensed_italic_900 },
+                { expanded_normal_900, condensed_italic_900 },
+                { expanded_italic_100, condensed_italic_900 },
+                { expanded_italic_900, condensed_italic_900 },
+            },
+        },
+
+        {
+            { expanded_normal_100,expanded_normal_900,expanded_italic_100,expanded_italic_900 },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { expanded_normal_100,expanded_italic_100 },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_100 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_100 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_100 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_100 },
+            },
+        },
+
+        {
+            { expanded_normal_900,expanded_italic_900 },
+            {
+                { condensed_normal_100, expanded_normal_900 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_italic_900 },
+                { condensed_italic_900, expanded_italic_900 },
+                { expanded_normal_100, expanded_normal_900 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_italic_900 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { expanded_normal_100,expanded_normal_900 },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_normal_100 },
+                { condensed_italic_900, expanded_normal_900 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_normal_100 },
+                { expanded_italic_900, expanded_normal_900 },
+            },
+        },
+
+        {
+            { expanded_normal_100 },
+            {
+                { condensed_normal_100, expanded_normal_100 },
+                { condensed_normal_900, expanded_normal_100 },
+                { condensed_italic_100, expanded_normal_100 },
+                { condensed_italic_900, expanded_normal_100 },
+                { expanded_normal_100, expanded_normal_100 },
+                { expanded_normal_900, expanded_normal_100 },
+                { expanded_italic_100, expanded_normal_100 },
+                { expanded_italic_900, expanded_normal_100 },
+            },
+        },
+
+        {
+            { expanded_normal_900 },
+            {
+                { condensed_normal_100, expanded_normal_900 },
+                { condensed_normal_900, expanded_normal_900 },
+                { condensed_italic_100, expanded_normal_900 },
+                { condensed_italic_900, expanded_normal_900 },
+                { expanded_normal_100, expanded_normal_900 },
+                { expanded_normal_900, expanded_normal_900 },
+                { expanded_italic_100, expanded_normal_900 },
+                { expanded_italic_900, expanded_normal_900 },
+            },
+        },
+
+        {
+            { expanded_italic_100,expanded_italic_900 },
+            {
+                { condensed_normal_100, expanded_italic_100 },
+                { condensed_normal_900, expanded_italic_900 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_900 },
+                { expanded_normal_100, expanded_italic_100 },
+                { expanded_normal_900, expanded_italic_900 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { expanded_italic_100 },
+            {
+                { condensed_normal_100, expanded_italic_100 },
+                { condensed_normal_900, expanded_italic_100 },
+                { condensed_italic_100, expanded_italic_100 },
+                { condensed_italic_900, expanded_italic_100 },
+                { expanded_normal_100, expanded_italic_100 },
+                { expanded_normal_900, expanded_italic_100 },
+                { expanded_italic_100, expanded_italic_100 },
+                { expanded_italic_900, expanded_italic_100 },
+            },
+        },
+
+        {
+            { expanded_italic_900 },
+            {
+                { condensed_normal_100, expanded_italic_900 },
+                { condensed_normal_900, expanded_italic_900 },
+                { condensed_italic_100, expanded_italic_900 },
+                { condensed_italic_900, expanded_italic_900 },
+                { expanded_normal_100, expanded_italic_900 },
+                { expanded_normal_900, expanded_italic_900 },
+                { expanded_italic_100, expanded_italic_900 },
+                { expanded_italic_900, expanded_italic_900 },
+            },
+        },
+
+        {
+            { normal_normal_100, normal_normal_900 },
+            {
+                { normal_normal_300, normal_normal_100 },
+                { normal_normal_400, normal_normal_100 },
+                { normal_normal_500, normal_normal_100 },
+                { normal_normal_600, normal_normal_900 },
+            },
+        },
+
+        {
+            { normal_normal_100, normal_normal_400, normal_normal_900 },
+            {
+                { normal_normal_300, normal_normal_100 },
+                { normal_normal_400, normal_normal_400 },
+                { normal_normal_500, normal_normal_400 },
+                { normal_normal_600, normal_normal_900 },
+            },
+        },
+
+        {
+            { normal_normal_100, normal_normal_500, normal_normal_900 },
+            {
+                { normal_normal_300, normal_normal_100 },
+                { normal_normal_400, normal_normal_500 },
+                { normal_normal_500, normal_normal_500 },
+                { normal_normal_600, normal_normal_900 },
+            },
+        },
+
+        {
+            { },
+            {
+                { normal_normal_300, invalidFontStyle },
+                { normal_normal_400, invalidFontStyle },
+                { normal_normal_500, invalidFontStyle },
+                { normal_normal_600, invalidFontStyle },
+            },
+        },
+    };
+
+    for (StyleSetTest& test : tests) {
+        for (const StyleSetTest::Case testCase : test.cases) {
+            SkAutoTUnref<SkTypeface> typeface(test.styleSet.matchStyle(testCase.pattern));
+            if (typeface) {
+                REPORTER_ASSERT(reporter, typeface->fontStyle() == testCase.expectedResult);
+            } else {
+                REPORTER_ASSERT(reporter, invalidFontStyle == testCase.expectedResult);
+            }
+        }
+    }
+}
+
 DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
 
 DEF_TEST(FontMgr, reporter) {
+    test_matchStyleCSS3(reporter);
     test_fontiter(reporter, FLAGS_verboseFontMgr);
     test_alias_names(reporter);
     test_font(reporter);

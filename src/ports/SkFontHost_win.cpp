@@ -2412,8 +2412,7 @@ public:
     }
 
     SkTypeface* matchStyle(const SkFontStyle& pattern) override {
-        // todo:
-        return SkCreateTypefaceFromLOGFONT(fArray[0].elfLogFont);
+        return this->matchStyleCSS3(pattern);
     }
 
 private:

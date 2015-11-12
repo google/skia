@@ -19,8 +19,6 @@ class SkTypeface;
 
 class SK_API SkFontStyleSet : public SkRefCnt {
 public:
-    
-
     virtual int count() = 0;
     virtual void getStyle(int index, SkFontStyle*, SkString* style) = 0;
     virtual SkTypeface* createTypeface(int index) = 0;
@@ -28,16 +26,15 @@ public:
 
     static SkFontStyleSet* CreateEmpty();
 
+protected:
+    SkTypeface* matchStyleCSS3(const SkFontStyle& pattern);
+
 private:
     typedef SkRefCnt INHERITED;
 };
 
-class SkTypeface;
-
 class SK_API SkFontMgr : public SkRefCnt {
 public:
-    
-
     int countFamilies() const;
     void getFamilyName(int index, SkString* familyName) const;
     SkFontStyleSet* createStyleSet(int index) const;
