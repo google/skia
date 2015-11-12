@@ -120,8 +120,7 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
     // by not baking anything about the srcRect, dstRect, or viewMatrix, into the texture FP. In
     // the future this should be an opaque optimization enabled by the combination of batch/GP and
     // FP.
-    const SkMatrix* textureFPMatrix;
-    SkMatrix tempMatrix;
+    SkMatrix textureFPMatrix;
     const SkMaskFilter* mf = paint.getMaskFilter();
     GrTexture* texture = adjuster->originalTexture();
     // The shader expects proper local coords, so we can't replace local coords with texture coords
@@ -129,13 +128,12 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
     // that is rendered.
     bool canUseTextureCoordsAsLocalCoords = !use_shader(alphaTexture, paint) && !mf;
     if (canUseTextureCoordsAsLocalCoords) {
-        textureFPMatrix = &SkMatrix::I();
+        textureFPMatrix.setIDiv(texture->width(), texture->height());
     } else {
-        if (!srcToDstMatrix.invert(&tempMatrix)) {
+        if (!srcToDstMatrix.invert(&textureFPMatrix)) {
             return;
         }
-        tempMatrix.postIDiv(texture->width(), texture->height());
-        textureFPMatrix = &tempMatrix;
+        textureFPMatrix.postIDiv(texture->width(), texture->height());
     }
 
     bool doBicubic;
@@ -157,7 +155,7 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
     bool coordsAllInsideSrcRect = !paint.isAntiAlias() && !mf;
 
     SkAutoTUnref<const GrFragmentProcessor> fp(adjuster->createFragmentProcessor(
-        *textureFPMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode));
+        textureFPMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode));
     if (!fp) {
         return;
     }
@@ -169,12 +167,7 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
     }
 
     if (canUseTextureCoordsAsLocalCoords) {
-        SkRect localRect;
-        localRect.fLeft = clippedSrcRect.fLeft / texture->width();
-        localRect.fBottom = clippedSrcRect.fBottom / texture->height();
-        localRect.fRight = clippedSrcRect.fRight / texture->width();
-        localRect.fTop = clippedSrcRect.fTop / texture->height();
-        fDrawContext->fillRectToRect(clip, grPaint, viewMatrix, clippedDstRect, localRect);
+        fDrawContext->fillRectToRect(clip, grPaint, viewMatrix, clippedDstRect, clippedSrcRect);
         return;
     }
 
