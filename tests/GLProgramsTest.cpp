@@ -352,7 +352,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context,
         SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
-        GrProcessorTestData ptd(&random, context, context->caps(), dummyTextures);
+        GrProcessorTestData ptd(&random, context, context->caps(), rt, dummyTextures);
         set_random_color_coverage_stages(&pipelineBuilder, &ptd, maxStages);
         set_random_xpf(&pipelineBuilder, &ptd);
         set_random_state(&pipelineBuilder, &random);
@@ -377,7 +377,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context,
         for (int j = 0; j < 10; ++j) {
             SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
-            GrProcessorTestData ptd(&random, context, context->caps(), dummyTextures);
+            GrProcessorTestData ptd(&random, context, context->caps(), rt, dummyTextures);
             GrPipelineBuilder builder;
             builder.setXPFactory(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
             builder.setRenderTarget(rt);
