@@ -293,6 +293,8 @@ private:
                 const SkGlyph &metricGlyph = fGlyphCacheProc(fCache, &tempText, 0, 0);
 
                 if (metricGlyph.fWidth <= 0) {
+                    // Exiting early, be sure to update text pointer.
+                    *text = tempText;
                     return;
                 }
 
