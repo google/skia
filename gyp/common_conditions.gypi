@@ -388,7 +388,7 @@
         '<@(skia_for_android_framework_defines)',
       ],
     }],
-    
+
     [ 'skia_use_sdl == 1',
       {
         'defines': [ 'SK_USE_SDL' ],
@@ -496,11 +496,12 @@
             [ 'skia_arch_type == "x86"', { 'ARCHS': ['i386']   }],
             [ 'skia_arch_type == "x86_64"', { 'ARCHS': ['x86_64'] }],
             [ 'skia_osx_deployment_target==""', {
-              'MACOSX_DEPLOYMENT_TARGET': '10.6', # -mmacos-version-min, passed in env to ld.
+              'MACOSX_DEPLOYMENT_TARGET': '10.7', # -mmacos-version-min, passed in env to ld.
             }, {
               'MACOSX_DEPLOYMENT_TARGET': '<(skia_osx_deployment_target)',
             }],
           ],
+          'CLANG_CXX_LIBRARY':                         'libc++',
           'CLANG_CXX_LANGUAGE_STANDARD':               'c++11',
           'GCC_ENABLE_CPP_EXCEPTIONS':                 'NO',   # -fno-exceptions
           'GCC_ENABLE_CPP_RTTI':                       'NO',   # -fno-rtti
