@@ -65,17 +65,15 @@ void SkGpuDevice::drawTextureAdjuster(GrTextureAdjuster* adjuster,
     // the matrix that maps the src rect to the dst rect.
     SkRect clippedSrcRect;
     SkRect clippedDstRect;
-    SkIRect contentIBounds;
-    adjuster->getContentArea(&contentIBounds);
-    const SkRect contentBounds = SkRect::Make(contentIBounds);
+    const SkRect srcBounds = SkRect::MakeIWH(adjuster->width(), adjuster->height());
     SkMatrix srcToDstMatrix;
     if (srcRect) {
         if (!dstRect) {
-            dstRect = &contentBounds;
+            dstRect = &srcBounds;
         }
-        if (!contentBounds.contains(*srcRect)) {
+        if (!srcBounds.contains(*srcRect)) {
             clippedSrcRect = *srcRect;
-            if (!clippedSrcRect.intersect(contentBounds)) {
+            if (!clippedSrcRect.intersect(srcBounds)) {
                 return;
             }
             if (!srcToDstMatrix.setRectToRect(*srcRect, *dstRect, SkMatrix::kFill_ScaleToFit)) {
@@ -90,15 +88,14 @@ void SkGpuDevice::drawTextureAdjuster(GrTextureAdjuster* adjuster,
             }
         }
     } else {
-        clippedSrcRect = contentBounds;
+        clippedSrcRect = srcBounds;
         if (dstRect) {
             clippedDstRect = *dstRect;
-            if (!srcToDstMatrix.setRectToRect(contentBounds, *dstRect,
-                                              SkMatrix::kFill_ScaleToFit)) {
+            if (!srcToDstMatrix.setRectToRect(srcBounds, *dstRect, SkMatrix::kFill_ScaleToFit)) {
                 return;
             }
         } else {
-            clippedDstRect = contentBounds;
+            clippedDstRect = srcBounds;
             srcToDstMatrix.reset();
         }
     }
@@ -120,21 +117,11 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
     // by not baking anything about the srcRect, dstRect, or viewMatrix, into the texture FP. In
     // the future this should be an opaque optimization enabled by the combination of batch/GP and
     // FP.
-    SkMatrix textureFPMatrix;
     const SkMaskFilter* mf = paint.getMaskFilter();
-    GrTexture* texture = adjuster->originalTexture();
     // The shader expects proper local coords, so we can't replace local coords with texture coords
     // if the shader will be used. If we have a mask filter we will change the underlying geometry
     // that is rendered.
     bool canUseTextureCoordsAsLocalCoords = !use_shader(alphaTexture, paint) && !mf;
-    if (canUseTextureCoordsAsLocalCoords) {
-        textureFPMatrix.setIDiv(texture->width(), texture->height());
-    } else {
-        if (!srcToDstMatrix.invert(&textureFPMatrix)) {
-            return;
-        }
-        textureFPMatrix.postIDiv(texture->width(), texture->height());
-    }
 
     bool doBicubic;
     GrTextureParams::FilterMode fm =
@@ -154,8 +141,18 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
     // This is conservative as a mask filter does not have to expand the bounds rendered.
     bool coordsAllInsideSrcRect = !paint.isAntiAlias() && !mf;
 
+    const SkMatrix* textureMatrix;
+    SkMatrix tempMatrix;
+    if (canUseTextureCoordsAsLocalCoords) {
+        textureMatrix = &SkMatrix::I();
+    } else {
+        if (!srcToDstMatrix.invert(&tempMatrix)) {
+            return;
+        }
+        textureMatrix = &tempMatrix;
+    }
     SkAutoTUnref<const GrFragmentProcessor> fp(adjuster->createFragmentProcessor(
-        textureFPMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode));
+        *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode));
     if (!fp) {
         return;
     }

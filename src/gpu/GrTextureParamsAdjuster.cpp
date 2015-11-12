@@ -120,7 +120,9 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
 }
 
 GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea)
-    : fOriginal(original) {
+    : INHERITED(contentArea.width(), contentArea.height())
+    , fOriginal(original) {
+    SkASSERT(SkIRect::MakeWH(original->width(), original->height()).contains(contentArea));
     if (contentArea.fLeft > 0 || contentArea.fTop > 0 ||
         contentArea.fRight < original->width() || contentArea.fBottom < original->height()) {
         fContentArea.set(contentArea);
@@ -323,18 +325,28 @@ static DomainMode determine_domain_mode(
 }
 
 const GrFragmentProcessor* GrTextureAdjuster::createFragmentProcessor(
-                                        const SkMatrix& textureMatrix,
-                                        const SkRect& constraintRect,
+                                        const SkMatrix& origTextureMatrix,
+                                        const SkRect& origConstraintRect,
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
                                         const GrTextureParams::FilterMode* filterOrNullForBicubic) {
 
+    SkMatrix textureMatrix = origTextureMatrix;
     const SkIRect* contentArea = this->contentAreaOrNull();
+    // Convert the constraintRect to be relative to the texture rather than the content area so
+    // that both rects are in the same coordinate system.
+    SkTCopyOnFirstWrite<SkRect> constraintRect(origConstraintRect);
+    if (contentArea) {
+        SkScalar l = SkIntToScalar(contentArea->fLeft);
+        SkScalar t = SkIntToScalar(contentArea->fTop);
+        constraintRect.writable()->offset(l, t);
+        textureMatrix.postTranslate(l, t);
+    }
 
     SkRect domain;
     GrTexture* texture = this->originalTexture();
     DomainMode domainMode =
-        determine_domain_mode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
+        determine_domain_mode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                               texture->width(), texture->height(),
                               contentArea, filterOrNullForBicubic,
                               &domain);
@@ -348,13 +360,14 @@ const GrFragmentProcessor* GrTextureAdjuster::createFragmentProcessor(
                  GrTextureParams::kMipMap_FilterMode == *filterOrNullForBicubic);
         static const GrTextureParams::FilterMode kBilerp = GrTextureParams::kBilerp_FilterMode;
         domainMode =
-            determine_domain_mode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
+            determine_domain_mode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                                   texture->width(), texture->height(),
                                   contentArea, &kBilerp, &domain);
         SkASSERT(kTightCopy_DomainMode != domainMode);
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
+    textureMatrix.postIDiv(texture->width(), texture->height());
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {
             return GrTextureDomainEffect::Create(texture, textureMatrix, domain,

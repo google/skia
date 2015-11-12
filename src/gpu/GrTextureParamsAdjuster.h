@@ -11,6 +11,7 @@
 #include "GrTextureParams.h"
 #include "GrResourceKey.h"
 #include "GrTexture.h"
+#include "SkFunction.h"
 #include "SkTLazy.h"
 
 class GrContext;
@@ -36,7 +37,12 @@ public:
 
     virtual ~GrTextureProducer() {}
 
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
+
 protected:
+    GrTextureProducer(int width, int height) : fWidth(width), fHeight(height) {}
+
     /** Helper for creating a key for a copy from an original key. */
     static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,
                                        const CopyParams& copyParams,
@@ -66,6 +72,10 @@ protected:
     */
     virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
 
+private:
+    const int fWidth;
+    const int fHeight;
+
     typedef SkNoncopyable INHERITED;
 };
 
@@ -93,10 +103,12 @@ public:
      * It attempts to avoids making a copy of the texture and avoid using a texture domain unless
      * necessary.
      *
-     * @param textureMatrix                    Matrix to transform local coords by to compute
-     *                                         texture coords.
-     * @param constraintRect                   Subrect of content area to be rendered. Must be
-     *                                         clipped to the content area already.
+     * @param textureMatrix                    Matrix to apply to local coordinates to compute
+     *                                         texel coordinates. The post-transformed coordinates
+     *                                         should be in texels (relative to this->width() and
+     *                                         this->height()) and not be normalized. 
+     * @param constraintRect                   Subrect of content area to be rendered. The
+     *                                         constraint rect is relative to the content area.
      * @param filterConstriant                 Indicates whether filtering is limited to
      *                                         constraintRect.
      * @param coordsLimitedToConstraintRect    Is it known that textureMatrix*localCoords is bound
@@ -113,21 +125,15 @@ public:
         bool coordsLimitedToConstraintRect,
         const GrTextureParams::FilterMode* filterOrNullForBicubic);
 
-    GrTexture* originalTexture() const { return fOriginal; }
-
-    void getContentArea(SkIRect* contentArea) const {
-        if (fContentArea.isValid()) {
-            *contentArea = *fContentArea.get();
-        } else {
-            *contentArea = SkIRect::MakeWH(fOriginal->width(), fOriginal->height());
-        }
-    }
-
 protected:
     /** The whole texture is content. */
-    explicit GrTextureAdjuster(GrTexture* original): fOriginal(original) {}
+    explicit GrTextureAdjuster(GrTexture* original)
+        : INHERITED(original->width(), original->height())
+        , fOriginal(original) {}
 
     GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea);
+
+    GrTexture* originalTexture() const { return fOriginal; }
 
     /** Returns the content area or null for the whole original texture */
     const SkIRect* contentAreaOrNull() { return fContentArea.getMaybeNull(); }
@@ -145,18 +151,14 @@ private:
  */
 class GrTextureMaker : public GrTextureProducer {
 public:
-
-    GrTextureMaker(int width, int height) : fWidth(width), fHeight(height) {}
-
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
-
     /** Returns a texture that is safe for use with the params. If the size of the returned texture
         does not match width()/height() then the contents of the original must be scaled to fit
         the texture. */
     GrTexture* refTextureForParams(GrContext*, const GrTextureParams&);
 
 protected:
+    GrTextureMaker(int width, int height) : INHERITED(width, height) {}
+
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker
      *  to make this efficient ... if the texture is being generated, the maker must handle
@@ -185,9 +187,6 @@ protected:
     virtual GrTexture* generateTextureForParams(GrContext*, const CopyParams&);
 
 private:
-    const int fWidth;
-    const int fHeight;
-
     typedef GrTextureProducer INHERITED;
 };
 
