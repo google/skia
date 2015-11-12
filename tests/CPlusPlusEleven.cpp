@@ -6,7 +6,6 @@
  */
 #include "Test.h"
 #include "SkTemplates.h"
-#include "SkFunction.h"
 
 namespace {
 class Moveable {

@@ -10,9 +10,9 @@
 #ifndef SkOSWindow_Win_DEFINED
 #define SkOSWindow_Win_DEFINED
 
-#include "../private/SkFunction.h"
 #include "../private/SkTHash.h"
 #include "SkWindow.h"
+#include <functional>
 
 #if SK_ANGLE
 #include "EGL/egl.h"
@@ -71,9 +71,9 @@ public:
         return *win;
     }
 
-    // Iterates SkFunction over all the SkOSWindows and their corresponding HWNDs.
-    // The void* argument to the SkFunction is a HWND.
-    static void ForAllWindows(const SkFunction<void(void*, SkOSWindow**)>& f) {
+    // Iterates f over all the SkOSWindows and their corresponding HWNDs.
+    // The void* argument to f is a HWND.
+    static void ForAllWindows(const std::function<void(void*, SkOSWindow**)>& f) {
         gHwndToOSWindowMap.foreach(f);
     }
 

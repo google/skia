@@ -14,7 +14,6 @@
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkError.h"
-#include "SkFunction.h"
 #include "SkImageGenerator.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
@@ -30,6 +29,7 @@
 #include "SkTLogic.h"
 #include "SkXMLWriter.h"
 #include "SkSwizzler.h"
+#include <functional>
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
@@ -1058,16 +1058,16 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 // Several examples below.
 
 static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkString* log,
-                            SkISize size, SkFunction<Error(SkCanvas*)> draw) {
+                            SkISize size, std::function<Error(SkCanvas*)> draw) {
     class ProxySrc : public Src {
     public:
-        ProxySrc(SkISize size, SkFunction<Error(SkCanvas*)> draw) : fSize(size), fDraw(draw) {}
+        ProxySrc(SkISize size, std::function<Error(SkCanvas*)> draw) : fSize(size), fDraw(draw) {}
         Error   draw(SkCanvas* canvas) const override { return fDraw(canvas); }
         Name                    name() const override { sk_throw(); return ""; } // Won't be called.
         SkISize                 size() const override { return fSize; }
     private:
-        SkISize                      fSize;
-        SkFunction<Error(SkCanvas*)> fDraw;
+        SkISize                         fSize;
+        std::function<Error(SkCanvas*)> fDraw;
     };
     return sink->draw(ProxySrc(size, draw), bitmap, stream, log);
 }

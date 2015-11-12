@@ -11,7 +11,6 @@
 #include "GrTextureParams.h"
 #include "GrResourceKey.h"
 #include "GrTexture.h"
-#include "SkFunction.h"
 #include "SkTLazy.h"
 
 class GrContext;
@@ -106,7 +105,7 @@ public:
      * @param textureMatrix                    Matrix to apply to local coordinates to compute
      *                                         texel coordinates. The post-transformed coordinates
      *                                         should be in texels (relative to this->width() and
-     *                                         this->height()) and not be normalized. 
+     *                                         this->height()) and not be normalized.
      * @param constraintRect                   Subrect of content area to be rendered. The
      *                                         constraint rect is relative to the content area.
      * @param filterConstriant                 Indicates whether filtering is limited to
@@ -145,7 +144,7 @@ private:
     typedef GrTextureProducer INHERITED;
 };
 
-/** 
+/**
  * Base class for sources that start out as something other than a texture (encoded image,
  * picture, ...).
  */

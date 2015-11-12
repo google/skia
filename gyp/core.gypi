@@ -398,7 +398,6 @@
         '<(skia_include_path)/private/SkChecksum.h',
         '<(skia_include_path)/private/SkFloatBits.h',
         '<(skia_include_path)/private/SkFloatingPoint.h',
-        '<(skia_include_path)/private/SkFunction.h',
         '<(skia_include_path)/private/SkGpuFenceSync.h',
         '<(skia_include_path)/private/SkMiniRecorder.h',
         '<(skia_include_path)/private/SkMutex.h',
