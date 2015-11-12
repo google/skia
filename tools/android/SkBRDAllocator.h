@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkBRDAllocator_DEFINED
+#define SkBRDAllocator_DEFINED
+
 #include "SkBitmap.h"
 #include "SkCodec.h"
 
@@ -22,3 +25,5 @@ public:
      */
     virtual SkCodec::ZeroInitialized zeroInit() const = 0;
 };
+
+#endif
