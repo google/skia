@@ -107,8 +107,7 @@ protected:
         *(this->atOffset<uint32_t, GrProgramDesc::kLengthOffset>()) = SkToU32(keyLength);
 
         uint32_t* checksum = this->atOffset<uint32_t, GrProgramDesc::kChecksumOffset>();
-        *checksum = 0;
-        *checksum = SkChecksum::Compute(reinterpret_cast<uint32_t*>(fKey.begin()), keyLength);
+        *checksum = SkChecksum::Murmur3(fKey.begin(), keyLength);
     }
 
     // The key, stored in fKey, is composed of four parts:
