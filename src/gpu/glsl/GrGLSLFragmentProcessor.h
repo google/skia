@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLFragmentProcessor_DEFINED
-#define GrGLFragmentProcessor_DEFINED
+#ifndef GrGLSLFragmentProcessor_DEFINED
+#define GrGLSLFragmentProcessor_DEFINED
 
 #include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -17,11 +17,11 @@ class GrProcessorKeyBuilder;
 class GrGLSLFPBuilder;
 class GrGLSLCaps;
 
-class GrGLFragmentProcessor {
+class GrGLSLFragmentProcessor {
 public:
-    GrGLFragmentProcessor() {}
+    GrGLSLFragmentProcessor() {}
 
-    virtual ~GrGLFragmentProcessor() {
+    virtual ~GrGLSLFragmentProcessor() {
         for (int i = 0; i < fChildProcessors.count(); ++i) {
             delete fChildProcessors[i];
         }
@@ -78,7 +78,7 @@ public:
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    GrGLFragmentProcessor* childProcessor(int index) const {
+    GrGLSLFragmentProcessor* childProcessor(int index) const {
         return fChildProcessors[index];
     }
 
@@ -97,18 +97,18 @@ public:
     void emitChild(int childIndex, const char* inputColor, EmitArgs& parentArgs);
 
 protected:
-    /** A GrGLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
+    /** A GrGLSLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
     the same stage key; this function reads data from a GrFragmentProcessor and uploads any
     uniform variables required by the shaders created in emitCode(). The GrFragmentProcessor
-    parameter is guaranteed to be of the same type that created this GrGLFragmentProcessor and
-    to have an identical processor key as the one that created this GrGLFragmentProcessor.  */
+    parameter is guaranteed to be of the same type that created this GrGLSLFragmentProcessor and
+    to have an identical processor key as the one that created this GrGLSLFragmentProcessor.  */
     // TODO update this to pass in GrFragmentProcessor
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) {}
 
 private:
     void internalEmitChild(int, const char*, const char*, EmitArgs&);
 
-    SkTArray<GrGLFragmentProcessor*, true> fChildProcessors;
+    SkTArray<GrGLSLFragmentProcessor*, true> fChildProcessors;
 
     friend class GrFragmentProcessor;
 };

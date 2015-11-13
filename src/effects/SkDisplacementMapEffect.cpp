@@ -17,7 +17,7 @@
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "effects/GrTextureDomain.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -304,7 +304,7 @@ void SkDisplacementMapEffect::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-class GrGLDisplacementMapEffect : public GrGLFragmentProcessor {
+class GrGLDisplacementMapEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLDisplacementMapEffect(const GrProcessor&);
     virtual ~GrGLDisplacementMapEffect();
@@ -324,7 +324,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fScaleUni;
     GrTextureDomain::GLDomain fGLDomain;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -352,7 +352,7 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GrGLDisplacementMapEffect(*this);
     }
 

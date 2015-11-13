@@ -208,7 +208,7 @@ private:
         this->initClassID<GrSweepGradient>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GrGLSweepGradient(*this);
     }
 

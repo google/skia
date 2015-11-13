@@ -7,11 +7,11 @@
 
 #include "GrBezierEffect.h"
 
-#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "gl/GrGLUtil.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUtil.h"
 
 class GrGLConicEffect : public GrGLGeometryProcessor {
 public:
@@ -30,7 +30,7 @@ public:
         if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
             fViewMatrix = ce.viewMatrix();
             float viewMatrix[3 * 3];
-            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
@@ -246,7 +246,7 @@ public:
         if (!qe.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(qe.viewMatrix())) {
             fViewMatrix = qe.viewMatrix();
             float viewMatrix[3 * 3];
-            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
@@ -448,7 +448,7 @@ public:
         if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
             fViewMatrix = ce.viewMatrix();
             float viewMatrix[3 * 3];
-            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 

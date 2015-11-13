@@ -19,7 +19,7 @@
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
 #include "effects/Gr1DKernelEffect.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -236,7 +236,7 @@ protected:
     float fRange[2];
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -255,7 +255,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLMorphologyEffect : public GrGLFragmentProcessor {
+class GrGLMorphologyEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLMorphologyEffect(const GrProcessor&);
 
@@ -276,7 +276,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fPixelSizeUni;
     GrGLSLProgramDataManager::UniformHandle fRangeUni;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProcessor& proc) {
@@ -427,7 +427,7 @@ void GrMorphologyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessor
     GrGLMorphologyEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrMorphologyEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLInstance() const {
     return new GrGLMorphologyEffect(*this);
 }
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

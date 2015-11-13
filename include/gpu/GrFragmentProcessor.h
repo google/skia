@@ -12,7 +12,7 @@
 
 class GrCoordTransform;
 class GrGLSLCaps;
-class GrGLFragmentProcessor;
+class GrGLSLFragmentProcessor;
 class GrInvariantOutput;
 class GrProcessorKeyBuilder;
 
@@ -63,7 +63,7 @@ public:
 
     ~GrFragmentProcessor() override;
 
-    GrGLFragmentProcessor* createGLInstance() const;
+    GrGLSLFragmentProcessor* createGLInstance() const;
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onGetGLProcessorKey(caps, b);
@@ -166,7 +166,7 @@ private:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrFragmentProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLFragmentProcessor* onCreateGLInstance() const = 0;
+    virtual GrGLSLFragmentProcessor* onCreateGLInstance() const = 0;
 
     /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,

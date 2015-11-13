@@ -306,51 +306,6 @@ GrGLRenderer GrGLGetRenderer(const GrGLInterface* gl) {
     return GrGLGetRendererFromString((const char*) v);
 }
 
-template<> void GrGLGetMatrix<3>(float* dest, const SkMatrix& src) {
-    GR_STATIC_ASSERT(sizeof(float) == sizeof (GrGLfloat));
-    // Col 0
-    dest[0] = SkScalarToFloat(src[SkMatrix::kMScaleX]);
-    dest[1] = SkScalarToFloat(src[SkMatrix::kMSkewY]);
-    dest[2] = SkScalarToFloat(src[SkMatrix::kMPersp0]);
-
-    // Col 1
-    dest[3] = SkScalarToFloat(src[SkMatrix::kMSkewX]);
-    dest[4] = SkScalarToFloat(src[SkMatrix::kMScaleY]);
-    dest[5] = SkScalarToFloat(src[SkMatrix::kMPersp1]);
-
-    // Col 2
-    dest[6] = SkScalarToFloat(src[SkMatrix::kMTransX]);
-    dest[7] = SkScalarToFloat(src[SkMatrix::kMTransY]);
-    dest[8] = SkScalarToFloat(src[SkMatrix::kMPersp2]);
-}
-
-template<> void GrGLGetMatrix<4>(float* dest, const SkMatrix& src) {
-    GR_STATIC_ASSERT(sizeof(float) == sizeof (GrGLfloat));
-    // Col 0
-    dest[0]  = SkScalarToFloat(src[SkMatrix::kMScaleX]);
-    dest[1]  = SkScalarToFloat(src[SkMatrix::kMSkewY]);
-    dest[2]  = 0;
-    dest[3]  = SkScalarToFloat(src[SkMatrix::kMPersp0]);
-
-    // Col 1
-    dest[4]  = SkScalarToFloat(src[SkMatrix::kMSkewX]);
-    dest[5]  = SkScalarToFloat(src[SkMatrix::kMScaleY]);
-    dest[6]  = 0;
-    dest[7]  = SkScalarToFloat(src[SkMatrix::kMPersp1]);
-
-    // Col 2
-    dest[8]  = 0;
-    dest[9]  = 0;
-    dest[10] = 1;
-    dest[11] = 0;
-
-    // Col 3
-    dest[12] = SkScalarToFloat(src[SkMatrix::kMTransX]);
-    dest[13] = SkScalarToFloat(src[SkMatrix::kMTransY]);
-    dest[14] = 0;
-    dest[15] = SkScalarToFloat(src[SkMatrix::kMPersp2]);
-}
-
 GrGLenum GrToGLStencilFunc(GrStencilFunc basicFunc) {
     static const GrGLenum gTable[] = {
         GR_GL_ALWAYS,           // kAlways_StencilFunc

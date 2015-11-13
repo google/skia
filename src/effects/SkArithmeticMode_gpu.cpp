@@ -13,9 +13,8 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrTexture.h"
-#include "gl/GrGLCaps.h"
-#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLXferProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -54,7 +53,7 @@ static void add_arithmetic_code(GrGLSLFragmentBuilder* fsBuilder,
     }
 }
 
-class GLArithmeticFP : public GrGLFragmentProcessor {
+class GLArithmeticFP : public GrGLSLFragmentProcessor {
 public:
     GLArithmeticFP(const GrArithmeticFP& arithmeticFP)
         : fEnforcePMColor(arithmeticFP.enforcePMColor()) {}
@@ -92,7 +91,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fKUni;
     bool fEnforcePMColor;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,7 +110,7 @@ void GrArithmeticFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
     GLArithmeticFP::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrArithmeticFP::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrArithmeticFP::onCreateGLInstance() const {
     return new GLArithmeticFP(*this);
 }
 

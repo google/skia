@@ -11,7 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -64,8 +64,8 @@ public:
         this->initClassID<DCFP>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
-        class DCGLFP : public GrGLFragmentProcessor {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+        class DCGLFP : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 GrGLSLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
                 fpb->codeAppendf("vec2 c = %s;", fpb->ensureFSCoords2D(args.fCoords, 0).c_str());

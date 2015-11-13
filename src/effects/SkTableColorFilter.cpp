@@ -335,7 +335,7 @@ SkColorFilter* SkTable_ColorFilter::newComposed(const SkColorFilter* innerFilter
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
 #include "effects/GrTextureStripAtlas.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -352,7 +352,7 @@ public:
     int atlasRow() const { return fRow; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -375,7 +375,7 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-class GLColorTableEffect : public GrGLFragmentProcessor {
+class GLColorTableEffect : public GrGLSLFragmentProcessor {
 public:
     GLColorTableEffect(const GrProcessor&);
 
@@ -388,7 +388,7 @@ protected:
 
 private:
     UniformHandle fRGBAYValuesUni;
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GLColorTableEffect::GLColorTableEffect(const GrProcessor&) {
@@ -506,7 +506,7 @@ void ColorTableEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLColorTableEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* ColorTableEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLInstance() const {
     return new GLColorTableEffect(*this);
 }
 

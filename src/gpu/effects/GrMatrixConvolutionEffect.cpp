@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 #include "GrMatrixConvolutionEffect.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/GrGLTexture.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
-class GrGLMatrixConvolutionEffect : public GrGLFragmentProcessor {
+class GrGLMatrixConvolutionEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLMatrixConvolutionEffect(const GrProcessor&);
     virtual void emitCode(EmitArgs&) override;
@@ -32,7 +31,7 @@ private:
     UniformHandle               fBiasUni;
     GrTextureDomain::GLDomain   fDomain;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProcessor& processor) {
@@ -43,18 +42,18 @@ GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProcessor& proc
 
 void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     const GrTextureDomain& domain = args.fFp.cast<GrMatrixConvolutionEffect>().domain();
-    fImageIncrementUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fImageIncrementUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
                                              "ImageIncrement");
-    fKernelUni = args.fBuilder->addUniformArray(GrGLProgramBuilder::kFragment_Visibility,
+    fKernelUni = args.fBuilder->addUniformArray(GrGLSLProgramBuilder::kFragment_Visibility,
                                           kFloat_GrSLType, kDefault_GrSLPrecision,
                                           "Kernel",
                                           fKernelSize.width() * fKernelSize.height());
-    fKernelOffsetUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fKernelOffsetUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                            kVec2f_GrSLType, kDefault_GrSLPrecision, "KernelOffset");
-    fGainUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fGainUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, kDefault_GrSLPrecision, "Gain");
-    fBiasUni = args.fBuilder->addUniform(GrGLProgramBuilder::kFragment_Visibility,
+    fBiasUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, kDefault_GrSLPrecision, "Bias");
 
     const char* kernelOffset = args.fBuilder->getUniformCStr(fKernelOffsetUni);
@@ -161,7 +160,7 @@ void GrMatrixConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLInstance() const  {
     return new GrGLMatrixConvolutionEffect(*this);
 }
 

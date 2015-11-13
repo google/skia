@@ -10,7 +10,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkRect.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -33,7 +33,7 @@ public:
 private:
     CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -91,7 +91,7 @@ const GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLCircleEffect : public GrGLFragmentProcessor {
+class GLCircleEffect : public GrGLSLFragmentProcessor {
 public:
     GLCircleEffect(const GrProcessor&);
 
@@ -107,7 +107,7 @@ private:
     SkPoint                                 fPrevCenter;
     SkScalar                                fPrevRadius;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GLCircleEffect::GLCircleEffect(const GrProcessor&) {
@@ -179,7 +179,7 @@ void CircleEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLCircleEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* CircleEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* CircleEffect::onCreateGLInstance() const  {
     return new GLCircleEffect(*this);
 }
 
@@ -202,7 +202,7 @@ public:
 private:
     EllipseEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -263,7 +263,7 @@ const GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLEllipseEffect : public GrGLFragmentProcessor {
+class GLEllipseEffect : public GrGLSLFragmentProcessor {
 public:
     GLEllipseEffect(const GrProcessor&);
 
@@ -279,7 +279,7 @@ private:
     SkPoint                                 fPrevCenter;
     SkVector                                fPrevRadii;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GLEllipseEffect::GLEllipseEffect(const GrProcessor& effect) {
@@ -356,7 +356,7 @@ void EllipseEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLEllipseEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* EllipseEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* EllipseEffect::onCreateGLInstance() const  {
     return new GLEllipseEffect(*this);
 }
 

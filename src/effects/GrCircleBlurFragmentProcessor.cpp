@@ -13,12 +13,12 @@
 #include "GrContext.h"
 #include "GrTextureProvider.h"
 
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
-class GrGLCircleBlurFragmentProcessor : public GrGLFragmentProcessor {
+class GrGLCircleBlurFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLCircleBlurFragmentProcessor(const GrProcessor&) {}
     void emitCode(EmitArgs&) override;
@@ -29,7 +29,7 @@ protected:
 private:
     GrGLSLProgramDataManager::UniformHandle fDataUniform;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
@@ -93,7 +93,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circl
     this->setWillReadFragmentPosition();
 }
 
-GrGLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLInstance() const {
     return new GrGLCircleBlurFragmentProcessor(*this);
 }
 

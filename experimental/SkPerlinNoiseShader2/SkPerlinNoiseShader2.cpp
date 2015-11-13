@@ -20,7 +20,7 @@
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -620,7 +620,7 @@ void SkPerlinNoiseShader2::PerlinNoiseShaderContext::shadeSpan16(
 
 #if SK_SUPPORT_GPU
 
-class GrGLPerlinNoise2 : public GrGLFragmentProcessor {
+class GrGLPerlinNoise2 : public GrGLSLFragmentProcessor {
 public:
     GrGLPerlinNoise2(const GrProcessor&);
     virtual ~GrGLPerlinNoise2() {}
@@ -641,7 +641,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -670,7 +670,7 @@ public:
     const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GrGLPerlinNoise2(*this);
     }
 
@@ -1050,7 +1050,7 @@ void GrGLPerlinNoise2::onSetData(const GrGLSLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 
-class GrGLImprovedPerlinNoise : public GrGLFragmentProcessor {
+class GrGLImprovedPerlinNoise : public GrGLSLFragmentProcessor {
 public:
     GrGLImprovedPerlinNoise(const GrProcessor&);
     virtual ~GrGLImprovedPerlinNoise() {}
@@ -1070,7 +1070,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -1095,7 +1095,7 @@ public:
     const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GrGLImprovedPerlinNoise(*this);
     }
 

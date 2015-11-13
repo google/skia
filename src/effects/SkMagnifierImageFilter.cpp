@@ -17,8 +17,7 @@
 #if SK_SUPPORT_GPU
 #include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/GrGLTexture.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -75,7 +74,7 @@ private:
         this->initClassID<GrMagnifierEffect>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -99,7 +98,7 @@ private:
 // For brevity
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-class GrGLMagnifierEffect : public GrGLFragmentProcessor {
+class GrGLMagnifierEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLMagnifierEffect(const GrProcessor&);
 
@@ -114,7 +113,7 @@ private:
     UniformHandle       fInvInsetVar;
     UniformHandle       fBoundsVar;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProcessor&) {
@@ -186,7 +185,7 @@ void GrMagnifierEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLMagnifierEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrMagnifierEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLInstance() const {
     return new GrGLMagnifierEffect(*this);
 }
 

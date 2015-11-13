@@ -487,7 +487,7 @@ private:
         this->initClassID<GrLinearGradient>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GrGLLinearGradient(*this);
     }
 

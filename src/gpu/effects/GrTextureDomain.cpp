@@ -9,8 +9,7 @@
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkFloatingPoint.h"
-#include "gl/GrGLContext.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
@@ -173,7 +172,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLTextureDomainEffect : public GrGLFragmentProcessor {
+class GrGLTextureDomainEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLTextureDomainEffect(const GrProcessor&);
 
@@ -186,7 +185,7 @@ protected:
 
 private:
     GrTextureDomain::GLDomain         fGLDomain;
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProcessor&) {
@@ -253,7 +252,7 @@ void GrTextureDomainEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLTextureDomainEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrTextureDomainEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLInstance() const  {
     return new GrGLTextureDomainEffect(*this);
 }
 

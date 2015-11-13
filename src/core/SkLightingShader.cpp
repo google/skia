@@ -130,7 +130,7 @@ private:
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureAccess.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -168,7 +168,7 @@ public:
         this->initClassID<LightingFP>();
     }
 
-    class LightingGLFP : public GrGLFragmentProcessor {
+    class LightingGLFP : public GrGLSLFragmentProcessor {
     public:
         LightingGLFP() {
             fLightDir.fX = 10000.0f;
@@ -297,7 +297,7 @@ public:
     const SkVector& invNormRotation() const { return fInvNormRotation; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override { return new LightingGLFP; }
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new LightingGLFP; }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override { 
         const LightingFP& lightingFP = proc.cast<LightingFP>();

@@ -27,7 +27,7 @@
 #include "SkGrPixelRef.h"
 #include "SkDraw.h"
 #include "effects/GrSimpleTextureEffect.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -655,7 +655,7 @@ private:
     GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile,
                      GrSLPrecision fPrecision);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -675,7 +675,7 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-class GrGLRectBlurEffect : public GrGLFragmentProcessor {
+class GrGLRectBlurEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLRectBlurEffect(const GrProcessor&, GrSLPrecision precision) 
     : fPrecision(precision) {
@@ -694,7 +694,7 @@ private:
     UniformHandle       fProfileSizeUniform;
     GrSLPrecision       fPrecision;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 void OutputRectBlurProfileLookup(GrGLSLFragmentBuilder* fsBuilder,
@@ -821,7 +821,7 @@ void GrRectBlurEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLRectBlurEffect::GenKey(fPrecision, b);
 }
 
-GrGLFragmentProcessor* GrRectBlurEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLInstance() const {
     return new GrGLRectBlurEffect(*this, fPrecision);
 }
 
@@ -912,7 +912,7 @@ public:
     float getSigma() const { return fSigma; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     GrRRectBlurEffect(float sigma, const SkRRect&, GrTexture* profileTexture);
 
@@ -1043,7 +1043,7 @@ const GrFragmentProcessor* GrRRectBlurEffect::TestCreate(GrProcessorTestData* d)
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLRRectBlurEffect : public GrGLFragmentProcessor {
+class GrGLRRectBlurEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLRRectBlurEffect(const GrProcessor&) {}
 
@@ -1056,7 +1056,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fProxyRectUniform;
     GrGLSLProgramDataManager::UniformHandle fCornerRadiusUniform;
     GrGLSLProgramDataManager::UniformHandle fBlurRadiusUniform;
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
@@ -1135,7 +1135,7 @@ void GrRRectBlurEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorK
     GrGLRRectBlurEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrRRectBlurEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLInstance() const {
     return new GrGLRRectBlurEffect(*this);
 }
 

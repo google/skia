@@ -48,7 +48,7 @@ private:
     GrCircleBlurFragmentProcessor(const SkRect& circle, float sigma,
                                   float offset, GrTexture* blurProfile);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 

@@ -8,8 +8,7 @@
 #include "GrConvexPolyEffect.h"
 #include "GrInvariantOutput.h"
 #include "SkPathPriv.h"
-#include "gl/GrGLContext.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -36,7 +35,7 @@ private:
         this->setWillReadFragmentPosition();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const AARectEffect& aare = other.cast<AARectEffect>();
@@ -80,7 +79,7 @@ const GrFragmentProcessor* AARectEffect::TestCreate(GrProcessorTestData* d) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLAARectEffect : public GrGLFragmentProcessor {
+class GLAARectEffect : public GrGLSLFragmentProcessor {
 public:
     GLAARectEffect(const GrProcessor&);
 
@@ -94,7 +93,7 @@ protected:
 private:
     GrGLSLProgramDataManager::UniformHandle fRectUniform;
     SkRect                                fPrevRect;
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GLAARectEffect::GLAARectEffect(const GrProcessor& effect) {
@@ -161,13 +160,13 @@ void AARectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBui
     GLAARectEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* AARectEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* AARectEffect::onCreateGLInstance() const  {
     return new GLAARectEffect(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLConvexPolyEffect : public GrGLFragmentProcessor {
+class GrGLConvexPolyEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLConvexPolyEffect(const GrProcessor&);
 
@@ -181,7 +180,7 @@ protected:
 private:
     GrGLSLProgramDataManager::UniformHandle fEdgeUniform;
     SkScalar                              fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrProcessor&) {
@@ -309,7 +308,7 @@ void GrConvexPolyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLConvexPolyEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrConvexPolyEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrConvexPolyEffect::onCreateGLInstance() const  {
     return new GrGLConvexPolyEffect(*this);
 }
 

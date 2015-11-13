@@ -32,7 +32,7 @@ struct GrGLInstalledProc {
 
 typedef GrGLInstalledProc<GrGLPrimitiveProcessor> GrGLInstalledGeoProc;
 typedef GrGLInstalledProc<GrGLXferProcessor> GrGLInstalledXferProc;
-typedef GrGLInstalledProc<GrGLFragmentProcessor> GrGLInstalledFragProc;
+typedef GrGLInstalledProc<GrGLSLFragmentProcessor> GrGLInstalledFragProc;
 
 struct GrGLInstalledFragProcs : public SkRefCnt {
     virtual ~GrGLInstalledFragProcs();

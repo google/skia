@@ -9,7 +9,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkRect.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
@@ -31,7 +31,7 @@ private:
         this->setWillReadFragmentPosition();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -59,14 +59,14 @@ const GrFragmentProcessor* DitherEffect::TestCreate(GrProcessorTestData*) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDitherEffect : public GrGLFragmentProcessor {
+class GLDitherEffect : public GrGLSLFragmentProcessor {
 public:
     GLDitherEffect(const GrProcessor&);
 
     virtual void emitCode(EmitArgs& args) override;
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GLDitherEffect::GLDitherEffect(const GrProcessor&) {
@@ -97,7 +97,7 @@ void DitherEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLDitherEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* DitherEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* DitherEffect::onCreateGLInstance() const  {
     return new GLDitherEffect(*this);
 }
 

@@ -18,7 +18,7 @@
 #include "GrInvariantOutput.h"
 #include "GrTexturePriv.h"
 #include "SkGr.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -175,7 +175,7 @@ public:
 
     void onComputeInvariantOutput(GrInvariantOutput*) const override;
 
-    class GLProcessor : public GrGLFragmentProcessor {
+    class GLProcessor : public GrGLSLFragmentProcessor {
     public:
         GLProcessor(const GrProcessor&);
         virtual ~GLProcessor();
@@ -191,14 +191,14 @@ public:
         GrGLSLProgramDataManager::UniformHandle fColorCubeSizeUni;
         GrGLSLProgramDataManager::UniformHandle fColorCubeInvSizeUni;
 
-        typedef GrGLFragmentProcessor INHERITED;
+        typedef GrGLSLFragmentProcessor INHERITED;
     };
 
 private:
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override;
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -224,7 +224,7 @@ void GrColorCubeEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorK
     GLProcessor::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrColorCubeEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrColorCubeEffect::onCreateGLInstance() const {
     return new GLProcessor(*this);
 }
 

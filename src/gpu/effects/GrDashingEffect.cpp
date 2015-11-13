@@ -22,7 +22,7 @@
 #include "SkGr.h"
 #include "batches/GrVertexBatch.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

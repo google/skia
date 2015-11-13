@@ -9,10 +9,10 @@
 
 #include "GrInvariantOutput.h"
 #include "gl/GrGLGeometryProcessor.h"
-#include "gl/GrGLUtil.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLUtil.h"
 
 /*
  * The default Geometry Processor simply takes position and multiplies it by the uniform view
@@ -140,7 +140,7 @@ public:
             if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
                 fViewMatrix = dgp.viewMatrix();
                 float viewMatrix[3 * 3];
-                GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+                GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
 

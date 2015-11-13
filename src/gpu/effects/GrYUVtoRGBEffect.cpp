@@ -10,7 +10,7 @@
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -52,7 +52,7 @@ public:
         return fColorSpace;
     }
 
-    class GLProcessor : public GrGLFragmentProcessor {
+    class GLProcessor : public GrGLSLFragmentProcessor {
     public:
         static const float kJPEGConversionMatrix[16];
         static const float kRec601ConversionMatrix[16];
@@ -102,7 +102,7 @@ public:
     private:
         GrGLSLProgramDataManager::UniformHandle fMatrixUni;
 
-        typedef GrGLFragmentProcessor INHERITED;
+        typedef GrGLSLFragmentProcessor INHERITED;
     };
 
 private:
@@ -125,7 +125,7 @@ private:
         this->addTextureAccess(&fVAccess);
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override {

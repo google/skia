@@ -296,7 +296,7 @@ static inline int next_dither_toggle16(int toggle) {
 
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrInvariantOutput;
@@ -396,7 +396,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 // Base class for GL gradient effects
-class GrGLGradientEffect : public GrGLFragmentProcessor {
+class GrGLGradientEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLGradientEffect();
     virtual ~GrGLGradientEffect();
@@ -450,7 +450,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fColorMidUni;
     GrGLSLProgramDataManager::UniformHandle fColorEndUni;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 #endif

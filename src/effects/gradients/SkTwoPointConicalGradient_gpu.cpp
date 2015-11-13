@@ -79,7 +79,7 @@ public:
     SkScalar radius() const { return fRadius0; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -174,7 +174,7 @@ void Edge2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLEdge2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* Edge2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* Edge2PtConicalEffect::onCreateGLInstance() const {
     return new GLEdge2PtConicalEffect(*this);
 }
 
@@ -385,7 +385,7 @@ public:
     SkScalar focal() const { return fFocalX; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -451,7 +451,7 @@ void FocalOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLFocalOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* FocalOutside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* FocalOutside2PtConicalEffect::onCreateGLInstance() const {
     return new GLFocalOutside2PtConicalEffect(*this);
 }
 
@@ -595,7 +595,7 @@ public:
     typedef GLFocalInside2PtConicalEffect GLProcessor;
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -655,7 +655,7 @@ void FocalInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLFocalInside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* FocalInside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* FocalInside2PtConicalEffect::onCreateGLInstance() const {
     return new GLFocalInside2PtConicalEffect(*this);
 }
 
@@ -828,7 +828,7 @@ public:
     SkScalar C() const { return fInfo.fC; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override;
@@ -897,7 +897,7 @@ void CircleInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLCircleInside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* CircleInside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* CircleInside2PtConicalEffect::onCreateGLInstance() const {
     return new GLCircleInside2PtConicalEffect(*this);
 }
 
@@ -1040,7 +1040,7 @@ public:
     bool isFlipped() const { return fIsFlipped; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -1122,7 +1122,7 @@ void CircleOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLCircleOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* CircleOutside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* CircleOutside2PtConicalEffect::onCreateGLInstance() const {
     return new GLCircleOutside2PtConicalEffect(*this);
 }
 

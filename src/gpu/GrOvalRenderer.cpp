@@ -21,12 +21,12 @@
 #include "SkTLazy.h"
 #include "batches/GrVertexBatch.h"
 #include "effects/GrRRectEffect.h"
-#include "gl/GrGLUtil.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLUtil.h"
 
 // TODO(joshualitt) - Break this file up during GrBatch post implementation cleanup
 
@@ -507,7 +507,7 @@ public:
             if (!dee.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dee.viewMatrix())) {
                 fViewMatrix = dee.viewMatrix();
                 float viewMatrix[3 * 3];
-                GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+                GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
                 pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
             }
 

@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #endif
@@ -61,7 +61,7 @@ public:
 
     const char* name() const override { return "Luminance-to-Alpha"; }
 
-    class GLProcessor : public GrGLFragmentProcessor {
+    class GLProcessor : public GrGLSLFragmentProcessor {
     public:
         GLProcessor(const GrProcessor&) {}
 
@@ -84,7 +84,7 @@ public:
         }
 
     private:
-        typedef GrGLFragmentProcessor INHERITED;
+        typedef GrGLSLFragmentProcessor INHERITED;
     };
 
 private:
@@ -92,7 +92,7 @@ private:
         this->initClassID<LumaColorFilterEffect>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override {

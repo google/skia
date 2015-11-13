@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLFragmentProcessor.h"
+#include "GrGLSLFragmentProcessor.h"
 #include "GrFragmentProcessor.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
-void GrGLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
-                                    const GrFragmentProcessor& processor) {
+void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
+                                      const GrFragmentProcessor& processor) {
     this->onSetData(pdman, processor);
     SkASSERT(fChildProcessors.count() == processor.numChildProcessors());
     for (int i = 0; i < fChildProcessors.count(); ++i) {
@@ -20,11 +20,11 @@ void GrGLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
     }
 }
 
-void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor, EmitArgs& args) {
+void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor, EmitArgs& args) {
     this->internalEmitChild(childIndex, inputColor, args.fOutputColor, args);
 }
 
-void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
+void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
                                       SkString* outputColor, EmitArgs& args) {
 
     SkASSERT(outputColor);
@@ -34,8 +34,8 @@ void GrGLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
     this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
 }
 
-void GrGLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
-                                               const char* outputColor, EmitArgs& args) {
+void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
+                                                const char* outputColor, EmitArgs& args) {
     GrGLSLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
 
     fb->onBeforeChildProcEmitCode();  // call first so mangleString is updated

@@ -8,7 +8,7 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -50,8 +50,8 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
     return true;
 }
 
-GrGLFragmentProcessor* GrFragmentProcessor::createGLInstance() const {
-    GrGLFragmentProcessor* glFragProc = this->onCreateGLInstance();
+GrGLSLFragmentProcessor* GrFragmentProcessor::createGLInstance() const {
+    GrGLSLFragmentProcessor* glFragProc = this->onCreateGLInstance();
     glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());
     for (int i = 0; i < fChildProcessors.count(); ++i) {
         glFragProc->fChildProcessors[i] = fChildProcessors[i]->createGLInstance();
@@ -147,8 +147,8 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
         const char* name() const override { return "Premultiply"; }
 
     private:
-        GrGLFragmentProcessor* onCreateGLInstance() const override {
-            class GLFP : public GrGLFragmentProcessor {
+        GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
             public:
                 GLFP() {}
 
@@ -220,8 +220,8 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
 
         const char* name() const override { return "Replace Color"; }
 
-        GrGLFragmentProcessor* onCreateGLInstance() const override {
-            class GLFP : public GrGLFragmentProcessor {
+        GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
             public:
                 GLFP() : fHaveSetColor(false) {}
                 void emitCode(EmitArgs& args) override {
@@ -297,8 +297,8 @@ const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProc
 
         const char* name() const override { return "Series"; }
 
-        GrGLFragmentProcessor* onCreateGLInstance() const override {
-            class GLFP : public GrGLFragmentProcessor {
+        GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
             public:
                 GLFP() {}
                 void emitCode(EmitArgs& args) override {

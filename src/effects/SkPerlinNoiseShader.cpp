@@ -20,7 +20,7 @@
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -484,7 +484,7 @@ void SkPerlinNoiseShader::PerlinNoiseShaderContext::shadeSpan16(
 
 #if SK_SUPPORT_GPU
 
-class GrGLPerlinNoise : public GrGLFragmentProcessor {
+class GrGLPerlinNoise : public GrGLSLFragmentProcessor {
 public:
     GrGLPerlinNoise(const GrProcessor&);
     virtual ~GrGLPerlinNoise() {}
@@ -505,7 +505,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -534,7 +534,7 @@ public:
     const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GrGLPerlinNoise(*this);
     }
 

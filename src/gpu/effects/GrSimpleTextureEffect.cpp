@@ -8,13 +8,11 @@
 #include "GrSimpleTextureEffect.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
-#include "gl/GrGLCaps.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/GrGLTexture.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
-class GrGLSimpleTextureEffect : public GrGLFragmentProcessor {
+class GrGLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSimpleTextureEffect(const GrProcessor&) {}
 
@@ -29,7 +27,7 @@ public:
     }
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,7 +41,7 @@ void GrSimpleTextureEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLSimpleTextureEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrSimpleTextureEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLInstance() const  {
     return new GrGLSimpleTextureEffect(*this);
 }
 

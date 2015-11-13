@@ -31,8 +31,8 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
-#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLGpu.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
@@ -42,7 +42,7 @@
  */
 static const uint32_t kMaxKeySize = 1024;
 
-class GLBigKeyProcessor : public GrGLFragmentProcessor {
+class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
 public:
     GLBigKeyProcessor(const GrProcessor&) {}
 
@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 class BigKeyProcessor : public GrFragmentProcessor {
@@ -74,7 +74,7 @@ public:
 
     const char* name() const override { return "Big Ole Key"; }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GLBigKeyProcessor(*this);
     }
 
@@ -110,17 +110,17 @@ public:
 
     const char* name() const override { return "Block Input"; }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLFP; }
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new GLFP; }
 
 private:
-    class GLFP : public GrGLFragmentProcessor {
+    class GLFP : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
             this->emitChild(0, nullptr, args);
         }
 
     private:
-        typedef GrGLFragmentProcessor INHERITED;
+        typedef GrGLSLFragmentProcessor INHERITED;
     };
 
     BlockInputFragmentProcessor(const GrFragmentProcessor* child) {

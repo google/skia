@@ -11,13 +11,13 @@
 
 #include "SkDistanceFieldGen.h"
 
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/GrGLTexture.h"
 #include "gl/GrGLGeometryProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLUtil.h"
 
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
@@ -160,7 +160,7 @@ public:
         if (!dfa8gp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfa8gp.viewMatrix())) {
             fViewMatrix = dfa8gp.viewMatrix();
             float viewMatrix[3 * 3];
-            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
@@ -390,7 +390,7 @@ public:
         if (!dfpgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfpgp.viewMatrix())) {
             fViewMatrix = dfpgp.viewMatrix();
             float viewMatrix[3 * 3];
-            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
@@ -659,7 +659,7 @@ public:
         if (!dflcd.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dflcd.viewMatrix())) {
             fViewMatrix = dflcd.viewMatrix();
             float viewMatrix[3 * 3];
-            GrGLGetMatrix<3>(viewMatrix, fViewMatrix);
+            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 

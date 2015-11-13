@@ -459,7 +459,7 @@ private:
         this->initClassID<GrRadialGradient>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
         return new GrGLRadialGradient(*this);
     }
 

@@ -13,7 +13,6 @@
 #include "GrTexture.h"
 #include "SkRTConf.h"
 #include "SkTraceEvent.h"
-#include "gl/GrGLFragmentProcessor.h"
 #include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
@@ -21,6 +20,7 @@
 #include "gl/GrGLXferProcessor.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 
@@ -259,7 +259,12 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(fp.numTextures());
     this->emitSamplers(fp, &samplers, ifp);
 
-    GrGLFragmentProcessor::EmitArgs args(this, fp, outColor, inColor, fOutCoords[index], samplers);
+    GrGLSLFragmentProcessor::EmitArgs args(this,
+                                           fp,
+                                           outColor,
+                                           inColor,
+                                           fOutCoords[index],
+                                           samplers);
     ifp->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

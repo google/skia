@@ -21,7 +21,7 @@
 #include "GrInvariantOutput.h"
 #include "GrPaint.h"
 #include "effects/GrSingleTextureEffect.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -531,7 +531,7 @@ public:
     SkScalar kd() const { return fKD; }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -564,7 +564,7 @@ public:
 
     const char* name() const override { return "SpecularLighting"; }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
@@ -1508,7 +1508,7 @@ SkString emitNormalFunc(BoundaryMode mode,
 
 }
 
-class GrGLLightingEffect  : public GrGLFragmentProcessor {
+class GrGLLightingEffect  : public GrGLSLFragmentProcessor {
 public:
     GrGLLightingEffect(const GrProcessor&);
     virtual ~GrGLLightingEffect();
@@ -1526,7 +1526,7 @@ protected:
     virtual void emitLightFunc(GrGLSLFPBuilder*, SkString* funcName) = 0;
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 
     UniformHandle       fImageIncrementUni;
     UniformHandle       fSurfaceScaleUni;
@@ -1619,7 +1619,7 @@ void GrDiffuseLightingEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLInstance() const {
     return new GrGLDiffuseLightingEffect(*this);
 }
 
@@ -1820,7 +1820,7 @@ void GrSpecularLightingEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLSpecularLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrSpecularLightingEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrSpecularLightingEffect::onCreateGLInstance() const {
     return new GrGLSpecularLightingEffect(*this);
 }
 

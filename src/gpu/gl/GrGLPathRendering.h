@@ -11,8 +11,8 @@
 #include "SkRefCnt.h"
 #include "GrPathRendering.h"
 #include "GrStencil.h"
-#include "gl/GrGLProgram.h"
 #include "gl/GrGLTypes.h"
+#include "glsl/GrGLSLUtil.h"
 
 class GrGLNameAllocator;
 class GrGLGpu;
@@ -106,7 +106,7 @@ private:
                                 0, 0, 1);
             }
             combined.preConcat(fViewMatrix);
-            GrGLGetMatrix<Size>(destMatrix, combined);
+            GrGLSLGetMatrix<Size>(destMatrix, combined);
         }
     };
     GrGLGpu* gpu();

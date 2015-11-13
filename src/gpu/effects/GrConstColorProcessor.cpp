@@ -6,12 +6,12 @@
  */
 
 #include "effects/GrConstColorProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
-class GLConstColorProcessor : public GrGLFragmentProcessor {
+class GLConstColorProcessor : public GrGLSLFragmentProcessor {
 public:
     GLConstColorProcessor() : fPrevColor(GrColor_ILLEGAL) {}
 
@@ -63,7 +63,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fColorUniform;
     GrColor                               fPrevColor;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ void GrConstColorProcessor::onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKe
     b->add32(fMode);
 }
 
-GrGLFragmentProcessor* GrConstColorProcessor::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLInstance() const  {
     return new GLConstColorProcessor;
 }
 

@@ -385,7 +385,7 @@ SkColorFilter* SkColorMatrixFilter::newComposed(const SkColorFilter* innerFilter
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -400,7 +400,7 @@ public:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    class GLProcessor : public GrGLFragmentProcessor {
+    class GLProcessor : public GrGLSLFragmentProcessor {
     public:
         // this class always generates the same code.
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
@@ -458,7 +458,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fMatrixHandle;
         GrGLSLProgramDataManager::UniformHandle fVectorHandle;
 
-        typedef GrGLFragmentProcessor INHERITED;
+        typedef GrGLSLFragmentProcessor INHERITED;
     };
 
 private:
@@ -466,7 +466,7 @@ private:
         this->initClassID<ColorMatrixEffect>();
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
 
     virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override {

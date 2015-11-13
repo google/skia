@@ -6,8 +6,7 @@
  */
 
 #include "GrConvolutionEffect.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/GrGLTexture.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -15,7 +14,7 @@
 // For brevity
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-class GrGLConvolutionEffect : public GrGLFragmentProcessor {
+class GrGLConvolutionEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLConvolutionEffect(const GrProcessor&);
 
@@ -38,7 +37,7 @@ private:
     UniformHandle       fImageIncrementUni;
     UniformHandle       fBoundsUni;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProcessor& processor) {
@@ -200,7 +199,7 @@ void GrConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLConvolutionEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrConvolutionEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrConvolutionEffect::onCreateGLInstance() const  {
     return new GrGLConvolutionEffect(*this);
 }
 

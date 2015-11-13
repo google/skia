@@ -11,11 +11,11 @@
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
-class GrGLConfigConversionEffect : public GrGLFragmentProcessor {
+class GrGLConfigConversionEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLConfigConversionEffect(const GrProcessor& processor) {
         const GrConfigConversionEffect& configConversionEffect =
@@ -91,7 +91,7 @@ private:
     bool                                    fSwapRedAndBlue;
     GrConfigConversionEffect::PMConversion  fPMConversion;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 
 };
 
@@ -147,7 +147,7 @@ void GrConfigConversionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrConfigConversionEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrConfigConversionEffect::onCreateGLInstance() const {
     return new GrGLConfigConversionEffect(*this);
 }
 

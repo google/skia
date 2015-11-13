@@ -6,11 +6,11 @@
  */
 #include "GrGLProgramDesc.h"
 
-#include "GrGLFragmentProcessor.h"
 #include "GrProcessor.h"
 #include "GrGLGpu.h"
 #include "GrPipeline.h"
 #include "SkChecksum.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 /**

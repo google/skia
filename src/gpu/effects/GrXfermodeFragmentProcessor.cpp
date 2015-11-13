@@ -9,8 +9,8 @@
 
 #include "GrFragmentProcessor.h"
 #include "effects/GrConstColorProcessor.h"
-#include "gl/GrGLFragmentProcessor.h"
-#include "gl/GrGLSLBlend.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "SkGrPriv.h"
@@ -46,7 +46,7 @@ protected:
     }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     SkXfermode::Mode fMode;
 
@@ -57,14 +57,14 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class GLComposeTwoFragmentProcessor : public GrGLFragmentProcessor {
+class GLComposeTwoFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GLComposeTwoFragmentProcessor(const GrProcessor& processor) {}
 
     void emitCode(EmitArgs&) override;
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ const GrFragmentProcessor* ComposeTwoFragmentProcessor::TestCreate(GrProcessorTe
     return new ComposeTwoFragmentProcessor(fpA, fpB, mode);
 }
 
-GrGLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLInstance() const{
+GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLInstance() const{
     return new GLComposeTwoFragmentProcessor(*this);
 }
 
@@ -202,7 +202,7 @@ protected:
     }
 
 private:
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     SkXfermode::Mode    fMode;
     Child               fChild;
@@ -214,7 +214,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLComposeOneFragmentProcessor : public GrGLFragmentProcessor {
+class GLComposeOneFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GLComposeOneFragmentProcessor(const GrProcessor& processor) {}
 
@@ -244,7 +244,7 @@ public:
     }
 
 private:
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ const GrFragmentProcessor* ComposeOneFragmentProcessor::TestCreate(GrProcessorTe
     return new ComposeOneFragmentProcessor(dst, mode, child);
 }
 
-GrGLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLInstance() const {
     return new GLComposeOneFragmentProcessor(*this);
 }
 

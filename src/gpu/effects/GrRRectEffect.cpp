@@ -12,7 +12,7 @@
 #include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
 #include "SkRRect.h"
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -60,7 +60,7 @@ public:
 private:
     CircularRRectEffect(GrPrimitiveEdgeType, uint32_t circularCornerFlags, const SkRRect&);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -126,7 +126,7 @@ const GrFragmentProcessor* CircularRRectEffect::TestCreate(GrProcessorTestData* 
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLCircularRRectEffect : public GrGLFragmentProcessor {
+class GLCircularRRectEffect : public GrGLSLFragmentProcessor {
 public:
     GLCircularRRectEffect(const GrProcessor&);
 
@@ -141,7 +141,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
     GrGLSLProgramDataManager::UniformHandle fRadiusPlusHalfUniform;
     SkRRect                               fPrevRRect;
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GLCircularRRectEffect::GLCircularRRectEffect(const GrProcessor& ) {
@@ -369,7 +369,7 @@ void CircularRRectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLCircularRRectEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* CircularRRectEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* CircularRRectEffect::onCreateGLInstance() const  {
     return new GLCircularRRectEffect(*this);
 }
 
@@ -390,7 +390,7 @@ public:
 private:
     EllipticalRRectEffect(GrPrimitiveEdgeType, const SkRRect&);
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -472,7 +472,7 @@ const GrFragmentProcessor* EllipticalRRectEffect::TestCreate(GrProcessorTestData
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLEllipticalRRectEffect : public GrGLFragmentProcessor {
+class GLEllipticalRRectEffect : public GrGLSLFragmentProcessor {
 public:
     GLEllipticalRRectEffect(const GrProcessor&);
 
@@ -487,7 +487,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
     GrGLSLProgramDataManager::UniformHandle fInvRadiiSqdUniform;
     SkRRect                               fPrevRRect;
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrProcessor& effect) {
@@ -620,7 +620,7 @@ void EllipticalRRectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLEllipticalRRectEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* EllipticalRRectEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* EllipticalRRectEffect::onCreateGLInstance() const  {
     return new GLEllipticalRRectEffect(*this);
 }
 

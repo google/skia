@@ -21,7 +21,7 @@ const SkScalar GrBicubicEffect::gMitchellCoefficients[16] = {
 };
 
 
-class GrGLBicubicEffect : public GrGLFragmentProcessor {
+class GrGLBicubicEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLBicubicEffect(const GrProcessor&);
 
@@ -43,7 +43,7 @@ private:
     UniformHandle               fImageIncrementUni;
     GrTextureDomain::GLDomain   fDomain;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLBicubicEffect::GrGLBicubicEffect(const GrProcessor&) {
@@ -157,7 +157,7 @@ void GrBicubicEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLBicubicEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* GrBicubicEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLInstance() const  {
     return new GrGLBicubicEffect(*this);
 }
 

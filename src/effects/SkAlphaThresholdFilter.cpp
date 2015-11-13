@@ -57,7 +57,7 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 
 #include "SkGr.h"
 
-#include "gl/GrGLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -101,7 +101,7 @@ private:
         this->addTextureAccess(&fMaskTextureAccess);
     }
 
-    GrGLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
 
     void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -121,7 +121,7 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-class GrGLAlphaThresholdEffect : public GrGLFragmentProcessor {
+class GrGLAlphaThresholdEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLAlphaThresholdEffect(const GrFragmentProcessor&) {}
 
@@ -135,7 +135,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fInnerThresholdVar;
     GrGLSLProgramDataManager::UniformHandle fOuterThresholdVar;
 
-    typedef GrGLFragmentProcessor INHERITED;
+    typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
@@ -208,7 +208,7 @@ void AlphaThresholdEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GrGLAlphaThresholdEffect::GenKey(*this, caps, b);
 }
 
-GrGLFragmentProcessor* AlphaThresholdEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* AlphaThresholdEffect::onCreateGLInstance() const {
     return new GrGLAlphaThresholdEffect(*this);
 }
 
