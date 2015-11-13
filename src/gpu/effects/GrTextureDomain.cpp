@@ -247,12 +247,12 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
 
 GrTextureDomainEffect::~GrTextureDomainEffect() {}
 
-void GrTextureDomainEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                GrProcessorKeyBuilder* b) const {
+void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                  GrProcessorKeyBuilder* b) const {
     GrGLTextureDomainEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
     return new GrGLTextureDomainEffect(*this);
 }
 

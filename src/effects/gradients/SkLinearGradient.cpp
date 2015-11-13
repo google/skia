@@ -487,12 +487,12 @@ private:
         this->initClassID<GrLinearGradient>();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GrGLLinearGradient(*this);
     }
 
-    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const override {
+    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                       GrProcessorKeyBuilder* b) const override {
         GrGLLinearGradient::GenKey(*this, caps, b);
     }
 

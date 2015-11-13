@@ -352,9 +352,9 @@ public:
     int atlasRow() const { return fRow; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -501,12 +501,12 @@ ColorTableEffect::~ColorTableEffect() {
     }
 }
 
-void ColorTableEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                           GrProcessorKeyBuilder* b) const {
+void ColorTableEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                             GrProcessorKeyBuilder* b) const {
     GLColorTableEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
     return new GLColorTableEffect(*this);
 }
 

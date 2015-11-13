@@ -26,7 +26,7 @@ public:
 
     const char* name() const override { return "AARect"; }
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
 private:
     AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect)
@@ -35,7 +35,7 @@ private:
         this->setWillReadFragmentPosition();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const AARectEffect& aare = other.cast<AARectEffect>();
@@ -156,11 +156,11 @@ void GLAARectEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
     b->add32(aare.getEdgeType());
 }
 
-void AARectEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void AARectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLAARectEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* AARectEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* AARectEffect::onCreateGLSLInstance() const  {
     return new GLAARectEffect(*this);
 }
 
@@ -303,12 +303,12 @@ void GrConvexPolyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
     inout->mulByUnknownSingleComponent();
 }
 
-void GrConvexPolyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                             GrProcessorKeyBuilder* b) const {
+void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                               GrProcessorKeyBuilder* b) const {
     GrGLConvexPolyEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrConvexPolyEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrConvexPolyEffect::onCreateGLSLInstance() const  {
     return new GrGLConvexPolyEffect(*this);
 }
 

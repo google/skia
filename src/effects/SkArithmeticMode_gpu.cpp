@@ -106,11 +106,11 @@ GrArithmeticFP::GrArithmeticFP(float k1, float k2, float k3, float k4, bool enfo
     SkASSERT(0 == dstIndex);
 }
 
-void GrArithmeticFP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrArithmeticFP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticFP::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrArithmeticFP::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrArithmeticFP::onCreateGLSLInstance() const {
     return new GLArithmeticFP(*this);
 }
 
@@ -154,7 +154,7 @@ public:
 
     const char* name() const override { return "Arithmetic"; }
 
-    GrGLSLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLSLInstance() const override;
 
     float k1() const { return fK1; }
     float k2() const { return fK2; }
@@ -169,7 +169,7 @@ private:
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const ArithmeticXP& xp = xpBase.cast<ArithmeticXP>();
@@ -245,11 +245,11 @@ ArithmeticXP::ArithmeticXP(const DstTexture* dstTexture, bool hasMixedSamples,
     this->initClassID<ArithmeticXP>();
 }
 
-void ArithmeticXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void ArithmeticXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticXP::GenKey(*this, caps, b);
 }
 
-GrGLSLXferProcessor* ArithmeticXP::createGLInstance() const { return new GLArithmeticXP(*this); }
+GrGLSLXferProcessor* ArithmeticXP::createGLSLInstance() const { return new GLArithmeticXP(*this); }
 
 GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                            const GrProcOptInfo& coveragePOI,

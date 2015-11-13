@@ -31,9 +31,9 @@ private:
         this->setWillReadFragmentPosition();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     // All dither effects are equal
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -92,12 +92,12 @@ void GLDitherEffect::emitCode(EmitArgs& args) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DitherEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const {
+void DitherEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                         GrProcessorKeyBuilder* b) const {
     GLDitherEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* DitherEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* DitherEffect::onCreateGLSLInstance() const  {
     return new GLDitherEffect(*this);
 }
 

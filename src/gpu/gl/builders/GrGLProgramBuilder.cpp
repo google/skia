@@ -254,7 +254,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
                                             const char* inColor) {
     GrGLInstalledFragProc* ifp = new GrGLInstalledFragProc;
 
-    ifp->fGLProc.reset(fp.createGLInstance());
+    ifp->fGLProc.reset(fp.createGLSLInstance());
 
     SkSTArray<4, GrGLSLTextureSampler> samplers(fp.numTextures());
     this->emitSamplers(fp, &samplers, ifp);
@@ -279,7 +279,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = new GrGLInstalledGeoProc;
 
-    fGeometryProcessor->fGLProc.reset(gp.createGLInstance(*fGpu->glCaps().glslCaps()));
+    fGeometryProcessor->fGLProc.reset(gp.createGLSLInstance(*fGpu->glCaps().glslCaps()));
 
     SkSTArray<4, GrGLSLTextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
@@ -302,7 +302,7 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkASSERT(!fXferProcessor);
     fXferProcessor = new GrGLInstalledXferProc;
 
-    fXferProcessor->fGLProc.reset(xp.createGLInstance());
+    fXferProcessor->fGLProc.reset(xp.createGLSLInstance());
 
     // Enable dual source secondary output if we have one
     if (xp.hasSecondaryOutput()) {

@@ -74,7 +74,7 @@ public:
 
     const char* name() const override { return "Big Ole Key"; }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GLBigKeyProcessor(*this);
     }
 
@@ -82,8 +82,8 @@ private:
     BigKeyProcessor() {
         this->initClassID<BigKeyProcessor>();
     }
-    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const override {
+    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                       GrProcessorKeyBuilder* b) const override {
         GLBigKeyProcessor::GenKey(*this, caps, b);
     }
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -110,7 +110,7 @@ public:
 
     const char* name() const override { return "Block Input"; }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new GLFP; }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 
 private:
     class GLFP : public GrGLSLFragmentProcessor {
@@ -128,7 +128,7 @@ private:
         this->registerChildProcessor(child);
     }
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {}
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 

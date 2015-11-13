@@ -531,9 +531,9 @@ public:
     SkScalar kd() const { return fKD; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -564,13 +564,13 @@ public:
 
     const char* name() const override { return "SpecularLighting"; }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
 
 private:
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -1614,12 +1614,12 @@ bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
             this->kd() == s.kd();
 }
 
-void GrDiffuseLightingEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                  GrProcessorKeyBuilder* b) const {
+void GrDiffuseLightingEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                    GrProcessorKeyBuilder* b) const {
     GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLSLInstance() const {
     return new GrGLDiffuseLightingEffect(*this);
 }
 
@@ -1815,12 +1815,12 @@ bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const
            this->shininess() == s.shininess();
 }
 
-void GrSpecularLightingEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                   GrProcessorKeyBuilder* b) const {
+void GrSpecularLightingEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                     GrProcessorKeyBuilder* b) const {
     GrGLSpecularLightingEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrSpecularLightingEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrSpecularLightingEffect::onCreateGLSLInstance() const {
     return new GrGLSpecularLightingEffect(*this);
 }
 

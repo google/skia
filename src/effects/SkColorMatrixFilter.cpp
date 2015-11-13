@@ -400,12 +400,12 @@ public:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    class GLProcessor : public GrGLSLFragmentProcessor {
+    class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
         // this class always generates the same code.
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
 
-        GLProcessor(const GrProcessor&) {}
+        GLSLProcessor(const GrProcessor&) {}
 
         virtual void emitCode(EmitArgs& args) override {
             fMatrixHandle = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
@@ -466,11 +466,13 @@ private:
         this->initClassID<ColorMatrixEffect>();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new GLProcessor(*this); }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+        return new GLSLProcessor(*this);
+    }
 
-    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
+    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                       GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
     }
 
     bool onIsEqual(const GrFragmentProcessor& s) const override {

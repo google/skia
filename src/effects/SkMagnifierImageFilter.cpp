@@ -74,9 +74,9 @@ private:
         this->initClassID<GrMagnifierEffect>();
     }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -180,12 +180,12 @@ void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrMagnifierEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                          GrProcessorKeyBuilder* b) const {
+void GrMagnifierEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                              GrProcessorKeyBuilder* b) const {
     GrGLMagnifierEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
     return new GrGLMagnifierEffect(*this);
 }
 

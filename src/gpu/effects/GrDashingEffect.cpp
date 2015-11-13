@@ -790,9 +790,9 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
 
 private:
     DashingCircleEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix,
@@ -929,11 +929,12 @@ GrGeometryProcessor* DashingCircleEffect::Create(GrColor color,
     return new DashingCircleEffect(color, aaMode, localMatrix, usesLocalCoords);
 }
 
-void DashingCircleEffect::getGLProcessorKey(const GrGLSLCaps& caps,GrProcessorKeyBuilder* b) const {
+void DashingCircleEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+                                              GrProcessorKeyBuilder* b) const {
     GLDashingCircleEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* DashingCircleEffect::createGLSLInstance(const GrGLSLCaps&) const {
     return new GLDashingCircleEffect();
 }
 
@@ -1001,9 +1002,9 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
 
 private:
     DashingLineEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix,
@@ -1153,12 +1154,12 @@ GrGeometryProcessor* DashingLineEffect::Create(GrColor color,
     return new DashingLineEffect(color, aaMode, localMatrix, usesLocalCoords);
 }
 
-void DashingLineEffect::getGLProcessorKey(const GrGLSLCaps& caps,
-                                          GrProcessorKeyBuilder* b) const {
+void DashingLineEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
     GLDashingLineEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* DashingLineEffect::createGLSLInstance(const GrGLSLCaps&) const {
     return new GLDashingLineEffect();
 }
 

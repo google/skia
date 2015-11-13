@@ -31,10 +31,10 @@ public:
 
     bool willUseGeoShader() const override { return false; }
 
-    virtual void getGLProcessorKey(const GrGLSLCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override;
+    virtual void getGLSLProcessorKey(const GrGLSLCaps& caps,
+                                     GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps& caps) const override;
+    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const override;
 
     bool hasTransformedLocalCoords() const override { return false; }
 

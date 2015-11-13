@@ -29,7 +29,7 @@ public:
 
     const char* name() const override { return "ComposeTwo"; }
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->add32(fMode);
     }
 
@@ -46,7 +46,7 @@ protected:
     }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     SkXfermode::Mode fMode;
 
@@ -81,7 +81,7 @@ const GrFragmentProcessor* ComposeTwoFragmentProcessor::TestCreate(GrProcessorTe
     return new ComposeTwoFragmentProcessor(fpA, fpB, mode);
 }
 
-GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLInstance() const{
+GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLSLInstance() const{
     return new GLComposeTwoFragmentProcessor(*this);
 }
 
@@ -150,7 +150,7 @@ public:
 
     const char* name() const override { return "ComposeOne"; }
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GR_STATIC_ASSERT((SkXfermode::kLastMode & SK_MaxU16) == SkXfermode::kLastMode);
         b->add32(fMode | (fChild << 16));
     }
@@ -202,7 +202,7 @@ protected:
     }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     SkXfermode::Mode    fMode;
     Child               fChild;
@@ -264,7 +264,7 @@ const GrFragmentProcessor* ComposeOneFragmentProcessor::TestCreate(GrProcessorTe
     return new ComposeOneFragmentProcessor(dst, mode, child);
 }
 
-GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLSLInstance() const {
     return new GLComposeOneFragmentProcessor(*this);
 }
 

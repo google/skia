@@ -88,7 +88,7 @@ public:
 
     const char* name() const override { return "Custom Xfermode"; }
 
-    GrGLSLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLSLInstance() const override;
 
     SkXfermode::Mode mode() const { return fMode; }
     bool hasHWBlendEquation() const { return -1 != static_cast<int>(fHWBlendEquation); }
@@ -105,7 +105,7 @@ private:
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrXferBarrierType onXferBarrier(const GrRenderTarget*, const GrCaps&) const override;
 
@@ -175,11 +175,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void CustomXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void CustomXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXP::GenKey(*this, caps, b);
 }
 
-GrGLSLXferProcessor* CustomXP::createGLInstance() const {
+GrGLSLXferProcessor* CustomXP::createGLSLInstance() const {
     SkASSERT(this->willReadDstColor() != this->hasHWBlendEquation());
     return new GLCustomXP(*this);
 }

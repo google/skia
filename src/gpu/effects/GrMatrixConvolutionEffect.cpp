@@ -155,12 +155,12 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
 }
 
-void GrMatrixConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                  GrProcessorKeyBuilder* b) const {
+void GrMatrixConvolutionEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                      GrProcessorKeyBuilder* b) const {
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLSLInstance() const  {
     return new GrGLMatrixConvolutionEffect(*this);
 }
 

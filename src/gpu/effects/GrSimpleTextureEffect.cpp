@@ -36,12 +36,12 @@ void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
     this->updateInvariantOutputForModulation(inout);
 }
 
-void GrSimpleTextureEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                GrProcessorKeyBuilder* b) const {
+void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                  GrProcessorKeyBuilder* b) const {
     GrGLSimpleTextureEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const  {
     return new GrGLSimpleTextureEffect(*this);
 }
 

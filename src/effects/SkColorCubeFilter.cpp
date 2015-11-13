@@ -175,10 +175,10 @@ public:
 
     void onComputeInvariantOutput(GrInvariantOutput*) const override;
 
-    class GLProcessor : public GrGLSLFragmentProcessor {
+    class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        GLProcessor(const GrProcessor&);
-        virtual ~GLProcessor();
+        GLSLProcessor(const GrProcessor&);
+        virtual ~GLSLProcessor();
 
         virtual void emitCode(EmitArgs&) override;
 
@@ -195,10 +195,10 @@ public:
     };
 
 private:
-    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
                                      GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -220,12 +220,13 @@ GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
 GrColorCubeEffect::~GrColorCubeEffect() {
 }
 
-void GrColorCubeEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
-    GLProcessor::GenKey(*this, caps, b);
+void GrColorCubeEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                              GrProcessorKeyBuilder* b) const {
+    GLSLProcessor::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrColorCubeEffect::onCreateGLInstance() const {
-    return new GLProcessor(*this);
+GrGLSLFragmentProcessor* GrColorCubeEffect::onCreateGLSLInstance() const {
+    return new GLSLProcessor(*this);
 }
 
 void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -234,13 +235,13 @@ void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrColorCubeEffect::GLProcessor::GLProcessor(const GrProcessor&) {
+GrColorCubeEffect::GLSLProcessor::GLSLProcessor(const GrProcessor&) {
 }
 
-GrColorCubeEffect::GLProcessor::~GLProcessor() {
+GrColorCubeEffect::GLSLProcessor::~GLSLProcessor() {
 }
 
-void GrColorCubeEffect::GLProcessor::emitCode(EmitArgs& args) {
+void GrColorCubeEffect::GLSLProcessor::emitCode(EmitArgs& args) {
     if (nullptr == args.fInputColor) {
         args.fInputColor = "vec4(1)";
     }
@@ -293,16 +294,16 @@ void GrColorCubeEffect::GLProcessor::emitCode(EmitArgs& args) {
                            cubeIdx, nonZeroAlpha, args.fInputColor);
 }
 
-void GrColorCubeEffect::GLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
-                                               const GrProcessor& proc) {
+void GrColorCubeEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
+                                                 const GrProcessor& proc) {
     const GrColorCubeEffect& colorCube = proc.cast<GrColorCubeEffect>();
     SkScalar size = SkIntToScalar(colorCube.colorCubeSize());
     pdman.set1f(fColorCubeSizeUni, SkScalarToFloat(size));
     pdman.set1f(fColorCubeInvSizeUni, SkScalarToFloat(SkScalarInvert(size)));
 }
 
-void GrColorCubeEffect::GLProcessor::GenKey(const GrProcessor& proc,
-                                            const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+void GrColorCubeEffect::GLSLProcessor::GenKey(const GrProcessor& proc,
+                                              const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
 }
 
 const GrFragmentProcessor* SkColorCubeFilter::asFragmentProcessor(GrContext* context) const {

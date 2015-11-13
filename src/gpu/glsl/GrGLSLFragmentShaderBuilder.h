@@ -146,7 +146,7 @@ private:
     const char* getPrimaryColorOutputName() const;
     const char* getSecondaryColorOutputName() const;
 
-    // As GLProcessors emit code, there are some conditions we need to verify.  We use the below
+    // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
     bool hasReadDstColor() const { return fHasReadDstColor; }
     bool hasReadFragmentPosition() const { return fHasReadFragmentPosition; }

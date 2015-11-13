@@ -90,9 +90,9 @@ public:
 
     inline bool isStroked() const { return fStroke; }
 
-    class GLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
-        GLProcessor()
+        GLSLProcessor()
             : fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
@@ -165,12 +165,12 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
-        return new GLProcessor();
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+        return new GLSLProcessor();
     }
 
 private:
@@ -238,9 +238,9 @@ public:
 
     inline bool isStroked() const { return fStroke; }
 
-    class GLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
-        GLProcessor()
+        GLSLProcessor()
             : fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
@@ -334,12 +334,12 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
-        return new GLProcessor();
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+        return new GLSLProcessor();
     }
 
 private:
@@ -413,9 +413,9 @@ public:
 
     inline Mode getMode() const { return fMode; }
 
-    class GLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
-        GLProcessor()
+        GLSLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
@@ -528,12 +528,12 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLProcessor::GenKey(*this, caps, b);
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
-        return new GLProcessor();
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+        return new GLSLProcessor();
     }
 
 private:

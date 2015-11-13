@@ -92,11 +92,12 @@ void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) c
     }
 }
 
-void GrConstColorProcessor::onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const {
+void GrConstColorProcessor::onGetGLSLProcessorKey(const GrGLSLCaps&,
+                                                  GrProcessorKeyBuilder* b) const {
     b->add32(fMode);
 }
 
-GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const  {
     return new GLConstColorProcessor;
 }
 

@@ -101,9 +101,9 @@ private:
         this->addTextureAccess(&fMaskTextureAccess);
     }
 
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -203,12 +203,12 @@ const GrFragmentProcessor* AlphaThresholdEffect::TestCreate(GrProcessorTestData*
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void AlphaThresholdEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
+void AlphaThresholdEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                 GrProcessorKeyBuilder* b) const {
     GrGLAlphaThresholdEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* AlphaThresholdEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* AlphaThresholdEffect::onCreateGLSLInstance() const {
     return new GrGLAlphaThresholdEffect(*this);
 }
 

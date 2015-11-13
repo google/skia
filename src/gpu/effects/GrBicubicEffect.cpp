@@ -152,12 +152,12 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
 GrBicubicEffect::~GrBicubicEffect() {
 }
 
-void GrBicubicEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                        GrProcessorKeyBuilder* b) const {
+void GrBicubicEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
     GrGLBicubicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const  {
     return new GrGLBicubicEffect(*this);
 }
 

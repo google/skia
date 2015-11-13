@@ -79,9 +79,9 @@ public:
     SkScalar radius() const { return fRadius0; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const Edge2PtConicalEffect& s = sBase.cast<Edge2PtConicalEffect>();
@@ -169,12 +169,12 @@ private:
 
 };
 
-void Edge2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
+void Edge2PtConicalEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                 GrProcessorKeyBuilder* b) const {
     GLEdge2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* Edge2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* Edge2PtConicalEffect::onCreateGLSLInstance() const {
     return new GLEdge2PtConicalEffect(*this);
 }
 
@@ -385,9 +385,9 @@ public:
     SkScalar focal() const { return fFocalX; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const FocalOutside2PtConicalEffect& s = sBase.cast<FocalOutside2PtConicalEffect>();
@@ -446,12 +446,12 @@ private:
 
 };
 
-void FocalOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                       GrProcessorKeyBuilder* b) const {
+void FocalOutside2PtConicalEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                         GrProcessorKeyBuilder* b) const {
     GLFocalOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* FocalOutside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* FocalOutside2PtConicalEffect::onCreateGLSLInstance() const {
     return new GLFocalOutside2PtConicalEffect(*this);
 }
 
@@ -592,12 +592,12 @@ public:
 
     SkScalar focal() const { return fFocalX; }
 
-    typedef GLFocalInside2PtConicalEffect GLProcessor;
+    typedef GLFocalInside2PtConicalEffect GLSLProcessor;
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const FocalInside2PtConicalEffect& s = sBase.cast<FocalInside2PtConicalEffect>();
@@ -650,12 +650,12 @@ private:
 
 };
 
-void FocalInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                      GrProcessorKeyBuilder* b) const {
+void FocalInside2PtConicalEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                        GrProcessorKeyBuilder* b) const {
     GLFocalInside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* FocalInside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* FocalInside2PtConicalEffect::onCreateGLSLInstance() const {
     return new GLFocalInside2PtConicalEffect(*this);
 }
 
@@ -828,10 +828,10 @@ public:
     SkScalar C() const { return fInfo.fC; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const override;
+    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                       GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const CircleInside2PtConicalEffect& s = sBase.cast<CircleInside2PtConicalEffect>();
@@ -892,12 +892,12 @@ private:
 
 };
 
-void CircleInside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                       GrProcessorKeyBuilder* b) const {
+void CircleInside2PtConicalEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                         GrProcessorKeyBuilder* b) const {
     GLCircleInside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* CircleInside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* CircleInside2PtConicalEffect::onCreateGLSLInstance() const {
     return new GLCircleInside2PtConicalEffect(*this);
 }
 
@@ -1040,9 +1040,9 @@ public:
     bool isFlipped() const { return fIsFlipped; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const CircleOutside2PtConicalEffect& s = sBase.cast<CircleOutside2PtConicalEffect>();
@@ -1117,12 +1117,12 @@ private:
 
 };
 
-void CircleOutside2PtConicalEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                        GrProcessorKeyBuilder* b) const {
+void CircleOutside2PtConicalEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                          GrProcessorKeyBuilder* b) const {
     GLCircleOutside2PtConicalEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* CircleOutside2PtConicalEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* CircleOutside2PtConicalEffect::onCreateGLSLInstance() const {
     return new GLCircleOutside2PtConicalEffect(*this);
 }
 

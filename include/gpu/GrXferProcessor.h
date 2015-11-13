@@ -92,15 +92,15 @@ public:
     };
 
     /**
-     * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLProcessorKey(...) to get the
+     * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLSLProcessorKey(...) to get the
      * specific subclass's key.
      */ 
-    void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const;
+    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLSLXferProcessor* createGLInstance() const = 0;
+    virtual GrGLSLXferProcessor* createGLSLInstance() const = 0;
 
     /**
      * Optimizations for blending / coverage that an OptDrawState should apply to itself.
@@ -214,7 +214,8 @@ public:
         from getFactory()).
 
         A return value of true from isEqual() should not be used to test whether the processor would
-        generate the same shader code. To test for identical code generation use getGLProcessorKey*/
+        generate the same shader code. To test for identical code generation use getGLSLProcessorKey
+      */
     
     bool isEqual(const GrXferProcessor& that) const {
         if (this->classID() != that.classID()) {
@@ -255,8 +256,8 @@ private:
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
      * processor's GL backend implementation.
      */
-    virtual void onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const = 0;
+    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                       GrProcessorKeyBuilder* b) const = 0;
 
     /**
      * Determines the type of barrier (if any) required by the subclass. Note that the possibility

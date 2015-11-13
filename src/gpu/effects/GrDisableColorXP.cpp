@@ -24,7 +24,7 @@ public:
 
     const char* name() const override { return "Disable Color"; }
 
-    GrGLSLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLSLInstance() const override;
 
 private:
     DisableColorXP();
@@ -37,7 +37,7 @@ private:
         return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
     }
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
@@ -78,11 +78,11 @@ DisableColorXP::DisableColorXP() {
     this->initClassID<DisableColorXP>();
 }
 
-void DisableColorXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void DisableColorXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     GLDisableColorXP::GenKey(*this, caps, b);
 }
 
-GrGLSLXferProcessor* DisableColorXP::createGLInstance() const { return new GLDisableColorXP(*this); }
+GrGLSLXferProcessor* DisableColorXP::createGLSLInstance() const { return new GLDisableColorXP(*this); }
 
 void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
     blendInfo->fWriteColor = false;

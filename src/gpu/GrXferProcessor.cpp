@@ -73,7 +73,7 @@ void GrXferProcessor::getBlendInfo(BlendInfo* blendInfo) const {
     }
 }
 
-void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrXferProcessor::getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t key = this->willReadDstColor() ? 0x1 : 0x0;
     if (key) {
         if (const GrTexture* dstTexture = this->getDstTexture()) {
@@ -90,7 +90,7 @@ void GrXferProcessor::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBu
         }
     }
     b->add32(key);
-    this->onGetGLProcessorKey(caps, b);
+    this->onGetGLSLProcessorKey(caps, b);
 }
 
 GrXferBarrierType GrXferProcessor::xferBarrierType(const GrRenderTarget* rt,

@@ -236,9 +236,9 @@ protected:
     float fRange[2];
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override;
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -423,11 +423,12 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
 GrMorphologyEffect::~GrMorphologyEffect() {
 }
 
-void GrMorphologyEffect::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrMorphologyEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                               GrProcessorKeyBuilder* b) const {
     GrGLMorphologyEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
     return new GrGLMorphologyEffect(*this);
 }
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

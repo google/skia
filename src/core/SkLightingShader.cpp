@@ -281,7 +281,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fXformUni;
     };
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         LightingGLFP::GenKey(*this, caps, b);
     }
 
@@ -297,7 +297,7 @@ public:
     const SkVector& invNormRotation() const { return fInvNormRotation; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLInstance() const override { return new LightingGLFP; }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new LightingGLFP; }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override { 
         const LightingFP& lightingFP = proc.cast<LightingFP>();

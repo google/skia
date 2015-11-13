@@ -142,12 +142,12 @@ const GrFragmentProcessor* GrConfigConversionEffect::TestCreate(GrProcessorTestD
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrConfigConversionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                   GrProcessorKeyBuilder* b) const {
+void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                     GrProcessorKeyBuilder* b) const {
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrConfigConversionEffect::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrConfigConversionEffect::onCreateGLSLInstance() const {
     return new GrGLConfigConversionEffect(*this);
 }
 

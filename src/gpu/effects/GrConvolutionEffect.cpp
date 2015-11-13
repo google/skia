@@ -194,12 +194,12 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
 GrConvolutionEffect::~GrConvolutionEffect() {
 }
 
-void GrConvolutionEffect::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                        GrProcessorKeyBuilder* b) const {
+void GrConvolutionEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                GrProcessorKeyBuilder* b) const {
     GrGLConvolutionEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrConvolutionEffect::onCreateGLInstance() const  {
+GrGLSLFragmentProcessor* GrConvolutionEffect::onCreateGLSLInstance() const  {
     return new GrGLConvolutionEffect(*this);
 }
 

@@ -25,7 +25,7 @@ public:
 
     const char* name() const override { return "Coverage Set Op"; }
 
-    GrGLSLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLSLInstance() const override;
 
     bool invertCoverage() const { return fInvertCoverage; }
 
@@ -38,7 +38,7 @@ private:
                                                  GrColor* color,
                                                  const GrCaps& caps) override;
 
-    void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
@@ -97,11 +97,12 @@ CoverageSetOpXP::CoverageSetOpXP(SkRegion::Op regionOp, bool invertCoverage)
 CoverageSetOpXP::~CoverageSetOpXP() {
 }
 
-void CoverageSetOpXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void CoverageSetOpXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
     GLCoverageSetOpXP::GenKey(*this, caps, b);
 }
 
-GrGLSLXferProcessor* CoverageSetOpXP::createGLInstance() const {
+GrGLSLXferProcessor* CoverageSetOpXP::createGLSLInstance() const {
     return new GLCoverageSetOpXP(*this);
 }
 

@@ -88,7 +88,7 @@ static bool get_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
         }
     }
 
-    fp.getGLProcessorKey(*caps.glslCaps(), b);
+    fp.getGLSLProcessorKey(*caps.glslCaps(), b);
 
     //**** use glslCaps here?
     return get_meta_key(fp, caps, primProc.getTransformKey(fp.coordTransforms(),
@@ -113,7 +113,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     GrProcessorKeyBuilder b(&glDesc->key());
 
-    primProc.getGLProcessorKey(*gpu->glCaps().glslCaps(), &b);
+    primProc.getGLSLProcessorKey(*gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
     if (!get_meta_key(primProc, gpu->glCaps(), 0, &b)) {
         glDesc->key().reset();
@@ -129,7 +129,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     }
 
     const GrXferProcessor& xp = *pipeline.getXferProcessor();
-    xp.getGLProcessorKey(*gpu->glCaps().glslCaps(), &b);
+    xp.getGLSLProcessorKey(*gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
     if (!get_meta_key(xp, gpu->glCaps(), 0, &b)) {
         glDesc->key().reset();

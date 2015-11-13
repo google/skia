@@ -50,11 +50,11 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that,
     return true;
 }
 
-GrGLSLFragmentProcessor* GrFragmentProcessor::createGLInstance() const {
-    GrGLSLFragmentProcessor* glFragProc = this->onCreateGLInstance();
+GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
+    GrGLSLFragmentProcessor* glFragProc = this->onCreateGLSLInstance();
     glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());
     for (int i = 0; i < fChildProcessors.count(); ++i) {
-        glFragProc->fChildProcessors[i] = fChildProcessors[i]->createGLInstance();
+        glFragProc->fChildProcessors[i] = fChildProcessors[i]->createGLSLInstance();
     }
     return glFragProc;
 }
@@ -147,7 +147,7 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
         const char* name() const override { return "Premultiply"; }
 
     private:
-        GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 GLFP() {}
@@ -163,7 +163,7 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
             return new GLFP;
         }
 
-        void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+        void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -220,7 +220,7 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
 
         const char* name() const override { return "Replace Color"; }
 
-        GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 GLFP() : fHaveSetColor(false) {}
@@ -259,7 +259,8 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
         }
 
     private:
-        void onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {}
+        void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override
+        {}
 
         bool onIsEqual(const GrFragmentProcessor& that) const override {
             return fColor == that.cast<ReplaceInputFragmentProcessor>().fColor;
@@ -297,7 +298,7 @@ const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProc
 
         const char* name() const override { return "Series"; }
 
-        GrGLSLFragmentProcessor* onCreateGLInstance() const override {
+        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 GLFP() {}
@@ -317,7 +318,7 @@ const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProc
         }
 
     private:
-        void onGetGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+        void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 

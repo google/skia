@@ -93,12 +93,12 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circl
     this->setWillReadFragmentPosition();
 }
 
-GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLInstance() const {
+GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLCircleBlurFragmentProcessor(*this);
 }
 
-void GrCircleBlurFragmentProcessor::onGetGLProcessorKey(const GrGLSLCaps& caps,
-                                                        GrProcessorKeyBuilder* b) const {
+void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+                                                          GrProcessorKeyBuilder* b) const {
     GrGLCircleBlurFragmentProcessor::GenKey(*this, caps, b);
 }
 
