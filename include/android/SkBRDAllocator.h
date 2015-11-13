@@ -26,4 +26,4 @@ public:
     virtual SkCodec::ZeroInitialized zeroInit() const = 0;
 };
 
-#endif
+#endif // SkBRDAllocator_DEFINED

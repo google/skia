@@ -9,6 +9,7 @@
     'component_libs': [
       'core.gyp:core',
       'codec.gyp:codec',
+      'codec_android.gyp:codec_android',
       'effects.gyp:effects',
       'images.gyp:images',
       'opts.gyp:opts',

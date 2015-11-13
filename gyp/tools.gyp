@@ -17,7 +17,6 @@
       'target_name': 'tools',
       'type': 'none',
       'dependencies': [
-        'bitmap_region_decoder',
         'chrome_fuzz',
         'filter',
         'gpuveto',
@@ -46,27 +45,6 @@
           },
         ],
       ],
-    },
-    {
-      'target_name': 'bitmap_region_decoder',
-      'type': 'static_library',
-      'sources': [
-        '../tools/android/SkBitmapRegionCanvas.cpp',
-        '../tools/android/SkBitmapRegionCodec.cpp',
-        '../tools/android/SkBitmapRegionDecoder.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/codec',
-      ],
-      'dependencies': [
-        'skia_lib.gyp:skia_lib',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '../tools/android',
-        ],
-      },
     },
     {
       'target_name': 'chrome_fuzz',
@@ -577,6 +555,7 @@
       'cflags!': [ '-Wno-unused-parameter' ],
       'variables': {
         'includes_to_test': [
+          '<(skia_include_path)/android',
           '<(skia_include_path)/animator',
           '<(skia_include_path)/c',
           '<(skia_include_path)/codec',

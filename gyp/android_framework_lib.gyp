@@ -9,6 +9,7 @@
       'type': 'shared_library',
       'dependencies': [
         'codec.gyp:codec',
+        'codec_android.gyp:codec_android',
         'core.gyp:core',
         'effects.gyp:effects',
         'gpu.gyp:skgpu',
@@ -16,7 +17,6 @@
         'opts.gyp:opts',
         'pdf.gyp:pdf',
         'ports.gyp:ports',
-        'tools.gyp:bitmap_region_decoder',
         'utils.gyp:utils',
       ],
     },
