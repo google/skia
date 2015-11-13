@@ -24,7 +24,7 @@ class SkCanvas;
  */
 class VisualStreamTimingModule : public VisualModule {
 public:
-    VisualStreamTimingModule(VisualBench* owner, bool preWarmBeforeSample);
+    VisualStreamTimingModule(VisualBench* owner);
     void draw(SkCanvas* canvas) override;
 
 private:
@@ -44,7 +44,6 @@ private:
         kNewBenchmark_InitState,
     };
     InitState fInitState;
-    bool fPreWarmBeforeSample;
 
     // support framework
     VisualBench* fOwner;

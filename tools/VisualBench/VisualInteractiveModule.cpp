@@ -15,7 +15,7 @@
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 VisualInteractiveModule::VisualInteractiveModule(VisualBench* owner)
-    : INHERITED(owner, false)
+    : INHERITED(owner)
     , fCurrentMeasurement(0)
     , fAdvance(false) {
     memset(fMeasurements, 0, sizeof(fMeasurements));

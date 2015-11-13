@@ -42,7 +42,7 @@ static SkString humanize(double ms) {
 #define HUMANIZE(time) humanize(time).c_str()
 
 VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
-    : INHERITED(owner, true)
+    : INHERITED(owner)
     , fCurrentSample(0)
     , fResults(new ResultsWriter) {
     // Print header
