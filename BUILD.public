@@ -227,6 +227,7 @@ HDRS = glob(
 
 # Includes needed by Skia implementation.  Not public includes.
 INCLUDES = [
+    "include/android",
     "include/c",
     "include/codec",
     "include/config",
@@ -243,6 +244,7 @@ INCLUDES = [
     "include/utils/win",
     "include/svg",
     "include/xml",
+    "src/codec",
     "src/core",
     "src/gpu",
     "src/image",
