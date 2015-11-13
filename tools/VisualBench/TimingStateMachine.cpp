@@ -45,27 +45,28 @@ TimingStateMachine::ParentEvents TimingStateMachine::nextFrame(bool preWarmBetwe
                         SkDebugf("InnerLoops wrapped\n");
                         fLoops = 1;
                     } else {
-                        double elapsedMs = this->elapsed();
+                        double elapsedMs = now_ms() - fStartTime;
                         if (elapsedMs < FLAGS_loopMs) {
                             fLoops *= 2;
                         } else {
                             fInnerState = kTiming_InnerState;
                         }
                         fState = kPreWarm_State;
-                        this->resetTimingState();
+                        fCurrentFrame = 0;
                         parentEvent = kReset_ParentEvents;
                     }
                     break;
                 }
                 case kTiming_InnerState: {
                     if (fCurrentFrame >= FLAGS_frames) {
-                        this->recordMeasurement();
-                        this->resetTimingState();
+                        double now = now_ms();
+                        fLastMeasurement = (now - fStartTime) / (FLAGS_frames * fLoops);
+                        fCurrentFrame = 0;
                         parentEvent = kTimingFinished_ParentEvents;
                         if (preWarmBetweenSamples) {
                             fState = kPreWarm_State;
                         } else {
-                            fStartTime = now_ms();
+                            fStartTime = now;
                         }
                     } else {
                         fCurrentFrame++;
@@ -77,18 +78,6 @@ TimingStateMachine::ParentEvents TimingStateMachine::nextFrame(bool preWarmBetwe
         break;
     }
     return parentEvent;
-}
-
-inline double TimingStateMachine::elapsed() {
-    return now_ms() - fStartTime;
-}
-
-void TimingStateMachine::resetTimingState() {
-    fCurrentFrame = 0;
-}
-
-void TimingStateMachine::recordMeasurement() {
-    fLastMeasurement = this->elapsed() / (FLAGS_frames * fLoops);
 }
 
 void TimingStateMachine::nextBenchmark() {
