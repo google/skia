@@ -21,8 +21,8 @@
 #include "SkTLazy.h"
 #include "batches/GrVertexBatch.h"
 #include "effects/GrRRectEffect.h"
-#include "gl/GrGLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -90,7 +90,7 @@ public:
 
     inline bool isStroked() const { return fStroke; }
 
-    class GLProcessor : public GrGLGeometryProcessor {
+    class GLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLProcessor()
             : fColor(GrColor_ILLEGAL) {}
@@ -162,14 +162,14 @@ public:
     private:
         GrColor fColor;
         UniformHandle fColorUniform;
-        typedef GrGLGeometryProcessor INHERITED;
+        typedef GrGLSLGeometryProcessor INHERITED;
     };
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
         return new GLProcessor();
     }
 
@@ -238,7 +238,7 @@ public:
 
     inline bool isStroked() const { return fStroke; }
 
-    class GLProcessor : public GrGLGeometryProcessor {
+    class GLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLProcessor()
             : fColor(GrColor_ILLEGAL) {}
@@ -331,14 +331,14 @@ public:
         GrColor fColor;
         UniformHandle fColorUniform;
 
-        typedef GrGLGeometryProcessor INHERITED;
+        typedef GrGLSLGeometryProcessor INHERITED;
     };
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
         return new GLProcessor();
     }
 
@@ -413,7 +413,7 @@ public:
 
     inline Mode getMode() const { return fMode; }
 
-    class GLProcessor : public GrGLGeometryProcessor {
+    class GLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {}
@@ -525,14 +525,14 @@ public:
         UniformHandle fColorUniform;
         UniformHandle fViewMatrixUniform;
 
-        typedef GrGLGeometryProcessor INHERITED;
+        typedef GrGLSLGeometryProcessor INHERITED;
     };
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
         return new GLProcessor();
     }
 

@@ -21,9 +21,8 @@
 #include "GrVertexBuffer.h"
 #include "SkGr.h"
 #include "batches/GrVertexBatch.h"
-#include "gl/GrGLGeometryProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -793,7 +792,7 @@ public:
 
     void getGLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const override;
 
-    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
 
 private:
     DashingCircleEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix,
@@ -814,7 +813,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingCircleEffect : public GrGLGeometryProcessor {
+class GLDashingCircleEffect : public GrGLSLGeometryProcessor {
 public:
     GLDashingCircleEffect();
 
@@ -840,7 +839,7 @@ private:
     SkScalar      fPrevRadius;
     SkScalar      fPrevCenterX;
     SkScalar      fPrevIntervalLength;
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GLDashingCircleEffect::GLDashingCircleEffect() {
@@ -934,7 +933,7 @@ void DashingCircleEffect::getGLProcessorKey(const GrGLSLCaps& caps,GrProcessorKe
     GLDashingCircleEffect::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* DashingCircleEffect::createGLInstance(const GrGLSLCaps&) const {
     return new GLDashingCircleEffect();
 }
 
@@ -1004,7 +1003,7 @@ public:
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override;
 
 private:
     DashingLineEffect(GrColor, DashAAMode aaMode, const SkMatrix& localMatrix,
@@ -1025,7 +1024,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingLineEffect : public GrGLGeometryProcessor {
+class GLDashingLineEffect : public GrGLSLGeometryProcessor {
 public:
     GLDashingLineEffect();
 
@@ -1047,7 +1046,7 @@ public:
 private:
     GrColor       fColor;
     UniformHandle fColorUniform;
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GLDashingLineEffect::GLDashingLineEffect() {
@@ -1159,7 +1158,7 @@ void DashingLineEffect::getGLProcessorKey(const GrGLSLCaps& caps,
     GLDashingLineEffect::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* DashingLineEffect::createGLInstance(const GrGLSLCaps&) const {
     return new GLDashingLineEffect();
 }
 

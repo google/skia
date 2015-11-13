@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLPrimitiveProcessor_DEFINED
-#define GrGLPrimitiveProcessor_DEFINED
+#ifndef GrGLSLPrimitiveProcessor_DEFINED
+#define GrGLSLPrimitiveProcessor_DEFINED
 
 #include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProcessorTypes.h"
@@ -17,9 +17,9 @@ class GrBatchTracker;
 class GrPrimitiveProcessor;
 class GrGLSLGPBuilder;
 
-class GrGLPrimitiveProcessor {
+class GrGLSLPrimitiveProcessor {
 public:
-    virtual ~GrGLPrimitiveProcessor() {}
+    virtual ~GrGLSLPrimitiveProcessor() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
@@ -59,12 +59,12 @@ public:
     virtual void emitCode(EmitArgs&) = 0;
 
 
-    /** A GrGLPrimitiveProcessor instance can be reused with any GrGLPrimitiveProcessor that
-        produces the same stage key; this function reads data from a GrGLPrimitiveProcessor and
+    /** A GrGLSLPrimitiveProcessor instance can be reused with any GrGLSLPrimitiveProcessor that
+        produces the same stage key; this function reads data from a GrGLSLPrimitiveProcessor and
         uploads any uniform variables required  by the shaders created in emitCode(). The
         GrPrimitiveProcessor parameter is guaranteed to be of the same type that created this
-        GrGLPrimitiveProcessor and to have an identical processor key as the one that created this
-        GrGLPrimitiveProcessor.  */
+        GrGLSLPrimitiveProcessor and to have an identical processor key as the one that created this
+        GrGLSLPrimitiveProcessor.  */
     virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) = 0;
 
     static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);

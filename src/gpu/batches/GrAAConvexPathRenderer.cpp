@@ -25,7 +25,7 @@
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "batches/GrVertexBatch.h"
-#include "gl/GrGLGeometryProcessor.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
@@ -541,7 +541,7 @@ public:
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    class GLProcessor : public GrGLGeometryProcessor {
+    class GLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLProcessor()
             : fColor(GrColor_ILLEGAL) {}
@@ -627,14 +627,14 @@ public:
         GrColor fColor;
         UniformHandle fColorUniform;
 
-        typedef GrGLGeometryProcessor INHERITED;
+        typedef GrGLSLGeometryProcessor INHERITED;
     };
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
         return new GLProcessor();
     }
 

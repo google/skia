@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLPrimitiveProcessor.h"
+#include "GrGLSLPrimitiveProcessor.h"
 
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-SkMatrix GrGLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
-                                                    const GrCoordTransform& coordTransform) {
+SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
+                                                      const GrCoordTransform& coordTransform) {
     SkMatrix combined;
     // We only apply the localmatrix to localcoords
     if (kLocal_GrCoordSet == coordTransform.sourceCoords()) {
@@ -32,9 +32,9 @@ SkMatrix GrGLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
     return combined;
 }
 
-void GrGLPrimitiveProcessor::setupUniformColor(GrGLSLGPBuilder* pb,
-                                               const char* outputName,
-                                               UniformHandle* colorUniform) {
+void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLGPBuilder* pb,
+                                                 const char* outputName,
+                                                 UniformHandle* colorUniform) {
     GrGLSLFragmentBuilder* fs = pb->getFragmentShaderBuilder();
     SkASSERT(colorUniform);
     const char* stagedLocalVarName;

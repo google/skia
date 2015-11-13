@@ -11,9 +11,8 @@
 
 #include "SkDistanceFieldGen.h"
 
-#include "gl/GrGLGeometryProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -22,7 +21,7 @@
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
 
-class GrGLDistanceFieldA8TextGeoProc : public GrGLGeometryProcessor {
+class GrGLDistanceFieldA8TextGeoProc : public GrGLSLGeometryProcessor {
 public:
     GrGLDistanceFieldA8TextGeoProc()
         : fViewMatrix(SkMatrix::InvalidMatrix())
@@ -200,7 +199,7 @@ private:
     UniformHandle fDistanceAdjustUni;
 #endif
 
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,7 +239,7 @@ void GrDistanceFieldA8TextGeoProc::getGLProcessorKey(const GrGLSLCaps& caps,
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrDistanceFieldA8TextGeoProc::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrDistanceFieldA8TextGeoProc::createGLInstance(const GrGLSLCaps&) const {
     return new GrGLDistanceFieldA8TextGeoProc();
 }
 
@@ -276,7 +275,7 @@ const GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLDistanceFieldPathGeoProc : public GrGLGeometryProcessor {
+class GrGLDistanceFieldPathGeoProc : public GrGLSLGeometryProcessor {
 public:
     GrGLDistanceFieldPathGeoProc()
         : fViewMatrix(SkMatrix::InvalidMatrix())
@@ -422,7 +421,7 @@ private:
     GrColor       fColor;
     SkISize       fTextureSize;
 
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -457,7 +456,7 @@ void GrDistanceFieldPathGeoProc::getGLProcessorKey(const GrGLSLCaps& caps,
     GrGLDistanceFieldPathGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrDistanceFieldPathGeoProc::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrDistanceFieldPathGeoProc::createGLInstance(const GrGLSLCaps&) const {
     return new GrGLDistanceFieldPathGeoProc();
 }
 
@@ -491,7 +490,7 @@ const GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLDistanceFieldLCDTextGeoProc : public GrGLGeometryProcessor {
+class GrGLDistanceFieldLCDTextGeoProc : public GrGLSLGeometryProcessor {
 public:
     GrGLDistanceFieldLCDTextGeoProc()
         : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {
@@ -697,7 +696,7 @@ private:
     GrDistanceFieldLCDTextGeoProc::DistanceAdjust fDistanceAdjust;
     UniformHandle                                fDistanceAdjustUni;
 
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -727,7 +726,7 @@ void GrDistanceFieldLCDTextGeoProc::getGLProcessorKey(const GrGLSLCaps& caps,
     GrGLDistanceFieldLCDTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLInstance(const GrGLSLCaps&) const {
     return new GrGLDistanceFieldLCDTextGeoProc();
 }
 

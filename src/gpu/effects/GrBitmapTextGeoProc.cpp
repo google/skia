@@ -8,14 +8,13 @@
 #include "GrBitmapTextGeoProc.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
-#include "gl/GrGLGeometryProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 
-class GrGLBitmapTextGeoProc : public GrGLGeometryProcessor {
+class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
 public:
     GrGLBitmapTextGeoProc() : fColor(GrColor_ILLEGAL) {}
 
@@ -119,7 +118,7 @@ private:
     GrColor fColor;
     UniformHandle fColorUniform;
 
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -151,7 +150,7 @@ void GrBitmapTextGeoProc::getGLProcessorKey(const GrGLSLCaps& caps,GrProcessorKe
     GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrBitmapTextGeoProc::createGLInstance(const GrGLSLCaps& caps) const {
+GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLInstance(const GrGLSLCaps& caps) const {
     return new GrGLBitmapTextGeoProc();
 }
 

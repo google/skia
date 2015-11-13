@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLGeometryProcessor_DEFINED
-#define GrGLGeometryProcessor_DEFINED
+#ifndef GrGLSLGeometryProcessor_DEFINED
+#define GrGLSLGeometryProcessor_DEFINED
 
-#include "GrGLPrimitiveProcessor.h"
+#include "GrGLSLPrimitiveProcessor.h"
 
 class GrGLSLGPBuilder;
 
@@ -17,7 +17,7 @@ class GrGLSLGPBuilder;
  * from this class. Since paths don't have vertices, this class is only meant to be used internally
  * by skia, for special cases.
  */
-class GrGLGeometryProcessor : public GrGLPrimitiveProcessor {
+class GrGLSLGeometryProcessor : public GrGLSLPrimitiveProcessor {
 public:
     /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
     void emitCode(EmitArgs&) override;
@@ -104,7 +104,7 @@ private:
 
     virtual void onEmitCode(EmitArgs&, GrGPArgs*) = 0;
 
-    typedef GrGLPrimitiveProcessor INHERITED;
+    typedef GrGLSLPrimitiveProcessor INHERITED;
 };
 
 #endif

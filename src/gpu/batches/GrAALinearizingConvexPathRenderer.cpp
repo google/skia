@@ -24,8 +24,8 @@
 #include "SkTraceEvent.h"
 #include "SkPathPriv.h"
 #include "batches/GrVertexBatch.h"
-#include "gl/GrGLGeometryProcessor.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 
 static const int DEFAULT_BUFFER_SIZE = 100;
 

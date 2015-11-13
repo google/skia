@@ -10,13 +10,13 @@
 #include "GrAllocator.h"
 #include "GrProcessor.h"
 #include "GrCoordTransform.h"
-#include "GrGLGeometryProcessor.h"
 #include "GrGLGpu.h"
 #include "GrGLPathRendering.h"
 #include "GrPathProcessor.h"
 #include "GrPipeline.h"
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLXferProcessor.h"
 #include "SkXfermode.h"
 
@@ -112,7 +112,7 @@ void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
                                    const GrFragmentProcessor& processor,
                                    int index,
                                    GrGLInstalledFragProc* ip) {
-    GrGLPrimitiveProcessor* gp = fGeometryProcessor.get()->fGLProc.get();
+    GrGLSLPrimitiveProcessor* gp = fGeometryProcessor.get()->fGLProc.get();
     gp->setTransformData(primProc, fProgramDataManager, index,
                          processor.coordTransforms());
 }

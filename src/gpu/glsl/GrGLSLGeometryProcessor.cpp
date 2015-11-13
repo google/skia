@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLGeometryProcessor.h"
+#include "GrGLSLGeometryProcessor.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 
-void GrGLGeometryProcessor::emitCode(EmitArgs& args) {
+void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
     vsBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
 }
 
-void GrGLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
-                                           const GrShaderVar& posVar,
-                                           const char* localCoords,
-                                           const SkMatrix& localMatrix,
-                                           const TransformsIn& tin,
-                                           TransformsOut* tout) {
+void GrGLSLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
+                                             const GrShaderVar& posVar,
+                                             const char* localCoords,
+                                             const SkMatrix& localMatrix,
+                                             const TransformsIn& tin,
+                                             TransformsOut* tout) {
     GrGLSLVertexBuilder* vb = pb->getVertexShaderBuilder();
     tout->push_back_n(tin.count());
     fInstalledTransforms.push_back_n(tin.count());
@@ -92,10 +92,10 @@ void GrGLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
     }
 }
 
-void GrGLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
-                                           const char* localCoords,
-                                           const TransformsIn& tin,
-                                           TransformsOut* tout) {
+void GrGLSLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
+                                             const char* localCoords,
+                                             const TransformsIn& tin,
+                                             TransformsOut* tout) {
     GrGLSLVertexBuilder* vb = pb->getVertexShaderBuilder();
     tout->push_back_n(tin.count());
     for (int i = 0; i < tin.count(); i++) {
@@ -121,19 +121,19 @@ void GrGLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
     }
 }
 
-void GrGLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
-                                          GrGPArgs* gpArgs,
-                                          const char* posName) {
+void GrGLSLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
+                                            GrGPArgs* gpArgs,
+                                            const char* posName) {
     GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
     gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
     vsBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
 }
 
-void GrGLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
-                                          GrGPArgs* gpArgs,
-                                          const char* posName,
-                                          const SkMatrix& mat,
-                                          UniformHandle* viewMatrixUniform) {
+void GrGLSLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
+                                            GrGPArgs* gpArgs,
+                                            const char* posName,
+                                            const SkMatrix& mat,
+                                            UniformHandle* viewMatrixUniform) {
     GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
     if (mat.isIdentity()) {
         gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");

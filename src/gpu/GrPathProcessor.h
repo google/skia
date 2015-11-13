@@ -34,7 +34,7 @@ public:
     virtual void getGLProcessorKey(const GrGLSLCaps& caps,
                                    GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps& caps) const override;
+    virtual GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps& caps) const override;
 
     bool hasTransformedLocalCoords() const override { return false; }
 

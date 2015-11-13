@@ -9,8 +9,8 @@
 #define GrGLProgramBuilder_DEFINED
 
 #include "GrPipeline.h"
-#include "gl/GrGLPrimitiveProcessor.h"
 #include "gl/GrGLProgramDataManager.h"
+#include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
@@ -30,7 +30,7 @@ struct GrGLInstalledProc {
     SkAutoTDelete<Proc> fGLProc;
 };
 
-typedef GrGLInstalledProc<GrGLPrimitiveProcessor> GrGLInstalledGeoProc;
+typedef GrGLInstalledProc<GrGLSLPrimitiveProcessor> GrGLInstalledGeoProc;
 typedef GrGLInstalledProc<GrGLSLXferProcessor> GrGLInstalledXferProc;
 typedef GrGLInstalledProc<GrGLSLFragmentProcessor> GrGLInstalledFragProc;
 
@@ -176,8 +176,8 @@ private:
 
     GrGLGpu* fGpu;
     UniformInfoArray fUniforms;
-    GrGLPrimitiveProcessor::TransformsIn fCoordTransforms;
-    GrGLPrimitiveProcessor::TransformsOut fOutCoords;
+    GrGLSLPrimitiveProcessor::TransformsIn fCoordTransforms;
+    GrGLSLPrimitiveProcessor::TransformsOut fOutCoords;
     SkTArray<UniformHandle> fSamplerUniforms;
     SeparableVaryingInfoArray fSeparableVaryingInfos;
 

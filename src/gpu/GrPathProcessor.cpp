@@ -13,7 +13,7 @@
 #include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
-class GrGLPathProcessor : public GrGLPrimitiveProcessor {
+class GrGLPathProcessor : public GrGLSLPrimitiveProcessor {
 public:
     GrGLPathProcessor() : fColor(GrColor_ILLEGAL) {}
 
@@ -111,7 +111,7 @@ private:
     UniformHandle fColorUniform;
     GrColor fColor;
 
-    typedef GrGLPrimitiveProcessor INHERITED;
+    typedef GrGLSLPrimitiveProcessor INHERITED;
 };
 
 GrPathProcessor::GrPathProcessor(GrColor color,
@@ -131,7 +131,7 @@ void GrPathProcessor::getGLProcessorKey(const GrGLSLCaps& caps,
     GrGLPathProcessor::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrGLSLCaps& caps) const {
+GrGLSLPrimitiveProcessor* GrPathProcessor::createGLInstance(const GrGLSLCaps& caps) const {
     SkASSERT(caps.pathRenderingSupport());
     return new GrGLPathProcessor();
 }

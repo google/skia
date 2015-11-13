@@ -43,7 +43,7 @@
  */
 
 class GrGLSLCaps;
-class GrGLPrimitiveProcessor;
+class GrGLSLPrimitiveProcessor;
 
 struct GrInitInvariantOutput;
 
@@ -197,7 +197,7 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps& caps) const = 0;
+    virtual GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps& caps) const = 0;
 
     bool isPathRendering() const { return fIsPathRendering; }
 

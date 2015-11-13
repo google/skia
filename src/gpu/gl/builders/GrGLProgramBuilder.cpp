@@ -13,13 +13,13 @@
 #include "GrTexture.h"
 #include "SkRTConf.h"
 #include "SkTraceEvent.h"
-#include "gl/GrGLGeometryProcessor.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 #include "glsl/GrGLSLXferProcessor.h"
@@ -153,7 +153,7 @@ const GrGLSLCaps* GrGLProgramBuilder::glslCaps() const {
 
 bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage) {
     // First we loop over all of the installed processors and collect coord transforms.  These will
-    // be sent to the GrGLPrimitiveProcessor in its emitCode function
+    // be sent to the GrGLSLPrimitiveProcessor in its emitCode function
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     int totalTextures = primProc.numTextures();
     const int maxTextureUnits = fGpu->glCaps().maxFragmentTextureUnits();
@@ -284,7 +284,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLGeometryProcessor::EmitArgs args(this, gp, outColor, outCoverage, samplers,
+    GrGLSLGeometryProcessor::EmitArgs args(this, gp, outColor, outCoverage, samplers,
                                          fCoordTransforms, &fOutCoords);
     fGeometryProcessor->fGLProc->emitCode(args);
 

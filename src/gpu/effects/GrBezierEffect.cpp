@@ -7,13 +7,12 @@
 
 #include "GrBezierEffect.h"
 
-#include "gl/GrGLGeometryProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUtil.h"
 
-class GrGLConicEffect : public GrGLGeometryProcessor {
+class GrGLConicEffect : public GrGLSLGeometryProcessor {
 public:
     GrGLConicEffect(const GrGeometryProcessor&);
 
@@ -63,7 +62,7 @@ private:
     UniformHandle fCoverageScaleUniform;
     UniformHandle fViewMatrixUniform;
 
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
@@ -188,7 +187,7 @@ void GrConicEffect::getGLProcessorKey(const GrGLSLCaps& caps,
     GrGLConicEffect::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrConicEffect::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrConicEffect::createGLInstance(const GrGLSLCaps&) const {
     return new GrGLConicEffect(*this);
 }
 
@@ -229,7 +228,7 @@ const GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
 // Quad
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLQuadEffect : public GrGLGeometryProcessor {
+class GrGLQuadEffect : public GrGLSLGeometryProcessor {
 public:
     GrGLQuadEffect(const GrGeometryProcessor&);
 
@@ -279,7 +278,7 @@ private:
     UniformHandle fCoverageScaleUniform;
     UniformHandle fViewMatrixUniform;
 
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)
@@ -389,7 +388,7 @@ void GrQuadEffect::getGLProcessorKey(const GrGLSLCaps& caps,
     GrGLQuadEffect::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrQuadEffect::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrQuadEffect::createGLInstance(const GrGLSLCaps&) const {
     return new GrGLQuadEffect(*this);
 }
 
@@ -431,7 +430,7 @@ const GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
 // Cubic
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLCubicEffect : public GrGLGeometryProcessor {
+class GrGLCubicEffect : public GrGLSLGeometryProcessor {
 public:
     GrGLCubicEffect(const GrGeometryProcessor&);
 
@@ -467,7 +466,7 @@ private:
     UniformHandle fColorUniform;
     UniformHandle fViewMatrixUniform;
 
-    typedef GrGLGeometryProcessor INHERITED;
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 GrGLCubicEffect::GrGLCubicEffect(const GrGeometryProcessor& processor)
@@ -605,7 +604,7 @@ void GrCubicEffect::getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuil
     GrGLCubicEffect::GenKey(*this, caps, b);
 }
 
-GrGLPrimitiveProcessor* GrCubicEffect::createGLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrCubicEffect::createGLInstance(const GrGLSLCaps&) const {
     return new GrGLCubicEffect(*this);
 }
 

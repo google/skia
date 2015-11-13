@@ -8,8 +8,8 @@
 #include "GrDefaultGeoProcFactory.h"
 
 #include "GrInvariantOutput.h"
-#include "gl/GrGLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLUtil.h"
@@ -56,7 +56,7 @@ public:
     bool coverageWillBeIgnored() const { return fCoverageWillBeIgnored; }
     bool hasVertexCoverage() const { return SkToBool(fInCoverage); }
 
-    class GLProcessor : public GrGLGeometryProcessor {
+    class GLProcessor : public GrGLSLGeometryProcessor {
     public:
         GLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL), fCoverage(0xff) {}
@@ -173,14 +173,14 @@ public:
         UniformHandle fColorUniform;
         UniformHandle fCoverageUniform;
 
-        typedef GrGLGeometryProcessor INHERITED;
+        typedef GrGLSLGeometryProcessor INHERITED;
     };
 
     void getGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLInstance(const GrGLSLCaps&) const override {
         return new GLProcessor();
     }
 
