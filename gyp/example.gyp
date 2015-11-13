@@ -23,5 +23,20 @@
         'views.gyp:views',
       ],
     },
+    {
+      'target_name': 'SkiaSDLExample',
+      'type': 'executable',
+      'include_dirs' : [
+        '../include/gpu',
+        '../src/gpu',
+      ],
+      'sources': [
+        '../example/SkiaSDLExample.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+        'sdl.gyp:sdl',
+      ],
+    },
   ],
 }
