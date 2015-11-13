@@ -101,7 +101,7 @@ if (WIN32)
 endif()
 
 remove_srcs(../src/gpu/gl/angle/*)  # TODO
-remove_srcs(../src/codec/*)  # TODO: Requires Chromium's libjpeg-turbo, and incompatible giflib.
+remove_srcs(../src/codec/* ../src/android/*)  # TODO: Requires Chromium's libjpeg-turbo, and incompatible giflib.
 
 # Certain files must be compiled with support for SSSE3 or SSE4.1 intrinsics.
 file (GLOB_RECURSE ssse3_srcs ../src/*ssse3*.cpp ../src/*SSSE3*.cpp)
