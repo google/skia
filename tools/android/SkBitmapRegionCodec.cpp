@@ -129,6 +129,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     size_t rowBytes = pr->rowBytes();
     bitmap->setInfo(outInfo, rowBytes);
     bitmap->setPixelRef(pr)->unref();
+    bitmap->lockPixels();
     SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, rowBytes, &options);
     if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
         SkCodecPrintf("Error: Could not get pixels.\n");
