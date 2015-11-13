@@ -8,7 +8,6 @@
 #include "DMSrcSink.h"
 #include "SamplePipeControllers.h"
 #include "SkAndroidCodec.h"
-#include "SkBitmapRegionDecoderPriv.h"
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
@@ -228,7 +227,7 @@ Name BRDSrc::name() const {
     if (1 == fSampleSize) {
         return SkOSPath::Basename(fPath.c_str());
     }
-    return get_scaled_name(fPath, get_scale_from_sample_size(fSampleSize));
+    return get_scaled_name(fPath, 1.0f / (float) fSampleSize);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -761,7 +760,7 @@ Name AndroidCodecSrc::name() const {
     if (1 == fSampleSize) {
         return SkOSPath::Basename(fPath.c_str());
     }
-    return get_scaled_name(fPath, get_scale_from_sample_size(fSampleSize));
+    return get_scaled_name(fPath, 1.0f / (float) fSampleSize);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

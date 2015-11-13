@@ -8,10 +8,6 @@
 #ifndef SkBitmapRegionDecoderPriv_DEFINED
 #define SkBitmapRegionDecoderPriv_DEFINED
 
-inline float get_scale_from_sample_size(uint32_t sampleSize) {
-    return 1.0f / (float) sampleSize;
-}
-
 enum SubsetType {
     kFullyInside_SubsetType,
     kPartiallyInside_SubsetType,

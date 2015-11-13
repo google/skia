@@ -8,7 +8,6 @@
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBenchPriv.h"
 #include "SkBitmap.h"
-#include "SkBitmapRegionDecoderPriv.h"
 #include "SkOSFile.h"
 
 BitmapRegionDecoderBench::BitmapRegionDecoderBench(const char* baseName, SkData* encoded,
@@ -41,7 +40,7 @@ BitmapRegionDecoderBench::BitmapRegionDecoderBench(const char* baseName, SkData*
 
     fName.printf("BRD_%s_%s_%s", baseName, strategyName, colorName);
     if (1 != sampleSize) {
-        fName.appendf("_%.3f", get_scale_from_sample_size(sampleSize));
+        fName.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 }
 

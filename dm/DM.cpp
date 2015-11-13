@@ -12,7 +12,6 @@
 #include "OverwriteLine.h"
 #include "ProcStats.h"
 #include "SkBBHFactory.h"
-#include "SkBitmapRegionDecoderPriv.h"
 #include "SkChecksum.h"
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
@@ -285,7 +284,7 @@ static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
     }
 
     if (1 != sampleSize) {
-        folder.appendf("_%.3f", get_scale_from_sample_size(sampleSize));
+        folder.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 
     AndroidCodecSrc* src = new AndroidCodecSrc(path, mode, dstColorType, sampleSize);
@@ -441,7 +440,7 @@ static void push_brd_src(Path path, SkBitmapRegionDecoder::Strategy strategy,
     }
 
     if (1 != sampleSize) {
-        folder.appendf("_%.3f", get_scale_from_sample_size(sampleSize));
+        folder.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 
     BRDSrc* src = new BRDSrc(path, strategy, mode, dstColorType, sampleSize);

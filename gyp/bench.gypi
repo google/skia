@@ -7,7 +7,6 @@
     '../bench/subset',
     '../bench',
     '../include/private',
-    '../src/android',
     '../src/core',
     '../src/effects',
     '../src/gpu',
