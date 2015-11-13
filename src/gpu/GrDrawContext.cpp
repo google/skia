@@ -75,6 +75,7 @@ GrDrawTarget* GrDrawContext::getDrawTarget() {
 
     if (!fDrawTarget || fDrawTarget->isClosed()) {
         fDrawTarget = fDrawingManager->newDrawTarget(fRenderTarget);
+        fRenderTarget->setLastDrawTarget(fDrawTarget);
     }
 
     return fDrawTarget;

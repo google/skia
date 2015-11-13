@@ -14,12 +14,10 @@
 #include "GrStencilAndCoverTextContext.h"
 #include "SkTTopoSort.h"
 
+//#define ENABLE_MDB 1
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
-        fDrawTargets[i]->makeClosed();  // no drawTarget should receive a new command after this
-        fDrawTargets[i]->clearRT();
-
         fDrawTargets[i]->unref();
     }
 
@@ -87,25 +85,17 @@ void GrDrawingManager::flush() {
 
     SkASSERT(fFlushState.lastFlushedToken() == fFlushState.currentToken());
 
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        fDrawTargets[i]->reset();
-#ifdef ENABLE_MDB
-        fDrawTargets[i]->unref();
-#endif
-    }
-
 #ifndef ENABLE_MDB
     // When MDB is disabled we keep reusing the same drawTarget
     if (fDrawTargets.count()) {
         SkASSERT(fDrawTargets.count() == 1);
-        // Clear out this flag so the topological sort's SkTTopoSort_CheckAllUnmarked check
-        // won't bark
         fDrawTargets[0]->resetFlag(GrDrawTarget::kWasOutput_Flag);
     }
-#else
-    fDrawTargets.reset();
 #endif
 
+    for (int i = 0; i < fDrawTargets.count(); ++i) {
+        fDrawTargets[i]->reset();
+    }
     fFlushState.reset();
 }
 
@@ -144,9 +134,6 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
     // When MDB is disabled we always just return the single drawTarget
     if (fDrawTargets.count()) {
         SkASSERT(fDrawTargets.count() == 1);
-        // In the non-MDB-world the same drawTarget gets reused for multiple render targets.
-        // Update this pointer so all the asserts are happy
-        rt->setLastDrawTarget(fDrawTargets[0]);
         // DrawingManager gets the creation ref - this ref is for the caller
         return SkRef(fDrawTargets[0]);
     }

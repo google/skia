@@ -301,7 +301,9 @@ static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* ran
     }
 }
 
-bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
+bool GrDrawingManager::ProgramUnitTest(GrContext* context,
+                                       GrDrawTarget* drawTarget,
+                                       int maxStages) {
     GrDrawingManager* drawingManager = context->drawingManager();
 
     // setup dummy textures
@@ -356,10 +358,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        GrTestTarget tt;
-        context->getTestTarget(&tt);
-
-        tt.target()->drawBatch(pipelineBuilder, batch);
+        drawTarget->drawBatch(pipelineBuilder, batch);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -390,10 +389,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Create(fp));
             builder.addColorFragmentProcessor(blockFP);
 
-            GrTestTarget tt;
-            context->getTestTarget(&tt);
-
-            tt.target()->drawBatch(builder, batch);
+            drawTarget->drawBatch(builder, batch);
             drawingManager->flush();
         }
     }
@@ -447,7 +443,10 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
                 maxStages = 2;
             }
 #endif
-            REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+            GrTestTarget testTarget;
+            context->getTestTarget(&testTarget);
+            REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(
+                                            context, testTarget.target(), maxStages));
         }
     }
 }
