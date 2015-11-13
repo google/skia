@@ -559,6 +559,7 @@
           'TARGETED_DEVICE_FAMILY': '1,2',
           'OTHER_CPLUSPLUSFLAGS': [
             '-std=c++0x',
+            '-stdlib=libc++',
             '-fvisibility=hidden',
             '-fvisibility-inlines-hidden',
           ],
