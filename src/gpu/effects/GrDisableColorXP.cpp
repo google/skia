@@ -7,10 +7,10 @@
 
 #include "effects/GrDisableColorXP.h"
 #include "GrProcessor.h"
-#include "gl/GrGLXferProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 /**
  * This xfer processor disables color writing. Thus color and coverage and ignored and no blending
@@ -24,7 +24,7 @@ public:
 
     const char* name() const override { return "Disable Color"; }
 
-    GrGLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLInstance() const override;
 
 private:
     DisableColorXP();
@@ -50,7 +50,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLDisableColorXP : public GrGLXferProcessor {
+class GLDisableColorXP : public GrGLSLXferProcessor {
 public:
     GLDisableColorXP(const GrProcessor&) {}
 
@@ -69,7 +69,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
-    typedef GrGLXferProcessor INHERITED;
+    typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ void DisableColorXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
     GLDisableColorXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* DisableColorXP::createGLInstance() const { return new GLDisableColorXP(*this); }
+GrGLSLXferProcessor* DisableColorXP::createGLInstance() const { return new GLDisableColorXP(*this); }
 
 void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
     blendInfo->fWriteColor = false;

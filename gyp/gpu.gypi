@@ -341,8 +341,6 @@
       '<(skia_src_path)/gpu/gl/GrGLVertexArray.h',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.h',
-      '<(skia_src_path)/gpu/gl/GrGLXferProcessor.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLXferProcessor.h',
 
       # Files for building GLSL shaders
       '<(skia_src_path)/gpu/gl/builders/GrGLProgramBuilder.cpp',
@@ -377,6 +375,8 @@
       '<(skia_src_path)/gpu/glsl/GrGLSLUtil.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLVertexShaderBuilder.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLVertexShaderBuilder.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLXferProcessor.cpp',
+      '<(skia_src_path)/gpu/glsl/GrGLSLXferProcessor.h',
 
       # Sk files
       '<(skia_include_path)/gpu/SkGr.h',

@@ -13,11 +13,11 @@
 #include "GrGLGeometryProcessor.h"
 #include "GrGLGpu.h"
 #include "GrGLPathRendering.h"
-#include "GrGLXferProcessor.h"
 #include "GrPathProcessor.h"
 #include "GrPipeline.h"
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLXferProcessor.h"
 #include "SkXfermode.h"
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)

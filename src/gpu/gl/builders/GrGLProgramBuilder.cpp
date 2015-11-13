@@ -17,12 +17,12 @@
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
-#include "gl/GrGLXferProcessor.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
@@ -320,7 +320,7 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(xp.numTextures());
     this->emitSamplers(xp, &samplers, fXferProcessor);
 
-    GrGLXferProcessor::EmitArgs args(this, xp, colorIn.c_str(), coverageIn.c_str(),
+    GrGLSLXferProcessor::EmitArgs args(this, xp, colorIn.c_str(), coverageIn.c_str(),
                                      fFS.getPrimaryColorOutputName(),
                                      fFS.getSecondaryColorOutputName(), samplers);
     fXferProcessor->fGLProc->emitCode(args);

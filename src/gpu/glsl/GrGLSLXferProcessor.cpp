@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLXferProcessor.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
-void GrGLXferProcessor::emitCode(const EmitArgs& args) {
+void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     if (!args.fXP.willReadDstColor()) {
         this->emitOutputsForBlendState(args);
         return;
@@ -78,7 +78,7 @@ void GrGLXferProcessor::emitCode(const EmitArgs& args) {
     }
 }
 
-void GrGLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
+void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
     if (xp.getDstTexture()) {
         if (fDstTopLeftUni.isValid()) {
             pdm.set2f(fDstTopLeftUni, static_cast<float>(xp.dstTextureOffset().fX),

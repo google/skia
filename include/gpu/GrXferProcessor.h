@@ -17,7 +17,7 @@
 
 class GrShaderCaps;
 class GrGLSLCaps;
-class GrGLXferProcessor;
+class GrGLSLXferProcessor;
 class GrProcOptInfo;
 
 /**
@@ -100,7 +100,7 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLXferProcessor* createGLInstance() const = 0;
+    virtual GrGLSLXferProcessor* createGLInstance() const = 0;
 
     /**
      * Optimizations for blending / coverage that an OptDrawState should apply to itself.

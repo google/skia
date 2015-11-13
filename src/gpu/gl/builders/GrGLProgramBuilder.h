@@ -8,13 +8,13 @@
 #ifndef GrGLProgramBuilder_DEFINED
 #define GrGLProgramBuilder_DEFINED
 
+#include "GrPipeline.h"
+#include "gl/GrGLPrimitiveProcessor.h"
 #include "gl/GrGLProgramDataManager.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
-#include "../GrGLPrimitiveProcessor.h"
-#include "../GrGLXferProcessor.h"
-#include "../../GrPipeline.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 class GrFragmentProcessor;
 class GrGLContextInfo;
@@ -31,7 +31,7 @@ struct GrGLInstalledProc {
 };
 
 typedef GrGLInstalledProc<GrGLPrimitiveProcessor> GrGLInstalledGeoProc;
-typedef GrGLInstalledProc<GrGLXferProcessor> GrGLInstalledXferProc;
+typedef GrGLInstalledProc<GrGLSLXferProcessor> GrGLInstalledXferProc;
 typedef GrGLInstalledProc<GrGLSLFragmentProcessor> GrGLInstalledFragProc;
 
 struct GrGLInstalledFragProcs : public SkRefCnt {

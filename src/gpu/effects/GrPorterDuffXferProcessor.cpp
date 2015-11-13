@@ -13,11 +13,11 @@
 #include "GrProcOptInfo.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
-#include "gl/GrGLXferProcessor.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 /**
  * Wraps the shader outputs and HW blend state that comprise a Porter Duff blend mode with coverage.
@@ -347,7 +347,7 @@ public:
 
     const char* name() const override { return "Porter Duff"; }
 
-    GrGLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLInstance() const override;
 
     BlendFormula getBlendFormula() const { return fBlendFormula; }
 
@@ -428,7 +428,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
     }
 }
 
-class GLPorterDuffXferProcessor : public GrGLXferProcessor {
+class GLPorterDuffXferProcessor : public GrGLSLXferProcessor {
 public:
     static void GenKey(const GrProcessor& processor, GrProcessorKeyBuilder* b) {
         const PorterDuffXferProcessor& xp = processor.cast<PorterDuffXferProcessor>();
@@ -454,7 +454,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
-    typedef GrGLXferProcessor INHERITED;
+    typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -464,7 +464,7 @@ void PorterDuffXferProcessor::onGetGLProcessorKey(const GrGLSLCaps&,
     GLPorterDuffXferProcessor::GenKey(*this, b);
 }
 
-GrGLXferProcessor* PorterDuffXferProcessor::createGLInstance() const {
+GrGLSLXferProcessor* PorterDuffXferProcessor::createGLInstance() const {
     return new GLPorterDuffXferProcessor;
 }
 
@@ -512,7 +512,7 @@ public:
 
     const char* name() const override { return "Porter Duff Shader"; }
 
-    GrGLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLInstance() const override;
 
     SkXfermode::Mode getXfermode() const { return fXfermode; }
 
@@ -536,7 +536,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLShaderPDXferProcessor : public GrGLXferProcessor {
+class GLShaderPDXferProcessor : public GrGLSLXferProcessor {
 public:
     static void GenKey(const GrProcessor& processor, GrProcessorKeyBuilder* b) {
         const ShaderPDXferProcessor& xp = processor.cast<ShaderPDXferProcessor>();
@@ -554,7 +554,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
-    typedef GrGLXferProcessor INHERITED;
+    typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -564,7 +564,7 @@ void ShaderPDXferProcessor::onGetGLProcessorKey(const GrGLSLCaps&,
     GLShaderPDXferProcessor::GenKey(*this, b);
 }
 
-GrGLXferProcessor* ShaderPDXferProcessor::createGLInstance() const {
+GrGLSLXferProcessor* ShaderPDXferProcessor::createGLInstance() const {
     return new GLShaderPDXferProcessor;
 }
 
@@ -578,7 +578,7 @@ public:
 
     const char* name() const override { return "Porter Duff LCD"; }
 
-    GrGLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLInstance() const override;
 
 private:
     PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha);
@@ -614,7 +614,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLPDLCDXferProcessor : public GrGLXferProcessor {
+class GLPDLCDXferProcessor : public GrGLSLXferProcessor {
 public:
     GLPDLCDXferProcessor(const GrProcessor&) {}
 
@@ -632,7 +632,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {};
 
-    typedef GrGLXferProcessor INHERITED;
+    typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -668,7 +668,7 @@ void PDLCDXferProcessor::onGetGLProcessorKey(const GrGLSLCaps& caps,
     GLPDLCDXferProcessor::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* PDLCDXferProcessor::createGLInstance() const {
+GrGLSLXferProcessor* PDLCDXferProcessor::createGLInstance() const {
     return new GLPDLCDXferProcessor(*this);
 }
 

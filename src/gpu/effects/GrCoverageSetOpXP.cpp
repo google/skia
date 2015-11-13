@@ -11,9 +11,9 @@
 #include "GrColor.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
-#include "gl/GrGLXferProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 class CoverageSetOpXP : public GrXferProcessor {
 public:
@@ -25,7 +25,7 @@ public:
 
     const char* name() const override { return "Coverage Set Op"; }
 
-    GrGLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLInstance() const override;
 
     bool invertCoverage() const { return fInvertCoverage; }
 
@@ -56,7 +56,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLCoverageSetOpXP : public GrGLXferProcessor {
+class GLCoverageSetOpXP : public GrGLSLXferProcessor {
 public:
     GLCoverageSetOpXP(const GrProcessor&) {}
 
@@ -83,7 +83,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {};
 
-    typedef GrGLXferProcessor INHERITED;
+    typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ void CoverageSetOpXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKey
     GLCoverageSetOpXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* CoverageSetOpXP::createGLInstance() const {
+GrGLSLXferProcessor* CoverageSetOpXP::createGLInstance() const {
     return new GLCoverageSetOpXP(*this);
 }
 

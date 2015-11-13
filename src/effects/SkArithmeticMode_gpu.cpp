@@ -13,11 +13,11 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrTexture.h"
-#include "gl/GrGLXferProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 static const bool gUseUnpremul = false;
 
@@ -154,7 +154,7 @@ public:
 
     const char* name() const override { return "Arithmetic"; }
 
-    GrGLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLInstance() const override;
 
     float k1() const { return fK1; }
     float k2() const { return fK2; }
@@ -191,7 +191,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLArithmeticXP : public GrGLXferProcessor {
+class GLArithmeticXP : public GrGLSLXferProcessor {
 public:
     GLArithmeticXP(const ArithmeticXP& arithmeticXP)
         : fEnforcePMColor(arithmeticXP.enforcePMColor()) {
@@ -229,7 +229,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fKUni;
     bool fEnforcePMColor;
 
-    typedef GrGLXferProcessor INHERITED;
+    typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -249,7 +249,7 @@ void ArithmeticXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBui
     GLArithmeticXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* ArithmeticXP::createGLInstance() const { return new GLArithmeticXP(*this); }
+GrGLSLXferProcessor* ArithmeticXP::createGLInstance() const { return new GLArithmeticXP(*this); }
 
 GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
                                                            const GrProcOptInfo& coveragePOI,

@@ -1,12 +1,12 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef GrGLXferProcessor_DEFINED
-#define GrGLXferProcessor_DEFINED
+#ifndef GrGLSLXferProcessor_DEFINED
+#define GrGLSLXferProcessor_DEFINED
 
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
@@ -14,10 +14,10 @@
 class GrGLSLXPBuilder;
 class GrXferProcessor;
 
-class GrGLXferProcessor {
+class GrGLSLXferProcessor {
 public:
-    GrGLXferProcessor() {}
-    virtual ~GrGLXferProcessor() {}
+    GrGLSLXferProcessor() {}
+    virtual ~GrGLSLXferProcessor() {}
 
     typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
     struct EmitArgs {
@@ -50,12 +50,12 @@ public:
      */
     void emitCode(const EmitArgs&);
 
-    /** A GrGLXferProcessor instance can be reused with any GrGLXferProcessor that produces
-        the same stage key; this function reads data from a GrGLXferProcessor and uploads any
+    /** A GrGLSLXferProcessor instance can be reused with any GrGLSLXferProcessor that produces
+        the same stage key; this function reads data from a GrGLSLXferProcessor and uploads any
         uniform variables required  by the shaders created in emitCode(). The GrXferProcessor
-        parameter is guaranteed to be of the same type that created this GrGLXferProcessor and
-        to have an identical processor key as the one that created this GrGLXferProcessor. This
-        function calls onSetData on the subclass of GrGLXferProcessor
+        parameter is guaranteed to be of the same type that created this GrGLSLXferProcessor and
+        to have an identical processor key as the one that created this GrGLSLXferProcessor. This
+        function calls onSetData on the subclass of GrGLSLXferProcessor
      */
     void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp);
 

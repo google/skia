@@ -15,13 +15,13 @@
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
 #include "SkXfermode.h"
-#include "gl/GrGLXferProcessor.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLXferProcessor.h"
 
 bool GrCustomXfermode::IsSupportedMode(SkXfermode::Mode mode) {
     return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastMode;
@@ -88,7 +88,7 @@ public:
 
     const char* name() const override { return "Custom Xfermode"; }
 
-    GrGLXferProcessor* createGLInstance() const override;
+    GrGLSLXferProcessor* createGLInstance() const override;
 
     SkXfermode::Mode mode() const { return fMode; }
     bool hasHWBlendEquation() const { return -1 != static_cast<int>(fHWBlendEquation); }
@@ -121,7 +121,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLCustomXP : public GrGLXferProcessor {
+class GLCustomXP : public GrGLSLXferProcessor {
 public:
     GLCustomXP(const GrXferProcessor&) {}
     ~GLCustomXP() override {}
@@ -170,7 +170,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
-    typedef GrGLXferProcessor INHERITED;
+    typedef GrGLSLXferProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@ void CustomXP::onGetGLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder
     GLCustomXP::GenKey(*this, caps, b);
 }
 
-GrGLXferProcessor* CustomXP::createGLInstance() const {
+GrGLSLXferProcessor* CustomXP::createGLInstance() const {
     SkASSERT(this->willReadDstColor() != this->hasHWBlendEquation());
     return new GLCustomXP(*this);
 }
