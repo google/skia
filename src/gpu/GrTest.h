@@ -28,14 +28,15 @@ class GrTestTarget {
 public:
     GrTestTarget() {};
 
-    void init(GrContext*, GrDrawTarget*);
+    void init(GrContext*, GrDrawTarget*, GrRenderTarget*);
 
     GrDrawTarget* target() { return fDrawTarget.get(); }
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:
-    SkAutoTUnref<GrDrawTarget>              fDrawTarget;
     SkAutoTUnref<GrContext>                 fContext;
+    SkAutoTUnref<GrDrawTarget>              fDrawTarget;
+    SkAutoTUnref<GrRenderTarget>            fRenderTarget;
 };
 
 #endif

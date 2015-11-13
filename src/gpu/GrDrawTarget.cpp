@@ -42,6 +42,8 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this));
 
+    rt->setLastDrawTarget(this);
+
 #ifdef SK_DEBUG
     static int debugID = 0;
     fDebugID = debugID++;
