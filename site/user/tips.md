@@ -44,8 +44,6 @@ or use Skia's `SampleApp` to view it:
     ls -l /tmp/*/skp/layer_0.skp.*
 
     out/Release/SampleApp --picture /tmp/layer_0.skp
-    # On MacOS, SampleApp is a bundle:
-    open out/Release/SampleApp.app --args --picture /tmp/layer_0.skp
 
 * * *
 

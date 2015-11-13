@@ -34,11 +34,6 @@ If your branch gets out of date, you will need to update it:
     git pull
     python bin/sync-and-gyp
 
-<!--
-    python tools/git-sync-deps
-    python ./gyp_skia
--->
-
 Adding a unit test
 ------------------
 

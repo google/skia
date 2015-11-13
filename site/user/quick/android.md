@@ -73,18 +73,19 @@ advantage of specific device optimizations (e.g. NEON instructions).
 Generate build file from GYP
 ----------------------------
 
-We use the open-source gyp tool to generate build files from our multiplatform
-"gyp" files. While most other platforms enable you to regenerate these files
-using `./gyp_skia` it is recommend that you do NOT do this for Android.  Instead
-you can rely on it being run automatically by android_ninja.
+We use the open-source gyp tool to generate build files from our
+multi-platform "gyp" files. While most other platforms enable you to
+regenerate these files using `./gyp_skia` or `bin/sync-and-gyp` it is
+recommended that you do NOT do this for Android.  Instead you can rely
+on it being run automatically by android_ninja.
 
 Faster rebuilds
 ---------------
 
 You can use ccache to improve the speed of rebuilding:
 
-  # You may want to add this export to your shell's .bash_profile or .profile
-  export ANDROID_MAKE_CCACHE=[ccache]
+    # You may want to add this export to your shell's .bash_profile or .profile
+    export ANDROID_MAKE_CCACHE=[ccache]
 
 Build and run executables on the device
 ---------------------------------------
@@ -141,13 +142,13 @@ Then, install the app onto the device:
 Finally to run the application you can either navigate to the Skia Samples
 application using the application launcher on your device or from the command
 line.  The command line option allows you to pass additional details to the
-application (similiar to other operating system) that specify where to find
+application (similar to other operating system) that specify where to find
 skp files and other resources.
 
     ./platform_tools/android/bin/android_launch_app --resourcePath /data/local/tmp/resources
 
 By default if no additional parameters are specified the app will use the default
-params...
+parameters...
 
     --resourcePath /data/local/tmp/skia_resoures 
     --pictureDir /data/local/tmp/skia_skp
@@ -204,4 +205,3 @@ Note: The debugging scripts do not build the app - you'll have to do that first.
 
 When the gdb client is ready, insert a breakpoint, and continue to let the
 program resume execution.
-

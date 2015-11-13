@@ -6,33 +6,22 @@ The following has been tested on MacOS Yosemite with Xcode version 6.3.
 Quickstart
 ----------
 
-1.  Install [XCode](http://developer.apple.com/xcode/). 
+First, install [XCode](https://developer.apple.com/xcode/).
 
-2.  Install depot tools.
+<!--?prettify lang=sh?-->
 
-    <!--?prettify lang=sh?-->
+    # Install depot tools.
+    git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+    export PATH="${PWD}/depot_tools:${PATH}"
 
-        git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
-        export PATH="${PWD}/depot_tools:${PATH}"
+    # Get Skia.
+    git clone 'https://skia.googlesource.com/skia'
+    cd skia
 
-3.  Get Skia.
-
-    <!--?prettify lang=sh?-->
-
-        git clone 'https://skia.googlesource.com/skia'
-        cd skia
-
-4.  Create the project files.
-
-    <!--?prettify lang=sh?-->
-
-        GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" ./gyp_skia
-
-5.  Build and run SampleApp.
-
-    <!--?prettify lang=sh?-->
-
-        xed out/gyp/SampleApp.xcodeproj # opens the SampleApp project in Xcode
+    # Create the project files.
+    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" python bin/sync-and-gyp
+    # Build and run SampleApp.
+    xed out/gyp/SampleApp.xcodeproj # opens the SampleApp project in Xcode
 
 Prerequisites
 -------------
@@ -68,12 +57,12 @@ Or you can set it to `xcode` alone, if you like.
 
 You can then generate the Xcode projects by running:
 
-    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" ./gyp_skia
+    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" python bin/sync-and-gyp
 
 Alternatively, you can do:
 
     export GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0"
-    ./gyp_skia
+    python bin/sync-and-gyp
 
 Build and run tests
 -------------------
@@ -107,7 +96,7 @@ Here's an example of running nanobench from the command line. We will build with
 Build and run SampleApp in the XCode IDE
 ----------------------------------------
 
-  * Run gyp_skia as described above.
+  * Run `sync-and-gyp` as described above.
   * In the Finder, navigate to $SKIA_INSTALLDIR/trunk/out/gyp
   * Double-click SampleApp.xcodeproj ; this will launch XCode and open the SampleApp project
   * Make sure the SampleApp target is selected, and choose an iOS device to run on

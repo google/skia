@@ -31,12 +31,10 @@ How to build and run
 Because the debugger uses Qt, you'll need to build skia in 64 bit mode:
 
 <!--?prettify?-->
-~~~~
-cd trunk
-./gyp_skia
-GYP_DEFINES="skia_arch_width=64" make debugger
-out/Debug/debugger
-~~~~
+
+    GYP_DEFINES="skia_arch_width=64" python bin/sync-and-gyp
+    ninja -C out/Debug debugger
+    out/Debug/debugger
 
 For Windows, Qt ships as 32 bit libraries so to build and run one should just be
 able to:

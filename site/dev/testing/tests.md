@@ -25,7 +25,7 @@ Writing a Unit Test
 
 2.  Recompile and run test:
 
-        ./gyp_skia
+        python bin/sync-and-gyp
         ninja -C out/Debug dm
         out/Debug/dm --match NewUnitTest
 
@@ -52,13 +52,13 @@ Writing a Rendering Test
 
 2.  Recompile and run test:
 
-        ./gyp_skia
+        python bin/sync-and-gyp
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
 
 3.  Run the GM inside SampleApp:
 
-        ./gyp_skia
+        python bin/sync-and-gyp
         ninja -C out/Debug SampleApp
         out/Debug/SampleApp --slide GM:newgmtest
 

@@ -5,7 +5,7 @@ Skia correctness testing is primarily served by a tool named DM.
 This is a quickstart to building and running DM.
 
 ~~~
-$ ./gyp_skia
+$ python bin/sync-and-gyp
 $ ninja -C out/Debug dm
 $ out/Debug/dm -v -w dm_output
 ~~~
@@ -142,13 +142,13 @@ These failures are also included in the dm.json file.
 
 DM has a simple facility to compare against the results of a previous run:
 ~~~
-$ ./gyp_skia
+$ python bin/sync-and-gyp
 $ ninja -C out/Debug dm
 $ out/Debug/dm -w good
 
-   (do some work)
+  # do some work
 
-$ ./gyp_skia
+$ python bin/sync-and-gyp
 $ ninja -C out/Debug dm
 $ out/Debug/dm -r good -w bad
 ~~~
@@ -157,13 +157,13 @@ same image as the `good` run.
 
 For anything fancier, I suggest using skdiff:
 ~~~
-$ ./gyp_skia
+$ python bin/sync-and-gyp
 $ ninja -C out/Debug dm
 $ out/Debug/dm -w good
 
-   (do some work)
+  # do some work
 
-$ ./gyp_skia
+$ python bin/sync-and-gyp
 $ ninja -C out/Debug dm
 $ out/Debug/dm -w bad
 
@@ -171,7 +171,7 @@ $ ninja -C out/Debug skdiff
 $ mkdir diff
 $ out/Debug/skdiff good bad diff
 
-  (open diff/index.html in your web browser)
+  # open diff/index.html in your web browser
 ~~~
 
 That's the basics of DM.  DM supports many other modes and flags.  Here are a

@@ -16,15 +16,6 @@ to download depot_tools (which includes gclient, git-cl, and Ninja).
 depot_tools will also install Git on your system, if it wasn't installed
 already.
 
-
-Configure Git
--------------
-
-<!--?prettify lang=sh?-->
-
-    git config --global user.name "Your Name"
-    git config --global user.email you@example.com
-
 Clone the Skia repository
 -------------------------
 
@@ -39,11 +30,6 @@ Get Skia's dependencies and generate Ninja build files
 <!--?prettify lang=sh?-->
 
     python bin/sync-and-gyp
-
-<!--
-    python tools/git-sync-deps
-    python ./gyp_skia
--->
 
 Compile all default targets
 ---------------------------
