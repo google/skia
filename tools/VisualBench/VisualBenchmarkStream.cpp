@@ -131,8 +131,8 @@ Benchmark* VisualBenchmarkStream::next() {
     // TODO move this all to --config
     if (bench && FLAGS_cpu) {
         bench = new CpuWrappedBenchmark(fSurfaceProps, bench);
-    } else if (bench && FLAGS_nvpr) {
-        bench = new NvprWrappedBenchmark(fSurfaceProps, bench, 4);
+    } else if (bench && 0 != FLAGS_nvpr) {
+        bench = new NvprWrappedBenchmark(fSurfaceProps, bench, FLAGS_nvpr);
     }
 
     fBenchmark.reset(bench);

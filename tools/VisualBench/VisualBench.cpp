@@ -103,7 +103,7 @@ void VisualBench::setupContext() {
     fInterface.reset(GrGLCreateNativeInterface());
 
     // TODO use the GLContext creation factories and also set this all up in configs
-    if (!FLAGS_nvpr) {
+    if (0 == FLAGS_nvpr) {
         fInterface.reset(GrGLInterfaceRemoveNVPR(fInterface));
     }
     SkASSERT(fInterface);

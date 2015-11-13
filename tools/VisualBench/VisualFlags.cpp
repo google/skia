@@ -8,4 +8,4 @@
 #include "VisualFlags.h"
 
 DEFINE_int32(msaa, 0, "Number of msaa samples.");
-DEFINE_bool(nvpr, false, "Run in NVPR mode?");
+DEFINE_int32(nvpr, 0, "Number of stencil samples for nvpr, or zero to disable it.");

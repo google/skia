@@ -12,6 +12,6 @@
 
 DECLARE_string(config);
 DECLARE_int32(msaa);
-DECLARE_bool(nvpr);
+DECLARE_int32(nvpr);
 
 #endif
