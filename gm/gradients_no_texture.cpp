@@ -203,6 +203,16 @@ static void make2(ColorPos* rec) {
     rec->construct(colors, pos, N);
 }
 
+static void make3(ColorPos* rec) {
+    const SkColor colors[] = {
+        SK_ColorRED, SK_ColorBLUE, SK_ColorBLUE, SK_ColorGREEN, SK_ColorGREEN, SK_ColorBLACK,
+    };
+    const SkScalar pos[] = {
+        0, 0, 0.5f, 0.5, 1, 1,
+    };
+    rec->construct(colors, pos, SK_ARRAY_COUNT(colors));
+}
+
 class GradientsManyColorsGM : public GM {
     enum {
         W = 800,
@@ -219,11 +229,11 @@ protected:
         return SkString(fDither ? "gradients_many" : "gradients_many_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(850, 100); }
+    SkISize onISize() override { return SkISize::Make(880, 400); }
 
     void onDraw(SkCanvas* canvas) override {
         const Proc procs[] = {
-            make0, make1, make2,
+            make0, make1, make2, make3,
         };
         const SkPoint pts[] = {
             { 0, 0 },
@@ -234,21 +244,31 @@ protected:
         SkPaint paint;
         paint.setDither(fDither);
 
-        canvas->translate(20, 20);
+        canvas->translate(40, 20);
 
         for (int i = 0; i <= 8; ++i) {
             SkScalar x = r.width() * i / 8;
             canvas->drawLine(x, 0, x, 10000, paint);
         }
 
+        // expand the drawing rect so we exercise clampping in the gradients
+        const SkRect drawR = r.makeOutset(20, 0);
         for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
             ColorPos rec;
             procs[i](&rec);
             SkShader* s = SkGradientShader::CreateLinear(pts, rec.fColors, rec.fPos, rec.fCount,
                                                          SkShader::kClamp_TileMode);
             paint.setShader(s)->unref();
-            canvas->drawRect(r, paint);
-            canvas->translate(0, r.height() + 20);
+            canvas->drawRect(drawR, paint);
+
+            canvas->save();
+            canvas->translate(r.centerX(), r.height() + 4);
+            canvas->scale(-1, 1);
+            canvas->translate(-r.centerX(), 0);
+            canvas->drawRect(drawR, paint);
+            canvas->restore();
+
+            canvas->translate(0, r.height() + 2*r.height() + 8);
         }
     }
 
