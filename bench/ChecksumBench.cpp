@@ -13,6 +13,7 @@
 #include "SkTemplates.h"
 
 enum ChecksumType {
+    kChecksum_ChecksumType,
     kMD5_ChecksumType,
     kSHA1_ChecksumType,
     kMurmur3_ChecksumType,
@@ -41,6 +42,7 @@ public:
 protected:
     const char* onGetName() override {
         switch (fType) {
+            case kChecksum_ChecksumType: return "compute_checksum";
             case kMD5_ChecksumType: return "compute_md5";
             case kSHA1_ChecksumType: return "compute_sha1";
             case kMurmur3_ChecksumType: return "compute_murmur3";
@@ -51,6 +53,12 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         switch (fType) {
+            case kChecksum_ChecksumType: {
+                for (int i = 0; i < loops; i++) {
+                    volatile uint32_t result = SkChecksum::Compute(fData, sizeof(fData));
+                    sk_ignore_unused_variable(result);
+                }
+            } break;
             case kMD5_ChecksumType: {
                 for (int i = 0; i < loops; i++) {
                     SkMD5 md5;
@@ -83,6 +91,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+DEF_BENCH( return new ComputeChecksumBench(kChecksum_ChecksumType); )
 DEF_BENCH( return new ComputeChecksumBench(kMD5_ChecksumType); )
 DEF_BENCH( return new ComputeChecksumBench(kSHA1_ChecksumType); )
 DEF_BENCH( return new ComputeChecksumBench(kMurmur3_ChecksumType); )

@@ -179,7 +179,7 @@ class SkFlatData;
 
 class SkFlatController : public SkRefCnt {
 public:
-
+    
 
     SkFlatController(uint32_t writeBufferFlags = 0);
     virtual ~SkFlatController();
@@ -357,7 +357,7 @@ private:
         fIndex     = index;
         fFlatSize  = size;
         fTopBot[0] = SK_ScalarNaN;  // Mark as unwritten.
-        fChecksum  = SkChecksum::Murmur3(this->data(), size);
+        fChecksum  = SkChecksum::Compute((uint32_t*)this->data(), size);
     }
 
     int fIndex;

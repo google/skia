@@ -42,7 +42,7 @@ GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
 }
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size) {
-    return SkChecksum::Murmur3(data, size);
+    return SkChecksum::Compute(data, size);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -564,7 +564,7 @@ uint32_t GrResourceCache::getNextTimestamp() {
             int currP = 0;
             int currNP = 0;
             while (currP < sortedPurgeableResources.count() &&
-                   currNP < fNonpurgeableResources.count()) {
+                   currNP < fNonpurgeableResources.count()) {                
                 uint32_t tsP = sortedPurgeableResources[currP]->cacheAccess().timestamp();
                 uint32_t tsNP = fNonpurgeableResources[currNP]->cacheAccess().timestamp();
                 SkASSERT(tsP != tsNP);
@@ -596,10 +596,10 @@ uint32_t GrResourceCache::getNextTimestamp() {
 
             // count should be the next timestamp we return.
             SkASSERT(fTimestamp == SkToU32(count));
-
+            
             // The historical timestamps of flushes are now invalid.
             this->resetFlushTimestamps();
-        }
+        }        
     }
     return fTimestamp++;
 }
