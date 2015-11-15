@@ -323,7 +323,9 @@ bool sk_path_get_bounds(const sk_path_t* cpath, sk_rect_t* crect) {
 void sk_canvas_save(sk_canvas_t* ccanvas) {
     AsCanvas(ccanvas)->save();
 }
-
+void sk_canvas_discard(sk_canvas_t* ccanvas) {
+    AsCanvas(ccanvas)->discard();
+}
 void sk_canvas_save_layer(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
 }
@@ -371,6 +373,10 @@ void sk_canvas_draw_paint(sk_canvas_t* ccanvas, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawPaint(AsPaint(*cpaint));
 }
 
+void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_xfermode_mode_t mode) {
+    AsCanvas(ccanvas)->drawColor(color, MapXferMode (mode));
+}
+
 void sk_canvas_draw_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
 }
@@ -403,6 +409,30 @@ void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage,
     }
 }
 
+void sk_canvas_draw_points(sk_canvas_t* ccanvas, sk_point_mode_t pointMode, size_t count, const sk_point_t points [], const sk_paint_t* cpaint)
+{
+    SkCanvas* canvas = AsCanvas(ccanvas);
+    SkCanvas::PointMode mode = MapPointMode(pointMode);
+
+    canvas->drawPoints (mode, count, reinterpret_cast<const SkPoint*>(points), *AsPaint(cpaint));
+}
+
+
+void sk_canvas_draw_point(sk_canvas_t* ccanvas, float x, float y, const sk_paint_t* cpaint)
+{
+    AsCanvas(ccanvas)->drawPoint (x, y, *AsPaint(cpaint));
+}
+
+void sk_canvas_draw_point_color(sk_canvas_t* ccanvas, float x, float y, sk_color_t color)
+{
+    AsCanvas(ccanvas)->drawPoint (x, y, color);
+}
+
+void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, float y1, sk_paint_t* cpaint)
+{
+    AsCanvas(ccanvas)->drawLine(x0, y0, x1, y1, *AsPaint(cpaint));
+}
+
 void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
                             const sk_matrix_t* cmatrix, const sk_paint_t* cpaint) {
     const SkMatrix* matrixPtr = NULL;
@@ -412,6 +442,22 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
         matrixPtr = &matrix;
     }
     AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), matrixPtr, AsPaint(cpaint));
+}
+
+void sk_canvas_draw_text (sk_canvas_t* ccanvas, const char *text, size_t byteLength, float x, float y, const sk_paint_t* cpaint)
+{
+    AsCanvas(ccanvas)->drawText(text, byteLength, x, y, *AsPaint(cpaint));
+}
+
+void sk_canvas_draw_pos_text (sk_canvas_t* ccanvas, const char *text, size_t byteLength, const sk_point_t pos[], const sk_paint_t* cpaint)
+{
+    AsCanvas(ccanvas)->drawPosText(text, byteLength, reinterpret_cast<const SkPoint*>(pos), *AsPaint(cpaint));
+}
+
+void sk_canvas_draw_text_on_path (sk_canvas_t* ccanvas, const char *text, size_t byteLength, const sk_path_t* path,
+				  float hOffset, float vOffset, const sk_paint_t* cpaint)
+{
+    AsCanvas(ccanvas)->drawTextOnPathHV(text, byteLength, AsPath(*path), hOffset, vOffset, *AsPaint(cpaint));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

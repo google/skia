@@ -165,7 +165,22 @@ typedef struct sk_shader_t sk_shader_t;
     For GPU drawing, the destination is a texture or a framebuffer.
 */
 typedef struct sk_surface_t sk_surface_t;
+/**
+   A sk_typeface_t pecifies the typeface and intrinsic style of a font.
+    This is used in the paint, along with optionally algorithmic settings like
+    textSize, textSkewX, textScaleX, kFakeBoldText_Mask, to specify
+    how text appears when drawn (and measured).
 
+    Typeface objects are immutable, and so they can be shared between threads.
+*/
+typedef struct sk_typeface_t sk_typeface_t;
+
+typedef enum {
+	UTF8_ENCODING,
+	UTF16_ENCODING,
+	UTF32_ENCODING
+} sk_encoding_t;
+	
 typedef enum {
     CLEAR_SK_XFERMODE_MODE,
     SRC_SK_XFERMODE_MODE,
@@ -197,6 +212,12 @@ typedef enum {
     COLOR_SK_XFERMODE_MODE,
     LUMINOSITY_SK_XFERMODE_MODE,
 } sk_xfermode_mode_t;
+
+typedef enum {
+    POINTS_SK_POINT_MODE,
+    LINES_SK_POINT_MODE,
+    POLYGON_SK_POINT_MODE
+} sk_point_mode_t;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
