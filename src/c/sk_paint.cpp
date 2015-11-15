@@ -139,7 +139,18 @@ sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint)
     return (sk_typeface_t*) AsPaint(paint)->getTypeface();
 }
 
-void sk_paint_get_typeface(sk_paint_t* paint, sk_typeface_t* typeface)
+void sk_paint_set_typeface(sk_paint_t* paint, sk_typeface_t* typeface)
 {
     AsPaint(paint)->setTypeface((SkTypeface*) typeface);
 }
+
+float sk_paint_get_textsize(sk_paint_t* paint)
+{
+    return AsPaint(paint)->getTextSize();
+}
+
+void sk_paint_set_textsize(sk_paint_t* paint, float size)
+{
+    AsPaint(paint)->setTextSize(size);
+}
+

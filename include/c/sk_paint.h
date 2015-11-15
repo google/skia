@@ -140,13 +140,21 @@ SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
  */
 SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
 /**
- *  Set the paint's typeface
+ *  Get the paint's typeface
  */
 SK_API sk_typeface_t* sk_paint_get_typeface(sk_paint_t*);
 /**
  *  Set the paint's typeface
  */
 SK_API void sk_paint_set_typeface(sk_paint_t*, sk_typeface_t*);
+/**
+ *  Get the paint's text sixe
+ */
+SK_API float sk_paint_get_textsize(sk_paint_t*);
+/**
+ *  Set the paint's text sixe
+ */
+SK_API void sk_paint_set_textsize(sk_paint_t*, float);
 
 SK_C_PLUS_PLUS_END_GUARD
 
