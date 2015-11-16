@@ -42,8 +42,8 @@ public:
               GrGLGetStringProc getString,
               GrGLGetStringiProc getStringi,
               GrGLGetIntegervProc getIntegerv,
-              GrEGLQueryStringProc queryString,
-              GrEGLDisplay eglDisplay);
+              GrEGLQueryStringProc queryString = nullptr,
+              GrEGLDisplay eglDisplay = nullptr);
 
     bool isInitialized() const { return fInitialized; }
 
