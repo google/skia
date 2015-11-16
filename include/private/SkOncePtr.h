@@ -9,7 +9,7 @@
 #define SkOncePtr_DEFINED
 
 #include "../private/SkAtomics.h"
-#include "SkUniquePtr.h"
+#include <memory>
 
 template <typename T> class SkBaseOncePtr;
 
@@ -17,7 +17,7 @@ template <typename T> class SkBaseOncePtr;
 #define SK_DECLARE_STATIC_ONCE_PTR(type, name) namespace {} static SkBaseOncePtr<type> name;
 
 // Use this for a local or member pointer that's initialized exactly once when you call get().
-template <typename T, typename Delete = skstd::default_delete<T>>
+template <typename T, typename Delete = std::default_delete<T>>
 class SkOncePtr : SkNoncopyable {
 public:
     SkOncePtr() { sk_bzero(this, sizeof(*this)); }
@@ -42,7 +42,7 @@ private:
 
 // If you ask for SkOncePtr<T[]>, we'll clean up with delete[] by default.
 template <typename T>
-class SkOncePtr<T[]> : public SkOncePtr<T, skstd::default_delete<T[]>> {};
+class SkOncePtr<T[]> : public SkOncePtr<T, std::default_delete<T[]>> {};
 
 /* TODO(mtklein): in next CL
 typedef SkBaseOncePtr<void> SkOnceFlag;
