@@ -44,11 +44,12 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 }
 };
 
-void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
+void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target, GrRenderTarget* rt) {
     SkASSERT(!fContext);
 
     fContext.reset(SkRef(ctx));
     fDrawTarget.reset(SkRef(target));
+    fRenderTarget.reset(SkRef(rt));
 }
 
 void GrContext::getTestTarget(GrTestTarget* tar) {
@@ -57,8 +58,22 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    SkAutoTUnref<GrDrawTarget> dt(fDrawingManager->newDrawTarget(nullptr));
-    tar->init(this, dt);
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = 32;
+    desc.fHeight = 32;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fSampleCnt = 0;
+
+    SkAutoTUnref<GrTexture> texture(this->textureProvider()->createTexture(desc, false, nullptr, 0));
+    if (nullptr == texture) {
+        return;
+    }
+    SkASSERT(nullptr != texture->asRenderTarget());
+    GrRenderTarget* rt = texture->asRenderTarget();
+
+    SkAutoTUnref<GrDrawTarget> dt(fDrawingManager->newDrawTarget(rt));
+    tar->init(this, dt, rt);
 }
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {

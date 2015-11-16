@@ -50,7 +50,7 @@ public:
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = NULL);
 
-    static bool ProgramUnitTest(GrContext* context, GrDrawTarget* drawTarget, int maxStages);
+    static bool ProgramUnitTest(GrContext* context, int maxStages);
 
 private:
     GrDrawingManager(GrContext* context)
