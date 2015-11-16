@@ -357,7 +357,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         set_random_stencil(&pipelineBuilder, &random);
 
         GrTestTarget tt;
-        context->getTestTarget(&tt);
+        context->getTestTarget(&tt, rt);
 
         tt.target()->drawBatch(pipelineBuilder, batch);
     }
@@ -391,7 +391,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             builder.addColorFragmentProcessor(blockFP);
 
             GrTestTarget tt;
-            context->getTestTarget(&tt);
+            context->getTestTarget(&tt, rt);
 
             tt.target()->drawBatch(builder, batch);
             drawingManager->flush();

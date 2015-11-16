@@ -263,8 +263,8 @@ DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     SkAutoTUnref<GrTexture> texture(context->textureProvider()->createApproxTexture(desc));
     GrTestTarget tt;
-    context->getTestTarget(&tt);
     GrRenderTarget* rt = texture->asRenderTarget();
+    context->getTestTarget(&tt, rt);
     GrDrawTarget* dt = tt.target();
     GrResourceProvider* rp = tt.resourceProvider();
 

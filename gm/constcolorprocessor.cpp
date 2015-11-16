@@ -91,7 +91,7 @@ protected:
                     SkRect renderRect = SkRect::MakeXYWH(0, 0, kRectSize, kRectSize);
 
                     GrTestTarget tt;
-                    context->getTestTarget(&tt);
+                    context->getTestTarget(&tt, rt);
                     if (nullptr == tt.target()) {
                         SkDEBUGFAIL("Couldn't get Gr test target.");
                         return;

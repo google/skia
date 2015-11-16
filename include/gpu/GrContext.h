@@ -328,7 +328,7 @@ public:
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
-    void getTestTarget(GrTestTarget*);
+    void getTestTarget(GrTestTarget*, GrRenderTarget* rt);
 
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;

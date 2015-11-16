@@ -78,7 +78,7 @@ protected:
         }
 
         GrTestTarget tt;
-        context->getTestTarget(&tt);
+        context->getTestTarget(&tt, rt);
         if (nullptr == tt.target()) {
             SkDEBUGFAIL("Couldn't get Gr test target.");
             return;

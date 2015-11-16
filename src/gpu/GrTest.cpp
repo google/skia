@@ -52,25 +52,28 @@ void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target, GrRenderTarget* rt
     fRenderTarget.reset(SkRef(rt));
 }
 
-void GrContext::getTestTarget(GrTestTarget* tar) {
+void GrContext::getTestTarget(GrTestTarget* tar, GrRenderTarget* rt) {
     this->flush();
     // We could create a proxy GrDrawTarget that passes through to fGpu until ~GrTextTarget() and
     // then disconnects. This would help prevent test writers from mixing using the returned
     // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = 32;
-    desc.fHeight = 32;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = 0;
+    if (!rt) {
+        GrSurfaceDesc desc;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fWidth = 32;
+        desc.fHeight = 32;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        desc.fSampleCnt = 0;
 
-    SkAutoTUnref<GrTexture> texture(this->textureProvider()->createTexture(desc, false, nullptr, 0));
-    if (nullptr == texture) {
-        return;
+        SkAutoTUnref<GrTexture> texture(this->textureProvider()->createTexture(desc, false,
+                                                                               nullptr, 0));
+        if (nullptr == texture) {
+            return;
+        }
+        SkASSERT(nullptr != texture->asRenderTarget());
+        rt = texture->asRenderTarget();
     }
-    SkASSERT(nullptr != texture->asRenderTarget());
-    GrRenderTarget* rt = texture->asRenderTarget();
 
     SkAutoTUnref<GrDrawTarget> dt(fDrawingManager->newDrawTarget(rt));
     tar->init(this, dt, rt);
