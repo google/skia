@@ -1340,7 +1340,7 @@ private:
     // the first N recs that can fit here mean we won't call malloc
     enum {
         kMCRecSize      = 128,  // most recent measurement
-        kMCRecCount     = 8,    // common depth for save/restores
+        kMCRecCount     = 32,   // common depth for save/restores
         kDeviceCMSize   = 136,  // most recent measurement
     };
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
