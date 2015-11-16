@@ -49,9 +49,9 @@ SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
         case kAndroidCodec_Strategy: {
             SkAutoTDelete<SkAndroidCodec> codec =
                     SkAndroidCodec::NewFromStream(streamDeleter.detach());
-            if (!codec) {
+            if (NULL == codec) {
                 SkCodecPrintf("Error: Failed to create codec.\n");
-                return nullptr;
+                return NULL;
             }
             return new SkBitmapRegionCodec(codec.detach());
         }

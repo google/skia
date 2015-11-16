@@ -410,6 +410,7 @@
         '<(skia_include_path)/private/SkTHash.h',
         '<(skia_include_path)/private/SkThreadID.h',
         '<(skia_include_path)/private/SkTLogic.h',
+        '<(skia_include_path)/private/SkUniquePtr.h',
         '<(skia_include_path)/private/SkUtility.h',
         '<(skia_include_path)/private/SkWeakRefCnt.h',
 
