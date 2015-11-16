@@ -41,14 +41,36 @@ GrGLExtensions& GrGLExtensions::operator=(const GrGLExtensions& that) {
     return *this;
 }
 
+static void eat_space_sep_strings(SkTArray<SkString>* out, const char in[]) {
+    if (!in) {
+        return;
+    }
+    while (true) {
+        // skip over multiple spaces between extensions
+        while (' ' == *in) {
+            ++in;
+        }
+        // quit once we reach the end of the string.
+        if ('\0' == *in) {
+            break;
+        }
+        // we found an extension
+        size_t length = strcspn(in, " ");
+        out->push_back().set(in, length);
+        in += length;
+    }
+}
+
 bool GrGLExtensions::init(GrGLStandard standard,
                           GrGLGetStringProc getString,
                           GrGLGetStringiProc getStringi,
-                          GrGLGetIntegervProc getIntegerv) {
+                          GrGLGetIntegervProc getIntegerv,
+                          GrEGLQueryStringProc queryString,
+                          GrEGLDisplay eglDisplay) {
     fInitialized = false;
     fStrings->reset();
 
-    if (nullptr == getString) {
+    if (!getString) {
         return false;
     }
 
@@ -62,7 +84,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
     bool indexed = version >= GR_GL_VER(3, 0);
 
     if (indexed) {
-        if (nullptr == getStringi || nullptr == getIntegerv) {
+        if (!getStringi || !getIntegerv) {
             return false;
         }
         GrGLint extensionCnt = 0;
@@ -74,23 +96,15 @@ bool GrGLExtensions::init(GrGLStandard standard,
         }
     } else {
         const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
-        if (nullptr == extensions) {
+        if (!extensions) {
             return false;
         }
-        while (true) {
-            // skip over multiple spaces between extensions
-            while (' ' == *extensions) {
-                ++extensions;
-            }
-            // quit once we reach the end of the string.
-            if ('\0' == *extensions) {
-                break;
-            }
-            // we found an extension
-            size_t length = strcspn(extensions, " ");
-            fStrings->push_back().set(extensions, length);
-            extensions += length;
-        }
+        eat_space_sep_strings(fStrings, extensions);
+    }
+    if (queryString) {
+        const char* extensions = queryString(eglDisplay, GR_EGL_EXTENSIONS);
+
+        eat_space_sep_strings(fStrings, extensions);
     }
     if (!fStrings->empty()) {
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;

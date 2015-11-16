@@ -58,6 +58,18 @@ typedef signed long int GrGLintptr;
 typedef signed long int GrGLsizeiptr;
 #endif
 
+/**
+ * EGL types.
+ */
+
+typedef void* GrEGLImageKHR;
+typedef void* GrEGLDisplay;
+typedef void* GrEGLContext;
+typedef void* GrEGLClientBuffer;
+typedef unsigned int GrEGLenum;
+typedef int32_t GrEGLint;
+typedef unsigned int GrEGLBoolean;
+
 ///////////////////////////////////////////////////////////////////////////////
 /**
  * Types for interacting with GL resources created externally to Skia. GrBackendObjects for GL

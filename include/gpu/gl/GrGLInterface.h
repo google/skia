@@ -128,8 +128,6 @@ private:
     typedef SkRefCnt INHERITED;
 
 public:
-    
-
     GrGLInterface();
 
     static GrGLInterface* NewClone(const GrGLInterface*);
@@ -498,6 +496,10 @@ public:
         GLPtr<GrGLPushDebugGroupProc> fPushDebugGroup;
         GLPtr<GrGLPopDebugGroupProc> fPopDebugGroup;
         GLPtr<GrGLObjectLabelProc> fObjectLabel;
+
+        /* EGL functions */
+        GLPtr<GrEGLCreateImageProc> fCreateImage;
+        GLPtr<GrEGLDestroyImageProc> fDestroyImage;
     } fFunctions;
 
     // Per-GL func callback

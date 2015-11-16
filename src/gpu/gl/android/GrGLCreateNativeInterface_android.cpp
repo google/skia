@@ -223,6 +223,10 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
         return (GrGLFuncPtr) glGetRenderbufferParameteriv;
     } else if (0 == strcmp("glRenderbufferStorage", name)) {
         return (GrGLFuncPtr) glRenderbufferStorage;
+    } else if (0 == strcmp("eglQueryString", name)) {
+        return (GrGLFuncPtr) eglQueryString;
+    } else if (0 == strcmp("eglGetCurrentDisplay", name)) {
+        return (GrGLFuncPtr) eglGetCurrentDisplay;
     }
     return eglGetProcAddress(name);
 }

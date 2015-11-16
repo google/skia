@@ -14,6 +14,8 @@
 #define GET_PROC_SUFFIX(F, S) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F #S)
 #define GET_PROC_LOCAL(F) GrGL ## F ## Proc F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
 
+#define GET_EGL_PROC_SUFFIX(F, S) functions->f ## F = (GrEGL ## F ## Proc) get(ctx, "egl" #F #S)
+
 const GrGLInterface* GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     if (nullptr == GetString) {
@@ -35,6 +37,21 @@ const GrGLInterface* GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
     return nullptr;
 }
 
+static void get_egl_query_and_display(GrEGLQueryStringProc* queryString, GrEGLDisplay* display,
+                                      void* ctx, GrGLGetProc get) {
+    *queryString = (GrEGLQueryStringProc) get(ctx, "eglQueryString");
+    *display = GR_EGL_NO_DISPLAY;
+    if (*queryString) {
+        GrEGLGetCurrentDisplayProc getCurrentDisplay =
+            (GrEGLGetCurrentDisplayProc) get(ctx, "eglGetCurrentDisplay");
+        if (getCurrentDisplay) {
+            *display = getCurrentDisplay();
+        } else {
+            *queryString = nullptr;
+        }
+    }
+}
+
 const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     GET_PROC_LOCAL(GetStringi);
@@ -53,8 +70,12 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         return nullptr;
     }
 
+    GrEGLQueryStringProc queryString;
+    GrEGLDisplay display;
+    get_egl_query_and_display(&queryString, &display, ctx, get);
     GrGLExtensions extensions;
-    if (!extensions.init(kGL_GrGLStandard, GetString, GetStringi, GetIntegerv)) {
+    if (!extensions.init(kGL_GrGLStandard, GetString, GetStringi, GetIntegerv, queryString,
+                         display)) {
         return nullptr;
     }
 
@@ -462,6 +483,11 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(ObjectLabel);
     }
 
+    if (extensions.has("EGL_KHR_image") || extensions.has("EGL_KHR_image_base")) {
+        GET_EGL_PROC_SUFFIX(CreateImage, KHR);
+        GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
@@ -483,8 +509,12 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     GET_PROC_LOCAL(GetIntegerv);
     GET_PROC_LOCAL(GetStringi);
+    GrEGLQueryStringProc queryString;
+    GrEGLDisplay display;
+    get_egl_query_and_display(&queryString, &display, ctx, get);
     GrGLExtensions extensions;
-    if (!extensions.init(kGLES_GrGLStandard, GetString, GetStringi, GetIntegerv)) {
+    if (!extensions.init(kGLES_GrGLStandard, GetString, GetStringi, GetIntegerv, queryString,
+                         display)) {
         return nullptr;
     }
 
@@ -764,6 +794,11 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (extensions.has("GL_CHROMIUM_bind_uniform_location")) {
         GET_PROC_SUFFIX(BindUniformLocation, CHROMIUM);
+    }
+
+    if (extensions.has("EGL_KHR_image") || extensions.has("EGL_KHR_image_base")) {
+        GET_EGL_PROC_SUFFIX(CreateImage, KHR);
+        GET_EGL_PROC_SUFFIX(DestroyImage, KHR);
     }
 
     interface->fStandard = kGLES_GrGLStandard;

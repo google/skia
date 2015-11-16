@@ -928,4 +928,8 @@
 #define GR_GL_PROGRAM_PIPELINE                              0x82E4
 #define GR_GL_SAMPLER                                       0x82E6
 
+/* EGL Defines */
+#define GR_EGL_NO_DISPLAY                                   ((GrEGLDisplay)0)
+#define GR_EGL_EXTENSIONS                                   0x3055
+
 #endif
