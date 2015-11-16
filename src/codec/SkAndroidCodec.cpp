@@ -31,6 +31,7 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream) {
             return new SkWebpAdapterCodec((SkWebpCodec*) codec.detach());
         case kPNG_SkEncodedFormat:
         case kJPEG_SkEncodedFormat:
+        case kWBMP_SkEncodedFormat:
             return new SkSampledCodec(codec.detach());
         default:
             // FIXME: SkSampledCodec is temporarily disabled for other formats

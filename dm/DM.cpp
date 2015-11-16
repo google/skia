@@ -345,32 +345,47 @@ static void push_codec_srcs(Path path) {
     }
 
     // https://bug.skia.org/4428
-    static const char* const exts[] = {
+    bool subset = false;
+    // The following image types are supported by BitmapRegionDecoder,
+    // so we will test full image decodes and subset decodes.
+    static const char* const subsetExts[] = {
         "jpg", "jpeg", "png", "webp",
         "JPG", "JPEG", "PNG", "WEBP",
     };
-    bool supported = false;
-    for (const char* ext : exts) {
+    for (const char* ext : subsetExts) {
         if (path.endsWith(ext)) {
-            supported = true;
+            subset = true;
             break;
         }
     }
-    if (!supported) {
+
+    bool full = false;
+    // The following image types are only supported by BitmapFactory,
+    // so we only need to test full image decodes.
+    static const char* fullExts[] = {
+        "wbmp",
+        "WBMP",
+    };
+    for (const char* ext : fullExts) {
+        if (path.endsWith(ext)) {
+            full = true;
+            break;
+        }
+    }
+
+    if (!full && !subset) {
         return;
     }
 
     const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
-    const AndroidCodecSrc::Mode androidModes[] = {
-            AndroidCodecSrc::kFullImage_Mode,
-            AndroidCodecSrc::kDivisor_Mode,
-    };
-
     for (int sampleSize : sampleSizes) {
-        for (AndroidCodecSrc::Mode mode : androidModes) {
-            for (uint32_t i = 0; i < numColorTypes; i++) {
-                push_android_codec_src(path, mode, colorTypes[i], sampleSize);
+        for (uint32_t i = 0; i < numColorTypes; i++) {
+            push_android_codec_src(path, AndroidCodecSrc::kFullImage_Mode, colorTypes[i],
+                    sampleSize);
+            if (subset) {
+                push_android_codec_src(path, AndroidCodecSrc::kDivisor_Mode, colorTypes[i],
+                        sampleSize);
             }
         }
     }
