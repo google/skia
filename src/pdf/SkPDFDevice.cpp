@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <tuple>
 #include "SkPDFDevice.h"
 
 #include "SkAnnotation.h"
@@ -40,6 +41,23 @@
 #define DPI_FOR_RASTER_SCALE_ONE 72
 
 // Utility functions
+
+static bool excessive_translation(const SkMatrix& m) {
+    const SkScalar kExcessiveTranslation = 8192.0f;
+    return SkScalarAbs(m.getTranslateX()) > kExcessiveTranslation
+        || SkScalarAbs(m.getTranslateY()) > kExcessiveTranslation;
+}
+
+static std::tuple<SkMatrix, SkVector> untranslate(const SkDraw& d) {
+    // https://bug.skia.org/257 If the translation is too large,
+    // PDF can't exactly represent the float values as numbers.
+    SkScalar translateX = d.fMatrix->getTranslateX() / d.fMatrix->getScaleX();
+    SkScalar translateY = d.fMatrix->getTranslateY() / d.fMatrix->getScaleY();
+    SkMatrix mat = *d.fMatrix;
+    mat.preTranslate(-translateX, -translateY);
+    SkASSERT(SkScalarAbs(mat.getTranslateX()) <= 1.0);
+    return std::make_tuple(mat, SkVector::Make(translateX, translateY));
+}
 
 // If the paint will definitely draw opaquely, replace kSrc_Mode with
 // kSrcOver_Mode.  http://crbug.com/473572
@@ -801,6 +819,16 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
             return;
         }
     }
+    if (excessive_translation(*d.fMatrix)) {
+        SkVector translate; SkMatrix translateMatrix;
+        std::tie(translateMatrix, translate) = untranslate(d);
+        SkDraw drawCopy(d);
+        drawCopy.fMatrix = &translateMatrix;
+        SkTArray<SkPoint> pointsCopy(points, SkToInt(count));
+        SkPoint::Offset(&pointsCopy[0], SkToInt(count), translate);
+        this->drawPoints(drawCopy, mode, count, &pointsCopy[0], srcPaint);
+        return;  // NOTE: shader behavior will be off.
+    }
 
     // SkDraw::drawPoints converts to multiple calls to fDevice->drawPath.
     // We only use this when there's a path effect because of the overhead
@@ -929,6 +957,17 @@ void SkPDFDevice::drawRect(const SkDraw& d,
     SkRect r = rect;
     r.sort();
 
+    if (excessive_translation(*d.fMatrix)) {
+        SkVector translate; SkMatrix translateMatrix;
+        std::tie(translateMatrix, translate) = untranslate(d);
+        SkDraw drawCopy(d);
+        drawCopy.fMatrix = &translateMatrix;
+        SkRect rectCopy = rect;
+        rectCopy.offset(translate.x(), translate.y());
+        this->drawRect(drawCopy, rectCopy, srcPaint);
+        return;  // NOTE: shader behavior will be off.
+    }
+
     if (paint.getPathEffect()) {
         if (d.fClip->isEmpty()) {
             return;
@@ -981,6 +1020,17 @@ void SkPDFDevice::drawPath(const SkDraw& d,
                            const SkPaint& srcPaint,
                            const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
+    if (excessive_translation(*d.fMatrix)) {
+        SkVector translate; SkMatrix translateMatrix;
+        std::tie(translateMatrix, translate) = untranslate(d);
+        SkDraw drawCopy(d);
+        drawCopy.fMatrix = &translateMatrix;
+        SkPath pathCopy(origPath);
+        pathCopy.offset(translate.x(), translate.y());
+        this->drawPath(drawCopy, pathCopy, srcPaint, prePathMatrix, true);
+        return;  // NOTE: shader behavior will be off.
+    }
+
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
     SkPath modifiedPath;
@@ -1273,6 +1323,16 @@ static void draw_transparent_text(SkPDFDevice* device,
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& srcPaint) {
+    if (excessive_translation(*d.fMatrix)) {
+        SkVector translate; SkMatrix translateMatrix;
+        std::tie(translateMatrix, translate) = untranslate(d);
+        SkDraw drawCopy(d);
+        drawCopy.fMatrix = &translateMatrix;
+        this->drawText(drawCopy, text, len, x + translate.x(),
+                       y + translate.y(), srcPaint);
+        return;  // NOTE: shader behavior will be off.
+    }
+
     if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
         // https://bug.skia.org/3866
         SkPath path;
@@ -1334,6 +1394,18 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& srcPaint) {
+    if (excessive_translation(*d.fMatrix)) {
+        SkVector translate; SkMatrix translateMatrix;
+        std::tie(translateMatrix, translate) = untranslate(d);
+        SkDraw drawCopy(d);
+        drawCopy.fMatrix = &translateMatrix;
+        SkPoint offsetCopy = offset;
+        SkPoint::Offset(&offsetCopy, 1, translate.x(), translate.y());
+        this->drawPosText(drawCopy, text, len, pos, scalarsPerPos, offsetCopy,
+                          srcPaint);
+        return;  // NOTE: shader behavior will be off.
+    }
+
     if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
         const SkPoint* positions = reinterpret_cast<const SkPoint*>(pos);
         SkAutoTMalloc<SkPoint> positionsBuffer;
