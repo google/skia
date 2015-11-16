@@ -91,6 +91,28 @@ def get_args(bot):
     match.append('~interlaced2.png')
     match.append('~interlaced3.png')
 
+  # We do not need or want to benchmark the decodes of incomplete images.
+  # In fact, in nanobench we assert that the full image decode succeeds.
+  match.append('~inc0.gif')
+  match.append('~inc1.gif')
+  match.append('~incInterlaced.gif')
+  match.append('~inc0.jpg')
+  match.append('~incGray.jpg')
+  match.append('~inc0.wbmp')
+  match.append('~inc1.wbmp')
+  match.append('~inc0.webp')
+  match.append('~inc1.webp')
+  match.append('~inc0.ico')
+  match.append('~inc1.ico')
+  match.append('~inc0.png')
+  match.append('~inc1.png')
+  match.append('~inc2.png')
+  match.append('~inc12.png')
+  match.append('~inc13.png')
+  match.append('~inc14.png')
+  match.append('~inc0.webp')
+  match.append('~inc1.webp')
+
   if match:
     args.append('--match')
     args.extend(match)
