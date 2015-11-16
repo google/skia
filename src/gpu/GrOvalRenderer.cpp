@@ -626,6 +626,21 @@ public:
 
     const char* name() const override { return "CircleBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                           "InnerRad: %.2f, OuterRad: %.2f\n",
+                           fGeoData[i].fColor,
+                           fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
+                           fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
+                           fGeoData[i].fInnerRadius,
+                           fGeoData[i].fOuterRadius);
+        }
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);

@@ -63,13 +63,18 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
+        string.appendf("RT: %d\n", this->renderTargetUniqueID());
         string.append("ColorStages:\n");
         for (int i = 0; i < this->pipeline()->numColorFragmentProcessors(); i++) {
-            string.appendf("\t\t%s\n", this->pipeline()->getColorFragmentProcessor(i).name());
+            string.appendf("\t\t%s\n\t\t%s\n",
+                           this->pipeline()->getColorFragmentProcessor(i).name(),
+                           this->pipeline()->getColorFragmentProcessor(i).dumpInfo().c_str());
         }
         string.append("CoverageStages:\n");
         for (int i = 0; i < this->pipeline()->numCoverageFragmentProcessors(); i++) {
-            string.appendf("\t%s\n", this->pipeline()->getCoverageFragmentProcessor(i).name());
+            string.appendf("\t\t%s\n\t\t%s\n",
+                           this->pipeline()->getCoverageFragmentProcessor(i).name(),
+                           this->pipeline()->getCoverageFragmentProcessor(i).dumpInfo().c_str());
         }
         string.appendf("XP: %s\n", this->pipeline()->getXferProcessor()->name());
         return string;

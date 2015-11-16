@@ -40,6 +40,12 @@ public:
 
     const char* name() const override { return "Arithmetic"; }
 
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("K1: %.2f K2: %.2f K3: %.2f K4: %.2f", fK1, fK2, fK3, fK4);
+        return str;
+    }
+
     float k1() const { return fK1; }
     float k2() const { return fK2; }
     float k3() const { return fK3; }

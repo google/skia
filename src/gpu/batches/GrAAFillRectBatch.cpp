@@ -217,6 +217,14 @@ public:
 
     static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
 
+    static SkString DumpInfo(const Geometry& geo) {
+        SkString str;
+        str.appendf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    geo.fColor,
+                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
+        return str;
+    }
+
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                            const GrPipelineOptimizations& opts) {
         // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
@@ -257,6 +265,14 @@ public:
     };
 
     static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
+
+    static SkString DumpInfo(const Geometry& geo) {
+        SkString str;
+        str.appendf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    geo.fColor,
+                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
+        return str;
+    }
 
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
                            const GrPipelineOptimizations&) {

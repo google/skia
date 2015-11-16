@@ -491,7 +491,7 @@ class GrLightingEffect : public GrSingleTextureEffect {
 public:
     GrLightingEffect(GrTexture* texture, const SkImageFilterLight* light, SkScalar surfaceScale,
                      const SkMatrix& matrix, BoundaryMode boundaryMode);
-    virtual ~GrLightingEffect();
+    ~GrLightingEffect() override;
 
     const SkImageFilterLight* light() const { return fLight; }
     SkScalar surfaceScale() const { return fSurfaceScale; }

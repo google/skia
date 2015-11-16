@@ -50,6 +50,15 @@ public:
 
     const char* name() const override { return Impl::Name(); }
 
+    SkString dumpInfo() const override {
+        SkString str;
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            str.append(Impl::DumpInfo(fGeoData[i]));
+        }
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
+
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         // When this is called on a batch, there is only one geometry bundle
         out->setKnownFourComponents(fGeoData[0].fColor);

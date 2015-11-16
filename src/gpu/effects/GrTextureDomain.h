@@ -174,6 +174,15 @@ public:
 
     const char* name() const override { return "TextureDomain"; }
 
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f] ", 
+                    fTextureDomain.domain().fLeft, fTextureDomain.domain().fTop,
+                    fTextureDomain.domain().fRight, fTextureDomain.domain().fBottom);
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
+
     const GrTextureDomain& textureDomain() const { return fTextureDomain; }
 
 protected:

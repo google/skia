@@ -13,6 +13,7 @@
 #include "GrProgramElement.h"
 #include "GrTextureAccess.h"
 #include "SkMath.h"
+#include "SkString.h"
 
 class GrContext;
 class GrCoordTransform;
@@ -61,6 +62,13 @@ public:
     /** Human-meaningful string to identify this prcoessor; may be embedded
         in generated shader code. */
     virtual const char* name() const = 0;
+
+    // Human-readable dump of all information 
+    virtual SkString dumpInfo() const {
+        SkString str;
+        str.appendf("Missing data");
+        return str;
+    }
 
     int numTextures() const { return fTextureAccesses.count(); }
 

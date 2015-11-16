@@ -29,7 +29,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("RT: 0x%p", fRenderTarget.get());
+        string.printf("RT: %d", fRenderTarget.get()->getUniqueID());
         return string;
     }
 

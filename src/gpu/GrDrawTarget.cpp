@@ -92,7 +92,7 @@ void GrDrawTarget::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrDrawTarget::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d\n");
+    SkDebugf("node: %d -> RT: %d\n", fDebugID, fRenderTarget ? fRenderTarget->getUniqueID() : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fDebugID);
