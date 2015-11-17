@@ -557,13 +557,16 @@
           'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',
           'SDKROOT': 'iphoneos',
           'TARGETED_DEVICE_FAMILY': '1,2',
-          'OTHER_CPLUSPLUSFLAGS': [
-            '-std=c++0x',
-            '-stdlib=libc++',
-            '-fvisibility=hidden',
-            '-fvisibility-inlines-hidden',
-          ],
-          'GCC_THUMB_SUPPORT': 'NO',
+
+          'CLANG_CXX_LIBRARY':              'libc++',
+          'CLANG_CXX_LANGUAGE_STANDARD':    'c++11',
+          'GCC_ENABLE_CPP_EXCEPTIONS':      'NO',   # -fno-exceptions
+          'GCC_ENABLE_CPP_RTTI':            'NO',   # -fno-rtti
+          'GCC_THREADSAFE_STATICS':         'NO',   # -fno-threadsafe-statics
+          'GCC_SYMBOLS_PRIVATE_EXTERN':     'NO',   # -fvisibility=hidden
+          'GCC_INLINES_ARE_PRIVATE_EXTERN': 'NO',   # -fvisibility-inlines-hidden
+
+          'GCC_THUMB_SUPPORT': 'NO',  # TODO(mtklein): why would we not want thumb?
         },
       },
     ],
