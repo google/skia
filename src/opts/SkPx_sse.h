@@ -61,10 +61,9 @@ struct SkPx {
         #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
             return _mm_shuffle_epi8(as, _mm_set_epi8(3,3,3,3, 2,2,2,2, 1,1,1,1, 0,0,0,0));
         #else
-            as   = _mm_unpacklo_epi8 (as, _mm_setzero_si128());     // ____ ____ _3_2 _1_0
-            as   = _mm_unpacklo_epi16(as, _mm_setzero_si128());     // ___3 ___2 ___1 ___0
-            as   = _mm_or_si128(as, _mm_slli_si128(as, 1));         // __33 __22 __11 __00
-            return _mm_or_si128(as, _mm_slli_si128(as, 2));         // 3333 2222 1111 0000
+            as = _mm_unpacklo_epi8 (as, as);                        // ____ ____ 3322 1100
+            as = _mm_unpacklo_epi16(as, as);                        // 3333 2222 1111 0000
+            return as;
         #endif
         }
         static Alpha Load(const uint8_t* a, int n) {
@@ -108,9 +107,11 @@ struct SkPx {
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
         return _mm_shuffle_epi8(fVec, _mm_set_epi8(15,15,15,15, 11,11,11,11, 7,7,7,7, 3,3,3,3));
     #else
-        __m128i as = _mm_srli_epi32(fVec, 24);           // ___3 ___2 ___1 ___0
-        as   = _mm_or_si128(as, _mm_slli_si128(as, 1));  // __33 __22 __11 __00
-        return _mm_or_si128(as, _mm_slli_si128(as, 2));  // 3333 2222 1111 0000
+        // We exploit that A >= rgb for any premul pixel.
+        __m128i as = fVec;                             // 3xxx 2xxx 1xxx 0xxx
+        as = _mm_max_epu8(as, _mm_srli_epi32(as,  8)); // 33xx 22xx 11xx 00xx
+        as = _mm_max_epu8(as, _mm_srli_epi32(as, 16)); // 3333 2222 1111 0000
+        return as;
     #endif
     }
 
