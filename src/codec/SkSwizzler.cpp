@@ -594,7 +594,8 @@ static bool swizzle_rgba_to_n32_unpremul_skipZ(void* SK_RESTRICT dstRow,
 SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkPMColor* ctable,
                                        const SkImageInfo& dstInfo,
-                                       const SkCodec::Options& options) {
+                                       const SkCodec::Options& options,
+                                       const SkIRect* frame) {
     if (dstInfo.colorType() == kUnknown_SkColorType || kUnknown == sc) {
         return nullptr;
     }
@@ -776,43 +777,59 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
     }
 
     // Store bpp in bytes if it is an even multiple, otherwise use bits
-    int bpp = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) : BitsPerPixel(sc);
+    int srcBPP = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) : BitsPerPixel(sc);
+    int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
     
     int srcOffset = 0;
     int srcWidth = dstInfo.width();
+    int dstOffset = 0;
+    int dstWidth = srcWidth;
     if (options.fSubset) {
+        // We do not currently support subset decodes for image types that may have
+        // frames (gif).
+        SkASSERT(!frame);
         srcOffset = options.fSubset->left();
         srcWidth = options.fSubset->width();
+        dstWidth = srcWidth;
+    } else if (frame) {
+        dstOffset = frame->left();
+        srcWidth = frame->width();
     }
 
-    return new SkSwizzler(proc, ctable, srcOffset, srcWidth, bpp);
+    return new SkSwizzler(proc, ctable, srcOffset, srcWidth, dstOffset, dstWidth, srcBPP, dstBPP);
 }
 
-SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int subsetWidth,
-        int bpp)
+SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int srcWidth,
+        int dstOffset, int dstWidth, int srcBPP, int dstBPP)
     : fRowProc(proc)
     , fColorTable(ctable)
     , fSrcOffset(srcOffset)
-    , fX0(srcOffset)
-    , fSubsetWidth(subsetWidth)
-    , fDstWidth(subsetWidth)
+    , fDstOffset(dstOffset)
+    , fSrcOffsetUnits(srcOffset * srcBPP)
+    , fDstOffsetBytes(dstOffset * dstBPP)
+    , fSrcWidth(srcWidth)
+    , fDstWidth(dstWidth)
+    , fSwizzleWidth(srcWidth)
+    , fAllocatedWidth(dstWidth)
     , fSampleX(1)
-    , fBPP(bpp)
+    , fSrcBPP(srcBPP)
+    , fDstBPP(dstBPP)
 {}
 
 int SkSwizzler::onSetSampleX(int sampleX) {
     SkASSERT(sampleX > 0); // Surely there is an upper limit? Should there be
                            // way to report failure?
     fSampleX = sampleX;
-    fX0 = get_start_coord(sampleX) + fSrcOffset;
-    fDstWidth = get_scaled_dimension(fSubsetWidth, sampleX);
+    fSrcOffsetUnits = (get_start_coord(sampleX) + fSrcOffset) * fSrcBPP;
+    fDstOffsetBytes = (fDstOffset / sampleX) * fDstBPP;
+    fSwizzleWidth = get_scaled_dimension(fSrcWidth, sampleX);
+    fAllocatedWidth = get_scaled_dimension(fDstWidth, sampleX);
 
-    // check that fX0 is valid
-    SkASSERT(fX0 >= 0);
-    return fDstWidth;
+    return fAllocatedWidth;
 }
 
 SkSwizzler::ResultAlpha SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
     SkASSERT(nullptr != dst && nullptr != src);
-    return fRowProc(dst, src, fDstWidth, fBPP, fSampleX * fBPP, fX0 * fBPP, fColorTable);
+    return fRowProc(SkTAddOffset<void>(dst, fDstOffsetBytes), src, fSwizzleWidth, fSrcBPP,
+            fSampleX * fSrcBPP, fSrcOffsetUnits, fColorTable);
 }

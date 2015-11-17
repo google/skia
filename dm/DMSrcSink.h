@@ -106,7 +106,6 @@ public:
     enum Mode {
         kCodec_Mode,
         kScanline_Mode,
-        kScanline_Subset_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
         kSubset_Mode, // For codecs that support subsets directly.
     };

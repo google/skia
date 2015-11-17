@@ -230,9 +230,6 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kScanline_Mode:
             folder.append("scanline");
             break;
-        case CodecSrc::kScanline_Subset_Mode:
-            folder.append("scanline_subset");
-            break;
         case CodecSrc::kStripe_Mode:
             folder.append("stripe");
             break;
@@ -310,7 +307,7 @@ static void push_codec_srcs(Path path) {
     const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
     const CodecSrc::Mode nativeModes[] = { CodecSrc::kCodec_Mode, CodecSrc::kScanline_Mode,
-            CodecSrc::kScanline_Subset_Mode, CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode };
+            CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode };
 
     CodecSrc::DstColorType colorTypes[3];
     uint32_t numColorTypes;
@@ -363,8 +360,8 @@ static void push_codec_srcs(Path path) {
     // The following image types are only supported by BitmapFactory,
     // so we only need to test full image decodes.
     static const char* fullExts[] = {
-        "wbmp", "bmp",
-        "WBMP", "BMP",
+        "wbmp", "bmp", "gif",
+        "WBMP", "BMP", "GIF",
     };
     for (const char* ext : fullExts) {
         if (path.endsWith(ext)) {
