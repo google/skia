@@ -11,9 +11,6 @@
 #include "SkUtils.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
-#if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
-#endif
 #include "SkRandom.h"
 #include "SkSystemEventTypes.h"
 #include "SkTime.h"
@@ -21,7 +18,10 @@
 #include "SkXfermode.h"
 #include "Timer.h"
 
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "SkGpuDevice.h"
+#endif
 
 SkRandom gRand;
 
