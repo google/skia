@@ -43,6 +43,11 @@ bool SkImageDecoder::DecodeMemory(const void*, size_t, SkBitmap*, SkColorType, M
     return false;
 }
 
+bool SkImageDecoder::decodeYUV8Planes(SkStream*, SkISize[3], void*[3],
+                                      size_t[3], SkYUVColorSpace*) {
+    return false;
+}
+
 SkImageDecoder::Format SkImageDecoder::getFormat() const {
     return kUnknown_Format;
 }
