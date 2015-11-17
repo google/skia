@@ -158,11 +158,16 @@ void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const 
 }
 
 void SkRecorder::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
-    if (!fDrawableList) {
-        fDrawableList.reset(new SkDrawableList);
+    if (fDrawPictureMode == Record_DrawPictureMode) {
+        if (!fDrawableList) {
+            fDrawableList.reset(new SkDrawableList);
+        }
+        fDrawableList->append(drawable);
+        APPEND(DrawDrawable, this->copy(matrix), drawable->getBounds(), fDrawableList->count() - 1);
+    } else {
+        SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
+        drawable->draw(this, matrix);
     }
-    fDrawableList->append(drawable);
-    APPEND(DrawDrawable, this->copy(matrix), drawable->getBounds(), fDrawableList->count() - 1);
 }
 
 void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
