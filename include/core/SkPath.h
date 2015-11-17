@@ -563,8 +563,25 @@ public:
      *  Add a closed rectangle contour to the path
      *  @param rect The rectangle to add as a closed contour to the path
      *  @param dir  The direction to wind the rectangle's contour.
+     *
+     *  Note: the contour initial point index is 0 (as defined below).
      */
     void addRect(const SkRect& rect, Direction dir = kCW_Direction);
+
+    /**
+     *  Add a closed rectangle contour to the path
+     *  @param rect  The rectangle to add as a closed contour to the path
+     *  @param dir   The direction to wind the rectangle's contour.
+     *  @param start Initial point of the contour (initial moveTo), expressed as
+     *               a corner index, starting in the upper-left position, clock-wise:
+     *
+     *  0         1
+     *   *-------*
+     *   |       |
+     *   *-------*
+     *  3         2
+     */
+    void addRect(const SkRect& rect, Direction dir, unsigned start);
 
     /**
      *  Add a closed rectangle contour to the path
@@ -578,6 +595,8 @@ public:
      *  @param bottom   The bottom of a rectangle to add as a closed contour to
      *                  the path
      *  @param dir  The direction to wind the rectangle's contour.
+     *
+     *  Note: the contour initial point index is 0 (as defined above).
      */
     void addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
                  Direction dir = kCW_Direction);
@@ -587,8 +606,29 @@ public:
      *
      *  @param oval The bounding oval to add as a closed contour to the path
      *  @param dir  The direction to wind the oval's contour.
+     *
+     *  Note: the contour initial point index is 1 (as defined below).
      */
     void addOval(const SkRect& oval, Direction dir = kCW_Direction);
+
+    /**
+     *  Add a closed oval contour to the path
+     *
+     *  @param oval  The bounding oval to add as a closed contour to the path
+     *  @param dir   The direction to wind the oval's contour.
+     *  @param start Initial point of the contour (initial moveTo), expressed
+     *               as an ellipse vertex index, starting at the top, clock-wise
+     *               (90/0/270/180deg order):
+     *
+     *        0
+     *       -*-
+     *     |     |
+     *   3 *     * 1
+     *     |     |
+     *       -*-
+     *        2
+     */
+    void addOval(const SkRect& oval, Direction dir, unsigned start);
 
     /**
      *  Add a closed circle contour to the path
@@ -640,8 +680,29 @@ public:
      *  Add an SkRRect contour to the path
      *  @param rrect The rounded rect to add as a closed contour
      *  @param dir   The winding direction for the new contour.
+     *
+     *  Note: the contour initial point index is either 6 (for dir == kCW_Direction)
+     *        or 7 (for dir == kCCW_Direction), as defined below.
+     *
      */
     void addRRect(const SkRRect& rrect, Direction dir = kCW_Direction);
+
+    /**
+     *  Add an SkRRect contour to the path
+     *  @param rrect The rounded rect to add as a closed contour
+     *  @param dir   The winding direction for the new contour.
+     *  @param start Initial point of the contour (initial moveTo), expressed as
+     *               an index of the radii minor/major points, ordered clock-wise:
+     *
+     *      0    1
+     *      *----*
+     *   7 *      * 2
+     *     |      |
+     *   6 *      * 3
+     *      *----*
+     *      5    4
+     */
+    void addRRect(const SkRRect& rrect, Direction dir, unsigned start);
 
     /**
      *  Add a new contour made of just lines. This is just a fast version of

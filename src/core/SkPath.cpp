@@ -840,36 +840,118 @@ void SkPath::close() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
+template <unsigned N>
+class PointIterator {
+public:
+    PointIterator(SkPath::Direction dir, unsigned startIndex)
+        : fCurrent(startIndex % N)
+        , fAdvance(dir == SkPath::kCW_Direction ? 1 : N - 1) { }
+
+    const SkPoint& current() const {
+        SkASSERT(fCurrent < N);
+        return fPts[fCurrent];
+    }
+
+    const SkPoint& next() {
+        fCurrent = (fCurrent + fAdvance) % N;
+        return this->current();
+    }
+
+protected:
+    SkPoint fPts[N];
+
+private:
+    unsigned fCurrent;
+    unsigned fAdvance;
+};
+
+class RectPointIterator : public PointIterator<4> {
+public:
+    RectPointIterator(const SkRect& rect, SkPath::Direction dir, unsigned startIndex)
+        : PointIterator(dir, startIndex) {
+
+        fPts[0] = SkPoint::Make(rect.fLeft, rect.fTop);
+        fPts[1] = SkPoint::Make(rect.fRight, rect.fTop);
+        fPts[2] = SkPoint::Make(rect.fRight, rect.fBottom);
+        fPts[3] = SkPoint::Make(rect.fLeft, rect.fBottom);
+    }
+};
+
+class OvalPointIterator : public PointIterator<4> {
+public:
+    OvalPointIterator(const SkRect& oval, SkPath::Direction dir, unsigned startIndex)
+        : PointIterator(dir, startIndex) {
+
+        const SkScalar cx = oval.centerX();
+        const SkScalar cy = oval.centerY();
+
+        fPts[0] = SkPoint::Make(cx, oval.fTop);
+        fPts[1] = SkPoint::Make(oval.fRight, cy);
+        fPts[2] = SkPoint::Make(cx, oval.fBottom);
+        fPts[3] = SkPoint::Make(oval.fLeft, cy);
+    }
+};
+
+class RRectPointIterator : public PointIterator<8> {
+public:
+    RRectPointIterator(const SkRRect& rrect, SkPath::Direction dir, unsigned startIndex)
+        : PointIterator(dir, startIndex) {
+
+        const SkRect& bounds = rrect.getBounds();
+        const SkScalar L = bounds.fLeft;
+        const SkScalar T = bounds.fTop;
+        const SkScalar R = bounds.fRight;
+        const SkScalar B = bounds.fBottom;
+
+        fPts[0] = SkPoint::Make(L + rrect.radii(SkRRect::kUpperLeft_Corner).fX, T);
+        fPts[1] = SkPoint::Make(R - rrect.radii(SkRRect::kUpperRight_Corner).fX, T);
+        fPts[2] = SkPoint::Make(R, T + rrect.radii(SkRRect::kUpperRight_Corner).fY);
+        fPts[3] = SkPoint::Make(R, B - rrect.radii(SkRRect::kLowerRight_Corner).fY);
+        fPts[4] = SkPoint::Make(R - rrect.radii(SkRRect::kLowerRight_Corner).fX, B);
+        fPts[5] = SkPoint::Make(L + rrect.radii(SkRRect::kLowerLeft_Corner).fX, B);
+        fPts[6] = SkPoint::Make(L, B - rrect.radii(SkRRect::kLowerLeft_Corner).fY);
+        fPts[7] = SkPoint::Make(L, T + rrect.radii(SkRRect::kUpperLeft_Corner).fY);
+    }
+};
+
+} // anonymous namespace
+
 static void assert_known_direction(int dir) {
     SkASSERT(SkPath::kCW_Direction == dir || SkPath::kCCW_Direction == dir);
 }
 
 void SkPath::addRect(const SkRect& rect, Direction dir) {
-    this->addRect(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, dir);
+    this->addRect(rect, dir, 0);
 }
 
 void SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
                      SkScalar bottom, Direction dir) {
+    this->addRect(SkRect::MakeLTRB(left, top, right, bottom), dir, 0);
+}
+
+void SkPath::addRect(const SkRect &rect, Direction dir, unsigned startIndex) {
     assert_known_direction(dir);
     fFirstDirection = this->hasOnlyMoveTos() ?
-                        (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
+        (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
     SkAutoDisableDirectionCheck addc(this);
+    SkAutoPathBoundsUpdate apbu(this, rect);
 
-    SkAutoPathBoundsUpdate apbu(this, left, top, right, bottom);
+    SkDEBUGCODE(int initialVerbCount = this->countVerbs());
 
-    this->incReserve(5);
+    const int kVerbs = 5; // moveTo + 3x lineTo + close
+    this->incReserve(kVerbs);
 
-    this->moveTo(left, top);
-    if (dir == kCCW_Direction) {
-        this->lineTo(left, bottom);
-        this->lineTo(right, bottom);
-        this->lineTo(right, top);
-    } else {
-        this->lineTo(right, top);
-        this->lineTo(right, bottom);
-        this->lineTo(left, bottom);
-    }
+    RectPointIterator iter(rect, dir, startIndex);
+
+    this->moveTo(iter.current());
+    this->lineTo(iter.next());
+    this->lineTo(iter.next());
+    this->lineTo(iter.next());
     this->close();
+
+    SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
 }
 
 void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
@@ -979,64 +1061,68 @@ void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
 }
 
 void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
-    assert_known_direction(dir);
+    // legacy start indices: 6 (CW) and 7(CCW)
+    this->addRRect(rrect, dir, dir == kCW_Direction ? 6 : 7);
+}
 
-    if (rrect.isEmpty()) {
-        return;
-    }
+void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) {
+        assert_known_direction(dir);
 
-    const SkRect& bounds = rrect.getBounds();
-
-    if (rrect.isRect()) {
-        this->addRect(bounds, dir);
-    } else if (rrect.isOval()) {
-        this->addOval(bounds, dir);
-    } else {
-        fFirstDirection = this->hasOnlyMoveTos() ?
-                            (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
-
-        SkAutoPathBoundsUpdate apbu(this, bounds);
-        SkAutoDisableDirectionCheck addc(this);
-
-        const SkScalar L = bounds.fLeft;
-        const SkScalar T = bounds.fTop;
-        const SkScalar R = bounds.fRight;
-        const SkScalar B = bounds.fBottom;
-        const SkScalar W = SK_ScalarRoot2Over2;
-
-        this->incReserve(13);
-        if (kCW_Direction == dir) {
-            this->moveTo(L, B - rrect.fRadii[SkRRect::kLowerLeft_Corner].fY);
-
-            this->lineTo(L, T + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY);
-            this->conicTo(L, T, L + rrect.fRadii[SkRRect::kUpperLeft_Corner].fX, T, W);
-
-            this->lineTo(R - rrect.fRadii[SkRRect::kUpperRight_Corner].fX, T);
-            this->conicTo(R, T, R, T + rrect.fRadii[SkRRect::kUpperRight_Corner].fY, W);
-
-            this->lineTo(R, B - rrect.fRadii[SkRRect::kLowerRight_Corner].fY);
-            this->conicTo(R, B, R - rrect.fRadii[SkRRect::kLowerRight_Corner].fX, B, W);
-
-            this->lineTo(L + rrect.fRadii[SkRRect::kLowerLeft_Corner].fX, B);
-            this->conicTo(L, B, L, B - rrect.fRadii[SkRRect::kLowerLeft_Corner].fY, W);
-        } else {
-            this->moveTo(L, T + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY);
-
-            this->lineTo(L, B - rrect.fRadii[SkRRect::kLowerLeft_Corner].fY);
-            this->conicTo(L, B, L + rrect.fRadii[SkRRect::kLowerLeft_Corner].fX, B, W);
-
-            this->lineTo(R - rrect.fRadii[SkRRect::kLowerRight_Corner].fX, B);
-            this->conicTo(R, B, R, B - rrect.fRadii[SkRRect::kLowerRight_Corner].fY, W);
-
-            this->lineTo(R, T + rrect.fRadii[SkRRect::kUpperRight_Corner].fY);
-            this->conicTo(R, T, R - rrect.fRadii[SkRRect::kUpperRight_Corner].fX, T, W);
-
-            this->lineTo(L + rrect.fRadii[SkRRect::kUpperLeft_Corner].fX, T);
-            this->conicTo(L, T, L, T + rrect.fRadii[SkRRect::kUpperLeft_Corner].fY, W);
+        if (rrect.isEmpty()) {
+            return;
         }
-        this->close();
-    }
-    SkDEBUGCODE(fPathRef->validate();)
+
+        const SkRect& bounds = rrect.getBounds();
+
+        if (rrect.isRect()) {
+            // degenerate(rect) => radii points are collapsing
+            this->addRect(bounds, dir, (startIndex + 1) / 2);
+        } else if (rrect.isOval()) {
+            // degenerate(oval) => line points are collapsing
+            this->addOval(bounds, dir, startIndex / 2);
+        } else {
+            fFirstDirection = this->hasOnlyMoveTos() ?
+                                (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
+
+            SkAutoPathBoundsUpdate apbu(this, bounds);
+            SkAutoDisableDirectionCheck addc(this);
+
+            // we start with a conic on odd indices when moving CW vs. even indices when moving CCW
+            const bool startsWithConic = ((startIndex & 1) == (dir == kCW_Direction));
+            const SkScalar weight = SK_ScalarRoot2Over2;
+
+            SkDEBUGCODE(int initialVerbCount = this->countVerbs());
+            const int kVerbs = startsWithConic
+                ? 9   // moveTo + 4x conicTo + 3x lineTo + close
+                : 10; // moveTo + 4x lineTo + 4x conicTo + close
+            this->incReserve(kVerbs);
+
+            RRectPointIterator rrectIter(rrect, dir, startIndex);
+            // Corner iterator indices follow the collapsed radii model,
+            // adjusted such that the start pt is "behind" the radii start pt.
+            const unsigned rectStartIndex = startIndex / 2 + (dir == kCW_Direction ? 0 : 1);
+            RectPointIterator rectIter(bounds, dir, rectStartIndex);
+
+            this->moveTo(rrectIter.current());
+            if (startsWithConic) {
+                for (unsigned i = 0; i < 3; ++i) {
+                    this->conicTo(rectIter.next(), rrectIter.next(), weight);
+                    this->lineTo(rrectIter.next());
+                }
+                this->conicTo(rectIter.next(), rrectIter.next(), weight);
+                // final lineTo handled by close().
+            } else {
+                for (unsigned i = 0; i < 4; ++i) {
+                    this->lineTo(rrectIter.next());
+                    this->conicTo(rectIter.next(), rrectIter.next(), weight);
+                }
+            }
+            this->close();
+
+            SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
+        }
+
+        SkDEBUGCODE(fPathRef->validate();)
 }
 
 bool SkPath::hasOnlyMoveTos() const {
@@ -1072,6 +1158,11 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
 }
 
 void SkPath::addOval(const SkRect& oval, Direction dir) {
+    // legacy start index: 1
+    this->addOval(oval, dir, 1);
+}
+
+void SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIndex) {
     assert_known_direction(dir);
 
     /* If addOval() is called after previous moveTo(),
@@ -1088,31 +1179,24 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
     }
 
     SkAutoDisableDirectionCheck addc(this);
-
     SkAutoPathBoundsUpdate apbu(this, oval);
 
-    const SkScalar L = oval.fLeft;
-    const SkScalar T = oval.fTop;
-    const SkScalar R = oval.fRight;
-    const SkScalar B = oval.fBottom;
-    const SkScalar cx = oval.centerX();
-    const SkScalar cy = oval.centerY();
+    SkDEBUGCODE(int initialVerbCount = this->countVerbs());
+    const int kVerbs = 6; // moveTo + 4x conicTo + close
+    this->incReserve(kVerbs);
+
+    OvalPointIterator ovalIter(oval, dir, startPointIndex);
+    // The corner iterator pts are tracking "behind" the oval/radii pts.
+    RectPointIterator rectIter(oval, dir, startPointIndex + (dir == kCW_Direction ? 0 : 1));
     const SkScalar weight = SK_ScalarRoot2Over2;
 
-    this->incReserve(9);   // move + 4 conics
-    this->moveTo(R, cy);
-    if (dir == kCCW_Direction) {
-        this->conicTo(R, T, cx, T, weight);
-        this->conicTo(L, T, L, cy, weight);
-        this->conicTo(L, B, cx, B, weight);
-        this->conicTo(R, B, R, cy, weight);
-    } else {
-        this->conicTo(R, B, cx, B, weight);
-        this->conicTo(L, B, L, cy, weight);
-        this->conicTo(L, T, cx, T, weight);
-        this->conicTo(R, T, R, cy, weight);
+    this->moveTo(ovalIter.current());
+    for (unsigned i = 0; i < 4; ++i) {
+        this->conicTo(rectIter.next(), ovalIter.next(), weight);
     }
     this->close();
+
+    SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
 
     SkPathRef::Editor ed(&fPathRef);
 
@@ -1121,9 +1205,7 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
 
 void SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {
     if (r > 0) {
-        SkRect  rect;
-        rect.set(x - r, y - r, x + r, y + r);
-        this->addOval(rect, dir);
+        this->addOval(SkRect::MakeLTRB(x - r, y - r, x + r, y + r), dir);
     }
 }
 
