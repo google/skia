@@ -106,13 +106,7 @@ def get_args(bot):
   blacklist.extend('_ image decode 8bpp-pixeldata-cropped.bmp'.split(' '))
   blacklist.extend('_ image decode 24bpp-pixeldata-cropped.bmp'.split(' '))
   blacklist.extend('_ image decode 32bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image subset rgb24largepal.bmp'.split(' '))
-  blacklist.extend('_ image subset pal8os2v2-16.bmp'.split(' '))
-  blacklist.extend('_ image subset pal8oversizepal.bmp'.split(' '))
-  blacklist.extend('_ image subset 4bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image subset 8bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image subset 24bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image subset 32bpp-pixeldata-cropped.bmp'.split(' '))
+  blacklist.extend('_ image decode testcase7.bmp'.split(' '))
 
   # New ico files that fail on SkImageDecoder
   blacklist.extend('_ image decode Hopstarter-Mac-Folders-Apple.ico'.split(' '))
@@ -135,13 +129,10 @@ def get_args(bot):
   blacklist.extend('_ image decode inc12.png'.split(' '))
   blacklist.extend('_ image decode inc13.png'.split(' '))
   blacklist.extend('_ image decode inc14.png'.split(' '))
-  blacklist.extend('_ image subset inc0.webp'.split(' '))
-  blacklist.extend('_ image subset inc1.webp'.split(' '))
 
   # Leon doesn't care about this, so why run it?
   if 'Win' in bot:
     blacklist.extend('_ image decode _'.split(' '))
-    blacklist.extend('_ image subset _'.split(' '))
 
   # Certain gm's on win7 gpu and pdf are never finishing and keeping the test
   # running forever
@@ -162,7 +153,6 @@ def get_args(bot):
   if 'iOS' in bot:
     blacklist.extend('gpu skp _ _ msaa skp _ _'.split(' '))
     blacklist.extend('gpu image decode _ msaa image decode _'.split(' '))
-    blacklist.extend('gpu image subset _ msaa image subset _'.split(' '))
     blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
 
   # the 32-bit GCE bots run out of memory in DM when running these large images
