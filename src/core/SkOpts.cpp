@@ -83,11 +83,10 @@ namespace SkOpts {
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
-    void Init_sse42() { SkDEBUGCODE( SkDebugf("sse 4.2 detected\n"); ) }
+    void Init_sse42() {}
     void Init_avx();
-    void Init_avx2() { SkDEBUGCODE( SkDebugf("avx2 detected\n"); ) }
+    void Init_avx2() {}
     void Init_neon();
-    //TODO: _dsp2, _armv7, _armv8, _x86, _x86_64, _sse42, ... ?
 
     static void init() {
         // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?
