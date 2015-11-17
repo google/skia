@@ -9,6 +9,20 @@
 #define SkLinearGradient_DEFINED
 
 #include "SkGradientShaderPriv.h"
+#include "SkNx.h"
+
+struct Sk4fStorage {
+    float fArray[4];
+
+    operator Sk4f() const {
+        return Sk4f::Load(fArray);
+    }
+
+    Sk4fStorage& operator=(const Sk4f& src) {
+        src.store(fArray);
+        return *this;
+    }
+};
 
 class SkLinearGradient : public SkGradientShaderBase {
 public:
@@ -19,12 +33,23 @@ public:
     class LinearGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         LinearGradientContext(const SkLinearGradient&, const ContextRec&);
-        ~LinearGradientContext() {}
 
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
         void shadeSpan16(int x, int y, uint16_t dstC[], int count) override;
 
+        struct Rec {
+            Sk4fStorage fColor;
+            float       fPos;
+            float       fPosScale;
+        };
     private:
+        SkTDArray<Rec>  fRecs;
+        bool            fApplyAlphaAfterInterp;
+
+        void shade4_clamp(int x, int y, SkPMColor dstC[], int count);
+        template <bool, bool> void shade4_dx_clamp(SkPMColor dstC[], int count, float fx, float dx,
+                                                   float invDx, const float dither[2]);
+
         typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
     };
 

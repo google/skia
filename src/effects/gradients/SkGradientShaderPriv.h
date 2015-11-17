@@ -259,8 +259,13 @@ private:
         kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec))
     };
     SkColor     fStorage[(kStorageSize + 3) >> 2];
+public:
     SkColor*    fOrigColors; // original colors, before modulation by paint in context.
     SkScalar*   fOrigPos;   // original positions
+
+    bool colorsAreOpaque() const { return fColorsAreOpaque; }
+
+private:
     bool        fColorsAreOpaque;
 
     GradientShaderCache* refCache(U8CPU alpha, bool dither) const;
