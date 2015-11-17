@@ -47,6 +47,7 @@ public:
         fUseClip = false;
         fRectAsOval = false;
         fUseTriangle = false;
+        fStrokeCap = SkPaint::kButt_Cap;
 
         fClipRect.set(2, 2, 11, 8 );
     }
@@ -102,6 +103,8 @@ public:
     void drawRect(SkCanvas* canvas, SkPoint pts[2]);
     void drawTriangle(SkCanvas* canvas, SkPoint pts[3]);
 
+    SkPaint::Cap fStrokeCap;
+
 private:
     bool fAA, fGrid, fShowSkeleton, fUseGPU, fUseClip, fRectAsOval, fUseTriangle;
     Style fStyle;
@@ -114,6 +117,7 @@ private:
 
     void setupPaint(SkPaint* paint) {
         bool aa = this->getAA();
+        paint->setStrokeCap(fStrokeCap);
         switch (fStyle) {
             case kHair_Style:
                 paint->setStrokeWidth(0);
@@ -246,9 +250,13 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
             SkPaint p;
             p.setStyle(SkPaint::kStroke_Style);
             p.setStrokeWidth(SK_Scalar1 * fZoom);
+            p.setStrokeCap(fStrokeCap);
             SkPath dst;
             p.getFillPath(path, &dst);
             path = dst;
+
+            path.moveTo(pts[0]);
+            path.lineTo(pts[1]);
 
             if (fUseGPU) {
                 path.moveTo(dst.getPoint(0));
@@ -430,6 +438,14 @@ protected:
                         this->setStyle(FatBits::kStroke_Style);
                     }
                     return true;
+                case 'k': {
+                    const SkPaint::Cap caps[] = {
+                        SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap,
+                    };
+                    fFB.fStrokeCap = caps[(fFB.fStrokeCap + 1) % 3];
+                    this->inval(nullptr);
+                    return true;
+                } break;
                 case 'a':
                     fFB.setAA(!fFB.getAA());
                     this->inval(nullptr);
