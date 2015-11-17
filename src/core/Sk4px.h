@@ -66,11 +66,7 @@ public:
         Sk4px addNarrowHi(const Sk16h&) const;
 
         // Rounds, i.e. (x+127) / 255.
-        Sk4px div255() const {
-            // Calculated as ((x+128) + ((x+128)>>8)) >> 8.
-            auto v = *this + Sk16h(128);
-            return v.addNarrowHi(v >> 8);
-        }
+        Sk4px div255() const;
 
         // These just keep the types as Wide so the user doesn't have to keep casting.
         Wide operator * (const Wide& o) const { return INHERITED::operator*(o); }

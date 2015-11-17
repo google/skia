@@ -62,6 +62,12 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
                  r.kth<12>(), r.kth<13>(), r.kth<14>(), r.kth<15>());
 }
 
+inline Sk4px Sk4px::Wide::div255() const {
+    // Calculated as ((x+128) + ((x+128)>>8)) >> 8.
+    auto v = *this + Sk16h(128);
+    return v.addNarrowHi(v>>8);
+}
+
 inline Sk4px Sk4px::alphas() const {
     static_assert(SK_A32_SHIFT == 24, "This method assumes little-endian.");
     return Sk16b(this->kth< 3>(), this->kth< 3>(), this->kth< 3>(), this->kth< 3>(),

@@ -45,6 +45,15 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
     return Sk4px(_mm_packus_epi16(r.fLo.fVec, r.fHi.fVec));
 }
 
+inline Sk4px Sk4px::Wide::div255() const {
+    // (x + 127) / 255 == ((x+128) * 257)>>16,
+    // and _mm_mulhi_epu16 makes the (_ * 257)>>16 part very convenient.
+    const __m128i _128 = _mm_set1_epi16(128),
+                  _257 = _mm_set1_epi16(257);
+    return Sk4px(_mm_packus_epi16(_mm_mulhi_epu16(_mm_add_epi16(fLo.fVec, _128), _257),
+                                  _mm_mulhi_epu16(_mm_add_epi16(fHi.fVec, _128), _257)));
+}
+
 // Load4Alphas and Load2Alphas use possibly-unaligned loads (SkAlpha[] -> uint16_t or uint32_t).
 // These are safe on x86, often with no speed penalty.
 
