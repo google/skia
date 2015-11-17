@@ -226,6 +226,44 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             }
             return SkCodec::kSuccess;
         }
+        case SkCodec::kBottomUp_SkScanlineOrder: {
+            // Note that this mode does not support subsetting.
+            SkASSERT(0 == subsetY && nativeSize.height() == subsetHeight);
+            int y;
+            for (y = 0; y < nativeSize.height(); y++) {
+                int srcY = fCodec->nextScanline();
+                if (is_coord_necessary(srcY, sampleY, dstHeight)) {
+                    void* pixelPtr = SkTAddOffset<void>(pixels,
+                            rowBytes * get_dst_coord(srcY, sampleY));
+                    if (1 != fCodec->getScanlines(pixelPtr, 1, rowBytes)) {
+                        break;
+                    }
+                } else {
+                    if (!fCodec->skipScanlines(1)) {
+                        break;
+                    }
+                }
+            }
+
+            if (nativeSize.height() == y) {
+                return SkCodec::kSuccess;
+            }
+
+            // We handle filling uninitialized memory here instead of using fCodec.
+            // fCodec does not know that we are sampling.
+            const uint32_t fillValue = fCodec->getFillValue(info.colorType(), info.alphaType());
+            const SkImageInfo fillInfo = info.makeWH(info.width(), 1);
+            for (; y < nativeSize.height(); y++) {
+                int srcY = fCodec->outputScanline(y);
+                if (!is_coord_necessary(srcY, sampleY, dstHeight)) {
+                    continue;
+                }
+
+                void* rowPtr = SkTAddOffset<void>(pixels, rowBytes * get_dst_coord(srcY, sampleY));
+                SkSampler::Fill(fillInfo, rowPtr, rowBytes, fillValue, options.fZeroInitialized);
+            }
+            return SkCodec::kIncompleteInput;
+        }
         case SkCodec::kNone_SkScanlineOrder: {
             const int linesNeeded = subsetHeight - samplingOffsetY;
             SkAutoMalloc storage(linesNeeded * rowBytes);

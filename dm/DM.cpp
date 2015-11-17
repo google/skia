@@ -363,8 +363,8 @@ static void push_codec_srcs(Path path) {
     // The following image types are only supported by BitmapFactory,
     // so we only need to test full image decodes.
     static const char* fullExts[] = {
-        "wbmp",
-        "WBMP",
+        "wbmp", "bmp",
+        "WBMP", "BMP",
     };
     for (const char* ext : fullExts) {
         if (path.endsWith(ext)) {
