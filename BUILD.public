@@ -25,7 +25,6 @@ BASE_SRCS = glob(
         "src/gpu/gl/android/*",
         "src/gpu/gl/egl/*",
         "src/gpu/gl/glx/*",
-        "src/gpu/gl/nacl/*",
         "src/gpu/gl/iOS/*",
         "src/gpu/gl/mac/*",
         "src/gpu/gl/win/*",
@@ -45,7 +44,6 @@ BASE_SRCS = glob(
         "src/fonts/*fontconfig*",
         "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
-        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
         "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
@@ -69,9 +67,6 @@ BASE_SRCS = glob(
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = glob(
     [
-        "src/gpu/gl/GrGLDefaultInterface_native.cpp",
-        "src/gpu/gl/glx/**/*.cpp",
-        "src/gpu/gl/glx/**/*.h",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
@@ -113,8 +108,6 @@ BASE_SRCS_UNIX = glob(
 BASE_SRCS_ANDROID = glob(
     [
         # TODO(benjaminwagner): Figure out how to compile with EGL.
-        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
-        "src/gpu/gl/nacl/SkCreatePlatformGLContext_nacl.cpp",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
@@ -153,7 +146,6 @@ BASE_SRCS_ANDROID = glob(
 # Platform-dependent SRCS for google3-default iOS.
 BASE_SRCS_IOS = glob(
     [
-        "src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
@@ -424,6 +416,8 @@ cc_library(
     deps = EXTERNAL_DEPS_ALL,
 )
 
+# If you need Ganesh (GPU) support in Skia, please contact skia-team@google.com
+# for help.
 cc_library(
     name = "skia",
     srcs = BASE_SRCS + BASE_SRCS_PLATFORM,
