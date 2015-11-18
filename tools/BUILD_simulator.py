@@ -76,12 +76,14 @@ global_names = {
   'exports_files': noop,
   'glob': BUILD_glob,
   'select': select_simulator,
-  'BASE_DIR': "",
-  'CONDITION_ANDROID': "CONDITION_ANDROID",
+  'BASE_DIR': '',
+  'BASE_EXTERNAL_DEPS_ANDROID': [],
+  'BASE_EXTERNAL_DEPS_IOS': [],
+  'BASE_EXTERNAL_DEPS_UNIX': [],
+  'CONDITION_ANDROID': 'CONDITION_ANDROID',
+  'CONDITION_IOS': 'CONDITION_IOS',
   'DM_EXTERNAL_DEPS': [],
   'EXTERNAL_DEPS_ALL': [],
-  'EXTERNAL_DEPS_ANDROID': [],
-  'EXTERNAL_DEPS_UNIX': [],
 }
 local_names = {}
 execfile('BUILD.public', global_names, local_names)
