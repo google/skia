@@ -34,7 +34,6 @@
 #include "SkUtils.h"
 #include "SkVertState.h"
 
-#include "SkAutoKern.h"
 #include "SkBitmapProcShader.h"
 #include "SkDrawProcs.h"
 #include "SkMatrixUtils.h"
@@ -53,7 +52,7 @@ public:
                         const SkPaint& paint, bool drawCoverage = false) {
         fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAllocator, drawCoverage);
     }
-    
+
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
 
@@ -1374,26 +1373,6 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
 #include "SkTextToPathIter.h"
 #include "SkUtils.h"
 
-static void measure_text(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
-                const char text[], size_t byteLength, SkVector* stopVector) {
-    SkFixed     x = 0, y = 0;
-    const char* stop = text + byteLength;
-
-    SkAutoKern  autokern;
-
-    while (text < stop) {
-        // don't need x, y here, since all subpixel variants will have the
-        // same advance
-        const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
-
-        x += autokern.adjust(glyph) + glyph.fAdvanceX;
-        y += glyph.fAdvanceY;
-    }
-    stopVector->set(SkFixedToScalar(x), SkFixedToScalar(y));
-
-    SkASSERT(text == stop);
-}
-
 bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
@@ -1601,37 +1580,9 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         return;
     }
 
-    SkDrawCacheProc glyphCacheProc = paint.getDrawCacheProc();
-
+    SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
     SkAutoGlyphCache    autoCache(paint, &fDevice->surfaceProps(), fMatrix);
     SkGlyphCache*       cache = autoCache.getCache();
-
-    // transform our starting point
-    {
-        SkPoint loc;
-        fMatrix->mapXY(x, y, &loc);
-        x = loc.fX;
-        y = loc.fY;
-    }
-
-    // need to measure first
-    if (paint.getTextAlign() != SkPaint::kLeft_Align) {
-        SkVector    stop;
-
-        measure_text(cache, glyphCacheProc, text, byteLength, &stop);
-
-        SkScalar    stopX = stop.fX;
-        SkScalar    stopY = stop.fY;
-
-        if (paint.getTextAlign() == SkPaint::kCenter_Align) {
-            stopX = SkScalarHalf(stopX);
-            stopY = SkScalarHalf(stopY);
-        }
-        x -= stopX;
-        y -= stopY;
-    }
-
-    const char* stop = text + byteLength;
 
     SkAAClipBlitter     aaBlitter;
     SkAutoBlitterChoose blitterChooser;
@@ -1645,38 +1596,16 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         }
     }
 
-    SkAutoKern          autokern;
     SkDraw1Glyph        d1g;
     SkDraw1Glyph::Proc  proc = d1g.init(this, blitter, cache, paint);
 
-    SkFixed fxMask = ~0;
-    SkFixed fyMask = ~0;
-    if (cache->isSubpixel()) {
-        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(*fMatrix);
-        if (kX_SkAxisAlignment == baseline) {
-            fyMask = 0;
-            d1g.fHalfSampleY = SK_ScalarHalf;
-        } else if (kY_SkAxisAlignment == baseline) {
-            fxMask = 0;
-            d1g.fHalfSampleX = SK_ScalarHalf;
+    SkFindAndPlaceGlyph::ProcessText(
+        text, byteLength, {x, y}, *fMatrix, paint.getTextAlign(), glyphCacheProc, cache,
+        [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
+            position += rounding;
+            proc(d1g, SkScalarTo48Dot16(position.fX), SkScalarTo48Dot16(position.fY), glyph);
         }
-    }
-
-    Sk48Dot16 fx = SkScalarTo48Dot16(x + d1g.fHalfSampleX);
-    Sk48Dot16 fy = SkScalarTo48Dot16(y + d1g.fHalfSampleY);
-
-    while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
-
-        fx += autokern.adjust(glyph);
-
-        if (glyph.fWidth) {
-            proc(d1g, fx, fy, glyph);
-        }
-
-        fx += glyph.fAdvanceX;
-        fy += glyph.fAdvanceY;
-    }
+    );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1773,7 +1702,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
         textAlignment, glyphCacheProc, cache,
         [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
             position += rounding;
-            proc(d1g, SkScalarToFixed(position.fX), SkScalarToFixed(position.fY), glyph);
+            proc(d1g, SkScalarTo48Dot16(position.fX), SkScalarTo48Dot16(position.fY), glyph);
         }
     );
 }
