@@ -1221,7 +1221,9 @@
     "_", 
     "image", 
     "_", 
-    "interlaced3.png"
+    "interlaced3.png", 
+    "--match", 
+    "~Math"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind": [
     "--matrix", 
