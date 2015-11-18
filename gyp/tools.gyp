@@ -18,6 +18,7 @@
       'type': 'none',
       'dependencies': [
         'chrome_fuzz',
+        'dump_record',
         'gpuveto',
         'imgblur',
         'imgconv',
@@ -43,6 +44,23 @@
           },
         ],
       ],
+    },
+    {
+        'target_name': 'dump_record',
+        'type': 'executable',
+        'sources': [
+            '../tools/dump_record.cpp',
+            '../tools/DumpRecord.cpp',
+         ],
+         'include_dirs': [
+            '../include/private',
+            '../src/core',
+         ],
+         'dependencies': [
+            'flags.gyp:flags',
+            'lazy_decode_bitmap',
+            'skia_lib.gyp:skia_lib',
+         ],
     },
     {
       'target_name': 'chrome_fuzz',

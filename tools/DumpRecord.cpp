@@ -11,7 +11,7 @@
 #include "SkRecordDraw.h"
 
 #include "DumpRecord.h"
-#include "Timer.h"
+#include "SkTime.h"
 
 namespace {
 
@@ -31,12 +31,9 @@ public:
 
     template <typename T>
     void operator()(const T& command) {
-        Timer timer;
-        timer.start();
-            fDraw(command);
-        timer.end();
-
-        this->print(command, timer.fCpu);
+        auto start = SkTime::GetNSecs();
+        fDraw(command);
+        this->print(command, SkTime::GetNSecs() - start);
     }
 
     void operator()(const SkRecords::NoOp&) {
@@ -44,37 +41,38 @@ public:
     }
 
     template <typename T>
-    void print(const T& command, double time) {
-        this->printNameAndTime(command, time);
+    void print(const T& command, double ns) {
+        this->printNameAndTime(command, ns);
     }
 
-    void print(const SkRecords::Restore& command, double time) {
+    void print(const SkRecords::Restore& command, double ns) {
         --fIndent;
-        this->printNameAndTime(command, time);
+        this->printNameAndTime(command, ns);
     }
 
-    void print(const SkRecords::Save& command, double time) {
-        this->printNameAndTime(command, time);
+    void print(const SkRecords::Save& command, double ns) {
+        this->printNameAndTime(command, ns);
         ++fIndent;
     }
 
-    void print(const SkRecords::SaveLayer& command, double time) {
-        this->printNameAndTime(command, time);
+    void print(const SkRecords::SaveLayer& command, double ns) {
+        this->printNameAndTime(command, ns);
         ++fIndent;
     }
 
 private:
     template <typename T>
-    void printNameAndTime(const T& command, double time) {
+    void printNameAndTime(const T& command, double ns) {
+        int us = (int)(ns * 1e-3);
         if (!fTimeWithCommand) {
-            printf("%6.1f ", time * 1000);
+            printf("%6dus  ", us);
         }
         printf("%*d ", fDigits, fIndex++);
         for (int i = 0; i < fIndent; i++) {
-            putchar('\t');
+            printf("    ");
         }
         if (fTimeWithCommand) {
-            printf("%6.1f ", time * 1000);
+            printf("%6dus  ", us);
         }
         puts(NameOf(command));
     }
