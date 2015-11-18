@@ -56,6 +56,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionOpen, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(&fActionDirectory, SIGNAL(triggered()), this, SLOT(toggleDirectory()));
     connect(&fDirectoryWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(loadFile(QListWidgetItem *)));
+    connect(&fDirectoryWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(populateDirectoryWidget()));
     connect(&fActionDelete, SIGNAL(triggered()), this, SLOT(actionDelete()));
     connect(&fListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(toggleBreakpoint()));
     connect(&fActionRewind, SIGNAL(triggered()), this, SLOT(actionRewind()));
@@ -285,13 +286,19 @@ void SkDebuggerGUI::saveToFile(const SkString& filename) {
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
-    if (fDirectoryWidgetActive) {
-        fFileName = fPath.toAscii().data();
-        // don't add a '/' to files in the local directory
-        if (fFileName.size() > 0) {
-            fFileName.append("/");
-        }
-        fFileName.append(item->text().toAscii().data());
+    if (item == nullptr) {
+        return;
+    }
+
+    SkString fileName(fPath.toAscii().data());
+    // don't add a '/' to files in the local directory
+    if (fileName.size() > 0) {
+        fileName.append("/");
+    }
+    fileName.append(item->text().toAscii().data());
+
+    if (!fileName.equals(fFileName)) {
+        fFileName = fileName;
         loadPicture(fFileName);
     }
 }
@@ -303,13 +310,11 @@ void SkDebuggerGUI::openFile() {
 }
 
 void SkDebuggerGUI::openFile(const QString &filename) {
-    fDirectoryWidgetActive = false;
     if (!filename.isEmpty()) {
         QFileInfo pathInfo(filename);
         loadPicture(SkString(filename.toAscii().data()));
         setupDirectoryWidget(pathInfo.path());
     }
-    fDirectoryWidgetActive = true;
 }
 
 void SkDebuggerGUI::pauseDrawing(bool isPaused) {
@@ -580,11 +585,8 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fToolBar.addWidget(&fFilter);
     fToolBar.addAction(&fActionCancel);
 
-    // TODO(chudy): Remove static call.
-    fDirectoryWidgetActive = false;
     fFileName = "";
     setupDirectoryWidget("");
-    fDirectoryWidgetActive = true;
 
     // Menu Bar
     fMenuFile.setTitle("File");
@@ -633,13 +635,36 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
 void SkDebuggerGUI::setupDirectoryWidget(const QString& path) {
     fPath = path;
-    QDir dir(path);
+    populateDirectoryWidget();
+
+    // clear the existing watched directory and setup a new directory to watch
+    if (!fDirectoryWatcher.directories().empty()) {
+        fDirectoryWatcher.removePaths(fDirectoryWatcher.directories());
+    }
+    if (!path.isEmpty()) {
+        fDirectoryWatcher.addPath(fPath);
+    }
+}
+
+void SkDebuggerGUI::populateDirectoryWidget() {
+    QDir dir(fPath);
     QRegExp r(".skp");
-    fDirectoryWidget.clear();
     const QStringList files = dir.entryList();
+
+    // check if a file has been removed
+    for (int i = fDirectoryWidget.count() - 1; i >= 0; i--) {
+        QListWidgetItem* item = fDirectoryWidget.item(i);
+        if (!files.contains(item->text())) {
+            fDirectoryWidget.removeItemWidget(item);
+            delete item;
+        }
+    }
+
+    // add any new files
     foreach (QString f, files) {
-        if (f.contains(r))
+        if (f.contains(r) && fDirectoryWidget.findItems(f, Qt::MatchExactly).size() == 0) {
             fDirectoryWidget.addItem(f);
+        }
     }
 }
 

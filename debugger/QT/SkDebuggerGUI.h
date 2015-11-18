@@ -19,6 +19,7 @@
 #include "SkRasterWidget.h"
 #include "SkDrawCommandGeometryWidget.h"
 #include "SkSettingsWidget.h"
+#include <QtCore/QFileSystemWatcher>
 #include <QtCore/QSignalMapper>
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -213,6 +214,12 @@ private slots:
     void toggleDirectory();
 
     /**
+        Populates the contents of the directory widget with the skp files in the
+        current directory pointed to by fFile.
+     */
+    void populateDirectoryWidget();
+
+    /**
         Filters the list widgets command visibility based on the currently
         active selection.
      */
@@ -262,6 +269,8 @@ private:
     QListWidget fListWidget;
     QListWidget fDirectoryWidget;
 
+    QFileSystemWatcher fDirectoryWatcher;
+
     SkDebugger fDebugger;
     SkCanvasWidget fCanvasWidget;
 
@@ -280,7 +289,6 @@ private:
     QString fPath;
     SkString fFileName;
     SkTDArray<bool> fSkipCommands; // has a specific command been deleted?
-    bool fDirectoryWidgetActive;
 
     QMenuBar fMenuBar;
     QMenu fMenuFile;
