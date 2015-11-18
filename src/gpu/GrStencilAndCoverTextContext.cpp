@@ -207,7 +207,7 @@ void GrStencilAndCoverTextContext::TextBlob::init(const SkTextBlob* skBlob,
     SkPaint runPaint(skPaint);
     for (SkTextBlobRunIterator iter(skBlob); !iter.done(); iter.next()) {
         iter.applyFontToPaint(&runPaint); // No need to re-seed the paint.
-        TextRun* run = SkNEW_INSERT_AT_LLIST_TAIL(this, TextRun, (runPaint));
+        TextRun* run = this->addToTail(runPaint);
 
         const char* text = reinterpret_cast<const char*>(iter.glyphs());
         size_t byteLength = sizeof(uint16_t) * iter.glyphCount();

@@ -10,6 +10,7 @@
 
 #include "SkTInternalLList.h"
 #include "SkTypes.h"
+#include <utility>
 
 template <typename T> class SkTLList;
 template <typename T>
@@ -66,52 +67,42 @@ public:
         }
     }
 
-    T* addToHead(const T& t) {
+    /** Adds a new element to the list at the head. */
+    template <typename... Args> T* addToHead(Args&&... args) {
         this->validate();
         Node* node = this->createNode();
         fList.addToHead(node);
-        new (node->fObj) T(t);
         this->validate();
-        return reinterpret_cast<T*>(node->fObj);
+        return new (node->fObj)  T(std::forward<Args>(args)...);
     }
 
-    T* addToHead() {
-        this->validate();
-        Node* node = this->createNode();
-        fList.addToHead(node);
-        new (node->fObj) T;
-        this->validate();
-        return reinterpret_cast<T*>(node->fObj);
-    }
-
-    T* addToTail(const T& t) {
+    /** Adds a new element to the list at the tail. */
+    template <typename... Args> T* addToTail(Args&&... args) {
         this->validate();
         Node* node = this->createNode();
         fList.addToTail(node);
-        new (node->fObj) T(t);
         this->validate();
-        return reinterpret_cast<T*>(node->fObj);
-    }
-
-    T* addToTail() {
-        this->validate();
-        Node* node = this->createNode();
-        fList.addToTail(node);
-        new (node->fObj) T;
-        this->validate();
-        return reinterpret_cast<T*>(node->fObj);
+        return new (node->fObj) T(std::forward<Args>(args)...);
     }
 
     /** Adds a new element to the list before the location indicated by the iterator. If the
         iterator refers to a nullptr location then the new element is added at the tail */
-    T* addBefore(const T& t, const Iter& location) {
-        return new (this->internalAddBefore(location)) T(t);
+    template <typename... Args> T* addBefore(Iter location, Args&&... args) {
+        this->validate();
+        Node* node = this->createNode();
+        fList.addBefore(node, location.getNode());
+        this->validate();
+        return new (node->fObj) T(std::forward<Args>(args)...);
     }
 
     /** Adds a new element to the list after the location indicated by the iterator. If the
         iterator refers to a nullptr location then the new element is added at the head */
-    T* addAfter(const T& t, const Iter& location) {
-        return new (this->internalAddAfter(location)) T(t);
+    template <typename... Args> T* addAfter(Iter location, Args&&... args) {
+        this->validate();
+        Node* node = this->createNode();
+        fList.addAfter(node, location.getNode());
+        this->validate();
+        return new (node->fObj) T(std::forward<Args>(args)...);
     }
 
     /** Convenience methods for getting an iterator initialized to the head/tail of the list. */
@@ -227,12 +218,6 @@ public:
         }
     };
 
-    // For use with operator new
-    enum Placement {
-        kBefore_Placement,
-        kAfter_Placement,
-    };
-
 private:
     struct Block {
         int fNodesInUse;
@@ -333,71 +318,11 @@ private:
 #endif
     }
 
-    // Support in-place initializing of objects inserted into the list via operator new.
-    friend void* operator new<T>(size_t,
-                                 SkTLList* list,
-                                 Placement placement,
-                                 const Iter& location);
-
-
-    // Helpers that insert the node and returns a pointer to where the new object should be init'ed.
-    void* internalAddBefore(Iter location) {
-        this->validate();
-        Node* node = this->createNode();
-        fList.addBefore(node, location.getNode());
-        this->validate();
-        return node->fObj;
-    }
-
-    void* internalAddAfter(Iter location) {
-        this->validate();
-        Node* node = this->createNode();
-        fList.addAfter(node, location.getNode());
-        this->validate();
-        return node->fObj;
-    }
-
     NodeList fList;
     NodeList fFreeList;
     int fCount;
     int fAllocCnt;
 
 };
-
-// Use the below macros rather than calling this directly
-template <typename T>
-void *operator new(size_t, SkTLList<T>* list,
-                   typename SkTLList<T>::Placement placement,
-                   const typename SkTLList<T>::Iter& location) {
-    SkASSERT(list);
-    if (SkTLList<T>::kBefore_Placement == placement) {
-        return list->internalAddBefore(location);
-    } else {
-        return list->internalAddAfter(location);
-    }
-}
-
-// Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
-// to match the op new silences warnings about missing op delete when a constructor throws an
-// exception.
-template <typename T>
-void operator delete(void*,
-                     SkTLList<T>*,
-                     typename SkTLList<T>::Placement,
-                     const typename SkTLList<T>::Iter&) {
-    SK_CRASH();
-}
-
-#define SkNEW_INSERT_IN_LLIST_BEFORE(list, location, type_name, args) \
-    (new ((list), SkTLList< type_name >::kBefore_Placement, (location)) type_name args)
-
-#define SkNEW_INSERT_IN_LLIST_AFTER(list, location, type_name, args) \
-    (new ((list), SkTLList< type_name >::kAfter_Placement, (location)) type_name args)
-
-#define SkNEW_INSERT_AT_LLIST_HEAD(list, type_name, args) \
-    SkNEW_INSERT_IN_LLIST_BEFORE((list), (list)->headIter(), type_name, args)
-
-#define SkNEW_INSERT_AT_LLIST_TAIL(list, type_name, args) \
-    SkNEW_INSERT_IN_LLIST_AFTER((list), (list)->tailIter(), type_name, args)
 
 #endif

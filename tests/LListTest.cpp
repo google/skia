@@ -152,11 +152,11 @@ static void TestTLList(skiatest::Reporter* reporter) {
         list2.reset();
 
         // use both before/after in-place construction on an empty list
-        SkNEW_INSERT_IN_LLIST_BEFORE(&list2, list2.headIter(), ListElement, (1));
+        list2.addBefore(list2.headIter(), 1);
         REPORTER_ASSERT(reporter, list2 == list1);
         list2.reset();
 
-        SkNEW_INSERT_IN_LLIST_AFTER(&list2, list2.tailIter(), ListElement, (1));
+        list2.addAfter(list2.tailIter(), 1);
         REPORTER_ASSERT(reporter, list2 == list1);
 
         // add an element to the second list, check that iters are still valid
@@ -210,7 +210,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
                         // insert either before or after the iterator, then check that the
                         // surrounding sequence is correct.
                         if (2 == insertionMethod) {
-                            SkNEW_INSERT_IN_LLIST_BEFORE(&list1, iter, ListElement, (id));
+                            list1.addBefore(iter, id);
                             Iter newItem(iter);
                             newItem.prev();
                             REPORTER_ASSERT(reporter, newItem.get()->fID == id);
@@ -222,7 +222,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
                                 REPORTER_ASSERT(reporter, prev.next()->fID == id);
                             }
                         } else {
-                            SkNEW_INSERT_IN_LLIST_AFTER(&list1, iter, ListElement, (id));
+                            list1.addAfter(iter, id);
                             Iter newItem(iter);
                             newItem.next();
                             REPORTER_ASSERT(reporter, newItem.get()->fID == id);
