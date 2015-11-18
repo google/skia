@@ -57,3 +57,9 @@ size_t SkToSizeT(uintmax_t x) {
 }
 
 #endif
+
+#if defined(GOOGLE3)
+void SkDebugfForDumpStackTrace(const char* data, void* unused) {
+    SkDebugf("%s", data);
+}
+#endif

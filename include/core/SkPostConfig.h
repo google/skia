@@ -147,16 +147,20 @@
 #
 #endif
 
+#if defined(GOOGLE3)
+    // Used as argument to DumpStackTrace in SK_ALWAYSBREAK.
+    void SkDebugfForDumpStackTrace(const char* data, void* unused);
+#endif
+
 #ifndef SK_ALWAYSBREAK
 #  if defined(GOOGLE3)
-     void DebugWriteToStderr(const char*, void*);
      void DumpStackTrace(int skip_count, void w(const char*, void*),
                          void* arg);
 #    define SK_ALWAYSBREAK(cond) do { \
               if (cond) break; \
               SkNO_RETURN_HINT(); \
               SkDebugf("%s:%d: failed assertion \"%s\"\n", __FILE__, __LINE__, #cond); \
-              DumpStackTrace(0, DebugWriteToStderr, nullptr); \
+              DumpStackTrace(0, SkDebugfForDumpStackTrace, nullptr); \
               SK_CRASH(); \
         } while (false)
 #  elif defined(SK_DEBUG)
