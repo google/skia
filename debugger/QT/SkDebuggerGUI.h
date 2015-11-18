@@ -38,11 +38,6 @@
 #include <QtGui/QMenuBar>
 #include <vector>
 
-class SkTimedPicture;
-namespace sk_tools {
-    class PictureRenderer;
-}
-
 /** \class SkDebuggerGUI
 
     Container for the UI and it's functions.

@@ -361,44 +361,6 @@
       ],
     },
     {
-      'target_name': 'picture_renderer',
-      'type': 'static_library',
-      'sources': [
-        '../tools/PictureRenderer.h',
-        '../tools/PictureRenderer.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core',
-        '../src/images',
-        '../src/lazy',
-        '../src/pipe/utils/',
-        '../src/utils/',
-      ],
-      'dependencies': [
-        'lazy_decode_bitmap',
-        'flags.gyp:flags',
-        'jsoncpp.gyp:jsoncpp',
-        'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_utils',
-      ],
-      'conditions': [
-        ['skia_gpu == 1',
-          {
-            'include_dirs' : [
-              '../src/gpu',
-            ],
-            'dependencies': [
-              'gputest.gyp:skgputest',
-            ],
-            'export_dependent_settings': [
-                'gputest.gyp:skgputest',
-            ],
-          },
-        ],
-      ],
-    },
-    {
       'target_name': 'picture_utils',
       'type': 'static_library',
       'sources': [
