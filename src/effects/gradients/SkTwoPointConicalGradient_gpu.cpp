@@ -242,9 +242,9 @@ void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
     SkASSERT(args.fCoords[0].getType() == args.fCoords[1].getType());
     const char* coords2D;
     SkString bVar;
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     if (kVec3f_GrSLType == args.fCoords[0].getType()) {
-        fsBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
+        fragBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
                                args.fCoords[0].c_str(), args.fCoords[0].c_str(),
                                args.fCoords[1].c_str(), args.fCoords[1].c_str());
         coords2D = "interpolants.xy";
@@ -256,23 +256,28 @@ void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
+    fragBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     // c = (x^2)+(y^2) - params[1]
-    fsBuilder->codeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
+    fragBuilder->codeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
                            cName.c_str(), coords2D, coords2D, p1.c_str());
 
     // linear case: t = -c/b
-    fsBuilder->codeAppendf("\tfloat %s = -(%s / %s);\n", tName.c_str(),
+    fragBuilder->codeAppendf("\tfloat %s = -(%s / %s);\n", tName.c_str(),
                            cName.c_str(), bVar.c_str());
 
     // if r(t) > 0, then t will be the x coordinate
-    fsBuilder->codeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
+    fragBuilder->codeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                            p2.c_str(), p0.c_str());
-    fsBuilder->codeAppend("\t");
-    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+    fragBuilder->codeAppend("\t");
+    this->emitColor(args.fBuilder,
+                    fragBuilder,
+                    ge,
+                    tName.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
-    fsBuilder->codeAppend("\t}\n");
+    fragBuilder->codeAppend("\t}\n");
 }
 
 void GLEdge2PtConicalEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -511,35 +516,40 @@ void GLFocalOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     args.fBuilder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focal.x +/- sqrt(p.x^2 + (1 - focal.x^2) * p.y^2)
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
+    fragBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
-    fsBuilder->codeAppendf("\tfloat xs = %s.x * %s.x;\n", coords2D, coords2D);
-    fsBuilder->codeAppendf("\tfloat ys = %s.y * %s.y;\n", coords2D, coords2D);
-    fsBuilder->codeAppendf("\tfloat d = xs + %s * ys;\n", p1.c_str());
+    fragBuilder->codeAppendf("\tfloat xs = %s.x * %s.x;\n", coords2D, coords2D);
+    fragBuilder->codeAppendf("\tfloat ys = %s.y * %s.y;\n", coords2D, coords2D);
+    fragBuilder->codeAppendf("\tfloat d = xs + %s * ys;\n", p1.c_str());
 
     // Must check to see if we flipped the circle order (to make sure start radius < end radius)
     // If so we must also flip sign on sqrt
     if (!fIsFlipped) {
-        fsBuilder->codeAppendf("\tfloat %s = %s.x * %s  + sqrt(d);\n", tName.c_str(),
-                               coords2D, p0.c_str());
+        fragBuilder->codeAppendf("\tfloat %s = %s.x * %s  + sqrt(d);\n", tName.c_str(),
+                                 coords2D, p0.c_str());
     } else {
-        fsBuilder->codeAppendf("\tfloat %s = %s.x * %s  - sqrt(d);\n", tName.c_str(),
-                               coords2D, p0.c_str());
+        fragBuilder->codeAppendf("\tfloat %s = %s.x * %s  - sqrt(d);\n", tName.c_str(),
+                                 coords2D, p0.c_str());
     }
 
-    fsBuilder->codeAppendf("\tif (%s >= 0.0 && d >= 0.0) {\n", tName.c_str());
-    fsBuilder->codeAppend("\t\t");
-    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+    fragBuilder->codeAppendf("\tif (%s >= 0.0 && d >= 0.0) {\n", tName.c_str());
+    fragBuilder->codeAppend("\t\t");
+    this->emitColor(args.fBuilder,
+                    fragBuilder,
+                    ge,
+                    tName.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
-    fsBuilder->codeAppend("\t}\n");
+    fragBuilder->codeAppend("\t}\n");
 }
 
 void GLFocalOutside2PtConicalEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -713,15 +723,20 @@ void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
     GrGLSLShaderVar focal = args.fBuilder->getUniformVariable(fFocalUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focalX + length(p)
-    fsBuilder->codeAppendf("\tfloat %s = %s.x * %s  + length(%s);\n", tName.c_str(),
+    fragBuilder->codeAppendf("\tfloat %s = %s.x * %s  + length(%s);\n", tName.c_str(),
                            coords2D, focal.c_str(), coords2D);
 
-    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+    this->emitColor(args.fBuilder,
+                    fragBuilder,
+                    ge,
+                    tName.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
 }
 
@@ -963,8 +978,8 @@ void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
     GrGLSLShaderVar params = args.fBuilder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // p = coords2D
@@ -975,13 +990,18 @@ void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
     // C = 1 / A
     // d = dot(e, p) + B
     // t = d +/- sqrt(d^2 - A * dot(p, p) + C)
-    fsBuilder->codeAppendf("\tfloat pDotp = dot(%s,  %s);\n", coords2D, coords2D);
-    fsBuilder->codeAppendf("\tfloat d = dot(%s,  %s) + %s.y;\n", coords2D, center.c_str(),
-                           params.c_str());
-    fsBuilder->codeAppendf("\tfloat %s = d + sqrt(d * d - %s.x * pDotp + %s.z);\n",
-                           tName.c_str(), params.c_str(), params.c_str());
+    fragBuilder->codeAppendf("\tfloat pDotp = dot(%s,  %s);\n", coords2D, coords2D);
+    fragBuilder->codeAppendf("\tfloat d = dot(%s,  %s) + %s.y;\n", coords2D, center.c_str(),
+                             params.c_str());
+    fragBuilder->codeAppendf("\tfloat %s = d + sqrt(d * d - %s.x * pDotp + %s.z);\n",
+                             tName.c_str(), params.c_str(), params.c_str());
 
-    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+    this->emitColor(args.fBuilder,
+                    fragBuilder,
+                    ge,
+                    tName.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
 }
 
@@ -1193,13 +1213,13 @@ void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     GrGLSLShaderVar params = args.fBuilder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    SkString coords2DString = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    SkString coords2DString = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* coords2D = coords2DString.c_str();
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fsBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
+    fragBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     // p = coords2D
     // e = center end
@@ -1210,25 +1230,30 @@ void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     // d = dot(e, p) + B
     // t = d +/- sqrt(d^2 - A * dot(p, p) + C)
 
-    fsBuilder->codeAppendf("\tfloat pDotp = dot(%s,  %s);\n", coords2D, coords2D);
-    fsBuilder->codeAppendf("\tfloat d = dot(%s,  %s) + %s.y;\n", coords2D, center.c_str(),
-                           params.c_str());
-    fsBuilder->codeAppendf("\tfloat deter = d * d - %s.x * pDotp + %s.z;\n", params.c_str(),
-                           params.c_str());
+    fragBuilder->codeAppendf("\tfloat pDotp = dot(%s,  %s);\n", coords2D, coords2D);
+    fragBuilder->codeAppendf("\tfloat d = dot(%s,  %s) + %s.y;\n", coords2D, center.c_str(),
+                             params.c_str());
+    fragBuilder->codeAppendf("\tfloat deter = d * d - %s.x * pDotp + %s.z;\n", params.c_str(),
+                             params.c_str());
 
     // Must check to see if we flipped the circle order (to make sure start radius < end radius)
     // If so we must also flip sign on sqrt
     if (!fIsFlipped) {
-        fsBuilder->codeAppendf("\tfloat %s = d + sqrt(deter);\n", tName.c_str());
+        fragBuilder->codeAppendf("\tfloat %s = d + sqrt(deter);\n", tName.c_str());
     } else {
-        fsBuilder->codeAppendf("\tfloat %s = d - sqrt(deter);\n", tName.c_str());
+        fragBuilder->codeAppendf("\tfloat %s = d - sqrt(deter);\n", tName.c_str());
     }
 
-    fsBuilder->codeAppendf("\tif (%s >= %s.w && deter >= 0.0) {\n", tName.c_str(), params.c_str());
-    fsBuilder->codeAppend("\t\t");
-    this->emitColor(args.fBuilder, ge, tName.c_str(), args.fOutputColor, args.fInputColor,
+    fragBuilder->codeAppendf("\tif (%s >= %s.w && deter >= 0.0) {\n", tName.c_str(), params.c_str());
+    fragBuilder->codeAppend("\t\t");
+    this->emitColor(args.fBuilder,
+                    fragBuilder,
+                    ge,
+                    tName.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
-    fsBuilder->codeAppend("\t}\n");
+    fragBuilder->codeAppend("\t}\n");
 }
 
 void GLCircleOutside2PtConicalEffect::onSetData(const GrGLSLProgramDataManager& pdman,

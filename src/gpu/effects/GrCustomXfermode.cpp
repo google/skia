@@ -146,26 +146,29 @@ private:
         const CustomXP& xp = args.fXP.cast<CustomXP>();
         SkASSERT(xp.hasHWBlendEquation());
 
-        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-        fsBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
+        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+        fragBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
 
         // Apply coverage by multiplying it into the src color before blending. Mixed samples will
         // "just work" automatically. (See onGetOptimizations())
         if (xp.readsCoverage()) {
-            fsBuilder->codeAppendf("%s = %s * %s;",
-                                   args.fOutputPrimary, args.fInputCoverage, args.fInputColor);
+            fragBuilder->codeAppendf("%s = %s * %s;",
+                                     args.fOutputPrimary, args.fInputCoverage, args.fInputColor);
         } else {
-            fsBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputColor);
+            fragBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputColor);
         }
     }
 
-    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb, const char* srcColor, const char* dstColor,
-                                 const char* outColor, const GrXferProcessor& proc) override {
+    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb,
+                                 GrGLSLXPFragmentBuilder* fragBuilder,
+                                 const char* srcColor,
+                                 const char* dstColor,
+                                 const char* outColor,
+                                 const GrXferProcessor& proc) override {
         const CustomXP& xp = proc.cast<CustomXP>();
         SkASSERT(!xp.hasHWBlendEquation());
 
-        GrGLSLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
-        GrGLSLBlend::AppendMode(fsBuilder, srcColor, dstColor, outColor, xp.mode());
+        GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.mode());
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}

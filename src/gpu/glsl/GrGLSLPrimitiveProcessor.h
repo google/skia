@@ -15,6 +15,8 @@
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
+class GrGLSLVertexBuilder;
+class GrGLSLFragmentBuilder;
 class GrGLSLGPBuilder;
 
 class GrGLSLPrimitiveProcessor {
@@ -30,6 +32,8 @@ public:
 
     struct EmitArgs {
         EmitArgs(GrGLSLGPBuilder* pb,
+                 GrGLSLVertexBuilder* vertBuilder,
+                 GrGLSLFragmentBuilder* fragBuilder,
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
@@ -37,6 +41,8 @@ public:
                  const TransformsIn& transformsIn,
                  TransformsOut* transformsOut)
             : fPB(pb)
+            , fVertBuilder(vertBuilder)
+            , fFragBuilder(fragBuilder)
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
@@ -44,6 +50,8 @@ public:
             , fTransformsIn(transformsIn)
             , fTransformsOut(transformsOut) {}
         GrGLSLGPBuilder* fPB;
+        GrGLSLVertexBuilder* fVertBuilder;
+        GrGLSLFragmentBuilder* fFragBuilder;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
@@ -76,6 +84,7 @@ public:
 
 protected:
     void setupUniformColor(GrGLSLGPBuilder* pb,
+                           GrGLSLFragmentBuilder* fragBuilder,
                            const char* outputName,
                            UniformHandle* colorUniform);
 

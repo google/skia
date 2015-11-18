@@ -95,7 +95,7 @@ GrGLProgramBuilder::SeparableVaryingHandle GrGLProgramBuilder::addSeparableVaryi
              fArgs.fPrimitiveProcessor->numAttribs() == 0);
     this->addVarying(name, v, fsPrecision);
     SeparableVaryingInfo& varyingInfo = fSeparableVaryingInfos.push_back();
-    varyingInfo.fVariable = this->getFragmentShaderBuilder()->fInputs.back();
+    varyingInfo.fVariable = fFS.fInputs.back();
     varyingInfo.fLocation = fSeparableVaryingInfos.count() - 1;
     return SeparableVaryingHandle(varyingInfo.fLocation);
 }
@@ -260,6 +260,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
     this->emitSamplers(fp, &samplers, ifp);
 
     GrGLSLFragmentProcessor::EmitArgs args(this,
+                                           &fFS,
                                            fp,
                                            outColor,
                                            inColor,
@@ -284,7 +285,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLSLGeometryProcessor::EmitArgs args(this, gp, outColor, outCoverage, samplers,
+    GrGLSLGeometryProcessor::EmitArgs args(this, &fVS, &fFS, gp, outColor, outCoverage, samplers,
                                          fCoordTransforms, &fOutCoords);
     fGeometryProcessor->fGLProc->emitCode(args);
 
@@ -320,9 +321,9 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(xp.numTextures());
     this->emitSamplers(xp, &samplers, fXferProcessor);
 
-    GrGLSLXferProcessor::EmitArgs args(this, xp, colorIn.c_str(), coverageIn.c_str(),
-                                     fFS.getPrimaryColorOutputName(),
-                                     fFS.getSecondaryColorOutputName(), samplers);
+    GrGLSLXferProcessor::EmitArgs args(this, &fFS, xp, colorIn.c_str(), coverageIn.c_str(),
+                                       fFS.getPrimaryColorOutputName(),
+                                       fFS.getSecondaryColorOutputName(), samplers);
     fXferProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

@@ -264,34 +264,34 @@ void GrColorCubeEffect::GLSLProcessor::emitCode(EmitArgs& args) {
     // Note: if implemented using texture3D in OpenGL ES older than OpenGL ES 3.0,
     //       the shader might need "#extension GL_OES_texture_3D : enable".
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     // Unpremultiply color
-    fsBuilder->codeAppendf("\tfloat %s = max(%s.a, 0.00001);\n", nonZeroAlpha, args.fInputColor);
-    fsBuilder->codeAppendf("\tvec4 %s = vec4(%s.rgb / %s, %s);\n",
-                           unPMColor, args.fInputColor, nonZeroAlpha, nonZeroAlpha);
+    fragBuilder->codeAppendf("\tfloat %s = max(%s.a, 0.00001);\n", nonZeroAlpha, args.fInputColor);
+    fragBuilder->codeAppendf("\tvec4 %s = vec4(%s.rgb / %s, %s);\n",
+                             unPMColor, args.fInputColor, nonZeroAlpha, nonZeroAlpha);
 
     // Fit input color into the cube.
-    fsBuilder->codeAppendf(
+    fragBuilder->codeAppendf(
         "vec3 %s = vec3(%s.rg * vec2((%s - 1.0) * %s) + vec2(0.5 * %s), %s.b * (%s - 1.0));\n",
         cubeIdx, unPMColor, colorCubeSizeUni, colorCubeInvSizeUni, colorCubeInvSizeUni,
         unPMColor, colorCubeSizeUni);
 
     // Compute y coord for for texture fetches.
-    fsBuilder->codeAppendf("vec2 %s = vec2(%s.r, (floor(%s.b) + %s.g) * %s);\n",
-                           cCoords1, cubeIdx, cubeIdx, cubeIdx, colorCubeInvSizeUni);
-    fsBuilder->codeAppendf("vec2 %s = vec2(%s.r, (ceil(%s.b) + %s.g) * %s);\n",
-                           cCoords2, cubeIdx, cubeIdx, cubeIdx, colorCubeInvSizeUni);
+    fragBuilder->codeAppendf("vec2 %s = vec2(%s.r, (floor(%s.b) + %s.g) * %s);\n",
+                             cCoords1, cubeIdx, cubeIdx, cubeIdx, colorCubeInvSizeUni);
+    fragBuilder->codeAppendf("vec2 %s = vec2(%s.r, (ceil(%s.b) + %s.g) * %s);\n",
+                             cCoords2, cubeIdx, cubeIdx, cubeIdx, colorCubeInvSizeUni);
 
     // Apply the cube.
-    fsBuilder->codeAppendf("%s = vec4(mix(", args.fOutputColor);
-    fsBuilder->appendTextureLookup(args.fSamplers[0], cCoords1);
-    fsBuilder->codeAppend(".rgb, ");
-    fsBuilder->appendTextureLookup(args.fSamplers[0], cCoords2);
+    fragBuilder->codeAppendf("%s = vec4(mix(", args.fOutputColor);
+    fragBuilder->appendTextureLookup(args.fSamplers[0], cCoords1);
+    fragBuilder->codeAppend(".rgb, ");
+    fragBuilder->appendTextureLookup(args.fSamplers[0], cCoords2);
 
     // Premultiply color by alpha. Note that the input alpha is not modified by this shader.
-    fsBuilder->codeAppendf(".rgb, fract(%s.b)) * vec3(%s), %s.a);\n",
-                           cubeIdx, nonZeroAlpha, args.fInputColor);
+    fragBuilder->codeAppendf(".rgb, fract(%s.b)) * vec3(%s), %s.a);\n",
+                             cubeIdx, nonZeroAlpha, args.fInputColor);
 }
 
 void GrColorCubeEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,

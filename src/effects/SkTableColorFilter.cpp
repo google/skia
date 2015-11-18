@@ -420,46 +420,46 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
                                                 "yoffsets", &yoffsets);
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     if (nullptr == args.fInputColor) {
         // the input color is solid white (all ones).
         static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;
-        fsBuilder->codeAppendf("\t\tvec4 coord = vec4(%f, %f, %f, %f);\n",
-                               kMaxValue, kMaxValue, kMaxValue, kMaxValue);
+        fragBuilder->codeAppendf("\t\tvec4 coord = vec4(%f, %f, %f, %f);\n",
+                                 kMaxValue, kMaxValue, kMaxValue, kMaxValue);
 
     } else {
-        fsBuilder->codeAppendf("\t\tfloat nonZeroAlpha = max(%s.a, .0001);\n", args.fInputColor);
-        fsBuilder->codeAppendf("\t\tvec4 coord = vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n",
-                               args.fInputColor);
-        fsBuilder->codeAppendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
-                              kColorScaleFactor,
-                              kColorOffsetFactor, kColorOffsetFactor,
-                              kColorOffsetFactor, kColorOffsetFactor);
+        fragBuilder->codeAppendf("\t\tfloat nonZeroAlpha = max(%s.a, .0001);\n", args.fInputColor);
+        fragBuilder->codeAppendf("\t\tvec4 coord = vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n",
+                                 args.fInputColor);
+        fragBuilder->codeAppendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
+                                 kColorScaleFactor,
+                                 kColorOffsetFactor, kColorOffsetFactor,
+                                 kColorOffsetFactor, kColorOffsetFactor);
     }
 
     SkString coord;
 
-    fsBuilder->codeAppendf("\t\t%s.a = ", args.fOutputColor);
+    fragBuilder->codeAppendf("\t\t%s.a = ", args.fOutputColor);
     coord.printf("vec2(coord.a, %s.a)", yoffsets);
-    fsBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
-    fsBuilder->codeAppend(";\n");
+    fragBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
+    fragBuilder->codeAppend(";\n");
 
-    fsBuilder->codeAppendf("\t\t%s.r = ", args.fOutputColor);
+    fragBuilder->codeAppendf("\t\t%s.r = ", args.fOutputColor);
     coord.printf("vec2(coord.r, %s.r)", yoffsets);
-    fsBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
-    fsBuilder->codeAppend(";\n");
+    fragBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
+    fragBuilder->codeAppend(";\n");
 
-    fsBuilder->codeAppendf("\t\t%s.g = ", args.fOutputColor);
+    fragBuilder->codeAppendf("\t\t%s.g = ", args.fOutputColor);
     coord.printf("vec2(coord.g, %s.g)", yoffsets);
-    fsBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
-    fsBuilder->codeAppend(";\n");
+    fragBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
+    fragBuilder->codeAppend(";\n");
 
-    fsBuilder->codeAppendf("\t\t%s.b = ", args.fOutputColor);
+    fragBuilder->codeAppendf("\t\t%s.b = ", args.fOutputColor);
     coord.printf("vec2(coord.b, %s.b)", yoffsets);
-    fsBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
-    fsBuilder->codeAppend(";\n");
+    fragBuilder->appendTextureLookup(args.fSamplers[0], coord.c_str());
+    fragBuilder->codeAppend(";\n");
 
-    fsBuilder->codeAppendf("\t\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
+    fragBuilder->codeAppendf("\t\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

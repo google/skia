@@ -60,16 +60,16 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                           kFloat_GrSLType, kDefault_GrSLPrecision,
                                           "Kernel", this->width());
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fsBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", args.fOutputColor);
+    fragBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", args.fOutputColor);
 
     int width = this->width();
     const GrGLSLShaderVar& kernel = args.fBuilder->getUniformVariable(fKernelUni);
     const char* imgInc = args.fBuilder->getUniformCStr(fImageIncrementUni);
 
-    fsBuilder->codeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords2D.c_str(), fRadius, imgInc);
+    fragBuilder->codeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords2D.c_str(), fRadius, imgInc);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
@@ -84,21 +84,21 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
             // to have a bug that caused corruption.
             const char* bounds = args.fBuilder->getUniformCStr(fBoundsUni);
             const char* component = this->direction() == Gr1DKernelEffect::kY_Direction ? "y" : "x";
-            fsBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {",
-                component, bounds, component, bounds);
+            fragBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {",
+                                     component, bounds, component, bounds);
         }
-        fsBuilder->codeAppendf("\t\t%s += ", args.fOutputColor);
-        fsBuilder->appendTextureLookup(args.fSamplers[0], "coord");
-        fsBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
+        fragBuilder->codeAppendf("\t\t%s += ", args.fOutputColor);
+        fragBuilder->appendTextureLookup(args.fSamplers[0], "coord");
+        fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
         if (this->useBounds()) {
-            fsBuilder->codeAppend("}");
+            fragBuilder->codeAppend("}");
         }
-        fsBuilder->codeAppendf("\t\tcoord += %s;\n", imgInc);
+        fragBuilder->codeAppendf("\t\tcoord += %s;\n", imgInc);
     }
 
     SkString modulate;
     GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
-    fsBuilder->codeAppend(modulate.c_str());
+    fragBuilder->codeAppend(modulate.c_str());
 }
 
 void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,

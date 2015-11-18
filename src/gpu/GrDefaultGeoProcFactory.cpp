@@ -64,47 +64,64 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLSLGPBuilder* pb = args.fPB;
-            GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
-            GrGLSLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+            GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // emit attributes
-            vsBuilder->emitAttributes(gp);
+            vertBuilder->emitAttributes(gp);
 
             // Setup pass through color
             if (!gp.colorIgnored()) {
                 if (gp.hasVertexColor()) {
                     pb->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
                 } else {
-                    this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+                    this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
                 }
             }
 
             // Setup position
-            this->setupPosition(pb, gpArgs, gp.inPosition()->fName, gp.viewMatrix(),
+            this->setupPosition(pb,
+                                vertBuilder,
+                                gpArgs,
+                                gp.inPosition()->fName,
+                                gp.viewMatrix(),
                                 &fViewMatrixUniform);
 
             if (gp.hasExplicitLocalCoords()) {
                 // emit transforms with explicit local coords
-                this->emitTransforms(pb, gpArgs->fPositionVar, gp.inLocalCoords()->fName,
-                                     gp.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+                this->emitTransforms(pb,
+                                     vertBuilder,
+                                     gpArgs->fPositionVar,
+                                     gp.inLocalCoords()->fName,
+                                     gp.localMatrix(),
+                                     args.fTransformsIn,
+                                     args.fTransformsOut);
             } else if(gp.hasTransformedLocalCoords()) {
                 // transforms have already been applied to vertex attributes on the cpu
-                this->emitTransforms(pb, gp.inLocalCoords()->fName,
-                                     args.fTransformsIn, args.fTransformsOut);
+                this->emitTransforms(pb,
+                                     vertBuilder,
+                                     gp.inLocalCoords()->fName,
+                                     args.fTransformsIn,
+                                     args.fTransformsOut);
             } else {
                 // emit transforms with position
-                this->emitTransforms(pb, gpArgs->fPositionVar, gp.inPosition()->fName,
-                                     gp.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+                this->emitTransforms(pb,
+                                     vertBuilder,
+                                     gpArgs->fPositionVar,
+                                     gp.inPosition()->fName,
+                                     gp.localMatrix(),
+                                     args.fTransformsIn,
+                                     args.fTransformsOut);
             }
 
             // Setup coverage as pass through
             if (!gp.coverageWillBeIgnored()) {
                 if (gp.hasVertexCoverage()) {
-                    fs->codeAppendf("float alpha = 1.0;");
+                    fragBuilder->codeAppendf("float alpha = 1.0;");
                     args.fPB->addPassThroughAttribute(gp.inCoverage(), "alpha");
-                    fs->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+                    fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
                 } else if (gp.coverage() == 0xff) {
-                    fs->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+                    fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
                 } else {
                     const char* fragCoverage;
                     fCoverageUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
@@ -112,7 +129,7 @@ public:
                                                       kDefault_GrSLPrecision,
                                                       "Coverage",
                                                       &fragCoverage);
-                    fs->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, fragCoverage);
+                    fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, fragCoverage);
                 }
             }
         }

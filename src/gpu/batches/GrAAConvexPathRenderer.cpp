@@ -549,50 +549,54 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
-            GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
 
             // emit attributes
-            vsBuilder->emitAttributes(qe);
+            vertBuilder->emitAttributes(qe);
 
             GrGLSLVertToFrag v(kVec4f_GrSLType);
             args.fPB->addVarying("QuadEdge", &v);
-            vsBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
+            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
 
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // Setup pass through color
             if (!qe.colorIgnored()) {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb, gpArgs, qe.inPosition()->fName);
+            this->setupPosition(pb, vertBuilder, gpArgs, qe.inPosition()->fName);
 
             // emit transforms
-            this->emitTransforms(args.fPB, gpArgs->fPositionVar, qe.inPosition()->fName,
-                                 qe.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+            this->emitTransforms(args.fPB,
+                                 vertBuilder,
+                                 gpArgs->fPositionVar,
+                                 qe.inPosition()->fName,
+                                 qe.localMatrix(),
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
-            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-
-            SkAssertResult(fsBuilder->enableFeature(
+            SkAssertResult(fragBuilder->enableFeature(
                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fsBuilder->codeAppendf("float edgeAlpha;");
+            fragBuilder->codeAppendf("float edgeAlpha;");
 
             // keep the derivative instructions outside the conditional
-            fsBuilder->codeAppendf("vec2 duvdx = dFdx(%s.xy);", v.fsIn());
-            fsBuilder->codeAppendf("vec2 duvdy = dFdy(%s.xy);", v.fsIn());
-            fsBuilder->codeAppendf("if (%s.z > 0.0 && %s.w > 0.0) {", v.fsIn(), v.fsIn());
+            fragBuilder->codeAppendf("vec2 duvdx = dFdx(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("if (%s.z > 0.0 && %s.w > 0.0) {", v.fsIn(), v.fsIn());
             // today we know z and w are in device space. We could use derivatives
-            fsBuilder->codeAppendf("edgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);", v.fsIn(),
-                                    v.fsIn());
-            fsBuilder->codeAppendf ("} else {");
-            fsBuilder->codeAppendf("vec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,"
-                                   "               2.0*%s.x*duvdy.x - duvdy.y);",
-                                   v.fsIn(), v.fsIn());
-            fsBuilder->codeAppendf("edgeAlpha = (%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
-                                    v.fsIn());
-            fsBuilder->codeAppendf("edgeAlpha = "
-                                   "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);}");
+            fragBuilder->codeAppendf("edgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);", v.fsIn(),
+                                     v.fsIn());
+            fragBuilder->codeAppendf ("} else {");
+            fragBuilder->codeAppendf("vec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,"
+                                     "               2.0*%s.x*duvdy.x - duvdy.y);",
+                                     v.fsIn(), v.fsIn());
+            fragBuilder->codeAppendf("edgeAlpha = (%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
+                                     v.fsIn());
+            fragBuilder->codeAppendf("edgeAlpha = "
+                                     "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);}");
 
-            fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,

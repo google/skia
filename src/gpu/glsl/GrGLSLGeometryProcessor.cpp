@@ -13,19 +13,19 @@
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
-    GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    vsBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
+    vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
 }
 
 void GrGLSLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
+                                             GrGLSLVertexBuilder* vb,
                                              const GrShaderVar& posVar,
                                              const char* localCoords,
                                              const SkMatrix& localMatrix,
                                              const TransformsIn& tin,
                                              TransformsOut* tout) {
-    GrGLSLVertexBuilder* vb = pb->getVertexShaderBuilder();
     tout->push_back_n(tin.count());
     fInstalledTransforms.push_back_n(tin.count());
     for (int i = 0; i < tin.count(); i++) {
@@ -93,10 +93,10 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
 }
 
 void GrGLSLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
+                                             GrGLSLVertexBuilder* vb,
                                              const char* localCoords,
                                              const TransformsIn& tin,
                                              TransformsOut* tout) {
-    GrGLSLVertexBuilder* vb = pb->getVertexShaderBuilder();
     tout->push_back_n(tin.count());
     for (int i = 0; i < tin.count(); i++) {
         const ProcCoords& coordTransforms = tin[i];
@@ -122,22 +122,22 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLGPBuilder* pb,
 }
 
 void GrGLSLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
+                                            GrGLSLVertexBuilder* vertBuilder,
                                             GrGPArgs* gpArgs,
                                             const char* posName) {
-    GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
     gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-    vsBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+    vertBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
 }
 
 void GrGLSLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
+                                            GrGLSLVertexBuilder* vertBuilder,
                                             GrGPArgs* gpArgs,
                                             const char* posName,
                                             const SkMatrix& mat,
                                             UniformHandle* viewMatrixUniform) {
-    GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
     if (mat.isIdentity()) {
         gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-        vsBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+        vertBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
     } else {
         const char* viewMatrixName;
         *viewMatrixUniform = pb->addUniform(GrGLSLProgramBuilder::kVertex_Visibility,
@@ -146,12 +146,12 @@ void GrGLSLGeometryProcessor::setupPosition(GrGLSLGPBuilder* pb,
                                             &viewMatrixName);
         if (!mat.hasPerspective()) {
             gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-            vsBuilder->codeAppendf("vec2 %s = vec2(%s * vec3(%s, 1));",
-                                   gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
+            vertBuilder->codeAppendf("vec2 %s = vec2(%s * vec3(%s, 1));",
+                                     gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
         } else {
             gpArgs->fPositionVar.set(kVec3f_GrSLType, "pos3");
-            vsBuilder->codeAppendf("vec3 %s = %s * vec3(%s, 1);",
-                                   gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
+            vertBuilder->codeAppendf("vec3 %s = %s * vec3(%s, 1);",
+                                     gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
         }
     }
 }

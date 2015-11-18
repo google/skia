@@ -21,7 +21,7 @@
 
 static const bool gUseUnpremul = false;
 
-static void add_arithmetic_code(GrGLSLFragmentBuilder* fsBuilder,
+static void add_arithmetic_code(GrGLSLFragmentBuilder* fragBuilder,
                                 const char* srcColor,
                                 const char* dstColor,
                                 const char* outputColor,
@@ -29,27 +29,27 @@ static void add_arithmetic_code(GrGLSLFragmentBuilder* fsBuilder,
                                 bool enforcePMColor) {
     // We don't try to optimize for this case at all
     if (nullptr == srcColor) {
-        fsBuilder->codeAppend("const vec4 src = vec4(1);");
+        fragBuilder->codeAppend("const vec4 src = vec4(1);");
     } else {
-        fsBuilder->codeAppendf("vec4 src = %s;", srcColor);
+        fragBuilder->codeAppendf("vec4 src = %s;", srcColor);
         if (gUseUnpremul) {
-            fsBuilder->codeAppend("src.rgb = clamp(src.rgb / src.a, 0.0, 1.0);");
+            fragBuilder->codeAppend("src.rgb = clamp(src.rgb / src.a, 0.0, 1.0);");
         }
     }
 
-    fsBuilder->codeAppendf("vec4 dst = %s;", dstColor);
+    fragBuilder->codeAppendf("vec4 dst = %s;", dstColor);
     if (gUseUnpremul) {
-        fsBuilder->codeAppend("dst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);");
+        fragBuilder->codeAppend("dst.rgb = clamp(dst.rgb / dst.a, 0.0, 1.0);");
     }
 
-    fsBuilder->codeAppendf("%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;",
-                           outputColor, kUni, kUni, kUni, kUni);
-    fsBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
+    fragBuilder->codeAppendf("%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;",
+                             outputColor, kUni, kUni, kUni, kUni);
+    fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
     if (gUseUnpremul) {
-        fsBuilder->codeAppendf("%s.rgb *= %s.a;", outputColor, outputColor);
+        fragBuilder->codeAppendf("%s.rgb *= %s.a;", outputColor, outputColor);
     } else if (enforcePMColor) {
-        fsBuilder->codeAppendf("%s.rgb = min(%s.rgb, %s.a);",
-                               outputColor, outputColor, outputColor);
+        fragBuilder->codeAppendf("%s.rgb = min(%s.rgb, %s.a);",
+                                 outputColor, outputColor, outputColor);
     }
 }
 
@@ -61,7 +61,7 @@ public:
     ~GLArithmeticFP() override {}
 
     void emitCode(EmitArgs& args) override {
-        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString dstColor("dstColor");
         this->emitChild(0, nullptr, &dstColor, args);
 
@@ -70,7 +70,11 @@ public:
                                           "k");
         const char* kUni = args.fBuilder->getUniformCStr(fKUni);
 
-        add_arithmetic_code(fsBuilder, args.fInputColor, dstColor.c_str(), args.fOutputColor, kUni,
+        add_arithmetic_code(fragBuilder,
+                            args.fInputColor,
+                            dstColor.c_str(),
+                            args.fOutputColor,
+                            kUni,
                             fEnforcePMColor);
     }
 
@@ -207,16 +211,18 @@ public:
     }
 
 private:
-    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb, const char* srcColor, const char* dstColor,
-                                 const char* outColor, const GrXferProcessor& proc) override {
-        GrGLSLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
-
+    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb,
+                                 GrGLSLXPFragmentBuilder* fragBuilder,
+                                 const char* srcColor,
+                                 const char* dstColor,
+                                 const char* outColor,
+                                 const GrXferProcessor& proc) override {
         fKUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                kVec4f_GrSLType, kDefault_GrSLPrecision,
                                "k");
         const char* kUni = pb->getUniformCStr(fKUni);
 
-        add_arithmetic_code(fsBuilder, srcColor, dstColor, outColor, kUni, fEnforcePMColor);
+        add_arithmetic_code(fragBuilder, srcColor, dstColor, outColor, kUni, fEnforcePMColor);
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,

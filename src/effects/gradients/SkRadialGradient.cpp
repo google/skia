@@ -501,9 +501,13 @@ void GrGLRadialGradient::emitCode(EmitArgs& args) {
     const GrRadialGradient& ge = args.fFp.cast<GrRadialGradient>();
     this->emitUniforms(args.fBuilder, ge);
     SkString t("length(");
-    t.append(args.fBuilder->getFragmentShaderBuilder()->ensureFSCoords2D(args.fCoords, 0));
+    t.append(args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0));
     t.append(")");
-    this->emitColor(args.fBuilder, ge, t.c_str(), args.fOutputColor, args.fInputColor,
+    this->emitColor(args.fBuilder,
+                    args.fFragBuilder,
+                    ge, t.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
 }
 

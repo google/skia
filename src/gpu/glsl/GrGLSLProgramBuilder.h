@@ -165,10 +165,6 @@ public:
         const char* name, GrGLSLVertToFrag*,
         GrSLPrecision fsPrecision = kDefault_GrSLPrecision) = 0;
 
-    // TODO rename getFragmentBuilder
-    virtual GrGLSLFragmentBuilder* getFragmentShaderBuilder() = 0;
-    virtual GrGLSLVertexBuilder* getVertexShaderBuilder() = 0;
-
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
      */
@@ -178,8 +174,6 @@ public:
 /* a specializations for FPs. Lets the user add uniforms and FS code */
 class GrGLSLFPBuilder : public virtual GrGLSLUniformBuilder {
 public:
-    virtual GrGLSLFragmentBuilder* getFragmentShaderBuilder() = 0;
-
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
      */
@@ -188,8 +182,6 @@ public:
 /* a specializations for XPs. Lets the user add uniforms and FS code */
 class GrGLSLXPBuilder : public virtual GrGLSLUniformBuilder {
 public:
-    virtual GrGLSLXPFragmentBuilder* getFragmentShaderBuilder() = 0;
-
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
      */
@@ -200,9 +192,6 @@ class GrGLSLProgramBuilder : public GrGLSLGPBuilder,
                              public GrGLSLXPBuilder {
 public:
     typedef GrGpu::DrawArgs DrawArgs;
-
-    GrGLSLXPFragmentBuilder* getFragmentShaderBuilder() override { return &fFS; }
-    GrGLSLVertexBuilder* getVertexShaderBuilder() override { return &fVS; }
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {

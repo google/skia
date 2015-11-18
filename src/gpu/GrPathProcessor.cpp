@@ -26,7 +26,7 @@ public:
 
     void emitCode(EmitArgs& args) override {
         GrGLSLGPBuilder* pb = args.fPB;
-        GrGLSLFragmentBuilder* fs = args.fPB->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
         // emit transforms
@@ -40,12 +40,12 @@ public:
                                            kDefault_GrSLPrecision,
                                            "Color",
                                            &stagedLocalVarName);
-            fs->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
+            fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
         }
 
         // setup constant solid coverage
         if (pathProc.opts().readsCoverage()) {
-            fs->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
         }
     }
 

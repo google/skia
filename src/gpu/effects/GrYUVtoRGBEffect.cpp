@@ -64,22 +64,22 @@ public:
         GLSLProcessor(const GrProcessor&) {}
 
         virtual void emitCode(EmitArgs& args) override {
-            GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             const char* yuvMatrix   = nullptr;
             fMatrixUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                                    kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                    "YUVMatrix", &yuvMatrix);
-            fsBuilder->codeAppendf("\t%s = vec4(\n\t\t", args.fOutputColor);
-            fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
-                                           args.fCoords[0].getType());
-            fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(args.fSamplers[1], args.fCoords[1].c_str(),
-                                           args.fCoords[1].getType());
-            fsBuilder->codeAppend(".r,\n\t\t");
-            fsBuilder->appendTextureLookup(args.fSamplers[2], args.fCoords[2].c_str(),
-                                           args.fCoords[2].getType());
-            fsBuilder->codeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
+            fragBuilder->codeAppendf("\t%s = vec4(\n\t\t", args.fOutputColor);
+            fragBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+                                             args.fCoords[0].getType());
+            fragBuilder->codeAppend(".r,\n\t\t");
+            fragBuilder->appendTextureLookup(args.fSamplers[1], args.fCoords[1].c_str(),
+                                             args.fCoords[1].getType());
+            fragBuilder->codeAppend(".r,\n\t\t");
+            fragBuilder->appendTextureLookup(args.fSamplers[2], args.fCoords[2].c_str(),
+                                             args.fCoords[2].getType());
+            fragBuilder->codeAppendf(".r,\n\t\t1.0) * %s;\n", yuvMatrix);
         }
 
     protected:

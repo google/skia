@@ -11,6 +11,7 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 
+class GrGLSLXPFragmentBuilder;
 class GrGLSLXPBuilder;
 class GrXferProcessor;
 
@@ -22,6 +23,7 @@ public:
     typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
     struct EmitArgs {
         EmitArgs(GrGLSLXPBuilder* pb,
+                 GrGLSLXPFragmentBuilder* fragBuilder,
                  const GrXferProcessor& xp,
                  const char* inputColor,
                  const char* inputCoverage,
@@ -29,6 +31,7 @@ public:
                  const char* outputSecondary,
                  const TextureSamplerArray& samplers)
             : fPB(pb)
+            , fXPFragBuilder(fragBuilder)
             , fXP(xp)
             , fInputColor(inputColor)
             , fInputCoverage(inputCoverage)
@@ -37,6 +40,7 @@ public:
             , fSamplers(samplers) {}
 
         GrGLSLXPBuilder* fPB;
+        GrGLSLXPFragmentBuilder* fXPFragBuilder;
         const GrXferProcessor& fXP;
         const char* fInputColor;
         const char* fInputCoverage;
@@ -75,6 +79,7 @@ private:
      * method if it can construct a GrXferProcessor that reads the dst color.
      */
     virtual void emitBlendCodeForDstRead(GrGLSLXPBuilder*,
+                                         GrGLSLXPFragmentBuilder*,
                                          const char* srcColor,
                                          const char* dstColor,
                                          const char* outColor,

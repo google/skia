@@ -17,13 +17,13 @@ public:
     GrGLSimpleTextureEffect(const GrProcessor&) {}
 
     virtual void emitCode(EmitArgs& args) override {
-        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("\t%s = ", args.fOutputColor);
-        fsBuilder->appendTextureLookupAndModulate(args.fInputColor,
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        fragBuilder->codeAppendf("\t%s = ", args.fOutputColor);
+        fragBuilder->appendTextureLookupAndModulate(args.fInputColor,
                                                   args.fSamplers[0],
                                                   args.fCoords[0].c_str(),
                                                   args.fCoords[0].getType());
-        fsBuilder->codeAppend(";\n");
+        fragBuilder->codeAppend(";\n");
     }
 
 private:

@@ -48,11 +48,11 @@ public:
 
     virtual void emitCode(EmitArgs& args) override {
         // pass through
-        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         if (args.fInputColor) {
-            fsBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
+            fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         } else {
-            fsBuilder->codeAppendf("%s = vec4(1.0);\n", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = vec4(1.0);\n", args.fOutputColor);
         }
     }
 

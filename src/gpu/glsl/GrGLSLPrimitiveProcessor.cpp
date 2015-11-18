@@ -33,9 +33,9 @@ SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatri
 }
 
 void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLGPBuilder* pb,
+                                                 GrGLSLFragmentBuilder* fragBuilder,
                                                  const char* outputName,
                                                  UniformHandle* colorUniform) {
-    GrGLSLFragmentBuilder* fs = pb->getFragmentShaderBuilder();
     SkASSERT(colorUniform);
     const char* stagedLocalVarName;
     *colorUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
@@ -43,5 +43,5 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLGPBuilder* pb,
                                    kDefault_GrSLPrecision,
                                    "Color",
                                    &stagedLocalVarName);
-    fs->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
+    fragBuilder->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
 }

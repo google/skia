@@ -179,7 +179,7 @@ public:
 
         void emitCode(EmitArgs& args) override {
 
-            GrGLSLFragmentBuilder* fpb = args.fBuilder->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // add uniforms
             const char* lightDirUniName = nullptr;
@@ -202,33 +202,35 @@ public:
                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                   "Xform", &xformUniName);
 
-            fpb->codeAppend("vec4 diffuseColor = ");
-            fpb->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0], 
+            fragBuilder->codeAppend("vec4 diffuseColor = ");
+            fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0], 
                                                 args.fCoords[0].c_str(), 
                                                 args.fCoords[0].getType());
-            fpb->codeAppend(";");
+            fragBuilder->codeAppend(";");
 
-            fpb->codeAppend("vec4 normalColor = ");
-            fpb->appendTextureLookup(args.fSamplers[1],
+            fragBuilder->codeAppend("vec4 normalColor = ");
+            fragBuilder->appendTextureLookup(args.fSamplers[1],
                                      args.fCoords[1].c_str(), 
                                      args.fCoords[1].getType());
-            fpb->codeAppend(";");
+            fragBuilder->codeAppend(";");
 
-            fpb->codeAppend("vec3 normal = normalColor.rgb - vec3(0.5);");
+            fragBuilder->codeAppend("vec3 normal = normalColor.rgb - vec3(0.5);");
 
-            fpb->codeAppendf("mat3 m = mat3(%s.x, -%s.y, 0.0, %s.y, %s.x, 0.0, 0.0, 0.0, 1.0);",
-                             xformUniName, xformUniName, xformUniName, xformUniName);
+            fragBuilder->codeAppendf(
+                                 "mat3 m = mat3(%s.x, -%s.y, 0.0, %s.y, %s.x, 0.0, 0.0, 0.0, 1.0);",
+                                 xformUniName, xformUniName, xformUniName, xformUniName);
             
             // TODO: inverse map the light direction vectors in the vertex shader rather than
             // transforming all the normals here!
-            fpb->codeAppend("normal = normalize(m*normal);");
+            fragBuilder->codeAppend("normal = normalize(m*normal);");
 
-            fpb->codeAppendf("float NdotL = clamp(dot(normal, %s), 0.0, 1.0);", lightDirUniName);
+            fragBuilder->codeAppendf("float NdotL = clamp(dot(normal, %s), 0.0, 1.0);",
+                                     lightDirUniName);
             // diffuse light
-            fpb->codeAppendf("vec3 result = %s*diffuseColor.rgb*NdotL;", lightColorUniName);
+            fragBuilder->codeAppendf("vec3 result = %s*diffuseColor.rgb*NdotL;", lightColorUniName);
             // ambient light
-            fpb->codeAppendf("result += %s;", ambientColorUniName);
-            fpb->codeAppendf("%s = vec4(result.rgb, diffuseColor.a);", args.fOutputColor);
+            fragBuilder->codeAppendf("result += %s;", ambientColorUniName);
+            fragBuilder->codeAppendf("%s = vec4(result.rgb, diffuseColor.a);", args.fOutputColor);
         }
 
         static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,

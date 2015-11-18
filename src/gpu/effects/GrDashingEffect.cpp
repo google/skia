@@ -852,50 +852,55 @@ GLDashingCircleEffect::GLDashingCircleEffect() {
 void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
     GrGLSLGPBuilder* pb = args.fPB;
-    GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
 
     // emit attributes
-    vsBuilder->emitAttributes(dce);
+    vertBuilder->emitAttributes(dce);
 
     // XY are dashPos, Z is dashInterval
     GrGLSLVertToFrag dashParams(kVec3f_GrSLType);
     args.fPB->addVarying("DashParam", &dashParams);
-    vsBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
 
     // x refers to circle radius - 0.5, y refers to cicle's center x coord
     GrGLSLVertToFrag circleParams(kVec2f_GrSLType);
     args.fPB->addVarying("CircleParams", &circleParams);
-    vsBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
 
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!dce.colorIgnored()) {
-        this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
     }
 
     // Setup position
-    this->setupPosition(pb, gpArgs, dce.inPosition()->fName);
+    this->setupPosition(pb, vertBuilder, gpArgs, dce.inPosition()->fName);
 
     // emit transforms
-    this->emitTransforms(args.fPB, gpArgs->fPositionVar, dce.inPosition()->fName, dce.localMatrix(),
-                         args.fTransformsIn, args.fTransformsOut);
+    this->emitTransforms(args.fPB,
+                         vertBuilder,
+                         gpArgs->fPositionVar,
+                         dce.inPosition()->fName,
+                         dce.localMatrix(),
+                         args.fTransformsIn,
+                         args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test circle
-    GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-    fsBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
-                           dashParams.fsIn(), dashParams.fsIn(), dashParams.fsIn(),
-                           dashParams.fsIn());
-    fsBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", dashParams.fsIn());
-    fsBuilder->codeAppendf("vec2 center = vec2(%s.y, 0.0);", circleParams.fsIn());
-    fsBuilder->codeAppend("float dist = length(center - fragPosShifted);");
+    fragBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
+                             dashParams.fsIn(), dashParams.fsIn(), dashParams.fsIn(),
+                             dashParams.fsIn());
+    fragBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", dashParams.fsIn());
+    fragBuilder->codeAppendf("vec2 center = vec2(%s.y, 0.0);", circleParams.fsIn());
+    fragBuilder->codeAppend("float dist = length(center - fragPosShifted);");
     if (dce.aaMode() != kBW_DashAAMode) {
-        fsBuilder->codeAppendf("float diff = dist - %s.x;", circleParams.fsIn());
-        fsBuilder->codeAppend("diff = 1.0 - diff;");
-        fsBuilder->codeAppend("float alpha = clamp(diff, 0.0, 1.0);");
+        fragBuilder->codeAppendf("float diff = dist - %s.x;", circleParams.fsIn());
+        fragBuilder->codeAppend("diff = 1.0 - diff;");
+        fragBuilder->codeAppend("float alpha = clamp(diff, 0.0, 1.0);");
     } else {
-        fsBuilder->codeAppendf("float alpha = 1.0;");
-        fsBuilder->codeAppendf("alpha *=  dist < %s.x + 0.5 ? 1.0 : 0.0;", circleParams.fsIn());
+        fragBuilder->codeAppendf("float alpha = 1.0;");
+        fragBuilder->codeAppendf("alpha *=  dist < %s.x + 0.5 ? 1.0 : 0.0;", circleParams.fsIn());
     }
-    fsBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+    fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
 }
 
 void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
@@ -1058,69 +1063,74 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
     GrGLSLGPBuilder* pb = args.fPB;
 
-    GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
 
     // emit attributes
-    vsBuilder->emitAttributes(de);
+    vertBuilder->emitAttributes(de);
 
     // XY refers to dashPos, Z is the dash interval length
     GrGLSLVertToFrag inDashParams(kVec3f_GrSLType);
     args.fPB->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
-    vsBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     GrGLSLVertToFrag inRectParams(kVec4f_GrSLType);
     args.fPB->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
-    vsBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
+    vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!de.colorIgnored()) {
-        this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
     }
 
-
     // Setup position
-    this->setupPosition(pb, gpArgs, de.inPosition()->fName);
+    this->setupPosition(pb, vertBuilder, gpArgs, de.inPosition()->fName);
 
     // emit transforms
-    this->emitTransforms(args.fPB, gpArgs->fPositionVar, de.inPosition()->fName, de.localMatrix(),
-                         args.fTransformsIn, args.fTransformsOut);
+    this->emitTransforms(args.fPB,
+                         vertBuilder,
+                         gpArgs->fPositionVar,
+                         de.inPosition()->fName,
+                         de.localMatrix(),
+                         args.fTransformsIn,
+                         args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test rect
-    GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-    fsBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
-                           inDashParams.fsIn(), inDashParams.fsIn(), inDashParams.fsIn(),
-                           inDashParams.fsIn());
-    fsBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", inDashParams.fsIn());
+    fragBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
+                             inDashParams.fsIn(), inDashParams.fsIn(), inDashParams.fsIn(),
+                             inDashParams.fsIn());
+    fragBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", inDashParams.fsIn());
     if (de.aaMode() == kEdgeAA_DashAAMode) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
-        fsBuilder->codeAppend("float xSub, ySub;");
-        fsBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("ySub = min(fragPosShifted.y - %s.y, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("ySub += min(%s.w - fragPosShifted.y, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppend("float xSub, ySub;");
+        fragBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("ySub = min(fragPosShifted.y - %s.y, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("ySub += min(%s.w - fragPosShifted.y, 0.0);", inRectParams.fsIn());
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
-        fsBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));");
+        fragBuilder->codeAppendf(
+            "float alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));");
     } else if (de.aaMode() == kMSAA_DashAAMode) {
         // For MSAA, we don't modulate the alpha by the Y distance, since MSAA coverage will handle
         // AA on the the top and bottom edges. The shader is only responsible for intra-dash alpha.
-        fsBuilder->codeAppend("float xSub;");
-        fsBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppend("float xSub;");
+        fragBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
         // Now compute coverage in x to get the fraction of the pixel covered.
-        fsBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0));");
+        fragBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0));");
     } else {
         // Assuming the bounding geometry is tight so no need to check y values
-        fsBuilder->codeAppendf("float alpha = 1.0;");
-        fsBuilder->codeAppendf("alpha *= (fragPosShifted.x - %s.x) > -0.5 ? 1.0 : 0.0;",
-                               inRectParams.fsIn());
-        fsBuilder->codeAppendf("alpha *= (%s.z - fragPosShifted.x) >= -0.5 ? 1.0 : 0.0;",
-                               inRectParams.fsIn());
+        fragBuilder->codeAppendf("float alpha = 1.0;");
+        fragBuilder->codeAppendf("alpha *= (fragPosShifted.x - %s.x) > -0.5 ? 1.0 : 0.0;",
+                                 inRectParams.fsIn());
+        fragBuilder->codeAppendf("alpha *= (%s.z - fragPosShifted.x) >= -0.5 ? 1.0 : 0.0;",
+                                 inRectParams.fsIn());
     }
-    fsBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+    fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
 }
 
 void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,

@@ -757,7 +757,7 @@ GrGLPerlinNoise2::GrGLPerlinNoise2(const GrProcessor& processor)
 }
 
 void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
     fBaseFrequencyUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
@@ -1170,7 +1170,7 @@ GrGLImprovedPerlinNoise::GrGLImprovedPerlinNoise(const GrProcessor& processor)
 }
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
     fBaseFrequencyUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,

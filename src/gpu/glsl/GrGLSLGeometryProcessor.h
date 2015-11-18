@@ -43,15 +43,17 @@ public:
 protected:
     // Emit a uniform matrix for each coord transform.
     void emitTransforms(GrGLSLGPBuilder* gp,
+                        GrGLSLVertexBuilder* vb,
                         const GrShaderVar& posVar,
                         const char* localCoords,
                         const TransformsIn& tin,
                         TransformsOut* tout) {
-        this->emitTransforms(gp, posVar, localCoords, SkMatrix::I(), tin, tout);
+        this->emitTransforms(gp, vb, posVar, localCoords, SkMatrix::I(), tin, tout);
     }
 
     // Emit pre-transformed coords as a vertex attribute per coord-transform.
     void emitTransforms(GrGLSLGPBuilder*,
+                        GrGLSLVertexBuilder*,
                         const GrShaderVar& posVar,
                         const char* localCoords,
                         const SkMatrix& localMatrix,
@@ -60,6 +62,7 @@ protected:
 
     // caller has emitted transforms via attributes
     void emitTransforms(GrGLSLGPBuilder*,
+                        GrGLSLVertexBuilder*,
                         const char* localCoords,
                         const TransformsIn& tin,
                         TransformsOut* tout);
@@ -71,8 +74,12 @@ protected:
     };
 
     // Create the correct type of position variable given the CTM
-    void setupPosition(GrGLSLGPBuilder*, GrGPArgs*, const char* posName);
-    void setupPosition(GrGLSLGPBuilder*, GrGPArgs*, const char* posName, const SkMatrix& mat,
+    void setupPosition(GrGLSLGPBuilder*, GrGLSLVertexBuilder*, GrGPArgs*, const char* posName);
+    void setupPosition(GrGLSLGPBuilder*,
+                       GrGLSLVertexBuilder*,
+                       GrGPArgs*,
+                       const char* posName,
+                       const SkMatrix& mat,
                        UniformHandle* viewMatrixUniform);
 
     static uint32_t ComputePosKey(const SkMatrix& mat) {

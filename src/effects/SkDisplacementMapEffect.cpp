@@ -557,31 +557,32 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
                                    // a number smaller than that to approximate 0, but
                                    // leave room for 32-bit float GPU rounding errors.
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    fsBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
-    fsBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    fragBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
+    fragBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
                                    args.fCoords[0].getType());
-    fsBuilder->codeAppend(";\n");
+    fragBuilder->codeAppend(";\n");
 
     // Unpremultiply the displacement
-    fsBuilder->codeAppendf("\t\t%s.rgb = (%s.a < %s) ? vec3(0.0) : clamp(%s.rgb / %s.a, 0.0, 1.0);",
-                           dColor, dColor, nearZero, dColor, dColor);
-    SkString coords2D = fsBuilder->ensureFSCoords2D(args.fCoords, 1);
-    fsBuilder->codeAppendf("\t\tvec2 %s = %s + %s*(%s.",
-                           cCoords, coords2D.c_str(), scaleUni, dColor);
+    fragBuilder->codeAppendf(
+        "\t\t%s.rgb = (%s.a < %s) ? vec3(0.0) : clamp(%s.rgb / %s.a, 0.0, 1.0);",
+        dColor, dColor, nearZero, dColor, dColor);
+    SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 1);
+    fragBuilder->codeAppendf("\t\tvec2 %s = %s + %s*(%s.",
+                             cCoords, coords2D.c_str(), scaleUni, dColor);
 
     switch (fXChannelSelector) {
       case SkDisplacementMapEffect::kR_ChannelSelectorType:
-        fsBuilder->codeAppend("r");
+        fragBuilder->codeAppend("r");
         break;
       case SkDisplacementMapEffect::kG_ChannelSelectorType:
-        fsBuilder->codeAppend("g");
+        fragBuilder->codeAppend("g");
         break;
       case SkDisplacementMapEffect::kB_ChannelSelectorType:
-        fsBuilder->codeAppend("b");
+        fragBuilder->codeAppend("b");
         break;
       case SkDisplacementMapEffect::kA_ChannelSelectorType:
-        fsBuilder->codeAppend("a");
+        fragBuilder->codeAppend("a");
         break;
       case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
       default:
@@ -590,26 +591,26 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 
     switch (fYChannelSelector) {
       case SkDisplacementMapEffect::kR_ChannelSelectorType:
-        fsBuilder->codeAppend("r");
+        fragBuilder->codeAppend("r");
         break;
       case SkDisplacementMapEffect::kG_ChannelSelectorType:
-        fsBuilder->codeAppend("g");
+        fragBuilder->codeAppend("g");
         break;
       case SkDisplacementMapEffect::kB_ChannelSelectorType:
-        fsBuilder->codeAppend("b");
+        fragBuilder->codeAppend("b");
         break;
       case SkDisplacementMapEffect::kA_ChannelSelectorType:
-        fsBuilder->codeAppend("a");
+        fragBuilder->codeAppend("a");
         break;
       case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
       default:
         SkDEBUGFAIL("Unknown Y channel selector");
     }
-    fsBuilder->codeAppend("-vec2(0.5));\t\t");
+    fragBuilder->codeAppend("-vec2(0.5));\t\t");
 
-    fGLDomain.sampleTexture(fsBuilder, domain, args.fOutputColor, SkString(cCoords),
+    fGLDomain.sampleTexture(fragBuilder, domain, args.fOutputColor, SkString(cCoords),
                             args.fSamplers[1]);
-    fsBuilder->codeAppend(";\n");
+    fragBuilder->codeAppend(";\n");
 }
 
 void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,

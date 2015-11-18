@@ -46,23 +46,23 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
                                              "data",
                                              &dataName);
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const char *fragmentPos = fsBuilder->fragmentPosition();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    const char *fragmentPos = fragBuilder->fragmentPosition();
 
     if (args.fInputColor) {
-        fsBuilder->codeAppendf("vec4 src=%s;", args.fInputColor);
+        fragBuilder->codeAppendf("vec4 src=%s;", args.fInputColor);
     } else {
-        fsBuilder->codeAppendf("vec4 src=vec4(1);");
+        fragBuilder->codeAppendf("vec4 src=vec4(1);");
     }
 
-    fsBuilder->codeAppendf("vec2 vec = %s.xy - %s.xy;", fragmentPos, dataName);
-    fsBuilder->codeAppendf("float dist = (length(vec) - %s.z + 0.5) / %s.w;", dataName, dataName);
+    fragBuilder->codeAppendf("vec2 vec = %s.xy - %s.xy;", fragmentPos, dataName);
+    fragBuilder->codeAppendf("float dist = (length(vec) - %s.z + 0.5) / %s.w;", dataName, dataName);
 
-    fsBuilder->codeAppendf("float intensity = ");
-    fsBuilder->appendTextureLookup(args.fSamplers[0], "vec2(dist, 0.5)");
-    fsBuilder->codeAppend(".a;");
+    fragBuilder->codeAppendf("float intensity = ");
+    fragBuilder->appendTextureLookup(args.fSamplers[0], "vec2(dist, 0.5)");
+    fragBuilder->codeAppend(".a;");
 
-    fsBuilder->codeAppendf("%s = src * intensity;\n", args.fOutputColor );
+    fragBuilder->codeAppendf("%s = src * intensity;\n", args.fOutputColor );
 }
 
 void GrGLCircleBlurFragmentProcessor::onSetData(const GrGLSLProgramDataManager& pdman,

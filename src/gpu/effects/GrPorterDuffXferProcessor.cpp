@@ -382,44 +382,44 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static void append_color_output(const PorterDuffXferProcessor& xp,
-                                GrGLSLXPFragmentBuilder* fsBuilder,
+                                GrGLSLXPFragmentBuilder* fragBuilder,
                                 BlendFormula::OutputType outputType, const char* output,
                                 const char* inColor, const char* inCoverage) {
     switch (outputType) {
         case BlendFormula::kNone_OutputType:
-            fsBuilder->codeAppendf("%s = vec4(0.0);", output);
+            fragBuilder->codeAppendf("%s = vec4(0.0);", output);
             break;
         case BlendFormula::kCoverage_OutputType:
             // We can have a coverage formula while not reading coverage if there are mixed samples.
-            fsBuilder->codeAppendf("%s = %s;",
+            fragBuilder->codeAppendf("%s = %s;",
                                    output, xp.readsCoverage() ? inCoverage : "vec4(1.0)");
             break;
         case BlendFormula::kModulate_OutputType:
             if (xp.readsCoverage()) {
-                fsBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
+                fragBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
             } else {
-                fsBuilder->codeAppendf("%s = %s;", output, inColor);
+                fragBuilder->codeAppendf("%s = %s;", output, inColor);
             }
             break;
         case BlendFormula::kSAModulate_OutputType:
             if (xp.readsCoverage()) {
-                fsBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);
+                fragBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);
             } else {
-                fsBuilder->codeAppendf("%s = %s;", output, inColor);
+                fragBuilder->codeAppendf("%s = %s;", output, inColor);
             }
             break;
         case BlendFormula::kISAModulate_OutputType:
             if (xp.readsCoverage()) {
-                fsBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
+                fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
             } else {
-                fsBuilder->codeAppendf("%s = vec4(1.0 - %s.a);", output, inColor);
+                fragBuilder->codeAppendf("%s = vec4(1.0 - %s.a);", output, inColor);
             }
             break;
         case BlendFormula::kISCModulate_OutputType:
             if (xp.readsCoverage()) {
-                fsBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
+                fragBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
             } else {
-                fsBuilder->codeAppendf("%s = vec4(1.0) - %s;", output, inColor);
+                fragBuilder->codeAppendf("%s = vec4(1.0) - %s;", output, inColor);
             }
             break;
         default:
@@ -441,14 +441,14 @@ public:
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         const PorterDuffXferProcessor& xp = args.fXP.cast<PorterDuffXferProcessor>();
-        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
 
         BlendFormula blendFormula = xp.getBlendFormula();
         if (blendFormula.hasSecondaryOutput()) {
-            append_color_output(xp, fsBuilder, blendFormula.fSecondaryOutputType,
+            append_color_output(xp, fragBuilder, blendFormula.fSecondaryOutputType,
                                 args.fOutputSecondary, args.fInputColor, args.fInputCoverage);
         }
-        append_color_output(xp, fsBuilder, blendFormula.fPrimaryOutputType,
+        append_color_output(xp, fragBuilder, blendFormula.fPrimaryOutputType,
                             args.fOutputPrimary, args.fInputColor, args.fInputCoverage);
     }
 
@@ -544,12 +544,15 @@ public:
     }
 
 private:
-    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb, const char* srcColor, const char* dstColor,
-                                 const char* outColor, const GrXferProcessor& proc) override {
+    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb,
+                                 GrGLSLXPFragmentBuilder* fragBuilder,
+                                 const char* srcColor,
+                                 const char* dstColor,
+                                 const char* outColor,
+                                 const GrXferProcessor& proc) override {
         const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
-        GrGLSLXPFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
 
-        GrGLSLBlend::AppendMode(fsBuilder, srcColor, dstColor, outColor, xp.getXfermode());
+        GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.getXfermode());
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
@@ -625,9 +628,9 @@ public:
 
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
-        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
-                               args.fInputCoverage);
+        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+        fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
+                                 args.fInputCoverage);
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {};

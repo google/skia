@@ -419,19 +419,19 @@ public:
                 // could optimize this case, but we aren't for now.
                 args.fInputColor = "vec4(1)";
             }
-            GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // The max() is to guard against 0 / 0 during unpremul when the incoming color is
             // transparent black.
-            fsBuilder->codeAppendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n",
-                                   args.fInputColor);
-            fsBuilder->codeAppendf("\t%s = %s * vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + %s;\n",
-                                   args.fOutputColor,
-                                   args.fBuilder->getUniformCStr(fMatrixHandle),
-                                   args.fInputColor,
-                                   args.fBuilder->getUniformCStr(fVectorHandle));
-            fsBuilder->codeAppendf("\t%s = clamp(%s, 0.0, 1.0);\n",
-                                   args.fOutputColor, args.fOutputColor);
-            fsBuilder->codeAppendf("\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
+            fragBuilder->codeAppendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n",
+                                     args.fInputColor);
+            fragBuilder->codeAppendf("\t%s = %s * vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + %s;\n",
+                                     args.fOutputColor,
+                                     args.fBuilder->getUniformCStr(fMatrixHandle),
+                                     args.fInputColor,
+                                     args.fBuilder->getUniformCStr(fVectorHandle));
+            fragBuilder->codeAppendf("\t%s = clamp(%s, 0.0, 1.0);\n",
+                                     args.fOutputColor, args.fOutputColor);
+            fragBuilder->codeAppendf("\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
         }
 
     protected:

@@ -248,8 +248,7 @@ const GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
 void GrGLSweepGradient::emitCode(EmitArgs& args) {
     const GrSweepGradient& ge = args.fFp.cast<GrSweepGradient>();
     this->emitUniforms(args.fBuilder, ge);
-    SkString coords2D = args.fBuilder->getFragmentShaderBuilder()
-                                        ->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2D = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int
@@ -261,7 +260,11 @@ void GrGLSweepGradient::emitCode(EmitArgs& args) {
         t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
                  coords2D.c_str(), coords2D.c_str());
     }
-    this->emitColor(args.fBuilder, ge, t.c_str(), args.fOutputColor, args.fInputColor,
+    this->emitColor(args.fBuilder,
+                    args.fFragBuilder,
+                    ge, t.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
 }
 

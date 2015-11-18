@@ -22,10 +22,10 @@ public:
         const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
 
         GrGLSLGPBuilder* pb = args.fPB;
-        GrGLSLVertexBuilder* vsBuilder = pb->getVertexShaderBuilder();
+        GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
 
         // emit attributes
-        vsBuilder->emitAttributes(cte);
+        vertBuilder->emitAttributes(cte);
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
         SkASSERT(cte.numTextures() == 1);
@@ -36,45 +36,50 @@ public:
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
         pb->addVarying("TextureCoords", &v);
-        vsBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", v.vsOut(),
-                               GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
-                               GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,
-                               cte.inTextureCoords()->fName);
+        vertBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", v.vsOut(),
+                                 GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
+                                 GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,
+                                 cte.inTextureCoords()->fName);
 
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
         if (!cte.colorIgnored()) {
             if (cte.hasVertexColor()) {
                 pb->addPassThroughAttribute(cte.inColor(), args.fOutputColor);
             } else {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
             }
         }
 
         // Setup position
-        this->setupPosition(pb, gpArgs, cte.inPosition()->fName);
+        this->setupPosition(pb, vertBuilder, gpArgs, cte.inPosition()->fName);
 
         // emit transforms
-        this->emitTransforms(args.fPB, gpArgs->fPositionVar, cte.inPosition()->fName,
-                             cte.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+        this->emitTransforms(args.fPB,
+                             vertBuilder,
+                             gpArgs->fPositionVar,
+                             cte.inPosition()->fName,
+                             cte.localMatrix(),
+                             args.fTransformsIn,
+                             args.fTransformsOut);
 
-        GrGLSLFragmentBuilder* fsBuilder = pb->getFragmentShaderBuilder();
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
-            fsBuilder->codeAppendf("%s = ", args.fOutputColor);
-            fsBuilder->appendTextureLookupAndModulate(args.fOutputColor,
-                                                      args.fSamplers[0],
-                                                      v.fsIn(),
-                                                      kVec2f_GrSLType);
-            fsBuilder->codeAppend(";");
-            fsBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = ", args.fOutputColor);
+            fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
+                                                        args.fSamplers[0],
+                                                        v.fsIn(),
+                                                        kVec2f_GrSLType);
+            fragBuilder->codeAppend(";");
+            fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
         } else {
-            fsBuilder->codeAppendf("%s = ", args.fOutputCoverage);
-            fsBuilder->appendTextureLookup(args.fSamplers[0], v.fsIn(), kVec2f_GrSLType);
-            fsBuilder->codeAppend(";");
+            fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
+            fragBuilder->appendTextureLookup(args.fSamplers[0], v.fsIn(), kVec2f_GrSLType);
+            fragBuilder->codeAppend(";");
             if (cte.maskFormat() == kA565_GrMaskFormat) {
                 // set alpha to be max of rgb coverage
-                fsBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);",
-                                       args.fOutputCoverage, args.fOutputCoverage,
-                                       args.fOutputCoverage, args.fOutputCoverage);
+                fragBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);",
+                                         args.fOutputCoverage, args.fOutputCoverage,
+                                         args.fOutputCoverage, args.fOutputCoverage);
             }
         }
     }

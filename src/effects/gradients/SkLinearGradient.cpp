@@ -604,9 +604,13 @@ const GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) 
 void GrGLLinearGradient::emitCode(EmitArgs& args) {
     const GrLinearGradient& ge = args.fFp.cast<GrLinearGradient>();
     this->emitUniforms(args.fBuilder, ge);
-    SkString t = args.fBuilder->getFragmentShaderBuilder()->ensureFSCoords2D(args.fCoords, 0);
+    SkString t = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
     t.append(".x");
-    this->emitColor(args.fBuilder, ge, t.c_str(), args.fOutputColor, args.fInputColor,
+    this->emitColor(args.fBuilder,
+                    args.fFragBuilder,
+                    ge, t.c_str(),
+                    args.fOutputColor,
+                    args.fInputColor,
                     args.fSamplers);
 }
 

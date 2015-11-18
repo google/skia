@@ -72,12 +72,12 @@ public:
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         const CoverageSetOpXP& xp = args.fXP.cast<CoverageSetOpXP>();
-        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
+        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
 
         if (xp.invertCoverage()) {
-            fsBuilder->codeAppendf("%s = 1.0 - %s;", args.fOutputPrimary, args.fInputCoverage);
+            fragBuilder->codeAppendf("%s = 1.0 - %s;", args.fOutputPrimary, args.fInputCoverage);
         } else {
-            fsBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputCoverage);
+            fragBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputCoverage);
         }
     }
 

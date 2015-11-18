@@ -124,8 +124,8 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
                                          "circle",
                                          &circleName);
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const char* fragmentPos = fsBuilder->fragmentPosition();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    const char* fragmentPos = fragBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
     // TODO: Right now the distance to circle caclulation is performed in a space normalized to the
@@ -133,20 +133,20 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
     // mediump. It'd be nice to only to this on mediump devices but we currently don't have the
     // caps here.
     if (GrProcessorEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        fsBuilder->codeAppendf("\t\tfloat d = (length((%s.xy - %s.xy) * %s.w) - 1.0) * %s.z;\n",
-                                circleName, fragmentPos, circleName, circleName);
+        fragBuilder->codeAppendf("\t\tfloat d = (length((%s.xy - %s.xy) * %s.w) - 1.0) * %s.z;\n",
+                                 circleName, fragmentPos, circleName, circleName);
     } else {
-        fsBuilder->codeAppendf("\t\tfloat d = (1.0 - length((%s.xy - %s.xy) *  %s.w)) * %s.z;\n",
-                               circleName, fragmentPos, circleName, circleName);
+        fragBuilder->codeAppendf("\t\tfloat d = (1.0 - length((%s.xy - %s.xy) *  %s.w)) * %s.z;\n",
+                                 circleName, fragmentPos, circleName, circleName);
     }
     if (GrProcessorEdgeTypeIsAA(ce.getEdgeType())) {
-        fsBuilder->codeAppend("\t\td = clamp(d, 0.0, 1.0);\n");
+        fragBuilder->codeAppend("\t\td = clamp(d, 0.0, 1.0);\n");
     } else {
-        fsBuilder->codeAppend("\t\td = d > 0.5 ? 1.0 : 0.0;\n");
+        fragBuilder->codeAppend("\t\td = d > 0.5 ? 1.0 : 0.0;\n");
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
-                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("d")).c_str());
+    fragBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("d")).c_str());
 }
 
 void GLCircleEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
@@ -296,39 +296,39 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
                                          "ellipse",
                                          &ellipseName);
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const char* fragmentPos = fsBuilder->fragmentPosition();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    const char* fragmentPos = fragBuilder->fragmentPosition();
 
     // d is the offset to the ellipse center
-    fsBuilder->codeAppendf("\t\tvec2 d = %s.xy - %s.xy;\n", fragmentPos, ellipseName);
-    fsBuilder->codeAppendf("\t\tvec2 Z = d * %s.zw;\n", ellipseName);
+    fragBuilder->codeAppendf("\t\tvec2 d = %s.xy - %s.xy;\n", fragmentPos, ellipseName);
+    fragBuilder->codeAppendf("\t\tvec2 Z = d * %s.zw;\n", ellipseName);
     // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
-    fsBuilder->codeAppend("\t\tfloat implicit = dot(Z, d) - 1.0;\n");
+    fragBuilder->codeAppend("\t\tfloat implicit = dot(Z, d) - 1.0;\n");
     // grad_dot is the squared length of the gradient of the implicit.
-    fsBuilder->codeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
+    fragBuilder->codeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
     // avoid calling inversesqrt on zero.
-    fsBuilder->codeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-    fsBuilder->codeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
+    fragBuilder->codeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
+    fragBuilder->codeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
 
     switch (ee.getEdgeType()) {
         case kFillAA_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
+            fragBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
             break;
         case kInverseFillAA_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
+            fragBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
             break;
         case kFillBW_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n");
+            fragBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n");
             break;
         case kInverseFillBW_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n");
+            fragBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n");
             break;
         case kHairlineAA_GrProcessorEdgeType:
             SkFAIL("Hairline not expected here.");
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
-                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
+    fragBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,

@@ -89,13 +89,13 @@ GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLSLInstance() con
 
 void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     const ComposeTwoFragmentProcessor& cs = args.fFp.cast<ComposeTwoFragmentProcessor>();
 
     const char* inputColor = nullptr;
     if (args.fInputColor) {
         inputColor = "inputColor";
-        fsBuilder->codeAppendf("vec4 inputColor = vec4(%s.rgb, 1.0);", args.fInputColor);
+        fragBuilder->codeAppendf("vec4 inputColor = vec4(%s.rgb, 1.0);", args.fInputColor);
     }
 
     // declare outputColor and emit the code for each of the two children
@@ -107,12 +107,16 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
 
     // emit blend code
     SkXfermode::Mode mode = cs.getMode();
-    fsBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkXfermode::ModeName(mode));
-    GrGLSLBlend::AppendMode(fsBuilder, srcColor.c_str(), dstColor.c_str(), args.fOutputColor, mode);
+    fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkXfermode::ModeName(mode));
+    GrGLSLBlend::AppendMode(fragBuilder,
+                            srcColor.c_str(),
+                            dstColor.c_str(),
+                            args.fOutputColor,
+                            mode);
 
     // re-multiply the output color by the input color's alpha
     if (args.fInputColor) {
-        fsBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
+        fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
     }
 }
 
@@ -219,7 +223,7 @@ public:
     GLComposeOneFragmentProcessor(const GrProcessor& processor) {}
 
     void emitCode(EmitArgs& args) override {
-        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkXfermode::Mode mode = args.fFp.cast<ComposeOneFragmentProcessor>().mode();
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
@@ -229,17 +233,17 @@ public:
         const char* inputColor = args.fInputColor;
         // We don't try to optimize for this case at all
         if (!inputColor) {
-            fsBuilder->codeAppendf("const vec4 ones = vec4(1);");
+            fragBuilder->codeAppendf("const vec4 ones = vec4(1);");
             inputColor = "ones";
         }
 
         // emit blend code
-        fsBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkXfermode::ModeName(mode));
+        fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkXfermode::ModeName(mode));
         const char* childStr = childColor.c_str();
         if (ComposeOneFragmentProcessor::kDst_Child == child) {
-            GrGLSLBlend::AppendMode(fsBuilder, inputColor, childStr, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, inputColor, childStr, args.fOutputColor, mode);
         } else {
-            GrGLSLBlend::AppendMode(fsBuilder, childStr, inputColor, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, childStr, inputColor, args.fOutputColor, mode);
         }
     }
 

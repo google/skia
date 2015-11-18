@@ -1027,61 +1027,61 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
 }
 
 void GrGLGradientEffect::emitColor(GrGLSLFPBuilder* builder,
+                                   GrGLSLFragmentBuilder* fragBuilder,
                                    const GrGradientEffect& ge,
                                    const char* gradientTValue,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
-    GrGLSLFragmentBuilder* fsBuilder = builder->getFragmentShaderBuilder();
     if (SkGradientShaderBase::kTwo_GpuColorType == ge.getColorType()){
-        fsBuilder->codeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
-                               builder->getUniformVariable(fColorStartUni).c_str(),
-                               builder->getUniformVariable(fColorEndUni).c_str(),
-                               gradientTValue);
+        fragBuilder->codeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
+                                 builder->getUniformVariable(fColorStartUni).c_str(),
+                                 builder->getUniformVariable(fColorEndUni).c_str(),
+                                 gradientTValue);
         // Note that we could skip this step if both colors are known to be opaque. Two
         // considerations:
         // The gradient SkShader reporting opaque is more restrictive than necessary in the two pt
         // case. Make sure the key reflects this optimization (and note that it can use the same
         // shader as thekBeforeIterp case). This same optimization applies to the 3 color case below.
         if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
-            fsBuilder->codeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
+            fragBuilder->codeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 
-        fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                               (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
+        fragBuilder->codeAppendf("\t%s = %s;\n", outputColor,
+                                 (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
     } else if (SkGradientShaderBase::kThree_GpuColorType == ge.getColorType()) {
-        fsBuilder->codeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
-                               gradientTValue);
-        fsBuilder->codeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
-                               builder->getUniformVariable(fColorStartUni).c_str());
+        fragBuilder->codeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
+                                 gradientTValue);
+        fragBuilder->codeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
+                                 builder->getUniformVariable(fColorStartUni).c_str());
         if (!builder->glslCaps()->canUseMinAndAbsTogether()) {
             // The Tegra3 compiler will sometimes never return if we have
             // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
-            fsBuilder->codeAppend("\tfloat minAbs = abs(oneMinus2t);\n");
-            fsBuilder->codeAppend("\tminAbs = minAbs > 1.0 ? 1.0 : minAbs;\n");
-            fsBuilder->codeAppendf("\tcolorTemp += (1.0 - minAbs) * %s;\n",
-                                   builder->getUniformVariable(fColorMidUni).c_str());
+            fragBuilder->codeAppend("\tfloat minAbs = abs(oneMinus2t);\n");
+            fragBuilder->codeAppend("\tminAbs = minAbs > 1.0 ? 1.0 : minAbs;\n");
+            fragBuilder->codeAppendf("\tcolorTemp += (1.0 - minAbs) * %s;\n",
+                                     builder->getUniformVariable(fColorMidUni).c_str());
         } else {
-            fsBuilder->codeAppendf("\tcolorTemp += (1.0 - min(abs(oneMinus2t), 1.0)) * %s;\n",
-                                   builder->getUniformVariable(fColorMidUni).c_str());
+            fragBuilder->codeAppendf("\tcolorTemp += (1.0 - min(abs(oneMinus2t), 1.0)) * %s;\n",
+                                     builder->getUniformVariable(fColorMidUni).c_str());
         }
-        fsBuilder->codeAppendf("\tcolorTemp += clamp(-oneMinus2t, 0.0, 1.0) * %s;\n",
-                               builder->getUniformVariable(fColorEndUni).c_str());
+        fragBuilder->codeAppendf("\tcolorTemp += clamp(-oneMinus2t, 0.0, 1.0) * %s;\n",
+                                 builder->getUniformVariable(fColorEndUni).c_str());
         if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
-            fsBuilder->codeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
+            fragBuilder->codeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 
-        fsBuilder->codeAppendf("\t%s = %s;\n", outputColor,
-                               (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
+        fragBuilder->codeAppendf("\t%s = %s;\n", outputColor,
+                                 (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
     } else {
-        fsBuilder->codeAppendf("\tvec2 coord = vec2(%s, %s);\n",
-                               gradientTValue,
-                               builder->getUniformVariable(fFSYUni).c_str());
-        fsBuilder->codeAppendf("\t%s = ", outputColor);
-        fsBuilder->appendTextureLookupAndModulate(inputColor,
-                                                  samplers[0],
-                                                  "coord");
-        fsBuilder->codeAppend(";\n");
+        fragBuilder->codeAppendf("\tvec2 coord = vec2(%s, %s);\n",
+                                 gradientTValue,
+                                 builder->getUniformVariable(fFSYUni).c_str());
+        fragBuilder->codeAppendf("\t%s = ", outputColor);
+        fragBuilder->appendTextureLookupAndModulate(inputColor,
+                                                    samplers[0],
+                                                    "coord");
+        fragBuilder->codeAppend(";\n");
     }
 }
 

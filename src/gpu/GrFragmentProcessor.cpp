@@ -153,11 +153,11 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
                 GLFP() {}
 
                 void emitCode(EmitArgs& args) override {
-                    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+                    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
                     this->emitChild(0, nullptr, args);
-                    fsBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
+                    fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                 args.fInputColor);
-                    fsBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
+                    fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
                 }
             };
             return new GLFP;

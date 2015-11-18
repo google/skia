@@ -16,7 +16,7 @@ public:
     GLConstColorProcessor() : fPrevColor(GrColor_ILLEGAL) {}
 
     void emitCode(EmitArgs& args) override {
-        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         const char* colorUni;
         fColorUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType, kMedium_GrSLPrecision, "constantColor",
@@ -27,14 +27,14 @@ public:
         }
         switch (mode) {
             case GrConstColorProcessor::kIgnore_InputMode:
-                fsBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUni);
+                fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUni);
                 break;
             case GrConstColorProcessor::kModulateRGBA_InputMode:
-                fsBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, args.fInputColor,
+                fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, args.fInputColor,
                                        colorUni);
                 break;
             case GrConstColorProcessor::kModulateA_InputMode:
-                fsBuilder->codeAppendf("%s = %s.a * %s;", args.fOutputColor, args.fInputColor,
+                fragBuilder->codeAppendf("%s = %s.a * %s;", args.fOutputColor, args.fInputColor,
                                        colorUni);
                 break;
         }
