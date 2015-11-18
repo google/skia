@@ -443,7 +443,7 @@ cc_test(
         "--nogpu",
         "--verbose",
         # TODO(mtklein): maybe investigate why these fail?
-        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~Math ~RecordDraw_TextBounds",
+        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~RecordDraw_TextBounds",
         "--resourcePath %s/resources" % BASE_DIR,
         "--images %s/resources" % BASE_DIR,
     ],
