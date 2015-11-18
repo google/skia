@@ -23,6 +23,7 @@
 #include "batches/GrDrawAtlasBatch.h"
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrRectBatchFactory.h"
+#include "batches/GrNinePatch.h" // TODO Factory
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
 #define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }
@@ -567,6 +568,27 @@ void GrDrawContext::drawOval(const GrClip& clip,
                                paint.isAntiAlias(), path, strokeInfo);
     }
 }
+
+void GrDrawContext::drawImageNine(const GrClip& clip,
+                                  const GrPaint& paint,
+                                  const SkMatrix& viewMatrix,
+                                  int imageWidth,
+                                  int imageHeight,
+                                  const SkIRect& center,
+                                  const SkRect& dst) {
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
+    AutoCheckFlush acf(fDrawingManager);
+
+    SkAutoTUnref<GrDrawBatch> batch(GrNinePatch::CreateNonAA(paint.getColor(), viewMatrix,
+                                                             imageWidth, imageHeight,
+                                                             center, dst));
+
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+}
+
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
 static bool is_nested_rects(const SkMatrix& viewMatrix,

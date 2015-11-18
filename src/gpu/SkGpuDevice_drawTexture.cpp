@@ -23,35 +23,6 @@ static inline bool use_shader(bool textureIsAlphaOnly, const SkPaint& paint) {
     return textureIsAlphaOnly && paint.getShader();
 }
 
-/** Determines how to combine the texture FP with the paint's color and SkShader, if any. */
-static const GrFragmentProcessor* mix_texture_fp_with_paint_color_and_shader(
-                                                            const GrFragmentProcessor* textureFP,
-                                                            bool textureIsAlphaOnly,
-                                                            GrContext* context,
-                                                            const SkMatrix& viewMatrix,
-                                                            const SkPaint& paint) {
-    // According to the SkCanvas API, we only consider the shader if the bitmap or image being
-    // rendered is alpha-only.
-    if (textureIsAlphaOnly) {
-        if (const SkShader* shader = paint.getShader()) {
-            SkAutoTUnref<const GrFragmentProcessor> shaderFP(
-                shader->asFragmentProcessor(context,
-                                            viewMatrix,
-                                            nullptr,
-                                            paint.getFilterQuality()));
-            if (!shaderFP) {
-                return nullptr;
-            }
-            const GrFragmentProcessor* fpSeries[] = { shaderFP, textureFP };
-            return GrFragmentProcessor::RunInSeries(fpSeries, 2);
-        } else {
-            return GrFragmentProcessor::MulOutputByInputUnpremulColor(textureFP);
-        }
-    } else {
-        return GrFragmentProcessor::MulOutputByInputAlpha(textureFP);
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //  Helper functions for dropping src rect constraint in bilerp mode.
 
@@ -231,10 +202,9 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     if (!fp) {
         return;
     }
-    fp.reset(mix_texture_fp_with_paint_color_and_shader(fp, alphaTexture, this->context(),
-                                                        viewMatrix, paint));
+
     GrPaint grPaint;
-    if (!SkPaintToGrPaintReplaceShader(fContext, paint, fp, &grPaint)) {
+    if (!SkPaintToGrPaintWithTexture(fContext, paint, viewMatrix, fp, alphaTexture, &grPaint)) {
         return;
     }
 

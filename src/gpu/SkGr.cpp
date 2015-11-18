@@ -545,6 +545,34 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                    grPaint);
 }
 
+bool SkPaintToGrPaintWithTexture(GrContext* context,
+                                 const SkPaint& paint,
+                                 const SkMatrix& viewM,
+                                 const GrFragmentProcessor* fp,
+                                 bool textureIsAlphaOnly,
+                                 GrPaint* grPaint) {
+    SkAutoTUnref<const GrFragmentProcessor> shaderFP;
+    if (textureIsAlphaOnly) {
+        if (const SkShader* shader = paint.getShader()) {
+            shaderFP.reset(shader->asFragmentProcessor(context,
+                                                       viewM,
+                                                       nullptr,
+                                                       paint.getFilterQuality()));
+            if (!shaderFP) {
+                return false;
+            }
+            const GrFragmentProcessor* fpSeries[] = { shaderFP.get(), fp };
+            shaderFP.reset(GrFragmentProcessor::RunInSeries(fpSeries, 2));
+        } else {
+            shaderFP.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        }
+    } else {
+        shaderFP.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
+    }
+
+    return SkPaintToGrPaintReplaceShader(context, paint, shaderFP.get(), grPaint);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

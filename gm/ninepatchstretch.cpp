@@ -66,7 +66,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(760, 400);
+        return SkISize::Make(760, 800);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -91,16 +91,17 @@ protected:
         SkScalar y = SkIntToScalar(100);
 
         SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
-
-        for (int iy = 0; iy < 2; ++iy) {
-            for (int ix = 0; ix < 2; ++ix) {
-                int i = ix * 2 + iy;
-                SkRect r = SkRect::MakeXYWH(x + ix * fixed, y + iy * fixed,
-                                            size[i].width(), size[i].height());
-                canvas->drawBitmapNine(fBitmap, fCenter, r, &paint);
-                canvas->drawImageNine(fImage, fCenter, r.makeOffset(360, 0), &paint);
-
+        for (int filter = 0; filter < 2; filter++) {
+            paint.setFilterQuality(filter == 0 ? kLow_SkFilterQuality : kNone_SkFilterQuality);
+            canvas->translate(0, filter * SkIntToScalar(400));
+            for (int iy = 0; iy < 2; ++iy) {
+                for (int ix = 0; ix < 2; ++ix) {
+                    int i = ix * 2 + iy;
+                    SkRect r = SkRect::MakeXYWH(x + ix * fixed, y + iy * fixed,
+                                                size[i].width(), size[i].height());
+                    canvas->drawBitmapNine(fBitmap, fCenter, r, &paint);
+                    canvas->drawImageNine(fImage, fCenter, r.makeOffset(360, 0), &paint);
+                }
             }
         }
     }

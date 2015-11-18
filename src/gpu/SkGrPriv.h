@@ -84,6 +84,15 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, const SkPaint
                                         false, grPaint);
 }
 
+/** This is used when there may or may not be a shader, and the caller wants to plugin a texture
+    lookup.  If there is a shader, then its output will only be used if the texture is alpha8. */
+bool SkPaintToGrPaintWithTexture(GrContext* context,
+                                 const SkPaint& paint,
+                                 const SkMatrix& viewM,
+                                 const GrFragmentProcessor* fp,
+                                 bool textureIsAlphaOnly,
+                                 GrPaint* grPaint);
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);

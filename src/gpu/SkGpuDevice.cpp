@@ -30,6 +30,7 @@
 #include "SkImageFilter.h"
 #include "SkLayerInfo.h"
 #include "SkMaskFilter.h"
+#include "SkNinePatchIter.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -1020,7 +1021,6 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
     }
 }
 
-
 /*
  *  This is called by drawBitmap(), which has to handle images that may be too
  *  large to be represented by a single texture.
@@ -1074,7 +1074,6 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
-    GrPaint grPaint;
     SkAutoTUnref<const GrFragmentProcessor> fp;
 
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
@@ -1112,27 +1111,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         fp.reset(GrSimpleTextureEffect::Create(texture, texMatrix, params));
     }
 
-    SkAutoTUnref<const GrFragmentProcessor> shaderFP;
-
-    if (kAlpha_8_SkColorType == bitmap.colorType()) {
-        if (const SkShader* shader = paint.getShader()) {
-            shaderFP.reset(shader->asFragmentProcessor(this->context(),
-                                                       viewMatrix,
-                                                       nullptr,
-                                                       paint.getFilterQuality()));
-            if (!shaderFP) {
-                return;
-            }
-            const GrFragmentProcessor* fpSeries[] = { shaderFP.get(), fp.get() };
-            fp.reset(GrFragmentProcessor::RunInSeries(fpSeries, 2));
-        } else {
-            fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
-        }
-    } else {
-        fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
-    }
-
-    if (!SkPaintToGrPaintReplaceShader(this->context(), paint, fp, &grPaint)) {
+    GrPaint grPaint;
+    if (!SkPaintToGrPaintWithTexture(this->context(), paint, viewMatrix, fp,
+                                     kAlpha_8_SkColorType == bitmap.colorType(), &grPaint)) {
         return;
     }
 
@@ -1493,6 +1474,64 @@ void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const 
         }
     }
     this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
+}
+
+void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
+                                const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
+    // TODO write native implementation
+    SkBitmap bitmap;
+    if (!wrap_as_bm(this->context(), image, &bitmap)) {
+        return;
+    }
+    return this->drawBitmapNine(draw, bitmap, center, dst, paint);
+}
+
+void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
+                                 const SkRect& dst, const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawBitmapNine", fContext);
+
+    CHECK_FOR_ANNOTATION(paint);
+    CHECK_SHOULD_DRAW(draw);
+
+    bool useFallback = paint.getMaskFilter() || paint.isAntiAlias();
+    bool doBicubic;
+    GrTextureParams::FilterMode textureFilterMode =
+            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I(),
+                                            &doBicubic);
+
+    // TODO handle bilerp
+    if (useFallback || doBicubic || GrTextureParams::kNone_FilterMode != textureFilterMode) {
+        SkNinePatchIter iter(bitmap.width(), bitmap.height(), center, dst);
+
+        SkRect srcR, dstR;
+        while (iter.next(&srcR, &dstR)) {
+            this->drawBitmapRect(draw, bitmap, &srcR, dstR, paint,
+                                 SkCanvas::kStrict_SrcRectConstraint);
+        }
+        return;
+    }
+
+    GrTextureParams params = GrTextureParams::ClampNoFilter();
+
+    GrTexture* texture(GrRefCachedBitmapTexture(this->context(), bitmap, params));
+    if (nullptr == texture) {
+        return;
+    }
+
+    SkMatrix texMatrix;
+    texMatrix.setIDiv(texture->width(), texture->height());
+
+    SkAutoTUnref<const GrFragmentProcessor> fp(GrSimpleTextureEffect::Create(texture, texMatrix,
+                                                                             params));
+
+    GrPaint grPaint;
+    if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, fp,
+                                     kAlpha_8_SkColorType == bitmap.colorType(), &grPaint)) {
+        return;
+    }
+
+    fDrawContext->drawImageNine(fClip, grPaint, *draw.fMatrix, bitmap.width(), bitmap.height(),
+                                center, dst);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
