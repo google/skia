@@ -7,7 +7,7 @@ Here some ways you can get involved and help us improve Skia.
 Report Bugs
 -----------
 
-Find bugs to fix or report new bugs in the [Skia issue tracker](http://code.google.com/p/skia/issues/list).  
+Find bugs to fix or report new bugs in the [Skia issue tracker](http://bug.skia.org/).  
 You can also search the [Chromium issue tracker](http://code.google.com/p/chromium/issues/list) for bugs related to graphics or Skia.
 
 Test

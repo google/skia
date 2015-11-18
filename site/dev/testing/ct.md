@@ -18,7 +18,7 @@ Overview
 Cluster Telemetry allows you to run [telemetry](https://www.chromium.org/developers/telemetry)'s benchmarks, lua scripts and other tasks using multiple repository patches through Alexa's [top 1 million](http://s3.amazonaws.com/alexa-static/top-1m.csv.zip) web pages.
 Developers can use the framework to measure the performance of their patch against the top subset of the internet on both Desktop and Android.
 
-SKP files are a binary format for the draw commands Chromium sends to Skia for rasterization. The goal of the project started off with wanting to collect a large repository of 10k SKP files. This repository, after incremental changes in approaches, has since grown to ~910k and now supports running all telemetry benchmarks. The top level feature request of this project was [skia:1268](https://code.google.com/p/skia/issues/detail?id=1268).
+SKP files are a binary format for the draw commands Chromium sends to Skia for rasterization. The goal of the project started off with wanting to collect a large repository of 10k SKP files. This repository, after incremental changes in approaches, has since grown to ~910k and now supports running all telemetry benchmarks. The top level feature request of this project was [skia:1268](https://bug.skia.org/1268).
 
 A web application has been created on Google Compute Engine that automates the process of capturing new archives and running telemetry benchmarks at a click of a button; results are emailed to the requester and the web application contains complete history of runs with links to results. You can run telemetry benchmarks at http://ct.skia.org.
 
