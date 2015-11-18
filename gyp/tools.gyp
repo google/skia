@@ -26,7 +26,6 @@
         'lua_app',
         'lua_pictures',
         'pinspect',
-        'render_pdfs',
         'skdiff',
         'skhello',
         'skpdiff',
@@ -396,61 +395,6 @@
             'export_dependent_settings': [
                 'gputest.gyp:skgputest',
             ],
-          },
-        ],
-      ],
-    },
-    {
-      'target_name': 'render_pdfs',
-      'type': 'executable',
-      'sources': [
-        '../tools/render_pdfs_main.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core',
-        '../src/pipe/utils/',
-        '../src/utils/',
-      ],
-      'dependencies': [
-        'flags.gyp:flags',
-        'pdf.gyp:pdf',
-        'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_utils',
-        'tools.gyp:proc_stats',
-      ],
-      'conditions': [
-        ['skia_win_debuggers_path and skia_os == "win"',
-          {
-            'dependencies': [
-              'tools.gyp:win_dbghelp',
-            ],
-          },
-        ],
-        # VS static libraries don't have a linker option. We must set a global
-        # project linker option, or add it to each executable.
-        ['skia_win_debuggers_path and skia_os == "win" and '
-         'skia_arch_type == "x86_64"',
-          {
-            'msvs_settings': {
-              'VCLinkerTool': {
-                'AdditionalDependencies': [
-                  '<(skia_win_debuggers_path)/x64/DbgHelp.lib',
-                ],
-              },
-            },
-          },
-        ],
-        ['skia_win_debuggers_path and skia_os == "win" and '
-         'skia_arch_type == "x86"',
-          {
-            'msvs_settings': {
-              'VCLinkerTool': {
-                'AdditionalDependencies': [
-                  '<(skia_win_debuggers_path)/DbgHelp.lib',
-                ],
-              },
-            },
           },
         ],
       ],
