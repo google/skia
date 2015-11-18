@@ -349,7 +349,7 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
                     y++;
                     break;
                 case RLE_EOF:
-                    return kSuccess;
+                    return y;
                 case RLE_DELTA: {
                     // Two bytes are needed to specify delta
                     if ((int) fRLEBytes - fCurrRLEByte < 2) {
