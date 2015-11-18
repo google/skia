@@ -36,9 +36,7 @@ public:
     const SkRect& getBounds() const { return fBounds; }
 
 #ifdef SK_DEBUG
-    bool isEqualTo(const SkPath& path, const GrStrokeInfo& stroke) {
-        return fSkPath == path && fStroke.hasEqualEffect(stroke);
-    }
+    bool isEqualTo(const SkPath& path, const GrStrokeInfo& stroke) const;
 #endif
 
 protected:
