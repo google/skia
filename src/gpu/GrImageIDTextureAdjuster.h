@@ -45,4 +45,25 @@ private:
     typedef GrTextureAdjuster INHERITED;
 };
 
+/** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
+    non-volatile the texture is cached using a key created from the pixels' image id and the
+    subset of the pixelref specified by the bitmap. */
+class GrBitmapTextureMaker : public GrTextureMaker {
+public:
+    GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap);
+
+protected:
+    GrTexture* refOriginalTexture() override;
+
+    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
+
+    void didCacheCopy(const GrUniqueKey& copyKey) override;
+
+private:
+    const SkBitmap  fBitmap;
+    GrUniqueKey     fOriginalKey;
+
+    typedef GrTextureMaker INHERITED;
+};
+
 #endif

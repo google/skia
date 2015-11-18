@@ -52,7 +52,71 @@ static const GrFragmentProcessor* mix_texture_fp_with_paint_color_and_shader(
     }
 }
 
-void SkGpuDevice::drawTextureAdjuster(GrTextureAdjuster* adjuster,
+//////////////////////////////////////////////////////////////////////////////
+//  Helper functions for dropping src rect constraint in bilerp mode.
+
+static const SkScalar kColorBleedTolerance = 0.001f;
+
+static bool has_aligned_samples(const SkRect& srcRect, const SkRect& transformedRect) {
+    // detect pixel disalignment
+    if (SkScalarAbs(SkScalarFraction(transformedRect.left())) < kColorBleedTolerance &&
+        SkScalarAbs(SkScalarFraction(transformedRect.top())) < kColorBleedTolerance &&
+        SkScalarAbs(transformedRect.width() - srcRect.width()) < kColorBleedTolerance &&
+        SkScalarAbs(transformedRect.height() - srcRect.height()) < kColorBleedTolerance) {
+        return true;
+    }
+    return false;
+}
+
+static bool may_color_bleed(const SkRect& srcRect,
+                            const SkRect& transformedRect,
+                            const SkMatrix& m,
+                            bool isMSAA) {
+    // Only gets called if has_aligned_samples returned false.
+    // So we can assume that sampling is axis aligned but not texel aligned.
+    SkASSERT(!has_aligned_samples(srcRect, transformedRect));
+    SkRect innerSrcRect(srcRect), innerTransformedRect, outerTransformedRect(transformedRect);
+    if (isMSAA) {
+        innerSrcRect.inset(SK_Scalar1, SK_Scalar1);
+    } else {
+        innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
+    }
+    m.mapRect(&innerTransformedRect, innerSrcRect);
+
+    // The gap between outerTransformedRect and innerTransformedRect
+    // represents the projection of the source border area, which is
+    // problematic for color bleeding.  We must check whether any
+    // destination pixels sample the border area.
+    outerTransformedRect.inset(kColorBleedTolerance, kColorBleedTolerance);
+    innerTransformedRect.outset(kColorBleedTolerance, kColorBleedTolerance);
+    SkIRect outer, inner;
+    outerTransformedRect.round(&outer);
+    innerTransformedRect.round(&inner);
+    // If the inner and outer rects round to the same result, it means the
+    // border does not overlap any pixel centers. Yay!
+    return inner != outer;
+}
+
+static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
+                                         const SkRect& srcRect,
+                                         const SkMatrix& srcRectToDeviceSpace,
+                                         bool isMSAA) {
+    if (srcRectToDeviceSpace.rectStaysRect()) {
+        // sampling is axis-aligned
+        SkRect transformedRect;
+        srcRectToDeviceSpace.mapRect(&transformedRect, srcRect);
+
+        if (has_aligned_samples(srcRect, transformedRect) ||
+            !may_color_bleed(srcRect, transformedRect, srcRectToDeviceSpace, isMSAA)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
                                       bool alphaOnly,
                                       const SkRect* srcRect,
                                       const SkRect* dstRect,
@@ -65,7 +129,7 @@ void SkGpuDevice::drawTextureAdjuster(GrTextureAdjuster* adjuster,
     // the matrix that maps the src rect to the dst rect.
     SkRect clippedSrcRect;
     SkRect clippedDstRect;
-    const SkRect srcBounds = SkRect::MakeIWH(adjuster->width(), adjuster->height());
+    const SkRect srcBounds = SkRect::MakeIWH(producer->width(), producer->height());
     SkMatrix srcToDstMatrix;
     if (srcRect) {
         if (!dstRect) {
@@ -100,11 +164,11 @@ void SkGpuDevice::drawTextureAdjuster(GrTextureAdjuster* adjuster,
         }
     }
 
-    this->drawTextureAdjusterImpl(adjuster, alphaOnly, clippedSrcRect, clippedDstRect, constraint,
+    this->drawTextureProducerImpl(producer, alphaOnly, clippedSrcRect, clippedDstRect, constraint,
                                   viewMatrix, srcToDstMatrix, clip, paint);
 }
 
-void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
+void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
                                           bool alphaTexture,
                                           const SkRect& clippedSrcRect,
                                           const SkRect& clippedDstRect,
@@ -141,6 +205,17 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
     // This is conservative as a mask filter does not have to expand the bounds rendered.
     bool coordsAllInsideSrcRect = !paint.isAntiAlias() && !mf;
 
+    // Check for optimization to drop the src rect constraint when on bilerp.
+    if (filterMode && GrTextureParams::kBilerp_FilterMode == *filterMode &&
+        GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect) {
+        SkMatrix combinedMatrix;
+        combinedMatrix.setConcat(viewMatrix, srcToDstMatrix);
+        if (can_ignore_bilerp_constraint(*producer, clippedSrcRect, combinedMatrix,
+                                         fRenderTarget->isUnifiedMultisampled())) {
+            constraintMode = GrTextureAdjuster::kNo_FilterConstraint;
+        }
+    }
+
     const SkMatrix* textureMatrix;
     SkMatrix tempMatrix;
     if (canUseTextureCoordsAsLocalCoords) {
@@ -151,7 +226,7 @@ void SkGpuDevice::drawTextureAdjusterImpl(GrTextureAdjuster* adjuster,
         }
         textureMatrix = &tempMatrix;
     }
-    SkAutoTUnref<const GrFragmentProcessor> fp(adjuster->createFragmentProcessor(
+    SkAutoTUnref<const GrFragmentProcessor> fp(producer->createFragmentProcessor(
         *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode));
     if (!fp) {
         return;

@@ -63,11 +63,6 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
     #define CHECK_SHOULD_DRAW(draw) this->prepareDraw(draw)
 #endif
 
-// This constant represents the screen alignment criterion in texels for
-// requiring texture domain clamping to prevent color bleeding when drawing
-// a sub region of a larger source image.
-#define COLOR_BLEED_TOLERANCE 0.001f
-
 #define DO_DEFERRED_CLEAR()             \
     do {                                \
         if (fNeedClear) {               \
@@ -842,26 +837,61 @@ void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
                              const SkBitmap& bitmap,
                              const SkMatrix& m,
                              const SkPaint& paint) {
-
-    GrTexture* texture = bitmap.getTexture();
-    if (texture) {
-        CHECK_SHOULD_DRAW(origDraw);
-        bool alphaOnly = kAlpha_8_SkColorType == bitmap.colorType();
+    CHECK_SHOULD_DRAW(origDraw);
+    bool alphaOnly = kAlpha_8_SkColorType == bitmap.colorType();
+    SkMatrix viewMatrix;
+    viewMatrix.setConcat(*origDraw.fMatrix, m);
+    if (bitmap.getTexture()) {
         GrBitmapTextureAdjuster adjuster(&bitmap);
-        SkMatrix viewMatrix;
-        viewMatrix.setConcat(*origDraw.fMatrix, m);
-        this->drawTextureAdjuster(&adjuster, alphaOnly, nullptr, nullptr,
+        // We can use kFast here because we know texture-backed bitmaps don't support extractSubset.
+        this->drawTextureProducer(&adjuster, alphaOnly, nullptr, nullptr,
                                   SkCanvas::kFast_SrcRectConstraint, viewMatrix, fClip, paint);
         return;
     }
-    SkMatrix concat;
-    SkTCopyOnFirstWrite<SkDraw> draw(origDraw);
-    if (!m.isIdentity()) {
-        concat.setConcat(*draw->fMatrix, m);
-        draw.writable()->fMatrix = &concat;
+    int maxTileSize = fContext->caps()->maxTileSize();
+
+    // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
+    // draw untiled, then we bypass checking for tiling purely for optimization reasons.
+    bool drawAA = !fRenderTarget->isUnifiedMultisampled() &&
+                  paint.isAntiAlias() &&
+                  bitmap.width() <= maxTileSize &&
+                  bitmap.height() <= maxTileSize;
+
+    bool skipTileCheck = drawAA || paint.getMaskFilter();
+
+    if (!skipTileCheck) {
+        SkRect srcRect = SkRect::MakeIWH(bitmap.width(), bitmap.height());
+        int tileSize;
+        SkIRect clippedSrcRect;
+
+        GrTextureParams params;
+        bool doBicubic;
+        GrTextureParams::FilterMode textureFilterMode =
+            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewMatrix, SkMatrix::I(),
+                                            &doBicubic);
+
+        int tileFilterPad;
+
+        if (doBicubic) {
+            tileFilterPad = GrBicubicEffect::kFilterTexelPad;
+        } else if (GrTextureParams::kNone_FilterMode == textureFilterMode) {
+            tileFilterPad = 0;
+        } else {
+            tileFilterPad = 1;
+        }
+        params.setFilterMode(textureFilterMode);
+
+        int maxTileSizeForFilter = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+        if (this->shouldTileBitmap(bitmap, viewMatrix, params, &srcRect,
+                                   maxTileSizeForFilter, &tileSize, &clippedSrcRect)) {
+            this->drawTiledBitmap(bitmap, viewMatrix, srcRect, clippedSrcRect, params, paint,
+                                  SkCanvas::kStrict_SrcRectConstraint, tileSize, doBicubic);
+            return;
+        }
     }
-    this->drawBitmapCommon(*draw, bitmap, nullptr, nullptr, paint,
-                           SkCanvas::kStrict_SrcRectConstraint);
+    GrBitmapTextureMaker maker(fContext, bitmap);
+    this->drawTextureProducer(&maker, alphaOnly, nullptr, nullptr,
+                              SkCanvas::kStrict_SrcRectConstraint, viewMatrix, fClip, paint);
 }
 
 // This method outsets 'iRect' by 'outset' all around and then clamps its extents to
@@ -894,300 +924,6 @@ static inline void clamped_outset_with_offset(SkIRect* iRect,
     }
     if (iRect->fBottom > clamp.fBottom) {
         iRect->fBottom = clamp.fBottom;
-    }
-}
-
-static bool has_aligned_samples(const SkRect& srcRect,
-                                const SkRect& transformedRect) {
-    // detect pixel disalignment
-    if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) -
-            transformedRect.left()) < COLOR_BLEED_TOLERANCE &&
-        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top()) -
-            transformedRect.top()) < COLOR_BLEED_TOLERANCE &&
-        SkScalarAbs(transformedRect.width() - srcRect.width()) <
-            COLOR_BLEED_TOLERANCE &&
-        SkScalarAbs(transformedRect.height() - srcRect.height()) <
-            COLOR_BLEED_TOLERANCE) {
-        return true;
-    }
-    return false;
-}
-
-static bool may_color_bleed(const SkRect& srcRect,
-                            const SkRect& transformedRect,
-                            const SkMatrix& m,
-                            bool isMSAA) {
-    // Only gets called if has_aligned_samples returned false.
-    // So we can assume that sampling is axis aligned but not texel aligned.
-    SkASSERT(!has_aligned_samples(srcRect, transformedRect));
-    SkRect innerSrcRect(srcRect), innerTransformedRect,
-        outerTransformedRect(transformedRect);
-    if (isMSAA) {
-        innerSrcRect.inset(SK_Scalar1, SK_Scalar1);
-    } else {
-        innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
-    }
-    m.mapRect(&innerTransformedRect, innerSrcRect);
-
-    // The gap between outerTransformedRect and innerTransformedRect
-    // represents the projection of the source border area, which is
-    // problematic for color bleeding.  We must check whether any
-    // destination pixels sample the border area.
-    outerTransformedRect.inset(COLOR_BLEED_TOLERANCE, COLOR_BLEED_TOLERANCE);
-    innerTransformedRect.outset(COLOR_BLEED_TOLERANCE, COLOR_BLEED_TOLERANCE);
-    SkIRect outer, inner;
-    outerTransformedRect.round(&outer);
-    innerTransformedRect.round(&inner);
-    // If the inner and outer rects round to the same result, it means the
-    // border does not overlap any pixel centers. Yay!
-    return inner != outer;
-}
-
-static bool needs_texture_domain(const SkBitmap& bitmap,
-                                 const SkRect& srcRect,
-                                 GrTextureParams &params,
-                                 const SkMatrix& contextMatrix,
-                                 bool bicubic,
-                                 bool isMSAA) {
-    bool needsTextureDomain = false;
-    GrTexture* tex = bitmap.getTexture();
-    int width = tex ? tex->width() : bitmap.width();
-    int height = tex ? tex->height() : bitmap.height();
-
-    if (bicubic || params.filterMode() != GrTextureParams::kNone_FilterMode) {
-        // Need texture domain if drawing a sub rect
-        needsTextureDomain = srcRect.width() < width ||
-                             srcRect.height() < height;
-        if (!bicubic && needsTextureDomain && contextMatrix.rectStaysRect()) {
-            // sampling is axis-aligned
-            SkRect transformedRect;
-            contextMatrix.mapRect(&transformedRect, srcRect);
-
-            if (has_aligned_samples(srcRect, transformedRect)) {
-                params.setFilterMode(GrTextureParams::kNone_FilterMode);
-                needsTextureDomain = false;
-            } else {
-                needsTextureDomain = may_color_bleed(srcRect, transformedRect,
-                                                     contextMatrix, isMSAA);
-            }
-        }
-    }
-    return needsTextureDomain;
-}
-
-static void draw_aa_bitmap(GrDrawContext* drawContext, GrContext* context,
-                           GrRenderTarget* renderTarget, const GrClip& clip,
-                           const SkMatrix& viewMatrix, const SkMatrix& srcRectToDstRect,
-                           const SkPaint& paint, const SkBitmap* bitmapPtr, const SkSize& dstSize) {
-    SkShader::TileMode tm[] = {
-        SkShader::kClamp_TileMode,
-        SkShader::kClamp_TileMode,
-    };
-
-    bool doBicubic;
-    GrTextureParams::FilterMode textureFilterMode =
-            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewMatrix,
-                                            srcRectToDstRect,
-                                            &doBicubic);
-
-    // Setup texture to wrap bitmap
-    GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, *bitmapPtr, params));
-
-    if (!texture) {
-        SkErrorInternals::SetError(kInternalError_SkError,
-                                   "Couldn't convert bitmap to texture.");
-        return;
-    }
-
-
-    GrPaint grPaint;
-
-    // Create and insert texture effect
-    SkAutoTUnref<const GrFragmentProcessor> fp;
-    if (doBicubic) {
-        fp.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tm));
-    } else {
-        fp.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
-    }
-
-    if (kAlpha_8_SkColorType == bitmapPtr->colorType()) {
-        fp.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
-    } else {
-        fp.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
-    }
-
-    if (!SkPaintToGrPaintReplaceShader(context, paint, fp, &grPaint)) {
-        return;
-    }
-
-    // Setup dst rect and final matrix
-    SkRect dstRect = {0, 0, dstSize.fWidth, dstSize.fHeight};
-
-    SkRect devRect;
-    viewMatrix.mapRect(&devRect, dstRect);
-
-    SkMatrix matrix;
-    matrix.setIDiv(bitmapPtr->width(), bitmapPtr->height());
-
-    SkMatrix dstRectToSrcRect;
-    if (!srcRectToDstRect.invert(&dstRectToSrcRect)) {
-        return;
-    }
-    matrix.preConcat(dstRectToSrcRect);
-
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateAAFill(grPaint.getColor(),
-                                                                     viewMatrix,
-                                                                     matrix,
-                                                                     dstRect,
-                                                                     devRect));
-
-    drawContext->drawBatch(clip, grPaint, batch);
-}
-
-static bool can_ignore_strict_subset_constraint(const SkBitmap& bitmap, const SkRect& subset) {
-    GrTexture* tex = bitmap.getTexture();
-    int width = tex ? tex->width() : bitmap.width();
-    int height = tex ? tex->height() : bitmap.height();
-    return subset.contains(SkRect::MakeIWH(width, height));
-}
-
-void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
-                                   const SkBitmap& bitmap,
-                                   const SkRect* srcRectPtr,
-                                   const SkSize* dstSizePtr,
-                                   const SkPaint& paint,
-                                   SkCanvas::SrcRectConstraint constraint) {
-    CHECK_SHOULD_DRAW(draw);
-
-    SkRect srcRect;
-    SkSize dstSize;
-    // If there is no src rect, or the src rect contains the entire bitmap then we're effectively
-    // in the (easier) bleed case, so update flags.
-    if (nullptr == srcRectPtr) {
-        SkScalar w = SkIntToScalar(bitmap.width());
-        SkScalar h = SkIntToScalar(bitmap.height());
-        dstSize.fWidth = w;
-        dstSize.fHeight = h;
-        srcRect.set(0, 0, w, h);
-    } else {
-        SkASSERT(dstSizePtr);
-        srcRect = *srcRectPtr;
-        dstSize = *dstSizePtr;
-    }
-
-    if (can_ignore_strict_subset_constraint(bitmap, srcRect)) {
-        constraint = SkCanvas::kFast_SrcRectConstraint;
-    }
-
-    // If the render target is not msaa and draw is antialiased, we call
-    // drawRect instead of drawing on the render target directly.
-    // FIXME: the tiled bitmap code path doesn't currently support
-    // anti-aliased edges, we work around that for now by drawing directly
-    // if the image size exceeds maximum texture size.
-    int maxTileSize = fContext->caps()->maxTileSize();
-    bool drawAA = !fRenderTarget->isUnifiedMultisampled() &&
-                  paint.isAntiAlias() &&
-                  bitmap.width() <= maxTileSize &&
-                  bitmap.height() <= maxTileSize;
-
-    if (paint.getMaskFilter() || drawAA) {
-        // Convert the bitmap to a shader so that the rect can be drawn
-        // through drawRect, which supports mask filters.
-        SkBitmap        tmp;    // subset of bitmap, if necessary
-        const SkBitmap* bitmapPtr = &bitmap;
-        SkMatrix srcRectToDstRect;
-        if (srcRectPtr) {
-            srcRectToDstRect.setTranslate(-srcRectPtr->fLeft, -srcRectPtr->fTop);
-            srcRectToDstRect.postScale(dstSize.fWidth / srcRectPtr->width(),
-                                       dstSize.fHeight / srcRectPtr->height());
-            // In bleed mode we position and trim the bitmap based on the src rect which is
-            // already accounted for in 'm' and 'srcRect'. In clamp mode we need to chop out
-            // the desired portion of the bitmap and then update 'm' and 'srcRect' to
-            // compensate.
-            if (SkCanvas::kStrict_SrcRectConstraint == constraint) {
-                SkIRect iSrc;
-                srcRect.roundOut(&iSrc);
-
-                SkPoint offset = SkPoint::Make(SkIntToScalar(iSrc.fLeft),
-                                               SkIntToScalar(iSrc.fTop));
-
-                if (!bitmap.extractSubset(&tmp, iSrc)) {
-                    return;     // extraction failed
-                }
-                bitmapPtr = &tmp;
-                srcRect.offset(-offset.fX, -offset.fY);
-
-                // The source rect has changed so update the matrix
-                srcRectToDstRect.preTranslate(offset.fX, offset.fY);
-            }
-        } else {
-            srcRectToDstRect.reset();
-        }
-
-        // If we have a maskfilter then we can't batch, so we take a slow path.  However, we fast
-        // path the case where we are drawing an AA rect so we can batch many drawImageRect calls
-        if (paint.getMaskFilter()) {
-            SkPaint paintWithShader(paint);
-            paintWithShader.setShader(SkShader::CreateBitmapShader(*bitmapPtr,
-                                      SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                      &srcRectToDstRect))->unref();
-            SkRect dstRect = {0, 0, dstSize.fWidth, dstSize.fHeight};
-            this->drawRect(draw, dstRect, paintWithShader);
-        } else {
-            draw_aa_bitmap(fDrawContext, fContext, fRenderTarget, fClip, *draw.fMatrix,
-                           srcRectToDstRect, paint, bitmapPtr, dstSize);
-        }
-
-        return;
-    }
-
-    // If there is no mask filter than it is OK to handle the src rect -> dst rect scaling using
-    // the view matrix rather than a local matrix.
-    SkMatrix viewM = *draw.fMatrix;
-    viewM.preScale(dstSize.fWidth / srcRect.width(),
-                   dstSize.fHeight / srcRect.height());
-
-    GrTextureParams params;
-    bool doBicubic;
-    GrTextureParams::FilterMode textureFilterMode =
-            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewM, SkMatrix::I(),
-                                            &doBicubic);
-
-    int tileFilterPad;
-    if (doBicubic) {
-        tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-    } else if (GrTextureParams::kNone_FilterMode == textureFilterMode) {
-        tileFilterPad = 0;
-    } else {
-        tileFilterPad = 1;
-    }
-    params.setFilterMode(textureFilterMode);
-
-    maxTileSize = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
-    int tileSize;
-
-    SkIRect clippedSrcRect;
-    if (this->shouldTileBitmap(bitmap, viewM, params, srcRectPtr, maxTileSize, &tileSize,
-                               &clippedSrcRect)) {
-        this->drawTiledBitmap(bitmap, viewM, srcRect, clippedSrcRect, params, paint, constraint,
-                              tileSize, doBicubic);
-    } else {
-        // take the simple case
-        bool needsTextureDomain = needs_texture_domain(bitmap,
-                                                       srcRect,
-                                                       params,
-                                                       viewM,
-                                                       doBicubic,
-                                                       fRenderTarget->isUnifiedMultisampled());
-        this->internalDrawBitmap(bitmap,
-                                 viewM,
-                                 srcRect,
-                                 params,
-                                 paint,
-                                 constraint,
-                                 doBicubic,
-                                 needsTextureDomain);
     }
 }
 
@@ -1269,10 +1005,8 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                 // now offset it to make it "local" to our tmp bitmap
                 tileR.offset(-offset.fX, -offset.fY);
                 GrTextureParams paramsTemp = params;
-                bool needsTextureDomain = needs_texture_domain(
-                                                         bitmap, srcRect, paramsTemp,
-                                                         viewM, bicubic,
-                                                         fRenderTarget->isUnifiedMultisampled());
+                // de-optimized this determination
+                bool needsTextureDomain = true;
                 this->internalDrawBitmap(tmpB,
                                          viewM,
                                          tileR,
@@ -1502,58 +1236,92 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                                                   SK_Scalar1 * h / texture->height()));
 }
 
-void SkGpuDevice::drawBitmapRect(const SkDraw& origDraw, const SkBitmap& bitmap,
-                                 const SkRect* src, const SkRect& dst,
+void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
+                                 const SkRect* src, const SkRect& origDst,
                                  const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
-    if (GrTexture* tex = bitmap.getTexture()) {
-        CHECK_SHOULD_DRAW(origDraw);
-        bool alphaOnly = GrPixelConfigIsAlphaOnly(tex->config());
+    bool alphaOnly = kAlpha_8_SkColorType == bitmap.colorType();
+    if (bitmap.getTexture()) {
+        CHECK_SHOULD_DRAW(draw);
         GrBitmapTextureAdjuster adjuster(&bitmap);
-        this->drawTextureAdjuster(&adjuster, alphaOnly, src, &dst, constraint, *origDraw.fMatrix,
+        this->drawTextureProducer(&adjuster, alphaOnly, src, &origDst, constraint, *draw.fMatrix,
                                   fClip, paint);
         return;
     }
-
-    SkMatrix    matrix;
-    SkRect      bitmapBounds, tmpSrc;
-
-    bitmapBounds.set(0, 0,
-                     SkIntToScalar(bitmap.width()),
-                     SkIntToScalar(bitmap.height()));
-
+    // The src rect is inferred to be the bmp bounds if not provided. Otherwise, the src rect must
+    // be clipped to the bmp bounds. To determine tiling parameters we need the filter mode which
+    // in turn requires knowing the src-to-dst mapping. If the src was clipped to the bmp bounds
+    // then we use the src-to-dst mapping to compute a new clipped dst rect.
+    const SkRect* dst = &origDst;
+    const SkRect bmpBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
     // Compute matrix from the two rectangles
-    if (src) {
-        tmpSrc = *src;
-    } else {
-        tmpSrc = bitmapBounds;
+    if (!src) {
+        src = &bmpBounds;
     }
 
-    matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
-
-    // clip the tmpSrc to the bounds of the bitmap. No check needed if src==null.
-    if (src) {
-        if (!bitmapBounds.contains(tmpSrc)) {
-            if (!tmpSrc.intersect(bitmapBounds)) {
+    SkMatrix srcToDstMatrix;
+    if (!srcToDstMatrix.setRectToRect(*src, *dst, SkMatrix::kFill_ScaleToFit)) {
+        return;
+    }
+    SkRect tmpSrc, tmpDst;
+    if (src != &bmpBounds) {
+        if (!bmpBounds.contains(*src)) {
+            tmpSrc = *src;
+            if (!tmpSrc.intersect(bmpBounds)) {
                 return; // nothing to draw
             }
+            src = &tmpSrc;
+            srcToDstMatrix.mapRect(&tmpDst, *src);
+            dst = &tmpDst;
         }
     }
 
-    SkRect tmpDst;
-    matrix.mapRect(&tmpDst, tmpSrc);
+    int maxTileSize = fContext->caps()->maxTileSize();
 
-    SkTCopyOnFirstWrite<SkDraw> draw(origDraw);
-    if (0 != tmpDst.fLeft || 0 != tmpDst.fTop) {
-        // Translate so that tempDst's top left is at the origin.
-        matrix = *origDraw.fMatrix;
-        matrix.preTranslate(tmpDst.fLeft, tmpDst.fTop);
-        draw.writable()->fMatrix = &matrix;
+    // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
+    // draw untiled, then we bypass checking for tiling purely for optimization reasons.
+    bool drawAA = !fRenderTarget->isUnifiedMultisampled() &&
+        paint.isAntiAlias() &&
+        bitmap.width() <= maxTileSize &&
+        bitmap.height() <= maxTileSize;
+
+    bool skipTileCheck = drawAA || paint.getMaskFilter();
+
+    if (!skipTileCheck) {
+        int tileSize;
+        SkIRect clippedSrcRect;
+
+        GrTextureParams params;
+        bool doBicubic;
+        GrTextureParams::FilterMode textureFilterMode =
+            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, srcToDstMatrix,
+                                            &doBicubic);
+
+        int tileFilterPad;
+
+        if (doBicubic) {
+            tileFilterPad = GrBicubicEffect::kFilterTexelPad;
+        } else if (GrTextureParams::kNone_FilterMode == textureFilterMode) {
+            tileFilterPad = 0;
+        } else {
+            tileFilterPad = 1;
+        }
+        params.setFilterMode(textureFilterMode);
+
+        int maxTileSizeForFilter = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+        // Fold the dst rect into the view matrix. This is only OK because we don't get here if
+        // we have a mask filter.
+        SkMatrix viewMatrix = *draw.fMatrix;
+        viewMatrix.preTranslate(dst->fLeft, dst->fTop);
+        viewMatrix.preScale(dst->width()/src->width(), dst->height()/src->height());
+        if (this->shouldTileBitmap(bitmap, viewMatrix, params, src,
+                                   maxTileSizeForFilter, &tileSize, &clippedSrcRect)) {
+            this->drawTiledBitmap(bitmap, viewMatrix, *src, clippedSrcRect, params, paint,
+                                  constraint, tileSize, doBicubic);
+            return;
+        }
     }
-    SkSize dstSize;
-    dstSize.fWidth = tmpDst.width();
-    dstSize.fHeight = tmpDst.height();
-
-    this->drawBitmapCommon(*draw, bitmap, &tmpSrc, &dstSize, paint, constraint);
+    GrBitmapTextureMaker maker(fContext, bitmap);
+    this->drawTextureProducer(&maker, alphaOnly, src, dst, constraint, *draw.fMatrix, fClip, paint);
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
@@ -1680,7 +1448,7 @@ void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x
         viewMatrix.preTranslate(x, y);
         bool alphaOnly = GrPixelConfigIsAlphaOnly(tex->config());
         GrImageTextureAdjuster adjuster(as_IB(image));
-        this->drawTextureAdjuster(&adjuster, alphaOnly, nullptr, nullptr,
+        this->drawTextureProducer(&adjuster, alphaOnly, nullptr, nullptr,
                                   SkCanvas::kFast_SrcRectConstraint, viewMatrix, fClip, paint);
         return;
     } else {
@@ -1706,7 +1474,7 @@ void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const 
         CHECK_SHOULD_DRAW(draw);
         GrImageTextureAdjuster adjuster(as_IB(image));
         bool alphaOnly = GrPixelConfigIsAlphaOnly(tex->config());
-        this->drawTextureAdjuster(&adjuster, alphaOnly, src, &dst, constraint, *draw.fMatrix,
+        this->drawTextureProducer(&adjuster, alphaOnly, src, &dst, constraint, *draw.fMatrix,
                                   fClip, paint);
         return;
     }

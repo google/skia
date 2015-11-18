@@ -275,11 +275,10 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
 class Cacherator_GrTextureMaker : public GrTextureMaker {
 public:
-    Cacherator_GrTextureMaker(SkImageCacherator* cacher, const SkImage* client)
-        : INHERITED(cacher->info().width(), cacher->info().height())
+    Cacherator_GrTextureMaker(GrContext* context, SkImageCacherator* cacher, const SkImage* client)
+        : INHERITED(context, cacher->info().width(), cacher->info().height())
         , fCacher(cacher)
-        , fClient(client)
-    {
+        , fClient(client) {
         if (client) {
             GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
                                  SkIRect::MakeWH(this->width(), this->height()));
@@ -289,10 +288,10 @@ public:
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //    GrTexture* generateTextureForParams(GrContext*, const SkGrStretch&) override;
+    //          GrTexture* generateTextureForParams(const CopyParams&) override;
 
-    GrTexture* refOriginalTexture(GrContext* ctx) override {
-        return fCacher->lockTexture(ctx, fOriginalKey, fClient);
+    GrTexture* refOriginalTexture() override {
+        return fCacher->lockTexture(this->context(), fOriginalKey, fClient);
     }
 
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override {
@@ -321,7 +320,7 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParam
         return nullptr;
     }
 
-    return Cacherator_GrTextureMaker(this, client).refTextureForParams(ctx, params);
+    return Cacherator_GrTextureMaker(ctx, this, client).refTextureForParams(params);
 }
 
 #else

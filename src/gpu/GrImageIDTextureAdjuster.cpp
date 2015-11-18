@@ -7,10 +7,12 @@
 
 #include "GrImageIDTextureAdjuster.h"
 
+#include "GrContext.h"
+#include "GrGpuResourcePriv.h"
 #include "SkBitmap.h"
 #include "SkGrPriv.h"
 #include "SkImage_Base.h"
-
+#include "SkPixelRef.h"
 
 GrBitmapTextureAdjuster::GrBitmapTextureAdjuster(const SkBitmap* bmp)
     : INHERITED(bmp->getTexture(), SkIRect::MakeWH(bmp->width(), bmp->height()))
@@ -51,4 +53,46 @@ void GrImageTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* 
 
 void GrImageTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
     // We don't currently have a mechanism for notifications on Images!
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap)
+    : INHERITED(context, bitmap.width(), bitmap.height())
+    , fBitmap(bitmap) {
+    SkASSERT(!bitmap.getTexture());
+    if (!bitmap.isVolatile()) {
+        SkIPoint origin = bitmap.pixelRefOrigin();
+        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
+                                           bitmap.height());
+        GrMakeKeyFromImageID(&fOriginalKey, bitmap.pixelRef()->getGenerationID(), subset);
+    }
+}
+
+GrTexture* GrBitmapTextureMaker::refOriginalTexture() {
+    GrTexture* tex;
+
+    if (fOriginalKey.isValid()) {
+        tex = this->context()->textureProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
+        if (tex) {
+            return tex;
+        }
+    }
+
+    tex = GrUploadBitmapToTexture(this->context(), fBitmap);
+    if (tex && fOriginalKey.isValid()) {
+        tex->resourcePriv().setUniqueKey(fOriginalKey);
+        GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
+    }
+    return tex;
+}
+
+void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) {
+    if (fOriginalKey.isValid()) {
+        MakeCopyKeyFromOrigKey(fOriginalKey, copyParams, copyKey);
+    }
+}
+
+void GrBitmapTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
+    GrInstallBitmapUniqueKeyInvalidator(copyKey, fBitmap.pixelRef());
 }

@@ -213,7 +213,7 @@ static DomainMode determine_domain_mode(
         return kNoDomain_DomainMode;
     }
 
-    bool restrictFilterToRect = (filterConstraint == GrTextureAdjuster::kYes_FilterConstraint);
+    bool restrictFilterToRect = (filterConstraint == GrTextureProducer::kYes_FilterConstraint);
 
     // If we can filter outside the constraint rect, and there is no non-content area of the
     // texture, and we aren't going to generate sample coords outside the constraint rect then we
@@ -237,8 +237,11 @@ static DomainMode determine_domain_mode(
                 filterHalfWidth = .5f;
                 break;
             case GrTextureParams::kMipMap_FilterMode:
-                // No domain can save use here.
-                return kTightCopy_DomainMode;
+                if (restrictFilterToRect || textureContentArea) {
+                    // No domain can save us here.
+                    return kTightCopy_DomainMode;
+                }
+                return kNoDomain_DomainMode;
         }
     } else {
         // bicubic does nearest filtering internally.
@@ -324,6 +327,33 @@ static DomainMode determine_domain_mode(
     return kDomain_DomainMode;
 }
 
+static const GrFragmentProcessor* create_fp_for_domain_and_filter(
+                                        GrTexture* texture,
+                                        const SkMatrix& textureMatrix,
+                                        DomainMode domainMode,
+                                        const SkRect& domain,
+                                        const GrTextureParams::FilterMode* filterOrNullForBicubic) {
+    SkASSERT(kTightCopy_DomainMode != domainMode);
+    if (filterOrNullForBicubic) {
+        if (kDomain_DomainMode == domainMode) {
+            return GrTextureDomainEffect::Create(texture, textureMatrix, domain,
+                                                 GrTextureDomain::kClamp_Mode,
+                                                 *filterOrNullForBicubic);
+        } else {
+            GrTextureParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
+            return GrSimpleTextureEffect::Create(texture, textureMatrix, params);
+        }
+    } else {
+        if (kDomain_DomainMode == domainMode) {
+            return GrBicubicEffect::Create(texture, textureMatrix, domain);
+        } else {
+            static const SkShader::TileMode kClampClamp[] =
+            { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+            return GrBicubicEffect::Create(texture, textureMatrix, kClampClamp);
+        }
+    }
+}
+
 const GrFragmentProcessor* GrTextureAdjuster::createFragmentProcessor(
                                         const SkMatrix& origTextureMatrix,
                                         const SkRect& origConstraintRect,
@@ -368,57 +398,83 @@ const GrFragmentProcessor* GrTextureAdjuster::createFragmentProcessor(
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     textureMatrix.postIDiv(texture->width(), texture->height());
-    if (filterOrNullForBicubic) {
-        if (kDomain_DomainMode == domainMode) {
-            return GrTextureDomainEffect::Create(texture, textureMatrix, domain,
-                                                 GrTextureDomain::kClamp_Mode,
-                                                 *filterOrNullForBicubic);
-        } else {
-            GrTextureParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
-            return GrSimpleTextureEffect::Create(texture, textureMatrix, params);
-        }
-    } else {
-        if (kDomain_DomainMode == domainMode) {
-            return GrBicubicEffect::Create(texture, textureMatrix, domain);
-        } else {
-            static const SkShader::TileMode kClampClamp[] =
-            { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
-            return GrBicubicEffect::Create(texture, textureMatrix, kClampClamp);
-        }
-    }
+    return create_fp_for_domain_and_filter(texture, textureMatrix, domainMode, domain,
+                                           filterOrNullForBicubic);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrTextureMaker::refTextureForParams(GrContext* ctx, const GrTextureParams& params) {
+GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params) {
     CopyParams copyParams;
-    if (!ctx->getGpu()->makeCopyForTextureParams(this->width(), this->height(), params,
-                                                 &copyParams)) {
-        return this->refOriginalTexture(ctx);
+    if (!fContext->getGpu()->makeCopyForTextureParams(this->width(), this->height(), params,
+                                                      &copyParams)) {
+        return this->refOriginalTexture();
     }
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey);
     if (copyKey.isValid()) {
-        GrTexture* result = ctx->textureProvider()->findAndRefTextureByUniqueKey(copyKey);
+        GrTexture* result = fContext->textureProvider()->findAndRefTextureByUniqueKey(copyKey);
         if (result) {
             return result;
         }
     }
 
-    GrTexture* result = this->generateTextureForParams(ctx, copyParams);
+    GrTexture* result = this->generateTextureForParams(copyParams);
     if (!result) {
         return nullptr;
     }
 
     if (copyKey.isValid()) {
-        ctx->textureProvider()->assignUniqueKeyToTexture(copyKey, result);
+        fContext->textureProvider()->assignUniqueKeyToTexture(copyKey, result);
         this->didCacheCopy(copyKey);
     }
     return result;
 }
 
-GrTexture* GrTextureMaker::generateTextureForParams(GrContext* ctx, const CopyParams& copyParams) {
-    SkAutoTUnref<GrTexture> original(this->refOriginalTexture(ctx));
+const GrFragmentProcessor* GrTextureMaker::createFragmentProcessor(
+                                        const SkMatrix& textureMatrix,
+                                        const SkRect& constraintRect,
+                                        FilterConstraint filterConstraint,
+                                        bool coordsLimitedToConstraintRect,
+                                        const GrTextureParams::FilterMode* filterOrNullForBicubic) {
+
+    const GrTextureParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
+    if (filterOrNullForBicubic && GrTextureParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
+        kYes_FilterConstraint == filterConstraint) {
+        // TODo: Here we should force a copy restricted to the constraintRect since MIP maps will
+        // read outside the constraint rect. However, as in the adjuster case, we aren't currently
+        // doing that.
+        // We instead we compute the domain as though were bilerping which is only correct if we
+        // only sample level 0.
+        static const GrTextureParams::FilterMode kBilerp = GrTextureParams::kBilerp_FilterMode;
+        fmForDetermineDomain = &kBilerp;
+    }
+
+    GrTextureParams params;
+    if (filterOrNullForBicubic) {
+        params.reset(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
+    } else {
+        // Bicubic doesn't use filtering for it's texture accesses.
+        params.reset(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
+    }
+    SkAutoTUnref<GrTexture> texture(this->refTextureForParams(params));
+    if (!texture) {
+        return nullptr;
+    }
+    SkRect domain;
+    DomainMode domainMode =
+        determine_domain_mode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
+                              texture->width(), texture->height(), nullptr, fmForDetermineDomain,
+                              &domain);
+    SkASSERT(kTightCopy_DomainMode != domainMode);
+    SkMatrix normalizedTextureMatrix = textureMatrix;
+    normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
+    return create_fp_for_domain_and_filter(texture, normalizedTextureMatrix, domainMode, domain,
+                                           filterOrNullForBicubic);
+}
+
+GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams) {
+    SkAutoTUnref<GrTexture> original(this->refOriginalTexture());
     if (!original) {
         return nullptr;
     }
