@@ -34,3 +34,18 @@ You can also use the data to answer questions like [how many tests were run per 
     count(filter(""))
 
 See Skia Perf for the [full list of functions available](https://perf.skia.org/help).
+
+Embedding
+---------
+
+Once you create a shortcut, which may or may not include calculations, you
+will be presented with the code to embed that graph as an iframe. For example,
+here is an embedding code for showing the ratio of all 565 tests over all 8888
+tests:
+
+    <iframe src='https://perf.skia.org/frame/#4518' width=500 height=300 frameborder=0></iframe>
+
+And the embedded graph appears as:
+
+  <iframe src='https://perf.skia.org/frame/#4518' width=500 height=300 frameborder=0></iframe>
+
