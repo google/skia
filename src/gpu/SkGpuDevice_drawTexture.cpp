@@ -59,9 +59,9 @@ static const SkScalar kColorBleedTolerance = 0.001f;
 
 static bool has_aligned_samples(const SkRect& srcRect, const SkRect& transformedRect) {
     // detect pixel disalignment
-    if (SkScalarAbs(SkScalarFraction(transformedRect.left())) < kColorBleedTolerance &&
-        SkScalarAbs(SkScalarFraction(transformedRect.top())) < kColorBleedTolerance &&
-        SkScalarAbs(transformedRect.width() - srcRect.width()) < kColorBleedTolerance &&
+    if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) - transformedRect.left()) < kColorBleedTolerance &&
+        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top())  - transformedRect.top())  < kColorBleedTolerance &&
+        SkScalarAbs(transformedRect.width()  - srcRect.width())  < kColorBleedTolerance &&
         SkScalarAbs(transformedRect.height() - srcRect.height()) < kColorBleedTolerance) {
         return true;
     }
