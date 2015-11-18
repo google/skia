@@ -336,7 +336,8 @@ void SkDrawBitmapNineCommand::execute(SkCanvas* canvas) const {
 }
 
 bool SkDrawBitmapNineCommand::render(SkCanvas* canvas) const {
-    render_bitmap(canvas, fBitmap);
+    SkRect tmp = SkRect::Make(fCenter);
+    render_bitmap(canvas, fBitmap, &tmp);
     return true;
 }
 
