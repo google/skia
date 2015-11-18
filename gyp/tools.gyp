@@ -18,7 +18,6 @@
       'type': 'none',
       'dependencies': [
         'chrome_fuzz',
-        'filter',
         'gpuveto',
         'imgblur',
         'imgconv',
@@ -436,28 +435,6 @@
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
-      'target_name': 'filter',
-      'type': 'executable',
-      'include_dirs' : [
-        '../include/private',
-        '../src/core',
-        '../src/utils/debugger',
-      ],
-      'sources': [
-        '../tools/filtermain.cpp',
-        '../src/utils/debugger/SkDrawCommand.h',
-        '../src/utils/debugger/SkDrawCommand.cpp',
-        '../src/utils/debugger/SkDebugCanvas.h',
-        '../src/utils/debugger/SkDebugCanvas.cpp',
-        '../src/utils/debugger/SkObjectParser.h',
-        '../src/utils/debugger/SkObjectParser.cpp',
-      ],
-      'dependencies': [
-        'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_utils',
       ],
     },
     {
