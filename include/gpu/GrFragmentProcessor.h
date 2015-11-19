@@ -211,7 +211,7 @@ private:
     SkSTArray<4, const GrCoordTransform*, true>     fCoordTransforms;
     int                                             fNumTexturesExclChildren;
     int                                             fNumTransformsExclChildren;
-    SkSTArray<2, const GrFragmentProcessor*, true>  fChildProcessors;
+    SkSTArray<1, const GrFragmentProcessor*, true>  fChildProcessors;
 
     typedef GrProcessor INHERITED;
 };
