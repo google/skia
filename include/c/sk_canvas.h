@@ -77,6 +77,10 @@ SK_API void sk_canvas_translate(sk_canvas_t*, float dx, float dy);
 */
 SK_API void sk_canvas_scale(sk_canvas_t*, float sx, float sy);
 /**
+   Rotates the canvas by the specified degrees.
+*/
+SK_API void sk_canvas_rotate_degrees(sk_canvas_t* ccanvas, float degrees);
+/**
     Preconcat the current coordinate transformation matrix with the
     specified rotation in degrees.
 */
@@ -116,6 +120,11 @@ SK_API void sk_canvas_clip_path(sk_canvas_t*, const sk_path_t*);
 */
 SK_API void sk_canvas_draw_paint(sk_canvas_t*, const sk_paint_t*);
 /**
+    Draws with the specified color and mode.
+**/
+SK_API void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_xfermode_mode_t mode);
+ /**
+/**
    Draw a series of points, interpreted based on the sk_point_mode_t mode. For
    all modes, the count parameter is interpreted as the total number of
    points. For LINES_SK_POINT_MODE mode, count/2 line segments are drawn.
@@ -137,15 +146,15 @@ SK_API void sk_canvas_draw_points(sk_canvas_t*, sk_point_mode_t, size_t, const s
 /**
    Draws a single point with the specified paint
 */
-void sk_canvas_draw_point(sk_canvas_t*, float, float, const sk_paint_t*);
+SK_API void sk_canvas_draw_point(sk_canvas_t*, float, float, const sk_paint_t*);
 /**
    Draws a single point with the specified paint
 */
-void sk_canvas_draw_point_color(sk_canvas_t*, float, float, const sk_paint_t*, sk_color_t);
+SK_API void sk_canvas_draw_point_color(sk_canvas_t*, float, float, const sk_paint_t*, sk_color_t);
 /**
    Draws a line from x0,y0 to x1,y1
 */
-void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, float y1, sk_paint_t* cpaint);
+SK_API void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, float y1, sk_paint_t* cpaint);
 /**
     Draw the specified rectangle using the specified paint. The
     rectangle will be filled or stroked based on the style in the

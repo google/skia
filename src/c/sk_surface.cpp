@@ -20,6 +20,7 @@
 #include "sk_image.h"
 #include "sk_paint.h"
 #include "sk_path.h"
+#include "sk_picture.h"
 #include "sk_surface.h"
 #include "sk_types_priv.h"
 
