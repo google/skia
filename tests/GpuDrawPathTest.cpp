@@ -77,9 +77,6 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
 }
 
 DEF_GPUTEST(GpuDrawPath, reporter, factory) {
-    // https://bugs.chromium.org/p/skia/issues/detail?id=4581
-    return;
-
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
 
@@ -95,6 +92,9 @@ DEF_GPUTEST(GpuDrawPath, reporter, factory) {
             SkAutoTUnref<SkSurface> surface(
                 SkSurface::NewRenderTarget(grContext, SkSurface::kNo_Budgeted, info,
                                            sampleCounts[i], nullptr));
+            if (!surface) {
+                continue;
+            }
             test_drawPathEmpty(reporter, surface->getCanvas());
         }
     }
