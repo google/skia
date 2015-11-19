@@ -128,7 +128,7 @@ static SkScalar make_battery(SkPath* path) {
     path->lineTo(16.854223f + xOffset, 25.136419f);
     path->lineTo(25.727224f + xOffset, 12.886665f);
     path->close();
-    return SkIntToScalar(70);
+    return SkIntToScalar(50);
 }
 
 static SkScalar make_battery2(SkPath* path) {
