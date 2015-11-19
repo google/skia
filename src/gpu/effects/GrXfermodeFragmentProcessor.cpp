@@ -154,6 +154,15 @@ public:
 
     const char* name() const override { return "ComposeOne"; }
 
+    SkString dumpInfo() const override {
+        SkString str;
+
+        for (int i = 0; i < this->numChildProcessors(); ++i) {
+            str.append(this->childProcessor(i).dumpInfo());
+        }
+        return str;
+    }
+
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GR_STATIC_ASSERT((SkXfermode::kLastMode & SK_MaxU16) == SkXfermode::kLastMode);
         b->add32(fMode | (fChild << 16));

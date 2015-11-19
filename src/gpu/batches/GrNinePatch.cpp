@@ -54,7 +54,25 @@ public:
         geo.fViewMatrix.mapRect(&fBounds, geo.fDst);
     }
 
-    const char* name() const override { return "GrNonAANinePatchBatch"; }
+    const char* name() const override { return "NonAANinePatchBatch"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            str.appendf("%d: Color: 0x%08x Center [L: %d, T: %d, R: %d, B: %d], "
+                        "Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                        i,
+                        fGeoData[i].fColor,
+                        fGeoData[i].fCenter.fLeft, fGeoData[i].fCenter.fTop,
+                        fGeoData[i].fCenter.fRight, fGeoData[i].fCenter.fBottom,
+                        fGeoData[i].fDst.fLeft, fGeoData[i].fDst.fTop,
+                        fGeoData[i].fDst.fRight, fGeoData[i].fDst.fBottom);
+        }
+
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
 
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         out->setUnknownFourComponents();

@@ -1335,6 +1335,22 @@ public:
 
     const char* name() const override { return "TextBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString str;
+
+        for (int i = 0; i < fGeoCount; ++i) {
+            str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f Runs: %d\n",
+                        i,
+                        fGeoData[i].fColor,
+                        fGeoData[i].fTransX,
+                        fGeoData[i].fTransY,
+                        fGeoData[i].fBlob->fRunCount);
+        }
+
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
+
     void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
         if (kColorBitmapMask_MaskType == fMaskType) {
             out->setUnknownFourComponents();

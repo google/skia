@@ -53,7 +53,7 @@ public:
     SkString dumpInfo() const override {
         SkString str;
         for (int i = 0; i < fGeoData.count(); ++i) {
-            str.append(Impl::DumpInfo(fGeoData[i]));
+            str.append(Impl::DumpInfo(fGeoData[i], i));
         }
         str.append(INHERITED::dumpInfo());
         return str;

@@ -124,9 +124,10 @@ public:
 
     static const char* Name() { return "NonAAFillRectBatch"; }
 
-    static SkString DumpInfo(const Geometry& geo) {
+    static SkString DumpInfo(const Geometry& geo, int index) {
         SkString str;
-        str.appendf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    index,
                     geo.fColor,
                     geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
         return str;
@@ -168,9 +169,10 @@ public:
 
     static const char* Name() { return "NonAAFillRectBatchPerspective"; }
 
-    static SkString DumpInfo(const Geometry& geo) {
+    static SkString DumpInfo(const Geometry& geo, int index) {
         SkString str;
-        str.appendf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    index,
                     geo.fColor,
                     geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
         return str;
