@@ -36,6 +36,7 @@ namespace SkRecords {
     M(Save)                                                         \
     M(SaveLayer)                                                    \
     M(SetMatrix)                                                    \
+    M(Concat)                                                       \
     M(ClipPath)                                                     \
     M(ClipRRect)                                                    \
     M(ClipRect)                                                     \
@@ -200,6 +201,8 @@ RECORD(SaveLayer, 0,
        SkCanvas::SaveFlags flags);
 
 RECORD(SetMatrix, 0,
+        TypedMatrix matrix);
+RECORD(Concat, 0,
         TypedMatrix matrix);
 
 struct RegionOpAndAA {

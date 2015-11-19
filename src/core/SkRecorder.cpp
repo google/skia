@@ -352,15 +352,10 @@ void SkRecorder::didRestore() {
 }
 
 void SkRecorder::didConcat(const SkMatrix& matrix) {
-    this->didSetMatrix(this->getTotalMatrix());
+    APPEND(Concat, matrix);
 }
 
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
-    SkDEVCODE(if (matrix != this->getTotalMatrix()) {
-        matrix.dump();
-        this->getTotalMatrix().dump();
-        SkASSERT(matrix == this->getTotalMatrix());
-    })
     APPEND(SetMatrix, matrix);
 }
 

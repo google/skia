@@ -80,6 +80,7 @@ DRAW(Restore, restore());
 DRAW(Save, save());
 DRAW(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
+DRAW(Concat, concat(r.matrix));
 
 DRAW(ClipPath, clipPath(r.path, r.opAA.op, r.opAA.aa));
 DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
@@ -154,7 +155,7 @@ public:
         : fNumRecords(record.count())
         , fCullRect(cullRect)
         , fBounds(bounds) {
-        fCTM = &SkMatrix::I();
+        fCTM = SkMatrix::I();
         fCurrentClipBounds = fCullRect;
     }
 
@@ -184,7 +185,7 @@ public:
     typedef SkRect Bounds;
 
     int currentOp() const { return fCurrentOp; }
-    const SkMatrix& ctm() const { return *fCTM; }
+    const SkMatrix& ctm() const { return fCTM; }
     const Bounds& getBounds(int index) const { return fBounds[index]; }
 
     // Adjust rect for all paints that may affect its geometry, then map it to identity space.
@@ -205,7 +206,7 @@ public:
         }
 
         // Map the rect back to identity space.
-        fCTM->mapRect(&rect);
+        fCTM.mapRect(&rect);
 
         // Nothing can draw outside the current clip.
         if (!rect.intersect(fCurrentClipBounds)) {
@@ -222,10 +223,11 @@ private:
         const SkPaint* paint;  // Unowned.  If set, adjusts the bounds of all ops in this block.
     };
 
-    // Only Restore and SetMatrix change the CTM.
+    // Only Restore, SetMatrix, and Concat change the CTM.
     template <typename T> void updateCTM(const T&) {}
-    void updateCTM(const Restore& op)   { fCTM = &op.matrix; }
-    void updateCTM(const SetMatrix& op) { fCTM = &op.matrix; }
+    void updateCTM(const Restore& op)   { fCTM = op.matrix; }
+    void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
+    void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
 
     // Most ops don't change the clip.
     template <typename T> void updateClipBounds(const T&) {}
@@ -278,6 +280,7 @@ private:
     void trackBounds(const Restore&) { fBounds[fCurrentOp] = this->popSaveBlock(); }
 
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
+    void trackBounds(const Concat&)            { this->pushControl(); }
     void trackBounds(const ClipRect&)          { this->pushControl(); }
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
@@ -579,7 +582,7 @@ private:
     // and updateClipBounds() to maintain the exact CTM (fCTM) and conservative
     // identity-space bounds of the current clip (fCurrentClipBounds).
     int fCurrentOp;
-    const SkMatrix* fCTM;
+    SkMatrix fCTM;
     Bounds fCurrentClipBounds;
 
     // Used to track the bounds of Save/Restore blocks and the control ops inside them.
