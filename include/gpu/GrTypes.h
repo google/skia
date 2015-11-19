@@ -180,7 +180,7 @@ static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
  *  Return the number of bytes-per-pixel for the specified mask format.
  */
 static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
-    SkASSERT((unsigned)format < kMaskFormatCount);
+    SkASSERT(format < kMaskFormatCount);
     // kA8   (0) -> 1
     // kA565 (1) -> 2
     // kARGB (2) -> 4
