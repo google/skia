@@ -27,33 +27,33 @@ void SkRecordOptimize(SkRecord* record) {
 }
 
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:
-//   - a Pattern typedef
-//   - a bool onMatch(SkRceord*, Pattern*, int begin, int end) method,
+//   - a Match typedef
+//   - a bool onMatch(SkRceord*, Match*, int begin, int end) method,
 //     which returns true if it made changes and false if not.
 
 // Run a pattern-based optimization once across the SkRecord, returning true if it made any changes.
-// It looks for spans which match Pass::Pattern, and when found calls onMatch() with the pattern,
+// It looks for spans which match Pass::Match, and when found calls onMatch() with that pattern,
 // record, and [begin,end) span of the commands that matched.
 template <typename Pass>
 static bool apply(Pass* pass, SkRecord* record) {
-    typename Pass::Pattern pattern;
+    typename Pass::Match match;
     bool changed = false;
     int begin, end = 0;
 
-    while (pattern.search(record, &begin, &end)) {
-        changed |= pass->onMatch(record, &pattern, begin, end);
+    while (match.search(record, &begin, &end)) {
+        changed |= pass->onMatch(record, &match, begin, end);
     }
     return changed;
 }
 
 // Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.
 struct SaveOnlyDrawsRestoreNooper {
-    typedef Pattern3<Is<Save>,
-                     Star<Or<Is<NoOp>, IsDraw> >,
-                     Is<Restore> >
-        Pattern;
+    typedef Pattern<Is<Save>,
+                    Greedy<Or<Is<NoOp>, IsDraw>>,
+                    Is<Restore>>
+        Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+    bool onMatch(SkRecord* record, Match*, int begin, int end) {
         record->replace<NoOp>(begin);  // Save
         record->replace<NoOp>(end-1);  // Restore
         return true;
@@ -119,17 +119,17 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint& layerPaint,
 
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
 struct SaveNoDrawsRestoreNooper {
-    // Star matches greedily, so we also have to exclude Save and Restore.
+    // Greedy matches greedily, so we also have to exclude Save and Restore.
     // Nested SaveLayers need to be excluded, or we'll match their Restore!
-    typedef Pattern3<Is<Save>,
-                     Star<Not<Or4<Is<Save>,
+    typedef Pattern<Is<Save>,
+                    Greedy<Not<Or<Is<Save>,
                                   Is<SaveLayer>,
                                   Is<Restore>,
-                                  IsDraw> > >,
-                     Is<Restore> >
-        Pattern;
+                                  IsDraw>>>,
+                    Is<Restore>>
+        Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+    bool onMatch(SkRecord* record, Match*, int begin, int end) {
         // The entire span between Save and Restore (inclusively) does nothing.
         for (int i = begin; i < end; i++) {
             record->replace<NoOp>(i);
@@ -148,17 +148,17 @@ void SkRecordNoopSaveRestores(SkRecord* record) {
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
 // draw, and no-op the SaveLayer and Restore.
 struct SaveLayerDrawRestoreNooper {
-    typedef Pattern3<Is<SaveLayer>, IsDraw, Is<Restore> > Pattern;
+    typedef Pattern<Is<SaveLayer>, IsDraw, Is<Restore>> Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+    bool onMatch(SkRecord* record, Match* match, int begin, int end) {
         // A SaveLayer's bounds field is just a hint, so we should be free to ignore it.
-        SkPaint* layerPaint = pattern->first<SaveLayer>()->paint;
+        SkPaint* layerPaint = match->first<SaveLayer>()->paint;
         if (nullptr == layerPaint) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
         }
 
-        SkPaint* drawPaint = pattern->second<SkPaint>();
+        SkPaint* drawPaint = match->second<SkPaint>();
         if (drawPaint == nullptr) {
             // We can just give the draw the SaveLayer's paint.
             // TODO(mtklein): figure out how to do this clearly
@@ -194,11 +194,11 @@ void SkRecordNoopSaveLayerDrawRestores(SkRecord* record) {
   Restore
 */
 struct SvgOpacityAndFilterLayerMergePass {
-    typedef Pattern7<Is<SaveLayer>, Is<Save>, Is<ClipRect>, Is<SaveLayer>,
-                     Is<Restore>, Is<Restore>, Is<Restore> > Pattern;
+    typedef Pattern<Is<SaveLayer>, Is<Save>, Is<ClipRect>, Is<SaveLayer>,
+                    Is<Restore>, Is<Restore>, Is<Restore>> Match;
 
-    bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
-        SkPaint* opacityPaint = pattern->first<SaveLayer>()->paint;
+    bool onMatch(SkRecord* record, Match* match, int begin, int end) {
+        SkPaint* opacityPaint = match->first<SaveLayer>()->paint;
         if (nullptr == opacityPaint) {
             // There wasn't really any point to this SaveLayer at all.
             return KillSaveLayerAndRestore(record, begin);
@@ -206,7 +206,7 @@ struct SvgOpacityAndFilterLayerMergePass {
 
         // This layer typically contains a filter, but this should work for layers with for other
         // purposes too.
-        SkPaint* filterLayerPaint = pattern->fourth<SaveLayer>()->paint;
+        SkPaint* filterLayerPaint = match->fourth<SaveLayer>()->paint;
         if (filterLayerPaint == nullptr) {
             // We can just give the inner SaveLayer the paint of the outer SaveLayer.
             // TODO(mtklein): figure out how to do this clearly
