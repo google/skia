@@ -114,6 +114,7 @@ public:
          *                          expression before being written to outColor.
          */
         void sampleTexture(GrGLSLShaderBuilder* builder,
+                           const GrGLSLCaps* glslCaps,
                            const GrTextureDomain& textureDomain,
                            const char* outColor,
                            const SkString& inCoords,

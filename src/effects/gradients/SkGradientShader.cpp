@@ -1028,6 +1028,7 @@ uint32_t GrGLGradientEffect::GenBaseGradientKey(const GrProcessor& processor) {
 
 void GrGLGradientEffect::emitColor(GrGLSLFPBuilder* builder,
                                    GrGLSLFragmentBuilder* fragBuilder,
+                                   const GrGLSLCaps* glslCaps,
                                    const GrGradientEffect& ge,
                                    const char* gradientTValue,
                                    const char* outputColor,
@@ -1042,7 +1043,8 @@ void GrGLGradientEffect::emitColor(GrGLSLFPBuilder* builder,
         // considerations:
         // The gradient SkShader reporting opaque is more restrictive than necessary in the two pt
         // case. Make sure the key reflects this optimization (and note that it can use the same
-        // shader as thekBeforeIterp case). This same optimization applies to the 3 color case below.
+        // shader as thekBeforeIterp case). This same optimization applies to the 3 color case
+        // below.
         if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
             fragBuilder->codeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
@@ -1054,7 +1056,7 @@ void GrGLGradientEffect::emitColor(GrGLSLFPBuilder* builder,
                                  gradientTValue);
         fragBuilder->codeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
                                  builder->getUniformVariable(fColorStartUni).c_str());
-        if (!builder->glslCaps()->canUseMinAndAbsTogether()) {
+        if (!glslCaps->canUseMinAndAbsTogether()) {
             // The Tegra3 compiler will sometimes never return if we have
             // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
             fragBuilder->codeAppend("\tfloat minAbs = abs(oneMinus2t);\n");

@@ -608,6 +608,7 @@ void GrGLLinearGradient::emitCode(EmitArgs& args) {
     t.append(".x");
     this->emitColor(args.fBuilder,
                     args.fFragBuilder,
+                    args.fGLSLCaps,
                     ge, t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,

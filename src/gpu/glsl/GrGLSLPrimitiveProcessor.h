@@ -15,9 +15,10 @@
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
-class GrGLSLVertexBuilder;
+class GrGLSLCaps;
 class GrGLSLFragmentBuilder;
 class GrGLSLGPBuilder;
+class GrGLSLVertexBuilder;
 
 class GrGLSLPrimitiveProcessor {
 public:
@@ -34,6 +35,7 @@ public:
         EmitArgs(GrGLSLGPBuilder* pb,
                  GrGLSLVertexBuilder* vertBuilder,
                  GrGLSLFragmentBuilder* fragBuilder,
+                 const GrGLSLCaps* caps,
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
@@ -43,6 +45,7 @@ public:
             : fPB(pb)
             , fVertBuilder(vertBuilder)
             , fFragBuilder(fragBuilder)
+            , fGLSLCaps(caps)
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
@@ -52,6 +55,7 @@ public:
         GrGLSLGPBuilder* fPB;
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLFragmentBuilder* fFragBuilder;
+        const GrGLSLCaps* fGLSLCaps;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;

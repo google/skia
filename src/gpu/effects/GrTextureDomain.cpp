@@ -42,6 +42,7 @@ GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
 //////////////////////////////////////////////////////////////////////////////
 
 void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
+                                              const GrGLSLCaps* glslCaps,
                                               const GrTextureDomain& textureDomain,
                                               const char* outColor,
                                               const SkString& inCoords,
@@ -88,7 +89,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
             GrGLSLShaderBuilder::ShaderBlock block(builder);
 
             const char* domain = fDomainName.c_str();
-            if (!program->glslCaps()->canUseAnyFunctionInShader()) {
+            if (!glslCaps->canUseAnyFunctionInShader()) {
                 // On the NexusS and GalaxyNexus, the other path (with the 'any'
                 // call) causes the compilation error "Calls to any function that
                 // may require a gradient calculation inside a conditional block
@@ -101,10 +102,10 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                                           inCoords.c_str());
                 builder->codeAppend(";");
                 
-                builder->codeAppend(GrGLSLShaderVar::PrecisionString(program->glslCaps(),
+                builder->codeAppend(GrGLSLShaderVar::PrecisionString(glslCaps,
                                                                      kHigh_GrSLPrecision));
                 builder->codeAppendf("float x = (%s).x;", inCoords.c_str());
-                builder->codeAppend(GrGLSLShaderVar::PrecisionString(program->glslCaps(),
+                builder->codeAppend(GrGLSLShaderVar::PrecisionString(glslCaps,
                                                                      kHigh_GrSLPrecision));
                 builder->codeAppendf("float y = (%s).y;", inCoords.c_str());
 
@@ -197,7 +198,12 @@ void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
-    fGLDomain.sampleTexture(fragBuilder, domain, args.fOutputColor, coords2D, args.fSamplers[0],
+    fGLDomain.sampleTexture(fragBuilder,
+                            args.fGLSLCaps,
+                            domain,
+                            args.fOutputColor,
+                            coords2D,
+                            args.fSamplers[0],
                             args.fInputColor);
 }
 

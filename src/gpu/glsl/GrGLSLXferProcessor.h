@@ -11,9 +11,10 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 
-class GrGLSLXPFragmentBuilder;
-class GrGLSLXPBuilder;
 class GrXferProcessor;
+class GrGLSLXPBuilder;
+class GrGLSLXPFragmentBuilder;
+class GrGLSLCaps;
 
 class GrGLSLXferProcessor {
 public:
@@ -24,6 +25,7 @@ public:
     struct EmitArgs {
         EmitArgs(GrGLSLXPBuilder* pb,
                  GrGLSLXPFragmentBuilder* fragBuilder,
+                 const GrGLSLCaps* caps,
                  const GrXferProcessor& xp,
                  const char* inputColor,
                  const char* inputCoverage,
@@ -32,6 +34,7 @@ public:
                  const TextureSamplerArray& samplers)
             : fPB(pb)
             , fXPFragBuilder(fragBuilder)
+            , fGLSLCaps(caps)
             , fXP(xp)
             , fInputColor(inputColor)
             , fInputCoverage(inputCoverage)
@@ -41,6 +44,7 @@ public:
 
         GrGLSLXPBuilder* fPB;
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
+        const GrGLSLCaps* fGLSLCaps;
         const GrXferProcessor& fXP;
         const char* fInputColor;
         const char* fInputCoverage;

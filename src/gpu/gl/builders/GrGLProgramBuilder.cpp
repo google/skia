@@ -261,6 +261,7 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
 
     GrGLSLFragmentProcessor::EmitArgs args(this,
                                            &fFS,
+                                           this->glslCaps(),
                                            fp,
                                            outColor,
                                            inColor,
@@ -285,8 +286,16 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLSLGeometryProcessor::EmitArgs args(this, &fVS, &fFS, gp, outColor, outCoverage, samplers,
-                                         fCoordTransforms, &fOutCoords);
+    GrGLSLGeometryProcessor::EmitArgs args(this,
+                                           &fVS,
+                                           &fFS,
+                                           this->glslCaps(),
+                                           gp,
+                                           outColor,
+                                           outCoverage,
+                                           samplers,
+                                           fCoordTransforms,
+                                           &fOutCoords);
     fGeometryProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -321,9 +330,14 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(xp.numTextures());
     this->emitSamplers(xp, &samplers, fXferProcessor);
 
-    GrGLSLXferProcessor::EmitArgs args(this, &fFS, xp, colorIn.c_str(), coverageIn.c_str(),
+    GrGLSLXferProcessor::EmitArgs args(this,
+                                       &fFS,
+                                       this->glslCaps(),
+                                       xp, colorIn.c_str(),
+                                       coverageIn.c_str(),
                                        fFS.getPrimaryColorOutputName(),
-                                       fFS.getSecondaryColorOutputName(), samplers);
+                                       fFS.getSecondaryColorOutputName(),
+                                       samplers);
     fXferProcessor->fGLProc->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

@@ -65,8 +65,6 @@ public:
      */
     virtual const char* getUniformCStr(UniformHandle u) const = 0;
 
-    virtual const GrGLSLCaps* glslCaps() const = 0;
-
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
      */
@@ -192,6 +190,8 @@ class GrGLSLProgramBuilder : public GrGLSLGPBuilder,
                              public GrGLSLXPBuilder {
 public:
     typedef GrGpu::DrawArgs DrawArgs;
+
+    virtual const GrGLSLCaps* glslCaps() const = 0;
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {

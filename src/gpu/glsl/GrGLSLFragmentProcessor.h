@@ -53,6 +53,7 @@ public:
     struct EmitArgs {
         EmitArgs(GrGLSLFPBuilder* builder,
                  GrGLSLFragmentBuilder* fragBuilder,
+                 const GrGLSLCaps* caps,
                  const GrFragmentProcessor& fp,
                  const char* outputColor,
                  const char* inputColor,
@@ -60,6 +61,7 @@ public:
                  const TextureSamplerArray& samplers)
             : fBuilder(builder)
             , fFragBuilder(fragBuilder)
+            , fGLSLCaps(caps)
             , fFp(fp)
             , fOutputColor(outputColor)
             , fInputColor(inputColor)
@@ -67,6 +69,7 @@ public:
             , fSamplers(samplers) {}
         GrGLSLFPBuilder* fBuilder;
         GrGLSLFragmentBuilder* fFragBuilder;
+        const GrGLSLCaps* fGLSLCaps;
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;

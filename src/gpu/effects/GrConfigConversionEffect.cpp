@@ -28,7 +28,7 @@ public:
         // Using highp for GLES here in order to avoid some precision issues on specific GPUs.
         GrGLSLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
         SkString tmpDecl;
-        tmpVar.appendDecl(args.fBuilder->glslCaps(), &tmpDecl);
+        tmpVar.appendDecl(args.fGLSLCaps, &tmpDecl);
 
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 

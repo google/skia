@@ -505,6 +505,7 @@ void GrGLRadialGradient::emitCode(EmitArgs& args) {
     t.append(")");
     this->emitColor(args.fBuilder,
                     args.fFragBuilder,
+                    args.fGLSLCaps,
                     ge, t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,

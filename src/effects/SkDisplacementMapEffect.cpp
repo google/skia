@@ -608,7 +608,11 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     }
     fragBuilder->codeAppend("-vec2(0.5));\t\t");
 
-    fGLDomain.sampleTexture(fragBuilder, domain, args.fOutputColor, SkString(cCoords),
+    fGLDomain.sampleTexture(fragBuilder,
+                            args.fGLSLCaps,
+                            domain,
+                            args.fOutputColor,
+                            SkString(cCoords),
                             args.fSamplers[1]);
     fragBuilder->codeAppend(";\n");
 }

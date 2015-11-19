@@ -427,6 +427,7 @@ protected:
     // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
     void emitColor(GrGLSLFPBuilder* builder,
                    GrGLSLFragmentBuilder* fragBuilder,
+                   const GrGLSLCaps* caps,
                    const GrGradientEffect&,
                    const char* gradientTValue,
                    const char* outputColor,

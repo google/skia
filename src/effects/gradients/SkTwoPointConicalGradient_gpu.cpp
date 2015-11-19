@@ -272,6 +272,7 @@ void GLEdge2PtConicalEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("\t");
     this->emitColor(args.fBuilder,
                     fragBuilder,
+                    args.fGLSLCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -544,6 +545,7 @@ void GLFocalOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("\t\t");
     this->emitColor(args.fBuilder,
                     fragBuilder,
+                    args.fGLSLCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -733,6 +735,7 @@ void GLFocalInside2PtConicalEffect::emitCode(EmitArgs& args) {
 
     this->emitColor(args.fBuilder,
                     fragBuilder,
+                    args.fGLSLCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -998,6 +1001,7 @@ void GLCircleInside2PtConicalEffect::emitCode(EmitArgs& args) {
 
     this->emitColor(args.fBuilder,
                     fragBuilder,
+                    args.fGLSLCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -1248,6 +1252,7 @@ void GLCircleOutside2PtConicalEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("\t\t");
     this->emitColor(args.fBuilder,
                     fragBuilder,
+                    args.fGLSLCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,

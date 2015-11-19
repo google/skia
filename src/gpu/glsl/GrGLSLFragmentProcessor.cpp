@@ -95,6 +95,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                              fragBuilder->getMangleString().c_str(), childProc.name());
     EmitArgs childArgs(args.fBuilder,
                        fragBuilder,
+                       args.fGLSLCaps,
                        childProc,
                        outputColor,
                        inputColor,

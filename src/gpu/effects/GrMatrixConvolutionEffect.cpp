@@ -76,7 +76,12 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
             fragBuilder->codeAppendf("float k = %s[%d * %d + %d];", kernel, y, kWidth, x);
             SkString coord;
             coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
-            fDomain.sampleTexture(fragBuilder, domain, "c", coord, args.fSamplers[0]);
+            fDomain.sampleTexture(fragBuilder,
+                                  args.fGLSLCaps,
+                                  domain,
+                                  "c",
+                                  coord,
+                                  args.fSamplers[0]);
             if (!fConvolveAlpha) {
                 fragBuilder->codeAppend("c.rgb /= c.a;");
                 fragBuilder->codeAppend("c.rgb = clamp(c.rgb, 0.0, 1.0);");
@@ -89,7 +94,12 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
                                  args.fOutputColor, args.fOutputColor, args.fOutputColor);
     } else {
-        fDomain.sampleTexture(fragBuilder, domain, "c", coords2D, args.fSamplers[0]);
+        fDomain.sampleTexture(fragBuilder,
+                              args.fGLSLCaps,
+                              domain,
+                              "c",
+                              coords2D,
+                              args.fSamplers[0]);
         fragBuilder->codeAppendf("%s.a = c.a;", args.fOutputColor);
         fragBuilder->codeAppendf("%s.rgb = sum.rgb * %s + %s;", args.fOutputColor, gain, bias);
         fragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor, args.fOutputColor);

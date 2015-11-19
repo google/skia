@@ -97,7 +97,12 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
             coord.printf("coord + %s * vec2(%d, %d)", imgInc, x - 1, y - 1);
             SkString sampleVar;
             sampleVar.printf("rowColors[%d]", x);
-            fDomain.sampleTexture(fragBuilder, domain, sampleVar.c_str(), coord, args.fSamplers[0]);
+            fDomain.sampleTexture(fragBuilder,
+                                  args.fGLSLCaps,
+                                  domain,
+                                  sampleVar.c_str(),
+                                  coord,
+                                  args.fSamplers[0]);
         }
         fragBuilder->codeAppendf(
             "\tvec4 s%d = %s(%s, f.x, rowColors[0], rowColors[1], rowColors[2], rowColors[3]);\n",

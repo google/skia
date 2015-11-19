@@ -100,7 +100,7 @@ public:
                                  dfTexEffect.inTextureCoords()->fName);
         
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(pb->glslCaps(),
+        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
                                                                  kHigh_GrSLPrecision));
         fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
 
@@ -338,7 +338,7 @@ public:
                                          "TextureSize", &textureSizeUniName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(pb->glslCaps(),
+        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
                                                                  kHigh_GrSLPrecision));
         fragBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
 
@@ -350,7 +350,7 @@ public:
         fragBuilder->codeAppend("float distance = "
             SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(pb->glslCaps(),
+        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
                                                                  kHigh_GrSLPrecision));
         fragBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
         fragBuilder->codeAppend("float afwidth;");
@@ -574,10 +574,10 @@ public:
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(pb->glslCaps(),
+        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
                                                                  kHigh_GrSLPrecision));
         fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
-        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(pb->glslCaps(),
+        fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
                                                                  kHigh_GrSLPrecision));
 
         SkScalar lcdDelta = 1.0f / (3.0f * atlas->width());
