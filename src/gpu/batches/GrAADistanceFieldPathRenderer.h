@@ -33,28 +33,13 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
     struct PathData {
-       class Key {
-       public:
-           // default ctor needed for new of uninitialized PathData
-           // since fStroke has no default ctor
-           Key() : fStroke(SkStrokeRec::kFill_InitStyle) {}
-           Key(uint32_t genID, uint32_t dim, const SkStrokeRec& stroke)
-               : fGenID(genID)
-               , fDimension(dim)
-               , fStroke(stroke) {
-           }
-           
-           bool operator==(const Key& other) const {
-               return other.fGenID == fGenID && other.fDimension == fDimension &&
-                      fStroke.hasEqualEffect(other.fStroke);
-           }
-           
-       private:
+        struct Key {
             uint32_t   fGenID;
             // rendered size for stored path (32x32 max, 64x64 max, 128x128 max)
             uint32_t   fDimension;
-            // stroking information
-            SkStrokeRec fStroke;
+            bool operator==(const Key& other) const {
+                return other.fGenID == fGenID && other.fDimension == fDimension;
+            }
         };
         Key                   fKey;
         SkScalar              fScale;
