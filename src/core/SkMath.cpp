@@ -45,21 +45,38 @@ int SkCLZ_portable(uint32_t x) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define DIVBITS_ITER(n)                                 \
-    case n:                                             \
-        if ((numer = (numer << 1) - denom) >= 0)        \
-            result |= 1 << (n - 1); else numer += denom
 
-int32_t SkDivBits(int32_t numer, int32_t denom, int shift_bias) {
-    SkASSERT(denom != 0);
-    if (numer == 0) {
+#define DIVBITS_ITER(k)                    \
+    case k:                                \
+        if (numer*2 >= denom) {            \
+            numer = numer*2 - denom;       \
+            result |= 1 << (k-1);          \
+        } else {                           \
+            numer *= 2;                    \
+        }
+
+// NOTE: if you're thinking of editing this method, consider replacing it with
+// a simple shift and divide.  This legacy method predated reliable hardware division.
+int32_t SkDivBits(int32_t n, int32_t d, int shift_bias) {
+    SkASSERT(d != 0);
+    if (n == 0) {
         return 0;
     }
 
-    // make numer and denom positive, and sign hold the resulting sign
-    int32_t sign = SkExtractSign(numer ^ denom);
-    numer = SkAbs32(numer);
-    denom = SkAbs32(denom);
+    // Make numer and denom positive, and sign hold the resulting sign
+    // We'll be left-shifting numer, so it's important it's a uint32_t.
+    // We put denom in a uint32_t just to keep things simple.
+    int32_t sign = SkExtractSign(n ^ d);
+#if defined(SK_SUPPORT_LEGACY_DIVBITS_UB)
+    // Blink layout tests are baselined to Clang optimizing through the UB.
+    int32_t numer = SkAbs32(n);
+    int32_t denom = SkAbs32(d);
+#else
+    uint32_t numer = SkAbs32(n);
+    uint32_t denom = SkAbs32(d);
+#endif
+
+    // It's probably a bug to use n or d below here.
 
     int nbits = SkCLZ(numer) - 1;
     int dbits = SkCLZ(denom) - 1;
@@ -78,10 +95,9 @@ int32_t SkDivBits(int32_t numer, int32_t denom, int shift_bias) {
     SkFixed result = 0;
 
     // do the first one
-    if ((numer -= denom) >= 0) {
+    if (numer >= denom) {
+        numer -= denom;
         result = 1;
-    } else {
-        numer += denom;
     }
 
     // Now fall into our switch statement if there are more bits to compute
