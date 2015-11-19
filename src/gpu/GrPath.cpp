@@ -36,8 +36,7 @@ inline static bool compute_key_for_line_path(const SkPath& path, const GrStrokeI
 inline static bool compute_key_for_oval_path(const SkPath& path, const GrStrokeInfo& stroke,
                                              GrUniqueKey* key) {
     SkRect rect;
-    // Point order is significant when dashing, so we cannot devolve to a rect key.
-    if (stroke.isDashed() || !path.isOval(&rect)) {
+    if (!path.isOval(&rect)) {
         return false;
     }
     static_assert((sizeof(rect) % sizeof(uint32_t)) == 0 && sizeof(rect) > sizeof(uint32_t),
@@ -171,21 +170,4 @@ void GrPath::ComputeKey(const SkPath& path, const GrStrokeInfo& stroke, GrUnique
     compute_key_for_general_path(path, stroke, key);
     *outIsVolatile = path.isVolatile();
 }
-
-#ifdef SK_DEBUG
-bool GrPath::isEqualTo(const SkPath& path, const GrStrokeInfo& stroke) const {
-    if (!fStroke.hasEqualEffect(stroke)) {
-        return false;
-    }
-
-    // We treat same-rect ovals as identical - but only when not dashing.
-    SkRect ovalBounds;
-    if (!fStroke.isDashed() && fSkPath.isOval(&ovalBounds)) {
-        SkRect otherOvalBounds;
-        return path.isOval(&otherOvalBounds) && ovalBounds == otherOvalBounds;
-    }
-
-    return fSkPath == path;
-}
-#endif
 
