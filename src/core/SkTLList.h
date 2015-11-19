@@ -39,6 +39,11 @@ public:
     class Iter;
 
     SkTLList() : fCount(0) {
+        fFirstBlock.fNodesInUse = 0;
+        for (unsigned int i = 0; i < N; ++i) {
+            fFreeList.addToHead(fFirstBlock.fNodes + i);
+            fFirstBlock.fNodes[i].fBlock = &fFirstBlock;
+        }
         this->validate();
     }
 
@@ -54,7 +59,9 @@ public:
                 for (unsigned int i = 0; i < N; ++i) {
                     block->fNodes[i].~Node();
                 }
-                sk_free(block);
+                if (block != &fFirstBlock) {
+                    sk_free(block);
+                }
             }
         }
     }
@@ -222,6 +229,9 @@ private:
             fFreeList.remove(node);
             ++node->fBlock->fNodesInUse;
         } else {
+            // Should not get here when count == 0 because we always have the preallocated first
+            // block.
+            SkASSERT(fCount > 0);
             Block* block = reinterpret_cast<Block*>(sk_malloc_throw(sizeof(Block)));
             node = &block->fNodes[0];
             new (node) Node;
@@ -241,8 +251,9 @@ private:
         SkASSERT(node);
         fList.remove(node);
         SkTCast<T*>(node->fObj)->~T();
-        if (0 == --node->fBlock->fNodesInUse) {
-            Block* block = node->fBlock;
+        Block* block = node->fBlock;
+        // Don't ever elease the first block, just add its nodes to the free list
+        if (0 == --block->fNodesInUse && block != &fFirstBlock) {
             for (unsigned int i = 0; i < N; ++i) {
                 if (block->fNodes + i != node) {
                     fFreeList.remove(block->fNodes + i);
@@ -260,8 +271,10 @@ private:
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT((0 == fCount) == fList.isEmpty());
-        SkASSERT((0 != fCount) || fFreeList.isEmpty());
-            
+        if (0 == fCount) {
+            // Should only have the nodes from the first block in the free list.
+            SkASSERT(fFreeList.countEntries() == N);
+        }
         fList.validate();
         fFreeList.validate();
         typename NodeList::Iter iter;
@@ -269,8 +282,9 @@ private:
         while (freeNode) {
             SkASSERT(fFreeList.isInList(freeNode));
             Block* block = freeNode->fBlock;
-            SkASSERT(block->fNodesInUse > 0 && (unsigned)block->fNodesInUse < N);
-
+            // Only the first block is allowed to have all its nodes in the free list.
+            SkASSERT(block->fNodesInUse > 0 || block == &fFirstBlock);
+            SkASSERT((unsigned)block->fNodesInUse < N);
             int activeCnt = 0;
             int freeCnt = 0;
             for (unsigned int i = 0; i < N; ++i) {
@@ -310,6 +324,7 @@ private:
 
     NodeList fList;
     NodeList fFreeList;
+    Block    fFirstBlock;
     int fCount;
 };
 
