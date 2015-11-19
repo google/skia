@@ -1072,6 +1072,7 @@ void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) 
             return;
         }
 
+        bool isRRect = hasOnlyMoveTos();
         const SkRect& bounds = rrect.getBounds();
 
         if (rrect.isRect()) {
@@ -1118,6 +1119,9 @@ void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) 
                 }
             }
             this->close();
+
+            SkPathRef::Editor ed(&fPathRef);
+            ed.setIsRRect(isRRect);
 
             SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
         }
@@ -1853,75 +1857,6 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
                 fSegmentState = kEmptyContour_SegmentState;
             }
             fLastPt = fMoveTo;
-            break;
-    }
-    fPts = srcPts;
-    return (Verb)verb;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkPath::RawIter::RawIter() {
-#ifdef SK_DEBUG
-    fPts = nullptr;
-    fConicWeights = nullptr;
-#endif
-    // need to init enough to make next() harmlessly return kDone_Verb
-    fVerbs = nullptr;
-    fVerbStop = nullptr;
-}
-
-SkPath::RawIter::RawIter(const SkPath& path) {
-    this->setPath(path);
-}
-
-void SkPath::RawIter::setPath(const SkPath& path) {
-    fPts = path.fPathRef->points();
-    fVerbs = path.fPathRef->verbs();
-    fVerbStop = path.fPathRef->verbsMemBegin();
-    fConicWeights = path.fPathRef->conicWeights() - 1; // begin one behind
-}
-
-SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
-    SkASSERT(pts);
-    if (fVerbs == fVerbStop) {
-        return kDone_Verb;
-    }
-
-    // fVerbs points one beyond next verb so decrement first.
-    unsigned verb = *(--fVerbs);
-    const SkPoint* srcPts = fPts;
-
-    switch (verb) {
-        case kMove_Verb:
-            pts[0] = srcPts[0];
-            srcPts += 1;
-            break;
-        case kLine_Verb:
-            pts[0] = srcPts[-1];
-            pts[1] = srcPts[0];
-            srcPts += 1;
-            break;
-        case kConic_Verb:
-            fConicWeights += 1;
-            // fall-through
-        case kQuad_Verb:
-            pts[0] = srcPts[-1];
-            pts[1] = srcPts[0];
-            pts[2] = srcPts[1];
-            srcPts += 2;
-            break;
-        case kCubic_Verb:
-            pts[0] = srcPts[-1];
-            pts[1] = srcPts[0];
-            pts[2] = srcPts[1];
-            pts[3] = srcPts[2];
-            srcPts += 3;
-            break;
-        case kClose_Verb:
-            break;
-        case kDone_Verb:
-            SkASSERT(fVerbs == fVerbStop);
             break;
     }
     fPts = srcPts;

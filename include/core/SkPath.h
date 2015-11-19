@@ -154,6 +154,17 @@ public:
      */
     bool isOval(SkRect* rect) const { return fPathRef->isOval(rect); }
 
+    /** Returns true if the path is a round rect.
+     *
+     * @param rrect  Returns the bounding rect and radii of this round rect.
+     *
+     * @return true if this path is a round rect.
+     *              Tracking whether a path is a round rect is considered an
+     *              optimization for performance and so some paths that are in
+     *              fact round rects can report false.
+     */
+    bool isRRect(SkRRect* rrect) const { return fPathRef->isRRect(rrect); }
+
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
         On Android, does not change fSourcePath.
@@ -918,10 +929,14 @@ public:
     */
     class SK_API RawIter {
     public:
-        RawIter();
-        RawIter(const SkPath&);
+        RawIter() {}
+        RawIter(const SkPath& path) {
+            setPath(path);
+        }
 
-        void setPath(const SkPath&);
+        void setPath(const SkPath& path) {
+            fRawIter.setPathRef(*path.fPathRef.get());
+        }
 
         /** Return the next verb in this iteration of the path. When all
             segments have been visited, return kDone_Verb.
@@ -930,15 +945,17 @@ public:
                         This must not be NULL.
             @return The verb for the current segment
         */
-        Verb next(SkPoint pts[4]);
+        Verb next(SkPoint pts[4]) {
+            return (Verb) fRawIter.next(pts);
+        }
 
-        SkScalar conicWeight() const { return *fConicWeights; }
+        SkScalar conicWeight() const {
+            return fRawIter.conicWeight();
+        }
 
     private:
-        const SkPoint*  fPts;
-        const uint8_t*  fVerbs;
-        const uint8_t*  fVerbStop;
-        const SkScalar* fConicWeights;
+        SkPathRef::Iter fRawIter;
+        friend class SkPath;
     };
 
     /**
@@ -1066,6 +1083,7 @@ private:
     friend class SkAutoDisableDirectionCheck;
     friend class SkBench_AddPathTest; // perf test reversePathTo
     friend class PathTest_Private; // unit test reversePathTo
+    friend class ForceIsRRect_Private; // unit test isRRect
 };
 
 #endif
