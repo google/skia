@@ -9,6 +9,7 @@
 #include "SkColorShader.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkTemplates.h"
 #include "Test.h"
 
@@ -196,8 +197,24 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_nearly_vertical(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(200, 200));
+
+    const SkPoint pts[] = {{ 100, 50 }, { 100.0001f, 50000 }};
+    const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
+    const SkScalar pos[] = { 0, 1 };
+    SkAutoTUnref<SkShader> gradient(
+        SkGradientShader::CreateLinear(pts, colors, pos, 2, SkShader::kClamp_TileMode));
+
+    SkPaint paint;
+    paint.setShader(gradient);
+
+    surface->getCanvas()->drawPaint(paint);
+}
+
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestConstantGradient(reporter);
     test_big_grad(reporter);
+    test_nearly_vertical(reporter);
 }

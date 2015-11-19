@@ -893,7 +893,7 @@ void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMCol
     const float dither[2] = { dither0, dither1 };
     const float invDx = 1 / dx;
 
-    if (!SkScalarIsFinite(invDx)) { // dx is effectively zero, gradient is vertical
+    if (SkScalarNearlyZero(dx)) { // gradient is vertical
         Sk4f c = lerp_color(fx, find_forward(fRecs.begin(), SkTPin(fx, 0.0f, 1.0f)));
         if (fApplyAlphaAfterInterp) {
             fill<true>(dstC, count, c + dither0, c + dither1);
