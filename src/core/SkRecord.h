@@ -111,6 +111,10 @@ public:
     // need to iterate with a visitor to measure those they care for.
     size_t bytesUsed() const;
 
+    // Rearrange and resize this record to eliminate any NoOps.
+    // May change count() and the indices of ops, but preserves their order.
+    void defrag();
+
 private:
     // An SkRecord is structured as an array of pointers into a big chunk of memory where
     // records representing each canvas draw call are stored:

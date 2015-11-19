@@ -22,6 +22,8 @@ void SkRecordOptimize(SkRecord* record) {
 
     SkRecordNoopSaveLayerDrawRestores(record);
     SkRecordMergeSvgOpacityAndFilterLayers(record);
+
+    record->defrag();
 }
 
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:
