@@ -11,6 +11,8 @@
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
+#include "GrPath.h"
+#include "GrStrokeInfo.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -108,6 +110,27 @@ DEF_GPUTEST(GpuDrawPathSameRectOvals, reporter, factory) {
         SkSurface::NewRenderTarget(grContext, SkSurface::kNo_Budgeted,
                                    SkImageInfo::MakeN32Premul(255, 255), 4));
     test_drawSameRectOvals(reporter, surface->getCanvas());
+}
+
+DEF_TEST(GrPathKeys, reporter) {
+    // Keys should not ignore conic weights.
+    SkPath path1, path2;
+    path1.setIsVolatile(true);
+    path2.setIsVolatile(true);
+    SkPoint p0 = SkPoint::Make(100, 0);
+    SkPoint p1 = SkPoint::Make(100, 100);
+
+    path1.conicTo(p0, p1, .5f);
+    path2.conicTo(p0, p1, .7f);
+
+    bool isVolatile;
+    GrUniqueKey key1, key2;
+    GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
+    GrPath::ComputeKey(path1, stroke, &key1, &isVolatile);
+    GrPath::ComputeKey(path2, stroke, &key2, &isVolatile);
+
+    // https://bugs.chromium.org/p/skia/issues/detail?id=4580
+    // REPORTER_ASSERT(reporter, key1 != key2);
 }
 
 #endif
