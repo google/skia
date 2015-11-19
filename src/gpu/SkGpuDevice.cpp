@@ -1493,13 +1493,14 @@ void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, con
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
 
-    bool useFallback = paint.getMaskFilter() || paint.isAntiAlias();
+    bool useFallback = paint.getMaskFilter() || paint.isAntiAlias() ||
+                       fRenderTarget->isUnifiedMultisampled();
     bool doBicubic;
     GrTextureParams::FilterMode textureFilterMode =
             GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I(),
                                             &doBicubic);
 
-    // TODO handle bilerp
+    // TODO handle bilerp(vie texture domains), MSAA(via snapping)
     if (useFallback || doBicubic || GrTextureParams::kNone_FilterMode != textureFilterMode) {
         SkNinePatchIter iter(bitmap.width(), bitmap.height(), center, dst);
 
