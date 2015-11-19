@@ -150,6 +150,22 @@ private:
 
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
 
+    bool onSkipScanlines(int count) override;
+
+    /*
+     * For a scanline decode of "count" lines, this function indicates how
+     * many of the "count" lines should be skipped until we reach the top of
+     * the image frame and how many of the "count" lines are actually inside
+     * the image frame.
+     *
+     * @param count           The number of scanlines requested.
+     * @param rowsBeforeFrame Output variable.  The number of lines before
+     *                        we reach the top of the image frame.
+     * @param rowsInFrame     Output variable.  The number of lines to decode
+     *                        inside the image frame.
+     */
+    void handleScanlineFrame(int count, int* rowsBeforeFrame, int* rowsInFrame);
+
     SkScanlineOrder onGetScanlineOrder() const override;
 
     /*

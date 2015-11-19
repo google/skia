@@ -506,10 +506,36 @@ SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     return this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, this->options());
 }
 
+void SkGifCodec::handleScanlineFrame(int count, int* rowsBeforeFrame, int* rowsInFrame) {
+    if (fFrameIsSubset) {
+        const int currRow = this->INHERITED::nextScanline();
+
+        // The number of rows that remain to be skipped before reaching rows that we
+        // actually must decode into.
+        // This must be at least zero.  We also make sure that it is less than or
+        // equal to count, since we will skip at most count rows.
+        *rowsBeforeFrame = SkTMin(count, SkTMax(0, fFrameRect.top() - currRow));
+
+        // Rows left to decode once we reach the start of the frame.
+        const int rowsLeft = count - *rowsBeforeFrame;
+
+        // Count the number of that extend beyond the bottom of the frame.  We do not
+        // need to decode into these rows.
+        const int rowsAfterFrame = SkTMax(0, currRow + rowsLeft - fFrameRect.bottom());
+
+        // Set the actual number of source rows that we need to decode.
+        *rowsInFrame = rowsLeft - rowsAfterFrame;
+    } else {
+        *rowsBeforeFrame = 0;
+        *rowsInFrame = count;
+    }
+}
+
 int SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
-    int rowsBeforeFrame = 0;
-    int rowsAfterFrame = 0;
-    int rowsInFrame = count;
+    int rowsBeforeFrame;
+    int rowsInFrame;
+    this->handleScanlineFrame(count, &rowsBeforeFrame, &rowsInFrame);
+
     if (fFrameIsSubset) {
         // Fill the requested rows
         SkImageInfo fillInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
@@ -517,15 +543,8 @@ int SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
                 this->dstInfo().alphaType());
         fSwizzler->fill(fillInfo, dst, rowBytes, fillValue, this->options().fZeroInitialized);
 
-        // Do nothing for rows before the image frame
-        rowsBeforeFrame = SkTMax(0, fFrameRect.top() - this->INHERITED::nextScanline());
-        rowsInFrame = SkTMax(0, rowsInFrame - rowsBeforeFrame);
+        // Start to write pixels at the start of the image frame
         dst = SkTAddOffset<void>(dst, rowBytes * rowsBeforeFrame);
-
-        // Do nothing for rows after the image frame
-        rowsAfterFrame = SkTMax(0,
-                this->INHERITED::nextScanline() + rowsInFrame - fFrameRect.bottom());
-        rowsInFrame = SkTMax(0, rowsInFrame - rowsAfterFrame);
     }
 
     for (int i = 0; i < rowsInFrame; i++) {
@@ -537,6 +556,20 @@ int SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
     }
 
     return count;
+}
+
+bool SkGifCodec::onSkipScanlines(int count) {
+    int rowsBeforeFrame;
+    int rowsInFrame;
+    this->handleScanlineFrame(count, &rowsBeforeFrame, &rowsInFrame);
+
+    for (int i = 0; i < rowsInFrame; i++) {
+        if (!this->readRow()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 SkCodec::SkScanlineOrder SkGifCodec::onGetScanlineOrder() const {
