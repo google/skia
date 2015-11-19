@@ -13,19 +13,6 @@
 
 using namespace SkRecords;
 
-void SkRecordOptimize(SkRecord* record) {
-    // This might be useful  as a first pass in the future if we want to weed
-    // out junk for other optimization passes.  Right now, nothing needs it,
-    // and the bounding box hierarchy will do the work of skipping no-op
-    // Save-NoDraw-Restore sequences better than we can here.
-    //SkRecordNoopSaveRestores(record);
-
-    SkRecordNoopSaveLayerDrawRestores(record);
-    SkRecordMergeSvgOpacityAndFilterLayers(record);
-
-    record->defrag();
-}
-
 // Most of the optimizations in this file are pattern-based.  These are all defined as structs with:
 //   - a Match typedef
 //   - a bool onMatch(SkRceord*, Match*, int begin, int end) method,
@@ -45,6 +32,45 @@ static bool apply(Pass* pass, SkRecord* record) {
     }
     return changed;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void multiple_set_matrices(SkRecord* record) {
+    struct {
+        typedef Pattern<Is<SetMatrix>,
+                        Greedy<Is<NoOp>>,
+                        Is<SetMatrix> >
+            Match;
+
+        bool onMatch(SkRecord* record, Match* pattern, int begin, int end) {
+            record->replace<NoOp>(begin);  // first SetMatrix
+            return true;
+        }
+    } pass;
+    while (apply(&pass, record));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if 0   // experimental, but needs knowledge of previous matrix to operate correctly
+static void apply_matrix_to_draw_params(SkRecord* record) {
+    struct {
+        typedef Pattern<Is<SetMatrix>,
+                        Greedy<Is<NoOp>>,
+                        Is<SetMatrix> >
+            Pattern;
+
+        bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
+            record->replace<NoOp>(begin);  // first SetMatrix
+            return true;
+        }
+    } pass;
+    // No need to loop, as we never "open up" opportunities for more of this type of optimization.
+    apply(&pass, record);
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.
 struct SaveOnlyDrawsRestoreNooper {
@@ -232,3 +258,28 @@ void SkRecordMergeSvgOpacityAndFilterLayers(SkRecord* record) {
     SvgOpacityAndFilterLayerMergePass pass;
     apply(&pass, record);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkRecordOptimize(SkRecord* record) {
+    // This might be useful  as a first pass in the future if we want to weed
+    // out junk for other optimization passes.  Right now, nothing needs it,
+    // and the bounding box hierarchy will do the work of skipping no-op
+    // Save-NoDraw-Restore sequences better than we can here.
+    //SkRecordNoopSaveRestores(record);
+
+    SkRecordNoopSaveLayerDrawRestores(record);
+    SkRecordMergeSvgOpacityAndFilterLayers(record);
+
+    record->defrag();
+}
+
+void SkRecordOptimize2(SkRecord* record) {
+    multiple_set_matrices(record);
+    SkRecordNoopSaveRestores(record);
+    SkRecordNoopSaveLayerDrawRestores(record);
+    SkRecordMergeSvgOpacityAndFilterLayers(record);
+
+    record->defrag();
+}
+
