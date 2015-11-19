@@ -13,7 +13,7 @@
 
 class SK_API GrReducedClip {
 public:
-    typedef SkTLList<SkClipStack::Element> ElementList;
+    typedef SkTLList<SkClipStack::Element, 16> ElementList;
 
     enum InitialState {
         kAllIn_InitialState,

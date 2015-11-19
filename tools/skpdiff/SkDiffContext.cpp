@@ -261,7 +261,7 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
 }
 
 void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
-    SkTLList<DiffRecord>::Iter iter(fRecords, SkTLList<DiffRecord>::Iter::kHead_IterStart);
+    RecordList::Iter iter(fRecords, RecordList::Iter::kHead_IterStart);
     DiffRecord* currentRecord = iter.get();
 
     if (useJSONP) {
@@ -373,7 +373,7 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
 
     stream.writeText("key");
 
-    SkTLList<DiffRecord>::Iter iter(fRecords, SkTLList<DiffRecord>::Iter::kHead_IterStart);
+    RecordList::Iter iter(fRecords, RecordList::Iter::kHead_IterStart);
     DiffRecord* currentRecord = iter.get();
 
     // Write CSV header and create a dictionary of all columns.
@@ -394,7 +394,7 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
     double values[100];
     SkASSERT(cntColumns < 100);  // Make the array larger, if we ever have so many diff types.
 
-    SkTLList<DiffRecord>::Iter iter2(fRecords, SkTLList<DiffRecord>::Iter::kHead_IterStart);
+    RecordList::Iter iter2(fRecords, RecordList::Iter::kHead_IterStart);
     currentRecord = iter2.get();
     while (currentRecord) {
         for (int i = 0; i < cntColumns; i++) {

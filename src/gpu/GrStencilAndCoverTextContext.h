@@ -93,7 +93,7 @@ private:
 
     // Text blobs/caches.
 
-    class TextBlob : public SkTLList<TextRun> {
+    class TextBlob : public SkTLList<TextRun, 1> {
     public:
         typedef SkTArray<uint32_t, true> Key;
 

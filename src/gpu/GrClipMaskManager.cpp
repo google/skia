@@ -283,7 +283,7 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         fClipMode = kIgnoreClip_StencilClipMode;
     }
 
-    GrReducedClip::ElementList elements(16);
+    GrReducedClip::ElementList elements;
     int32_t genID = 0;
     GrReducedClip::InitialState initialState = GrReducedClip::kAllIn_InitialState;
     SkIRect clipSpaceIBounds;

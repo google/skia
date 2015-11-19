@@ -171,7 +171,7 @@ private:
     void onDraw(GrBatchFlushState* state) override;
 
     typedef GrPendingIOResource<const GrPathRange, kRead_GrIOType> PendingPathRange;
-    typedef SkTLList<GrPathRangeDraw*> DrawList;
+    typedef SkTLList<GrPathRangeDraw*, 4> DrawList;
     PendingPathRange    fPathRange;
     DrawList            fDraws;
     int                 fTotalPathCount;

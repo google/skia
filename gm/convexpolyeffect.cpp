@@ -166,7 +166,7 @@ protected:
                 GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I()));
 
         SkScalar y = 0;
-        for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
+        for (PathList::Iter iter(fPaths, PathList::Iter::kHead_IterStart);
              iter.get();
              iter.next()) {
             const SkPath* path = iter.get();
@@ -217,7 +217,7 @@ protected:
             y += SkScalarCeilToScalar(path->getBounds().height() + 20.f);
         }
 
-        for (SkTLList<SkRect>::Iter iter(fRects, SkTLList<SkRect>::Iter::kHead_IterStart);
+        for (RectList::Iter iter(fRects, RectList::Iter::kHead_IterStart);
              iter.get();
              iter.next()) {
 
@@ -268,8 +268,10 @@ protected:
     }
 
 private:
-    SkTLList<SkPath> fPaths;
-    SkTLList<SkRect> fRects;
+    typedef SkTLList<SkPath, 1> PathList;
+    typedef SkTLList<SkRect, 1> RectList;
+    PathList fPaths;
+    RectList fRects;
 
     typedef GM INHERITED;
 };

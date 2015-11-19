@@ -188,7 +188,8 @@ private:
     // We use linked list for the records so that their pointers remain stable. A resizable array
     // might change its pointers, which would make it harder for async diffs to record their
     // results.
-    SkTLList<DiffRecord> fRecords;
+    typedef SkTLList<DiffRecord, 1> RecordList;
+    RecordList fRecords;
 
     SkImageDiffer** fDiffers;
     int fDifferCount;

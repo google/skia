@@ -59,7 +59,6 @@ GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkM
                                            GrColor color, GrPathRange* range, GrPathRangeDraw* draw)
     : INHERITED(ClassID(), viewMatrix, color)
     , fPathRange(range)
-    , fDraws(4)
     , fLocalMatrix(localMatrix) {
     SkDEBUGCODE(draw->fUsedInBatch = true;)
     fDraws.addToHead(SkRef(draw));

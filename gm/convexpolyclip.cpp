@@ -158,7 +158,7 @@ protected:
         SkScalar startX = 0;
         int testLayers = kBench_Mode != this->getMode();
         for (int doLayer = 0; doLayer <= testLayers; ++doLayer) {
-            for (SkTLList<Clip>::Iter iter(fClips, SkTLList<Clip>::Iter::kHead_IterStart);
+            for (ClipList::Iter iter(fClips, ClipList::Iter::kHead_IterStart);
                  iter.get();
                  iter.next()) {
                 const Clip* clip = iter.get();
@@ -291,7 +291,8 @@ private:
         SkRect fRect;
     };
 
-    SkTLList<Clip>   fClips;
+    typedef SkTLList<Clip, 1> ClipList;
+    ClipList         fClips;
     SkBitmap         fBmp;
 
     typedef GM INHERITED;

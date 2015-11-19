@@ -12,12 +12,6 @@
 #include "SkTypes.h"
 #include <utility>
 
-template <typename T> class SkTLList;
-template <typename T>
-inline void* operator new(size_t, SkTLList<T>* list,
-                          typename SkTLList<T>::Placement placement,
-                          const typename SkTLList<T>::Iter& location);
-
 /** Doubly-linked list of objects. The objects' lifetimes are controlled by the list. I.e. the
     the list creates the objects and they are deleted upon removal. This class block-allocates
     space for entries based on a param passed to the constructor.
@@ -27,9 +21,11 @@ inline void* operator new(size_t, SkTLList<T>* list,
         SkNEW_INSERT_IN_LLIST_AFTER(list, location, type_name, args)
     where list is a SkTLList<type_name>*, location is an iterator, and args is the paren-surrounded
     constructor arguments for type_name. These macros behave like addBefore() and addAfter().
+
+    allocCnt is the number of objects to allocate as a group. In the worst case fragmentation
+    each object is using the space required for allocCnt unfragmented objects.
 */
-template <typename T>
-class SkTLList : SkNoncopyable {
+template <typename T, unsigned int N> class SkTLList : SkNoncopyable {
 private:
     struct Block;
     struct Node {
@@ -40,13 +36,9 @@ private:
     typedef SkTInternalLList<Node> NodeList;
 
 public:
-
     class Iter;
 
-    /** allocCnt is the number of objects to allocate as a group. In the worst case fragmentation
-        each object is using the space required for allocCnt unfragmented objects. */
-    SkTLList(int allocCnt = 1) : fCount(0), fAllocCnt(allocCnt) {
-        SkASSERT(allocCnt > 0);
+    SkTLList() : fCount(0) {
         this->validate();
     }
 
@@ -59,7 +51,7 @@ public:
             Block* block = node->fBlock;
             node = iter.next();
             if (0 == --block->fNodesInUse) {
-                for (int i = 0; i < fAllocCnt; ++i) {
+                for (unsigned int i = 0; i < N; ++i) {
                     block->fNodes[i].~Node();
                 }
                 sk_free(block);
@@ -221,10 +213,8 @@ public:
 private:
     struct Block {
         int fNodesInUse;
-        Node fNodes[1];
+        Node fNodes[N];
     };
-
-    size_t blockSize() const { return sizeof(Block) + sizeof(Node) * (fAllocCnt-1); }
 
     Node* createNode() {
         Node* node = fFreeList.head();
@@ -232,12 +222,12 @@ private:
             fFreeList.remove(node);
             ++node->fBlock->fNodesInUse;
         } else {
-            Block* block = reinterpret_cast<Block*>(sk_malloc_throw(this->blockSize()));
+            Block* block = reinterpret_cast<Block*>(sk_malloc_throw(sizeof(Block)));
             node = &block->fNodes[0];
             new (node) Node;
             node->fBlock = block;
             block->fNodesInUse = 1;
-            for (int i = 1; i < fAllocCnt; ++i) {
+            for (unsigned int i = 1; i < N; ++i) {
                 new (block->fNodes + i) Node;
                 fFreeList.addToHead(block->fNodes + i);
                 block->fNodes[i].fBlock = block;
@@ -253,7 +243,7 @@ private:
         SkTCast<T*>(node->fObj)->~T();
         if (0 == --node->fBlock->fNodesInUse) {
             Block* block = node->fBlock;
-            for (int i = 0; i < fAllocCnt; ++i) {
+            for (unsigned int i = 0; i < N; ++i) {
                 if (block->fNodes + i != node) {
                     fFreeList.remove(block->fNodes + i);
                 }
@@ -271,7 +261,7 @@ private:
 #ifdef SK_DEBUG
         SkASSERT((0 == fCount) == fList.isEmpty());
         SkASSERT((0 != fCount) || fFreeList.isEmpty());
-
+            
         fList.validate();
         fFreeList.validate();
         typename NodeList::Iter iter;
@@ -279,11 +269,11 @@ private:
         while (freeNode) {
             SkASSERT(fFreeList.isInList(freeNode));
             Block* block = freeNode->fBlock;
-            SkASSERT(block->fNodesInUse > 0 && block->fNodesInUse < fAllocCnt);
+            SkASSERT(block->fNodesInUse > 0 && (unsigned)block->fNodesInUse < N);
 
             int activeCnt = 0;
             int freeCnt = 0;
-            for (int i = 0; i < fAllocCnt; ++i) {
+            for (unsigned int i = 0; i < N; ++i) {
                 bool free = fFreeList.isInList(block->fNodes + i);
                 bool active = fList.isInList(block->fNodes + i);
                 SkASSERT(free != active);
@@ -300,11 +290,11 @@ private:
             ++count;
             SkASSERT(fList.isInList(activeNode));
             Block* block = activeNode->fBlock;
-            SkASSERT(block->fNodesInUse > 0 && block->fNodesInUse <= fAllocCnt);
+            SkASSERT(block->fNodesInUse > 0 && (unsigned)block->fNodesInUse <= N);
 
             int activeCnt = 0;
             int freeCnt = 0;
-            for (int i = 0; i < fAllocCnt; ++i) {
+            for (unsigned int i = 0; i < N; ++i) {
                 bool free = fFreeList.isInList(block->fNodes + i);
                 bool active = fList.isInList(block->fNodes + i);
                 SkASSERT(free != active);
@@ -321,8 +311,6 @@ private:
     NodeList fList;
     NodeList fFreeList;
     int fCount;
-    int fAllocCnt;
-
 };
 
 #endif

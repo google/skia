@@ -77,7 +77,8 @@ private:
 
     // Array of DrawArray. There may be inline uploads between each DrawArray and each DrawArray
     // may use a different primitive processor.
-    SkTLList<DrawArray> fDrawArrays;
+    typedef SkTLList<DrawArray, 4> DrawArrayList;
+    DrawArrayList fDrawArrays;
 
     typedef GrDrawBatch INHERITED;
 };
