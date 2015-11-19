@@ -1513,7 +1513,7 @@ void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, con
 
     GrTextureParams params = GrTextureParams::ClampNoFilter();
 
-    GrTexture* texture(GrRefCachedBitmapTexture(this->context(), bitmap, params));
+    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(this->context(), bitmap, params));
     if (nullptr == texture) {
         return;
     }
