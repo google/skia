@@ -13,7 +13,8 @@
 template <int N>
 static void test_Nf(skiatest::Reporter* r) {
 
-    auto assert_nearly_eq = [&](float eps, const SkNf<N>& v, float a, float b, float c, float d) {
+    auto assert_nearly_eq = [&](float eps, const SkNx<N, float>& v,
+                                float a, float b, float c, float d) {
         auto close = [=](float a, float b) { return fabsf(a-b) <= eps; };
         float vals[4];
         v.store(vals);
@@ -26,15 +27,15 @@ static void test_Nf(skiatest::Reporter* r) {
             REPORTER_ASSERT(r, ok);
         }
     };
-    auto assert_eq = [&](const SkNf<N>& v, float a, float b, float c, float d) {
+    auto assert_eq = [&](const SkNx<N, float>& v, float a, float b, float c, float d) {
         return assert_nearly_eq(0, v, a,b,c,d);
     };
 
     float vals[] = {3, 4, 5, 6};
-    SkNf<N> a = SkNf<N>::Load(vals),
-            b(a),
-            c = a;
-    SkNf<N> d;
+    SkNx<N,float> a = SkNx<N,float>::Load(vals),
+                  b(a),
+                  c = a;
+    SkNx<N,float> d;
     d = a;
 
     assert_eq(a, 3, 4, 5, 6);
@@ -47,9 +48,9 @@ static void test_Nf(skiatest::Reporter* r) {
     assert_eq(a*b-b, 6, 12, 20, 30);
     assert_eq((a*b).sqrt(), 3, 4, 5, 6);
     assert_eq(a/b, 1, 1, 1, 1);
-    assert_eq(SkNf<N>(0)-a, -3, -4, -5, -6);
+    assert_eq(SkNx<N,float>(0)-a, -3, -4, -5, -6);
 
-    SkNf<N> fours(4);
+    SkNx<N,float> fours(4);
 
     assert_eq(fours.sqrt(), 2,2,2,2);
     assert_nearly_eq(0.001f, fours.rsqrt0(), 0.5, 0.5, 0.5, 0.5);
@@ -59,8 +60,8 @@ static void test_Nf(skiatest::Reporter* r) {
     assert_eq(               fours.      invert(), 0.25, 0.25, 0.25, 0.25);
     assert_nearly_eq(0.001f, fours.approxInvert(), 0.25, 0.25, 0.25, 0.25);
 
-    assert_eq(SkNf<N>::Min(a, fours), 3, 4, 4, 4);
-    assert_eq(SkNf<N>::Max(a, fours), 4, 4, 5, 6);
+    assert_eq(SkNx<N,float>::Min(a, fours), 3, 4, 4, 4);
+    assert_eq(SkNx<N,float>::Max(a, fours), 4, 4, 5, 6);
 
     // Test some comparisons.  This is not exhaustive.
     REPORTER_ASSERT(r, (a == b).allTrue());
@@ -81,7 +82,7 @@ DEF_TEST(SkNf, r) {
 
 template <int N, typename T>
 void test_Ni(skiatest::Reporter* r) {
-    auto assert_eq = [&](const SkNi<N,T>& v, T a, T b, T c, T d, T e, T f, T g, T h) {
+    auto assert_eq = [&](const SkNx<N,T>& v, T a, T b, T c, T d, T e, T f, T g, T h) {
         T vals[8];
         v.store(vals);
 
@@ -99,10 +100,10 @@ void test_Ni(skiatest::Reporter* r) {
     };
 
     T vals[] = { 1,2,3,4,5,6,7,8 };
-    SkNi<N,T> a = SkNi<N,T>::Load(vals),
+    SkNx<N,T> a = SkNx<N,T>::Load(vals),
               b(a),
               c = a;
-    SkNi<N,T> d;
+    SkNx<N,T> d;
     d = a;
 
     assert_eq(a, 1,2,3,4,5,6,7,8);
@@ -120,7 +121,7 @@ void test_Ni(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, a.template kth<1>() == 2);
 }
 
-DEF_TEST(SkNi, r) {
+DEF_TEST(SkNx, r) {
     test_Ni<2, uint16_t>(r);
     test_Ni<4, uint16_t>(r);
     test_Ni<8, uint16_t>(r);
@@ -219,4 +220,14 @@ DEF_TEST(Sk4f_toBytes, r) {
     REPORTER_ASSERT(r, bytes[1] == 0);
     REPORTER_ASSERT(r, bytes[2] == 255);
     REPORTER_ASSERT(r, bytes[3] == 255);
+}
+
+DEF_TEST(SkNx_cast, r) {
+    Sk4f fs(-1.7f, -1.4f, 0.5f, 1.9f);
+    Sk4i is = SkNx_cast<int>(fs);
+
+    REPORTER_ASSERT(r, is.kth<0>() == -1);
+    REPORTER_ASSERT(r, is.kth<1>() == -1);
+    REPORTER_ASSERT(r, is.kth<2>() ==  0);
+    REPORTER_ASSERT(r, is.kth<3>() ==  1);
 }
