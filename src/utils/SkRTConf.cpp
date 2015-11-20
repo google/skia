@@ -12,7 +12,7 @@
 
 SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
 
-    SkFILE *fp = sk_fopen(configFileLocation(), kRead_SkFILE_Flag);
+    FILE *fp = sk_fopen(configFileLocation(), kRead_SkFILE_Flag);
 
     if (!fp) {
         return;
@@ -77,7 +77,7 @@ const char *SkRTConfRegistry::configFileLocation() const {
 // to trigger this, make a config file of zero size.
 void SkRTConfRegistry::possiblyDumpFile() const {
     const char *path = configFileLocation();
-    SkFILE *fp = sk_fopen(path, kRead_SkFILE_Flag);
+    FILE *fp = sk_fopen(path, kRead_SkFILE_Flag);
     if (!fp) {
         return;
     }

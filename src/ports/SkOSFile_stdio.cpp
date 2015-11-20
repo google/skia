@@ -45,7 +45,7 @@ static FILE* ios_open_from_bundle(const char path[], const char* perm) {
 #endif
 
 
-SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
+FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     char    perm[4];
     char*   p = perm;
 
@@ -60,16 +60,16 @@ SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     
     //TODO: on Windows fopen is just ASCII or the current code page,
     //convert to utf16 and use _wfopen
-    SkFILE* file = nullptr;
+    FILE* file = nullptr;
 #ifdef SK_BUILD_FOR_IOS
     // if read-only, try to open from bundle first
     if (kRead_SkFILE_Flag == flags) {
-        file = (SkFILE*)ios_open_from_bundle(path, perm);
+        file = ios_open_from_bundle(path, perm);
     }
     // otherwise just read from the Documents directory (default)
     if (!file) {
 #endif
-        file = (SkFILE*)::fopen(path, perm);
+        file = ::fopen(path, perm);
 #ifdef SK_BUILD_FOR_IOS
     }
 #endif
@@ -80,90 +80,90 @@ SkFILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     return file;
 }
 
-char* sk_fgets(char* str, int size, SkFILE* f) {
+char* sk_fgets(char* str, int size, FILE* f) {
     return ::fgets(str, size, (FILE *)f);
 }
 
-int sk_feof(SkFILE *f) {
+int sk_feof(FILE *f) {
     // no :: namespace qualifier because it breaks android
     return feof((FILE *)f);
 }
 
-size_t sk_fgetsize(SkFILE* f) {
+size_t sk_fgetsize(FILE* f) {
     SkASSERT(f);
 
-    long curr = ::ftell((FILE*)f); // remember where we are
+    long curr = ::ftell(f); // remember where we are
     if (curr < 0) {
         return 0;
     }
 
-    ::fseek((FILE*)f, 0, SEEK_END); // go to the end
-    long size = ::ftell((FILE*)f); // record the size
+    ::fseek(f, 0, SEEK_END); // go to the end
+    long size = ::ftell(f); // record the size
     if (size < 0) {
         size = 0;
     }
 
-    ::fseek((FILE*)f, curr, SEEK_SET); // go back to our prev location
+    ::fseek(f, curr, SEEK_SET); // go back to our prev location
     return size;
 }
 
-bool sk_frewind(SkFILE* f) {
+bool sk_frewind(FILE* f) {
     SkASSERT(f);
-    ::rewind((FILE*)f);
+    ::rewind(f);
     return true;
 }
 
-size_t sk_fread(void* buffer, size_t byteCount, SkFILE* f) {
+size_t sk_fread(void* buffer, size_t byteCount, FILE* f) {
     SkASSERT(f);
     if (buffer == nullptr) {
-        size_t curr = ::ftell((FILE*)f);
+        size_t curr = ::ftell(f);
         if ((long)curr == -1) {
-            SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof((FILE*)f), ferror((FILE*)f)));
+            SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof(f), ferror(f)));
             return 0;
         }
-        int err = ::fseek((FILE*)f, (long)byteCount, SEEK_CUR);
+        int err = ::fseek(f, (long)byteCount, SEEK_CUR);
         if (err != 0) {
             SkDEBUGF(("sk_fread: fseek(%d) tell:%d failed with feof:%d ferror:%d returned:%d\n",
-                        byteCount, curr, feof((FILE*)f), ferror((FILE*)f), err));
+                        byteCount, curr, feof(f), ferror(f), err));
             return 0;
         }
         return byteCount;
     }
     else
-        return ::fread(buffer, 1, byteCount, (FILE*)f);
+        return ::fread(buffer, 1, byteCount, f);
 }
 
-size_t sk_fwrite(const void* buffer, size_t byteCount, SkFILE* f) {
+size_t sk_fwrite(const void* buffer, size_t byteCount, FILE* f) {
     SkASSERT(f);
-    return ::fwrite(buffer, 1, byteCount, (FILE*)f);
+    return ::fwrite(buffer, 1, byteCount, f);
 }
 
-void sk_fflush(SkFILE* f) {
+void sk_fflush(FILE* f) {
     SkASSERT(f);
-    ::fflush((FILE*)f);
+    ::fflush(f);
 }
 
-bool sk_fseek(SkFILE* f, size_t byteCount) {
-    int err = ::fseek((FILE*)f, (long)byteCount, SEEK_SET);
+bool sk_fseek(FILE* f, size_t byteCount) {
+    int err = ::fseek(f, (long)byteCount, SEEK_SET);
     return err == 0;
 }
 
-bool sk_fmove(SkFILE* f, long byteCount) {
-    int err = ::fseek((FILE*)f, byteCount, SEEK_CUR);
+bool sk_fmove(FILE* f, long byteCount) {
+    int err = ::fseek(f, byteCount, SEEK_CUR);
     return err == 0;
 }
 
-size_t sk_ftell(SkFILE* f) {
-    long curr = ::ftell((FILE*)f);
+size_t sk_ftell(FILE* f) {
+    long curr = ::ftell(f);
     if (curr < 0) {
         return 0;
     }
     return curr;
 }
 
-void sk_fclose(SkFILE* f) {
+void sk_fclose(FILE* f) {
     SkASSERT(f);
-    ::fclose((FILE*)f);
+    ::fclose(f);
 }
 
 bool sk_isdir(const char *path) {

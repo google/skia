@@ -683,7 +683,7 @@ static void testSkpClip(TestState* data) {
         return;
     }
     statusFile.appendf("%s%s", PATH_SLASH, statName.c_str());
-    SkFILE* file = sk_fopen(statusFile.c_str(), kWrite_SkFILE_Flag);
+    FILE* file = sk_fopen(statusFile.c_str(), kWrite_SkFILE_Flag);
     if (!file) {
             SkDebugf("failed to create %s", statusFile.c_str());
             return;

@@ -11,7 +11,7 @@
 static const int kBitmapSize = 24;
 
 static bool read_test_case(const char* filename, SkString* testdata) {
-  SkFILE* file = sk_fopen(filename, kRead_SkFILE_Flag);
+  FILE* file = sk_fopen(filename, kRead_SkFILE_Flag);
   if (!file) {
     SkDebugf("couldn't open file %s\n", filename);
     return false;

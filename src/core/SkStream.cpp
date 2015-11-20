@@ -185,7 +185,7 @@ SkFILEStream::SkFILEStream(const char file[]) : fName(file), fOwnership(kCallerP
 }
 
 SkFILEStream::SkFILEStream(FILE* file, Ownership ownership)
-    : fFILE((SkFILE*)file)
+    : fFILE(file)
     , fOwnership(ownership) {
 }
 
@@ -850,7 +850,7 @@ bool SkDebugWStream::write(const void* buffer, size_t size)
 
 
 static SkData* mmap_filename(const char path[]) {
-    SkFILE* file = sk_fopen(path, kRead_SkFILE_Flag);
+    FILE* file = sk_fopen(path, kRead_SkFILE_Flag);
     if (nullptr == file) {
         return nullptr;
     }

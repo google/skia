@@ -191,7 +191,7 @@ static void test_files(skiatest::Reporter* reporter) {
         writer.write(s, 26);
     }
 
-    SkFILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
+    FILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
     SkAutoTUnref<SkData> r1(SkData::NewFromFILE(file));
     REPORTER_ASSERT(reporter, r1.get() != nullptr);
     REPORTER_ASSERT(reporter, r1->size() == 26);

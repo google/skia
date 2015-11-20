@@ -224,8 +224,6 @@ public:
 #include "SkString.h"
 #include <stdio.h>
 
-struct SkFILE;
-
 /** A stream that wraps a C FILE* file stream. */
 class SK_API SkFILEStream : public SkStreamAsset {
 public:
@@ -271,7 +269,7 @@ public:
     const void* getMemoryBase() override;
 
 private:
-    SkFILE*     fFILE;
+    FILE*     fFILE;
     SkString    fName;
     Ownership   fOwnership;
     // fData is lazilly initialized when needed.
@@ -364,7 +362,7 @@ public:
     size_t bytesWritten() const override;
 
 private:
-    SkFILE* fFILE;
+    FILE* fFILE;
 
     typedef SkWStream INHERITED;
 };
