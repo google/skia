@@ -415,60 +415,6 @@ struct ReleaseDataContext {
     }
 };
 
-// May we (soon) eliminate the need to keep testing this, by hiding the bloody device!
-#include "SkDevice.h"
-static uint32_t get_legacy_gen_id(SkSurface* surf) {
-    SkBaseDevice* device = surf->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
-    return device->accessBitmap(false).getGenerationID();
-}
-
-/*
- *  Test legacy behavor of bumping the surface's device's bitmap's genID when we access its
- *  texture handle for writing.
- *
- *  Note: this needs to be tested separately from checking newImageSnapshot, as calling that
- *  can also incidentally bump the genID (when a new backing surface is created).
- */
-template <class F>
-static void test_texture_handle_genID(skiatest::Reporter* reporter, SkSurface* surf, F f) {
-    const uint32_t gen0 = get_legacy_gen_id(surf);
-    f(surf, SkSurface::kFlushRead_BackendHandleAccess);
-    const uint32_t gen1 = get_legacy_gen_id(surf);
-    REPORTER_ASSERT(reporter, gen0 == gen1);
-
-    f(surf, SkSurface::kFlushWrite_BackendHandleAccess);
-    const uint32_t gen2 = get_legacy_gen_id(surf);
-    REPORTER_ASSERT(reporter, gen0 != gen2);
-
-    f(surf, SkSurface::kDiscardWrite_BackendHandleAccess);
-    const uint32_t gen3 = get_legacy_gen_id(surf);
-    REPORTER_ASSERT(reporter, gen0 != gen3);
-    REPORTER_ASSERT(reporter, gen2 != gen3);
-}
-
-template <class F>
-static void test_backend_handle(skiatest::Reporter* reporter, SkSurface* surf, F f) {
-    SkAutoTUnref<SkImage> image0(surf->newImageSnapshot());
-    GrBackendObject obj = f(surf, SkSurface::kFlushRead_BackendHandleAccess);
-    REPORTER_ASSERT(reporter, obj != 0);
-    SkAutoTUnref<SkImage> image1(surf->newImageSnapshot());
-    // just read access should not affect the snapshot
-    REPORTER_ASSERT(reporter, image0->uniqueID() == image1->uniqueID());
-
-    obj = f(surf, SkSurface::kFlushWrite_BackendHandleAccess);
-    REPORTER_ASSERT(reporter, obj != 0);
-    SkAutoTUnref<SkImage> image2(surf->newImageSnapshot());
-    // expect a new image, since we claimed we would write
-    REPORTER_ASSERT(reporter, image0->uniqueID() != image2->uniqueID());
-
-    obj = f(surf, SkSurface::kDiscardWrite_BackendHandleAccess);
-    REPORTER_ASSERT(reporter, obj != 0);
-    SkAutoTUnref<SkImage> image3(surf->newImageSnapshot());
-    // expect a new(er) image, since we claimed we would write
-    REPORTER_ASSERT(reporter, image0->uniqueID() != image3->uniqueID());
-    REPORTER_ASSERT(reporter, image2->uniqueID() != image3->uniqueID());
-}
-
 static SkImage* create_image(skiatest::Reporter* reporter,
                              ImageType imageType, GrContext* context, SkColor color,
                              ReleaseDataContext* releaseContext) {
@@ -494,22 +440,6 @@ static SkImage* create_image(skiatest::Reporter* reporter,
         case kGpu_ImageType: {
             SkAutoTUnref<SkSurface> surf(
                 SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
-            surf->getCanvas()->clear(color);
-            // test our backing texture / rendertarget while were here...
-            auto textureAccessorFunc =
-                    [](SkSurface* surf, SkSurface::BackendHandleAccess access) -> GrBackendObject {
-                        return surf->getTextureHandle(access); };
-            auto renderTargetAccessorFunc =
-                    [](SkSurface* surf, SkSurface::BackendHandleAccess access) -> GrBackendObject {
-                        GrBackendObject obj;
-                        SkAssertResult(surf->getRenderTargetHandle(&obj, access));
-                        return obj; };
-            test_backend_handle(reporter, surf, textureAccessorFunc);
-            test_backend_handle(reporter, surf, renderTargetAccessorFunc);
-            test_texture_handle_genID(reporter, surf, textureAccessorFunc);
-            test_texture_handle_genID(reporter, surf, renderTargetAccessorFunc);
-
-            // redraw so our returned image looks as expected.
             surf->getCanvas()->clear(color);
             return surf->newImageSnapshot();
         }

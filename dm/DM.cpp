@@ -1144,6 +1144,67 @@ int dm_main() {
     return 0;
 }
 
+// TODO: currently many GPU tests are declared outside SK_SUPPORT_GPU guards.
+// Thus we export the empty RunWithGPUTestContexts when SK_SUPPORT_GPU=0.
+namespace skiatest {
+namespace {
+typedef void(*TestWithGrContext)(skiatest::Reporter*, GrContext*);
+typedef void(*TestWithGrContextAndGLContext)(skiatest::Reporter*, GrContext*, SkGLContext*);
+#if SK_SUPPORT_GPU
+template<typename T>
+void call_test(T test, skiatest::Reporter* reporter, GrContextFactory::ContextInfo* context);
+template<>
+void call_test(TestWithGrContext test, skiatest::Reporter* reporter,
+               GrContextFactory::ContextInfo* context) {
+    test(reporter, context->fGrContext);
+}
+template<>
+void call_test(TestWithGrContextAndGLContext test, skiatest::Reporter* reporter,
+               GrContextFactory::ContextInfo* context) {
+    test(reporter, context->fGrContext, context->fGLContext);
+}
+#endif
+} // namespace
+
+
+template<typename T>
+void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* reporter,
+                            GrContextFactory* factory) {
+#if SK_SUPPORT_GPU
+    for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
+        int contextSelector = kNone_GPUTestContexts;
+        if (GrContextFactory::IsRenderingGLContext(glCtxType)) {
+            contextSelector |= kAllRendering_GPUTestContexts;
+        }
+        if (glCtxType == GrContextFactory::kNative_GLContextType) {
+            contextSelector |= kNative_GPUTestContexts;
+        }
+        if (glCtxType == GrContextFactory::kNull_GLContextType) {
+            contextSelector |= kNull_GPUTestContexts;
+        }
+        if ((testContexts & contextSelector) == 0) {
+            continue;
+        }
+        if (GrContextFactory::ContextInfo* context = factory->getContextInfo(glCtxType)) {
+            call_test(test, reporter, context);
+        }
+    }
+#endif
+}
+
+template
+void RunWithGPUTestContexts<TestWithGrContext>(TestWithGrContext test,
+                                               GPUTestContexts testContexts,
+                                               Reporter* reporter,
+                                               GrContextFactory* factory);
+template
+void RunWithGPUTestContexts<TestWithGrContextAndGLContext>(TestWithGrContextAndGLContext test,
+                                                           GPUTestContexts testContexts,
+                                                           Reporter* reporter,
+                                                           GrContextFactory* factory);
+} // namespace skiatest
+
 #if !defined(SK_BUILD_FOR_IOS)
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);

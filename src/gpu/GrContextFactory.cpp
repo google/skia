@@ -23,15 +23,16 @@
 #include "gl/GrGLGpu.h"
 #include "GrCaps.h"
 
-GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) {
+GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType type,
+                                                                GrGLStandard forcedGpuAPI) {
     for (int i = 0; i < fContexts.count(); ++i) {
         if (forcedGpuAPI != kNone_GrGLStandard &&
-            forcedGpuAPI != fContexts[i].fGLContext->gl()->fStandard)
+            forcedGpuAPI != fContexts[i]->fGLContext->gl()->fStandard)
             continue;
 
-        if (fContexts[i].fType == type) {
-            fContexts[i].fGLContext->makeCurrent();
-            return fContexts[i].fGrContext;
+        if (fContexts[i]->fType == type) {
+            fContexts[i]->fGLContext->makeCurrent();
+            return fContexts[i];
         }
     }
     SkAutoTUnref<SkGLContext> glCtx;
@@ -114,11 +115,9 @@ GrContext* GrContextFactory::get(GLContextType type, GrGLStandard forcedGpuAPI) 
         }
     }
 
-    GPUContext& ctx = fContexts.push_back();
-    ctx.fGLContext = glCtx.get();
-    ctx.fGLContext->ref();
-    ctx.fGrContext = grCtx.get();
-    ctx.fGrContext->ref();
-    ctx.fType = type;
-    return ctx.fGrContext;
+    ContextInfo* ctx = fContexts.emplace_back(new ContextInfo);
+    ctx->fGLContext = SkRef(glCtx.get());
+    ctx->fGrContext = SkRef(grCtx.get());
+    ctx->fType = type;
+    return ctx;
 }

@@ -13,6 +13,8 @@
 #include "SkTypes.h"
 
 class GrContextFactory;
+class GrContext;
+class SkGLContext;
 
 namespace skiatest {
 
@@ -69,6 +71,17 @@ typedef SkTRegistry<Test> TestRegistry;
         ...
     }
 */
+enum GPUTestContexts {
+    kNone_GPUTestContexts         = 0,
+    kNull_GPUTestContexts         = 1,
+    kNative_GPUTestContexts       = 1 << 1,
+    kOther_GPUTestContexts        = 1 << 2, // Other than native, used only for below.
+    kAllRendering_GPUTestContexts = kNative_GPUTestContexts | kOther_GPUTestContexts,
+    kAll_GPUTestContexts          = kAllRendering_GPUTestContexts | kNull_GPUTestContexts
+};
+template<typename T>
+void RunWithGPUTestContexts(T testFunction, GPUTestContexts contexts, Reporter* reporter,
+                            GrContextFactory* factory);
 }  // namespace skiatest
 
 #define REPORTER_ASSERT(r, cond)                  \
@@ -96,11 +109,40 @@ typedef SkTRegistry<Test> TestRegistry;
             skiatest::Test(#name, false, test_##name));              \
     void test_##name(skiatest::Reporter* reporter, GrContextFactory*)
 
+#define GPUTEST_EXPAND_MSVC(x) x
+#define GPUTEST_APPLY(C, ...) GPUTEST_EXPAND_MSVC(C(__VA_ARGS__))
+#define GPUTEST_SELECT(a1, a2, N, ...) N
+
+#define GPUTEST_CONTEXT_ARGS1(a1) GrContext* a1
+#define GPUTEST_CONTEXT_ARGS2(a1, a2) GrContext* a1, SkGLContext* a2
+#define GPUTEST_CONTEXT_ARGS(...)                                                            \
+    GPUTEST_APPLY(GPUTEST_SELECT(__VA_ARGS__, GPUTEST_CONTEXT_ARGS2, GPUTEST_CONTEXT_ARGS1), \
+                  __VA_ARGS__)
+
 #define DEF_GPUTEST(name, reporter, factory)                         \
     static void test_##name(skiatest::Reporter*, GrContextFactory*); \
     skiatest::TestRegistry name##TestRegistry(                       \
             skiatest::Test(#name, true, test_##name));               \
     void test_##name(skiatest::Reporter* reporter, GrContextFactory* factory)
+
+#define DEF_GPUTEST_FOR_CONTEXTS(name, contexts, reporter, ...)                      \
+    static void test_##name(skiatest::Reporter*, GPUTEST_CONTEXT_ARGS(__VA_ARGS__)); \
+    static void test_gpu_contexts_##name(skiatest::Reporter* reporter,               \
+                                         GrContextFactory* factory) {                \
+        skiatest::RunWithGPUTestContexts(test_##name, contexts, reporter, factory);  \
+    }                                                                                \
+    skiatest::TestRegistry name##TestRegistry(                                       \
+            skiatest::Test(#name, true, test_gpu_contexts_##name));                  \
+    void test_##name(skiatest::Reporter* reporter, GPUTEST_CONTEXT_ARGS(__VA_ARGS__))
+
+#define DEF_GPUTEST_FOR_ALL_CONTEXTS(name, reporter, ...) \
+        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kAll_GPUTestContexts, reporter, __VA_ARGS__)
+#define DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name, reporter, ...) \
+        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kAllRendering_GPUTestContexts, reporter, __VA_ARGS__)
+#define DEF_GPUTEST_FOR_NULL_CONTEXT(name, reporter, ...) \
+        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kNull_GPUTestContexts, reporter, __VA_ARGS__)
+#define DEF_GPUTEST_FOR_NATIVE_CONTEXT(name, reporter, ...) \
+        DEF_GPUTEST_FOR_CONTEXTS(name, skiatest::kNative_GPUTestContexts, reporter, __VA_ARGS__)
 
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                             \
     do {                                                                      \

@@ -98,39 +98,52 @@ public:
 
     void destroyContexts() {
         for (int i = 0; i < fContexts.count(); ++i) {
-            if (fContexts[i].fGLContext) {  //  could be abandoned.
-                fContexts[i].fGLContext->makeCurrent();
+            if (fContexts[i]->fGLContext) {  //  could be abandoned.
+                fContexts[i]->fGLContext->makeCurrent();
             }
-            fContexts[i].fGrContext->unref();
-            if (fContexts[i].fGLContext) {
-                fContexts[i].fGLContext->unref();
-            }
+            fContexts[i]->fGrContext->unref();
+            SkSafeUnref(fContexts[i]->fGLContext);
         }
         fContexts.reset();
     }
 
     void abandonContexts() {
         for (int i = 0; i < fContexts.count(); ++i) {
-            if (fContexts[i].fGLContext) {
-                fContexts[i].fGLContext->testAbandon();
-                SkSafeSetNull(fContexts[i].fGLContext);
+            if (fContexts[i]->fGLContext) {
+                fContexts[i]->fGLContext->testAbandon();
+                SkSafeSetNull(fContexts[i]->fGLContext);
             }
-            fContexts[i].fGrContext->abandonContext();
+            fContexts[i]->fGrContext->abandonContext();
         }
     }
+
+    struct ContextInfo {
+        GLContextType             fType;
+        SkGLContext*              fGLContext;
+        GrContext*                fGrContext;
+    };
+    /**
+     * Get a context initialized with a type of GL context. It also makes the GL context current.
+     * Pointer is valid until destroyContexts() is called.
+     */
+    ContextInfo* getContextInfo(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard);
 
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard);
-
+    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard) {
+        if (ContextInfo* info = this->getContextInfo(type, forcedGpuAPI)) {
+            return info->fGrContext;
+        }
+        return nullptr;
+    }
 
     // Returns the GLContext of the given type. If it has not been created yet,
     // nullptr is returned instead.
     SkGLContext* getGLContext(GLContextType type) {
         for (int i = 0; i < fContexts.count(); ++i) {
-            if (fContexts[i].fType == type) {
-                return fContexts[i].fGLContext;
+            if (fContexts[i]->fType == type) {
+                return fContexts[i]->fGLContext;
             }
         }
 
@@ -140,12 +153,7 @@ public:
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
-    struct GPUContext {
-        GLContextType             fType;
-        SkGLContext*              fGLContext;
-        GrContext*                fGrContext;
-    };
-    SkTArray<GPUContext, true>    fContexts;
+    SkTArray<SkAutoTDelete<ContextInfo>, true> fContexts;
     const GrContextOptions        fGlobalOptions;
 };
 
