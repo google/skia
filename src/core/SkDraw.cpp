@@ -1580,7 +1580,6 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         return;
     }
 
-    SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
     SkAutoGlyphCache    autoCache(paint, &fDevice->surfaceProps(), fMatrix);
     SkGlyphCache*       cache = autoCache.getCache();
 
@@ -1600,7 +1599,8 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkDraw1Glyph::Proc  proc = d1g.init(this, blitter, cache, paint);
 
     SkFindAndPlaceGlyph::ProcessText(
-        text, byteLength, {x, y}, *fMatrix, paint.getTextAlign(), glyphCacheProc, cache,
+        paint.getTextEncoding(), text, byteLength,
+        {x, y}, *fMatrix, paint.getTextAlign(), cache,
         [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
             position += rounding;
             proc(d1g, SkScalarTo48Dot16(position.fX), SkScalarTo48Dot16(position.fY), glyph);
@@ -1695,11 +1695,10 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     SkDraw1Glyph       d1g;
     SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache, paint);
     SkPaint::Align     textAlignment = paint.getTextAlign();
-    SkDrawCacheProc    glyphCacheProc = paint.getDrawCacheProc();
 
     SkFindAndPlaceGlyph::ProcessPosText(
-        text, byteLength, offset, *fMatrix, pos, scalarsPerPosition,
-        textAlignment, glyphCacheProc, cache,
+        paint.getTextEncoding(), text, byteLength,
+        offset, *fMatrix, pos, scalarsPerPosition, textAlignment, cache,
         [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
             position += rounding;
             proc(d1g, SkScalarTo48Dot16(position.fX), SkScalarTo48Dot16(position.fY), glyph);

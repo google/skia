@@ -775,13 +775,14 @@ void GrAtlasTextContext::internalDrawBMPText(GrAtlasTextBlob* blob, int runIndex
     }
 
     fCurrStrike = nullptr;
-    SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
 
     // Get GrFontScaler from cache
     GrFontScaler* fontScaler = GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessText(
-        text, byteLength, {x, y}, viewMatrix, skPaint.getTextAlign(), glyphCacheProc, cache,
+        skPaint.getTextEncoding(), text, byteLength,
+        {x, y}, viewMatrix, skPaint.getTextAlign(),
+        cache,
         [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
             position += rounding;
             this->bmpAppendGlyph(
@@ -808,14 +809,14 @@ void GrAtlasTextContext::internalDrawBMPPosText(GrAtlasTextBlob* blob, int runIn
     }
 
     fCurrStrike = nullptr;
-    SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
 
     // Get GrFontScaler from cache
     GrFontScaler* fontScaler = GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessPosText(
-        text, byteLength, offset, viewMatrix, pos, scalarsPerPosition,
-        skPaint.getTextAlign(), glyphCacheProc, cache,
+        skPaint.getTextEncoding(), text, byteLength,
+        offset, viewMatrix, pos, scalarsPerPosition,
+        skPaint.getTextAlign(), cache,
         [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
             position += rounding;
             this->bmpAppendGlyph(
