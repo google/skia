@@ -627,7 +627,13 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
-    fConservativeRasterClip = SkToBool(flags & kConservativeRasterClip_InitFlag);
+    if (device && device->forceConservativeRasterClip()) {
+        flags = InitFlags(flags | kConservativeRasterClip_InitFlag);
+    }
+    // Since init() is only called once by our constructors, it is safe to perform this
+    // const-cast.
+    *const_cast<bool*>(&fConservativeRasterClip) = SkToBool(flags & kConservativeRasterClip_InitFlag);
+
     fCachedLocalClipBounds.setEmpty();
     fCachedLocalClipBoundsDirty = true;
     fAllowSoftClip = true;
@@ -652,9 +658,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
         SkASSERT(fProps.pixelGeometry() == device->surfaceProps().pixelGeometry());
-        if (device->forceConservativeRasterClip()) {
-            fConservativeRasterClip = true;
-        }
         device->onAttachToCanvas(this);
         fMCRec->fLayer->fDevice = SkRef(device);
         fMCRec->fRasterClip.setRect(device->getGlobalBounds());
@@ -665,6 +668,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 SkCanvas::SkCanvas()
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fConservativeRasterClip(false)
 {
     inc_canvas();
 
@@ -693,6 +697,7 @@ private:
 SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfacePropsCopyOrDefault(props))
+    , fConservativeRasterClip(false)
 {
     inc_canvas();
 
@@ -703,6 +708,7 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
 SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fConservativeRasterClip(false)
 {
     inc_canvas();
 
@@ -712,6 +718,7 @@ SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
 SkCanvas::SkCanvas(SkBaseDevice* device)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(device->surfaceProps())
+    , fConservativeRasterClip(false)
 {
     inc_canvas();
 
@@ -721,6 +728,7 @@ SkCanvas::SkCanvas(SkBaseDevice* device)
 SkCanvas::SkCanvas(SkBaseDevice* device, InitFlags flags)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(device->surfaceProps())
+    , fConservativeRasterClip(false)
 {
     inc_canvas();
 
@@ -730,6 +738,7 @@ SkCanvas::SkCanvas(SkBaseDevice* device, InitFlags flags)
 SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(props)
+    , fConservativeRasterClip(false)
 {
     inc_canvas();
 
@@ -740,6 +749,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 SkCanvas::SkCanvas(const SkBitmap& bitmap)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fConservativeRasterClip(false)
 {
     inc_canvas();
 
