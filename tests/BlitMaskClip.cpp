@@ -8,6 +8,7 @@
 #include "SkBlitter.h"
 #include "SkMask.h"
 #include "Test.h"
+#include <string.h>
 
 class TestBlitter : public SkBlitter {
 public:
@@ -28,7 +29,6 @@ private:
     skiatest::Reporter* fReporter;
 };
 
-
 // Exercise all clips compared with different widths of bitMask. Make sure that no buffer
 // overruns happen.
 DEF_TEST(BlitAndClip, reporter) {
@@ -38,6 +38,7 @@ DEF_TEST(BlitAndClip, reporter) {
         const int height = 2;
         int rowBytes = (width + 7) >> 3;
         uint8_t* bits = new uint8_t[rowBytes * height];
+        memset(bits, 0xAA, rowBytes * height);
 
         SkIRect b = {originX, originY, originX + width, originY + height};
 
