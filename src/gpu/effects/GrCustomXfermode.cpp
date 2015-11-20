@@ -395,7 +395,7 @@ const GrXPFactory* CustomXPFactory::TestCreate(GrProcessorTestData* d) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const GrXPFactory* GrCustomXfermode::CreateXPFactory(SkXfermode::Mode mode) {
+GrXPFactory* GrCustomXfermode::CreateXPFactory(SkXfermode::Mode mode) {
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
         return nullptr;
     } else {

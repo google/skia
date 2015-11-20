@@ -47,7 +47,7 @@ public:
     bool asFragmentProcessor(const GrFragmentProcessor**,
                              const GrFragmentProcessor*) const override;
 
-    bool asXPFactory(const GrXPFactory**) const override;
+    bool asXPFactory(GrXPFactory**) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

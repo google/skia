@@ -209,13 +209,13 @@ public:
         will install it and own a ref to it. Since the xfermode may or may not assign *xpf, the
         caller should set *xpf to NULL beforehand. XferProcessors cannot use a background texture.
      */
-    virtual bool asXPFactory(const GrXPFactory** xpf) const;
+    virtual bool asXPFactory(GrXPFactory** xpf) const;
 
     /** Returns true if the xfermode can be expressed as an xfer processor factory (xpFactory).
         This helper calls the asXPFactory() virtual. If the xfermode is NULL, it is treated as
         kSrcOver_Mode. It is legal to call this with xpf param NULL to simply test the return value.
      */
-    static bool AsXPFactory(SkXfermode*, const GrXPFactory**);
+    static bool AsXPFactory(SkXfermode*, GrXPFactory**);
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

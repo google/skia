@@ -18,7 +18,7 @@ class GrTexture;
  */
 namespace GrCustomXfermode {
     bool IsSupportedMode(SkXfermode::Mode mode);
-    const GrXPFactory* CreateXPFactory(SkXfermode::Mode mode);
+    GrXPFactory* CreateXPFactory(SkXfermode::Mode mode);
 };
 
 #endif

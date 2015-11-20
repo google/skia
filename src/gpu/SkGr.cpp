@@ -488,7 +488,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     }
 
     SkXfermode* mode = skPaint.getXfermode();
-    const GrXPFactory* xpFactory = nullptr;
+    GrXPFactory* xpFactory = nullptr;
     if (!SkXfermode::AsXPFactory(mode, &xpFactory)) {
         // Fall back to src-over
         // return false here?
