@@ -115,6 +115,7 @@ public:
      * fTarget                The target that the path will be rendered to
      * fResourceProvider      The resource provider for creating gpu resources to render the path
      * fPipelineBuilder       The pipelineBuilder
+     * fColor                 Color to render with
      * fViewMatrix            The viewMatrix
      * fPath                  the path to draw.
      * fStroke                the stroke information (width, join, cap)
