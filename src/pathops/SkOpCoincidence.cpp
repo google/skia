@@ -85,6 +85,9 @@ bool SkOpCoincidence::addExpanded(SkChunkAlloc* allocator
         SkOpSpanBase* oStart = oStartPtT->span();
         const SkOpSpanBase* end = coin->fCoinPtTEnd->span();
         const SkOpSpanBase* oEnd = coin->fOppPtTEnd->span();
+        if (oEnd->deleted()) {
+            return false;
+        }
         SkOpSpanBase* test = start->upCast()->next();
         SkOpSpanBase* oTest = coin->fFlipped ? oStart->prev() : oStart->upCast()->next();
         while (test != end || oTest != oEnd) {

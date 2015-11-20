@@ -5024,11 +5024,43 @@ path.close();
     testSimplify(reporter, path, filename);
 }
 
+static void fuzz_twister2(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+
+path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x44160000));  // 0, 600
+path.lineTo(SkBits2Float(0x4bfffffe), SkBits2Float(0x44160000));  // 3.35544e+07f, 600
+path.lineTo(SkBits2Float(0x4bfffffe), SkBits2Float(0x00000000));  // 3.35544e+07f, 0
+path.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+path.lineTo(SkBits2Float(0x00000000), SkBits2Float(0x44160000));  // 0, 600
+path.close();
+
+path.moveTo(SkBits2Float(0x427c0000), SkBits2Float(0x00000000));  // 63, 0
+path.lineTo(SkBits2Float(0x4c00000f), SkBits2Float(0x00000000));  // 3.35545e+07f, 0
+path.lineTo(SkBits2Float(0x4c00000f), SkBits2Float(0x00000000));  // 3.35545e+07f, 0
+path.lineTo(SkBits2Float(0x427c0000), SkBits2Float(0x00000000));  // 63, 0
+path.close();
+
+path.moveTo(SkBits2Float(0x42ba0000), SkBits2Float(0x00000000));  // 93, 0
+path.lineTo(SkBits2Float(0x4c000016), SkBits2Float(0x00000000));  // 3.35545e+07f, 0
+path.lineTo(SkBits2Float(0x4c000016), SkBits2Float(0x00000000));  // 3.35545e+07f, 0
+path.lineTo(SkBits2Float(0x42ba0000), SkBits2Float(0x00000000));  // 93, 0
+path.close();
+
+path.moveTo(SkBits2Float(0x42f60000), SkBits2Float(0x00000000));  // 123, 0
+path.lineTo(SkBits2Float(0x4c00001e), SkBits2Float(0x00000000));  // 3.35546e+07f, 0
+path.lineTo(SkBits2Float(0x4c00001e), SkBits2Float(0x00000000));  // 3.35546e+07f, 0
+path.lineTo(SkBits2Float(0x42f60000), SkBits2Float(0x00000000));  // 123, 0
+path.close();
+
+    REPORTER_ASSERT(reporter, !Simplify(path, &path));
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(fuzz_twister2),
     TEST(fuzz_twister),
     TEST(fuzz994s_3414),
     TEST(fuzz994s_11),
