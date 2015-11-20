@@ -656,7 +656,7 @@ bool SkXfermode::asFragmentProcessor(const GrFragmentProcessor**,
     return false;
 }
 
-bool SkXfermode::asXPFactory(GrXPFactory**) const {
+bool SkXfermode::asXPFactory(const GrXPFactory**) const {
     return false;
 }
 
@@ -664,7 +664,7 @@ bool SkXfermode::asXPFactory(GrXPFactory**) const {
 #if SK_SUPPORT_GPU
 #include "effects/GrPorterDuffXferProcessor.h"
 
-bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
+bool SkXfermode::AsXPFactory(SkXfermode* xfermode,  const GrXPFactory** xpf) {
     if (nullptr == xfermode) {
         if (xpf) {
             *xpf = GrPorterDuffXPFactory::Create(kSrcOver_Mode);
@@ -675,7 +675,7 @@ bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
     }
 }
 #else
-bool SkXfermode::AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
+bool SkXfermode::AsXPFactory(SkXfermode* xfermode, const GrXPFactory** xpf) {
     return false;
 }
 #endif
@@ -932,7 +932,7 @@ bool SkProcCoeffXfermode::asFragmentProcessor(const GrFragmentProcessor** fp,
     return true;
 }
 
-bool SkProcCoeffXfermode::asXPFactory(GrXPFactory** xp) const {
+bool SkProcCoeffXfermode::asXPFactory(const GrXPFactory** xp) const {
     if (CANNOT_USE_COEFF != fSrcCoeff) {
         if (xp) {
             *xp = GrPorterDuffXPFactory::Create(fMode);

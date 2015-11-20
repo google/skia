@@ -77,7 +77,7 @@ public:
     struct XPInfo {
         XPInfo(skiatest::Reporter* reporter, SkXfermode::Mode xfermode, const GrCaps& caps,
                const GrProcOptInfo& colorPOI, const GrProcOptInfo& covPOI) {
-            SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
+            SkAutoTUnref<const GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
             SkAutoTUnref<GrXferProcessor> xp(
                 xpf->createXferProcessor(colorPOI, covPOI, false, nullptr, caps));
             TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI, false));
@@ -97,7 +97,7 @@ public:
     };
 
     static void GetXPOutputTypes(const GrXferProcessor* xp, int* outPrimary, int* outSecondary) {
-        GrPorterDuffXPFactory::TestGetXPOutputTypes(xp, outPrimary, outSecondary);
+        GrPDXPFactory::TestGetXPOutputTypes(xp, outPrimary, outSecondary);
     }
 };
 
@@ -1124,7 +1124,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
     SkASSERT(covPOI.isFourChannelOutput());
 
-    SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
+    SkAutoTUnref<const GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
     TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI, false));
 
     SkAutoTUnref<GrXferProcessor> xp(
@@ -1200,7 +1200,7 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
             }
             for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
                 SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
-                SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
+                SkAutoTUnref<const GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
                 GrXferProcessor::DstTexture* dstTexture =
                     xpf->willNeedDstTexture(caps, colorPOI, covPOI, false) ? &fakeDstTexture : 0;
                 SkAutoTUnref<GrXferProcessor> xp(

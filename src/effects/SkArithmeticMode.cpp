@@ -34,7 +34,7 @@ public:
     bool asFragmentProcessor(const GrFragmentProcessor**,
                              const GrFragmentProcessor* dst) const override;
 
-    bool asXPFactory(GrXPFactory**) const override;
+    bool asXPFactory(const GrXPFactory**) const override;
 #endif
 
 private:
@@ -248,7 +248,7 @@ bool SkArithmeticMode_scalar::asFragmentProcessor(const GrFragmentProcessor** fp
     return true;
 }
 
-bool SkArithmeticMode_scalar::asXPFactory(GrXPFactory** xpf) const {
+bool SkArithmeticMode_scalar::asXPFactory(const GrXPFactory** xpf) const {
     if (xpf) {
         *xpf = GrArithmeticXPFactory::Create(SkScalarToFloat(fK[0]),
                                              SkScalarToFloat(fK[1]),

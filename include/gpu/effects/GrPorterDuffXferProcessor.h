@@ -14,9 +14,9 @@
 
 class GrProcOptInfo;
 
-class GrPorterDuffXPFactory : public GrXPFactory {
+class GrPDXPFactory : public GrXPFactory {
 public:
-    static GrXPFactory* Create(SkXfermode::Mode mode); 
+    static const GrXPFactory* Create(SkXfermode::Mode mode); 
 
     bool supportsRGBCoverage(GrColor /*knownColor*/, uint32_t /*knownColorFlags*/) const override {
         return true;
@@ -26,7 +26,7 @@ public:
                                   GrXPFactory::InvariantBlendedColor*) const override;
 
 private:
-    GrPorterDuffXPFactory(SkXfermode::Mode);
+    GrPDXPFactory(SkXfermode::Mode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrProcOptInfo& colorPOI,
@@ -40,7 +40,7 @@ private:
                           bool hasMixedSamples) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {
-        const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();
+        const GrPDXPFactory& xpf = xpfBase.cast<GrPDXPFactory>();
         return fXfermode == xpf.fXfermode;
     }
 
@@ -51,6 +51,49 @@ private:
 
     friend class GrPorterDuffTest; // for TestGetXPOutputTypes()
     typedef GrXPFactory INHERITED;
+};
+
+class GrSrcOverPDXPFactory : public GrXPFactory {
+public:
+    GrSrcOverPDXPFactory();
+
+    bool supportsRGBCoverage(GrColor /*knownColor*/, uint32_t /*knownColorFlags*/) const override {
+        return true;
+    }
+
+    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                  GrXPFactory::InvariantBlendedColor*) const override;
+
+private:
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
+                                           const GrProcOptInfo& colorPOI,
+                                           const GrProcOptInfo& coveragePOI,
+                                           bool hasMixedSamples,
+                                           const DstTexture*) const override;
+
+    bool willReadDstColor(const GrCaps& caps,
+                          const GrProcOptInfo& colorPOI,
+                          const GrProcOptInfo& coveragePOI,
+                          bool hasMixedSamples) const override;
+
+    bool onIsEqual(const GrXPFactory& /*xpfBase*/) const override {
+        return true;
+    }
+
+    GR_DECLARE_XP_FACTORY_TEST;
+
+    typedef GrXPFactory INHERITED;
+};
+
+namespace GrPorterDuffXPFactory {
+    const GrSrcOverPDXPFactory gSrcOverPDXPFactory;
+
+    inline const GrXPFactory* Create(SkXfermode::Mode mode) {
+        if (SkXfermode::kSrcOver_Mode == mode) {
+            return SkRef(&gSrcOverPDXPFactory);
+        }
+        return GrPDXPFactory::Create(mode);
+    }
 };
 
 #endif
