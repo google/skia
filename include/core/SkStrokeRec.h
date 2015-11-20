@@ -35,8 +35,8 @@ public:
     Style getStyle() const;
     SkScalar getWidth() const { return fWidth; }
     SkScalar getMiter() const { return fMiterLimit; }
-    SkPaint::Cap getCap() const { return fCap; }
-    SkPaint::Join getJoin() const { return fJoin; }
+    SkPaint::Cap getCap() const { return (SkPaint::Cap)fCap; }
+    SkPaint::Join getJoin() const { return (SkPaint::Join)fJoin; }
 
     bool isHairlineStyle() const {
         return kHairline_Style == this->getStyle();
@@ -115,9 +115,15 @@ private:
     SkScalar        fResScale;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    SkPaint::Cap    fCap;
-    SkPaint::Join   fJoin;
-    bool            fStrokeAndFill;
+    // The following three members are packed together into a single u32.
+    // This is to avoid unnecessary padding and ensure binary equality for
+    // hashing (because the padded areas might contain garbage values).
+    // 
+    // fCap and fJoin are larger than needed to avoid having to initialize
+    // any pad values
+    uint32_t        fCap : 16;             // SkPaint::Cap
+    uint32_t        fJoin : 15;            // SkPaint::Join
+    uint32_t        fStrokeAndFill : 1;    // bool
 };
 
 #endif
