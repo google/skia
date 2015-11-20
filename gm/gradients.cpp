@@ -592,4 +592,56 @@ private:
 DEF_GM( return new LinearGradientGM(true); )
 DEF_GM( return new LinearGradientGM(false); )
 
+class LinearGradientTinyGM : public GM {
+protected:
+    SkString onShortName() override {
+        return SkString("linear_gradient_tiny");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(600, 500);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        const SkScalar kRectSize = 100;
+        const unsigned kStopCount = 3;
+        const SkColor colors[kStopCount] = { SK_ColorGREEN, SK_ColorRED, SK_ColorGREEN };
+        const struct {
+            SkPoint pts[2];
+            SkScalar pos[kStopCount];
+        } configs[] = {
+            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.999999f,    1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.000001f,    1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.999999999f, 1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.000000001f, 1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.999999f,    1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.000001f,    1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.999999999f, 1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.000000001f, 1 }},
+
+            { { SkPoint::Make(0, 0), SkPoint::Make(0.00001f, 0) } , { 0, 0.5f, 1 }},
+            { { SkPoint::Make(9.99999f, 0), SkPoint::Make(10, 0) }, { 0, 0.5f, 1 }},
+            { { SkPoint::Make(0, 0), SkPoint::Make(0, 0.00001f) },  { 0, 0.5f, 1 }},
+            { { SkPoint::Make(0, 9.99999f), SkPoint::Make(0, 10) }, { 0, 0.5f, 1 }},
+        };
+
+        SkPaint paint;
+        for (unsigned i = 0; i < SK_ARRAY_COUNT(configs); ++i) {
+            SkAutoCanvasRestore acr(canvas, true);
+            SkAutoTUnref<SkShader> gradient(
+                SkGradientShader::CreateLinear(configs[i].pts, colors, configs[i].pos, kStopCount,
+                                               SkShader::kClamp_TileMode));
+            canvas->translate(kRectSize * ((i % 4) * 1.5f + 0.25f),
+                              kRectSize * ((i / 4) * 1.5f + 0.25f));
+
+            paint.setShader(gradient);
+            canvas->drawRect(SkRect::MakeWH(kRectSize, kRectSize), paint);
+        }
+    }
+
+private:
+    typedef GM INHERITED;
+};
+DEF_GM( return new LinearGradientTinyGM(); )
+
 }
