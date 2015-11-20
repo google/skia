@@ -1508,24 +1508,44 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
     }
 #endif
 
-    AutoValidateClip avc(this);
-
-    fDeviceCMDirty = true;
-    fCachedLocalClipBoundsDirty = true;
     if (!fAllowSoftClip) {
         edgeStyle = kHard_ClipEdgeStyle;
     }
 
-    if (fMCRec->fMatrix.rectStaysRect()) {
-        // for these simpler matrices, we can stay a rect even after applying
-        // the matrix. This means we don't have to a) make a path, and b) tell
-        // the region code to scan-convert the path, only to discover that it
-        // is really just a rect.
-        SkRect      r;
+    const bool rectStaysRect = fMCRec->fMatrix.rectStaysRect();
+    SkRect devR;
+    if (rectStaysRect) {
+        fMCRec->fMatrix.mapRect(&devR, rect);
+    }
 
-        fMCRec->fMatrix.mapRect(&r, rect);
-        fClipStack->clipDevRect(r, op, kSoft_ClipEdgeStyle == edgeStyle);
-        fMCRec->fRasterClip.op(r, this->getBaseLayerSize(), op, kSoft_ClipEdgeStyle == edgeStyle);
+    // Check if we can quick-accept the clip call (and do nothing)
+    //
+    // TODO: investigate if a (conservative) version of this could be done in ::clipRect,
+    //       so that subclasses (like PictureRecording) didn't see unnecessary clips, which in turn
+    //       might allow lazy save/restores to eliminate entire save/restore blocks.
+    //
+    if (SkRegion::kIntersect_Op == op &&
+        kHard_ClipEdgeStyle == edgeStyle
+        && rectStaysRect)
+    {
+        if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
+#if 0
+            SkDebugf("------- ignored clipRect [%g %g %g %g]\n",
+                     rect.left(), rect.top(), rect.right(), rect.bottom());
+#endif
+            return;
+        }
+    }
+
+    AutoValidateClip avc(this);
+
+    fDeviceCMDirty = true;
+    fCachedLocalClipBoundsDirty = true;
+
+    if (rectStaysRect) {
+        const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
+        fClipStack->clipDevRect(devR, op, isAA);
+        fMCRec->fRasterClip.op(devR, this->getBaseLayerSize(), op, isAA);
     } else {
         // since we're rotated or some such thing, we convert the rect to a path
         // and clip against that, since it can handle any matrix. However, to
