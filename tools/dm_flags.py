@@ -169,6 +169,11 @@ def get_args(bot):
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
 
+  # skia:3562
+  if ('TSAN' in bot or
+      'Test-Mac10.8-Clang-MacMini4.1-CPU-SSE4-x86_64-Release' in bot):
+    match.append('~Math')
+
   if 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
 
