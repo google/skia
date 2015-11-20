@@ -343,7 +343,7 @@ void sk_canvas_scale(sk_canvas_t* ccanvas, float sx, float sy) {
     AsCanvas(ccanvas)->scale(sx, sy);
 }
 
-void sk_canvas_rotate_degress(sk_canvas_t* ccanvas, float degrees) {
+void sk_canvas_rotate_degrees(sk_canvas_t* ccanvas, float degrees) {
     AsCanvas(ccanvas)->rotate(degrees);
 }
 
@@ -723,6 +723,10 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+sk_data_t* sk_data_new_empty() {
+    return ToData(SkData::NewEmpty());
+}
 
 sk_data_t* sk_data_new_with_copy(const void* src, size_t length) {
     return ToData(SkData::NewWithCopy(src, length));
