@@ -27,7 +27,6 @@ class SkGlyph;
 
 /*
  * This class implements GrTextContext using standard bitmap fonts, and can also process textblobs.
- * TODO replace GrBitmapTextContext
  */
 class GrAtlasTextContext : public GrTextContext {
 public:
@@ -184,7 +183,7 @@ private:
     SkAutoTUnref<const DistanceAdjustTable> fDistanceAdjustTable;
 
     friend class GrTextBlobCache;
-    friend class TextBatch;
+    friend class GrAtlasTextBatch;
 
 #ifdef GR_TEST_UTILS
     DRAW_BATCH_TEST_FRIEND(TextBlobBatch);

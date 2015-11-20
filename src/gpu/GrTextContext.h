@@ -82,7 +82,7 @@ protected:
                            const char text[], size_t byteLength, SkVector* stopVector);
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
-    friend class TextBatch;
+    friend class GrAtlasTextBatch;
 };
 
 #endif
