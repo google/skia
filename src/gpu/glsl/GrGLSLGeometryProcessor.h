@@ -44,16 +44,18 @@ protected:
     // Emit a uniform matrix for each coord transform.
     void emitTransforms(GrGLSLGPBuilder* gp,
                         GrGLSLVertexBuilder* vb,
+                        GrGLSLVaryingHandler* varyingHandler,
                         const GrShaderVar& posVar,
                         const char* localCoords,
                         const TransformsIn& tin,
                         TransformsOut* tout) {
-        this->emitTransforms(gp, vb, posVar, localCoords, SkMatrix::I(), tin, tout);
+        this->emitTransforms(gp, vb, varyingHandler, posVar, localCoords, SkMatrix::I(), tin, tout);
     }
 
     // Emit pre-transformed coords as a vertex attribute per coord-transform.
     void emitTransforms(GrGLSLGPBuilder*,
                         GrGLSLVertexBuilder*,
+                        GrGLSLVaryingHandler*,
                         const GrShaderVar& posVar,
                         const char* localCoords,
                         const SkMatrix& localMatrix,
@@ -63,6 +65,7 @@ protected:
     // caller has emitted transforms via attributes
     void emitTransforms(GrGLSLGPBuilder*,
                         GrGLSLVertexBuilder*,
+                        GrGLSLVaryingHandler*,
                         const char* localCoords,
                         const TransformsIn& tin,
                         TransformsOut* tout);

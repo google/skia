@@ -18,26 +18,8 @@ public:
     GrGLSLVertexBuilder(GrGLSLProgramBuilder* program);
 
     void transformToNormalizedDeviceSpace(const GrShaderVar& posVar);
-    void emitAttributes(const GrGeometryProcessor& gp);
-
-    void addAttribute(const GrGeometryProcessor::Attribute* attr) {
-        this->addAttribute(GrShaderVar(attr->fName,
-                                       GrVertexAttribTypeToSLType(attr->fType),
-                                       GrShaderVar::kAttribute_TypeModifier,
-                                       GrShaderVar::kNonArray,
-                                       attr->fPrecision));
-    }
-
 private:
-    /*
-     * Internal call for GrGLProgramBuilder.addVarying
-     */
-    void addVarying(const char* name, GrSLPrecision, GrGLSLVarying*);
-
-    // an internal call which checks for uniquness of a var before adding it to the list of inputs
-    bool addAttribute(const GrShaderVar& var);
-
-    void onFinalize() override {}
+    void onFinalize() override;
     
     const char* fRtAdjustName;
 

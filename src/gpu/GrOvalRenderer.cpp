@@ -25,6 +25,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLUtil.h"
 
@@ -99,12 +100,13 @@ public:
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
             // emit attributes
-            vertBuilder->emitAttributes(ce);
+            varyingHandler->emitAttributes(ce);
 
             GrGLSLVertToFrag v(kVec4f_GrSLType);
-            args.fPB->addVarying("CircleEdge", &v);
+            varyingHandler->addVarying("CircleEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), ce.inCircleEdge()->fName);
 
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -119,6 +121,7 @@ public:
             // emit transforms
             this->emitTransforms(args.fPB,
                                  vertBuilder,
+                                 varyingHandler,
                                  gpArgs->fPositionVar,
                                  ce.inPosition()->fName,
                                  ce.localMatrix(),
@@ -253,17 +256,18 @@ public:
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
             // emit attributes
-            vertBuilder->emitAttributes(ee);
+            varyingHandler->emitAttributes(ee);
 
             GrGLSLVertToFrag ellipseOffsets(kVec2f_GrSLType);
-            args.fPB->addVarying("EllipseOffsets", &ellipseOffsets);
+            varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                    ee.inEllipseOffset()->fName);
 
             GrGLSLVertToFrag ellipseRadii(kVec4f_GrSLType);
-            args.fPB->addVarying("EllipseRadii", &ellipseRadii);
+            varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
                                    ee.inEllipseRadii()->fName);
 
@@ -279,6 +283,7 @@ public:
             // emit transforms
             this->emitTransforms(args.fPB,
                                  vertBuilder,
+                                 varyingHandler,
                                  gpArgs->fPositionVar,
                                  ee.inPosition()->fName,
                                  ee.localMatrix(),
@@ -433,17 +438,18 @@ public:
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
             // emit attributes
-            vertBuilder->emitAttributes(ee);
+            varyingHandler->emitAttributes(ee);
 
             GrGLSLVertToFrag offsets0(kVec2f_GrSLType);
-            args.fPB->addVarying("EllipseOffsets0", &offsets0);
+            varyingHandler->addVarying("EllipseOffsets0", &offsets0);
             vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
                                    ee.inEllipseOffsets0()->fName);
 
             GrGLSLVertToFrag offsets1(kVec2f_GrSLType);
-            args.fPB->addVarying("EllipseOffsets1", &offsets1);
+            varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
                                    ee.inEllipseOffsets1()->fName);
 
@@ -464,6 +470,7 @@ public:
             // emit transforms
             this->emitTransforms(args.fPB,
                                  vertBuilder,
+                                 varyingHandler,
                                  gpArgs->fPositionVar,
                                  ee.inPosition()->fName,
                                  args.fTransformsIn,

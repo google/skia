@@ -12,6 +12,7 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProcessorTypes.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLVarying.h"
 
 class GrGLPathProcessor : public GrGLSLPrimitiveProcessor {
 public:
@@ -30,7 +31,7 @@ public:
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
         // emit transforms
-        this->emitTransforms(args.fPB, args.fTransformsIn, args.fTransformsOut);
+        this->emitTransforms(args.fVaryingHandler, args.fTransformsIn, args.fTransformsOut);
 
         // Setup uniform color
         if (pathProc.opts().readsColor()) {
@@ -49,7 +50,9 @@ public:
         }
     }
 
-    void emitTransforms(GrGLSLGPBuilder* pb, const TransformsIn& tin, TransformsOut* tout) {
+    void emitTransforms(GrGLSLVaryingHandler* varyingHandler,
+                        const TransformsIn& tin,
+                        TransformsOut* tout) {
         tout->push_back_n(tin.count());
         fInstalledTransforms.push_back_n(tin.count());
         for (int i = 0; i < tin.count(); i++) {
@@ -63,8 +66,10 @@ public:
                 SkString strVaryingName("MatrixCoord");
                 strVaryingName.appendf("_%i_%i", i, t);
                 GrGLSLVertToFrag v(varyingType);
+                GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*) varyingHandler;
                 fInstalledTransforms[i][t].fHandle =
-                        pb->addSeparableVarying(strVaryingName.c_str(), &v).toIndex();
+                        glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(),
+                                                                   &v).toIndex();
                 fInstalledTransforms[i][t].fType = varyingType;
 
                 SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLSLTransformedCoords,

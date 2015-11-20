@@ -10,6 +10,7 @@
 
 #include "GrPipeline.h"
 #include "gl/GrGLProgramDataManager.h"
+#include "gl/GrGLVaryingHandler.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -69,24 +70,9 @@ public:
 
     GrGLGpu* gpu() const { return fGpu; }
 
-    void addVarying(
-            const char* name,
-            GrGLSLVarying*,
-            GrSLPrecision precision = kDefault_GrSLPrecision) override;
-
-    void addPassThroughAttribute(const GrPrimitiveProcessor::Attribute*,
-                                 const char* output) override;
-
-    SeparableVaryingHandle addSeparableVarying(
-        const char* name,
-        GrGLSLVertToFrag*,
-        GrSLPrecision fsPrecision = kDefault_GrSLPrecision) override;
-
 private:
     typedef GrGLProgramDataManager::UniformInfo UniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
-    typedef GrGLProgramDataManager::SeparableVaryingInfo SeparableVaryingInfo;
-    typedef GrGLProgramDataManager::SeparableVaryingInfoArray SeparableVaryingInfoArray;
 
     GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
 
@@ -148,6 +134,8 @@ private:
 
     void onAppendUniformDecls(ShaderVisibility visibility, SkString* out) const override;
 
+    GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
+
     // reset is called by program creator between each processor's emit code.  It increments the
     // stage offset for variable name mangling, and also ensures verfication variables in the
     // fragment shader are cleared.
@@ -179,13 +167,11 @@ private:
     GrGLSLPrimitiveProcessor::TransformsIn fCoordTransforms;
     GrGLSLPrimitiveProcessor::TransformsOut fOutCoords;
     SkTArray<UniformHandle> fSamplerUniforms;
-    SeparableVaryingInfoArray fSeparableVaryingInfos;
 
-    friend class GrGLSLShaderBuilder;
-    friend class GrGLSLVertexBuilder;
-    friend class GrGLSLFragmentShaderBuilder;
-    friend class GrGLSLGeometryBuilder;
+    GrGLVaryingHandler        fVaryingHandler;
 
-   typedef GrGLSLProgramBuilder INHERITED; 
+    friend class GrGLVaryingHandler; 
+
+    typedef GrGLSLProgramBuilder INHERITED; 
 };
 #endif

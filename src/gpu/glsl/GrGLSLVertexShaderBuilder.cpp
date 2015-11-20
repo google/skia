@@ -7,27 +7,11 @@
 
 #include "GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLVarying.h"
 
 GrGLSLVertexBuilder::GrGLSLVertexBuilder(GrGLSLProgramBuilder* program)
     : INHERITED(program)
     , fRtAdjustName(nullptr) {
-}
-
-void GrGLSLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying* v) {
-    fOutputs.push_back();
-    fOutputs.back().setType(v->fType);
-    fOutputs.back().setTypeModifier(GrGLSLShaderVar::kVaryingOut_TypeModifier);
-    fOutputs.back().setPrecision(precision);
-    fProgramBuilder->nameVariable(fOutputs.back().accessName(), 'v', name);
-    v->fVsOut = fOutputs.back().getName().c_str();
-}
-
-void GrGLSLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
-    int vaCount = gp.numAttribs();
-    for (int i = 0; i < vaCount; i++) {
-        this->addAttribute(&gp.getAttrib(i));
-    }
-    return;
 }
 
 void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
@@ -72,16 +56,7 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
     this->codeAppend("gl_PointSize = 1.0;");
 }
 
-bool GrGLSLVertexBuilder::addAttribute(const GrShaderVar& var) {
-    SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
-    for (int i = 0; i < fInputs.count(); ++i) {
-        const GrGLSLShaderVar& attr = fInputs[i];
-        // if attribute already added, don't add it again
-        if (attr.getName().equals(var.getName())) {
-            return false;
-        }
-    }
-    fInputs.push_back(var);
-    return true;
+void GrGLSLVertexBuilder::onFinalize() {
+    fProgramBuilder->varyingHandler()->getVertexDecls(&this->inputs(), &this->outputs());
 }
 

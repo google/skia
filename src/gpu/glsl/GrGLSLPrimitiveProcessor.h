@@ -18,6 +18,7 @@ class GrPrimitiveProcessor;
 class GrGLSLCaps;
 class GrGLSLFragmentBuilder;
 class GrGLSLGPBuilder;
+class GrGLSLVaryingHandler;
 class GrGLSLVertexBuilder;
 
 class GrGLSLPrimitiveProcessor {
@@ -35,6 +36,7 @@ public:
         EmitArgs(GrGLSLGPBuilder* pb,
                  GrGLSLVertexBuilder* vertBuilder,
                  GrGLSLFragmentBuilder* fragBuilder,
+                 GrGLSLVaryingHandler* varyingHandler,
                  const GrGLSLCaps* caps,
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
@@ -45,6 +47,7 @@ public:
             : fPB(pb)
             , fVertBuilder(vertBuilder)
             , fFragBuilder(fragBuilder)
+            , fVaryingHandler(varyingHandler)
             , fGLSLCaps(caps)
             , fGP(gp)
             , fOutputColor(outputColor)
@@ -55,6 +58,7 @@ public:
         GrGLSLGPBuilder* fPB;
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLFragmentBuilder* fFragBuilder;
+        GrGLSLVaryingHandler* fVaryingHandler;
         const GrGLSLCaps* fGLSLCaps;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;

@@ -17,12 +17,7 @@ public:
     GrGLSLGeometryBuilder(GrGLSLProgramBuilder* program);
 
 private:
-    /*
-     * an internal call for GrGLFullProgramBuilder to add varyings
-     */
-    void addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying*);
-
-    void onFinalize() override {}
+    void onFinalize() override;
 
     friend class GrGLProgramBuilder;
 

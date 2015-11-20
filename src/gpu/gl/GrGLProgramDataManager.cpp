@@ -15,7 +15,7 @@
 
 GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
                                                const UniformInfoArray& uniforms,
-                                               const SeparableVaryingInfoArray& separableVaryings)
+                                               const VaryingInfoArray& pathProcVaryings)
     : fGpu(gpu)
     , fProgramID(programID) {
     int count = uniforms.count();
@@ -44,19 +44,19 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
     }
 
     // NVPR programs have separable varyings
-    count = separableVaryings.count();
-    fSeparableVaryings.push_back_n(count);
+    count = pathProcVaryings.count();
+    fPathProcVaryings.push_back_n(count);
     for (int i = 0; i < count; i++) {
         SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
-        SeparableVarying& separableVarying = fSeparableVaryings[i];
-        const SeparableVaryingInfo& builderSeparableVarying = separableVaryings[i];
-        SkASSERT(GrGLSLShaderVar::kNonArray == builderSeparableVarying.fVariable.getArrayCount() ||
-                 builderSeparableVarying.fVariable.getArrayCount() > 0);
+        PathProcVarying& pathProcVarying = fPathProcVaryings[i];
+        const VaryingInfo& builderPathProcVarying = pathProcVaryings[i];
+        SkASSERT(GrGLSLShaderVar::kNonArray == builderPathProcVarying.fVariable.getArrayCount() ||
+                 builderPathProcVarying.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
-            separableVarying.fArrayCount = builderSeparableVarying.fVariable.getArrayCount();
-            separableVarying.fType = builderSeparableVarying.fVariable.getType();
+            pathProcVarying.fArrayCount = builderPathProcVarying.fVariable.getArrayCount();
+            pathProcVarying.fType = builderPathProcVarying.fVariable.getType();
         );
-        separableVarying.fLocation = builderSeparableVarying.fLocation;
+        pathProcVarying.fLocation = builderPathProcVarying.fLocation;
     }
 }
 
@@ -276,11 +276,11 @@ void GrGLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix
     this->setMatrix3f(u, mt);
 }
 
-void GrGLProgramDataManager::setPathFragmentInputTransform(SeparableVaryingHandle u,
+void GrGLProgramDataManager::setPathFragmentInputTransform(VaryingHandle u,
                                                            int components,
                                                            const SkMatrix& matrix) const {
     SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
-    const SeparableVarying& fragmentInput = fSeparableVaryings[u.toIndex()];
+    const PathProcVarying& fragmentInput = fPathProcVaryings[u.toIndex()];
 
     SkASSERT((components == 2 && fragmentInput.fType == kVec2f_GrSLType) ||
               (components == 3 && fragmentInput.fType == kVec3f_GrSLType));

@@ -15,8 +15,9 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLUtil.h"
+#include "glsl/GrGLSLVarying.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
@@ -40,9 +41,10 @@ public:
                 GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+        GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
         // emit attributes
-        vertBuilder->emitAttributes(dfTexEffect);
+        varyingHandler->emitAttributes(dfTexEffect);
 
 #ifdef SK_GAMMA_APPLY_TO_A8
         // adjust based on gamma
@@ -56,7 +58,7 @@ public:
         // Setup pass through color
         if (!dfTexEffect.colorIgnored()) {
             if (dfTexEffect.hasVertexColor()) {
-                pb->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
+                varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
             } else {
                 this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
             }
@@ -73,6 +75,7 @@ public:
         // emit transforms
         this->emitTransforms(pb,
                              vertBuilder,
+                             varyingHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
                              args.fTransformsIn,
@@ -82,7 +85,7 @@ public:
         GrGLSLVertToFrag recipScale(kFloat_GrSLType);
         GrGLSLVertToFrag st(kVec2f_GrSLType);
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
-        pb->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
@@ -93,7 +96,7 @@ public:
         SkScalar recipHeight = 1.0f / atlas->height();
 
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        pb->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", uv.vsOut(),
                                  GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
                                  GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,
@@ -299,17 +302,18 @@ public:
                                      GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+        GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
         // emit attributes
-        vertBuilder->emitAttributes(dfTexEffect);
+        varyingHandler->emitAttributes(dfTexEffect);
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
-        pb->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
 
         // setup pass through color
         if (!dfTexEffect.colorIgnored()) {
             if (dfTexEffect.hasVertexColor()) {
-                pb->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
+                varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
             } else {
                 this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
             }
@@ -327,6 +331,7 @@ public:
         // emit transforms
         this->emitTransforms(pb,
                              vertBuilder,
+                             varyingHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
                              args.fTransformsIn,
@@ -519,9 +524,10 @@ public:
         GrGLSLGPBuilder* pb = args.fPB;
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+        GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
         // emit attributes
-        vertBuilder->emitAttributes(dfTexEffect);
+        varyingHandler->emitAttributes(dfTexEffect);
 
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
@@ -541,6 +547,7 @@ public:
         // emit transforms
         this->emitTransforms(pb,
                              vertBuilder,
+                             varyingHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
                              args.fTransformsIn,
@@ -550,7 +557,7 @@ public:
         bool isUniformScale = SkToBool(dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask);
         GrGLSLVertToFrag recipScale(kFloat_GrSLType);
         GrGLSLVertToFrag st(kVec2f_GrSLType);
-        pb->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
@@ -561,7 +568,7 @@ public:
         SkScalar recipHeight = 1.0f / atlas->height();
 
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        pb->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = vec2(%.*f, %.*f) * %s;", uv.vsOut(),
                                  GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipWidth,
                                  GR_SIGNIFICANT_POW2_DECIMAL_DIG, recipHeight,

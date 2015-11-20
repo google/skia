@@ -99,14 +99,14 @@ public:
 protected:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
-    typedef GrGLProgramDataManager::SeparableVaryingInfoArray SeparableVaryingInfoArray;
+    typedef GrGLProgramDataManager::VaryingInfoArray VaryingInfoArray;
 
     GrGLProgram(GrGLGpu*,
                 const GrProgramDesc&,
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray&,
-                const SeparableVaryingInfoArray&,
+                const VaryingInfoArray&, // used for NVPR only currently
                 GrGLInstalledGeoProc* geometryProcessor,
                 GrGLInstalledXferProc* xferProcessor,
                 GrGLInstalledFragProcs* fragmentProcessors,

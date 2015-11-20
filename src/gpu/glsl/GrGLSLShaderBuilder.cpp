@@ -190,10 +190,6 @@ void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
     fProgramBuilder->appendUniformDecls((GrGLSLProgramBuilder::ShaderVisibility) visibility,
                                         &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
-    // We should not have any outputs in the fragment shader when using version 1.10
-    SkASSERT(GrGLSLProgramBuilder::kFragment_Visibility != visibility ||
-             k110_GrGLSLGeneration != fProgramBuilder->glslCaps()->generation() ||
-             fOutputs.empty());
     this->appendDecls(fOutputs, &this->outputs());
     this->onFinalize();
     // append the 'footer' to code

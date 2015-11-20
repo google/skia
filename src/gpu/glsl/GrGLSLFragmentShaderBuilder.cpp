@@ -10,6 +10,7 @@
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLVarying.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
 
@@ -237,17 +238,10 @@ const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
+    fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
                                                  *fProgramBuilder->glslCaps(),
                                                  &this->precisionQualifier());
-}
-
-void GrGLSLFragmentShaderBuilder::addVarying(GrGLSLVarying* v, GrSLPrecision fsPrec) {
-    v->fFsIn = v->fVsOut;
-    if (v->fGsOut) {
-        v->fFsIn = v->fGsOut;
-    }
-    fInputs.push_back().set(v->fType, GrGLSLShaderVar::kVaryingIn_TypeModifier, v->fFsIn, fsPrec);
 }
 
 void GrGLSLFragmentBuilder::onBeforeChildProcEmitCode() {

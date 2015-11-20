@@ -17,6 +17,7 @@
 
 class GrGLSLCaps;
 class GrGLSLShaderVar;
+class GrGLSLVaryingHandler;
 
 // Enough precision to represent 1 / 2048 accurately in printf
 #define GR_SIGNIFICANT_POW2_DECIMAL_DIG 11
@@ -32,7 +33,6 @@ public:
     virtual ~GrGLSLUniformBuilder() {}
 
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLProgramDataManager::SeparableVaryingHandle SeparableVaryingHandle;
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of ShaderVisibility values indicating from which shaders the
@@ -79,90 +79,9 @@ protected:
         const char** outName) = 0;
 };
 
-// TODO move this into GrGLSLGPBuilder and move them both out of this file
-class GrGLSLVarying {
-public:
-    bool vsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kVertToGeo_Varying == fVarying; }
-    bool fsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kGeoToFrag_Varying == fVarying; }
-    const char* vsOut() const { return fVsOut; }
-    const char* gsIn() const { return fGsIn; }
-    const char* gsOut() const { return fGsOut; }
-    const char* fsIn() const { return fFsIn; }
-    GrSLType type() const { return fType; }
-
-protected:
-    enum Varying {
-        kVertToFrag_Varying,
-        kVertToGeo_Varying,
-        kGeoToFrag_Varying,
-    };
-
-    GrGLSLVarying(GrSLType type, Varying varying)
-        : fVarying(varying), fType(type), fVsOut(nullptr), fGsIn(nullptr), fGsOut(nullptr),
-          fFsIn(nullptr) {}
-
-    Varying fVarying;
-
-private:
-    GrSLType fType;
-    const char* fVsOut;
-    const char* fGsIn;
-    const char* fGsOut;
-    const char* fFsIn;
-
-    friend class GrGLSLVertexBuilder;
-    friend class GrGLSLGeometryBuilder;
-    friend class GrGLSLXferBuilder;
-    friend class GrGLSLFragmentShaderBuilder;
-};
-
-struct GrGLSLVertToFrag : public GrGLSLVarying {
-    GrGLSLVertToFrag(GrSLType type)
-        : GrGLSLVarying(type, kVertToFrag_Varying) {}
-};
-
-struct GrGLSLVertToGeo : public GrGLSLVarying {
-    GrGLSLVertToGeo(GrSLType type)
-        : GrGLSLVarying(type, kVertToGeo_Varying) {}
-};
-
-struct GrGLSLGeoToFrag : public GrGLSLVarying {
-    GrGLSLGeoToFrag(GrSLType type)
-        : GrGLSLVarying(type, kGeoToFrag_Varying) {}
-};
-
 /* a specialization of the above for GPs.  Lets the user add uniforms, varyings, and VS / FS code */
 class GrGLSLGPBuilder : public virtual GrGLSLUniformBuilder {
 public:
-    /*
-     * addVarying allows fine grained control for setting up varyings between stages.  If you just
-     * need to take an attribute and pass it through to an output value in a fragment shader, use
-     * addPassThroughAttribute.
-     * TODO convert most uses of addVarying to addPassThroughAttribute
-     */
-    virtual void addVarying(const char* name,
-                            GrGLSLVarying*,
-                            GrSLPrecision precision = kDefault_GrSLPrecision) = 0;
-
-    /*
-     * This call can be used by GP to pass an attribute through all shaders directly to 'output' in
-     * the fragment shader.  Though this call effects both the vertex shader and fragment shader,
-     * it expects 'output' to be defined in the fragment shader before this call is made.
-     * TODO it might be nicer behavior to have a flag to declare output inside this call
-     */
-    virtual void addPassThroughAttribute(const GrGeometryProcessor::Attribute*,
-                                         const char* output) = 0;
-
-    /*
-     * Creates a fragment shader varying that can be referred to.
-     * Comparable to GrGLSLUniformBuilder::addUniform().
-     */
-    virtual SeparableVaryingHandle addSeparableVarying(
-        const char* name, GrGLSLVertToFrag*,
-        GrSLPrecision fsPrecision = kDefault_GrSLPrecision) = 0;
-
     /*
      * *NOTE* NO MEMBERS ALLOWED, MULTIPLE INHERITANCE
      */
@@ -229,12 +148,15 @@ protected:
     // explicitly asked not to.
     void nameVariable(SkString* out, char prefix, const char* name, bool mangle = true);
 
+    virtual GrGLSLVaryingHandler* varyingHandler() = 0;
+
     // number of each input/output type in a single allocation block, used by many builders
     static const int kVarsPerBlock;
 
-    GrGLSLVertexBuilder fVS;
-    GrGLSLGeometryBuilder fGS;
+    GrGLSLVertexBuilder         fVS;
+    GrGLSLGeometryBuilder       fGS;
     GrGLSLFragmentShaderBuilder fFS;
+
     int fStageIndex;
 
     BuiltinUniformHandles fUniformHandles;
@@ -248,6 +170,7 @@ private:
     friend class GrGLSLVertexBuilder;
     friend class GrGLSLFragmentShaderBuilder;
     friend class GrGLSLGeometryBuilder;
+    friend class GrGLSLVaryingHandler;
 };
 
 #endif

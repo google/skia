@@ -12,6 +12,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLUtil.h"
 
 /*
@@ -66,14 +67,15 @@ public:
             GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
             // emit attributes
-            vertBuilder->emitAttributes(gp);
+            varyingHandler->emitAttributes(gp);
 
             // Setup pass through color
             if (!gp.colorIgnored()) {
                 if (gp.hasVertexColor()) {
-                    pb->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
+                    varyingHandler->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
                 } else {
                     this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
                 }
@@ -91,6 +93,7 @@ public:
                 // emit transforms with explicit local coords
                 this->emitTransforms(pb,
                                      vertBuilder,
+                                     varyingHandler,
                                      gpArgs->fPositionVar,
                                      gp.inLocalCoords()->fName,
                                      gp.localMatrix(),
@@ -100,6 +103,7 @@ public:
                 // transforms have already been applied to vertex attributes on the cpu
                 this->emitTransforms(pb,
                                      vertBuilder,
+                                     varyingHandler,
                                      gp.inLocalCoords()->fName,
                                      args.fTransformsIn,
                                      args.fTransformsOut);
@@ -107,6 +111,7 @@ public:
                 // emit transforms with position
                 this->emitTransforms(pb,
                                      vertBuilder,
+                                     varyingHandler,
                                      gpArgs->fPositionVar,
                                      gp.inPosition()->fName,
                                      gp.localMatrix(),
@@ -118,7 +123,7 @@ public:
             if (!gp.coverageWillBeIgnored()) {
                 if (gp.hasVertexCoverage()) {
                     fragBuilder->codeAppendf("float alpha = 1.0;");
-                    args.fPB->addPassThroughAttribute(gp.inCoverage(), "alpha");
+                    varyingHandler->addPassThroughAttribute(gp.inCoverage(), "alpha");
                     fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
                 } else if (gp.coverage() == 0xff) {
                     fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);

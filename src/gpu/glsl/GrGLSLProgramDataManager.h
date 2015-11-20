@@ -65,8 +65,8 @@ public:
     virtual void setSkMatrix(UniformHandle, const SkMatrix&) const = 0;
 
     // for nvpr only
-    typedef ShaderResourceHandle SeparableVaryingHandle;
-    virtual void setPathFragmentInputTransform(SeparableVaryingHandle u, int components,
+    typedef ShaderResourceHandle VaryingHandle;
+    virtual void setPathFragmentInputTransform(VaryingHandle u, int components,
                                                const SkMatrix& matrix) const = 0;
 
 protected:

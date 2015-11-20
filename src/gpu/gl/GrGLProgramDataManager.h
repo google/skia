@@ -33,7 +33,7 @@ public:
         GrGLint         fLocation;
     };
 
-    struct SeparableVaryingInfo {
+    struct VaryingInfo {
         GrGLSLShaderVar fVariable;
         GrGLint         fLocation;
     };
@@ -42,10 +42,10 @@ public:
     // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
     // name strings. Otherwise, we'd have to hand out copies.
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
-    typedef GrTAllocator<SeparableVaryingInfo> SeparableVaryingInfoArray;
+    typedef GrTAllocator<VaryingInfo> VaryingInfoArray;
 
     GrGLProgramDataManager(GrGLGpu*, GrGLuint programID, const UniformInfoArray&,
-                           const SeparableVaryingInfoArray&);
+                           const VaryingInfoArray&);
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
      *  array of uniforms. arrayCount must be <= the array count of the uniform.
@@ -71,7 +71,7 @@ public:
     void setSkMatrix(UniformHandle, const SkMatrix&) const override;
 
     // for nvpr only
-    void setPathFragmentInputTransform(SeparableVaryingHandle u, int components,
+    void setPathFragmentInputTransform(VaryingHandle u, int components,
                                        const SkMatrix& matrix) const override;
 
 private:
@@ -89,9 +89,9 @@ private:
     };
 
     enum {
-        kUnusedSeparableVarying = -1,
+        kUnusedPathProcVarying = -1,
     };
-    struct SeparableVarying {
+    struct PathProcVarying {
         GrGLint     fLocation;
         SkDEBUGCODE(
             GrSLType    fType;
@@ -102,7 +102,7 @@ private:
     SkDEBUGCODE(void printUnused(const Uniform&) const;)
 
     SkTArray<Uniform, true> fUniforms;
-    SkTArray<SeparableVarying, true> fSeparableVaryings;
+    SkTArray<PathProcVarying, true> fPathProcVaryings;
     GrGLGpu* fGpu;
     GrGLuint fProgramID;
 

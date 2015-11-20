@@ -25,6 +25,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -853,18 +854,19 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
     GrGLSLGPBuilder* pb = args.fPB;
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
     // emit attributes
-    vertBuilder->emitAttributes(dce);
+    varyingHandler->emitAttributes(dce);
 
     // XY are dashPos, Z is dashInterval
     GrGLSLVertToFrag dashParams(kVec3f_GrSLType);
-    args.fPB->addVarying("DashParam", &dashParams);
+    varyingHandler->addVarying("DashParam", &dashParams);
     vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
 
     // x refers to circle radius - 0.5, y refers to cicle's center x coord
     GrGLSLVertToFrag circleParams(kVec2f_GrSLType);
-    args.fPB->addVarying("CircleParams", &circleParams);
+    varyingHandler->addVarying("CircleParams", &circleParams);
     vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -879,6 +881,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit transforms
     this->emitTransforms(args.fPB,
                          vertBuilder,
+                         varyingHandler,
                          gpArgs->fPositionVar,
                          dce.inPosition()->fName,
                          dce.localMatrix(),
@@ -1064,19 +1067,20 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLGPBuilder* pb = args.fPB;
 
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
     // emit attributes
-    vertBuilder->emitAttributes(de);
+    varyingHandler->emitAttributes(de);
 
     // XY refers to dashPos, Z is the dash interval length
     GrGLSLVertToFrag inDashParams(kVec3f_GrSLType);
-    args.fPB->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
+    varyingHandler->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     GrGLSLVertToFrag inRectParams(kVec4f_GrSLType);
-    args.fPB->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
+    varyingHandler->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -1091,6 +1095,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit transforms
     this->emitTransforms(args.fPB,
                          vertBuilder,
+                         varyingHandler,
                          gpArgs->fPositionVar,
                          de.inPosition()->fName,
                          de.localMatrix(),

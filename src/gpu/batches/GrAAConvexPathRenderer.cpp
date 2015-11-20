@@ -28,6 +28,7 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVarying.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
@@ -550,12 +551,13 @@ public:
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
             GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
             // emit attributes
-            vertBuilder->emitAttributes(qe);
+            varyingHandler->emitAttributes(qe);
 
             GrGLSLVertToFrag v(kVec4f_GrSLType);
-            args.fPB->addVarying("QuadEdge", &v);
+            varyingHandler->addVarying("QuadEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge()->fName);
 
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -570,6 +572,7 @@ public:
             // emit transforms
             this->emitTransforms(args.fPB,
                                  vertBuilder,
+                                 varyingHandler,
                                  gpArgs->fPositionVar,
                                  qe.inPosition()->fName,
                                  qe.localMatrix(),

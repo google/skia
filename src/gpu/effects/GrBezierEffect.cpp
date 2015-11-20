@@ -11,6 +11,7 @@
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUtil.h"
+#include "glsl/GrGLSLVarying.h"
 
 class GrGLConicEffect : public GrGLSLGeometryProcessor {
 public:
@@ -75,12 +76,13 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLGPBuilder* pb = args.fPB;
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     const GrConicEffect& gp = args.fGP.cast<GrConicEffect>();
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
     // emit attributes
-    vertBuilder->emitAttributes(gp);
+    varyingHandler->emitAttributes(gp);
 
     GrGLSLVertToFrag v(kVec4f_GrSLType);
-    args.fPB->addVarying("ConicCoeffs", &v);
+    varyingHandler->addVarying("ConicCoeffs", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -100,6 +102,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit transforms with position
     this->emitTransforms(pb,
                          vertBuilder,
+                         varyingHandler,
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          gp.localMatrix(),
@@ -301,12 +304,13 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLGPBuilder* pb = args.fPB;
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     const GrQuadEffect& gp = args.fGP.cast<GrQuadEffect>();
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
     // emit attributes
-    vertBuilder->emitAttributes(gp);
+    varyingHandler->emitAttributes(gp);
 
     GrGLSLVertToFrag v(kVec4f_GrSLType);
-    args.fPB->addVarying("HairQuadEdge", &v);
+    varyingHandler->addVarying("HairQuadEdge", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -326,6 +330,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit transforms with position
     this->emitTransforms(pb,
                          vertBuilder,
+                         varyingHandler,
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          gp.localMatrix(),
@@ -501,12 +506,13 @@ GrGLCubicEffect::GrGLCubicEffect(const GrGeometryProcessor& processor)
 void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     const GrCubicEffect& gp = args.fGP.cast<GrCubicEffect>();
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
     // emit attributes
-    vertBuilder->emitAttributes(gp);
+    varyingHandler->emitAttributes(gp);
 
     GrGLSLVertToFrag v(kVec4f_GrSLType);
-    args.fPB->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
+    varyingHandler->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inCubicCoeffs()->fName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -526,6 +532,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit transforms with position
     this->emitTransforms(args.fPB,
                          vertBuilder,
+                         varyingHandler,
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          args.fTransformsIn,
