@@ -528,6 +528,7 @@
       {
         'defines': [
           'SK_BUILD_FOR_IOS',
+          'SKIA_DLL',
         ],
         'conditions' : [
           [ 'skia_warnings_as_errors', {
