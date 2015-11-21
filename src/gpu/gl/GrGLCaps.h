@@ -232,6 +232,9 @@ public:
 
     bool bindUniformLocationSupport() const { return fBindUniformLocationSupport; }
 
+    /// Are textures with GL_TEXTURE_EXTERNAL_OES type supported.
+    bool externalTextureSupport() const { return fExternalTextureSupport; }
+
     /**
      * Is there support for enabling/disabling sRGB writes for sRGB-capable color attachments?
      * If false this does not mean sRGB is not supported but rather that if it is supported
@@ -360,6 +363,7 @@ private:
     bool fRGBA8888PixelsOpsAreSlow : 1;
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
+    bool fExternalTextureSupport : 1;
 
     struct ReadPixelsSupportedFormat {
         GrGLenum fFormat;

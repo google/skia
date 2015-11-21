@@ -31,11 +31,16 @@ static bool swizzle_requires_alpha_remapping(const GrGLSLCaps& caps, GrPixelConf
 static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
     uint32_t key = 0;
     int numTextures = proc.numTextures();
+    int shift = 0;
     for (int t = 0; t < numTextures; ++t) {
         const GrTextureAccess& access = proc.textureAccess(t);
         if (swizzle_requires_alpha_remapping(*caps.glslCaps(), access.getTexture()->config())) {
-            key |= 1 << t;
+            key |= 1 << shift;
         }
+        if (GR_GL_TEXTURE_EXTERNAL == static_cast<GrGLTexture*>(access.getTexture())->target()) {
+            key |= 2 << shift;
+        }
+        shift += 2;
     }
     return key;
 }
@@ -48,10 +53,8 @@ static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
  * which must be different for every GrProcessor subclass. It can fail if an effect uses too many
  * textures, transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share
  * this function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
- *
- * TODO: A better name for this function  would be "compute" instead of "get".
  */
-static bool get_meta_key(const GrProcessor& proc,
+static bool gen_meta_key(const GrProcessor& proc,
                          const GrGLCaps& caps,
                          uint32_t transformKey,
                          GrProcessorKeyBuilder* b) {
@@ -75,15 +78,12 @@ static bool get_meta_key(const GrProcessor& proc,
     return true;
 }
 
-/*
- * TODO: A better name for this function  would be "compute" instead of "get".
- */
-static bool get_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
+static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                         const GrFragmentProcessor& fp,
                                         const GrGLCaps& caps,
                                         GrProcessorKeyBuilder* b) {
     for (int i = 0; i < fp.numChildProcessors(); ++i) {
-        if (!get_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), caps, b)) {
+        if (!gen_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), caps, b)) {
             return false;
         }
     }
@@ -91,7 +91,7 @@ static bool get_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
     fp.getGLSLProcessorKey(*caps.glslCaps(), b);
 
     //**** use glslCaps here?
-    return get_meta_key(fp, caps, primProc.getTransformKey(fp.coordTransforms(),
+    return gen_meta_key(fp, caps, primProc.getTransformKey(fp.coordTransforms(),
                                                            fp.numTransformsExclChildren()), b);
 }
 
@@ -115,14 +115,14 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
 
     primProc.getGLSLProcessorKey(*gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
-    if (!get_meta_key(primProc, gpu->glCaps(), 0, &b)) {
+    if (!gen_meta_key(primProc, gpu->glCaps(), 0, &b)) {
         glDesc->key().reset();
         return false;
     }
 
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
-        if (!get_frag_proc_and_meta_keys(primProc, fp, gpu->glCaps(), &b)) {
+        if (!gen_frag_proc_and_meta_keys(primProc, fp, gpu->glCaps(), &b)) {
             glDesc->key().reset();
             return false;
         }
@@ -131,7 +131,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     const GrXferProcessor& xp = *pipeline.getXferProcessor();
     xp.getGLSLProcessorKey(*gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
-    if (!get_meta_key(xp, gpu->glCaps(), 0, &b)) {
+    if (!gen_meta_key(xp, gpu->glCaps(), 0, &b)) {
         glDesc->key().reset();
         return false;
     }
