@@ -28,7 +28,6 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fShaderDerivativeExtensionString = nullptr;
     fFragCoordConventionsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
-    fExternalTextureExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;

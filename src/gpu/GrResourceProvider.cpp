@@ -202,7 +202,7 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
         if (rt->renderTargetPriv().attachStencilAttachment(stencil)) {
             if (newStencil) {
                 // Right now we're clearing the stencil attachment here after it is
-                // attached to a RT for the first time. When we start matching
+                // attached to an RT for the first time. When we start matching
                 // stencil buffers with smaller color targets this will no longer
                 // be correct because it won't be guaranteed to clear the entire
                 // sb.

@@ -27,10 +27,6 @@ public:
         }
         return ctx;
     }
-    GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
-    void destroyEGLImage(GrEGLImage) const override;
-    GrGLuint eglImageToExternalTexture(GrEGLImage) const override;
-    SkGLContext* createNew() const override;
 
     // The param is an EGLNativeDisplayType and the return is an EGLDispay.
     static void* GetD3DEGLDisplay(void* nativeDisplay, bool useGLBackend);
@@ -46,7 +42,6 @@ private:
     void* fContext;
     void* fDisplay;
     void* fSurface;
-    bool  fIsGLBackend;
 };
 
 #endif

@@ -322,7 +322,7 @@ private:
 
     SkAutoTUnref<GrGLContext>  fGLContext;
 
-    void createCopyPrograms();
+    void createCopyProgram();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -497,17 +497,8 @@ private:
         GrGLint     fTextureUniform;
         GrGLint     fTexCoordXformUniform;
         GrGLint     fPosXformUniform;
-    }                           fCopyPrograms[2];
-    GrGLuint                    fCopyProgramArrayBuffer;
-
-    static int TextureTargetToCopyProgramIdx(GrGLenum target) {
-        if (target == GR_GL_TEXTURE_2D) {
-            return 0;
-        } else {
-            SkASSERT(target == GR_GL_TEXTURE_EXTERNAL);
-            return 1;
-        }
-    }
+        GrGLuint    fArrayBuffer;
+    } fCopyProgram;
 
     TriState fMSAAEnabled;
 

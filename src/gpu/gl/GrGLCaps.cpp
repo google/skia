@@ -46,7 +46,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
-    fExternalTextureSupport = false;
     fSRGBWriteControl = false;
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
@@ -259,16 +258,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 #else
     fBindUniformLocationSupport = false;
 #endif
-
-    if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
-        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
-            fExternalTextureSupport = true;
-        } else if (ctxInfo.hasExtension("GL_OES_EGL_image_external_essl3") ||
-                   ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
-            // At least one driver has been found that has this extension without the "GL_" prefix.
-            fExternalTextureSupport = true;
-        }
-    }
 
 #ifdef SK_BUILD_FOR_WIN
     // We're assuming that on Windows Chromium we're using ANGLE.
@@ -599,21 +588,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         glslCaps->fSecondaryOutputExtensionString = "GL_EXT_blend_func_extended";
     }
 
-    if (fExternalTextureSupport) {
-        if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
-            glslCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external";
-        } else {
-            glslCaps->fExternalTextureExtensionString = "GL_OES_EGL_image_external_essl3";
-        }
-    }
-
     // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0), so we must do
     // the abs first in a separate expression.
     if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
         glslCaps->fCanUseMinAndAbsTogether = false;
     }
 
-    // On Intel GPU there is an issue where it reads the second argument to atan "- %s.x" as an int
+    // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int
     // thus must us -1.0 * %s.x to work correctly
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         glslCaps->fMustForceNegatedAtanParamToFloat = true;

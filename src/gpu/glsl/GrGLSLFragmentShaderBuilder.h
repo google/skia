@@ -172,7 +172,6 @@ private:
         kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
         kBlendEquationAdvanced_GLSLPrivateFeature,
         kBlendFuncExtended_GLSLPrivateFeature,
-        kExternalTexture_GLSLPrivateFeature,
         kLastGLSLPrivateFeature = kBlendFuncExtended_GLSLPrivateFeature
     };
 

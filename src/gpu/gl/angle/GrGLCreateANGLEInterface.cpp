@@ -12,20 +12,8 @@
 
 #include <EGL/egl.h>
 
-namespace {
-struct Libs {
-    void* fGLLib;
-    void* fEGLLib;
-};
-}
-
 static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
-    const Libs* libs = reinterpret_cast<const Libs*>(ctx);
-    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcedureAddress(libs->fGLLib, name);
-    if (proc) {
-        return proc;
-    }
-    proc = (GrGLFuncPtr) GetProcedureAddress(libs->fEGLLib, name);
+    GrGLFuncPtr proc = (GrGLFuncPtr) GetProcedureAddress(ctx, name);
     if (proc) {
         return proc;
     }
@@ -33,26 +21,23 @@ static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
 }
 
 const GrGLInterface* GrGLCreateANGLEInterface() {
-    static Libs gLibs = { nullptr, nullptr };
+    static void* gANGLELib = nullptr;
 
-    if (nullptr == gLibs.fGLLib) {
+    if (nullptr == gANGLELib) {
         // We load the ANGLE library and never let it go
 #if defined _WIN32
-        gLibs.fGLLib = DynamicLoadLibrary("libGLESv2.dll");
-        gLibs.fEGLLib = DynamicLoadLibrary("libEGL.dll");
+        gANGLELib = DynamicLoadLibrary("libGLESv2.dll");
 #elif defined SK_BUILD_FOR_MAC
-        gLibs.fGLLib = DynamicLoadLibrary("libGLESv2.dylib");
-        gLibs.fEGLLib = DynamicLoadLibrary("libEGL.dylib");
+        gANGLELib = DynamicLoadLibrary("libGLESv2.dylib");
 #else
-        gLibs.fGLLib = DynamicLoadLibrary("libGLESv2.so");
-        gLibs.fGLLib = DynamicLoadLibrary("libEGL.so");
-#endif
+        gANGLELib = DynamicLoadLibrary("libGLESv2.so");
+#endif // defined _WIN32
     }
 
-    if (nullptr == gLibs.fGLLib || nullptr == gLibs.fEGLLib) {
+    if (nullptr == gANGLELib) {
         // We can't setup the interface correctly w/o the so
         return nullptr;
     }
 
-    return GrGLAssembleGLESInterface(&gLibs, angle_get_gl_proc);
+    return GrGLAssembleGLESInterface(gANGLELib, angle_get_gl_proc);
 }

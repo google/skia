@@ -11,9 +11,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
-
 #define EGL_PLATFORM_ANGLE_ANGLE                0x3202
 #define EGL_PLATFORM_ANGLE_TYPE_ANGLE           0x3203
 #define EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE      0x3207
@@ -37,7 +34,8 @@ void* SkANGLEGLContext::GetD3DEGLDisplay(void* nativeDisplay, bool useGLBackend)
               EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE,
               EGL_NONE
         };
-        display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, nativeDisplay, attribs);
+        display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,
+                                            nativeDisplay, attribs);
     } else {
         // Try for an ANGLE D3D11 context, fall back to D3D9, and finally GL.
         EGLint attribs[3][3] = {
@@ -58,7 +56,8 @@ void* SkANGLEGLContext::GetD3DEGLDisplay(void* nativeDisplay, bool useGLBackend)
             }
         };
         for (int i = 0; i < 3 && display == EGL_NO_DISPLAY; ++i) {
-            display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,nativeDisplay, attribs[i]);
+            display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,
+                                                nativeDisplay, attribs[i]);
         }
     }
     return display;
@@ -80,7 +79,6 @@ SkANGLEGLContext::SkANGLEGLContext(bool useGLBackend)
         EGL_NONE
     };
 
-    fIsGLBackend = useGLBackend;
     fDisplay = GetD3DEGLDisplay(EGL_DEFAULT_DISPLAY, useGLBackend);
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Could not create EGL display!");
@@ -129,62 +127,6 @@ SkANGLEGLContext::SkANGLEGLContext(bool useGLBackend)
 SkANGLEGLContext::~SkANGLEGLContext() {
     this->teardown();
     this->destroyGLContext();
-}
-
-GrEGLImage SkANGLEGLContext::texture2DToEGLImage(GrGLuint texID) const {
-    if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
-        return GR_EGL_NO_IMAGE;
-    }
-    GrEGLImage img;
-    GrEGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0,
-                           GR_EGL_IMAGE_PRESERVED, GR_EGL_TRUE,
-                           GR_EGL_NONE };
-    // 64 bit cast is to shut Visual C++ up about casting 32 bit value to a pointer.
-    GrEGLClientBuffer clientBuffer = reinterpret_cast<GrEGLClientBuffer>((uint64_t)texID);
-    GR_GL_CALL_RET(this->gl(), img,
-                   EGLCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer,
-                                  attribs));
-    return img;
-}
-
-void SkANGLEGLContext::destroyEGLImage(GrEGLImage image) const {
-    GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
-}
-
-GrGLuint SkANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
-    GrGLClearErr(this->gl());
-    if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
-        return 0;
-    }
-    GrGLEGLImageTargetTexture2DProc glEGLImageTargetTexture2D =
-        (GrGLEGLImageTargetTexture2DProc)eglGetProcAddress("glEGLImageTargetTexture2DOES");
-    if (!glEGLImageTargetTexture2D) {
-        return 0;
-    }
-    GrGLuint texID;
-    GR_GL_CALL(this->gl(), GenTextures(1, &texID));
-    if (!texID) {
-        return 0;
-    }
-    GR_GL_CALL(this->gl(), BindTexture(GR_GL_TEXTURE_EXTERNAL, texID));
-    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
-        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
-        return 0;
-    }
-    glEGLImageTargetTexture2D(GR_GL_TEXTURE_EXTERNAL, image);
-    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
-        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
-        return 0;
-    }
-    return texID;
-}
-
-SkGLContext* SkANGLEGLContext::createNew() const {
-    SkGLContext* ctx = SkANGLEGLContext::Create(this->gl()->fStandard, fIsGLBackend);
-    if (ctx) {
-        ctx->makeCurrent();
-    }
-    return ctx;
 }
 
 void SkANGLEGLContext::destroyGLContext() {

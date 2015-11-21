@@ -14,7 +14,7 @@
 #define GET_PROC_SUFFIX(F, S) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F #S)
 #define GET_PROC_LOCAL(F) GrGL ## F ## Proc F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
 
-#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL ## F = (GrEGL ## F ## Proc) get(ctx, "egl" #F #S)
+#define GET_EGL_PROC_SUFFIX(F, S) functions->f ## F = (GrEGL ## F ## Proc) get(ctx, "egl" #F #S)
 
 const GrGLInterface* GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);

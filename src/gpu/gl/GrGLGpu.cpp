@@ -233,7 +233,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
         fPathRendering.reset(new GrGLPathRendering(this));
     }
 
-    this->createCopyPrograms();
+    this->createCopyProgram();
 }
 
 GrGLGpu::~GrGLGpu() {
@@ -253,13 +253,12 @@ GrGLGpu::~GrGLGpu() {
         GL_CALL(DeleteFramebuffers(1, &fStencilClearFBOID));
     }
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
-        if (0 != fCopyPrograms[i].fProgram) {
-            GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
-        }
+    if (0 != fCopyProgram.fArrayBuffer) {
+        GL_CALL(DeleteBuffers(1, &fCopyProgram.fArrayBuffer));
     }
-    if (0 != fCopyProgramArrayBuffer) {
-        GL_CALL(DeleteBuffers(1, &fCopyProgramArrayBuffer));
+
+    if (0 != fCopyProgram.fProgram) {
+        GL_CALL(DeleteProgram(fCopyProgram.fProgram));
     }
 
     delete fProgramCache;
@@ -272,10 +271,8 @@ void GrGLGpu::contextAbandoned() {
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
     fStencilClearFBOID = 0;
-    fCopyProgramArrayBuffer = 0;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
-        fCopyPrograms[i].fProgram = 0;
-    }
+    fCopyProgram.fArrayBuffer = 0;
+    fCopyProgram.fProgram = 0;
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->abandonGpuResources();
     }
@@ -432,9 +429,6 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         return nullptr;
     }
 
-    // next line relies on GrBackendTextureDesc's flags matching GrTexture's
-    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
-
     GrGLTexture::IDDesc idDesc;
     GrSurfaceDesc surfDesc;
 
@@ -445,15 +439,6 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
 #else
     idDesc.fInfo = *info;
 #endif
-    if (GR_GL_TEXTURE_EXTERNAL == idDesc.fInfo.fTarget) {
-        if (renderTarget) {
-            // This combination is not supported.
-            return nullptr;
-        }
-        if (!this->glCaps().externalTextureSupport()) {
-            return nullptr;
-        }
-    }
 
     switch (ownership) {
         case kAdopt_GrWrapOwnership:
@@ -464,11 +449,13 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
             break;
     }    
 
+    // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
     surfDesc.fWidth = desc.fWidth;
     surfDesc.fHeight = desc.fHeight;
     surfDesc.fConfig = desc.fConfig;
     surfDesc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
+    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
     // FIXME:  this should be calling resolve_origin(), but Chrome code is currently
     // assuming the old behaviour, which is that backend textures are always
     // BottomLeft, even for non-RT's.  Once Chrome is fixed, change this to:
@@ -537,12 +524,6 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     // into it. We could use glDrawPixels on GLs that have it, but we don't today.
     if (!dstSurface->asTexture()) {
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    } else {
-        GrGLTexture* texture = static_cast<GrGLTexture*>(dstSurface->asTexture());
-        if (GR_GL_TEXTURE_2D != texture->target()) {
-             // We don't currently support writing pixels to non-TEXTURE_2D textures.
-             return false;
-        }
     }
 
     if (GrPixelConfigIsSRGB(dstSurface->config()) != GrPixelConfigIsSRGB(srcConfig)) {
@@ -601,11 +582,6 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
 
     // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
     if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
-        return false;
-    }
-
-    // Write pixels is only implemented for TEXTURE_2D textures
-    if (GR_GL_TEXTURE_2D != glTex->target()) {
         return false;
     }
 
@@ -2776,10 +2752,11 @@ void GrGLGpu::setScratchTextureUnit() {
     fHWBoundTextureUniqueIDs[lastUnitIdx] = SK_InvalidUniqueID;
 }
 
+namespace {
 // Determines whether glBlitFramebuffer could be used between src and dst.
-static inline bool can_blit_framebuffer(const GrSurface* dst,
-                                        const GrSurface* src,
-                                        const GrGLGpu* gpu) {
+inline bool can_blit_framebuffer(const GrSurface* dst,
+                                 const GrSurface* src,
+                                 const GrGLGpu* gpu) {
     if (gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) &&
         gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
         gpu->glCaps().usesMSAARenderBuffers()) {
@@ -2789,23 +2766,15 @@ static inline bool can_blit_framebuffer(const GrSurface* dst,
             (src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
            return false;
         }
-        const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
-        if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
-            return false;
-        }
-        const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(dst->asTexture());
-        if (srcTex && srcTex->target() != GR_GL_TEXTURE_2D) {
-            return false;
-        }
         return true;
     } else {
         return false;
     }
 }
 
-static inline bool can_copy_texsubimage(const GrSurface* dst,
-                                        const GrSurface* src,
-                                        const GrGLGpu* gpu) {
+inline bool can_copy_texsubimage(const GrSurface* dst,
+                                 const GrSurface* src,
+                                 const GrGLGpu* gpu) {
     // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
     // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
     // many drivers would allow it to work, but ANGLE does not.
@@ -2825,27 +2794,16 @@ static inline bool can_copy_texsubimage(const GrSurface* dst,
     if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
         return false;
     }
-
-    const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
-    // CopyTex(Sub)Image writes to a texture and we have no way of dynamically wrapping a RT in a
-    // texture.
-    if (!dstTex) {
-        return false;
-    }
-
-    const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(src->asTexture());
-    
-    // Check that we could wrap the source in an FBO, that the dst is TEXTURE_2D, that no mirroring
-    // is required.
     if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
-        !GrPixelConfigIsCompressed(src->config()) &&
-        (!srcTex || srcTex->target() == GR_GL_TEXTURE_2D) &&
-        dstTex->target() == GR_GL_TEXTURE_2D &&
-        dst->origin() == src->origin()) {
+        dst->asTexture() &&
+        dst->origin() == src->origin() &&
+        !GrPixelConfigIsCompressed(src->config())) {
         return true;
     } else {
         return false;
     }
+}
+
 }
 
 // If a temporary FBO was created, its non-zero ID is returned. The viewport that the copy rect is
@@ -2903,12 +2861,6 @@ bool GrGLGpu::initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) 
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
         desc->fConfig = src->config();
         return true;
-    }
-
-    const GrGLTexture* srcTexture = static_cast<const GrGLTexture*>(src->asTexture());
-    if (srcTexture && srcTexture->target() != GR_GL_TEXTURE_2D) {
-        // Not supported for FBO blit or CopyTexSubImage
-        return false;
     }
 
     // We look for opportunities to use CopyTexSubImage, or fbo blit. If neither are
@@ -2975,109 +2927,92 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 }
 
 
-void GrGLGpu::createCopyPrograms() {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
-        fCopyPrograms[i].fProgram = 0;
-    }
+void GrGLGpu::createCopyProgram() {
     const char* version = this->glCaps().glslCaps()->versionDeclString();
-    static const GrSLType kSamplerTypes[2] = { kSampler2D_GrSLType, kSamplerExternal_GrSLType };
-    SkASSERT(2 == SK_ARRAY_COUNT(fCopyPrograms));
-    int programCount = this->glCaps().externalTextureSupport() ? 2 : 1;
-    for (int i = 0; i < programCount; ++i) {
-        GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-        GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
-                                     GrShaderVar::kUniform_TypeModifier);
-        GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType,
-                                  GrShaderVar::kUniform_TypeModifier);
-        GrGLSLShaderVar uTexture("u_texture", kSamplerTypes[i],
+
+    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                  GrShaderVar::kUniform_TypeModifier);
-        GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType,
-                                  GrShaderVar::kVaryingOut_TypeModifier);
-        GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType,
-                                   GrShaderVar::kOut_TypeModifier);
+    GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     
-        SkString vshaderTxt(version);
-        aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
-        vshaderTxt.append(";");
-        uTexCoordXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
-        vshaderTxt.append(";");
-        uPosXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
-        vshaderTxt.append(";");
-        vTexCoord.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
-        vshaderTxt.append(";");
+    SkString vshaderTxt(version);
+    aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
+    uTexCoordXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
+    uPosXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
+    vTexCoord.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
     
-        vshaderTxt.append(
-            "// Copy Program VS\n"
-            "void main() {"
-            "  v_texCoord = a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw;"
-            "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
-            "  gl_Position.zw = vec2(0, 1);"
-            "}"
-        );
+    vshaderTxt.append(
+        "// Copy Program VS\n"
+        "void main() {"
+        "  v_texCoord = a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw;"
+        "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
+        "  gl_Position.zw = vec2(0, 1);"
+        "}"
+    );
 
-        SkString fshaderTxt(version);
-        if (kSamplerTypes[i] == kSamplerExternal_GrSLType) {
-            fshaderTxt.appendf("#extension %s : require\n",
-                               this->glCaps().glslCaps()->externalTextureExtensionString());
-        }
-        GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                     *this->glCaps().glslCaps(),
-                                                     &fshaderTxt);
-        vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-        vTexCoord.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    SkString fshaderTxt(version);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
+                                                 *this->glCaps().glslCaps(),
+                                                 &fshaderTxt);
+    vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+    vTexCoord.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    fshaderTxt.append(";");
+    uTexture.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    fshaderTxt.append(";");
+    const char* fsOutName;
+    if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
         fshaderTxt.append(";");
-        uTexture.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
-        fshaderTxt.append(";");
-        const char* fsOutName;
-        if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
-            oFragColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
-            fshaderTxt.append(";");
-            fsOutName = oFragColor.c_str();
-        } else {
-            fsOutName = "gl_FragColor";
-        }
-        fshaderTxt.appendf(
-            "// Copy Program FS\n"
-            "void main() {"
-            "  %s = %s(u_texture, v_texCoord);"
-            "}",
-            fsOutName,
-            GrGLSLTexture2DFunctionName(kVec2f_GrSLType, this->glslGeneration())
-        );
-    
-        GL_CALL_RET(fCopyPrograms[i].fProgram, CreateProgram());
-        const char* str;
-        GrGLint length;
-
-        str = vshaderTxt.c_str();
-        length = SkToInt(vshaderTxt.size());
-        GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[i].fProgram,
-                                                      GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                      &fStats);
-
-        str = fshaderTxt.c_str();
-        length = SkToInt(fshaderTxt.size());
-        GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[i].fProgram,
-                                                      GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                      &fStats);
-
-        GL_CALL(LinkProgram(fCopyPrograms[i].fProgram));
-
-        GL_CALL_RET(fCopyPrograms[i].fTextureUniform,
-                    GetUniformLocation(fCopyPrograms[i].fProgram, "u_texture"));
-        GL_CALL_RET(fCopyPrograms[i].fPosXformUniform,
-                    GetUniformLocation(fCopyPrograms[i].fProgram, "u_posXform"));
-        GL_CALL_RET(fCopyPrograms[i].fTexCoordXformUniform,
-                    GetUniformLocation(fCopyPrograms[i].fProgram, "u_texCoordXform"));
-
-        GL_CALL(BindAttribLocation(fCopyPrograms[i].fProgram, 0, "a_vertex"));
-
-        GL_CALL(DeleteShader(vshader));
-        GL_CALL(DeleteShader(fshader));
+        fsOutName = oFragColor.c_str();
+    } else {
+        fsOutName = "gl_FragColor";
     }
+    fshaderTxt.appendf(
+        "// Copy Program FS\n"
+        "void main() {"
+        "  %s = %s(u_texture, v_texCoord);"
+        "}",
+        fsOutName,
+        GrGLSLTexture2DFunctionName(kVec2f_GrSLType, this->glslGeneration())
+    );
+    
+    GL_CALL_RET(fCopyProgram.fProgram, CreateProgram());
+    const char* str;
+    GrGLint length;
 
-    GL_CALL(GenBuffers(1, &fCopyProgramArrayBuffer));
-    fHWGeometryState.setVertexBufferID(this, fCopyProgramArrayBuffer);
+    str = vshaderTxt.c_str();
+    length = SkToInt(vshaderTxt.size());
+    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyProgram.fProgram,
+                                                  GR_GL_VERTEX_SHADER, &str, &length, 1, &fStats);
+
+    str = fshaderTxt.c_str();
+    length = SkToInt(fshaderTxt.size());
+    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyProgram.fProgram,
+                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1, &fStats);
+
+    GL_CALL(LinkProgram(fCopyProgram.fProgram));
+
+    GL_CALL_RET(fCopyProgram.fTextureUniform, GetUniformLocation(fCopyProgram.fProgram,
+                                                                 "u_texture"));
+    GL_CALL_RET(fCopyProgram.fPosXformUniform, GetUniformLocation(fCopyProgram.fProgram,
+                                                                  "u_posXform"));
+    GL_CALL_RET(fCopyProgram.fTexCoordXformUniform, GetUniformLocation(fCopyProgram.fProgram,
+                                                                       "u_texCoordXform"));
+
+    GL_CALL(BindAttribLocation(fCopyProgram.fProgram, 0, "a_vertex"));
+
+    GL_CALL(DeleteShader(vshader));
+    GL_CALL(DeleteShader(fshader));
+
+    GL_CALL(GenBuffers(1, &fCopyProgram.fArrayBuffer));
+    fHWGeometryState.setVertexBufferID(this, fCopyProgram.fArrayBuffer);
     static const GrGLfloat vdata[] = {
         0, 0,
         0, 1,
@@ -3106,16 +3041,14 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
     this->flushRenderTarget(dstRT, &dstRect);
 
-    int progIdx = TextureTargetToCopyProgramIdx(srcTex->target());
-
-    GL_CALL(UseProgram(fCopyPrograms[progIdx].fProgram));
-    fHWProgramID = fCopyPrograms[progIdx].fProgram;
+    GL_CALL(UseProgram(fCopyProgram.fProgram));
+    fHWProgramID = fCopyProgram.fProgram;
 
     fHWGeometryState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs =
-        fHWGeometryState.bindArrayAndBufferToDraw(this, fCopyProgramArrayBuffer);
-    attribs->set(this, 0, fCopyProgramArrayBuffer, 2, GR_GL_FLOAT, false,
+        fHWGeometryState.bindArrayAndBufferToDraw(this, fCopyProgram.fArrayBuffer);
+    attribs->set(this, 0, fCopyProgram.fArrayBuffer, 2, GR_GL_FLOAT, false,
                     2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
@@ -3143,10 +3076,9 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
         sy1 = 1.f - sy1;
     }
 
-    GL_CALL(Uniform4f(fCopyPrograms[progIdx].fPosXformUniform, dx1 - dx0, dy1 - dy0, dx0, dy0));
-    GL_CALL(Uniform4f(fCopyPrograms[progIdx].fTexCoordXformUniform,
-                      sx1 - sx0, sy1 - sy0, sx0, sy0));
-    GL_CALL(Uniform1i(fCopyPrograms[progIdx].fTextureUniform, 0));
+    GL_CALL(Uniform4f(fCopyProgram.fPosXformUniform, dx1 - dx0, dy1 - dy0, dx0, dy0));
+    GL_CALL(Uniform4f(fCopyProgram.fTexCoordXformUniform, sx1 - sx0, sy1 - sy0, sx0, sy0));
+    GL_CALL(Uniform1i(fCopyProgram.fTextureUniform, 0));
 
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();

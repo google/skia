@@ -727,8 +727,8 @@ bool GrGLInterface::validate() const {
     }
 
     if (fExtensions.has("EGL_KHR_image") || fExtensions.has("EGL_KHR_image_base")) {
-        if (nullptr == fFunctions.fEGLCreateImage ||
-            nullptr == fFunctions.fEGLDestroyImage) {
+        if (nullptr == fFunctions.fCreateImage ||
+            nullptr == fFunctions.fDestroyImage) {
             RETURN_FALSE_INTERFACE
         }
     }

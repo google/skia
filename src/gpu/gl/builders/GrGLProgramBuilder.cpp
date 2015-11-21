@@ -319,16 +319,6 @@ void GrGLProgramBuilder::verify(const GrFragmentProcessor& fp) {
     SkASSERT(fFS.hasReadFragmentPosition() == fp.willReadFragmentPosition());
 }
 
-static GrSLType get_sampler_type(const GrTextureAccess& access) {
-    GrGLTexture* glTexture = static_cast<GrGLTexture*>(access.getTexture());
-    if (glTexture->target() == GR_GL_TEXTURE_EXTERNAL) {
-        return kSamplerExternal_GrSLType;
-    } else {
-        SkASSERT(glTexture->target() == GR_GL_TEXTURE_2D);
-        return kSampler2D_GrSLType;
-    }
-}
-
 template <class Proc>
 void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
                                       GrGLSLTextureSampler::TextureSamplerArray* outSamplers,
@@ -339,19 +329,11 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
     SkString name;
     for (int t = 0; t < numTextures; ++t) {
         name.printf("Sampler%d", t);
-        GrSLType samplerType = get_sampler_type(processor.textureAccess(t));
         localSamplerUniforms[t] = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                   samplerType, kDefault_GrSLPrecision,
+                                                   kSampler2D_GrSLType, kDefault_GrSLPrecision,
                                                    name.c_str());
         SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLSLTextureSampler,
                                (localSamplerUniforms[t], processor.textureAccess(t)));
-        if (kSamplerExternal_GrSLType == samplerType) {
-            const char* externalFeatureString = this->glslCaps()->externalTextureExtensionString();
-            // We shouldn't ever create a GrGLTexture that requires external sampler type 
-            SkASSERT(externalFeatureString);
-            fFS.addFeature(1 << GrGLSLFragmentShaderBuilder::kExternalTexture_GLSLPrivateFeature,
-                           externalFeatureString);
-        }
     }
 }
 
