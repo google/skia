@@ -13,6 +13,9 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+#include "gl/GrGLDefines.h"
+#include "gl/GrGLUtil.h"
+
 namespace {
 
 // TODO: Share this class with ANGLE if/when it gets support for EGL_KHR_fence_sync.
@@ -36,6 +39,11 @@ class EGLGLContext : public SkGLContext  {
 public:
     EGLGLContext(GrGLStandard forcedGpuAPI);
     ~EGLGLContext() override;
+
+    GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
+    void destroyEGLImage(GrEGLImage) const override;
+    GrGLuint eglImageToExternalTexture(GrEGLImage) const override;
+    SkGLContext* createNew() const override;
 
 private:
     void destroyGLContext();
@@ -200,6 +208,57 @@ void EGLGLContext::destroyGLContext() {
     }
 }
 
+GrEGLImage EGLGLContext::texture2DToEGLImage(GrGLuint texID) const {
+    if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
+        return GR_EGL_NO_IMAGE;
+    }
+    GrEGLImage img;
+    GrEGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0, GR_EGL_NONE };
+    GrEGLClientBuffer clientBuffer = reinterpret_cast<GrEGLClientBuffer>(texID);
+    GR_GL_CALL_RET(this->gl(), img,
+                   EGLCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs));
+    return img;
+}
+
+void EGLGLContext::destroyEGLImage(GrEGLImage image) const {
+    GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
+}
+
+GrGLuint EGLGLContext::eglImageToExternalTexture(GrEGLImage image) const {
+    GrGLClearErr(this->gl());
+    if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
+        return 0;
+    }
+    GrGLEGLImageTargetTexture2DProc glEGLImageTargetTexture2D = 
+            (GrGLEGLImageTargetTexture2DProc) eglGetProcAddress("glEGLImageTargetTexture2DOES");
+    if (!glEGLImageTargetTexture2D) {
+        return 0;
+    }
+    GrGLuint texID;
+    glGenTextures(1, &texID);
+    if (!texID) {
+        return 0;
+    }
+    glBindTexture(GR_GL_TEXTURE_EXTERNAL, texID);
+    if (glGetError() != GR_GL_NO_ERROR) {
+        glDeleteTextures(1, &texID);
+        return 0;
+    }
+    glEGLImageTargetTexture2D(GR_GL_TEXTURE_EXTERNAL, image);
+    if (glGetError() != GR_GL_NO_ERROR) {
+        glDeleteTextures(1, &texID);
+        return 0;
+    }
+    return texID;
+}
+
+SkGLContext* EGLGLContext::createNew() const {
+    SkGLContext* ctx = SkCreatePlatformGLContext(this->gl()->fStandard);
+    if (ctx) {
+        ctx->makeCurrent();
+    }
+    return ctx;
+}
 
 void EGLGLContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {

@@ -498,8 +498,8 @@ public:
         GLPtr<GrGLObjectLabelProc> fObjectLabel;
 
         /* EGL functions */
-        GLPtr<GrEGLCreateImageProc> fCreateImage;
-        GLPtr<GrEGLDestroyImageProc> fDestroyImage;
+        GLPtr<GrEGLCreateImageProc> fEGLCreateImage;
+        GLPtr<GrEGLDestroyImageProc> fEGLDestroyImage;
     } fFunctions;
 
     // Per-GL func callback

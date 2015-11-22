@@ -25,8 +25,9 @@ enum GrSLType {
     kMat33f_GrSLType,
     kMat44f_GrSLType,
     kSampler2D_GrSLType,
+    kSamplerExternal_GrSLType,
 
-    kLast_GrSLType = kSampler2D_GrSLType
+    kLast_GrSLType = kSamplerExternal_GrSLType
 };
 static const int kGrSLTypeCount = kLast_GrSLType + 1;
 
@@ -63,7 +64,7 @@ static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {
     SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
-    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1 };
+    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1 };
     return kCounts[type];
 
     GR_STATIC_ASSERT(0 == kVoid_GrSLType);
@@ -74,6 +75,7 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
     GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
 }
 
@@ -102,7 +104,8 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
     GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
-    GR_STATIC_ASSERT(8 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(9 == kGrSLTypeCount);
 }
 //////////////////////////////////////////////////////////////////////////////
 

@@ -928,8 +928,18 @@
 #define GR_GL_PROGRAM_PIPELINE                              0x82E4
 #define GR_GL_SAMPLER                                       0x82E6
 
+/* GL_OES_EGL_image_external */
+#define GR_GL_TEXTURE_EXTERNAL                              0x8D65
+
 /* EGL Defines */
 #define GR_EGL_NO_DISPLAY                                   ((GrEGLDisplay)0)
 #define GR_EGL_EXTENSIONS                                   0x3055
+#define GR_EGL_GL_TEXTURE_2D                                0x30B1
+#define GR_EGL_GL_TEXTURE_LEVEL                             0x30BC
+#define GR_EGL_IMAGE_PRESERVED                              0x30D2
+#define GR_EGL_FALSE                                        0x0
+#define GR_EGL_TRUE                                         0x1
+#define GR_EGL_NONE                                         0x3038
+#define GR_EGL_NO_IMAGE                                    ((GrEGLImage)0)
 
 #endif

@@ -85,6 +85,8 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "mat4";
         case kSampler2D_GrSLType:
             return "sampler2D";
+        case kSamplerExternal_GrSLType:
+            return "samplerExternalOES";
         default:
             SkFAIL("Unknown shader var type.");
             return ""; // suppress warning

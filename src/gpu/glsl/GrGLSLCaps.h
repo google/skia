@@ -102,6 +102,10 @@ public:
         return fSecondaryOutputExtensionString;
     }
 
+    const char* externalTextureExtensionString() const {
+        return fExternalTextureExtensionString;
+    }
+
     bool mustSwizzleInShader() const { return fMustSwizzleInShader; }
 
     /**
@@ -140,6 +144,7 @@ private:
     const char* fShaderDerivativeExtensionString;
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
+    const char* fExternalTextureExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
