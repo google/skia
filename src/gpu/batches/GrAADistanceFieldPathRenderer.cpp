@@ -38,7 +38,7 @@ static int g_NumFreedPaths = 0;
 
 // mip levels
 static const int kSmallMIP = 32;
-static const int kMediumMIP = 73;
+static const int kMediumMIP = 72;
 static const int kLargeMIP = 162;
 
 // Callback to clear out internal path cache when eviction occurs
@@ -84,9 +84,10 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 
     // TODO: Support inverse fill
+    // TODO: Support strokes
     if (!args.fShaderCaps->shaderDerivativeSupport() || !args.fAntiAlias ||
-        SkStrokeRec::kHairline_Style == args.fStroke->getStyle() ||
-        args.fPath->isInverseFillType() || args.fPath->isVolatile()) {
+        args.fPath->isInverseFillType() || args.fPath->isVolatile() ||
+        !args.fStroke->isFillStyle()) {
         return false;
     }
 
@@ -95,22 +96,12 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
         return false;
     }
     
-    // only support paths with bounds within kMediumMIP by kMediumMIP,
-    // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP
+    // only support paths smaller than 64x64, scaled to less than 256x256
     // the goal is to accelerate rendering of lots of small paths that may be scaling
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
     const SkRect& bounds = args.fPath->getBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
-    // Approximate stroked size by adding the maximum of the stroke width or 2x the miter limit
-    if (!args.fStroke->isFillStyle()) {
-        SkScalar extraWidth = args.fStroke->getWidth();
-        if (SkPaint::kMiter_Join == args.fStroke->getJoin()) {
-            extraWidth = SkTMax(extraWidth, 2.0f*args.fStroke->getMiter());
-        }
-        maxDim += extraWidth;
-    }
-    
-    return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
+    return maxDim < 64.f && maxDim * maxScale < 256.f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,20 +118,8 @@ public:
     typedef GrAADistanceFieldPathRenderer::PathDataList PathDataList;
 
     struct Geometry {
-        Geometry(const SkStrokeRec& stroke) : fStroke(stroke) {
-            if (!stroke.needToApply()) {
-                // purify unused values to ensure binary equality
-                fStroke.setStrokeParams(SkPaint::kDefault_Cap, SkPaint::kDefault_Join,
-                                        SkIntToScalar(4));
-                if (fStroke.getWidth() < 0) {
-                    fStroke.setStrokeStyle(-1.0f);
-                }
-            }
-        }
+        Geometry(const SkStrokeRec& stroke) : fStroke(stroke) {}
         SkPath fPath;
-        // The unique ID of the path involved in this draw. This may be different than the ID
-        // in fPath since that path may have resulted from a SkStrokeRec::applyToPath call.
-        uint32_t fGenID;
         SkStrokeRec fStroke;
         bool fAntiAlias;
         PathData* fPathData;
@@ -246,7 +225,8 @@ private:
             }
 
             // check to see if path is cached
-            PathData::Key key(args.fGenID, desiredDimension, args.fStroke);
+            // TODO: handle stroked vs. filled version of same path
+            PathData::Key key = { args.fPath.getGenerationID(), desiredDimension };
             args.fPathData = fPathCache->find(key);
             if (nullptr == args.fPathData || !atlas->hasID(args.fPathData->fID)) {
                 // Remove the stale cache entry
@@ -264,7 +244,6 @@ private:
                                           atlas,
                                           args.fPathData,
                                           args.fPath,
-                                          args.fGenID,
                                           args.fStroke,
                                           args.fAntiAlias,
                                           desiredDimension,
@@ -322,9 +301,8 @@ private:
                         GrBatchAtlas* atlas,
                         PathData* pathData,
                         const SkPath& path,
-                        uint32_t genID,
-                        const SkStrokeRec& stroke,
-                        bool antiAlias,
+                        const SkStrokeRec&
+                        stroke, bool antiAlias,
                         uint32_t dimension,
                         SkScalar scale) {
         const SkRect& bounds = path.getBounds();
@@ -355,25 +333,41 @@ private:
         drawMatrix.postTranslate(kAntiAliasPad, kAntiAliasPad);
 
         // setup bitmap backing
-        SkASSERT(devPathBounds.fLeft == 0);
-        SkASSERT(devPathBounds.fTop == 0);
+        // Now translate so the bound's UL corner is at the origin
+        drawMatrix.postTranslate(-devPathBounds.fLeft * SK_Scalar1,
+                                 -devPathBounds.fTop * SK_Scalar1);
+        SkIRect pathBounds = SkIRect::MakeWH(devPathBounds.width(),
+                                             devPathBounds.height());
+
         SkAutoPixmapStorage dst;
-        if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(),
-                                              devPathBounds.height()))) {
+        if (!dst.tryAlloc(SkImageInfo::MakeA8(pathBounds.width(),
+                                              pathBounds.height()))) {
             return false;
         }
         sk_bzero(dst.writable_addr(), dst.getSafeSize());
 
         // rasterize path
         SkPaint paint;
-        paint.setStyle(SkPaint::kFill_Style);
+        if (stroke.isHairlineStyle()) {
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(SK_Scalar1);
+        } else {
+            if (stroke.isFillStyle()) {
+                paint.setStyle(SkPaint::kFill_Style);
+            } else {
+                paint.setStyle(SkPaint::kStroke_Style);
+                paint.setStrokeJoin(stroke.getJoin());
+                paint.setStrokeCap(stroke.getCap());
+                paint.setStrokeWidth(stroke.getWidth());
+            }
+        }
         paint.setAntiAlias(antiAlias);
 
         SkDraw draw;
         sk_bzero(&draw, sizeof(draw));
 
         SkRasterClip rasterClip;
-        rasterClip.setRect(devPathBounds);
+        rasterClip.setRect(pathBounds);
         draw.fRC = &rasterClip;
         draw.fClip = &rasterClip.bwRgn();
         draw.fMatrix = &drawMatrix;
@@ -409,7 +403,8 @@ private:
         }
 
         // add to cache
-        pathData->fKey = PathData::Key(genID, dimension, stroke);
+        pathData->fKey.fGenID = path.getGenerationID();
+        pathData->fKey.fDimension = dimension;
         pathData->fScale = scale;
         pathData->fID = id;
         // change the scaled rect to match the size of the inset distance field
@@ -548,17 +543,9 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     AADistanceFieldPathBatch::Geometry geometry(*args.fStroke);
-    if (SkStrokeRec::kFill_Style == args.fStroke->getStyle()) {
-        geometry.fPath = *args.fPath;
-    } else {
-        args.fStroke->applyToPath(&geometry.fPath, *args.fPath);
-    }
+    geometry.fPath = *args.fPath;
     geometry.fAntiAlias = args.fAntiAlias;
-    // Note: this is the generation ID of the _original_ path. When a new path is
-    // generated due to stroking it is important that the original path's id is used
-    // for caching.
-    geometry.fGenID = args.fPath->getGenerationID();
- 
+
     SkAutoTUnref<GrDrawBatch> batch(AADistanceFieldPathBatch::Create(geometry, args.fColor,
                                                                      *args.fViewMatrix, fAtlas,
                                                                      &fPathCache, &fPathList));
