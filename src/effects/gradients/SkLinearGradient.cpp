@@ -727,6 +727,9 @@ template <bool apply_alpha> void fill(SkPMColor dst[], int count, const Sk4f& c4
  */
 
 static Sk4f lerp_color(float fx, const SkLinearGradient::LinearGradientContext::Rec* rec) {
+    SkASSERT(fx >= rec[0].fPos);
+    SkASSERT(fx <= rec[1].fPos);
+
     const float p0 = rec[0].fPos;
     const Sk4f c0 = rec[0].fColor;
     const Sk4f c1 = rec[1].fColor;
@@ -894,7 +897,8 @@ void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMCol
     const float invDx = 1 / dx;
 
     if (SkScalarNearlyZero(dx)) { // gradient is vertical
-        Sk4f c = lerp_color(fx, find_forward(fRecs.begin(), SkTPin(fx, 0.0f, 1.0f)));
+        const float pinFx = SkTPin(fx, 0.0f, 1.0f);
+        Sk4f c = lerp_color(pinFx, find_forward(fRecs.begin(), pinFx));
         if (fApplyAlphaAfterInterp) {
             fill<true>(dstC, count, c + dither0, c + dither1);
         } else {

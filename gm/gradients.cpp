@@ -610,19 +610,20 @@ protected:
             SkPoint pts[2];
             SkScalar pos[kStopCount];
         } configs[] = {
-            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.999999f,    1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.000001f,    1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.999999999f, 1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(10, 0) }, { 0, 0.000000001f, 1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.999999f,    1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.000001f,    1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.999999999f, 1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(0, 10) }, { 0, 0.000000001f, 1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(10, 0) },       { 0, 0.999999f,    1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(10, 0) },       { 0, 0.000001f,    1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(10, 0) },       { 0, 0.999999999f, 1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(10, 0) },       { 0, 0.000000001f, 1 }},
 
-            { { SkPoint::Make(0, 0), SkPoint::Make(0.00001f, 0) } , { 0, 0.5f, 1 }},
-            { { SkPoint::Make(9.99999f, 0), SkPoint::Make(10, 0) }, { 0, 0.5f, 1 }},
-            { { SkPoint::Make(0, 0), SkPoint::Make(0, 0.00001f) },  { 0, 0.5f, 1 }},
-            { { SkPoint::Make(0, 9.99999f), SkPoint::Make(0, 10) }, { 0, 0.5f, 1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(0, 10) },       { 0, 0.999999f,    1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(0, 10) },       { 0, 0.000001f,    1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(0, 10) },       { 0, 0.999999999f, 1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(0, 10) },       { 0, 0.000000001f, 1 }},
+
+            { { SkPoint::Make(0, 0),        SkPoint::Make(0.00001f, 0) }, { 0, 0.5f, 1 }},
+            { { SkPoint::Make(9.99999f, 0), SkPoint::Make(10, 0) },       { 0, 0.5f, 1 }},
+            { { SkPoint::Make(0, 0),        SkPoint::Make(0, 0.00001f) }, { 0, 0.5f, 1 }},
+            { { SkPoint::Make(0, 9.99999f), SkPoint::Make(0, 10) },       { 0, 0.5f, 1 }},
         };
 
         SkPaint paint;
