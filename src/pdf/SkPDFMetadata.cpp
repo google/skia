@@ -183,7 +183,7 @@ static SkString uuid_to_string(const SkPDFMetadata::UUID& uuid) {
 #undef HEXIFY
 
 namespace {
-class PDFXMLObject : public SkPDFObject {
+class PDFXMLObject final : public SkPDFObject {
 public:
     PDFXMLObject(SkString xml) : fXML(skstd::move(xml)) {}
     void emitObject(SkWStream* stream,

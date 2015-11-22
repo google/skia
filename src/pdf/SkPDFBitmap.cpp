@@ -380,7 +380,7 @@ static void emit_image_xobject(SkWStream* stream,
 
 namespace {
 // This SkPDFObject only outputs the alpha layer of the given bitmap.
-class PDFAlphaBitmap : public SkPDFObject {
+class PDFAlphaBitmap final : public SkPDFObject {
 public:
     PDFAlphaBitmap(const SkImage* image) : fImage(SkRef(image)) {}
     ~PDFAlphaBitmap() {}
@@ -399,7 +399,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-class PDFDefaultBitmap : public SkPDFObject {
+class PDFDefaultBitmap final : public SkPDFObject {
 public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
@@ -431,7 +431,7 @@ namespace {
  *  Grayscale JFIF Jpeg-encoded data that can be directly embedded
  *  into a PDF.
  */
-class PDFJpegBitmap : public SkPDFObject {
+class PDFJpegBitmap final : public SkPDFObject {
 public:
     SkISize fSize;
     SkAutoTUnref<SkData> fData;
