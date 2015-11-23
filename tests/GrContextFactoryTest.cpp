@@ -12,23 +12,6 @@
 #include "GrContextFactory.h"
 #include "Test.h"
 
-DEF_GPUTEST(GrContextFactory, reporter, factory) {
-    // Reset in case some other test has been using it first.
-    factory->destroyContexts();
-
-    // Before we ask for a context, we expect the GL context to not be there.
-    REPORTER_ASSERT(reporter,
-                    nullptr == factory->getGLContext(GrContextFactory::kNull_GLContextType));
-
-    // After we ask for a context, we expect that the GL context to be there.
-    factory->get(GrContextFactory::kNull_GLContextType);
-    REPORTER_ASSERT(reporter,
-                    factory->getGLContext(GrContextFactory::kNull_GLContextType) != nullptr);
-
-    // If we did not ask for a context with the particular GL context, we would
-    // expect the particular GL context to not be there.
-    REPORTER_ASSERT(reporter,
-                    nullptr == factory->getGLContext(GrContextFactory::kDebug_GLContextType));
-}
+// TODO: test GrContextFactory.
 
 #endif
