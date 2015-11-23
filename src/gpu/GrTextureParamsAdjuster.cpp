@@ -72,8 +72,9 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
 
     GrPaint paint;
 
-    SkScalar sx;
-    SkScalar sy;
+    // TODO: Initializing these values for no reason cause the compiler is complaining
+    SkScalar sx = 0.f;
+    SkScalar sy = 0.f;
     if (subset) {
         sx = 1.f / inputTexture->width();
         sy = 1.f / inputTexture->height();
