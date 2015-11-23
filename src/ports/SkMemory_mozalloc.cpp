@@ -31,15 +31,15 @@ void* sk_realloc_throw(void* addr, size_t size) {
 }
 
 void sk_free(void* p) {
-    moz_free(p);
+    free(p);
 }
 
 void* sk_malloc_flags(size_t size, unsigned flags) {
-    return (flags & SK_MALLOC_THROW) ? moz_xmalloc(size) : moz_malloc(size);
+    return (flags & SK_MALLOC_THROW) ? moz_xmalloc(size) : malloc(size);
 }
 
 void* sk_calloc(size_t size) {
-    return moz_calloc(size, 1);
+    return calloc(size, 1);
 }
 
 void* sk_calloc_throw(size_t size) {
