@@ -83,7 +83,7 @@ const char* SkImageDecoder::GetFormatName(Format format) {
     return "Unknown Format";
 }
 
-SkPngChunkReader* SkImageDecoder::setPeeker(SkPngChunkReader* peeker) {
+SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker* peeker) {
     SkRefCnt_SafeAssign(fPeeker, peeker);
     return peeker;
 }

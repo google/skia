@@ -65,14 +65,6 @@ static void sk_read_fn(png_structp png_ptr, png_bytep data,
     }
 }
 
-#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
-static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
-    SkPngChunkReader* chunkReader = (SkPngChunkReader*)png_get_user_chunk_ptr(png_ptr);
-    // readChunk() returning true means continue decoding
-    return chunkReader->readChunk((const char*)chunk->name, chunk->data, chunk->size) ? 1 : -1;
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // Helpers
 ///////////////////////////////////////////////////////////////////////////////
@@ -219,29 +211,14 @@ bool SkPngCodec::IsPng(SkStream* stream) {
     return true;
 }
 
-// Reads the header and initializes the output fields, if not NULL.
-//
-// @param stream Input data. Will be read to get enough information to properly
-//      setup the codec.
-// @param chunkReader SkPngChunkReader, for reading unknown chunks. May be NULL.
-//      If not NULL, png_ptr will hold an *unowned* pointer to it. The caller is
-//      expected to continue to own it for the lifetime of the png_ptr.
-// @param png_ptrp Optional output variable. If non-NULL, will be set to a new
-//      png_structp on success.
-// @param info_ptrp Optional output variable. If non-NULL, will be set to a new
-//      png_infop on success;
-// @param imageInfo Optional output variable. If non-NULL, will be set to
-//      reflect the properties of the encoded image on success.
-// @param bitDepthPtr Optional output variable. If non-NULL, will be set to the
-//      bit depth of the encoded image on success.
-// @param numberPassesPtr Optional output variable. If non-NULL, will be set to
-//      the number_passes of the encoded image on success.
-// @return true on success, in which case the caller is responsible for calling
-//      png_destroy_read_struct(png_ptrp, info_ptrp).
-//      If it returns false, the passed in fields (except stream) are unchanged.
-static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
-                        png_structp* png_ptrp, png_infop* info_ptrp,
-                        SkImageInfo* imageInfo, int* bitDepthPtr, int* numberPassesPtr) {
+// Reads the header, and initializes the passed in fields, if not nullptr (except
+// stream, which is passed to the read function).
+// Returns true on success, in which case the caller is responsible for calling
+// png_destroy_read_struct. If it returns false, the passed in fields (except
+// stream) are unchanged.
+static bool read_header(SkStream* stream, png_structp* png_ptrp,
+                        png_infop* info_ptrp, SkImageInfo* imageInfo,
+                        int* bitDepthPtr, int* numberPassesPtr) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                                  sk_error_fn, sk_warning_fn);
@@ -266,14 +243,10 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
 
     png_set_read_fn(png_ptr, static_cast<void*>(stream), sk_read_fn);
 
-#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
-    // FIXME: Does this need to be installed so early?
-    // hookup our chunkReader so we can see any user-chunks the caller may be interested in
-    if (chunkReader) {
-        png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"", 0);
-        png_set_read_user_chunk_fn(png_ptr, (png_voidp) chunkReader, sk_read_user_chunk);
-    }
-#endif
+    // FIXME: This is where the old code hooks up the Peeker. Does it need to
+    // be set this early? (i.e. where are the user chunks? early in the stream,
+    // potentially?)
+    // If it does, we need to figure out a way to set it here.
 
     // The call to png_read_info() gives us all of the information from the
     // PNG file before the first IDAT (image data chunk).
@@ -383,10 +356,9 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
     return true;
 }
 
-SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream, SkPngChunkReader* chunkReader,
+SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream,
                        png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses)
     : INHERITED(info, stream)
-    , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
     , fSrcConfig(SkSwizzler::kUnknown)
@@ -481,8 +453,7 @@ bool SkPngCodec::onRewind() {
 
     png_structp png_ptr;
     png_infop info_ptr;
-    if (!read_header(this->stream(), fPngChunkReader.get(), &png_ptr, &info_ptr,
-                     nullptr, nullptr, nullptr)) {
+    if (!read_header(this->stream(), &png_ptr, &info_ptr, nullptr, nullptr, nullptr)) {
         return false;
     }
 
@@ -631,8 +602,8 @@ bool SkPngCodec::onReallyHasAlpha() const {
 class SkPngScanlineDecoder : public SkPngCodec {
 public:
     SkPngScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
-            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
-        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1)
+            png_structp png_ptr, png_infop info_ptr, int bitDepth)
+        : INHERITED(srcInfo, stream, png_ptr, info_ptr, bitDepth, 1)
         , fAlphaState(kUnknown_AlphaState)
         , fSrcRow(nullptr)
     {}
@@ -715,9 +686,8 @@ private:
 class SkPngInterlacedScanlineDecoder : public SkPngCodec {
 public:
     SkPngInterlacedScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
-            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses)
-        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, numberPasses)
+            png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses)
+        : INHERITED(srcInfo, stream, png_ptr, info_ptr, bitDepth, numberPasses)
         , fAlphaState(kUnknown_AlphaState)
         , fHeight(-1)
         , fCanSkipRewind(false)
@@ -852,7 +822,7 @@ private:
     typedef SkPngCodec INHERITED;
 };
 
-SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
+SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
     png_structp png_ptr;
     png_infop info_ptr;
@@ -860,16 +830,15 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkRead
     int bitDepth;
     int numberPasses;
 
-    if (!read_header(stream, chunkReader, &png_ptr, &info_ptr, &imageInfo, &bitDepth,
-                     &numberPasses)) {
+    if (!read_header(stream, &png_ptr, &info_ptr, &imageInfo, &bitDepth, &numberPasses)) {
         return nullptr;
     }
 
     if (1 == numberPasses) {
-        return new SkPngScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
-                                        png_ptr, info_ptr, bitDepth);
+        return new SkPngScanlineDecoder(imageInfo, streamDeleter.detach(), png_ptr, info_ptr,
+                                        bitDepth);
     }
 
-    return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
-                                              png_ptr, info_ptr, bitDepth, numberPasses);
+    return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.detach(), png_ptr,
+                                              info_ptr, bitDepth, numberPasses);
 }

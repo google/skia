@@ -25,6 +25,7 @@ struct DecoderProc {
 };
 
 static const DecoderProc gDecoderProcs[] = {
+    { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
 #if !defined(GOOGLE3)
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
 #endif
@@ -35,8 +36,7 @@ static const DecoderProc gDecoderProcs[] = {
     { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream }
 };
 
-SkCodec* SkCodec::NewFromStream(SkStream* stream,
-                                SkPngChunkReader* chunkReader) {
+SkCodec* SkCodec::NewFromStream(SkStream* stream) {
     if (!stream) {
         return nullptr;
     }
@@ -44,24 +44,15 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     SkAutoTDelete<SkStream> streamDeleter(stream);
     
     SkAutoTDelete<SkCodec> codec(nullptr);
-    // PNG is special, since we want to be able to supply an SkPngChunkReader.
-    // But this code follows the same pattern as the loop.
-    const bool isPng = SkPngCodec::IsPng(stream);
-    if (!stream->rewind()) {
-        return NULL;
-    }
-    if (isPng) {
-        codec.reset(SkPngCodec::NewFromStream(streamDeleter.detach(), chunkReader));
-    } else {
-        for (DecoderProc proc : gDecoderProcs) {
-            const bool correctFormat = proc.IsFormat(stream);
-            if (!stream->rewind()) {
-                return nullptr;
-            }
-            if (correctFormat) {
-                codec.reset(proc.NewFromStream(streamDeleter.detach()));
-                break;
-            }
+    for (uint32_t i = 0; i < SK_ARRAY_COUNT(gDecoderProcs); i++) {
+        DecoderProc proc = gDecoderProcs[i];
+        const bool correctFormat = proc.IsFormat(stream);
+        if (!stream->rewind()) {
+            return nullptr;
+        }
+        if (correctFormat) {
+            codec.reset(proc.NewFromStream(streamDeleter.detach()));
+            break;
         }
     }
 
@@ -77,11 +68,11 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     }
 }
 
-SkCodec* SkCodec::NewFromData(SkData* data, SkPngChunkReader* reader) {
+SkCodec* SkCodec::NewFromData(SkData* data) {
     if (!data) {
         return nullptr;
     }
-    return NewFromStream(new SkMemoryStream(data), reader);
+    return NewFromStream(new SkMemoryStream(data));
 }
 
 SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)

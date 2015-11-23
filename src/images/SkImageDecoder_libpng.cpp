@@ -124,9 +124,10 @@ static void sk_read_fn(png_structp png_ptr, png_bytep data, png_size_t length) {
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
 static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
-    SkPngChunkReader* peeker = (SkPngChunkReader*)png_get_user_chunk_ptr(png_ptr);
-    // readChunk() returning true means continue decoding
-    return peeker->readChunk((const char*)chunk->name, chunk->data, chunk->size) ?
+    SkImageDecoder::Peeker* peeker =
+                    (SkImageDecoder::Peeker*)png_get_user_chunk_ptr(png_ptr);
+    // peek() returning true means continue decoding
+    return peeker->peek((const char*)chunk->name, chunk->data, chunk->size) ?
             1 : -1;
 }
 #endif
