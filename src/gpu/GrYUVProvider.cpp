@@ -128,6 +128,7 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
                                                                  yuvInfo.fSize,
                                                                  yuvInfo.fColorSpace));
     paint.addColorFragmentProcessor(yuvToRgbProcessor);
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSize[0].fWidth, yuvInfo.fSize[0].fHeight);
 
     SkAutoTUnref<GrDrawContext> drawContext(ctx->drawContext(renderTarget));

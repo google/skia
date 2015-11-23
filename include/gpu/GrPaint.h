@@ -57,7 +57,7 @@ public:
     bool isAntiAlias() const { return fAntiAlias; }
 
     const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
-        fXPFactory.reset(SkRef(xpFactory));
+        fXPFactory.reset(SkSafeRef(xpFactory));
         return xpFactory;
     }
 
@@ -100,10 +100,7 @@ public:
                                               this->numCoverageFragmentProcessors(); }
 
     const GrXPFactory* getXPFactory() const {
-        if (!fXPFactory) {
-            fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
-        }
-        return fXPFactory.get();
+        return fXPFactory;
     }
 
     const GrFragmentProcessor* getColorFragmentProcessor(int i) const {
@@ -127,7 +124,7 @@ public:
             fCoverageFragmentProcessors[i]->ref();
         }
 
-        fXPFactory.reset(SkRef(paint.getXPFactory()));
+        fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
         return *this;
     }

@@ -17,10 +17,6 @@ class GrDisableColorXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create() { return new GrDisableColorXPFactory; }
 
-    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override {
-        return true;
-    }
-
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor* blendedColor) const override {
         blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;

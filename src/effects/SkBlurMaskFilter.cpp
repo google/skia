@@ -1262,6 +1262,8 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             // outer:  dst = dst * (1 - src)
             //             = 0 * src + (1 - src) * dst
             paint.setCoverageSetOpXPFactory(SkRegion::kDifference_Op);
+        } else {
+            paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
         SkAutoTUnref<GrDrawContext> drawContext(context->drawContext((*result)->asRenderTarget()));

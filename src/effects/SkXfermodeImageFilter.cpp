@@ -191,6 +191,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     if (xferFP) {
         paint.addColorFragmentProcessor(xferFP)->unref();
     }
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
     SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
     if (!drawContext) {

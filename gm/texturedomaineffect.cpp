@@ -117,6 +117,8 @@ protected:
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     SkAutoTUnref<const GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Create(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,

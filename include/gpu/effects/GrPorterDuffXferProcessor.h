@@ -18,12 +18,35 @@ class GrPorterDuffXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkXfermode::Mode mode); 
 
-    bool supportsRGBCoverage(GrColor /*knownColor*/, uint32_t /*knownColorFlags*/) const override {
-        return true;
-    }
-
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
+
+    static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
+                                                       const GrProcOptInfo& colorPOI,
+                                                       const GrProcOptInfo& coveragePOI,
+                                                       bool hasMixedSamples,
+                                                       const GrXferProcessor::DstTexture*);
+
+    static inline void SrcOverInvariantBlendedColor(
+                                                GrColor inputColor,
+                                                GrColorComponentFlags validColorFlags,
+                                                bool isOpaque,
+                                                GrXPFactory::InvariantBlendedColor* blendedColor) {
+        if (!isOpaque) {
+            blendedColor->fWillBlendWithDst = true;
+            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+            return;
+        }
+        blendedColor->fWillBlendWithDst = false;
+
+        blendedColor->fKnownColor = inputColor;
+        blendedColor->fKnownColorFlags = validColorFlags;
+    }
+
+    static bool SrcOverWillNeedDstTexture(const GrCaps& caps,
+                                          const GrProcOptInfo& colorPOI,
+                                          const GrProcOptInfo& coveragePOI,
+                                          bool hasMixedSamples);
 
 private:
     GrPorterDuffXPFactory(SkXfermode::Mode);

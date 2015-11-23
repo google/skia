@@ -276,7 +276,6 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
         SkAutoTUnref<const GrFragmentProcessor> fp;
         SkMatrix textureMatrix;
         textureMatrix.setIDiv(tempTexture->width(), tempTexture->height());
-        GrPaint paint;
         if (applyPremulToSrc) {
             fp.reset(this->createUPMToPMEffect(tempTexture, tempDrawInfo.fSwapRAndB,
                                                textureMatrix));
@@ -324,7 +323,9 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             if (!drawContext) {
                 return false;
             }
+            GrPaint paint;
             paint.addColorFragmentProcessor(fp);
+            paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
             drawContext->drawRect(GrClip::WideOpen(), paint, matrix, rect, nullptr);
 
@@ -412,7 +413,6 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             SkMatrix textureMatrix;
             textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
             textureMatrix.postIDiv(src->width(), src->height());
-            GrPaint paint;
             SkAutoTUnref<const GrFragmentProcessor> fp;
             if (unpremul) {
                 fp.reset(this->createPMToUPMEffect(src->asTexture(), tempDrawInfo.fSwapRAndB,
@@ -430,7 +430,9 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                     GrConfigConversionEffect::kNone_PMConversion, textureMatrix));
             }
             if (fp) {
+                GrPaint paint;
                 paint.addColorFragmentProcessor(fp);
+                paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(temp->asRenderTarget()));
                 drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), rect, nullptr);

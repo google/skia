@@ -31,7 +31,7 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
         fCoverageFragmentProcessors.push_back(SkRef(paint.getCoverageFragmentProcessor(i)));
     }
 
-    fXPFactory.reset(SkRef(paint.getXPFactory()));
+    fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
     this->setRenderTarget(rt);
 
@@ -51,8 +51,12 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
                                              const GrProcOptInfo& colorPOI,
                                              const GrProcOptInfo& coveragePOI) const {
-    return this->getXPFactory()->willNeedDstTexture(caps, colorPOI, coveragePOI,
-                                                    this->hasMixedSamples());
+    if (this->getXPFactory()) {
+        return this->getXPFactory()->willNeedDstTexture(caps, colorPOI, coveragePOI,
+                                                        this->hasMixedSamples());
+    }
+    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, colorPOI, coveragePOI,
+                                                            this->hasMixedSamples());
 }
 
 void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(

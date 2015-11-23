@@ -107,6 +107,8 @@ protected:
                             return;
                         }
                         GrPipelineBuilder pipelineBuilder;
+                        pipelineBuilder.setXPFactory(
+                            GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));

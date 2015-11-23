@@ -223,6 +223,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                 tempTex, false, *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorFragmentProcessor(pmToUPM1);
+        paint1.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
 
         SkAutoTUnref<GrDrawContext> readDrawContext(
@@ -241,6 +242,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         paint2.addColorFragmentProcessor(upmToPM);
+        paint2.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
         SkAutoTUnref<GrDrawContext> tempDrawContext(
                                     context->drawContext(tempTex->asRenderTarget()));
@@ -255,6 +257,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                                         kSrcRect);
 
         paint3.addColorFragmentProcessor(pmToUPM2);
+        paint3.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
         readDrawContext.reset(context->drawContext(readTex->asRenderTarget()));
         if (!readDrawContext) {

@@ -81,10 +81,6 @@ public:
         return new GrArithmeticXPFactory(k1, k2, k3, k4, enforcePMColor);
     }
 
-    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override {
-        return true;
-    }
-
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
 

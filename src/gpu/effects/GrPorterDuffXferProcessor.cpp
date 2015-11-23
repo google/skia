@@ -830,3 +830,65 @@ void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,
     *outPrimary = blendFormula.fPrimaryOutputType;
     *outSecondary = blendFormula.fSecondaryOutputType;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// SrcOver Global functions
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
+        const GrCaps& caps,
+        const GrProcOptInfo& colorPOI,
+        const GrProcOptInfo& covPOI,
+        bool hasMixedSamples,
+        const GrXferProcessor::DstTexture* dstTexture) {
+    BlendFormula blendFormula;
+    if (covPOI.isFourChannelOutput()) {
+        if (kRGBA_GrColorComponentFlags == colorPOI.validFlags() &&
+            !caps.shaderCaps()->dualSourceBlendingSupport() &&
+            !caps.shaderCaps()->dstReadInShaderSupport()) {
+            // If we don't have dual source blending or in shader dst reads, we fall
+            // back to this trick for rendering SrcOver LCD text instead of doing a
+            // dst copy.
+            SkASSERT(!dstTexture || !dstTexture->texture());
+            return PDLCDXferProcessor::Create(SkXfermode::kSrcOver_Mode, colorPOI);
+        }
+        blendFormula = get_lcd_blend_formula(covPOI, SkXfermode::kSrcOver_Mode);
+    } else {
+        blendFormula = get_blend_formula(colorPOI, covPOI, hasMixedSamples,
+                                         SkXfermode::kSrcOver_Mode);
+    }
+
+    if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
+        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkXfermode::kSrcOver_Mode);
+    }
+
+    SkASSERT(!dstTexture || !dstTexture->texture());
+    return new PorterDuffXferProcessor(blendFormula);
+}
+
+bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
+                                                      const GrProcOptInfo& colorPOI,
+                                                      const GrProcOptInfo& covPOI,
+                                                      bool hasMixedSamples) {
+    if (caps.shaderCaps()->dstReadInShaderSupport() ||
+        caps.shaderCaps()->dualSourceBlendingSupport()) {
+        return false;
+    }
+
+    // When we have four channel coverage we always need to read the dst in order to correctly
+    // blend. The one exception is when we are using srcover mode and we know the input color
+    // into the XP.
+    if (covPOI.isFourChannelOutput()) {
+        if (kRGBA_GrColorComponentFlags == colorPOI.validFlags() &&
+            !caps.shaderCaps()->dstReadInShaderSupport()) {
+            return false;
+        }
+        return get_lcd_blend_formula(covPOI, SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
+    }
+    // We fallback on the shader XP when the blend formula would use dual source blending but we
+    // don't have support for it.
+    return get_blend_formula(colorPOI, covPOI,
+                             hasMixedSamples, SkXfermode::kSrcOver_Mode).hasSecondaryOutput();
+}
+

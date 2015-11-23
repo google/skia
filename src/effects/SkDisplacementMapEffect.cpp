@@ -445,6 +445,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                                         offsetMatrix,
                                         color,
                                         colorBM.dimensions()))->unref();
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     SkIRect colorBounds = bounds;
     colorBounds.offset(-colorOffset);
     SkMatrix matrix;

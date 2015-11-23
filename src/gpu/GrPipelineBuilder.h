@@ -150,7 +150,7 @@ public:
      * and the dst color are blended.
      */
     const GrXPFactory* setXPFactory(const GrXPFactory* xpFactory) {
-        fXPFactory.reset(SkRef(xpFactory));
+        fXPFactory.reset(SkSafeRef(xpFactory));
         return xpFactory;
     }
 
@@ -171,10 +171,7 @@ public:
     }
 
     const GrXPFactory* getXPFactory() const {
-        if (!fXPFactory) {
-            fXPFactory.reset(GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode));
-        }
-        return fXPFactory.get();
+        return fXPFactory;
     }
 
     /**

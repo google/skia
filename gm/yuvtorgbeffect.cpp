@@ -115,6 +115,8 @@ protected:
 
             for (int i = 0; i < 6; ++i) {
                 GrPipelineBuilder pipelineBuilder;
+                pipelineBuilder.setXPFactory(
+                    GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                 SkAutoTUnref<GrFragmentProcessor> fp(
                             GrYUVtoRGBEffect::Create(texture[indices[i][0]],
                                                      texture[indices[i][1]],

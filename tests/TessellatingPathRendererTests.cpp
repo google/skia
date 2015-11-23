@@ -236,6 +236,8 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
                       const SkPath& path) {
     GrTessellatingPathRenderer tess;
     GrPipelineBuilder pipelineBuilder;
+    pipelineBuilder.setXPFactory(
+        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
     pipelineBuilder.setRenderTarget(rt);
     GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
     GrPathRenderer::DrawPathArgs args;

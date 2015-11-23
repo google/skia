@@ -21,10 +21,23 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
 
     // Create XferProcessor from DS's XPFactory
-    SkAutoTUnref<GrXferProcessor> xferProcessor(
-        builder.getXPFactory()->createXferProcessor(args.fColorPOI, args.fCoveragePOI,
-                                                    builder.hasMixedSamples(), &args.fDstTexture,
-                                                    *args.fCaps));
+    const GrXPFactory* xpFactory = builder.getXPFactory();
+    SkAutoTUnref<GrXferProcessor> xferProcessor;
+    if (xpFactory) {
+        xferProcessor.reset(xpFactory->createXferProcessor(args.fColorPOI,
+                                                           args.fCoveragePOI,
+                                                           builder.hasMixedSamples(),
+                                                           &args.fDstTexture,
+                                                           *args.fCaps));
+    } else {
+        xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
+                                                                        *args.fCaps,
+                                                                        args.fColorPOI,
+                                                                        args.fCoveragePOI,
+                                                                        builder.hasMixedSamples(),
+                                                                        &args.fDstTexture));
+    }
+
     if (!xferProcessor) {
         return nullptr;
     }
@@ -55,7 +68,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     GrPipeline* pipeline = new (memory) GrPipeline;
-    pipeline->fXferProcessor.reset(xferProcessor.get());
+    pipeline->fXferProcessor.reset(xferProcessor);
 
     pipeline->fRenderTarget.reset(builder.fRenderTarget.get());
     SkASSERT(pipeline->fRenderTarget);
@@ -123,7 +136,14 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     GrXPFactory::InvariantBlendedColor blendedColor;
-    builder.fXPFactory->getInvariantBlendedColor(args.fColorPOI, &blendedColor);
+    if (xpFactory) {
+        xpFactory->getInvariantBlendedColor(args.fColorPOI, &blendedColor);
+    } else {
+        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fColorPOI.color(),
+                                                            args.fColorPOI.validFlags(),
+                                                            args.fColorPOI.isOpaque(),
+                                                            &blendedColor); 
+    }
     if (blendedColor.fWillBlendWithDst) {
         opts->fFlags |= GrPipelineOptimizations::kWillColorBlendWithDst_Flag;
     }

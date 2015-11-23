@@ -321,10 +321,6 @@ class CustomXPFactory : public GrXPFactory {
 public:
     CustomXPFactory(SkXfermode::Mode mode);
 
-    bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const override {
-        return true;
-    }
-
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
 

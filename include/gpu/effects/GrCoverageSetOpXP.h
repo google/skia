@@ -23,11 +23,6 @@ class GrCoverageSetOpXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkRegion::Op regionOp, bool invertCoverage = false);
 
-    bool supportsRGBCoverage(GrColor /*knownColor*/,
-                             uint32_t /*knownColorFlags*/) const override {
-        return true;
-    }
-
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
 

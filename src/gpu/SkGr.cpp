@@ -489,13 +489,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
     SkXfermode* mode = skPaint.getXfermode();
     GrXPFactory* xpFactory = nullptr;
-    if (!SkXfermode::AsXPFactory(mode, &xpFactory)) {
-        // Fall back to src-over
-        // return false here?
-        xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode);
-    }
-    SkASSERT(xpFactory);
-    grPaint->setXPFactory(xpFactory)->unref();
+    SkXfermode::AsXPFactory(mode, &xpFactory);
+    SkSafeUnref(grPaint->setXPFactory(xpFactory));
 
 #ifndef SK_IGNORE_GPU_DITHER
     if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0) {

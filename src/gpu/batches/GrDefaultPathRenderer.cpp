@@ -564,7 +564,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
     const bool isHairline = stroke->isHairlineStyle();
 
     // Save the current xp on the draw state so we can reset it if needed
-    SkAutoTUnref<const GrXPFactory> backupXPFactory(SkRef(pipelineBuilder->getXPFactory()));
+    const GrXPFactory* xpFactory = pipelineBuilder->getXPFactory();
+    SkAutoTUnref<const GrXPFactory> backupXPFactory(SkSafeRef(xpFactory));
     // face culling doesn't make sense here
     SkASSERT(GrPipelineBuilder::kBoth_DrawFace == pipelineBuilder->getDrawFace());
 

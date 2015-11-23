@@ -204,18 +204,26 @@ public:
                                      const GrFragmentProcessor* dst) const;
 
     /** A subclass may implement this factory function to work with the GPU backend. It is legal
-        to call this with xpf NULL to simply test the return value. If xpf is non-NULL then the
-        xfermode may optionally allocate a factory to return to the caller as *xpf. The caller
-        will install it and own a ref to it. Since the xfermode may or may not assign *xpf, the
-        caller should set *xpf to NULL beforehand. XferProcessors cannot use a background texture.
-     */
+      to call this with xpf NULL to simply test the return value. If xpf is non-NULL then the
+      xfermode may optionally allocate a factory to return to the caller as *xpf. The caller
+      will install it and own a ref to it. Since the xfermode may or may not assign *xpf, the
+      caller should set *xpf to NULL beforehand. XferProcessors cannot use a background texture.
+      */
     virtual bool asXPFactory(GrXPFactory** xpf) const;
 
     /** Returns true if the xfermode can be expressed as an xfer processor factory (xpFactory).
-        This helper calls the asXPFactory() virtual. If the xfermode is NULL, it is treated as
-        kSrcOver_Mode. It is legal to call this with xpf param NULL to simply test the return value.
-     */
-    static bool AsXPFactory(SkXfermode*, GrXPFactory**);
+      This helper calls the asXPFactory() virtual. If the xfermode is NULL, it is treated as
+      kSrcOver_Mode. It is legal to call this with xpf param NULL to simply test the return value.
+      */
+    static inline bool AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
+        if (nullptr == xfermode) {
+            if (xpf) {
+                *xpf = nullptr;
+            }
+            return true;
+        }
+        return xfermode->asXPFactory(xpf);
+    }
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

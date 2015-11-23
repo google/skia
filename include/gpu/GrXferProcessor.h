@@ -316,14 +316,6 @@ public:
                                          bool hasMixedSamples,
                                          const DstTexture*,
                                          const GrCaps& caps) const;
-
-    /**
-     * This function returns true if the GrXferProcessor generated from this factory will be able to
-     * correctly blend when using RGB coverage. The knownColor and knownColorFlags represent the
-     * final computed color from the color stages.
-     */
-    virtual bool supportsRGBCoverage(GrColor knownColor, uint32_t knownColorFlags) const = 0;
-
     /**
      * Known color information after blending, but before accounting for any coverage.
      */

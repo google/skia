@@ -431,6 +431,8 @@ void GrDrawTarget::clear(const SkIRect* rect,
         }
 
         GrPipelineBuilder pipelineBuilder;
+        pipelineBuilder.setXPFactory(
+            GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
         pipelineBuilder.setRenderTarget(renderTarget);
 
         this->drawNonAARect(pipelineBuilder, color, SkMatrix::I(), *rect);

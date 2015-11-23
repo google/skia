@@ -221,6 +221,8 @@ protected:
                     SkASSERT(tt.target());
 
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
                     BezierCubicOrConicTestBatch::Geometry geometry;
@@ -366,6 +368,8 @@ protected:
                     SkASSERT(tt.target());
 
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
                     BezierCubicOrConicTestBatch::Geometry geometry;
@@ -604,6 +608,8 @@ protected:
                     SkASSERT(tt.target());
 
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);

@@ -59,6 +59,7 @@ static void convolve_gaussian_1d(GrDrawContext* drawContext,
     SkAutoTUnref<GrFragmentProcessor> conv(GrConvolutionEffect::CreateGaussian(
         texture, direction, radius, sigma, useBounds, bounds));
     paint.addColorFragmentProcessor(conv);
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     SkMatrix localMatrix = SkMatrix::MakeTrans(srcOffset.x(), srcOffset.y());
     drawContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(), dstRect, localMatrix);
 }
@@ -89,6 +90,7 @@ static void convolve_gaussian_2d(GrDrawContext* drawContext,
             srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(conv);
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     drawContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(), dstRect, localMatrix);
 }
 
@@ -247,6 +249,7 @@ GrTexture* GaussianBlur(GrContext* context,
             GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
             paint.addColorTextureProcessor(srcTexture, matrix, params);
         }
+        paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
 
@@ -374,6 +377,7 @@ GrTexture* GaussianBlur(GrContext* context,
         // FIXME:  this should be mitchell, not bilinear.
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
         paint.addColorTextureProcessor(srcTexture, matrix, params);
+        paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
