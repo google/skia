@@ -110,7 +110,8 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
+bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
+                                        SkImage::CachingHint chint) {
     if (SkBitmapCache::Find(fUniqueID, bitmap)) {
         return check_output_bitmap(*bitmap, fUniqueID);
     }
@@ -120,16 +121,18 @@ bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client)
     }
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueID);
-    SkBitmapCache::Add(fUniqueID, *bitmap);
-    if (client) {
-        as_IB(client)->notifyAddedToCache();
+    if (SkImage::kAllow_CachingHint == chint) {
+        SkBitmapCache::Add(fUniqueID, *bitmap);
+        if (client) {
+            as_IB(client)->notifyAddedToCache();
+        }
     }
-
     return true;
 }
 
-bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
-    if (this->tryLockAsBitmap(bitmap, client)) {
+bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
+                                     SkImage::CachingHint chint) {
+    if (this->tryLockAsBitmap(bitmap, client, chint)) {
         return check_output_bitmap(*bitmap, fUniqueID);
     }
 
@@ -160,11 +163,12 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
     }
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueID);
-    SkBitmapCache::Add(fUniqueID, *bitmap);
-    if (client) {
-        as_IB(client)->notifyAddedToCache();
+    if (SkImage::kAllow_CachingHint == chint) {
+        SkBitmapCache::Add(fUniqueID, *bitmap);
+        if (client) {
+            as_IB(client)->notifyAddedToCache();
+        }
     }
-
     return check_output_bitmap(*bitmap, fUniqueID);
 #else
     return false;
@@ -220,7 +224,7 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
  *  5. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key,
-                                          const SkImage* client) {
+                                          const SkImage* client, SkImage::CachingHint chint) {
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
         if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
@@ -260,7 +264,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (this->tryLockAsBitmap(&bitmap, client)) {
+    if (this->tryLockAsBitmap(&bitmap, client, chint)) {
         GrTexture* tex = GrUploadBitmapToTexture(ctx, bitmap);
         if (tex) {
             return set_key_and_return(tex, key);
@@ -275,10 +279,13 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
 class Cacherator_GrTextureMaker : public GrTextureMaker {
 public:
-    Cacherator_GrTextureMaker(GrContext* context, SkImageCacherator* cacher, const SkImage* client)
+    Cacherator_GrTextureMaker(GrContext* context, SkImageCacherator* cacher, const SkImage* client,
+                              SkImage::CachingHint chint)
         : INHERITED(context, cacher->info().width(), cacher->info().height())
         , fCacher(cacher)
-        , fClient(client) {
+        , fClient(client)
+        , fCachingHint(chint)
+    {
         if (client) {
             GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
                                  SkIRect::MakeWH(this->width(), this->height()));
@@ -291,7 +298,7 @@ protected:
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
 
     GrTexture* refOriginalTexture() override {
-        return fCacher->lockTexture(this->context(), fOriginalKey, fClient);
+        return fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint);
     }
 
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override {
@@ -310,23 +317,24 @@ private:
     SkImageCacherator*      fCacher;
     const SkImage*          fClient;
     GrUniqueKey             fOriginalKey;
+    SkImage::CachingHint    fCachingHint;
 
     typedef GrTextureMaker INHERITED;
 };
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams& params,
-                                            const SkImage* client) {
+                                            const SkImage* client, SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
 
-    return Cacherator_GrTextureMaker(ctx, this, client).refTextureForParams(params);
+    return Cacherator_GrTextureMaker(ctx, this, client, chint).refTextureForParams(params);
 }
 
 #else
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams&,
-                                            const SkImage* client) {
+                                            const SkImage* client, SkImage::CachingHint) {
     return nullptr;
 }
 

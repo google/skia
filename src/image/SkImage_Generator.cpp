@@ -21,12 +21,12 @@ public:
         , fCache(cache) // take ownership
     {}
 
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkData* onRefEncoded() const override;
     bool isOpaque() const override { return fCache->info().isOpaque(); }
     SkImage* onNewSubset(const SkIRect&) const override;
-    bool getROPixels(SkBitmap*) const override;
+    bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
     bool onIsLazyGenerated() const override { return true; }
 
@@ -39,9 +39,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                                     int srcX, int srcY) const {
+                                     int srcX, int srcY, CachingHint chint) const {
     SkBitmap bm;
-    if (this->getROPixels(&bm)) {
+    if (this->getROPixels(&bm, chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
@@ -55,8 +55,8 @@ SkData* SkImage_Generator::onRefEncoded() const {
     return fCache->refEncoded();
 }
 
-bool SkImage_Generator::getROPixels(SkBitmap* bitmap) const {
-    return fCache->lockAsBitmap(bitmap, this);
+bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
+    return fCache->lockAsBitmap(bitmap, this, chint);
 }
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {

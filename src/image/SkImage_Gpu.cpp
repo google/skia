@@ -45,7 +45,7 @@ static SkImageInfo make_info(int w, int h, bool isOpaque) {
     return SkImageInfo::MakeN32(w, h, isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
@@ -62,8 +62,10 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
     }
 
     dst->pixelRef()->setImmutableWithID(this->uniqueID());
-    SkBitmapCache::Add(this->uniqueID(), *dst);
-    fAddedRasterVersionToCache.store(true);
+    if (kAllow_CachingHint == chint) {
+        SkBitmapCache::Add(this->uniqueID(), *dst);
+        fAddedRasterVersionToCache.store(true);
+    }
     return true;
 }
 
@@ -120,7 +122,7 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 }
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                               int srcX, int srcY) const {
+                               int srcX, int srcY, CachingHint) const {
     GrPixelConfig config = SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(),
                                                      info.profileType());
     uint32_t flags = 0;

@@ -48,12 +48,29 @@ const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
 }
 
 bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                           int srcX, int srcY) const {
+                           int srcX, int srcY, CachingHint chint) const {
     SkReadPixelsRec rec(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
     if (!rec.trim(this->width(), this->height())) {
         return false;
     }
-    return as_IB(this)->onReadPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
+    return as_IB(this)->onReadPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY, chint);
+}
+
+bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingHint chint) const {
+    // Idea: If/when SkImageGenerator supports a native-scaling API (where the generator itself
+    //       can scale more efficiently) we should take advantage of it here.
+    //
+    SkBitmap bm;
+    if (as_IB(this)->getROPixels(&bm, chint)) {
+        bm.lockPixels();
+        SkPixmap pmap;
+        // Note: By calling the pixmap scaler, we never cache the final result, so the chint
+        //       is (currently) only being applied to the getROPixels. If we get a request to
+        //       also attempt to cache the final (scaled) result, we would add that logic here.
+        //
+        return bm.peekPixels(&pmap) && pmap.scalePixels(dst, quality);
+    }
+    return false;
 }
 
 void SkImage::preroll(GrContext* ctx) const {
@@ -286,7 +303,7 @@ SkImage_Base::~SkImage_Base() {
 }
 
 bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                                int srcX, int srcY) const {
+                                int srcX, int srcY, CachingHint) const {
     if (!raster_canvas_supports(dstInfo)) {
         return false;
     }
@@ -317,8 +334,8 @@ bool SkImage::peekPixels(SkPixmap* pmap) const {
     return false;
 }
 
-bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY) const {
-    return this->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX, srcY);
+bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint chint) const {
+    return this->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX, srcY, chint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

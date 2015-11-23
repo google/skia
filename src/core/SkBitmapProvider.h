@@ -27,6 +27,7 @@ public:
 
     bool validForDrawing() const;
     SkImageInfo info() const;
+    bool isVolatile() const;
 
     SkBitmapCacheDesc makeCacheDesc(int w, int h) const;
     SkBitmapCacheDesc makeCacheDesc() const;

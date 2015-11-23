@@ -208,6 +208,16 @@ public:
     GrBackendObject getTextureHandle(bool flushPendingGrContextIO) const;
 
     /**
+     *  Hints to image calls where the system might cache computed intermediates (e.g. the results
+     *  of decoding or a read-back from the GPU. Passing kAllow signals that the system's default
+     *  behavior is fine. Passing kDisallow signals that caching should be avoided.
+     */
+     enum CachingHint {
+        kAllow_CachingHint,
+        kDisallow_CachingHint,
+    };
+
+    /**
      *  Copy the pixels from the image into the specified buffer (pixels + rowBytes),
      *  converting them into the requested format (dstInfo). The image pixels are read
      *  starting at the specified (srcX,srcY) location.
@@ -226,9 +236,19 @@ public:
      *  - If the requested colortype/alphatype cannot be converted from the image's types.
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY) const;
+                    int srcX, int srcY, CachingHint = kAllow_CachingHint) const;
 
-    bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY,
+                    CachingHint = kAllow_CachingHint) const;
+
+    /**
+     *  Copy the pixels from this image into the dst pixmap, converting as needed into dst's
+     *  colortype/alphatype. If the conversion cannot be performed, false is returned.
+     *
+     *  If dst's dimensions differ from the src dimension, the image will be scaled, applying the
+     *  specified filter-quality.
+     */
+    bool scalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint = kAllow_CachingHint) const;
 
     /**
      *  Encode the image's pixels and return the result as a new SkData, which

@@ -121,8 +121,10 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         
         SkASSERT(fResultBitmap.getPixels());
         fResultBitmap.setImmutable();
-        if (SkBitmapCache::AddWH(desc, fResultBitmap)) {
-            provider.notifyAddedToCache();
+        if (!provider.isVolatile()) {
+            if (SkBitmapCache::AddWH(desc, fResultBitmap)) {
+                provider.notifyAddedToCache();
+            }
         }
     }
     

@@ -205,6 +205,44 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
     return true;
 }
 
+#include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkSurface.h"
+#include "SkXfermode.h"
+
+bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
+    // Can't do anthing with empty src or dst
+    if (this->width() <= 0 || this->height() <= 0 || dst.width() <= 0 || dst.height() <= 0) {
+        return false;
+    }
+
+    // no scaling involved?
+    if (dst.width() == this->width() && dst.height() == this->height()) {
+        return this->readPixels(dst);
+    }
+
+    SkBitmap bitmap;
+    // we will only ready from this pixmap, but the bitmap setting takes void*, hence the cast
+    void* readOnlyAddr = const_cast<void*>(this->addr());
+    if (!bitmap.installPixels(this->info(), readOnlyAddr, this->rowBytes())) {
+        return false;
+    }
+    bitmap.setIsVolatile(true); // so we don't try to cache it
+
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterDirect(dst.info(), dst.writable_addr(),
+                                                               dst.rowBytes()));
+    if (!surface) {
+        return false;
+    }
+
+    SkPaint paint;
+    paint.setFilterQuality(quality);
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    surface->getCanvas()->drawBitmapRect(bitmap, SkRect::MakeIWH(dst.width(), dst.height()),
+                                         &paint);
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkAutoPixmapStorage::SkAutoPixmapStorage() : fStorage(nullptr) {}
