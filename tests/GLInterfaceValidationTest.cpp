@@ -17,7 +17,7 @@ DEF_GPUTEST(GLInterfaceValidation, reporter, factory) {
         GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType)i;
         // this forces the factory to make the context if it hasn't yet
         GrContextFactory::ContextInfo* contextInfo = factory->getContextInfo(glCtxType);
-        SkGLContext* glCtx = contextInfo->fGLContext;
+        SkGLContext* glCtx = contextInfo ? contextInfo->fGLContext : nullptr;
 
         // We're supposed to fail the NVPR context type when we the native context that does not
         // support the NVPR extension.
