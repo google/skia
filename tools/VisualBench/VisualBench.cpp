@@ -28,12 +28,12 @@ DEFINE_bool2(dif, d, false, "Use device-independent fonts.");
 
 VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd) {
-    SkCommandLineFlags::Parse(argc, argv);
-
     SkDebugf("Command line arguments:");
     for (int i = 0; i < argc; ++i) {
         SkDebugf("%s\n", argv[i]);
     }
+
+    SkCommandLineFlags::Parse(argc, argv);
 
     // these have to happen after commandline parsing
     if (FLAGS_dif) {
