@@ -70,7 +70,8 @@ public:
                             GrColor color,
                             GrPathRange* range,
                             GrPathRangeDraw* draw,
-                            int /*GrPathRendering::FillType*/ fill);
+                            int /*GrPathRendering::FillType*/ fill,
+                            const SkRect& bounds);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed

@@ -133,7 +133,8 @@ public:
                             GrColor color,
                             GrPathRange* range,
                             GrPathRangeDraw* draw,
-                            GrPathRendering::FillType fill);
+                            GrPathRendering::FillType fill,
+                            const SkRect& bounds);
 
     /**
      * Helper function for drawing rects.

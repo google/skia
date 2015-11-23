@@ -148,8 +148,9 @@ public:
 
     // This can't return a more abstract type because we install the stencil settings late :(
     static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-                                       GrColor color, GrPathRange* range, GrPathRangeDraw* draw) {
-        return new GrDrawPathRangeBatch(viewMatrix, localMatrix, color, range, draw);
+                                       GrColor color, GrPathRange* range, GrPathRangeDraw* draw,
+                                       const SkRect& bounds) {
+        return new GrDrawPathRangeBatch(viewMatrix, localMatrix, color, range, draw, bounds);
     }
 
     ~GrDrawPathRangeBatch() override;
@@ -162,7 +163,7 @@ private:
     inline bool isWinding() const;
 
     GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix, GrColor color,
-                         GrPathRange* range, GrPathRangeDraw* draw);
+                         GrPathRange* range, GrPathRangeDraw* draw, const SkRect& bounds);
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
 

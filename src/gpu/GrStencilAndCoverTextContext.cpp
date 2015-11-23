@@ -516,8 +516,16 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         localMatrix.setTranslateX(x);
         localMatrix.setTranslateY(y);
 
+        // Don't compute a bounding box. For dst copy texture, we'll opt instead for it to just copy
+        // the entire dst. Realistically this is a moot point, because any context that supports
+        // NV_path_rendering will also support NV_blend_equation_advanced.
+        // For clipping we'll just skip any optimizations based on the bounds. This does, however,
+        // hurt batching.
+        SkRect bounds = SkRect::MakeIWH(pipelineBuilder->getRenderTarget()->width(),
+                                        pipelineBuilder->getRenderTarget()->height());
+
         dc->drawPathsFromRange(pipelineBuilder, drawMatrix, localMatrix, color, glyphs, fDraw,
-                               GrPathRendering::kWinding_FillType);
+                               GrPathRendering::kWinding_FillType, bounds);
     }
 
     if (fFallbackTextBlob) {

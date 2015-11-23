@@ -143,12 +143,14 @@ void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
                                        GrColor color,
                                        GrPathRange* range,
                                        GrPathRangeDraw* draw,
-                                       int /*GrPathRendering::FillType*/ fill) {
+                                       int /*GrPathRendering::FillType*/ fill,
+                                       const SkRect& bounds) {
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
     this->getDrawTarget()->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color,
-                                              range, draw, (GrPathRendering::FillType) fill);
+                                              range, draw, (GrPathRendering::FillType) fill,
+                                              bounds);
 }
 
 void GrDrawContext::discard() {

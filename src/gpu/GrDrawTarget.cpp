@@ -322,9 +322,10 @@ void GrDrawTarget::drawPathsFromRange(const GrPipelineBuilder& pipelineBuilder,
                                       GrColor color,
                                       GrPathRange* range,
                                       GrPathRangeDraw* draw,
-                                      GrPathRendering::FillType fill) {
+                                      GrPathRendering::FillType fill, 
+                                      const SkRect& bounds) {
     GrDrawPathBatchBase* batch = GrDrawPathRangeBatch::Create(viewMatrix, localMatrix, color,
-                                                              range, draw);
+                                                              range, draw, bounds);
     this->drawPathBatch(pipelineBuilder, batch, fill);
     batch->unref();
 }
