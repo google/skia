@@ -97,6 +97,7 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         GrTextureParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
         paint.addColorTextureProcessor(inputTexture, SkMatrix::I(), params);
     }
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
     SkRect localRect;
     if (subset) {
