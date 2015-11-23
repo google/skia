@@ -454,6 +454,11 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
             return nullptr;
         }
     }
+    // Sample count is interpretted to mean the number of samples that Gr code should allocate
+    // for a render buffer that resolves to the texture. We don't support MSAA textures.
+    if (desc.fSampleCnt && !renderTarget) {
+        return nullptr;
+    }
 
     switch (ownership) {
         case kAdopt_GrWrapOwnership:

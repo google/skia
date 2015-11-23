@@ -37,6 +37,48 @@ static void cleanup(SkGLContext* glctx0, GrGLuint texID0, SkGLContext* glctx1, G
     }
 }
 
+static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
+                             GrTexture* externalTexture, uint32_t expectedPixelValues[]) {
+    int pixelCnt = externalTexture->width() * externalTexture->height();
+    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
+    bool read = externalTexture->readPixels(0, 0, externalTexture->width(),
+                                            externalTexture->height(), kRGBA_8888_GrPixelConfig,
+                                            pixels.get());
+    if (!read) {
+        ERRORF(reporter, "Error reading external texture.");
+    }
+    for (int i = 0; i < pixelCnt; ++i) {
+        if (pixels.get()[i] != expectedPixelValues[i]) {
+            ERRORF(reporter, "Error, external texture pixel value %d should be 0x%08x,"
+                             " got 0x%08x.", i, expectedPixelValues[i], pixels.get()[i]);
+            break;
+        }
+    }
+}
+
+static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
+                              GrTexture* externalTexture) {
+    int pixelCnt = externalTexture->width() * externalTexture->height();
+    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
+    bool write = externalTexture->writePixels(0, 0, 0, 0, kRGBA_8888_GrPixelConfig, pixels.get());
+    REPORTER_ASSERT_MESSAGE(reporter, !write, "Should not be able to write to a EXTERNAL"
+                                              " texture.");
+}
+
+static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
+                              GrTexture* externalTexture, uint32_t expectedPixelValues[]) {
+    GrSurfaceDesc copyDesc;
+    copyDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    copyDesc.fWidth = externalTexture->width();
+    copyDesc.fHeight = externalTexture->height();
+    copyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(copyDesc, true));
+    context->copySurface(copy, externalTexture);
+    test_read_pixels(reporter, context, copy, expectedPixelValues);
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, context0, glCtx0) {
     // Try to create a second GL context and then check if the contexts have necessary
     // extensions to run this test.
@@ -134,22 +176,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, context0, glCtx0) {
         return;
     }
 
-    // Read the pixels and see if we get the values set in GL context 1
-    memset(pixels.get(), 0, sizeof(uint32_t)*kSize*kSize);
-    bool read = externalTextureObj->readPixels(0, 0, kSize, kSize, kRGBA_8888_GrPixelConfig,
-                                               pixels.get());
-    if (!read) {
-        ERRORF(reporter, "Error reading external texture.");
-        cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
-        return;
+    // Should not be able to wrap as a RT
+    externalDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    SkAutoTUnref<GrTexture> externalTextureRTObj(
+        context0->textureProvider()->wrapBackendTexture(externalDesc));
+    if (externalTextureRTObj) {
+        ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
     }
-    for (int i = 0; i < kSize*kSize; ++i) {
-        if (pixels.get()[i] != 0xDDAABBCC) {
-            ERRORF(reporter, "Error, external texture pixel value %d should be 0xDDAABBCC,"
-                   " got 0x%08x.", pixels.get()[i]);
-            break;
-        }
+    externalDesc.fFlags = kNone_GrBackendTextureFlag;
+
+    // Should not be able to wrap with a sample count
+    externalDesc.fSampleCnt = 4;
+    SkAutoTUnref<GrTexture> externalTextureMSAAObj(
+        context0->textureProvider()->wrapBackendTexture(externalDesc));
+    if (externalTextureMSAAObj) {
+        ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture with MSAA.");
     }
+    externalDesc.fSampleCnt = 0;
+
+    test_read_pixels(reporter, context0, externalTextureObj, pixels.get());
+
+    test_write_pixels(reporter, context0, externalTextureObj);
+
+    test_copy_surface(reporter, context0, externalTextureObj, pixels.get());
+
     cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
 }
 
