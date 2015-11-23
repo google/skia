@@ -14,6 +14,7 @@
 #include "SkStream.h"
 
 class SkColorTable;
+class SkPngChunkReader;
 
 // Empty implementations for SkImageDecoder.
 
@@ -60,7 +61,7 @@ const char* SkImageDecoder::GetFormatName(Format) {
     return nullptr;
 }
 
-SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker*) {
+SkPngChunkReader* SkImageDecoder::setPeeker(SkPngChunkReader*) {
     return nullptr;
 }
 

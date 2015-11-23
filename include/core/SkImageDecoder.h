@@ -10,10 +10,13 @@
 
 #include "SkBitmap.h"
 #include "SkImage.h"
+#include "SkPngChunkReader.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkTRegistry.h"
 #include "SkTypes.h"
+
+//#define SK_LEGACY_PEEKER
 
 class SkStream;
 class SkStreamRewindable;
@@ -126,23 +129,20 @@ public:
     */
     bool getRequireUnpremultipliedColors() const { return fRequireUnpremultipliedColors; }
 
-    /** \class Peeker
-
-        Base class for optional callbacks to retrieve meta/chunk data out of
-        an image as it is being decoded.
-    */
-    class Peeker : public SkRefCnt {
+#ifdef SK_LEGACY_PEEKER
+    // Android subclasses SkImageDecoder::Peeker, which has been changed into SkPngChunkReader.
+    // Temporarily use this class until Android can be updated to directly inherit from
+    // SkPngChunkReader.
+    class Peeker : public SkPngChunkReader {
     public:
-        /** Return true to continue decoding, or false to indicate an error, which
-            will cause the decoder to not return the image.
-        */
+        bool readChunk(const char tag[], const void* data, size_t length) final {
+            return this->peek(tag, data, length);
+        }
         virtual bool peek(const char tag[], const void* data, size_t length) = 0;
-    private:
-        typedef SkRefCnt INHERITED;
     };
-
-    Peeker* getPeeker() const { return fPeeker; }
-    Peeker* setPeeker(Peeker*);
+#endif
+    SkPngChunkReader* getPeeker() const { return fPeeker; }
+    SkPngChunkReader* setPeeker(SkPngChunkReader*);
 
     /**
      *  By default, the codec will try to comply with the "pref" colortype
@@ -229,8 +229,8 @@ public:
         to allocate the memory from a cache, volatile memory, or even from
         an existing bitmap's memory.
 
-        If a Peeker is installed via setPeeker, it may be used to peek into
-        meta data during the decode.
+        If an SkPngChunkReader is installed via setPeeker, it may be used to
+        peek into meta data during the decode.
     */
     Result decode(SkStream*, SkBitmap* bitmap, SkColorType pref, Mode);
     Result decode(SkStream* stream, SkBitmap* bitmap, Mode mode) {
@@ -350,7 +350,7 @@ protected:
     SkColorType getPrefColorType(SrcDepth, bool hasAlpha) const;
 
 private:
-    Peeker*                 fPeeker;
+    SkPngChunkReader*       fPeeker;
     SkBitmap::Allocator*    fAllocator;
     int                     fSampleSize;
     SkColorType             fDefaultPref;   // use if fUsePrefTable is false

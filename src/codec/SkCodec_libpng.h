@@ -7,6 +7,7 @@
 
 #include "SkCodec.h"
 #include "SkColorTable.h"
+#include "SkPngChunkReader.h"
 #include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
@@ -21,7 +22,7 @@ public:
     static bool IsPng(SkStream*);
 
     // Assume IsPng was called and returned true.
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
 
     virtual ~SkPngCodec();
 
@@ -41,7 +42,7 @@ protected:
         return fSwizzler;
     }
 
-    SkPngCodec(const SkImageInfo&, SkStream*, png_structp, png_infop, int, int);
+    SkPngCodec(const SkImageInfo&, SkStream*, SkPngChunkReader*, png_structp, png_infop, int, int);
 
     png_structp png_ptr() { return fPng_ptr; }
     SkSwizzler* swizzler() { return fSwizzler; }
@@ -62,17 +63,18 @@ protected:
     virtual AlphaState alphaInScanlineDecode() const = 0;
 
 private:
-    png_structp                 fPng_ptr;
-    png_infop                   fInfo_ptr;
+    SkAutoTUnref<SkPngChunkReader>  fPngChunkReader;
+    png_structp                     fPng_ptr;
+    png_infop                       fInfo_ptr;
 
     // These are stored here so they can be used both by normal decoding and scanline decoding.
-    SkAutoTUnref<SkColorTable>  fColorTable;    // May be unpremul.
-    SkAutoTDelete<SkSwizzler>   fSwizzler;
+    SkAutoTUnref<SkColorTable>      fColorTable;    // May be unpremul.
+    SkAutoTDelete<SkSwizzler>       fSwizzler;
 
-    SkSwizzler::SrcConfig       fSrcConfig;
-    const int                   fNumberPasses;
-    int                         fBitDepth;
-    AlphaState                  fAlphaState;
+    SkSwizzler::SrcConfig           fSrcConfig;
+    const int                       fNumberPasses;
+    int                             fBitDepth;
+    AlphaState                      fAlphaState;
 
     bool decodePalette(bool premultiply, int* ctableCount);
     void destroyReadStruct();
