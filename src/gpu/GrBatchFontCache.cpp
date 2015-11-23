@@ -196,8 +196,9 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
     }
 }
 
-bool GrBatchTextStrike::addGlyphToAtlas(GrDrawBatch::Target* target, GrGlyph* glyph,
-                                        GrFontScaler* scaler, const SkGlyph& skGlyph,
+bool GrBatchTextStrike::addGlyphToAtlas(GrDrawBatch::Target* target,
+                                        GrGlyph* glyph,
+                                        GrFontScaler* scaler,
                                         GrMaskFormat expectedMaskFormat) {
     SkASSERT(glyph);
     SkASSERT(scaler);
@@ -210,6 +211,7 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrDrawBatch::Target* target, GrGlyph* gl
     size_t size = glyph->fBounds.area() * bytesPerPixel;
     SkAutoSMalloc<1024> storage(size);
 
+    const SkGlyph& skGlyph = scaler->grToSkGlyph(glyph->fPackedID);
     if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID)) {
         if (!scaler->getPackedGlyphDFImage(skGlyph, glyph->width(), glyph->height(),
                                            storage.get())) {

@@ -168,24 +168,18 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
         if (regenTexCoords) {
             size_t glyphOffset = glyphIdx + info->fGlyphStartIndex;
 
-            glyph = blob->fGlyphs[glyphOffset];
-            GrGlyph::PackedID id = glyph->fPackedID;
-            const SkGlyph& skGlyph = (*scaler)->grToSkGlyph(id);
             if (regenGlyphs) {
                 // Get the id from the old glyph, and use the new strike to lookup
                 // the glyph.
-                blob->fGlyphs[glyphOffset] = strike->getGlyph(skGlyph, id, this->maskFormat(),
-                                                              *scaler);
+                GrGlyph::PackedID id = blob->fGlyphs[glyphOffset]->fPackedID;
+                blob->fGlyphs[glyphOffset] = strike->getGlyph(id, this->maskFormat(), *scaler);
+                SkASSERT(id == blob->fGlyphs[glyphOffset]->fPackedID);
             }
             glyph = blob->fGlyphs[glyphOffset];
-            SkASSERT(glyph);
-            SkASSERT(id == glyph->fPackedID);
-            // We want to be able to assert this but cannot for testing purposes.
-            // once skbug:4143 has landed we can revist this assert
-            //SkASSERT(glyph->fMaskFormat == this->maskFormat());
+            SkASSERT(glyph && glyph->fMaskFormat == this->maskFormat());
 
             if (!fFontCache->hasGlyph(glyph) &&
-                !strike->addGlyphToAtlas(target, glyph, *scaler, skGlyph, this->maskFormat())) {
+                !strike->addGlyphToAtlas(target, glyph, *scaler, this->maskFormat())) {
                 this->flush(target, flushInfo);
                 target->initDraw(gp, this->pipeline());
                 brokenRun = glyphIdx > 0;
@@ -193,7 +187,6 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
                 SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(target,
                                                                     glyph,
                                                                     *scaler,
-                                                                    skGlyph,
                                                                     this->maskFormat());
                 SkASSERT(success);
             }

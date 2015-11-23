@@ -43,10 +43,15 @@ public:
     // that the maskformat of the glyph differs from what we expect.  In these cases we will just
     // draw a clear square.
     // skbug:4143 crbug:510931
-    inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
-                             GrMaskFormat expectedMaskFormat, GrFontScaler* scaler) {
+    inline GrGlyph* getGlyph(GrGlyph::PackedID packed,
+                             GrMaskFormat expectedMaskFormat,
+                             GrFontScaler* scaler) {
         GrGlyph* glyph = fCache.find(packed);
         if (nullptr == glyph) {
+            // We could return this to the caller, but in practice it adds code complexity for
+            // potentially little benefit(ie, if the glyph is not in our font cache, then its not
+            // in the atlas and we're going to be doing a texture upload anyways).
+            const SkGlyph& skGlyph = scaler->grToSkGlyph(packed);
             glyph = this->generateGlyph(skGlyph, packed, scaler);
             glyph->fMaskFormat = expectedMaskFormat;
         }
@@ -58,7 +63,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrDrawBatch::Target*, GrGlyph*, GrFontScaler*, const SkGlyph&,
+    bool addGlyphToAtlas(GrDrawBatch::Target*, GrGlyph*, GrFontScaler*,
                          GrMaskFormat expectedMaskFormat);
 
     // testing
