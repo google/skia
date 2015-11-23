@@ -31,6 +31,10 @@ class GrBatchFlushState;
  * If there are any possible optimizations which might require knowing more about the full state of
  * the draw, ie whether or not the GrBatch is allowed to tweak alpha for coverage, then this
  * information will be communicated to the GrBatch prior to geometry generation.
+ *
+ * The bounds of the batch must contain all the vertices in device space *irrespective* of the clip.
+ * The bounds are used in determining which clip elements must be applied and thus the bounds cannot
+ * in turn depend upon the clip.
  */
 #define GR_BATCH_SPEW 0
 #if GR_BATCH_SPEW

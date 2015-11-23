@@ -409,8 +409,10 @@ void GrDrawContext::drawVertices(const GrClip& clip,
     viewMatrix.mapRect(&bounds);
 
     // If we don't have AA then we outset for a half pixel in each direction to account for
-    // snapping
-    if (!paint.isAntiAlias()) {
+    // snapping. We also do this for the "hair" primitive types: lines and points since they have
+    // a 1 pixel thickness in device space.
+    if (!paint.isAntiAlias() || GrIsPrimTypeLines(primitiveType) ||
+        kPoints_GrPrimitiveType == primitiveType) {
         bounds.outset(0.5f, 0.5f);
     }
 

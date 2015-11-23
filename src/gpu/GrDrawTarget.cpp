@@ -508,6 +508,8 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
                 return;
             }
             // Stop going backwards if we would cause a painter's order violation.
+            // TODO: The bounds used here do not fully consider the clip. It may be advantageous
+            // to clip each batch's bounds to the clip.
             if (intersect(candidate->bounds(), batch->bounds())) {
                 GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
                     candidate->uniqueID());

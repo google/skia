@@ -416,10 +416,9 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
         } else {
             if (stackBounds.contains(scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
-                if (requiresAA) {
-                   *requiresAA = false;
-                }
-                return;
+                // We know that the bounding box contains all the pixels that are outside the clip,
+                // but we don't know that *all* the pixels in the box are outside the clip. So
+                // proceed to walking the stack.
             }
             if (tighterBounds) {
                 *tighterBounds = queryBounds;

@@ -1592,9 +1592,17 @@ private:
       , fColor(color)
       , fPath(path)
       , fStroke(stroke)
-      , fViewMatrix(viewMatrix)
-      , fClipBounds(clipBounds) {
-        fBounds = path.getBounds();
+      , fViewMatrix(viewMatrix) {
+        const SkRect& pathBounds = path.getBounds();
+        fClipBounds = clipBounds;
+        // Because the clip bounds are used to add a contour for inverse fills, they must also
+        // include the path bounds.
+        fClipBounds.join(pathBounds);
+        if (path.isInverseFillType()) {
+            fBounds = fClipBounds;
+        } else {
+            fBounds = path.getBounds();
+        }
         if (!stroke.isFillStyle()) {
             SkScalar radius = SkScalarHalf(stroke.getWidth());
             if (stroke.getJoin() == SkPaint::kMiter_Join) {

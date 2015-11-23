@@ -264,6 +264,15 @@ private:
 
         // compute bounds
         fBounds = geometry.fPath.getBounds();
+        SkScalar w = geometry.fStrokeWidth;
+        if (w > 0) {
+            w /= 2;
+            // If the miter limit is < 1 then we effectively fallback to bevel joins.
+            if (SkPaint::kMiter_Join == geometry.fJoin && w > 1.f) {
+                w *= geometry.fMiterLimit;
+            }
+            fBounds.outset(w, w);
+        }
         geometry.fViewMatrix.mapRect(&fBounds);
     }
 
