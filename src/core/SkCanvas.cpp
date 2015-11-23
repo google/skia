@@ -1586,10 +1586,8 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
 
         fClipStack->clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
 
-        SkPath devPath;
-        devPath.addRRect(transformedRRect);
-
-        rasterclip_path(&fMCRec->fRasterClip, this, devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
+        fMCRec->fRasterClip.op(transformedRRect, this->getBaseLayerSize(), op,
+                               kSoft_ClipEdgeStyle == edgeStyle);
         return;
     }
 
