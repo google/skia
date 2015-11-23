@@ -18,6 +18,210 @@
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// A large template to handle regenerating the vertices of a textblob with as few branches as
+// possible
+template <bool regenPos, bool regenCol, bool regenTexCoords>
+inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexStride,
+                           bool useDistanceFields, SkScalar transX, SkScalar transY,
+                           GrColor color) {
+    int u0, v0, u1, v1;
+    if (regenTexCoords) {
+        SkASSERT(glyph);
+        int width = glyph->fBounds.width();
+        int height = glyph->fBounds.height();
+
+        if (useDistanceFields) {
+            u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
+            v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
+            u1 = u0 + width - 2 * SK_DistanceFieldInset;
+            v1 = v0 + height - 2 * SK_DistanceFieldInset;
+        } else {
+            u0 = glyph->fAtlasLocation.fX;
+            v0 = glyph->fAtlasLocation.fY;
+            u1 = u0 + width;
+            v1 = v0 + height;
+        }
+    }
+
+    // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
+    // vertices, hence vertexStride - sizeof(SkIPoint16)
+    intptr_t colorOffset = sizeof(SkPoint);
+    intptr_t texCoordOffset = vertexStride - sizeof(SkIPoint16);
+
+    // V0
+    if (regenPos) {
+        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
+        point->fX += transX;
+        point->fY += transY;
+    }
+
+    if (regenCol) {
+        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
+        *vcolor = color;
+    }
+
+    if (regenTexCoords) {
+        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
+        textureCoords->set(u0, v0);
+    }
+    vertex += vertexStride;
+
+    // V1
+    if (regenPos) {
+        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
+        point->fX += transX;
+        point->fY += transY;
+    }
+
+    if (regenCol) {
+        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
+        *vcolor = color;
+    }
+
+    if (regenTexCoords) {
+        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
+        textureCoords->set(u0, v1);
+    }
+    vertex += vertexStride;
+
+    // V2
+    if (regenPos) {
+        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
+        point->fX += transX;
+        point->fY += transY;
+    }
+
+    if (regenCol) {
+        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
+        *vcolor = color;
+    }
+
+    if (regenTexCoords) {
+        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
+        textureCoords->set(u1, v1);
+    }
+    vertex += vertexStride;
+
+    // V3
+    if (regenPos) {
+        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
+        point->fX += transX;
+        point->fY += transY;
+    }
+
+    if (regenCol) {
+        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
+        *vcolor = color;
+    }
+
+    if (regenTexCoords) {
+        SkIPoint16* textureCoords = reinterpret_cast<SkIPoint16*>(vertex + texCoordOffset);
+        textureCoords->set(u1, v0);
+    }
+}
+
+typedef GrAtlasTextBlob Blob;
+typedef Blob::Run Run;
+typedef Run::SubRunInfo TextInfo;
+
+template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
+inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Blob* blob, Run* run,
+                                        TextInfo* info, SkGlyphCache** cache,
+                                        SkTypeface** typeface, GrFontScaler** scaler,
+                                        const SkDescriptor** desc, const GrGeometryProcessor* gp,
+                                        int glyphCount, size_t vertexStride,
+                                        GrColor color, SkScalar transX, SkScalar transY) {
+    static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
+    GrBatchTextStrike* strike = nullptr;
+    if (regenTexCoords) {
+        info->fBulkUseToken.reset();
+
+        // We can reuse if we have a valid strike and our descriptors / typeface are the
+        // same.  The override descriptor is only for the non distance field text within
+        // a run
+        const SkDescriptor* newDesc = (run->fOverrideDescriptor && !this->usesDistanceFields()) ?
+                                      run->fOverrideDescriptor->getDesc() :
+                                      run->fDescriptor.getDesc();
+        if (!*cache || !SkTypeface::Equal(*typeface, run->fTypeface) ||
+                       !((*desc)->equals(*newDesc))) {
+            if (*cache) {
+                SkGlyphCache::AttachCache(*cache);
+            }
+            *desc = newDesc;
+            *cache = SkGlyphCache::DetachCache(run->fTypeface, *desc);
+            *scaler = GrTextContext::GetGrFontScaler(*cache);
+            strike = info->fStrike;
+            *typeface = run->fTypeface;
+        }
+
+        if (regenGlyphs) {
+            strike = fFontCache->getStrike(*scaler);
+        } else {
+            strike = info->fStrike;
+        }
+    }
+
+    bool brokenRun = false;
+    for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
+        GrGlyph* glyph = nullptr;
+        if (regenTexCoords) {
+            size_t glyphOffset = glyphIdx + info->fGlyphStartIndex;
+
+            glyph = blob->fGlyphs[glyphOffset];
+            GrGlyph::PackedID id = glyph->fPackedID;
+            const SkGlyph& skGlyph = (*scaler)->grToSkGlyph(id);
+            if (regenGlyphs) {
+                // Get the id from the old glyph, and use the new strike to lookup
+                // the glyph.
+                blob->fGlyphs[glyphOffset] = strike->getGlyph(skGlyph, id, this->maskFormat(),
+                                                              *scaler);
+            }
+            glyph = blob->fGlyphs[glyphOffset];
+            SkASSERT(glyph);
+            SkASSERT(id == glyph->fPackedID);
+            // We want to be able to assert this but cannot for testing purposes.
+            // once skbug:4143 has landed we can revist this assert
+            //SkASSERT(glyph->fMaskFormat == this->maskFormat());
+
+            if (!fFontCache->hasGlyph(glyph) &&
+                !strike->addGlyphToAtlas(target, glyph, *scaler, skGlyph, this->maskFormat())) {
+                this->flush(target, flushInfo);
+                target->initDraw(gp, this->pipeline());
+                brokenRun = glyphIdx > 0;
+
+                SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(target,
+                                                                    glyph,
+                                                                    *scaler,
+                                                                    skGlyph,
+                                                                    this->maskFormat());
+                SkASSERT(success);
+            }
+            fFontCache->addGlyphToBulkAndSetUseToken(&info->fBulkUseToken, glyph,
+                                                     target->currentToken());
+        }
+
+        intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
+        vertex += info->fVertexStartIndex;
+        vertex += vertexStride * glyphIdx * GrAtlasTextBatch::kVerticesPerGlyph;
+        regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
+                                                           this->usesDistanceFields(), transX,
+                                                           transY, color);
+        flushInfo->fGlyphsToFlush++;
+    }
+
+    // We my have changed the color so update it here
+    run->fColor = color;
+    if (regenTexCoords) {
+        if (regenGlyphs) {
+            info->fStrike.reset(SkRef(strike));
+        }
+        info->fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
+                                             fFontCache->atlasGeneration(this->maskFormat());
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
     unsigned r = SkColorGetR(c);
     unsigned g = SkColorGetG(c);
@@ -80,6 +284,26 @@ void GrAtlasTextBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     fBatch.fUsesLocalCoords = opt.readsLocalCoords();
     fBatch.fCoverageIgnored = !opt.readsCoverage();
 }
+
+enum RegenMask {
+    kNoRegen    = 0x0,
+    kRegenPos   = 0x1,
+    kRegenCol   = 0x2,
+    kRegenTex   = 0x4,
+    kRegenGlyph = 0x8 | kRegenTex, // we have to regenerate the texture coords when we regen glyphs
+
+    // combinations
+    kRegenPosCol = kRegenPos | kRegenCol,
+    kRegenPosTex = kRegenPos | kRegenTex,
+    kRegenPosTexGlyph = kRegenPos | kRegenGlyph,
+    kRegenPosColTex = kRegenPos | kRegenCol | kRegenTex,
+    kRegenPosColTexGlyph = kRegenPos | kRegenCol | kRegenGlyph,
+    kRegenColTex = kRegenCol | kRegenTex,
+    kRegenColTexGlyph = kRegenCol | kRegenGlyph,
+};
+
+#define REGEN_ARGS target, &flushInfo, blob, &run, &info, &cache, &typeface, &scaler, &desc, gp, \
+                   glyphCount, vertexStride, args.fColor, args.fTransX, args.fTransY
 
 void GrAtlasTextBatch::onPrepareDraws(Target* target) {
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
@@ -153,8 +377,18 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) {
         TextInfo& info = run.fSubRunInfo[args.fSubRun];
 
         uint64_t currentAtlasGen = fFontCache->atlasGeneration(maskFormat);
+
+        // Because the GrBatchFontCache may evict the strike a blob depends on using for
+        // generating its texture coords, we have to track whether or not the strike has
+        // been abandoned.  If it hasn't been abandoned, then we can use the GrGlyph*s as is
+        // otherwise we have to get the new strike, and use that to get the correct glyphs.
+        // Because we do not have the packed ids, and thus can't look up our glyphs in the
+        // new strike, we instead keep our ref to the old strike and use the packed ids from
+        // it.  These ids will still be valid as long as we hold the ref.  When we are done
+        // updating our cache of the GrGlyph*s, we drop our ref on the old strike
+        bool regenerateGlyphs = info.fStrike->isAbandoned();
         bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen ||
-                                       info.fStrike->isAbandoned();
+                                       regenerateGlyphs;
         bool regenerateColors;
         if (usesDistanceFields) {
             regenerateColors = !isLCD && run.fColor != args.fColor;
@@ -164,136 +398,34 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) {
         bool regeneratePositions = args.fTransX != 0.f || args.fTransY != 0.f;
         int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
 
-        // We regenerate both texture coords and colors in the blob itself, and update the
-        // atlas generation.  If we don't end up purging any unused plots, we can avoid
-        // regenerating the coords.  We could take a finer grained approach to updating texture
-        // coords but its not clear if the extra bookkeeping would offset any gains.
-        // To avoid looping over the glyphs twice, we do one loop and conditionally update color
-        // or coords as needed.  One final note, if we have to break a run for an atlas eviction
-        // then we can't really trust the atlas has all of the correct data.  Atlas evictions
-        // should be pretty rare, so we just always regenerate in those cases
-        if (regenerateTextureCoords || regenerateColors || regeneratePositions) {
-            // first regenerate texture coordinates / colors if need be
-            bool brokenRun = false;
+        uint32_t regenMaskBits = kNoRegen;
+        regenMaskBits |= regeneratePositions ? kRegenPos : 0;
+        regenMaskBits |= regenerateColors ? kRegenCol : 0;
+        regenMaskBits |= regenerateTextureCoords ? kRegenTex : 0;
+        regenMaskBits |= regenerateGlyphs ? kRegenGlyph : 0;
+        RegenMask regenMask = (RegenMask)regenMaskBits;
 
-            // Because the GrBatchFontCache may evict the strike a blob depends on using for
-            // generating its texture coords, we have to track whether or not the strike has
-            // been abandoned.  If it hasn't been abandoned, then we can use the GrGlyph*s as is
-            // otherwise we have to get the new strike, and use that to get the correct glyphs.
-            // Because we do not have the packed ids, and thus can't look up our glyphs in the
-            // new strike, we instead keep our ref to the old strike and use the packed ids from
-            // it.  These ids will still be valid as long as we hold the ref.  When we are done
-            // updating our cache of the GrGlyph*s, we drop our ref on the old strike
-            bool regenerateGlyphs = false;
-            GrBatchTextStrike* strike = nullptr;
-            if (regenerateTextureCoords) {
-                info.fBulkUseToken.reset();
+        switch (regenMask) {
+            case kRegenPos: this->regenBlob<true, false, false, false>(REGEN_ARGS); break;
+            case kRegenCol: this->regenBlob<false, true, false, false>(REGEN_ARGS); break;
+            case kRegenTex: this->regenBlob<false, false, true, false>(REGEN_ARGS); break;
+            case kRegenGlyph: this->regenBlob<false, false, true, true>(REGEN_ARGS); break;
 
-                // We can reuse if we have a valid strike and our descriptors / typeface are the
-                // same.  The override descriptor is only for the non distance field text within
-                // a run
-                const SkDescriptor* newDesc = (run.fOverrideDescriptor && !usesDistanceFields) ?
-                                              run.fOverrideDescriptor->getDesc() :
-                                              run.fDescriptor.getDesc();
-                if (!cache || !SkTypeface::Equal(typeface, run.fTypeface) ||
-                              !(desc->equals(*newDesc))) {
-                    if (cache) {
-                        SkGlyphCache::AttachCache(cache);
-                    }
-                    desc = newDesc;
-                    cache = SkGlyphCache::DetachCache(run.fTypeface, desc);
-                    scaler = GrTextContext::GetGrFontScaler(cache);
-                    strike = info.fStrike;
-                    typeface = run.fTypeface;
-                }
+            // combinations
+            case kRegenPosCol: this->regenBlob<true, true, false, false>(REGEN_ARGS); break;
+            case kRegenPosTex: this->regenBlob<true, false, true, false>(REGEN_ARGS); break;
+            case kRegenPosTexGlyph: this->regenBlob<true, false, true, true>(REGEN_ARGS); break;
+            case kRegenPosColTex: this->regenBlob<true, true, true, false>(REGEN_ARGS); break;
+            case kRegenPosColTexGlyph: this->regenBlob<true, true, true, true>(REGEN_ARGS); break;
+            case kRegenColTex: this->regenBlob<false, true, true, false>(REGEN_ARGS); break;
+            case kRegenColTexGlyph: this->regenBlob<false, true, true, true>(REGEN_ARGS); break;
+            case kNoRegen:
+                flushInfo.fGlyphsToFlush += glyphCount;
 
-                if (info.fStrike->isAbandoned()) {
-                    regenerateGlyphs = true;
-                    strike = fFontCache->getStrike(scaler);
-                } else {
-                    strike = info.fStrike;
-                }
-            }
-
-            for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
-                if (regenerateTextureCoords) {
-                    size_t glyphOffset = glyphIdx + info.fGlyphStartIndex;
-
-                    GrGlyph* glyph = blob->fGlyphs[glyphOffset];
-                    GrGlyph::PackedID id = glyph->fPackedID;
-                    const SkGlyph& skGlyph = scaler->grToSkGlyph(id);
-                    if (regenerateGlyphs) {
-                        // Get the id from the old glyph, and use the new strike to lookup
-                        // the glyph.
-                        blob->fGlyphs[glyphOffset] = strike->getGlyph(skGlyph, id, maskFormat,
-                                                                      scaler);
-                    }
-                    glyph = blob->fGlyphs[glyphOffset];
-                    SkASSERT(glyph);
-                    SkASSERT(id == glyph->fPackedID);
-                    // We want to be able to assert this but cannot for testing purposes.
-                    // once skbug:4143 has landed we can revist this assert
-                    //SkASSERT(glyph->fMaskFormat == this->maskFormat());
-
-                    if (!fFontCache->hasGlyph(glyph) &&
-                        !strike->addGlyphToAtlas(target, glyph, scaler, skGlyph, maskFormat)) {
-                        this->flush(target, &flushInfo);
-                        target->initDraw(gp, this->pipeline());
-                        brokenRun = glyphIdx > 0;
-
-                        SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(target,
-                                                                            glyph,
-                                                                            scaler,
-                                                                            skGlyph,
-                                                                            maskFormat);
-                        SkASSERT(success);
-                    }
-                    fFontCache->addGlyphToBulkAndSetUseToken(&info.fBulkUseToken, glyph,
-                                                             target->currentToken());
-
-                    // Texture coords are the last vertex attribute so we get a pointer to the
-                    // first one and then map with stride in regenerateTextureCoords
-                    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
-                    vertex += info.fVertexStartIndex;
-                    vertex += vertexStride * glyphIdx * kVerticesPerGlyph;
-                    vertex += vertexStride - sizeof(SkIPoint16);
-
-                    this->regenerateTextureCoords(glyph, vertex, vertexStride);
-                }
-
-                if (regenerateColors) {
-                    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
-                    vertex += info.fVertexStartIndex;
-                    vertex += vertexStride * glyphIdx * kVerticesPerGlyph + sizeof(SkPoint);
-                    this->regenerateColors(vertex, vertexStride, args.fColor);
-                }
-
-                if (regeneratePositions) {
-                    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
-                    vertex += info.fVertexStartIndex;
-                    vertex += vertexStride * glyphIdx * kVerticesPerGlyph;
-                    SkScalar transX = args.fTransX;
-                    SkScalar transY = args.fTransY;
-                    this->regeneratePositions(vertex, vertexStride, transX, transY);
-                }
-                flushInfo.fGlyphsToFlush++;
-            }
-
-            // We my have changed the color so update it here
-            run.fColor = args.fColor;
-            if (regenerateTextureCoords) {
-                if (regenerateGlyphs) {
-                    info.fStrike.reset(SkRef(strike));
-                }
-                info.fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
-                                                    fFontCache->atlasGeneration(maskFormat);
-            }
-        } else {
-            flushInfo.fGlyphsToFlush += glyphCount;
-
-            // set use tokens for all of the glyphs in our subrun.  This is only valid if we
-            // have a valid atlas generation
-            fFontCache->setUseTokenBulk(info.fBulkUseToken, target->currentToken(), maskFormat);
+                // set use tokens for all of the glyphs in our subrun.  This is only valid if we
+                // have a valid atlas generation
+                fFontCache->setUseTokenBulk(info.fBulkUseToken, target->currentToken(), maskFormat);
+                break;
         }
 
         // now copy all vertices
@@ -302,68 +434,12 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) {
 
         currVertex += byteCount;
     }
+
     // Make sure to attach the last cache if applicable
     if (cache) {
         SkGlyphCache::AttachCache(cache);
     }
     this->flush(target, &flushInfo);
-}
-
-void GrAtlasTextBatch::regenerateTextureCoords(GrGlyph* glyph, intptr_t vertex,
-                                               size_t vertexStride) {
-    int width = glyph->fBounds.width();
-    int height = glyph->fBounds.height();
-
-    int u0, v0, u1, v1;
-    if (this->usesDistanceFields()) {
-        u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
-        v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
-        u1 = u0 + width - 2 * SK_DistanceFieldInset;
-        v1 = v0 + height - 2 * SK_DistanceFieldInset;
-    } else {
-        u0 = glyph->fAtlasLocation.fX;
-        v0 = glyph->fAtlasLocation.fY;
-        u1 = u0 + width;
-        v1 = v0 + height;
-    }
-
-    SkIPoint16* textureCoords;
-    // V0
-    textureCoords = reinterpret_cast<SkIPoint16*>(vertex);
-    textureCoords->set(u0, v0);
-    vertex += vertexStride;
-
-    // V1
-    textureCoords = reinterpret_cast<SkIPoint16*>(vertex);
-    textureCoords->set(u0, v1);
-    vertex += vertexStride;
-
-    // V2
-    textureCoords = reinterpret_cast<SkIPoint16*>(vertex);
-    textureCoords->set(u1, v1);
-    vertex += vertexStride;
-
-    // V3
-    textureCoords = reinterpret_cast<SkIPoint16*>(vertex);
-    textureCoords->set(u1, v0);
-}
-
-void GrAtlasTextBatch::regenerateColors(intptr_t vertex, size_t vertexStride, GrColor color) {
-    for (int i = 0; i < kVerticesPerGlyph; i++) {
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex);
-        *vcolor = color;
-        vertex += vertexStride;
-    }
-}
-
-void GrAtlasTextBatch::regeneratePositions(intptr_t vertex, size_t vertexStride, SkScalar transX,
-                                           SkScalar transY) {
-    for (int i = 0; i < kVerticesPerGlyph; i++) {
-        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
-        point->fX += transX;
-        point->fY += transY;
-        vertex += vertexStride;
-    }
 }
 
 void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) {

@@ -170,12 +170,12 @@ private:
                kLCDDistanceField_MaskType == fMaskType;
     }
 
-    inline void regenerateTextureCoords(GrGlyph* glyph, intptr_t vertex, size_t vertexStride);
-
-    inline void regenerateColors(intptr_t vertex, size_t vertexStride, GrColor color);
-
-    inline void regeneratePositions(intptr_t vertex, size_t vertexStride, SkScalar transX,
-                                    SkScalar transY);
+    template <bool regenTexCoords, bool regenPos, bool regenCol, bool regenGlyphs>
+    inline void regenBlob(Target* target, FlushInfo* flushInfo, Blob* blob, Run* run,
+                          TextInfo* info, SkGlyphCache** cache,
+                          SkTypeface** typeface, GrFontScaler** scaler, const SkDescriptor** desc,
+                          const GrGeometryProcessor* gp, int glyphCount, size_t vertexStride,
+                          GrColor color, SkScalar transX, SkScalar transY);
 
     inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo);
 
