@@ -14,6 +14,7 @@
 
 VisualSKPBench::VisualSKPBench(const char* name, const SkPicture* pic)
     : fPic(SkRef(pic))
+    , fCullRect(fPic->cullRect().roundOut())
     , fName(name) {
     fUniqueName.printf("%s", name);
 }
@@ -30,7 +31,17 @@ bool VisualSKPBench::isSuitableFor(Backend backend) {
     return backend != kNonRendering_Backend;
 }
 
+SkIPoint VisualSKPBench::onGetSize() {
+    return SkIPoint::Make(fCullRect.width(), fCullRect.height());
+}
+
 void VisualSKPBench::onDraw(int loops, SkCanvas* canvas) {
+    bool isOffset = SkToBool(fCullRect.left() | fCullRect.top());
+    if (isOffset) {
+        canvas->save();
+        canvas->translate(SkIntToScalar(-fCullRect.left()), SkIntToScalar(-fCullRect.top()));
+    }
+
     for (int i = 0; i < loops; i++) {
         canvas->drawPicture(fPic);
 #if SK_SUPPORT_GPU
@@ -39,5 +50,9 @@ void VisualSKPBench::onDraw(int loops, SkCanvas* canvas) {
             context->flush();
         }
 #endif
+    }
+
+    if (isOffset) {
+        canvas->restore();
     }
 }
