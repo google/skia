@@ -466,13 +466,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
        return;
     }
 
-    if (strokeInfo.isDashed()) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRRect(rrect);
-        this->drawPath(clip, paint, viewMatrix, path, strokeInfo);
-        return;
-    }
+    SkASSERT(!strokeInfo.isDashed()); // this should've been devolved to a path in SkGpuDevice
 
     AutoCheckFlush acf(fDrawingManager);
 
@@ -545,13 +539,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
        return;
     }
 
-    if (strokeInfo.isDashed()) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addOval(oval);
-        this->drawPath(clip, paint, viewMatrix, path, strokeInfo);
-        return;
-    }
+    SkASSERT(!strokeInfo.isDashed()); // this should've been devolved to a path in SkGpuDevice
 
     AutoCheckFlush acf(fDrawingManager);
 

@@ -567,25 +567,15 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
     }
 
-    bool usePath = false;
-
-    if (paint.getMaskFilter()) {
-        usePath = true;
-    } else {
-        const SkPathEffect* pe = paint.getPathEffect();
-        if (pe && !strokeInfo.isDashed()) {
-            usePath = true;
-        }
-    }
-
-
-    if (usePath) {
+    if (paint.getMaskFilter() || paint.getPathEffect()) {
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rect);
         this->drawPath(draw, path, paint, nullptr, true);
         return;
     }
+
+    SkASSERT(!strokeInfo.isDashed());
 
     fDrawContext->drawRRect(fClip, grPaint, *draw.fMatrix, rect, strokeInfo);
 }
@@ -621,39 +611,33 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
 
 /////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
-                           const SkPaint& paint) {
+void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawOval", fContext);
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
 
-    GrStrokeInfo strokeInfo(paint);
-
-    bool usePath = false;
-    // some basic reasons we might need to call drawPath...
-    if (paint.getMaskFilter()) {
-        // The RRect path can handle special case blurring
-        SkRRect rr = SkRRect::MakeOval(oval);
-        return this->drawRRect(draw, rr, paint);
-    } else {
-        const SkPathEffect* pe = paint.getPathEffect();
-        if (pe && !strokeInfo.isDashed()) {
-            usePath = true;
-        }
-    }
-
-    if (usePath) {
+    // Presumably the path effect warps this to something other than an oval
+    if (paint.getPathEffect()) {
         SkPath path;
         path.setIsVolatile(true);
         path.addOval(oval);
         this->drawPath(draw, path, paint, nullptr, true);
         return;
+    } 
+    
+    if (paint.getMaskFilter()) {
+        // The RRect path can handle special case blurring
+        SkRRect rr = SkRRect::MakeOval(oval);
+        return this->drawRRect(draw, rr, paint);
     }
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix, &grPaint)) {
         return;
     }
+
+    GrStrokeInfo strokeInfo(paint);
+    SkASSERT(!strokeInfo.isDashed());
 
     fDrawContext->drawOval(fClip, grPaint, *draw.fMatrix, oval, strokeInfo);
 }
