@@ -21,7 +21,6 @@
 #include "GrContext.h"
 #endif
 
-DEFINE_bool(cpu, false, "Run in CPU mode?");
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
                "Multiple matches may be separated by spaces.\n"
@@ -137,8 +136,8 @@ Benchmark* VisualBenchmarkStream::next() {
     // TODO move this all to --config
     if (bench && FLAGS_cpu) {
         bench = new CpuWrappedBenchmark(fSurfaceProps, bench);
-    } else if (bench && 0 != FLAGS_nvpr) {
-        bench = new NvprWrappedBenchmark(fSurfaceProps, bench, FLAGS_nvpr);
+    } else if (bench && FLAGS_offscreen) {
+        bench = new GpuWrappedBenchmark(fSurfaceProps, bench, FLAGS_msaa);
     }
 
     fBenchmark.reset(bench);

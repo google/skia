@@ -22,6 +22,8 @@
 #include "VisualInteractiveModule.h"
 #include "gl/GrGLInterface.h"
 
+#include <stdlib.h>
+
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 DEFINE_bool2(interactive, n, false, "Run in interactive mode.");
 DEFINE_bool2(dif, d, false, "Use device-independent fonts.");
@@ -34,6 +36,11 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     }
 
     SkCommandLineFlags::Parse(argc, argv);
+
+    if (FLAGS_nvpr && !FLAGS_msaa) {
+        SkDebugf("Got nvpr without msaa. Exiting.\n");
+        exit(-1);
+    }
 
     // these have to happen after commandline parsing
     if (FLAGS_dif) {
@@ -90,7 +97,8 @@ void VisualBench::resetContext() {
 }
 
 void VisualBench::setupContext() {
-    if (!this->attach(kNativeGL_BackEndType, FLAGS_msaa, &fAttachmentInfo)) {
+    int screenSamples = FLAGS_offscreen ? 0 : FLAGS_msaa;
+    if (!this->attach(kNativeGL_BackEndType, screenSamples, &fAttachmentInfo)) {
         SkDebugf("Not possible to create backend.\n");
         INHERITED::detach();
         SkFAIL("Could not create backend\n");
@@ -103,7 +111,7 @@ void VisualBench::setupContext() {
     fInterface.reset(GrGLCreateNativeInterface());
 
     // TODO use the GLContext creation factories and also set this all up in configs
-    if (0 == FLAGS_nvpr) {
+    if (!FLAGS_nvpr) {
         fInterface.reset(GrGLInterfaceRemoveNVPR(fInterface));
     }
     SkASSERT(fInterface);

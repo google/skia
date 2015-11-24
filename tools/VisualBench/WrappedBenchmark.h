@@ -95,10 +95,10 @@ private:
 };
 
 // Create an MSAA & NVPR-enabled GPU backend
-class NvprWrappedBenchmark : public WrappedBenchmark {
+class GpuWrappedBenchmark : public WrappedBenchmark {
 public:
-    explicit NvprWrappedBenchmark(const SkSurfaceProps& surfaceProps, Benchmark* bench,
-                                  int numSamples)
+    explicit GpuWrappedBenchmark(const SkSurfaceProps& surfaceProps, Benchmark* bench,
+                                 int numSamples)
         : INHERITED(surfaceProps, bench)
         , fNumSamples(numSamples) {}
 

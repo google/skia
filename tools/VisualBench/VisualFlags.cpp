@@ -8,4 +8,6 @@
 #include "VisualFlags.h"
 
 DEFINE_int32(msaa, 0, "Number of msaa samples.");
-DEFINE_int32(nvpr, 0, "Number of stencil samples for nvpr, or zero to disable it.");
+DEFINE_bool(offscreen, false, "Perform rendering in an offscreen buffer.");
+DEFINE_bool(nvpr, false, "Use nvpr?");
+DEFINE_bool(cpu, false, "Run in CPU mode?");
