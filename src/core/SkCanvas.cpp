@@ -1600,12 +1600,26 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
 void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
-    SkRect r;
-    if (!path.isInverseFillType() && path.isRect(&r)) {
-        this->onClipRect(r, op, edgeStyle);
-    } else {
-        this->onClipPath(path, op, edgeStyle);
+
+    if (!path.isInverseFillType() && fMCRec->fMatrix.rectStaysRect()) {
+        SkRect r;
+        if (path.isRect(&r)) {
+            this->onClipRect(r, op, edgeStyle);
+            return;
+        }
+        SkRRect rrect;
+        if (path.isOval(&r)) {
+            rrect.setOval(r);
+            this->onClipRRect(rrect, op, edgeStyle);
+            return;
+        }
+        if (path.isRRect(&rrect)) {
+            this->onClipRRect(rrect, op, edgeStyle);
+            return;
+        }
     }
+
+    this->onClipPath(path, op, edgeStyle);
 }
 
 void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
