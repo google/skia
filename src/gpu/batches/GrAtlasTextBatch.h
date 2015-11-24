@@ -102,10 +102,6 @@ public:
 
     SkString dumpInfo() const override;
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override;
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override;
-
     static size_t GetVertexStride(GrMaskFormat maskFormat) {
         switch (maskFormat) {
             case kA8_GrMaskFormat:
@@ -126,8 +122,14 @@ public:
         }
     }
 
+protected:
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override;
+
+
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override;
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
 
     struct FlushInfo {
         SkAutoTUnref<const GrVertexBuffer> fVertexBuffer;

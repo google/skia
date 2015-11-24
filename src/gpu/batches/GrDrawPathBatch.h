@@ -19,12 +19,12 @@
 
 class GrDrawPathBatchBase : public GrDrawBatch {
 public:
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        out->setKnownFourComponents(fColor);
-    }
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setKnownSingleComponent(0xff);
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
+        color->setKnownFourComponents(fColor);
+        coverage->setKnownSingleComponent(0xff);
+        overrides->fUsePLSDstRead = false;
     }
 
     void setStencilSettings(const GrStencilSettings& stencil) { fStencilSettings = stencil; }
@@ -36,20 +36,20 @@ protected:
         , fColor(initialColor) {}
 
     const GrStencilSettings& stencilSettings() const { return fStencilSettings; }
-    const GrPipelineOptimizations& opts() const { return fOpts; }
+    const GrXPOverridesForBatch& overrides() const { return fOverrides; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opts) override {
-        opts.getOverrideColorIfSet(&fColor);
-        fOpts = opts;
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
+        overrides.getOverrideColorIfSet(&fColor);
+        fOverrides = overrides;
     }
 
     SkMatrix                                                fViewMatrix;
     GrColor                                                 fColor;
     GrStencilSettings                                       fStencilSettings;
-    GrPipelineOptimizations                                 fOpts;
+    GrXPOverridesForBatch                                   fOverrides;
 
     typedef GrDrawBatch INHERITED;
 };

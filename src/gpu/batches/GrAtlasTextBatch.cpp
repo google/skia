@@ -240,42 +240,41 @@ SkString GrAtlasTextBatch::dumpInfo() const {
     return str;
 }
 
-void GrAtlasTextBatch::getInvariantOutputColor(GrInitInvariantOutput* out) const {
+void GrAtlasTextBatch::computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                                    GrInitInvariantOutput* coverage,
+                                                    GrBatchToXPOverrides* overrides) const {
     if (kColorBitmapMask_MaskType == fMaskType) {
-        out->setUnknownFourComponents();
+        color->setUnknownFourComponents();
     } else {
-        out->setKnownFourComponents(fBatch.fColor);
+        color->setKnownFourComponents(fBatch.fColor);
     }
-}
-
-void GrAtlasTextBatch::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
     switch (fMaskType) {
         case kGrayscaleDistanceField_MaskType:
         case kGrayscaleCoverageMask_MaskType:
-            out->setUnknownSingleComponent();
+            coverage->setUnknownSingleComponent();
             break;
         case kLCDCoverageMask_MaskType:
         case kLCDDistanceField_MaskType:
-            out->setUnknownOpaqueFourComponents();
-            out->setUsingLCDCoverage();
+            coverage->setUnknownOpaqueFourComponents();
+            coverage->setUsingLCDCoverage();
             break;
         case kColorBitmapMask_MaskType:
-            out->setKnownSingleComponent(0xff);
+            coverage->setKnownSingleComponent(0xff);
     }
 }
 
-void GrAtlasTextBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
+void GrAtlasTextBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     // Handle any color overrides
-    if (!opt.readsColor()) {
+    if (!overrides.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+    overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
     // setup batch properties
-    fBatch.fColorIgnored = !opt.readsColor();
+    fBatch.fColorIgnored = !overrides.readsColor();
     fBatch.fColor = fGeoData[0].fColor;
-    fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-    fBatch.fCoverageIgnored = !opt.readsCoverage();
+    fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+    fBatch.fCoverageIgnored = !overrides.readsCoverage();
 }
 
 enum RegenMask {

@@ -539,10 +539,14 @@ bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineB
     args.fPipelineBuilder = pipelineBuilder;
     args.fCaps = this->caps();
     args.fScissor = scissor;
-    args.fColorPOI = pipelineBuilder->colorProcInfo(batch);
-    args.fCoveragePOI = pipelineBuilder->coverageProcInfo(batch);
-    if (!this->setupDstReadIfNecessary(*pipelineBuilder, args.fColorPOI,
-                                       args.fCoveragePOI, &args.fDstTexture,
+    batch->getPipelineOptimizations(&args.fOpts);
+    args.fOpts.fColorPOI.completeCalculations(pipelineBuilder->fColorFragmentProcessors.begin(),
+                                              pipelineBuilder->numColorFragmentProcessors());
+    args.fOpts.fCoveragePOI.completeCalculations(
+                                               pipelineBuilder->fCoverageFragmentProcessors.begin(),
+                                               pipelineBuilder->numCoverageFragmentProcessors());
+    if (!this->setupDstReadIfNecessary(*pipelineBuilder, args.fOpts.fColorPOI,
+                                       args.fOpts.fCoveragePOI, &args.fDstTexture,
                                        batch->bounds())) {
         return false;
     }

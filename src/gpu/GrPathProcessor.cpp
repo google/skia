@@ -21,8 +21,8 @@ public:
     static void GenKey(const GrPathProcessor& pathProc,
                        const GrGLSLCaps&,
                        GrProcessorKeyBuilder* b) {
-        b->add32(SkToInt(pathProc.opts().readsColor()) |
-                 SkToInt(pathProc.opts().readsCoverage()) << 16);
+        b->add32(SkToInt(pathProc.overrides().readsColor()) |
+                 SkToInt(pathProc.overrides().readsCoverage()) << 16);
     }
 
     void emitCode(EmitArgs& args) override {
@@ -34,7 +34,7 @@ public:
         this->emitTransforms(args.fVaryingHandler, args.fTransformsIn, args.fTransformsOut);
 
         // Setup uniform color
-        if (pathProc.opts().readsColor()) {
+        if (pathProc.overrides().readsColor()) {
             const char* stagedLocalVarName;
             fColorUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType,
@@ -45,7 +45,7 @@ public:
         }
 
         // setup constant solid coverage
-        if (pathProc.opts().readsCoverage()) {
+        if (pathProc.overrides().readsCoverage()) {
             fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
         }
     }
@@ -81,7 +81,7 @@ public:
     void setData(const GrGLSLProgramDataManager& pd,
                  const GrPrimitiveProcessor& primProc) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        if (pathProc.opts().readsColor() && pathProc.color() != fColor) {
+        if (pathProc.overrides().readsColor() && pathProc.color() != fColor) {
             float c[4];
             GrColorToRGBAFloat(pathProc.color(), c);
             pd.set4fv(fColorUniform, 1, c);
@@ -120,14 +120,14 @@ private:
 };
 
 GrPathProcessor::GrPathProcessor(GrColor color,
-                                 const GrPipelineOptimizations& opts,
+                                 const GrXPOverridesForBatch& overrides,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
     : INHERITED(true)
     , fColor(color)
     , fViewMatrix(viewMatrix)
     , fLocalMatrix(localMatrix)
-    , fOpts(opts) {
+    , fOverrides(overrides) {
     this->initClassID<GrPathProcessor>();
 }
 

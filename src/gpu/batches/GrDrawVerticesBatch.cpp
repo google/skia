@@ -65,29 +65,29 @@ GrDrawVerticesBatch::GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveTy
     this->setBounds(bounds);
 }
 
-void GrDrawVerticesBatch::getInvariantOutputColor(GrInitInvariantOutput* out) const {
+void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                                       GrInitInvariantOutput* coverage,
+                                                       GrBatchToXPOverrides* overrides) const {
     // When this is called on a batch, there is only one geometry bundle
     if (fVariableColor) {
-        out->setUnknownFourComponents();
+        color->setUnknownFourComponents();
     } else {
-        out->setKnownFourComponents(fGeoData[0].fColor);
+        color->setKnownFourComponents(fGeoData[0].fColor);
     }
+    coverage->setKnownSingleComponent(0xff);
+    overrides->fUsePLSDstRead = false;
 }
 
-void GrDrawVerticesBatch::getInvariantOutputCoverage(GrInitInvariantOutput* out) const {
-    out->setKnownSingleComponent(0xff);
-}
-
-void GrDrawVerticesBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
+void GrDrawVerticesBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     SkASSERT(fGeoData.count() == 1);
     GrColor overrideColor;
-    if (opt.getOverrideColorIfSet(&overrideColor)) {
+    if (overrides.getOverrideColorIfSet(&overrideColor)) {
         fGeoData[0].fColor = overrideColor;
         fGeoData[0].fColors.reset();
         fVariableColor = false;
     }
-    fCoverageIgnored = !opt.readsCoverage();
-    if (!opt.readsLocalCoords()) {
+    fCoverageIgnored = !overrides.readsCoverage();
+    if (!overrides.readsLocalCoords()) {
         fGeoData[0].fLocalCoords.reset();
     }
 }

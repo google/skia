@@ -17,7 +17,7 @@ void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
     GrProgramDesc  desc;
 
     SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                                   this->opts(),
+                                                                   this->overrides(),
                                                                    this->viewMatrix()));
     state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline());
     GrPathRendering::DrawPathArgs args(pathProc, this->pipeline(),
@@ -92,10 +92,10 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
     if (!this->isWinding() ||
         this->stencilSettings() != that->stencilSettings() ||
-        this->opts().willColorBlendWithDst()) {
+        this->overrides().willColorBlendWithDst()) {
         return false;
     }
-    SkASSERT(!that->opts().willColorBlendWithDst());
+    SkASSERT(!that->overrides().willColorBlendWithDst());
     fTotalPathCount += that->fTotalPathCount;
     while (GrPathRangeDraw** head = that->fDraws.head()) {
         fDraws.addToTail(*head);
@@ -108,7 +108,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
 void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
     GrProgramDesc  desc;
     SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                                   this->opts(),
+                                                                   this->overrides(),
                                                                    this->viewMatrix(),
                                                                    fLocalMatrix));
     state->gpu()->buildProgramDesc(&desc, *pathProc, *this->pipeline());

@@ -43,8 +43,10 @@ public:
     GrDrawBatch(uint32_t classID);
     ~GrDrawBatch() override;
 
-    virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
-    virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
+    /**
+     * Fills in a structure informing the XP of overrides to its normal behavior.
+     */
+    void getPipelineOptimizations(GrPipelineOptimizations* override) const;
 
     const GrPipeline* pipeline() const {
         SkASSERT(fPipelineInstalled);
@@ -80,12 +82,17 @@ public:
         return string;
     }
 
+protected:
+    virtual void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                              GrInitInvariantOutput* coverage,
+                                              GrBatchToXPOverrides* overrides) const = 0;
+
 private:
     /**
      * initBatchTracker is a hook for the some additional overrides / optimization possibilities
      * from the GrXferProcessor.
      */
-    virtual void initBatchTracker(const GrPipelineOptimizations&) = 0;
+    virtual void initBatchTracker(const GrXPOverridesForBatch&) = 0;
 
 protected:
     SkTArray<SkAutoTUnref<GrBatchUploader>, true>   fInlineUploads;

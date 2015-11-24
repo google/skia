@@ -96,16 +96,3 @@ GrPipelineBuilder::~GrPipelineBuilder() {
         fCoverageFragmentProcessors[i]->unref();
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrPipelineBuilder::calcColorInvariantOutput(const GrDrawBatch* batch) const {
-    fColorProcInfo.calcColorWithBatch(batch, fColorFragmentProcessors.begin(),
-                                      this->numColorFragmentProcessors());
-}
-
-void GrPipelineBuilder::calcCoverageInvariantOutput(const GrDrawBatch* batch) const {
-    fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageFragmentProcessors.begin(),
-                                            this->numCoverageFragmentProcessors());
-}
-

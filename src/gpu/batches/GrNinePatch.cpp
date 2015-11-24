@@ -74,19 +74,19 @@ public:
         return str;
     }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        out->setUnknownFourComponents();
-    }
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setKnownSingleComponent(0xff);
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
+        color->setUnknownFourComponents();
+        coverage->setKnownSingleComponent(0xff);
+        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
     void onPrepareDraws(Target* target) override {
-        SkAutoTUnref<const GrGeometryProcessor> gp(create_gp(fOpts.readsCoverage()));
+        SkAutoTUnref<const GrGeometryProcessor> gp(create_gp(fOverrides.readsCoverage()));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -142,9 +142,9 @@ private:
         helper.recordDraw(target);
     }
 
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
-        fOpts = opt;
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        fOverrides = overrides;
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -159,8 +159,8 @@ private:
 
         // In the event of two batches, one who can tweak, one who cannot, we just fall back to
         // not tweaking
-        if (fOpts.canTweakAlphaForCoverage() && !that->fOpts.canTweakAlphaForCoverage()) {
-            fOpts = that->fOpts;
+        if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
+            fOverrides = that->fOverrides;
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
@@ -168,7 +168,7 @@ private:
         return true;
     }
 
-    GrPipelineOptimizations fOpts;
+    GrXPOverridesForBatch fOverrides;
     int fImageWidth;
     int fImageHeight;
     SkSTArray<1, Geometry, true> fGeoData;

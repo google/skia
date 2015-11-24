@@ -42,15 +42,15 @@ public:
 
     const char* name() const override { return "DrawVerticesBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override;
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override;
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override;
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
     void onPrepareDraws(Target*) override;
-    void initBatchTracker(const GrPipelineOptimizations&) override;
+    void initBatchTracker(const GrXPOverridesForBatch&) override;
 
     GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveType primitiveType,
                         const SkMatrix& viewMatrix,

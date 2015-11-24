@@ -1397,22 +1397,22 @@ public:
 
     const char* name() const override { return "TessellatingPathBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        out->setKnownFourComponents(fColor);
-    }
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
+        color->setKnownFourComponents(fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fColor);
-        fPipelineInfo = opt;
+        overrides.getOverrideColorIfSet(&fColor);
+        fPipelineInfo = overrides;
     }
 
     int tessellate(GrUniqueKey* key,
@@ -1621,7 +1621,7 @@ private:
     GrStrokeInfo            fStroke;
     SkMatrix                fViewMatrix;
     SkRect                  fClipBounds; // in source space
-    GrPipelineOptimizations fPipelineInfo;
+    GrXPOverridesForBatch   fPipelineInfo;
 
     typedef GrVertexBatch INHERITED;
 };

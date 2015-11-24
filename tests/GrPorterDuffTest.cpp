@@ -1100,26 +1100,27 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         TestLCDCoverageBatch() : INHERITED(ClassID()) {}
 
     private:
-        void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-            out->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
-        }
-
-        void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-            out->setUnknownFourComponents();
-            out->setUsingLCDCoverage();
+        void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                          GrInitInvariantOutput* coverage,
+                                          GrBatchToXPOverrides* overrides) const override {
+            color->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
+            coverage->setUnknownFourComponents();
+            coverage->setUsingLCDCoverage();
+            overrides->fUsePLSDstRead = false;
         }
 
         const char* name() const override { return "Test LCD Text Batch"; }
-        void initBatchTracker(const GrPipelineOptimizations&) override {}
+        void initBatchTracker(const GrXPOverridesForBatch&) override {}
         bool onCombineIfPossible(GrBatch*, const GrCaps&) override  { return false; }
         void onPrepareDraws(Target*) override {};
 
         typedef GrVertexBatch INHERITED;
     } testLCDCoverageBatch;
 
-    GrProcOptInfo colorPOI, covPOI;
-    colorPOI.calcColorWithBatch(&testLCDCoverageBatch, nullptr, 0);
-    covPOI.calcCoverageWithBatch(&testLCDCoverageBatch, nullptr, 0);
+    GrPipelineOptimizations opts;
+    testLCDCoverageBatch.getPipelineOptimizations(&opts);
+    GrProcOptInfo colorPOI = opts.fColorPOI;
+    GrProcOptInfo covPOI = opts.fCoveragePOI;
 
     SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
     SkASSERT(covPOI.isFourChannelOutput());

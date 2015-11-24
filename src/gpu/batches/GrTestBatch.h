@@ -26,27 +26,27 @@ public:
 
     virtual const char* name() const override = 0;
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(this->geoData(0)->fColor);
+        color->setKnownFourComponents(this->geoData(0)->fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
-    }
-
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             this->geoData(0)->fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&this->geoData(0)->fColor);
+        overrides.getOverrideColorIfSet(&this->geoData(0)->fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = this->geoData(0)->fColor;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
 protected:

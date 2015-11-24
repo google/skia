@@ -360,33 +360,12 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    const GrProcOptInfo& colorProcInfo(const GrDrawBatch* batch) const {
-        this->calcColorInvariantOutput(batch);
-        return fColorProcInfo;
-    }
-
-    const GrProcOptInfo& coverageProcInfo(const GrDrawBatch* batch) const {
-        this->calcCoverageInvariantOutput(batch);
-        return fCoverageProcInfo;
-    }
+    bool usePLSDstRead(const GrDrawBatch* batch) const;
 
     void setClip(const GrClip& clip) { fClip = clip; }
     const GrClip& clip() const { return fClip; }
 
 private:
-    // Calculating invariant color / coverage information is expensive, so we partially cache the
-    // results.
-    //
-    // canUseFracCoveragePrimProc() - Called in regular skia draw, caches results but only for a
-    //                                specific color and coverage.  May be called multiple times
-    // GrOptDrawState constructor - never caches results
-
-    /**
-     * GrBatch provides the initial seed for these loops based off of its initial geometry data
-     */
-    void calcColorInvariantOutput(const GrDrawBatch*) const;
-    void calcCoverageInvariantOutput(const GrDrawBatch*) const;
-
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
     SkDEBUGCODE(mutable int fBlockEffectRemovalCnt;)
@@ -402,10 +381,8 @@ private:
     FragmentProcessorArray                  fCoverageFragmentProcessors;
     GrClip                                  fClip;
 
-    mutable GrProcOptInfo fColorProcInfo;
-    mutable GrProcOptInfo fCoverageProcInfo;
-
     friend class GrPipeline;
+    friend class GrDrawTarget;
 };
 
 #endif
