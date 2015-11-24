@@ -159,6 +159,19 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
         mPath->append("isNotRect, ");
     }
 
+    if (path.isOval(nullptr)) {
+        mPath->append("isOval, ");
+    } else {
+        mPath->append("isNotOval, ");
+    }
+
+    SkRRect rrect;
+    if (path.isRRect(&rrect)) {
+        mPath->append("isRRect, ");
+    } else {
+        mPath->append("isNotRRect, ");
+    }
+
     mPath->appendS32(path.countVerbs());
     mPath->append("V, ");
     mPath->appendS32(path.countPoints());
