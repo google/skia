@@ -22,6 +22,7 @@ class SkString;
     using either reset() - to construct an identity matrix, or one of the set
     functions (e.g. setTranslate, setRotate, etc.).
 */
+SK_BEGIN_REQUIRE_DENSE
 class SK_API SkMatrix {
 public:
     static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
@@ -29,13 +30,13 @@ public:
         m.setScale(sx, sy);
         return m;
     }
-    
+
     static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
         SkMatrix m;
         m.setScale(scale, scale);
         return m;
     }
-    
+
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
         SkMatrix m;
         m.setTranslate(dx, dy);
@@ -826,5 +827,6 @@ private:
 
     friend class SkPerspIter;
 };
+SK_END_REQUIRE_DENSE
 
 #endif
