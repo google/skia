@@ -41,6 +41,20 @@ private:
 bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                      int srcX, int srcY, CachingHint chint) const {
     SkBitmap bm;
+    if (kDisallow_CachingHint == chint) {
+        if (fCache->lockAsBitmapOnlyIfAlreadyCached(&bm)) {
+            return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
+        } else {
+            // Try passing the caller's buffer directly down to the generator. If this fails we
+            // may still succeed in the general case, as the generator may prefer some other
+            // config, which we could then convert via SkBitmap::readPixels.
+            if (fCache->directGeneratePixels(dstInfo, dstPixels, dstRB, srcX, srcY)) {
+                return true;
+            }
+            // else fall through
+        }
+    }
+
     if (this->getROPixels(&bm, chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }

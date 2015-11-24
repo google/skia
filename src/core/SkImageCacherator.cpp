@@ -108,14 +108,28 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
     }
 }
 
+bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixels, size_t rb,
+                                             int srcX, int srcY) {
+    ScopedGenerator generator(this);
+    const SkImageInfo& genInfo = generator->getInfo();
+    // Currently generators do not natively handle subsets, so check that first.
+    if (srcX || srcY || genInfo.width() != info.width() || genInfo.height() != info.height()) {
+        return false;
+    }
+    return generator->getPixels(info, pixels, rb);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap) {
+    return SkBitmapCache::Find(fUniqueID, bitmap) && check_output_bitmap(*bitmap, fUniqueID);
+}
 
 bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
                                         SkImage::CachingHint chint) {
-    if (SkBitmapCache::Find(fUniqueID, bitmap)) {
-        return check_output_bitmap(*bitmap, fUniqueID);
+    if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap)) {
+        return true;
     }
-
     if (!this->generateBitmap(bitmap)) {
         return false;
     }

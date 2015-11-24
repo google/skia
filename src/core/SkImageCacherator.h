@@ -57,6 +57,12 @@ public:
      */
     SkData* refEncoded();
 
+    // Only return true if the generate has already been cached.
+    bool lockAsBitmapOnlyIfAlreadyCached(SkBitmap*);
+    // Call the underlying generator directly
+    bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+                              int srcX, int srcY);
+
 private:
     SkImageCacherator(SkImageGenerator*, const SkImageInfo&, const SkIPoint&, uint32_t uniqueID);
 

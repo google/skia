@@ -57,6 +57,10 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dst
 }
 
 bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingHint chint) const {
+    if (this->width() == dst.width() && this->height() == dst.height()) {
+        return this->readPixels(dst, 0, 0, chint);
+    }
+
     // Idea: If/when SkImageGenerator supports a native-scaling API (where the generator itself
     //       can scale more efficiently) we should take advantage of it here.
     //

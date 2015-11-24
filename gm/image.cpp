@@ -214,7 +214,7 @@ static void show_scaled_pixels(SkCanvas* canvas, SkImage* image) {
     storage.alloc(info);
 
     const SkImage::CachingHint chints[] = {
-        SkImage::kAllow_CachingHint, // SkImage::kDisallow_CachingHint,
+        SkImage::kAllow_CachingHint, SkImage::kDisallow_CachingHint,
     };
     const SkFilterQuality qualities[] = {
         kNone_SkFilterQuality, kLow_SkFilterQuality, kMedium_SkFilterQuality, kHigh_SkFilterQuality,
@@ -285,7 +285,7 @@ protected:
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         const ImageMakerProc procs[] = {
-            make_raster, make_picture, make_codec, make_gpu,
+            make_codec, make_raster, make_picture, make_codec, make_gpu,
         };
         for (auto& proc : procs) {
             SkAutoTUnref<SkImage> image(proc(info, canvas->getGrContext()));
