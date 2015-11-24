@@ -18,9 +18,6 @@
 #include "GrContext.h"
 #include "GrSurfacePriv.h"
 
-struct SkDrawProcs;
-struct GrSkDrawProcs;
-
 class GrAccelData;
 class GrTextureProducer;
 struct GrCachedLayer;
@@ -154,7 +151,6 @@ protected:
 
 private:
     GrContext*                      fContext;
-    GrSkDrawProcs*                  fDrawProcs;
     SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;
     GrClip                          fClip;

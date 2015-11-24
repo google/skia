@@ -1423,8 +1423,48 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+struct SkDraw1Glyph {
+    const SkDraw* fDraw;
+    const SkRegion* fClip;
+    const SkAAClip* fAAClip;
+    SkBlitter* fBlitter;
+    SkGlyphCache* fCache;
+    const SkPaint* fPaint;
+    SkIRect fClipBounds;
+    /** Half the sampling frequency of the rasterized glyph in x. */
+    SkScalar fHalfSampleX;
+    /** Half the sampling frequency of the rasterized glyph in y. */
+    SkScalar fHalfSampleY;
 
-static void D1G_RectClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, const SkGlyph& glyph) {
+    /** Draws one glyph.
+     *
+     *  The x and y are pre-biased, so implementations may just truncate them.
+     *  i.e. half the sampling frequency has been added.
+     *  e.g. 1/2 or 1/(2^(SkGlyph::kSubBits+1)) has already been added.
+     *  This added bias can be found in fHalfSampleX,Y.
+     */
+    typedef void (*Proc)(const SkDraw1Glyph&, Sk48Dot16 x, Sk48Dot16 y, const SkGlyph&);
+
+    Proc init(const SkDraw* draw, SkBlitter* blitter, SkGlyphCache* cache,
+              const SkPaint&);
+
+    // call this instead of fBlitter->blitMask() since this wrapper will handle
+    // the case when the mask is ARGB32_Format
+    //
+    void blitMask(const SkMask& mask, const SkIRect& clip) const {
+        if (SkMask::kARGB32_Format == mask.fFormat) {
+            this->blitMaskAsSprite(mask);
+        } else {
+            fBlitter->blitMask(mask, clip);
+        }
+    }
+
+    // mask must be kARGB32_Format
+    void blitMaskAsSprite(const SkMask& mask) const;
+};
+
+static void D1G_RectClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy,
+                         const SkGlyph& glyph) {
     // Prevent glyphs from being drawn outside of or straddling the edge of device space.
     if ((fx >> 16) > INT_MAX - (INT16_MAX + UINT16_MAX) ||
         (fx >> 16) < INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/) ||
@@ -1474,7 +1514,8 @@ static void D1G_RectClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, 
     state.blitMask(mask, *bounds);
 }
 
-static void D1G_RgnClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, const SkGlyph& glyph) {
+static void D1G_RgnClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy,
+                        const SkGlyph& glyph) {
     int left = Sk48Dot16FloorToInt(fx);
     int top = Sk48Dot16FloorToInt(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
@@ -1505,14 +1546,6 @@ static void D1G_RgnClip(const SkDraw1Glyph& state, Sk48Dot16 fx, Sk48Dot16 fy, c
     }
 }
 
-static bool hasCustomD1GProc(const SkDraw& draw) {
-    return draw.fProcs && draw.fProcs->fD1GProc;
-}
-
-static bool needsRasterTextBlit(const SkDraw& draw) {
-    return !hasCustomD1GProc(draw);
-}
-
 SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter, SkGlyphCache* cache,
                                       const SkPaint& pnt) {
     fDraw = draw;
@@ -1524,13 +1557,6 @@ SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter, Sk
         fHalfSampleX = fHalfSampleY = SkFixedToScalar(SkGlyph::kSubpixelRound);
     } else {
         fHalfSampleX = fHalfSampleY = SK_ScalarHalf;
-    }
-
-    if (hasCustomD1GProc(*draw)) {
-        // todo: fix this assumption about clips w/ custom
-        fClip = draw->fClip;
-        fClipBounds = fClip->getBounds();
-        return draw->fProcs->fD1GProc;
     }
 
     if (draw->fRC->isBW()) {
@@ -1583,20 +1609,13 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkAutoGlyphCache    autoCache(paint, &fDevice->surfaceProps(), fMatrix);
     SkGlyphCache*       cache = autoCache.getCache();
 
-    SkAAClipBlitter     aaBlitter;
-    SkAutoBlitterChoose blitterChooser;
-    SkBlitter*          blitter = nullptr;
-    if (needsRasterTextBlit(*this)) {
-        blitterChooser.choose(fDst, *fMatrix, paint);
-        blitter = blitterChooser.get();
-        if (fRC->isAA()) {
-            aaBlitter.init(blitter, &fRC->aaRgn());
-            blitter = &aaBlitter;
-        }
-    }
+
+    // The Blitter Choose needs to be live while using the blitter below.
+    SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
+    SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
 
     SkDraw1Glyph        d1g;
-    SkDraw1Glyph::Proc  proc = d1g.init(this, blitter, cache, paint);
+    SkDraw1Glyph::Proc  proc = d1g.init(this, wrapper.getBlitter(), cache, paint);
 
     SkFindAndPlaceGlyph::ProcessText(
         paint.getTextEncoding(), text, byteLength,
@@ -1678,22 +1697,13 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     // The Blitter Choose needs to be live while using the blitter below.
-    SkAutoBlitterChoose    blitterChooser;
-    SkAAClipBlitterWrapper wrapper;
-    SkBlitter*             blitter = nullptr;
-    if (needsRasterTextBlit(*this)) {
-        blitterChooser.choose(fDst, *fMatrix, paint);
-        blitter = blitterChooser.get();
-        if (fRC->isAA()) {
-            wrapper.init(*fRC, blitter);
-            blitter = wrapper.getBlitter();
-        }
-    }
+    SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
+    SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
 
     SkAutoGlyphCache   autoCache(paint, &fDevice->surfaceProps(), fMatrix);
     SkGlyphCache*      cache = autoCache.getCache();
     SkDraw1Glyph       d1g;
-    SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache, paint);
+    SkDraw1Glyph::Proc proc = d1g.init(this, wrapper.getBlitter(), cache, paint);
     SkPaint::Align     textAlignment = paint.getTextAlign();
 
     SkFindAndPlaceGlyph::ProcessPosText(

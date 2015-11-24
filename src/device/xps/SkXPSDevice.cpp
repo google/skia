@@ -23,7 +23,6 @@
 #include "SkConstexprMath.h"
 #include "SkData.h"
 #include "SkDraw.h"
-#include "SkDrawProcs.h"
 #include "SkEndian.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkGeometry.h"

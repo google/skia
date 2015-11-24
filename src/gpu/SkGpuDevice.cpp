@@ -9,6 +9,7 @@
 
 #include "GrBlurUtils.h"
 #include "GrContext.h"
+#include "SkDraw.h"
 #include "GrDrawContext.h"
 #include "GrFontScaler.h"
 #include "GrGpu.h"
@@ -20,7 +21,6 @@
 #include "GrTextContext.h"
 #include "GrTracing.h"
 #include "SkCanvasPriv.h"
-#include "SkDrawProcs.h"
 #include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
 #include "SkGrTexturePixelRef.h"
@@ -113,15 +113,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct GrSkDrawProcs : public SkDrawProcs {
-public:
-    GrContext* fContext;
-    GrTextContext* fTextContext;
-    GrFontScaler* fFontScaler;  // cached in the skia glyphcache
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 /** Checks that the alpha type is legal and gets constructor flags. Returns false if device creation
     should fail. */
 bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
@@ -181,8 +172,6 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
                          const SkSurfaceProps* props, unsigned flags)
     : INHERITED(SkSurfacePropsCopyOrDefault(props))
 {
-    fDrawProcs = nullptr;
-
     fContext = SkRef(rt->getContext());
     fNeedClear = SkToBool(flags & kNeedClear_Flag);
     fOpaque = SkToBool(flags & kIsOpaque_Flag);
@@ -238,10 +227,6 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::B
 }
 
 SkGpuDevice::~SkGpuDevice() {
-    if (fDrawProcs) {
-        delete fDrawProcs;
-    }
-
     fRenderTarget->unref();
     fContext->unref();
 }
@@ -404,9 +389,9 @@ static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkP
     if (count == 2) {
         // We do not antialias as long as the primary axis of the line is integer-aligned, even if
         // the other coordinates are not. This does mean the two end pixels of the line will be
-        // sharp even when they shouldn't be, but turning antialiasing on (as things stand 
+        // sharp even when they shouldn't be, but turning antialiasing on (as things stand
         // currently) means that the line will turn into a two-pixel-wide blur. While obviously a
-        // more complete fix is possible down the road, for the time being we accept the error on 
+        // more complete fix is possible down the road, for the time being we accept the error on
         // the two end pixels as being the lesser of two evils.
         if (pts[0].fX == pts[1].fX) {
             return ((int) pts[0].fX) != pts[0].fX;
@@ -444,7 +429,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
     // we only handle non-antialiased hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
-    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter() || 
+    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter() ||
         (paint.isAntiAlias() && needs_antialiasing(mode, count, pts))) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
@@ -625,8 +610,8 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
         path.addOval(oval);
         this->drawPath(draw, path, paint, nullptr, true);
         return;
-    } 
-    
+    }
+
     if (paint.getMaskFilter()) {
         // The RRect path can handle special case blurring
         SkRRect rr = SkRRect::MakeOval(oval);
@@ -1688,7 +1673,7 @@ void SkGpuDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRS
 
     CHECK_SHOULD_DRAW(draw);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawText", fContext);
-    
+
     SkPaint p(paint);
     p.setShader(atlas->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
 
