@@ -243,13 +243,8 @@ void GrDrawContext::drawRect(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
-    if (strokeInfo && strokeInfo->isDashed()) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRect(rect);
-        this->drawPath(clip, paint, viewMatrix, path, *strokeInfo);
-        return;
-    }
+    // Dashing should've been devolved to a path in SkGpuDevice
+    SkASSERT(!strokeInfo || !strokeInfo->isDashed());
 
     AutoCheckFlush acf(fDrawingManager);
 

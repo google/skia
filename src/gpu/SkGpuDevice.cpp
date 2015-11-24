@@ -469,8 +469,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
-                           const SkPaint& paint) {
+void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawRect", fContext);
 
     CHECK_FOR_ANNOTATION(paint);
@@ -488,7 +487,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                     (paint.getStrokeJoin() == SkPaint::kBevel_Join && rect.isEmpty()));
 
     // a few other reasons we might need to call drawPath...
-    if (paint.getMaskFilter() ||
+    if (paint.getMaskFilter() || paint.getPathEffect() ||
         paint.getStyle() == SkPaint::kStrokeAndFill_Style) { // we can't both stroke and fill rects
         usePath = true;
     }
@@ -497,18 +496,14 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         usePath = true;
     }
 
-    GrStrokeInfo strokeInfo(paint);
-
-    const SkPathEffect* pe = paint.getPathEffect();
-    if (!usePath && pe && !strokeInfo.isDashed()) {
-        usePath = true;
-    }
-
     if (usePath) {
         SkPath path;
         path.setIsVolatile(true);
         path.addRect(rect);
-        this->drawPath(draw, path, paint, nullptr, true);
+        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, fRenderTarget,
+                                            fClip, path, paint,
+                                            *draw.fMatrix, nullptr,
+                                            draw.fClip->getBounds(), true);
         return;
     }
 
@@ -516,6 +511,8 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix, &grPaint)) {
         return;
     }
+
+    GrStrokeInfo strokeInfo(paint);
 
     fDrawContext->drawRect(fClip, grPaint, *draw.fMatrix, rect, &strokeInfo);
 }
@@ -564,14 +561,19 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
             }
         }
-
     }
 
     if (paint.getMaskFilter() || paint.getPathEffect()) {
+        // The only mask filter the native rrect drawing code could've handle was taken
+        // care of above.
+        // A path effect will presumably transform this rrect into something else.
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rect);
-        this->drawPath(draw, path, paint, nullptr, true);
+        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, fRenderTarget,
+                                            fClip, path, paint,
+                                            *draw.fMatrix, nullptr,
+                                            draw.fClip->getBounds(), true);
         return;
     }
 
@@ -656,6 +658,24 @@ static SkBitmap wrap_texture(GrTexture* texture, int width, int height) {
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
+    if (!origSrcPath.isInverseFillType() && !paint.getPathEffect() && !prePathMatrix) {
+        bool isClosed;
+        SkRect rect;
+        if (origSrcPath.isRect(&rect, &isClosed) && isClosed) {
+            this->drawRect(draw, rect, paint);
+            return;
+        }
+        if (origSrcPath.isOval(&rect)) {
+            this->drawOval(draw, rect, paint);
+            return;
+        }
+        SkRRect rrect;
+        if (origSrcPath.isRRect(&rrect)) {
+            this->drawRRect(draw, rrect, paint);
+            return;
+        }
+    }
+
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPath", fContext);
