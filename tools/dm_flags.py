@@ -111,6 +111,10 @@ def get_args(bot):
   # New ico files that fail on SkImageDecoder
   blacklist.extend('_ image decode Hopstarter-Mac-Folders-Apple.ico'.split(' '))
 
+  # Gif test image uses uninitialized memory on Mac bots
+  if 'Mac' in bot:
+    blacklist.extend('_ image decode frame_larger_than_image.gif'.split(' '))
+
   # Incomplete image tests that fail on SkImageDecoder
   blacklist.extend('_ image decode inc0.gif'.split(' '))
   blacklist.extend('_ image decode inc1.gif'.split(' '))
@@ -212,6 +216,7 @@ def self_test():
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',
+    'Test-Mac10.8-Clang-MacMini4.1-CPU-SSE4-x86_64-Release',
   ]
 
   cov = coverage.coverage()
