@@ -642,6 +642,29 @@ DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
     REPORTER_ASSERT(reporter, boundsDst == expectedBounds);
 }
 
+DEF_TEST(ImageFilterMergeResultSize, reporter) {
+    SkBitmap greenBM;
+    greenBM.allocN32Pixels(20, 20);
+    greenBM.eraseColor(SK_ColorGREEN);
+    SkAutoTUnref<SkImage> greenImage(SkImage::NewFromBitmap(greenBM));
+    SkAutoTUnref<SkImageFilter> source(SkImageSource::Create(greenImage.get()));
+    SkAutoTUnref<SkImageFilter> merge(SkMergeImageFilter::Create(source.get(), source.get()));
+
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(1, 1);
+    bitmap.eraseColor(0);
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkAutoTUnref<SkBaseDevice> device(SkBitmapDevice::Create(info, props));
+    SkImageFilter::DeviceProxy proxy(device);
+    SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeXYWH(0, 0, 100, 100), nullptr,
+                               SkImageFilter::kApprox_SizeConstraint);
+    SkBitmap result;
+    SkIPoint offset;
+    REPORTER_ASSERT(reporter, merge->filterImage(&proxy, bitmap, ctx, &result, &offset));
+    REPORTER_ASSERT(reporter, result.width() == 20 && result.height() == 20);
+}
+
 static void draw_blurred_rect(SkCanvas* canvas) {
     SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(SkIntToScalar(8), 0));
     SkPaint filterPaint;
