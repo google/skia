@@ -128,9 +128,7 @@ DEF_TEST(GrPathKeys, reporter) {
     GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
     GrPath::ComputeKey(path1, stroke, &key1, &isVolatile);
     GrPath::ComputeKey(path2, stroke, &key2, &isVolatile);
-
-    // https://bugs.chromium.org/p/skia/issues/detail?id=4580
-    // REPORTER_ASSERT(reporter, key1 != key2);
+    REPORTER_ASSERT(reporter, key1 != key2);
 }
 
 #endif
