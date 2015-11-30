@@ -190,7 +190,7 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorProcessorIdx = pipelineBuilder.numColorFragmentProcessors();
     } else {
-        if (coveragePOI.readsFragPosition()) {
+        if (colorPOI.readsFragPosition()) {
             fReadsFragPosition = true;
         }
     }
