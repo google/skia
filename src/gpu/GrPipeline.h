@@ -150,6 +150,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     bool readsFragPosition() const { return fReadsFragPosition; }
+    bool ignoresCoverage() const { return fIgnoresCoverage; }
 
 private:
     GrPipeline() { /** Initialized in factory function*/ }
@@ -189,6 +190,7 @@ private:
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;
     bool                                fReadsFragPosition;
+    bool                                fIgnoresCoverage;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int                                 fNumColorProcessors;

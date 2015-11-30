@@ -108,7 +108,8 @@ private:
                             const char* outCoverage);
     void emitAndInstallXferProc(const GrXferProcessor&,
                                 const GrGLSLExpr4& colorIn,
-                                const GrGLSLExpr4& coverageIn);
+                                const GrGLSLExpr4& coverageIn,
+                                bool ignoresCoverage);
 
     void verify(const GrPrimitiveProcessor&);
     void verify(const GrXferProcessor&);

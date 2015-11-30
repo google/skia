@@ -76,8 +76,9 @@ public:
         uint8_t                     fSnapVerticesToPixelCenters;
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
+        uint8_t                     fIgnoresCoverage;
     };
-    GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
+    GR_STATIC_ASSERT(sizeof(KeyHeader) == 5);
 
     int numColorEffects() const {
         return this->header().fColorEffectCnt;

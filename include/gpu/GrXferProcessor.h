@@ -145,7 +145,7 @@ public:
     OptFlags getOptimizations(const GrPipelineOptimizations& optimizations,
                               bool doesStencilWrite,
                               GrColor* overrideColor,
-                              const GrCaps& caps);
+                              const GrCaps& caps) const;
 
     /**
      * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
@@ -199,11 +199,6 @@ public:
     bool dstReadUsesMixedSamples() const { return fDstReadUsesMixedSamples; }
 
     /**
-     * Returns whether or not the XP will look at coverage when doing its blending.
-     */
-    bool readsCoverage() const { return fReadsCoverage; }
-
-    /**
      * Returns whether or not this xferProcossor will set a secondary output to be used with dual
      * source blending.
      */
@@ -222,9 +217,6 @@ public:
             return false;
         }
         if (this->fWillReadDstColor != that.fWillReadDstColor) {
-            return false;
-        }
-        if (this->fReadsCoverage != that.fReadsCoverage) {
             return false;
         }
         if (this->fDstTexture.getTexture() != that.fDstTexture.getTexture()) {
@@ -249,7 +241,7 @@ private:
     virtual OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                         bool doesStencilWrite,
                                         GrColor* overrideColor,
-                                        const GrCaps& caps) = 0;
+                                        const GrCaps& caps) const = 0;
 
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
@@ -285,7 +277,6 @@ private:
 
     bool                    fWillReadDstColor;
     bool                    fDstReadUsesMixedSamples;
-    bool                    fReadsCoverage;
     SkIPoint                fDstTextureOffset;
     GrTextureAccess         fDstTexture;
 

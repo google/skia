@@ -170,7 +170,7 @@ private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrCaps& caps) override;
+                                                 const GrCaps& caps) const override;
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -260,7 +260,7 @@ GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(
                                                        const GrPipelineOptimizations& optimizations,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
-                                                       const GrCaps& caps) {
+                                                       const GrCaps& caps) const {
    return GrXferProcessor::kNone_OptFlags;
 }
 

@@ -356,7 +356,7 @@ private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrCaps& caps) override;
+                                                 const GrCaps& caps) const override;
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -391,32 +391,35 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
             break;
         case BlendFormula::kCoverage_OutputType:
             // We can have a coverage formula while not reading coverage if there are mixed samples.
-            fragBuilder->codeAppendf("%s = %s;",
-                                   output, xp.readsCoverage() ? inCoverage : "vec4(1.0)");
+            if (inCoverage) {
+                fragBuilder->codeAppendf("%s = %s;", output, inCoverage);
+            } else {
+                fragBuilder->codeAppendf("%s = vec4(1.0);", output);
+            }
             break;
         case BlendFormula::kModulate_OutputType:
-            if (xp.readsCoverage()) {
+            if (inCoverage) {
                 fragBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
             } else {
                 fragBuilder->codeAppendf("%s = %s;", output, inColor);
             }
             break;
         case BlendFormula::kSAModulate_OutputType:
-            if (xp.readsCoverage()) {
+            if (inCoverage) {
                 fragBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);
             } else {
                 fragBuilder->codeAppendf("%s = %s;", output, inColor);
             }
             break;
         case BlendFormula::kISAModulate_OutputType:
-            if (xp.readsCoverage()) {
+            if (inCoverage) {
                 fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
             } else {
                 fragBuilder->codeAppendf("%s = vec4(1.0 - %s.a);", output, inColor);
             }
             break;
         case BlendFormula::kISCModulate_OutputType:
-            if (xp.readsCoverage()) {
+            if (inCoverage) {
                 fragBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
             } else {
                 fragBuilder->codeAppendf("%s = vec4(1.0) - %s;", output, inColor);
@@ -432,9 +435,8 @@ class GLPorterDuffXferProcessor : public GrGLSLXferProcessor {
 public:
     static void GenKey(const GrProcessor& processor, GrProcessorKeyBuilder* b) {
         const PorterDuffXferProcessor& xp = processor.cast<PorterDuffXferProcessor>();
-        b->add32(SkToInt(xp.readsCoverage()) |
-                 (xp.getBlendFormula().fPrimaryOutputType << 1) |
-                 (xp.getBlendFormula().fSecondaryOutputType << 4));
+        b->add32(xp.getBlendFormula().fPrimaryOutputType |
+                 (xp.getBlendFormula().fSecondaryOutputType << 3));
         GR_STATIC_ASSERT(BlendFormula::kLast_OutputType < 8);
     };
 
@@ -472,7 +474,7 @@ GrXferProcessor::OptFlags
 PorterDuffXferProcessor::onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                             bool doesStencilWrite,
                                             GrColor* overrideColor,
-                                            const GrCaps& caps) {
+                                            const GrCaps& caps) const {
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
     if (!fBlendFormula.modifiesDst()) {
         if (!doesStencilWrite) {
@@ -517,7 +519,7 @@ public:
 
 private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*, 
-                                                 const GrCaps&) override {
+                                                 const GrCaps&) const override {
         return kNone_OptFlags;
     }
 
@@ -588,7 +590,7 @@ private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrCaps& caps) override;
+                                                 const GrCaps& caps) const override;
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -627,6 +629,7 @@ public:
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+        SkASSERT(args.fInputCoverage);
         fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
                                  args.fInputCoverage);
     }
@@ -677,7 +680,7 @@ GrXferProcessor::OptFlags
 PDLCDXferProcessor::onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                        bool doesStencilWrite,
                                        GrColor* overrideColor,
-                                       const GrCaps& caps) {
+                                       const GrCaps& caps) const {
         // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
         // value of the blend the constant. We should already have valid blend coeff's if we are at
         // a point where we have RGB coverage. We don't need any color stages since the known color
@@ -838,6 +841,18 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrPipelineOptimizations& optimizations,
         bool hasMixedSamples,
         const GrXferProcessor::DstTexture* dstTexture) {
+    if (!optimizations.fCoveragePOI.isFourChannelOutput() &&
+        !(optimizations.fCoveragePOI.isSolidWhite() &&
+          !hasMixedSamples &&
+          optimizations.fColorPOI.isOpaque())) {
+        static BlendFormula gSrcOverBlendFormula = COEFF_FORMULA(kOne_GrBlendCoeff,
+                                                                 kISA_GrBlendCoeff);
+        static PorterDuffXferProcessor gSrcOverXP(gSrcOverBlendFormula);
+        SkASSERT(!dstTexture || !dstTexture->texture());
+        gSrcOverXP.ref();
+        return &gSrcOverXP;
+    }
+
     BlendFormula blendFormula;
     if (optimizations.fCoveragePOI.isFourChannelOutput()) {
         if (kRGBA_GrColorComponentFlags == optimizations.fColorPOI.validFlags() &&

@@ -14,7 +14,6 @@
 GrXferProcessor::GrXferProcessor()
     : fWillReadDstColor(false)
     , fDstReadUsesMixedSamples(false)
-    , fReadsCoverage(true)
     , fDstTextureOffset() {
 }
 
@@ -23,7 +22,6 @@ GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
                                  bool hasMixedSamples)
     : fWillReadDstColor(willReadDstColor)
     , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples)
-    , fReadsCoverage(true)
     , fDstTextureOffset() {
     if (dstTexture && dstTexture->texture()) {
         SkASSERT(willReadDstColor);
@@ -38,7 +36,7 @@ GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(
                                                        const GrPipelineOptimizations& optimizations,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
-                                                       const GrCaps& caps) {
+                                                       const GrCaps& caps) const {
     GrXferProcessor::OptFlags flags = this->onGetOptimizations(optimizations,
                                                                doesStencilWrite,
                                                                overrideColor,
@@ -50,9 +48,6 @@ GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(
         if (optimizations.fCoveragePOI.isSolidWhite()) {
             flags |= GrXferProcessor::kIgnoreCoverage_OptFlag;
         }
-    }
-    if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
-        fReadsCoverage = false;
     }
     return flags;
 }
@@ -82,11 +77,8 @@ void GrXferProcessor::getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKey
                 key |= 0x4;
             }
         }
-        if (this->readsCoverage()) {
-            key |= 0x8;
-        }
         if (this->dstReadUsesMixedSamples()) {
-            key |= 0x10;
+            key |= 0x8;
         }
     }
     b->add32(key);

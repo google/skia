@@ -140,7 +140,8 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentProcessors(), inputColor);
     this->emitAndInstallFragProcs(this->pipeline().numColorFragmentProcessors(), numProcs,
                                   inputCoverage);
-    this->emitAndInstallXferProc(*this->pipeline().getXferProcessor(), *inputColor, *inputCoverage);
+    this->emitAndInstallXferProc(*this->pipeline().getXferProcessor(), *inputColor, *inputCoverage,
+                                 this->pipeline().ignoresCoverage());
     return true;
 }
 
@@ -266,7 +267,8 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
 
 void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                                 const GrGLSLExpr4& colorIn,
-                                                const GrGLSLExpr4& coverageIn) {
+                                                const GrGLSLExpr4& coverageIn,
+                                                bool ignoresCoverage) {
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
 
@@ -295,7 +297,7 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                        &fFS,
                                        this->glslCaps(),
                                        xp, colorIn.c_str(),
-                                       coverageIn.c_str(),
+                                       ignoresCoverage ? nullptr : coverageIn.c_str(),
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
                                        samplers);

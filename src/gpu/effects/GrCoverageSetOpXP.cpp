@@ -35,7 +35,7 @@ private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
-                                                 const GrCaps& caps) override;
+                                                 const GrCaps& caps) const override;
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -109,7 +109,7 @@ GrXferProcessor::OptFlags
 CoverageSetOpXP::onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                     bool doesStencilWrite,
                                     GrColor* color,
-                                    const GrCaps& caps) {
+                                    const GrCaps& caps) const {
     // We never look at the color input
     return GrXferProcessor::kIgnoreColor_OptFlag; 
 }

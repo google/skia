@@ -103,7 +103,7 @@ private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrCaps& caps) override;
+                                                 const GrCaps& caps) const override;
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -132,7 +132,6 @@ public:
         if (xp.hasHWBlendEquation()) {
             SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
             key |= caps.advBlendEqInteraction();
-            key |= xp.readsCoverage() << 2;
             GR_STATIC_ASSERT(GrGLSLCaps::kLast_AdvBlendEqInteraction < 4);
         }
         if (!xp.hasHWBlendEquation() || caps.mustEnableSpecificAdvBlendEqs()) {
@@ -151,7 +150,7 @@ private:
 
         // Apply coverage by multiplying it into the src color before blending. Mixed samples will
         // "just work" automatically. (See onGetOptimizations())
-        if (xp.readsCoverage()) {
+        if (args.fInputCoverage) {
             fragBuilder->codeAppendf("%s = %s * %s;",
                                      args.fOutputPrimary, args.fInputCoverage, args.fInputColor);
         } else {
@@ -195,7 +194,7 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
 GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
-                                                       const GrCaps& caps) {
+                                                       const GrCaps& caps) const {
   /*
     Most the optimizations we do here are based on tweaking alpha for coverage.
 

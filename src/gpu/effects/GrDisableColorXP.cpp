@@ -32,7 +32,7 @@ private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
-                                                 const GrCaps& caps) override {
+                                                 const GrCaps& caps) const override {
         return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
     }
 

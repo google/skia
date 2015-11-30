@@ -24,7 +24,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     if (args.fXP.getDstTexture()) {
         bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstTexture()->origin();
 
-        if (args.fXP.readsCoverage()) {
+        if (args.fInputCoverage) {
             // We don't think any shaders actually output negative coverage, but just as a safety
             // check for floating point precision errors we compare with <= here
             fragBuilder->codeAppendf("if (all(lessThanEqual(%s, vec4(0)))) {"
@@ -69,13 +69,13 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
 
     // Apply coverage.
     if (args.fXP.dstReadUsesMixedSamples()) {
-        if (args.fXP.readsCoverage()) {
+        if (args.fInputCoverage) {
             fragBuilder->codeAppendf("%s *= %s;", args.fOutputPrimary, args.fInputCoverage);
             fragBuilder->codeAppendf("%s = %s;", args.fOutputSecondary, args.fInputCoverage);
         } else {
             fragBuilder->codeAppendf("%s = vec4(1.0);", args.fOutputSecondary);
         }
-    } else if (args.fXP.readsCoverage()) {
+    } else if (args.fInputCoverage) {
         fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
                                  args.fOutputPrimary, args.fInputCoverage,
                                  args.fOutputPrimary, args.fInputCoverage, dstColor);

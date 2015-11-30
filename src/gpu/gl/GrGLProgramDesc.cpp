@@ -147,6 +147,13 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
     } else {
         header->fFragPosKey = 0;
     }
+
+    if (pipeline.ignoresCoverage()) {
+        header->fIgnoresCoverage = 1;
+    } else {
+        header->fIgnoresCoverage = 0;
+    }
+
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fColorEffectCnt = pipeline.numColorFragmentProcessors();
     header->fCoverageEffectCnt = pipeline.numCoverageFragmentProcessors();
