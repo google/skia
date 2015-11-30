@@ -177,8 +177,8 @@ public:
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
-    bool willXPNeedDstTexture(const GrCaps& caps, const GrProcOptInfo& colorPOI,
-                              const GrProcOptInfo& coveragePOI) const;
+    bool willXPNeedDstTexture(const GrCaps& caps, 
+                              const GrPipelineOptimizations& optimizations) const;
 
     /// @}
 

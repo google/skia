@@ -24,16 +24,14 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrXPFactory* xpFactory = builder.getXPFactory();
     SkAutoTUnref<GrXferProcessor> xferProcessor;
     if (xpFactory) {
-        xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts.fColorPOI,
-                                                           args.fOpts.fCoveragePOI,
+        xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts,
                                                            builder.hasMixedSamples(),
                                                            &args.fDstTexture,
                                                            *args.fCaps));
     } else {
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
                                                                         *args.fCaps,
-                                                                        args.fOpts.fColorPOI,
-                                                                        args.fOpts.fCoveragePOI,
+                                                                        args.fOpts,
                                                                         builder.hasMixedSamples(),
                                                                         &args.fDstTexture));
     }
@@ -49,8 +47,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
-    optFlags = xferProcessor->getOptimizations(args.fOpts.fColorPOI,
-                                               args.fOpts.fCoveragePOI,
+    optFlags = xferProcessor->getOptimizations(args.fOpts,
                                                builder.getStencil().doesWrite(),
                                                &overrideColor,
                                                *args.fCaps);

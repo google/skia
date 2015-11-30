@@ -49,13 +49,12 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
 //////////////////////////////////////////////////////////////////////////////s
 
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
-                                             const GrProcOptInfo& colorPOI,
-                                             const GrProcOptInfo& coveragePOI) const {
+                                             const GrPipelineOptimizations& optimizations) const {
     if (this->getXPFactory()) {
-        return this->getXPFactory()->willNeedDstTexture(caps, colorPOI, coveragePOI,
+        return this->getXPFactory()->willNeedDstTexture(caps, optimizations, 
                                                         this->hasMixedSamples());
     }
-    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, colorPOI, coveragePOI,
+    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, optimizations,
                                                             this->hasMixedSamples());
 }
 

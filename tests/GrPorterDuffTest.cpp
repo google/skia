@@ -76,13 +76,13 @@ class GrPorterDuffTest {
 public:
     struct XPInfo {
         XPInfo(skiatest::Reporter* reporter, SkXfermode::Mode xfermode, const GrCaps& caps,
-               const GrProcOptInfo& colorPOI, const GrProcOptInfo& covPOI) {
+               const GrPipelineOptimizations& optimizations) {
             SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
             SkAutoTUnref<GrXferProcessor> xp(
-                xpf->createXferProcessor(colorPOI, covPOI, false, nullptr, caps));
-            TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI, false));
-            xpf->getInvariantBlendedColor(colorPOI, &fBlendedColor);
-            fOptFlags = xp->getOptimizations(colorPOI, covPOI, false, nullptr, caps);
+                xpf->createXferProcessor(optimizations, false, nullptr, caps));
+            TEST_ASSERT(!xpf->willNeedDstTexture(caps, optimizations, false));
+            xpf->getInvariantBlendedColor(optimizations.fColorPOI, &fBlendedColor);
+            fOptFlags = xp->getOptimizations(optimizations, false, nullptr, caps);
             GetXPOutputTypes(xp, &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
             TEST_ASSERT(!xp->willReadDstColor());
@@ -102,19 +102,19 @@ public:
 };
 
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcOptInfo colorPOI, covPOI;
-    colorPOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false);
+    GrPipelineOptimizations opt;
+    opt.fColorPOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false);
     // Setting 2nd to last value to false and last to true will force covPOI to LCD coverage.
-    covPOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false, true);
+    opt.fCoveragePOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false, true);
 
-    SkASSERT(!colorPOI.isOpaque());
-    SkASSERT(!colorPOI.isSolidWhite());
-    SkASSERT(!covPOI.isSolidWhite());
-    SkASSERT(covPOI.isFourChannelOutput());
+    SkASSERT(!opt.fColorPOI.isOpaque());
+    SkASSERT(!opt.fColorPOI.isSolidWhite());
+    SkASSERT(!opt.fCoveragePOI.isSolidWhite());
+    SkASSERT(opt.fCoveragePOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
-        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, colorPOI, covPOI);
+        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, opt);
 
         switch (xfermode) {
             case SkXfermode::kClear_Mode:
@@ -293,18 +293,20 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     }
 }
 static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcOptInfo colorPOI, covPOI;
-    colorPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, false);
-    covPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, true);
+    GrPipelineOptimizations optimizations;
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+                                                  false);
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+                                                     true);
 
-    SkASSERT(!colorPOI.isOpaque());
-    SkASSERT(!colorPOI.isSolidWhite());
-    SkASSERT(!covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
+    SkASSERT(!optimizations.fColorPOI.isOpaque());
+    SkASSERT(!optimizations.fColorPOI.isSolidWhite());
+    SkASSERT(!optimizations.fCoveragePOI.isSolidWhite());
+    SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
-        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, colorPOI, covPOI);
+        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
 
         switch (xfermode) {
@@ -485,19 +487,20 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
 }
 
 static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcOptInfo colorPOI, covPOI;
-    colorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(229, 0, 154, 0),
+    GrPipelineOptimizations optimizations;
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(229, 0, 154, 0),
                                    kR_GrColorComponentFlag | kB_GrColorComponentFlag, false);
-    covPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), kRGBA_GrColorComponentFlags, true);
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+                                                     kRGBA_GrColorComponentFlags, true);
 
-    SkASSERT(!colorPOI.isOpaque());
-    SkASSERT(!colorPOI.isSolidWhite());
-    SkASSERT(covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
+    SkASSERT(!optimizations.fColorPOI.isOpaque());
+    SkASSERT(!optimizations.fColorPOI.isSolidWhite());
+    SkASSERT(optimizations.fCoveragePOI.isSolidWhite());
+    SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
-        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, colorPOI, covPOI);
+        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
         switch (xfermode) {
             case SkXfermode::kClear_Mode:
@@ -688,18 +691,20 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
 }
 
 static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcOptInfo colorPOI, covPOI;
-    colorPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), kA_GrColorComponentFlag, false);
-    covPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, true);
+    GrPipelineOptimizations optimizations;
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+                                                  kA_GrColorComponentFlag, false);
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
+                                                     true);
 
-    SkASSERT(colorPOI.isOpaque());
-    SkASSERT(!colorPOI.isSolidWhite());
-    SkASSERT(!covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
+    SkASSERT(optimizations.fColorPOI.isOpaque());
+    SkASSERT(!optimizations.fColorPOI.isSolidWhite());
+    SkASSERT(!optimizations.fCoveragePOI.isSolidWhite());
+    SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
-        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, colorPOI, covPOI);
+        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
         switch (xfermode) {
             case SkXfermode::kClear_Mode:
@@ -885,19 +890,20 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
 }
 
 static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcOptInfo colorPOI, covPOI;
-    colorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(0, 82, 0, 255),
+    GrPipelineOptimizations optimizations;
+    optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(0, 82, 0, 255),
                                    kG_GrColorComponentFlag | kA_GrColorComponentFlag, false);
-    covPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), kRGBA_GrColorComponentFlags, true);
+    optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
+                                                     kRGBA_GrColorComponentFlags, true);
 
-    SkASSERT(colorPOI.isOpaque());
-    SkASSERT(!colorPOI.isSolidWhite());
-    SkASSERT(covPOI.isSolidWhite());
-    SkASSERT(!covPOI.isFourChannelOutput());
+    SkASSERT(optimizations.fColorPOI.isOpaque());
+    SkASSERT(!optimizations.fColorPOI.isSolidWhite());
+    SkASSERT(optimizations.fCoveragePOI.isSolidWhite());
+    SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
     for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
         SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
-        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, colorPOI, covPOI);
+        const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
         switch (xfermode) {
             case SkXfermode::kClear_Mode:
@@ -1126,10 +1132,10 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     SkASSERT(covPOI.isFourChannelOutput());
 
     SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode));
-    TEST_ASSERT(!xpf->willNeedDstTexture(caps, colorPOI, covPOI, false));
+    TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts, false));
 
     SkAutoTUnref<GrXferProcessor> xp(
-        xpf->createXferProcessor(colorPOI, covPOI, false, nullptr, caps));
+        xpf->createXferProcessor(opts, false, nullptr, caps));
     if (!xp) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -1141,7 +1147,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     TEST_ASSERT(kNone_GrColorComponentFlags == blendedColor.fKnownColorFlags);
 
     GrColor overrideColor;
-    xp->getOptimizations(colorPOI, covPOI, false, &overrideColor, caps);
+    xp->getOptimizations(opts, false, &overrideColor, caps);
 
     GrXferProcessor::BlendInfo blendInfo;
     xp->getBlendInfo(&blendInfo);
@@ -1189,29 +1195,30 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(testColors) == SK_ARRAY_COUNT(testColorFlags));
 
     for (size_t c = 0; c < SK_ARRAY_COUNT(testColors); c++) {
-        GrProcOptInfo colorPOI;
-        colorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c], false);
+        GrPipelineOptimizations optimizations;
+        optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c], 
+                                                      false);
         for (int f = 0; f <= 1; f++) {
-            GrProcOptInfo covPOI;
             if (!f) {
-                covPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, true);
+                optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, 
+                                                                 kNone_GrColorComponentFlags, true);
             } else {
-                covPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
-                                             kRGBA_GrColorComponentFlags, true);
+                optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
+                                                                 kRGBA_GrColorComponentFlags, true);
             }
             for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
                 SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
                 SkAutoTUnref<GrXPFactory> xpf(GrPorterDuffXPFactory::Create(xfermode));
                 GrXferProcessor::DstTexture* dstTexture =
-                    xpf->willNeedDstTexture(caps, colorPOI, covPOI, false) ? &fakeDstTexture : 0;
+                    xpf->willNeedDstTexture(caps, optimizations, false) ? &fakeDstTexture : 0;
                 SkAutoTUnref<GrXferProcessor> xp(
-                    xpf->createXferProcessor(colorPOI, covPOI, false, dstTexture, caps));
+                    xpf->createXferProcessor(optimizations, false, dstTexture, caps));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
                     return;
                 }
                 TEST_ASSERT(!xp->hasSecondaryOutput());
-                xp->getOptimizations(colorPOI, covPOI, false, 0, caps);
+                xp->getOptimizations(optimizations, false, 0, caps);
                 TEST_ASSERT(!xp->hasSecondaryOutput());
             }
         }

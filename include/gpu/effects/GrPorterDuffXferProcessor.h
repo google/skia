@@ -22,8 +22,7 @@ public:
                                   GrXPFactory::InvariantBlendedColor*) const override;
 
     static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const GrProcOptInfo& colorPOI,
-                                                       const GrProcOptInfo& coveragePOI,
+                                                       const GrPipelineOptimizations& optimizations,
                                                        bool hasMixedSamples,
                                                        const GrXferProcessor::DstTexture*);
 
@@ -44,22 +43,19 @@ public:
     }
 
     static bool SrcOverWillNeedDstTexture(const GrCaps& caps,
-                                          const GrProcOptInfo& colorPOI,
-                                          const GrProcOptInfo& coveragePOI,
+                                          const GrPipelineOptimizations& optimizations,
                                           bool hasMixedSamples);
 
 private:
     GrPorterDuffXPFactory(SkXfermode::Mode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrProcOptInfo& colorPOI,
-                                           const GrProcOptInfo& coveragePOI,
+                                           const GrPipelineOptimizations& optimizations,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
     bool willReadDstColor(const GrCaps& caps,
-                          const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI,
+                          const GrPipelineOptimizations& optimizations,
                           bool hasMixedSamples) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {

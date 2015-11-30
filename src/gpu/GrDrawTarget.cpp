@@ -113,14 +113,13 @@ void GrDrawTarget::dump() const {
 #endif
 
 bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
-                                           const GrProcOptInfo& colorPOI,
-                                           const GrProcOptInfo& coveragePOI,
+                                           const GrPipelineOptimizations& optimizations,
                                            GrXferProcessor::DstTexture* dstTexture,
                                            const SkRect& batchBounds) {
     SkRect bounds = batchBounds;
     bounds.outset(0.5f, 0.5f);
 
-    if (!pipelineBuilder.willXPNeedDstTexture(*this->caps(), colorPOI, coveragePOI)) {
+    if (!pipelineBuilder.willXPNeedDstTexture(*this->caps(), optimizations)) {
         return true;
     }
 
@@ -545,8 +544,7 @@ bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineB
     args.fOpts.fCoveragePOI.completeCalculations(
                                                pipelineBuilder->fCoverageFragmentProcessors.begin(),
                                                pipelineBuilder->numCoverageFragmentProcessors());
-    if (!this->setupDstReadIfNecessary(*pipelineBuilder, args.fOpts.fColorPOI,
-                                       args.fOpts.fCoveragePOI, &args.fDstTexture,
+    if (!this->setupDstReadIfNecessary(*pipelineBuilder, args.fOpts, &args.fDstTexture,
                                        batch->bounds())) {
         return false;
     }

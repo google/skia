@@ -279,8 +279,7 @@ private:
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
     bool setupDstReadIfNecessary(const GrPipelineBuilder&,
-        const GrProcOptInfo& colorPOI,
-        const GrProcOptInfo& coveragePOI,
+        const GrPipelineOptimizations& optimizations,
         GrXferProcessor::DstTexture*,
         const SkRect& batchBounds);
 

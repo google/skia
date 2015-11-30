@@ -30,14 +30,12 @@ private:
     GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrProcOptInfo& colorPOI,
-                                           const GrProcOptInfo& coveragePOI,
+                                           const GrPipelineOptimizations& optimizations,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
     bool willReadDstColor(const GrCaps& /*caps*/,
-                          const GrProcOptInfo& /*colorPOI*/,
-                          const GrProcOptInfo& /*coveragePOI*/,
+                          const GrPipelineOptimizations& /*optimizations*/,
                           bool /*hasMixedSamples*/) const override {
         return false;
     }

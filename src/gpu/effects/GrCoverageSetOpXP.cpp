@@ -32,8 +32,7 @@ public:
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
-    GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
-                                                 const GrProcOptInfo& coveragePOI,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
                                                  const GrCaps& caps) override;
@@ -107,8 +106,7 @@ GrGLSLXferProcessor* CoverageSetOpXP::createGLSLInstance() const {
 }
 
 GrXferProcessor::OptFlags
-CoverageSetOpXP::onGetOptimizations(const GrProcOptInfo& colorPOI,
-                                    const GrProcOptInfo& coveragePOI,
+CoverageSetOpXP::onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                     bool doesStencilWrite,
                                     GrColor* color,
                                     const GrCaps& caps) {
@@ -223,8 +221,7 @@ GrXPFactory* GrCoverageSetOpXPFactory::Create(SkRegion::Op regionOp, bool invert
 
 GrXferProcessor*
 GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                const GrProcOptInfo& colorPOI,
-                                                const GrProcOptInfo& covPOI,
+                                                const GrPipelineOptimizations& optimizations,
                                                 bool hasMixedSamples,
                                                 const DstTexture* dst) const {
     // We don't support inverting coverage with mixed samples. We don't expect to ever want this in
