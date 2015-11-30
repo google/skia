@@ -357,7 +357,8 @@ bool GrClipMaskManager::setupClipping(const GrPipelineBuilder& pipelineBuilder,
         case GrClip::kClipStack_ClipType: {
             clipSpaceRTIBounds.offset(clip.origin());
             SkIRect clipSpaceReduceQueryBounds;
-            if (devBounds) {
+#define DISABLE_DEV_BOUNDS_FOR_CLIP_REDUCTION 1
+            if (devBounds && !DISABLE_DEV_BOUNDS_FOR_CLIP_REDUCTION) {
                 SkIRect devIBounds = devBounds->roundOut();
                 devIBounds.offset(clip.origin());
                 if (!clipSpaceReduceQueryBounds.intersect(clipSpaceRTIBounds, devIBounds)) {
