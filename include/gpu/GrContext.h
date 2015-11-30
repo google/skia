@@ -406,7 +406,7 @@ private:
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
 
     void initMockContext();
-    void initCommon();
+    void initCommon(const GrContextOptions&);
 
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair

@@ -53,8 +53,9 @@ public:
     static bool ProgramUnitTest(GrContext* context, int maxStages);
 
 private:
-    GrDrawingManager(GrContext* context)
+    GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets)
         : fContext(context)
+        , fOptionsForDrawTargets(optionsForDrawTargets)
         , fAbandoned(false)
         , fNVPRTextContext(nullptr)
         , fPathRendererChain(nullptr)
@@ -74,6 +75,7 @@ private:
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
     GrContext*                  fContext;
+    GrDrawTarget::Options       fOptionsForDrawTargets;
 
     bool                        fAbandoned;
     SkTDArray<GrDrawTarget*>    fDrawTargets;

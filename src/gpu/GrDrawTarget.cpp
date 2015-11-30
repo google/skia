@@ -32,7 +32,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider)
+GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider,
+                           const Options& options)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fFlushing(false)
@@ -40,7 +41,7 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     , fRenderTarget(rt) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
     fContext = fGpu->getContext();
-    fClipMaskManager.reset(new GrClipMaskManager(this));
+    fClipMaskManager.reset(new GrClipMaskManager(this, options.fClipBatchToBounds));
 
     rt->setLastDrawTarget(this);
 

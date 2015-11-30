@@ -43,9 +43,13 @@ class GrPathRangeDraw;
 
 class GrDrawTarget final : public SkRefCnt {
 public:
-    // The context may not be fully constructed and should not be used during GrDrawTarget
-    // construction.
-    GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider*);
+    /** Options for GrDrawTarget behavior. */
+    struct Options {
+        Options () : fClipBatchToBounds(false) {}
+        bool fClipBatchToBounds;
+    };
+
+    GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, const Options&);
 
     ~GrDrawTarget() override;
 

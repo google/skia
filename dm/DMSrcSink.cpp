@@ -806,11 +806,15 @@ int GPUSink::enclave() const {
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
 
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
+DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions options;
     if (FLAGS_imm) {
         options.fImmediateMode = true;
+    }
+    if (FLAGS_batchClip) {
+        options.fClipBatchToBounds = true;
     }
     src.modifyGrContextOptions(&options);
 

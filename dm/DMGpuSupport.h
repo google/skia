@@ -57,6 +57,7 @@ public:
 
 struct GrContextOptions {
     bool fImmediateMode;
+    bool fClipBatchToBounds;
 };
 
 class GrContextFactory {

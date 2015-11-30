@@ -318,7 +318,7 @@ void GrContext::initMockContext() {
     SkASSERT(nullptr == fGpu);
     fGpu = new MockGpu(this, options);
     SkASSERT(fGpu);
-    this->initCommon();
+    this->initCommon(options);
 
     // We delete these because we want to test the cache starting with zero resources. Also, none of
     // these objects are required for any of tests that use this context. TODO: make stop allocating
