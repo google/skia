@@ -143,7 +143,6 @@ public:
         uint32_t fGenID;
         SkStrokeRec fStroke;
         bool fAntiAlias;
-        PathData* fPathData;
     };
 
     static GrDrawBatch* Create(const Geometry& geometry, GrColor color, const SkMatrix& viewMatrix,
@@ -183,7 +182,7 @@ private:
         int fInstancesToFlush;
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         int instanceCount = fGeoData.count();
 
         SkMatrix invert;
@@ -229,7 +228,7 @@ private:
 
         flushInfo.fInstancesToFlush = 0;
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             // get mip level
             SkScalar maxScale = this->viewMatrix().getMaxScale();
@@ -247,22 +246,22 @@ private:
 
             // check to see if path is cached
             PathData::Key key(args.fGenID, desiredDimension, args.fStroke);
-            args.fPathData = fPathCache->find(key);
-            if (nullptr == args.fPathData || !atlas->hasID(args.fPathData->fID)) {
+            PathData* pathData = fPathCache->find(key);
+            if (nullptr == pathData || !atlas->hasID(pathData->fID)) {
                 // Remove the stale cache entry
-                if (args.fPathData) {
-                    fPathCache->remove(args.fPathData->fKey);
-                    fPathList->remove(args.fPathData);
-                    delete args.fPathData;
+                if (pathData) {
+                    fPathCache->remove(pathData->fKey);
+                    fPathList->remove(pathData);
+                    delete pathData;
                 }
                 SkScalar scale = desiredDimension/maxDim;
-                args.fPathData = new PathData;
+                pathData = new PathData;
                 if (!this->addPathToAtlas(target,
                                           dfProcessor,
                                           this->pipeline(),
                                           &flushInfo,
                                           atlas,
-                                          args.fPathData,
+                                          pathData,
                                           args.fPath,
                                           args.fGenID,
                                           args.fStroke,
@@ -274,7 +273,7 @@ private:
                 }
             }
 
-            atlas->setLastUseToken(args.fPathData->fID, target->currentToken());
+            atlas->setLastUseToken(pathData->fID, target->currentToken());
 
             // Now set vertices
             intptr_t offset = reinterpret_cast<intptr_t>(vertices);
@@ -288,7 +287,7 @@ private:
                                     vertexStride,
                                     this->viewMatrix(),
                                     args.fPath,
-                                    args.fPathData);
+                                    pathData);
             flushInfo.fInstancesToFlush++;
         }
 
@@ -304,7 +303,6 @@ private:
         fBatch.fColor = color;
         fBatch.fViewMatrix = viewMatrix;
         fGeoData.push_back(geometry);
-        fGeoData.back().fPathData = nullptr;
 
         fAtlas = atlas;
         fPathCache = pathCache;
@@ -326,7 +324,7 @@ private:
                         const SkStrokeRec& stroke,
                         bool antiAlias,
                         uint32_t dimension,
-                        SkScalar scale) {
+                        SkScalar scale) const {
         const SkRect& bounds = path.getBounds();
 
         // generate bounding rect for bitmap draw
@@ -443,7 +441,7 @@ private:
                            size_t vertexStride,
                            const SkMatrix& viewMatrix,
                            const SkPath& path,
-                           const PathData* pathData) {
+                           const PathData* pathData) const {
         GrTexture* texture = atlas->getTexture();
 
         SkScalar dx = pathData->fBounds.fLeft;
@@ -476,7 +474,7 @@ private:
                                   vertexStride);
     }
 
-    void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) {
+    void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
         GrVertices vertices;
         int maxInstancesPerDraw = flushInfo->fIndexBuffer->maxQuads();
         vertices.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,

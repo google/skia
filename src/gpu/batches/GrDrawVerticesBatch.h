@@ -49,7 +49,7 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(Target*) const override;
     void initBatchTracker(const GrXPOverridesForBatch&) override;
 
     GrDrawVerticesBatch(const Geometry& geometry, GrPrimitiveType primitiveType,

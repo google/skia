@@ -778,7 +778,7 @@ private:
         fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
     }
 
-    void prepareLinesOnlyDraws(Target* target) {
+    void prepareLinesOnlyDraws(Target* target) const {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
@@ -806,7 +806,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             tess.rewind();
 
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
                 continue;
@@ -842,7 +842,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
 #ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
         if (this->linesOnly()) {
             this->prepareLinesOnlyDraws(target);
@@ -866,15 +866,22 @@ private:
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             // We use the fact that SkPath::transform path does subdivision based on
             // perspective. Otherwise, we apply the view matrix when copying to the
             // segment representation.
             const SkMatrix* viewMatrix = &args.fViewMatrix;
+
+            // We avoid initializing the path unless we have to
+            const SkPath* pathPtr = &args.fPath;
+            SkTLazy<SkPath> tmpPath;
             if (viewMatrix->hasPerspective()) {
-                args.fPath.transform(*viewMatrix);
+                SkPath* tmpPathPtr = tmpPath.init(*pathPtr);
+                tmpPathPtr->setIsVolatile(true);
+                tmpPathPtr->transform(*viewMatrix);
                 viewMatrix = &SkMatrix::I();
+                pathPtr = tmpPathPtr;
             }
 
             int vertexCount;
@@ -886,7 +893,7 @@ private:
             SkSTArray<kPreallocSegmentCnt, Segment, true> segments;
             SkPoint fanPt;
 
-            if (!get_segments(args.fPath, *viewMatrix, &segments, &fanPt, &vertexCount,
+            if (!get_segments(*pathPtr, *viewMatrix, &segments, &fanPt, &vertexCount,
                               &indexCount)) {
                 continue;
             }

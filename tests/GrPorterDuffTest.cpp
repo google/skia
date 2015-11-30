@@ -1118,7 +1118,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         const char* name() const override { return "Test LCD Text Batch"; }
         void initBatchTracker(const GrXPOverridesForBatch&) override {}
         bool onCombineIfPossible(GrBatch*, const GrCaps&) override  { return false; }
-        void onPrepareDraws(Target*) override {};
+        void onPrepareDraws(Target*) const override {};
 
         typedef GrVertexBatch INHERITED;
     } testLCDCoverageBatch;

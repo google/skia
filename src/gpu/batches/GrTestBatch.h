@@ -60,7 +60,7 @@ protected:
     const GrGeometryProcessor* geometryProcessor() const { return fGeometryProcessor; }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         target->initDraw(fGeometryProcessor, this->pipeline());
         this->generateGeometry(target);
     }
@@ -72,7 +72,7 @@ private:
         return false;
     }
 
-    virtual void generateGeometry(Target*) = 0;
+    virtual void generateGeometry(Target*) const = 0;
 
     struct BatchTracker {
         GrColor fColor;

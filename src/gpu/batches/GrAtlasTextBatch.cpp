@@ -131,7 +131,7 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
                                         SkTypeface** typeface, GrFontScaler** scaler,
                                         const SkDescriptor** desc, const GrGeometryProcessor* gp,
                                         int glyphCount, size_t vertexStride,
-                                        GrColor color, SkScalar transX, SkScalar transY) {
+                                        GrColor color, SkScalar transX, SkScalar transY) const {
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
     GrBatchTextStrike* strike = nullptr;
     if (regenTexCoords) {
@@ -297,7 +297,7 @@ enum RegenMask {
 #define REGEN_ARGS target, &flushInfo, blob, &run, &info, &cache, &typeface, &scaler, &desc, gp, \
                    glyphCount, vertexStride, args.fColor, args.fTransX, args.fTransY
 
-void GrAtlasTextBatch::onPrepareDraws(Target* target) {
+void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
@@ -363,7 +363,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) {
     SkTypeface* typeface = nullptr;
 
     for (int i = 0; i < fGeoCount; i++) {
-        Geometry& args = fGeoData[i];
+        const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
         Run& run = blob->fRuns[args.fRun];
         TextInfo& info = run.fSubRunInfo[args.fSubRun];
@@ -434,7 +434,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) {
     this->flush(target, &flushInfo);
 }
 
-void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) {
+void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
     GrVertices vertices;
     int maxGlyphsPerDraw = flushInfo->fIndexBuffer->maxQuads();
     vertices.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
@@ -518,7 +518,7 @@ bool GrAtlasTextBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
 // TODO trying to figure out why lcd is so whack
 GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatrix,
                                                         SkColor filteredColor,
-                                                        GrColor color, GrTexture* texture) {
+                                                        GrColor color, GrTexture* texture) const {
     GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
     bool isLCD = this->isLCD();
     // set up any flags

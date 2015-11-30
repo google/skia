@@ -85,7 +85,7 @@ public:
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkAutoTUnref<const GrGeometryProcessor> gp(create_gp(fOverrides.readsCoverage()));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
@@ -112,7 +112,7 @@ private:
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
                              i * kRectsPerInstance * kVertsPerRect * vertexStride;
 
-            Geometry& geo = fGeoData[i];
+            const Geometry& geo = fGeoData[i];
             SkNinePatchIter iter(fImageWidth, fImageHeight, geo.fCenter, geo.fDst);
 
             SkRect srcR, dstR;

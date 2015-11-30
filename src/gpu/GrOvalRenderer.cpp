@@ -692,7 +692,7 @@ private:
         fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -717,7 +717,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             SkScalar innerRadius = geom.fInnerRadius;
             SkScalar outerRadius = geom.fOuterRadius;
@@ -912,7 +912,7 @@ private:
         fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -937,7 +937,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             SkScalar xRadius = geom.fXRadius;
             SkScalar yRadius = geom.fYRadius;
@@ -1185,7 +1185,7 @@ private:
         fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(this->color(),
                                                                          this->viewMatrix(),
@@ -1205,7 +1205,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             SkScalar xRadius = geom.fXRadius;
             SkScalar yRadius = geom.fYRadius;
@@ -1540,7 +1540,7 @@ private:
         fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1575,7 +1575,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             SkScalar outerRadius = args.fOuterRadius;
 
@@ -1720,7 +1720,7 @@ private:
         fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1755,7 +1755,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             // Compute the reciprocals of the radii here to save time in the shader
             SkScalar xRadRecip = SkScalarInvert(args.fXRadius);

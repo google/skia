@@ -92,7 +92,7 @@ void GrDrawVerticesBatch::initBatchTracker(const GrXPOverridesForBatch& override
     }
 }
 
-void GrDrawVerticesBatch::onPrepareDraws(Target* target) {
+void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
     bool hasLocalCoords = !fGeoData[0].fLocalCoords.isEmpty();
     int colorOffset = -1, texOffset = -1;
     SkAutoTUnref<const GrGeometryProcessor> gp(

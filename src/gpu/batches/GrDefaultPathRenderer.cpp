@@ -251,7 +251,7 @@ private:
         fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -279,7 +279,7 @@ private:
         // We will use index buffers if we have multiple paths or one path with multiple contours
         bool isIndexed = instanceCount > 1;
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             int contourCount;
             maxVertices += GrPathUtils::worstCasePointCount(args.fPath, &contourCount,
@@ -341,7 +341,7 @@ private:
         int vertexOffset = 0;
         int indexOffset = 0;
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             int vertexCnt = 0;
             int indexCnt = 0;
@@ -431,7 +431,7 @@ private:
                     int* indexCnt,
                     const SkPath& path,
                     SkScalar srcSpaceTol,
-                    bool isIndexed)  {
+                    bool isIndexed) const {
         {
             SkScalar srcSpaceTolSqd = SkScalarMul(srcSpaceTol, srcSpaceTol);
 

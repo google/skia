@@ -107,7 +107,7 @@ private:
         bounds->join(geo.fDevOutsideAssist);
     }
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(Target*) const override;
     void initBatchTracker(const GrXPOverridesForBatch&) override;
 
     AAStrokeRectBatch(const SkMatrix& viewMatrix,bool miterStroke)
@@ -182,7 +182,7 @@ void AAStrokeRectBatch::initBatchTracker(const GrXPOverridesForBatch& overrides)
     fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
 }
 
-void AAStrokeRectBatch::onPrepareDraws(Target* target) {
+void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
     SkAutoTUnref<const GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,

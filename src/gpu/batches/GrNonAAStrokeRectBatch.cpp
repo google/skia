@@ -70,6 +70,9 @@ public:
         geometry.fRect = rect;
         geometry.fStrokeWidth = strokeWidth;
         geometry.fColor = color;
+
+        // Sort the rect for hairlines
+        geometry.fRect.sort();
     }
 
     void appendAndUpdateBounds(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
@@ -102,7 +105,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -121,7 +124,7 @@ private:
 
         SkASSERT(vertexStride == sizeof(GrDefaultGeoProcFactory::PositionAttr));
 
-        Geometry& args = fGeoData[0];
+        const Geometry& args = fGeoData[0];
 
         int vertexCount = kVertsPerHairlineRect;
         if (args.fStrokeWidth > 0) {
@@ -142,10 +145,8 @@ private:
         SkPoint* vertex = reinterpret_cast<SkPoint*>(verts);
 
         GrPrimitiveType primType;
-
         if (args.fStrokeWidth > 0) {;
             primType = kTriangleStrip_GrPrimitiveType;
-            args.fRect.sort();
             init_stroke_rect_strip(vertex, args.fRect, args.fStrokeWidth);
         } else {
             // hairline

@@ -713,7 +713,7 @@ private:
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(Target*) const override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
@@ -791,7 +791,7 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-void AAHairlineBatch::onPrepareDraws(Target* target) {
+void AAHairlineBatch::onPrepareDraws(Target* target) const {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {

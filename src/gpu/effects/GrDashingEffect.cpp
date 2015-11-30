@@ -316,6 +316,14 @@ private:
     }
 
     struct DashDraw {
+        DashDraw(const Geometry& geo) {
+            memcpy(fPtsRot, geo.fPtsRot, sizeof(geo.fPtsRot));
+            memcpy(fIntervals, geo.fIntervals, sizeof(geo.fIntervals));
+            fPhase = geo.fPhase;
+        }
+        SkPoint fPtsRot[2];
+        SkScalar fIntervals[2];
+        SkScalar fPhase;
         SkScalar fStartOffset;
         SkScalar fStrokeWidth;
         SkScalar fLineLength;
@@ -327,7 +335,7 @@ private:
         bool fHasEndRect;
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         int instanceCount = fGeoData.count();
         SkPaint::Cap cap = this->cap();
         bool isRoundCap = SkPaint::kRound_Cap == cap;
@@ -362,14 +370,17 @@ private:
         // We do two passes over all of the dashes.  First we setup the start, end, and bounds,
         // rectangles.  We preserve all of this work in the rects / draws arrays below.  Then we
         // iterate again over these decomposed dashes to generate vertices
-        SkSTArray<128, SkRect, true> rects;
-        SkSTArray<128, DashDraw, true> draws;
+        static const int kNumStackDashes = 128;
+        SkSTArray<kNumStackDashes, SkRect, true> rects;
+        SkSTArray<kNumStackDashes, DashDraw, true> draws;
 
         int totalRectCount = 0;
         int rectOffset = 0;
         rects.push_back_n(3 * instanceCount);
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
+
+            DashDraw& draw = draws.push_back(args);
 
             bool hasCap = SkPaint::kButt_Cap != cap && 0 != args.fSrcStrokeWidth;
 
@@ -399,32 +410,32 @@ private:
             // If we are using AA, check to see if we are drawing a partial dash at the start. If so
             // draw it separately here and adjust our start point accordingly
             if (useAA) {
-                if (args.fPhase > 0 && args.fPhase < args.fIntervals[0]) {
+                if (draw.fPhase > 0 && draw.fPhase < draw.fIntervals[0]) {
                     SkPoint startPts[2];
-                    startPts[0] = args.fPtsRot[0];
+                    startPts[0] = draw.fPtsRot[0];
                     startPts[1].fY = startPts[0].fY;
-                    startPts[1].fX = SkMinScalar(startPts[0].fX + args.fIntervals[0] - args.fPhase,
-                                                 args.fPtsRot[1].fX);
+                    startPts[1].fX = SkMinScalar(startPts[0].fX + draw.fIntervals[0] - draw.fPhase,
+                                                 draw.fPtsRot[1].fX);
                     startRect.set(startPts, 2);
                     startRect.outset(strokeAdj, halfSrcStroke);
 
                     hasStartRect = true;
-                    startAdj = args.fIntervals[0] + args.fIntervals[1] - args.fPhase;
+                    startAdj = draw.fIntervals[0] + draw.fIntervals[1] - draw.fPhase;
                 }
             }
 
             // adjustments for start and end of bounding rect so we only draw dash intervals
             // contained in the original line segment.
-            startAdj += calc_start_adjustment(args.fIntervals, args.fPhase);
+            startAdj += calc_start_adjustment(draw.fIntervals, draw.fPhase);
             if (startAdj != 0) {
-                args.fPtsRot[0].fX += startAdj;
-                args.fPhase = 0;
+                draw.fPtsRot[0].fX += startAdj;
+                draw.fPhase = 0;
             }
             SkScalar endingInterval = 0;
-            SkScalar endAdj = calc_end_adjustment(args.fIntervals, args.fPtsRot, args.fPhase,
+            SkScalar endAdj = calc_end_adjustment(draw.fIntervals, draw.fPtsRot, draw.fPhase,
                                                   &endingInterval);
-            args.fPtsRot[1].fX -= endAdj;
-            if (args.fPtsRot[0].fX >= args.fPtsRot[1].fX) {
+            draw.fPtsRot[1].fX -= endAdj;
+            if (draw.fPtsRot[0].fX >= draw.fPtsRot[1].fX) {
                 lineDone = true;
             }
 
@@ -435,9 +446,9 @@ private:
                 // If we adjusted the end then we will not be drawing a partial dash at the end.
                 // If we didn't adjust the end point then we just need to make sure the ending
                 // dash isn't a full dash
-                if (0 == endAdj && endingInterval != args.fIntervals[0]) {
+                if (0 == endAdj && endingInterval != draw.fIntervals[0]) {
                     SkPoint endPts[2];
-                    endPts[1] = args.fPtsRot[1];
+                    endPts[1] = draw.fPtsRot[1];
                     endPts[0].fY = endPts[1].fY;
                     endPts[0].fX = endPts[1].fX - endingInterval;
 
@@ -445,24 +456,24 @@ private:
                     endRect.outset(strokeAdj, halfSrcStroke);
 
                     hasEndRect = true;
-                    endAdj = endingInterval + args.fIntervals[1];
+                    endAdj = endingInterval + draw.fIntervals[1];
 
-                    args.fPtsRot[1].fX -= endAdj;
-                    if (args.fPtsRot[0].fX >= args.fPtsRot[1].fX) {
+                    draw.fPtsRot[1].fX -= endAdj;
+                    if (draw.fPtsRot[0].fX >= draw.fPtsRot[1].fX) {
                         lineDone = true;
                     }
                 }
             }
 
             if (startAdj != 0) {
-                args.fPhase = 0;
+                draw.fPhase = 0;
             }
 
             // Change the dashing info from src space into device space
-            SkScalar* devIntervals = args.fIntervals;
-            devIntervals[0] = args.fIntervals[0] * args.fParallelScale;
-            devIntervals[1] = args.fIntervals[1] * args.fParallelScale;
-            SkScalar devPhase = args.fPhase * args.fParallelScale;
+            SkScalar* devIntervals = draw.fIntervals;
+            devIntervals[0] = draw.fIntervals[0] * args.fParallelScale;
+            devIntervals[1] = draw.fIntervals[1] * args.fParallelScale;
+            SkScalar devPhase = draw.fPhase * args.fParallelScale;
             SkScalar strokeWidth = args.fSrcStrokeWidth * args.fPerpendicularScale;
 
             if ((strokeWidth < 1.f && useAA) || 0.f == strokeWidth) {
@@ -492,16 +503,16 @@ private:
                 // Reset the start rect to draw this single solid rect
                 // but it requires to upload a new intervals uniform so we can mimic
                 // one giant dash
-                args.fPtsRot[0].fX -= hasStartRect ? startAdj : 0;
-                args.fPtsRot[1].fX += hasEndRect ? endAdj : 0;
-                startRect.set(args.fPtsRot, 2);
+                draw.fPtsRot[0].fX -= hasStartRect ? startAdj : 0;
+                draw.fPtsRot[1].fX += hasEndRect ? endAdj : 0;
+                startRect.set(draw.fPtsRot, 2);
                 startRect.outset(strokeAdj, halfSrcStroke);
                 hasStartRect = true;
                 hasEndRect = false;
                 lineDone = true;
 
                 SkPoint devicePts[2];
-                args.fViewMatrix.mapPoints(devicePts, args.fPtsRot, 2);
+                args.fViewMatrix.mapPoints(devicePts, draw.fPtsRot, 2);
                 SkScalar lineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
                 if (hasCap) {
                     lineLength += 2.f * halfDevStroke;
@@ -519,17 +530,16 @@ private:
                 startOffset -= halfDevStroke;
             }
 
-            DashDraw& draw = draws.push_back();
             if (!lineDone) {
                 SkPoint devicePts[2];
-                args.fViewMatrix.mapPoints(devicePts, args.fPtsRot, 2);
+                args.fViewMatrix.mapPoints(devicePts, draw.fPtsRot, 2);
                 draw.fLineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
                 if (hasCap) {
                     draw.fLineLength += 2.f * halfDevStroke;
                 }
 
-                bounds.set(args.fPtsRot[0].fX, args.fPtsRot[0].fY,
-                           args.fPtsRot[1].fX, args.fPtsRot[1].fY);
+                bounds.set(draw.fPtsRot[0].fX, draw.fPtsRot[0].fY,
+                           draw.fPtsRot[1].fX, draw.fPtsRot[1].fY);
                 bounds.outset(bloatX + strokeAdj, bloatY + halfSrcStroke);
             }
 
@@ -566,15 +576,15 @@ private:
         int curVIdx = 0;
         int rectIndex = 0;
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             if (!draws[i].fLineDone) {
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
                                       draws[i].fDevBloatY, draws[i].fLineLength,
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth,
+                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth,
                                       capType, gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
@@ -589,9 +599,9 @@ private:
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, geom.fIntervals[0],
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth, capType,
+                                      draws[i].fDevBloatY, draws[i].fIntervals[0],
+                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
@@ -606,9 +616,9 @@ private:
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, geom.fIntervals[0],
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth, capType,
+                                      draws[i].fDevBloatY, draws[i].fIntervals[0],
+                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);

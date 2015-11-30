@@ -51,7 +51,7 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasColors,
     return GrDefaultGeoProcFactory::Create(gpColor, coverage, localCoords, viewMatrix);
 }
 
-void GrDrawAtlasBatch::onPrepareDraws(Target* target) {
+void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
     // Setup geometry processor
     SkAutoTUnref<const GrGeometryProcessor> gp(set_vertex_attributes(this->hasColors(),
                                                                      this->color(),

@@ -162,7 +162,7 @@ private:
     }
 
     void draw(GrVertexBatch::Target* target, const GrPipeline* pipeline, int vertexCount,
-            size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) {
+              size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
@@ -190,7 +190,7 @@ private:
         target->draw(info);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
@@ -220,7 +220,7 @@ private:
         uint8_t* vertices = (uint8_t*) sk_malloc_throw(maxVertices * vertexStride);
         uint16_t* indices = (uint16_t*) sk_malloc_throw(maxIndices * sizeof(uint16_t));
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
             GrAAConvexTessellator tess(args.fStrokeWidth, args.fJoin, args.fMiterLimit);
 
             if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
@@ -232,8 +232,8 @@ private:
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
-                     indices);
+                this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices,
+                           indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -252,8 +252,8 @@ private:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
-             indices);
+        this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
+                   indices);
         sk_free(vertices);
         sk_free(indices);
     }

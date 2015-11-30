@@ -45,6 +45,9 @@ private:
     ConvexPolyTestBatch(const GrGeometryProcessor* gp, const Geometry& geo)
         : INHERITED(ClassID(), gp, geo.fBounds)
         , fGeometry(geo) {
+        // Make sure any artifacts around the exterior of path are visible by using overly
+        // conservative bounding geometry.
+        fGeometry.fBounds.outset(5.f, 5.f);
     }
 
     Geometry* geoData(int index) override {
@@ -57,7 +60,7 @@ private:
         return &fGeometry;
     }
 
-    void generateGeometry(Target* target) override {
+    void generateGeometry(Target* target) const override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
         QuadHelper helper;
@@ -66,9 +69,6 @@ private:
             return;
         }
 
-        // Make sure any artifacts around the exterior of path are visible by using overly
-        // conservative bounding geometry.
-        fGeometry.fBounds.outset(5.f, 5.f);
         fGeometry.fBounds.toQuad(verts);
 
         helper.recordDraw(target);

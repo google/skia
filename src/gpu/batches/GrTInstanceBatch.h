@@ -89,7 +89,7 @@ public:
 private:
     GrTInstanceBatch() : INHERITED(ClassID()) {}
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkAutoTUnref<const GrGeometryProcessor> gp(Impl::CreateGP(this->seedGeometry(), 
                                                                   fOverrides));
         if (!gp) {

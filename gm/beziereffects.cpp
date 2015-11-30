@@ -70,7 +70,7 @@ private:
         return &fGeometry;
     }
 
-    void generateGeometry(Target* target) override {
+    void generateGeometry(Target* target) const override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
@@ -470,7 +470,7 @@ private:
         return &fGeometry;
     }
 
-    void generateGeometry(Target* target) override {
+    void generateGeometry(Target* target) const override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));

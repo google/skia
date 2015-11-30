@@ -1418,7 +1418,7 @@ private:
     int tessellate(GrUniqueKey* key,
                    GrResourceProvider* resourceProvider,
                    SkAutoTUnref<GrVertexBuffer>& vertexBuffer,
-                   bool canMapVB) {
+                   bool canMapVB) const {
         SkPath path;
         GrStrokeInfo stroke(fStroke);
         if (stroke.isDashed()) {
@@ -1521,7 +1521,7 @@ private:
         return actualCount;
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         // construct a cache key from the path's genID and the view matrix
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
@@ -1545,7 +1545,7 @@ private:
             screenSpaceTol, fViewMatrix, fPath.getBounds());
         if (!cache_match(vertexBuffer.get(), tol, &actualCount)) {
             bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
-            actualCount = tessellate(&key, rp, vertexBuffer, canMapVB);
+            actualCount = this->tessellate(&key, rp, vertexBuffer, canMapVB);
         }
 
         if (actualCount == 0) {

@@ -138,7 +138,7 @@ private:
         int fVertexOffset;
     };
 
-    void onPrepareDraws(Target* target) override;
+    void onPrepareDraws(Target* target) const override;
 
     GrAtlasTextBatch() : INHERITED(ClassID()) {} // initialized in factory functions.
 
@@ -177,9 +177,9 @@ private:
                           TextInfo* info, SkGlyphCache** cache,
                           SkTypeface** typeface, GrFontScaler** scaler, const SkDescriptor** desc,
                           const GrGeometryProcessor* gp, int glyphCount, size_t vertexStride,
-                          GrColor color, SkScalar transX, SkScalar transY);
+                          GrColor color, SkScalar transX, SkScalar transY) const;
 
-    inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo);
+    inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const;
 
     GrColor color() const { return fBatch.fColor; }
     const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
@@ -191,7 +191,7 @@ private:
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack
     GrGeometryProcessor* setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
-                                          GrColor color, GrTexture* texture);
+                                          GrColor color, GrTexture* texture) const;
 
     struct BatchTracker {
         GrColor fColor;
