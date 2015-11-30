@@ -29,6 +29,11 @@ static inline void setup_color_table(SkColorType colorType,
     }
 }
 
+static bool read_byte(SkStream* stream, uint8_t* data)
+{
+    return stream->read(data, 1) == 1;
+}
+
 // http://en.wikipedia.org/wiki/Variable-length_quantity
 static bool read_mbf(SkStream* stream, uint64_t* value) {
     uint64_t n = 0;
@@ -49,11 +54,17 @@ static bool read_mbf(SkStream* stream, uint64_t* value) {
 }
 
 static bool read_header(SkStream* stream, SkISize* size) {
-    uint64_t width, height;
-    uint16_t data;
-    if (stream->read(&data, 2) != 2 || data != 0) {
-        return false;
+    {
+        uint8_t data;
+        if (!read_byte(stream, &data) || data != 0) { // unknown type
+            return false;
+        }
+        if (!read_byte(stream, &data) || (data & 0x9F)) { // skip fixed header
+            return false;
+        }
     }
+
+    uint64_t width, height;
     if (!read_mbf(stream, &width) || width > 0xFFFF || !width) {
         return false;
     }
