@@ -257,11 +257,7 @@ typedef uint8_t SkBool8;
 
 /** Returns 0 or 1 based on the condition
 */
-#if defined(_MSC_VER)
-    #define SkToBool(cond)  (!!(cond))   // MSVC doesn't like a cast.
-#else
-    #define SkToBool(cond)  static_cast<bool>(cond)
-#endif
+#define SkToBool(cond)  ((cond) != 0)
 
 #define SK_MaxS16   32767
 #define SK_MinS16   -32767
