@@ -53,7 +53,8 @@ namespace GrBlurUtils {
                                 const SkMatrix& viewMatrix,
                                 const SkMaskFilter*,
                                 const SkPathEffect*,
-                                const GrStrokeInfo&);
+                                const GrStrokeInfo&,
+                                bool pathIsMutable);
 
 };
 

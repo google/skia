@@ -590,7 +590,7 @@ static bool is_nested_rects(const SkMatrix& viewMatrix,
 
     // TODO: this restriction could be lifted if we were willing to apply
     // the matrix to all the points individually rather than just to the rect
-    if (!viewMatrix.preservesAxisAlignment()) {
+    if (!viewMatrix.rectStaysRect()) {
         return false;
     }
 

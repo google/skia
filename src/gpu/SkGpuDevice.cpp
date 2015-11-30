@@ -456,7 +456,6 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
 void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawRect", fContext);
-
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
 
@@ -569,21 +568,20 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
 void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
                              const SkRRect& inner, const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawDRRect", fContext);
+    CHECK_FOR_ANNOTATION(paint);
+    CHECK_SHOULD_DRAW(draw);
+
     SkStrokeRec stroke(paint);
-    if (stroke.isFillStyle()) {
 
-        CHECK_FOR_ANNOTATION(paint);
-        CHECK_SHOULD_DRAW(draw);
-
+    if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), paint, *draw.fMatrix, &grPaint)) {
             return;
         }
 
-        if (nullptr == paint.getMaskFilter() && nullptr == paint.getPathEffect()) {
-            fDrawContext->drawDRRect(fClip, grPaint, *draw.fMatrix, outer, inner);
-            return;
-        }
+        fDrawContext->drawDRRect(fClip, grPaint, *draw.fMatrix, outer, inner);
+        return;
     }
 
     SkPath path;
@@ -592,7 +590,10 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    this->drawPath(draw, path, paint, nullptr, true);
+    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, fRenderTarget,
+                                        fClip, path, paint,
+                                        *draw.fMatrix, nullptr,
+                                        draw.fClip->getBounds(), true);
 }
 
 

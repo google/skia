@@ -233,7 +233,8 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
     SkPath rectPath;
     rectPath.addRect(clippedDstRect);
+    rectPath.setIsVolatile(true);
     GrBlurUtils::drawPathWithMaskFilter(this->context(), fDrawContext, fRenderTarget, fClip,
                                         rectPath, &grPaint, viewMatrix, mf, paint.getPathEffect(),
-                                        GrStrokeInfo::FillInfo());
+                                        GrStrokeInfo::FillInfo(), true);
 }
