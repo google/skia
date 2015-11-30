@@ -193,6 +193,22 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+DEF_SIMPLE_GM(CubicStroke, canvas, 384, 384) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(1.0720f);
+	SkPath path;
+    path.moveTo(-6000,-6000);
+    path.cubicTo(-3500,5500,-500,5500,2500,-6500);
+    canvas->drawPath(path, p);
+    p.setStrokeWidth(1.0721f);
+    canvas->translate(10, 10);
+    canvas->drawPath(path, p);
+    p.setStrokeWidth(1.0722f);
+    canvas->translate(10, 10);
+    canvas->drawPath(path, p);
+}
 
 class Strokes2GM : public skiagm::GM {
     SkPath fPath;

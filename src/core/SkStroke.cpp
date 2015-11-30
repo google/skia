@@ -836,14 +836,12 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
         return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
                 "(numerA=%g >= 0) == (numerB=%g >= 0)", numerA, numerB);
     }
-    // check to see if the denomerator is teeny relative to the numerator
-    bool validDivide = SkScalarAbs(numerA) * SK_ScalarNearlyZero < SkScalarAbs(denom);
-// the divide check is the same as checking if the scaled denom is nearly zero
-// (commented out because on some platforms the two are not bit-identical)
-//  SkASSERT(!SkScalarNearlyZero(denom / numerA) == validDivide);
+    // check to see if the denominator is teeny relative to the numerator
+    // if the offset by one will be lost, the ratio is too large
+    numerA /= denom;
+    bool validDivide = numerA > numerA - 1;
     if (validDivide) {
         if (kCtrlPt_RayType == intersectRayType) {
-            numerA /= denom;
             SkPoint* ctrlPt = &quadPts->fQuad[1];
             // the intersection of the tangents need not be on the tangent segment
             // so 0 <= numerA <= 1 is not necessarily true
