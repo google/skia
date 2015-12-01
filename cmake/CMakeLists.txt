@@ -48,7 +48,10 @@ remove_srcs (../src/images/SkForceLinking.cpp)
 # Chrome only?
 remove_srcs (../src/ports/SkFontHost_fontconfig.cpp
              ../src/fonts/SkFontMgr_fontconfig.cpp
-             ../src/ports/SkFontConfigInterface_direct.cpp)
+             ../src/ports/SkFontConfigInterface_direct.cpp
+             ../src/ports/SkFontConfigInterface_direct_factory.cpp
+             ../src/ports/SkFontConfigInterface_direct_google3.cpp
+             ../src/ports/SkFontConfigInterface_direct_google3_factory.cpp)
 # Alternative font managers.
 remove_srcs (../src/ports/SkFontMgr_custom*.cpp)
 
