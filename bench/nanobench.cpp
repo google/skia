@@ -464,7 +464,8 @@ static void create_configs(SkTDArray<Config>* configs) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (is_cpu_config_allowed("hwui")) {
         Config config = { "hwui", Benchmark::kHWUI_Backend, kRGBA_8888_SkColorType,
-                          kPremul_SkAlphaType, 0, kBogusGLContextType, false };
+                          kPremul_SkAlphaType, 0, kBogusGLContextType, kNone_GLContextOptions,
+                          false };
         configs->push(config);
     }
 #endif
