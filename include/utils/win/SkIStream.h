@@ -10,6 +10,10 @@
 #ifndef SkIStream_DEFINED
 #define SkIStream_DEFINED
 
+#include "SkTypes.h"
+
+#ifdef SK_BUILD_FOR_WIN
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <ole2.h>
@@ -128,4 +132,5 @@ public:
                                          , DWORD grfStatFlag);
 };
 
-#endif
+#endif  // SK_BUILD_FOR_WIN
+#endif  // SkIStream_DEFINED

@@ -11,6 +11,8 @@
 #include "SkSize.h"
 #include "SkImageInfo.h"
 
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>
 #endif
@@ -78,4 +80,5 @@ CGDataProviderRef SkCreateDataProviderFromStream(SkStream*);
 
 CGDataProviderRef SkCreateDataProviderFromData(SkData*);
 
-#endif
+#endif  // defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#endif  // SkCGUtils_DEFINED

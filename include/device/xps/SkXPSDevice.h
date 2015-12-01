@@ -10,6 +10,8 @@
 
 #include "SkTypes.h"
 
+#ifdef SK_BUILD_FOR_WIN
+
 #include <ObjBase.h>
 #include <XpsObjectModel.h>
 
@@ -318,4 +320,5 @@ private:
     typedef SkBitmapDevice INHERITED;
 };
 
-#endif
+#endif  // SK_BUILD_FOR_WIN
+#endif  // SkXPSDevice_DEFINED

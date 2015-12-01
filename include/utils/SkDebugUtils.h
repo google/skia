@@ -81,7 +81,7 @@ inline void SkDebugDumpMathematica<size_t>( const size_t val ) {
 }
 
 template<>
-void SkDebugDumpMathematica<const char *>( const char * val ) {
+inline void SkDebugDumpMathematica<const char *>( const char * val ) {
     SkDebugf("%s", val);
 }
 
