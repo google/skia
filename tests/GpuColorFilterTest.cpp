@@ -12,7 +12,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrContextFactory.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
@@ -34,7 +33,7 @@ static GrColor filterColor(const GrColor& color, uint32_t flags)  {
     return color & mask;
 }
 
-static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrContext* grContext) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, context) {
     struct GetConstantComponentTestCase {
         // "Shape drawn with"
         uint32_t inputComponents; // "rgb of", "red of", "alpha of", ...
@@ -102,7 +101,7 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
         const GetConstantComponentTestCase& test = filterTests[i];
         SkAutoTUnref<SkColorFilter> cf(
             SkColorFilter::CreateModeFilter(test.filterColor, test.filterMode));
-        SkAutoTUnref<const GrFragmentProcessor> fp( cf->asFragmentProcessor(grContext));
+        SkAutoTUnref<const GrFragmentProcessor> fp( cf->asFragmentProcessor(context));
         REPORTER_ASSERT(reporter, fp);
         GrInvariantOutput inout(test.inputColor,
                                 static_cast<GrColorComponentFlags>(test.inputComponents),
@@ -111,19 +110,6 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
         REPORTER_ASSERT(reporter, filterColor(inout.color(), inout.validFlags()) ==
                                   test.outputColor);
         REPORTER_ASSERT(reporter, test.outputComponents == inout.validFlags());
-    }
-}
-
-DEF_GPUTEST(GpuColorFilter, reporter, factory) {
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
-
-        GrContext* grContext = factory->get(glType);
-        if (nullptr == grContext) {
-            continue;
-        }
-
-        test_getConstantColorComponents(reporter, grContext);
     }
 }
 

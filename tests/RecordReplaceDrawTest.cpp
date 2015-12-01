@@ -9,7 +9,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrContextFactory.h"
+#include "GrContext.h"
 #include "GrLayerCache.h"
 #include "GrRecordReplaceDraw.h"
 #include "RecordTestUtils.h"
@@ -140,20 +140,9 @@ void test_replacements(skiatest::Reporter* r, GrContext* context, bool doReplace
     }
 }
 
-DEF_GPUTEST(RecordReplaceDraw, r, factory) {
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
-        if (!GrContextFactory::IsRenderingGLContext(glType)) {
-            continue;
-        }
-        GrContext* context = factory->get(glType);
-        if (nullptr == context) {
-            continue;
-        }
-
-        test_replacements(r, context, false);
-        test_replacements(r, context, true);
-    }
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RecordReplaceDraw, r, context) {
+    test_replacements(r, context, false);
+    test_replacements(r, context, true);
 }
 
 #endif

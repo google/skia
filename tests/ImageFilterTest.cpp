@@ -38,7 +38,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
+#include "GrContext.h"
 #include "SkGpuDevice.h"
 #endif
 
@@ -1261,11 +1261,7 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
 
 #if SK_SUPPORT_GPU
 
-DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
-    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (nullptr == context) {
-        return;
-    }
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(ImageFilterCropRect_Gpu, reporter, context) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
@@ -1279,11 +1275,7 @@ DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
     test_crop_rects(&proxy, reporter);
 }
 
-DEF_GPUTEST(HugeBlurImageFilterGPU, reporter, factory) {
-    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (nullptr == context) {
-        return;
-    }
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(HugeBlurImageFilter_Gpu, reporter, context) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
@@ -1297,11 +1289,7 @@ DEF_GPUTEST(HugeBlurImageFilterGPU, reporter, factory) {
     test_huge_blur(&canvas, reporter);
 }
 
-DEF_GPUTEST(XfermodeImageFilterCroppedInputGPU, reporter, factory) {
-    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (nullptr == context) {
-        return;
-    }
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(XfermodeImageFilterCroppedInput_Gpu, reporter, context) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
@@ -1315,11 +1303,7 @@ DEF_GPUTEST(XfermodeImageFilterCroppedInputGPU, reporter, factory) {
     test_xfermode_cropped_input(&canvas, reporter);
 }
 
-DEF_GPUTEST(TestNegativeBlurSigmaGPU, reporter, factory) {
-    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (nullptr == context) {
-        return;
-    }
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestNegativeBlurSigma_Gpu, reporter, context) {
     const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
     SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,

@@ -27,16 +27,9 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
 static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps);
-static void test_no_dual_source_blending(skiatest::Reporter* reporter);
 
-DEF_GPUTEST(GrPorterDuff, reporter, factory) {
-    GrContext* ctx = factory->get(GrContextFactory::kNull_GLContextType);
-    if (!ctx) {
-        SkFAIL("Failed to create null context.");
-        return;
-    }
-
-    const GrCaps& caps = *ctx->getGpu()->caps();
+DEF_GPUTEST_FOR_NULL_CONTEXT(GrPorterDuff, reporter, context) {
+    const GrCaps& caps = *context->getGpu()->caps();
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
         SkFAIL("Null context does not support dual source blending.");
         return;
@@ -48,7 +41,6 @@ DEF_GPUTEST(GrPorterDuff, reporter, factory) {
     test_color_opaque_no_coverage(reporter, caps);
     test_lcd_coverage(reporter, caps);
     test_lcd_coverage_fallback_case(reporter, caps);
-    test_no_dual_source_blending(reporter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1154,12 +1146,11 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     TEST_ASSERT(blendInfo.fWriteColor);
 }
 
-static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
+DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     GrContextOptions opts;
     opts.fSuppressDualSourceBlending = true;
-    GrContextFactory factory(opts);
-    factory.get(GrContextFactory::kNull_GLContextType);
-    GrContext* ctx = factory.get(GrContextFactory::kNull_GLContextType);
+    GrContextFactory mockFactory(opts);
+    GrContext* ctx = mockFactory.get(GrContextFactory::kNull_GLContextType);
     if (!ctx) {
         SkFAIL("Failed to create null context without ARB_blend_func_extended.");
         return;
@@ -1172,7 +1163,8 @@ static void test_no_dual_source_blending(skiatest::Reporter* reporter) {
     }
 
     GrBackendObject backendTex =
-        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig);
+        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100,
+                                                           kRGBA_8888_GrPixelConfig);
     GrBackendTextureDesc fakeDesc;
     fakeDesc.fConfig = kRGBA_8888_GrPixelConfig;
     fakeDesc.fWidth = fakeDesc.fHeight = 100;

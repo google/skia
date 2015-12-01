@@ -12,7 +12,7 @@
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
+#include "GrContext.h"
 #include "SkGpuDevice.h"
 #endif
 
@@ -63,72 +63,55 @@ static void fillCanvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc
     canvas->writePixels(info, bmp.getPixels(), bmp.rowBytes(), 0, 0);
 }
 
-DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkBaseDevice* device) {
+    SkCanvas canvas(device);
+    for (size_t upmaIdx = 0; upmaIdx < SK_ARRAY_COUNT(gUnpremul); ++upmaIdx) {
+        fillCanvas(&canvas, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
 
-    for (int dtype = 0; dtype < 2; ++dtype) {
+        const SkImageInfo info = SkImageInfo::Make(256, 256, gUnpremul[upmaIdx].fColorType,
+                                                   kUnpremul_SkAlphaType);
+        SkBitmap readBmp1;
+        readBmp1.allocPixels(info);
+        SkBitmap readBmp2;
+        readBmp2.allocPixels(info);
 
-        int glCtxTypeCnt = 1;
-#if SK_SUPPORT_GPU
-        if (0 != dtype)  {
-            glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
-        }
-#endif
-        SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-        for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
-            SkAutoTUnref<SkBaseDevice> device;
-            if (0 == dtype) {
-                device.reset(SkBitmapDevice::Create(info, props));
-            } else {
-#if SK_SUPPORT_GPU
-                GrContextFactory::GLContextType type =
-                    static_cast<GrContextFactory::GLContextType>(glCtxType);
-                if (!GrContextFactory::IsRenderingGLContext(type)) {
-                    continue;
+        readBmp1.eraseColor(0);
+        readBmp2.eraseColor(0);
+
+        canvas.readPixels(&readBmp1, 0, 0);
+        sk_tool_utils::write_pixels(&canvas, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
+                                    kUnpremul_SkAlphaType);
+        canvas.readPixels(&readBmp2, 0, 0);
+
+        bool success = true;
+        for (int y = 0; y < 256 && success; ++y) {
+            const uint32_t* pixels1 = readBmp1.getAddr32(0, y);
+            const uint32_t* pixels2 = readBmp2.getAddr32(0, y);
+            for (int x = 0; x < 256 && success; ++x) {
+                // We see sporadic failures here. May help to see where it goes wrong.
+                if (pixels1[x] != pixels2[x]) {
+                    SkDebugf("%x != %x, x = %d, y = %d\n", pixels1[x], pixels2[x], x, y);
                 }
-                GrContext* ctx = factory->get(type);
-                if (nullptr == ctx) {
-                    continue;
-                }
-                device.reset(SkGpuDevice::Create(ctx, SkSurface::kNo_Budgeted, info, 0, &props,
-                                                 SkGpuDevice::kUninit_InitContents));
-#else
-                continue;
-#endif
-            }
-            SkCanvas canvas(device);
-
-            for (size_t upmaIdx = 0; upmaIdx < SK_ARRAY_COUNT(gUnpremul); ++upmaIdx) {
-                fillCanvas(&canvas, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
-
-                const SkImageInfo info = SkImageInfo::Make(256, 256, gUnpremul[upmaIdx].fColorType,
-                                                           kUnpremul_SkAlphaType);
-                SkBitmap readBmp1;
-                readBmp1.allocPixels(info);
-                SkBitmap readBmp2;
-                readBmp2.allocPixels(info);
-
-                readBmp1.eraseColor(0);
-                readBmp2.eraseColor(0);
-
-                canvas.readPixels(&readBmp1, 0, 0);
-                sk_tool_utils::write_pixels(&canvas, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
-                                            kUnpremul_SkAlphaType);
-                canvas.readPixels(&readBmp2, 0, 0);
-
-                bool success = true;
-                for (int y = 0; y < 256 && success; ++y) {
-                    const uint32_t* pixels1 = readBmp1.getAddr32(0, y);
-                    const uint32_t* pixels2 = readBmp2.getAddr32(0, y);
-                    for (int x = 0; x < 256 && success; ++x) {
-                        // We see sporadic failures here. May help to see where it goes wrong.
-                        if (pixels1[x] != pixels2[x]) {
-                            SkDebugf("%x != %x, x = %d, y = %d\n", pixels1[x], pixels2[x], x, y);
-                        }
-                        REPORTER_ASSERT(reporter, success = pixels1[x] == pixels2[x]);
-                    }
-                }
+                REPORTER_ASSERT(reporter, success = pixels1[x] == pixels2[x]);
             }
         }
     }
 }
+
+DEF_TEST(PremulAlphaRoundTrip, reporter) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkAutoTUnref<SkBaseDevice> device(SkBitmapDevice::Create(info, props));
+    test_premul_alpha_roundtrip(reporter, device);
+}
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, context) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkAutoTUnref<SkBaseDevice> device(
+        SkGpuDevice::Create(context, SkSurface::kNo_Budgeted, info, 0, &props,
+                            SkGpuDevice::kUninit_InitContents));
+    test_premul_alpha_roundtrip(reporter, device);
+}
+#endif
+

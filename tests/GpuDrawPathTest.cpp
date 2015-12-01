@@ -10,7 +10,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrContextFactory.h"
 #include "GrPath.h"
 #include "GrStrokeInfo.h"
 #include "SkBitmap.h"
@@ -23,6 +22,8 @@
 #include "SkRect.h"
 #include "SkSurface.h"
 #include "Test.h"
+
+#include <initializer_list>
 
 static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas) {
     // Filling an empty path should not crash.
@@ -76,43 +77,22 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, dashEffect);
 }
 
-DEF_GPUTEST(GpuDrawPath, reporter, factory) {
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
-
-        GrContext* grContext = factory->get(glType);
-        if (nullptr == grContext) {
-            continue;
-        }
-        static const int sampleCounts[] = { 0, 4, 16 };
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(sampleCounts); ++i) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuDrawPath, reporter, context) {
+    for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
+        for (auto& sampleCount : {0, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
-            
             SkAutoTUnref<SkSurface> surface(
-                SkSurface::NewRenderTarget(grContext, SkSurface::kNo_Budgeted, info,
-                                           sampleCounts[i], nullptr));
+                SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info,
+                                           sampleCount, nullptr));
             if (!surface) {
                 continue;
             }
-            test_drawPathEmpty(reporter, surface->getCanvas());
+            test_func(reporter, surface->getCanvas());
         }
     }
 }
 
-DEF_GPUTEST(GpuDrawPathSameRectOvals, reporter, factory) {
-    GrContext* grContext = factory->get(GrContextFactory::kNVPR_GLContextType);
-    if (!grContext) {
-        return;
-    }
-
-    SkAutoTUnref<SkSurface> surface(
-        SkSurface::NewRenderTarget(grContext, SkSurface::kNo_Budgeted,
-                                   SkImageInfo::MakeN32Premul(255, 255), 4));
-    test_drawSameRectOvals(reporter, surface->getCanvas());
-}
-
-DEF_TEST(GrPathKeys, reporter) {
+DEF_GPUTEST(GrPathKeys, reporter, /*factory*/) {
     // Keys should not ignore conic weights.
     SkPath path1, path2;
     path1.setIsVolatile(true);

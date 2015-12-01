@@ -8,7 +8,7 @@
 #include "SkPath.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
+#include "GrContext.h"
 #include "GrTest.h"
 #include "Test.h"
 #include "batches/GrTessellatingPathRenderer.h"
@@ -252,11 +252,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     tess.drawPath(args);
 }
 
-DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
-    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (nullptr == context) {
-        return;
-    }
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(TessellatingPathRendererTests, reporter, context) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 800;

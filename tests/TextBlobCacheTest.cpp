@@ -24,7 +24,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
+#include "GrContext.h"
 #include "GrTest.h"
 
 struct TextBlobWrapper {
@@ -52,24 +52,21 @@ static const int kWidth = 1024;
 static const int kHeight = 768;
 
 // This test hammers the GPU textblobcache and font atlas
-static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory* factory,
+static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* context,
                                   int maxTotalText, int maxGlyphID, int maxFamilies, bool normal,
                                   bool stressTest) {
     // setup surface
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
 
-    // We don't typically actually draw with this unittest
-    GrContext* ctx = factory->get(GrContextFactory::kNull_GLContextType);
-
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
-        GrTest::SetupAlwaysEvictAtlas(ctx);
-        ctx->setTextBlobCacheLimit_ForTesting(0);
+        GrTest::SetupAlwaysEvictAtlas(context);
+        context->setTextBlobCacheLimit_ForTesting(0);
     }
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info,
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info,
                                                                0, &props));
     REPORTER_ASSERT(reporter, surface);
     if (!surface) {
@@ -149,30 +146,30 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContextFactory
     draw(canvasNoLCD, 2, blobs);
 
     // test draw after free
-    ctx->freeGpuResources();
+    context->freeGpuResources();
     draw(canvas, 1, blobs);
 
-    ctx->freeGpuResources();
+    context->freeGpuResources();
     draw(canvasNoLCD, 1, blobs);
 
     // test draw after abandon
-    ctx->abandonContext();
+    context->abandonContext();
     draw(canvas, 1, blobs);
 }
 
-DEF_GPUTEST(TextBlobCache, reporter, factory) {
-    text_blob_cache_inner(reporter, factory, 1024, 256, 30, true, false);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobCache, reporter, context) {
+    text_blob_cache_inner(reporter, context, 1024, 256, 30, true, false);
 }
 
-DEF_GPUTEST(TextBlobStressCache, reporter, factory) {
-    text_blob_cache_inner(reporter, factory, 256, 256, 10, true, true);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobStressCache, reporter, context) {
+    text_blob_cache_inner(reporter, context, 256, 256, 10, true, true);
 }
 
-DEF_GPUTEST(TextBlobAbnormal, reporter, factory) {
-    text_blob_cache_inner(reporter, factory, 256, 256, 10, false, false);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobAbnormal, reporter, context) {
+    text_blob_cache_inner(reporter, context, 256, 256, 10, false, false);
 }
 
-DEF_GPUTEST(TextBlobStressAbnormal, reporter, factory) {
-    text_blob_cache_inner(reporter, factory, 256, 256, 10, false, true);
+DEF_GPUTEST_FOR_NULL_CONTEXT(TextBlobStressAbnormal, reporter, context) {
+    text_blob_cache_inner(reporter, context, 256, 256, 10, false, true);
 }
 #endif

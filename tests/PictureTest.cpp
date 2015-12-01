@@ -31,10 +31,6 @@
 #include "SkStream.h"
 #include "sk_tool_utils.h"
 
-#if SK_SUPPORT_GPU
-#include "SkSurface.h"
-#include "GrContextFactory.h"
-#endif
 #include "Test.h"
 
 #include "SkLumaColorFilter.h"

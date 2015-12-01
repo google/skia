@@ -8,7 +8,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrContextFactory.h"
 #include "GrLayerCache.h"
 #include "GrResourceCache.h"
 #include "SkPictureRecorder.h"
@@ -108,7 +107,7 @@ static void lock_layer(skiatest::Reporter* reporter,
 // In particular it checks its interaction with the resource cache (w.r.t.
 // locking & unlocking textures).
 // TODO: need to add checks on VRAM usage!
-DEF_GPUTEST(GpuLayerCache, reporter, factory) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GpuLayerCache, reporter, context) {
     // Add one more layer than can fit in the atlas
     static const int kInitialNumLayers = TestingAccess::NumPlots() + 1;
 
@@ -116,269 +115,255 @@ DEF_GPUTEST(GpuLayerCache, reporter, factory) {
     GrResourceCache::Stats stats;
 #endif
 
-    for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
-        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
+    SkAutoTUnref<const SkPicture> picture;
 
-        if (!GrContextFactory::IsRenderingGLContext(glCtxType)) {
-            continue;
-        }
+    {
+        SkPictureRecorder recorder;
+        SkCanvas* c = recorder.beginRecording(1, 1);
+        // Draw something, anything, to prevent an empty-picture optimization,
+        // which is a singleton and never purged.
+        c->drawRect(SkRect::MakeWH(1,1), SkPaint());
+        picture.reset(recorder.endRecording());
+    }
 
-        GrContext* context = factory->get(glCtxType);
+    GrResourceCache* resourceCache = context->getResourceCache();
 
-        if (nullptr == context) {
-            continue;
-        }
+    GrLayerCache cache(context);
 
-        SkAutoTUnref<const SkPicture> picture;
+    create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
 
-        {
-            SkPictureRecorder recorder;
-            SkCanvas* c = recorder.beginRecording(1, 1);
-                // Draw something, anything, to prevent an empty-picture optimization,
-                // which is a singleton and never purged.
-                c->drawRect(SkRect::MakeWH(1,1), SkPaint());
-            picture.reset(recorder.endRecording());
-        }
+    for (int i = 0; i < kInitialNumLayers; ++i) {
+        int key[1] = { i + 1 };
+        GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
+                                                   key, 1);
+        REPORTER_ASSERT(reporter, layer);
 
-        GrResourceCache* resourceCache = context->getResourceCache();
-
-        GrLayerCache cache(context);
-
-        create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
-
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int key[1] = { i + 1 };
-            GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
-                                                       key, 1);
-            REPORTER_ASSERT(reporter, layer);
-
-            lock_layer(reporter, &cache, layer);
-
-#if GR_CACHE_STATS
-            resourceCache->getStats(&stats);
-#endif
-
-            // The first 4 layers should be in the atlas (and thus have non-empty rects)
-            if (i < TestingAccess::NumPlots()) {
-                REPORTER_ASSERT(reporter, layer->isAtlased());
-#if GR_CACHE_STATS
-                REPORTER_ASSERT(reporter, 1 == stats.fTotal);
-#endif
-            } else {
-                // The 5th layer couldn't fit in the atlas
-                REPORTER_ASSERT(reporter, !layer->isAtlased());
-#if GR_CACHE_STATS
-                REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-#endif
-            }
-        }
-
-        // Unlock the textures
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int key[1] = { i+1 };
-
-            GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
-                                                       key, 1);
-            REPORTER_ASSERT(reporter, layer);
-            cache.removeUse(layer);
-        }
+        lock_layer(reporter, &cache, layer);
 
 #if GR_CACHE_STATS
         resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        // The floating layer is purgeable the cache is not
-        REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
-        REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
 #endif
 
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int key[1] = { i+1 };
+        // The first 4 layers should be in the atlas (and thus have non-empty rects)
+        if (i < TestingAccess::NumPlots()) {
+            REPORTER_ASSERT(reporter, layer->isAtlased());
+#if GR_CACHE_STATS
+            REPORTER_ASSERT(reporter, 1 == stats.fTotal);
+#endif
+        } else {
+            // The 5th layer couldn't fit in the atlas
+            REPORTER_ASSERT(reporter, !layer->isAtlased());
+#if GR_CACHE_STATS
+            REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+#endif
+        }
+    }
 
-            GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
-                                                       key, 1);
-            REPORTER_ASSERT(reporter, layer);
+    // Unlock the textures
+    for (int i = 0; i < kInitialNumLayers; ++i) {
+        int key[1] = { i+1 };
 
-            // All the layers should be unlocked
-            REPORTER_ASSERT(reporter, !layer->locked());
+        GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
+                                                   key, 1);
+        REPORTER_ASSERT(reporter, layer);
+        cache.removeUse(layer);
+    }
 
-            // When hoisted layers aren't cached they are aggressively removed
-            // from the atlas
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    // The floating layer is purgeable the cache is not
+    REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
+    REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
+#endif
+
+    for (int i = 0; i < kInitialNumLayers; ++i) {
+        int key[1] = { i+1 };
+
+        GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
+                                                   key, 1);
+        REPORTER_ASSERT(reporter, layer);
+
+        // All the layers should be unlocked
+        REPORTER_ASSERT(reporter, !layer->locked());
+
+        // When hoisted layers aren't cached they are aggressively removed
+        // from the atlas
 #if GR_CACHE_HOISTED_LAYERS
-            // The first 4 layers should still be in the atlas.
-            if (i < 4) {
-                REPORTER_ASSERT(reporter, layer->texture());
-                REPORTER_ASSERT(reporter, layer->isAtlased());
-            } else {
+        // The first 4 layers should still be in the atlas.
+        if (i < 4) {
+            REPORTER_ASSERT(reporter, layer->texture());
+            REPORTER_ASSERT(reporter, layer->isAtlased());
+        } else {
 #endif
-                // The final layer should not be atlased.
-                REPORTER_ASSERT(reporter, nullptr == layer->texture());
-                REPORTER_ASSERT(reporter, !layer->isAtlased());
+            // The final layer should not be atlased.
+            REPORTER_ASSERT(reporter, nullptr == layer->texture());
+            REPORTER_ASSERT(reporter, !layer->isAtlased());
 #if GR_CACHE_HOISTED_LAYERS
-            }
-#endif
         }
-
-        // Let go of the backing texture
-        cache.end();
-        REPORTER_ASSERT(reporter, nullptr == TestingAccess::GetBackingTexture(&cache));
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        // Now both the floater and the atlas are purgeable
-        REPORTER_ASSERT(reporter, 2 == stats.fNumPurgeable);
-#endif
-
-        // re-attach to the backing texture
-        cache.begin();
-        REPORTER_ASSERT(reporter, TestingAccess::GetBackingTexture(&cache));
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        // The atlas is restored to being non-purgeable
-        REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
-        REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
-#endif
-
-        {
-            int key[1] = { kInitialNumLayers+1 };
-
-            // Add an additional layer. Since all the layers are unlocked this
-            // will force out the first atlased layer
-            create_layers(reporter, &cache, *picture, 1, kInitialNumLayers);
-            GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
-                                                       key, 1);
-            REPORTER_ASSERT(reporter, layer);
-
-            lock_layer(reporter, &cache, layer);
-            cache.removeUse(layer);
-        }
-
-        for (int i = 0; i < kInitialNumLayers+1; ++i) {
-            int key[1] = { i+1 };
-
-            GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
-                                                       key, 1);
-#if GR_CACHE_HOISTED_LAYERS
-            // 3 old layers plus the new one should be in the atlas.
-            if (1 == i || 2 == i || 3 == i || 5 == i) {
-                REPORTER_ASSERT(reporter, layer);
-                REPORTER_ASSERT(reporter, !layer->locked());
-                REPORTER_ASSERT(reporter, layer->texture());
-                REPORTER_ASSERT(reporter, layer->isAtlased());
-            } else if (4 == i) {
-#endif
-                // The one that was never atlased should still be around
-                REPORTER_ASSERT(reporter, layer);
-
-                REPORTER_ASSERT(reporter, nullptr == layer->texture());
-                REPORTER_ASSERT(reporter, !layer->isAtlased());
-#if GR_CACHE_HOISTED_LAYERS
-            } else {
-                // The one bumped out of the atlas (i.e., 0) should be gone
-                REPORTER_ASSERT(reporter, nullptr == layer);
-            }
-#endif
-        }
-
-        //--------------------------------------------------------------------
-        // Free them all SkGpuDevice-style. This will not free up the
-        // atlas' texture but will eliminate all the layers.
-        TestingAccess::Purge(&cache, picture->uniqueID());
-
-        REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        // Atlas isn't purgeable
-        REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
-        REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
-#endif
-
-        //--------------------------------------------------------------------
-        // Test out the GrContext-style purge. This should remove all the layers
-        // and the atlas.
-        // Re-create the layers
-        create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
-
-        // Free them again GrContext-style. This should free up everything.
-        cache.freeAll();
-
-        REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
-
-        REPORTER_ASSERT(reporter, nullptr == TestingAccess::GetBackingTexture(&cache));
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        REPORTER_ASSERT(reporter, 2 == stats.fNumPurgeable);
-#endif
-
-        // Purge the resource cache ...
-        resourceCache->purgeAllUnlocked();
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 0 == stats.fTotal);
-#endif
-
-        // and try to re-attach to the backing texture. This should fail
-        cache.begin();
-        REPORTER_ASSERT(reporter, nullptr == TestingAccess::GetBackingTexture(&cache));
-
-        //--------------------------------------------------------------------
-        // Test out the MessageBus-style purge. This will not free the atlas
-        // but should eliminate the free-floating layers.
-        create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
-
-        // Allocate/use the layers
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int key[1] = { i + 1 };
-            GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
-                                                       key, 1);
-            REPORTER_ASSERT(reporter, layer);
-
-            lock_layer(reporter, &cache, layer);
-        }
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        REPORTER_ASSERT(reporter, 2 == stats.fNumNonPurgeable);
-#endif
-
-        // Unlock the textures
-        for (int i = 0; i < kInitialNumLayers; ++i) {
-            int key[1] = { i+1 };
-
-            GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
-                                                       key, 1);
-            REPORTER_ASSERT(reporter, layer);
-            cache.removeUse(layer);
-        }
-
-        picture.reset(nullptr);
-        cache.processDeletedPictures();
-
-        REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
-        REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
-#endif
-
-        cache.end();
-
-#if GR_CACHE_STATS
-        resourceCache->getStats(&stats);
-        REPORTER_ASSERT(reporter, 2 == stats.fTotal);
-        REPORTER_ASSERT(reporter, 2 == stats.fNumPurgeable);
 #endif
     }
+
+    // Let go of the backing texture
+    cache.end();
+    REPORTER_ASSERT(reporter, nullptr == TestingAccess::GetBackingTexture(&cache));
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    // Now both the floater and the atlas are purgeable
+    REPORTER_ASSERT(reporter, 2 == stats.fNumPurgeable);
+#endif
+
+    // re-attach to the backing texture
+    cache.begin();
+    REPORTER_ASSERT(reporter, TestingAccess::GetBackingTexture(&cache));
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    // The atlas is restored to being non-purgeable
+    REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
+    REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
+#endif
+
+    {
+        int key[1] = { kInitialNumLayers+1 };
+
+        // Add an additional layer. Since all the layers are unlocked this
+        // will force out the first atlased layer
+        create_layers(reporter, &cache, *picture, 1, kInitialNumLayers);
+        GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
+                                                   key, 1);
+        REPORTER_ASSERT(reporter, layer);
+
+        lock_layer(reporter, &cache, layer);
+        cache.removeUse(layer);
+    }
+
+    for (int i = 0; i < kInitialNumLayers+1; ++i) {
+        int key[1] = { i+1 };
+
+        GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
+                                                   key, 1);
+#if GR_CACHE_HOISTED_LAYERS
+        // 3 old layers plus the new one should be in the atlas.
+        if (1 == i || 2 == i || 3 == i || 5 == i) {
+            REPORTER_ASSERT(reporter, layer);
+            REPORTER_ASSERT(reporter, !layer->locked());
+            REPORTER_ASSERT(reporter, layer->texture());
+            REPORTER_ASSERT(reporter, layer->isAtlased());
+        } else if (4 == i) {
+#endif
+            // The one that was never atlased should still be around
+            REPORTER_ASSERT(reporter, layer);
+
+            REPORTER_ASSERT(reporter, nullptr == layer->texture());
+            REPORTER_ASSERT(reporter, !layer->isAtlased());
+#if GR_CACHE_HOISTED_LAYERS
+        } else {
+            // The one bumped out of the atlas (i.e., 0) should be gone
+            REPORTER_ASSERT(reporter, nullptr == layer);
+        }
+#endif
+    }
+
+    //--------------------------------------------------------------------
+    // Free them all SkGpuDevice-style. This will not free up the
+    // atlas' texture but will eliminate all the layers.
+    TestingAccess::Purge(&cache, picture->uniqueID());
+
+    REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    // Atlas isn't purgeable
+    REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
+    REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
+#endif
+
+    //--------------------------------------------------------------------
+    // Test out the GrContext-style purge. This should remove all the layers
+    // and the atlas.
+    // Re-create the layers
+    create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
+
+    // Free them again GrContext-style. This should free up everything.
+    cache.freeAll();
+
+    REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
+
+    REPORTER_ASSERT(reporter, nullptr == TestingAccess::GetBackingTexture(&cache));
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    REPORTER_ASSERT(reporter, 2 == stats.fNumPurgeable);
+#endif
+
+    // Purge the resource cache ...
+    resourceCache->purgeAllUnlocked();
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 0 == stats.fTotal);
+#endif
+
+    // and try to re-attach to the backing texture. This should fail
+    cache.begin();
+    REPORTER_ASSERT(reporter, nullptr == TestingAccess::GetBackingTexture(&cache));
+
+    //--------------------------------------------------------------------
+    // Test out the MessageBus-style purge. This will not free the atlas
+    // but should eliminate the free-floating layers.
+    create_layers(reporter, &cache, *picture, kInitialNumLayers, 0);
+
+    // Allocate/use the layers
+    for (int i = 0; i < kInitialNumLayers; ++i) {
+        int key[1] = { i + 1 };
+        GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
+                                                   key, 1);
+        REPORTER_ASSERT(reporter, layer);
+
+        lock_layer(reporter, &cache, layer);
+    }
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    REPORTER_ASSERT(reporter, 2 == stats.fNumNonPurgeable);
+#endif
+
+    // Unlock the textures
+    for (int i = 0; i < kInitialNumLayers; ++i) {
+        int key[1] = { i+1 };
+
+        GrCachedLayer* layer = TestingAccess::Find(&cache, picture->uniqueID(), SkMatrix::I(),
+                                                   key, 1);
+        REPORTER_ASSERT(reporter, layer);
+        cache.removeUse(layer);
+    }
+
+    picture.reset(nullptr);
+    cache.processDeletedPictures();
+
+    REPORTER_ASSERT(reporter, TestingAccess::NumLayers(&cache) == 0);
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    REPORTER_ASSERT(reporter, 1 == stats.fNumPurgeable);
+    REPORTER_ASSERT(reporter, 1 == stats.fNumNonPurgeable);
+#endif
+
+    cache.end();
+
+#if GR_CACHE_STATS
+    resourceCache->getStats(&stats);
+    REPORTER_ASSERT(reporter, 2 == stats.fTotal);
+    REPORTER_ASSERT(reporter, 2 == stats.fNumPurgeable);
+#endif
 }
 
 #endif
