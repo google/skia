@@ -8,6 +8,7 @@
 #ifndef GrGLBlend_DEFINED
 #define GrGLBlend_DEFINED
 
+#include "SkRegion.h"
 #include "SkXfermode.h"
 
 class GrGLSLFragmentBuilder;
@@ -19,6 +20,9 @@ namespace GrGLSLBlend {
      */
     void AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
                     const char* dstColor, const char* outColor, SkXfermode::Mode mode);
+
+    void AppendRegionOp(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
+                        const char* dstColor, const char* outColor, SkRegion::Op regionOp);
 };
 
 #endif

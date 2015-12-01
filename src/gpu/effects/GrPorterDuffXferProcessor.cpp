@@ -548,12 +548,27 @@ private:
     void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb,
                                  GrGLSLXPFragmentBuilder* fragBuilder,
                                  const char* srcColor,
+                                 const char* srcCoverage,
                                  const char* dstColor,
                                  const char* outColor,
+                                 const char* outColorSecondary,
                                  const GrXferProcessor& proc) override {
         const ShaderPDXferProcessor& xp = proc.cast<ShaderPDXferProcessor>();
 
         GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.getXfermode());
+
+        // Apply coverage.
+        if (xp.dstReadUsesMixedSamples()) {
+            if (srcCoverage) {
+                fragBuilder->codeAppendf("%s *= %s;", outColor, srcCoverage);
+                fragBuilder->codeAppendf("%s = %s;", outColorSecondary, srcCoverage);
+            } else {
+                fragBuilder->codeAppendf("%s = vec4(1.0);", outColorSecondary);
+            }
+        } else if (srcCoverage) {
+            fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
+                                     outColor, srcCoverage, outColor, srcCoverage, dstColor);
+        }
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}

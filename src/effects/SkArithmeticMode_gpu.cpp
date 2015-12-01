@@ -213,8 +213,10 @@ private:
     void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb,
                                  GrGLSLXPFragmentBuilder* fragBuilder,
                                  const char* srcColor,
+                                 const char* srcCoverage,
                                  const char* dstColor,
                                  const char* outColor,
+                                 const char* outColorSecondary,
                                  const GrXferProcessor& proc) override {
         fKUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
                                kVec4f_GrSLType, kDefault_GrSLPrecision,
@@ -222,6 +224,19 @@ private:
         const char* kUni = pb->getUniformCStr(fKUni);
 
         add_arithmetic_code(fragBuilder, srcColor, dstColor, outColor, kUni, fEnforcePMColor);
+
+        // Apply coverage.
+        if (proc.dstReadUsesMixedSamples()) {
+            if (srcCoverage) {
+                fragBuilder->codeAppendf("%s *= %s;", outColor, srcCoverage);
+                fragBuilder->codeAppendf("%s = %s;", outColorSecondary, srcCoverage);
+            } else {
+                fragBuilder->codeAppendf("%s = vec4(1.0);", outColorSecondary);
+            }
+        } else if (srcCoverage) {
+            fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
+                                     outColor, srcCoverage, outColor, srcCoverage, dstColor);
+        }
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,

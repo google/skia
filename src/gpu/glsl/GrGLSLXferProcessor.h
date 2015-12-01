@@ -85,8 +85,10 @@ private:
     virtual void emitBlendCodeForDstRead(GrGLSLXPBuilder*,
                                          GrGLSLXPFragmentBuilder*,
                                          const char* srcColor,
+                                         const char* srcCoverage,
                                          const char* dstColor,
                                          const char* outColor,
+                                         const char* outColorSecondary,
                                          const GrXferProcessor&) {
         SkFAIL("emitBlendCodeForDstRead not implemented.");
     }

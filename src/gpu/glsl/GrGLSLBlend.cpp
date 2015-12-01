@@ -433,3 +433,50 @@ void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcCo
         emit_advanced_xfermode_code(fsBuilder, srcColor, dstColor, outColor, mode);
     }
 }
+
+void GrGLSLBlend::AppendRegionOp(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
+                                 const char* dstColor, const char* outColor,
+                                 SkRegion::Op regionOp) {
+    SkXfermode::Coeff srcCoeff, dstCoeff;
+    switch (regionOp) {
+        case SkRegion::kReplace_Op:
+            srcCoeff = SkXfermode::kOne_Coeff;
+            dstCoeff = SkXfermode::kZero_Coeff;
+            break;
+        case SkRegion::kIntersect_Op:
+            srcCoeff = SkXfermode::kDC_Coeff;
+            dstCoeff = SkXfermode::kZero_Coeff;
+            break;
+        case SkRegion::kUnion_Op:
+            srcCoeff = SkXfermode::kOne_Coeff;
+            dstCoeff = SkXfermode::kISC_Coeff;
+            break;
+        case SkRegion::kXOR_Op:
+            srcCoeff = SkXfermode::kIDC_Coeff;
+            dstCoeff = SkXfermode::kISC_Coeff;
+            break;
+        case SkRegion::kDifference_Op:
+            srcCoeff = SkXfermode::kZero_Coeff;
+            dstCoeff = SkXfermode::kISC_Coeff;
+            break;
+        case SkRegion::kReverseDifference_Op:
+            srcCoeff = SkXfermode::kIDC_Coeff;
+            dstCoeff = SkXfermode::kZero_Coeff;
+            break;
+        default:
+            SkFAIL("Unsupported Op");
+            // We should never get here but to make compiler happy
+            srcCoeff = SkXfermode::kZero_Coeff;
+            dstCoeff = SkXfermode::kZero_Coeff;
+    }
+    fsBuilder->codeAppendf("%s = ", outColor);
+    // append src blend
+    bool didAppend = append_porterduff_term(fsBuilder, srcCoeff, srcColor, srcColor, dstColor,
+                                            false);
+    // append dst blend
+    if(!append_porterduff_term(fsBuilder, dstCoeff, dstColor, srcColor, dstColor, didAppend)) {
+        fsBuilder->codeAppend("vec4(0, 0, 0, 0)");
+    }
+    fsBuilder->codeAppend(";");
+}
+

@@ -63,23 +63,11 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     this->emitBlendCodeForDstRead(args.fPB,
                                   fragBuilder,
                                   args.fInputColor,
+                                  args.fInputCoverage,
                                   dstColor,
                                   args.fOutputPrimary,
+                                  args.fOutputSecondary,
                                   args.fXP);
-
-    // Apply coverage.
-    if (args.fXP.dstReadUsesMixedSamples()) {
-        if (args.fInputCoverage) {
-            fragBuilder->codeAppendf("%s *= %s;", args.fOutputPrimary, args.fInputCoverage);
-            fragBuilder->codeAppendf("%s = %s;", args.fOutputSecondary, args.fInputCoverage);
-        } else {
-            fragBuilder->codeAppendf("%s = vec4(1.0);", args.fOutputSecondary);
-        }
-    } else if (args.fInputCoverage) {
-        fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
-                                 args.fOutputPrimary, args.fInputCoverage,
-                                 args.fOutputPrimary, args.fInputCoverage, dstColor);
-    }
 }
 
 void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
