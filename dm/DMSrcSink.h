@@ -214,22 +214,18 @@ public:
 
 class GPUSink : public Sink {
 public:
-    GPUSink(GrContextFactory::GLContextType, GrGLStandard, int samples,
-            bool diText, bool threaded);
-    GPUSink(GrContextFactory::GLContextType, GrContextFactory::GLContextOptions,
-            GrGLStandard, int samples, bool diText, bool threaded);
+    GPUSink(GrContextFactory::GLContextType, GrGLStandard, int samples, bool diText, bool threaded);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 private:
-    GrContextFactory::GLContextType    fContextType;
-    GrContextFactory::GLContextOptions fContextOptions;
-    GrGLStandard                       fGpuAPI;
-    int                                fSampleCount;
-    bool                               fUseDIText;
-    bool                               fThreaded;
+    GrContextFactory::GLContextType fContextType;
+    GrGLStandard                    fGpuAPI;
+    int                             fSampleCount;
+    bool                            fUseDIText;
+    bool                            fThreaded;
 };
 
 class PDFSink : public Sink {

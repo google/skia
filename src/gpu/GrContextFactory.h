@@ -23,33 +23,34 @@
  */
 class GrContextFactory : SkNoncopyable {
 public:
+    /**
+     * Types of GL contexts supported. For historical and testing reasons the native GrContext will
+     * not use "GL_NV_path_rendering" even when the driver supports it. There is a separate context
+     * type that does not remove NVPR support and which will fail when the driver does not support
+     * the extension.
+     */
     enum GLContextType {
-        kNative_GLContextType,
+      kNative_GLContextType,
 #if SK_ANGLE
-        kANGLE_GLContextType,
-        kANGLE_GL_GLContextType,
+      kANGLE_GLContextType,
+      kANGLE_GL_GLContextType,
 #endif
 #if SK_COMMAND_BUFFER
-        kCommandBuffer_GLContextType,
+      kCommandBuffer_GLContextType,
 #endif
 #if SK_MESA
-        kMESA_GLContextType,
+      kMESA_GLContextType,
 #endif
-        kNull_GLContextType,
-        kDebug_GLContextType,
-        kLastGLContextType = kDebug_GLContextType
+      /** Similar to kNative but does not filter NVPR. It will fail if the GL driver does not
+          support NVPR */
+      kNVPR_GLContextType,
+      kNull_GLContextType,
+      kDebug_GLContextType,
+
+      kLastGLContextType = kDebug_GLContextType
     };
 
     static const int kGLContextTypeCnt = kLastGLContextType + 1;
-
-    /**
-     * Options for GL context creation. For historical and testing reasons the options will default
-     * to not using GL_NV_path_rendering extension  even when the driver supports it.
-     */
-    enum GLContextOptions {
-        kNone_GLContextOptions = 0,
-        kEnableNVPR_GLContextOptions = 0x1,
-    };
 
     static bool IsRenderingGLContext(GLContextType type) {
         switch (type) {
@@ -81,6 +82,8 @@ public:
             case kMESA_GLContextType:
                 return "mesa";
 #endif
+            case kNVPR_GLContextType:
+                return "nvpr";
             case kDebug_GLContextType:
                 return "debug";
             default:
@@ -116,7 +119,6 @@ public:
 
     struct ContextInfo {
         GLContextType             fType;
-        GLContextOptions          fOptions;
         SkGLContext*              fGLContext;
         GrContext*                fGrContext;
     };
@@ -124,14 +126,13 @@ public:
      * Get a context initialized with a type of GL context. It also makes the GL context current.
      * Pointer is valid until destroyContexts() is called.
      */
-    ContextInfo* getContextInfo(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard, GLContextOptions options = kNone_GLContextOptions);
+    ContextInfo* getContextInfo(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard);
 
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard,
-                   GLContextOptions options = kNone_GLContextOptions) {
-        if (ContextInfo* info = this->getContextInfo(type, forcedGpuAPI, options)) {
+    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard) {
+        if (ContextInfo* info = this->getContextInfo(type, forcedGpuAPI)) {
             return info->fGrContext;
         }
         return nullptr;
