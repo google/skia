@@ -789,12 +789,26 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::GLContextType ct,
-                 GrGLStandard api,
+                 GrGLStandard gpuAPI,
                  int samples,
                  bool diText,
                  bool threaded)
     : fContextType(ct)
-    , fGpuAPI(api)
+    , fContextOptions(GrContextFactory::kNone_GLContextOptions)
+    , fGpuAPI(gpuAPI)
+    , fSampleCount(samples)
+    , fUseDIText(diText)
+    , fThreaded(threaded) {}
+
+GPUSink::GPUSink(GrContextFactory::GLContextType ct,
+                 GrContextFactory::GLContextOptions options,
+                 GrGLStandard gpuAPI,
+                 int samples,
+                 bool diText,
+                 bool threaded)
+    : fContextType(ct)
+    , fContextOptions(options)
+    , fGpuAPI(gpuAPI)
     , fSampleCount(samples)
     , fUseDIText(diText)
     , fThreaded(threaded) {}
@@ -809,21 +823,21 @@ DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
 DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
-    GrContextOptions options;
+    GrContextOptions grOptions;
     if (FLAGS_imm) {
-        options.fImmediateMode = true;
+        grOptions.fImmediateMode = true;
     }
     if (FLAGS_batchClip) {
-        options.fClipBatchToBounds = true;
+        grOptions.fClipBatchToBounds = true;
     }
-    src.modifyGrContextOptions(&options);
+    src.modifyGrContextOptions(&grOptions);
 
-    GrContextFactory factory(options);
+    GrContextFactory factory(grOptions);
     const SkISize size = src.size();
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(
-            NewGpuSurface(&factory, fContextType, fGpuAPI, info, fSampleCount, fUseDIText));
+            NewGpuSurface(&factory, fContextType, fContextOptions, fGpuAPI, info, fSampleCount, fUseDIText));
     if (!surface) {
         return "Could not create a surface.";
     }

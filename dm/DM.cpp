@@ -609,8 +609,8 @@ static Sink* create_sink(const char* tag) {
         SINK("gpudft",        GPUSink, Gr::kNative_GLContextType,        api,  0,  true, FLAGS_gpu_threading);
         SINK("msaa4",         GPUSink, Gr::kNative_GLContextType,        api,  4, false, FLAGS_gpu_threading);
         SINK("msaa16",        GPUSink, Gr::kNative_GLContextType,        api, 16, false, FLAGS_gpu_threading);
-        SINK("nvprmsaa4",     GPUSink, Gr::kNVPR_GLContextType,          api,  4,  true, FLAGS_gpu_threading);
-        SINK("nvprmsaa16",    GPUSink, Gr::kNVPR_GLContextType,          api, 16,  true, FLAGS_gpu_threading);
+        SINK("nvprmsaa4",     GPUSink, Gr::kNative_GLContextType, Gr::kEnableNVPR_GLContextOptions, api,  4,  true, FLAGS_gpu_threading);
+        SINK("nvprmsaa16",    GPUSink, Gr::kNative_GLContextType, Gr::kEnableNVPR_GLContextOptions, api, 16,  true, FLAGS_gpu_threading);
     #if SK_ANGLE
         SINK("angle",         GPUSink, Gr::kANGLE_GLContextType,         api,  0, false, FLAGS_gpu_threading);
         SINK("angle-gl",      GPUSink, Gr::kANGLE_GL_GLContextType,      api,  0, false, FLAGS_gpu_threading);
@@ -1171,6 +1171,7 @@ template<typename T>
 void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* reporter,
                             GrContextFactory* factory) {
 #if SK_SUPPORT_GPU
+    const GrGLStandard api = get_gpu_api();
     for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
         GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
         int contextSelector = kNone_GPUTestContexts;
@@ -1186,7 +1187,12 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
         if ((testContexts & contextSelector) == 0) {
             continue;
         }
-        if (GrContextFactory::ContextInfo* context = factory->getContextInfo(glCtxType)) {
+        if (GrContextFactory::ContextInfo* context = factory->getContextInfo(glCtxType, api)) {
+            call_test(test, reporter, context);
+        }
+        if (GrContextFactory::ContextInfo* context =
+            factory->getContextInfo(glCtxType, api,
+                                    GrContextFactory::kEnableNVPR_GLContextOptions)) {
             call_test(test, reporter, context);
         }
     }
