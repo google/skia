@@ -2837,3 +2837,9 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     }
     return SkToBool(w);
 }
+
+int SkPath::ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                                SkScalar w, SkPoint pts[], int pow2) {
+    const SkConic conic(p0, p1, p2, w);
+    return conic.chopIntoQuadsPOW2(pts, pow2);
+}

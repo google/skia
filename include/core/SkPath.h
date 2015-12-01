@@ -540,6 +540,13 @@ public:
     }
 
     /**
+     *  Chop a conic into N quads, stored continguously in pts[], where
+     *  N = 1 << pow2. The amount of storage needed is (1 + 2 * N)
+     */
+    static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                                   SkScalar w, SkPoint pts[], int pow2);
+
+    /**
      *  Returns true if the path specifies a rectangle.
      *
      *  If this returns false, then all output parameters are ignored, and left
