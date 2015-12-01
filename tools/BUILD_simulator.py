@@ -84,6 +84,7 @@ global_names = {
   'CONDITION_IOS': 'CONDITION_IOS',
   'DM_EXTERNAL_DEPS': [],
   'EXTERNAL_DEPS_ALL': [],
+  'EXTERNAL_INCLUDES': [],
 }
 local_names = {}
 execfile('BUILD.public', global_names, local_names)

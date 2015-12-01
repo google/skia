@@ -22,6 +22,7 @@ BASE_SRCS = glob(
         # Exclude platform-dependent files.
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
+        "src/fonts/SkFontMgr_fontconfig.cpp",
         "src/gpu/gl/android/*",
         "src/gpu/gl/egl/*",
         "src/gpu/gl/glx/*",
@@ -41,7 +42,6 @@ BASE_SRCS = glob(
         # Exclude multiple definitions.
         # TODO(mtklein): Move to opts?
         "src/doc/SkDocument_PDF_None.cpp",  # We use SkDocument_PDF.cpp.
-        "src/fonts/*fontconfig*",
         "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
 
@@ -67,6 +67,7 @@ BASE_SRCS = glob(
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = glob(
     [
+        "src/fonts/SkFontMgr_fontconfig.cpp",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
@@ -88,15 +89,16 @@ BASE_SRCS_UNIX = glob(
         "src/opts/SkBlitRow_opts_none.cpp",
         "src/ports/*android*",
         "src/ports/*chromium*",
-        "src/ports/*fontconfig*",
-        "src/ports/*FontConfig*",
         "src/ports/*mac*",
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
+        "src/ports/SkFontConfigInterface_direct_factory.cpp",
+        "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
         "src/ports/SkImageDecoder_CG.cpp",
+        "src/ports/SkFontMgr_fontconfig_factory.cpp",
         "src/ports/SkImageDecoder_WIC.cpp",
         "src/ports/SkImageDecoder_empty.cpp",
         "src/ports/SkImageGenerator_none.cpp",
@@ -132,6 +134,8 @@ BASE_SRCS_ANDROID = glob(
         "src/ports/*nacl*",
         "src/ports/*win*",
         "src/ports/SkDebug_stdio.cpp",
+        "src/ports/SkFontConfigInterface_direct_factory.cpp",
+        "src/ports/SkFontConfigInterface_direct_google3_factory.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
@@ -174,6 +178,8 @@ BASE_SRCS_IOS = glob(
         "src/ports/*win*",
         "src/ports/SkDebug_stdio.cpp",
         "src/ports/SkFontMgr_custom.cpp",
+        "src/ports/SkFontConfigInterface_direct_factory.cpp",
+        "src/ports/SkFontConfigInterface_direct_google3_factory.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
@@ -261,12 +267,13 @@ INCLUDES = [
     "src/image",
     "src/lazy",
     "src/opts",
+    "src/ports",
     "src/pdf",
     "src/sfnt",
     "src/utils",
     "third_party/etc1",
     "third_party/ktx",
-]
+] + EXTERNAL_INCLUDES
 
 ## :dm
 
