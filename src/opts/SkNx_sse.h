@@ -132,6 +132,15 @@ public:
         *(int*)bytes = _mm_cvtsi128_si32(fix8);
     }
 
+    static void ToBytes(uint8_t bytes[16],
+                        const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
+        _mm_storeu_si128((__m128i*)bytes,
+                         _mm_packus_epi16(_mm_packus_epi16(_mm_cvttps_epi32(a.fVec),
+                                                           _mm_cvttps_epi32(b.fVec)),
+                                          _mm_packus_epi16(_mm_cvttps_epi32(c.fVec),
+                                                           _mm_cvttps_epi32(d.fVec))));
+    }
+
     SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_ps(fVec, o.fVec); }
     SkNx operator * (const SkNx& o) const { return _mm_mul_ps(fVec, o.fVec); }

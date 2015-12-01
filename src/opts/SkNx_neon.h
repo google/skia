@@ -165,6 +165,14 @@ public:
         vst1_lane_u32((uint32_t*)bytes, (uint32x2_t)fix8, 0);
     }
 
+    static void ToBytes(uint8_t bytes[16],
+                        const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
+        vst1q_u8(bytes, vuzpq_u8(vuzpq_u8((uint8x16_t)vcvtq_u32_f32(a.fVec),
+                                          (uint8x16_t)vcvtq_u32_f32(b.fVec)).val[0],
+                                 vuzpq_u8((uint8x16_t)vcvtq_u32_f32(c.fVec),
+                                          (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0]);
+    }
+
     SkNx approxInvert() const {
         float32x4_t est0 = vrecpeq_f32(fVec),
                     est1 = vmulq_f32(vrecpsq_f32(est0, fVec), est0);

@@ -113,6 +113,15 @@ public:
         fHi.toBytes(bytes+N/2);
     }
 
+    // Some implementations can do this faster.
+    static void ToBytes(uint8_t bytes[4*N],
+                        const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
+        a.toBytes(bytes+0*N);
+        b.toBytes(bytes+1*N);
+        c.toBytes(bytes+2*N);
+        d.toBytes(bytes+3*N);
+    }
+
     SkNx operator + (const SkNx& o) const { return SkNx(fLo + o.fLo, fHi + o.fHi); }
     SkNx operator - (const SkNx& o) const { return SkNx(fLo - o.fLo, fHi - o.fHi); }
     SkNx operator * (const SkNx& o) const { return SkNx(fLo * o.fLo, fHi * o.fHi); }

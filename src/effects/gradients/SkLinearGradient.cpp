@@ -748,10 +748,15 @@ template <bool apply_alpha> void ramp(SkPMColor dstC[], int n, const Sk4f& c, co
     Sk4f cd2 = cd0 + dc2;
     Sk4f cd3 = cd1 + dc2;
     while (n >= 4) {
-        *dstC++ = trunc_from_255<apply_alpha>(cd0);
-        *dstC++ = trunc_from_255<apply_alpha>(cd1);
-        *dstC++ = trunc_from_255<apply_alpha>(cd2);
-        *dstC++ = trunc_from_255<apply_alpha>(cd3);
+        if (!apply_alpha) {
+            Sk4f::ToBytes((uint8_t*)dstC, cd0, cd1, cd2, cd3);
+            dstC += 4;
+        } else {
+            *dstC++ = trunc_from_255<apply_alpha>(cd0);
+            *dstC++ = trunc_from_255<apply_alpha>(cd1);
+            *dstC++ = trunc_from_255<apply_alpha>(cd2);
+            *dstC++ = trunc_from_255<apply_alpha>(cd3);
+        }
         cd0 = cd0 + dc4;
         cd1 = cd1 + dc4;
         cd2 = cd2 + dc4;
@@ -861,7 +866,7 @@ void SkLinearGradient::LinearGradientContext::shade4_dx_clamp(SkPMColor dstC[], 
         ramp<apply_alpha>(dstC, n, c, dc, dither0, dither1);
         dstC += n;
         SkASSERT(dstC <= endDstC);
-        
+
         if (n & 1) {
             SkTSwap(dither0, dither1);
         }
