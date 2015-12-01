@@ -484,7 +484,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
         SkPath path;
         path.setIsVolatile(true);
         path.addRect(rect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, fRenderTarget,
+        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
                                             draw.fClip->getBounds(), true);
@@ -554,7 +554,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, fRenderTarget,
+        GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
                                             draw.fClip->getBounds(), true);
@@ -590,7 +590,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, fRenderTarget,
+    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                         fClip, path, paint,
                                         *draw.fMatrix, nullptr,
                                         draw.fClip->getBounds(), true);
@@ -666,7 +666,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     CHECK_SHOULD_DRAW(draw);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawPath", fContext);
 
-    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext, fRenderTarget,
+    GrBlurUtils::drawPathWithMaskFilter(fContext, fDrawContext,
                                         fClip, origSrcPath, paint,
                                         *draw.fMatrix, prePathMatrix,
                                         draw.fClip->getBounds(), pathIsMutable);
@@ -706,7 +706,7 @@ static void determine_clipped_src_rect(const GrRenderTarget* rt,
                                        const SkISize& imageSize,
                                        const SkRect* srcRectPtr,
                                        SkIRect* clippedSrcIRect) {
-    clip.getConservativeBounds(rt, clippedSrcIRect, nullptr);
+    clip.getConservativeBounds(rt->width(), rt->height(), clippedSrcIRect, nullptr);
     SkMatrix inv;
     if (!viewMatrix.invert(&inv)) {
         clippedSrcIRect->setEmpty();

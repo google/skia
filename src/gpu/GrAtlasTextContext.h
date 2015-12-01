@@ -71,7 +71,7 @@ private:
                                   size_t vertexStride, bool useVertexColor,
                                   GrGlyph*);
 
-    inline void flushRunAsPaths(GrDrawContext*, GrRenderTarget*,
+    inline void flushRunAsPaths(GrDrawContext*,
                                 const SkTextBlobRunIterator&, const GrClip& clip,
                                 const SkPaint&, SkDrawFilter*,
                                 const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
@@ -82,7 +82,7 @@ private:
                                     const SkPaint&);
     inline void flushRun(GrDrawContext*, GrPipelineBuilder*, GrAtlasTextBlob*, int run, GrColor,
                          SkScalar transX, SkScalar transY, const SkPaint&);
-    inline void flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrDrawContext*, GrRenderTarget*,
+    inline void flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrDrawContext*,
                                const GrClip& clip, const SkPaint& skPaint,
                                SkScalar transX, SkScalar transY, const SkIRect& clipBounds);
 

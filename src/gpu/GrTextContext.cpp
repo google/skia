@@ -51,7 +51,7 @@ void GrTextContext::drawText(GrDrawContext* dc, GrRenderTarget* rt,
     } while (textContext);
 
     // fall back to drawing as a path
-    this->drawTextAsPath(dc, rt, clip, skPaint, viewMatrix,
+    this->drawTextAsPath(dc, clip, skPaint, viewMatrix,
                          text, byteLength, x, y, clipBounds);
 }
 
@@ -77,7 +77,7 @@ void GrTextContext::drawPosText(GrDrawContext* dc, GrRenderTarget* rt,
     } while (textContext);
 
     // fall back to drawing as a path
-    this->drawPosTextAsPath(dc, rt, clip, skPaint, viewMatrix, text, byteLength, pos,
+    this->drawPosTextAsPath(dc, clip, skPaint, viewMatrix, text, byteLength, pos,
                             scalarsPerPosition, offset, clipBounds);
 }
 
@@ -161,7 +161,7 @@ void GrTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
     }
 }
 
-void GrTextContext::drawTextAsPath(GrDrawContext* dc, GrRenderTarget* rt,
+void GrTextContext::drawTextAsPath(GrDrawContext* dc,
                                    const GrClip& clip,
                                    const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                    const char text[], size_t byteLength, SkScalar x, SkScalar y,
@@ -179,14 +179,14 @@ void GrTextContext::drawTextAsPath(GrDrawContext* dc, GrRenderTarget* rt,
         matrix.postTranslate(xpos - prevXPos, 0);
         if (iterPath) {
             const SkPaint& pnt = iter.getPaint();
-            GrBlurUtils::drawPathWithMaskFilter(fContext, dc, rt, clip, *iterPath,
+            GrBlurUtils::drawPathWithMaskFilter(fContext, dc, clip, *iterPath,
                                                 pnt, viewMatrix, &matrix, clipBounds, false);
         }
         prevXPos = xpos;
     }
 }
 
-void GrTextContext::drawPosTextAsPath(GrDrawContext* dc, GrRenderTarget* rt,
+void GrTextContext::drawPosTextAsPath(GrDrawContext* dc,
                                       const GrClip& clip,
                                       const SkPaint& origPaint, const SkMatrix& viewMatrix,
                                       const char text[], size_t byteLength,
@@ -227,7 +227,7 @@ void GrTextContext::drawPosTextAsPath(GrDrawContext* dc, GrRenderTarget* rt,
 
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
-                GrBlurUtils::drawPathWithMaskFilter(fContext, dc, rt, clip, *path, paint,
+                GrBlurUtils::drawPathWithMaskFilter(fContext, dc, clip, *path, paint,
                                                     viewMatrix, &matrix, clipBounds, false);
             }
         }

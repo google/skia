@@ -148,7 +148,6 @@ static GrTexture* create_mask_GPU(GrContext* context,
 
 static void draw_path_with_mask_filter(GrContext* context,
                                        GrDrawContext* drawContext,
-                                       GrRenderTarget* renderTarget,
                                        const GrClip& clip,
                                        GrPaint* paint,
                                        const SkMatrix& viewMatrix,
@@ -160,7 +159,7 @@ static void draw_path_with_mask_filter(GrContext* context,
     SkASSERT(maskFilter);
 
     SkIRect clipBounds;
-    clip.getConservativeBounds(renderTarget, &clipBounds);
+    clip.getConservativeBounds(drawContext->width(), drawContext->height(), &clipBounds);
     SkTLazy<SkPath> tmpPath;
     GrStrokeInfo strokeInfo(origStrokeInfo);
 
@@ -225,7 +224,7 @@ static void draw_path_with_mask_filter(GrContext* context,
                                                      *devPathPtr,
                                                      strokeInfo,
                                                      paint->isAntiAlias(),
-                                                     renderTarget->numColorSamples()));
+                                                     drawContext->numColorSamples()));
         if (mask) {
             GrTexture* filtered;
 
@@ -251,7 +250,6 @@ static void draw_path_with_mask_filter(GrContext* context,
 
 void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          GrDrawContext* drawContext,
-                                         GrRenderTarget* rt,
                                          const GrClip& clip,
                                          const SkPath& origPath,
                                          GrPaint* paint,
@@ -273,13 +271,12 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
         pathEffect = nullptr;
     }
 
-    draw_path_with_mask_filter(context, drawContext, rt, clip, paint, viewMatrix, mf, pathEffect,
+    draw_path_with_mask_filter(context, drawContext, clip, paint, viewMatrix, mf, pathEffect,
                                strokeInfo, pathPtr, pathIsMutable);
 }
 
 void GrBlurUtils::drawPathWithMaskFilter(GrContext* context, 
                                          GrDrawContext* drawContext,
-                                         GrRenderTarget* renderTarget,
                                          const GrClip& clip,
                                          const SkPath& origSrcPath,
                                          const SkPaint& paint,
@@ -340,7 +337,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     }
 
     if (paint.getMaskFilter()) {
-        draw_path_with_mask_filter(context, drawContext, renderTarget, clip, &grPaint, viewMatrix,
+        draw_path_with_mask_filter(context, drawContext, clip, &grPaint, viewMatrix,
                                    paint.getMaskFilter(), pathEffect, strokeInfo,
                                    pathPtr, pathIsMutable);
     } else {

@@ -31,7 +31,6 @@ namespace GrBlurUtils {
      */
     void drawPathWithMaskFilter(GrContext* context,
                                 GrDrawContext* drawContext,
-                                GrRenderTarget* rt,
                                 const GrClip& clip,
                                 const SkPath& origSrcPath,
                                 const SkPaint& paint,
@@ -46,7 +45,6 @@ namespace GrBlurUtils {
      */
     void drawPathWithMaskFilter(GrContext*,
                                 GrDrawContext*,
-                                GrRenderTarget*,
                                 const GrClip&,
                                 const SkPath& path,
                                 GrPaint*,

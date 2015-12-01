@@ -975,8 +975,8 @@ static GrDrawBatch* create_hairline_batch(GrColor color,
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkIRect devClipBounds;
-    args.fPipelineBuilder->clip().getConservativeBounds(args.fPipelineBuilder->getRenderTarget(),
-                                                        &devClipBounds);
+    GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
+    args.fPipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), &devClipBounds);
 
     SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
                                                           *args.fStroke, devClipBounds));

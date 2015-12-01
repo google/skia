@@ -66,11 +66,11 @@ protected:
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset, const SkIRect& clipBounds) = 0;
 
-    void drawTextAsPath(GrDrawContext*, GrRenderTarget*, const GrClip& clip,
+    void drawTextAsPath(GrDrawContext*, const GrClip& clip,
                         const SkPaint& origPaint, const SkMatrix& viewMatrix,
                         const char text[], size_t byteLength, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
-    void drawPosTextAsPath(GrDrawContext*, GrRenderTarget*, const GrClip& clip,
+    void drawPosTextAsPath(GrDrawContext*, const GrClip& clip,
                            const SkPaint& origPaint, const SkMatrix& viewMatrix,
                            const char text[], size_t byteLength,
                            const SkScalar pos[], int scalarsPerPosition,

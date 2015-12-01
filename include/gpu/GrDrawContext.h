@@ -9,6 +9,7 @@
 #define GrDrawContext_DEFINED
 
 #include "GrColor.h"
+#include "GrRenderTarget.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 
@@ -272,6 +273,10 @@ public:
      * @param batch    the batch to draw
      */
     void drawBatch(const GrClip&, const GrPaint&, GrDrawBatch*);
+
+    int width() const { return fRenderTarget->width(); }
+    int height() const { return fRenderTarget->height(); }
+    int numColorSamples() const { return fRenderTarget->numColorSamples(); }
 
 private:
     friend class GrAtlasTextContext; // for access to drawBatch

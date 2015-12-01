@@ -39,7 +39,7 @@ bool get_path_and_clip_bounds(const GrPipelineBuilder* pipelineBuilder,
         return false;
     }
 
-    pipelineBuilder->clip().getConservativeBounds(rt, devClipBounds);
+    pipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), devClipBounds);
 
     if (devClipBounds->isEmpty()) {
         *devPathBounds = SkIRect::MakeWH(rt->width(), rt->height());

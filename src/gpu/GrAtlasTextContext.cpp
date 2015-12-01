@@ -1210,7 +1210,7 @@ inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* ru
     subRun->fVertexEndIndex += vertexStride * GrAtlasTextBatch::kVerticesPerGlyph;
 }
 
-void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc, GrRenderTarget* rt,
+void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc,
                                          const SkTextBlobRunIterator& it,
                                          const GrClip& clip, const SkPaint& skPaint,
                                          SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
@@ -1230,18 +1230,18 @@ void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc, GrRenderTarget* rt,
 
     switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
-            this->drawTextAsPath(dc, rt, clip, runPaint, viewMatrix,
+            this->drawTextAsPath(dc, clip, runPaint, viewMatrix,
                                  (const char *)it.glyphs(),
                                  textLen, x + offset.x(), y + offset.y(), clipBounds);
             break;
         case SkTextBlob::kHorizontal_Positioning:
-            this->drawPosTextAsPath(dc, rt, clip, runPaint, viewMatrix,
+            this->drawPosTextAsPath(dc, clip, runPaint, viewMatrix,
                                     (const char*)it.glyphs(),
                                     textLen, it.pos(), 1, SkPoint::Make(x, y + offset.y()),
                                     clipBounds);
             break;
         case SkTextBlob::kFull_Positioning:
-            this->drawPosTextAsPath(dc, rt, clip, runPaint, viewMatrix,
+            this->drawPosTextAsPath(dc, clip, runPaint, viewMatrix,
                                     (const char*)it.glyphs(),
                                     textLen, it.pos(), 2, SkPoint::Make(x, y), clipBounds);
             break;
@@ -1309,7 +1309,7 @@ inline void GrAtlasTextContext::flushRun(GrDrawContext* dc, GrPipelineBuilder* p
 }
 
 inline void GrAtlasTextContext::flushBigGlyphs(GrAtlasTextBlob* cacheBlob,
-                                               GrDrawContext* dc, GrRenderTarget* rt,
+                                               GrDrawContext* dc,
                                                const GrClip& clip, const SkPaint& skPaint,
                                                SkScalar transX, SkScalar transY,
                                                const SkIRect& clipBounds) {
@@ -1328,7 +1328,7 @@ inline void GrAtlasTextContext::flushBigGlyphs(GrAtlasTextBlob* cacheBlob,
             ctm.postConcat(cacheBlob->fViewMatrix);
         }
 
-        GrBlurUtils::drawPathWithMaskFilter(fContext, dc, rt, clip, bigGlyph.fPath,
+        GrBlurUtils::drawPathWithMaskFilter(fContext, dc, clip, bigGlyph.fPath,
                                             skPaint, ctm, nullptr, clipBounds, false);
     }
 }
@@ -1354,7 +1354,7 @@ void GrAtlasTextContext::flush(const SkTextBlob* blob,
     SkTextBlobRunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
         if (cacheBlob->fRuns[run].fDrawAsPaths) {
-            this->flushRunAsPaths(dc, rt, it, clip, skPaint,
+            this->flushRunAsPaths(dc, it, clip, skPaint,
                                   drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
@@ -1364,7 +1364,7 @@ void GrAtlasTextContext::flush(const SkTextBlob* blob,
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, dc, rt, clip, skPaint, transX, transY, clipBounds);
+    this->flushBigGlyphs(cacheBlob, dc, clip, skPaint, transX, transY, clipBounds);
 }
 
 void GrAtlasTextContext::flush(GrAtlasTextBlob* cacheBlob,
@@ -1382,7 +1382,7 @@ void GrAtlasTextContext::flush(GrAtlasTextBlob* cacheBlob,
     }
 
     // Now flush big glyphs
-    this->flushBigGlyphs(cacheBlob, dc, rt, clip, skPaint, 0, 0, clipBounds);
+    this->flushBigGlyphs(cacheBlob, dc, clip, skPaint, 0, 0, clipBounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

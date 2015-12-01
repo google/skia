@@ -57,7 +57,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, context) {
     clipData.setClipStack(&stack);
 
     SkIRect devGrClipBound;
-    clipData.getConservativeBounds(texture,
+    clipData.getConservativeBounds(texture->width(), texture->height(),
                                    &devGrClipBound,
                                    &isIntersectionOfRects);
 

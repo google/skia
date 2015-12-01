@@ -1634,7 +1634,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     SkIRect clipBoundsI;
-    args.fPipelineBuilder->clip().getConservativeBounds(rt, &clipBoundsI);
+    args.fPipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), &clipBoundsI);
     SkRect clipBounds = SkRect::Make(clipBoundsI);
     SkMatrix vmi;
     if (!args.fViewMatrix->invert(&vmi)) {
