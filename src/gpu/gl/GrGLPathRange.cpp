@@ -34,7 +34,13 @@ GrGLPathRange::GrGLPathRange(GrGLGpu* gpu,
 }
 
 void GrGLPathRange::init() {
-    if (fStroke.isDashed()) {
+    // Must force fill:
+    // * dashing: NVPR stroke dashing is different to Skia.
+    // * end caps: NVPR stroking degenerate contours with end caps is different to Skia.
+    bool forceFill = fStroke.isDashed() ||
+            (fStroke.needToApply() && fStroke.getCap() != SkPaint::kButt_Cap);
+
+    if (forceFill) {
         fShouldStroke = false;
         fShouldFill = true;
     } else {
@@ -56,32 +62,39 @@ void GrGLPathRange::onInitPath(int index, const SkPath& origSkPath) const {
         GR_GL_CALL_RET(gpu->glInterface(), isPath, IsPath(fBasePathID + index)));
     SkASSERT(GR_GL_FALSE == isPath);
 
-    const SkPath* skPath = &origSkPath;
-    SkTLazy<SkPath> tmpPath;
-    const GrStrokeInfo* stroke = &fStroke;
-    GrStrokeInfo tmpStroke(SkStrokeRec::kFill_InitStyle);
+    if (origSkPath.isEmpty()) {
+        GrGLPath::InitPathObjectEmptyPath(gpu, fBasePathID + index);
+    } else if (fShouldStroke) {
+        GrGLPath::InitPathObjectPathData(gpu, fBasePathID + index, origSkPath);
+        GrGLPath::InitPathObjectStroke(gpu, fBasePathID + index, fStroke);
+    } else {
+        const SkPath* skPath = &origSkPath;
+        SkTLazy<SkPath> tmpPath;
+        const GrStrokeInfo* stroke = &fStroke;
+        GrStrokeInfo tmpStroke(SkStrokeRec::kFill_InitStyle);
 
-    // Dashing must be applied to the path. However, if dashing is present,
-    // we must convert all the paths to fills. The GrStrokeInfo::applyDash leaves
-    // simple paths as strokes but converts other paths to fills.
-    // Thus we must stroke the strokes here, so that all paths in the
-    // path range are using the same style.
-    if (fStroke.isDashed()) {
-        if (!stroke->applyDashToPath(tmpPath.init(), &tmpStroke, *skPath)) {
-            return;
-        }
-        skPath = tmpPath.get();
-        stroke = &tmpStroke;
-        if (tmpStroke.needToApply()) {
-            if (!tmpStroke.applyToPath(tmpPath.get(), *tmpPath.get())) {
+        // Dashing must be applied to the path. However, if dashing is present,
+        // we must convert all the paths to fills. The GrStrokeInfo::applyDash leaves
+        // simple paths as strokes but converts other paths to fills.
+        // Thus we must stroke the strokes here, so that all paths in the
+        // path range are using the same style.
+        if (fStroke.isDashed()) {
+            if (!stroke->applyDashToPath(tmpPath.init(), &tmpStroke, *skPath)) {
                 return;
             }
-            tmpStroke.setFillStyle();
+            skPath = tmpPath.get();
+            stroke = &tmpStroke;
         }
+        if (stroke->needToApply()) {
+            if (!tmpPath.isValid()) {
+                tmpPath.init();
+            }
+            if (!stroke->applyToPath(tmpPath.get(), *tmpPath.get())) {
+                return;
+            }
+        }
+        GrGLPath::InitPathObjectPathData(gpu, fBasePathID + index, *skPath);
     }
-
-    GrGLPath::InitPathObject(gpu, fBasePathID + index, *skPath, *stroke);
-
     // TODO: Use a better approximation for the individual path sizes.
     fGpuMemorySize += 100;
 }
