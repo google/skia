@@ -147,6 +147,11 @@ def gyp_defines(builder_dict):
   if builder_dict.get('extra_config') == 'Android_FrameworkDefs':
     gyp_defs['skia_use_android_framework_defines'] = '1'
 
+  # Skia dump stats for perf tests and gpu
+  if (builder_dict.get('cpu_or_gpu') == 'GPU' and
+      builder_dict.get('role') == 'Perf'):
+      gyp_defs['skia_dump_stats'] = '1'
+
   return gyp_defs
 
 
