@@ -1,6 +1,8 @@
 {
   "Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release": [
     "--images", 
+    "--gpuStatsDump", 
+    "true", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -78,6 +80,8 @@
   ], 
   "Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release": [
     "--images", 
+    "--gpuStatsDump", 
+    "true", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -115,6 +119,8 @@
   ], 
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": [
     "--images", 
+    "--gpuStatsDump", 
+    "true", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -157,6 +163,8 @@
   ], 
   "Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE": [
     "--images", 
+    "--gpuStatsDump", 
+    "true", 
     "--scales", 
     "1.0", 
     "1.1", 
@@ -201,6 +209,8 @@
   ], 
   "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug": [
     "--images", 
+    "--gpuStatsDump", 
+    "true", 
     "--scales", 
     "1.0", 
     "1.1", 

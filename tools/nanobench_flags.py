@@ -31,6 +31,7 @@ def get_args(bot):
 
   if 'GPU' in bot:
     args.append('--images')
+    args.extend(['--gpuStatsDump', 'true'])
 
   if 'Appurify' not in bot:
     args.extend(['--scales', '1.0', '1.1'])
