@@ -152,6 +152,49 @@ public:
      */
     GrTexture* generateTexture(GrContext*, const SkIRect* subset = nullptr);
 
+    struct SupportedSizes {
+        SkISize fSizes[2];
+    };
+
+    /**
+     *  Some generators can efficiently scale their contents. If this is supported, the generator
+     *  may only support certain scaled dimensions. Call this with the desired scale factor,
+     *  and it will return true if scaling is supported, and in supportedSizes[] it will return
+     *  the nearest supported dimensions.
+     *
+     *  If no native scaling is supported, or scale is invalid (e.g. scale <= 0 || scale > 1)
+     *  this will return false, and the supportedsizes will be undefined.
+     */
+    bool computeScaledDimensions(SkScalar scale, SupportedSizes*);
+
+    /**
+     *  Scale the generator's pixels to fit into scaledSize.
+     *  This routine also support retrieving only a subset of the pixels. That subset is specified
+     *  by the following rectangle (in the scaled space):
+     *
+     *      subset = SkIRect::MakeXYWH(subsetOrigin.x(), subsetOrigin.y(),
+     *                                 subsetPixels.width(), subsetPixels.height())
+     *
+     *  If subset is not contained inside the scaledSize, this returns false.
+     *
+     *      whole = SkIRect::MakeWH(scaledSize.width(), scaledSize.height())
+     *      if (!whole.contains(subset)) {
+     *          return false;
+     *      }
+     *
+     *  If the requested colortype/alphatype in pixels is not supported,
+     *  or the requested scaledSize is not supported, or the generator encounters an error,
+     *  this returns false.
+     */
+    bool generateScaledPixels(const SkISize& scaledSize, const SkIPoint& subsetOrigin,
+                              const SkPixmap& subsetPixels);
+
+    bool generateScaledPixels(const SkPixmap& scaledPixels) {
+        return this->generateScaledPixels(SkISize::Make(scaledPixels.width(),
+                                                        scaledPixels.height()),
+                                          SkIPoint::Make(0, 0), scaledPixels);
+    }
+
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
@@ -197,6 +240,13 @@ protected:
 
     virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect*) {
         return nullptr;
+    }
+
+    virtual bool onComputeScaledDimensions(SkScalar, SupportedSizes*) {
+        return false;
+    }
+    virtual bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) {
+        return false;
     }
 
     bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo* optionalInfo, SkBitmap::Allocator*);
