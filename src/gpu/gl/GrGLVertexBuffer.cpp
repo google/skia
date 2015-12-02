@@ -10,7 +10,8 @@
 #include "SkTraceMemoryDump.h"
 
 GrGLVertexBuffer::GrGLVertexBuffer(GrGLGpu* gpu, const Desc& desc)
-    : INHERITED(gpu, desc.fSizeInBytes, desc.fDynamic, 0 == desc.fID)
+    : INHERITED(gpu, desc.fSizeInBytes, GrGLBufferImpl::kDynamicDraw_Usage == desc.fUsage,
+                0 == desc.fID)
     , fImpl(gpu, desc, GR_GL_ARRAY_BUFFER) {
     this->registerWithCache();
 }
