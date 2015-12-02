@@ -330,12 +330,16 @@ public:
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*, GrRenderTarget* rt);
 
+    /** Reset GPU stats */
+    void resetGpuStats() const ;
+
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
     void printCacheStats() const;
 
     /** Prints GPU stats to the string if GR_GPU_STATS == 1. */
     void dumpGpuStats(SkString*) const;
+    void dumpGpuStatsKeyValuePairs(SkTArray<SkString>* names, SkTArray<double>* values) const;
     void printGpuStats() const;
 
     /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.

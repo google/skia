@@ -342,6 +342,7 @@ public:
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
         void incNumDraws() { fNumDraws++; }
         void dump(SkString*);
+        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
 
     private:
         int fRenderTargetBinds;
@@ -351,7 +352,8 @@ public:
         int fStencilAttachmentCreates;
         int fNumDraws;
 #else
-        void dump(SkString*) {};
+        void dump(SkString*) {}
+        void dumpKeyValuePairs(SkTArray<SkString>*, SkTArray<double>*) {}
         void incRenderTargetBinds() {}
         void incShaderCompilations() {}
         void incTextureCreates() {}

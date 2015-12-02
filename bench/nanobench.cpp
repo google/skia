@@ -107,6 +107,7 @@ DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test.");
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
+DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -1184,6 +1185,16 @@ int nanobench_main() {
                 }
             }
 
+#if SK_SUPPORT_GPU
+            SkTArray<SkString> keys;
+            SkTArray<double> values;
+            bool gpuStatsDump = FLAGS_gpuStatsDump && Benchmark::kGPU_Backend == configs[i].backend;
+            if (gpuStatsDump) {
+                // TODO cache stats
+                bench->getGpuStats(canvas, &keys, &values);
+            }
+#endif
+
             bench->perCanvasPostDraw(canvas);
 
             if (Benchmark::kNonRendering_Backend != target->config.backend &&
@@ -1206,6 +1217,16 @@ int nanobench_main() {
             benchStream.fillCurrentOptions(log.get());
             target->fillOptions(log.get());
             log->metric("min_ms",    stats.min);
+#if SK_SUPPORT_GPU
+            if (gpuStatsDump) {
+                // dump to json, only SKPBench currently returns valid keys / values
+                SkASSERT(keys.count() == values.count());
+                for (int i = 0; i < keys.count(); i++) {
+                    log->metric(keys[i].c_str(), values[i]);
+                }
+            }
+#endif
+
             if (runs++ % FLAGS_flushEvery == 0) {
                 log->flush();
             }
@@ -1240,13 +1261,14 @@ int nanobench_main() {
                         , bench->getUniqueName()
                         );
             }
+
 #if SK_SUPPORT_GPU
-            if (FLAGS_gpuStats &&
-                Benchmark::kGPU_Backend == configs[i].backend) {
+            if (FLAGS_gpuStats && Benchmark::kGPU_Backend == configs[i].backend) {
                 gGrFactory->get(configs[i].ctxType)->printCacheStats();
                 gGrFactory->get(configs[i].ctxType)->printGpuStats();
             }
 #endif
+
             if (FLAGS_verbose) {
                 SkDebugf("Samples:  ");
                 for (int i = 0; i < samples.count(); i++) {

@@ -93,6 +93,12 @@ void GrContext::purgeAllUnlockedResources() {
     fResourceCache->purgeAllUnlocked();
 }
 
+void GrContext::resetGpuStats() const {
+#if GR_GPU_STATS
+    fGpu->stats()->reset();
+#endif
+}
+
 void GrContext::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
     fResourceCache->dumpStats(out);
@@ -108,6 +114,13 @@ void GrContext::printCacheStats() const {
 void GrContext::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
     return fGpu->stats()->dump(out);
+#endif
+}
+
+void GrContext::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                          SkTArray<double>* values) const {
+#if GR_GPU_STATS
+    return fGpu->stats()->dumpKeyValuePairs(keys, values);
 #endif
 }
 
@@ -155,6 +168,16 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
     out->appendf("Number of draws: %d\n", fNumDraws);
 }
+
+void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
+    keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
+    keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
+    keys->push_back(SkString("textures_created")); values->push_back(fTextureCreates);
+    keys->push_back(SkString("texture_uploads")); values->push_back(fTextureUploads);
+    keys->push_back(SkString("stencil_buffer_creates")); values->push_back(fStencilAttachmentCreates);
+    keys->push_back(SkString("number_of_draws")); values->push_back(fNumDraws);
+}
+
 #endif
 
 #if GR_CACHE_STATS

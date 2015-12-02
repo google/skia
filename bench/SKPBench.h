@@ -28,6 +28,8 @@ public:
         return fDoLooping ? defaultLoops : 1;
     }
 
+    void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) override;
+
 protected:
     const char* onGetName() override;
     const char* onGetUniqueName() override;
