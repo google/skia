@@ -23,18 +23,24 @@ public:
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkAndroidCodec that can decode it. Otherwise return NULL.
      *
+     *  The SkPngChunkReader handles unknown chunks in PNGs.
+     *  See SkCodec.h for more details.
+     *
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkAndroidCodec* NewFromStream(SkStream*);
+    static SkAndroidCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
      *  return an SkAndroidCodec that can decode it. Otherwise return NULL.
      *
+     *  The SkPngChunkReader handles unknown chunks in PNGs.
+     *  See SkCodec.h for more details.
+     *
      *  Will take a ref if it returns a codec, else will not affect the data.
      */
-    static SkAndroidCodec* NewFromData(SkData*);
+    static SkAndroidCodec* NewFromData(SkData*, SkPngChunkReader* = NULL);
 
     virtual ~SkAndroidCodec() {}
 

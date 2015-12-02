@@ -29,8 +29,17 @@ public:
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
      *
-     *  If SkPngChunkReader is not NULL, take a ref and pass it to libpng if
-     *  the image is a png.
+     *  If the SkPngChunkReader is not NULL then:
+     *      If the image is not a PNG, the SkPngChunkReader will be ignored.
+     *      If the image is a PNG, the SkPngChunkReader will be reffed.
+     *      If the PNG has unknown chunks, the SkPngChunkReader will be used
+     *      to handle these chunks.  SkPngChunkReader will be called to read
+     *      any unknown chunk at any point during the creation of the codec
+     *      or the decode.  Note that if SkPngChunkReader fails to read a
+     *      chunk, this could result in a failure to create the codec or a
+     *      failure to decode the image.
+     *      If the PNG does not contain unknown chunks, the SkPngChunkReader
+     *      will not be used or modified.
      *
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
@@ -41,8 +50,17 @@ public:
      *  If this data represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
      *
-     *  If SkPngChunkReader is not NULL, take a ref and pass it to libpng if
-     *  the image is a png.
+     *  If the SkPngChunkReader is not NULL then:
+     *      If the image is not a PNG, the SkPngChunkReader will be ignored.
+     *      If the image is a PNG, the SkPngChunkReader will be reffed.
+     *      If the PNG has unknown chunks, the SkPngChunkReader will be used
+     *      to handle these chunks.  SkPngChunkReader will be called to read
+     *      any unknown chunk at any point during the creation of the codec
+     *      or the decode.  Note that if SkPngChunkReader fails to read a
+     *      chunk, this could result in a failure to create the codec or a
+     *      failure to decode the image.
+     *      If the PNG does not contain unknown chunks, the SkPngChunkReader
+     *      will not be used or modified.
      *
      *  Will take a ref if it returns a codec, else will not affect the data.
      */

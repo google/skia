@@ -20,8 +20,8 @@ SkAndroidCodec::SkAndroidCodec(const SkImageInfo& info)
     : fInfo(info)
 {}
 
-SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream));
+SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream, chunkReader));
     if (nullptr == codec) {
         return nullptr;
     }
@@ -43,12 +43,12 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream) {
     }
 }
 
-SkAndroidCodec* SkAndroidCodec::NewFromData(SkData* data) {
+SkAndroidCodec* SkAndroidCodec::NewFromData(SkData* data, SkPngChunkReader* chunkReader) {
     if (!data) {
         return nullptr;
     }
 
-    return NewFromStream(new SkMemoryStream(data));
+    return NewFromStream(new SkMemoryStream(data), chunkReader);
 }
 
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
