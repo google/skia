@@ -223,3 +223,125 @@ private:
 };
 DEF_GM( return new ApplyFilterGM; )
 
+//////////////////////
+
+#include "SkDisplacementMapEffect.h"
+#include "SkMatrixConvolutionImageFilter.h"
+
+static SkImage* make_native_red_oval(SkCanvas* rootCanvas) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(160, 90);
+    SkAutoTUnref<SkSurface> surface(rootCanvas->newSurface(info));
+    if (!surface) {
+        surface.reset(SkSurface::NewRaster(info));
+    }
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorRED);
+    surface->getCanvas()->drawOval(SkRect::MakeWH(160, 90), paint);
+    return surface->newImageSnapshot();
+}
+
+
+static SkSurface* make_surface(SkCanvas* factory, const SkImageInfo& info) {
+    SkSurface* surface = factory->newSurface(info);
+    if (!surface) {
+        surface = SkSurface::NewRaster(info);
+    }
+    return surface;
+}
+
+template <typename DrawProc> SkImage* snapshot(SkCanvas* canvas, const SkImageInfo& info,
+                                               DrawProc p) {
+    SkAutoTUnref<SkSurface> surface(make_surface(canvas, info));
+    p(surface->getCanvas());
+    return surface->newImageSnapshot();
+}
+
+/**
+ *  Try drawing an image+imagefilter in two different ways
+ *  1. as drawSprite
+ *  2. as drawImage + clipped to image bounds
+ *  The two should draw the same. To try to visualize this, we draw a 4th column of the difference
+ *  between the two versions. If it is all black (where there is alpha), they drew the same!
+ */
+class DrawWithFilterGM : public skiagm::GM {
+public:
+    DrawWithFilterGM() {}
+
+protected:
+    SkString onShortName() override {
+        return SkString("draw-with-filter");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(780, 780);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkAutoTUnref<SkImage> image0(make_native_red_oval(canvas));
+        SkAutoTUnref<SkImage> image1(make_native_red_oval(canvas));
+
+        const ImageFilterFactory factories[] = {
+            IFCCast([]{ return SkBlurImageFilter::Create(8, 8); }),
+            IFCCast([]{ SkAutoTUnref<SkColorFilter> cf(SkModeColorFilter::Create(SK_ColorBLUE,
+                                                                         SkXfermode::kSrcIn_Mode));
+                return SkColorFilterImageFilter::Create(cf);
+            }),
+            IFCCast([]{ return SkDilateImageFilter::Create(8, 8); }),
+            IFCCast([]{ return SkErodeImageFilter::Create(8, 8); }),
+            IFCCast([]{ return SkOffsetImageFilter::Create(8, 8); }),
+
+            IFCCast([]{ return (SkImageFilter*)SkDisplacementMapEffect::Create(
+                                                   SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                                   SkDisplacementMapEffect::kG_ChannelSelectorType,
+                                                   10, nullptr); }),
+            IFCCast([]{
+                const SkScalar kernel[] = { 1, 1, 1, 1, -7, 1, 1, 1, 1 };
+                return (SkImageFilter*)SkMatrixConvolutionImageFilter::Create(
+                                                  SkISize::Make(3, 3),
+                                                  kernel, 1, 0,
+                                                  SkIPoint::Make(0, 0),
+                                                  SkMatrixConvolutionImageFilter::kClamp_TileMode,
+                                                  true); }),
+        };
+
+        const SkScalar dx = 180;
+        const SkScalar dy = 110;
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(image0->width(), image0->height());
+
+        canvas->translate(20, 20);
+        for (auto&& factory : factories) {
+            SkAutoTUnref<SkImageFilter> filter(factory());
+            SkPaint paint;
+            paint.setImageFilter(filter);
+
+            SkAutoTUnref<SkImage> snap0(snapshot(canvas, info, [&](SkCanvas* c) {
+                c->drawImage(image0, 0, 0, &paint);
+            }));
+            canvas->drawImage(snap0, 0, 0);
+
+            SkAutoTUnref<SkImage> snap1(snapshot(canvas, info, [&](SkCanvas* c) {
+                SkBitmap bm;
+                image1->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode);
+                c->drawSprite(bm, 0, 0, &paint);
+            }));
+            canvas->drawImage(snap1, dx, 0);
+
+            SkAutoTUnref<SkImage> diff(snapshot(canvas, info, [&](SkCanvas* c) {
+                c->drawImage(snap0, 0, 0);
+                SkPaint p;
+                p.setXfermodeMode(SkXfermode::kDifference_Mode);
+                c->drawImage(snap1, 0, 0, &p);
+            }));
+            canvas->drawImage(diff, 2*dx, 0);
+
+            canvas->translate(0, dy);
+        }
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+DEF_GM( return new DrawWithFilterGM; )
+
