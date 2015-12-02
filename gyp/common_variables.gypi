@@ -238,6 +238,7 @@
     'skia_egl%': '<(skia_egl)',
     'skia_use_sdl%': 0,
     'skia_fast%': 0,
+    'skia_dump_stats%': 0,
     'skia_fast_flags': [
         '-O3',                   # Even for Debug builds.
         '-march=native',         # Use all features of and optimize for THIS machine.

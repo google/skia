@@ -394,6 +394,11 @@
         'defines': [ 'SK_USE_SDL' ],
     }],
 
+    [ 'skia_dump_stats == 1',
+      {
+        'defines': [ 'SK_DUMP_STATS'],
+    }],
+
     [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]',
       {
         'defines': [
