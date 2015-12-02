@@ -414,6 +414,9 @@ public:
     // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return nullptr; }
 
+    // This is only to be used by testing code
+    virtual void resetShaderCacheForTesting() const {}
+
 protected:
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.

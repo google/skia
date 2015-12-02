@@ -157,6 +157,7 @@ void SKPBench::drawPicture() {
 }
 
 #if SK_SUPPORT_GPU
+#include "GrGpu.h"
 static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPicture* picture,
                                SkTArray<SkString>* keys, SkTArray<double>* values,
                                const char* tag) {
@@ -186,6 +187,7 @@ void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<
     context->flush();
     context->freeGpuResources();
     context->resetContext();
+    context->getGpu()->resetShaderCacheForTesting();
     draw_pic_for_stats(canvas, context, fPic, keys, values, "first_frame");
 
     // draw second frame

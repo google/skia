@@ -129,6 +129,8 @@ public:
     bool isTestingOnlyBackendTexture(GrBackendObject) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) const override;
 
+    void resetShaderCacheForTesting() const override;
+
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 
@@ -215,6 +217,7 @@ private:
         ProgramCache(GrGLGpu* gpu);
         ~ProgramCache();
 
+        void reset();
         void abandon();
         GrGLProgram* refProgram(const DrawArgs&);
 

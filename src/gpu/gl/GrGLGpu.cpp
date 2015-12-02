@@ -3384,6 +3384,10 @@ void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTe
 #endif
 }
 
+void GrGLGpu::resetShaderCacheForTesting() const {
+    fProgramCache->abandon();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 GrGLAttribArrayState* GrGLGpu::HWGeometryState::bindArrayAndBuffersToDraw(
                                                 GrGLGpu* gpu,
