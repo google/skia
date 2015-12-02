@@ -54,7 +54,7 @@ SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
                     SkAndroidCodec::NewFromStream(streamDeleter.detach());
             if (nullptr == codec) {
                 SkCodecPrintf("Error: Failed to create codec.\n");
-                return nullptr;
+                return NULL;
             }
 
             SkEncodedFormat format = codec->getEncodedFormat();
