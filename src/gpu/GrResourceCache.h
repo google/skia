@@ -229,6 +229,8 @@ public:
     void getStats(Stats*) const;
 
     void dumpStats(SkString*) const;
+
+    void dumpStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* value) const;
 #endif
 
     // This function is for unit testing and is only defined in test tools.

@@ -105,6 +105,13 @@ void GrContext::dumpCacheStats(SkString* out) const {
 #endif
 }
 
+void GrContext::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                            SkTArray<double>* values) const {
+#if GR_CACHE_STATS
+    fResourceCache->dumpStatsKeyValuePairs(keys, values);
+#endif
+}
+
 void GrContext::printCacheStats() const {
     SkString out;
     this->dumpCacheStats(&out);
@@ -215,6 +222,23 @@ void GrResourceCache::dumpStats(SkString* out) const {
     out->appendf("\t\tEntry Bytes: current %d (budgeted %d, %.2g%% full, %d unbudgeted) high %d\n",
                  SkToInt(fBytes), SkToInt(fBudgetedBytes), byteUtilization,
                  SkToInt(stats.fUnbudgetedSize), SkToInt(fHighWaterBytes));
+}
+
+void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                             SkTArray<double>* values) const {
+    this->validate();
+
+    Stats stats;
+    this->getStats(&stats);
+
+    keys->push_back(SkString("gpu_cache_total_entries")); values->push_back(stats.fTotal);
+    keys->push_back(SkString("gpu_cache_external_entries")); values->push_back(stats.fExternal);
+    keys->push_back(SkString("gpu_cache_borrowed_entries")); values->push_back(stats.fBorrowed);
+    keys->push_back(SkString("gpu_cache_adopted_entries")); values->push_back(stats.fAdopted);
+    keys->push_back(SkString("gpu_cache_purgable_entries")); values->push_back(stats.fNumPurgeable);
+    keys->push_back(SkString("gpu_cache_non_purgable_entries")); values->push_back(stats.fNumNonPurgeable);
+    keys->push_back(SkString("gpu_cache_scratch_entries")); values->push_back(stats.fScratch);
+    keys->push_back(SkString("gpu_cache_unbudgeted_size")); values->push_back((double)stats.fUnbudgetedSize);
 }
 
 #endif

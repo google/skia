@@ -167,6 +167,7 @@ static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPic
 
     int offset = keys->count();
     context->dumpGpuStatsKeyValuePairs(keys, values);
+    context->dumpCacheStatsKeyValuePairs(keys, values);
 
     // append tag, but only to new tags
     for (int i = offset; i < keys->count(); i++, offset++) {
