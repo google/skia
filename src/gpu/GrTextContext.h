@@ -52,8 +52,7 @@ protected:
 
     GrTextContext(GrContext*, const SkSurfaceProps&);
 
-    virtual bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
-                         const SkPaint&, const SkMatrix& viewMatrix) = 0;
+    virtual bool canDraw(const SkPaint&, const SkMatrix& viewMatrix) = 0;
 
     virtual void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&,
                             const GrPaint&, const SkPaint&,

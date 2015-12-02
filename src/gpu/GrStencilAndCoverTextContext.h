@@ -33,8 +33,9 @@ public:
 private:
     GrStencilAndCoverTextContext(GrContext*, const SkSurfaceProps&);
 
-    bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint& skPaint,
-                 const SkMatrix&) override { return this->internalCanDraw(skPaint); }
+    bool canDraw(const SkPaint& skPaint, const SkMatrix&) override {
+        return this->internalCanDraw(skPaint);
+    }
 
     bool internalCanDraw(const SkPaint&);
 

@@ -42,7 +42,7 @@ void GrTextContext::drawText(GrDrawContext* dc, GrRenderTarget* rt,
 
     GrTextContext* textContext = this;
     do {
-        if (textContext->canDraw(rt, clip, paint, skPaint, viewMatrix)) {
+        if (textContext->canDraw(skPaint, viewMatrix)) {
             textContext->onDrawText(dc, rt, clip, paint, skPaint, viewMatrix,
                                     text, byteLength, x, y, clipBounds);
             return;
@@ -51,8 +51,7 @@ void GrTextContext::drawText(GrDrawContext* dc, GrRenderTarget* rt,
     } while (textContext);
 
     // fall back to drawing as a path
-    this->drawTextAsPath(dc, clip, skPaint, viewMatrix,
-                         text, byteLength, x, y, clipBounds);
+    this->drawTextAsPath(dc, clip, skPaint, viewMatrix, text, byteLength, x, y, clipBounds);
 }
 
 void GrTextContext::drawPosText(GrDrawContext* dc, GrRenderTarget* rt,
@@ -67,7 +66,7 @@ void GrTextContext::drawPosText(GrDrawContext* dc, GrRenderTarget* rt,
 
     GrTextContext* textContext = this;
     do {
-        if (textContext->canDraw(rt, clip, paint, skPaint, viewMatrix)) {
+        if (textContext->canDraw(skPaint, viewMatrix)) {
             textContext->onDrawPosText(dc, rt, clip, paint, skPaint, viewMatrix,
                                        text, byteLength, pos,
                                        scalarsPerPosition, offset, clipBounds);

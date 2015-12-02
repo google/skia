@@ -36,8 +36,7 @@ private:
     GrAtlasTextContext(GrContext*, const SkSurfaceProps&);
     ~GrAtlasTextContext() override {}
 
-    bool canDraw(const GrRenderTarget*, const GrClip&, const GrPaint&,
-                 const SkPaint&, const SkMatrix& viewMatrix) override;
+    bool canDraw(const SkPaint&, const SkMatrix& viewMatrix) override;
 
     void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
                     const SkMatrix& viewMatrix, const char text[], size_t byteLength,
@@ -59,9 +58,9 @@ private:
                                  const SkMatrix& viewMatrix, SkPaint* dfPaint, 
                                  SkScalar* textRatio);
     void bmpAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, int left, int top,
-                        GrColor color, GrFontScaler*, const SkIRect& clipRect);
+                        GrColor color, GrFontScaler*);
     bool dfAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, SkScalar sx, SkScalar sy,
-                       GrColor color, GrFontScaler*, const SkIRect& clipRect, SkScalar textRatio,
+                       GrColor color, GrFontScaler*, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
     inline void appendGlyphPath(GrAtlasTextBlob*, GrGlyph*, GrFontScaler*, const SkGlyph&,
                                 SkScalar x, SkScalar y, SkScalar scale = 1.0f,
@@ -96,28 +95,27 @@ private:
 
     // A helper for drawing BitmapText in a run of distance fields
     inline void fallbackDrawPosText(GrAtlasTextBlob*, int runIndex,
-                                    GrRenderTarget*, const GrClip&, GrColor color,
+                                    const GrClip&, GrColor color,
                                     const SkPaint&, const SkMatrix& viewMatrix,
                                     const SkTDArray<char>& fallbackTxt,
                                     const SkTDArray<SkScalar>& fallbackPos,
                                     int scalarsPerPosition,
-                                    const SkPoint& offset,
-                                    const SkIRect& clipRect);
+                                    const SkPoint& offset);
 
     void internalDrawBMPText(GrAtlasTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
                              GrColor color, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
-                             SkScalar x, SkScalar y, const SkIRect& clipRect);
+                             SkScalar x, SkScalar y);
     void internalDrawBMPPosText(GrAtlasTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
                                 GrColor color, const SkMatrix& viewMatrix,
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
-                                const SkPoint& offset, const SkIRect& clipRect);
+                                const SkPoint& offset);
 
     void internalDrawDFText(GrAtlasTextBlob*, int runIndex, const SkPaint&,
                             GrColor color, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y, const SkIRect& clipRect,
+                            SkScalar x, SkScalar y,
                             SkScalar textRatio,
                             SkTDArray<char>* fallbackTxt,
                             SkTDArray<SkScalar>* fallbackPos,
@@ -126,7 +124,7 @@ private:
                                GrColor color, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
-                               const SkPoint& offset, const SkIRect& clipRect,
+                               const SkPoint& offset,
                                SkScalar textRatio,
                                SkTDArray<char>* fallbackTxt,
                                SkTDArray<SkScalar>* fallbackPos);
@@ -141,7 +139,7 @@ private:
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
-                            SkDrawFilter* drawFilter, const SkIRect& clipRect, GrRenderTarget*,
+                            SkDrawFilter* drawFilter,
                             const GrClip&);
     inline static bool HasLCD(const SkTextBlob*);
     inline void initDistanceFieldPaint(GrAtlasTextBlob*, SkPaint*, SkScalar* textRatio,
@@ -149,17 +147,17 @@ private:
 
     // Test methods
     // TODO this is really ugly.  It'd be much nicer if positioning could be moved to batch
-    inline GrAtlasTextBlob* createDrawTextBlob(GrRenderTarget*, const GrClip&, const GrPaint&,
-                                              const SkPaint&, const SkMatrix& viewMatrix,
-                                              const char text[], size_t byteLength,
-                                              SkScalar x, SkScalar y,
-                                              const SkIRect& regionClipBounds);
-    inline GrAtlasTextBlob* createDrawPosTextBlob(GrRenderTarget*, const GrClip&, const GrPaint&,
-                                                 const SkPaint&, const SkMatrix& viewMatrix,
-                                                 const char text[], size_t byteLength,
-                                                 const SkScalar pos[], int scalarsPerPosition,
-                                                 const SkPoint& offset,
-                                                 const SkIRect& regionClipBounds);
+    inline GrAtlasTextBlob* createDrawTextBlob(const GrClip&, const GrPaint&,
+                                               const SkPaint&, const SkMatrix& viewMatrix,
+                                               const char text[], size_t byteLength,
+                                               SkScalar x, SkScalar y,
+                                               const SkIRect& regionClipBounds);
+    inline GrAtlasTextBlob* createDrawPosTextBlob(const GrClip&, const GrPaint&,
+                                                  const SkPaint&, const SkMatrix& viewMatrix,
+                                                  const char text[], size_t byteLength,
+                                                  const SkScalar pos[], int scalarsPerPosition,
+                                                  const SkPoint& offset,
+                                                  const SkIRect& regionClipBounds);
 
     // Distance field text needs this table to compute a value for use in the fragment shader.
     // Because the GrAtlasTextContext can go out of scope before the final flush, this needs to be
