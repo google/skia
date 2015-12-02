@@ -248,15 +248,13 @@ void GrDrawContext::drawRect(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-
     SkScalar width = nullptr == strokeInfo ? -1 : strokeInfo->getWidth();
 
     // Check if this is a full RT draw and can be replaced with a clear. We don't bother checking
     // cases where the RT is fully inside a stroke.
     if (width < 0) {
         SkRect rtRect;
-        pipelineBuilder.getRenderTarget()->getBoundsRect(&rtRect);
+        fRenderTarget->getBoundsRect(&rtRect);
         SkRect clipSpaceRTRect = rtRect;
         bool checkClip = GrClip::kWideOpen_ClipType != clip.clipType();
         if (checkClip) {
@@ -287,13 +285,15 @@ void GrDrawContext::drawRect(const GrClip& clip,
     }
 
     GrColor color = paint.getColor();
-    bool needAA = should_apply_coverage_aa(paint, pipelineBuilder.getRenderTarget());
+    bool needAA = should_apply_coverage_aa(paint, fRenderTarget);
 
     // The fill path can handle rotation but not skew
     // The stroke path needs the rect to remain axis aligned (no rotation or skew)
     // None of our AA draw rect calls can handle perspective yet
     bool canApplyAA = width >=0 ? viewMatrix.rectStaysRect() :
                                   view_matrix_ok_for_aa_fill_rect(viewMatrix);
+
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
 
     if (needAA && canApplyAA) {
         SkASSERT(!viewMatrix.hasPerspective());
@@ -365,7 +365,8 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
-    if (should_apply_coverage_aa(paint, pipelineBuilder.getRenderTarget()) &&
+
+    if (should_apply_coverage_aa(paint, fRenderTarget) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         SkAutoTUnref<GrDrawBatch> batch(GrAAFillRectBatch::Create(
             paint.getColor(), viewMatrix, localMatrix, rectToDraw));
