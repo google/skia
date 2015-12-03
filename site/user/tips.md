@@ -20,13 +20,23 @@ Note: Setting enviroment variables in the Windows CMD.EXE shell [uses a
 different syntax](/user/quick/windows#env).
 
 You can also set environment variables such as `CC`, `CXX`,
-`CFLAGS`, or `CPPFLAGS` to control how Skia is compiled. For
-example:
+`CFLAGS`, `CXXFLAGS`, or `CPPFLAGS` to control how Skia is compiled.
+To build with clang, for example:
 
 <!--?prettify lang=sh?-->
 
     CC='clang' CXX='clang++' python bin/sync-and-gyp
     ninja -C out/Debug
+
+To build with clang and enable a compiler warning for unused parameters in C++
+(but not C or assembly) code:
+
+<!--?prettify lang=sh?-->
+
+    CXXFLAGS='-Wunused-parameter'
+    CC='clang' CXX='clang++' python bin/sync-and-gyp
+    ninja -C out/Debug
+
 
 The `GYP_GENERATORS` environment variable can be used to set the
 build systems that you want to use (as a comma-separated list).

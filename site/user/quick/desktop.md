@@ -32,7 +32,8 @@ Gyp Options
 
 Skia relies on Gyp to generate build files.  Read about
 [specifying options for Gyp](/user/tips#gypdefines) to set the
-compile-time settings, compiler, build systems, and build directory.
+compile-time settings, compiler (e.g. use clang instead of gcc), build systems,
+and build directory.
 
 Run unit and correctness tests
 ------------------------------
