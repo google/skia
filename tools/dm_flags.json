@@ -356,9 +356,7 @@
     "decode", 
     "inc14.png", 
     "--match", 
-    "~WritePixels", 
-    "~tabl_mozilla_0", 
-    "~desk_yahoonews_0"
+    "~WritePixels"
   ], 
   "Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release": [
     "--config", 
@@ -523,8 +521,6 @@
     "decode", 
     "inc14.png", 
     "--match", 
-    "~tabl_mozilla_0", 
-    "~desk_yahoonews_0", 
     "~imagefiltersclipped", 
     "~imagefilterscropexpand", 
     "~scaled_tilemodes_npot", 
@@ -690,10 +686,7 @@
     "_", 
     "image", 
     "decode", 
-    "inc14.png", 
-    "--match", 
-    "~tabl_mozilla_0", 
-    "~desk_yahoonews_0"
+    "inc14.png"
   ], 
   "Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug": [
     "--config", 
@@ -856,10 +849,7 @@
     "_", 
     "image", 
     "decode", 
-    "inc14.png", 
-    "--match", 
-    "~tabl_mozilla_0", 
-    "~desk_yahoonews_0"
+    "inc14.png"
   ], 
   "Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release": [
     "--config", 
@@ -1032,8 +1022,6 @@
     "_", 
     "interlaced3.png", 
     "--match", 
-    "~tabl_mozilla_0", 
-    "~desk_yahoonews_0", 
     "~ResourceCache"
   ], 
   "Test-Mac10.8-Clang-MacMini4.1-CPU-SSE4-x86_64-Release": [

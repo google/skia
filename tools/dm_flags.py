@@ -176,11 +176,6 @@ def get_args(bot):
   if 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
 
-  # skia:3249: these images flakily don't decode on Android.
-  if 'Android' in bot:
-    match.append('~tabl_mozilla_0')
-    match.append('~desk_yahoonews_0')
-
   if 'NexusPlayer' in bot:
     match.append('~ResourceCache')
 
