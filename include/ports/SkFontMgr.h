@@ -43,6 +43,8 @@ public:
      *  The caller must call unref() on the returned object.
      *  Never returns NULL; will return an empty set if the name is not found.
      *
+     *  Passing |nullptr| as the parameter will return the default system font.
+     *
      *  It is possible that this will return a style set not accessible from
      *  createStyleSet(int) due to hidden or auto-activated fonts.
      */
@@ -53,6 +55,9 @@ public:
      *  and return a ref to it. The caller must call unref() on the returned
      *  object. Will never return NULL, as it will return the default font if
      *  no matching font is found.
+     *
+     *  Passing |nullptr| as the parameter for |familyName| will return the
+     *  default system font.
      *
      *  It is possible that this will return a style set not accessible from
      *  createStyleSet(int) or matchFamily(const char[]) due to hidden or
@@ -67,6 +72,9 @@ public:
      *
      *  Will return NULL if no family can be found for the character
      *  in the system fallback.
+     *
+     *  Passing |nullptr| as the parameter for |familyName| will return the
+     *  default system font.
      *
      *  bcp47[0] is the least significant fallback, bcp47[bcp47Count-1] is the
      *  most significant. If no specified bcp47 codes match, any font with the
