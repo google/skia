@@ -43,6 +43,8 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
     fContext = fGpu->getContext();
     fClipMaskManager.reset(new GrClipMaskManager(this, options.fClipBatchToBounds));
 
+    fDrawBatchBounds = options.fDrawBatchBounds;
+
     rt->setLastDrawTarget(this);
 
 #ifdef SK_DEBUG
@@ -195,7 +197,18 @@ void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
 
 void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     // Draw all the generated geometry.
+    SkRandom random;
     for (int i = 0; i < fBatches.count(); ++i) {
+        if (fDrawBatchBounds) {
+            const SkRect& bounds = fBatches[i]->bounds();
+            SkIRect ibounds;
+            bounds.roundOut(&ibounds);
+            // In multi-draw buffer all the batches use the same render target and we won't need to
+            // get the batchs bounds.
+            if (GrRenderTarget* rt = fBatches[i]->renderTarget()) {
+                fGpu->drawDebugWireRect(rt, ibounds, 0xFF000000 | random.nextU());
+            }
+        }
         fBatches[i]->draw(flushState);
     }
 

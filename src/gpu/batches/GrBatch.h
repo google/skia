@@ -16,6 +16,7 @@
 
 class GrCaps;
 class GrBatchFlushState;
+class GrRenderTarget;
 
 /**
  * GrBatch is the base class for all Ganesh deferred geometry generators.  To facilitate
@@ -112,6 +113,9 @@ public:
 
     /** Used for spewing information about batches when debugging. */
     virtual SkString dumpInfo() const = 0;
+
+    /** Can remove this when multi-draw-buffer lands */
+    virtual GrRenderTarget* renderTarget() const = 0;
 
 protected:
     // NOTE, compute some bounds, even if extremely conservative.  Do *NOT* setLargest on the bounds

@@ -13,6 +13,10 @@
 
 #include "SkSurface.h"
 
+// This should be safe to include even in no-gpu builds. Include by relative path so it
+// can be found in non-gpu builds.
+#include "../include/gpu/GrContextOptions.h"
+
 #if SK_SUPPORT_GPU
 
 // Ganesh is available.  Yippee!
@@ -53,11 +57,6 @@ class GrContext {
 public:
     void dumpCacheStats(SkString*) const {}
     void dumpGpuStats(SkString*) const {}
-};
-
-struct GrContextOptions {
-    bool fImmediateMode;
-    bool fClipBatchToBounds;
 };
 
 class GrContextFactory {

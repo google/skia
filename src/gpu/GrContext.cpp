@@ -88,6 +88,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
 
     GrDrawTarget::Options dtOptions;
     dtOptions.fClipBatchToBounds = options.fClipBatchToBounds;
+    dtOptions.fDrawBatchBounds = options.fDrawBatchBounds;
     fDrawingManager.reset(new GrDrawingManager(this, dtOptions));
 
     // GrBatchFontCache will eventually replace GrFontCache

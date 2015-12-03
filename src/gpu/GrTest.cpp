@@ -284,6 +284,8 @@ public:
         return false;
     }
 
+    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {};
+
 private:
     void onResetContext(uint32_t resetBits) override {}
 
