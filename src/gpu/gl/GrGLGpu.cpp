@@ -232,8 +232,8 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         fPathRendering.reset(new GrGLPathRendering(this));
     }
+
     this->createCopyPrograms();
-    fWireRectProgram.fProgram = 0;
 }
 
 GrGLGpu::~GrGLGpu() {
@@ -258,17 +258,8 @@ GrGLGpu::~GrGLGpu() {
             GL_CALL(DeleteProgram(fCopyPrograms[i].fProgram));
         }
     }
-
     if (0 != fCopyProgramArrayBuffer) {
         GL_CALL(DeleteBuffers(1, &fCopyProgramArrayBuffer));
-    }
-
-    if (0 != fWireRectProgram.fProgram) {
-        GL_CALL(DeleteProgram(fWireRectProgram.fProgram));
-    }
-
-    if (0 != fWireRectArrayBuffer) {
-        GL_CALL(DeleteBuffers(1, &fWireRectArrayBuffer));
     }
 
     delete fProgramCache;
@@ -285,8 +276,6 @@ void GrGLGpu::contextAbandoned() {
     for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
         fCopyPrograms[i].fProgram = 0;
     }
-    fWireRectProgram.fProgram = 0;
-    fWireRectArrayBuffer = 0;
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->abandonGpuResources();
     }
@@ -3027,6 +3016,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
     return false;
 }
 
+
 void GrGLGpu::createCopyPrograms() {
     for (size_t i = 0; i < SK_ARRAY_COUNT(fCopyPrograms); ++i) {
         fCopyPrograms[i].fProgram = 0;
@@ -3047,7 +3037,7 @@ void GrGLGpu::createCopyPrograms() {
                                   GrShaderVar::kVaryingOut_TypeModifier);
         GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType,
                                    GrShaderVar::kOut_TypeModifier);
-
+    
         SkString vshaderTxt(version);
         aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
         vshaderTxt.append(";");
@@ -3143,160 +3133,6 @@ void GrGLGpu::createCopyPrograms() {
                              GR_GL_STATIC_DRAW));
 }
 
-void GrGLGpu::createWireRectProgram() {
-    SkASSERT(!fWireRectProgram.fProgram);
-    GrGLSLShaderVar uColor("u_color", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uRect("u_rect", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    const char* version = this->glCaps().glslCaps()->versionDeclString();
-
-    // The rect uniform specifies the rectangle in NDC space as a vec4 (left,top,right,bottom). The
-    // program is used with a vbo containing the unit square. Vertices are computed from the rect
-    // uniform using the 4 vbo vertices.
-    SkString vshaderTxt(version);
-    aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
-    vshaderTxt.append(";");
-    uRect.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
-    vshaderTxt.append(";");
-    vshaderTxt.append(
-        "// Wire Rect Program VS\n"
-        "void main() {"
-        "  gl_Position.x = u_rect.x + a_vertex.x * (u_rect.z - u_rect.x);"
-        "  gl_Position.y = u_rect.y + a_vertex.y * (u_rect.w - u_rect.y);"
-        "  gl_Position.zw = vec2(0, 1);"
-        "}"
-    );
-
-    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
-
-    SkString fshaderTxt(version);
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                 *this->glCaps().glslCaps(),
-                                                 &fshaderTxt);
-    uColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
-    fshaderTxt.append(";");
-    const char* fsOutName;
-    if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
-        fshaderTxt.append(";");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "gl_FragColor";
-    }
-    fshaderTxt.appendf(
-        "// Write Rect Program FS\n"
-        "void main() {"
-        "  %s = %s;"
-        "}",
-        fsOutName,
-        uColor.c_str()
-    );
-
-    GL_CALL_RET(fWireRectProgram.fProgram, CreateProgram());
-    const char* str;
-    GrGLint length;
-
-    str = vshaderTxt.c_str();
-    length = SkToInt(vshaderTxt.size());
-    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fWireRectProgram.fProgram,
-                                                  GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                  &fStats);
-
-    str = fshaderTxt.c_str();
-    length = SkToInt(fshaderTxt.size());
-    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fWireRectProgram.fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                  &fStats);
-
-    GL_CALL(LinkProgram(fWireRectProgram.fProgram));
-
-    GL_CALL_RET(fWireRectProgram.fColorUniform,
-                GetUniformLocation(fWireRectProgram.fProgram, "u_color"));
-    GL_CALL_RET(fWireRectProgram.fRectUniform,
-                GetUniformLocation(fWireRectProgram.fProgram, "u_rect"));
-    GL_CALL(BindAttribLocation(fWireRectProgram.fProgram, 0, "a_vertex"));
-
-    GL_CALL(DeleteShader(vshader));
-    GL_CALL(DeleteShader(fshader));
-    GL_CALL(GenBuffers(1, &fWireRectArrayBuffer));
-    fHWGeometryState.setVertexBufferID(this, fWireRectArrayBuffer);
-    static const GrGLfloat vdata[] = {
-        0, 0,
-        0, 1,
-        1, 1,
-        1, 0,
-    };
-    GL_ALLOC_CALL(this->glInterface(),
-                  BufferData(GR_GL_ARRAY_BUFFER,
-                             (GrGLsizeiptr) sizeof(vdata),
-                             vdata,  // data ptr
-                             GR_GL_STATIC_DRAW));
-}
-
-void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor color) {
-    this->handleDirtyContext();
-    if (!fWireRectProgram.fProgram) {
-        this->createWireRectProgram();
-    }
-
-    int w = rt->width();
-    int h = rt->height();
-
-    // Compute the edges of the rectangle (top,left,right,bottom) in NDC space. Must consider
-    // whether the render target is flipped or not.
-    GrGLfloat edges[4];
-    edges[0] = SkIntToScalar(rect.fLeft) + 0.5f;
-    edges[2] = SkIntToScalar(rect.fRight) - 0.5f;
-    if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-        edges[1] = h - (SkIntToScalar(rect.fTop) + 0.5f);
-        edges[3] = h - (SkIntToScalar(rect.fBottom) - 0.5f);
-    } else {
-        edges[1] = SkIntToScalar(rect.fTop) + 0.5f;
-        edges[3] = SkIntToScalar(rect.fBottom) - 0.5f;
-    }
-    edges[0] = 2 * edges[0] / w - 1.0f;
-    edges[1] = 2 * edges[1] / h - 1.0f;
-    edges[2] = 2 * edges[2] / w - 1.0f;
-    edges[3] = 2 * edges[3] / h - 1.0f;
-
-    GrGLfloat channels[4];
-    static const GrGLfloat scale255 = 1.f / 255.f;
-    channels[0] = GrColorUnpackR(color) * scale255;
-    channels[1] = GrColorUnpackG(color) * scale255;
-    channels[2] = GrColorUnpackB(color) * scale255;
-    channels[3] = GrColorUnpackA(color) * scale255;
-
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
-    this->flushRenderTarget(glRT, &rect);
-
-    GL_CALL(UseProgram(fWireRectProgram.fProgram));
-    fHWProgramID = fWireRectProgram.fProgram;
-
-    fHWGeometryState.setVertexArrayID(this, 0);
-
-    GrGLAttribArrayState* attribs =
-        fHWGeometryState.bindArrayAndBufferToDraw(this, fWireRectArrayBuffer);
-    attribs->set(this, 0, fWireRectArrayBuffer, 2, GR_GL_FLOAT, false, 2 * sizeof(GrGLfloat), 0);
-    attribs->disableUnusedArrays(this, 0x1);
-
-    GL_CALL(Uniform4fv(fWireRectProgram.fRectUniform, 1, edges));
-    GL_CALL(Uniform4fv(fWireRectProgram.fColorUniform, 1, channels));
-
-    GrXferProcessor::BlendInfo blendInfo;
-    blendInfo.reset();
-    this->flushBlend(blendInfo);
-    this->flushColorWrite(true);
-    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
-    this->flushHWAAState(glRT, false);
-    this->disableScissor();
-    GrStencilSettings stencil;
-    stencil.setDisabled();
-    this->flushStencil(stencil);
-
-    GL_CALL(DrawArrays(GR_GL_LINE_LOOP, 0, 4));
-}
-
-
 void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
                                 GrSurface* src,
                                 const SkIRect& srcRect,
@@ -3321,7 +3157,8 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
 
     GrGLAttribArrayState* attribs =
         fHWGeometryState.bindArrayAndBufferToDraw(this, fCopyProgramArrayBuffer);
-    attribs->set(this, 0, fCopyProgramArrayBuffer, 2, GR_GL_FLOAT, false, 2 * sizeof(GrGLfloat), 0);
+    attribs->set(this, 0, fCopyProgramArrayBuffer, 2, GR_GL_FLOAT, false,
+                    2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
     // dst rect edges in NDC (-1 to 1)

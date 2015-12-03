@@ -26,7 +26,6 @@ public:
     const char* name() const override { return "Discard"; }
 
     uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
         SkString string;

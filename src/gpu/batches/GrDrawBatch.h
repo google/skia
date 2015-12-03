@@ -63,11 +63,6 @@ public:
         return this->pipeline()->getRenderTarget()->getUniqueID();
     }
 
-    GrRenderTarget* renderTarget() const final {
-        SkASSERT(fPipelineInstalled);
-        return this->pipeline()->getRenderTarget();
-    }
-
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("RT: %d\n", this->renderTargetUniqueID());

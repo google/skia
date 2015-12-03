@@ -404,8 +404,6 @@ public:
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;
 
-    // draws an outline rectangle for debugging/visualization purposes.
-    virtual void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) = 0;
 
     // Determines whether a copy of a texture must be made in order to be compatible with
     // a given GrTextureParams. If so, the width, height and filter used for the copy are

@@ -45,9 +45,8 @@ class GrDrawTarget final : public SkRefCnt {
 public:
     /** Options for GrDrawTarget behavior. */
     struct Options {
-        Options () : fClipBatchToBounds(false), fDrawBatchBounds(false) {}
+        Options () : fClipBatchToBounds(false) {}
         bool fClipBatchToBounds;
-        bool fDrawBatchBounds;
     };
 
     GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, const Options&);
@@ -319,8 +318,6 @@ private:
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
     SkTDArray<GrDrawTarget*>                    fDependencies;
     GrRenderTarget*                             fRenderTarget;
-
-    bool                                        fDrawBatchBounds;
 
     typedef SkRefCnt INHERITED;
 };

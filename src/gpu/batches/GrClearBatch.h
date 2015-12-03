@@ -28,7 +28,6 @@ public:
     const char* name() const override { return "Clear"; }
 
     uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -72,7 +71,6 @@ public:
     const char* name() const override { return "ClearStencilClip"; }
 
     uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->getUniqueID(); }
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
         SkString string;

@@ -131,8 +131,6 @@ public:
 
     void resetShaderCacheForTesting() const override;
 
-    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override;
-
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 
@@ -330,8 +328,6 @@ private:
     SkAutoTUnref<GrGLContext>  fGLContext;
 
     void createCopyPrograms();
-    void createWireRectProgram();
-    void createUnitRectBuffer();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -508,13 +504,6 @@ private:
         GrGLint     fPosXformUniform;
     }                           fCopyPrograms[2];
     GrGLuint                    fCopyProgramArrayBuffer;
-
-    struct {
-        GrGLuint fProgram;
-        GrGLint  fColorUniform;
-        GrGLint  fRectUniform;
-    }                           fWireRectProgram;
-    GrGLuint                    fWireRectArrayBuffer;
 
     static int TextureTargetToCopyProgramIdx(GrGLenum target) {
         if (target == GR_GL_TEXTURE_2D) {
