@@ -13,6 +13,8 @@
 // All the SSE specializations are still good ideas.  We'll just add Sk8f.
 #include "SkNx_sse.h"
 
+// SkNx_sse.h defines SKNX_IS_FAST.
+
 namespace {  // See SkNx.h
 
 template <>

@@ -10,6 +10,8 @@
 
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
 
+#define SKNX_IS_FAST
+
 namespace {  // See SkNx.h
 
 
