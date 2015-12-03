@@ -97,6 +97,7 @@ BASE_SRCS_UNIX = glob(
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
+        "src/ports/SkFontMgr_fontconfig.cpp",
         "src/ports/SkImageDecoder_CG.cpp",
         "src/ports/SkFontMgr_fontconfig_factory.cpp",
         "src/ports/SkImageDecoder_WIC.cpp",
