@@ -768,7 +768,7 @@ public:
             if (!this->rewindIfNeeded()) {
                 return kCouldNotRewind;
             }
-            this->updateNextScanline(currScanline);
+            this->updateCurrScanline(currScanline);
         }
 
         if (setjmp(png_jmpbuf(this->png_ptr()))) {

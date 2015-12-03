@@ -415,9 +415,9 @@ public:
     int nextScanline() const { return this->outputScanline(fCurrScanline); }
 
     /**
-     * Returns the output y-coordinate of the row that corresponds to an input
-     * y-coordinate.  The input y-coordinate represents where the scanline
-     * is located in the encoded data.
+     *  Returns the output y-coordinate of the row that corresponds to an input
+     *  y-coordinate.  The input y-coordinate represents where the scanline
+     *  is located in the encoded data.
      *
      *  This will equal inputScanline, except in the case of strangely
      *  encoded image types (bottom-up bmps, interlaced gifs).
@@ -529,13 +529,21 @@ protected:
     virtual SkScanlineOrder onGetScanlineOrder() const { return kTopDown_SkScanlineOrder; }
 
     /**
-     *  Update the next scanline. Used by interlaced png.
+     *  Update the current scanline. Used by interlaced png.
      */
-    void updateNextScanline(int newY) { fCurrScanline = newY; }
+    void updateCurrScanline(int newY) { fCurrScanline = newY; }
 
     const SkImageInfo& dstInfo() const { return fDstInfo; }
 
     const SkCodec::Options& options() const { return fOptions; }
+
+    /**
+     *  Returns the number of scanlines that have been decoded so far.
+     *  This is unaffected by the SkScanlineOrder.
+     *
+     *  Returns -1 if we have not started a scanline decode.
+     */
+    int currScanline() const { return fCurrScanline; }
 
     virtual int onOutputScanline(int inputScanline) const;
 

@@ -508,7 +508,7 @@ SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 
 void SkGifCodec::handleScanlineFrame(int count, int* rowsBeforeFrame, int* rowsInFrame) {
     if (fFrameIsSubset) {
-        const int currRow = this->INHERITED::nextScanline();
+        const int currRow = this->currScanline();
 
         // The number of rows that remain to be skipped before reaching rows that we
         // actually must decode into.
