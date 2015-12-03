@@ -1399,12 +1399,16 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// GL_STREAM_DRAW triggers an optimization in Chromium's GPU process where a client's vertex buffer
+// objects are implemented as client-side-arrays on tile-deferred architectures.
+#define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
+
 GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
     GrGLVertexBuffer::Desc desc;
-    desc.fDynamic = dynamic;
+    desc.fUsage = dynamic ? GrGLBufferImpl::kDynamicDraw_Usage : GrGLBufferImpl::kStaticDraw_Usage;
     desc.fSizeInBytes = size;
 
-    if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
+    if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && dynamic) {
         desc.fID = 0;
         GrGLVertexBuffer* vertexBuffer = new GrGLVertexBuffer(this, desc);
         return vertexBuffer;
@@ -1418,7 +1422,7 @@ GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
                           BufferData(GR_GL_ARRAY_BUFFER,
                                      (GrGLsizeiptr) desc.fSizeInBytes,
                                      nullptr,   // data ptr
-                                     desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
+                                     dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
             if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
                 GL_CALL(DeleteBuffers(1, &desc.fID));
                 this->notifyVertexBufferDelete(desc.fID);
@@ -1433,10 +1437,10 @@ GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
 
 GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
     GrGLIndexBuffer::Desc desc;
-    desc.fDynamic = dynamic;
+    desc.fUsage = dynamic ? GrGLBufferImpl::kDynamicDraw_Usage : GrGLBufferImpl::kStaticDraw_Usage;
     desc.fSizeInBytes = size;
 
-    if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
+    if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && dynamic) {
         desc.fID = 0;
         GrIndexBuffer* indexBuffer = new GrGLIndexBuffer(this, desc);
         return indexBuffer;
@@ -1450,7 +1454,7 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
                           BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
                                      (GrGLsizeiptr) desc.fSizeInBytes,
                                      nullptr,  // data ptr
-                                     desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
+                                     dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
             if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
                 GL_CALL(DeleteBuffers(1, &desc.fID));
                 this->notifyIndexBufferDelete(desc.fID);
@@ -1461,6 +1465,35 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
         }
         return nullptr;
     }
+}
+
+GrTransferBuffer* GrGLGpu::onCreateTransferBuffer(size_t size, TransferType type) {
+    GrGLTransferBuffer::Desc desc;
+    bool toGpu = (kCpuToGpu_TransferType == type);
+    desc.fUsage = toGpu ? GrGLBufferImpl::kStreamDraw_Usage : GrGLBufferImpl::kStreamRead_Usage;
+
+    desc.fSizeInBytes = size;
+    
+    // TODO: check caps to see if we can create a PBO, and which kind
+    GL_CALL(GenBuffers(1, &desc.fID));
+    if (desc.fID) {
+        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
+        // make sure driver can allocate memory for this buffer
+        GrGLenum type = toGpu ? GR_GL_PIXEL_UNPACK_BUFFER : GR_GL_PIXEL_PACK_BUFFER;
+        GL_ALLOC_CALL(this->glInterface(),
+                      BufferData(type,
+                                 (GrGLsizeiptr) desc.fSizeInBytes,
+                                 nullptr,  // data ptr
+                                 (toGpu ? GR_GL_STREAM_DRAW : GR_GL_STREAM_READ)));
+        if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
+            GL_CALL(DeleteBuffers(1, &desc.fID));
+            return nullptr;
+        }
+        GrTransferBuffer* transferBuffer = new GrGLTransferBuffer(this, desc, type);
+        return transferBuffer;
+    }
+
+    return nullptr;
 }
 
 void GrGLGpu::flushScissor(const GrScissorState& scissorState,
@@ -1603,8 +1636,7 @@ void GrGLGpu::bindBuffer(GrGLuint id, GrGLenum type) {
     this->handleDirtyContext();
     if (GR_GL_ARRAY_BUFFER == type) {
         this->bindVertexBuffer(id);
-    } else {
-        SkASSERT(GR_GL_ELEMENT_ARRAY_BUFFER == type);
+    } else if (GR_GL_ELEMENT_ARRAY_BUFFER == type) {
         this->bindIndexBufferAndDefaultVertexArray(id);
     }
 }
@@ -1614,19 +1646,27 @@ void GrGLGpu::releaseBuffer(GrGLuint id, GrGLenum type) {
     GL_CALL(DeleteBuffers(1, &id));
     if (GR_GL_ARRAY_BUFFER == type) {
         this->notifyVertexBufferDelete(id);
-    } else {
-        SkASSERT(GR_GL_ELEMENT_ARRAY_BUFFER == type);
+    } else if (GR_GL_ELEMENT_ARRAY_BUFFER == type) {
         this->notifyIndexBufferDelete(id);
     }
 }
 
-// GL_STREAM_DRAW triggers an optimization in Chromium's GPU process where a client's vertex buffer
-// objects are implemented as client-side-arrays on tile-deferred architectures.
-#define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
+static GrGLenum get_gl_usage(GrGLBufferImpl::Usage usage) {
+    static const GrGLenum grToGL[] = {
+        GR_GL_STATIC_DRAW,   // GrGLBufferImpl::kStaticDraw_Usage
+        DYNAMIC_USAGE_PARAM, // GrGLBufferImpl::kDynamicDraw_Usage
+        GR_GL_STREAM_DRAW,   // GrGLBufferImpl::kStreamDraw_Usage
+        GR_GL_STREAM_READ,   // GrGLBufferImpl::kStreamRead_Usage
+    };
+    static_assert(SK_ARRAY_COUNT(grToGL) == GrGLBufferImpl::kUsageCount, "array_size_mismatch");
 
-void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t currentSize,
-                         size_t requestedSize) {
+    return grToGL[usage];
+}
+
+void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage, 
+                         size_t currentSize, size_t requestedSize) {
     void* mapPtr = nullptr;
+    GrGLenum glUsage = get_gl_usage(usage);
     // Handling dirty context is done in the bindBuffer call
     switch (this->glCaps().mapBufferType()) {
         case GrGLCaps::kNone_MapBufferType:
@@ -1635,8 +1675,7 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t curren
             this->bindBuffer(id, type);
             // Let driver know it can discard the old data
             if (GR_GL_USE_BUFFER_DATA_NULL_HINT || currentSize != requestedSize) {
-                GL_CALL(BufferData(type, requestedSize, nullptr,
-                                   dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
+                GL_CALL(BufferData(type, requestedSize, nullptr, glUsage));
             }
             GL_CALL_RET(mapPtr, MapBuffer(type, GR_GL_WRITE_ONLY));
             break;
@@ -1644,8 +1683,7 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t curren
             this->bindBuffer(id, type);
             // Make sure the GL buffer size agrees with fDesc before mapping.
             if (currentSize != requestedSize) {
-                GL_CALL(BufferData(type, requestedSize, nullptr,
-                                   dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
+                GL_CALL(BufferData(type, requestedSize, nullptr, glUsage));
             }
             static const GrGLbitfield kAccess = GR_GL_MAP_INVALIDATE_BUFFER_BIT |
                                                 GR_GL_MAP_WRITE_BIT;
@@ -1656,8 +1694,7 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t curren
             this->bindBuffer(id, type);
             // Make sure the GL buffer size agrees with fDesc before mapping.
             if (currentSize != requestedSize) {
-                GL_CALL(BufferData(type, requestedSize, nullptr,
-                                   dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
+                GL_CALL(BufferData(type, requestedSize, nullptr, glUsage));
             }
             GL_CALL_RET(mapPtr, MapBufferSubData(type, 0, requestedSize, GR_GL_WRITE_ONLY));
             break;
@@ -1665,16 +1702,16 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, bool dynamic, size_t curren
     return mapPtr;
 }
 
-void GrGLGpu::bufferData(GrGLuint id, GrGLenum type, bool dynamic, size_t currentSize,
-                         const void* src, size_t srcSizeInBytes) {
+void GrGLGpu::bufferData(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage, 
+                         size_t currentSize, const void* src, size_t srcSizeInBytes) {
     SkASSERT(srcSizeInBytes <= currentSize);
     // bindbuffer handles dirty context
     this->bindBuffer(id, type);
-    GrGLenum usage = dynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW;
+    GrGLenum glUsage = get_gl_usage(usage);
 
 #if GR_GL_USE_BUFFER_DATA_NULL_HINT
     if (currentSize == srcSizeInBytes) {
-        GL_CALL(BufferData(type, (GrGLsizeiptr) srcSizeInBytes, src, usage));
+        GL_CALL(BufferData(type, (GrGLsizeiptr) srcSizeInBytes, src, glUsage));
     } else {
         // Before we call glBufferSubData we give the driver a hint using
         // glBufferData with nullptr. This makes the old buffer contents
@@ -1683,14 +1720,14 @@ void GrGLGpu::bufferData(GrGLuint id, GrGLenum type, bool dynamic, size_t curren
         // assign a different allocation for the new contents to avoid
         // flushing the gpu past draws consuming the old contents.
         // TODO I think we actually want to try calling bufferData here
-        GL_CALL(BufferData(type, currentSize, nullptr, usage));
+        GL_CALL(BufferData(type, currentSize, nullptr, glUsage));
         GL_CALL(BufferSubData(type, 0, (GrGLsizeiptr) srcSizeInBytes, src));
     }
 #else
     // Note that we're cheating on the size here. Currently no methods
     // allow a partial update that preserves contents of non-updated
     // portions of the buffer (map() does a glBufferData(..size, nullptr..))
-    GL_CALL(BufferData(type, srcSizeInBytes, src, usage));
+    GL_CALL(BufferData(type, srcSizeInBytes, src, glUsage));
 #endif
 }
 
