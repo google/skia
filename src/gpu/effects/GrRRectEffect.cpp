@@ -12,10 +12,11 @@
 #include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
 #include "SkRRect.h"
+#include "SkTLazy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 // The effects defined here only handle rrect radii >= kRadiusMin.
 static const SkScalar kRadiusMin = SK_ScalarHalf;
@@ -150,20 +151,21 @@ GLCircularRRectEffect::GLCircularRRectEffect(const GrProcessor& ) {
 
 void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     const CircularRRectEffect& crre = args.fFp.cast<CircularRRectEffect>();
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char *rectName;
     const char *radiusPlusHalfName;
     // The inner rect is the rrect bounds inset by the radius. Its left, top, right, and bottom
     // edges correspond to components x, y, z, and w, respectively. When a side of the rrect has
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
-    fInnerRectUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                  kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                  "innerRect",
-                                                  &rectName);
-    fRadiusPlusHalfUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                       kFloat_GrSLType, kDefault_GrSLPrecision,
-                                                       "radiusPlusHalf",
-                                                       &radiusPlusHalfName);
+    fInnerRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                   "innerRect",
+                                                   &rectName);
+    fRadiusPlusHalfUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                        kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                        "radiusPlusHalf",
+                                                        &radiusPlusHalfName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char* fragmentPos = fragBuilder->fragmentPosition();
@@ -504,12 +506,13 @@ GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrProcessor& effect) {
 
 void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     const EllipticalRRectEffect& erre = args.fFp.cast<EllipticalRRectEffect>();
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char *rectName;
     // The inner rect is the rrect bounds inset by the x/y radii
-    fInnerRectUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                            "innerRect",
-                                            &rectName);
+    fInnerRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                   "innerRect",
+                                                   &rectName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char* fragmentPos = fragBuilder->fragmentPosition();
@@ -531,8 +534,8 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
-            fInvRadiiSqdUniform = args.fBuilder->addUniform(
-                                                         GrGLSLProgramBuilder::kFragment_Visibility,
+            fInvRadiiSqdUniform = uniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
                                                          kVec2f_GrSLType, kHigh_GrSLPrecision,
                                                          "invRadiiXY",
                                                          &invRadiiXYSqdName);
@@ -543,8 +546,8 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         }
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
-            fInvRadiiSqdUniform = args.fBuilder->addUniform(
-                                                         GrGLSLProgramBuilder::kFragment_Visibility,
+            fInvRadiiSqdUniform = uniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
                                                          kVec4f_GrSLType, kHigh_GrSLPrecision,
                                                          "invRadiiLTRB",
                                                          &invRadiiLTRBSqdName);

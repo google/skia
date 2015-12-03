@@ -7,11 +7,13 @@
 
 #include "GrBezierEffect.h"
 
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
 #include "glsl/GrGLSLVarying.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 class GrGLConicEffect : public GrGLSLGeometryProcessor {
 public:
@@ -73,10 +75,10 @@ GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
 }
 
 void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    GrGLSLGPBuilder* pb = args.fPB;
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     const GrConicEffect& gp = args.fGP.cast<GrConicEffect>();
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     // emit attributes
     varyingHandler->emitAttributes(gp);
@@ -88,21 +90,21 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
-        this->setupUniformColor(args.fPB, fragBuilder, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
     }
 
     // Setup position
-    this->setupPosition(pb,
-                        vertBuilder,
+    this->setupPosition(vertBuilder,
+                        uniformHandler,
                         gpArgs,
                         gp.inPosition()->fName,
                         gp.viewMatrix(),
                         &fViewMatrixUniform);
 
     // emit transforms with position
-    this->emitTransforms(pb,
-                         vertBuilder,
+    this->emitTransforms(vertBuilder,
                          varyingHandler,
+                         uniformHandler,
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          gp.localMatrix(),
@@ -168,11 +170,12 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // TODO should we really be doing this?
     if (gp.coverageScale() != 0xff) {
         const char* coverageScale;
-        fCoverageScaleUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                               kFloat_GrSLType,
-                                               kDefault_GrSLPrecision,
-                                               "Coverage",
-                                               &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
+                                                         kFloat_GrSLType,
+                                                         kDefault_GrSLPrecision,
+                                                         "Coverage",
+                                                         &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
     } else {
         fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
@@ -301,10 +304,10 @@ GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)
 }
 
 void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    GrGLSLGPBuilder* pb = args.fPB;
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     const GrQuadEffect& gp = args.fGP.cast<GrQuadEffect>();
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     // emit attributes
     varyingHandler->emitAttributes(gp);
@@ -316,21 +319,21 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
-        this->setupUniformColor(args.fPB, fragBuilder, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
     }
 
     // Setup position
-    this->setupPosition(pb,
-                        vertBuilder,
+    this->setupPosition(vertBuilder,
+                        uniformHandler,
                         gpArgs,
                         gp.inPosition()->fName,
                         gp.viewMatrix(),
                         &fViewMatrixUniform);
 
     // emit transforms with position
-    this->emitTransforms(pb,
-                         vertBuilder,
+    this->emitTransforms(vertBuilder,
                          varyingHandler,
+                         uniformHandler,
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          gp.localMatrix(),
@@ -384,11 +387,12 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     if (0xff != gp.coverageScale()) {
         const char* coverageScale;
-        fCoverageScaleUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                               kFloat_GrSLType,
-                                               kDefault_GrSLPrecision,
-                                               "Coverage",
-                                               &coverageScale);
+        fCoverageScaleUniform = uniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
+                                                         kFloat_GrSLType,
+                                                         kDefault_GrSLPrecision,
+                                                         "Coverage",
+                                                         &coverageScale);
         fragBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
     } else {
         fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
@@ -507,6 +511,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     const GrCubicEffect& gp = args.fGP.cast<GrCubicEffect>();
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     // emit attributes
     varyingHandler->emitAttributes(gp);
@@ -518,21 +523,21 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
-        this->setupUniformColor(args.fPB, fragBuilder, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
     }
 
     // Setup position
-    this->setupPosition(args.fPB,
-                        vertBuilder,
+    this->setupPosition(vertBuilder,
+                        uniformHandler,
                         gpArgs,
                         gp.inPosition()->fName,
                         gp.viewMatrix(),
                         &fViewMatrixUniform);
 
     // emit transforms with position
-    this->emitTransforms(args.fPB,
-                         vertBuilder,
+    this->emitTransforms(vertBuilder,
                          varyingHandler,
+                         uniformHandler,
                          gpArgs->fPositionVar,
                          gp.inPosition()->fName,
                          args.fTransformsIn,

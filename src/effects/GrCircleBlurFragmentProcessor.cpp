@@ -11,12 +11,13 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrInvariantOutput.h"
 #include "GrTextureProvider.h"
 
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrGLCircleBlurFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
@@ -40,11 +41,11 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
     // x,y  - the center of the circle
     // z    - the distance at which the intensity starts falling off (e.g., the start of the table)
     // w    - the size of the profile texture
-    fDataUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                             kVec4f_GrSLType,
-                                             kDefault_GrSLPrecision,
-                                             "data",
-                                             &dataName);
+    fDataUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kVec4f_GrSLType,
+                                                    kDefault_GrSLPrecision,
+                                                    "data",
+                                                    &dataName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char *fragmentPos = fragBuilder->fragmentPosition();

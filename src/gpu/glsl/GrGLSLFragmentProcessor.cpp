@@ -9,7 +9,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
                                       const GrFragmentProcessor& processor) {
@@ -93,8 +93,8 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
     fragBuilder->codeAppend("{\n");
     fragBuilder->codeAppendf("// Child Index %d (mangle: %s): %s\n", childIndex,
                              fragBuilder->getMangleString().c_str(), childProc.name());
-    EmitArgs childArgs(args.fBuilder,
-                       fragBuilder,
+    EmitArgs childArgs(fragBuilder,
+                       args.fUniformHandler,
                        args.fGLSLCaps,
                        childProc,
                        outputColor,

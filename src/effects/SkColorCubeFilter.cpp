@@ -20,8 +20,8 @@
 #include "SkGr.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -246,14 +246,15 @@ void GrColorCubeEffect::GLSLProcessor::emitCode(EmitArgs& args) {
         args.fInputColor = "vec4(1)";
     }
 
-    fColorCubeSizeUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kFloat_GrSLType, kDefault_GrSLPrecision,
-                                            "Size");
-    const char* colorCubeSizeUni = args.fBuilder->getUniformCStr(fColorCubeSizeUni);
-    fColorCubeInvSizeUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                               kFloat_GrSLType, kDefault_GrSLPrecision,
-                                               "InvSize");
-    const char* colorCubeInvSizeUni = args.fBuilder->getUniformCStr(fColorCubeInvSizeUni);
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+    fColorCubeSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                   "Size");
+    const char* colorCubeSizeUni = uniformHandler->getUniformCStr(fColorCubeSizeUni);
+    fColorCubeInvSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                      kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                      "InvSize");
+    const char* colorCubeInvSizeUni = uniformHandler->getUniformCStr(fColorCubeInvSizeUni);
 
     const char* nonZeroAlpha = "nonZeroAlpha";
     const char* unPMColor = "unPMColor";

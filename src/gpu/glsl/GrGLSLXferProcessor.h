@@ -12,9 +12,10 @@
 #include "glsl/GrGLSLTextureSampler.h"
 
 class GrXferProcessor;
+class GrGLSLCaps;
+class GrGLSLUniformHandler;
 class GrGLSLXPBuilder;
 class GrGLSLXPFragmentBuilder;
-class GrGLSLCaps;
 
 class GrGLSLXferProcessor {
 public:
@@ -23,8 +24,8 @@ public:
 
     typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
     struct EmitArgs {
-        EmitArgs(GrGLSLXPBuilder* pb,
-                 GrGLSLXPFragmentBuilder* fragBuilder,
+        EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
+                 GrGLSLUniformHandler* uniformHandler,
                  const GrGLSLCaps* caps,
                  const GrXferProcessor& xp,
                  const char* inputColor,
@@ -32,8 +33,8 @@ public:
                  const char* outputPrimary,
                  const char* outputSecondary,
                  const TextureSamplerArray& samplers)
-            : fPB(pb)
-            , fXPFragBuilder(fragBuilder)
+            : fXPFragBuilder(fragBuilder)
+            , fUniformHandler(uniformHandler)
             , fGLSLCaps(caps)
             , fXP(xp)
             , fInputColor(inputColor)
@@ -42,8 +43,8 @@ public:
             , fOutputSecondary(outputSecondary)
             , fSamplers(samplers) {}
 
-        GrGLSLXPBuilder* fPB;
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
+        GrGLSLUniformHandler* fUniformHandler;
         const GrGLSLCaps* fGLSLCaps;
         const GrXferProcessor& fXP;
         const char* fInputColor;
@@ -82,8 +83,8 @@ private:
      * the blending logic. The base class applies coverage. A subclass only needs to implement this
      * method if it can construct a GrXferProcessor that reads the dst color.
      */
-    virtual void emitBlendCodeForDstRead(GrGLSLXPBuilder*,
-                                         GrGLSLXPFragmentBuilder*,
+    virtual void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder*,
+                                         GrGLSLUniformHandler*,
                                          const char* srcColor,
                                          const char* srcCoverage,
                                          const char* dstColor,

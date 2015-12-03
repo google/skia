@@ -15,8 +15,8 @@
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
 static const bool gUseUnpremul = false;
@@ -65,10 +65,10 @@ public:
         SkString dstColor("dstColor");
         this->emitChild(0, nullptr, &dstColor, args);
 
-        fKUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                          kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                          "k");
-        const char* kUni = args.fBuilder->getUniformCStr(fKUni);
+        fKUni = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                 kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                 "k");
+        const char* kUni = args.fUniformHandler->getUniformCStr(fKUni);
 
         add_arithmetic_code(fragBuilder,
                             args.fInputColor,
@@ -210,18 +210,18 @@ public:
     }
 
 private:
-    void emitBlendCodeForDstRead(GrGLSLXPBuilder* pb,
-                                 GrGLSLXPFragmentBuilder* fragBuilder,
+    void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder* fragBuilder,
+                                 GrGLSLUniformHandler* uniformHandler,
                                  const char* srcColor,
                                  const char* srcCoverage,
                                  const char* dstColor,
                                  const char* outColor,
                                  const char* outColorSecondary,
                                  const GrXferProcessor& proc) override {
-        fKUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                               kVec4f_GrSLType, kDefault_GrSLPrecision,
-                               "k");
-        const char* kUni = pb->getUniformCStr(fKUni);
+        fKUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                           kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                           "k");
+        const char* kUni = uniformHandler->getUniformCStr(fKUni);
 
         add_arithmetic_code(fragBuilder, srcColor, dstColor, outColor, kUni, fEnforcePMColor);
 

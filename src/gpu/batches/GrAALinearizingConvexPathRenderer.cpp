@@ -25,7 +25,6 @@
 #include "SkPathPriv.h"
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 
 static const int DEFAULT_BUFFER_SIZE = 100;
 

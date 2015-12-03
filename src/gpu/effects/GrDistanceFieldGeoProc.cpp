@@ -13,8 +13,8 @@
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -35,13 +35,13 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
-        GrGLSLGPBuilder* pb = args.fPB;
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkAssertResult(fragBuilder->enableFeature(
                 GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+        GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
         // emit attributes
         varyingHandler->emitAttributes(dfTexEffect);
@@ -50,9 +50,9 @@ public:
         // adjust based on gamma
         const char* distanceAdjustUniName = nullptr;
         // width, height, 1/(3*width)
-        fDistanceAdjustUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-            kFloat_GrSLType, kDefault_GrSLPrecision,
-            "DistanceAdjust", &distanceAdjustUniName);
+        fDistanceAdjustUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                        kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                        "DistanceAdjust", &distanceAdjustUniName);
 #endif
 
         // Setup pass through color
@@ -60,22 +60,23 @@ public:
             if (dfTexEffect.hasVertexColor()) {
                 varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
             } else {
-                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
         }
 
         // Setup position
-        this->setupPosition(pb,
-                            vertBuilder,
+        this->setupPosition(vertBuilder,
+                            uniformHandler,
                             gpArgs,
                             dfTexEffect.inPosition()->fName,
                             dfTexEffect.viewMatrix(),
                             &fViewMatrixUniform);
 
         // emit transforms
-        this->emitTransforms(pb,
-                             vertBuilder,
+        this->emitTransforms(vertBuilder,
                              varyingHandler,
+                             uniformHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
                              args.fTransformsIn,
@@ -296,13 +297,13 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
-        GrGLSLGPBuilder* pb = args.fPB;
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkAssertResult(fragBuilder->enableFeature(
                                      GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+        GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
         // emit attributes
         varyingHandler->emitAttributes(dfTexEffect);
@@ -315,32 +316,33 @@ public:
             if (dfTexEffect.hasVertexColor()) {
                 varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
             } else {
-                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
         }
         vertBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // Setup position
-        this->setupPosition(pb,
-                            vertBuilder,
+        this->setupPosition(vertBuilder,
+                            uniformHandler,
                             gpArgs,
                             dfTexEffect.inPosition()->fName,
                             dfTexEffect.viewMatrix(),
                             &fViewMatrixUniform);
 
         // emit transforms
-        this->emitTransforms(pb,
-                             vertBuilder,
+        this->emitTransforms(vertBuilder,
                              varyingHandler,
+                             uniformHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
                              args.fTransformsIn,
                              args.fTransformsOut);
 
         const char* textureSizeUniName = nullptr;
-        fTextureSizeUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                         kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                         "TextureSize", &textureSizeUniName);
+        fTextureSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                     "TextureSize", &textureSizeUniName);
 
         // Use highp to work around aliasing issues
         fragBuilder->codeAppend(GrGLSLShaderVar::PrecisionString(args.fGLSLCaps,
@@ -521,10 +523,10 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldLCDTextGeoProc>();
-        GrGLSLGPBuilder* pb = args.fPB;
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+        GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
         // emit attributes
         varyingHandler->emitAttributes(dfTexEffect);
@@ -533,21 +535,21 @@ public:
 
         // setup pass through color
         if (!dfTexEffect.colorIgnored()) {
-            this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+            this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
         }
 
         // Setup position
-        this->setupPosition(pb,
-                            vertBuilder,
+        this->setupPosition(vertBuilder,
+                            uniformHandler,
                             gpArgs,
                             dfTexEffect.inPosition()->fName,
                             dfTexEffect.viewMatrix(),
                             &fViewMatrixUniform);
 
         // emit transforms
-        this->emitTransforms(pb,
-                             vertBuilder,
+        this->emitTransforms(vertBuilder,
                              varyingHandler,
+                             uniformHandler,
                              gpArgs->fPositionVar,
                              dfTexEffect.inPosition()->fName,
                              args.fTransformsIn,
@@ -628,9 +630,9 @@ public:
 
         // adjust width based on gamma
         const char* distanceAdjustUniName = nullptr;
-        fDistanceAdjustUni = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-            kVec3f_GrSLType, kDefault_GrSLPrecision,
-            "DistanceAdjust", &distanceAdjustUniName);
+        fDistanceAdjustUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                                        "DistanceAdjust", &distanceAdjustUniName);
         fragBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
 
         // To be strictly correct, we should compute the anti-aliasing factor separately

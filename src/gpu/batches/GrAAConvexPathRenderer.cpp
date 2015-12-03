@@ -25,10 +25,12 @@
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "batches/GrVertexBatch.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
@@ -549,9 +551,9 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
-            GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
             varyingHandler->emitAttributes(qe);
@@ -563,16 +565,17 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // Setup pass through color
             if (!qe.colorIgnored()) {
-                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb, vertBuilder, gpArgs, qe.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, qe.inPosition()->fName);
 
             // emit transforms
-            this->emitTransforms(args.fPB,
-                                 vertBuilder,
+            this->emitTransforms(vertBuilder,
                                  varyingHandler,
+                                 uniformHandler,
                                  gpArgs->fPositionVar,
                                  qe.inPosition()->fName,
                                  qe.localMatrix(),

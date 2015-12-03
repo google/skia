@@ -23,8 +23,8 @@
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 
@@ -863,9 +863,9 @@ GLDashingCircleEffect::GLDashingCircleEffect() {
 
 void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
-    GrGLSLGPBuilder* pb = args.fPB;
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     // emit attributes
     varyingHandler->emitAttributes(dce);
@@ -883,16 +883,16 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!dce.colorIgnored()) {
-        this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
     }
 
     // Setup position
-    this->setupPosition(pb, vertBuilder, gpArgs, dce.inPosition()->fName);
+    this->setupPosition(vertBuilder, gpArgs, dce.inPosition()->fName);
 
     // emit transforms
-    this->emitTransforms(args.fPB,
-                         vertBuilder,
+    this->emitTransforms(vertBuilder,
                          varyingHandler,
+                         uniformHandler,
                          gpArgs->fPositionVar,
                          dce.inPosition()->fName,
                          dce.localMatrix(),
@@ -1075,10 +1075,10 @@ GLDashingLineEffect::GLDashingLineEffect() {
 
 void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
-    GrGLSLGPBuilder* pb = args.fPB;
 
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     // emit attributes
     varyingHandler->emitAttributes(de);
@@ -1097,16 +1097,16 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!de.colorIgnored()) {
-        this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
     }
 
     // Setup position
-    this->setupPosition(pb, vertBuilder, gpArgs, de.inPosition()->fName);
+    this->setupPosition(vertBuilder, gpArgs, de.inPosition()->fName);
 
     // emit transforms
-    this->emitTransforms(args.fPB,
-                         vertBuilder,
+    this->emitTransforms(vertBuilder,
                          varyingHandler,
+                         uniformHandler,
                          gpArgs->fPositionVar,
                          de.inPosition()->fName,
                          de.localMatrix(),

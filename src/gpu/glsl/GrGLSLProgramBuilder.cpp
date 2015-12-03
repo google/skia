@@ -34,6 +34,27 @@ void GrGLSLProgramBuilder::nameVariable(SkString* out, char prefix, const char* 
 
 void GrGLSLProgramBuilder::appendUniformDecls(ShaderVisibility visibility,
                                               SkString* out) const {
-    this->onAppendUniformDecls(visibility, out);
+    this->uniformHandler()->appendUniformDecls(visibility, out);
+}
+
+void GrGLSLProgramBuilder::addRTAdjustmentUniform(GrSLPrecision precision,
+                                                  const char* name,
+                                                  const char** outName) {
+        SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
+        fUniformHandles.fRTAdjustmentUni =
+            this->uniformHandler()->addUniform(GrGLSLUniformHandler::kVertex_Visibility,
+                                               kVec4f_GrSLType,
+                                               precision,
+                                               name,
+                                               outName);
+}
+
+void GrGLSLProgramBuilder::addRTHeightUniform(const char* name, const char** outName) {
+        SkASSERT(!fUniformHandles.fRTHeightUni.isValid());
+        GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
+        fUniformHandles.fRTHeightUni =
+            uniformHandler->internalAddUniformArray(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                    name, false, 0, outName);
 }
 

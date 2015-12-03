@@ -415,7 +415,8 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrGLRadialGradient : public GrGLGradientEffect {
 public:
@@ -499,12 +500,12 @@ const GrFragmentProcessor* GrRadialGradient::TestCreate(GrProcessorTestData* d) 
 
 void GrGLRadialGradient::emitCode(EmitArgs& args) {
     const GrRadialGradient& ge = args.fFp.cast<GrRadialGradient>();
-    this->emitUniforms(args.fBuilder, ge);
+    this->emitUniforms(args.fUniformHandler, ge);
     SkString t("length(");
     t.append(args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0));
     t.append(")");
-    this->emitColor(args.fBuilder,
-                    args.fFragBuilder,
+    this->emitColor(args.fFragBuilder,
+                    args.fUniformHandler,
                     args.fGLSLCaps,
                     ge, t.c_str(),
                     args.fOutputColor,

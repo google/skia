@@ -117,9 +117,10 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               const GrGLSLTextureSampler& sampler,
                                               const char* coordName,
                                               GrSLType varyingType) const {
+    GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
     append_texture_lookup(out,
                           fProgramBuilder->glslCaps(),
-                          fProgramBuilder->getUniformCStr(sampler.fSamplerUniform),
+                          uniformHandler->getUniformCStr(sampler.fSamplerUniform),
                           coordName,
                           sampler.config(),
                           sampler.swizzle(),
@@ -187,7 +188,7 @@ void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
     this->versionDecl() = fProgramBuilder->glslCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();
     SkASSERT(visibility);
-    fProgramBuilder->appendUniformDecls((GrGLSLProgramBuilder::ShaderVisibility) visibility,
+    fProgramBuilder->appendUniformDecls((GrGLSLUniformHandler::ShaderVisibility) visibility,
                                         &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
     this->appendDecls(fOutputs, &this->outputs());

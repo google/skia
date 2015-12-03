@@ -8,12 +8,13 @@
 #include "GrYUVtoRGBEffect.h"
 
 #include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 namespace {
 
@@ -67,9 +68,10 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             const char* yuvMatrix   = nullptr;
-            fMatrixUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                   kMat44f_GrSLType, kDefault_GrSLPrecision,
-                                                   "YUVMatrix", &yuvMatrix);
+            fMatrixUni = args.fUniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
+                                                         kMat44f_GrSLType, kDefault_GrSLPrecision,
+                                                         "YUVMatrix", &yuvMatrix);
             fragBuilder->codeAppendf("\t%s = vec4(\n\t\t", args.fOutputColor);
             fragBuilder->appendTextureLookup(args.fSamplers[0], args.fCoords[0].c_str(),
                                              args.fCoords[0].getType());

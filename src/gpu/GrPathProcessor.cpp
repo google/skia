@@ -11,7 +11,7 @@
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProcessorTypes.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
 
 class GrGLPathProcessor : public GrGLSLPrimitiveProcessor {
@@ -26,7 +26,6 @@ public:
     }
 
     void emitCode(EmitArgs& args) override {
-        GrGLSLGPBuilder* pb = args.fPB;
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
@@ -36,11 +35,12 @@ public:
         // Setup uniform color
         if (pathProc.overrides().readsColor()) {
             const char* stagedLocalVarName;
-            fColorUniform = pb->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                           kVec4f_GrSLType,
-                                           kDefault_GrSLPrecision,
-                                           "Color",
-                                           &stagedLocalVarName);
+            fColorUniform = args.fUniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
+                                                         kVec4f_GrSLType,
+                                                         kDefault_GrSLPrecision,
+                                                         "Color",
+                                                         &stagedLocalVarName);
             fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
         }
 

@@ -23,10 +23,10 @@
 #include "effects/GrRRectEffect.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
 
 // TODO(joshualitt) - Break this file up during GrBatch post implementation cleanup
@@ -98,9 +98,9 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
-            GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
             varyingHandler->emitAttributes(ce);
@@ -112,16 +112,17 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ce.colorIgnored()) {
-                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb, vertBuilder, gpArgs, ce.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, ce.inPosition()->fName);
 
             // emit transforms
-            this->emitTransforms(args.fPB,
-                                 vertBuilder,
+            this->emitTransforms(vertBuilder,
                                  varyingHandler,
+                                 uniformHandler,
                                  gpArgs->fPositionVar,
                                  ce.inPosition()->fName,
                                  ce.localMatrix(),
@@ -254,9 +255,9 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
-            GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
             varyingHandler->emitAttributes(ee);
@@ -274,16 +275,17 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
-                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb, vertBuilder, gpArgs, ee.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, ee.inPosition()->fName);
 
             // emit transforms
-            this->emitTransforms(args.fPB,
-                                 vertBuilder,
+            this->emitTransforms(vertBuilder,
                                  varyingHandler,
+                                 uniformHandler,
                                  gpArgs->fPositionVar,
                                  ee.inPosition()->fName,
                                  ee.localMatrix(),
@@ -436,9 +438,9 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
-            GrGLSLGPBuilder* pb = args.fPB;
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
             varyingHandler->emitAttributes(ee);
@@ -456,21 +458,22 @@ public:
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
-                this->setupUniformColor(pb, fragBuilder, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb,
-                                vertBuilder,
+            this->setupPosition(vertBuilder,
+                                uniformHandler,
                                 gpArgs,
                                 ee.inPosition()->fName,
                                 ee.viewMatrix(),
                                 &fViewMatrixUniform);
 
             // emit transforms
-            this->emitTransforms(args.fPB,
-                                 vertBuilder,
+            this->emitTransforms(vertBuilder,
                                  varyingHandler,
+                                 uniformHandler,
                                  gpArgs->fPositionVar,
                                  ee.inPosition()->fName,
                                  args.fTransformsIn,

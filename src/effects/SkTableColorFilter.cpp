@@ -337,8 +337,8 @@ SkColorFilter* SkTable_ColorFilter::newComposed(const SkColorFilter* innerFilter
 #include "effects/GrTextureStripAtlas.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
@@ -415,9 +415,9 @@ void GLColorTableEffect::onSetData(const GrGLSLProgramDataManager& pdm, const Gr
 
 void GLColorTableEffect::emitCode(EmitArgs& args) {
     const char* yoffsets;
-    fRGBAYValuesUni = args.fBuilder->addUniform(GrGLSLFPBuilder::kFragment_Visibility,
-                                                kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                "yoffsets", &yoffsets);
+    fRGBAYValuesUni = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                       "yoffsets", &yoffsets);
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;

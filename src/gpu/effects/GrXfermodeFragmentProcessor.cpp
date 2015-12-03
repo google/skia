@@ -8,11 +8,11 @@
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "SkGrPriv.h"
 
 class ComposeTwoFragmentProcessor : public GrFragmentProcessor {

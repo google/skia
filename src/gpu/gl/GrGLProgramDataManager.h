@@ -19,7 +19,6 @@
 class GrGLGpu;
 class SkMatrix;
 class GrGLProgram;
-class GrGLProgramBuilder;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the

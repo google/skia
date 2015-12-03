@@ -9,8 +9,8 @@
 
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     if (!args.fXP.willReadDstColor()) {
@@ -19,6 +19,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     }
 
     GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char* dstColor = fragBuilder->dstColor();
 
     if (args.fXP.getDstTexture()) {
@@ -35,16 +36,16 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         const char* dstTopLeftName;
         const char* dstCoordScaleName;
 
-        fDstTopLeftUni = args.fPB->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                              kVec2f_GrSLType,
-                                              kDefault_GrSLPrecision,
-                                              "DstTextureUpperLeft",
-                                              &dstTopLeftName);
-        fDstScaleUni = args.fPB->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kVec2f_GrSLType,
-                                            kDefault_GrSLPrecision,
-                                            "DstTextureCoordScale",
-                                            &dstCoordScaleName);
+        fDstTopLeftUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kVec2f_GrSLType,
+                                                    kDefault_GrSLPrecision,
+                                                    "DstTextureUpperLeft",
+                                                    &dstTopLeftName);
+        fDstScaleUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                  kVec2f_GrSLType,
+                                                  kDefault_GrSLPrecision,
+                                                  "DstTextureCoordScale",
+                                                  &dstCoordScaleName);
         const char* fragPos = fragBuilder->fragmentPosition();
 
         fragBuilder->codeAppend("// Read color from copy of the destination.\n");
@@ -60,8 +61,8 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         fragBuilder->codeAppend(";");
     }
 
-    this->emitBlendCodeForDstRead(args.fPB,
-                                  fragBuilder,
+    this->emitBlendCodeForDstRead(fragBuilder,
+                                  uniformHandler,
                                   args.fInputColor,
                                   args.fInputCoverage,
                                   dstColor,

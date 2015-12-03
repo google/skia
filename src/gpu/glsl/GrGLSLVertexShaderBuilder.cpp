@@ -7,6 +7,7 @@
 
 #include "GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
 
 GrGLSLVertexBuilder::GrGLSLVertexBuilder(GrGLSLProgramBuilder* program)
@@ -23,11 +24,9 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
     }
 
     // setup RT Uniform
-    fProgramBuilder->fUniformHandles.fRTAdjustmentUni =
-            fProgramBuilder->addUniform(GrGLSLProgramBuilder::kVertex_Visibility,
-                                        kVec4f_GrSLType, precision,
-                                        fProgramBuilder->rtAdjustment(),
-                                        &fRtAdjustName);
+    fProgramBuilder->addRTAdjustmentUniform(precision,
+                                            fProgramBuilder->rtAdjustment(),
+                                            &fRtAdjustName);
     if (this->getProgramBuilder()->desc().header().fSnapVerticesToPixelCenters) {
         if (kVec3f_GrSLType == posVar.getType()) {
             const char* p = posVar.c_str();

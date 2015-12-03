@@ -10,6 +10,7 @@
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
@@ -136,15 +137,9 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
         static const char* kTempName = "tmpXYFragCoord";
         static const char* kCoordName = "fragCoordYDown";
         if (!fSetupFragPosition) {
-            SkASSERT(!fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
             const char* rtHeightName;
 
-            fProgramBuilder->fUniformHandles.fRTHeightUni =
-                    fProgramBuilder->addFragPosUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                       kFloat_GrSLType,
-                                                       kDefault_GrSLPrecision,
-                                                       "RTHeight",
-                                                       &rtHeightName);
+            fProgramBuilder->addRTHeightUniform("RTHeight", &rtHeightName);
 
             // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
             // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,

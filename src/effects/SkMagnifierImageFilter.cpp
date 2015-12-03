@@ -19,8 +19,8 @@
 #include "effects/GrSingleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrMagnifierEffect : public GrSingleTextureEffect {
 
@@ -120,31 +120,32 @@ GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProcessor&) {
 }
 
 void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
-    fOffsetVar = args.fBuilder->addUniform(
-        GrGLSLProgramBuilder::kFragment_Visibility,
-        kVec2f_GrSLType, kDefault_GrSLPrecision, "Offset");
-    fInvZoomVar = args.fBuilder->addUniform(
-        GrGLSLProgramBuilder::kFragment_Visibility,
-        kVec2f_GrSLType, kDefault_GrSLPrecision, "InvZoom");
-    fInvInsetVar = args.fBuilder->addUniform(
-        GrGLSLProgramBuilder::kFragment_Visibility,
-        kVec2f_GrSLType, kDefault_GrSLPrecision, "InvInset");
-    fBoundsVar = args.fBuilder->addUniform(
-        GrGLSLProgramBuilder::kFragment_Visibility,
-        kVec4f_GrSLType, kDefault_GrSLPrecision, "Bounds");
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+    fOffsetVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                            kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                            "Offset");
+    fInvZoomVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                             "InvZoom");
+    fInvInsetVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                              "InvInset");
+    fBoundsVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                            "Bounds");
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     fragBuilder->codeAppendf("\t\tvec2 zoom_coord = %s + %s * %s;\n",
-                             args.fBuilder->getUniformCStr(fOffsetVar),
+                             uniformHandler->getUniformCStr(fOffsetVar),
                              coords2D.c_str(),
-                             args.fBuilder->getUniformCStr(fInvZoomVar));
-    const char* bounds = args.fBuilder->getUniformCStr(fBoundsVar);
+                             uniformHandler->getUniformCStr(fInvZoomVar));
+    const char* bounds = uniformHandler->getUniformCStr(fBoundsVar);
     fragBuilder->codeAppendf("\t\tvec2 delta = (coord - %s.xy) * %s.zw;\n", bounds, bounds);
     fragBuilder->codeAppendf("\t\tdelta = min(delta, vec2(1.0, 1.0) - delta);\n");
     fragBuilder->codeAppendf("\t\tdelta = delta * %s;\n",
-                             args.fBuilder->getUniformCStr(fInvInsetVar));
+                             uniformHandler->getUniformCStr(fInvInsetVar));
 
     fragBuilder->codeAppend("\t\tfloat weight = 0.0;\n");
     fragBuilder->codeAppend("\t\tif (delta.s < 2.0 && delta.t < 2.0) {\n");

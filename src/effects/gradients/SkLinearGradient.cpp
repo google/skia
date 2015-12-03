@@ -516,7 +516,8 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -604,11 +605,11 @@ const GrFragmentProcessor* GrLinearGradient::TestCreate(GrProcessorTestData* d) 
 
 void GrGLLinearGradient::emitCode(EmitArgs& args) {
     const GrLinearGradient& ge = args.fFp.cast<GrLinearGradient>();
-    this->emitUniforms(args.fBuilder, ge);
+    this->emitUniforms(args.fUniformHandler, ge);
     SkString t = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
     t.append(".x");
-    this->emitColor(args.fBuilder,
-                    args.fFragBuilder,
+    this->emitColor(args.fFragBuilder,
+                    args.fUniformHandler,
                     args.fGLSLCaps,
                     ge, t.c_str(),
                     args.fOutputColor,

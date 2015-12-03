@@ -8,8 +8,8 @@
 #include "GrBicubicEffect.h"
 #include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 #define DS(x) SkDoubleToScalar(x)
 
@@ -52,15 +52,16 @@ GrGLBicubicEffect::GrGLBicubicEffect(const GrProcessor&) {
 void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     const GrTextureDomain& domain = args.fFp.cast<GrBicubicEffect>().domain();
 
-    fCoefficientsUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                           kMat44f_GrSLType, kDefault_GrSLPrecision,
-                                           "Coefficients");
-    fImageIncrementUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                             "ImageIncrement");
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+    fCoefficientsUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                  kMat44f_GrSLType, kDefault_GrSLPrecision,
+                                                  "Coefficients");
+    fImageIncrementUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                    "ImageIncrement");
 
-    const char* imgInc = args.fBuilder->getUniformCStr(fImageIncrementUni);
-    const char* coeff = args.fBuilder->getUniformCStr(fCoefficientsUni);
+    const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
+    const char* coeff = uniformHandler->getUniformCStr(fCoefficientsUni);
 
     SkString cubicBlendName;
 
@@ -98,6 +99,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
             SkString sampleVar;
             sampleVar.printf("rowColors[%d]", x);
             fDomain.sampleTexture(fragBuilder,
+                                  args.fUniformHandler,
                                   args.fGLSLCaps,
                                   domain,
                                   sampleVar.c_str(),

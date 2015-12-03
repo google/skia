@@ -8,6 +8,7 @@
 #include "SkMatrix.h"
 #include "gl/GrGLProgramDataManager.h"
 #include "gl/GrGLGpu.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, COUNT) \
          SkASSERT(arrayCount <= uni.fArrayCount || \
@@ -31,12 +32,12 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         );
         // TODO: Move the Xoom uniform array in both FS and VS bug workaround here.
 
-        if (GrGLProgramBuilder::kVertex_Visibility & builderUniform.fVisibility) {
+        if (GrGLSLUniformHandler::kVertex_Visibility & builderUniform.fVisibility) {
             uniform.fVSLocation = builderUniform.fLocation;
         } else {
             uniform.fVSLocation = kUnusedUniform;
         }
-        if (GrGLProgramBuilder::kFragment_Visibility & builderUniform.fVisibility) {
+        if (GrGLSLUniformHandler::kFragment_Visibility & builderUniform.fVisibility) {
             uniform.fFSLocation = builderUniform.fLocation;
         } else {
             uniform.fFSLocation = kUnusedUniform;

@@ -168,7 +168,8 @@ void SkSweepGradient::SweepGradientContext::shadeSpan16(int x, int y, uint16_t* 
 
 #include "SkGr.h"
 #include "gl/GrGLContext.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrGLSweepGradient : public GrGLGradientEffect {
 public:
@@ -247,7 +248,7 @@ const GrFragmentProcessor* GrSweepGradient::TestCreate(GrProcessorTestData* d) {
 
 void GrGLSweepGradient::emitCode(EmitArgs& args) {
     const GrSweepGradient& ge = args.fFp.cast<GrSweepGradient>();
-    this->emitUniforms(args.fBuilder, ge);
+    this->emitUniforms(args.fUniformHandler, ge);
     SkString coords2D = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
@@ -260,8 +261,8 @@ void GrGLSweepGradient::emitCode(EmitArgs& args) {
         t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
                  coords2D.c_str(), coords2D.c_str());
     }
-    this->emitColor(args.fBuilder,
-                    args.fFragBuilder,
+    this->emitColor(args.fFragBuilder,
+                    args.fUniformHandler,
                     args.fGLSLCaps,
                     ge, t.c_str(),
                     args.fOutputColor,

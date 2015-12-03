@@ -14,6 +14,7 @@
 #include "GrGLTexture.h"
 #include "GrGLProgramDataManager.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 #include "SkString.h"
 #include "SkXfermode.h"
@@ -35,7 +36,7 @@ class GrPipeline;
  */
 class GrGLProgram : public SkRefCnt {
 public:
-    typedef GrGLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
+    typedef GrGLSLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
 
     ~GrGLProgram();
 

@@ -29,9 +29,9 @@
 #include "effects/GrSimpleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #endif
 
 SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
@@ -720,21 +720,22 @@ void GrGLRectBlurEffect::GenKey(GrSLPrecision precision, GrProcessorKeyBuilder* 
 
 
 void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     const char *rectName;
     const char *profileSizeName;
 
     const char* precisionString = GrGLSLShaderVar::PrecisionString(args.fGLSLCaps, fPrecision);
-    fProxyRectUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kVec4f_GrSLType,
-                                            fPrecision,
-                                            "proxyRect",
-                                            &rectName);
-    fProfileSizeUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kFloat_GrSLType,
-                                            kDefault_GrSLPrecision,
-                                            "profileSize",
-                                            &profileSizeName);
+    fProxyRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec4f_GrSLType,
+                                                   fPrecision,
+                                                   "proxyRect",
+                                                   &rectName);
+    fProfileSizeUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                     kFloat_GrSLType,
+                                                     kDefault_GrSLPrecision,
+                                                     "profileSize",
+                                                     &profileSizeName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char *fragmentPos = fragBuilder->fragmentPosition();
@@ -1063,24 +1064,25 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     const char *cornerRadiusName;
     const char *blurRadiusName;
 
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     // The proxy rect has left, top, right, and bottom edges correspond to
     // components x, y, z, and w, respectively.
 
-    fProxyRectUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                  kVec4f_GrSLType,
-                                                  kDefault_GrSLPrecision,
-                                                  "proxyRect",
-                                                  &rectName);
-    fCornerRadiusUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                     kFloat_GrSLType,
-                                                     kDefault_GrSLPrecision,
-                                                     "cornerRadius",
-                                                     &cornerRadiusName);
-    fBlurRadiusUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                   kFloat_GrSLType,
+    fProxyRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec4f_GrSLType,
                                                    kDefault_GrSLPrecision,
-                                                   "blurRadius",
-                                                   &blurRadiusName);
+                                                   "proxyRect",
+                                                   &rectName);
+    fCornerRadiusUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                      kFloat_GrSLType,
+                                                      kDefault_GrSLPrecision,
+                                                      "cornerRadius",
+                                                      &cornerRadiusName);
+    fBlurRadiusUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kFloat_GrSLType,
+                                                    kDefault_GrSLPrecision,
+                                                    "blurRadius",
+                                                    &blurRadiusName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     const char* fragmentPos = fragBuilder->fragmentPosition();

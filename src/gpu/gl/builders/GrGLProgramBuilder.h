@@ -10,6 +10,7 @@
 
 #include "GrPipeline.h"
 #include "gl/GrGLProgramDataManager.h"
+#include "gl/GrGLUniformHandler.h"
 #include "gl/GrGLVaryingHandler.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramBuilder.h"
@@ -58,31 +59,12 @@ public:
      */
     static GrGLProgram* CreateProgram(const DrawArgs&, GrGLGpu*);
 
-    const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
-        return fUniforms[u.toIndex()].fVariable;
-    }
-
-    const char* getUniformCStr(UniformHandle u) const override {
-        return this->getUniformVariable(u).c_str();
-    }
-
     const GrGLSLCaps* glslCaps() const override;
 
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    typedef GrGLProgramDataManager::UniformInfo UniformInfo;
-    typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
-
     GrGLProgramBuilder(GrGLGpu*, const DrawArgs&);
-
-    UniformHandle internalAddUniformArray(uint32_t visibility,
-                                          GrSLType type,
-                                          GrSLPrecision precision,
-                                          const char* name,
-                                          bool mangleName,
-                                          int arrayCount,
-                                          const char** outName) override;
 
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     // If GrGLSLExpr4 has a valid name then it will use that instead
@@ -133,8 +115,8 @@ private:
     // Subclasses create different programs
     GrGLProgram* createProgram(GrGLuint programID);
 
-    void onAppendUniformDecls(ShaderVisibility visibility, SkString* out) const override;
-
+    GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
+    const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
     // reset is called by program creator between each processor's emit code.  It increments the
@@ -164,14 +146,13 @@ private:
     SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
 
     GrGLGpu* fGpu;
-    UniformInfoArray fUniforms;
     GrGLSLPrimitiveProcessor::TransformsIn fCoordTransforms;
     GrGLSLPrimitiveProcessor::TransformsOut fOutCoords;
+    typedef GrGLSLUniformHandler::UniformHandle UniformHandle;
     SkTArray<UniformHandle> fSamplerUniforms;
 
     GrGLVaryingHandler        fVaryingHandler;
-
-    friend class GrGLVaryingHandler; 
+    GrGLUniformHandler        fUniformHandler;
 
     typedef GrGLSLProgramBuilder INHERITED; 
 };

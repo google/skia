@@ -387,8 +387,8 @@ SkColorFilter* SkColorMatrixFilter::newComposed(const SkColorFilter* innerFilter
 #include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:
@@ -408,12 +408,13 @@ public:
         GLSLProcessor(const GrProcessor&) {}
 
         virtual void emitCode(EmitArgs& args) override {
-            fMatrixHandle = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                kMat44f_GrSLType, kDefault_GrSLPrecision,
-                                                "ColorMatrix");
-            fVectorHandle = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                "ColorMatrixVector");
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+            fMatrixHandle = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                       kMat44f_GrSLType, kDefault_GrSLPrecision,
+                                                       "ColorMatrix");
+            fVectorHandle = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                       "ColorMatrixVector");
 
             if (nullptr == args.fInputColor) {
                 // could optimize this case, but we aren't for now.
@@ -426,9 +427,9 @@ public:
                                      args.fInputColor);
             fragBuilder->codeAppendf("\t%s = %s * vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + %s;\n",
                                      args.fOutputColor,
-                                     args.fBuilder->getUniformCStr(fMatrixHandle),
+                                     uniformHandler->getUniformCStr(fMatrixHandle),
                                      args.fInputColor,
-                                     args.fBuilder->getUniformCStr(fVectorHandle));
+                                     uniformHandler->getUniformCStr(fVectorHandle));
             fragBuilder->codeAppendf("\t%s = clamp(%s, 0.0, 1.0);\n",
                                      args.fOutputColor, args.fOutputColor);
             fragBuilder->codeAppendf("\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);

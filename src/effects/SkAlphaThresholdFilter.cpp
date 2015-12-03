@@ -59,8 +59,8 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class AlphaThresholdEffect : public GrFragmentProcessor {
 
@@ -139,12 +139,13 @@ private:
 };
 
 void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
-    fInnerThresholdVar = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                   kFloat_GrSLType, kDefault_GrSLPrecision,
-                                                   "inner_threshold");
-    fOuterThresholdVar = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                   kFloat_GrSLType, kDefault_GrSLPrecision,
-                                                   "outer_threshold");
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+    fInnerThresholdVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                    "inner_threshold");
+    fOuterThresholdVar = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kFloat_GrSLType, kDefault_GrSLPrecision,
+                                                    "outer_threshold");
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
@@ -160,9 +161,9 @@ void GrGLAlphaThresholdEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend(";\n");
 
     fragBuilder->codeAppendf("\t\tfloat inner_thresh = %s;\n",
-                             args.fBuilder->getUniformCStr(fInnerThresholdVar));
+                             uniformHandler->getUniformCStr(fInnerThresholdVar));
     fragBuilder->codeAppendf("\t\tfloat outer_thresh = %s;\n",
-                             args.fBuilder->getUniformCStr(fOuterThresholdVar));
+                             uniformHandler->getUniformCStr(fOuterThresholdVar));
     fragBuilder->codeAppend("\t\tfloat mask = mask_color.a;\n");
 
     fragBuilder->codeAppend("vec4 color = input_color;\n");

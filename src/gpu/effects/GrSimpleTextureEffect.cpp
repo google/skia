@@ -10,7 +10,6 @@
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 
 class GrGLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:

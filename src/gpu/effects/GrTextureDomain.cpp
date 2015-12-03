@@ -10,9 +10,11 @@
 #include "GrSimpleTextureEffect.h"
 #include "SkFloatingPoint.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLTextureSampler.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
     : fIndex(index) {
@@ -42,6 +44,7 @@ GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
 //////////////////////////////////////////////////////////////////////////////
 
 void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
+                                              GrGLSLUniformHandler* uniformHandler,
                                               const GrGLSLCaps* glslCaps,
                                               const GrTextureDomain& textureDomain,
                                               const char* outColor,
@@ -51,17 +54,15 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
     SkASSERT((Mode)-1 == fMode || textureDomain.mode() == fMode);
     SkDEBUGCODE(fMode = textureDomain.mode();)
 
-    GrGLSLProgramBuilder* program = builder->getProgramBuilder();
-
     if (textureDomain.mode() != kIgnore_Mode && !fDomainUni.isValid()) {
         const char* name;
         SkString uniName("TexDom");
         if (textureDomain.fIndex >= 0) {
             uniName.appendS32(textureDomain.fIndex);
         }
-        fDomainUni = program->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                         uniName.c_str(), &name);
+        fDomainUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                uniName.c_str(), &name);
         fDomainName = name;
     }
 
@@ -199,6 +200,7 @@ void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     fGLDomain.sampleTexture(fragBuilder,
+                            args.fUniformHandler,
                             args.fGLSLCaps,
                             domain,
                             args.fOutputColor,

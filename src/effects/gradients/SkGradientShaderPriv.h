@@ -419,14 +419,14 @@ protected:
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
-    void emitUniforms(GrGLSLFPBuilder* builder, const GrGradientEffect&);
+    void emitUniforms(GrGLSLUniformHandler*, const GrGradientEffect&);
 
 
     // emit code that gets a fragment's color from an expression for t; Has branches for 3 separate
     // control flows inside -- 2 color gradients, 3 color symmetric gradients (both using
     // native GLSL mix), and 4+ color gradients that use the traditional texture lookup.
-    void emitColor(GrGLSLFPBuilder* builder,
-                   GrGLSLFragmentBuilder* fragBuilder,
+    void emitColor(GrGLSLFragmentBuilder* fragBuilder,
+                   GrGLSLUniformHandler* uniformHandler,
                    const GrGLSLCaps* caps,
                    const GrGradientEffect&,
                    const char* gradientTValue,

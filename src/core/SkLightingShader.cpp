@@ -129,11 +129,12 @@ private:
 
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
 #include "GrTextureAccess.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
 
@@ -180,27 +181,28 @@ public:
         void emitCode(EmitArgs& args) override {
 
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // add uniforms
             const char* lightDirUniName = nullptr;
-            fLightDirUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                     kVec3f_GrSLType, kDefault_GrSLPrecision,
-                                                     "LightDir", &lightDirUniName);
+            fLightDirUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                      kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                                      "LightDir", &lightDirUniName);
 
             const char* lightColorUniName = nullptr;
-            fLightColorUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                       kVec3f_GrSLType, kDefault_GrSLPrecision,
-                                                       "LightColor", &lightColorUniName);
+            fLightColorUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                                        "LightColor", &lightColorUniName);
 
             const char* ambientColorUniName = nullptr;
-            fAmbientColorUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                         kVec3f_GrSLType, kDefault_GrSLPrecision,
-                                                         "AmbientColor", &ambientColorUniName);
+            fAmbientColorUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                          kVec3f_GrSLType, kDefault_GrSLPrecision,
+                                                          "AmbientColor", &ambientColorUniName);
 
             const char* xformUniName = nullptr;
-            fXformUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                  kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                                  "Xform", &xformUniName);
+            fXformUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                   "Xform", &xformUniName);
 
             fragBuilder->codeAppend("vec4 diffuseColor = ");
             fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fSamplers[0], 

@@ -55,56 +55,9 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const DrawArgs& args)
     , fGeometryProcessor(nullptr)
     , fXferProcessor(nullptr)
     , fGpu(gpu)
-    , fUniforms(kVarsPerBlock)
     , fSamplerUniforms(4)
-    , fVaryingHandler(this) {
-}
-
-GrGLSLProgramDataManager::UniformHandle GrGLProgramBuilder::internalAddUniformArray(
-                                                                uint32_t visibility,
-                                                                GrSLType type,
-                                                                GrSLPrecision precision,
-                                                                const char* name,
-                                                                bool mangleName,
-                                                                int count,
-                                                                const char** outName) {
-    SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_Visibility | kFragment_Visibility);
-    SkASSERT(0 == (~kVisibilityMask & visibility));
-    SkASSERT(0 != visibility);
-    SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
-
-    UniformInfo& uni = fUniforms.push_back();
-    uni.fVariable.setType(type);
-    uni.fVariable.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
-    // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
-    // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
-    // exactly what name it wants to use for the uniform view matrix.  If we prefix anythings, then
-    // the names will mismatch.  I think the correct solution is to have all GPs which need the
-    // uniform view matrix, they should upload the view matrix in their setData along with regular
-    // uniforms.
-    char prefix = 'u';
-    if ('u' == name[0]) {
-        prefix = '\0';
-    }
-    this->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);
-    uni.fVariable.setArrayCount(count);
-    uni.fVisibility = visibility;
-    uni.fVariable.setPrecision(precision);
-
-    if (outName) {
-        *outName = uni.fVariable.c_str();
-    }
-    return GrGLSLProgramDataManager::UniformHandle(fUniforms.count() - 1);
-}
-
-void GrGLProgramBuilder::onAppendUniformDecls(ShaderVisibility visibility, SkString* out) const {
-    for (int i = 0; i < fUniforms.count(); ++i) {
-        if (fUniforms[i].fVisibility & visibility) {
-            fUniforms[i].fVariable.appendDecl(this->glslCaps(), out);
-            out->append(";\n");
-        }
-    }
+    , fVaryingHandler(this)
+    , fUniformHandler(this) {
 }
 
 const GrGLSLCaps* GrGLProgramBuilder::glslCaps() const {
@@ -220,8 +173,8 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrFragmentProcessor& fp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(fp.numTextures());
     this->emitSamplers(fp, &samplers, ifp);
 
-    GrGLSLFragmentProcessor::EmitArgs args(this,
-                                           &fFS,
+    GrGLSLFragmentProcessor::EmitArgs args(&fFS,
+                                           &fUniformHandler,
                                            this->glslCaps(),
                                            fp,
                                            outColor,
@@ -247,10 +200,10 @@ void GrGLProgramBuilder::emitAndInstallProc(const GrPrimitiveProcessor& gp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(gp.numTextures());
     this->emitSamplers(gp, &samplers, fGeometryProcessor);
 
-    GrGLSLGeometryProcessor::EmitArgs args(this,
-                                           &fVS,
+    GrGLSLGeometryProcessor::EmitArgs args(&fVS,
                                            &fFS,
                                            &fVaryingHandler,
+                                           &fUniformHandler,
                                            this->glslCaps(),
                                            gp,
                                            outColor,
@@ -293,8 +246,8 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(xp.numTextures());
     this->emitSamplers(xp, &samplers, fXferProcessor);
 
-    GrGLSLXferProcessor::EmitArgs args(this,
-                                       &fFS,
+    GrGLSLXferProcessor::EmitArgs args(&fFS,
+                                       &fUniformHandler,
                                        this->glslCaps(),
                                        xp, colorIn.c_str(),
                                        ignoresCoverage ? nullptr : coverageIn.c_str(),
@@ -342,9 +295,10 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
     for (int t = 0; t < numTextures; ++t) {
         name.printf("Sampler%d", t);
         GrSLType samplerType = get_sampler_type(processor.textureAccess(t));
-        localSamplerUniforms[t] = this->addUniform(GrGLProgramBuilder::kFragment_Visibility,
-                                                   samplerType, kDefault_GrSLPrecision,
-                                                   name.c_str());
+        localSamplerUniforms[t] =
+            fUniformHandler.addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                       samplerType, kDefault_GrSLPrecision,
+                                       name.c_str());
         SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLSLTextureSampler,
                                (localSamplerUniforms[t], processor.textureAccess(t)));
         if (kSamplerExternal_GrSLType == samplerType) {
@@ -389,7 +343,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     // compile shaders and bind attributes / uniforms
     SkTDArray<GrGLuint> shadersToDelete;
-    fVS.finalize(kVertex_Visibility);
+    fVS.finalize(GrGLSLUniformHandler::kVertex_Visibility);
     if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
@@ -406,7 +360,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         }
     }
 
-    fFS.finalize(kFragment_Visibility);
+    fFS.finalize(GrGLSLUniformHandler::kFragment_Visibility);
     if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
@@ -432,13 +386,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 }
 
 void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
-    if (fGpu->glCaps().bindUniformLocationSupport()) {
-        int count = fUniforms.count();
-        for (int i = 0; i < count; ++i) {
-            GL_CALL(BindUniformLocation(programID, i, fUniforms[i].fVariable.c_str()));
-            fUniforms[i].fLocation = i;
-        }
-    }
+    fUniformHandler.bindUniformLocations(programID, fGpu->glCaps());
 
     const GrGLCaps& caps = this->gpu()->glCaps();
     if (fFS.hasCustomColorOutput() && caps.bindFragDataLocationSupport()) {
@@ -488,14 +436,7 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
 }
 
 void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
-    if (!fGpu->glCaps().bindUniformLocationSupport()) {
-        int count = fUniforms.count();
-        for (int i = 0; i < count; ++i) {
-            GrGLint location;
-            GL_CALL_RET(location, GetUniformLocation(programID, fUniforms[i].fVariable.c_str()));
-            fUniforms[i].fLocation = location;
-        }
-    }
+    fUniformHandler.getUniformLocations(programID, fGpu->glCaps());
 
     // handle NVPR separable varyings
     if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
@@ -524,9 +465,15 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 }
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return new GrGLProgram(fGpu, this->desc(), fUniformHandles, programID, fUniforms,
+    return new GrGLProgram(fGpu,
+                           this->desc(),
+                           fUniformHandles,
+                           programID,
+                           fUniformHandler.fUniforms,
                            fVaryingHandler.fPathProcVaryingInfos,
-                           fGeometryProcessor, fXferProcessor, fFragmentProcessors.get(),
+                           fGeometryProcessor,
+                           fXferProcessor,
+                           fFragmentProcessors.get(),
                            &fSamplerUniforms);
 }
 
