@@ -20,7 +20,6 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
-#include "GrTransferBuffer.h"
 #include "GrVertexBuffer.h"
 #include "GrVertices.h"
 
@@ -196,12 +195,6 @@ GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
         ib->resourcePriv().removeScratchKey();
     }
     return ib;
-}
-
-GrTransferBuffer* GrGpu::createTransferBuffer(size_t size, TransferType type) {
-    this->handleDirtyContext();
-    GrTransferBuffer* tb = this->onCreateTransferBuffer(size, type);
-    return tb;
 }
 
 void GrGpu::clear(const SkIRect& rect,

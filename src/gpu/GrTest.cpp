@@ -311,8 +311,6 @@ private:
 
     GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) override { return nullptr; }
 
-    GrTransferBuffer* onCreateTransferBuffer(size_t, TransferType) override { return nullptr; }
-
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override {}
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override {}

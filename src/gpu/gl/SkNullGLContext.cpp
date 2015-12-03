@@ -122,8 +122,6 @@ public:
     BufferManager   fBufferManager;
     GrGLuint        fCurrArrayBuffer;
     GrGLuint        fCurrElementArrayBuffer;
-    GrGLuint        fCurrPixelPackBuffer;
-    GrGLuint        fCurrPixelUnpackBuffer;
     GrGLuint        fCurrProgramID;
     GrGLuint        fCurrShaderID;
 
@@ -131,8 +129,6 @@ public:
     ContextState()
         : fCurrArrayBuffer(0)
         , fCurrElementArrayBuffer(0)
-        , fCurrPixelPackBuffer(0)
-        , fCurrPixelUnpackBuffer(0)
         , fCurrProgramID(0)
         , fCurrShaderID(0) {}
 
@@ -175,12 +171,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target,
         break;
     case GR_GL_ELEMENT_ARRAY_BUFFER:
         id = state->fCurrElementArrayBuffer;
-        break;
-    case GR_GL_PIXEL_PACK_BUFFER:
-        id = state->fCurrPixelPackBuffer;
-        break;
-    case GR_GL_PIXEL_UNPACK_BUFFER:
-        id = state->fCurrPixelUnpackBuffer;
         break;
     default:
         SkFAIL("Unexpected target to nullGLBufferData");
@@ -225,12 +215,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindBuffer(GrGLenum target, GrGLuint buffer) 
     case GR_GL_ELEMENT_ARRAY_BUFFER:
         state->fCurrElementArrayBuffer = buffer;
         break;
-    case GR_GL_PIXEL_PACK_BUFFER:
-        state->fCurrPixelPackBuffer = buffer;
-        break;
-    case GR_GL_PIXEL_UNPACK_BUFFER:
-        state->fCurrPixelUnpackBuffer = buffer;
-        break;
     }
 }
 
@@ -243,12 +227,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteBuffers(GrGLsizei n, const GrGLuint* id
         }
         if (ids[i] == state->fCurrElementArrayBuffer) {
             state->fCurrElementArrayBuffer = 0;
-        }
-        if (ids[i] == state->fCurrPixelPackBuffer) {
-            state->fCurrPixelPackBuffer = 0;
-        }
-        if (ids[i] == state->fCurrPixelUnpackBuffer) {
-            state->fCurrPixelUnpackBuffer = 0;
         }
 
         BufferObj* buffer = state->fBufferManager.lookUp(ids[i]);
@@ -266,12 +244,6 @@ GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBufferRange(GrGLenum target, GrGLintptr o
             break;
         case GR_GL_ELEMENT_ARRAY_BUFFER:
             id = state->fCurrElementArrayBuffer;
-            break;
-        case GR_GL_PIXEL_PACK_BUFFER:
-            id = state->fCurrPixelPackBuffer;
-            break;
-        case GR_GL_PIXEL_UNPACK_BUFFER:
-            id = state->fCurrPixelUnpackBuffer;
             break;
     }
 
@@ -294,12 +266,6 @@ GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) 
             break;
         case GR_GL_ELEMENT_ARRAY_BUFFER:
             id = state->fCurrElementArrayBuffer;
-            break;
-        case GR_GL_PIXEL_PACK_BUFFER:
-            id = state->fCurrPixelPackBuffer;
-            break;
-        case GR_GL_PIXEL_UNPACK_BUFFER:
-            id = state->fCurrPixelUnpackBuffer;
             break;
     }
 
@@ -329,12 +295,6 @@ GrGLboolean GR_GL_FUNCTION_TYPE nullGLUnmapBuffer(GrGLenum target) {
     case GR_GL_ELEMENT_ARRAY_BUFFER:
         id = state->fCurrElementArrayBuffer;
         break;
-    case GR_GL_PIXEL_PACK_BUFFER:
-        id = state->fCurrPixelPackBuffer;
-        break;
-    case GR_GL_PIXEL_UNPACK_BUFFER:
-        id = state->fCurrPixelUnpackBuffer;
-        break;
     }
     if (id > 0) {
         BufferObj* buffer = state->fBufferManager.lookUp(id);
@@ -359,12 +319,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenu
                     break;
                 case GR_GL_ELEMENT_ARRAY_BUFFER:
                     id = state->fCurrElementArrayBuffer;
-                    break;
-                case GR_GL_PIXEL_PACK_BUFFER:
-                    id = state->fCurrPixelPackBuffer;
-                    break;
-                case GR_GL_PIXEL_UNPACK_BUFFER:
-                    id = state->fCurrPixelUnpackBuffer;
                     break;
             }
             if (id > 0) {

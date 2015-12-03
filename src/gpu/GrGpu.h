@@ -31,7 +31,6 @@ class GrRenderTarget;
 class GrStencilAttachment;
 class GrSurface;
 class GrTexture;
-class GrTransferBuffer;
 class GrVertexBuffer;
 class GrVertices;
 
@@ -129,22 +128,6 @@ public:
      */
     GrIndexBuffer* createIndexBuffer(size_t size, bool dynamic);
 
-    enum TransferType {
-        kCpuToGpu_TransferType,
-        kGpuToCpu_TransferType
-    };
-
-    /**
-     * Creates a transfer buffer.
-     *
-     * @param size      size in bytes of the index buffer
-     * @param toGpu     true if used to transfer from the cpu to the gpu
-     *                  otherwise to be used to transfer from the gpu to the cpu
-     *
-     * @return The transfer buffer if successful, otherwise nullptr.
-     */
-    GrTransferBuffer* createTransferBuffer(size_t size, TransferType type);
-    
     /**
      * Resolves MSAA.
      */
@@ -472,7 +455,6 @@ private:
                                                       GrWrapOwnership) = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
-    virtual GrTransferBuffer* onCreateTransferBuffer(size_t size, TransferType type) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) = 0;

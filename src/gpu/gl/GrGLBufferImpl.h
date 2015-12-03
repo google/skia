@@ -19,20 +19,10 @@ class GrGLGpu;
  */
 class GrGLBufferImpl : SkNoncopyable {
 public:
-    enum Usage {
-        kStaticDraw_Usage = 0,
-        kDynamicDraw_Usage,
-        kStreamDraw_Usage,
-        kStreamRead_Usage,
-
-        kLast_Usage = kStreamRead_Usage
-    };
-    static const int kUsageCount = kLast_Usage + 1;
-
     struct Desc {
         GrGLuint    fID;            // set to 0 to indicate buffer is CPU-backed and not a VBO.
         size_t      fSizeInBytes;
-        Usage       fUsage;
+        bool        fDynamic;
     };
 
     GrGLBufferImpl(GrGLGpu*, const Desc&, GrGLenum bufferType);
