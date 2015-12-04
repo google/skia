@@ -400,6 +400,8 @@ public:
     /**
      *  An enum representing the order in which scanlines will be returned by
      *  the scanline decoder.
+     *
+     *  This is undefined before startScanlineDecode() is called.
      */
     SkScanlineOrder getScanlineOrder() const { return this->onGetScanlineOrder(); }
 
@@ -618,5 +620,6 @@ private:
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
 
     friend class SkSampledCodec;
+    friend class SkIcoCodec;
 };
 #endif // SkCodec_DEFINED
