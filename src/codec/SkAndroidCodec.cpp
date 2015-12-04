@@ -34,11 +34,9 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
         case kWBMP_SkEncodedFormat:
         case kBMP_SkEncodedFormat:
         case kGIF_SkEncodedFormat:
+        case kICO_SkEncodedFormat:
             return new SkSampledCodec(codec.detach());
         default:
-            // FIXME: SkSampledCodec is temporarily disabled for other formats
-            // while focusing on the formats that are supported by
-            // BitmapRegionDecoder.
             return nullptr;
     }
 }

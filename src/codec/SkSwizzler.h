@@ -163,6 +163,16 @@ public:
         SkSampler::Fill(fillInfo, dst, rowBytes, colorOrIndex, zeroInit);
     }
 
+    /**
+     *  If fSampleX > 1, the swizzler is sampling every fSampleX'th pixel and
+     *  discarding the rest.
+     *
+     *  This getter is currently used by SkBmpStandardCodec for Bmp-in-Ico decodes.
+     *  Ideally, the subclasses of SkCodec would have no knowledge of sampling, but
+     *  this allows us to apply a transparency mask to pixels after swizzling.
+     */
+    int sampleX() const { return fSampleX; }
+
 private:
 
     /**

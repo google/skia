@@ -481,6 +481,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         // Return the codec
         switch (inputFormat) {
             case kStandard_BmpInputFormat:
+                // We require streams to have a memory base for Bmp-in-Ico decodes.
+                SkASSERT(!inIco || nullptr != stream->getMemoryBase());
                 *codecOut = new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
                         bytesPerColor, offset - bytesRead, rowOrder, inIco);
                 return true;
