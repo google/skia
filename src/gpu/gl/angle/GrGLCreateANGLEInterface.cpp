@@ -45,7 +45,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         gLibs.fEGLLib = DynamicLoadLibrary("libEGL.dylib");
 #else
         gLibs.fGLLib = DynamicLoadLibrary("libGLESv2.so");
-        gLibs.fGLLib = DynamicLoadLibrary("libEGL.so");
+        gLibs.fEGLLib = DynamicLoadLibrary("libEGL.so");
 #endif
     }
 
