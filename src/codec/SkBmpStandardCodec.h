@@ -83,6 +83,7 @@ private:
     void decodeIcoMask(SkStream* stream, const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
 
     SkAutoTUnref<SkColorTable>          fColorTable;     // owned
+    // fNumColors is the number specified in the header, or 0 if not present in the header.
     const uint32_t                      fNumColors;
     const uint32_t                      fBytesPerColor;
     const uint32_t                      fOffset;

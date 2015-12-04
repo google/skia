@@ -550,19 +550,6 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
     return height - y - 1;
 }
 
-/*
- * Compute the number of colors in the color table
- */
-uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
-    // Zero is a default for maxColors
-    // Also set numColors to maxColors when it is too large
-    uint32_t maxColors = 1 << fBitsPerPixel;
-    if (numColors == 0 || numColors >= maxColors) {
-        return maxColors;
-    }
-    return numColors;
-}
-
 SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     if (!conversion_possible(dstInfo, this->getInfo())) {

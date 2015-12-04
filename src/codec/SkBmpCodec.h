@@ -81,11 +81,6 @@ protected:
     int32_t getDstRow(int32_t y, int32_t height) const;
 
     /*
-     * Compute the number of colors in the color table
-     */
-    uint32_t computeNumColors(uint32_t numColors);
-
-    /*
      * Accessors used by subclasses
      */
     uint16_t bitsPerPixel() const { return fBitsPerPixel; }

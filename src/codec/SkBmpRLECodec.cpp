@@ -21,7 +21,7 @@ SkBmpRLECodec::SkBmpRLECodec(const SkImageInfo& info, SkStream* stream,
                              size_t RLEBytes)
     : INHERITED(info, stream, bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
-    , fNumColors(this->computeNumColors(numColors))
+    , fNumColors(numColors)
     , fBytesPerColor(bytesPerColor)
     , fOffset(offset)
     , fStreamBuffer(new uint8_t[RLEBytes])
@@ -82,9 +82,12 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
             // access memory outside of our color table array.
             *numColors = maxColors;
         }
+        // Don't bother reading more than maxColors.
+        const uint32_t numColorsToRead =
+            fNumColors == 0 ? maxColors : SkTMin(fNumColors, maxColors);
 
         // Read the color table from the stream
-        colorBytes = fNumColors * fBytesPerColor;
+        colorBytes = numColorsToRead * fBytesPerColor;
         SkAutoTDeleteArray<uint8_t> cBuffer(new uint8_t[colorBytes]);
         if (stream()->read(cBuffer.get(), colorBytes) != colorBytes) {
             SkCodecPrintf("Error: unable to read color table.\n");
@@ -93,7 +96,7 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Fill in the color table
         uint32_t i = 0;
-        for (; i < fNumColors; i++) {
+        for (; i < numColorsToRead; i++) {
             uint8_t blue = get_byte(cBuffer.get(), i*fBytesPerColor);
             uint8_t green = get_byte(cBuffer.get(), i*fBytesPerColor + 1);
             uint8_t red = get_byte(cBuffer.get(), i*fBytesPerColor + 2);
