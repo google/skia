@@ -374,20 +374,23 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
         }
     }
 
-    SkPath::Iter    iter(path, false);
-    SkPoint         pts[4];
-    SkPath::Verb    verb;
-    SkAutoConicToQuads converter;
+    SkPath::RawIter     iter(path);
+    SkPoint             pts[4], firstPt, lastPt;
+    SkPath::Verb        verb;
+    SkAutoConicToQuads  converter;
 
-    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
+                firstPt = lastPt = pts[0];
                 break;
             case SkPath::kLine_Verb:
                 lineproc(pts, 2, clip, blitter);
+                lastPt = pts[1];
                 break;
             case SkPath::kQuad_Verb:
                 hairquad(pts, clip, blitter, compute_quad_level(pts), lineproc);
+                lastPt = pts[2];
                 break;
             case SkPath::kConic_Verb: {
                 // how close should the quads be to the original conic?
@@ -399,12 +402,17 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
                     hairquad(quadPts, clip, blitter, level, lineproc);
                     quadPts += 2;
                 }
+                lastPt = pts[2];
                 break;
             }
             case SkPath::kCubic_Verb: {
                 haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
+                lastPt = pts[3];
             } break;
             case SkPath::kClose_Verb:
+                pts[0] = lastPt;
+                pts[1] = firstPt;
+                lineproc(pts, 2, clip, blitter);
                 break;
             case SkPath::kDone_Verb:
                 break;
