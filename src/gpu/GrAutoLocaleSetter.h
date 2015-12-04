@@ -42,7 +42,9 @@ public:
 
     ~GrAutoLocaleSetter () {
 #if defined(SK_BUILD_FOR_WIN)
-        setlocale(LC_ALL, fOldLocale);
+        if (fOldLocale) {
+            setlocale(LC_ALL, fOldLocale);
+        }
         _configthreadlocale(fOldPerThreadLocale);
 #elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
         if (fLocale) {
