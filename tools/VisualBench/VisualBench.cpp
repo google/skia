@@ -18,6 +18,7 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "Stats.h"
+#include "VisualDebugModule.h"
 #include "VisualLightweightBenchModule.h"
 #include "VisualInteractiveModule.h"
 #include "gl/GrGLInterface.h"
@@ -25,15 +26,16 @@
 #include <stdlib.h>
 
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
-DEFINE_bool2(interactive, n, false, "Run in interactive mode.");
+DEFINE_string(mode, "classic", "one of: classic interactive debugger");
 DEFINE_bool2(dif, d, false, "Use device-independent fonts.");
 
 VisualBench::VisualBench(void* hwnd, int argc, char** argv)
     : INHERITED(hwnd) {
-    SkDebugf("Command line arguments:");
-    for (int i = 0; i < argc; ++i) {
-        SkDebugf("%s\n", argv[i]);
+    SkDebugf("Command line arguments: ");
+    for (int i = 1; i < argc; ++i) {
+        SkDebugf("%s ", argv[i]);
     }
+    SkDebugf("\n");
 
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -49,8 +51,15 @@ VisualBench::VisualBench(void* hwnd, int argc, char** argv)
         INHERITED::setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
     }
     fModule.reset(new VisualLightweightBenchModule(this));
-    if (FLAGS_interactive) {
-        fModule.reset(new VisualInteractiveModule(this));
+
+    if (FLAGS_mode.count()) {
+        SkASSERT(FLAGS_mode.count() == 1);
+        SkString mode(FLAGS_mode[0]);
+        if (mode == SkString("interactive")) {
+            fModule.reset(new VisualInteractiveModule(this));
+        } else if (mode == SkString("debugger")) {
+            fModule.reset(new VisualDebugModule(this));
+        }
     }
 
     this->setTitle();

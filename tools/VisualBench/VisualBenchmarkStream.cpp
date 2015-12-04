@@ -72,7 +72,7 @@ private:
     SkRect fPerlinRect;
 };
 
-VisualBenchmarkStream::VisualBenchmarkStream(const SkSurfaceProps& surfaceProps)
+VisualBenchmarkStream::VisualBenchmarkStream(const SkSurfaceProps& surfaceProps, bool justSKP)
     : fSurfaceProps(surfaceProps)
     , fBenches(BenchRegistry::Head())
     , fGMs(skiagm::GMRegistry::Head())
@@ -90,6 +90,11 @@ VisualBenchmarkStream::VisualBenchmarkStream(const SkSurfaceProps& surfaceProps)
                 fSKPs.push_back() = SkOSPath::Join(FLAGS_skps[0], path.c_str());
             }
         }
+    }
+
+    if (justSKP) {
+       fGMs = nullptr;
+       fBenches = nullptr;
     }
 
     // seed with an initial benchmark
