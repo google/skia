@@ -1131,7 +1131,8 @@ int nanobench_main() {
     if (kAutoTuneLoops != FLAGS_loops) {
         SkDebugf("Fixed number of loops; times would only be misleading so we won't print them.\n");
     } else if (FLAGS_quiet) {
-        SkDebugf("median\tbench\tconfig\n");
+        SkDebugf("! -> high variance, ? -> moderate variance\n");
+        SkDebugf("    micros   \tbench\n");
     } else if (FLAGS_ms) {
         SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\tsamples\tconfig\tbench\n");
     } else {
@@ -1241,10 +1242,13 @@ int nanobench_main() {
                          , bench->getUniqueName()
                          , config);
             } else if (FLAGS_quiet) {
-                if (configs.count() == 1) {
-                    config = ""; // Only print the config if we run the same bench on more than one.
-                }
-                SkDebugf("%s\t%s\t%s\n", HUMANIZE(stats.median), bench->getUniqueName(), config);
+                const char* mark = " ";
+                const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+                if (stddev_percent >  5) mark = "?";
+                if (stddev_percent > 10) mark = "!";
+
+                SkDebugf("%10.2f %s\t%s\t%s\n",
+                         stats.median*1e3, mark, bench->getUniqueName(), config);
             } else {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
                 SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
