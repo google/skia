@@ -39,17 +39,17 @@ private:
 
     bool internalCanDraw(const SkPaint&);
 
-    void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&, const GrPaint&, const SkPaint&,
+    void onDrawText(GrDrawContext*, const GrClip&, const GrPaint&, const SkPaint&,
                     const SkMatrix& viewMatrix,
                     const char text[], size_t byteLength,
                     SkScalar x, SkScalar y, const SkIRect& clipBounds) override;
-    void onDrawPosText(GrDrawContext*, GrRenderTarget*,
+    void onDrawPosText(GrDrawContext*,
                        const GrClip&, const GrPaint&, const SkPaint&,
                        const SkMatrix& viewMatrix,
                        const char text[], size_t byteLength,
                        const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset, const SkIRect& clipBounds) override;
-    void drawTextBlob(GrDrawContext*, GrRenderTarget*, const GrClip&, const SkPaint&,
+    void drawTextBlob(GrDrawContext*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 

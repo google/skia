@@ -28,17 +28,17 @@ class GrTextContext {
 public:
     virtual ~GrTextContext();
 
-    void drawText(GrDrawContext* dc, GrRenderTarget* rt,
+    void drawText(GrDrawContext* dc,
                   const GrClip&,  const GrPaint&, const SkPaint&,
                   const SkMatrix& viewMatrix, const char text[], size_t byteLength, SkScalar x,
                   SkScalar y, const SkIRect& clipBounds);
-    void drawPosText(GrDrawContext* dc, GrRenderTarget* rt,
+    void drawPosText(GrDrawContext* dc,
                      const GrClip&, const GrPaint&, const SkPaint&,
                      const SkMatrix& viewMatrix,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds);
-    virtual void drawTextBlob(GrDrawContext* dc, GrRenderTarget*, const GrClip&, const SkPaint&,
+    virtual void drawTextBlob(GrDrawContext* dc, const GrClip&, const SkPaint&,
                               const SkMatrix& viewMatrix, const SkTextBlob*,
                               SkScalar x, SkScalar y,
                               SkDrawFilter*, const SkIRect& clipBounds);
@@ -54,11 +54,11 @@ protected:
 
     virtual bool canDraw(const SkPaint&, const SkMatrix& viewMatrix) = 0;
 
-    virtual void onDrawText(GrDrawContext*, GrRenderTarget*, const GrClip&,
+    virtual void onDrawText(GrDrawContext*, const GrClip&,
                             const GrPaint&, const SkPaint&,
                             const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                             SkScalar x, SkScalar y, const SkIRect& clipBounds) = 0;
-    virtual void onDrawPosText(GrDrawContext*, GrRenderTarget*, const GrClip&,
+    virtual void onDrawPosText(GrDrawContext*, const GrClip&,
                                const GrPaint&, const SkPaint&,
                                const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,

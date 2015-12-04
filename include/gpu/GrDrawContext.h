@@ -278,6 +278,8 @@ public:
     int height() const { return fRenderTarget->height(); }
     int numColorSamples() const { return fRenderTarget->numColorSamples(); }
 
+    GrRenderTarget* accessRenderTarget() { return fRenderTarget; }
+
 private:
     friend class GrAtlasTextContext; // for access to drawBatch
     friend class GrDrawingManager; // for ctor

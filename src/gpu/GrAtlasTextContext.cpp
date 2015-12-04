@@ -290,7 +290,7 @@ inline SkGlyphCache* GrAtlasTextContext::setupCache(GrAtlasTextBlob::Run* run,
     return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
 }
 
-void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
+void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
                                       const GrClip& clip, const SkPaint& skPaint,
                                       const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                       SkScalar x, SkScalar y,
@@ -385,7 +385,7 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc, GrRenderTarget* rt,
                                  blob, x, y, drawFilter, clip);
     }
 
-    this->flush(blob, cacheBlob, dc, rt, skPaint, grPaint, drawFilter,
+    this->flush(blob, cacheBlob, dc, skPaint, grPaint, drawFilter,
                 clip, viewMatrix, clipBounds, x, y, transX, transY);
 }
 
@@ -718,7 +718,7 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrClip& clip,
     return blob;
 }
 
-void GrAtlasTextContext::onDrawText(GrDrawContext* dc, GrRenderTarget* rt,
+void GrAtlasTextContext::onDrawText(GrDrawContext* dc,
                                     const GrClip& clip,
                                     const GrPaint& paint, const SkPaint& skPaint,
                                     const SkMatrix& viewMatrix,
@@ -727,10 +727,10 @@ void GrAtlasTextContext::onDrawText(GrDrawContext* dc, GrRenderTarget* rt,
     SkAutoTUnref<GrAtlasTextBlob> blob(
         this->createDrawTextBlob(clip, paint, skPaint, viewMatrix,
                                  text, byteLength, x, y, regionClipBounds));
-    this->flush(blob, dc, rt, skPaint, paint, clip, regionClipBounds);
+    this->flush(blob, dc, skPaint, paint, clip, regionClipBounds);
 }
 
-void GrAtlasTextContext::onDrawPosText(GrDrawContext* dc, GrRenderTarget* rt,
+void GrAtlasTextContext::onDrawPosText(GrDrawContext* dc,
                                        const GrClip& clip,
                                        const GrPaint& paint, const SkPaint& skPaint,
                                        const SkMatrix& viewMatrix,
@@ -743,7 +743,7 @@ void GrAtlasTextContext::onDrawPosText(GrDrawContext* dc, GrRenderTarget* rt,
                                     pos, scalarsPerPosition,
                                     offset, regionClipBounds));
 
-    this->flush(blob, dc, rt, skPaint, paint, clip, regionClipBounds);
+    this->flush(blob, dc, skPaint, paint, clip, regionClipBounds);
 }
 
 void GrAtlasTextContext::internalDrawBMPText(GrAtlasTextBlob* blob, int runIndex,
@@ -1294,7 +1294,6 @@ inline void GrAtlasTextContext::flushBigGlyphs(GrAtlasTextBlob* cacheBlob,
 void GrAtlasTextContext::flush(const SkTextBlob* blob,
                                GrAtlasTextBlob* cacheBlob,
                                GrDrawContext* dc,
-                               GrRenderTarget* rt,
                                const SkPaint& skPaint,
                                const GrPaint& grPaint,
                                SkDrawFilter* drawFilter,
@@ -1305,7 +1304,7 @@ void GrAtlasTextContext::flush(const SkTextBlob* blob,
                                SkScalar transX, SkScalar transY) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
-    GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget(), clip);
 
     GrColor color = grPaint.getColor();
 
@@ -1327,12 +1326,11 @@ void GrAtlasTextContext::flush(const SkTextBlob* blob,
 
 void GrAtlasTextContext::flush(GrAtlasTextBlob* cacheBlob,
                                GrDrawContext* dc,
-                               GrRenderTarget* rt,
                                const SkPaint& skPaint,
                                const GrPaint& grPaint,
                                const GrClip& clip,
                                const SkIRect& clipBounds) {
-    GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
+    GrPipelineBuilder pipelineBuilder(grPaint, dc->accessRenderTarget(), clip);
 
     GrColor color = grPaint.getColor();
     for (int run = 0; run < cacheBlob->fRunCount; run++) {
