@@ -401,9 +401,9 @@ DEF_TEST(Codec, r) {
     // FIXME: We are not ready to test incomplete ICOs
     // These two tests examine interestingly different behavior:
     // Decodes an embedded BMP image
-    check(r, "color_wheel.ico", SkISize::Make(128, 128), true, false, false);
+    check(r, "color_wheel.ico", SkISize::Make(128, 128), false, false, false);
     // Decodes an embedded PNG image
-    check(r, "google_chrome.ico", SkISize::Make(256, 256), true, false, false);
+    check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false, false);
 
     // GIF
     // FIXME: We are not ready to test incomplete GIFs

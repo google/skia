@@ -15,43 +15,6 @@
 #include "SkTDArray.h"
 #include "SkTSort.h"
 
-static bool ico_conversion_possible(const SkImageInfo& dstInfo) {
-    // We only support kN32_SkColorType.
-    // This makes sense for BMP-in-ICO.  The presence of an AND
-    // mask (which changes colors and adds transparency) means that
-    // we cannot use k565 or kIndex8.
-    // FIXME: For PNG-in-ICO, we could technically support whichever
-    //        color types that the png supports.
-    if (kN32_SkColorType != dstInfo.colorType()) {
-        return false;
-    }
-
-    // We only support transparent alpha types.  This is necessary for
-    // BMP-in-ICOs since there will be an AND mask.
-    // FIXME: For opaque PNG-in-ICOs, we should be able to support kOpaque.
-    return kPremul_SkAlphaType == dstInfo.alphaType() ||
-            kUnpremul_SkAlphaType == dstInfo.alphaType();
-}
-
-static SkImageInfo fix_embedded_alpha(const SkImageInfo& dstInfo, SkAlphaType embeddedAlpha) {
-    // FIXME (msarett): ICO is considered non-opaque, even if the embedded BMP
-    // incorrectly claims it has no alpha.
-    switch (embeddedAlpha) {
-        case kPremul_SkAlphaType:
-        case kUnpremul_SkAlphaType:
-            // Use the requested alpha type if the embedded codec supports alpha.
-            embeddedAlpha = dstInfo.alphaType();
-            break;
-        case kOpaque_SkAlphaType:
-            // If the embedded codec claims it is opaque, decode as if it is opaque.
-            break;
-        default:
-            SkASSERT(false);
-            break;
-    }
-    return dstInfo.makeAlphaType(embeddedAlpha);
-}
-
 /*
  * Checks the start of the stream to see if the image is an Ico or Cur
  */
@@ -234,7 +197,6 @@ SkIcoCodec::SkIcoCodec(const SkImageInfo& info,
                        SkTArray<SkAutoTDelete<SkCodec>, true>* codecs)
     : INHERITED(info, nullptr)
     , fEmbeddedCodecs(codecs)
-    , fCurrScanlineCodec(nullptr)
 {}
 
 /*
@@ -264,21 +226,15 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     return fEmbeddedCodecs->operator[](minIndex)->getInfo().dimensions();
 }
 
-int SkIcoCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
-    SkASSERT(startIndex >= 0);
-
+bool SkIcoCodec::onDimensionsSupported(const SkISize& dim) {
     // FIXME: Cache the index from onGetScaledDimensions?
-    for (int i = startIndex; i < fEmbeddedCodecs->count(); i++) {
-        if (fEmbeddedCodecs->operator[](i)->getInfo().dimensions() == requestedSize) {
-            return i;
+    for (int32_t i = 0; i < fEmbeddedCodecs->count(); i++) {
+        if (fEmbeddedCodecs->operator[](i)->getInfo().dimensions() == dim) {
+            return true;
         }
     }
 
-    return -1;
-}
-
-bool SkIcoCodec::onDimensionsSupported(const SkISize& dim) {
-    return this->chooseCodec(dim, 0) >= 0;
+    return false;
 }
 
 /*
@@ -293,89 +249,54 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    if (!ico_conversion_possible(dstInfo)) {
+    if (!valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
         return kInvalidConversion;
     }
 
-    int index = 0;
-    SkCodec::Result result = kInvalidScale;
-    while (true) {
-        index = this->chooseCodec(dstInfo.dimensions(), index);
-        if (index < 0) {
-            break;
-        }
+    // We return invalid scale if there is no candidate image with matching
+    // dimensions.
+    Result result = kInvalidScale;
+    for (int32_t i = 0; i < fEmbeddedCodecs->count(); i++) {
+        SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](i);
+        // If the dimensions match, try to decode
+        if (dstInfo.dimensions() == embeddedCodec->getInfo().dimensions()) {
 
-        SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index);
-        SkImageInfo decodeInfo = fix_embedded_alpha(dstInfo, embeddedCodec->getInfo().alphaType());
-        SkASSERT(decodeInfo.colorType() == kN32_SkColorType);
-        result = embeddedCodec->getPixels(decodeInfo, dst, dstRowBytes, &opts, colorTable,
-                colorCount);
+            // Perform the decode
+            // FIXME (msarett): ICO is considered non-opaque, even if the embedded BMP
+            // incorrectly claims it has no alpha.
+            SkAlphaType embeddedAlpha = embeddedCodec->getInfo().alphaType();
+            switch (embeddedAlpha) {
+                case kPremul_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    // Use the requested alpha type if the embedded codec supports alpha.
+                    embeddedAlpha = dstInfo.alphaType();
+                    break;
+                case kOpaque_SkAlphaType:
+                    // If the embedded codec claims it is opaque, decode as if it is opaque.
+                    break;
+                default:
+                    SkASSERT(false);
+                    break;
+            }
+            SkImageInfo info = dstInfo.makeAlphaType(embeddedAlpha);
+            result = embeddedCodec->getPixels(info, dst, dstRowBytes, &opts, colorTable,
+                    colorCount);
+            // The embedded codec will handle filling incomplete images, so we will indicate
+            // that all of the rows are initialized.
+            *rowsDecoded = info.height();
 
-        switch (result) {
-            case kSuccess:
-            case kIncompleteInput:
-                // The embedded codec will handle filling incomplete images, so we will indicate
-                // that all of the rows are initialized.
-                *rowsDecoded = decodeInfo.height();
-                return result;
-            default:
-                // Continue trying to find a valid embedded codec on a failed decode.
-                break;
-        }
+            // On a fatal error, keep trying to find an image to decode
+            if (kInvalidConversion == result || kInvalidInput == result ||
+                    kInvalidScale == result) {
+                SkCodecPrintf("Warning: Attempt to decode candidate ico failed.\n");
+                continue;
+            }
 
-        index++;
-    }
-
-    SkCodecPrintf("Error: No matching candidate image in ico.\n");
-    return result;
-}
-
-SkCodec::Result SkIcoCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options, SkPMColor colorTable[], int* colorCount) {
-    if (!ico_conversion_possible(dstInfo)) {
-        return kInvalidConversion;
-    }
-
-    int index = 0;
-    SkCodec::Result result = kInvalidScale;
-    while (true) {
-        index = this->chooseCodec(dstInfo.dimensions(), index);
-        if (index < 0) {
-            break;
-        }
-
-        SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index);
-        SkImageInfo decodeInfo = fix_embedded_alpha(dstInfo, embeddedCodec->getInfo().alphaType());
-        result = embeddedCodec->startScanlineDecode(decodeInfo, &options, colorTable, colorCount);
-        if (kSuccess == result) {
-            fCurrScanlineCodec = embeddedCodec;
+            // On success or partial success, return the result
             return result;
         }
-
-        index++;
     }
 
     SkCodecPrintf("Error: No matching candidate image in ico.\n");
     return result;
-}
-
-int SkIcoCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
-    SkASSERT(fCurrScanlineCodec);
-    return fCurrScanlineCodec->getScanlines(dst, count, rowBytes);
-}
-
-bool SkIcoCodec::onSkipScanlines(int count) {
-    SkASSERT(fCurrScanlineCodec);
-    return fCurrScanlineCodec->skipScanlines(count);
-}
-
-SkCodec::SkScanlineOrder SkIcoCodec::onGetScanlineOrder() const {
-    // FIXME: This function will possibly return the wrong value if it is called
-    //        before startScanlineDecode().
-    return fCurrScanlineCodec ? fCurrScanlineCodec->getScanlineOrder() :
-            INHERITED::onGetScanlineOrder();
-}
-
-SkSampler* SkIcoCodec::getSampler(bool createIfNecessary) {
-    return fCurrScanlineCodec ? fCurrScanlineCodec->getSampler(createIfNecessary) : nullptr;
 }

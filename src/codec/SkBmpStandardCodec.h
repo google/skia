@@ -75,12 +75,7 @@ private:
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) override;
 
-    /*
-     * @param stream This may be a pointer to the stream owned by the parent SkCodec
-     *               or a sub-stream of the stream owned by the parent SkCodec.
-     *               Either way, this stream is unowned.
-     */
-    void decodeIcoMask(SkStream* stream, const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
+    Result decodeIcoMask(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
 
     SkAutoTUnref<SkColorTable>          fColorTable;     // owned
     const uint32_t                      fNumColors;
@@ -90,7 +85,6 @@ private:
     const size_t                        fSrcRowBytes;
     SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
     const bool                          fInIco;
-    const size_t                        fAndMaskRowBytes; // only used for fInIco decodes
 
     typedef SkBmpCodec INHERITED;
 };

@@ -345,15 +345,33 @@ static void push_codec_srcs(Path path) {
     bool subset = false;
     // The following image types are supported by BitmapRegionDecoder,
     // so we will test full image decodes and subset decodes.
-    static const char* const exts[] = {
+    static const char* const subsetExts[] = {
         "jpg", "jpeg", "png", "webp",
         "JPG", "JPEG", "PNG", "WEBP",
     };
-    for (const char* ext : exts) {
+    for (const char* ext : subsetExts) {
         if (path.endsWith(ext)) {
             subset = true;
             break;
         }
+    }
+
+    bool full = false;
+    // The following image types are only supported by BitmapFactory,
+    // so we only need to test full image decodes.
+    static const char* fullExts[] = {
+        "wbmp", "bmp", "gif",
+        "WBMP", "BMP", "GIF",
+    };
+    for (const char* ext : fullExts) {
+        if (path.endsWith(ext)) {
+            full = true;
+            break;
+        }
+    }
+
+    if (!full && !subset) {
+        return;
     }
 
     const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
