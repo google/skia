@@ -10,8 +10,37 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextFactory.h"
+#include "GrCaps.h"
 #include "Test.h"
 
-// TODO: test GrContextFactory.
+DEF_GPUTEST(GrContextFactory_NVPRContextTypeHasPathRenderingSupport, reporter, /*factory*/) {
+    // Test that if NVPR is requested, the context always has path rendering
+    // or the context creation fails.
+    GrContextFactory testFactory;
+    GrContext* context = testFactory.get(GrContextFactory::kNVPR_GLContextType);
+    if (context) {
+        REPORTER_ASSERT(
+            reporter,
+            context->caps()->shaderCaps()->pathRenderingSupport());
+    }
+}
+
+DEF_GPUTEST(GrContextFactory_NoPathRenderingUnlessNVPRRequested, reporter, /*factory*/) {
+    // Test that if NVPR is not requested, the context never has path rendering support.
+
+    GrContextFactory testFactory;
+    for (int i = 0; i <= GrContextFactory::kLastGLContextType; ++i) {
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType)i;
+        if (glCtxType == GrContextFactory::kNVPR_GLContextType) {
+            continue;
+        }
+        GrContext* context = testFactory.get(glCtxType);
+        if (context) {
+            REPORTER_ASSERT(
+                reporter,
+                !context->caps()->shaderCaps()->pathRenderingSupport());
+        }
+    }
+}
 
 #endif

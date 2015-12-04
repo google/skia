@@ -80,10 +80,6 @@ GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType ty
         if (!glInterface) {
             return nullptr;
         }
-    } else {
-        if (!glInterface->hasExtension("GL_NV_path_rendering")) {
-            return nullptr;
-        }
     }
 
     glCtx->makeCurrent();
@@ -96,22 +92,9 @@ GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType ty
     if (!grCtx.get()) {
         return nullptr;
     }
-    // Warn if path rendering support is not available for the NVPR type.
     if (kNVPR_GLContextType == type) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
-            GrGpu* gpu = grCtx->getGpu();
-            const GrGLContext* ctx = gpu->glContextForTesting();
-            if (ctx) {
-                const GrGLubyte* verUByte;
-                GR_GL_CALL_RET(ctx->interface(), verUByte, GetString(GR_GL_VERSION));
-                const char* ver = reinterpret_cast<const char*>(verUByte);
-                SkDebugf("\nWARNING: nvprmsaa config requested, but driver path rendering "
-                         "support not available. Maybe update the driver? Your driver version "
-                         "string: \"%s\"\n", ver);
-            } else {
-                SkDebugf("\nWARNING: nvprmsaa config requested, but driver path rendering "
-                         "support not available.\n");
-            }
+            return nullptr;
         }
     }
 
