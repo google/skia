@@ -228,6 +228,34 @@ DEF_GM( return new ApplyFilterGM; )
 #include "SkDisplacementMapEffect.h"
 #include "SkMatrixConvolutionImageFilter.h"
 
+static SkPMColor max_component(SkPMColor a, SkPMColor b) {
+    int dr = SkAbs32(SkGetPackedR32(a) - SkGetPackedR32(b));
+    int dg = SkAbs32(SkGetPackedG32(a) - SkGetPackedG32(b));
+    int db = SkAbs32(SkGetPackedB32(a) - SkGetPackedB32(b));
+    int d = SkTMax(dr, SkTMax(dg, db));
+    d = 0xFF - d;
+    return SkPackARGB32(0xFF, d, d, d);
+}
+
+static SkImage* compute_diff(SkImage* a, SkImage* b) {
+    SkASSERT(a->width() == b->width() && a->height() == b->height());
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(a->width(), a->height());
+    SkBitmap bma, bmb, bmdiff;
+    bma.allocPixels(info);
+    bmb.allocPixels(info);
+    bmdiff.allocPixels(info);
+
+    a->readPixels(info, bma.getPixels(), bma.rowBytes(), 0, 0);
+    b->readPixels(info, bmb.getPixels(), bmb.rowBytes(), 0, 0);
+    for (int y = 0; y < info.height(); ++y) {
+        for (int x = 0; x < info.width(); ++x) {
+            *bmdiff.getAddr32(x, y) = max_component(*bma.getAddr32(x, y), *bmb.getAddr32(x, y));
+        }
+    }
+    bmdiff.setImmutable();  // avoid the copy
+    return SkImage::NewFromBitmap(bmdiff);
+}
+
 static SkImage* make_native_red_oval(SkCanvas* rootCanvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(160, 90);
     SkAutoTUnref<SkSurface> surface(rootCanvas->newSurface(info));
@@ -329,10 +357,8 @@ protected:
             canvas->drawImage(snap1, dx, 0);
 
             SkAutoTUnref<SkImage> diff(snapshot(canvas, info, [&](SkCanvas* c) {
-                c->drawImage(snap0, 0, 0);
-                SkPaint p;
-                p.setXfermodeMode(SkXfermode::kDifference_Mode);
-                c->drawImage(snap1, 0, 0, &p);
+                SkAutoTUnref<SkImage> diff(compute_diff(snap0, snap1));
+                c->drawImage(diff, 0, 0);
             }));
             canvas->drawImage(diff, 2*dx, 0);
 
