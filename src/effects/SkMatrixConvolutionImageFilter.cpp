@@ -335,6 +335,12 @@ bool SkMatrixConvolutionImageFilter::onFilterBounds(const SkIRect& src, const Sk
     return true;
 }
 
+bool SkMatrixConvolutionImageFilter::canComputeFastBounds() const {
+    // Because the kernel is applied in device-space, we have no idea what
+    // pixels it will affect in object-space.
+    return false;
+}
+
 #if SK_SUPPORT_GPU
 
 static GrTextureDomain::Mode convert_tilemodes(
