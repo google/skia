@@ -29,7 +29,7 @@ public:
     static SkImageFilter* Create(SkShader* s, const SkRect& rect);
     static SkImageFilter* Create(SkShader* s, const CropRect* rect = NULL);
 
-    bool canComputeFastBounds() const override;
+    bool affectsTransparentBlack() const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRectShaderImageFilter)

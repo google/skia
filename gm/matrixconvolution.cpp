@@ -86,22 +86,21 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         SkIPoint kernelOffset = SkIPoint::Make(1, 0);
-        SkImageFilter::CropRect rect(SkRect::Make(fBitmap.bounds()));
         for (int x = 10; x < 310; x += 100) {
-            this->draw(canvas, x, 10, kernelOffset, MCIF::kClamp_TileMode, true, &rect);
-            this->draw(canvas, x, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true, &rect);
-            this->draw(canvas, x, 210, kernelOffset, MCIF::kRepeat_TileMode, true, &rect);
+            this->draw(canvas, x, 10, kernelOffset, MCIF::kClamp_TileMode, true);
+            this->draw(canvas, x, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true);
+            this->draw(canvas, x, 210, kernelOffset, MCIF::kRepeat_TileMode, true);
             kernelOffset.fY++;
         }
         kernelOffset.fY = 1;
-        SkImageFilter::CropRect smallRect(SkRect::MakeXYWH(10, 5, 60, 60));
-        this->draw(canvas, 310, 10, kernelOffset, MCIF::kClamp_TileMode, true, &smallRect);
-        this->draw(canvas, 310, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true, &smallRect);
-        this->draw(canvas, 310, 210, kernelOffset, MCIF::kRepeat_TileMode, true, &smallRect);
+        SkImageFilter::CropRect rect(SkRect::MakeXYWH(10, 5, 60, 60));
+        this->draw(canvas, 310, 10, kernelOffset, MCIF::kClamp_TileMode, true, &rect);
+        this->draw(canvas, 310, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true, &rect);
+        this->draw(canvas, 310, 210, kernelOffset, MCIF::kRepeat_TileMode, true, &rect);
 
-        this->draw(canvas, 410, 10, kernelOffset, MCIF::kClamp_TileMode, false, &rect);
-        this->draw(canvas, 410, 110, kernelOffset, MCIF::kClampToBlack_TileMode, false, &rect);
-        this->draw(canvas, 410, 210, kernelOffset, MCIF::kRepeat_TileMode, false, &rect);
+        this->draw(canvas, 410, 10, kernelOffset, MCIF::kClamp_TileMode, false);
+        this->draw(canvas, 410, 110, kernelOffset, MCIF::kClampToBlack_TileMode, false);
+        this->draw(canvas, 410, 210, kernelOffset, MCIF::kRepeat_TileMode, false);
     }
 
 private:

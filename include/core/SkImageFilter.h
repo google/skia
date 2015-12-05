@@ -199,7 +199,12 @@ public:
      *  replaced by the returned colorfilter. i.e. the two effects will affect drawing in the
      *  same way.
      */
-    bool asAColorFilter(SkColorFilter** filterPtr) const;
+    bool asAColorFilter(SkColorFilter** filterPtr) const {
+        return this->countInputs() > 0 &&
+               NULL == this->getInput(0) &&
+               !this->affectsTransparentBlack() &&
+               this->isColorFilterNode(filterPtr);
+    }
 
     /**
      *  Returns the number of inputs this filter will accept (some inputs can
@@ -235,7 +240,7 @@ public:
     virtual void computeFastBounds(const SkRect&, SkRect*) const;
 
     // Can this filter DAG compute the resulting bounds of an object-space rectangle?
-    virtual bool canComputeFastBounds() const;
+    bool canComputeFastBounds() const;
 
     /**
      *  If this filter can be represented by another filter + a localMatrix, return that filter,
@@ -404,6 +409,14 @@ protected:
      */
     virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
                                      const SkIRect& bounds) const;
+
+    /**
+     * Returns true if this filter can cause transparent black pixels to become
+     * visible (ie., alpha > 0). The default implementation returns false. This
+     * function is non-recursive, i.e., only queries this filter and not its
+     * inputs.
+     */
+    virtual bool affectsTransparentBlack() const;
 
 private:
     friend class SkGraphics;

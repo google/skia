@@ -99,11 +99,8 @@ bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const
     return false;
 }
 
-bool SkColorFilterImageFilter::canComputeFastBounds() const {
-    if (fColorFilter->affectsTransparentBlack()) {
-        return false;
-    }
-    return INHERITED::canComputeFastBounds();
+bool SkColorFilterImageFilter::affectsTransparentBlack() const {
+    return fColorFilter->affectsTransparentBlack();
 }
 
 #ifndef SK_IGNORE_TO_STRING
