@@ -13,6 +13,7 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkGradientShader.h"
@@ -42,6 +43,7 @@ template <typename T> const char* get_mtname();
     }
 
 DEF_MTNAME(SkCanvas)
+DEF_MTNAME(SkColorFilter)
 DEF_MTNAME(SkDocument)
 DEF_MTNAME(SkImage)
 DEF_MTNAME(SkImageFilter)
@@ -1079,6 +1081,22 @@ static int lpaint_getEffects(lua_State* L) {
     return 1;
 }
 
+static int lpaint_getColorFilter(lua_State* L) {
+    const SkPaint* paint = get_obj<SkPaint>(L, 1);
+    SkColorFilter* cf = paint->getColorFilter();
+    if (cf) {
+        push_ref(L, cf);
+        return 1;
+    }
+    return 0;
+}
+
+static int lpaint_setColorFilter(lua_State* L) {
+    SkPaint* paint = get_obj<SkPaint>(L, 1);
+    paint->setColorFilter(get_ref<SkColorFilter>(L, 2));
+    return 0;
+}
+
 static int lpaint_getImageFilter(lua_State* L) {
     const SkPaint* paint = get_obj<SkPaint>(L, 1);
     SkImageFilter* imf = paint->getImageFilter();
@@ -1170,6 +1188,8 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "measureText", lpaint_measureText },
     { "getFontMetrics", lpaint_getFontMetrics },
     { "getEffects", lpaint_getEffects },
+    { "getColorFilter", lpaint_getColorFilter },
+    { "setColorFilter", lpaint_setColorFilter },
     { "getImageFilter", lpaint_getImageFilter },
     { "setImageFilter", lpaint_setImageFilter },
     { "getShader", lpaint_getShader },
@@ -1289,6 +1309,18 @@ static int lpatheffect_gc(lua_State* L) {
 static const struct luaL_Reg gSkPathEffect_Methods[] = {
     { "asADash",        lpatheffect_asADash },
     { "__gc",           lpatheffect_gc },
+    { nullptr, nullptr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static int lpcolorfilter_gc(lua_State* L) {
+    get_ref<SkColorFilter>(L, 1)->unref();
+    return 0;
+}
+
+static const struct luaL_Reg gSkColorFilter_Methods[] = {
+    { "__gc",       lpcolorfilter_gc },
     { nullptr, nullptr }
 };
 
@@ -2048,6 +2080,7 @@ static void register_Sk(lua_State* L) {
 void SkLua::Load(lua_State* L) {
     register_Sk(L);
     REG_CLASS(L, SkCanvas);
+    REG_CLASS(L, SkColorFilter);
     REG_CLASS(L, SkDocument);
     REG_CLASS(L, SkImage);
     REG_CLASS(L, SkImageFilter);
