@@ -374,8 +374,12 @@ private:
     friend class SkDeviceFilteredPaint;
     friend class SkImageFilter::DeviceProxy;
     friend class SkNoPixelsBitmapDevice;
-
     friend class SkSurface_Raster;
+
+    /**
+     *  Calls through to drawSprite, processing imagefilter as needed.
+     */
+    void drawBitmapAsSprite(const SkDraw&, const SkBitmap&, int x, int y, const SkPaint&);
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to

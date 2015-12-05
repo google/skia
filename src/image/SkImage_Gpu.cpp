@@ -5,16 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapCache.h"
-#include "SkImage_Gpu.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrTextureParamsAdjuster.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
+#include "SkBitmapCache.h"
 #include "SkGpuDevice.h"
+#include "SkGrPixelRef.h"
 #include "SkGrPriv.h"
+#include "SkImageFilter.h"
+#include "SkImage_Gpu.h"
 #include "SkPixelRef.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, GrTexture* tex,
@@ -66,6 +68,13 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
         SkBitmapCache::Add(this->uniqueID(), *dst);
         fAddedRasterVersionToCache.store(true);
     }
+    return true;
+}
+
+bool SkImage_Gpu::asBitmapForImageFilters(SkBitmap* bitmap) const {
+    bitmap->setInfo(make_info(this->width(), this->height(), this->isOpaque()));
+    bitmap->setPixelRef(new SkGrPixelRef(bitmap->info(), fTexture))->unref();
+    bitmap->pixelRef()->setImmutableWithID(this->uniqueID());
     return true;
 }
 
@@ -165,9 +174,6 @@ SkImage* SkImage_Gpu::onNewSubset(const SkIRect& subset) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkGrPixelRef.h"
-#include "SkImageFilter.h"
 
 class SkGpuImageFilterProxy : public SkImageFilter::Proxy {
     GrContext* fCtx;
