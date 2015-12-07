@@ -6,8 +6,11 @@
  */
 
 #include "gm.h"
-#include "SkImageFilter.h"
+#include "SkBlurImageFilter.h"
 #include "SkColorMatrixFilter.h"
+#include "SkImage.h"
+#include "SkImageFilter.h"
+#include "SkSurface.h"
 
 /**
  *  Test drawing a primitive w/ an imagefilter (in this case, just matrix w/ identity) to see
@@ -61,4 +64,42 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
             
             canvas->translate(0, 240);
         }
+}
+
+static SkImage* make_image(SkCanvas* canvas) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+    SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+    if (!surface) {
+        surface.reset(SkSurface::NewRaster(info));
+    }
+    surface->getCanvas()->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), SkPaint());
+    return surface->newImageSnapshot();
+}
+
+// Compare blurs when we're tightly clipped (fast) and not as tightly (slower)
+//
+// Expect the two to draw the same (modulo the extra border of pixels when the clip is larger)
+//
+DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
+    SkAutoTUnref<SkImage> image(make_image(canvas));
+    const SkRect r = SkRect::MakeIWH(image->width(), image->height());
+
+    canvas->translate(10, 10);
+    for (SkScalar sigma = 8; sigma <= 128; sigma *= 2) {
+        SkPaint paint;
+        paint.setImageFilter(SkBlurImageFilter::Create(sigma, sigma))->unref();
+
+        canvas->save();
+        // we outset the clip by 1, to fall out of the fast-case in drawImage
+        // i.e. the clip is larger than the image
+        for (SkScalar outset = 0; outset <= 1; ++outset) {
+            canvas->save();
+            canvas->clipRect(r.makeOutset(outset, outset));
+            canvas->drawImage(image, 0, 0, &paint);
+            canvas->restore();
+            canvas->translate(0, r.height() + 20);
+        }
+        canvas->restore();
+        canvas->translate(r.width() + 20, 0);
+    }
 }
