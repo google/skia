@@ -65,17 +65,18 @@ public:
 
     /**
      *  Attempt to peek at size bytes.
-     *  If this stream supports peeking, and it can peek size bytes, copy size
-     *  bytes into buffer, and return true.
-     *  If the stream does not support peeking, or cannot peek size bytes,
-     *  return false and leave buffer unchanged.
+     *  If this stream supports peeking, copy min(size, peekable bytes) into
+     *  buffer, and return the number of bytes copied.
+     *  If the stream does not support peeking, or cannot peek any bytes,
+     *  return 0 and leave buffer unchanged.
      *  The stream is guaranteed to be in the same visible state after this
      *  call, regardless of success or failure.
-     *  @param buffer Must not be NULL. Destination to copy bytes.
+     *  @param buffer Must not be NULL, and must be at least size bytes. Destination
+     *      to copy bytes.
      *  @param size Number of bytes to copy.
-     *  @return Whether the peek was performed.
+     *  @return The number of bytes peeked/copied.
      */
-    virtual bool peek(void* /* buffer */, size_t /* size */) const { return false; }
+    virtual size_t peek(void* /*buffer*/, size_t /*size*/) const { return 0; }
 
     /** Returns true when all the bytes in the stream have been read.
      *  This may return true early (when there are no more bytes to be read)
@@ -325,7 +326,7 @@ public:
     size_t read(void* buffer, size_t size) override;
     bool isAtEnd() const override;
 
-    bool peek(void* buffer, size_t size) const override;
+    size_t peek(void* buffer, size_t size) const override;
 
     bool rewind() override;
     SkMemoryStream* duplicate() const override;

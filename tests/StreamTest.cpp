@@ -197,10 +197,10 @@ DEF_TEST(Stream, reporter) {
 /**
  *  Tests peeking and then reading the same amount. The two should provide the
  *  same results.
- *  Returns whether the stream could peek.
+ *  Returns the amount successfully read minus the amount successfully peeked.
  */
-static bool compare_peek_to_read(skiatest::Reporter* reporter,
-                                 SkStream* stream, size_t bytesToPeek) {
+static size_t compare_peek_to_read(skiatest::Reporter* reporter,
+                                   SkStream* stream, size_t bytesToPeek) {
     // The rest of our tests won't be very interesting if bytesToPeek is zero.
     REPORTER_ASSERT(reporter, bytesToPeek > 0);
     SkAutoMalloc peekStorage(bytesToPeek);
@@ -208,9 +208,7 @@ static bool compare_peek_to_read(skiatest::Reporter* reporter,
     void* peekPtr = peekStorage.get();
     void* readPtr = peekStorage.get();
 
-    if (!stream->peek(peekPtr, bytesToPeek)) {
-        return false;
-    }
+    const size_t bytesPeeked = stream->peek(peekPtr, bytesToPeek);
     const size_t bytesRead = stream->read(readPtr, bytesToPeek);
 
     // bytesRead should only be less than attempted if the stream is at the
@@ -219,21 +217,17 @@ static bool compare_peek_to_read(skiatest::Reporter* reporter,
 
     // peek and read should behave the same, except peek returned to the
     // original position, so they read the same data.
-    REPORTER_ASSERT(reporter, !memcmp(peekPtr, readPtr, bytesRead));
+    REPORTER_ASSERT(reporter, !memcmp(peekPtr, readPtr, bytesPeeked));
 
-    return true;
+    // A stream should never be able to peek more than it can read.
+    REPORTER_ASSERT(reporter, bytesRead >= bytesPeeked);
+
+    return bytesRead - bytesPeeked;
 }
 
-static void test_peeking_stream(skiatest::Reporter* r, SkStream* stream, size_t limit) {
-    size_t peeked = 0;
+static void test_fully_peekable_stream(skiatest::Reporter* r, SkStream* stream, size_t limit) {
     for (size_t i = 1; !stream->isAtEnd(); i++) {
-        const bool couldPeek = compare_peek_to_read(r, stream, i);
-        if (!couldPeek) {
-            REPORTER_ASSERT(r, peeked + i > limit);
-            // No more peeking is supported.
-            break;
-        }
-        peeked += i;
+        REPORTER_ASSERT(r, compare_peek_to_read(r, stream, i) == 0);
     }
 }
 
@@ -244,7 +238,51 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
     REPORTER_ASSERT(r, dupe != nullptr);
     SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(dupe, bufferSize));
     REPORTER_ASSERT(r, bufferedStream != nullptr);
-    test_peeking_stream(r, bufferedStream, bufferSize);
+
+    size_t peeked = 0;
+    for (size_t i = 1; !bufferedStream->isAtEnd(); i++) {
+        const size_t unpeekableBytes = compare_peek_to_read(r, bufferedStream, i);
+        if (unpeekableBytes > 0) {
+            // This could not have returned a number greater than i.
+            REPORTER_ASSERT(r, unpeekableBytes <= i);
+
+            // We have reached the end of the buffer. Verify that it was at least
+            // bufferSize.
+            REPORTER_ASSERT(r, peeked + i - unpeekableBytes >= bufferSize);
+            // No more peeking is supported.
+            break;
+        }
+        peeked += i;
+    }
+
+    // Test that attempting to peek beyond the length of the buffer does not prevent rewinding.
+    bufferedStream.reset(SkFrontBufferedStream::Create(original.duplicate(), bufferSize));
+    REPORTER_ASSERT(r, bufferedStream != nullptr);
+
+    const size_t bytesToPeek = bufferSize + 1;
+    SkAutoMalloc peekStorage(bytesToPeek);
+    SkAutoMalloc readStorage(bytesToPeek);
+
+    for (size_t start = 0; start <= bufferSize; start++) {
+        // Skip to the starting point
+        REPORTER_ASSERT(r, bufferedStream->skip(start) == start);
+        REPORTER_ASSERT(r, bufferedStream->getPosition() == start);
+
+        const size_t bytesPeeked = bufferedStream->peek(peekStorage.get(), bytesToPeek);
+        if (0 == bytesPeeked) {
+            // Peeking should only fail completely if we have read beyond the buffer.
+            REPORTER_ASSERT(r, bufferedStream->getPosition() >= bufferSize);
+            break;
+        }
+
+        // Only read the amount that was successfully peeked.
+        const size_t bytesRead = bufferedStream->read(readStorage.get(), bytesPeeked);
+        REPORTER_ASSERT(r, bytesRead == bytesPeeked);
+        REPORTER_ASSERT(r, !memcmp(peekStorage.get(), readStorage.get(), bytesPeeked));
+
+        // This should be safe to rewind.
+        REPORTER_ASSERT(r, bufferedStream->rewind());
+    }
 }
 
 // This test uses file system operations that don't work out of the 
@@ -255,7 +293,7 @@ DEF_TEST(StreamPeek, reporter) {
     // Test a memory stream.
     const char gAbcs[] = "abcdefghijklmnopqrstuvwxyz";
     SkMemoryStream memStream(gAbcs, strlen(gAbcs), false);
-    test_peeking_stream(reporter, &memStream, memStream.getLength());
+    test_fully_peekable_stream(reporter, &memStream, memStream.getLength());
 
     // Test an arbitrary file stream. file streams do not support peeking.
     SkFILEStream fileStream(GetResourcePath("baby_tux.webp").c_str());
@@ -265,7 +303,7 @@ DEF_TEST(StreamPeek, reporter) {
     }
     SkAutoMalloc storage(fileStream.getLength());
     for (size_t i = 1; i < fileStream.getLength(); i++) {
-        REPORTER_ASSERT(reporter, !fileStream.peek(storage.get(), i));
+        REPORTER_ASSERT(reporter, fileStream.peek(storage.get(), i) == 0);
     }
 
     // Now test some FrontBufferedStreams
@@ -293,7 +331,7 @@ static void stream_peek_test(skiatest::Reporter* rep,
         SkASSERT(size >= 1);
         SkASSERT(size <= sizeof(buffer));
         SkASSERT(size + i <= asset->getLength());
-        if (!asset->peek(buffer, size)) {
+        if (asset->peek(buffer, size) < size) {
             ERRORF(rep, "Peek Failed!");
             return;
         }

@@ -367,18 +367,14 @@ size_t SkMemoryStream::read(void* buffer, size_t size) {
     return size;
 }
 
-bool SkMemoryStream::peek(void* buffer, size_t size) const {
+size_t SkMemoryStream::peek(void* buffer, size_t size) const {
     SkASSERT(buffer != nullptr);
-    const size_t position = fOffset;
-    if (size > fData->size() - position) {
-        // The stream is not large enough to satisfy this request.
-        return false;
-    }
+
+    const size_t currentOffset = fOffset;
     SkMemoryStream* nonConstThis = const_cast<SkMemoryStream*>(this);
-    SkDEBUGCODE(const size_t bytesRead =) nonConstThis->read(buffer, size);
-    SkASSERT(bytesRead == size);
-    nonConstThis->fOffset = position;
-    return true;
+    const size_t bytesRead = nonConstThis->read(buffer, size);
+    nonConstThis->fOffset = currentOffset;
+    return bytesRead;
 }
 
 bool SkMemoryStream::isAtEnd() const {
@@ -725,25 +721,26 @@ public:
         return fOffset == fSize;
     }
 
-    bool peek(void* buff, size_t size) const override {
+    size_t peek(void* buff, size_t bytesToPeek) const override {
         SkASSERT(buff != nullptr);
-        if (fOffset + size > fSize) {
-            return false;
-        }
+
+        bytesToPeek = SkTMin(bytesToPeek, fSize - fOffset);
+
+        size_t bytesLeftToPeek = bytesToPeek;
         char* buffer = static_cast<char*>(buff);
         const SkDynamicMemoryWStream::Block* current = fCurrent;
         size_t currentOffset = fCurrentOffset;
-        while (size) {
+        while (bytesLeftToPeek) {
             SkASSERT(current);
             size_t bytesFromCurrent =
-                    SkTMin(current->written() - currentOffset, size);
+                    SkTMin(current->written() - currentOffset, bytesLeftToPeek);
             memcpy(buffer, current->start() + currentOffset, bytesFromCurrent);
-            size -= bytesFromCurrent;
+            bytesLeftToPeek -= bytesFromCurrent;
             buffer += bytesFromCurrent;
             current = current->fNext;
             currentOffset = 0;
         }
-        return true;
+        return bytesToPeek;
     }
 
     bool rewind() override {

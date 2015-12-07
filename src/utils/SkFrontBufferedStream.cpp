@@ -16,7 +16,7 @@ public:
 
     size_t read(void* buffer, size_t size) override;
 
-    bool peek(void* buffer, size_t size) const override;
+    size_t peek(void* buffer, size_t size) const override;
 
     bool isAtEnd() const override;
 
@@ -157,18 +157,20 @@ size_t FrontBufferedStream::readDirectlyFromStream(char* dst, size_t size) {
     return bytesReadDirectly;
 }
 
-bool FrontBufferedStream::peek(void* dst, size_t size) const {
+size_t FrontBufferedStream::peek(void* dst, size_t size) const {
     // Keep track of the offset so we can return to it.
     const size_t start = fOffset;
-    if (start + size > fBufferSize) {
-        // This stream is not able to buffer enough.
-        return false;
+
+    if (start >= fBufferSize) {
+        // This stream is not able to buffer.
+        return 0;
     }
+
+    size = SkTMin(size, fBufferSize - start);
     FrontBufferedStream* nonConstThis = const_cast<FrontBufferedStream*>(this);
-    SkDEBUGCODE(const size_t bytesRead =) nonConstThis->read(dst, size);
-    SkASSERT(bytesRead == size);
+    const size_t bytesRead = nonConstThis->read(dst, size);
     nonConstThis->fOffset = start;
-    return true;
+    return bytesRead;
 }
 
 size_t FrontBufferedStream::read(void* voidDst, size_t size) {
