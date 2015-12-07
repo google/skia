@@ -309,9 +309,6 @@ void SkImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
 }
 
 bool SkImageFilter::canComputeFastBounds() const {
-    if (this->affectsTransparentBlack()) {
-        return false;
-    }
     for (int i = 0; i < fInputCount; i++) {
         SkImageFilter* input = this->getInput(i);
         if (input && !input->canComputeFastBounds()) {
@@ -319,10 +316,6 @@ bool SkImageFilter::canComputeFastBounds() const {
         }
     }
     return true;
-}
-
-bool SkImageFilter::affectsTransparentBlack() const {
-    return false;
 }
 
 bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const Context&,
@@ -389,6 +382,18 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     }
 #endif
     return false;
+}
+
+bool SkImageFilter::asAColorFilter(SkColorFilter** filterPtr) const {
+    SkASSERT(nullptr != filterPtr);
+    if (!this->isColorFilterNode(filterPtr)) {
+        return false;
+    }
+    if (nullptr != this->getInput(0) || (*filterPtr)->affectsTransparentBlack()) {
+        (*filterPtr)->unref();
+        return false;
+    }
+    return true;
 }
 
 bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
