@@ -58,9 +58,9 @@ inline Sk4px Sk4px::Wide::addNarrowHi(const Sk16h& other) const {
 }
 
 inline Sk4px Sk4px::Wide::div255() const {
-    // Calculated as ((x+128) + ((x+128)>>8)) >> 8.
-    auto v = *this + Sk16h(128);
-    return v.addNarrowHi(v>>8);
+    // Calculated as (x + (x+128)>>8 +128) >> 8.  The 'r' in each instruction provides each +128.
+    return Sk16b(vcombine_u8(vraddhn_u16(this->fLo.fVec, vrshrq_n_u16(this->fLo.fVec, 8)),
+                             vraddhn_u16(this->fHi.fVec, vrshrq_n_u16(this->fHi.fVec, 8))));
 }
 
 inline Sk4px Sk4px::alphas() const {
