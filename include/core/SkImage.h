@@ -267,7 +267,7 @@ public:
      *  attempt to reuse existing encoded data (as returned by refEncoded).
      *
      *  We defer to the SkPixelSerializer both for vetting existing encoded data
-     *  (useEncodedData) and for encoding the image (encodePixels) when no such data is
+     *  (useEncodedData) and for encoding the image (encode) when no such data is
      *  present or is rejected by the serializer.
      *
      *  If not specified, we use a default serializer which 1) always accepts existing data

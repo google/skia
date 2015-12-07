@@ -9,9 +9,9 @@
 #define SkPixelSerializer_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkPixmap.h"
 
 class SkData;
-struct SkImageInfo;
 
 /**
  *  Interface for serializing pixels, e.g. SkBitmaps in an SkPicture.
@@ -32,8 +32,10 @@ public:
      *  Call to get the client's version of encoding these pixels. If it
      *  returns NULL, serialize the raw pixels.
      */
-    SkData* encodePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes) {
-        return this->onEncodePixels(info, pixels, rowBytes);
+    SkData* encode(const SkPixmap& pixmap) {
+        SkData* data = this->onEncode(pixmap);
+        return data ? data : this->onEncodePixels(
+                pixmap.info(), pixmap.addr(), pixmap.rowBytes());
     }
 
 protected:
@@ -47,6 +49,15 @@ protected:
      *  If you want to encode these pixels, return the encoded data as an SkData
      *  Return null if you want to serialize the raw pixels.
      */
-    virtual SkData* onEncodePixels(const SkImageInfo&, const void* pixels, size_t rowBytes) = 0;
+    // NOTE: onEncodePixels() is deprecated and removed in a later CL.
+    // Subclasses should implement onEncode() instead.  Subclasses
+    // should implement at least one of onEncodePixels() or
+    // onUseEncodedData().
+    virtual SkData* onEncodePixels(const SkImageInfo&,
+                                   const void* /*pixels*/,
+                                   size_t /*rowBytes*/) {
+        return nullptr;
+    }
+    virtual SkData* onEncode(const SkPixmap&) { return nullptr; }
 };
 #endif // SkPixelSerializer_DEFINED

@@ -185,9 +185,16 @@ protected:
     bool onUseEncodedData(const void *data, size_t len) override {
         return true;
     }
-
-    SkData* onEncodePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes) override {
-        return SkImageEncoder::EncodeData(info, pixels, rowBytes, SkImageEncoder::kPNG_Type, 100);
+    SkData* onEncode(const SkPixmap& pixmap) override {
+        SkBitmap bm;
+        if (!bm.installPixels(pixmap.info(),
+                              const_cast<void*>(pixmap.addr()),
+                              pixmap.rowBytes(),
+                              pixmap.ctable(),
+                              nullptr, nullptr)) {
+            return nullptr;
+        }
+        return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
     }
 };
 
@@ -205,8 +212,7 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
     SkBitmap bm;
     SkAutoPixmapUnlock apu;
     if (as_IB(this)->getROPixels(&bm) && bm.requestLock(&apu)) {
-        const SkPixmap& pmap = apu.pixmap();
-        return effectiveSerializer->encodePixels(pmap.info(), pmap.addr(), pmap.rowBytes());
+        return effectiveSerializer->encode(apu.pixmap());
     }
 
     return nullptr;
