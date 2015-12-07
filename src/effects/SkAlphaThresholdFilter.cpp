@@ -22,6 +22,7 @@ public:
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAlphaThresholdFilterImpl)
+    friend void SkAlphaThresholdFilter::InitializeFlattenables();
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -39,6 +40,11 @@ private:
     SkScalar fOuterThreshold;
     typedef SkImageFilter INHERITED;
 };
+
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkAlphaThresholdFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAlphaThresholdFilterImpl)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+
 
 SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
                                               SkScalar innerThreshold,

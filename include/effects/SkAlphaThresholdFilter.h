@@ -22,6 +22,7 @@ public:
      */
     static SkImageFilter* Create(const SkRegion& region, SkScalar innerThreshold,
                                  SkScalar outerThreshold, SkImageFilter* input = NULL);
+    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 };
 
 #endif
