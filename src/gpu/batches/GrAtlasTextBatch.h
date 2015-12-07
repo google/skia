@@ -20,7 +20,7 @@ public:
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
-    static const int kVerticesPerGlyph = 4;
+    static const int kVerticesPerGlyph = GrAtlasTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
     typedef GrAtlasTextContext::DistanceAdjustTable DistanceAdjustTable;
@@ -89,7 +89,7 @@ public:
         // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
         // into device space
         const Run& run = geo.fBlob->fRuns[geo.fRun];
-        if (run.fSubRunInfo[geo.fSubRun].fDrawAsDistanceFields) {
+        if (run.fSubRunInfo[geo.fSubRun].drawAsDistanceFields()) {
             SkRect bounds = run.fVertexBounds;
             fBatch.fViewMatrix.mapRect(&bounds);
             this->setBounds(bounds);

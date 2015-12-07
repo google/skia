@@ -135,7 +135,7 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
     GrBatchTextStrike* strike = nullptr;
     if (regenTexCoords) {
-        info->fBulkUseToken.reset();
+        info->resetBulkUseToken();
 
         // We can reuse if we have a valid strike and our descriptors / typeface are the
         // same.  The override descriptor is only for the non distance field text within
@@ -151,14 +151,14 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
             *desc = newDesc;
             *cache = SkGlyphCache::DetachCache(run->fTypeface, *desc);
             *scaler = GrTextContext::GetGrFontScaler(*cache);
-            strike = info->fStrike;
+            strike = info->strike();
             *typeface = run->fTypeface;
         }
 
         if (regenGlyphs) {
             strike = fFontCache->getStrike(*scaler);
         } else {
-            strike = info->fStrike;
+            strike = info->strike();
         }
     }
 
@@ -166,7 +166,7 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
     for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
         GrGlyph* glyph = nullptr;
         if (regenTexCoords) {
-            size_t glyphOffset = glyphIdx + info->fGlyphStartIndex;
+            size_t glyphOffset = glyphIdx + info->glyphStartIndex();
 
             if (regenGlyphs) {
                 // Get the id from the old glyph, and use the new strike to lookup
@@ -190,12 +190,12 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
                                                                     this->maskFormat());
                 SkASSERT(success);
             }
-            fFontCache->addGlyphToBulkAndSetUseToken(&info->fBulkUseToken, glyph,
+            fFontCache->addGlyphToBulkAndSetUseToken(info->bulkUseToken(), glyph,
                                                      target->currentToken());
         }
 
         intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices);
-        vertex += info->fVertexStartIndex;
+        vertex += info->vertexStartIndex();
         vertex += vertexStride * glyphIdx * GrAtlasTextBatch::kVerticesPerGlyph;
         regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
                                                            this->usesDistanceFields(), transX,
@@ -207,10 +207,10 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
     run->fColor = color;
     if (regenTexCoords) {
         if (regenGlyphs) {
-            info->fStrike.reset(SkRef(strike));
+            info->setStrike(strike);
         }
-        info->fAtlasGeneration = brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
-                                             fFontCache->atlasGeneration(this->maskFormat());
+        info->setAtlasGeneration(brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
+                                             fFontCache->atlasGeneration(this->maskFormat()));
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -378,8 +378,8 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         // new strike, we instead keep our ref to the old strike and use the packed ids from
         // it.  These ids will still be valid as long as we hold the ref.  When we are done
         // updating our cache of the GrGlyph*s, we drop our ref on the old strike
-        bool regenerateGlyphs = info.fStrike->isAbandoned();
-        bool regenerateTextureCoords = info.fAtlasGeneration != currentAtlasGen ||
+        bool regenerateGlyphs = info.strike()->isAbandoned();
+        bool regenerateTextureCoords = info.atlasGeneration() != currentAtlasGen ||
                                        regenerateGlyphs;
         bool regenerateColors;
         if (usesDistanceFields) {
@@ -388,7 +388,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
             regenerateColors = kA8_GrMaskFormat == maskFormat && run.fColor != args.fColor;
         }
         bool regeneratePositions = args.fTransX != 0.f || args.fTransY != 0.f;
-        int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
+        int glyphCount = info.glyphCount();
 
         uint32_t regenMaskBits = kNoRegen;
         regenMaskBits |= regeneratePositions ? kRegenPos : 0;
@@ -416,13 +416,14 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
 
                 // set use tokens for all of the glyphs in our subrun.  This is only valid if we
                 // have a valid atlas generation
-                fFontCache->setUseTokenBulk(info.fBulkUseToken, target->currentToken(), maskFormat);
+                fFontCache->setUseTokenBulk(*info.bulkUseToken(), target->currentToken(),
+                                            maskFormat);
                 break;
         }
 
         // now copy all vertices
-        size_t byteCount = info.fVertexEndIndex - info.fVertexStartIndex;
-        memcpy(currVertex, blob->fVertices + info.fVertexStartIndex, byteCount);
+        size_t byteCount = info.byteCount();
+        memcpy(currVertex, blob->fVertices + info.vertexStartIndex(), byteCount);
 
         currVertex += byteCount;
     }

@@ -466,11 +466,11 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
             PerSubRunInfo& newRun = cacheBlob->fRuns[run].fSubRunInfo.back();
             PerSubRunInfo& lastRun = cacheBlob->fRuns[run - 1].fSubRunInfo.back();
 
-            newRun.fVertexStartIndex = lastRun.fVertexEndIndex;
-            newRun.fVertexEndIndex = lastRun.fVertexEndIndex;
+            newRun.setVertexStartIndex(lastRun.vertexEndIndex());
+            newRun.setVertexEndIndex(lastRun.vertexEndIndex());
 
-            newRun.fGlyphStartIndex = lastRun.fGlyphEndIndex;
-            newRun.fGlyphEndIndex = lastRun.fGlyphEndIndex;
+            newRun.setGlyphStartIndex(lastRun.glyphEndIndex());
+            newRun.setGlyphEndIndex(lastRun.glyphEndIndex());
         }
 
         if (this->canDrawAsDistanceFields(runPaint, viewMatrix)) {
@@ -480,8 +480,8 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
             this->initDistanceFieldPaint(cacheBlob, &dfPaint, &textRatio, viewMatrix);
             Run& runIdx = cacheBlob->fRuns[run];
             PerSubRunInfo& subRun = runIdx.fSubRunInfo.back();
-            subRun.fUseLCDText = runPaint.isLCDRenderText();
-            subRun.fDrawAsDistanceFields = true;
+            subRun.setUseLCDText(runPaint.isLCDRenderText());
+            subRun.setDrawAsDistanceFields();
 
             SkTDArray<char> fallbackTxt;
             SkTDArray<SkScalar> fallbackPos;
@@ -641,8 +641,8 @@ GrAtlasTextContext::setupDFBlob(int glyphCount, const SkPaint& origPaint,
     blob->fViewMatrix = viewMatrix;
     Run& run = blob->fRuns[0];
     PerSubRunInfo& subRun = run.fSubRunInfo.back();
-    subRun.fUseLCDText = origPaint.isLCDRenderText();
-    subRun.fDrawAsDistanceFields = true;
+    subRun.setUseLCDText(origPaint.isLCDRenderText());
+    subRun.setDrawAsDistanceFields();
 
     return blob;
 }
@@ -1007,11 +1007,11 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     GrMaskFormat format = glyph->fMaskFormat;
 
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
-    if (run.fInitialized && subRun->fMaskFormat != format) {
+    if (run.fInitialized && subRun->maskFormat() != format) {
         subRun = &run.push_back();
-        subRun->fStrike.reset(SkRef(fCurrStrike));
+        subRun->setStrike(fCurrStrike);
     } else if (!run.fInitialized) {
-        subRun->fStrike.reset(SkRef(fCurrStrike));
+        subRun->setStrike(SkRef(fCurrStrike));
     }
 
     run.fInitialized = true;
@@ -1023,7 +1023,7 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     r.fTop = SkIntToScalar(y);
     r.fRight = r.fLeft + SkIntToScalar(width);
     r.fBottom = r.fTop + SkIntToScalar(height);
-    subRun->fMaskFormat = format;
+    subRun->setMaskFormat(format);
     this->appendGlyphCommon(blob, &run, subRun, r, color, vertexStride, kA8_GrMaskFormat == format,
                             glyph);
 }
@@ -1075,16 +1075,16 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
 
     PerSubRunInfo* subRun = &run.fSubRunInfo.back();
     if (!run.fInitialized) {
-        subRun->fStrike.reset(SkRef(fCurrStrike));
+        subRun->setStrike(fCurrStrike);
     }
     run.fInitialized = true;
     SkASSERT(glyph->fMaskFormat == kA8_GrMaskFormat);
-    subRun->fMaskFormat = kA8_GrMaskFormat;
+    subRun->setMaskFormat(kA8_GrMaskFormat);
 
     size_t vertexStride = GrAtlasTextBatch::GetVertexStrideDf(kA8_GrMaskFormat,
-                                                              subRun->fUseLCDText);
+                                                              subRun->hasUseLCDText());
 
-    bool useColorVerts = !subRun->fUseLCDText;
+    bool useColorVerts = !subRun->hasUseLCDText();
     this->appendGlyphCommon(blob, &run, subRun, glyphRect, color, vertexStride, useColorVerts,
                             glyph);
     return true;
@@ -1110,11 +1110,11 @@ inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* ru
                                                   const SkRect& positions, GrColor color,
                                                   size_t vertexStride, bool useVertexColor,
                                                   GrGlyph* glyph) {
-    blob->fGlyphs[subRun->fGlyphEndIndex] = glyph;
+    blob->appendGlyph(subRun, glyph);
     run->fVertexBounds.joinNonEmptyArg(positions);
     run->fColor = color;
 
-    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->fVertexEndIndex);
+    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->vertexEndIndex());
 
     if (useVertexColor) {
         // V0
@@ -1163,9 +1163,7 @@ inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* ru
         position = reinterpret_cast<SkPoint*>(vertex);
         position->set(positions.fRight, positions.fTop);
     }
-
-    subRun->fGlyphEndIndex++;
-    subRun->fVertexEndIndex += vertexStride * GrAtlasTextBatch::kVerticesPerGlyph;
+    subRun->appendVertices(vertexStride);
 }
 
 void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc,
@@ -1211,7 +1209,7 @@ GrAtlasTextContext::createBatch(GrAtlasTextBlob* cacheBlob, const PerSubRunInfo&
                                 int glyphCount, int run, int subRun,
                                 GrColor color, SkScalar transX, SkScalar transY,
                                 const SkPaint& skPaint) {
-    GrMaskFormat format = info.fMaskFormat;
+    GrMaskFormat format = info.maskFormat();
     GrColor subRunColor;
     if (kARGB_GrMaskFormat == format) {
         uint8_t paintAlpha = skPaint.getAlpha();
@@ -1221,7 +1219,7 @@ GrAtlasTextContext::createBatch(GrAtlasTextBlob* cacheBlob, const PerSubRunInfo&
     }
 
     GrAtlasTextBatch* batch;
-    if (info.fDrawAsDistanceFields) {
+    if (info.drawAsDistanceFields()) {
         SkColor filteredColor;
         SkColorFilter* colorFilter = skPaint.getColorFilter();
         if (colorFilter) {
@@ -1232,7 +1230,7 @@ GrAtlasTextContext::createBatch(GrAtlasTextBlob* cacheBlob, const PerSubRunInfo&
         bool useBGR = SkPixelGeometryIsBGR(fSurfaceProps.pixelGeometry());
         batch = GrAtlasTextBatch::CreateDistanceField(glyphCount, fContext->getBatchFontCache(),
                                                       fDistanceAdjustTable, filteredColor,
-                                                      info.fUseLCDText, useBGR);
+                                                      info.hasUseLCDText(), useBGR);
     } else {
         batch = GrAtlasTextBatch::CreateBitmap(format, glyphCount, fContext->getBatchFontCache());
     }
@@ -1254,7 +1252,7 @@ inline void GrAtlasTextContext::flushRun(GrDrawContext* dc, GrPipelineBuilder* p
                                          const SkPaint& skPaint) {
     for (int subRun = 0; subRun < cacheBlob->fRuns[run].fSubRunInfo.count(); subRun++) {
         const PerSubRunInfo& info = cacheBlob->fRuns[run].fSubRunInfo[subRun];
-        int glyphCount = info.fGlyphEndIndex - info.fGlyphStartIndex;
+        int glyphCount = info.glyphCount();
         if (0 == glyphCount) {
             continue;
         }

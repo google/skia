@@ -77,7 +77,6 @@ struct GrAtlasTextBlob : public SkRefCnt {
                 , fVertexEndIndex(0)
                 , fGlyphStartIndex(0)
                 , fGlyphEndIndex(0)
-                , fTextRatio(1.0f)
                 , fMaskFormat(kA8_GrMaskFormat)
                 , fDrawAsDistanceFields(false)
                 , fUseLCDText(false) {}
@@ -89,18 +88,44 @@ struct GrAtlasTextBlob : public SkRefCnt {
                 , fVertexEndIndex(that.fVertexEndIndex)
                 , fGlyphStartIndex(that.fGlyphStartIndex)
                 , fGlyphEndIndex(that.fGlyphEndIndex)
-                , fTextRatio(that.fTextRatio)
                 , fMaskFormat(that.fMaskFormat)
                 , fDrawAsDistanceFields(that.fDrawAsDistanceFields)
                 , fUseLCDText(that.fUseLCDText) {
             }
-            // Distance field text cannot draw coloremoji, and so has to fall back.  However,
-            // though the distance field text and the coloremoji may share the same run, they
-            // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
-            // will be used in place of the run's descriptor to regen texture coords
-            // TODO we could have a descriptor cache, it would reduce the size of these blobs
-            // significantly, and then the subrun could just have a refed pointer to the
-            // correct descriptor.
+
+            void resetBulkUseToken() { fBulkUseToken.reset(); }
+            GrBatchAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
+            void setStrike(GrBatchTextStrike* strike) { fStrike.reset(SkRef(strike)); }
+            GrBatchTextStrike* strike() const { return fStrike.get(); }
+
+            void setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
+            uint64_t atlasGeneration() const { return fAtlasGeneration; }
+
+            size_t byteCount() const { return fVertexEndIndex - fVertexStartIndex; }
+            void setVertexStartIndex(size_t vertStartIndex) { fVertexStartIndex = vertStartIndex;}
+            size_t vertexStartIndex() const { return fVertexStartIndex; }
+            void setVertexEndIndex(size_t vertEndIndex) { fVertexEndIndex = vertEndIndex; }
+            size_t vertexEndIndex() const { return fVertexEndIndex; }
+            void appendVertices(size_t vertexStride) {
+                fVertexEndIndex += vertexStride * kVerticesPerGlyph;
+            }
+
+            uint32_t glyphCount() const { return fGlyphEndIndex - fGlyphStartIndex; }
+            void setGlyphStartIndex(uint32_t glyphStartIndex) { fGlyphStartIndex = glyphStartIndex;}
+            uint32_t glyphStartIndex() const { return fGlyphStartIndex; }
+            void setGlyphEndIndex(uint32_t glyphEndIndex) { fGlyphEndIndex = glyphEndIndex; }
+            uint32_t glyphEndIndex() const { return fGlyphEndIndex; }
+            void glyphAppended() { fGlyphEndIndex++; }
+            void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
+            GrMaskFormat maskFormat() const { return fMaskFormat; }
+
+            // df properties
+            void setUseLCDText(bool useLCDText) { fUseLCDText = useLCDText; }
+            bool hasUseLCDText() const { return fUseLCDText; }
+            void setDrawAsDistanceFields() { fDrawAsDistanceFields = true; }
+            bool drawAsDistanceFields() const { return fDrawAsDistanceFields; }
+
+        private:
             GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
             SkAutoTUnref<GrBatchTextStrike> fStrike;
             uint64_t fAtlasGeneration;
@@ -108,7 +133,6 @@ struct GrAtlasTextBlob : public SkRefCnt {
             size_t fVertexEndIndex;
             uint32_t fGlyphStartIndex;
             uint32_t fGlyphEndIndex;
-            SkScalar fTextRatio; // df property
             GrMaskFormat fMaskFormat;
             bool fDrawAsDistanceFields; // df property
             bool fUseLCDText; // df property
@@ -119,11 +143,11 @@ struct GrAtlasTextBlob : public SkRefCnt {
             SubRunInfo& newSubRun = fSubRunInfo.push_back();
             SubRunInfo& prevSubRun = fSubRunInfo.fromBack(1);
 
-            newSubRun.fGlyphStartIndex = prevSubRun.fGlyphEndIndex;
-            newSubRun.fGlyphEndIndex = prevSubRun.fGlyphEndIndex;
+            newSubRun.setGlyphStartIndex(prevSubRun.glyphEndIndex());
+            newSubRun.setGlyphEndIndex(prevSubRun.glyphEndIndex());
 
-            newSubRun.fVertexStartIndex = prevSubRun.fVertexEndIndex;
-            newSubRun.fVertexEndIndex = prevSubRun.fVertexEndIndex;
+            newSubRun.setVertexStartIndex(prevSubRun.vertexEndIndex());
+            newSubRun.setVertexEndIndex(prevSubRun.vertexEndIndex());
             return newSubRun;
         }
         static const int kMinSubRuns = 1;
@@ -131,6 +155,11 @@ struct GrAtlasTextBlob : public SkRefCnt {
         SkRect fVertexBounds;
         SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
         SkAutoDescriptor fDescriptor;
+
+        // Distance field text cannot draw coloremoji, and so has to fall back.  However,
+        // though the distance field text and the coloremoji may share the same run, they
+        // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
+        // will be used in place of the run's descriptor to regen texture coords
         SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor; // df properties
         GrColor fColor;
         bool fInitialized;
@@ -240,6 +269,12 @@ struct GrAtlasTextBlob : public SkRefCnt {
     bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
     void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
     void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
+    void appendGlyph(Run::SubRunInfo* subrun, GrGlyph* glyph) {
+        this->fGlyphs[subrun->glyphEndIndex()] = glyph;
+        subrun->glyphAppended();
+    }
+
+    static const int kVerticesPerGlyph = 4;
 
 #ifdef CACHE_SANITY_CHECK
     static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
