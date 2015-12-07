@@ -14,6 +14,7 @@
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
 #include "SkSurface.h"
+#include "SkTileImageFilter.h"
 
 namespace skiagm {
 
@@ -110,6 +111,15 @@ static void create_paints(SkImageFilter* source, SkTArray<SkPaint>* paints) {
     }
 
     {
+        SkRect src = SkRect::MakeXYWH(20, 20, 10, 10);
+        SkRect dst = SkRect::MakeXYWH(30, 30, 30, 30);
+        SkAutoTUnref<SkImageFilter> tileIF(
+            SkTileImageFilter::Create(src, dst, nullptr));
+
+        add_paint(tileIF, paints);
+    }
+
+    {
         static const SkDropShadowImageFilter::ShadowMode kBoth =
                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode;
 
@@ -157,7 +167,7 @@ public:
 protected:
     static const int kTileWidth = 100;
     static const int kTileHeight = 100;
-    static const int kNumVertTiles = 6;
+    static const int kNumVertTiles = 7;
     static const int kNumXtraCols = 2;
 
     SkString onShortName() override{ return SkString("filterfastbounds"); }
