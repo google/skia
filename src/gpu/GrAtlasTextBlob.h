@@ -35,7 +35,7 @@
  *
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
-struct GrAtlasTextBlob : public SkRefCnt {
+struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrAtlasTextBlob);
 
     /*
@@ -238,7 +238,7 @@ struct GrAtlasTextBlob : public SkRefCnt {
         , fMinMaxScale(SK_ScalarMax)
         , fTextType(0) {}
 
-    ~GrAtlasTextBlob() override {
+    ~GrAtlasTextBlob() {
         for (int i = 0; i < fRunCount; i++) {
             fRuns[i].~Run();
         }
