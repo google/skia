@@ -362,6 +362,9 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
         }
         if (t < result->fT) {
             SkOpSpan* prev = result->span()->prev();
+            if (!prev) {
+                return nullptr;
+            }
             SkOpSpan* span = insert(prev, allocator);
             span->init(this, prev, t, pt);
             this->debugValidate();

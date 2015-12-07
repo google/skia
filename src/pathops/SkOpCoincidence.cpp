@@ -110,11 +110,17 @@ bool SkOpCoincidence::addExpanded(SkChunkAlloc* allocator
                 if (startPart < oStartPart) {
                     double newT = oStartPtT->fT + oStartRange * startPart;
                     newPt = oStart->segment()->addT(newT, SkOpSegment::kAllowAlias, allocator);
+                    if (!newPt) {
+                        return false;
+                    }
                     newPt->fPt = test->pt();
                     test->ptT()->addOpp(newPt);
                 } else {
                     double newT = startPtT->fT + startRange * oStartPart;
                     newPt = start->segment()->addT(newT, SkOpSegment::kAllowAlias, allocator);
+                    if (!newPt) {
+                        return false;
+                    }
                     newPt->fPt = oTest->pt();
                     oTest->ptT()->addOpp(newPt);
                 }

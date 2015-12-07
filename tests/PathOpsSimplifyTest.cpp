@@ -5055,11 +5055,24 @@ path.close();
     REPORTER_ASSERT(reporter, !Simplify(path, &path));
 }
 
+static void fuzz_59(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.moveTo(SkBits2Float(0x430c0000), SkBits2Float(0xce58f41c));  // 140, -9.09969e+08f
+path.lineTo(SkBits2Float(0x43480000), SkBits2Float(0xce58f419));  // 200, -9.09969e+08f
+path.lineTo(SkBits2Float(0x42200000), SkBits2Float(0xce58f41b));  // 40, -9.09969e+08f
+path.lineTo(SkBits2Float(0x43700000), SkBits2Float(0xce58f41b));  // 240, -9.09969e+08f
+path.lineTo(SkBits2Float(0x428c0000), SkBits2Float(0xce58f419));  // 70, -9.09969e+08f
+path.lineTo(SkBits2Float(0x430c0000), SkBits2Float(0xce58f41c));  // 140, -9.09969e+08f
+path.close();
+    REPORTER_ASSERT(reporter, !Simplify(path, &path));
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(fuzz_59),
     TEST(fuzz_twister2),
     TEST(fuzz_twister),
     TEST(fuzz994s_3414),
