@@ -21,7 +21,6 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fBindlessTextureSupport = false;
     fUsesPrecisionModifiers = false;
     fCanUseAnyFunctionInShader = true;
-    fForceHighPrecisionNDSTransform = false;
     fCanUseMinAndAbsTogether = true;
     fMustForceNegatedAtanParamToFloat = false;
     fVersionDeclString = nullptr;
@@ -59,8 +58,6 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Bindless texture support: %s\n", (fBindlessTextureSupport ? "YES" : "NO"));
     r.appendf("Uses precision modifiers: %s\n", (fUsesPrecisionModifiers ? "YES" : "NO"));
     r.appendf("Can use any() function: %s\n", (fCanUseAnyFunctionInShader ? "YES" : "NO"));
-    r.appendf("Force high precision on NDS transform: %s\n", (fForceHighPrecisionNDSTransform ?
-                                                              "YES" : "NO"));
     r.appendf("Can use min() and abs() together: %s\n", (fCanUseMinAndAbsTogether ? "YES" : "NO"));
     r.appendf("Must force negated atan param to float: %s\n", (fMustForceNegatedAtanParamToFloat ?
                                                                "YES" : "NO"));

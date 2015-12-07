@@ -18,13 +18,8 @@ GrGLSLVertexBuilder::GrGLSLVertexBuilder(GrGLSLProgramBuilder* program)
 void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
     SkASSERT(!fRtAdjustName);
 
-    GrSLPrecision precision = kDefault_GrSLPrecision;
-    if (fProgramBuilder->glslCaps()->forceHighPrecisionNDSTransform()) {
-        precision = kHigh_GrSLPrecision;
-    }
-
     // setup RT Uniform
-    fProgramBuilder->addRTAdjustmentUniform(precision,
+    fProgramBuilder->addRTAdjustmentUniform(kHigh_GrSLPrecision,
                                             fProgramBuilder->rtAdjustment(),
                                             &fRtAdjustName);
     if (this->getProgramBuilder()->desc().header().fSnapVerticesToPixelCenters) {

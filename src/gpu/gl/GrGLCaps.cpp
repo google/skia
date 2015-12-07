@@ -588,9 +588,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     // from our GrTextureDomain processor.
     glslCaps->fCanUseAnyFunctionInShader = kImagination_GrGLVendor != ctxInfo.vendor();
 
-    glslCaps->fForceHighPrecisionNDSTransform = kARM_GrGLVendor == ctxInfo.vendor() ||
-                                                kPowerVR54x_GrGLRenderer == ctxInfo.renderer();
-
     glslCaps->fVersionDeclString = get_glsl_version_decl_string(standard, glslCaps->fGLSLGeneration,
                                                                 fIsCoreProfile);
 
