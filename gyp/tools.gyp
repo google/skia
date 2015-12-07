@@ -28,7 +28,6 @@
         'pinspect',
         'skdiff',
         'skhello',
-        'skpdiff',
         'skpinfo',
         'skpmaker',
         'test_image_decoder',
@@ -150,65 +149,6 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-      ],
-    },
-    {
-      'target_name': 'skpdiff',
-      'type': 'executable',
-      'sources': [
-        '../tools/skpdiff/skpdiff_main.cpp',
-        '../tools/skpdiff/SkDiffContext.cpp',
-        '../tools/skpdiff/SkImageDiffer.cpp',
-        '../tools/skpdiff/SkPMetric.cpp',
-        '../tools/skpdiff/skpdiff_util.cpp',
-      ],
-      'include_dirs': [
-        '../include/private',
-        '../src/core/', # needed for SkTLList.h
-        '../tools/',    # needed for picture_utils::replace_char
-      ],
-      'dependencies': [
-        'flags.gyp:flags',
-        'skia_lib.gyp:skia_lib',
-        'tools.gyp:picture_utils',
-      ],
-      'cflags': [
-        '-O3',
-      ],
-      'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
-          'link_settings': {
-            'libraries': [
-              '-lrt',
-              '-pthread',
-            ],
-          },
-        }],
-        ['skia_opencl', {
-          'sources': [
-            '../tools/skpdiff/SkCLImageDiffer.cpp',
-            '../tools/skpdiff/SkDifferentPixelsMetric_opencl.cpp',
-          ],
-          'conditions': [
-            [ 'skia_os == "mac"', {
-              'link_settings': {
-                'libraries': [
-                  '$(SDKROOT)/System/Library/Frameworks/OpenCL.framework',
-                ]
-              }
-            }, {
-              'link_settings': {
-                'libraries': [
-                  '-lOpenCL',
-                ],
-              },
-            }],
-          ],
-        }, { # !skia_opencl
-          'sources': [
-            '../tools/skpdiff/SkDifferentPixelsMetric_cpu.cpp',
-          ],
-        }],
       ],
     },
     {

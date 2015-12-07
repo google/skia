@@ -142,7 +142,6 @@
       'skia_vulkan%': 0,
       'skia_win_debuggers_path%': '',
       'skia_shared_lib%': 0,
-      'skia_opencl%': 0,
       'skia_force_distance_field_text%': 0,
       'skia_is_bot%': '<!(python -c "import os; print os.environ.get(\'CHROME_HEADLESS\', 0)")',
 
@@ -227,7 +226,6 @@
     'skia_pdf_generate_pdfa%': 0,  # emit larger PDF/A-2b file
     'skia_profile_enabled%': '<(skia_profile_enabled)',
     'skia_shared_lib%': '<(skia_shared_lib)',
-    'skia_opencl%': '<(skia_opencl)',
     'skia_force_distance_field_text%': '<(skia_force_distance_field_text)',
     'skia_static_initializers%': '<(skia_static_initializers)',
     'ios_sdk_version%': '6.0',
