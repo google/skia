@@ -23,6 +23,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fInvalidateFBType = kNone_InvalidateFBType;
     fLATCAlias = kLATC_LATCAlias;
     fMapBufferType = kNone_MapBufferType;
+    fTransferBufferType = kNone_TransferBufferType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
     fMaxFragmentTextureUnits = 0;
@@ -367,6 +368,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         } else if (ctxInfo.hasExtension("GL_OES_mapbuffer")) {
             fMapBufferFlags = kCanMap_MapFlag;
             fMapBufferType = kMapBuffer_MapBufferType;
+        }
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object")) {
+            fTransferBufferType = kPBO_TransferBufferType;
+        } 
+    } else {
+        if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_NV_pixel_buffer_object")) {
+            fTransferBufferType = kPBO_TransferBufferType;
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_pixel_transfer_buffer_object")) {
+            fTransferBufferType = kChromium_TransferBufferType;
         }
     }
 

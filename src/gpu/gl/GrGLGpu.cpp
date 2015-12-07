@@ -1479,19 +1479,30 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
     }
 }
 
-GrTransferBuffer* GrGLGpu::onCreateTransferBuffer(size_t size, TransferType type) {
+GrTransferBuffer* GrGLGpu::onCreateTransferBuffer(size_t size, TransferType xferType) {
+    GrGLCaps::TransferBufferType xferBufferType = this->ctxInfo().caps()->transferBufferType();
+    if (GrGLCaps::kNone_TransferBufferType == xferBufferType) {
+        return nullptr;
+    }
+
     GrGLTransferBuffer::Desc desc;
-    bool toGpu = (kCpuToGpu_TransferType == type);
+    bool toGpu = (kCpuToGpu_TransferType == xferType);
     desc.fUsage = toGpu ? GrGLBufferImpl::kStreamDraw_Usage : GrGLBufferImpl::kStreamRead_Usage;
 
     desc.fSizeInBytes = size;
     
-    // TODO: check caps to see if we can create a PBO, and which kind
     GL_CALL(GenBuffers(1, &desc.fID));
     if (desc.fID) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-        // make sure driver can allocate memory for this buffer
-        GrGLenum type = toGpu ? GR_GL_PIXEL_UNPACK_BUFFER : GR_GL_PIXEL_PACK_BUFFER;
+        // make sure driver can allocate memory for this bmapuffer
+        GrGLenum type;
+        if (GrGLCaps::kChromium_TransferBufferType == xferBufferType) {
+            type = toGpu ? GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM
+                         : GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM;
+        } else {
+            SkASSERT(GrGLCaps::kPBO_TransferBufferType == xferBufferType);
+            type = toGpu ? GR_GL_PIXEL_UNPACK_BUFFER : GR_GL_PIXEL_PACK_BUFFER;
+        }
         GL_ALLOC_CALL(this->glInterface(),
                       BufferData(type,
                                  (GrGLsizeiptr) desc.fSizeInBytes,
@@ -1650,6 +1661,8 @@ void GrGLGpu::bindBuffer(GrGLuint id, GrGLenum type) {
         this->bindVertexBuffer(id);
     } else if (GR_GL_ELEMENT_ARRAY_BUFFER == type) {
         this->bindIndexBufferAndDefaultVertexArray(id);
+    } else {
+        GR_GL_CALL(this->glInterface(), BindBuffer(type, id));
     }
 }
 
@@ -1679,6 +1692,8 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage
                          size_t currentSize, size_t requestedSize) {
     void* mapPtr = nullptr;
     GrGLenum glUsage = get_gl_usage(usage);
+    bool readOnly = (GrGLBufferImpl::kStreamRead_Usage == usage);
+
     // Handling dirty context is done in the bindBuffer call
     switch (this->glCaps().mapBufferType()) {
         case GrGLCaps::kNone_MapBufferType:
@@ -1689,7 +1704,7 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage
             if (GR_GL_USE_BUFFER_DATA_NULL_HINT || currentSize != requestedSize) {
                 GL_CALL(BufferData(type, requestedSize, nullptr, glUsage));
             }
-            GL_CALL_RET(mapPtr, MapBuffer(type, GR_GL_WRITE_ONLY));
+            GL_CALL_RET(mapPtr, MapBuffer(type, readOnly ? GR_GL_READ_ONLY : GR_GL_WRITE_ONLY));
             break;
         case GrGLCaps::kMapBufferRange_MapBufferType: {
             this->bindBuffer(id, type);
@@ -1697,9 +1712,11 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage
             if (currentSize != requestedSize) {
                 GL_CALL(BufferData(type, requestedSize, nullptr, glUsage));
             }
-            static const GrGLbitfield kAccess = GR_GL_MAP_INVALIDATE_BUFFER_BIT |
-                                                GR_GL_MAP_WRITE_BIT;
-            GL_CALL_RET(mapPtr, MapBufferRange(type, 0, requestedSize, kAccess));
+            static const GrGLbitfield kWriteAccess = GR_GL_MAP_INVALIDATE_BUFFER_BIT |
+                                                     GR_GL_MAP_WRITE_BIT;
+            GL_CALL_RET(mapPtr, MapBufferRange(type, 0, requestedSize, readOnly ? 
+                                                                       GR_GL_MAP_READ_BIT :                                                       
+                                                                       kWriteAccess));
             break;
         }
         case GrGLCaps::kChromium_MapBufferType:
@@ -1708,7 +1725,9 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage
             if (currentSize != requestedSize) {
                 GL_CALL(BufferData(type, requestedSize, nullptr, glUsage));
             }
-            GL_CALL_RET(mapPtr, MapBufferSubData(type, 0, requestedSize, GR_GL_WRITE_ONLY));
+            GL_CALL_RET(mapPtr, MapBufferSubData(type, 0, requestedSize, readOnly ? 
+                                                                         GR_GL_READ_ONLY : 
+                                                                         GR_GL_WRITE_ONLY));
             break;
     }
     return mapPtr;

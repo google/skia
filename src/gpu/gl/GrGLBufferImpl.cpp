@@ -111,7 +111,9 @@ bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInB
 
 void GrGLBufferImpl::validate() const {
     SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType ||
-             GR_GL_PIXEL_PACK_BUFFER == fBufferType || GR_GL_PIXEL_UNPACK_BUFFER == fBufferType);
+             GR_GL_PIXEL_PACK_BUFFER == fBufferType || GR_GL_PIXEL_UNPACK_BUFFER == fBufferType ||
+             GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM == fBufferType ||
+             GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM == fBufferType);
     // The following assert isn't valid when the buffer has been abandoned:
     // SkASSERT((0 == fDesc.fID) == (fCPUData));
     SkASSERT(nullptr == fCPUData || 0 == fGLSizeInBytes);

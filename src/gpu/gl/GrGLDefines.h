@@ -113,6 +113,9 @@
 #define GR_GL_PIXEL_PACK_BUFFER              0x88EB
 #define GR_GL_PIXEL_UNPACK_BUFFER            0x88EC
 
+#define GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM 0x78EC 
+#define GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM   0x78ED
+
 #define GR_GL_STREAM_DRAW                    0x88E0
 #define GR_GL_STREAM_READ                    0x88E1
 #define GR_GL_STATIC_DRAW                    0x88E4
@@ -705,7 +708,8 @@
 #define GR_GL_T2F_C4F_N3F_V3F                    0x2A2C
 #define GR_GL_T4F_C4F_N3F_V4F                    0x2A2D
 
-/* Vertex Buffer Object */
+/* Buffer Object */
+#define GR_GL_READ_ONLY                          0x88B8
 #define GR_GL_WRITE_ONLY                         0x88B9
 #define GR_GL_BUFFER_MAPPED                      0x88BC
 

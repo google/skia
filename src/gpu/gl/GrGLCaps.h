@@ -90,6 +90,14 @@ public:
         kLast_MapBufferType = kChromium_MapBufferType,
     };
 
+    enum TransferBufferType {
+        kNone_TransferBufferType,
+        kPBO_TransferBufferType,          // ARB_pixel_buffer_object
+        kChromium_TransferBufferType,     // CHROMIUM_pixel_transfer_buffer_object
+
+        kLast_TransferBufferType = kChromium_TransferBufferType,
+    };
+
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
@@ -142,6 +150,9 @@ public:
 
     /// What type of buffer mapping is supported?
     MapBufferType mapBufferType() const { return fMapBufferType; }
+
+    /// What type of transfer buffer is supported?
+    TransferBufferType transferBufferType() const { return fTransferBufferType; }
 
     /**
      * Gets an array of legal stencil formats. These formats are not guaranteed
@@ -337,6 +348,7 @@ private:
     MSFBOType           fMSFBOType;
     InvalidateFBType    fInvalidateFBType;
     MapBufferType       fMapBufferType;
+    TransferBufferType  fTransferBufferType;
     LATCAlias           fLATCAlias;
 
     bool fRGBA8RenderbufferSupport : 1;
