@@ -461,17 +461,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
 
         runPaint.setFlags(FilterTextFlags(fSurfaceProps, runPaint));
 
-        // setup vertex / glyphIndex for the new run
-        if (run > 0) {
-            PerSubRunInfo& newRun = cacheBlob->fRuns[run].fSubRunInfo.back();
-            PerSubRunInfo& lastRun = cacheBlob->fRuns[run - 1].fSubRunInfo.back();
-
-            newRun.setVertexStartIndex(lastRun.vertexEndIndex());
-            newRun.setVertexEndIndex(lastRun.vertexEndIndex());
-
-            newRun.setGlyphStartIndex(lastRun.glyphEndIndex());
-            newRun.setGlyphEndIndex(lastRun.glyphEndIndex());
-        }
+        cacheBlob->push_back_run(run);
 
         if (this->canDrawAsDistanceFields(runPaint, viewMatrix)) {
             cacheBlob->setHasDistanceField();
@@ -1011,7 +1001,7 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
         subRun = &run.push_back();
         subRun->setStrike(fCurrStrike);
     } else if (!run.fInitialized) {
-        subRun->setStrike(SkRef(fCurrStrike));
+        subRun->setStrike(fCurrStrike);
     }
 
     run.fInitialized = true;
@@ -1024,8 +1014,7 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     r.fRight = r.fLeft + SkIntToScalar(width);
     r.fBottom = r.fTop + SkIntToScalar(height);
     subRun->setMaskFormat(format);
-    this->appendGlyphCommon(blob, &run, subRun, r, color, vertexStride, kA8_GrMaskFormat == format,
-                            glyph);
+    blob->appendGlyph(&run, subRun, r, color, vertexStride, kA8_GrMaskFormat == format, glyph);
 }
 
 bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
@@ -1085,8 +1074,7 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                                                               subRun->hasUseLCDText());
 
     bool useColorVerts = !subRun->hasUseLCDText();
-    this->appendGlyphCommon(blob, &run, subRun, glyphRect, color, vertexStride, useColorVerts,
-                            glyph);
+    blob->appendGlyph(&run, subRun, glyphRect, color, vertexStride, useColorVerts, glyph);
     return true;
 }
 
@@ -1103,67 +1091,6 @@ inline void GrAtlasTextContext::appendGlyphPath(GrAtlasTextBlob* blob, GrGlyph* 
         glyph->fPath = new SkPath(*glyphPath);
     }
     blob->fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, applyVM));
-}
-
-inline void GrAtlasTextContext::appendGlyphCommon(GrAtlasTextBlob* blob, Run* run,
-                                                  Run::SubRunInfo* subRun,
-                                                  const SkRect& positions, GrColor color,
-                                                  size_t vertexStride, bool useVertexColor,
-                                                  GrGlyph* glyph) {
-    blob->appendGlyph(subRun, glyph);
-    run->fVertexBounds.joinNonEmptyArg(positions);
-    run->fColor = color;
-
-    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + subRun->vertexEndIndex());
-
-    if (useVertexColor) {
-        // V0
-        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fTop);
-        SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-        vertex += vertexStride;
-
-        // V1
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fBottom);
-        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-        vertex += vertexStride;
-
-        // V2
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fBottom);
-        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-        vertex += vertexStride;
-
-        // V3
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fTop);
-        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-    } else {
-        // V0
-        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fTop);
-        vertex += vertexStride;
-
-        // V1
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fBottom);
-        vertex += vertexStride;
-
-        // V2
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fBottom);
-        vertex += vertexStride;
-
-        // V3
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fTop);
-    }
-    subRun->appendVertices(vertexStride);
 }
 
 void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc,

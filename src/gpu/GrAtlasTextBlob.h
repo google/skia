@@ -93,6 +93,7 @@ struct GrAtlasTextBlob : public SkRefCnt {
                 , fUseLCDText(that.fUseLCDText) {
             }
 
+            // TODO when this object is more internal, drop the privacy
             void resetBulkUseToken() { fBulkUseToken.reset(); }
             GrBatchAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
             void setStrike(GrBatchTextStrike* strike) { fStrike.reset(SkRef(strike)); }
@@ -102,22 +103,26 @@ struct GrAtlasTextBlob : public SkRefCnt {
             uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
             size_t byteCount() const { return fVertexEndIndex - fVertexStartIndex; }
-            void setVertexStartIndex(size_t vertStartIndex) { fVertexStartIndex = vertStartIndex;}
             size_t vertexStartIndex() const { return fVertexStartIndex; }
-            void setVertexEndIndex(size_t vertEndIndex) { fVertexEndIndex = vertEndIndex; }
             size_t vertexEndIndex() const { return fVertexEndIndex; }
             void appendVertices(size_t vertexStride) {
                 fVertexEndIndex += vertexStride * kVerticesPerGlyph;
             }
 
             uint32_t glyphCount() const { return fGlyphEndIndex - fGlyphStartIndex; }
-            void setGlyphStartIndex(uint32_t glyphStartIndex) { fGlyphStartIndex = glyphStartIndex;}
             uint32_t glyphStartIndex() const { return fGlyphStartIndex; }
-            void setGlyphEndIndex(uint32_t glyphEndIndex) { fGlyphEndIndex = glyphEndIndex; }
             uint32_t glyphEndIndex() const { return fGlyphEndIndex; }
             void glyphAppended() { fGlyphEndIndex++; }
             void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
             GrMaskFormat maskFormat() const { return fMaskFormat; }
+
+            void setAsSuccessor(const SubRunInfo& prev) {
+                fGlyphStartIndex = prev.glyphEndIndex();
+                fGlyphEndIndex = prev.glyphEndIndex();
+
+                fVertexStartIndex = prev.vertexEndIndex();
+                fVertexEndIndex = prev.vertexEndIndex();
+            }
 
             // df properties
             void setUseLCDText(bool useLCDText) { fUseLCDText = useLCDText; }
@@ -141,13 +146,9 @@ struct GrAtlasTextBlob : public SkRefCnt {
         SubRunInfo& push_back() {
             // Forward glyph / vertex information to seed the new sub run
             SubRunInfo& newSubRun = fSubRunInfo.push_back();
-            SubRunInfo& prevSubRun = fSubRunInfo.fromBack(1);
+            const SubRunInfo& prevSubRun = fSubRunInfo.fromBack(1);
 
-            newSubRun.setGlyphStartIndex(prevSubRun.glyphEndIndex());
-            newSubRun.setGlyphEndIndex(prevSubRun.glyphEndIndex());
-
-            newSubRun.setVertexStartIndex(prevSubRun.vertexEndIndex());
-            newSubRun.setVertexEndIndex(prevSubRun.vertexEndIndex());
+            newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
         static const int kMinSubRuns = 1;
@@ -269,10 +270,21 @@ struct GrAtlasTextBlob : public SkRefCnt {
     bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
     void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
     void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
-    void appendGlyph(Run::SubRunInfo* subrun, GrGlyph* glyph) {
-        this->fGlyphs[subrun->glyphEndIndex()] = glyph;
-        subrun->glyphAppended();
+
+    void push_back_run(int currRun) {
+        SkASSERT(currRun < fRunCount);
+        if (currRun > 0) {
+            Run::SubRunInfo& newRun = fRuns[currRun].fSubRunInfo.back();
+            Run::SubRunInfo& lastRun = fRuns[currRun - 1].fSubRunInfo.back();
+            newRun.setAsSuccessor(lastRun);
+        }
     }
+
+    void appendGlyph(Run* run,
+                     Run::SubRunInfo* subRun,
+                     const SkRect& positions, GrColor color,
+                     size_t vertexStride, bool useVertexColor,
+                     GrGlyph* glyph);
 
     static const int kVerticesPerGlyph = 4;
 

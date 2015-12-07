@@ -7,6 +7,69 @@
 
 #include "GrAtlasTextBlob.h"
 
+void GrAtlasTextBlob::appendGlyph(Run* run,
+                                  Run::SubRunInfo* subRun,
+                                  const SkRect& positions, GrColor color,
+                                  size_t vertexStride, bool useVertexColor,
+                                  GrGlyph* glyph) {
+    run->fVertexBounds.joinNonEmptyArg(positions);
+    run->fColor = color;
+
+    intptr_t vertex = reinterpret_cast<intptr_t>(this->fVertices + subRun->vertexEndIndex());
+
+    if (useVertexColor) {
+        // V0
+        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fTop);
+        SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *colorPtr = color;
+        vertex += vertexStride;
+
+        // V1
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fBottom);
+        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *colorPtr = color;
+        vertex += vertexStride;
+
+        // V2
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fBottom);
+        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *colorPtr = color;
+        vertex += vertexStride;
+
+        // V3
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fTop);
+        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
+        *colorPtr = color;
+    } else {
+        // V0
+        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fTop);
+        vertex += vertexStride;
+
+        // V1
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fLeft, positions.fBottom);
+        vertex += vertexStride;
+
+        // V2
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fBottom);
+        vertex += vertexStride;
+
+        // V3
+        position = reinterpret_cast<SkPoint*>(vertex);
+        position->set(positions.fRight, positions.fTop);
+    }
+    subRun->appendVertices(vertexStride);
+    fGlyphs[subRun->glyphEndIndex()] = glyph;
+    subRun->glyphAppended();
+}
+
+// TODO get this code building again
 #ifdef CACHE_SANITY_CHECK
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {
     SkASSERT(l.fSize == r.fSize);
