@@ -156,7 +156,7 @@ uint8_t SkMatrix::computeTypeMask() const {
     } else {
         // Only test for scale explicitly if not affine, since affine sets the
         // scale bit.
-        if ((m00 - kScalar1Int) | (m11 - kScalar1Int)) {
+        if ((m00 ^ kScalar1Int) | (m11 ^ kScalar1Int)) {
             mask |= kScale_Mask;
         }
 

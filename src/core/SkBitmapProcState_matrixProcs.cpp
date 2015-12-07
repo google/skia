@@ -95,18 +95,20 @@ static SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
 };
 
 #define MAKENAME(suffix)        RepeatX_RepeatY ## suffix
-#define TILEX_PROCF(fx, max)    SK_USHIFT16(((fx) & 0xFFFF) * ((max) + 1))
-#define TILEY_PROCF(fy, max)    SK_USHIFT16(((fy) & 0xFFFF) * ((max) + 1))
-#define TILEX_LOW_BITS(fx, max) ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max) ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+#define TILEX_PROCF(fx, max)    SK_USHIFT16((unsigned)((fx) & 0xFFFF) * ((max) + 1))
+#define TILEY_PROCF(fy, max)    SK_USHIFT16((unsigned)((fy) & 0xFFFF) * ((max) + 1))
+#define TILEX_LOW_BITS(fx, max) (((unsigned)((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+#define TILEY_LOW_BITS(fy, max) (((unsigned)((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
 #include "SkBitmapProcState_matrix.h"
 
 struct RepeatTileProcs {
     static unsigned X(const SkBitmapProcState&, SkFixed fx, int max) {
-        return SK_USHIFT16(((fx) & 0xFFFF) * ((max) + 1));
+        SkASSERT(max < 65535);
+        return SK_USHIFT16((unsigned)((fx) & 0xFFFF) * ((max) + 1));
     }
     static unsigned Y(const SkBitmapProcState&, SkFixed fy, int max) {
-        return SK_USHIFT16(((fy) & 0xFFFF) * ((max) + 1));
+        SkASSERT(max < 65535);
+        return SK_USHIFT16((unsigned)((fy) & 0xFFFF) * ((max) + 1));
     }
 };
 
