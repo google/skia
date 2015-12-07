@@ -2257,10 +2257,8 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint, SrcRectConstraint constraint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
-    SkRect storage;
-    const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
-        storage = dst;
+        SkRect storage = dst;
         if (paint) {
             paint->computeFastBounds(dst, &storage);
         }
@@ -2273,7 +2271,7 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
         paint = lazy.init();
     }
     
-    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, bounds,
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, &dst,
                                           image->isOpaque())
     
     while (iter.next()) {
@@ -2338,9 +2336,8 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         return;
     }
 
-    SkRect storage;
-    const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
+        SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
@@ -2351,7 +2348,7 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         paint = lazy.init();
     }
 
-    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, bounds,
+    LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(*paint, SkDrawFilter::kBitmap_Type, &dst,
                                           bitmap.isOpaque())
 
     while (iter.next()) {
@@ -2372,9 +2369,8 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
                                const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageNine()");
     
-    SkRect storage;
-    const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
+        SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
@@ -2385,7 +2381,7 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
         paint = lazy.init();
     }
     
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
     
     while (iter.next()) {
         iter.fDevice->drawImageNine(iter, image, center, dst, looper.paint());
@@ -2399,9 +2395,8 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapNine()");
     SkDEBUGCODE(bitmap.validate();)
 
-    SkRect storage;
-    const SkRect* bounds = &dst;
     if (nullptr == paint || paint->canComputeFastBounds()) {
+        SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
         }
@@ -2412,7 +2407,7 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
         paint = lazy.init();
     }
     
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, &dst)
     
     while (iter.next()) {
         iter.fDevice->drawBitmapNine(iter, bitmap, center, dst, looper.paint());
