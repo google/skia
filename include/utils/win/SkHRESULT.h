@@ -17,7 +17,7 @@ void SkTraceHR(const char* file, unsigned long line,
 #ifdef SK_DEBUG
 #define SK_TRACEHR(_hr, _msg) SkTraceHR(__FILE__, __LINE__, _hr, _msg)
 #else
-#define SK_TRACEHR(_hr, _msg) _hr
+#define SK_TRACEHR(_hr, _msg) sk_ignore_unused_variable(_hr)
 #endif
 
 #define HR_GENERAL(_ex, _msg, _ret) {\
