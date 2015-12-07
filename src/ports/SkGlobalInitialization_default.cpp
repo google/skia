@@ -11,6 +11,7 @@
 
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
+#include "SkAlphaThresholdFilter.h"
 #include "SkArithmeticMode.h"
 #include "SkArcToPathEffect.h"
 #include "SkBitmapSourceDeserializer.h"
@@ -33,6 +34,7 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkFlattenable.h"
 #include "SkGradientShader.h"
+#include "SkImageShader.h"
 #include "SkImageSource.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
@@ -81,6 +83,7 @@ public:
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkErodeImageFilter)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageSource)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
@@ -109,6 +112,7 @@ public:
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterImageFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDownSampleImageFilter)
 
+        SkAlphaThresholdFilter::InitializeFlattenables();
         SkArithmeticMode::InitializeFlattenables();
         SkBlurMaskFilter::InitializeFlattenables();
         SkColorFilter::InitializeFlattenables();

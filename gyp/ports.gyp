@@ -21,6 +21,7 @@
         '../include/utils',
         '../include/utils/win',
         '../src/core',
+        '../src/image',
         '../src/lazy',
         '../src/ports',
         '../src/sfnt',
