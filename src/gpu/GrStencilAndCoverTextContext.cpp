@@ -233,7 +233,7 @@ void GrStencilAndCoverTextContext::TextBlob::init(const SkTextBlob* skBlob,
 
 class GrStencilAndCoverTextContext::FallbackBlobBuilder {
 public:
-    FallbackBlobBuilder() : fBuffIdx(0) {}
+    FallbackBlobBuilder() : fBuffIdx(0), fCount(0) {}
 
     bool isInitialized() const { return SkToBool(fBuilder); }
 
@@ -241,7 +241,7 @@ public:
 
     void appendGlyph(uint16_t glyphId, const SkPoint& pos);
 
-    const SkTextBlob* buildIfInitialized();
+    const SkTextBlob* buildIfNeeded(int* count);
 
 private:
     enum { kWriteBufferSize = 1024 };
@@ -251,6 +251,7 @@ private:
     SkAutoTDelete<SkTextBlobBuilder>   fBuilder;
     SkPaint                            fFont;
     int                                fBuffIdx;
+    int                                fCount;
     uint16_t                           fGlyphIds[kWriteBufferSize];
     SkPoint                            fPositions[kWriteBufferSize];
 };
@@ -261,6 +262,7 @@ GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
     : fStroke(fontAndStroke),
       fFont(fontAndStroke),
       fTotalGlyphCount(0),
+      fFallbackGlyphCount(0),
       fDetachedGlyphCache(nullptr),
       fLastDrawnGlyphsID(SK_InvalidUniqueID) {
     SkASSERT(!fStroke.isHairlineStyle()); // Hairlines are not supported.
@@ -339,9 +341,6 @@ GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
             memcpy(&builder[2 + strokeDataCount], desc, desc->getLength());
         }
     }
-
-    // When drawing from canonically sized paths, the actual local coords are fTextRatio * coords.
-    fLocalMatrixTemplate.setScale(fTextRatio, fTextRatio);
 }
 
 GrStencilAndCoverTextContext::TextRun::~TextRun() {
@@ -355,8 +354,9 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
     SkGlyphCache* glyphCache = this->getGlyphCache();
     SkDrawCacheProc glyphCacheProc = fFont.getDrawCacheProc();
 
-    fDraw.reset(GrPathRangeDraw::Create(GrPathRendering::kTranslate_PathTransformType,
-                                        fTotalGlyphCount = fFont.countText(text, byteLength)));
+    fTotalGlyphCount = fFont.countText(text, byteLength);
+    fInstanceData.reset(InstanceData::Alloc(GrPathRendering::kTranslate_PathTransformType,
+                                            fTotalGlyphCount));
 
     const char* stop = text + byteLength;
 
@@ -407,7 +407,7 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
         fy += SkFixedMul(glyph.fAdvanceY, fixedSizeRatio);
     }
 
-    fFallbackTextBlob.reset(fallback.buildIfInitialized());
+    fFallbackTextBlob.reset(fallback.buildIfNeeded(&fFallbackGlyphCount));
 }
 
 void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t byteLength,
@@ -419,8 +419,9 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     SkGlyphCache* glyphCache = this->getGlyphCache();
     SkDrawCacheProc glyphCacheProc = fFont.getDrawCacheProc();
 
-    fDraw.reset(GrPathRangeDraw::Create(GrPathRendering::kTranslate_PathTransformType,
-                                        fTotalGlyphCount = fFont.countText(text, byteLength)));
+    fTotalGlyphCount = fFont.countText(text, byteLength);
+    fInstanceData.reset(InstanceData::Alloc(GrPathRendering::kTranslate_PathTransformType,
+                                            fTotalGlyphCount));
 
     const char* stop = text + byteLength;
 
@@ -440,7 +441,7 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
         pos += scalarsPerPosition;
     }
 
-    fFallbackTextBlob.reset(fallback.buildIfInitialized());
+    fFallbackTextBlob.reset(fallback.buildIfNeeded(&fFallbackGlyphCount));
 }
 
 GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(GrContext* ctx) const {
@@ -470,8 +471,8 @@ inline void GrStencilAndCoverTextContext::TextRun::appendGlyph(const SkGlyph& gl
         }
         fallback->appendGlyph(glyph.getGlyphID(), pos);
     } else {
-        float translate[] = { fTextInverseRatio * pos.x(), fTextInverseRatio * pos.y() };
-        fDraw->append(glyph.getGlyphID(), translate);
+        fInstanceData->append(glyph.getGlyphID(), fTextInverseRatio * pos.x(),
+                              fTextInverseRatio * pos.y());
     }
 }
 
@@ -484,10 +485,10 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  const SkIRect& clipBounds,
                                                  GrTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
-    SkASSERT(fDraw);
+    SkASSERT(fInstanceData);
     SkASSERT(dc->accessRenderTarget()->isStencilBufferMultisampled() || !fFont.isAntiAlias());
 
-    if (fDraw->count()) {
+    if (fInstanceData->count()) {
         pipelineBuilder->setState(GrPipelineBuilder::kHWAntialias_Flag, fFont.isAntiAlias());
 
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
@@ -503,17 +504,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         SkAutoTUnref<GrPathRange> glyphs(this->createGlyphs(ctx));
         if (fLastDrawnGlyphsID != glyphs->getUniqueID()) {
             // Either this is the first draw or the glyphs object was purged since last draw.
-            glyphs->loadPathsIfNeeded(fDraw->indices(), fDraw->count());
+            glyphs->loadPathsIfNeeded(fInstanceData->indices(), fInstanceData->count());
             fLastDrawnGlyphsID = glyphs->getUniqueID();
         }
-
-        SkMatrix drawMatrix(viewMatrix);
-        drawMatrix.preTranslate(x, y);
-        drawMatrix.preScale(fTextRatio, fTextRatio);
-
-        SkMatrix& localMatrix = fLocalMatrixTemplate;
-        localMatrix.setTranslateX(x);
-        localMatrix.setTranslateY(y);
 
         // Don't compute a bounding box. For dst copy texture, we'll opt instead for it to just copy
         // the entire dst. Realistically this is a moot point, because any context that supports
@@ -524,8 +517,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                         pipelineBuilder->getRenderTarget()->height());
 
         SkAutoTUnref<GrDrawPathBatchBase> batch(
-            GrDrawPathRangeBatch::Create(drawMatrix, localMatrix, color,
-                                         GrPathRendering::kWinding_FillType, glyphs, fDraw,
+            GrDrawPathRangeBatch::Create(viewMatrix, fTextRatio, fTextInverseRatio * x,
+                                         fTextInverseRatio * y, color,
+                                         GrPathRendering::kWinding_FillType, glyphs, fInstanceData,
                                          bounds));
 
         dc->drawPathBatch(*pipelineBuilder, batch);
@@ -559,11 +553,11 @@ void GrStencilAndCoverTextContext::TextRun::releaseGlyphCache() const {
 }
 
 size_t GrStencilAndCoverTextContext::TextRun::computeSizeInCache() const {
-    size_t size = sizeof(TextRun) +
-               fGlyphPathsKey.size() +
-               fTotalGlyphCount * (sizeof(uint16_t) + 2 * sizeof(float));
-    if (fDraw) {
-        size += sizeof(GrPathRangeDraw);
+    size_t size = sizeof(TextRun) + fGlyphPathsKey.size();
+    // The instance data always reserves enough space for every glyph.
+    size += (fTotalGlyphCount + fFallbackGlyphCount) * (sizeof(uint16_t) + 2 * sizeof(float));
+    if (fInstanceData) {
+        size += sizeof(InstanceData);
     }
     if (fFallbackTextBlob) {
         size += sizeof(SkTextBlob);
@@ -596,6 +590,7 @@ void GrStencilAndCoverTextContext::FallbackBlobBuilder::appendGlyph(uint16_t gly
     fGlyphIds[fBuffIdx] = glyphId;
     fPositions[fBuffIdx] = pos;
     fBuffIdx++;
+    fCount++;
 }
 
 void GrStencilAndCoverTextContext::FallbackBlobBuilder::flush() {
@@ -611,10 +606,11 @@ void GrStencilAndCoverTextContext::FallbackBlobBuilder::flush() {
     fBuffIdx = 0;
 }
 
-const SkTextBlob* GrStencilAndCoverTextContext::FallbackBlobBuilder::buildIfInitialized() {
-    if (!this->isInitialized()) {
-        return nullptr;
+const SkTextBlob* GrStencilAndCoverTextContext::FallbackBlobBuilder::buildIfNeeded(int *count) {
+    *count = fCount;
+    if (fCount) {
+        this->flush();
+        return fBuilder->build();
     }
-    this->flush();
-    return fBuilder->build();
+    return nullptr;
 }

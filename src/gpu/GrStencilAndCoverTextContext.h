@@ -14,11 +14,11 @@
 #include "SkTHash.h"
 #include "SkTInternalLList.h"
 #include "SkTLList.h"
+#include "batches/GrDrawPathBatch.h"
 
 class GrTextStrike;
 class GrPath;
 class SkSurfaceProps;
-class GrPathRangeDraw;
 
 /*
  * This class implements text rendering using stencil and cover path rendering
@@ -75,6 +75,8 @@ private:
         size_t computeSizeInCache() const;
 
     private:
+        typedef GrDrawPathRangeBatch::InstanceData InstanceData;
+
         SkGlyphCache* getGlyphCache() const;
         GrPathRange* createGlyphs(GrContext*) const;
         void appendGlyph(const SkGlyph&, const SkPoint&, FallbackBlobBuilder*);
@@ -86,11 +88,11 @@ private:
         bool                             fUsingRawGlyphPaths;
         GrUniqueKey                      fGlyphPathsKey;
         int                              fTotalGlyphCount;
-        SkAutoTUnref<GrPathRangeDraw>    fDraw;
+        SkAutoTUnref<InstanceData>       fInstanceData;
+        int                              fFallbackGlyphCount;
         SkAutoTUnref<const SkTextBlob>   fFallbackTextBlob;
         mutable SkGlyphCache*            fDetachedGlyphCache;
         mutable uint32_t                 fLastDrawnGlyphsID;
-        mutable SkMatrix                 fLocalMatrixTemplate;
     };
 
     // Text blobs/caches.
