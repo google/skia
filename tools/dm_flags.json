@@ -201,6 +201,7 @@
     "serialize-8888", 
     "tiles_rt-8888", 
     "pipe-8888", 
+    "gpudft", 
     "--src", 
     "tests", 
     "gm", 

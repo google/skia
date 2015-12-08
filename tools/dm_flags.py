@@ -71,6 +71,11 @@ def get_args(bot):
 
   if 'ANGLE' in bot:
     configs.append('angle')
+
+  # We want to run gpudft on atleast the mali 400
+  if 'GalaxyS3' in bot:
+      configs.append('gpudft')
+
   args.append('--config')
   args.extend(configs)
 
