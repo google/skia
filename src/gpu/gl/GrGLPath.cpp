@@ -179,6 +179,23 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
                                                 pathCoords.count(), GR_GL_FLOAT, &pathCoords[0]));
     return true;
 }
+
+/*
+ * For now paths only natively support winding and even odd fill types
+ */
+static GrPathRendering::FillType convert_skpath_filltype(SkPath::FillType fill) {
+    switch (fill) {
+        default:
+            SkFAIL("Incomplete Switch\n");
+        case SkPath::kWinding_FillType:
+        case SkPath::kInverseWinding_FillType:
+            return GrPathRendering::kWinding_FillType;
+        case SkPath::kEvenOdd_FillType:
+        case SkPath::kInverseEvenOdd_FillType:
+            return GrPathRendering::kEvenOdd_FillType;
+    }
+}
+
 } // namespace
 
 bool GrGLPath::InitPathObjectPathDataCheckingDegenerates(GrGLGpu* gpu, GrGLuint pathID,
@@ -291,6 +308,9 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStrokeInfo& o
         fShouldStroke = stroke->needToApply();
         fShouldFill = stroke->isFillStyle() ||
                 stroke->getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+
+        fFillType = convert_skpath_filltype(skPath->getFillType());
+        fBounds = skPath->getBounds();
 
         if (fShouldStroke) {
             InitPathObjectStroke(gpu, fPathID, *stroke);
