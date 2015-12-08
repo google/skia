@@ -126,7 +126,7 @@ public:
     SkPoint moveToPt() const { return fFirstPt; }
 
     void moveTo(const SkPoint&);
-    void lineTo(const SkPoint&);
+    void lineTo(const SkPoint&, const SkPath::Iter* iter = nullptr);
     void quadTo(const SkPoint&, const SkPoint&);
     void conicTo(const SkPoint&, const SkPoint&, SkScalar weight);
     void cubicTo(const SkPoint&, const SkPoint&, const SkPoint&);
@@ -187,6 +187,7 @@ private:
 
     int fRecursionDepth;            // track stack depth to abort if numerics run amok
     bool fFoundTangents;            // do less work until tangents meet (cubic)
+    bool fJoinCompleted;            // previous join was not degenerate
 
     void addDegenerateLine(const SkQuadConstruct* );
     static ReductionType CheckConicLinear(const SkConic& , SkPoint* reduction);
@@ -273,6 +274,7 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
 
 void SkPathStroker::postJoinTo(const SkPoint& currPt, const SkVector& normal,
                                const SkVector& unitNormal) {
+    fJoinCompleted = true;
     fPrevPt = currPt;
     fPrevUnitNormal = unitNormal;
     fPrevNormal = normal;
@@ -359,6 +361,7 @@ void SkPathStroker::moveTo(const SkPoint& pt) {
     }
     fSegmentCount = 0;
     fFirstPt = fPrevPt = pt;
+    fJoinCompleted = false;
 }
 
 void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
@@ -366,9 +369,44 @@ void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
     fInner.lineTo(currPt.fX - normal.fX, currPt.fY - normal.fY);
 }
 
-void SkPathStroker::lineTo(const SkPoint& currPt) {
+static bool has_valid_tangent(const SkPath::Iter* iter) {
+    SkPath::Iter copy = *iter;
+    SkPath::Verb verb;
+    SkPoint pts[4];
+    while ((verb = copy.next(pts))) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                return false;
+            case SkPath::kLine_Verb:
+                if (pts[0] == pts[1]) {
+                    continue;
+                }
+                return true;
+            case SkPath::kQuad_Verb:
+            case SkPath::kConic_Verb:
+                if (pts[0] == pts[1] && pts[0] == pts[2]) {
+                    continue;
+                }
+                return true;
+            case SkPath::kCubic_Verb:
+                if (pts[0] == pts[1] && pts[0] == pts[2] && pts[0] == pts[3]) {
+                    continue;
+                }
+                return true;
+            case SkPath::kClose_Verb: 
+            case SkPath::kDone_Verb:
+                return false;
+        }
+    }
+    return false;
+}
+
+void SkPathStroker::lineTo(const SkPoint& currPt, const SkPath::Iter* iter) {
     if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper
             && fPrevPt.equalsWithinTolerance(currPt, SK_ScalarNearlyZero * fInvResScale)) {
+        return;
+    }
+    if (fPrevPt == currPt && (fJoinCompleted || (iter && has_valid_tangent(iter)))) {
         return;
     }
     SkVector    normal, unitNormal;
@@ -1339,7 +1377,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 stroker.moveTo(pts[0]);
                 break;
             case SkPath::kLine_Verb:
-                stroker.lineTo(pts[1]);
+                stroker.lineTo(pts[1], &iter);
                 lastSegment = SkPath::kLine_Verb;
                 break;
             case SkPath::kQuad_Verb:

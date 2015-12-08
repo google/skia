@@ -210,6 +210,32 @@ DEF_SIMPLE_GM(CubicStroke, canvas, 384, 384) {
     canvas->drawPath(path, p);
 }
 
+DEF_SIMPLE_GM(zerolinestroke, canvas, 90, 120) {
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(20);
+    paint.setAntiAlias(true);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+
+    SkPath path;
+    path.moveTo(30, 90);
+    path.lineTo(30, 90);
+    path.lineTo(60, 90);
+    path.lineTo(60, 90);
+    canvas->drawPath(path, paint);
+
+    path.reset();
+    path.moveTo(30, 30);
+    path.lineTo(60, 30);
+    canvas->drawPath(path, paint);
+
+    path.reset();
+    path.moveTo(30, 60);
+    path.lineTo(30, 60);
+    path.lineTo(60, 60);
+    canvas->drawPath(path, paint);
+}
+
 class Strokes2GM : public skiagm::GM {
     SkPath fPath;
 protected:
