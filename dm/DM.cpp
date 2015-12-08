@@ -537,11 +537,13 @@ static void gather_srcs() {
     }
 }
 
+#if SK_SUPPORT_GPU
 static GrGLStandard get_gpu_api() {
     if (FLAGS_gpuAPI.contains("gl"))   { return kGL_GrGLStandard; }
     if (FLAGS_gpuAPI.contains("gles")) { return kGLES_GrGLStandard; }
     return kNone_GrGLStandard;
 }
+#endif
 
 static void push_sink(const char* tag, Sink* s) {
     SkAutoTDelete<Sink> sink(s);
@@ -579,12 +581,14 @@ static bool gpu_supported() {
     return false;
 #endif
 }
-static Sink* create_gpu_sink(const char* tag, GrContextFactory::GLContextType contextType, int samples, bool diText, bool threaded) {
+static Sink* create_gpu_sink(const char* tag, GrContextFactory::GLContextType contextType,
+                             GrContextFactory::GLContextOptions contextOptions, int samples,
+                             bool diText, bool threaded) {
 #if SK_SUPPORT_GPU
     GrContextFactory testFactory;
     const GrGLStandard api = get_gpu_api();
     if (testFactory.get(contextType, api)) {
-        return new GPUSink(contextType, api, samples, diText, threaded);
+        return new GPUSink(contextType, contextOptions, api, samples, diText, threaded);
     }
     SkDebugf("WARNING: can not create GPU context for config '%s'. GM tests will be skipped.\n", tag);
 #endif
@@ -594,23 +598,23 @@ static Sink* create_sink(const char* tag) {
 #define GPU_SINK(t, ...) if (0 == strcmp(t, tag)) { return create_gpu_sink(tag, __VA_ARGS__); }
     if (gpu_supported()) {
         typedef GrContextFactory Gr;
-        GPU_SINK("gpunull",       Gr::kNull_GLContextType,           0, false, FLAGS_gpu_threading);
-        GPU_SINK("gpudebug",      Gr::kDebug_GLContextType,          0, false, FLAGS_gpu_threading);
-        GPU_SINK("gpu",           Gr::kNative_GLContextType,         0, false, FLAGS_gpu_threading);
-        GPU_SINK("gpudft",        Gr::kNative_GLContextType,         0,  true, FLAGS_gpu_threading);
-        GPU_SINK("msaa4",         Gr::kNative_GLContextType,         4, false, FLAGS_gpu_threading);
-        GPU_SINK("msaa16",        Gr::kNative_GLContextType,        16, false, FLAGS_gpu_threading);
-        GPU_SINK("nvprmsaa4",     Gr::kNVPR_GLContextType,           4,  true, FLAGS_gpu_threading);
-        GPU_SINK("nvprmsaa16",    Gr::kNVPR_GLContextType,          16,  true, FLAGS_gpu_threading);
+        GPU_SINK("gpunull",       Gr::kNull_GLContextType,          Gr::kNone_GLContextOptions,        0, false, FLAGS_gpu_threading);
+        GPU_SINK("gpudebug",      Gr::kDebug_GLContextType,         Gr::kNone_GLContextOptions,        0, false, FLAGS_gpu_threading);
+        GPU_SINK("gpu",           Gr::kNative_GLContextType,        Gr::kNone_GLContextOptions,        0, false, FLAGS_gpu_threading);
+        GPU_SINK("gpudft",        Gr::kNative_GLContextType,        Gr::kNone_GLContextOptions,        0,  true, FLAGS_gpu_threading);
+        GPU_SINK("msaa4",         Gr::kNative_GLContextType,        Gr::kNone_GLContextOptions,        4, false, FLAGS_gpu_threading);
+        GPU_SINK("msaa16",        Gr::kNative_GLContextType,        Gr::kNone_GLContextOptions,       16, false, FLAGS_gpu_threading);
+        GPU_SINK("nvprmsaa4",     Gr::kNative_GLContextType,        Gr::kEnableNVPR_GLContextOptions,  4,  true, FLAGS_gpu_threading);
+        GPU_SINK("nvprmsaa16",    Gr::kNative_GLContextType,        Gr::kEnableNVPR_GLContextOptions, 16,  true, FLAGS_gpu_threading);
 #if SK_ANGLE
-        GPU_SINK("angle",         Gr::kANGLE_GLContextType,          0, false, FLAGS_gpu_threading);
-        GPU_SINK("angle-gl",      Gr::kANGLE_GL_GLContextType,       0, false, FLAGS_gpu_threading);
+        GPU_SINK("angle",         Gr::kANGLE_GLContextType,         Gr::kNone_GLContextOptions,        0, false, FLAGS_gpu_threading);
+        GPU_SINK("angle-gl",      Gr::kANGLE_GL_GLContextType,      Gr::kNone_GLContextOptions,        0, false, FLAGS_gpu_threading);
 #endif
 #if SK_COMMAND_BUFFER
-        GPU_SINK("commandbuffer", Gr::kCommandBuffer_GLContextType,  0, false, FLAGS_gpu_threading);
+        GPU_SINK("commandbuffer", Gr::kCommandBuffer_GLContextType, Gr::kNone_GLContextOptions,        0, false, FLAGS_gpu_threading);
 #endif
 #if SK_MESA
-        GPU_SINK("mesa",          Gr::kMESA_GLContextType,           0, false, FLAGS_gpu_threading);
+        GPU_SINK("mesa",          Gr::kMESA_GLContextType,          Gr::kNone_GLContextOptions,        0, false, FLAGS_gpu_threading);
 #endif
     }
 #undef GPU_SINK
@@ -1164,6 +1168,7 @@ template<typename T>
 void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* reporter,
                             GrContextFactory* factory) {
 #if SK_SUPPORT_GPU
+    const GrGLStandard api = get_gpu_api();
     for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
         GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
         int contextSelector = kNone_GPUTestContexts;
@@ -1179,7 +1184,12 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
         if ((testContexts & contextSelector) == 0) {
             continue;
         }
-        if (GrContextFactory::ContextInfo* context = factory->getContextInfo(glCtxType)) {
+        if (GrContextFactory::ContextInfo* context = factory->getContextInfo(glCtxType, api)) {
+            call_test(test, reporter, context);
+        }
+        if (GrContextFactory::ContextInfo* context =
+            factory->getContextInfo(glCtxType, api,
+                                    GrContextFactory::kEnableNVPR_GLContextOptions)) {
             call_test(test, reporter, context);
         }
     }

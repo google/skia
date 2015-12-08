@@ -30,14 +30,15 @@ static const bool kGPUDisabled = false;
 
 static inline SkSurface* NewGpuSurface(GrContextFactory* grFactory,
                                        GrContextFactory::GLContextType type,
+                                       GrContextFactory::GLContextOptions options,
                                        GrGLStandard gpuAPI,
                                        SkImageInfo info,
                                        int samples,
                                        bool useDIText) {
     uint32_t flags = useDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    return SkSurface::NewRenderTarget(grFactory->get(type, gpuAPI), SkSurface::kNo_Budgeted,
-                                      info, samples, &props);
+    return SkSurface::NewRenderTarget(grFactory->get(type, gpuAPI, options),
+                                      SkSurface::kNo_Budgeted, info, samples, &props);
 }
 
 }  // namespace DM
@@ -75,6 +76,10 @@ public:
                                kNative_GLContextType        = 0,
                                kNull_GLContextType          = 0;
     static const int kGLContextTypeCnt = 1;
+    enum GLContextOptions {
+        kNone_GLContextOptions = 0,
+        kEnableNVPR_GLContextOptions = 0x1,
+    };
     void destroyContexts() {}
 
     void abandonContexts() {}
@@ -86,6 +91,7 @@ static const bool kGPUDisabled = true;
 
 static inline SkSurface* NewGpuSurface(GrContextFactory*,
                                        GrContextFactory::GLContextType,
+                                       GrContextFactory::GLContextOptions,
                                        GrGLStandard,
                                        SkImageInfo,
                                        int,
