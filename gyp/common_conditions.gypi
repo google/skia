@@ -436,6 +436,7 @@
           [ 'skia_sanitizer', {
             'cflags': [
               '-fsanitize=<(skia_sanitizer)',
+              '-fno-sanitize-recover=<(skia_sanitizer)',
             ],
             'ldflags': [
               '-fsanitize=<(skia_sanitizer)',

@@ -23,11 +23,11 @@ inline void copy(SkTArray<T, true>* self, int dst, int src) {
 }
 template<typename T>
 inline void copy(SkTArray<T, true>* self, const T* array) {
-    memcpy(self->fMemArray, array, self->fCount * sizeof(T));
+    sk_careful_memcpy(self->fMemArray, array, self->fCount * sizeof(T));
 }
 template<typename T>
 inline void copyAndDelete(SkTArray<T, true>* self, char* newMemArray) {
-    memcpy(newMemArray, self->fMemArray, self->fCount * sizeof(T));
+    sk_careful_memcpy(newMemArray, self->fMemArray, self->fCount * sizeof(T));
 }
 
 template<typename T>

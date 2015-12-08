@@ -24,6 +24,28 @@
 
 #include <string.h>
 
+/**
+ *  sk_careful_memcpy() is just like memcpy(), but guards against undefined behavior.
+ *
+ * It is undefined behavior to call memcpy() with null dst or src, even if len is 0.
+ * If an optimizer is "smart" enough, it can exploit this to do unexpected things.
+ *     memcpy(dst, src, 0);
+ *     if (src) {
+ *         printf("%x\n", *src);
+ *     }
+ * In this code the compiler can assume src is not null and omit the if (src) {...} check,
+ * unconditionally running the printf, crashing the program if src really is null.
+ * Of the compilers we pay attention to only GCC performs this optimization in practice.
+ */
+static inline void* sk_careful_memcpy(void* dst, const void* src, size_t len) {
+    // When we pass >0 len we had better already be passing valid pointers.
+    // So we just need to skip calling memcpy when len == 0.
+    if (len) {
+        memcpy(dst,src,len);
+    }
+    return dst;
+}
+
 /** \file SkTypes.h
 */
 

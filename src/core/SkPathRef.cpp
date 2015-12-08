@@ -72,7 +72,8 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
 
     if (*dst != &src) {
         (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
-        memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(), src.fVerbCnt * sizeof(uint8_t));
+        sk_careful_memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(),
+                           src.fVerbCnt * sizeof(uint8_t));
         (*dst)->fConicWeights = src.fConicWeights;
     }
 
@@ -275,8 +276,8 @@ void SkPathRef::copy(const SkPathRef& ref,
     SkDEBUGCODE(this->validate();)
     this->resetToSize(ref.fVerbCnt, ref.fPointCnt, ref.fConicWeights.count(),
                         additionalReserveVerbs, additionalReservePoints);
-    memcpy(this->verbsMemWritable(), ref.verbsMemBegin(), ref.fVerbCnt * sizeof(uint8_t));
-    memcpy(this->fPoints, ref.fPoints, ref.fPointCnt * sizeof(SkPoint));
+    sk_careful_memcpy(this->verbsMemWritable(), ref.verbsMemBegin(), ref.fVerbCnt*sizeof(uint8_t));
+    sk_careful_memcpy(this->fPoints, ref.fPoints, ref.fPointCnt * sizeof(SkPoint));
     fConicWeights = ref.fConicWeights;
     fBoundsIsDirty = ref.fBoundsIsDirty;
     if (!fBoundsIsDirty) {
