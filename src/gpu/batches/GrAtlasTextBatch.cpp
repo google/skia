@@ -312,12 +312,10 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         return;
     }
 
-    bool usesDistanceFields = this->usesDistanceFields();
     GrMaskFormat maskFormat = this->maskFormat();
-    bool isLCD = this->isLCD();
 
     SkAutoTUnref<const GrGeometryProcessor> gp;
-    if (usesDistanceFields) {
+    if (this->usesDistanceFields()) {
         gp.reset(this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(),
                                         texture));
     } else {
@@ -333,9 +331,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     FlushInfo flushInfo;
     flushInfo.fGlyphsToFlush = 0;
     size_t vertexStride = gp->getVertexStride();
-    SkASSERT(vertexStride == (usesDistanceFields ?
-                              GetVertexStrideDf(maskFormat, isLCD) :
-                              GetVertexStride(maskFormat)));
+    SkASSERT(vertexStride == GetVertexStride(maskFormat));
 
     target->initDraw(gp, this->pipeline());
 
@@ -381,12 +377,8 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         bool regenerateGlyphs = info.strike()->isAbandoned();
         bool regenerateTextureCoords = info.atlasGeneration() != currentAtlasGen ||
                                        regenerateGlyphs;
-        bool regenerateColors;
-        if (usesDistanceFields) {
-            regenerateColors = !isLCD && run.fColor != args.fColor;
-        } else {
-            regenerateColors = kA8_GrMaskFormat == maskFormat && run.fColor != args.fColor;
-        }
+        bool regenerateColors = kARGB_GrMaskFormat != maskFormat &&
+                                run.fColor != args.fColor;
         bool regeneratePositions = args.fTransX != 0.f || args.fTransY != 0.f;
         int glyphCount = info.glyphCount();
 
@@ -459,9 +451,7 @@ bool GrAtlasTextBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     }
 
     if (!this->usesDistanceFields()) {
-        // TODO we can often batch across LCD text if we have dual source blending and don't
-        // have to use the blend constant
-        if (kGrayscaleCoverageMask_MaskType != fMaskType && this->color() != that->color()) {
+        if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
             return false;
         }
         if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
@@ -477,11 +467,6 @@ bool GrAtlasTextBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
         }
 
         if (fUseBGR != that->fUseBGR) {
-            return false;
-        }
-
-        // TODO see note above
-        if (kLCDDistanceField_MaskType == fMaskType && this->color() != that->color()) {
             return false;
         }
     }
@@ -530,6 +515,7 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
         flags |= kUseLCD_DistanceFieldEffectFlag;
         flags |= viewMatrix.rectStaysRect() ? kRectToRect_DistanceFieldEffectFlag : 0;
         flags |= fUseBGR ? kBGR_DistanceFieldEffectFlag : 0;
+        flags |= kColorAttr_DistanceFieldEffectFlag;
 
         GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
 

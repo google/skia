@@ -15,11 +15,11 @@
 class GrAtlasTextBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
-    static const size_t kLCDTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
 
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
+    static const size_t kLCDTextVASize = kGrayTextVASize;
     static const int kVerticesPerGlyph = GrAtlasTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
@@ -110,15 +110,6 @@ public:
                 return kColorTextVASize;
             default:
                 return kLCDTextVASize;
-        }
-    }
-
-    static size_t GetVertexStrideDf(GrMaskFormat maskFormat, bool useLCDText) {
-        SkASSERT(maskFormat == kA8_GrMaskFormat);
-        if (useLCDText) {
-            return kLCDTextVASize;
-        } else {
-            return kGrayTextVASize;
         }
     }
 

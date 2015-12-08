@@ -35,7 +35,8 @@ enum GrDistanceFieldEffectFlags {
     kLCD_DistanceFieldEffectMask          = kSimilarity_DistanceFieldEffectFlag |
                                             kRectToRect_DistanceFieldEffectFlag |
                                             kUseLCD_DistanceFieldEffectFlag |
-                                            kBGR_DistanceFieldEffectFlag,
+                                            kBGR_DistanceFieldEffectFlag |
+                                            kColorAttr_DistanceFieldEffectFlag,
 };
 
 /**
@@ -197,10 +198,12 @@ public:
     const char* name() const override { return "DistanceFieldLCDTexture"; }
 
     const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     GrColor color() const { return fColor; }
     bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
+    bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
@@ -221,6 +224,7 @@ private:
     DistanceAdjust   fDistanceAdjust;
     uint32_t         fFlags;
     const Attribute* fInPosition;
+    const Attribute* fInColor;
     const Attribute* fInTextureCoords;
     bool             fUsesLocalCoords;
 

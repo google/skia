@@ -1014,7 +1014,8 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     r.fRight = r.fLeft + SkIntToScalar(width);
     r.fBottom = r.fTop + SkIntToScalar(height);
     subRun->setMaskFormat(format);
-    blob->appendGlyph(&run, subRun, r, color, vertexStride, kA8_GrMaskFormat == format, glyph);
+    blob->appendGlyph(&run, subRun, r, color, vertexStride,
+                      kARGB_GrMaskFormat != format, glyph);
 }
 
 bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
@@ -1070,11 +1071,9 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     SkASSERT(glyph->fMaskFormat == kA8_GrMaskFormat);
     subRun->setMaskFormat(kA8_GrMaskFormat);
 
-    size_t vertexStride = GrAtlasTextBatch::GetVertexStrideDf(kA8_GrMaskFormat,
-                                                              subRun->hasUseLCDText());
+    size_t vertexStride = GrAtlasTextBatch::GetVertexStride(kA8_GrMaskFormat);
 
-    bool useColorVerts = !subRun->hasUseLCDText();
-    blob->appendGlyph(&run, subRun, glyphRect, color, vertexStride, useColorVerts, glyph);
+    blob->appendGlyph(&run, subRun, glyphRect, color, vertexStride, true, glyph);
     return true;
 }
 

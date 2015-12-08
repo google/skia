@@ -416,7 +416,7 @@ public:
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
-        if (dfpgp.color() != fColor) {
+        if (dfpgp.color() != fColor && !dfpgp.hasVertexColor()) {
             float c[4];
             GrColorToRGBAFloat(dfpgp.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
@@ -535,7 +535,12 @@ public:
 
         // setup pass through color
         if (!dfTexEffect.colorIgnored()) {
-            this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
+            if (dfTexEffect.hasVertexColor()) {
+                varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
+            } else {
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
+            }
         }
 
         // Setup position
@@ -696,7 +701,7 @@ public:
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
-        if (dflcd.color() != fColor) {
+        if (dflcd.color() != fColor && !dflcd.hasVertexColor()) {
             float c[4];
             GrColorToRGBAFloat(dflcd.color(), c);
             pdman.set4fv(fColorUniform, 1, c);
@@ -750,6 +755,9 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     this->initClassID<GrDistanceFieldLCDTextGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType,
                                                    kHigh_GrSLPrecision));
+    if (flags & kColorAttr_DistanceFieldEffectFlag) {
+        fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
+    }
     fInTextureCoords = &this->addVertexAttrib(Attribute("inTextureCoords",
                                                         kVec2s_GrVertexAttribType));
     this->addTextureAccess(&fTextureAccess);

@@ -144,9 +144,8 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib(Attribute("inPosition", kVec2f_GrVertexAttribType));
 
-    // TODO we could think about removing this attribute if color is ignored, but unfortunately
-    // we don't do text positioning in batch, so we can't quite do that yet.
-    bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat;
+    bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
+                          kA565_GrMaskFormat == fMaskFormat;
     if (hasVertexColor) {
         fInColor = &this->addVertexAttrib(Attribute("inColor", kVec4ub_GrVertexAttribType));
     }
