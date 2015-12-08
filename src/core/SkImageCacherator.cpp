@@ -17,6 +17,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
+#include "GrImageIDTextureAdjuster.h"
 #include "GrResourceKey.h"
 #include "GrTextureParams.h"
 #include "GrYUVProvider.h"
@@ -289,60 +290,13 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GrTextureParamsAdjuster.h"
-
-class Cacherator_GrTextureMaker : public GrTextureMaker {
-public:
-    Cacherator_GrTextureMaker(GrContext* context, SkImageCacherator* cacher, const SkImage* client,
-                              SkImage::CachingHint chint)
-        : INHERITED(context, cacher->info().width(), cacher->info().height())
-        , fCacher(cacher)
-        , fClient(client)
-        , fCachingHint(chint)
-    {
-        if (client) {
-            GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
-                                 SkIRect::MakeWH(this->width(), this->height()));
-        }
-    }
-
-protected:
-    // TODO: consider overriding this, for the case where the underlying generator might be
-    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //          GrTexture* generateTextureForParams(const CopyParams&) override;
-
-    GrTexture* refOriginalTexture() override {
-        return fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint);
-    }
-
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override {
-        if (fOriginalKey.isValid()) {
-            MakeCopyKeyFromOrigKey(fOriginalKey, stretch, paramsCopyKey);
-        }
-    }
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override {
-        if (fClient) {
-            as_IB(fClient)->notifyAddedToCache();
-        }
-    }
-
-private:
-    SkImageCacherator*      fCacher;
-    const SkImage*          fClient;
-    GrUniqueKey             fOriginalKey;
-    SkImage::CachingHint    fCachingHint;
-
-    typedef GrTextureMaker INHERITED;
-};
-
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams& params,
                                             const SkImage* client, SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
 
-    return Cacherator_GrTextureMaker(ctx, this, client, chint).refTextureForParams(params);
+    return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params);
 }
 
 #else

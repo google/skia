@@ -12,6 +12,7 @@
 #include "SkBitmap.h"
 #include "SkGrPriv.h"
 #include "SkImage_Base.h"
+#include "SkImageCacherator.h"
 #include "SkPixelRef.h"
 
 GrBitmapTextureAdjuster::GrBitmapTextureAdjuster(const SkBitmap* bmp)
@@ -95,4 +96,34 @@ void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey
 
 void GrBitmapTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
     GrInstallBitmapUniqueKeyInvalidator(copyKey, fBitmap.pixelRef());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrImageTextureMaker::GrImageTextureMaker(GrContext* context, SkImageCacherator* cacher,
+                                         const SkImage* client, SkImage::CachingHint chint)
+    : INHERITED(context, cacher->info().width(), cacher->info().height())
+    , fCacher(cacher)
+    , fClient(client)
+    , fCachingHint(chint) {
+    if (client) {
+        GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
+                             SkIRect::MakeWH(this->width(), this->height()));
+    }
+}
+
+GrTexture* GrImageTextureMaker::refOriginalTexture() {
+    return fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint);
+}
+
+void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
+    if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
+        MakeCopyKeyFromOrigKey(fOriginalKey, stretch, paramsCopyKey);
+    }
+}
+
+void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
+    if (fClient) {
+        as_IB(fClient)->notifyAddedToCache();
+    }
 }

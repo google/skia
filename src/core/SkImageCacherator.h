@@ -95,7 +95,7 @@ private:
     const SkIPoint      fOrigin;
     const uint32_t      fUniqueID;
 
-    friend class Cacherator_GrTextureMaker;
+    friend class GrImageTextureMaker;
 };
 
 #endif

@@ -23,6 +23,7 @@ public:
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
+    SkImageCacherator* peekCacherator() const override { return fCache; }
     SkData* onRefEncoded() const override;
     bool isOpaque() const override { return fCache->info().isOpaque(); }
     SkImage* onNewSubset(const SkIRect&) const override;

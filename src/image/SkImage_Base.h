@@ -15,6 +15,7 @@
 #include <new>
 
 class GrTextureParams;
+class SkImageCacherator;
 
 enum {
     kNeedNewImageUniqueID = 0
@@ -32,6 +33,7 @@ public:
                               int srcX, int srcY, CachingHint) const;
 
     virtual GrTexture* peekTexture() const { return nullptr; }
+    virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).

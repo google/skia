@@ -9,9 +9,11 @@
 #define GrImageIDTextureAdjuster_DEFINED
 
 #include "GrTextureParamsAdjuster.h"
+#include "SkImage.h"
 
 class SkBitmap;
 class SkImage_Base;
+class SkImageCacherator;
 
 /** Implementation for texture-backed SkBitmaps. The bitmap must stay in scope and unmodified 
     while this object exists. */
@@ -62,6 +64,31 @@ protected:
 private:
     const SkBitmap  fBitmap;
     GrUniqueKey     fOriginalKey;
+
+    typedef GrTextureMaker INHERITED;
+};
+
+/** This class manages the conversion of generator-backed images to GrTextures. If the caching hint
+    is kAllow the image's ID is used for the cache key. */
+class GrImageTextureMaker : public GrTextureMaker {
+public:
+    GrImageTextureMaker(GrContext* context, SkImageCacherator* cacher, const SkImage* client,
+                        SkImage::CachingHint chint);
+
+protected:
+    // TODO: consider overriding this, for the case where the underlying generator might be
+    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
+    //          GrTexture* generateTextureForParams(const CopyParams&) override;
+
+    GrTexture* refOriginalTexture() override;
+    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
+    void didCacheCopy(const GrUniqueKey& copyKey) override;
+
+private:
+    SkImageCacherator*      fCacher;
+    const SkImage*          fClient;
+    GrUniqueKey             fOriginalKey;
+    SkImage::CachingHint    fCachingHint;
 
     typedef GrTextureMaker INHERITED;
 };
