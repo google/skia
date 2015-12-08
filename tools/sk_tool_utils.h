@@ -114,6 +114,18 @@ namespace sk_tool_utils {
     SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
                                   int textSize, const char* str);
 
+    // Encodes to PNG, unless there is already encoded data, in which case that gets
+    // used.
+    class PngPixelSerializer : public SkPixelSerializer {
+    public:
+        bool onUseEncodedData(const void*, size_t) override { return true; }
+        SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
+                               size_t rowBytes) override {
+            return SkImageEncoder::EncodeData(info, pixels, rowBytes,
+                                              SkImageEncoder::kPNG_Type, 100);
+        }
+    };
+
     // A helper for inserting a drawtext call into a SkTextBlobBuilder
     void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
                           SkScalar x, SkScalar y);
