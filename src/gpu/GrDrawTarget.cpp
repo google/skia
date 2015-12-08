@@ -316,40 +316,13 @@ void GrDrawTarget::stencilPath(const GrPipelineBuilder& pipelineBuilder,
     batch->unref();
 }
 
-void GrDrawTarget::drawPath(const GrPipelineBuilder& pipelineBuilder,
-                            const SkMatrix& viewMatrix,
-                            GrColor color,
-                            const GrPath* path,
-                            GrPathRendering::FillType fill) {
-    SkASSERT(path);
-    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
-
-    GrDrawPathBatchBase* batch = GrDrawPathBatch::Create(viewMatrix, color, path);
-    this->drawPathBatch(pipelineBuilder, batch, fill);
-    batch->unref();
-}
-
-void GrDrawTarget::drawPathsFromRange(const GrPipelineBuilder& pipelineBuilder,
-                                      const SkMatrix& viewMatrix,
-                                      const SkMatrix& localMatrix,
-                                      GrColor color,
-                                      GrPathRange* range,
-                                      GrPathRangeDraw* draw,
-                                      GrPathRendering::FillType fill, 
-                                      const SkRect& bounds) {
-    GrDrawPathBatchBase* batch = GrDrawPathRangeBatch::Create(viewMatrix, localMatrix, color,
-                                                              range, draw, bounds);
-    this->drawPathBatch(pipelineBuilder, batch, fill);
-    batch->unref();
-}
-
 void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
-                                 GrDrawPathBatchBase* batch,
-                                 GrPathRendering::FillType fill) {
+                                 GrDrawPathBatchBase* batch) {
     // This looks like drawBatch() but there is an added wrinkle that stencil settings get inserted
     // after setting up clipping but before onDrawBatch(). TODO: Figure out a better model for
     // handling stencil settings WRT interactions between pipeline(builder), clipmaskmanager, and
     // batches.
+    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
 
     GrPipelineBuilder::AutoRestoreStencil ars;
     GrAppliedClip clip;
@@ -367,7 +340,7 @@ void GrDrawTarget::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
     GrStencilSettings stencilSettings;
     GrRenderTarget* rt = pipelineBuilder.getRenderTarget();
     GrStencilAttachment* sb = fResourceProvider->attachStencilAttachment(rt);
-    this->getPathStencilSettingsForFilltype(fill, sb, &stencilSettings);
+    this->getPathStencilSettingsForFilltype(batch->fillType(), sb, &stencilSettings);
     batch->setStencilSettings(stencilSettings);
 
     GrPipeline::CreateArgs args;

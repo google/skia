@@ -16,12 +16,11 @@
 class GrClip;
 class GrContext;
 class GrDrawBatch;
+class GrDrawPathBatchBase;
 class GrDrawingManager;
 class GrDrawTarget;
 class GrPaint;
 class GrPathProcessor;
-class GrPathRange;
-class GrPathRangeDraw;
 class GrPipelineBuilder;
 class GrRenderTarget;
 class GrStrokeInfo;
@@ -62,17 +61,6 @@ public:
                       const SkMatrix& viewMatrix, const SkTextBlob*,
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds);
-
-    // drawPathsFromRange is thanks to GrStencilAndCoverTextContext
-    // TODO: remove once path batches can be created external to GrDrawTarget.
-    void drawPathsFromRange(const GrPipelineBuilder*,
-                            const SkMatrix& viewMatrix,
-                            const SkMatrix& localMatrix,
-                            GrColor color,
-                            GrPathRange* range,
-                            GrPathRangeDraw* draw,
-                            int /*GrPathRendering::FillType*/ fill,
-                            const SkRect& bounds);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -273,6 +261,14 @@ public:
      * @param batch    the batch to draw
      */
     void drawBatch(const GrClip&, const GrPaint&, GrDrawBatch*);
+
+    /**
+     * Draws a path batch. This needs to be separate from drawBatch because we install path stencil
+     * settings late.
+     *
+     * TODO: Figure out a better model that allows us to roll this method into drawBatch.
+     */
+    void drawPathBatch(const GrPipelineBuilder&, GrDrawPathBatchBase*);
 
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }

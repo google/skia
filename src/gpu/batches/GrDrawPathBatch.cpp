@@ -42,23 +42,11 @@ SkString GrDrawPathRangeBatch::dumpInfo() const {
     return string;
 }
 
-bool GrDrawPathRangeBatch::isWinding() const {
-    static const GrStencilSettings::Face pathFace = GrStencilSettings::kFront_Face;
-    bool isWinding = kInvert_StencilOp != this->stencilSettings().passOp(pathFace);
-    if (isWinding) {
-        // Double check that it is in fact winding.
-        SkASSERT(kIncClamp_StencilOp == this->stencilSettings().passOp(pathFace));
-        SkASSERT(kIncClamp_StencilOp == this->stencilSettings().failOp(pathFace));
-        SkASSERT(0x1 != this->stencilSettings().writeMask(pathFace));
-        SkASSERT(!this->stencilSettings().isTwoSided());
-    }
-    return isWinding;
-}
-
 GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-                                           GrColor color, GrPathRange* range, GrPathRangeDraw* draw,
+                                           GrColor color, GrPathRendering::FillType fill,
+                                           GrPathRange* range, GrPathRangeDraw* draw,
                                            const SkRect& bounds)
-    : INHERITED(ClassID(), viewMatrix, color)
+    : INHERITED(ClassID(), viewMatrix, color, fill)
     , fPathRange(range)
     , fLocalMatrix(localMatrix) {
     SkDEBUGCODE(draw->fUsedInBatch = true;)
@@ -90,7 +78,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     // work). Note that it's also possible for overlapping paths to cancel each other's winding
     // numbers, and we only partially account for this by not allowing even/odd paths to be
     // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
-    if (!this->isWinding() ||
+    if (GrPathRendering::kWinding_FillType != this->fillType() ||
         this->stencilSettings() != that->stencilSettings() ||
         this->overrides().willColorBlendWithDst()) {
         return false;

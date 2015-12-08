@@ -18,6 +18,7 @@
 class GrTextStrike;
 class GrPath;
 class SkSurfaceProps;
+class GrPathRangeDraw;
 
 /*
  * This class implements text rendering using stencil and cover path rendering

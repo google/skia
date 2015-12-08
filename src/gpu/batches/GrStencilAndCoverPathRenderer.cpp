@@ -10,6 +10,7 @@
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrDrawPathBatch.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrRenderTarget.h"
@@ -131,7 +132,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             0xffff);
 
         pipelineBuilder->setStencil(kStencilPass);
-        args.fTarget->drawPath(*pipelineBuilder, viewMatrix, args.fColor, p, p->getFillType());
+        SkAutoTUnref<GrDrawPathBatchBase> batch(
+                GrDrawPathBatch::Create(viewMatrix, args.fColor, p->getFillType(), p));
+        args.fTarget->drawPathBatch(*pipelineBuilder, batch);
     }
 
     pipelineBuilder->stencil()->setDisabled();

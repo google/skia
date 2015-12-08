@@ -39,7 +39,6 @@ class GrClip;
 class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
-class GrPathRangeDraw;
 
 class GrDrawTarget final : public SkRefCnt {
 public:
@@ -112,34 +111,13 @@ public:
                      GrPathRendering::FillType);
 
     /**
-     * Draws a path. Fill must not be a hairline. It will respect the HW
-     * antialias flag on the GrPipelineBuilder (if possible in the 3D API).
+     * Draws a path batch. Fill must not be a hairline. It will respect the HW antialias flag on
+     * the GrPipelineBuilder (if possible in the 3D API). This needs to be separate from drawBatch
+     * because we install path stencil settings late.
      *
-     * TODO: Remove this function and construct the batch outside GrDrawTarget.
+     * TODO: Figure out a better model that allows us to roll this method into drawBatch.
      */
-    void drawPath(const GrPipelineBuilder&, const SkMatrix& viewMatrix, GrColor color,
-                  const GrPath*, GrPathRendering::FillType);
-
-    /**
-     * Draws the aggregate path from combining multiple. Note that this will not
-     * always be equivalent to back-to-back calls to drawPath(). It will respect
-     * the HW antialias flag on the GrPipelineBuilder (if possible in the 3D API).
-     *
-     * TODO: Remove this function and construct the batch outside GrDrawTarget.
-     *
-     * @param draw            The transforms and indices for the draw.
-     *                        This object must only be drawn once. The draw
-     *                        may modify its contents.
-     * @param fill            Fill type for drawing all the paths
-     */
-    void drawPathsFromRange(const GrPipelineBuilder&,
-                            const SkMatrix& viewMatrix,
-                            const SkMatrix& localMatrix,
-                            GrColor color,
-                            GrPathRange* range,
-                            GrPathRangeDraw* draw,
-                            GrPathRendering::FillType fill,
-                            const SkRect& bounds);
+    void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch);
 
     /**
      * Helper function for drawing rects.
@@ -288,8 +266,6 @@ private:
         GrXferProcessor::DstTexture*,
         const SkRect& batchBounds);
 
-    void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch,
-                       GrPathRendering::FillType fill);
     // Check to see if this set of draw commands has been sent out
     void getPathStencilSettingsForFilltype(GrPathRendering::FillType,
                                            const GrStencilAttachment*,

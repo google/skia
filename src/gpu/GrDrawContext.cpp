@@ -136,22 +136,6 @@ void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
     fTextContext->drawTextBlob(this, clip, skPaint, viewMatrix, blob, x, y, filter, clipBounds);
 }
 
-void GrDrawContext::drawPathsFromRange(const GrPipelineBuilder* pipelineBuilder,
-                                       const SkMatrix& viewMatrix,
-                                       const SkMatrix& localMatrix,
-                                       GrColor color,
-                                       GrPathRange* range,
-                                       GrPathRangeDraw* draw,
-                                       int /*GrPathRendering::FillType*/ fill,
-                                       const SkRect& bounds) {
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-
-    this->getDrawTarget()->drawPathsFromRange(*pipelineBuilder, viewMatrix, localMatrix, color,
-                                              range, draw, (GrPathRendering::FillType) fill,
-                                              bounds);
-}
-
 void GrDrawContext::discard() {
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -636,6 +620,16 @@ void GrDrawContext::drawBatch(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+}
+
+void GrDrawContext::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
+                                  GrDrawPathBatchBase* batch) {
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
+    AutoCheckFlush acf(fDrawingManager);
+
+    this->getDrawTarget()->drawPathBatch(pipelineBuilder, batch);
 }
 
 void GrDrawContext::drawPath(const GrClip& clip,

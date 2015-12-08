@@ -27,13 +27,17 @@ public:
         overrides->fUsePLSDstRead = false;
     }
 
+    GrPathRendering::FillType fillType() const { return fFillType; }
+
     void setStencilSettings(const GrStencilSettings& stencil) { fStencilSettings = stencil; }
 
 protected:
-    GrDrawPathBatchBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor)
+    GrDrawPathBatchBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
+                        GrPathRendering::FillType fill)
         : INHERITED(classID)
         , fViewMatrix(viewMatrix)
-        , fColor(initialColor) {}
+        , fColor(initialColor)
+        , fFillType(fill) {}
 
     const GrStencilSettings& stencilSettings() const { return fStencilSettings; }
     const GrXPOverridesForBatch& overrides() const { return fOverrides; }
@@ -48,6 +52,7 @@ private:
 
     SkMatrix                                                fViewMatrix;
     GrColor                                                 fColor;
+    GrPathRendering::FillType                               fFillType;
     GrStencilSettings                                       fStencilSettings;
     GrXPOverridesForBatch                                   fOverrides;
 
@@ -60,8 +65,8 @@ public:
 
     // This can't return a more abstract type because we install the stencil settings late :(
     static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, GrColor color,
-                                       const GrPath* path) {
-        return new GrDrawPathBatch(viewMatrix, color, path);
+                                       GrPathRendering::FillType fill, const GrPath* path) {
+        return new GrDrawPathBatch(viewMatrix, color, fill, path);
     }
 
     const char* name() const override { return "DrawPath"; }
@@ -69,8 +74,9 @@ public:
     SkString dumpInfo() const override;
 
 private:
-    GrDrawPathBatch(const SkMatrix& viewMatrix, GrColor color, const GrPath* path)
-        : INHERITED(ClassID(), viewMatrix, color)
+    GrDrawPathBatch(const SkMatrix& viewMatrix, GrColor color, GrPathRendering::FillType fill,
+                    const GrPath* path)
+        : INHERITED(ClassID(), viewMatrix, color, fill)
         , fPath(path) {
         fBounds = path->getBounds();
         viewMatrix.mapRect(&fBounds);
@@ -148,9 +154,11 @@ public:
 
     // This can't return a more abstract type because we install the stencil settings late :(
     static GrDrawPathBatchBase* Create(const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
-                                       GrColor color, GrPathRange* range, GrPathRangeDraw* draw,
+                                       GrColor color, GrPathRendering::FillType fill,
+                                       GrPathRange* range, GrPathRangeDraw* draw,
                                        const SkRect& bounds) {
-        return new GrDrawPathRangeBatch(viewMatrix, localMatrix, color, range, draw, bounds);
+        return new GrDrawPathRangeBatch(viewMatrix, localMatrix, color, fill, range, draw,
+                                        bounds);
     }
 
     ~GrDrawPathRangeBatch() override;
@@ -160,10 +168,9 @@ public:
     SkString dumpInfo() const override;
 
 private:
-    inline bool isWinding() const;
-
     GrDrawPathRangeBatch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix, GrColor color,
-                         GrPathRange* range, GrPathRangeDraw* draw, const SkRect& bounds);
+                         GrPathRendering::FillType fill, GrPathRange* range,
+                         GrPathRangeDraw* draw, const SkRect& bounds);
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
 
