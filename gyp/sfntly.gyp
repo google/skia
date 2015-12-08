@@ -33,9 +33,6 @@
       'dependencies' : [
         'icu.gyp:icuuc',
       ],
-      # Disable any sanitizers we might be using.
-      'ldflags!': [ '-fsanitize=<(skia_sanitizer)' ],
-      'cflags!':  [ '-fsanitize=<(skia_sanitizer)' ],
       'conditions': [
         [ 'skia_os == "win"',
           {

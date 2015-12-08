@@ -202,6 +202,8 @@
     'skia_no_fontconfig%': '<(skia_no_fontconfig)',
     'skia_embedded_fonts%': '<(skia_embedded_fonts)',
     'skia_sanitizer%': '<(skia_sanitizer)',
+    'skia_sanitizer_blacklist%':
+      '<!(python -c "import sys; import os; print os.path.abspath(sys.argv[1])" ../tools/xsan.blacklist)',
     'skia_mesa%': '<(skia_mesa)',
     'skia_gpu_extra_dependency_path%': '<(skia_gpu_extra_dependency_path)',
     'skia_gpu_extra_tests_path%': '<(skia_gpu_extra_tests_path)',

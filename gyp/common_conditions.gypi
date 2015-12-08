@@ -435,8 +435,10 @@
           # Enable asan, tsan, etc.
           [ 'skia_sanitizer', {
             'cflags': [
-              '-fsanitize=<(skia_sanitizer)',
-              '-fno-sanitize-recover=<(skia_sanitizer)',
+              '-fsanitize=<(skia_sanitizer)',                     # Turn on sanitizers.
+              '-fno-sanitize-recover=<(skia_sanitizer)',          # Make any failure fatal.
+              '-fsanitize-blacklist=<(skia_sanitizer_blacklist)', # Compile in our blacklist.
+              '-include <(skia_sanitizer_blacklist)',             # Make every .cpp depend on it.
             ],
             'ldflags': [
               '-fsanitize=<(skia_sanitizer)',
