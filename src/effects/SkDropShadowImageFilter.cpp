@@ -116,25 +116,23 @@ void SkDropShadowImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) 
     }
 }
 
-bool SkDropShadowImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                             SkIRect* dst) const {
-    SkIRect bounds = src;
+void SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                 SkIRect* dst, MapDirection direction) const {
+    *dst = src;
     SkVector offsetVec = SkVector::Make(fDx, fDy);
+    if (kReverse_MapDirection == direction) {
+        offsetVec.negate();
+    }
     ctm.mapVectors(&offsetVec, 1);
-    bounds.offset(-SkScalarCeilToInt(offsetVec.x()),
-                  -SkScalarCeilToInt(offsetVec.y()));
+    dst->offset(SkScalarCeilToInt(offsetVec.x()),
+                SkScalarCeilToInt(offsetVec.y()));
     SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
     ctm.mapVectors(&sigma, 1);
-    bounds.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
-                  SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
+    dst->outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
+                SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
     if (fShadowMode == kDrawShadowAndForeground_ShadowMode) {
-        bounds.join(src);
+        dst->join(src);
     }
-    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
-        return false;
-    }
-    *dst = bounds;
-    return true;
 }
 
 #ifndef SK_IGNORE_TO_STRING

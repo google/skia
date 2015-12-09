@@ -82,7 +82,10 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkIRect srcBounds, dstBounds;
-    if (!this->applyCropRect(ctx, src, srcOffset, &dstBounds, &srcBounds)) {
+    if (!this->applyCropRect(this->mapContext(ctx), src, srcOffset, &dstBounds, &srcBounds)) {
+        return false;
+    }
+    if (!srcBounds.intersect(dstBounds)) {
         return false;
     }
 
@@ -184,17 +187,12 @@ void SkBlurImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const 
                 SkScalarMul(fSigma.height(), SkIntToScalar(3)));
 }
 
-bool SkBlurImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                       SkIRect* dst) const {
-    SkIRect bounds = src;
+void SkBlurImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                           SkIRect* dst, MapDirection) const {
+    *dst = src;
     SkVector sigma = mapSigma(fSigma, ctm);
-    bounds.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
-                  SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
-    if (this->getInput(0) && !this->getInput(0)->filterBounds(bounds, ctm, &bounds)) {
-        return false;
-    }
-    *dst = bounds;
-    return true;
+    dst->outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
+                SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
 }
 
 bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
@@ -206,7 +204,10 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
         return false;
     }
     SkIRect srcBounds, dstBounds;
-    if (!this->applyCropRect(ctx, input, srcOffset, &dstBounds, &srcBounds)) {
+    if (!this->applyCropRect(this->mapContext(ctx), input, srcOffset, &dstBounds, &srcBounds)) {
+        return false;
+    }
+    if (!srcBounds.intersect(dstBounds)) {
         return false;
     }
     GrTexture* source = input.getTexture();

@@ -1164,7 +1164,11 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
         SkIRect clipBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+#else
+        SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-left, -top);
+#endif
         SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
@@ -1327,7 +1331,11 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
         SkIRect clipBounds = SkIRect::MakeWH(devTex->width(), devTex->height());
+#else
+        SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
+#endif
         // This cache is transient, and is freed (along with all its contained
         // textures) when it goes out of scope.
         SkAutoTUnref<SkImageFilter::Cache> cache(getImageFilterCache());

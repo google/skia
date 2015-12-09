@@ -16,7 +16,8 @@
 class SK_API SkMorphologyImageFilter : public SkImageFilter {
 public:
     void computeFastBounds(const SkRect& src, SkRect* dst) const override;
-    bool onFilterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst) const override;
+    void onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                            SkIRect* dst, MapDirection) const override;
 
     /**
      * All morphology procs have the same signature: src is the source buffer, dst the

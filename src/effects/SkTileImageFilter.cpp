@@ -81,21 +81,30 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
+void SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                          SkIRect* dst, MapDirection direction) const {
+    SkRect rect = kReverse_MapDirection == direction ? fSrcRect : fDstRect;
+    ctm.mapRect(&rect);
+    rect.roundOut(dst);
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
+    dst->join(src);
+#endif
+}
+
 bool SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                        SkIRect* dst) const {
-    SkRect srcRect;
-    ctm.mapRect(&srcRect, fSrcRect);
-    SkIRect srcIRect;
-    srcRect.roundOut(&srcIRect);
-    srcIRect.join(src);
-    *dst = srcIRect;
+    this->onFilterNodeBounds(src, ctm, dst, kReverse_MapDirection);
     return true;
 }
 
 void SkTileImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
     // This is a workaround for skia:3194.
     *dst = src;
     dst->join(fDstRect);
+#else
+    *dst = fDstRect;
+#endif
 }
 
 SkFlattenable* SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {

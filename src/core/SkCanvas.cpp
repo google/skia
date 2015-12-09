@@ -40,8 +40,6 @@
 #include "GrRenderTarget.h"
 #endif
 
-#define SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
-
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -1084,6 +1082,10 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         } else {
             bounds = nullptr;
         }
+#else
+        if (bounds && !imageFilter->canComputeFastBounds()) {
+            bounds = nullptr;
+        }
 #endif
     }
     SkIRect ir;
@@ -1370,7 +1372,11 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
             const SkBitmap& src = srcDev->accessBitmap(false);
             SkMatrix matrix = *iter.fMatrix;
             matrix.postTranslate(SkIntToScalar(-pos.x()), SkIntToScalar(-pos.y()));
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
             SkIRect clipBounds = SkIRect::MakeWH(srcDev->width(), srcDev->height());
+#else
+            SkIRect clipBounds = iter.fClip->getBounds().makeOffset(-pos.x(), -pos.y());
+#endif
             SkAutoTUnref<SkImageFilter::Cache> cache(dstDev->getImageFilterCache());
             SkImageFilter::Context ctx(matrix, clipBounds, cache.get(),
                                        SkImageFilter::kApprox_SizeConstraint);

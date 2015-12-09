@@ -79,7 +79,7 @@ protected:
 
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                        SkBitmap* result, SkIPoint* loc) const override;
-    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const override;
+    void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
     bool canComputeFastBounds() const override;
 
 #if SK_SUPPORT_GPU

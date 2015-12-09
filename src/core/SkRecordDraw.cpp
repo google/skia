@@ -221,6 +221,7 @@ private:
         int controlOps;        // Number of control ops in this Save block, including the Save.
         Bounds bounds;         // Bounds of everything in the block.
         const SkPaint* paint;  // Unowned.  If set, adjusts the bounds of all ops in this block.
+        SkMatrix ctm;
     };
 
     // Only Restore, SetMatrix, and Concat change the CTM.
@@ -301,6 +302,7 @@ private:
         sb.bounds =
             PaintMayAffectTransparentBlack(paint) ? fCurrentClipBounds : Bounds::MakeEmpty();
         sb.paint = paint;
+        sb.ctm = this->fCTM;
 
         fSaveStack.push(sb);
         this->pushControl();
@@ -563,9 +565,15 @@ private:
 
     bool adjustForSaveLayerPaints(SkRect* rect, int savesToIgnore = 0) const {
         for (int i = fSaveStack.count() - 1 - savesToIgnore; i >= 0; i--) {
+            SkMatrix inverse;
+            if (!fSaveStack[i].ctm.invert(&inverse)) {
+                return false;
+            }
+            inverse.mapRect(rect);
             if (!AdjustForPaint(fSaveStack[i].paint, rect)) {
                 return false;
             }
+            fSaveStack[i].ctm.mapRect(rect);
         }
         return true;
     }

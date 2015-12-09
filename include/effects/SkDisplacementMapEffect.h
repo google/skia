@@ -40,6 +40,7 @@ public:
 
     virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
                                 SkIRect* dst) const override;
+    void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
 
 #if SK_SUPPORT_GPU
     bool canFilterImageGPU() const override { return true; }

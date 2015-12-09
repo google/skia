@@ -277,7 +277,7 @@ bool SkImageFilter::filterInput(int index, Proxy* proxy, const SkBitmap& src,
     }
     Context ctx(origCtx.ctm(), origCtx.clipBounds(), origCtx.cache(), constraint);
 
-    return input->filterImage(proxy, src, ctx, result, offset);
+    return input->filterImage(proxy, src, this->mapContext(ctx), result, offset);
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -405,7 +405,12 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
     }
     src.getBounds(srcBounds);
     srcBounds->offset(srcOffset);
-    return fCropRect.applyTo(*srcBounds, ctx, dstBounds) && srcBounds->intersect(*dstBounds);
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
+    return fCropRect.applyTo(*srcBounds, ctx, dstBounds);
+#else
+    this->onFilterNodeBounds(*srcBounds, ctx.ctm(), dstBounds, kForward_MapDirection);
+    return fCropRect.applyTo(*dstBounds, ctx, dstBounds);
+#endif
 }
 
 bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitmap& src,
@@ -413,7 +418,13 @@ bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitm
     SkIRect srcBounds;
     src.getBounds(&srcBounds);
     srcBounds.offset(*srcOffset);
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
     if (!fCropRect.applyTo(srcBounds, ctx, bounds)) {
+#else
+    SkIRect dstBounds;
+    this->onFilterNodeBounds(srcBounds, ctx.ctm(), &dstBounds, kForward_MapDirection);
+    if (!fCropRect.applyTo(dstBounds, ctx, bounds)) {
+#endif
         return false;
     }
 
@@ -441,24 +452,42 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
         return true;
     }
 
-    SkIRect bounds;
+    SkIRect bounds, totalBounds;
+    this->onFilterNodeBounds(src, ctm, &bounds, kReverse_MapDirection);
     for (int i = 0; i < fInputCount; ++i) {
         SkImageFilter* filter = this->getInput(i);
-        SkIRect rect = src;
-        if (filter && !filter->filterBounds(src, ctm, &rect)) {
+        SkIRect rect = bounds;
+        if (filter && !filter->filterBounds(bounds, ctm, &rect)) {
             return false;
         }
         if (0 == i) {
-            bounds = rect;
+            totalBounds = rect;
         } else {
-            bounds.join(rect);
+            totalBounds.join(rect);
         }
     }
 
     // don't modify dst until now, so we don't accidentally change it in the
     // loop, but then return false on the next filter.
-    *dst = bounds;
+    *dst = totalBounds;
     return true;
+}
+
+void SkImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
+                                       SkIRect* dst, MapDirection) const {
+    *dst = src;
+}
+
+
+SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
+    return ctx;
+#else
+    SkIRect clipBounds;
+    this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(), &clipBounds,
+                             MapDirection::kReverse_MapDirection);
+    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.sizeConstraint());
+#endif
 }
 
 bool SkImageFilter::asFragmentProcessor(GrFragmentProcessor**, GrTexture*,
@@ -506,7 +535,7 @@ bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
     }
     Context ctx(origCtx.ctm(), origCtx.clipBounds(), origCtx.cache(), constraint);
 
-    if (input->filterImage(proxy, src, ctx, result, offset)) {
+    if (input->filterImage(proxy, src, this->mapContext(ctx), result, offset)) {
         if (!result->getTexture()) {
             const SkImageInfo info = result->info();
             if (kUnknown_SkColorType == info.colorType()) {

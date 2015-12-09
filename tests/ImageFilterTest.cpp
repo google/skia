@@ -1152,8 +1152,10 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
 
     SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(1, 0, 20, 20));
     SkAutoTUnref<SkImageFilter> offsetFilter(SkOffsetImageFilter::Create(0, 0, nullptr, &cropRect));
-    SkAutoTUnref<SkImageFilter> blurFilter(makeBlur());
-    SkAutoTUnref<SkImageFilter> composedFilter(SkComposeImageFilter::Create(blurFilter, offsetFilter.get()));
+    SkAutoTUnref<SkImageFilter> blurFilter(SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1,
+                                                                     nullptr, &cropRect));
+    SkAutoTUnref<SkImageFilter> composedFilter(SkComposeImageFilter::Create(blurFilter,
+                                                                            offsetFilter.get()));
     SkBitmap result;
     SkIPoint offset;
     SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr, SkImageFilter::kApprox_SizeConstraint);

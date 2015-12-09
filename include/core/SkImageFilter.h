@@ -346,6 +346,25 @@ protected:
     // implementation recursively unions all input bounds, or returns false if
     // no inputs.
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const;
+    enum MapDirection {
+        kForward_MapDirection,
+        kReverse_MapDirection
+    };
+
+    /**
+     * Performs a forwards or reverse mapping of the given rect to accommodate
+     * this filter's margin requirements. kForward_MapDirection is used to
+     * determine the destination pixels which would be touched by filtering
+     * the given given source rect (e.g., given source bitmap bounds,
+     * determine the optimal bounds of the filtered offscreen bitmap).
+     * kReverse_MapDirection is used to determine which pixels of the
+     * input(s) would be required to fill the given destination rect
+     * (e.g., clip bounds). NOTE: these operations may not be the
+     * inverse of the other. For example, blurring expands the given rect
+     * in both forward and reverse directions. Unlike
+     * onFilterBounds(), this function is non-recursive.
+     */
+    virtual void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const;
 
     // Helper function which invokes filter processing on the input at the
     // specified "index". If the input is null, it leaves "result" and
@@ -404,6 +423,14 @@ protected:
      */
     virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,
                                      const SkIRect& bounds) const;
+
+    /**
+     *  Creates a modified Context for use when recursing up the image filter DAG.
+     *  The clip bounds are adjusted to accommodate any margins that this
+     *  filter requires by calling this node's
+     *  onFilterNodeBounds(..., kReverse_MapDirection).
+     */
+    Context mapContext(const Context& ctx) const;
 
 private:
     friend class SkGraphics;

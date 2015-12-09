@@ -70,7 +70,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    if (!this->applyCropRect(this->mapContext(ctx), proxy, src, &srcOffset, &bounds, &src)) {
         return false;
     }
 
@@ -149,18 +149,13 @@ void SkMorphologyImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) 
     dst->outset(SkIntToScalar(fRadius.width()), SkIntToScalar(fRadius.height()));
 }
 
-bool SkMorphologyImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                             SkIRect* dst) const {
-    SkIRect bounds = src;
+void SkMorphologyImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                 SkIRect* dst, MapDirection) const {
+    *dst = src;
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
     ctm.mapVectors(&radius, 1);
-    bounds.outset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
-    if (this->getInput(0) && !this->getInput(0)->filterBounds(bounds, ctm, &bounds)) {
-        return false;
-    }
-    *dst = bounds;
-    return true;
+    dst->outset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
 }
 
 SkFlattenable* SkErodeImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -637,7 +632,7 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
         return false;
     }
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, input, &srcOffset, &bounds, &input)) {
+    if (!this->applyCropRect(this->mapContext(ctx), proxy, input, &srcOffset, &bounds, &input)) {
         return false;
     }
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),

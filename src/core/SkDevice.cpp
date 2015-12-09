@@ -411,7 +411,11 @@ void SkBaseDevice::drawBitmapAsSprite(const SkDraw& draw, const SkBitmap& bitmap
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix = *draw.fMatrix;
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
         const SkIRect clipBounds = bitmap.bounds();
+#else
+        const SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
+#endif
         SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get(),
                                    SkImageFilter::kApprox_SizeConstraint);
