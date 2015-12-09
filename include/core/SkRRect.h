@@ -153,6 +153,12 @@ public:
         return rr;
     }
 
+    static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
+        SkRRect rr;
+        rr.setRectXY(rect, xRad, yRad);
+        return rr;
+    }
+
     /**
      * Set this RR to match the supplied oval. All x radii will equal half the
      * width and all y radii will equal half the height.
