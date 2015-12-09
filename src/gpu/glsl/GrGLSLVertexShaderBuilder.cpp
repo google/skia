@@ -33,15 +33,10 @@ void GrGLSLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
 void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
     SkASSERT(!fRtAdjustName);
 
-    GrSLPrecision precision = kDefault_GrSLPrecision;
-    if (fProgramBuilder->glslCaps()->forceHighPrecisionNDSTransform()) {
-        precision = kHigh_GrSLPrecision;
-    }
-
     // setup RT Uniform
     fProgramBuilder->fUniformHandles.fRTAdjustmentUni =
             fProgramBuilder->addUniform(GrGLSLProgramBuilder::kVertex_Visibility,
-                                        kVec4f_GrSLType, precision,
+                                        kVec4f_GrSLType, kHigh_GrSLPrecision,
                                         fProgramBuilder->rtAdjustment(),
                                         &fRtAdjustName);
     if (this->getProgramBuilder()->desc().header().fSnapVerticesToPixelCenters) {

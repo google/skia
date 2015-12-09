@@ -72,8 +72,6 @@ public:
     // Returns whether we can use the glsl funciton any() in our shader code.
     bool canUseAnyFunctionInShader() const { return fCanUseAnyFunctionInShader; }
 
-    bool forceHighPrecisionNDSTransform() const { return fForceHighPrecisionNDSTransform; }
-
     bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
 
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
@@ -129,7 +127,6 @@ private:
     bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
     bool fCanUseAnyFunctionInShader : 1;
-    bool fForceHighPrecisionNDSTransform : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
