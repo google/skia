@@ -440,15 +440,15 @@
               '-fsanitize-blacklist=<(skia_sanitizer_blacklist)', # Compile in our blacklist.
               '-include <(skia_sanitizer_blacklist)',             # Make every .cpp depend on it.
             ],
+            'cflags_cc!': [
+              '-fno-rtti'
+            ],
             'ldflags': [
               '-fsanitize=<(skia_sanitizer)',
             ],
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
                 'defines': [ 'THREAD_SANITIZER' ],
-              }],
-              [ 'skia_sanitizer == "undefined"', {
-                'cflags_cc!': ['-fno-rtti'],
               }],
             ],
           }],
