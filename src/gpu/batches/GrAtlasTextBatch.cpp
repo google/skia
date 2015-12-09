@@ -203,8 +203,8 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
         flushInfo->fGlyphsToFlush++;
     }
 
-    // We my have changed the color so update it here
-    run->fColor = color;
+    // We may have changed the color so update it here
+    info->setColor(color);
     if (regenTexCoords) {
         if (regenGlyphs) {
             info->setStrike(strike);
@@ -378,7 +378,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         bool regenerateTextureCoords = info.atlasGeneration() != currentAtlasGen ||
                                        regenerateGlyphs;
         bool regenerateColors = kARGB_GrMaskFormat != maskFormat &&
-                                run.fColor != args.fColor;
+                                info.color() != args.fColor;
         bool regeneratePositions = args.fTransX != 0.f || args.fTransY != 0.f;
         int glyphCount = info.glyphCount();
 

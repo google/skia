@@ -30,7 +30,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->setMaskFormat(format);
 
     run.fVertexBounds.joinNonEmptyArg(positions);
-    run.fColor = color;
+    subRun->setColor(color);
 
     intptr_t vertex = reinterpret_cast<intptr_t>(this->fVertices + subRun->vertexEndIndex());
 

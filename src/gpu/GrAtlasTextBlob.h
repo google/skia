@@ -63,8 +63,7 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
      */
     struct Run {
         Run()
-            : fColor(GrColor_ILLEGAL)
-            , fInitialized(false)
+            : fInitialized(false)
             , fDrawAsPaths(false) {
             fVertexBounds.setLargestInverted();
             // To ensure we always have one subrun, we push back a fresh run here
@@ -77,6 +76,7 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
                 , fVertexEndIndex(0)
                 , fGlyphStartIndex(0)
                 , fGlyphEndIndex(0)
+                , fColor(GrColor_ILLEGAL)
                 , fMaskFormat(kA8_GrMaskFormat)
                 , fDrawAsDistanceFields(false)
                 , fUseLCDText(false) {}
@@ -88,6 +88,7 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
                 , fVertexEndIndex(that.fVertexEndIndex)
                 , fGlyphStartIndex(that.fGlyphStartIndex)
                 , fGlyphEndIndex(that.fGlyphEndIndex)
+                , fColor(that.fColor)
                 , fMaskFormat(that.fMaskFormat)
                 , fDrawAsDistanceFields(that.fDrawAsDistanceFields)
                 , fUseLCDText(that.fUseLCDText) {
@@ -113,6 +114,8 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
             uint32_t glyphStartIndex() const { return fGlyphStartIndex; }
             uint32_t glyphEndIndex() const { return fGlyphEndIndex; }
             void glyphAppended() { fGlyphEndIndex++; }
+            void setColor(GrColor color) { fColor = color; }
+            GrColor color() const { return fColor; }
             void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
             GrMaskFormat maskFormat() const { return fMaskFormat; }
 
@@ -138,6 +141,7 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
             size_t fVertexEndIndex;
             uint32_t fGlyphStartIndex;
             uint32_t fGlyphEndIndex;
+            GrColor fColor;
             GrMaskFormat fMaskFormat;
             bool fDrawAsDistanceFields; // df property
             bool fUseLCDText; // df property
@@ -162,7 +166,6 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
         // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
         SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor; // df properties
-        GrColor fColor;
         bool fInitialized;
         bool fDrawAsPaths;
     };
