@@ -37,13 +37,8 @@ extern "C" {
 // If ANDROID_RGB is defined by in the jpeg headers it indicates that jpeg offers
 // support for two additional formats (1) JCS_RGBA_8888 and (2) JCS_RGB_565.
 
-#if defined(SK_DEBUG)
-#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS false
-#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_ERRORS false
-#else  // !defined(SK_DEBUG)
 #define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS true
 #define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_ERRORS true
-#endif  // defined(SK_DEBUG)
 SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderWarnings,
                 "images.jpeg.suppressDecoderWarnings",
                 DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS,
