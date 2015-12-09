@@ -1472,30 +1472,9 @@ void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const 
     }
 }
 
-static bool wrap_as_bm(GrContext* ctx, const SkImage* image, SkBitmap* bm) {
-    // TODO: It is wrong to assume these texture params here.
-    SkAutoTUnref<GrTexture> tex(as_IB(image)->asTextureRef(ctx, GrTextureParams::ClampNoFilter()));
-    if (tex) {
-        GrWrapTextureInBitmap(tex, image->width(), image->height(), image->isOpaque(), bm);
-        return true;
-    } else {
-        return as_IB(image)->getROPixels(bm);
-    }
-}
-
-void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
-                                const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
-    // TODO write native implementation
-    SkBitmap bitmap;
-    if (!wrap_as_bm(this->context(), image, &bitmap)) {
-        return;
-    }
-    return this->drawBitmapNine(draw, bitmap, center, dst, paint);
-}
-
-void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
-                                 const SkRect& dst, const SkPaint& paint) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawBitmapNine", fContext);
+void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* producer, bool alphaOnly,
+                                   const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice::drawProducerNine", fContext);
 
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
@@ -1504,42 +1483,64 @@ void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, con
                        fRenderTarget->isUnifiedMultisampled();
     bool doBicubic;
     GrTextureParams::FilterMode textureFilterMode =
-            GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I(),
-                                            &doBicubic);
-
-    // TODO handle bilerp(vie texture domains), MSAA(via snapping)
+        GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I(),
+                                        &doBicubic);
     if (useFallback || doBicubic || GrTextureParams::kNone_FilterMode != textureFilterMode) {
-        SkNinePatchIter iter(bitmap.width(), bitmap.height(), center, dst);
+        SkNinePatchIter iter(producer->width(), producer->height(), center, dst);
 
         SkRect srcR, dstR;
         while (iter.next(&srcR, &dstR)) {
-            this->drawBitmapRect(draw, bitmap, &srcR, dstR, paint,
-                                 SkCanvas::kStrict_SrcRectConstraint);
+            this->drawTextureProducer(producer, alphaOnly, &srcR, &dstR,
+                                      SkCanvas::kStrict_SrcRectConstraint,  *draw.fMatrix, fClip,
+                                      paint);
         }
         return;
     }
 
-    GrTextureParams params = GrTextureParams::ClampNoFilter();
-
-    SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(this->context(), bitmap, params));
-    if (nullptr == texture) {
-        return;
-    }
-
-    SkMatrix texMatrix;
-    texMatrix.setIDiv(texture->width(), texture->height());
-
-    SkAutoTUnref<const GrFragmentProcessor> fp(GrSimpleTextureEffect::Create(texture, texMatrix,
-                                                                             params));
-
+    static const GrTextureParams::FilterMode kMode = GrTextureParams::kNone_FilterMode;
+    SkAutoTUnref<const GrFragmentProcessor> fp(
+        producer->createFragmentProcessor(SkMatrix::I(),
+                                          SkRect::MakeIWH(producer->width(), producer->height()),
+                                          GrTextureProducer::kNo_FilterConstraint, true,
+                                          &kMode));
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), paint, *draw.fMatrix, fp,
-                                     kAlpha_8_SkColorType == bitmap.colorType(), &grPaint)) {
+                                     alphaOnly, &grPaint)) {
         return;
     }
 
-    fDrawContext->drawImageNine(fClip, grPaint, *draw.fMatrix, bitmap.width(), bitmap.height(),
-                                center, dst);
+    fDrawContext->drawImageNine(fClip, grPaint, *draw.fMatrix, producer->width(),
+                                producer->height(), center, dst);
+}
+
+void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
+                                const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
+    if (GrTexture* tex = as_IB(image)->peekTexture()) {
+        bool alphaOnly = GrPixelConfigIsAlphaOnly(tex->config());
+        GrImageTextureAdjuster adjuster(as_IB(image));
+        this->drawProducerNine(draw, &adjuster, alphaOnly, center, dst, paint);
+    } else {
+        SkBitmap bm;
+        if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
+            GrImageTextureMaker maker(fContext, cacher, image, SkImage::kAllow_CachingHint);
+            bool alphaOnly = kAlpha_8_SkColorType == cacher->info().colorType();
+            this->drawProducerNine(draw, &maker, alphaOnly, center, dst, paint);
+        } else if (as_IB(image)->getROPixels(&bm)) {
+            this->drawBitmapNine(draw, bm, center, dst, paint);
+        }
+    }
+}
+
+void SkGpuDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
+                                 const SkRect& dst, const SkPaint& paint) {
+    bool alphaOnly = kAlpha_8_SkColorType == bitmap.colorType();
+    if (bitmap.getTexture()) {
+        GrBitmapTextureAdjuster adjuster(&bitmap);
+        this->drawProducerNine(draw, &adjuster, alphaOnly, center, dst, paint);
+    } else {
+        GrBitmapTextureMaker maker(fContext, bitmap);
+        this->drawProducerNine(draw, &maker, alphaOnly, center, dst, paint);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

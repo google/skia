@@ -249,6 +249,9 @@ private:
                                  const GrClip&,
                                  const SkPaint&);
 
+    void drawProducerNine(const SkDraw&, GrTextureProducer*, bool alphaOnly,
+                          const SkIRect& center, const SkRect& dst, const SkPaint&);
+
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 
     static GrRenderTarget* CreateRenderTarget(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
