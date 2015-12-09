@@ -572,10 +572,15 @@ SkColor SkBitmap::getColor(int x, int y) const {
             SkPMColor c = SkPixel4444ToPixel32(addr[0]);
             return SkUnPreMultiply::PMColorToColor(c);
         }
-        case kBGRA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
+            uint32_t* addr = this->getAddr32(x, y);
+            SkPMColor c = SkSwizzle_BGRA_to_PMColor(addr[0]);
+            return SkUnPreMultiply::PMColorToColor(c);
+        }
         case kRGBA_8888_SkColorType: {
             uint32_t* addr = this->getAddr32(x, y);
-            return SkUnPreMultiply::PMColorToColor(addr[0]);
+            SkPMColor c = SkSwizzle_RGBA_to_PMColor(addr[0]);
+            return SkUnPreMultiply::PMColorToColor(c);
         }
         default:
             SkASSERT(false);
