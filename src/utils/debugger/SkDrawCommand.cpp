@@ -11,6 +11,7 @@
 #include "SkObjectParser.h"
 #include "SkPicture.h"
 #include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 
 // TODO(chudy): Refactor into non subclass model.
 
@@ -678,18 +679,36 @@ void SkDrawPosTextHCommand::execute(SkCanvas* canvas) const {
 SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                              const SkPaint& paint)
     : INHERITED(kDrawTextBlob_OpType)
-    , fBlob(blob)
+    , fBlob(SkRef(blob))
     , fXPos(x)
     , fYPos(y)
     , fPaint(paint) {
 
-    blob->ref();
-
-    // FIXME: push blob info
+    SkAutoTDelete<SkString> runsStr(new SkString);
     fInfo.push(SkObjectParser::ScalarToString(x, "XPOS: "));
     fInfo.push(SkObjectParser::ScalarToString(y, "YPOS: "));
     fInfo.push(SkObjectParser::RectToString(fBlob->bounds(), "Bounds: "));
+    fInfo.push(runsStr);
     fInfo.push(SkObjectParser::PaintToString(paint));
+
+    unsigned runs = 0;
+    SkPaint runPaint(paint);
+    SkTextBlobRunIterator iter(blob);
+    while (!iter.done()) {
+        SkAutoTDelete<SkString> label(new SkString);
+        label->printf("==== Run [%d] ====", runs++);
+        fInfo.push(label.release());
+
+        fInfo.push(SkObjectParser::IntToString(iter.glyphCount(), "GlyphCount: "));
+        iter.applyFontToPaint(&runPaint);
+        fInfo.push(SkObjectParser::PaintToString(runPaint));
+
+        iter.next();
+    }
+
+    runsStr->printf("Runs: %d", runs);
+    // runStr is owned by fInfo at this point.
+    runsStr.release();
 }
 
 void SkDrawTextBlobCommand::execute(SkCanvas* canvas) const {
