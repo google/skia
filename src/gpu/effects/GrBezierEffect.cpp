@@ -84,7 +84,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->emitAttributes(gp);
 
     GrGLSLVertToFrag v(kVec4f_GrSLType);
-    varyingHandler->addVarying("ConicCoeffs", &v);
+    varyingHandler->addVarying("ConicCoeffs", &v, kHigh_GrSLPrecision);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -111,27 +111,50 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fTransformsIn,
                          args.fTransformsOut);
 
-    fragBuilder->codeAppend("float edgeAlpha;");
+    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+
+    fragBuilder->declAppend(edgeAlpha);
+    fragBuilder->declAppend(dklmdx);
+    fragBuilder->declAppend(dklmdy);
+    fragBuilder->declAppend(dfdx);
+    fragBuilder->declAppend(dfdy);
+    fragBuilder->declAppend(gF);
+    fragBuilder->declAppend(gFM);
+    fragBuilder->declAppend(func);
 
     switch (fEdgeType) {
         case kHairlineAA_GrProcessorEdgeType: {
             SkAssertResult(fragBuilder->enableFeature(
                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fragBuilder->codeAppendf("vec3 dklmdx = dFdx(%s.xyz);", v.fsIn());
-            fragBuilder->codeAppendf("vec3 dklmdy = dFdy(%s.xyz);", v.fsIn());
-            fragBuilder->codeAppendf("float dfdx ="
-                                     "2.0 * %s.x * dklmdx.x - %s.y * dklmdx.z - %s.z * dklmdx.y;",
-                                     v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("float dfdy ="
-                                     "2.0 * %s.x * dklmdy.x - %s.y * dklmdy.z - %s.z * dklmdy.y;",
-                                     v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppend("vec2 gF = vec2(dfdx, dfdy);");
-            fragBuilder->codeAppend("float gFM = sqrt(dot(gF, gF));");
-            fragBuilder->codeAppendf("float func = %s.x*%s.x - %s.y*%s.z;", v.fsIn(), v.fsIn(),
-                                     v.fsIn(), v.fsIn());
-            fragBuilder->codeAppend("func = abs(func);");
-            fragBuilder->codeAppend("edgeAlpha = func / gFM;");
-            fragBuilder->codeAppend("edgeAlpha = max(1.0 - edgeAlpha, 0.0);");
+            fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                     dfdx.c_str(),
+                                     v.fsIn(), dklmdx.c_str(),
+                                     v.fsIn(), dklmdx.c_str(),
+                                     v.fsIn(), dklmdx.c_str());
+            fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                     dfdy.c_str(),
+                                     v.fsIn(), dklmdy.c_str(),
+                                     v.fsIn(), dklmdy.c_str(),
+                                     v.fsIn(), dklmdy.c_str());
+            fragBuilder->codeAppendf("%s = vec2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
+            fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
+                                     gFM.c_str(), gF.c_str(), gF.c_str());
+            fragBuilder->codeAppendf("%s = %s.x*%s.x - %s.y*%s.z;",
+                                     func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
+            fragBuilder->codeAppendf("%s = abs(%s);", func.c_str(), func.c_str());
+            fragBuilder->codeAppendf("%s = %s / %s;",
+                                     edgeAlpha.c_str(), func.c_str(), gFM.c_str());
+            fragBuilder->codeAppendf("%s = max(1.0 - %s, 0.0);",
+                                     edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
@@ -139,28 +162,38 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         case kFillAA_GrProcessorEdgeType: {
             SkAssertResult(fragBuilder->enableFeature(
                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
-            fragBuilder->codeAppendf("vec3 dklmdx = dFdx(%s.xyz);", v.fsIn());
-            fragBuilder->codeAppendf("vec3 dklmdy = dFdy(%s.xyz);", v.fsIn());
-            fragBuilder->codeAppendf("float dfdx ="
-                                     "2.0 * %s.x * dklmdx.x - %s.y * dklmdx.z - %s.z * dklmdx.y;",
-                                     v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("float dfdy ="
-                                     "2.0 * %s.x * dklmdy.x - %s.y * dklmdy.z - %s.z * dklmdy.y;",
-                                     v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppend("vec2 gF = vec2(dfdx, dfdy);");
-            fragBuilder->codeAppend("float gFM = sqrt(dot(gF, gF));");
-            fragBuilder->codeAppendf("float func = %s.x * %s.x - %s.y * %s.z;", v.fsIn(), v.fsIn(),
-                                     v.fsIn(), v.fsIn());
-            fragBuilder->codeAppend("edgeAlpha = func / gFM;");
-            fragBuilder->codeAppend("edgeAlpha = clamp(1.0 - edgeAlpha, 0.0, 1.0);");
+            fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s ="
+                                     "2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                     dfdx.c_str(),
+                                     v.fsIn(), dklmdx.c_str(),
+                                     v.fsIn(), dklmdx.c_str(),
+                                     v.fsIn(), dklmdx.c_str());
+            fragBuilder->codeAppendf("%s ="
+                                     "2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                     dfdy.c_str(),
+                                     v.fsIn(), dklmdy.c_str(),
+                                     v.fsIn(), dklmdy.c_str(),
+                                     v.fsIn(), dklmdy.c_str());
+            fragBuilder->codeAppendf("%s = vec2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
+            fragBuilder->codeAppendf("float %s = sqrt(dot(%s, %s));",
+                                     gFM.c_str(), gF.c_str(), gF.c_str());
+            fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
+                                     func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
+            fragBuilder->codeAppendf("%s = %s / %s;",
+                                     edgeAlpha.c_str(), func.c_str(), gFM.c_str());
+            fragBuilder->codeAppendf("%s = clamp(1.0 - %s, 0.0, 1.0);",
+                                     edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
         case kFillBW_GrProcessorEdgeType: {
-            fragBuilder->codeAppendf("edgeAlpha = %s.x * %s.x - %s.y * %s.z;", v.fsIn(), v.fsIn(),
-                                     v.fsIn(), v.fsIn());
-            fragBuilder->codeAppend("edgeAlpha = float(edgeAlpha < 0.0);");
+            fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
+                                     edgeAlpha.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
+            fragBuilder->codeAppendf("%s = float(%s < 0.0);",
+                                     edgeAlpha.c_str(), edgeAlpha.c_str());
             break;
         }
         default:
@@ -173,12 +206,13 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         fCoverageScaleUniform = uniformHandler->addUniform(
                                                          GrGLSLUniformHandler::kFragment_Visibility,
                                                          kFloat_GrSLType,
-                                                         kDefault_GrSLPrecision,
+                                                         kHigh_GrSLPrecision,
                                                          "Coverage",
                                                          &coverageScale);
-        fragBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
+        fragBuilder->codeAppendf("%s = vec4(%s * %s);",
+                                 args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
-        fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
     }
 }
 
@@ -607,8 +641,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
                                      gFM.c_str(), gF.c_str(), gF.c_str());
             fragBuilder->codeAppendf("%s = %s.x * %s.x * %s.x - %s.y * %s.z;",
-                                     func.c_str(), v.fsIn(), v.fsIn(),
-                                     v.fsIn(), v.fsIn(), v.fsIn());
+                                     func.c_str(),
+                                     v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("%s = %s / %s;",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
             fragBuilder->codeAppendf("%s = clamp(1.0 - %s, 0.0, 1.0);",

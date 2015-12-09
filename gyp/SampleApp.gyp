@@ -38,7 +38,7 @@
         '../samplecode/SampleAARects.cpp',
         '../samplecode/SampleAARectModes.cpp',
         '../samplecode/SampleAll.cpp',
-	'../samplecode/SampleAnimatedText.cpp',
+        '../samplecode/SampleAnimatedText.cpp',
         '../samplecode/SampleAnimator.cpp',
         '../samplecode/SampleAnimBlur.cpp',
         '../samplecode/SampleApp.cpp',
@@ -260,9 +260,9 @@
           'sources!': [
             '../samplecode/SampleLighting.cpp',  #doesn't compile due to gpu dependencies
           ],
- 	  'include_dirs' : [
-	    '../include/gpu',
-	  ],
+          'include_dirs' : [
+            '../include/gpu',
+          ],
         }],
         [ 'skia_gpu == 1', {
           'dependencies': [
