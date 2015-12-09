@@ -693,7 +693,8 @@ private:
             // Store 'saveLayer ops from enclosing picture' + drawPict op + 'ops from sub-picture'
             dst.fKeySize = fSaveLayerOpStack.count() + src.fKeySize + 1;
             dst.fKey = new int[dst.fKeySize];
-            memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(int));
+            sk_careful_memcpy(dst.fKey, fSaveLayerOpStack.begin(),
+                              fSaveLayerOpStack.count() * sizeof(int));
             dst.fKey[fSaveLayerOpStack.count()] = fFillBounds.currentOp();
             memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(int));
         }

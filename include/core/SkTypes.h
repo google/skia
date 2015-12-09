@@ -100,7 +100,10 @@ SK_API extern void* sk_calloc_throw(size_t size);
 
 // bzero is safer than memset, but we can't rely on it, so... sk_bzero()
 static inline void sk_bzero(void* buffer, size_t size) {
-    memset(buffer, 0, size);
+    // Please c.f. sk_careful_memcpy.  It's undefined behavior to call memset(null, 0, 0).
+    if (size) {
+        memset(buffer, 0, size);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
