@@ -434,18 +434,14 @@
           }],
           # Enable asan, tsan, etc.
           [ 'skia_sanitizer', {
+            'cflags_cc!': [ '-fno-rtti' ],                        # vptr needs rtti
             'cflags': [
               '-fsanitize=<(skia_sanitizer)',                     # Turn on sanitizers.
               '-fno-sanitize-recover=<(skia_sanitizer)',          # Make any failure fatal.
               '-fsanitize-blacklist=<(skia_sanitizer_blacklist)', # Compile in our blacklist.
               '-include <(skia_sanitizer_blacklist)',             # Make every .cpp depend on it.
             ],
-            'cflags_cc!': [
-              '-fno-rtti'
-            ],
-            'ldflags': [
-              '-fsanitize=<(skia_sanitizer)',
-            ],
+            'ldflags': [ '-fsanitize=<(skia_sanitizer)' ],
             'conditions' : [
               [ 'skia_sanitizer == "thread"', {
                 'defines': [ 'THREAD_SANITIZER' ],
@@ -506,6 +502,21 @@
               'MACOSX_DEPLOYMENT_TARGET': '10.7', # -mmacos-version-min, passed in env to ld.
             }, {
               'MACOSX_DEPLOYMENT_TARGET': '<(skia_osx_deployment_target)',
+            }],
+            [ 'skia_sanitizer', {
+              'GCC_ENABLE_CPP_RTTI': 'YES',                         # vptr needs rtti
+              'OTHER_CFLAGS': [
+                '-fsanitize=<(skia_sanitizer)',                     # Turn on sanitizers.
+                '-fno-sanitize-recover=<(skia_sanitizer)',          # Make any failure fatal.
+                '-fsanitize-blacklist=<(skia_sanitizer_blacklist)', # Compile in our blacklist.
+                '-include <(skia_sanitizer_blacklist)',             # Make every .cpp depend on it.
+              ],
+              # We want to pass -fsanitize=... to our final link call,
+              # but not to libtool. OTHER_LDFLAGS is passed to both.
+              # To trick GYP into doing what we want, we'll piggyback on
+              # LIBRARY_SEARCH_PATHS, producing "-L/usr/lib -fsanitize=...".
+              # The -L/usr/lib is redundant but innocuous: it's a default path.
+              'LIBRARY_SEARCH_PATHS': [ '/usr/lib -fsanitize=<(skia_sanitizer)'],
             }],
           ],
           'CLANG_CXX_LIBRARY':                         'libc++',
