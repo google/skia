@@ -71,7 +71,6 @@ public:
             runs += x + 1;
             alpha += x + 1;
             x = 0;
-            lastAlpha += x; // we don't want the +1
             SkDEBUGCODE(this->validate();)
         }
 
