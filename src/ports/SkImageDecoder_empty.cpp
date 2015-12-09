@@ -108,10 +108,6 @@ SkData* SkImageEncoder::EncodeData(const SkImageInfo&, const void* pixels, size_
     return nullptr;
 }
 
-static SkData* SkImageEncoder::EncodeData(const SkPixmap&, Type, int) {
-    return nullptr;
-}
-
 bool SkImageEncoder::encodeStream(SkWStream*, const SkBitmap&, int) {
     return false;
 }
@@ -123,17 +119,4 @@ SkData* SkImageEncoder::encodeData(const SkBitmap&, int) {
 bool SkImageEncoder::encodeFile(const char file[], const SkBitmap& bm, int quality) {
     return false;
 }
-
-namespace {
-class ImageEncoderPixelSerializer final : public SkPixelSerializer {
-protected:
-    bool onUseEncodedData(const void*, size_t) override { return true; }
-    SkData* onEncode(const SkPixmap& pmap) override { return nullptr; }
-};
-}  // namespace
-
-SkPixelSerializer* SkImageEncoder::CreatePixelSerializer() {
-    return new ImageEncoderPixelSerializer;
-}
-
 /////////////////////////////////////////////////////////////////////////

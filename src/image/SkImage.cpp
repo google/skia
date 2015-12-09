@@ -9,7 +9,6 @@
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkImageShader.h"
@@ -179,14 +178,32 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     return nullptr;
 }
 
-SkData* SkImage::encode(SkPixelSerializer* serializer) const {
-    SkAutoTUnref<SkPixelSerializer> defaultSerializer;
-    SkPixelSerializer* effectiveSerializer = serializer;
-    if (!effectiveSerializer) {
-        defaultSerializer.reset(SkImageEncoder::CreatePixelSerializer());
-        SkASSERT(defaultSerializer.get());
-        effectiveSerializer = defaultSerializer.get();
+namespace {
+
+class DefaultSerializer :  public SkPixelSerializer {
+protected:
+    bool onUseEncodedData(const void *data, size_t len) override {
+        return true;
     }
+    SkData* onEncode(const SkPixmap& pixmap) override {
+        SkBitmap bm;
+        if (!bm.installPixels(pixmap.info(),
+                              const_cast<void*>(pixmap.addr()),
+                              pixmap.rowBytes(),
+                              pixmap.ctable(),
+                              nullptr, nullptr)) {
+            return nullptr;
+        }
+        return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
+    }
+};
+
+} // anonymous namespace
+
+SkData* SkImage::encode(SkPixelSerializer* serializer) const {
+    DefaultSerializer defaultSerializer;
+    SkPixelSerializer* effectiveSerializer = serializer ? serializer : &defaultSerializer;
+
     SkAutoTUnref<SkData> encoded(this->refEncoded());
     if (encoded && effectiveSerializer->useEncodedData(encoded->data(), encoded->size())) {
         return encoded.detach();

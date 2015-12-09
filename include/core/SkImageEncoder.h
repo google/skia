@@ -12,8 +12,6 @@
 #include "SkTRegistry.h"
 
 class SkBitmap;
-class SkPixelSerializer;
-class SkPixmap;
 class SkData;
 class SkWStream;
 
@@ -66,16 +64,10 @@ public:
                               Type, int quality);
     static SkData* EncodeData(const SkBitmap&, Type, int quality);
 
-    static SkData* EncodeData(const SkPixmap&, Type, int quality);
-
     static bool EncodeFile(const char file[], const SkBitmap&, Type,
                            int quality);
     static bool EncodeStream(SkWStream*, const SkBitmap&, Type,
                            int quality);
-
-    /** Uses SkImageEncoder to serialize images that are not already
-        encoded as SkImageEncoder::kPNG_Type images. */
-    static SkPixelSerializer* CreatePixelSerializer();
 
 protected:
     /**
