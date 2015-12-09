@@ -100,6 +100,12 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     if (SkScalarNearlyEqual(invScaleX, 1) && SkScalarNearlyEqual(invScaleY, 1)) {
         return false; // no need for HQ
     }
+
+#ifndef SK_SUPPORT_LEGACY_HQ_DOWNSAMPLING
+    if (invScaleX > 1 || invScaleY > 1) {
+        return false; // only use HQ when upsampling
+    }
+#endif
     
     const int dstW = SkScalarRoundToScalar(provider.width() / invScaleX);
     const int dstH = SkScalarRoundToScalar(provider.height() / invScaleY);
