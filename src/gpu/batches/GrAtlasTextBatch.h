@@ -16,10 +16,6 @@ class GrAtlasTextBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    // position + local coord
-    static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
-    static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
-    static const size_t kLCDTextVASize = kGrayTextVASize;
     static const int kVerticesPerGlyph = GrAtlasTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
@@ -101,17 +97,6 @@ public:
     const char* name() const override { return "TextBatch"; }
 
     SkString dumpInfo() const override;
-
-    static size_t GetVertexStride(GrMaskFormat maskFormat) {
-        switch (maskFormat) {
-            case kA8_GrMaskFormat:
-                return kGrayTextVASize;
-            case kARGB_GrMaskFormat:
-                return kColorTextVASize;
-            default:
-                return kLCDTextVASize;
-        }
-    }
 
 protected:
     void computePipelineOptimizations(GrInitInvariantOutput* color, 

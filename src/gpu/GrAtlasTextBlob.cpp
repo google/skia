@@ -7,17 +7,34 @@
 
 #include "GrAtlasTextBlob.h"
 
-void GrAtlasTextBlob::appendGlyph(Run* run,
-                                  Run::SubRunInfo* subRun,
-                                  const SkRect& positions, GrColor color,
-                                  size_t vertexStride, bool useVertexColor,
+void GrAtlasTextBlob::appendGlyph(int runIndex,
+                                  const SkRect& positions,
+                                  GrColor color,
+                                  GrBatchTextStrike* strike,
                                   GrGlyph* glyph) {
-    run->fVertexBounds.joinNonEmptyArg(positions);
-    run->fColor = color;
+    Run& run = fRuns[runIndex];
+    GrMaskFormat format = glyph->fMaskFormat;
+
+    Run::SubRunInfo* subRun = &run.fSubRunInfo.back();
+    if (run.fInitialized && subRun->maskFormat() != format) {
+        subRun = &run.push_back();
+        subRun->setStrike(strike);
+    } else if (!run.fInitialized) {
+        subRun->setStrike(strike);
+    }
+
+    run.fInitialized = true;
+
+    size_t vertexStride = GetVertexStride(format);
+
+    subRun->setMaskFormat(format);
+
+    run.fVertexBounds.joinNonEmptyArg(positions);
+    run.fColor = color;
 
     intptr_t vertex = reinterpret_cast<intptr_t>(this->fVertices + subRun->vertexEndIndex());
 
-    if (useVertexColor) {
+    if (kARGB_GrMaskFormat != glyph->fMaskFormat) {
         // V0
         SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
         position->set(positions.fLeft, positions.fTop);

@@ -331,7 +331,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     FlushInfo flushInfo;
     flushInfo.fGlyphsToFlush = 0;
     size_t vertexStride = gp->getVertexStride();
-    SkASSERT(vertexStride == GetVertexStride(maskFormat));
+    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat));
 
     target->initDraw(gp, this->pipeline());
 

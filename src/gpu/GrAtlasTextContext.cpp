@@ -55,8 +55,8 @@ GrAtlasTextContext::GrAtlasTextContext(GrContext* context, const SkSurfaceProps&
     , fDistanceAdjustTable(new DistanceAdjustTable) {
     // We overallocate vertices in our textblobs based on the assumption that A8 has the greatest
     // vertexStride
-    static_assert(GrAtlasTextBatch::kGrayTextVASize >= GrAtlasTextBatch::kColorTextVASize &&
-                  GrAtlasTextBatch::kGrayTextVASize >= GrAtlasTextBatch::kLCDTextVASize,
+    static_assert(GrAtlasTextBlob::kGrayTextVASize >= GrAtlasTextBlob::kColorTextVASize &&
+                  GrAtlasTextBlob::kGrayTextVASize >= GrAtlasTextBlob::kLCDTextVASize,
                   "vertex_attribute_changed");
     fCurrStrike = nullptr;
     fCache = context->getTextBlobCache();
@@ -349,7 +349,7 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
             // but we'd have to clear the subrun information
             fCache->remove(cacheBlob);
             cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
-                                                           GrAtlasTextBatch::kGrayTextVASize)));
+                                                           GrAtlasTextBlob::kGrayTextVASize)));
             this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
                                      blob, x, y, drawFilter, clip);
         } else {
@@ -377,9 +377,9 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
     } else {
         if (canCache) {
             cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
-                                                           GrAtlasTextBatch::kGrayTextVASize)));
+                                                           GrAtlasTextBlob::kGrayTextVASize)));
         } else {
-            cacheBlob.reset(fCache->createBlob(blob, GrAtlasTextBatch::kGrayTextVASize));
+            cacheBlob.reset(fCache->createBlob(blob, GrAtlasTextBlob::kGrayTextVASize));
         }
         this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
                                  blob, x, y, drawFilter, clip);
@@ -624,7 +624,7 @@ inline GrAtlasTextBlob*
 GrAtlasTextContext::setupDFBlob(int glyphCount, const SkPaint& origPaint,
                                 const SkMatrix& viewMatrix, SkPaint* dfPaint,
                                 SkScalar* textRatio) {
-    GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBatch::kGrayTextVASize);
+    GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
 
     *dfPaint = origPaint;
     this->initDistanceFieldPaint(blob, dfPaint, textRatio, viewMatrix);
@@ -662,7 +662,7 @@ GrAtlasTextContext::createDrawTextBlob(const GrClip& clip,
                                       fallbackTxt, fallbackPos, 2, offset);
         }
     } else {
-        blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBatch::kGrayTextVASize);
+        blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
         blob->fViewMatrix = viewMatrix;
 
         SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, &viewMatrix, false);
@@ -698,7 +698,7 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrClip& clip,
                                       fallbackTxt, fallbackPos, scalarsPerPosition, offset);
         }
     } else {
-        blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBatch::kGrayTextVASize);
+        blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
         blob->fViewMatrix = viewMatrix;
         SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, &viewMatrix, false);
         this->internalDrawBMPPosText(blob, 0, cache, skPaint, paint.getColor(), viewMatrix, text,
@@ -967,7 +967,6 @@ void GrAtlasTextContext::internalDrawDFPosText(GrAtlasTextBlob* blob, int runInd
 void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                                         const SkGlyph& skGlyph,
                                         int vx, int vy, GrColor color, GrFontScaler* scaler) {
-    Run& run = blob->fRuns[runIndex];
     if (!fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
     }
@@ -994,28 +993,13 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
         return;
     }
 
-    GrMaskFormat format = glyph->fMaskFormat;
-
-    PerSubRunInfo* subRun = &run.fSubRunInfo.back();
-    if (run.fInitialized && subRun->maskFormat() != format) {
-        subRun = &run.push_back();
-        subRun->setStrike(fCurrStrike);
-    } else if (!run.fInitialized) {
-        subRun->setStrike(fCurrStrike);
-    }
-
-    run.fInitialized = true;
-
-    size_t vertexStride = GrAtlasTextBatch::GetVertexStride(format);
-
     SkRect r;
     r.fLeft = SkIntToScalar(x);
     r.fTop = SkIntToScalar(y);
     r.fRight = r.fLeft + SkIntToScalar(width);
     r.fBottom = r.fTop + SkIntToScalar(height);
-    subRun->setMaskFormat(format);
-    blob->appendGlyph(&run, subRun, r, color, vertexStride,
-                      kARGB_GrMaskFormat != format, glyph);
+
+    blob->appendGlyph(runIndex, r, color, fCurrStrike, glyph);
 }
 
 bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
@@ -1023,7 +1007,6 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                                        SkScalar sx, SkScalar sy, GrColor color,
                                        GrFontScaler* scaler,
                                        SkScalar textRatio, const SkMatrix& viewMatrix) {
-    Run& run = blob->fRuns[runIndex];
     if (!fCurrStrike) {
         fCurrStrike = fContext->getBatchFontCache()->getStrike(scaler);
     }
@@ -1063,17 +1046,7 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
         return true;
     }
 
-    PerSubRunInfo* subRun = &run.fSubRunInfo.back();
-    if (!run.fInitialized) {
-        subRun->setStrike(fCurrStrike);
-    }
-    run.fInitialized = true;
-    SkASSERT(glyph->fMaskFormat == kA8_GrMaskFormat);
-    subRun->setMaskFormat(kA8_GrMaskFormat);
-
-    size_t vertexStride = GrAtlasTextBatch::GetVertexStride(kA8_GrMaskFormat);
-
-    blob->appendGlyph(&run, subRun, glyphRect, color, vertexStride, true, glyph);
+    blob->appendGlyph(runIndex, glyphRect, color, fCurrStrike, glyph);
     return true;
 }
 

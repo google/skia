@@ -280,12 +280,27 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
         }
     }
 
-    void appendGlyph(Run* run,
-                     Run::SubRunInfo* subRun,
-                     const SkRect& positions, GrColor color,
-                     size_t vertexStride, bool useVertexColor,
+    void appendGlyph(int runIndex,
+                     const SkRect& positions,
+                     GrColor color,
+                     GrBatchTextStrike* strike,
                      GrGlyph* glyph);
 
+    static size_t GetVertexStride(GrMaskFormat maskFormat) {
+        switch (maskFormat) {
+            case kA8_GrMaskFormat:
+                return kGrayTextVASize;
+            case kARGB_GrMaskFormat:
+                return kColorTextVASize;
+            default:
+                return kLCDTextVASize;
+        }
+    }
+
+    // position + local coord
+    static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
+    static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
+    static const size_t kLCDTextVASize = kGrayTextVASize;
     static const int kVerticesPerGlyph = 4;
 
 #ifdef CACHE_SANITY_CHECK
