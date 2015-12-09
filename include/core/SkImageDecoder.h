@@ -16,8 +16,6 @@
 #include "SkTRegistry.h"
 #include "SkTypes.h"
 
-//#define SK_LEGACY_PEEKER
-
 class SkStream;
 class SkStreamRewindable;
 
@@ -129,18 +127,6 @@ public:
     */
     bool getRequireUnpremultipliedColors() const { return fRequireUnpremultipliedColors; }
 
-#ifdef SK_LEGACY_PEEKER
-    // Android subclasses SkImageDecoder::Peeker, which has been changed into SkPngChunkReader.
-    // Temporarily use this class until Android can be updated to directly inherit from
-    // SkPngChunkReader.
-    class Peeker : public SkPngChunkReader {
-    public:
-        bool readChunk(const char tag[], const void* data, size_t length) final {
-            return this->peek(tag, data, length);
-        }
-        virtual bool peek(const char tag[], const void* data, size_t length) = 0;
-    };
-#endif
     SkPngChunkReader* getPeeker() const { return fPeeker; }
     SkPngChunkReader* setPeeker(SkPngChunkReader*);
 
