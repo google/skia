@@ -450,8 +450,8 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
 
     // now edge is the head of the sorted linklist
 
-    start_y <<= shiftEdgesUp;
-    stop_y <<= shiftEdgesUp;
+    start_y = SkLeftShift(start_y, shiftEdgesUp);
+    stop_y = SkLeftShift(stop_y, shiftEdgesUp);
     if (clipRect && start_y < clipRect->fTop) {
         start_y = clipRect->fTop;
     }

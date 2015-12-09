@@ -561,7 +561,7 @@ DEF_TEST(Math, reporter) {
         SkFixed numer = rand.nextS();
         SkFixed denom = rand.nextS();
         SkFixed result = SkFixedDiv(numer, denom);
-        int64_t check = ((int64_t)numer << 16) / denom;
+        int64_t check = SkLeftShift((int64_t)numer, 16) / denom;
 
         (void)SkCLZ(numer);
         (void)SkCLZ(denom);

@@ -58,7 +58,7 @@ static inline SkFixed repeat_tileproc(SkFixed x) {
 #endif
 
 static inline SkFixed mirror_tileproc(SkFixed x) {
-    int s = x << 15 >> 31;
+    int s = SkLeftShift(x, 15) >> 31;
     return (x ^ s) & 0xFFFF;
 }
 

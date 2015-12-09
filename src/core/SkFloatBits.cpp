@@ -65,7 +65,7 @@ int32_t SkFloatBits_toIntCast(int32_t packed) {
 // same as (int)floor(float)
 int32_t SkFloatBits_toIntFloor(int32_t packed) {
     // curse you negative 0
-    if ((packed << 1) == 0) {
+    if (SkLeftShift(packed, 1) == 0) {
         return 0;
     }
 
@@ -104,7 +104,7 @@ int32_t SkFloatBits_toIntFloor(int32_t packed) {
 // same as (int)floor(float + 0.5)
 int32_t SkFloatBits_toIntRound(int32_t packed) {
     // curse you negative 0
-    if ((packed << 1) == 0) {
+    if (SkLeftShift(packed, 1) == 0) {
         return 0;
     }
 
@@ -134,7 +134,7 @@ int32_t SkFloatBits_toIntRound(int32_t packed) {
 // same as (int)ceil(float)
 int32_t SkFloatBits_toIntCeil(int32_t packed) {
     // curse you negative 0
-    if ((packed << 1) == 0) {
+    if (SkLeftShift(packed, 1) == 0) {
         return 0;
     }
 
@@ -200,6 +200,6 @@ float SkIntToFloatCast(int32_t value) {
     SkASSERT(shift >= 0 && shift <= 255);
 
     SkFloatIntUnion data;
-    data.fSignBitInt = (sign << 31) | (shift << 23) | (value & ~MATISSA_MAGIC_BIG);
+    data.fSignBitInt = SkLeftShift(sign, 31) | SkLeftShift(shift, 23) | (value & ~MATISSA_MAGIC_BIG);
     return data.fFloat;
 }

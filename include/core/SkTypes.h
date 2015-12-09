@@ -306,6 +306,14 @@ static inline bool SkIsU16(long x) {
     return (uint16_t)x == x;
 }
 
+static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
+    return (int32_t) ((uint32_t) value << shift);
+}
+
+static inline int64_t SkLeftShift(int64_t value, int32_t shift) {
+    return (int64_t) ((uint64_t) value << shift);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 /** Returns the number of entries in an array (not a pointer) */

@@ -178,7 +178,7 @@ static inline U16CPU fixed_repeat(SkFixed x) {
 #endif
 
 static inline U16CPU fixed_mirror(SkFixed x) {
-    SkFixed s = x << 15 >> 31;
+    SkFixed s = SkLeftShift(x, 15) >> 31;
     // s is FFFFFFFF if we're on an odd interval, or 0 if an even interval
     return (x ^ s) & 0xFFFF;
 }

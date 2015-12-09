@@ -250,9 +250,9 @@ public:
 };
 
 static inline SkFixed fastfixdiv(SkFDot6 a, SkFDot6 b) {
-    SkASSERT((a << 16 >> 16) == a);
+    SkASSERT((SkLeftShift(a, 16) >> 16) == a);
     SkASSERT(b != 0);
-    return (a << 16) / b;
+    return SkLeftShift(a, 16) / b;
 }
 
 #define SkBITCOUNT(x)   (sizeof(x) << 3)

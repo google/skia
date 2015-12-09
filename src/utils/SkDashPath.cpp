@@ -10,7 +10,7 @@
 #include "SkStrokeRec.h"
 
 static inline int is_even(int x) {
-    return (~x) << 31;
+    return !(x & 1);
 }
 
 static SkScalar find_first_interval(const SkScalar intervals[], SkScalar phase,

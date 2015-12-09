@@ -211,7 +211,7 @@ template <int N, typename T> static bool parse_fixed(const char* s, T* value) {
         n = -n;
         frac = -frac;
     }
-    *value = (n << N) + frac;
+    *value = SkLeftShift(n, N) + frac;
     return true;
 }
 
