@@ -13,13 +13,11 @@
 #include "GrCaps.h"
 #include "Test.h"
 
-DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter, /*factory*/) {
+DEF_GPUTEST(GrContextFactory_NVPRContextTypeHasPathRenderingSupport, reporter, /*factory*/) {
     // Test that if NVPR is requested, the context always has path rendering
     // or the context creation fails.
     GrContextFactory testFactory;
-    GrContext* context = testFactory.get(GrContextFactory::kNative_GLContextType,
-                                         kNone_GrGLStandard,
-                                         GrContextFactory::kEnableNVPR_GLContextOptions);
+    GrContext* context = testFactory.get(GrContextFactory::kNVPR_GLContextType);
     if (context) {
         REPORTER_ASSERT(
             reporter,
@@ -33,6 +31,9 @@ DEF_GPUTEST(GrContextFactory_NoPathRenderingUnlessNVPRRequested, reporter, /*fac
     GrContextFactory testFactory;
     for (int i = 0; i <= GrContextFactory::kLastGLContextType; ++i) {
         GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType)i;
+        if (glCtxType == GrContextFactory::kNVPR_GLContextType) {
+            continue;
+        }
         GrContext* context = testFactory.get(glCtxType);
         if (context) {
             REPORTER_ASSERT(

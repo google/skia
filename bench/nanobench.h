@@ -29,11 +29,9 @@ struct Config {
     int samples;
 #if SK_SUPPORT_GPU
     GrContextFactory::GLContextType ctxType;
-    GrContextFactory::GLContextOptions ctxOptions;
     bool useDFText;
 #else
     int bogusInt;
-    int bogusIntOption;
     bool bogusBool;
 #endif
 };
