@@ -83,8 +83,9 @@ static void fail(ImplicitString err) {
 
 static int32_t gPending = 0;  // Atomic.  Total number of running and queued tasks.
 
-SK_DECLARE_STATIC_MUTEX(gRunningMutex);
-static SkTArray<SkString> gRunning;
+SK_DECLARE_STATIC_MUTEX(gRunningAndTallyMutex);
+static SkTArray<SkString>        gRunning;
+static SkTHashMap<SkString, int> gNoteTally;
 
 static void done(double ms,
                  ImplicitString config, ImplicitString src, ImplicitString srcOptions,
@@ -92,29 +93,32 @@ static void done(double ms,
     SkString id = SkStringPrintf("%s %s %s %s", config.c_str(), src.c_str(),
                                                 srcOptions.c_str(), name.c_str());
     {
-        SkAutoMutexAcquire lock(gRunningMutex);
+        SkAutoMutexAcquire lock(gRunningAndTallyMutex);
         for (int i = 0; i < gRunning.count(); i++) {
             if (gRunning[i] == id) {
                 gRunning.removeShuffle(i);
                 break;
             }
         }
-    }
-    if (!FLAGS_verbose) {
-        note = "";
+        if (!note.isEmpty()) {
+            if (int* tally = gNoteTally.find(note)) {
+                *tally += 1;
+            } else {
+                gNoteTally.set(note, 1);
+            }
+        }
     }
     if (!log.isEmpty()) {
         log.prepend("\n");
     }
     auto pending = sk_atomic_dec(&gPending)-1;
-    if (!FLAGS_quiet) {
-        SkDebugf("%s(%4d/%-4dMB %6d) %s\t%s%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
+    if (!FLAGS_quiet && note.isEmpty()) {
+        SkDebugf("%s(%4d/%-4dMB %6d) %s\t%s%s", FLAGS_verbose ? "\n" : kSkOverwriteLine
                                            , sk_tools::getCurrResidentSetSizeMB()
                                            , sk_tools::getMaxResidentSetSizeMB()
                                            , pending
                                            , HumanizeMs(ms).c_str()
                                            , id.c_str()
-                                           , note.c_str()
                                            , log.c_str());
     }
     // We write our dm.json file every once in a while in case we crash.
@@ -128,7 +132,7 @@ static void start(ImplicitString config, ImplicitString src,
                   ImplicitString srcOptions, ImplicitString name) {
     SkString id = SkStringPrintf("%s %s %s %s", config.c_str(), src.c_str(),
                                                 srcOptions.c_str(), name.c_str());
-    SkAutoMutexAcquire lock(gRunningMutex);
+    SkAutoMutexAcquire lock(gRunningAndTallyMutex);
     gRunning.push_back(id);
 }
 
@@ -1041,7 +1045,7 @@ static void start_keepalive() {
             #endif
                 SkString running;
                 {
-                    SkAutoMutexAcquire lock(gRunningMutex);
+                    SkAutoMutexAcquire lock(gRunningAndTallyMutex);
                     for (int i = 0; i < gRunning.count(); i++) {
                         running.appendf("\n\t%s", gRunning[i].c_str());
                     }
@@ -1117,6 +1121,13 @@ int dm_main() {
     tg.wait();
     // At this point we're back in single-threaded land.
     sk_tool_utils::release_portable_typefaces();
+
+    if (FLAGS_verbose && gNoteTally.count() > 0) {
+        SkDebugf("\nNote tally:\n");
+        gNoteTally.foreach([](const SkString& note, int* tally) {
+            SkDebugf("%dx\t%s\n", *tally, note.c_str());
+        });
+    }
 
     SkDebugf("\n");
     if (gFailures.count() > 0) {
