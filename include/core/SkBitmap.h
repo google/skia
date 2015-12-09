@@ -295,6 +295,14 @@ public:
     }
 
     /**
+     *  Call installPixels with no ReleaseProc specified. This means
+     *  that the caller must ensure that the specified pixels and
+     *  colortable are valid for the lifetime of the created bitmap
+     *  (and its pixelRef).
+     */
+    bool installPixels(const SkPixmap&);
+
+    /**
      *  Calls installPixels() with the value in the SkMask. The caller must
      *  ensure that the specified mask pixels are valid for the lifetime
      *  of the created bitmap (and its pixelRef).

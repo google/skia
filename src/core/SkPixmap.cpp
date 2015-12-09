@@ -222,9 +222,7 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     }
 
     SkBitmap bitmap;
-    // we will only ready from this pixmap, but the bitmap setting takes void*, hence the cast
-    void* readOnlyAddr = const_cast<void*>(this->addr());
-    if (!bitmap.installPixels(this->info(), readOnlyAddr, this->rowBytes())) {
+    if (!bitmap.installPixels(*this)) {
         return false;
     }
     bitmap.setIsVolatile(true); // so we don't try to cache it

@@ -125,7 +125,7 @@ protected:
             if (!fImage->peekPixels(&pmap)) {
                 sk_throw();
             }
-            fBitmap.installPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes());
+            fBitmap.installPixels(pmap);
         }
     }
 

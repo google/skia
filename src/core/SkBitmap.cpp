@@ -372,6 +372,12 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
     return true;
 }
 
+bool SkBitmap::installPixels(const SkPixmap& pixmap) {
+    return this->installPixels(pixmap.info(), pixmap.writable_addr(),
+                               pixmap.rowBytes(), pixmap.ctable(),
+                               nullptr, nullptr);
+}
+
 bool SkBitmap::installMaskPixels(const SkMask& mask) {
     if (SkMask::kA8_Format != mask.fFormat) {
         this->reset();

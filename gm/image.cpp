@@ -199,7 +199,7 @@ DEF_GM( return new ImageGM; )
 
 static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pmap) {
     SkBitmap bitmap;
-    bitmap.installPixels(pmap.info(), (void*)pmap.addr(), pmap.rowBytes());
+    bitmap.installPixels(pmap);
     canvas->drawBitmap(bitmap, 0, 0, nullptr);
 }
 

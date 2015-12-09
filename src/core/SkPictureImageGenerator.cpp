@@ -108,8 +108,7 @@ bool SkPictureImageGenerator::onGenerateScaledPixels(const SkISize& scaledSize,
     matrix.postTranslate(-SkIntToScalar(scaledOrigin.x()), -SkIntToScalar(scaledOrigin.y()));
 
     SkBitmap bitmap;
-    if (!bitmap.installPixels(scaledPixels.info(), scaledPixels.writable_addr(),
-                              scaledPixels.rowBytes())) {
+    if (!bitmap.installPixels(scaledPixels)) {
         return false;
     }
 
