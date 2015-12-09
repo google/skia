@@ -113,7 +113,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
     }
 
     if (!brd->conversionSupported(colorType)) {
-        return Error::Nonfatal("Cannot convert to color type.\n");
+        return Error::Nonfatal("Cannot convert to color type.");
     }
 
     const uint32_t width = brd->width();
@@ -127,10 +127,10 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             SkBitmap bitmap;
             if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, width, height),
                     fSampleSize, colorType, false)) {
-                return "Cannot decode (full) region.\n";
+                return "Cannot decode (full) region.";
             }
             if (colorType != bitmap.colorType()) {
-                return Error::Nonfatal("Cannot convert to color type.\n");
+                return Error::Nonfatal("Cannot convert to color type.");
             }
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
@@ -138,7 +138,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         case kDivisor_Mode: {
             const uint32_t divisor = 2;
             if (width < divisor || height < divisor) {
-                return Error::Nonfatal("Divisor is larger than image dimension.\n");
+                return Error::Nonfatal("Divisor is larger than image dimension.");
             }
 
             // Use a border to test subsets that extend outside the image.
@@ -183,10 +183,10 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     SkBitmap bitmap;
                     if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(decodeLeft,
                             decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false)) {
-                        return "Cannot decode region.\n";
+                        return "Cannot decode region.";
                     }
                     if (colorType != bitmap.colorType()) {
-                        return Error::Nonfatal("Cannot convert to color type.\n");
+                        return Error::Nonfatal("Cannot convert to color type.");
                     }
 
                     canvas->drawBitmapRect(bitmap,
@@ -204,7 +204,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         }
         default:
             SkASSERT(false);
-            return "Error: Should not be reached.\n";
+            return "Error: Should not be reached.";
     }
 }
 
@@ -317,7 +317,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
     SkBitmap bitmap;
     if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
+        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
 
@@ -579,7 +579,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
     SkBitmap bitmap;
     if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
+        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
 
@@ -597,7 +597,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                 case SkCodec::kIncompleteInput:
                     break;
                 case SkCodec::kInvalidConversion:
-                    return Error::Nonfatal("Cannot convert to requested color type.\n");
+                    return Error::Nonfatal("Cannot convert to requested color type.");
                 default:
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
@@ -609,7 +609,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
             const int height = codec->getInfo().height();
             const int divisor = 2;
             if (width < divisor || height < divisor) {
-                return Error::Nonfatal("Divisor is larger than image dimension.\n");
+                return Error::Nonfatal("Divisor is larger than image dimension.");
             }
 
             // Keep track of the final decoded dimensions.
@@ -629,7 +629,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                     subsetHeight += (y + 1 == divisor) ? (height % divisor) : 0;
                     SkIRect subset = SkIRect::MakeXYWH(left, top, subsetWidth, subsetHeight);
                     if (!codec->getSupportedSubset(&subset)) {
-                        return "Could not get supported subset to decode.\n";
+                        return "Could not get supported subset to decode.";
                     }
                     options.fSubset = &subset;
                     const int scaledWidthOffset = subset.left() / fSampleSize;
@@ -651,7 +651,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                         case SkCodec::kIncompleteInput:
                             break;
                         case SkCodec::kInvalidConversion:
-                            return Error::Nonfatal("Cannot convert to requested color type.\n");
+                            return Error::Nonfatal("Cannot convert to requested color type.");
                         default:
                             return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
                     }
@@ -665,7 +665,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
         }
         default:
             SkASSERT(false);
-            return "Error: Should not be reached.\n";
+            return "Error: Should not be reached.";
     }
 }
 
