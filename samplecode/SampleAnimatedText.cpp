@@ -106,8 +106,9 @@ protected:
         SkBaseDevice* device = canvas->getDevice_just_for_deprecated_compatibility_testing();
         GrContext* grContext = canvas->getGrContext();
         if (grContext) {
-            grContext->drawFontCache(SkRect::MakeXYWH(512, 10, 512, 512), kA8_GrMaskFormat, paint,
-                                     reinterpret_cast<SkGpuDevice*>(device)->accessRenderTarget());
+            GrTexture* tex = grContext->getFontAtlasTexture(GrMaskFormat::kA8_GrMaskFormat);
+            reinterpret_cast<SkGpuDevice*>(device)->drawTexture(tex,
+                                                       SkRect::MakeXYWH(512, 10, 512, 512), paint);
         }
 #endif
         canvas->translate(180, 180);
