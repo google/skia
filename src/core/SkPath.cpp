@@ -583,7 +583,7 @@ int SkPath::getPoints(SkPoint dst[], int max) const {
     SkASSERT(max >= 0);
     SkASSERT(!max || dst);
     int count = SkMin32(max, fPathRef->countPoints());
-    memcpy(dst, fPathRef->points(), count * sizeof(SkPoint));
+    sk_careful_memcpy(dst, fPathRef->points(), count * sizeof(SkPoint));
     return fPathRef->countPoints();
 }
 
