@@ -91,11 +91,11 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlit, const SkIRect& ir, const
     const int right = sectBounds.right();
 
     fLeft = left;
-    fSuperLeft = left << SHIFT;
+    fSuperLeft = SkLeftShift(left, SHIFT);
     fWidth = right - left;
     fTop = sectBounds.top();
     fCurrIY = fTop - 1;
-    fCurrY = (fTop << SHIFT) - 1;
+    fCurrY = SkLeftShift(fTop, SHIFT) - 1;
 
     SkDEBUGCODE(fCurrX = -1;)
 }
