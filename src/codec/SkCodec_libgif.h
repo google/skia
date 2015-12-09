@@ -19,11 +19,7 @@
  */
 class SkGifCodec : public SkCodec {
 public:
-
-    /*
-     * Checks the start of the stream to see if the image is a gif
-     */
-    static bool IsGif(SkStream*);
+    static bool IsGif(const void*, size_t);
 
     /*
      * Assumes IsGif was called and returned true

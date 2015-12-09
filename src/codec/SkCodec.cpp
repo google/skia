@@ -20,7 +20,7 @@
 #include "SkWebpCodec.h"
 
 struct DecoderProc {
-    bool (*IsFormat)(SkStream*);
+    bool (*IsFormat)(const void*, size_t);
     SkCodec* (*NewFromStream)(SkStream*);
 };
 
@@ -35,6 +35,10 @@ static const DecoderProc gDecoderProcs[] = {
     { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream }
 };
 
+size_t SkCodec::MinBufferedBytesNeeded() {
+    return WEBP_VP8_HEADER_SIZE;
+}
+
 SkCodec* SkCodec::NewFromStream(SkStream* stream,
                                 SkPngChunkReader* chunkReader) {
     if (!stream) {
@@ -42,23 +46,41 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     }
 
     SkAutoTDelete<SkStream> streamDeleter(stream);
-    
+
+    // 14 is enough to read all of the supported types.
+    const size_t bytesToRead = 14;
+    SkASSERT(bytesToRead <= MinBufferedBytesNeeded());
+
+    char buffer[bytesToRead];
+    size_t bytesRead = stream->peek(buffer, bytesToRead);
+
+    // It is also possible to have a complete image less than bytesToRead bytes
+    // (e.g. a 1 x 1 wbmp), meaning peek() would return less than bytesToRead.
+    // Assume that if bytesRead < bytesToRead, but > 0, the stream is shorter
+    // than bytesToRead, so pass that directly to the decoder.
+    // It also is possible the stream uses too small a buffer for peeking, but
+    // we trust the caller to use a large enough buffer.
+
+    if (0 == bytesRead) {
+        SkCodecPrintf("Could not peek!\n");
+        // It is possible the stream does not support peeking, but does support
+        // rewinding.
+        // Attempt to read() and pass the actual amount read to the decoder.
+        bytesRead = stream->read(buffer, bytesToRead);
+        if (!stream->rewind()) {
+            SkCodecPrintf("Could not rewind!\n");
+            return nullptr;
+        }
+    }
+
     SkAutoTDelete<SkCodec> codec(nullptr);
     // PNG is special, since we want to be able to supply an SkPngChunkReader.
     // But this code follows the same pattern as the loop.
-    const bool isPng = SkPngCodec::IsPng(stream);
-    if (!stream->rewind()) {
-        return NULL;
-    }
-    if (isPng) {
+    if (SkPngCodec::IsPng(buffer, bytesRead)) {
         codec.reset(SkPngCodec::NewFromStream(streamDeleter.detach(), chunkReader));
     } else {
         for (DecoderProc proc : gDecoderProcs) {
-            const bool correctFormat = proc.IsFormat(stream);
-            if (!stream->rewind()) {
-                return nullptr;
-            }
-            if (correctFormat) {
+            if (proc.IsFormat(buffer, bytesRead)) {
                 codec.reset(proc.NewFromStream(streamDeleter.detach()));
                 break;
             }

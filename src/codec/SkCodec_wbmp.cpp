@@ -9,6 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
+#include "SkData.h"
 #include "SkStream.h"
 #include "SkCodec_wbmp.h"
 
@@ -151,8 +152,10 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
     return kSuccess;
 }
 
-bool SkWbmpCodec::IsWbmp(SkStream* stream) {
-    return read_header(stream, nullptr);
+bool SkWbmpCodec::IsWbmp(const void* buffer, size_t bytesRead) {
+    SkAutoTUnref<SkData> data(SkData::NewWithoutCopy(buffer, bytesRead));
+    SkMemoryStream stream(data);
+    return read_header(&stream, nullptr);
 }
 
 SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {

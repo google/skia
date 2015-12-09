@@ -56,12 +56,10 @@ enum BmpInputFormat {
 /*
  * Checks the start of the stream to see if the image is a bitmap
  */
-bool SkBmpCodec::IsBmp(SkStream* stream) {
+bool SkBmpCodec::IsBmp(const void* buffer, size_t bytesRead) {
     // TODO: Support "IC", "PT", "CI", "CP", "BA"
     const char bmpSig[] = { 'B', 'M' };
-    char buffer[sizeof(bmpSig)];
-    return stream->read(buffer, sizeof(bmpSig)) == sizeof(bmpSig) &&
-            !memcmp(buffer, bmpSig, sizeof(bmpSig));
+    return bytesRead >= sizeof(bmpSig) && !memcmp(buffer, bmpSig, sizeof(bmpSig));
 }
 
 /*

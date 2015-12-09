@@ -20,11 +20,7 @@
  */
 class SkBmpCodec : public SkCodec {
 public:
-
-    /*
-     * Checks the start of the stream to see if the image is a bmp
-     */
-    static bool IsBmp(SkStream*);
+    static bool IsBmp(const void*, size_t);
 
     /*
      * Assumes IsBmp was called and returned true

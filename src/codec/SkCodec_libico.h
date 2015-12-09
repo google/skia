@@ -15,11 +15,7 @@
  */
 class SkIcoCodec : public SkCodec {
 public:
-
-    /*
-     * Checks the start of the stream to see if the image is a Ico or Cur
-     */
-    static bool IsIco(SkStream*);
+    static bool IsIco(const void*, size_t);
 
     /*
      * Assumes IsIco was called and returned true

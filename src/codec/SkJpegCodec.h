@@ -25,12 +25,7 @@ extern "C" {
  */
 class SkJpegCodec : public SkCodec {
 public:
-
-    /*
-     * Checks the start of the stream to see if the image is a jpeg
-     * Does not take ownership of the stream
-     */
-    static bool IsJpeg(SkStream*);
+    static bool IsJpeg(const void*, size_t);
 
     /*
      * Assumes IsJpeg was called and returned true

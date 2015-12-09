@@ -206,17 +206,8 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
 // Creation
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PNG_BYTES_TO_CHECK 4
-
-bool SkPngCodec::IsPng(SkStream* stream) {
-    char buf[PNG_BYTES_TO_CHECK];
-    if (stream->read(buf, PNG_BYTES_TO_CHECK) != PNG_BYTES_TO_CHECK) {
-        return false;
-    }
-    if (png_sig_cmp((png_bytep) buf, (png_size_t)0, PNG_BYTES_TO_CHECK)) {
-        return false;
-    }
-    return true;
+bool SkPngCodec::IsPng(const char* buf, size_t bytesRead) {
+    return !png_sig_cmp((png_bytep) buf, (png_size_t)0, bytesRead);
 }
 
 // Reads the header and initializes the output fields, if not NULL.

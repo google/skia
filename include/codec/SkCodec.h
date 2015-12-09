@@ -26,8 +26,33 @@ class SkSampler;
 class SkCodec : SkNoncopyable {
 public:
     /**
+     *  Minimum number of bytes that must be buffered in SkStream input.
+     *
+     *  An SkStream passed to NewFromStream must be able to use this many
+     *  bytes to determine the image type. Then the same SkStream must be
+     *  passed to the correct decoder to read from the beginning.
+     *
+     *  This can be accomplished by implementing peek() to support peeking
+     *  this many bytes, or by implementing rewind() to be able to rewind()
+     *  after reading this many bytes.
+     */
+    static size_t MinBufferedBytesNeeded();
+
+    /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
+     *
+     *  As stated above, this call must be able to peek or read
+     *  MinBufferedBytesNeeded to determine the correct format, and then start
+     *  reading from the beginning. First it will attempt to peek, and it
+     *  assumes that if less than MinBufferedBytesNeeded bytes (but more than
+     *  zero) are returned, this is because the stream is shorter than this,
+     *  so falling back to reading would not provide more data. If peek()
+     *  returns zero bytes, this call will instead attempt to read(). This
+     *  will require that the stream can be rewind()ed.
+     *
+     *  If SkPngChunkReader is not NULL, take a ref and pass it to libpng if
+     *  the image is a png.
      *
      *  If the SkPngChunkReader is not NULL then:
      *      If the image is not a PNG, the SkPngChunkReader will be ignored.

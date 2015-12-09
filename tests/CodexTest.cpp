@@ -848,6 +848,54 @@ DEF_TEST(Codec_pngChunkReader, r) {
 }
 #endif // PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
 
+// Stream that can only peek up to a limit
+class LimitedPeekingMemStream : public SkStream {
+public:
+    LimitedPeekingMemStream(SkData* data, size_t limit)
+        : fStream(data)
+        , fLimit(limit) {}
+
+    size_t peek(void* buf, size_t bytes) const override {
+        return fStream.peek(buf, SkTMin(bytes, fLimit));
+    }
+    size_t read(void* buf, size_t bytes) override {
+        return fStream.read(buf, bytes);
+    }
+    bool rewind() override {
+        return fStream.rewind();
+    }
+    bool isAtEnd() const override {
+        return false;
+    }
+private:
+    SkMemoryStream fStream;
+    const size_t   fLimit;
+};
+
+// Test that even if webp_parse_header fails to peek enough, it will fall back to read()
+// + rewind() and succeed.
+DEF_TEST(Codec_webp_peek, r) {
+    const char* path = "baby_tux.webp";
+    SkString fullPath(GetResourcePath(path));
+    SkAutoTUnref<SkData> data(SkData::NewFromFileName(fullPath.c_str()));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    // The limit is less than webp needs to peek or read.
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 25)));
+    REPORTER_ASSERT(r, codec);
+
+    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+
+    // Similarly, a stream which does not peek should still succeed.
+    codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 0)));
+    REPORTER_ASSERT(r, codec);
+
+    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+}
+
 // SkCodec's wbmp decoder was initially more restrictive than SkImageDecoder.
 // It required the second byte to be zero. But SkImageDecoder allowed a couple
 // of bits to be 1 (so long as they do not overlap with 0x9F). Test that
@@ -876,4 +924,33 @@ DEF_TEST(Codec_wbmp, r) {
         return;
     }
     test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+}
+
+// wbmp images have a header that can be arbitrarily large, depending on the
+// size of the image. We cap the size at 65535, meaning we only need to look at
+// 8 bytes to determine whether we can read the image. This is important
+// because SkCodec only passes 14 bytes to SkWbmpCodec to determine whether the
+// image is a wbmp.
+DEF_TEST(Codec_wbmp_max_size, r) {
+    const unsigned char maxSizeWbmp[] = { 0x00, 0x00,           // Header
+                                          0x83, 0xFF, 0x7F,     // W: 65535
+                                          0x83, 0xFF, 0x7F };   // H: 65535
+    SkAutoTDelete<SkStream> stream(new SkMemoryStream(maxSizeWbmp, sizeof(maxSizeWbmp), false));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+
+    REPORTER_ASSERT(r, codec);
+    if (!codec) return;
+
+    REPORTER_ASSERT(r, codec->getInfo().width() == 65535);
+    REPORTER_ASSERT(r, codec->getInfo().height() == 65535);
+
+    // Now test an image which is too big. Any image with a larger header (i.e.
+    // has bigger width/height) is also too big.
+    const unsigned char tooBigWbmp[] = { 0x00, 0x00,           // Header
+                                         0x84, 0x80, 0x00,     // W: 65536
+                                         0x84, 0x80, 0x00 };   // H: 65536
+    stream.reset(new SkMemoryStream(tooBigWbmp, sizeof(tooBigWbmp), false));
+    codec.reset(SkCodec::NewFromStream(stream.detach()));
+
+    REPORTER_ASSERT(r, !codec);
 }

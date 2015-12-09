@@ -16,9 +16,8 @@
 /*
  * Checks the start of the stream to see if the image is a gif
  */
-bool SkGifCodec::IsGif(SkStream* stream) {
-    char buf[GIF_STAMP_LEN];
-    if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
+bool SkGifCodec::IsGif(const void* buf, size_t bytesRead) {
+    if (bytesRead >= GIF_STAMP_LEN) {
         if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
             memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
             memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0)

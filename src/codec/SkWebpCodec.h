@@ -15,11 +15,13 @@
 
 class SkStream;
 
+static const size_t WEBP_VP8_HEADER_SIZE = 30;
+
 class SkWebpCodec final : public SkCodec {
 public:
     // Assumes IsWebp was called and returned true.
     static SkCodec* NewFromStream(SkStream*);
-    static bool IsWebp(SkStream*);
+    static bool IsWebp(const void*, size_t);
 protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;

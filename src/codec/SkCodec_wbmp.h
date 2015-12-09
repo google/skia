@@ -13,7 +13,7 @@
 
 class SkWbmpCodec final : public SkCodec {
 public:
-    static bool IsWbmp(SkStream*);
+    static bool IsWbmp(const void*, size_t);
 
     /*
      * Assumes IsWbmp was called and returned true

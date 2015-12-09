@@ -20,26 +20,26 @@
 #include "webp/decode.h"
 #include "webp/encode.h"
 
-bool SkWebpCodec::IsWebp(SkStream* stream) {
+bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
     // WEBP starts with the following:
     // RIFFXXXXWEBPVP
     // Where XXXX is unspecified.
-    const char LENGTH = 14;
-    char bytes[LENGTH];
-    if (stream->read(&bytes, LENGTH) != LENGTH) {
-        return false;
-    }
-    return !memcmp(bytes, "RIFF", 4) && !memcmp(&bytes[8], "WEBPVP", 6);
+    const char* bytes = static_cast<const char*>(buf);
+    return bytesRead >= 14 && !memcmp(bytes, "RIFF", 4) && !memcmp(&bytes[8], "WEBPVP", 6);
 }
-
-static const size_t WEBP_VP8_HEADER_SIZE = 30;
 
 // Parse headers of RIFF container, and check for valid Webp (VP8) content.
 // NOTE: This calls peek instead of read, since onGetPixels will need these
 // bytes again.
 static bool webp_parse_header(SkStream* stream, SkImageInfo* info) {
     unsigned char buffer[WEBP_VP8_HEADER_SIZE];
-    if (!stream->peek(buffer, WEBP_VP8_HEADER_SIZE)) {
+    SkASSERT(WEBP_VP8_HEADER_SIZE <= SkCodec::MinBufferedBytesNeeded());
+
+    const size_t bytesPeeked = stream->peek(buffer, WEBP_VP8_HEADER_SIZE);
+    if (bytesPeeked != WEBP_VP8_HEADER_SIZE) {
+        // Use read + rewind as a backup
+        if (stream->read(buffer, WEBP_VP8_HEADER_SIZE) != WEBP_VP8_HEADER_SIZE
+            || !stream->rewind())
         return false;
     }
 

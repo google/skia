@@ -23,11 +23,9 @@ extern "C" {
     #include "jpeglib.h"
 }
 
-bool SkJpegCodec::IsJpeg(SkStream* stream) {
+bool SkJpegCodec::IsJpeg(const void* buffer, size_t bytesRead) {
     static const uint8_t jpegSig[] = { 0xFF, 0xD8, 0xFF };
-    char buffer[sizeof(jpegSig)];
-    return stream->read(buffer, sizeof(jpegSig)) == sizeof(jpegSig) &&
-            !memcmp(buffer, jpegSig, sizeof(jpegSig));
+    return bytesRead >= 3 && !memcmp(buffer, jpegSig, sizeof(jpegSig));
 }
 
 bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,

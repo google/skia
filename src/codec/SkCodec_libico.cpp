@@ -55,11 +55,10 @@ static SkImageInfo fix_embedded_alpha(const SkImageInfo& dstInfo, SkAlphaType em
 /*
  * Checks the start of the stream to see if the image is an Ico or Cur
  */
-bool SkIcoCodec::IsIco(SkStream* stream) {
+bool SkIcoCodec::IsIco(const void* buffer, size_t bytesRead) {
     const char icoSig[] = { '\x00', '\x00', '\x01', '\x00' };
     const char curSig[] = { '\x00', '\x00', '\x02', '\x00' };
-    char buffer[sizeof(icoSig)];
-    return stream->read(buffer, sizeof(icoSig)) == sizeof(icoSig) &&
+    return bytesRead >= sizeof(icoSig) &&
             (!memcmp(buffer, icoSig, sizeof(icoSig)) ||
             !memcmp(buffer, curSig, sizeof(curSig)));
 }
@@ -176,10 +175,8 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         bytesRead += size;
 
         // Check if the embedded codec is bmp or png and create the codec
-        const bool isPng = SkPngCodec::IsPng(embeddedStream);
-        SkAssertResult(embeddedStream->rewind());
         SkCodec* codec = nullptr;
-        if (isPng) {
+        if (SkPngCodec::IsPng((const char*) data->bytes(), data->size())) {
             codec = SkPngCodec::NewFromStream(embeddedStream.detach());
         } else {
             codec = SkBmpCodec::NewFromIco(embeddedStream.detach());
