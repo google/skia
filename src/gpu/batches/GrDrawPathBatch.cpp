@@ -139,7 +139,7 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
         int floatsPerTransform = GrPathRendering::PathTransformSize(this->transformType());
 #if defined(GOOGLE3)
         //Stack frame size is limited in GOOGLE3.
-        SkAutoSTMalloc<512, float> transformStorage(transformSize * fTotalPathCount);
+        SkAutoSTMalloc<512, float> transformStorage(floatsPerTransform * fTotalPathCount);
         SkAutoSTMalloc<256, uint16_t> indexStorage(fTotalPathCount);
 #else
         SkAutoSTMalloc<4096, float> transformStorage(floatsPerTransform * fTotalPathCount);
