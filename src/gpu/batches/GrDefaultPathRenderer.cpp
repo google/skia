@@ -289,7 +289,7 @@ private:
         }
 
         if (maxVertices == 0 || maxVertices > ((int)SK_MaxU16 + 1)) {
-            SkDebugf("Cannot render path (%d)\n", maxVertices);
+            //SkDebugf("Cannot render path (%d)\n", maxVertices);
             return;
         }
 
