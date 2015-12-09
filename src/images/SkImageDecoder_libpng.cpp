@@ -37,11 +37,7 @@
 #define png_flush_ptr_NULL nullptr
 #endif
 
-#if defined(SK_DEBUG)
-#define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS false
-#else  // !defined(SK_DEBUG)
 #define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS true
-#endif  // defined(SK_DEBUG)
 SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
                 "images.png.suppressDecoderWarnings",
                 DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS,
