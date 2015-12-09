@@ -1135,9 +1135,41 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         }
     } else {    // hairline
         if (paint->isAntiAlias()) {
+            switch (paint->getStrokeCap()) {
+                case SkPaint::kButt_Cap:
+                    proc = SkScan::AntiHairPath;
+                    break;
+                case SkPaint::kSquare_Cap:
+                    proc = SkScan::AntiHairSquarePath;
+                    break;
+                case SkPaint::kRound_Cap:
+                    proc = SkScan::AntiHairRoundPath;
+                    break;
+                default:
+                    proc SK_INIT_TO_AVOID_WARNING;
+                    SkDEBUGFAIL("unknown paint cap type");
+            }
+#ifdef SK_SUPPORT_LEGACY_HAIR_IGNORES_CAPS
             proc = SkScan::AntiHairPath;
+#endif
         } else {
+            switch (paint->getStrokeCap()) {
+                case SkPaint::kButt_Cap:
+                    proc = SkScan::HairPath;
+                    break;
+                case SkPaint::kSquare_Cap:
+                    proc = SkScan::HairSquarePath;
+                    break;
+                case SkPaint::kRound_Cap:
+                    proc = SkScan::HairRoundPath;
+                    break;
+                default:
+                    proc SK_INIT_TO_AVOID_WARNING;
+                    SkDEBUGFAIL("unknown paint cap type");
+            }
+#ifdef SK_SUPPORT_LEGACY_HAIR_IGNORES_CAPS
             proc = SkScan::HairPath;
+#endif
         }
     }
     proc(*devPathPtr, *fRC, blitter);

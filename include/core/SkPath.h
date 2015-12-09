@@ -956,6 +956,14 @@ public:
             return (Verb) fRawIter.next(pts);
         }
 
+        /** Return what the next verb will be, but do not visit the next segment.
+
+            @return The verb for the next segment
+        */
+        Verb peek() const {
+            return (Verb) fRawIter.peek();
+        }
+
         SkScalar conicWeight() const {
             return fRawIter.conicWeight();
         }

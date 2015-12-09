@@ -348,7 +348,51 @@ static int compute_quad_level(const SkPoint pts[3]) {
     return level;
 }
 
-static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter,
+/* Extend the points in the direction of the starting or ending tangent by 1/2 unit to
+   account for a round or square cap. If there's no distance between the end point and
+   the control point, use the next control point to create a tangent. If the curve
+   is degenerate, move the cap out 1/2 unit horizontally. */
+template <SkPaint::Cap capStyle>
+void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int ptCount) {
+    SkASSERT(SkPaint::kSquare_Cap == capStyle || SkPaint::kRound_Cap == capStyle);
+    // The area of a circle is PI*R*R. For a unit circle, R=1/2, and the cap covers half of that.
+    const SkScalar capOutset = SkPaint::kSquare_Cap == capStyle ? 0.5f : SK_ScalarPI / 8;
+    if (SkPath::kMove_Verb == prevVerb) {
+        SkPoint* first = pts;
+        SkPoint* ctrl = first;
+        int controls = ptCount - 1;
+        SkVector tangent;
+        do {
+            tangent = *first - *++ctrl;
+        } while (tangent.isZero() && --controls > 0);
+        if (tangent.isZero()) {
+            tangent.set(1, 0);
+        } else {
+            tangent.normalize();
+        }
+        first->fX += tangent.fX * capOutset;
+        first->fY += tangent.fY * capOutset;
+    }
+    if (SkPath::kMove_Verb == nextVerb || SkPath::kDone_Verb == nextVerb) {
+        SkPoint* last = &pts[ptCount - 1];
+        SkPoint* ctrl = last;
+        int controls = ptCount - 1;
+        SkVector tangent;
+        do {
+            tangent = *last - *--ctrl;
+        } while (tangent.isZero() && --controls > 0);
+        if (tangent.isZero()) {
+            tangent.set(-1, 0);
+        } else {
+            tangent.normalize();
+        }
+        last->fX += tangent.fX * capOutset;
+        last->fY += tangent.fY * capOutset;
+    }
+}
+
+template <SkPaint::Cap capStyle>
+void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter,
                       SkScan::HairRgnProc lineproc) {
     if (path.isEmpty()) {
         return;
@@ -376,23 +420,35 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
 
     SkPath::RawIter     iter(path);
     SkPoint             pts[4], firstPt, lastPt;
-    SkPath::Verb        verb;
+    SkPath::Verb        verb, prevVerb;
     SkAutoConicToQuads  converter;
 
+    if (SkPaint::kButt_Cap != capStyle) {
+        prevVerb = SkPath::kDone_Verb;
+    }
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
                 firstPt = lastPt = pts[0];
                 break;
             case SkPath::kLine_Verb:
+                if (SkPaint::kButt_Cap != capStyle) {
+                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 2);
+                }
                 lineproc(pts, 2, clip, blitter);
                 lastPt = pts[1];
                 break;
             case SkPath::kQuad_Verb:
+                if (SkPaint::kButt_Cap != capStyle) {
+                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
+                }
                 hairquad(pts, clip, blitter, compute_quad_level(pts), lineproc);
                 lastPt = pts[2];
                 break;
             case SkPath::kConic_Verb: {
+                if (SkPaint::kButt_Cap != capStyle) {
+                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
+                }
                 // how close should the quads be to the original conic?
                 const SkScalar tol = SK_Scalar1 / 4;
                 const SkPoint* quadPts = converter.computeQuads(pts,
@@ -406,6 +462,9 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
                 break;
             }
             case SkPath::kCubic_Verb: {
+                if (SkPaint::kButt_Cap != capStyle) {
+                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 4);
+                }
                 haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
                 lastPt = pts[3];
             } break;
@@ -417,15 +476,34 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
             case SkPath::kDone_Verb:
                 break;
         }
+        if (SkPaint::kButt_Cap != capStyle) {
+            prevVerb = verb;
+        }
     }
 }
 
 void SkScan::HairPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
-    hair_path(path, clip, blitter, SkScan::HairLineRgn);
+    hair_path<SkPaint::kButt_Cap>(path, clip, blitter, SkScan::HairLineRgn);
 }
 
 void SkScan::AntiHairPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
-    hair_path(path, clip, blitter, SkScan::AntiHairLineRgn);
+    hair_path<SkPaint::kButt_Cap>(path, clip, blitter, SkScan::AntiHairLineRgn);
+}
+
+void SkScan::HairSquarePath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
+    hair_path<SkPaint::kSquare_Cap>(path, clip, blitter, SkScan::HairLineRgn);
+}
+
+void SkScan::AntiHairSquarePath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
+    hair_path<SkPaint::kSquare_Cap>(path, clip, blitter, SkScan::AntiHairLineRgn);
+}
+
+void SkScan::HairRoundPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
+    hair_path<SkPaint::kRound_Cap>(path, clip, blitter, SkScan::HairLineRgn);
+}
+
+void SkScan::AntiHairRoundPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
+    hair_path<SkPaint::kRound_Cap>(path, clip, blitter, SkScan::AntiHairLineRgn);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

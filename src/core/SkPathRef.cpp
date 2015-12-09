@@ -574,6 +574,11 @@ uint8_t SkPathRef::Iter::next(SkPoint pts[4]) {
     return (uint8_t) verb;
 }
 
+uint8_t SkPathRef::Iter::peek() const {
+    const uint8_t* next = fVerbs - 1;
+    return next <= fVerbStop ? (uint8_t) SkPath::kDone_Verb : *next;
+}
+
 #ifdef SK_DEBUG
 void SkPathRef::validate() const {
     this->INHERITED::validate();

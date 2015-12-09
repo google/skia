@@ -124,6 +124,7 @@ public:
             @return The verb for the current segment
         */
         uint8_t next(SkPoint pts[4]);
+        uint8_t peek() const;
 
         SkScalar conicWeight() const { return *fConicWeights; }
 
