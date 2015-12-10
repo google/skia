@@ -86,6 +86,105 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->glyphAppended();
 }
 
+bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
+                                     const SkPaint& paint,
+                                     GrColor color, const SkMaskFilter::BlurRec& blurRec,
+                                     const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+    // If we have LCD text then our canonical color will be set to transparent, in this case we have
+    // to regenerate the blob on any color change
+    // We use the grPaint to get any color filter effects
+    if (fKey.fCanonicalColor == SK_ColorTRANSPARENT &&
+        fPaintColor != color) {
+        return true;
+    }
+
+    if (fViewMatrix.hasPerspective() != viewMatrix.hasPerspective()) {
+        return true;
+    }
+
+    if (fViewMatrix.hasPerspective() && !fViewMatrix.cheapEqualTo(viewMatrix)) {
+        return true;
+    }
+
+    // We only cache one masked version
+    if (fKey.fHasBlur &&
+        (fBlurRec.fSigma != blurRec.fSigma ||
+         fBlurRec.fStyle != blurRec.fStyle ||
+         fBlurRec.fQuality != blurRec.fQuality)) {
+        return true;
+    }
+
+    // Similarly, we only cache one version for each style
+    if (fKey.fStyle != SkPaint::kFill_Style &&
+        (fStrokeInfo.fFrameWidth != paint.getStrokeWidth() ||
+         fStrokeInfo.fMiterLimit != paint.getStrokeMiter() ||
+         fStrokeInfo.fJoin != paint.getStrokeJoin())) {
+        return true;
+    }
+
+    // Mixed blobs must be regenerated.  We could probably figure out a way to do integer scrolls
+    // for mixed blobs if this becomes an issue.
+    if (this->hasBitmap() && this->hasDistanceField()) {
+        // Identical viewmatrices and we can reuse in all cases
+        if (fViewMatrix.cheapEqualTo(viewMatrix) && x == fX && y == fY) {
+            return false;
+        }
+        return true;
+    }
+
+    if (this->hasBitmap()) {
+        if (fViewMatrix.getScaleX() != viewMatrix.getScaleX() ||
+            fViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
+            fViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
+            fViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
+            return true;
+        }
+
+        // We can update the positions in the cachedtextblobs without regenerating the whole blob,
+        // but only for integer translations.
+        // This cool bit of math will determine the necessary translation to apply to the already
+        // generated vertex coordinates to move them to the correct position
+        SkScalar transX = viewMatrix.getTranslateX() +
+                          viewMatrix.getScaleX() * (x - fX) +
+                          viewMatrix.getSkewX() * (y - fY) -
+                          fViewMatrix.getTranslateX();
+        SkScalar transY = viewMatrix.getTranslateY() +
+                          viewMatrix.getSkewY() * (x - fX) +
+                          viewMatrix.getScaleY() * (y - fY) -
+                          fViewMatrix.getTranslateY();
+        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY) ) {
+            return true;
+        }
+
+        (*outTransX) = transX;
+        (*outTransY) = transY;
+    } else if (this->hasDistanceField()) {
+        // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
+        // distance field being generated, so we have to regenerate in those cases
+        SkScalar newMaxScale = viewMatrix.getMaxScale();
+        SkScalar oldMaxScale = fViewMatrix.getMaxScale();
+        SkScalar scaleAdjust = newMaxScale / oldMaxScale;
+        if (scaleAdjust < fMaxMinScale || scaleAdjust > fMinMaxScale) {
+            return true;
+        }
+
+        (*outTransX) = x - fX;
+        (*outTransY) = y - fY;
+    }
+
+
+    // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
+    // offsets.  Note, we offset the vertex bounds right before flushing
+    fViewMatrix = viewMatrix;
+    fX = x;
+    fY = y;
+
+    // It is possible that a blob has neither distanceField nor bitmaptext.  This is in the case
+    // when all of the runs inside the blob are drawn as paths.  In this case, we always regenerate
+    // the blob anyways at flush time, so no need to regenerate explicitly
+    return false;
+}
+
 // TODO get this code building again
 #ifdef CACHE_SANITY_CHECK
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {

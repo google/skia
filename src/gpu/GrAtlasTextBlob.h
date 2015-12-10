@@ -300,6 +300,10 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
         }
     }
 
+    bool mustRegenerate(SkScalar* outTransX, SkScalar* outTransY, const SkPaint& paint,
+                        GrColor color, const SkMaskFilter::BlurRec& blurRec,
+                        const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
+
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);

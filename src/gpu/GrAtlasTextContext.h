@@ -128,10 +128,6 @@ private:
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix* viewMatrix, bool noGamma);
-    static inline bool MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
-                                          const GrAtlasTextBlob&, const SkPaint&, GrColor,
-                                          const SkMaskFilter::BlurRec&,
-                                          const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,

@@ -188,99 +188,6 @@ bool GrAtlasTextContext::HasLCD(const SkTextBlob* blob) {
     return false;
 }
 
-bool GrAtlasTextContext::MustRegenerateBlob(SkScalar* outTransX, SkScalar* outTransY,
-                                            const GrAtlasTextBlob& blob, const SkPaint& paint,
-                                            GrColor color, const SkMaskFilter::BlurRec& blurRec,
-                                            const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-    // If we have LCD text then our canonical color will be set to transparent, in this case we have
-    // to regenerate the blob on any color change
-    // We use the grPaint to get any color filter effects
-    if (blob.fKey.fCanonicalColor == SK_ColorTRANSPARENT &&
-        blob.fPaintColor != color) {
-        return true;
-    }
-
-    if (blob.fViewMatrix.hasPerspective() != viewMatrix.hasPerspective()) {
-        return true;
-    }
-
-    if (blob.fViewMatrix.hasPerspective() && !blob.fViewMatrix.cheapEqualTo(viewMatrix)) {
-        return true;
-    }
-
-    // We only cache one masked version
-    if (blob.fKey.fHasBlur &&
-        (blob.fBlurRec.fSigma != blurRec.fSigma ||
-         blob.fBlurRec.fStyle != blurRec.fStyle ||
-         blob.fBlurRec.fQuality != blurRec.fQuality)) {
-        return true;
-    }
-
-    // Similarly, we only cache one version for each style
-    if (blob.fKey.fStyle != SkPaint::kFill_Style &&
-        (blob.fStrokeInfo.fFrameWidth != paint.getStrokeWidth() ||
-         blob.fStrokeInfo.fMiterLimit != paint.getStrokeMiter() ||
-         blob.fStrokeInfo.fJoin != paint.getStrokeJoin())) {
-        return true;
-    }
-
-    // Mixed blobs must be regenerated.  We could probably figure out a way to do integer scrolls
-    // for mixed blobs if this becomes an issue.
-    if (blob.hasBitmap() && blob.hasDistanceField()) {
-        // Identical viewmatrices and we can reuse in all cases
-        if (blob.fViewMatrix.cheapEqualTo(viewMatrix) && x == blob.fX && y == blob.fY) {
-            return false;
-        }
-        return true;
-    }
-
-    if (blob.hasBitmap()) {
-        if (blob.fViewMatrix.getScaleX() != viewMatrix.getScaleX() ||
-            blob.fViewMatrix.getScaleY() != viewMatrix.getScaleY() ||
-            blob.fViewMatrix.getSkewX() != viewMatrix.getSkewX() ||
-            blob.fViewMatrix.getSkewY() != viewMatrix.getSkewY()) {
-            return true;
-        }
-
-        // We can update the positions in the cachedtextblobs without regenerating the whole blob,
-        // but only for integer translations.
-        // This cool bit of math will determine the necessary translation to apply to the already
-        // generated vertex coordinates to move them to the correct position
-        SkScalar transX = viewMatrix.getTranslateX() +
-                          viewMatrix.getScaleX() * (x - blob.fX) +
-                          viewMatrix.getSkewX() * (y - blob.fY) -
-                          blob.fViewMatrix.getTranslateX();
-        SkScalar transY = viewMatrix.getTranslateY() +
-                          viewMatrix.getSkewY() * (x - blob.fX) +
-                          viewMatrix.getScaleY() * (y - blob.fY) -
-                          blob.fViewMatrix.getTranslateY();
-        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY) ) {
-            return true;
-        }
-
-        (*outTransX) = transX;
-        (*outTransY) = transY;
-    } else if (blob.hasDistanceField()) {
-        // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
-        // distance field being generated, so we have to regenerate in those cases
-        SkScalar newMaxScale = viewMatrix.getMaxScale();
-        SkScalar oldMaxScale = blob.fViewMatrix.getMaxScale();
-        SkScalar scaleAdjust = newMaxScale / oldMaxScale;
-        if (scaleAdjust < blob.fMaxMinScale || scaleAdjust > blob.fMinMaxScale) {
-            return true;
-        }
-
-        (*outTransX) = x - blob.fX;
-        (*outTransY) = y - blob.fY;
-    }
-
-    // It is possible that a blob has neither distanceField nor bitmaptext.  This is in the case
-    // when all of the runs inside the blob are drawn as paths.  In this case, we always regenerate
-    // the blob anyways at flush time, so no need to regenerate explicitly
-    return false;
-}
-
-
 inline SkGlyphCache* GrAtlasTextContext::setupCache(GrAtlasTextBlob::Run* run,
                                                     const SkPaint& skPaint,
                                                     const SkMatrix* viewMatrix,
@@ -342,8 +249,8 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
     }
 
     if (cacheBlob) {
-        if (MustRegenerateBlob(&transX, &transY, *cacheBlob, skPaint, grPaint.getColor(), blurRec,
-                               viewMatrix, x, y)) {
+        if (cacheBlob->mustRegenerate(&transX, &transY, skPaint, grPaint.getColor(), blurRec,
+                                      viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
@@ -353,11 +260,6 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
             this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
                                      blob, x, y, drawFilter, clip);
         } else {
-            // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
-            // offsets.  Note, we offset the vertex bounds right before flushing
-            cacheBlob->fViewMatrix = viewMatrix;
-            cacheBlob->fX = x;
-            cacheBlob->fY = y;
             fCache->makeMRU(cacheBlob);
 #ifdef CACHE_SANITY_CHECK
             {
