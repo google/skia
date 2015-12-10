@@ -1094,7 +1094,7 @@ private:
     friend class GrDistanceFieldTextContext;
     friend class GrStencilAndCoverTextContext;
     friend class GrPathRendering;
-    friend class GrTextContext;
+    friend class GrTextUtils;
     friend class GrGLPathRendering;
     friend class SkScalerContext;
     friend class SkTextToPathIter;

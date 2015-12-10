@@ -10,6 +10,7 @@
 #include "GrBlurUtils.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
+#include "GrTextUtils.h"
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
 #include "SkTextBlobRunIterator.h"
@@ -300,8 +301,7 @@ void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrDrawContext* dc,
     }
 }
 
-void GrAtlasTextBlob::flushRunAsPaths(GrDrawContext* dc,
-                                      GrTextContext* textContext,
+void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrDrawContext* dc,
                                       const SkSurfaceProps& props,
                                       const SkTextBlobRunIterator& it,
                                       const GrClip& clip, const SkPaint& skPaint,
@@ -322,28 +322,27 @@ void GrAtlasTextBlob::flushRunAsPaths(GrDrawContext* dc,
 
     switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
-            textContext->drawTextAsPath(dc, clip, runPaint, viewMatrix,
+            GrTextUtils::DrawTextAsPath(context, dc, clip, runPaint, viewMatrix,
                                         (const char *)it.glyphs(),
                                         textLen, x + offset.x(), y + offset.y(), clipBounds);
             break;
         case SkTextBlob::kHorizontal_Positioning:
-            textContext->drawPosTextAsPath(dc, clip, runPaint, viewMatrix,
+            GrTextUtils::DrawPosTextAsPath(context, dc, props, clip, runPaint, viewMatrix,
                                            (const char*)it.glyphs(),
                                            textLen, it.pos(), 1, SkPoint::Make(x, y + offset.y()),
                                            clipBounds);
             break;
         case SkTextBlob::kFull_Positioning:
-            textContext->drawPosTextAsPath(dc, clip, runPaint, viewMatrix,
+            GrTextUtils::DrawPosTextAsPath(context, dc, props, clip, runPaint, viewMatrix,
                                            (const char*)it.glyphs(),
                                            textLen, it.pos(), 2, SkPoint::Make(x, y), clipBounds);
             break;
     }
 }
 
-void GrAtlasTextBlob::flushCached(const SkTextBlob* blob,
-                                  GrContext* context,
+void GrAtlasTextBlob::flushCached(GrContext* context,
                                   GrDrawContext* dc,
-                                  GrTextContext* textContext,
+                                  const SkTextBlob* blob,
                                   const SkSurfaceProps& props,
                                   const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                   const SkPaint& skPaint,
@@ -363,7 +362,7 @@ void GrAtlasTextBlob::flushCached(const SkTextBlob* blob,
     SkTextBlobRunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
         if (fRuns[run].fDrawAsPaths) {
-            this->flushRunAsPaths(dc, textContext, props, it, clip, skPaint,
+            this->flushRunAsPaths(context, dc, props, it, clip, skPaint,
                                   drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }

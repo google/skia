@@ -203,7 +203,7 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
                                  blob, x, y, drawFilter, clip);
     }
 
-    cacheBlob->flushCached(blob, fContext, dc, this, fSurfaceProps, fDistanceAdjustTable, skPaint,
+    cacheBlob->flushCached(fContext, dc, blob, fSurfaceProps, fDistanceAdjustTable, skPaint,
                            grPaint, drawFilter, clip, viewMatrix, clipBounds, x, y, transX, transY);
 }
 

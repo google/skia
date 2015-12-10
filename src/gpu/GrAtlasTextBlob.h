@@ -316,10 +316,9 @@ public:
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     // flush a GrAtlasTextBlob associated with a SkTextBlob
-    void flushCached(const SkTextBlob* blob,
-                     GrContext* context,
+    void flushCached(GrContext* context,
                      GrDrawContext* dc,
-                     GrTextContext* textContext,
+                     const SkTextBlob* blob,
                      const SkSurfaceProps& props,
                      const GrDistanceFieldAdjustTable* distanceAdjustTable,
                      const SkPaint& skPaint,
@@ -377,8 +376,8 @@ private:
                         SkScalar transX, SkScalar transY,
                         const SkIRect& clipBounds);
 
-    void flushRunAsPaths(GrDrawContext* dc,
-                         GrTextContext* textContext,
+    void flushRunAsPaths(GrContext* context,
+                         GrDrawContext* dc,
                          const SkSurfaceProps& props,
                          const SkTextBlobRunIterator& it,
                          const GrClip& clip, const SkPaint& skPaint,

@@ -65,20 +65,7 @@ protected:
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset, const SkIRect& clipBounds) = 0;
 
-    void drawTextAsPath(GrDrawContext*, const GrClip& clip,
-                        const SkPaint& origPaint, const SkMatrix& viewMatrix,
-                        const char text[], size_t byteLength, SkScalar x, SkScalar y,
-                        const SkIRect& clipBounds);
-    void drawPosTextAsPath(GrDrawContext*, const GrClip& clip,
-                           const SkPaint& origPaint, const SkMatrix& viewMatrix,
-                           const char text[], size_t byteLength,
-                           const SkScalar pos[], int scalarsPerPosition,
-                           const SkPoint& offset, const SkIRect& clipBounds);
-
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
-    // sets extent in stopVector and returns glyph count
-    static int MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
-                           const char text[], size_t byteLength, SkVector* stopVector);
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
     friend class GrAtlasTextBatch;

@@ -190,6 +190,8 @@
       '<(skia_src_path)/gpu/GrTextureProvider.cpp',
       '<(skia_src_path)/gpu/GrTexturePriv.h',
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
+      '<(skia_src_path)/gpu/GrTextUtils.cpp',
+      '<(skia_src_path)/gpu/GrTextUtils.h',
       '<(skia_src_path)/gpu/GrTransferBuffer.h',
       '<(skia_src_path)/gpu/GrTRecorder.h',
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
