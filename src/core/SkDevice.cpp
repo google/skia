@@ -55,7 +55,8 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
                                                          TileUsage tileUsage,
-                                                         SkPixelGeometry geo) {
+                                                         SkPixelGeometry geo,
+                                                         bool preserveLCDText) {
     switch (tileUsage) {
         case kPossible_TileUsage:
             // (we think) for compatibility with old clients, we assume this layer can support LCD
@@ -63,7 +64,7 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
             // our callers (reed/robertphilips).
             break;
         case kNever_TileUsage:
-            if (info.alphaType() != kOpaque_SkAlphaType) {
+            if (!preserveLCDText) {
                 geo = kUnknown_SkPixelGeometry;
             }
             break;

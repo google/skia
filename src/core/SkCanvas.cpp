@@ -1140,6 +1140,12 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags fl
     return this->getSaveCount() - 1;
 }
 
+int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint) {
+    unsigned flags = kARGB_ClipLayer_SaveFlag | kPreserveLCDText_PrivateSaveFlag;
+    return this->saveLayer(bounds, paint, (SaveFlags)flags);
+}
+
+
 void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
                                  SaveLayerStrategy strategy) {
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
@@ -1183,8 +1189,11 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
 
     bool forceSpriteOnRestore = false;
     {
+        const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
+                                     SkToBool(flags & kPreserveLCDText_PrivateSaveFlag);
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
-        const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo);
+        const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
+                                                                            preserveLCDText, false);
         SkBaseDevice* newDev = device->onCreateDevice(createInfo, paint);
         if (nullptr == newDev) {
             // If onCreateDevice didn't succeed, try raster (e.g. PDF couldn't handle the paint)

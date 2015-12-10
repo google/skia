@@ -658,6 +658,7 @@ SkBaseDevice* SkImageFilter::DeviceProxy::createDevice(int w, int h) {
     SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
                                    SkBaseDevice::kNever_TileUsage,
                                    kUnknown_SkPixelGeometry,
+                                   false,   /* preserveLCDText */
                                    true /*forImageFilter*/);
     SkBaseDevice* dev = fDevice->onCreateDevice(cinfo, nullptr);
     if (nullptr == dev) {

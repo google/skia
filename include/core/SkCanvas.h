@@ -336,6 +336,13 @@ public:
         return this->saveLayer(&bounds, paint);
     }
 
+    /**
+     *  Temporary name.
+     *  Will allow any requests for LCD text to be respected, so the caller must be careful to
+     *  only draw on top of opaque sections of the layer to get good results.
+     */
+    int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
+
     /** DEPRECATED - use saveLayer(const SkRect*, const SkPaint*) instead.
 
         This behaves the same as saveLayer(const SkRect*, const SkPaint*),
@@ -1316,6 +1323,11 @@ protected:
                         const SkImageFilter* imageFilter = NULL);
 
 private:
+    enum PrivateSaveFlags {
+        // These must not overlap the public flags.
+        kPreserveLCDText_PrivateSaveFlag = 1 << 5,
+    };
+
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
         kOpaque_ShaderOverrideOpacity,      //!< the overriding shader is opaque
