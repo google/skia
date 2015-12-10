@@ -209,6 +209,7 @@ def device_cfg(builder_dict):
     }.get(builder_dict['target_arch'], 'arm_v7_neon')
   elif builder_dict.get('os') == 'Android':
     return {
+      'AndroidOne': 'arm_v7_neon',
       'GalaxyS3': 'arm_v7_neon',
       'GalaxyS4': 'arm_v7_neon',
       'Nexus5': 'arm_v7', # This'd be 'nexus_5', but we simulate no-NEON Clank.
