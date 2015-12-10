@@ -541,7 +541,8 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (fExtensions.has("GL_NV_framebuffer_mixed_samples")) {
+    if (fExtensions.has("GL_NV_framebuffer_mixed_samples") ||
+        fExtensions.has("GL_CHROMIUM_framebuffer_mixed_samples")) {
         if (nullptr == fFunctions.fCoverageModulation) {
             RETURN_FALSE_INTERFACE
         }

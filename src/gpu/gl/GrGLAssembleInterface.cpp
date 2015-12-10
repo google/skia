@@ -775,6 +775,9 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
         GET_PROC_SUFFIX(CoverageModulation, NV);
     }
+    if (extensions.has("GL_CHROMIUM_framebuffer_mixed_samples")) {
+        GET_PROC_SUFFIX(CoverageModulation, CHROMIUM);
+    }
 
     if (version >= GR_GL_VER(3,0) || extensions.has("GL_EXT_draw_instanced")) {
         GET_PROC(DrawArraysInstanced);

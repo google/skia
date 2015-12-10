@@ -320,7 +320,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // We need dual source blending and the ability to disable multisample in order to support mixed
     // samples in every corner case.
     if (fMultisampleDisableSupport && glslCaps->dualSourceBlendingSupport()) {
-        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples");
+        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
+                ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
         // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
         if (fMixedSamplesSupport && kNVIDIA_GrGLDriver == ctxInfo.driver()) {
             fDiscardRenderTargetSupport = false;
