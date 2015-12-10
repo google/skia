@@ -128,7 +128,9 @@ static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
 #endif
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
-    SkDEBUGF(("------ png error %s\n", msg));
+    if (!c_suppressPNGImageDecoderWarnings) {
+        SkDEBUGF(("------ png error %s\n", msg));
+    }
     longjmp(png_jmpbuf(png_ptr), 1);
 }
 
