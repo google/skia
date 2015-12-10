@@ -40,7 +40,7 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
     // The data is formatted as:
     // x,y  - the center of the circle
     // z    - the distance at which the intensity starts falling off (e.g., the start of the table)
-    // w    - the size of the profile texture
+    // w    - the inverse of the profile texture size
     fDataUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
                                                     kVec4f_GrSLType,
                                                     kDefault_GrSLPrecision,
@@ -56,8 +56,13 @@ void GrGLCircleBlurFragmentProcessor::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("vec4 src=vec4(1);");
     }
 
-    fragBuilder->codeAppendf("vec2 vec = %s.xy - %s.xy;", fragmentPos, dataName);
-    fragBuilder->codeAppendf("float dist = (length(vec) - %s.z + 0.5) / %s.w;", dataName, dataName);
+    // We just want to compute "length(vec) - %s.z + 0.5) * %s.w" but need to rearrange
+    // for precision
+    fragBuilder->codeAppendf("vec2 vec = vec2( (%s.x - %s.x) * %s.w , (%s.y - %s.y) * %s.w );", 
+                             fragmentPos, dataName, dataName,
+                             fragmentPos, dataName, dataName);
+    fragBuilder->codeAppendf("float dist = length(vec) + ( 0.5 - %s.z ) * %s.w;",
+                             dataName, dataName);
 
     fragBuilder->codeAppendf("float intensity = ");
     fragBuilder->appendTextureLookup(args.fSamplers[0], "vec2(dist, 0.5)");
@@ -74,9 +79,9 @@ void GrGLCircleBlurFragmentProcessor::onSetData(const GrGLSLProgramDataManager& 
     // The data is formatted as:
     // x,y  - the center of the circle
     // z    - the distance at which the intensity starts falling off (e.g., the start of the table)
-    // w    - the size of the profile texture
+    // w    - the inverse of the profile texture size
     pdman.set4f(fDataUniform, circle.centerX(), circle.centerY(), cbfp.offset(),
-                SkIntToScalar(cbfp.profileSize()));
+                1.0f / cbfp.profileSize());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,7 +186,7 @@ static inline void compute_profile_offset_and_size(float halfWH, float sigma,
         // The circle is bigger than the Gaussian. In this case we know the interior of the
         // blurred circle is solid.
         *offset = halfWH - 3 * sigma; // This location maps to 0.5f in the weights texture.
-                                     // It should always be 255.
+                                      // It should always be 255.
         *size = SkScalarCeilToInt(6*sigma);
     } else {
         // The Gaussian is bigger than the circle.
