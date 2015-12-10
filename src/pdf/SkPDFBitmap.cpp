@@ -468,7 +468,8 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image) {
+SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
+                                     SkPixelSerializer* pixelSerializer) {
     SkAutoTUnref<SkData> data(image->refEncoded());
     SkJFIFInfo info;
     if (data && SkIsJFIF(data, &info)) {
@@ -481,6 +482,21 @@ SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image) {
             return new PDFJpegBitmap(info.fSize, data, yuv);
         }
     }
+
+    if (pixelSerializer) {
+        SkBitmap bm;
+        SkAutoPixmapUnlock apu;
+        if (as_IB(image)->getROPixels(&bm) && bm.requestLock(&apu)) {
+            data.reset(pixelSerializer->encode(apu.pixmap()));
+            if (data && SkIsJFIF(data, &info)) {
+                bool yuv = info.fType == SkJFIFInfo::kYCbCr;
+                if (info.fSize == image->dimensions()) {  // Sanity check.
+                    return new PDFJpegBitmap(info.fSize, data, yuv);
+                }
+            }
+        }
+    }
+
     SkPDFObject* smask =
             image_compute_is_opaque(image) ? nullptr : new PDFAlphaBitmap(image);
     #ifdef SK_PDF_IMAGE_STATS

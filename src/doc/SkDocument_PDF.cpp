@@ -322,9 +322,12 @@ class SkDocument_PDF : public SkDocument {
 public:
     SkDocument_PDF(SkWStream* stream,
                    void (*doneProc)(SkWStream*, bool),
-                   SkScalar rasterDpi)
+                   SkScalar rasterDpi,
+                   SkPixelSerializer* jpegEncoder)
         : SkDocument(stream, doneProc)
-        , fRasterDpi(rasterDpi) {}
+        , fRasterDpi(rasterDpi) {
+        fCanon.fPixelSerializer.reset(SkSafeRef(jpegEncoder));
+    }
 
     virtual ~SkDocument_PDF() {
         // subclasses must call close() in their destructors
@@ -386,7 +389,15 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDocument* SkDocument::CreatePDF(SkWStream* stream, SkScalar dpi) {
-    return stream ? new SkDocument_PDF(stream, nullptr, dpi) : nullptr;
+    return stream ? new SkDocument_PDF(stream, nullptr, dpi, nullptr) : nullptr;
+}
+
+SkDocument* SkDocument::CreatePDF(SkWStream* stream,
+                                  SkScalar dpi,
+                                  SkPixelSerializer* jpegEncoder) {
+    return stream
+        ? new SkDocument_PDF(stream, nullptr, dpi, jpegEncoder)
+        : nullptr;
 }
 
 SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
@@ -396,5 +407,5 @@ SkDocument* SkDocument::CreatePDF(const char path[], SkScalar dpi) {
         return nullptr;
     }
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    return new SkDocument_PDF(stream, delete_wstream, dpi);
+    return new SkDocument_PDF(stream, delete_wstream, dpi, nullptr);
 }

@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
+#include "SkPixelSerializer.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
 
@@ -79,6 +80,8 @@ public:
     const SkImage* bitmapToImage(const SkBitmap&);
 
     SkTHashMap<uint32_t, bool> fCanEmbedTypeface;
+
+    SkAutoTUnref<SkPixelSerializer> fPixelSerializer;
 
 private:
     struct FontRec {
