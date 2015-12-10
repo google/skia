@@ -483,17 +483,11 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* F0(void*) { return new StrokesGM; }
-static skiagm::GM* F1(void*) { return new Strokes2GM; }
-static skiagm::GM* F2(void*) { return new Strokes3GM; }
-static skiagm::GM* F3(void*) { return new Strokes4GM; }
-static skiagm::GM* F4(void*) { return new Strokes5GM; }
-
-static skiagm::GMRegistry R0(F0);
-static skiagm::GMRegistry R1(F1);
-static skiagm::GMRegistry R2(F2);
-static skiagm::GMRegistry R3(F3);
-static skiagm::GMRegistry R4(F4);
+DEF_GM( return new StrokesGM; )
+DEF_GM( return new Strokes2GM; )
+DEF_GM( return new Strokes3GM; )
+DEF_GM( return new Strokes4GM; )
+DEF_GM( return new Strokes5GM; )
 
 DEF_GM( return new ZeroLenStrokesGM; )
 DEF_GM( return new TeenyStrokesGM; )

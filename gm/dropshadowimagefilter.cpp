@@ -169,5 +169,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new DropShadowImageFilterGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new DropShadowImageFilterGM; )

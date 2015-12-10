@@ -122,30 +122,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* G000(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, false, false); }
-static skiagm::GM* G100(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, false); }
-static skiagm::GM* G200(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, false, false); }
-static skiagm::GM* G010(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, true, false); }
-static skiagm::GM* G110(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, false); }
-static skiagm::GM* G210(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, true, false); }
+DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, false, false); )
+DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, false); )
+DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, false, false); )
+DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, true, false); )
+DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, false); )
+DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, true, false); )
 
-static skiagm::GM* G001(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, false, true); }
-static skiagm::GM* G101(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, true); }
-static skiagm::GM* G201(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, false, true); }
-static skiagm::GM* G011(void*) { return new GiantBitmapGM(SkShader::kClamp_TileMode, true, true); }
-static skiagm::GM* G111(void*) { return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, true); }
-static skiagm::GM* G211(void*) { return new GiantBitmapGM(SkShader::kMirror_TileMode, true, true); }
-
-static skiagm::GMRegistry reg000(G000);
-static skiagm::GMRegistry reg100(G100);
-static skiagm::GMRegistry reg200(G200);
-static skiagm::GMRegistry reg010(G010);
-static skiagm::GMRegistry reg110(G110);
-static skiagm::GMRegistry reg210(G210);
-
-static skiagm::GMRegistry reg001(G001);
-static skiagm::GMRegistry reg101(G101);
-static skiagm::GMRegistry reg201(G201);
-static skiagm::GMRegistry reg011(G011);
-static skiagm::GMRegistry reg111(G111);
-static skiagm::GMRegistry reg211(G211);
+DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, false, true); )
+DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, true); )
+DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, false, true); )
+DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, true, true); )
+DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, true); )
+DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, true, true); )

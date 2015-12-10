@@ -110,5 +110,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new PathInteriorGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new PathInteriorGM; )

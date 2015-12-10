@@ -99,5 +99,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new DrawLooperGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new DrawLooperGM; )

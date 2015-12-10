@@ -197,5 +197,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new ImageFiltersCroppedGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new ImageFiltersCroppedGM; )

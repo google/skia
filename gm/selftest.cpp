@@ -48,12 +48,5 @@ private:
 static SkColor kTranslucentGreen = 0x7700EE00;
 static SkColor kTranslucentBlue  = 0x770000DD;
 
-static skiagm::GM* F1(void*) {
-    return new SelfTestGM("selftest1", kTranslucentGreen);
-}
-static skiagm::GM* F2(void*) {
-    return new SelfTestGM("selftest2", kTranslucentBlue);
-}
-
-static skiagm::GMRegistry gR1(F1);
-static skiagm::GMRegistry gR2(F2);
+DEF_GM( return new SelfTestGM("selftest1", kTranslucentGreen); )
+DEF_GM( return new SelfTestGM("selftest2", kTranslucentBlue); )
