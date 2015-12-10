@@ -515,7 +515,6 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
         flags |= kUseLCD_DistanceFieldEffectFlag;
         flags |= viewMatrix.rectStaysRect() ? kRectToRect_DistanceFieldEffectFlag : 0;
         flags |= fUseBGR ? kBGR_DistanceFieldEffectFlag : 0;
-        flags |= kColorAttr_DistanceFieldEffectFlag;
 
         GrColor colorNoPreMul = skcolor_to_grcolor_nopremultiply(filteredColor);
 
@@ -538,7 +537,6 @@ GrGeometryProcessor* GrAtlasTextBatch::setupDfProcessor(const SkMatrix& viewMatr
                                                      flags,
                                                      this->usesLocalCoords());
     } else {
-        flags |= kColorAttr_DistanceFieldEffectFlag;
 #ifdef SK_GAMMA_APPLY_TO_A8
         U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, filteredColor);
         float correction = (*fDistanceAdjustTable)[lum >> kDistanceAdjustLumShift];
