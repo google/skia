@@ -8,7 +8,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDrawContext.h"
-#include "GrTextureParamsAdjuster.h"
+#include "GrImageIDTextureAdjuster.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
@@ -78,31 +78,8 @@ bool SkImage_Gpu::asBitmapForImageFilters(SkBitmap* bitmap) const {
     return true;
 }
 
-class GpuImage_GrTextureAdjuster : public GrTextureAdjuster {
-public:
-    GpuImage_GrTextureAdjuster(const SkImage_Gpu* image)
-        : INHERITED(image->peekTexture())
-        , fImage(image)
-    {}
-
-protected:
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override {
-        GrUniqueKey baseKey;
-        GrMakeKeyFromImageID(&baseKey, fImage->uniqueID(),
-                             SkIRect::MakeWH(fImage->width(), fImage->height()));
-        MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
-    }
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override { as_IB(fImage)->notifyAddedToCache(); }
-
-private:
-    const SkImage*  fImage;
-
-    typedef GrTextureAdjuster INHERITED;
-};
-
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params) const {
-    return GpuImage_GrTextureAdjuster(this).refTextureSafeForParams(params, nullptr);
+    return GrImageTextureAdjuster(as_IB(this)).refTextureSafeForParams(params, nullptr);
 }
 
 bool SkImage_Gpu::isOpaque() const {

@@ -231,7 +231,6 @@ private:
                          bool bicubic);
 
     void drawTextureProducer(GrTextureProducer*,
-                             bool alphaOnly,
                              const SkRect* srcRect,
                              const SkRect* dstRect,
                              SkCanvas::SrcRectConstraint,
@@ -240,7 +239,6 @@ private:
                              const SkPaint&);
 
     void drawTextureProducerImpl(GrTextureProducer*,
-                                 bool alphaOnly,
                                  const SkRect& clippedSrcRect,
                                  const SkRect& clippedDstRect,
                                  SkCanvas::SrcRectConstraint,
@@ -249,8 +247,8 @@ private:
                                  const GrClip&,
                                  const SkPaint&);
 
-    void drawProducerNine(const SkDraw&, GrTextureProducer*, bool alphaOnly,
-                          const SkIRect& center, const SkRect& dst, const SkPaint&);
+    void drawProducerNine(const SkDraw&, GrTextureProducer*, const SkIRect& center,
+                          const SkRect& dst, const SkPaint&);
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 

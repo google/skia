@@ -88,7 +88,6 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
 //////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
-                                      bool alphaOnly,
                                       const SkRect* srcRect,
                                       const SkRect* dstRect,
                                       SkCanvas::SrcRectConstraint constraint,
@@ -135,12 +134,11 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
         }
     }
 
-    this->drawTextureProducerImpl(producer, alphaOnly, clippedSrcRect, clippedDstRect, constraint,
-                                  viewMatrix, srcToDstMatrix, clip, paint);
+    this->drawTextureProducerImpl(producer, clippedSrcRect, clippedDstRect, constraint, viewMatrix,
+                                  srcToDstMatrix, clip, paint);
 }
 
 void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
-                                          bool alphaTexture,
                                           const SkRect& clippedSrcRect,
                                           const SkRect& clippedDstRect,
                                           SkCanvas::SrcRectConstraint constraint,
@@ -156,7 +154,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     // The shader expects proper local coords, so we can't replace local coords with texture coords
     // if the shader will be used. If we have a mask filter we will change the underlying geometry
     // that is rendered.
-    bool canUseTextureCoordsAsLocalCoords = !use_shader(alphaTexture, paint) && !mf;
+    bool canUseTextureCoordsAsLocalCoords = !use_shader(producer->isAlphaOnly(), paint) && !mf;
 
     bool doBicubic;
     GrTextureParams::FilterMode fm =
@@ -204,7 +202,8 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(fContext, paint, viewMatrix, fp, alphaTexture, &grPaint)) {
+    if (!SkPaintToGrPaintWithTexture(fContext, paint, viewMatrix, fp, producer->isAlphaOnly(),
+                                     &grPaint)) {
         return;
     }
 

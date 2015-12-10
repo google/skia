@@ -121,8 +121,10 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     return copy.detach();
 }
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea)
-    : INHERITED(contentArea.width(), contentArea.height())
+GrTextureAdjuster::GrTextureAdjuster(GrTexture* original,
+                                     const SkIRect& contentArea,
+                                     bool isAlphaOnly)
+    : INHERITED(contentArea.width(), contentArea.height(), isAlphaOnly)
     , fOriginal(original) {
     SkASSERT(SkIRect::MakeWH(original->width(), original->height()).contains(contentArea));
     if (contentArea.fLeft > 0 || contentArea.fTop > 0 ||

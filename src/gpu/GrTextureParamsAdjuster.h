@@ -70,9 +70,13 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    bool isAlphaOnly() const { return fIsAlphaOnly; }
 
 protected:
-    GrTextureProducer(int width, int height) : fWidth(width), fHeight(height) {}
+    GrTextureProducer(int width, int height, bool isAlphaOnly)
+        : fWidth(width)
+        , fHeight(height)
+        , fIsAlphaOnly(isAlphaOnly) {}
 
     /** Helper for creating a key for a copy from an original key. */
     static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,
@@ -104,8 +108,9 @@ protected:
     virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
 
 private:
-    const int fWidth;
-    const int fHeight;
+    const int   fWidth;
+    const int   fHeight;
+    const bool  fIsAlphaOnly;
 
     typedef SkNoncopyable INHERITED;
 };
@@ -133,11 +138,11 @@ public:
 
 protected:
     /** The whole texture is content. */
-    explicit GrTextureAdjuster(GrTexture* original)
-        : INHERITED(original->width(), original->height())
+    explicit GrTextureAdjuster(GrTexture* original, bool isAlphaOnly)
+        : INHERITED(original->width(), original->height(), isAlphaOnly)
         , fOriginal(original) {}
 
-    GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea);
+    GrTextureAdjuster(GrTexture* original, const SkIRect& contentArea, bool isAlphaOnly);
 
     GrTexture* originalTexture() const { return fOriginal; }
 
@@ -170,8 +175,8 @@ public:
                                 const GrTextureParams::FilterMode* filterOrNullForBicubic) override;
 
 protected:
-    GrTextureMaker(GrContext* context, int width, int height)
-        : INHERITED(width, height)
+    GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
+        : INHERITED(width, height, isAlphaOnly)
         , fContext(context) {}
 
     /**
