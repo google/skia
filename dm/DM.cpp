@@ -1108,17 +1108,18 @@ int dm_main() {
     }
 
     SkTaskGroup tg;
-    tg.batch(run_test, gThreadedTests.begin(), gThreadedTests.count());
+    tg.batch([](int i){ run_test(&gThreadedTests[i]); }, gThreadedTests.count());
     for (int i = 0; i < kNumEnclaves; i++) {
+        SkTArray<Task>* currentEnclave = &enclaves[i];
         switch(i) {
             case kAnyThread_Enclave:
-                tg.batch(Task::Run, enclaves[i].begin(), enclaves[i].count());
+                tg.batch([currentEnclave](int j) { Task::Run(&(*currentEnclave)[j]); }, currentEnclave->count());
                 break;
             case kGPU_Enclave:
-                tg.add(run_enclave_and_gpu_tests, &enclaves[i]);
+                tg.add([currentEnclave](){ run_enclave_and_gpu_tests(currentEnclave); });
                 break;
             default:
-                tg.add(run_enclave, &enclaves[i]);
+                tg.add([currentEnclave](){ run_enclave(currentEnclave); });
                 break;
         }
     }
@@ -1173,7 +1174,6 @@ void call_test(TestWithGrContextAndGLContext test, skiatest::Reporter* reporter,
 }
 #endif
 } // namespace
-
 
 template<typename T>
 void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* reporter,

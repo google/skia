@@ -8,6 +8,8 @@
 #ifndef SkTaskGroup_DEFINED
 #define SkTaskGroup_DEFINED
 
+#include <functional>
+
 #include "SkTypes.h"
 #include "SkAtomics.h"
 #include "SkTemplates.h"
@@ -29,24 +31,16 @@ public:
     // Neither add() method takes owership of any of its parameters.
     void add(SkRunnable*);
 
-    template <typename T>
-    void add(void (*fn)(T*), T* arg) { this->add((void_fn)fn, (void*)arg); }
+    void add(std::function<void(void)> fn);
 
     // Add a batch of N tasks, all calling fn with different arguments.
-    // Equivalent to a loop over add(fn, arg), but with perhaps less synchronization overhead.
-    template <typename T>
-    void batch(void (*fn)(T*), T* args, int N) { this->batch((void_fn)fn, args, N, sizeof(T)); }
+    void batch(std::function<void(int)> fn, int N);
 
     // Block until all Tasks previously add()ed to this SkTaskGroup have run.
     // You may safely reuse this SkTaskGroup after wait() returns.
     void wait();
 
 private:
-    typedef void(*void_fn)(void*);
-
-    void add  (void_fn, void* arg);
-    void batch(void_fn, void* args, int N, size_t stride);
-
     SkAtomic<int32_t> fPending;
 };
 
@@ -81,18 +75,20 @@ void sk_parallel_for(int end, const Func& f) {
 
     for (int i = 0; i < nchunks; i++) {
         Chunk& c = chunks[i];
-        c.f     = &f;
-        c.start = i * stride;
-        c.end   = SkTMin(c.start + stride, end);
+        c.f      = &f;
+        c.start  = i * stride;
+        c.end    = SkTMin(c.start + stride, end);
         SkASSERT(c.start < c.end);  // Nothing will break if start >= end, but it's a wasted chunk.
     }
 
-    void(*run_chunk)(Chunk*) = [](Chunk* c) {
-        for (int i = c->start; i < c->end; i++) {
-            (*c->f)(i);
+    Chunk* chunkBase = chunks.get();
+    auto run_chunk = [chunkBase](int i) {
+        Chunk& c = chunkBase[i];
+        for (int i = c.start; i < c.end; i++) {
+            (*c.f)(i);
         }
     };
-    SkTaskGroup().batch(run_chunk, chunks.get(), nchunks);
+    SkTaskGroup().batch(run_chunk, nchunks);
 }
 
 #endif//SkTaskGroup_DEFINED
