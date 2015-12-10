@@ -889,19 +889,14 @@ void GrAtlasTextContext::bmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     int width = glyph->fBounds.width();
     int height = glyph->fBounds.height();
 
-    // If the glyph is too large we fall back to paths
-    if (glyph->fTooLargeForAtlas) {
-        this->appendGlyphPath(blob, glyph, scaler, skGlyph, SkIntToScalar(vx), SkIntToScalar(vy));
-        return;
-    }
-
     SkRect r;
     r.fLeft = SkIntToScalar(x);
     r.fTop = SkIntToScalar(y);
     r.fRight = r.fLeft + SkIntToScalar(width);
     r.fBottom = r.fTop + SkIntToScalar(height);
 
-    blob->appendGlyph(runIndex, r, color, fCurrStrike, glyph);
+    blob->appendGlyph(runIndex, r, color, fCurrStrike, glyph, scaler, skGlyph,
+                      SkIntToScalar(vx), SkIntToScalar(vy), 1.0f, false);
 }
 
 bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
@@ -941,30 +936,9 @@ bool GrAtlasTextContext::dfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     sy += dy;
     SkRect glyphRect = SkRect::MakeXYWH(sx, sy, width, height);
 
-    // TODO combine with the above
-    // If the glyph is too large we fall back to paths
-    if (glyph->fTooLargeForAtlas) {
-        this->appendGlyphPath(blob, glyph, scaler, skGlyph, sx - dx, sy - dy, scale, true);
-        return true;
-    }
-
-    blob->appendGlyph(runIndex, glyphRect, color, fCurrStrike, glyph);
+    blob->appendGlyph(runIndex, glyphRect, color, fCurrStrike, glyph, scaler, skGlyph,
+                      sx - dx, sy - dy, scale, true);
     return true;
-}
-
-inline void GrAtlasTextContext::appendGlyphPath(GrAtlasTextBlob* blob, GrGlyph* glyph,
-                                                GrFontScaler* scaler, const SkGlyph& skGlyph,
-                                                SkScalar x, SkScalar y, SkScalar scale,
-                                                bool applyVM) {
-    if (nullptr == glyph->fPath) {
-        const SkPath* glyphPath = scaler->getGlyphPath(skGlyph);
-        if (!glyphPath) {
-            return;
-        }
-
-        glyph->fPath = new SkPath(*glyphPath);
-    }
-    blob->fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, applyVM));
 }
 
 void GrAtlasTextContext::flushRunAsPaths(GrDrawContext* dc,

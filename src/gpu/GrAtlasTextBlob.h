@@ -283,11 +283,15 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
         }
     }
 
+    // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
+    // as a path.
     void appendGlyph(int runIndex,
                      const SkRect& positions,
                      GrColor color,
                      GrBatchTextStrike* strike,
-                     GrGlyph* glyph);
+                     GrGlyph* glyph,
+                     GrFontScaler* scaler, const SkGlyph& skGlyph,
+                     SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
 
     static size_t GetVertexStride(GrMaskFormat maskFormat) {
         switch (maskFormat) {
@@ -314,6 +318,9 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
     static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
     size_t fSize;
 #endif
+private:
+    void appendLargeGlyph(GrGlyph* glyph, GrFontScaler* scaler, const SkGlyph& skGlyph,
+                          SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
 };
 
 #endif

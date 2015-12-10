@@ -62,9 +62,6 @@ private:
     bool dfAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, SkScalar sx, SkScalar sy,
                        GrColor color, GrFontScaler*, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
-    inline void appendGlyphPath(GrAtlasTextBlob*, GrGlyph*, GrFontScaler*, const SkGlyph&,
-                                SkScalar x, SkScalar y, SkScalar scale = 1.0f,
-                                bool applyVM = false);
 
     inline void flushRunAsPaths(GrDrawContext*,
                                 const SkTextBlobRunIterator&, const GrClip& clip,

@@ -11,7 +11,16 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
                                   const SkRect& positions,
                                   GrColor color,
                                   GrBatchTextStrike* strike,
-                                  GrGlyph* glyph) {
+                                  GrGlyph* glyph,
+                                  GrFontScaler* scaler, const SkGlyph& skGlyph,
+                                  SkScalar x, SkScalar y, SkScalar scale, bool applyVM) {
+
+    // If the glyph is too large we fall back to paths
+    if (glyph->fTooLargeForAtlas) {
+        this->appendLargeGlyph(glyph, scaler, skGlyph, x, y, scale, applyVM);
+        return;
+    }
+
     Run& run = fRuns[runIndex];
     GrMaskFormat format = glyph->fMaskFormat;
 
@@ -84,6 +93,19 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->appendVertices(vertexStride);
     fGlyphs[subRun->glyphEndIndex()] = glyph;
     subRun->glyphAppended();
+}
+
+void GrAtlasTextBlob::appendLargeGlyph(GrGlyph* glyph, GrFontScaler* scaler, const SkGlyph& skGlyph,
+                                       SkScalar x, SkScalar y, SkScalar scale, bool applyVM) {
+    if (nullptr == glyph->fPath) {
+        const SkPath* glyphPath = scaler->getGlyphPath(skGlyph);
+        if (!glyphPath) {
+            return;
+        }
+
+        glyph->fPath = new SkPath(*glyphPath);
+    }
+    fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, applyVM));
 }
 
 bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
