@@ -11,6 +11,7 @@
 #include "batches/GrVertexBatch.h"
 
 #include "GrAtlasTextContext.h"
+#include "GrDistanceFieldAdjustTable.h"
 
 class GrAtlasTextBatch : public GrVertexBatch {
 public:
@@ -19,7 +20,6 @@ public:
     static const int kVerticesPerGlyph = GrAtlasTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
-    typedef GrAtlasTextContext::DistanceAdjustTable DistanceAdjustTable;
     typedef GrAtlasTextBlob Blob;
     typedef Blob::Run Run;
     typedef Run::SubRunInfo TextInfo;
@@ -56,10 +56,11 @@ public:
         return batch;
     }
 
-    static GrAtlasTextBatch* CreateDistanceField(int glyphCount, GrBatchFontCache* fontCache,
-                                                 const DistanceAdjustTable* distanceAdjustTable,
-                                                 SkColor filteredColor, bool isLCD,
-                                                 bool useBGR) {
+    static GrAtlasTextBatch* CreateDistanceField(
+                                              int glyphCount, GrBatchFontCache* fontCache,
+                                              const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                              SkColor filteredColor, bool isLCD,
+                                              bool useBGR) {
         GrAtlasTextBatch* batch = new GrAtlasTextBatch;
 
         batch->fFontCache = fontCache;
@@ -196,7 +197,7 @@ private:
     GrBatchFontCache* fFontCache;
 
     // Distance field properties
-    SkAutoTUnref<const DistanceAdjustTable> fDistanceAdjustTable;
+    SkAutoTUnref<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
 
     typedef GrVertexBatch INHERITED;

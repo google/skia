@@ -82,6 +82,8 @@
       '<(skia_src_path)/gpu/GrCoordTransform.cpp',
       '<(skia_src_path)/gpu/GrDefaultGeoProcFactory.cpp',
       '<(skia_src_path)/gpu/GrDefaultGeoProcFactory.h',
+      '<(skia_src_path)/gpu/GrDistanceFieldAdjustTable.cpp',
+      '<(skia_src_path)/gpu/GrDistanceFieldAdjustTable.h',
       '<(skia_src_path)/gpu/GrDrawContext.cpp',
       '<(skia_src_path)/gpu/GrDrawingManager.cpp',
       '<(skia_src_path)/gpu/GrDrawingManager.h',

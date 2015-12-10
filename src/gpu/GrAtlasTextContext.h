@@ -11,6 +11,7 @@
 #include "GrTextContext.h"
 
 #include "GrAtlasTextBlob.h"
+#include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
 #include "SkTextBlobRunIterator.h"
 
@@ -148,29 +149,9 @@ private:
                                                   const SkPoint& offset,
                                                   const SkIRect& regionClipBounds);
 
-    // Distance field text needs this table to compute a value for use in the fragment shader.
-    // Because the GrAtlasTextContext can go out of scope before the final flush, this needs to be
-    // refcnted and malloced
-    struct DistanceAdjustTable : public SkNVRefCnt<DistanceAdjustTable> {
-        DistanceAdjustTable() { this->buildDistanceAdjustTable(); }
-        ~DistanceAdjustTable() { delete[] fTable; }
-
-        const SkScalar& operator[] (int i) const {
-            return fTable[i];
-        }
-
-    private:
-        void buildDistanceAdjustTable();
-
-        SkScalar* fTable;
-    };
-
     GrBatchTextStrike* fCurrStrike;
     GrTextBlobCache* fCache;
-    SkAutoTUnref<const DistanceAdjustTable> fDistanceAdjustTable;
-
-    friend class GrTextBlobCache;
-    friend class GrAtlasTextBatch;
+    SkAutoTUnref<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
 
 #ifdef GR_TEST_UTILS
     DRAW_BATCH_TEST_FRIEND(TextBlobBatch);
