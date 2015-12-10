@@ -289,25 +289,21 @@ public:
 
 class Via : public Sink {
 public:
-    explicit Via(Name name, Sink* sink) : fName(name), fSink(sink) {}
+    explicit Via(Sink* sink) : fSink(sink) {}
     const char* fileExtension() const override { return fSink->fileExtension(); }
     int               enclave() const override { return fSink->enclave(); }
-    Name decorateName(const Src& src) const {
-        return SkStringPrintf("%s-%s", src.name().c_str(), fName.c_str());
-    }
     SinkFlags flags() const override {
         SinkFlags flags = fSink->flags();
         flags.approach = SinkFlags::kIndirect;
         return flags;
     }
 protected:
-    Name fName;
     SkAutoTDelete<Sink> fSink;
 };
 
 class ViaMatrix : public Via {
 public:
-    ViaMatrix(Name, SkMatrix, Sink*);
+    ViaMatrix(SkMatrix, Sink*);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const SkMatrix fMatrix;
@@ -315,7 +311,7 @@ private:
 
 class ViaUpright : public Via {
 public:
-    ViaUpright(Name, SkMatrix, Sink*);
+    ViaUpright(SkMatrix, Sink*);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const SkMatrix fMatrix;
@@ -323,13 +319,13 @@ private:
 
 class ViaPipe : public Via {
 public:
-    explicit ViaPipe(Name name, Sink* sink) : Via(name, sink) {}
+    explicit ViaPipe(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaRemote : public Via {
 public:
-    ViaRemote(Name name, bool cache, Sink* sink) : Via(name, sink), fCache(cache) {}
+    ViaRemote(bool cache, Sink* sink) : Via(sink), fCache(cache) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     bool fCache;
@@ -337,13 +333,13 @@ private:
 
 class ViaSerialization : public Via {
 public:
-    explicit ViaSerialization(Name name, Sink* sink) : Via(name, sink) {}
+    explicit ViaSerialization(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaTiles : public Via {
 public:
-    ViaTiles(Name, int w, int h, SkBBHFactory*, Sink*);
+    ViaTiles(int w, int h, SkBBHFactory*, Sink*);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const int                   fW, fH;
@@ -352,19 +348,19 @@ private:
 
 class ViaSecondPicture : public Via {
 public:
-    explicit ViaSecondPicture(Name name, Sink* sink) : Via(name, sink) {}
+    explicit ViaSecondPicture(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaSingletonPictures : public Via {
 public:
-    explicit ViaSingletonPictures(Name name, Sink* sink) : Via(name, sink) {}
+    explicit ViaSingletonPictures(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaTwice : public Via {
 public:
-    explicit ViaTwice(Name name, Sink* sink) : Via(name, sink) {}
+    explicit ViaTwice(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
