@@ -222,19 +222,6 @@ SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
     return bitmap;
 }
 
-bool PngPixelSerializer::onUseEncodedData(const void*, size_t) { return true; }
-SkData* PngPixelSerializer::onEncode(const SkPixmap& pixmap) {
-    SkBitmap bm;
-    if (!bm.installPixels(pixmap.info(),
-                          const_cast<void*>(pixmap.addr()),
-                          pixmap.rowBytes(),
-                          pixmap.ctable(),
-                          nullptr, nullptr)) {
-        return nullptr;
-    }
-    return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
-}
-
 void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
                       SkScalar x, SkScalar y) {
     SkPaint paint(origPaint);

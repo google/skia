@@ -851,8 +851,9 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     SkDynamicMemoryWStream wStream;
-    sk_tool_utils::PngPixelSerializer serializer;
-    picture->serialize(&wStream, &serializer);
+    SkAutoTUnref<SkPixelSerializer> serializer(
+            SkImageEncoder::CreatePixelSerializer());
+    picture->serialize(&wStream, serializer);
     return wStream.copyToData();
 }
 
