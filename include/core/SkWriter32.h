@@ -186,7 +186,7 @@ public:
      *  Write size bytes from src, and pad to 4 byte alignment with zeroes.
      */
     void writePad(const void* src, size_t size) {
-        memcpy(this->reservePad(size), src, size);
+        sk_careful_memcpy(this->reservePad(size), src, size);
     }
 
     /**
