@@ -22,7 +22,7 @@
 static void do_draw(SkCanvas* canvas, SkXfermode::Mode mode, SkImageFilter* imf) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->clipRect(SkRect::MakeWH(220, 220));
-        
+
         // want to force a layer, so modes like DstIn can combine meaningfully, but the final
         // image can still be shown against our default (opaque) background. non-opaque GMs
         // are a lot more trouble to compare/triage.
@@ -31,10 +31,10 @@ static void do_draw(SkCanvas* canvas, SkXfermode::Mode mode, SkImageFilter* imf)
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         SkRect r0 = SkRect::MakeXYWH(10, 60, 200, 100);
         SkRect r1 = SkRect::MakeXYWH(60, 10, 100, 200);
-        
+
         paint.setColor(SK_ColorRED);
         canvas->drawOval(r0, paint);
 
@@ -54,14 +54,14 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
         const SkXfermode::Mode modes[] = {
             SkXfermode::kSrcATop_Mode, SkXfermode::kDstIn_Mode
         };
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
             canvas->save();
             do_draw(canvas, modes[i], nullptr);
             canvas->translate(240, 0);
             do_draw(canvas, modes[i], imf);
             canvas->restore();
-            
+
             canvas->translate(0, 240);
         }
 }
@@ -87,7 +87,8 @@ DEF_SIMPLE_GM(fast_slow_blurimagefilter, canvas, 620, 260) {
     canvas->translate(10, 10);
     for (SkScalar sigma = 8; sigma <= 128; sigma *= 2) {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Create(sigma, sigma))->unref();
+        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(sigma, sigma));
+        paint.setImageFilter(blur);
 
         canvas->save();
         // we outset the clip by 1, to fall out of the fast-case in drawImage

@@ -80,7 +80,8 @@ protected:
 
         const SkImageFilter::CropRect* crop =
             fIsExpanded ? &cropRectLarge : fIsCropped ? &cropRect : nullptr;
-        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY, input, crop))->unref();
+        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(fSigmaX, fSigmaY, input, crop));
+        paint.setImageFilter(blur);
 
         for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fCheckerboard, kX, kY, &paint);

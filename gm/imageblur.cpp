@@ -14,7 +14,8 @@
 
 void imageblurgm_draw(SkScalar fSigmaX, SkScalar fSigmaY, SkCanvas* canvas) {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
+        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(fSigmaX, fSigmaY));
+        paint.setImageFilter(blur);
         canvas->saveLayer(nullptr, &paint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
 

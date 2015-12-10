@@ -15,6 +15,9 @@ class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
     static SkImageFilter* Create(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input = NULL,
                                  const CropRect* cropRect = NULL) {
+        if (0 == sigmaX && 0 == sigmaY && nullptr == cropRect) {
+            return SkSafeRef(input);
+        }
         return new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect);
     }
 
