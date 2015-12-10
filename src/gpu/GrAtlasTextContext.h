@@ -64,29 +64,6 @@ private:
                        GrColor color, GrFontScaler*, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
 
-    inline void flushRunAsPaths(GrDrawContext*,
-                                const SkTextBlobRunIterator&, const GrClip& clip,
-                                const SkPaint&, SkDrawFilter*,
-                                const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-                                SkScalar y);
-    inline GrDrawBatch* createBatch(GrAtlasTextBlob*, const PerSubRunInfo&,
-                                    int glyphCount, int run, int subRun,
-                                    GrColor, SkScalar transX, SkScalar transY,
-                                    const SkPaint&);
-    inline void flushRun(GrDrawContext*, GrPipelineBuilder*, GrAtlasTextBlob*, int run, GrColor,
-                         SkScalar transX, SkScalar transY, const SkPaint&);
-    inline void flushBigGlyphs(GrAtlasTextBlob* cacheBlob, GrDrawContext*,
-                               const GrClip& clip, const SkPaint& skPaint,
-                               SkScalar transX, SkScalar transY, const SkIRect& clipBounds);
-
-    // We have to flush SkTextBlobs differently from drawText / drawPosText
-    void flush(const SkTextBlob*, GrAtlasTextBlob*, GrDrawContext*,
-               const SkPaint&, const GrPaint&, SkDrawFilter*, const GrClip&,
-               const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y,
-               SkScalar transX, SkScalar transY);
-    void flush(GrAtlasTextBlob*, GrDrawContext*, const SkPaint&,
-               const GrPaint&, const GrClip&, const SkIRect& clipBounds);
-
     // A helper for drawing BitmapText in a run of distance fields
     inline void fallbackDrawPosText(GrAtlasTextBlob*, int runIndex,
                                     const GrClip&, GrColor color,
@@ -148,6 +125,7 @@ private:
                                                   const SkScalar pos[], int scalarsPerPosition,
                                                   const SkPoint& offset,
                                                   const SkIRect& regionClipBounds);
+    const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable; }
 
     GrBatchTextStrike* fCurrStrike;
     GrTextBlobCache* fCache;

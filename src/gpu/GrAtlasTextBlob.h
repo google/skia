@@ -11,11 +11,17 @@
 #include "GrBatchAtlas.h"
 #include "GrBatchFontCache.h"
 #include "GrColor.h"
+#include "GrMemoryPool.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilter.h"
-#include "GrMemoryPool.h"
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
+
+struct GrDistanceFieldAdjustTable;
+class GrTextContext;
+class SkDrawFilter;
+class SkTextBlob;
+class SkTextBlobRunIterator;
 
 // With this flag enabled, the GrAtlasTextContext will, as a sanity check, regenerate every blob
 // that comes in to verify the integrity of its cache
@@ -35,7 +41,8 @@
  *
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
-struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
+class GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
+public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrAtlasTextBlob);
 
     /*
@@ -308,6 +315,32 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
                         GrColor color, const SkMaskFilter::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
+    // flush a GrAtlasTextBlob associated with a SkTextBlob
+    void flushCached(const SkTextBlob* blob,
+                     GrContext* context,
+                     GrDrawContext* dc,
+                     GrTextContext* textContext,
+                     const SkSurfaceProps& props,
+                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                     const SkPaint& skPaint,
+                     const GrPaint& grPaint,
+                     SkDrawFilter* drawFilter,
+                     const GrClip& clip,
+                     const SkMatrix& viewMatrix,
+                     const SkIRect& clipBounds,
+                     SkScalar x, SkScalar y,
+                     SkScalar transX, SkScalar transY);
+
+    // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
+    void flushThrowaway(GrContext* context,
+                        GrDrawContext* dc,
+                        const SkSurfaceProps& props,
+                        const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                        const SkPaint& skPaint,
+                        const GrPaint& grPaint,
+                        const GrClip& clip,
+                        const SkIRect& clipBounds);
+
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
@@ -318,9 +351,39 @@ struct GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
     static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
     size_t fSize;
 #endif
+
+    // We'd like to inline this and make it private, but there is some test code which calls it.
+    // TODO refactor this
+    GrDrawBatch* createBatch(const Run::SubRunInfo& info,
+                             int glyphCount, int run, int subRun,
+                             GrColor color, SkScalar transX, SkScalar transY,
+                             const SkPaint& skPaint, const SkSurfaceProps& props,
+                             const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                             GrBatchFontCache* cache);
+
 private:
     void appendLargeGlyph(GrGlyph* glyph, GrFontScaler* scaler, const SkGlyph& skGlyph,
                           SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
+
+    inline void flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBuilder,
+                         int run, GrColor color,
+                         SkScalar transX, SkScalar transY,
+                         const SkPaint& skPaint, const SkSurfaceProps& props,
+                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                         GrBatchFontCache* cache);
+
+    void flushBigGlyphs(GrContext* context, GrDrawContext* dc,
+                        const GrClip& clip, const SkPaint& skPaint,
+                        SkScalar transX, SkScalar transY,
+                        const SkIRect& clipBounds);
+
+    void flushRunAsPaths(GrDrawContext* dc,
+                         GrTextContext* textContext,
+                         const SkSurfaceProps& props,
+                         const SkTextBlobRunIterator& it,
+                         const GrClip& clip, const SkPaint& skPaint,
+                         SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
+                         const SkIRect& clipBounds, SkScalar x, SkScalar y);
 };
 
 #endif

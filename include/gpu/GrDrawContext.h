@@ -277,7 +277,7 @@ public:
     GrRenderTarget* accessRenderTarget() { return fRenderTarget; }
 
 private:
-    friend class GrAtlasTextContext; // for access to drawBatch
+    friend class GrAtlasTextBlob; // for access to drawBatch
     friend class GrDrawingManager; // for ctor
 
     SkDEBUGCODE(void validate() const;)
