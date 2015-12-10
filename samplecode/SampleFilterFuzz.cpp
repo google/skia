@@ -215,10 +215,10 @@ static SkData* make_3Dlut(int* cubeDimension, bool invR, bool invG, bool invB) {
     int size = 4 << R(5);
     SkData* data = SkData::NewUninitialized(sizeof(SkColor) * size * size * size);
     SkColor* pixels = (SkColor*)(data->writable_data());
-    SkAutoMalloc lutMemory(size);
-    SkAutoMalloc invLutMemory(size);
-    uint8_t* lut = (uint8_t*)lutMemory.get();
-    uint8_t* invLut = (uint8_t*)invLutMemory.get();
+    SkAutoTMalloc<uint8_t> lutMemory(size);
+    SkAutoTMalloc<uint8_t> invLutMemory(size);
+    uint8_t* lut = lutMemory.get();
+    uint8_t* invLut = invLutMemory.get();
     const int maxIndex = size - 1;
     for (int i = 0; i < size; i++) {
         lut[i] = (i * 255) / maxIndex;

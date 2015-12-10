@@ -9,6 +9,7 @@
 #include "SkData.h"
 #include "SkEndian.h"
 #include "SkImageInfo.h"
+#include "SkTemplates.h"
 #include "SkTextureCompressor.h"
 #include "Test.h"
 
@@ -136,8 +137,8 @@ DEF_TEST(CompressCheckerboard, reporter) {
         }
     }
 
-    SkAutoMalloc decompMemory(kWidth*kHeight);
-    uint8_t* decompBuffer = reinterpret_cast<uint8_t*>(decompMemory.get());
+    SkAutoTMalloc<uint8_t> decompMemory(kWidth*kHeight);
+    uint8_t* decompBuffer = decompMemory.get();
     REPORTER_ASSERT(reporter, decompBuffer);
     if (nullptr == decompBuffer) {
         return;

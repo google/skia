@@ -13,6 +13,7 @@
 #include "SkJpegDecoderMgr.h"
 #include "SkJpegUtility_codec.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
 
 extern "C" {
     #include "jpeglib.h"
@@ -111,7 +112,7 @@ private:
     const int                     fReadyState;
 
     // scanline decoding
-    SkAutoMalloc               fStorage;    // Only used if sampling is needed
+    SkAutoTMalloc<uint8_t>     fStorage;    // Only used if sampling is needed
     uint8_t*                   fSrcRow;     // Only used if sampling is needed
     SkAutoTDelete<SkSwizzler>  fSwizzler;
     

@@ -1234,8 +1234,8 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
         }
 
         // allocate (and clear) our temp buffer to hold the transformed bitmap
-        SkAutoMalloc    storage(size);
-        mask.fImage = (uint8_t*)storage.get();
+        SkAutoTMalloc<uint8_t> storage(size);
+        mask.fImage = storage.get();
         memset(mask.fImage, 0, size);
 
         // now draw our bitmap(src) into mask(dst), transformed by the matrix

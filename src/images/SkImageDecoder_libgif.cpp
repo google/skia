@@ -378,8 +378,8 @@ SkImageDecoder::Result SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
 
             SkAutoLockPixels alp(*bm);
 
-            SkAutoMalloc storage(innerWidth);
-            uint8_t* scanline = (uint8_t*) storage.get();
+            SkAutoTMalloc<uint8_t> storage(innerWidth);
+            uint8_t* scanline = storage.get();
 
             // GIF has an option to store the scanlines of an image, plus a larger background,
             // filled by a fill color. In this case, we will use a subset of the larger bitmap

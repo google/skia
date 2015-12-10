@@ -9,6 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkMath.h"
 #include "SkSampledCodec.h"
+#include "SkTemplates.h"
 
 SkSampledCodec::SkSampledCodec(SkCodec* codec)
     : INHERITED(codec->getInfo())
@@ -267,8 +268,8 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
         }
         case SkCodec::kNone_SkScanlineOrder: {
             const int linesNeeded = subsetHeight - samplingOffsetY;
-            SkAutoMalloc storage(linesNeeded * rowBytes);
-            uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
+            SkAutoTMalloc<uint8_t> storage(linesNeeded * rowBytes);
+            uint8_t* storagePtr = storage.get();
 
             if (!fCodec->skipScanlines(startY)) {
                 fCodec->fillIncompleteImage(info, pixels, rowBytes, options.fZeroInitialized,

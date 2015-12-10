@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
 #include "Test.h"
 
 static SkColorType gColorTypes[] = {
@@ -49,8 +50,8 @@ DEF_TEST(ARGBImageEncoder, reporter) {
 
         // Transform the bitmap.
         int bufferSize = bitmap.width() * bitmap.height() * 4;
-        SkAutoMalloc pixelBufferManager(bufferSize);
-        char *pixelBuffer = static_cast<char *>(pixelBufferManager.get());
+        SkAutoTMalloc<char> pixelBufferManager(bufferSize);
+        char* pixelBuffer = pixelBufferManager.get();
         SkMemoryWStream out(pixelBuffer, bufferSize);
         REPORTER_ASSERT(reporter, enc->encodeStream(&out, bitmap, SkImageEncoder::kDefaultQuality));
 

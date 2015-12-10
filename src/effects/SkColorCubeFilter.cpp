@@ -99,7 +99,7 @@ void SkColorCubeFilter::ColorCubeProcesingCache::initProcessingLuts(
     // We need 256 SkScalar * 2 for fColorToFactors and 256 SkScalar
     // for fColorToScalar, so a total of 768 SkScalar.
     cache->fLutStorage.reset(512 * sizeof(int) + 768 * sizeof(SkScalar));
-    uint8_t* storage = (uint8_t*)cache->fLutStorage.get();
+    uint8_t* storage = cache->fLutStorage.get();
     cache->fColorToIndex[0] = (int*)storage;
     cache->fColorToIndex[1] = cache->fColorToIndex[0] + 256;
     cache->fColorToFactors[0] = (SkScalar*)(storage + (512 * sizeof(int)));

@@ -11,6 +11,7 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "../private/SkMutex.h"
+#include "../private/SkTemplates.h"
 
 class SK_API SkColorCubeFilter : public SkColorFilter {
 public:
@@ -55,7 +56,7 @@ private:
         SkScalar* fColorToFactors[2];
         SkScalar* fColorToScalar;
 
-        SkAutoMalloc fLutStorage;
+        SkAutoTMalloc<uint8_t> fLutStorage;
 
         const int fCubeDimension;
 

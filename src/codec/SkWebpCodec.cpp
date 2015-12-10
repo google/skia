@@ -230,8 +230,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         return kInvalidInput;
     }
 
-    SkAutoMalloc storage(BUFFER_SIZE);
-    uint8_t* buffer = static_cast<uint8_t*>(storage.get());
+    SkAutoTMalloc<uint8_t> storage(BUFFER_SIZE);
+    uint8_t* buffer = storage.get();
     while (true) {
         const size_t bytesRead = stream()->read(buffer, BUFFER_SIZE);
         if (0 == bytesRead) {

@@ -7,6 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkRect.h"
+#include "SkTemplates.h"
 #include "Test.h"
 
 static const char* boolStr(bool value) {
@@ -420,8 +421,8 @@ DEF_TEST(BitmapCopy, reporter) {
                 // raw buffer pointer.
                 const size_t bufSize = subH *
                     SkColorTypeMinRowBytes(src.colorType(), subW) * 2;
-                SkAutoMalloc autoBuf (bufSize);
-                uint8_t* buf = static_cast<uint8_t*>(autoBuf.get());
+                SkAutoTMalloc<uint8_t> autoBuf (bufSize);
+                uint8_t* buf = autoBuf.get();
 
                 SkBitmap bufBm; // Attach buf to this bitmap.
                 bool successExpected;

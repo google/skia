@@ -401,8 +401,8 @@ SkImageDecoder::Result SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
         const int height = decodedBitmap->height();
 
         if (number_passes > 1) {
-            SkAutoMalloc storage(origWidth * origHeight * srcBytesPerPixel);
-            uint8_t* base = (uint8_t*)storage.get();
+            SkAutoTMalloc<uint8_t> storage(origWidth * origHeight * srcBytesPerPixel);
+            uint8_t* base = storage.get();
             size_t rowBytes = origWidth * srcBytesPerPixel;
 
             for (int i = 0; i < number_passes; i++) {
@@ -420,8 +420,8 @@ SkImageDecoder::Result SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
                 base += sampler.srcDY() * rowBytes;
             }
         } else {
-            SkAutoMalloc storage(origWidth * srcBytesPerPixel);
-            uint8_t* srcRow = (uint8_t*)storage.get();
+            SkAutoTMalloc<uint8_t> storage(origWidth * srcBytesPerPixel);
+            uint8_t* srcRow = storage.get();
             skip_src_rows(png_ptr, srcRow, sampler.srcY0());
 
             for (int y = 0; y < height; y++) {
@@ -966,8 +966,8 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
     png_write_info(png_ptr, info_ptr);
 
     const char* srcImage = (const char*)bitmap.getPixels();
-    SkAutoSMalloc<1024> rowStorage(bitmap.width() << 2);
-    char* storage = (char*)rowStorage.get();
+    SkAutoSTMalloc<1024, char> rowStorage(bitmap.width() << 2);
+    char* storage = rowStorage.get();
     transform_scanline_proc proc = choose_proc(ct, hasAlpha);
 
     for (int y = 0; y < bitmap.height(); y++) {

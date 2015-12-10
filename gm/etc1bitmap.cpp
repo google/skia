@@ -13,6 +13,7 @@
 #include "SkImageGenerator.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
+#include "SkTemplates.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
 
@@ -46,9 +47,9 @@ bool slice_etc1_data(void *data, int* width, int* height) {
     int newHeight = (blockHeight - 1) << 2;
 
     size_t newDataSz = etc1_get_encoded_data_size(newWidth, newHeight) + ETC_PKM_HEADER_SIZE;
-    SkAutoMalloc am(newDataSz);
+    SkAutoTMalloc<etc1_byte> am(newDataSz);
 
-    etc1_byte *newData = reinterpret_cast<etc1_byte *>(am.get());
+    etc1_byte* newData = am.get();
 
     etc1_pkm_format_header(newData, newWidth, newHeight);
     newData += ETC_PKM_HEADER_SIZE;

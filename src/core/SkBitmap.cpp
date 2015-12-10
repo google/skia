@@ -17,6 +17,7 @@
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkScalar.h"
+#include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
@@ -1082,8 +1083,8 @@ static void write_raw_pixels(SkWriteBuffer* buffer, const SkPixmap& pmap) {
     info.flatten(*buffer);
 
     const size_t size = snugRB * info.height();
-    SkAutoMalloc storage(size);
-    char* dst = (char*)storage.get();
+    SkAutoTMalloc<char> storage(size);
+    char* dst = storage.get();
     for (int y = 0; y < info.height(); ++y) {
         memcpy(dst, src, snugRB);
         dst += snugRB;

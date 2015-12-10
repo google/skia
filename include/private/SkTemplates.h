@@ -272,9 +272,10 @@ public:
     }
 
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
-    void reset(size_t count) {
+    T* reset(size_t count) {
         sk_free(fPtr);
         fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW);
+        return fPtr;
     }
 
     T* get() const { return fPtr; }
@@ -293,6 +294,13 @@ public:
 
     const T& operator[](int index) const {
         return fPtr[index];
+    }
+
+    /**
+     *  Releases the block back to the heap
+     */
+    void free() {
+        this->reset(0);
     }
 
     /**

@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkColorCubeFilter.h"
 #include "SkGradientShader.h"
+#include "SkTemplates.h"
 
 class ColorCubeBench : public Benchmark {
     SkISize fSize;
@@ -75,8 +76,8 @@ private:
         fCubeData = SkData::NewUninitialized(sizeof(SkColor) *
             fCubeDimension * fCubeDimension * fCubeDimension);
         SkColor* pixels = (SkColor*)(fCubeData->writable_data());
-        SkAutoMalloc lutMemory(fCubeDimension);
-        uint8_t* lut = (uint8_t*)lutMemory.get();
+        SkAutoTMalloc<uint8_t> lutMemory(fCubeDimension);
+        uint8_t* lut = lutMemory.get();
         const int maxIndex = fCubeDimension - 1;
         for (int i = 0; i < fCubeDimension; ++i) {
             // Make an invert lut, but the content of

@@ -27,6 +27,7 @@
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkTemplates.h"
 #include "SkTSort.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
@@ -792,8 +793,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkFILEStream stream(FLAGS_sequence[0]);
         if (stream.isValid()) {
             size_t len = stream.getLength();
-            SkAutoMalloc storage(len + 1);
-            char* buffer = (char*)storage.get();
+            SkAutoTMalloc<char> storage(len + 1);
+            char* buffer = storage.get();
             stream.read(buffer, len);
             buffer[len] = 0;
 
