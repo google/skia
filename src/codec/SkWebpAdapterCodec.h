@@ -23,8 +23,6 @@ public:
 
 protected:
 
-    SkEncodedFormat onGetEncodedFormat() const override { return kWEBP_SkEncodedFormat; };
-
     SkISize onGetSampledDimensions(int sampleSize) const override;
 
     bool onGetSupportedSubset(SkIRect* desiredSubset) const override;
@@ -33,8 +31,6 @@ protected:
             const AndroidOptions& options) override;
 
 private:
-
-    SkAutoTDelete<SkWebpCodec> fCodec;
 
     typedef SkAndroidCodec INHERITED;
 };

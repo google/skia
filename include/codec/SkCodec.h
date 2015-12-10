@@ -286,7 +286,7 @@ public:
      *  FIXME: see skbug.com/3582.
      */
     bool reallyHasAlpha() const {
-        return this->onReallyHasAlpha();
+        return kOpaque_SkAlphaType != this->getInfo().alphaType() && this->onReallyHasAlpha();
     }
 
     /**
@@ -486,7 +486,15 @@ protected:
         return false;
     }
 
-    virtual bool onReallyHasAlpha() const { return false; }
+    /**
+     * This is only called if the image indicates that it is not opaque.
+     * By default we will assume that the image is in fact non-opaque.
+     * Subclasses may override this function if they intend to verify
+     * that the image actually has alpha.
+     */
+    virtual bool onReallyHasAlpha() const {
+        return true;
+    }
 
     /**
      *  If the stream was previously read, attempt to rewind.

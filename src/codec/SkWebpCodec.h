@@ -27,10 +27,6 @@ protected:
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kWEBP_SkEncodedFormat; }
 
-    bool onReallyHasAlpha() const override {
-        return this->getInfo().alphaType() != kOpaque_SkAlphaType;
-    }
-
     SkISize onGetScaledDimensions(float desiredScale) const override;
 
     bool onDimensionsSupported(const SkISize&) override;

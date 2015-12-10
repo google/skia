@@ -16,8 +16,9 @@ static bool is_valid_sample_size(int sampleSize) {
     return sampleSize > 0;
 }
 
-SkAndroidCodec::SkAndroidCodec(const SkImageInfo& info)
-    : fInfo(info)
+SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
+    : fInfo(codec->getInfo())
+    , fCodec(codec)
 {}
 
 SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {

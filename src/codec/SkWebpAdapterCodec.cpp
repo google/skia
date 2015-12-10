@@ -10,17 +10,16 @@
 #include "SkWebpAdapterCodec.h"
 
 SkWebpAdapterCodec::SkWebpAdapterCodec(SkWebpCodec* codec)
-    : INHERITED(codec->getInfo())
-    , fCodec(codec)
+    : INHERITED(codec)
 {}
 
 SkISize SkWebpAdapterCodec::onGetSampledDimensions(int sampleSize) const {
     float scale = get_scale_from_sample_size(sampleSize);
-    return fCodec->getScaledDimensions(scale);
+    return this->codec()->getScaledDimensions(scale);
 }
 
 bool SkWebpAdapterCodec::onGetSupportedSubset(SkIRect* desiredSubset) const {
-    return fCodec->getValidSubset(desiredSubset);
+    return this->codec()->getValidSubset(desiredSubset);
 }
 
 SkCodec::Result SkWebpAdapterCodec::onGetAndroidPixels(const SkImageInfo& info, void* pixels,
@@ -41,6 +40,6 @@ SkCodec::Result SkWebpAdapterCodec::onGetAndroidPixels(const SkImageInfo& info, 
     SkCodec::Options codecOptions;
     codecOptions.fZeroInitialized = options.fZeroInitialized;
     codecOptions.fSubset = options.fSubset;
-    return fCodec->getPixels(info, pixels, rowBytes, &codecOptions, options.fColorPtr,
+    return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions, options.fColorPtr,
             options.fColorCount);
 }
