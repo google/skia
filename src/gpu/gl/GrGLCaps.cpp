@@ -848,6 +848,9 @@ void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const G
     } else {
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
             fConfigTextureSupport[kBGRA_8888_GrPixelConfig] = true;
+            if (version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_texture_storage")) {
+                fBGRAIsInternalFormat = true;
+            }
         } else if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
             fConfigTextureSupport[kBGRA_8888_GrPixelConfig] = true;
             fBGRAIsInternalFormat = true;
