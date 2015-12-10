@@ -498,7 +498,8 @@ protected:
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
     GrGLSLProgramDataManager::UniformHandle fInvRadiiSqdUniform;
-    SkRRect                               fPrevRRect;
+    GrGLSLProgramDataManager::UniformHandle fScaleUniform;
+    SkRRect                                 fPrevRRect;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
@@ -530,55 +531,77 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // The code below is a simplified version of the above that performs maxs on the vector
     // components before computing distances and alpha values so that only one distance computation
     // need be computed to determine the min alpha.
-    fragBuilder->codeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
-    fragBuilder->codeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
+    fragBuilder->codeAppendf("vec2 dxy0 = %s.xy - %s.xy;", rectName, fragmentPos);
+    fragBuilder->codeAppendf("vec2 dxy1 = %s.xy - %s.zw;", fragmentPos, rectName);
+
+    // If we're on a device with a "real" mediump then we'll do the distance computation in a space
+    // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
+    // radii uniform values are already in this normalized space.
+    const char* scaleName = nullptr;
+    if (args.fGLSLCaps->floatPrecisionVaries()) {
+        fScaleUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                   "scale", &scaleName);
+    }
+
     // The uniforms with the inv squared radii are highp to prevent underflow.
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
             fInvRadiiSqdUniform = uniformHandler->addUniform(
                                                          GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kVec2f_GrSLType, kHigh_GrSLPrecision,
+                                                         kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                          "invRadiiXY",
                                                          &invRadiiXYSqdName);
-            fragBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
+            fragBuilder->codeAppend("vec2 dxy = max(max(dxy0, dxy1), 0.0);");
+            if (scaleName) {
+                fragBuilder->codeAppendf("dxy *= %s.y;", scaleName);
+            }
             // Z is the x/y offsets divided by squared radii.
-            fragBuilder->codeAppendf("\t\tvec2 Z = dxy * %s;\n", invRadiiXYSqdName);
+            fragBuilder->codeAppendf("vec2 Z = dxy * %s.xy;", invRadiiXYSqdName);
             break;
         }
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
             fInvRadiiSqdUniform = uniformHandler->addUniform(
                                                          GrGLSLUniformHandler::kFragment_Visibility,
-                                                         kVec4f_GrSLType, kHigh_GrSLPrecision,
+                                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                          "invRadiiLTRB",
                                                          &invRadiiLTRBSqdName);
-            fragBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
+            if (scaleName) {
+                fragBuilder->codeAppendf("dxy0 *= %s.y;", scaleName);
+                fragBuilder->codeAppendf("dxy1 *= %s.y;", scaleName);
+            }
+            fragBuilder->codeAppend("vec2 dxy = max(max(dxy0, dxy1), 0.0);");
             // Z is the x/y offsets divided by squared radii. We only care about the (at most) one
             // corner where both the x and y offsets are positive, hence the maxes. (The inverse
             // squared radii will always be positive.)
-            fragBuilder->codeAppendf("\t\tvec2 Z = max(max(dxy0 * %s.xy, dxy1 * %s.zw), 0.0);\n",
+            fragBuilder->codeAppendf("vec2 Z = max(max(dxy0 * %s.xy, dxy1 * %s.zw), 0.0);",
                                      invRadiiLTRBSqdName, invRadiiLTRBSqdName);
+
             break;
         }
         default:
             SkFAIL("RRect should always be simple or nine-patch.");
     }
     // implicit is the evaluation of (x/a)^2 + (y/b)^2 - 1.
-    fragBuilder->codeAppend("\t\tfloat implicit = dot(Z, dxy) - 1.0;\n");
+    fragBuilder->codeAppend("float implicit = dot(Z, dxy) - 1.0;");
     // grad_dot is the squared length of the gradient of the implicit.
-    fragBuilder->codeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
+    fragBuilder->codeAppend("float grad_dot = 4.0 * dot(Z, Z);");
     // avoid calling inversesqrt on zero.
-    fragBuilder->codeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-    fragBuilder->codeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
-
-    if (kFillAA_GrProcessorEdgeType == erre.getEdgeType()) {
-        fragBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
-    } else {
-        fragBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
+    fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+    fragBuilder->codeAppend("float approx_dist = implicit * inversesqrt(grad_dot);");
+    if (scaleName) {
+        fragBuilder->codeAppendf("approx_dist *= %s.x;", scaleName);
     }
 
-    fragBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
+    if (kFillAA_GrProcessorEdgeType == erre.getEdgeType()) {
+        fragBuilder->codeAppend("float alpha = clamp(0.5 - approx_dist, 0.0, 1.0);");
+    } else {
+        fragBuilder->codeAppend("float alpha = clamp(0.5 + approx_dist, 0.0, 1.0);");
+    }
+
+    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
                              (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
@@ -593,6 +616,8 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                         const GrProcessor& effect) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
     const SkRRect& rrect = erre.getRRect();
+    // If we're using a scale factor to work around precision issues, choose the largest radius
+    // as the scale factor. The inv radii need to be pre-adjusted by the scale factor.
     if (rrect != fPrevRRect) {
         SkRect rect = rrect.getBounds();
         const SkVector& r0 = rrect.radii(SkRRect::kUpperLeft_Corner);
@@ -601,8 +626,18 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
         switch (erre.getRRect().getType()) {
             case SkRRect::kSimple_Type:
                 rect.inset(r0.fX, r0.fY);
-                pdman.set2f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
-                                                1.f / (r0.fY * r0.fY));
+                if (fScaleUniform.isValid()) {
+                    if (r0.fX > r0.fY) {
+                        pdman.set2f(fInvRadiiSqdUniform, 1.f, (r0.fX * r0.fX) / (r0.fY * r0.fY));
+                        pdman.set2f(fScaleUniform, r0.fX, 1.f / r0.fX);
+                    } else {
+                        pdman.set2f(fInvRadiiSqdUniform, (r0.fY * r0.fY) / (r0.fX * r0.fX), 1.f);
+                        pdman.set2f(fScaleUniform, r0.fY, 1.f / r0.fY);
+                    }
+                } else {
+                    pdman.set2f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
+                                                     1.f / (r0.fY * r0.fY));
+                }
                 break;
             case SkRRect::kNinePatch_Type: {
                 const SkVector& r1 = rrect.radii(SkRRect::kLowerRight_Corner);
@@ -612,10 +647,20 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                 rect.fTop += r0.fY;
                 rect.fRight -= r1.fX;
                 rect.fBottom -= r1.fY;
-                pdman.set4f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
-                                                1.f / (r0.fY * r0.fY),
-                                                1.f / (r1.fX * r1.fX),
-                                                1.f / (r1.fY * r1.fY));
+                if (fScaleUniform.isValid()) {
+                    float scale = SkTMax(SkTMax(r0.fX, r0.fY), SkTMax(r1.fX, r1.fY));
+                    float scaleSqd = scale * scale;
+                    pdman.set4f(fInvRadiiSqdUniform, scaleSqd / (r0.fX * r0.fX),
+                                                     scaleSqd / (r0.fY * r0.fY),
+                                                     scaleSqd / (r1.fX * r1.fX),
+                                                     scaleSqd / (r1.fY * r1.fY));
+                    pdman.set2f(fScaleUniform, scale, 1.f / scale);
+                } else {
+                    pdman.set4f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
+                                                     1.f / (r0.fY * r0.fY),
+                                                     1.f / (r1.fX * r1.fX),
+                                                     1.f / (r1.fY * r1.fY));
+                }
                 break;
             }
         default:
