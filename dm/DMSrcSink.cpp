@@ -992,19 +992,21 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 // passing the Sink draw() arguments, a size, and a function draws into an SkCanvas.
 // Several examples below.
 
-static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkString* log,
+static Error draw_to_canvas(Name name, Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkString* log,
                             SkISize size, std::function<Error(SkCanvas*)> draw) {
     class ProxySrc : public Src {
     public:
-        ProxySrc(SkISize size, std::function<Error(SkCanvas*)> draw) : fSize(size), fDraw(draw) {}
+        ProxySrc(SkISize size, Name name, std::function<Error(SkCanvas*)> draw)
+            : fSize(size), fName(name), fDraw(draw) {}
         Error   draw(SkCanvas* canvas) const override { return fDraw(canvas); }
-        Name                    name() const override { sk_throw(); return ""; } // Won't be called.
+        Name                    name() const override { return fName; }
         SkISize                 size() const override { return fSize; }
     private:
         SkISize                         fSize;
+        Name fName;
         std::function<Error(SkCanvas*)> fDraw;
     };
-    return sink->draw(ProxySrc(size, draw), bitmap, stream, log);
+    return sink->draw(ProxySrc(size, name, draw), bitmap, stream, log);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1016,12 +1018,13 @@ static SkISize auto_compute_translate(SkMatrix* matrix, int srcW, int srcH) {
     return SkISize::Make(SkScalarRoundToInt(bounds.width()), SkScalarRoundToInt(bounds.height()));
 }
 
-ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : Via(sink), fMatrix(matrix) {}
+ViaMatrix::ViaMatrix(Name name, SkMatrix matrix, Sink* sink) : Via(name, sink), fMatrix(matrix) {}
 
 Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     SkMatrix matrix = fMatrix;
     SkISize size = auto_compute_translate(&matrix, src.size().width(), src.size().height());
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+    Name name = this->decorateName(src);
+    return draw_to_canvas(name, fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->concat(matrix);
         return src.draw(canvas);
     });
@@ -1029,7 +1032,7 @@ Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStr
 
 // Undoes any flip or 90 degree rotate without changing the scale of the bitmap.
 // This should be pixel-preserving.
-ViaUpright::ViaUpright(SkMatrix matrix, Sink* sink) : Via(sink), fMatrix(matrix) {}
+ViaUpright::ViaUpright(Name name, SkMatrix matrix, Sink* sink) : Via(name, sink), fMatrix(matrix) {}
 
 Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     Error err = fSink->draw(src, bitmap, stream, log);
@@ -1066,7 +1069,8 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 
 Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+    Name name = this->decorateName(src);
+    return draw_to_canvas(name, fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
         SkGPipeWriter pipe;
         const uint32_t kFlags = 0;
@@ -1075,7 +1079,8 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 }
 
 Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* target) {
+    Name name = this->decorateName(src);
+    return draw_to_canvas(name, fSink, bitmap, stream, log, src.size(), [&](SkCanvas* target) {
         SkAutoTDelete<SkRemote::Encoder> decoder(SkRemote::NewDecoder(target));
         SkAutoTDelete<SkRemote::Encoder>   cache(fCache ? SkRemote::NewCachingEncoder(decoder)
                                                         : nullptr);
@@ -1103,8 +1108,9 @@ Error ViaSerialization::draw(
     pic->serialize(&wStream);
     SkAutoTDelete<SkStream> rStream(wStream.detachAsStream());
     SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream, &lazy_decode_bitmap));
+    Name name = this->decorateName(src);
 
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+    return draw_to_canvas(name, fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);
         return "";
     });
@@ -1112,8 +1118,8 @@ Error ViaSerialization::draw(
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ViaTiles::ViaTiles(int w, int h, SkBBHFactory* factory, Sink* sink)
-    : Via(sink)
+ViaTiles::ViaTiles(Name name, int w, int h, SkBBHFactory* factory, Sink* sink)
+    : Via(name, sink)
     , fW(w)
     , fH(h)
     , fFactory(factory) {}
@@ -1128,8 +1134,9 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
         return err;
     }
     SkAutoTUnref<SkPicture> pic(recorder.endRecordingAsPicture());
+    Name name = this->decorateName(src);
 
-    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
+    return draw_to_canvas(name, fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
         const int xTiles = (size.width()  + fW - 1) / fW,
                   yTiles = (size.height() + fH - 1) / fH;
         SkMultiPictureDraw mpd(xTiles*yTiles);
@@ -1171,7 +1178,8 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 Error ViaSecondPicture::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    Name name = this->decorateName(src);
+    return draw_to_canvas(name, fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         SkPictureRecorder recorder;
         SkAutoTUnref<SkPicture> pic;
         for (int i = 0; i < 2; i++) {
@@ -1191,7 +1199,8 @@ Error ViaSecondPicture::draw(
 
 // Draw the Src twice.  This can help exercise caching.
 Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
+    Name name = this->decorateName(src);
+    return draw_to_canvas(name, fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
         for (int i = 0; i < 2; i++) {
             SkAutoCanvasRestore acr(canvas, true/*save now*/);
             canvas->clear(SK_ColorTRANSPARENT);
@@ -1243,7 +1252,8 @@ struct DrawsAsSingletonPictures {
 Error ViaSingletonPictures::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    Name name = this->decorateName(src);
+    return draw_to_canvas(name, fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         // Use low-level (Skia-private) recording APIs so we can read the SkRecord.
         SkRecord skr;
         SkRecorder recorder(&skr, size.width(), size.height());
