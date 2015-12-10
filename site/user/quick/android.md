@@ -201,7 +201,7 @@ Note: The debugging scripts do not build the app - you'll have to do that first.
     
     # SAMPLE APP
     # make sure you've installed the app on the device first
-    ./platform_tools/android/bin/android_gdb_app
+    ./platform_tools/android/bin/android_gdb_app [-d device_id]
 
 When the gdb client is ready, insert a breakpoint, and continue to let the
 program resume execution.

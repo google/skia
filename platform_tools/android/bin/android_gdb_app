@@ -4,7 +4,7 @@
 # the debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/android_setup.sh "$@"
 
 APP_NAME=${APP_ARGS[0]}
 PORT=5039
@@ -31,21 +31,21 @@ mkdir -p $GDB_TMP_DIR
 echo "Copying symbol files"
 adb_pull_if_needed /system/bin/app_process $GDB_TMP_DIR
 adb_pull_if_needed /system/lib/libc.so $GDB_TMP_DIR
-adb_pull_if_needed /data/data/com.skia/lib/libskia_android.so $GDB_TMP_DIR
-adb_pull_if_needed /data/data/com.skia/lib/libSampleApp.so $GDB_TMP_DIR
+adb_pull_if_needed /data/data/com.skia.sample_app/lib/libskia_android.so $GDB_TMP_DIR
+adb_pull_if_needed /data/data/com.skia.sample_app/lib/libSampleApp.so $GDB_TMP_DIR
 
 echo "Pushing gdbserver..."
 adb_push_if_needed $ANDROID_TOOLCHAIN/../gdbserver /data/local/tmp
 
 # Launch the app
 echo "Launching the app..."
-$ADB $DEVICE_SERIAL shell am start -n com.skia/com.skia.SkiaSampleActivity
+$ADB $DEVICE_SERIAL shell am start -n com.skia.sample_app/com.skia.SkiaSampleActivity
 
 # Wait for app process to initialize
 sleep 2
 
 # Attach gdbserver to the app process
-PID=$($ADB shell ps | grep com.skia | awk '{print $2}')
+PID=$($ADB shell ps | grep com.skia.sample_app | awk '{print $2}')
 echo "Attaching to pid: $PID"
 $ADB $DEVICE_SERIAL shell /data/local/tmp/gdbserver :$PORT --attach $PID &
 
