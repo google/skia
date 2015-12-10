@@ -169,7 +169,7 @@ protected:
         return false;
     }
 
-    SkData* onEncodePixels(const SkImageInfo&, const void*, size_t) override {
+    SkData* onEncode(const SkPixmap&) override {
         fDidEncode = true;
         return fFunc();
     }

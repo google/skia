@@ -32,16 +32,12 @@ public:
      *  Call to get the client's version of encoding these pixels. If it
      *  returns NULL, serialize the raw pixels.
      */
-    SkData* encode(const SkPixmap& pixmap) {
-        SkData* data = this->onEncode(pixmap);
-        return data ? data : this->onEncodePixels(
-                pixmap.info(), pixmap.addr(), pixmap.rowBytes());
-    }
+    SkData* encode(const SkPixmap& pixmap) { return this->onEncode(pixmap); }
 
 protected:
     /**
      *  Return true if you want to serialize the encoded data, false if you want
-     *  another version serialized (e.g. the result of encodePixels).
+     *  another version serialized (e.g. the result of this->encode()).
      */
     virtual bool onUseEncodedData(const void* data, size_t len) = 0;
 
@@ -49,15 +45,6 @@ protected:
      *  If you want to encode these pixels, return the encoded data as an SkData
      *  Return null if you want to serialize the raw pixels.
      */
-    // NOTE: onEncodePixels() is deprecated and removed in a later CL.
-    // Subclasses should implement onEncode() instead.  Subclasses
-    // should implement at least one of onEncodePixels() or
-    // onUseEncodedData().
-    virtual SkData* onEncodePixels(const SkImageInfo&,
-                                   const void* /*pixels*/,
-                                   size_t /*rowBytes*/) {
-        return nullptr;
-    }
-    virtual SkData* onEncode(const SkPixmap&) { return nullptr; }
+    virtual SkData* onEncode(const SkPixmap&) = 0;
 };
 #endif // SkPixelSerializer_DEFINED

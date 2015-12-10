@@ -118,12 +118,8 @@ namespace sk_tool_utils {
     // used.
     class PngPixelSerializer : public SkPixelSerializer {
     public:
-        bool onUseEncodedData(const void*, size_t) override { return true; }
-        SkData* onEncodePixels(const SkImageInfo& info, const void* pixels,
-                               size_t rowBytes) override {
-            return SkImageEncoder::EncodeData(info, pixels, rowBytes,
-                                              SkImageEncoder::kPNG_Type, 100);
-        }
+        bool onUseEncodedData(const void*, size_t) override;
+        SkData* onEncode(const SkPixmap&) override;
     };
 
     // A helper for inserting a drawtext call into a SkTextBlobBuilder
