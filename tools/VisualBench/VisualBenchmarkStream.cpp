@@ -31,6 +31,7 @@ DEFINE_string2(match, m, nullptr,
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 DEFINE_string(skps, "skps", "Directory to read skps from.");
+DEFINE_bool(warmup, true, "Include a warmup bench? (Excluding the warmup may compromise results)");
 
 // We draw a big nonAA path to warmup the gpu / cpu
 #include "SkPerlinNoiseShader.h"
@@ -126,7 +127,7 @@ bool VisualBenchmarkStream::ReadPicture(const char* path, SkAutoTUnref<SkPicture
 
 Benchmark* VisualBenchmarkStream::next() {
     Benchmark* bench;
-    if (!fIsWarmedUp) {
+    if (FLAGS_warmup && !fIsWarmedUp) {
         fIsWarmedUp = true;
         bench = new WarmupBench;
     } else {
