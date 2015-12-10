@@ -39,6 +39,9 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     GrGLInterface* newInterface = GrGLInterface::NewClone(interface);
 
     newInterface->fExtensions.remove("GL_NV_path_rendering");
+    newInterface->fExtensions.remove("GL_CHROMIUM_path_rendering");
+    newInterface->fFunctions.fMatrixLoadf = nullptr;
+    newInterface->fFunctions.fMatrixLoadIdentity = nullptr;
     newInterface->fFunctions.fPathCommands = nullptr;
     newInterface->fFunctions.fPathParameteri = nullptr;
     newInterface->fFunctions.fPathParameterf = nullptr;
