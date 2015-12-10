@@ -277,7 +277,7 @@ GrGLFuncPtr EGLGLContext::onPlatformGetProcAddress(const char* procName) const {
 }
 
 static bool supports_egl_extension(EGLDisplay display, const char* extension) {
-    int extensionLength = strlen(extension);
+    size_t extensionLength = strlen(extension);
     const char* extensionsStr = eglQueryString(display, EGL_EXTENSIONS);
     while (const char* match = strstr(extensionsStr, extension)) {
         // Ensure the string we found is its own extension, not a substring of a larger extension
