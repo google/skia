@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasTextContext.h"
 #include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrDrawTarget.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
-#include "GrStencilAndCoverTextContext.h"
 #include "SkTTopoSort.h"
 
+#include "text/GrAtlasTextContext.h"
+#include "text/GrStencilAndCoverTextContext.h"
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {

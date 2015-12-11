@@ -7,7 +7,6 @@
 
 #include "GrAtlasTextBatch.h"
 
-#include "GrBatchFontCache.h"
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrResourceProvider.h"
@@ -17,6 +16,7 @@
 
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
+#include "text/GrBatchFontCache.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // A large template to handle regenerating the vertices of a textblob with as few branches as

@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasTextContext.h"
 #include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDrawContext.h"
@@ -16,7 +15,6 @@
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"
-#include "GrStencilAndCoverTextContext.h"
 #include "SkSurfacePriv.h"
 
 #include "batches/GrBatch.h"
@@ -24,6 +22,9 @@
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrNinePatch.h" // TODO Factory
+
+#include "text/GrAtlasTextContext.h"
+#include "text/GrStencilAndCoverTextContext.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
 #define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }

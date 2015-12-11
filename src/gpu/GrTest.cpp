@@ -9,17 +9,18 @@
 #include "GrTest.h"
 
 #include "GrBatchAtlas.h"
-#include "GrBatchFontCache.h"
 #include "GrContextOptions.h"
 #include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrResourceCache.h"
-#include "GrTextBlobCache.h"
 
 #include "SkGpuDevice.h"
 #include "SkGrPriv.h"
 #include "SkString.h"
+
+#include "text/GrBatchFontCache.h"
+#include "text/GrTextBlobCache.h"
 
 namespace GrTest {
 void SetupAlwaysEvictAtlas(GrContext* context) {

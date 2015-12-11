@@ -10,8 +10,8 @@
 
 #include "batches/GrVertexBatch.h"
 
-#include "GrAtlasTextContext.h"
-#include "GrDistanceFieldAdjustTable.h"
+#include "text/GrAtlasTextContext.h"
+#include "text/GrDistanceFieldAdjustTable.h"
 
 class GrAtlasTextBatch : public GrVertexBatch {
 public:

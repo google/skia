@@ -15,12 +15,12 @@
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
-#include "GrTextBlobCache.h"
 
 #include "SkConfig8888.h"
 #include "SkGrPriv.h"
 
 #include "effects/GrConfigConversionEffect.h"
+#include "text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define RETURN_IF_ABANDONED if (fDrawingManager->abandoned()) { return; }
