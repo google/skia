@@ -163,9 +163,9 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
             
             // make rgb premultiplied
             if (255 != a) {
-                r = SkAlphaMul(r, a);
-                g = SkAlphaMul(g, a);
-                b = SkAlphaMul(b, a);
+                r = SkMulDiv255Round(r, a);
+                g = SkMulDiv255Round(g, a);
+                b = SkMulDiv255Round(b, a);
             }
             
             if (kARGB_4444_SkColorType == this->colorType()) {
@@ -186,13 +186,14 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
             uint32_t* p = this->writable_addr32(area.fLeft, area.fTop);
             
             if (255 != a && kPremul_SkAlphaType == this->alphaType()) {
-                r = SkAlphaMul(r, a);
-                g = SkAlphaMul(g, a);
-                b = SkAlphaMul(b, a);
+                r = SkMulDiv255Round(r, a);
+                g = SkMulDiv255Round(g, a);
+                b = SkMulDiv255Round(b, a);
             }
-            uint32_t v = kRGBA_8888_SkColorType == this->colorType() ?
-            SkPackARGB_as_RGBA(a, r, g, b) : SkPackARGB_as_BGRA(a, r, g, b);
-            
+            uint32_t v = kRGBA_8888_SkColorType == this->colorType()
+                             ? SkPackARGB_as_RGBA(a, r, g, b)
+                             : SkPackARGB_as_BGRA(a, r, g, b);
+
             while (--height >= 0) {
                 sk_memset32(p, v, width);
                 p = (uint32_t*)((char*)p + rowBytes);
