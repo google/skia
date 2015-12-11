@@ -13,21 +13,20 @@
 prodcertstatus -q || (echo "Please run prodaccess." 1>&2; exit 1)
 source gbash.sh || exit 2
 
-DEFINE_string skia_rev "" "Git hash of Skia revision to clone, default LKGR."
+DEFINE_string skia_rev "" "Git hash of Skia revision to clone, default latest."
 gbash::init_google "$@"
 
 set -e
 
-# Checkout LKGR of Skia in a temp location.
+# Checkout specified revision of Skia in a temp location.
 TMP=$(gbash::make_temp_dir)
 pushd "${TMP}"
 git clone https://skia.googlesource.com/skia
 cd skia
 git fetch
-if [ -z "${FLAGS_skia_rev}" ]; then
-  # Retrieve last known good revision.
-  MY_DIR="$(gbash::get_absolute_caller_dir)"
-  FLAGS_skia_rev="$(${MY_DIR}/get_skia_lkgr.sh)"
+if [[ -z "${FLAGS_skia_rev}" ]]; then
+  # Retrieve latest revision.
+  FLAGS_skia_rev="$(git show --format=%H --no-patch origin/master)"
 fi
 git checkout --detach "${FLAGS_skia_rev}"
 
