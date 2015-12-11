@@ -51,6 +51,13 @@ SkAndroidCodec* SkAndroidCodec::NewFromData(SkData* data, SkPngChunkReader* chun
 }
 
 SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {
+    // The legacy GIF and WBMP decoders always decode to kIndex_8_SkColorType.
+    // We will maintain this behavior.
+    SkEncodedFormat format = this->getEncodedFormat();
+    if (kGIF_SkEncodedFormat == format || kWBMP_SkEncodedFormat == format) {
+        return kIndex_8_SkColorType;
+    }
+
     SkColorType suggestedColorType = this->getInfo().colorType();
     switch (requestedColorType) {
         case kARGB_4444_SkColorType:
@@ -79,6 +86,13 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
             break;
     }
 
+    // Android has limited support for kGray_8 (using kAlpha_8).  We will not
+    // use kGray_8 for Android unless they specifically ask for it.
+    if (kGray_8_SkColorType == suggestedColorType) {
+        return kN32_SkColorType;
+    }
+
+    // This may be kN32_SkColorType or kIndex_8_SkColorType.
     return suggestedColorType;
 }
 
