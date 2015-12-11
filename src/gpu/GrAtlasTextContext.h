@@ -73,16 +73,6 @@ private:
                                     int scalarsPerPosition,
                                     const SkPoint& offset);
 
-    void internalDrawBMPText(GrAtlasTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
-                             GrColor color, const SkMatrix& viewMatrix,
-                             const char text[], size_t byteLength,
-                             SkScalar x, SkScalar y);
-    void internalDrawBMPPosText(GrAtlasTextBlob*, int runIndex, SkGlyphCache*, const SkPaint&,
-                                GrColor color, const SkMatrix& viewMatrix,
-                                const char text[], size_t byteLength,
-                                const SkScalar pos[], int scalarsPerPosition,
-                                const SkPoint& offset);
-
     void internalDrawDFText(GrAtlasTextBlob*, int runIndex, const SkPaint&,
                             GrColor color, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,

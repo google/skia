@@ -69,7 +69,8 @@ protected:
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
     friend class GrAtlasTextBatch;
-    friend class GrAtlasTextBlob; // for drawTextAsPath
+    friend class GrAtlasTextBlob; // for FilterTextFlags
+    friend class GrTextUtils; // for some static functions
 };
 
 #endif
