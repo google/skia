@@ -111,14 +111,26 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fTransformsIn,
                          args.fTransformsOut);
 
-    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    // TODO: this precision check should actually be a check on the number of bits
+    // high and medium provide and the selection of the lowest level that suffices.
+    // Additionally we should assert that the upstream code only lets us get here if
+    // either high or medium provides the required number of bits.
+    GrSLPrecision precision = kHigh_GrSLPrecision;
+    const GrShaderCaps::PrecisionInfo& highP = args.fGLSLCaps->getFloatShaderPrecisionInfo(
+                                                             kFragment_GrShaderType,
+                                                             kHigh_GrSLPrecision);
+    if (!highP.supported()) {
+        precision = kMedium_GrSLPrecision;
+    }
+
+    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, precision);
+    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, precision);
+    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, precision);
+    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, precision);
+    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, precision);
+    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, precision);
+    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, precision);
+    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, precision);
 
     fragBuilder->declAppend(edgeAlpha);
     fragBuilder->declAppend(dklmdx);

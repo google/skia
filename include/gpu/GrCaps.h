@@ -70,7 +70,7 @@ public:
     * called.
     */
     const PrecisionInfo& getFloatShaderPrecisionInfo(GrShaderType shaderType,
-        GrSLPrecision precision) const {
+                                                     GrSLPrecision precision) const {
         return fFloatPrecisions[shaderType][precision];
     };
 
