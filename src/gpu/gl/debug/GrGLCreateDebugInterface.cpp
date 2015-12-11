@@ -513,9 +513,10 @@ GrGLvoid debugGenObjs(GrDebugGL::GrObjTypes type,
                       GrGLuint* ids) {
 
    for (int i = 0; i < n; ++i) {
-        GrFakeRefObj *obj = GrDebugGL::getInstance()->createObj(type);
-        GrAlwaysAssert(obj);
-        ids[i] = obj->getID();
+       GrAlwaysAssert(ids[i] == 0);
+       GrFakeRefObj *obj = GrDebugGL::getInstance()->createObj(type);
+       GrAlwaysAssert(obj);
+       ids[i] = obj->getID();
     }
 }
 

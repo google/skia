@@ -1077,6 +1077,7 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     GrGLTexture::IDDesc idDesc;
+    idDesc.fInfo.fID = 0;
     GL_CALL(GenTextures(1, &idDesc.fInfo.fID));
     idDesc.fLifeCycle = lifeCycle;
     // We only support GL_TEXTURE_2D at the moment.
@@ -1156,6 +1157,7 @@ GrTexture* GrGLGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc,
     }
 
     GrGLTexture::IDDesc idDesc;
+    idDesc.fInfo.fID = 0;
     GL_CALL(GenTextures(1, &idDesc.fInfo.fID));
     idDesc.fLifeCycle = lifeCycle;
     // We only support GL_TEXTURE_2D at the moment.
@@ -1238,7 +1240,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         // Default to unsupported
         fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
         // Create color texture
-        GrGLuint colorID;
+        GrGLuint colorID = 0;
         GL_CALL(GenTextures(1, &colorID));
         this->setScratchTextureUnit();
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, colorID));
@@ -1291,7 +1293,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         GL_CALL(BindTexture(GR_GL_TEXTURE_2D, 0));
 
         // Create Framebuffer
-        GrGLuint fb;
+        GrGLuint fb = 0;
         GL_CALL(GenFramebuffers(1, &fb));
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, fb));
         fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
@@ -1425,6 +1427,7 @@ GrVertexBuffer* GrGLGpu::onCreateVertexBuffer(size_t size, bool dynamic) {
         GrGLVertexBuffer* vertexBuffer = new GrGLVertexBuffer(this, desc);
         return vertexBuffer;
     } else {
+        desc.fID = 0;
         GL_CALL(GenBuffers(1, &desc.fID));
         if (desc.fID) {
             fHWGeometryState.setVertexBufferID(this, desc.fID);
@@ -1457,6 +1460,7 @@ GrIndexBuffer* GrGLGpu::onCreateIndexBuffer(size_t size, bool dynamic) {
         GrIndexBuffer* indexBuffer = new GrGLIndexBuffer(this, desc);
         return indexBuffer;
     } else {
+        desc.fID = 0;
         GL_CALL(GenBuffers(1, &desc.fID));
         if (desc.fID) {
             fHWGeometryState.setIndexBufferIDOnDefaultVertexArray(this, desc.fID);
@@ -1490,7 +1494,7 @@ GrTransferBuffer* GrGLGpu::onCreateTransferBuffer(size_t size, TransferType xfer
     desc.fUsage = toGpu ? GrGLBufferImpl::kStreamDraw_Usage : GrGLBufferImpl::kStreamRead_Usage;
 
     desc.fSizeInBytes = size;
-    
+    desc.fID = 0;
     GL_CALL(GenBuffers(1, &desc.fID));
     if (desc.fID) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
@@ -3147,7 +3151,7 @@ void GrGLGpu::createCopyPrograms() {
         GL_CALL(DeleteShader(vshader));
         GL_CALL(DeleteShader(fshader));
     }
-
+    fCopyProgramArrayBuffer = 0;
     GL_CALL(GenBuffers(1, &fCopyProgramArrayBuffer));
     fHWGeometryState.setVertexBufferID(this, fCopyProgramArrayBuffer);
     static const GrGLfloat vdata[] = {
@@ -3510,6 +3514,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
                                                          GrPixelConfig config) const {
     GrGLTextureInfo* info = new GrGLTextureInfo;
     info->fTarget = GR_GL_TEXTURE_2D;
+    info->fID = 0;
     GL_CALL(GenTextures(1, &info->fID));
     GL_CALL(ActiveTexture(GR_GL_TEXTURE0));
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
