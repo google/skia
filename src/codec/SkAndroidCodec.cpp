@@ -50,6 +50,45 @@ SkAndroidCodec* SkAndroidCodec::NewFromData(SkData* data, SkPngChunkReader* chun
     return NewFromStream(new SkMemoryStream(data), chunkReader);
 }
 
+SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {
+    SkColorType suggestedColorType = this->getInfo().colorType();
+    switch (requestedColorType) {
+        case kARGB_4444_SkColorType:
+        case kN32_SkColorType:
+            return kN32_SkColorType;
+        case kIndex_8_SkColorType:
+            if (kIndex_8_SkColorType == suggestedColorType) {
+                return kIndex_8_SkColorType;
+            }
+            break;
+        case kAlpha_8_SkColorType:
+            // Fall through to kGray_8.  Before kGray_8_SkColorType existed,
+            // we allowed clients to request kAlpha_8 when they wanted a
+            // grayscale decode.
+        case kGray_8_SkColorType:
+            if (kGray_8_SkColorType == suggestedColorType) {
+                return kGray_8_SkColorType;
+            }
+            break;
+        case kRGB_565_SkColorType:
+            if (kOpaque_SkAlphaType == this->getInfo().alphaType()) {
+                return kRGB_565_SkColorType;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return suggestedColorType;
+}
+
+SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
+    if (kOpaque_SkAlphaType == this->getInfo().alphaType()) {
+        return kOpaque_SkAlphaType;
+    }
+    return requestedUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
+}
+
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     if (!is_valid_sample_size(sampleSize)) {
         return SkISize::Make(0, 0);

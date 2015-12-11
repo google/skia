@@ -53,6 +53,24 @@ public:
     SkEncodedFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }
 
     /**
+     *  @param requestedColorType Color type requested by the client
+     *
+     *  If it is possible to decode to requestedColorType, this returns
+     *  requestedColorType.  Otherwise, this returns whichever color type
+     *  is suggested by the codec as the best match for the encoded data.
+     */
+    SkColorType computeOutputColorType(SkColorType requestedColorType);
+
+    /**
+     *  @param requestedUnpremul  Indicates if the client requested
+     *                            unpremultiplied output
+     *
+     *  Returns the appropriate alpha type to decode to.  If the image
+     *  has alpha, the value of requestedUnpremul will be honored.
+     */
+    SkAlphaType computeOutputAlphaType(bool requestedUnpremul);
+
+    /**
      *  Returns the dimensions of the scaled output image, for an input
      *  sampleSize.
      *

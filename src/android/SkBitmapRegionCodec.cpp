@@ -17,7 +17,7 @@ SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
 {}
 
 bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
-        const SkIRect& desiredSubset, int sampleSize, SkColorType dstColorType,
+        const SkIRect& desiredSubset, int sampleSize, SkColorType prefColorType,
         bool requireUnpremul) {
 
     // Fix the input sampleSize if necessary.
@@ -50,10 +50,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     SkISize scaledSize = fCodec->getSampledSubsetDimensions(sampleSize, subset);
 
     // Create the image info for the decode
-    SkAlphaType dstAlphaType = fCodec->getInfo().alphaType();
-    if (kOpaque_SkAlphaType != dstAlphaType) {
-        dstAlphaType = requireUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
-    }
+    SkColorType dstColorType = fCodec->computeOutputColorType(prefColorType);
+    SkAlphaType dstAlphaType = fCodec->computeOutputAlphaType(requireUnpremul);
     SkImageInfo decodeInfo = SkImageInfo::Make(scaledSize.width(), scaledSize.height(),
             dstColorType, dstAlphaType);
 
@@ -94,6 +92,13 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
         scaledOutHeight += scaledOutY + scaledExtraY;
     }
     SkImageInfo outInfo = decodeInfo.makeWH(scaledOutWidth, scaledOutHeight);
+    if (kGray_8_SkColorType == dstColorType) {
+        // The legacy implementations of BitmapFactory and BitmapRegionDecoder
+        // used kAlpha8 for grayscale images (before kGray8 existed).  While
+        // the codec recognizes kGray8, we need to decode into a kAlpha8
+        // bitmap in order to avoid a behavior change.
+        outInfo = SkImageInfo::MakeA8(scaledOutWidth, scaledOutHeight);
+    }
     bitmap->setInfo(outInfo);
     if (!bitmap->tryAllocPixels(allocator, colorTable.get())) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
