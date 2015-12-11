@@ -66,29 +66,27 @@ private:
 
     // A helper for drawing BitmapText in a run of distance fields
     inline void fallbackDrawPosText(GrAtlasTextBlob*, int runIndex,
-                                    const GrClip&, GrColor color,
+                                    GrColor color,
                                     const SkPaint&, const SkMatrix& viewMatrix,
                                     const SkTDArray<char>& fallbackTxt,
                                     const SkTDArray<SkScalar>& fallbackPos,
                                     int scalarsPerPosition,
                                     const SkPoint& offset);
 
-    void internalDrawDFText(GrAtlasTextBlob*, int runIndex, const SkPaint&,
+    void internalDrawDFText(GrAtlasTextBlob*, int runIndex,
+                            SkGlyphCache*, const SkPaint&,
                             GrColor color, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
                             SkScalar x, SkScalar y,
-                            SkScalar textRatio,
-                            SkTDArray<char>* fallbackTxt,
-                            SkTDArray<SkScalar>* fallbackPos,
-                            SkPoint* offset, const SkPaint& origPaint);
-    void internalDrawDFPosText(GrAtlasTextBlob*, int runIndex, const SkPaint&,
+                            SkScalar textRatio, const SkPaint& origPaint);
+    void internalDrawDFPosText(GrAtlasTextBlob*, int runIndex,
+                               SkGlyphCache*, const SkPaint&,
                                GrColor color, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset,
                                SkScalar textRatio,
-                               SkTDArray<char>* fallbackTxt,
-                               SkTDArray<SkScalar>* fallbackPos);
+                               const SkPaint& origPaint);
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
@@ -104,17 +102,15 @@ private:
 
     // Test methods
     // TODO this is really ugly.  It'd be much nicer if positioning could be moved to batch
-    inline GrAtlasTextBlob* createDrawTextBlob(const GrClip&, const GrPaint&,
+    inline GrAtlasTextBlob* createDrawTextBlob(const GrPaint&,
                                                const SkPaint&, const SkMatrix& viewMatrix,
                                                const char text[], size_t byteLength,
-                                               SkScalar x, SkScalar y,
-                                               const SkIRect& regionClipBounds);
-    inline GrAtlasTextBlob* createDrawPosTextBlob(const GrClip&, const GrPaint&,
+                                               SkScalar x, SkScalar y);
+    inline GrAtlasTextBlob* createDrawPosTextBlob(const GrPaint&,
                                                   const SkPaint&, const SkMatrix& viewMatrix,
                                                   const char text[], size_t byteLength,
                                                   const SkScalar pos[], int scalarsPerPosition,
-                                                  const SkPoint& offset,
-                                                  const SkIRect& regionClipBounds);
+                                                  const SkPoint& offset);
     const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable; }
 
     GrBatchTextStrike* fCurrStrike;
