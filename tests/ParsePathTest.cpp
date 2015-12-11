@@ -63,3 +63,11 @@ DEF_TEST(ParsePath, reporter) {
     p.addRoundRect(r, 4, 4.5f);
     test_to_from(reporter, p);
 }
+
+DEF_TEST(ParsePath_invalid, r) {
+    SkPath path;
+    // This is an invalid SVG string, but the test verifies that we do not
+    // crash.
+    bool success = SkParsePath::FromSVGString("M 5", &path);
+    REPORTER_ASSERT(r, !success);
+}

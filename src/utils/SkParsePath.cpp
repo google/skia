@@ -77,6 +77,10 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
     char previousOp = '\0';
     bool relative = false;
     for (;;) {
+        if (!data) {
+            // Truncated data
+            return false;
+        }
         data = skip_ws(data);
         if (data[0] == '\0') {
             break;
