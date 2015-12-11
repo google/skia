@@ -385,6 +385,8 @@ DEFINES_UNIX = [
 ]
 
 DEFINES_ALL = [
+    # https://codereview.chromium.org/1491843006 somehow breaks fills.
+    "SK_SUPPORT_LEGACY_HAIR_IGNORES_CAPS",
     # Chrome DEFINES.
     "SK_USE_FLOATBITS",
     "SK_USE_FREETYPE_EMBOLDEN",
