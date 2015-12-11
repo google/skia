@@ -1185,12 +1185,12 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
         int contextSelector = kNone_GPUTestContexts;
         if (GrContextFactory::IsRenderingGLContext(glCtxType)) {
             contextSelector |= kAllRendering_GPUTestContexts;
-        }
-        if (glCtxType == GrContextFactory::kNative_GLContextType) {
+        } else if (glCtxType == GrContextFactory::kNative_GLContextType) {
             contextSelector |= kNative_GPUTestContexts;
-        }
-        if (glCtxType == GrContextFactory::kNull_GLContextType) {
+        } else if (glCtxType == GrContextFactory::kNull_GLContextType) {
             contextSelector |= kNull_GPUTestContexts;
+        } else if (glCtxType == GrContextFactory::kDebug_GLContextType) {
+            contextSelector |= kDebug_GPUTestContexts;
         }
         if ((testContexts & contextSelector) == 0) {
             continue;

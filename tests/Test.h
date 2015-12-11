@@ -74,10 +74,13 @@ typedef SkTRegistry<Test> TestRegistry;
 enum GPUTestContexts {
     kNone_GPUTestContexts         = 0,
     kNull_GPUTestContexts         = 1,
-    kNative_GPUTestContexts       = 1 << 1,
-    kOther_GPUTestContexts        = 1 << 2, // Other than native, used only for below.
+    kDebug_GPUTestContexts        = 1 << 1,
+    kNative_GPUTestContexts       = 1 << 2,
+    kOther_GPUTestContexts        = 1 << 3, // Other than native, used only for below.
     kAllRendering_GPUTestContexts = kNative_GPUTestContexts | kOther_GPUTestContexts,
-    kAll_GPUTestContexts          = kAllRendering_GPUTestContexts | kNull_GPUTestContexts
+    kAll_GPUTestContexts          = kAllRendering_GPUTestContexts
+                                       | kNull_GPUTestContexts
+                                       | kDebug_GPUTestContexts
 };
 template<typename T>
 void RunWithGPUTestContexts(T testFunction, GPUTestContexts contexts, Reporter* reporter,
