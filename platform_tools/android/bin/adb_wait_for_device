@@ -16,7 +16,8 @@ function get_battery_level {
     fi
   done
   echo "Could not determine battery level!" 1>&2
-  echo "0"
+  # Just exit to prevent hanging forever or failing the build.
+  exit 0
 }
 
 set -e
