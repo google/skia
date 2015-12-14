@@ -30,16 +30,38 @@ ${MY_DIR}/git_clone_to_google3.sh --skia_rev "${SKIA_REV}"
 
 echo "Synced client ${CLIENT_NAME} to ${SKIA_REV}"
 
+# Grab previous Git revision.
+GOOGLE3_REV="$(grep "Version: " README.google | cut -d ' ' -f 2)"
+
 # Update README.google.
 sed --in-place "s/^Version: .*/Version: ${SKIA_REV}/" README.google
-sed --in-place "s/URL: http:\/\/skia.googlesource.com\/skia\/+archive\/.*\.tar\.gz/URL: http:\/\/skia.googlesource.com\/skia\/+archive\/${SKIA_REV}.tar.gz/" README.google
-CURRENT_DATE=`date '+%d %B %Y'`
-echo "Updated using sync_google3.sh on $CURRENT_DATE by $USER@google.com" >> README.google
+sed --in-place "s/URL: https:\/\/skia.googlesource.com\/skia\/+archive\/.*\.tar\.gz/URL: https:\/\/skia.googlesource.com\/skia\/+archive\/${SKIA_REV}.tar.gz/" README.google
 
 # Add README.google to the default change.
 g4 reopen
+
+# Generate commit description.
+CURRENT_DATE=`date '+%d %B %Y'`
+COMMIT_RANGE="${GOOGLE3_REV:0:9}..${SKIA_REV:0:9}"
+CHANGES="$(git log ${COMMIT_RANGE} --date=short --no-merges --format='%ad %ae %s')"
+COMMITS="$(wc -l <<EOF
+${CHANGES}
+EOF
+)"
+DESC="$(cat <<EOF
+Roll Skia ${COMMIT_RANGE} (${COMMITS} commits)
+
+https://chromium.googlesource.com/skia.git/+log/${COMMIT_RANGE}
+
+$ git log ${COMMIT_RANGE} --date=short --no-merges --format='%ad %ae %s'
+${CHANGES}
+
+Change created by sync_google3.sh on ${CURRENT_DATE} by ${USER}
+EOF
+)"
+
 # Create a new CL.
-CHANGE="$(g4 change --desc "Update skia HEAD to ${SKIA_REV}.")"
+CHANGE="$(g4 change --desc "${DESC}.")"
 CL="$(echo "${CHANGE}" | sed "s/Change \([0-9]\+\) created.*/\1/")"
 
 echo "Created CL ${CL} (http://cl/${CL})"
