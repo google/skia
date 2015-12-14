@@ -14,7 +14,7 @@ class SK_API SkNullGLContext : public SkGLContext {
 public:
     ~SkNullGLContext() override;
 
-    static SkNullGLContext* Create();
+    static SkNullGLContext* Create(GrGLStandard);
 
     class ContextState;
 

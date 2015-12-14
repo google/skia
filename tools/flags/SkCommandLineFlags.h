@@ -76,11 +76,6 @@
  *  as its value. All strings that follow the flag on the command line (until
  *  a string that begins with '-') will be entries in the array.
  *
- *  DEFINE_extended_string(args, .., .., extendedHelpString);
- *
- *  creates a similar string array flag as DEFINE_string. The flag will have extended help text
- *  (extendedHelpString) that can the user can see with '--help <args>' flag.
- *
  *  Any flag can be referenced from another file after using the following:
  *
  *  DECLARE_x(name);
@@ -209,15 +204,7 @@ SK_UNUSED static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(nam
                                                                    nullptr,              \
                                                                    &FLAGS_##name,     \
                                                                    defaultValue,      \
-                                                                   helpString, nullptr)
-#define DEFINE_extended_string(name, defaultValue, helpString, extendedHelpString) \
-SkCommandLineFlags::StringArray FLAGS_##name;                                      \
-SK_UNUSED static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),   \
-                                                                   nullptr, \
-                                                                   &FLAGS_##name, \
-                                                                   defaultValue, \
-                                                                   helpString, \
-                                                                   extendedHelpString)
+                                                                   helpString)
 
 // string2 allows specifying a short name. There is an assert that shortName
 // is only 1 character.
@@ -227,7 +214,7 @@ SK_UNUSED static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(nam
                                                                    TO_STRING(shortName),  \
                                                                    &FLAGS_##name,         \
                                                                    defaultValue,          \
-                                                                   helpString, nullptr)
+                                                                   helpString)
 
 #define DECLARE_string(name) extern SkCommandLineFlags::StringArray FLAGS_##name;
 
@@ -286,7 +273,7 @@ public:
      */
     static bool CreateBoolFlag(const char* name, const char* shortName, bool* pBool,
                                bool defaultValue, const char* helpString) {
-        SkFlagInfo* info = new SkFlagInfo(name, shortName, kBool_FlagType, helpString, nullptr);
+        SkFlagInfo* info = new SkFlagInfo(name, shortName, kBool_FlagType, helpString);
         info->fBoolValue = pBool;
         *info->fBoolValue = info->fDefaultBool = defaultValue;
         return true;
@@ -300,15 +287,14 @@ public:
      */
     static bool CreateStringFlag(const char* name, const char* shortName,
                                  SkCommandLineFlags::StringArray* pStrings,
-                                 const char* defaultValue, const char* helpString,
-                                 const char* extendedHelpString);
+                                 const char* defaultValue, const char* helpString);
 
     /**
      *  See comments for CreateBoolFlag.
      */
     static bool CreateIntFlag(const char* name, int32_t* pInt,
                               int32_t defaultValue, const char* helpString) {
-        SkFlagInfo* info = new SkFlagInfo(name, nullptr, kInt_FlagType, helpString, nullptr);
+        SkFlagInfo* info = new SkFlagInfo(name, nullptr, kInt_FlagType, helpString);
         info->fIntValue = pInt;
         *info->fIntValue = info->fDefaultInt = defaultValue;
         return true;
@@ -316,7 +302,7 @@ public:
 
     static bool CreateIntFlag(const char* name, const char* shortName, int32_t* pInt,
                               int32_t defaultValue, const char* helpString) {
-        SkFlagInfo* info = new SkFlagInfo(name, shortName, kInt_FlagType, helpString, nullptr);
+        SkFlagInfo* info = new SkFlagInfo(name, shortName, kInt_FlagType, helpString);
         info->fIntValue = pInt;
         *info->fIntValue = info->fDefaultInt = defaultValue;
         return true;
@@ -327,7 +313,7 @@ public:
      */
     static bool CreateDoubleFlag(const char* name, double* pDouble,
                                  double defaultValue, const char* helpString) {
-        SkFlagInfo* info = new SkFlagInfo(name, nullptr, kDouble_FlagType, helpString, nullptr);
+        SkFlagInfo* info = new SkFlagInfo(name, nullptr, kDouble_FlagType, helpString);
         info->fDoubleValue = pDouble;
         *info->fDoubleValue = info->fDefaultDouble = defaultValue;
         return true;
@@ -397,7 +383,6 @@ public:
     const SkString& shortName() const { return fShortName; }
 
     const SkString& help() const { return fHelpString; }
-    const SkString& extendedHelp() const { return fExtendedHelpString; }
 
     SkString defaultValue() const {
         SkString result;
@@ -436,13 +421,11 @@ public:
     }
 
 private:
-    SkFlagInfo(const char* name, const char* shortName, FlagTypes type, const char* helpString,
-               const char* extendedHelpString)
+    SkFlagInfo(const char* name, const char* shortName, FlagTypes type, const char* helpString)
         : fName(name)
         , fShortName(shortName)
         , fFlagType(type)
         , fHelpString(helpString)
-        , fExtendedHelpString(extendedHelpString)
         , fBoolValue(nullptr)
         , fDefaultBool(false)
         , fIntValue(nullptr)
@@ -470,7 +453,6 @@ private:
     SkString             fShortName;
     FlagTypes            fFlagType;
     SkString             fHelpString;
-    SkString             fExtendedHelpString;
     bool*                fBoolValue;
     bool                 fDefaultBool;
     int32_t*             fIntValue;

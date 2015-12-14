@@ -7,12 +7,22 @@
 
 #include "SkCommonFlags.h"
 
+DEFINE_string(config, "565 8888 gpu nonrendering angle hwui ", "Options: "
+              "565 8888 angle debug gpu gpudebug gpudft gpunull hwui mesa "
+              "msaa16 msaa4 nonrendering null nullgpu nvprmsaa16 nvprmsaa4 "
+              "pdf skp svg xps (and maybe more)");
+
 DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 
 DEFINE_bool(dryRun, false,
             "just print the tests that would be run, without actually running them.");
 
 DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+
+DEFINE_string(gpuAPI, "", "Force use of specific gpu API.  Using \"gl\" "
+              "forces OpenGL API. Using \"gles\" forces OpenGL ES API. "
+              "Defaults to empty string, which selects the API native to the "
+              "system.");
 
 DEFINE_string(images, "", "Directory of images to decode.");
 
