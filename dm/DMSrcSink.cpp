@@ -810,19 +810,15 @@ void PreAbandonGpuContextErrorHandler(SkError, void*) {}
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
 DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
 DEFINE_bool(batchBounds, false, "Draw a wireframe bounds of each GrBatch.");
+DEFINE_int32(batchLookback, -1, "Maximum GrBatch lookback for combining, negative means default.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions grOptions;
-    if (FLAGS_imm) {
-        grOptions.fImmediateMode = true;
-    }
-    if (FLAGS_batchClip) {
-        grOptions.fClipBatchToBounds = true;
-    }
+    grOptions.fImmediateMode = FLAGS_imm;
+    grOptions.fClipBatchToBounds = FLAGS_batchClip;
+    grOptions.fDrawBatchBounds = FLAGS_batchBounds;
+    grOptions.fMaxBatchLookback = FLAGS_batchLookback;
 
-    if (FLAGS_batchBounds) {
-        grOptions.fDrawBatchBounds = true;
-    }
     src.modifyGrContextOptions(&grOptions);
 
     GrContextFactory factory(grOptions);

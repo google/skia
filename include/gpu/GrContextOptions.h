@@ -22,6 +22,7 @@ struct GrContextOptions {
         , fImmediateMode(false)
         , fClipBatchToBounds(false)
         , fDrawBatchBounds(false)
+        , fMaxBatchLookback(-1)
         , fUseShaderSwizzling(false) {}
 
     // EXPERIMENTAL
@@ -62,6 +63,9 @@ struct GrContextOptions {
         frame rect is draw before the GrBatch in order to visualize batches that draw outside
         of their dev bounds. */
     bool fDrawBatchBounds;
+
+    /** For debugging, override the default maximum look-back window for GrBatch combining. */
+    int fMaxBatchLookback;
 
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
