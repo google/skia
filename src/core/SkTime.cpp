@@ -36,24 +36,13 @@ void SkTime::DateTime::toISO8601(SkString* dst) const {
             return new double(1e6 / khz.QuadPart);
         });
     }
-#elif defined(__MACH__)
-    // TODO: fold into std::chrono when available?
-    #include <mach/mach_time.h>
-    SK_DECLARE_STATIC_ONCE_PTR(double, ns_per_tick);
-    double SkTime::GetNSecs() {
-        uint64_t ticks = mach_absolute_time();
-        return ticks * *ns_per_tick.get([]{
-            mach_timebase_info_data_t timebase;
-            (void)mach_timebase_info(&timebase);
-            return new double(timebase.numer * 1.0 / timebase.denom);
-        });
-    }
 #else
-    // This std::chrono code looks great on Linux and Android,
-    // but MSVC 2013 returned mostly garbage (0ns times, etc).
+    // This std::chrono code looks great on Linux, Mac, and Android,
+    // but MSVC 2013 returns mostly garbage (0ns times, etc).
+    // This is ostensibly fixed in MSVC 2015.
     #include <chrono>
     double SkTime::GetNSecs() {
-        auto now = std::chrono::high_resolution_clock::now();
+        auto now = std::chrono::steady_clock::now();
         std::chrono::duration<double, std::nano> ns = now.time_since_epoch();
         return ns.count();
     }
