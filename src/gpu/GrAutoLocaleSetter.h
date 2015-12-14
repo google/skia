@@ -10,6 +10,10 @@
 
 #include "GrTypes.h"
 
+#if defined(SK_BUILD_FOR_WIN)
+#include "SkString.h"
+#endif
+
 #if !defined(SK_BUILD_FOR_ANDROID)
 #include <locale.h>
 #endif
@@ -26,8 +30,14 @@ class GrAutoLocaleSetter : public SkNoncopyable {
 public:
     GrAutoLocaleSetter (const char* name) {
 #if defined(SK_BUILD_FOR_WIN)
-        fOldPerThreadLocale = _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
-        fOldLocale = setlocale(LC_ALL, name);
+        fOldPerThreadLocale = _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);        
+        char* oldLocale = setlocale(LC_ALL, name);
+        if (oldLocale) {
+            fOldLocale = oldLocale;
+            fShouldRestoreLocale = true;
+        } else {
+            fShouldRestoreLocale = false;
+        }
 #elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
         fLocale = newlocale(LC_ALL, name, 0);
         if (fLocale) {
@@ -42,8 +52,8 @@ public:
 
     ~GrAutoLocaleSetter () {
 #if defined(SK_BUILD_FOR_WIN)
-        if (fOldLocale) {
-            setlocale(LC_ALL, fOldLocale);
+        if (fShouldRestoreLocale) {
+            setlocale(LC_ALL, fOldLocale.c_str());
         }
         _configthreadlocale(fOldPerThreadLocale);
 #elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
@@ -57,7 +67,8 @@ public:
 private:
 #if defined(SK_BUILD_FOR_WIN)
     int fOldPerThreadLocale;
-    const char* fOldLocale;
+    bool fShouldRestoreLocale;
+    SkString fOldLocale;
 #elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
     locale_t fOldLocale;
     locale_t fLocale;
