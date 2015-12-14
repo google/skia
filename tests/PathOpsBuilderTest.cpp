@@ -270,3 +270,34 @@ DEF_TEST(Fuzz846, reporter) {
     SkPath result;
     builder.resolve(&result);
 }
+
+DEF_TEST(Issue569540, reporter) {
+    SkPath path1;
+    path1.moveTo(5, -225);
+    path1.lineTo(-225, 7425);
+    path1.lineTo(7425, 7425);
+    path1.lineTo(7425, -225);
+    path1.lineTo(-225, -225);
+    path1.lineTo(5, -225);
+    path1.close();
+
+    SkPath path2;
+    path2.moveTo(5940, 2790);
+    path2.lineTo(5940, 2160);
+    path2.lineTo(5970, 1980);
+    path2.lineTo(5688, 773669888);
+    path2.lineTo(5688, 2160);
+    path2.lineTo(5688, 2430);
+    path2.lineTo(5400, 4590);
+    path2.lineTo(5220, 4590);
+    path2.lineTo(5220, 4920);
+    path2.cubicTo(5182.22900390625f, 4948.328125f, 5160, 4992.78662109375f, 5160, 5040.00048828125f);
+    path2.lineTo(5940, 2790);
+    path2.close();
+
+    SkOpBuilder builder;
+    builder.add(path1, kUnion_SkPathOp);
+    builder.add(path2, kUnion_SkPathOp);
+    SkPath result;
+    builder.resolve(&result);
+}

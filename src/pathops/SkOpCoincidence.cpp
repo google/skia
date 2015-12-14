@@ -390,6 +390,9 @@ bool SkOpCoincidence::apply() {
         SkOpSegment* oSegment = oStart->segment();
         bool operandSwap = segment->operand() != oSegment->operand();
         if (flipped) {
+            if (oEnd->deleted()) {
+                continue;
+            }
             do {
                 SkOpSpanBase* oNext = oStart->next();
                 if (oNext == oEnd) {
