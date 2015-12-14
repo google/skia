@@ -59,10 +59,10 @@ void color_cube_filter_span(const SkPMColor src[],
             const SkColor lutColor10 = colorCube[ix + i10];
             const SkColor lutColor11 = colorCube[ix + i11];
 
-            Sk4f  sum = Sk4f::FromBytes((const uint8_t*)&lutColor00) * g0b0;
-            sum = sum + Sk4f::FromBytes((const uint8_t*)&lutColor01) * g0b1;
-            sum = sum + Sk4f::FromBytes((const uint8_t*)&lutColor10) * g1b0;
-            sum = sum + Sk4f::FromBytes((const uint8_t*)&lutColor11) * g1b1;
+            Sk4f  sum = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor00)) * g0b0;
+            sum = sum + SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor01)) * g0b1;
+            sum = sum + SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor10)) * g1b0;
+            sum = sum + SkNx_cast<float>(Sk4b::Load((const uint8_t*)&lutColor11)) * g1b1;
             color = color + sum * Sk4f((float)colorToFactors[x][r]);
         }
         if (a != 255) {
@@ -74,7 +74,7 @@ void color_cube_filter_span(const SkPMColor src[],
         color = SkNx_shuffle<2,1,0,3>(color);
     #endif
         uint8_t* dstBytes = (uint8_t*)(dst+i);
-        color.toBytes(dstBytes);
+        SkNx_cast<uint8_t>(color).store(dstBytes);
         dstBytes[SK_A32_SHIFT/8] = a;
     }
 }

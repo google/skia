@@ -26,27 +26,10 @@ public:
     SkNx(float val) : fVec(_mm256_set1_ps(val)) {}
     static SkNx Load(const float vals[8]) { return _mm256_loadu_ps(vals); }
 
-    static SkNx FromBytes(const uint8_t bytes[8]) {
-        __m128i fix8  = _mm_loadl_epi64((const __m128i*)bytes),
-                fix16 = _mm_unpacklo_epi8 (fix8 , _mm_setzero_si128()),
-                 lo32 = _mm_unpacklo_epi16(fix16, _mm_setzero_si128()),
-                 hi32 = _mm_unpackhi_epi16(fix16, _mm_setzero_si128());
-        __m256i fix32 = _mm256_insertf128_si256(_mm256_castsi128_si256(lo32), hi32, 1);
-        return _mm256_cvtepi32_ps(fix32);
-    }
-
     SkNx(float a, float b, float c, float d,
          float e, float f, float g, float h) : fVec(_mm256_setr_ps(a,b,c,d,e,f,g,h)) {}
 
     void store(float vals[8]) const { _mm256_storeu_ps(vals, fVec); }
-    void toBytes(uint8_t bytes[8]) const {
-        __m256i fix32 = _mm256_cvttps_epi32(fVec);
-        __m128i  lo32 = _mm256_extractf128_si256(fix32, 0),
-                 hi32 = _mm256_extractf128_si256(fix32, 1),
-                fix16 = _mm_packus_epi32(lo32, hi32),
-                fix8  = _mm_packus_epi16(fix16, fix16);
-        _mm_storel_epi64((__m128i*)bytes, fix8);
-    }
 
     SkNx operator + (const SkNx& o) const { return _mm256_add_ps(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm256_sub_ps(fVec, o.fVec); }
@@ -86,6 +69,25 @@ public:
 
     __m256 fVec;
 };
+
+template<> inline Sk8b SkNx_cast<uint8_t, float, 8>(const Sk8f& src) {
+    __m256i _32 = _mm256_cvttps_epi32(src.fVec);
+    __m128i  lo = _mm256_extractf128_si256(_32, 0),
+             hi = _mm256_extractf128_si256(_32, 1),
+            _16 = _mm_packus_epi32(lo, hi);
+    return _mm_packus_epi16(_16, _16);
+}
+
+template<> inline Sk8f SkNx_cast<float, uint8_t, 8>(const Sk8b& src) {
+    /* TODO lo = _mm_cvtepu8_epi32(src.fVec),
+     *      hi = _mm_cvtepu8_epi32(_mm_srli_si128(src.fVec, 4))
+     */
+    __m128i _16 = _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128()),
+             lo = _mm_unpacklo_epi16(_16, _mm_setzero_si128()),
+             hi = _mm_unpackhi_epi16(_16, _mm_setzero_si128());
+    __m256i _32 = _mm256_insertf128_si256(_mm256_castsi128_si256(lo), hi, 1);
+    return _mm256_cvtepi32_ps(_32);
+}
 
 }  // namespace
 

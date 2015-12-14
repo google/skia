@@ -265,11 +265,11 @@ public:
 
 private:
     static Sk4f Load(SkPMColor c) {
-        return Sk4f::FromBytes((uint8_t*)&c) * Sk4f(1.0f/255);
+        return SkNx_cast<float>(Sk4b::Load((uint8_t*)&c)) * Sk4f(1.0f/255);
     }
     static SkPMColor Round(const Sk4f& f) {
         SkPMColor c;
-        (f * Sk4f(255) + Sk4f(0.5f)).toBytes((uint8_t*)&c);
+        SkNx_cast<uint8_t>(f * Sk4f(255) + Sk4f(0.5f)).store((uint8_t*)&c);
         return c;
     }
     inline SkPMColor xfer32(SkPMColor dst, SkPMColor src) const {

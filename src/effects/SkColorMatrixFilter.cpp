@@ -258,7 +258,7 @@ static Sk4f clamp_0_1(const Sk4f& x) {
 
 static SkPMColor round(const Sk4f& x) {
     SkPMColor c;
-    (x * Sk4f(255) + Sk4f(0.5f)).toBytes((uint8_t*)&c);
+    SkNx_cast<uint8_t>(x * Sk4f(255) + Sk4f(0.5f)).store((uint8_t*)&c);
     return c;
 }
 
@@ -296,7 +296,7 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
                 continue;
             }
 
-            Sk4f srcf = Sk4f::FromBytes((const uint8_t*)&src_c) * Sk4f(1.0f/255);
+            Sk4f srcf = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&src_c)) * Sk4f(1.0f/255);
 
             if (0xFF != SkGetPackedA32(src_c)) {
                 srcf = unpremul(srcf);

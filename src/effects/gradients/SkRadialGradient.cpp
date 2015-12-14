@@ -307,7 +307,7 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
             dR = dR + ddR;
 
             uint8_t fi[4];
-            dist.toBytes(fi);
+            SkNx_cast<uint8_t>(dist).store(fi);
 
             for (int i = 0; i < 4; i++) {
                 *dstC++ = cache[toggle + fi[i]];
@@ -319,7 +319,7 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
             Sk4f dist = Sk4f::Min(fast_sqrt(R), max);
 
             uint8_t fi[4];
-            dist.toBytes(fi);
+            SkNx_cast<uint8_t>(dist).store(fi);
             for (int i = 0; i < count; i++) {
                 *dstC++ = cache[toggle + fi[i]];
                 toggle = next_dither_toggle(toggle);

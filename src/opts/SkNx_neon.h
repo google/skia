@@ -150,31 +150,9 @@ public:
     SkNx() {}
     SkNx(float val)           : fVec(vdupq_n_f32(val)) {}
     static SkNx Load(const float vals[4]) { return vld1q_f32(vals); }
-    static SkNx FromBytes(const uint8_t vals[4]) {
-        uint8x8_t   fix8    = (uint8x8_t)vld1_dup_u32((const uint32_t*)vals);
-        uint16x8_t  fix8_16 = vmovl_u8(fix8);
-        uint32x4_t  fix8_32 = vmovl_u16(vget_low_u16(fix8_16));
-        return SkNx(vcvtq_f32_u32(fix8_32));
-    }
-
     SkNx(float a, float b, float c, float d) { fVec = (float32x4_t) { a, b, c, d }; }
 
     void store(float vals[4]) const { vst1q_f32(vals, fVec); }
-    void toBytes(uint8_t bytes[4]) const {
-        uint32x4_t  fix8_32 = vcvtq_u32_f32(fVec);
-        uint16x4_t  fix8_16 = vqmovn_u32(fix8_32);
-        uint8x8_t   fix8    = vqmovn_u16(vcombine_u16(fix8_16, vdup_n_u16(0)));
-        vst1_lane_u32((uint32_t*)bytes, (uint32x2_t)fix8, 0);
-    }
-
-    static void ToBytes(uint8_t bytes[16],
-                        const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
-        vst1q_u8(bytes, vuzpq_u8(vuzpq_u8((uint8x16_t)vcvtq_u32_f32(a.fVec),
-                                          (uint8x16_t)vcvtq_u32_f32(b.fVec)).val[0],
-                                 vuzpq_u8((uint8x16_t)vcvtq_u32_f32(c.fVec),
-                                          (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0]);
-    }
-
     SkNx approxInvert() const {
         float32x4_t est0 = vrecpeq_f32(fVec),
                     est1 = vmulq_f32(vrecpsq_f32(est0, fVec), est0);
@@ -288,6 +266,24 @@ public:
 };
 
 template <>
+class SkNx<4, uint8_t> {
+public:
+    SkNx(const uint8x8_t& vec) : fVec(vec) {}
+
+    SkNx() {}
+    static SkNx Load(const uint8_t vals[4]) {
+        return (uint8x8_t)vld1_dup_u32((const uint32_t*)vals);
+    }
+    void store(uint8_t vals[4]) const {
+        return vst1_lane_u32((uint32_t*)vals, (uint32x2_t)fVec, 0);
+    }
+
+    // TODO as needed
+
+    uint8x8_t fVec;
+};
+
+template <>
 class SkNx<16, uint8_t> {
 public:
     SkNx(const uint8x16_t& vec) : fVec(vec) {}
@@ -329,9 +325,28 @@ public:
 #undef SHIFT16
 #undef SHIFT8
 
-template<>
-inline SkNx<4, int> SkNx_cast<int, float, 4>(const SkNx<4, float>& src) {
+template<> inline Sk4i SkNx_cast<int, float, 4>(const Sk4f& src) {
     return vcvtq_s32_f32(src.fVec);
+}
+
+template<> inline Sk4b SkNx_cast<uint8_t, float, 4>(const Sk4f& src) {
+    uint32x4_t _32 = vcvtq_u32_f32(src.fVec);
+    uint16x4_t _16 = vqmovn_u32(_32);
+    return vqmovn_u16(vcombine_u16(_16, _16));
+}
+
+template<> inline Sk4f SkNx_cast<float, uint8_t, 4>(const Sk4b& src) {
+    uint16x8_t _16 = vmovl_u8 (src.fVec) ;
+    uint32x4_t _32 = vmovl_u16(vget_low_u16(_16));
+    return vcvtq_f32_u32(_32);
+}
+
+static inline void Sk4f_ToBytes(uint8_t bytes[16],
+                                const Sk4f& a, const Sk4f& b, const Sk4f& c, const Sk4f& d) {
+    vst1q_u8(bytes, vuzpq_u8(vuzpq_u8((uint8x16_t)vcvtq_u32_f32(a.fVec),
+                                      (uint8x16_t)vcvtq_u32_f32(b.fVec)).val[0],
+                             vuzpq_u8((uint8x16_t)vcvtq_u32_f32(c.fVec),
+                                      (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0]);
 }
 
 }  // namespace
