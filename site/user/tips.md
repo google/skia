@@ -150,7 +150,8 @@ Does Skia shape text (kerning)?
 -------------------------------
 
 No.  Skia provides interfaces to draw glyphs, but does not implement a
-text shaper. Skia's client's often use Harfbuzz to generate the glyphs
-and their positions, including kerning.
+text shaper. Skia's client's often use
+[HarfBuzz](http://www.freedesktop.org/wiki/Software/HarfBuzz/) to
+generate the glyphs and their positions, including kerning.
 
 <div style="margin-bottom:99%"></div>
