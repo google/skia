@@ -241,45 +241,12 @@
     Memcheck:Cond
     fun:_Z26S32A_Opaque_BlitRow32_SSE4PjPKjij
     fun:_ZN14Sprite_D32_S328blitRectEiiii
-    fun:_ZN6SkScan9FillIRectERK7SkIRectPK8SkRegionP9SkBlitter
-    fun:_ZN6SkScan9FillIRectERK7SkIRectRK12SkRasterClipP9SkBlitter
-    fun:_ZNK6SkDraw10drawBitmapERK8SkBitmapRK8SkMatrixPK6SkRectRK7SkPaint
-    fun:_ZN14SkBitmapDevice10drawBitmapERK6SkDrawRK8SkBitmapRK8SkMatrixRK7SkPaint
-    fun:_ZN12SkBaseDevice9drawImageERK6SkDrawPK7SkImageffRK7SkPaint
-    fun:_ZN8SkCanvas11onDrawImageEPK7SkImageffPK7SkPaint
-    fun:_ZN8SkCanvas9drawImageEPK7SkImageffPK7SkPaint
-    fun:_ZN8SKPBench19onPerCanvasPostDrawEP8SkCanvas
-    fun:_ZN9Benchmark17perCanvasPostDrawEP8SkCanvas
-    fun:_Z14nanobench_mainv
-    fun:main
 }
 {
     libjpeg_turbo_bug4550_2
     Memcheck:Cond
     fun:_ZL15S32A_D565_BlendPtPKjijii
     fun:_ZN26Sprite_D16_S32_BlitRowProc8blitRectEiiii
-    fun:_ZN6SkScan9FillIRectERK7SkIRectPK8SkRegionP9SkBlitter
-    fun:_ZN6SkScan9FillIRectERK7SkIRectRK12SkRasterClipP9SkBlitter
-    fun:_ZNK6SkDraw10drawSpriteERK8SkBitmapiiRK7SkPaint
-    fun:_ZN14SkBitmapDevice10drawDeviceERK6SkDrawP12SkBaseDeviceiiRK7SkPaint
-    fun:_ZN8SkCanvas18internalDrawDeviceEP12SkBaseDeviceiiPK7SkPaintb
-    fun:_ZN8SkCanvas15internalRestoreEv
-    fun:_ZN8SkCanvas7restoreEv
-    fun:_Z12SkRecordDrawRK8SkRecordP8SkCanvasPKPK9SkPicturePKP10SkDrawableiPK15SkBBoxHierarchyPNS4_13AbortCallbackE
-    fun:_ZNK12SkBigPicture8playbackEP8SkCanvasPN9SkPicture13AbortCallbackE
-    fun:_ZN8SkCanvas13onDrawPictureEPK9SkPicturePK8SkMatrixPK7SkPaint
-    fun:_ZN8SkCanvas11drawPictureEPK9SkPicturePK8SkMatrixPK7SkPaint
-    fun:_ZN9SkRecords4Draw4drawINS_11DrawPictureEEEvRKT_
-    fun:_Z12SkRecordDrawRK8SkRecordP8SkCanvasPKPK9SkPicturePKP10SkDrawableiPK15SkBBoxHierarchyPNS4_13AbortCallbackE
-    fun:_ZNK12SkBigPicture8playbackEP8SkCanvasPN9SkPicture13AbortCallbackE
-    fun:_ZN8SkCanvas13onDrawPictureEPK9SkPicturePK8SkMatrixPK7SkPaint
-    fun:_ZN8SkCanvas11drawPictureEPK9SkPicturePK8SkMatrixPK7SkPaint
-    fun:_ZN18SkMultiPictureDraw8DrawData4drawEv
-    fun:_ZZ15sk_parallel_forIZN18SkMultiPictureDraw4drawEbEUliE_EviRKT_ENUlPZS_IS1_EviS4_E5ChunkE_4_FUNES6_
-    fun:_ZN12_GLOBAL__N_110ThreadPool4LoopEPv
-    fun:_ZL12thread_startPv
-    fun:start_thread
-    fun:clone
 }
 {
     libjpeg_turbo_bug4550_3
