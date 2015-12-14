@@ -146,9 +146,10 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
             // depending on the surrounding code, accessing .xy with a uniform involved can
             // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand 
             // (and only accessing .xy) seems to "fix" things.
-            this->codePrependf("\tvec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n",
-                               kCoordName, kTempName, rtHeightName, kTempName);
-            this->codePrependf("vec2 %s = gl_FragCoord.xy;", kTempName);
+            const char* precision = glslCaps->usesPrecisionModifiers() ? "highp " : "";
+            this->codePrependf("\t%svec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n",
+                               precision, kCoordName, kTempName, rtHeightName, kTempName);
+            this->codePrependf("%svec2 %s = gl_FragCoord.xy;", precision, kTempName);
             fSetupFragPosition = true;
         }
         SkASSERT(fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
