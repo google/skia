@@ -135,10 +135,22 @@ Does Skia support Font hinting?
 -------------------------------
 
 Skia has a built-in font cache, but it does not know how to actual render font
-files like TrueType? into its cache. For that it relies on the platform to
-supply an instance of SkScalerContext?. This is Skia's abstract interface for
+files like TrueType into its cache. For that it relies on the platform to
+supply an instance of SkScalerContext. This is Skia's abstract interface for
 communicating with a font scaler engine. In src/ports you can see support
-files for FreeType?, Mac OS X, and Windows GDI font engines. Other font
+files for FreeType, Mac OS X, and Windows GDI font engines. Other font
 engines can easily be supported in a like manner.
 
 
+* * *
+
+<span id="kerning"></span>
+
+Does Skia shape text (kerning)?
+-------------------------------
+
+No.  Skia provides interfaces to draw glyphs, but does not implement a
+text shaper. Skia's client's often use Harfbuzz to generate the glyphs
+and their positions, including kerning.
+
+<div style="margin-bottom:99%"></div>
