@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkGeometry.h"
 #include "SkPaint.h"
 #include "SkParse.h"
 #include "SkParsePath.h"
@@ -3514,6 +3515,10 @@ static void test_contains(skiatest::Reporter* reporter) {
     p.moveTo(4, 4);
     p.lineTo(6, 8);
     p.lineTo(8, 4);
+    // test on edge
+    REPORTER_ASSERT(reporter, p.contains(6, 4));
+    REPORTER_ASSERT(reporter, p.contains(5, 6));
+    REPORTER_ASSERT(reporter, p.contains(7, 6));
     // test quick reject
     REPORTER_ASSERT(reporter, !p.contains(4, 0));
     REPORTER_ASSERT(reporter, !p.contains(0, 4));
@@ -3527,10 +3532,43 @@ static void test_contains(skiatest::Reporter* reporter) {
     p.moveTo(4, 4);
     p.lineTo(8, 6);
     p.lineTo(4, 8);
+    // test on edge
+    REPORTER_ASSERT(reporter, p.contains(4, 6));
+    REPORTER_ASSERT(reporter, p.contains(6, 5));
+    REPORTER_ASSERT(reporter, p.contains(6, 7));
     // test various crossings in y
     REPORTER_ASSERT(reporter, !p.contains(7, 5));
     REPORTER_ASSERT(reporter, p.contains(7, 6));
     REPORTER_ASSERT(reporter, !p.contains(7, 7));
+    p.reset();
+    p.moveTo(4, 4);
+    p.lineTo(6, 8);
+    p.lineTo(2, 8);
+    // test on edge
+    REPORTER_ASSERT(reporter, p.contains(5, 6));
+    REPORTER_ASSERT(reporter, p.contains(4, 8));
+    REPORTER_ASSERT(reporter, p.contains(3, 6));
+    p.reset();
+    p.moveTo(4, 4);
+    p.lineTo(0, 6);
+    p.lineTo(4, 8);
+    // test on edge
+    REPORTER_ASSERT(reporter, p.contains(2, 5));
+    REPORTER_ASSERT(reporter, p.contains(2, 7));
+    REPORTER_ASSERT(reporter, p.contains(4, 6));
+    // test canceling coincident edge (a smaller triangle is coincident with a larger one)
+    p.reset();
+    p.moveTo(4, 0);
+    p.lineTo(6, 4);
+    p.lineTo(2, 4);
+    p.moveTo(4, 0);
+    p.lineTo(0, 8);
+    p.lineTo(8, 8);
+    REPORTER_ASSERT(reporter, !p.contains(1, 2));
+    REPORTER_ASSERT(reporter, !p.contains(3, 2));
+    REPORTER_ASSERT(reporter, !p.contains(4, 0));
+    REPORTER_ASSERT(reporter, p.contains(4, 4));
+
     // test quads
     p.reset();
     p.moveTo(4, 4);
@@ -3539,25 +3577,41 @@ static void test_contains(skiatest::Reporter* reporter) {
     p.quadTo(4, 6, 4, 4);
     REPORTER_ASSERT(reporter, p.contains(5, 6));
     REPORTER_ASSERT(reporter, !p.contains(6, 5));
+    // test quad edge
+    REPORTER_ASSERT(reporter, p.contains(5, 5));
+    REPORTER_ASSERT(reporter, p.contains(5, 8));
+    REPORTER_ASSERT(reporter, p.contains(4, 5));
 
     p.reset();
-    p.moveTo(6, 6);
-    p.quadTo(8, 8, 6, 8);
-    p.quadTo(4, 8, 4, 6);
-    p.quadTo(4, 4, 6, 6);
+    const SkPoint qPts[] = {{6, 6}, {8, 8}, {6, 8}, {4, 8}, {4, 6}, {4, 4}, {6, 6}};
+    p.moveTo(qPts[0]);
+    for (int index = 1; index < (int) SK_ARRAY_COUNT(qPts); index += 2) {
+        p.quadTo(qPts[index], qPts[index + 1]);
+    }
     REPORTER_ASSERT(reporter, p.contains(5, 6));
     REPORTER_ASSERT(reporter, !p.contains(6, 5));
+    // test quad edge
+    SkPoint halfway;
+    for (int index = 0; index < (int) SK_ARRAY_COUNT(qPts) - 2; index += 2) {
+        SkEvalQuadAt(&qPts[index], 0.5f, &halfway, nullptr);
+        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+    }
 
-#define CONIC_CONTAINS_BUG_FIXED 0
-#if CONIC_CONTAINS_BUG_FIXED
+    // test conics
     p.reset();
-    p.moveTo(4, 4);
-    p.conicTo(6, 6, 8, 8, 0.5f);
-    p.conicTo(6, 8, 4, 8, 0.5f);
-    p.conicTo(4, 6, 4, 4, 0.5f);
+    const SkPoint kPts[] = {{4, 4}, {6, 6}, {8, 8}, {6, 8}, {4, 8}, {4, 6}, {4, 4}};
+    p.moveTo(kPts[0]);
+    for (int index = 1; index < (int) SK_ARRAY_COUNT(kPts); index += 2) {
+        p.conicTo(kPts[index], kPts[index + 1], 0.5f);
+    }
     REPORTER_ASSERT(reporter, p.contains(5, 6));
     REPORTER_ASSERT(reporter, !p.contains(6, 5));
-#endif
+    // test conic edge
+    for (int index = 0; index < (int) SK_ARRAY_COUNT(kPts) - 2; index += 2) {
+        SkConic conic(&kPts[index], 0.5f);
+        halfway = conic.evalAt(0.5f);
+        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+    }
 
     // test cubics
     SkPoint pts[] = {{5, 4}, {6, 5}, {7, 6}, {6, 6}, {4, 6}, {5, 7}, {5, 5}, {5, 4}, {6, 5}, {7, 6}};
@@ -3570,6 +3624,11 @@ static void test_contains(skiatest::Reporter* reporter) {
         p.close();
         REPORTER_ASSERT(reporter, p.contains(5.5f, 5.5f));
         REPORTER_ASSERT(reporter, !p.contains(4.5f, 5.5f));
+        // test cubic edge
+        SkEvalCubicAt(&pts[i], 0.5f, &halfway, nullptr, nullptr);
+        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+        SkEvalCubicAt(&pts[i + 3], 0.5f, &halfway, nullptr, nullptr);
+        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
     }
 }
 
@@ -3795,6 +3854,10 @@ public:
         REPORTER_ASSERT(reporter, changed);
     }
 };
+
+DEF_TEST(PathContains, reporter) {
+    test_contains(reporter);
+}
 
 DEF_TEST(Paths, reporter) {
     test_path_crbug364224();
