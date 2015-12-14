@@ -24,19 +24,23 @@
 class GrContextFactory : SkNoncopyable {
 public:
     enum GLContextType {
-        kNative_GLContextType,
+        kNative_GLContextType,  //! OpenGL or OpenGL ES context.
+        kGL_GLContextType,      //! OpenGL context.
+        kGLES_GLContextType,    //! OpenGL ES context.
 #if SK_ANGLE
-        kANGLE_GLContextType,
-        kANGLE_GL_GLContextType,
+#ifdef SK_BUILD_FOR_WIN
+        kANGLE_GLContextType,    //! ANGLE on DirectX OpenGL ES context.
+#endif
+        kANGLE_GL_GLContextType, //! ANGLE on OpenGL OpenGL ES context.
 #endif
 #if SK_COMMAND_BUFFER
-        kCommandBuffer_GLContextType,
+        kCommandBuffer_GLContextType, //! Chromium command buffer OpenGL ES context.
 #endif
 #if SK_MESA
-        kMESA_GLContextType,
+        kMESA_GLContextType,  //! MESA OpenGL context
 #endif
-        kNull_GLContextType,
-        kDebug_GLContextType,
+        kNull_GLContextType,  //! Non-rendering OpenGL mock context.
+        kDebug_GLContextType, //! Non-rendering, state verifying OpenGL context.
         kLastGLContextType = kDebug_GLContextType
     };
 
@@ -65,11 +69,15 @@ public:
         switch (type) {
             case kNative_GLContextType:
                 return "native";
-            case kNull_GLContextType:
-                return "null";
+            case kGL_GLContextType:
+                return "gl";
+            case kGLES_GLContextType:
+                return "gles";
 #if SK_ANGLE
+#ifdef SK_BUILD_FOR_WIN
             case kANGLE_GLContextType:
                 return "angle";
+#endif
             case kANGLE_GL_GLContextType:
                 return "angle-gl";
 #endif
@@ -81,6 +89,8 @@ public:
             case kMESA_GLContextType:
                 return "mesa";
 #endif
+            case kNull_GLContextType:
+                return "null";
             case kDebug_GLContextType:
                 return "debug";
             default:
@@ -124,15 +134,14 @@ public:
      * Get a context initialized with a type of GL context. It also makes the GL context current.
      * Pointer is valid until destroyContexts() is called.
      */
-    ContextInfo* getContextInfo(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard,
+    ContextInfo* getContextInfo(GLContextType type,
                                 GLContextOptions options = kNone_GLContextOptions);
 
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(GLContextType type, GrGLStandard forcedGpuAPI = kNone_GrGLStandard,
-                   GLContextOptions options = kNone_GLContextOptions) {
-        if (ContextInfo* info = this->getContextInfo(type, forcedGpuAPI, options)) {
+    GrContext* get(GLContextType type, GLContextOptions options = kNone_GLContextOptions) {
+        if (ContextInfo* info = this->getContextInfo(type, options)) {
             return info->fGrContext;
         }
         return nullptr;

@@ -17,10 +17,14 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     // Test that if NVPR is requested, the context always has path rendering
     // or the context creation fails.
     GrContextFactory testFactory;
-    GrContext* context = testFactory.get(GrContextFactory::kNative_GLContextType,
-                                         kNone_GrGLStandard,
-                                         GrContextFactory::kEnableNVPR_GLContextOptions);
-    if (context) {
+    // Test that if NVPR is possible, caps are in sync.
+    for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+        GrContextFactory::GLContextType glCtxType = static_cast<GrContextFactory::GLContextType>(i);
+        GrContext* context = testFactory.get(glCtxType,
+                                             GrContextFactory::kEnableNVPR_GLContextOptions);
+        if (!context) {
+            continue;
+        }
         REPORTER_ASSERT(
             reporter,
             context->caps()->shaderCaps()->pathRenderingSupport());
