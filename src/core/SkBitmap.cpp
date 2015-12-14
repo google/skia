@@ -39,6 +39,8 @@ SkBitmap::SkBitmap(const SkBitmap& src) {
     SkDEBUGCODE(this->validate();)
 }
 
+SkBitmap::SkBitmap(SkBitmap&& other) : SkBitmap() { this->swap(other); }
+
 SkBitmap::~SkBitmap() {
     SkDEBUGCODE(this->validate();)
     this->freePixels();
@@ -69,6 +71,14 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
     }
 
     SkDEBUGCODE(this->validate();)
+    return *this;
+}
+
+SkBitmap& SkBitmap::operator=(SkBitmap&& other) {
+    if (this != &other) {
+        this->swap(other);
+        other.reset();
+    }
     return *this;
 }
 

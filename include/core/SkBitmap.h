@@ -54,12 +54,24 @@ public:
      */
     SkBitmap(const SkBitmap& src);
 
+    /**
+     *  Copy the settings from the src into this bitmap. If the src has pixels
+     *  allocated, ownership of the pixels will be taken.
+     */
+    SkBitmap(SkBitmap&& src);
+
     ~SkBitmap();
 
-    /** Copies the src bitmap into this bitmap. Ownership of the src bitmap's pixels remains
-        with the src bitmap.
+    /** Copies the src bitmap into this bitmap. Ownership of the src
+        bitmap's pixels is shared with the src bitmap.
     */
     SkBitmap& operator=(const SkBitmap& src);
+
+    /** Copies the src bitmap into this bitmap. Takes ownership of the src
+        bitmap's pixels.
+    */
+    SkBitmap& operator=(SkBitmap&& src);
+
     /** Swap the fields of the two bitmaps. This routine is guaranteed to never fail or throw.
     */
     //  This method is not exported to java.
