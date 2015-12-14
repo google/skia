@@ -6,18 +6,58 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
+function _get_battery_level {
+  SPLIT=( $@ )
+
+  HAS_BATTERY=1
+  LEVEL=""
+
+  for i in "${!SPLIT[@]}"; do
+    if [ "${SPLIT[$i]}" = "level:" ]; then
+      LEVEL="${SPLIT[$i+1]}"
+    fi
+    if [ "${SPLIT[$i]}" = "present:" ]; then
+      PRESENT="$(echo "${SPLIT[$i+1]}" | tr -d '\r')"
+      if [ "$PRESENT" -eq "0" ]; then
+        HAS_BATTERY=0
+      fi
+      if [ "$PRESENT" = "false" ]; then
+        HAS_BATTERY=0
+      fi
+    fi
+  done
+
+  if [ "$HAS_BATTERY" = "1" ]; then
+    echo "$LEVEL" | tr -d '\r'
+    return
+  fi
+  # If there's no battery, report a full battery.
+  echo "Device has no battery." 1>&2
+  echo "100"
+}
+
 function get_battery_level {
   STATS="$($ADB $DEVICE_SERIAL shell dumpsys batteryproperties)"
   SPLIT=( $STATS )
-  for i in "${!SPLIT[@]}"; do
-    if [ "${SPLIT[$i]}" = "level:" ]; then
-      echo "${SPLIT[$i+1]}"
-      return
-    fi
-  done
+  RV="$(_get_battery_level ${SPLIT[@]})"
+  if [ -n "$RV" ]; then
+    echo "$RV"
+    return
+  fi
+
+  echo "Battery level fallback..." 1>&2
+
+  STATS="$($ADB $DEVICE_SERIAL shell dumpsys battery)"
+  SPLIT=( $STATS )
+  RV="$(_get_battery_level ${SPLIT[@]})"
+  if [ "$RV" != "-1" ]; then
+    echo "$RV"
+    return
+  fi
+
   echo "Could not determine battery level!" 1>&2
   # Just exit to prevent hanging forever or failing the build.
-  exit 0
+  echo "0"
 }
 
 set -e
