@@ -63,6 +63,9 @@ static unsigned SkATan2_255(float y, float x) {
     static const float g255Over2PI = 40.584510488433314f;
 
     float result = sk_float_atan2(y, x);
+    if (!SkScalarIsFinite(result)) {
+        return 0;
+    }
     if (result < 0) {
         result += 2 * SK_ScalarPI;
     }
