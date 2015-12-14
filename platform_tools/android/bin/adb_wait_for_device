@@ -1,14 +1,39 @@
 #!/bin/bash
 #
-# Wait for the device to be both attached and booted.
+# Wait for the device to be ready to run tests.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-set -e
-set -x
+function get_battery_level {
+  STATS="$($ADB $DEVICE_SERIAL shell dumpsys batteryproperties)"
+  SPLIT=( $STATS )
+  for i in "${!SPLIT[@]}"; do
+    if [ "${SPLIT[$i]}" = "level:" ]; then
+      echo "${SPLIT[$i+1]}"
+      return
+    fi
+  done
+  echo "Could not determine battery level!" 1>&2
+  echo "0"
+}
 
+set -e
+
+# Wait for the device to be connected and fully booted.
 while [ "$($ADB $DEVICE_SERIAL shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; do
+  echo "Waiting for the device to be connected and ready."
   sleep 5
 done
+
+# Wait for battery charge.
+DESIRED_BATTERY_LEVEL=30
+CURRENT_BATTERY_LEVEL="$(get_battery_level)"
+while [ "${CURRENT_BATTERY_LEVEL}" -lt "${DESIRED_BATTERY_LEVEL}" ]; do
+  echo "Battery level is ${CURRENT_BATTERY_LEVEL}; waiting to charge to ${DESIRED_BATTERY_LEVEL}"
+  sleep 5
+  CURRENT_BATTERY_LEVEL="$(get_battery_level)"
+done
+
+echo "Ready!"
