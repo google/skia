@@ -180,6 +180,9 @@ def get_args(bot):
 
   if 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
+  
+  if 'AndroidOne' in bot:  # skia:4711
+    match.append('~WritePixels')
 
   if 'NexusPlayer' in bot:
     match.append('~ResourceCache')
@@ -207,6 +210,7 @@ def self_test():
   args = {}
   cases = [
     'Pretend-iOS-Bot',
+    'Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release',
     'Test-Android-GCC-Nexus9-GPU-TegraK1-Arm64-Debug',
     'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
     'Test-Android-GCC-GalaxyS4-GPU-SGX544-Arm7-Release',
