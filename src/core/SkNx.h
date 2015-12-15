@@ -203,11 +203,16 @@ SkNx<N,D> SkNx_cast(const SkNx<N,S>& src) {
 }  // namespace
 
 typedef SkNx<2, float> Sk2f;
-typedef SkNx<2, float> Sk2s;
 typedef SkNx<4, float> Sk4f;
-typedef SkNx<4, float> Sk4s;
 typedef SkNx<8, float> Sk8f;
-typedef SkNx<8, float> Sk8s;
+
+typedef SkNx<2, double> Sk2d;
+typedef SkNx<4, double> Sk4d;
+typedef SkNx<8, double> Sk8d;
+
+typedef SkNx<2, SkScalar> Sk2s;
+typedef SkNx<4, SkScalar> Sk4s;
+typedef SkNx<8, SkScalar> Sk8s;
 
 typedef SkNx< 4, uint16_t> Sk4h;
 typedef SkNx< 8, uint16_t> Sk8h;

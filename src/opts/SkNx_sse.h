@@ -65,6 +65,52 @@ public:
 };
 
 template <>
+class SkNx<2, double> {
+public:
+    SkNx(const __m128d& vec) : fVec(vec) {}
+
+    SkNx() {}
+    SkNx(double val) : fVec(_mm_set1_pd(val)) {}
+    static SkNx Load(const double vals[2]) { return _mm_loadu_pd(vals); }
+    SkNx(double a, double b) : fVec(_mm_setr_pd(a,b)) {}
+
+    void store(double vals[2]) const { _mm_storeu_pd(vals, fVec); }
+
+    SkNx operator + (const SkNx& o) const { return _mm_add_pd(fVec, o.fVec); }
+    SkNx operator - (const SkNx& o) const { return _mm_sub_pd(fVec, o.fVec); }
+    SkNx operator * (const SkNx& o) const { return _mm_mul_pd(fVec, o.fVec); }
+    SkNx operator / (const SkNx& o) const { return _mm_div_pd(fVec, o.fVec); }
+
+    SkNx operator == (const SkNx& o) const { return _mm_cmpeq_pd (fVec, o.fVec); }
+    SkNx operator != (const SkNx& o) const { return _mm_cmpneq_pd(fVec, o.fVec); }
+    SkNx operator  < (const SkNx& o) const { return _mm_cmplt_pd (fVec, o.fVec); }
+    SkNx operator  > (const SkNx& o) const { return _mm_cmpgt_pd (fVec, o.fVec); }
+    SkNx operator <= (const SkNx& o) const { return _mm_cmple_pd (fVec, o.fVec); }
+    SkNx operator >= (const SkNx& o) const { return _mm_cmpge_pd (fVec, o.fVec); }
+
+    static SkNx Min(const SkNx& l, const SkNx& r) { return _mm_min_pd(l.fVec, r.fVec); }
+    static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_pd(l.fVec, r.fVec); }
+
+    SkNx sqrt() const { return _mm_sqrt_pd(fVec);  }
+
+    template <int k> double kth() const {
+        SkASSERT(0 <= k && k < 2);
+        union { __m128d v; double fs[2]; } pun = {fVec};
+        return pun.fs[k&1];
+    }
+
+    bool allTrue() const { return 0x3 == _mm_movemask_pd(fVec); }
+    bool anyTrue() const { return 0x0 != _mm_movemask_pd(fVec); }
+
+    SkNx thenElse(const SkNx& t, const SkNx& e) const {
+        return _mm_or_pd(_mm_and_pd   (fVec, t.fVec),
+                         _mm_andnot_pd(fVec, e.fVec));
+    }
+
+    __m128d fVec;
+};
+
+template <>
 class SkNx<4, int> {
 public:
     SkNx(const __m128i& vec) : fVec(vec) {}
