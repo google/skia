@@ -6,7 +6,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-function _get_battery_level {
+# Helper function used by get_battery_level. Parses the battery level from
+# dumpsys output.
+function _parse_battery_level {
   SPLIT=( $@ )
 
   HAS_BATTERY=1
@@ -18,7 +20,7 @@ function _get_battery_level {
     fi
     if [ "${SPLIT[$i]}" = "present:" ]; then
       PRESENT="$(echo "${SPLIT[$i+1]}" | tr -d '\r')"
-      if [ "$PRESENT" -eq "0" ]; then
+      if [ "$PRESENT" = "0" ]; then
         HAS_BATTERY=0
       fi
       if [ "$PRESENT" = "false" ]; then
@@ -36,10 +38,11 @@ function _get_battery_level {
   echo "100"
 }
 
+# Echo the battery level percentage of the attached Android device.
 function get_battery_level {
   STATS="$($ADB $DEVICE_SERIAL shell dumpsys batteryproperties)"
   SPLIT=( $STATS )
-  RV="$(_get_battery_level ${SPLIT[@]})"
+  RV="$(_parse_battery_level ${SPLIT[@]})"
   if [ -n "$RV" ]; then
     echo "$RV"
     return
@@ -49,7 +52,7 @@ function get_battery_level {
 
   STATS="$($ADB $DEVICE_SERIAL shell dumpsys battery)"
   SPLIT=( $STATS )
-  RV="$(_get_battery_level ${SPLIT[@]})"
+  RV="$(_parse_battery_level ${SPLIT[@]})"
   if [ "$RV" != "-1" ]; then
     echo "$RV"
     return
