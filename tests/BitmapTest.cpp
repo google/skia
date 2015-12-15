@@ -151,7 +151,9 @@ static void test_erasecolor_premul(skiatest::Reporter* reporter, SkColorType ct,
   SkBitmap bm;
   bm.allocPixels(SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType));
   bm.eraseColor(input);
-  SkDebugf("expected: %x actual: %x\n", expected, bm.getColor(0, 0));
+  if (reporter->verbose()) {
+      SkDebugf("expected: %x actual: %x\n", expected, bm.getColor(0, 0));
+  }
   REPORTER_ASSERT(reporter, bm.getColor(0, 0) == expected);
 }
 
