@@ -105,15 +105,6 @@ bool GrAtlasTextContext::HasLCD(const SkTextBlob* blob) {
     return false;
 }
 
-inline SkGlyphCache* GrAtlasTextContext::setupCache(GrAtlasTextBlob::Run* run,
-                                                    const SkPaint& skPaint,
-                                                    const SkMatrix* viewMatrix,
-                                                    bool noGamma) {
-    skPaint.getScalerContextDescriptor(&run->fDescriptor, fSurfaceProps, viewMatrix, noGamma);
-    run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
-    return SkGlyphCache::DetachCache(run->fTypeface, run->fDescriptor.getDesc());
-}
-
 void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
                                       const GrClip& clip, const SkPaint& skPaint,
                                       const SkMatrix& viewMatrix, const SkTextBlob* blob,
@@ -291,18 +282,17 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
             PerSubRunInfo& subRun = runIdx.fSubRunInfo.back();
             subRun.setUseLCDText(runPaint.isLCDRenderText());
             subRun.setDrawAsDistanceFields();
-            SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], dfPaint, nullptr, true);
 
             switch (it.positioning()) {
                 case SkTextBlob::kDefault_Positioning: {
-                    this->internalDrawDFText(cacheBlob, run, cache, dfPaint, color, viewMatrix,
+                    this->internalDrawDFText(cacheBlob, run, dfPaint, color, viewMatrix,
                                              (const char *)it.glyphs(), textLen,
                                              x + offset.x(), y + offset.y(), textRatio, runPaint);
                     break;
                 }
                 case SkTextBlob::kHorizontal_Positioning: {
                     SkPoint dfOffset = SkPoint::Make(x, y + offset.y());
-                    this->internalDrawDFPosText(cacheBlob, run, cache, dfPaint, color, viewMatrix,
+                    this->internalDrawDFPosText(cacheBlob, run, dfPaint, color, viewMatrix,
                                                 (const char*)it.glyphs(), textLen, it.pos(),
                                                 1, dfOffset, textRatio,
                                                 runPaint);
@@ -310,40 +300,36 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                 }
                 case SkTextBlob::kFull_Positioning: {
                     SkPoint dfOffset = SkPoint::Make(x, y);
-                    this->internalDrawDFPosText(cacheBlob, run, cache, dfPaint, color, viewMatrix,
+                    this->internalDrawDFPosText(cacheBlob, run, dfPaint, color, viewMatrix,
                                                 (const char*)it.glyphs(), textLen, it.pos(),
                                                 2, dfOffset, textRatio, runPaint);
                     break;
                 }
             }
-            SkGlyphCache::AttachCache(cache);
         } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
             cacheBlob->fRuns[run].fDrawAsPaths = true;
         } else {
             cacheBlob->setHasBitmap();
-            SkGlyphCache* cache = this->setupCache(&cacheBlob->fRuns[run], runPaint, &viewMatrix,
-                                                   false);
             switch (it.positioning()) {
                 case SkTextBlob::kDefault_Positioning:
                     GrTextUtils::DrawBmpText(cacheBlob, run, fContext->getBatchFontCache(),
-                                             cache, runPaint, color, viewMatrix,
+                                             fSurfaceProps, runPaint, color, viewMatrix,
                                              (const char *)it.glyphs(), textLen,
                                              x + offset.x(), y + offset.y());
                     break;
                 case SkTextBlob::kHorizontal_Positioning:
                     GrTextUtils::DrawBmpPosText(cacheBlob, run, fContext->getBatchFontCache(),
-                                                cache, runPaint, color, viewMatrix,
+                                                fSurfaceProps, runPaint, color, viewMatrix,
                                                 (const char*)it.glyphs(), textLen, it.pos(), 1,
                                                 SkPoint::Make(x, y + offset.y()));
                     break;
                 case SkTextBlob::kFull_Positioning:
                     GrTextUtils::DrawBmpPosText(cacheBlob, run, fContext->getBatchFontCache(),
-                                                cache, runPaint, color, viewMatrix,
+                                                fSurfaceProps, runPaint, color, viewMatrix,
                                                 (const char*)it.glyphs(), textLen, it.pos(), 2,
                                                 SkPoint::Make(x, y));
                     break;
             }
-            SkGlyphCache::AttachCache(cache);
         }
 
         if (drawFilter) {
@@ -422,14 +408,9 @@ inline void GrAtlasTextContext::fallbackDrawPosText(GrAtlasTextBlob* blob,
     // Push back a new subrun to fill and set the override descriptor
     run.push_back();
     run.fOverrideDescriptor.reset(new SkAutoDescriptor);
-    skPaint.getScalerContextDescriptor(run.fOverrideDescriptor,
-                                       fSurfaceProps, &viewMatrix, false);
-    SkGlyphCache* cache = SkGlyphCache::DetachCache(run.fTypeface,
-                                                    run.fOverrideDescriptor->getDesc());
-    GrTextUtils::DrawBmpPosText(blob, runIndex, fContext->getBatchFontCache(), cache, skPaint,
-                                color, viewMatrix, fallbackTxt.begin(), fallbackTxt.count(),
+    GrTextUtils::DrawBmpPosText(blob, runIndex, fContext->getBatchFontCache(), fSurfaceProps,
+                                skPaint, color, viewMatrix, fallbackTxt.begin(), fallbackTxt.count(),
                                 fallbackPos.begin(), scalarsPerPosition, offset);
-    SkGlyphCache::AttachCache(cache);
 }
 
 inline GrAtlasTextBlob*
@@ -461,19 +442,15 @@ GrAtlasTextContext::createDrawTextBlob(const GrPaint& paint, const SkPaint& skPa
         SkPaint dfPaint;
         SkScalar textRatio;
         blob = this->setupDFBlob(glyphCount, skPaint, viewMatrix, &dfPaint, &textRatio);
-        SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], dfPaint, nullptr, true);
 
-        this->internalDrawDFText(blob, 0, cache, dfPaint, paint.getColor(), viewMatrix, text,
+        this->internalDrawDFText(blob, 0, dfPaint, paint.getColor(), viewMatrix, text,
                                  byteLength, x, y, textRatio, skPaint);
-        SkGlyphCache::AttachCache(cache);
     } else {
         blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
         blob->fViewMatrix = viewMatrix;
 
-        SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, &viewMatrix, false);
-        GrTextUtils::DrawBmpText(blob, 0, fContext->getBatchFontCache(), cache, skPaint,
+        GrTextUtils::DrawBmpText(blob, 0, fContext->getBatchFontCache(), fSurfaceProps, skPaint,
                                  paint.getColor(), viewMatrix, text, byteLength, x, y);
-        SkGlyphCache::AttachCache(cache);
     }
     return blob;
 }
@@ -491,20 +468,16 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrPaint& paint, const SkPaint& s
         SkPaint dfPaint;
         SkScalar textRatio;
         blob = this->setupDFBlob(glyphCount, skPaint, viewMatrix, &dfPaint, &textRatio);
-        SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], dfPaint, nullptr, true);
 
-        this->internalDrawDFPosText(blob, 0, cache, dfPaint, paint.getColor(), viewMatrix, text,
+        this->internalDrawDFPosText(blob, 0, dfPaint, paint.getColor(), viewMatrix, text,
                                     byteLength, pos, scalarsPerPosition, offset, textRatio,
                                     skPaint);
-        SkGlyphCache::AttachCache(cache);
     } else {
         blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
         blob->fViewMatrix = viewMatrix;
-        SkGlyphCache* cache = this->setupCache(&blob->fRuns[0], skPaint, &viewMatrix, false);
-        GrTextUtils::DrawBmpPosText(blob, 0, fContext->getBatchFontCache(), cache, skPaint,
+        GrTextUtils::DrawBmpPosText(blob, 0, fContext->getBatchFontCache(), fSurfaceProps, skPaint,
                                     paint.getColor(), viewMatrix, text,
                                     byteLength, pos, scalarsPerPosition, offset);
-        SkGlyphCache::AttachCache(cache);
     }
     return blob;
 }
@@ -539,7 +512,6 @@ void GrAtlasTextContext::onDrawPosText(GrDrawContext* dc,
 }
 
 void GrAtlasTextContext::internalDrawDFText(GrAtlasTextBlob* blob, int runIndex,
-                                            SkGlyphCache* cache,
                                             const SkPaint& skPaint, GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const char text[], size_t byteLength,
@@ -605,12 +577,11 @@ void GrAtlasTextContext::internalDrawDFText(GrAtlasTextBlob* blob, int runIndex,
     y -= alignY;
     SkPoint offset = SkPoint::Make(x, y);
 
-    this->internalDrawDFPosText(blob, runIndex, cache, skPaint, color, viewMatrix, text, byteLength,
+    this->internalDrawDFPosText(blob, runIndex, skPaint, color, viewMatrix, text, byteLength,
                                 positions.begin(), 2, offset, textRatio, origPaint);
 }
 
 void GrAtlasTextContext::internalDrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
-                                               SkGlyphCache* cache,
                                                const SkPaint& skPaint,
                                                GrColor color,
                                                const SkMatrix& viewMatrix,
@@ -633,6 +604,7 @@ void GrAtlasTextContext::internalDrawDFPosText(GrAtlasTextBlob* blob, int runInd
 
     fCurrStrike = nullptr;
 
+    SkGlyphCache* cache = blob->setupCache(runIndex, fSurfaceProps, skPaint, nullptr, true);
     SkDrawCacheProc glyphCacheProc = skPaint.getDrawCacheProc();
     GrFontScaler* fontScaler = GetGrFontScaler(cache);
 
@@ -697,6 +669,7 @@ void GrAtlasTextContext::internalDrawDFPosText(GrAtlasTextBlob* blob, int runInd
         }
     }
 
+    SkGlyphCache::AttachCache(cache);
     if (fallbackTxt.count()) {
         this->fallbackDrawPosText(blob, runIndex, origPaint.getColor(), origPaint, viewMatrix,
                                   fallbackTxt, fallbackPos, scalarsPerPosition, offset);
