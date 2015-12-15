@@ -53,7 +53,7 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * args.fStroke->getWidth();
         return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth && !args.fStroke->isDashed() &&
-                SkPathPriv::LastVerbIsClose(*args.fPath) &&
+                SkPathPriv::IsClosedSingleContour(*args.fPath) &&
                 args.fStroke->getJoin() != SkPaint::Join::kRound_Join;
     }
     return args.fStroke->getStyle() == SkStrokeRec::kFill_Style;

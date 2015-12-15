@@ -55,9 +55,29 @@ public:
         return computedDir == dir;
     }
 
-    static bool LastVerbIsClose(const SkPath& path) {
-        int count = path.countVerbs();
-        return count >= 1 && path.fPathRef->verbs()[~(count - 1)] == SkPath::Verb::kClose_Verb;
+    static bool IsClosedSingleContour(const SkPath& path) {
+        int verbCount = path.countVerbs();
+        if (verbCount == 0)
+            return false;
+        int moveCount = 0;
+        auto verbs = path.fPathRef->verbs();
+        for (int i = 0; i < verbCount; i++) {
+            switch (verbs[~i]) { // verbs are stored backwards; we use [~i] to get the i'th verb
+                case SkPath::Verb::kMove_Verb:
+                    moveCount += 1;
+                    if (moveCount > 1) {
+                        return false;
+                    }
+                    break;
+                case SkPath::Verb::kClose_Verb:
+                    if (i == verbCount - 1) {
+                        return true;
+                    }
+                    return false;
+                default: break;
+            }
+        }
+        return false;
     }
 
     static void AddGenIDChangeListener(const SkPath& path, SkPathRef::GenIDChangeListener* listener) {
