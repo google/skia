@@ -363,26 +363,6 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     }
 }
 
-static inline size_t GrUnpackAlignment(GrPixelConfig config) {
-    SkASSERT(!GrPixelConfigIsCompressed(config));
-    switch (config) {
-        case kAlpha_8_GrPixelConfig:
-            return 1;
-        case kRGB_565_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kAlpha_half_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-            return 2;
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kSRGBA_8888_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
-            return 4;
-        default:
-            return 0;
-    }
-}
-
 static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kETC1_GrPixelConfig:

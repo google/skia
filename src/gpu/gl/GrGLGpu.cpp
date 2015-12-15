@@ -648,6 +648,27 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
     return false;
 }
 
+// For GL_[UN]PACK_ALIGNMENT.
+static inline GrGLint config_alignment(GrPixelConfig config) {
+    SkASSERT(!GrPixelConfigIsCompressed(config));
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+            return 1;
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return 2;
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+            return 4;
+        default:
+            return 0;
+    }
+}
+
 static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
                                          const GrGLInterface* interface) {
     if (SkToBool(desc.fFlags & kCheckAllocation_GrSurfaceFlag)) {
@@ -790,8 +811,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         if (glFlipY) {
             GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
         }
-        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT,
-              static_cast<GrGLint>(GrUnpackAlignment(dataConfig))));
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, config_alignment(dataConfig)));
     }
     bool succeeded = true;
     if (isNewTexture &&
@@ -2097,6 +2117,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     if (flipY && this->glCaps().packFlipYSupport()) {
         GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, 1));
     }
+    GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, config_alignment(config)));
+
     GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom,
                        readRect.fWidth, readRect.fHeight,
                        format, type, readDst));

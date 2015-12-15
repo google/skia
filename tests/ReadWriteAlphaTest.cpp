@@ -13,8 +13,9 @@
 #include "GrContext.h"
 #include "SkGpuDevice.h"
 
-static const int X_SIZE = 12;
-static const int Y_SIZE = 12;
+// This was made indivisible by 4 to ensure we test setting GL_PACK_ALIGNMENT properly.
+static const int X_SIZE = 13;
+static const int Y_SIZE = 13;
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
     unsigned char textureData[X_SIZE][Y_SIZE];
