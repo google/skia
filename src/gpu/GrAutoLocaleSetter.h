@@ -22,6 +22,12 @@
 #include <xlocale.h>
 #endif
 
+#if defined(SK_BUILD_FOR_ANDROID) || defined(__UCLIBC__) || defined(_NEWLIB_VERSION)
+#define HAVE_LOCALE_T 0
+#else
+#define HAVE_LOCALE_T 1
+#endif
+
 /**
  * Helper class for ensuring that we don't use the wrong locale when building shaders. Android
  * doesn't support locale in the NDK, so this is a no-op there.
@@ -38,7 +44,7 @@ public:
         } else {
             fShouldRestoreLocale = false;
         }
-#elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
+#elif HAVE_LOCALE_T
         fLocale = newlocale(LC_ALL, name, 0);
         if (fLocale) {
             fOldLocale = uselocale(fLocale);
@@ -56,7 +62,7 @@ public:
             setlocale(LC_ALL, fOldLocale.c_str());
         }
         _configthreadlocale(fOldPerThreadLocale);
-#elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
+#elif HAVE_LOCALE_T
         if (fLocale) {
              uselocale(fOldLocale);
              freelocale(fLocale);
@@ -69,11 +75,13 @@ private:
     int fOldPerThreadLocale;
     bool fShouldRestoreLocale;
     SkString fOldLocale;
-#elif !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__)
+#elif HAVE_LOCALE_T
     locale_t fOldLocale;
     locale_t fLocale;
 #endif
 };
+
+#undef HAVE_LOCALE_T
 
 #endif
 
