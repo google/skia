@@ -189,6 +189,7 @@ def get_args(bot):
 
   if 'iOS' in bot:
     match.append('~WritePixels')
+    match.append('~GLInstancedArraysBench') # skia:4714
 
   if 'GalaxyS4' in bot:  # skia:4079
     match.append('~imagefiltersclipped')
