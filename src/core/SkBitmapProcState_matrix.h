@@ -64,12 +64,14 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
         SkPoint pt;
         s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
+        const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1)
+            + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleY());
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
         *xy++ = PACK_FILTER_Y_NAME(fy, maxY, s.fFilterOneY PREAMBLE_ARG_Y);
         // now initialize fx
-        fx = SkScalarToFractionalInt(pt.fX) - (SkFixedToFractionalInt(one) >> 1);
+        fx = SkScalarToFractionalInt(pt.fX) - (SkFixedToFractionalInt(one) >> 1)
+            + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleX());
     }
 
 #ifdef CHECK_FOR_DECAL
@@ -102,8 +104,10 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
 
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
-    SkFixed fx = SkScalarToFixed(srcPt.fX) - (oneX >> 1);
-    SkFixed fy = SkScalarToFixed(srcPt.fY) - (oneY >> 1);
+    SkFixed fx = SkScalarToFixed(srcPt.fX) - (oneX >> 1)
+        + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleX());
+    SkFixed fy = SkScalarToFixed(srcPt.fY) - (oneY >> 1)
+        + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleY());
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     unsigned maxX = s.fPixmap.width() - 1;

@@ -823,10 +823,12 @@ void  Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const SkBitmapProcState& s, in
         SkPoint pt;
         s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf, SkIntToScalar(y) + SK_ScalarHalf,
                    &pt);
-        fx = SkScalarToFractionalInt(pt.fY);
+        fx = SkScalarToFractionalInt(pt.fY)
+            + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleY());
         const unsigned maxY = s.fPixmap.height() - 1;
         dstY = SkClampMax(SkFractionalIntToInt(fx), maxY);
-        fx = SkScalarToFractionalInt(pt.fX);
+        fx = SkScalarToFractionalInt(pt.fX)
+            + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleX());
     }
 
     const SkPMColor* SK_RESTRICT src = s.fPixmap.addr32(0, dstY);

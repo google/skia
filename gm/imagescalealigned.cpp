@@ -34,39 +34,29 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(550, 300);
+        return SkISize::Make(580, 780);
     }
 
     void onDraw(SkCanvas* canvas) override {
         struct {
             SkPoint offset;
-            SkScalar scale;
+            SkVector scale;
         } cfgs[] = {
-            { {  10,    10    }, 1 },
-            { { 140.5f, 10    }, 1 },
-            { {  10,    80.5f }, 1 },
-            { { 140.5f, 80.5f }, 1 },
+            {{  10,    10    }, { 1, 1 }},
+            {{ 300.5f, 10    }, { 1, 1 }},
+            {{  10,    200.5f }, { 1, 1 }},
+            {{ 300.5f, 200.5f }, { 1, 1 }},
 
-            { { 280.49f, 10.49f }, 1 },
-            { { 410.51f, 10.49f }, 1 },
-            { { 280.49f, 80.51f }, 1 },
-            { { 410.51f, 80.51f }, 1 },
-
-            { {  10,    170    }, 1.1f },
-            { { 140.5f, 170    }, 1.1f },
-            { {  10,    240.5f }, 1.1f },
-            { { 140.5f, 240.5f }, 1.1f },
-
-            { { 280.49f, 170.49f }, 1.1f },
-            { { 410.51f, 170.49f }, 1.1f },
-            { { 280.49f, 240.51f }, 1.1f },
-            { { 410.51f, 240.51f }, 1.1f },
+            {{  10.5f, 400.5f }, {  1,  1 }},
+            {{ 550.5f, 400.5f }, { -1,  1 }},
+            {{  10.5f, 750.5f }, {  1, -1 }},
+            {{ 550.5f, 750.5f }, { -1, -1 }},
         };
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(cfgs); ++i) {
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(cfgs[i].offset.x(), cfgs[i].offset.y());
-            canvas->scale(cfgs[i].scale, cfgs[i].scale);
+            canvas->scale(cfgs[i].scale.x(), cfgs[i].scale.y());
             drawSets(canvas);
         }
     }
@@ -88,6 +78,11 @@ private:
 
         SkPaint paint;
         paint.setAntiAlias(true);
+        const SkRect border = SkRect::MakeIWH(kSegLen, kSegLen).makeInset(.5f, .5f);
+        paint.setColor(SK_ColorBLUE);
+        paint.setStyle(SkPaint::kStroke_Style);
+        surface->getCanvas()->drawRect(border, paint);
+
         paint.setColor(SK_ColorBLACK);
         surface->getCanvas()->drawLine(start.x(), start.y(), end.x(), end.y(), paint);
         surface->getCanvas()->drawPoint(start.x(), start.y(), color);
@@ -116,12 +111,12 @@ private:
                 for (size_t k = 0; k < SK_ARRAY_COUNT(filters); ++k) {
                     paint.setFilterQuality(filters[k]);
                     lastPt = drawSet(canvas, set, paint);
-                    canvas->translate((kSegLen / 2) * set.fVector.y(),
-                                      (kSegLen / 2) * set.fVector.x());
+                    canvas->translate((kSegLen + 4) * set.fVector.y(),
+                                      (kSegLen + 4) * set.fVector.x());
                 }
             }
             canvas->translate(lastPt.x() + kSegLen,
-                - SkIntToScalar(kSegLen) / 2 * SK_ARRAY_COUNT(filters) * SK_ARRAY_COUNT(AAs));
+                - SkIntToScalar(kSegLen + 4) * SK_ARRAY_COUNT(filters) * SK_ARRAY_COUNT(AAs));
         }
     }
 
@@ -143,8 +138,8 @@ private:
         return pt;
     }
 
-    static const unsigned  kSegLen = 9;
-    static const unsigned  kStretchFactor = 2;
+    static const unsigned  kSegLen = 15;
+    static const unsigned  kStretchFactor = 4;
     SkSTArray<2, ImageSet> fSets;
 
     typedef GM INHERITED;

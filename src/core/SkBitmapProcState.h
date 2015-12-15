@@ -12,6 +12,7 @@
 #include "SkBitmapController.h"
 #include "SkBitmapFilter.h"
 #include "SkBitmapProvider.h"
+#include "SkFloatBits.h"
 #include "SkMatrix.h"
 #include "SkMipMap.h"
 #include "SkPaint.h"
@@ -23,6 +24,17 @@ typedef SkFixed3232    SkFractionalInt;
 #define SkFractionalIntToFixed(x)   SkFixed3232ToFixed(x)
 #define SkFixedToFractionalInt(x)   SkFixedToFixed3232(x)
 #define SkFractionalIntToInt(x)     SkFixed3232ToInt(x)
+
+// Applying a fixed point (SkFixed, SkFractionalInt) epsilon bias ensures that the inverse-mapped
+// bitmap coordinates are rounded consistently WRT geometry.  Note that we only have to do this
+// when the scale is positive - for negative scales we're already rounding in the right direction.
+static inline int bitmap_sampler_inv_bias(SkScalar scale) {
+#ifndef SK_SUPPORT_LEGACY_BITMAP_SAMPLER_BIAS
+    return -(scale > 0);
+#else
+    return 0;
+#endif
+}
 
 class SkPaint;
 
