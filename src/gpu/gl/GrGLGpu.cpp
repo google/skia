@@ -657,6 +657,27 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
     }
 }
 
+/**
+ * Determines if sized internal formats are available for the texture being created.
+ *
+ * @param useTexStorage The result of a call to can_use_tex_storage().
+ * @param info          Info about the GL context.
+ * @param textureConfig The pixel configuration for the texture being created.
+ */
+static bool use_sized_format_for_texture(bool useTexStorage, const GrGLContextInfo& info,
+                                         GrPixelConfig textureConfig) {
+    // glTexStorage requires sized internal formats on both desktop and ES. ES2 requires an unsized
+    // format for glTexImage, unlike ES3 and desktop.
+    bool useSizedFormat = useTexStorage;
+    if (kGL_GrGLStandard == info.standard() ||
+        (info.version() >= GR_GL_VER(3, 0) &&
+         // ES3 only works with sized BGRA8 format if "GL_APPLE_texture_format_BGRA8888" enabled
+         (kBGRA_8888_GrPixelConfig != textureConfig || !info.caps()->bgraIsInternalFormat())))  {
+        useSizedFormat = true;
+    }
+    return useSizedFormat;
+}
+
 bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
                             GrGLenum target,
                             bool isNewTexture,
@@ -704,19 +725,20 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     GrGLenum externalFormat = 0x0; // suppress warning
     GrGLenum externalType = 0x0;   // suppress warning
 
-    // glTexStorage requires sized internal formats on both desktop and ES. ES2 requires an unsized
-    // format for glTexImage, unlike ES3 and desktop.
-    bool useSizedFormat = useTexStorage;
-    if (kGL_GrGLStandard == this->glStandard() ||
-        (this->glVersion() >= GR_GL_VER(3, 0) &&
-         // ES3 only works with sized BGRA8 format if "GL_APPLE_texture_format_BGRA8888" enabled
-         (kBGRA_8888_GrPixelConfig != dataConfig || !this->glCaps().bgraIsInternalFormat())))  {
-        useSizedFormat = true;
-    }
+    bool useSizedFormat = use_sized_format_for_texture(useTexStorage, this->ctxInfo(),
+                                                       desc.fConfig);
 
-    if (!this->configToGLFormats(dataConfig, useSizedFormat, &internalFormat,
+    if (!this->configToGLFormats(desc.fConfig, useSizedFormat, &internalFormat,
                                  &externalFormat, &externalType)) {
         return false;
+    }
+
+    if (dataConfig != desc.fConfig) {
+        // call this again if we're going to upload a different config than the texture's config.
+        if (!this->configToGLFormats(dataConfig, false, nullptr, &externalFormat,
+                                     &externalType)) {
+            return false;
+        }
     }
 
     /*
@@ -1260,13 +1282,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         GrGLenum internalFormat = 0x0; // suppress warning
         GrGLenum externalFormat = 0x0; // suppress warning
         GrGLenum externalType = 0x0;   // suppress warning
-        bool useSizedFormat = false;
-        if (kGL_GrGLStandard == this->glStandard() ||
-            (this->glVersion() >= GR_GL_VER(3, 0) &&
-             // ES3 only works with sized BGRA8 format if "GL_APPLE_texture_format_BGRA8888" enabled
-             (kBGRA_8888_GrPixelConfig != config || !this->glCaps().bgraIsInternalFormat())))  {
-            useSizedFormat = true;
-        }
+        bool useSizedFormat = use_sized_format_for_texture(false, this->ctxInfo(), config);
         if (!this->configToGLFormats(config, useSizedFormat, &internalFormat,
                                      &externalFormat, &externalType)) {
             GL_CALL(DeleteTextures(1, &colorID));
@@ -3528,7 +3544,9 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     GrGLenum externalFormat = 0x0; // suppress warning
     GrGLenum externalType = 0x0;   // suppress warning
 
-    this->configToGLFormats(config, false, &internalFormat, &externalFormat, &externalType);
+    bool useSizedFormat = use_sized_format_for_texture(false, this->ctxInfo(), config);
+    this->configToGLFormats(config, useSizedFormat, &internalFormat, &externalFormat,
+                            &externalType);
 
     GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, w, h, 0, externalFormat,
                        externalType, pixels));
