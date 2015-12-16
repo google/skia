@@ -1441,8 +1441,36 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
     LOOPER_END
 }
 
-/////////////////////////////////////////////////////////////////////////////
+void SkCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint* paint) {
+    if (gTreatSpriteAsBitmap) {
+        this->save();
+        this->resetMatrix();
+        this->drawBitmap(bitmap, SkIntToScalar(x), SkIntToScalar(y), paint);
+        this->restore();
+        return;
+    }
 
+    TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawSprite()");
+    if (bitmap.drawsNothing()) {
+        return;
+    }
+    SkDEBUGCODE(bitmap.validate();)
+
+    SkPaint tmp;
+    if (nullptr == paint) {
+        paint = &tmp;
+    }
+
+    LOOPER_BEGIN_DRAWDEVICE(*paint, SkDrawFilter::kBitmap_Type)
+
+    while (iter.next()) {
+        const SkIPoint pos = {  x - iter.getX(), y - iter.getY() };
+        iter.fDevice->drawBitmapAsSprite(iter, bitmap, pos.x(), pos.y(), looper.paint());
+    }
+    LOOPER_END
+}
+
+/////////////////////////////////////////////////////////////////////////////
 void SkCanvas::translate(SkScalar dx, SkScalar dy) {
     SkMatrix m;
     m.setTranslate(dx, dy);
@@ -1983,6 +2011,13 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, con
         this->drawBitmapRect(bitmap, dst, paint);
     }
     this->onDrawBitmapNine(bitmap, center, dst, paint);
+}
+
+void SkCanvas::drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
+    if (bitmap.drawsNothing()) {
+        return;
+    }
+    this->onDrawSprite(bitmap, left, top, paint);
 }
 
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],

@@ -156,6 +156,13 @@ void SkAndroidSDKCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
     FILTER_PTR(paint);
     fProxyTarget->drawBitmapNine(bitmap, center, dst, filteredPaint);
 }
+void SkAndroidSDKCanvas::onDrawSprite(const SkBitmap& bitmap,
+                                               int left,
+                                               int top,
+                                               const SkPaint* paint) {
+    FILTER_PTR(paint);
+    fProxyTarget->drawSprite(bitmap, left, top, filteredPaint);
+}
 void SkAndroidSDKCanvas::onDrawVertices(VertexMode vMode,
                                                  int vertexCount,
                                                  const SkPoint vertices[],

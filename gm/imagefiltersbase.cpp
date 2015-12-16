@@ -165,6 +165,26 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
+static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
+    SkPaint paint;
+    paint.setImageFilter(imf);
+
+    SkIRect bounds;
+    r.roundOut(&bounds);
+
+    SkBitmap bm;
+    bm.allocN32Pixels(bounds.width(), bounds.height());
+    bm.eraseColor(SK_ColorTRANSPARENT);
+    SkCanvas c(bm);
+    draw_path(&c, r, nullptr);
+
+    SkPoint loc = { r.fLeft, r.fTop };
+    canvas->getTotalMatrix().mapPoints(&loc, 1);
+    canvas->drawSprite(bm,
+                       SkScalarRoundToInt(loc.fX), SkScalarRoundToInt(loc.fY),
+                       &paint);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class ImageFiltersBaseGM : public skiagm::GM {
@@ -190,6 +210,7 @@ protected:
             draw_paint,
             draw_line, draw_rect, draw_path, draw_text,
             draw_bitmap,
+            draw_sprite
         };
 
         SkColorFilter* cf = SkColorFilter::CreateModeFilter(SK_ColorRED,

@@ -240,6 +240,10 @@ void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
     APPEND(DrawImageNine, this->copy(paint), image, center, dst);
 }
 
+void SkRecorder::onDrawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
+    APPEND(DrawSprite, this->copy(paint), bitmap, left, top);
+}
+
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
                             SkScalar x, SkScalar y, const SkPaint& paint) {
     APPEND(DrawText,

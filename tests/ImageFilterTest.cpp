@@ -977,7 +977,7 @@ static void test_huge_blur(SkCanvas* canvas, skiatest::Reporter* reporter) {
 
     SkPaint paint;
     paint.setImageFilter(blur);
-    canvas->drawBitmap(bitmap, 0, 0, &paint);
+    canvas->drawSprite(bitmap, 0, 0, &paint);
 }
 
 DEF_TEST(HugeBlurImageFilter, reporter) {
@@ -1067,7 +1067,7 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
 
     SkPaint paint;
     paint.setImageFilter(xfermodeNoFg);
-    canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
+    canvas->drawSprite(bitmap, 0, 0, &paint);
 
     uint32_t pixel;
     SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
@@ -1075,12 +1075,12 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
     paint.setImageFilter(xfermodeNoBg);
-    canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
+    canvas->drawSprite(bitmap, 0, 0, &paint);
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
     paint.setImageFilter(xfermodeNoFgNoBg);
-    canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
+    canvas->drawSprite(bitmap, 0, 0, &paint);
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 }
@@ -1128,7 +1128,7 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     canvas.clear(0x0);
     canvas.readPixels(info, &pixel, 4, 25, 25);
     canvas.saveLayer(&bounds1, nullptr);
-    canvas.drawBitmap(bitmap, 20, 20, &filterPaint);    // drawSprite
+    canvas.drawSprite(bitmap, 20, 20, &filterPaint);
     canvas.restore();
 
     canvas.readPixels(info, &pixel, 4, 25, 25);

@@ -397,6 +397,13 @@ void SkDumpCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, cons
                bs.c_str(), rs.c_str());
 }
 
+void SkDumpCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint* paint) {
+    SkString str;
+    bitmap.toString(&str);
+    this->dump(kDrawBitmap_Verb, paint, "drawSprite(%s %d %d)", str.c_str(),
+               x, y);
+}
+
 void SkDumpCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
     SkString str;

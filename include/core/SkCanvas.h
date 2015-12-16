@@ -911,6 +911,19 @@ public:
     void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = NULL);
 
+    /** Draw the specified bitmap, with its top/left corner at (x,y),
+        NOT transformed by the current matrix. Note: if the paint
+        contains a maskfilter that generates a mask which extends beyond the
+        bitmap's original width/height, then the bitmap will be drawn as if it
+        were in a Shader with CLAMP mode. Thus the color outside of the original
+        width/height will be the edge color replicated.
+        @param bitmap   The bitmap to be drawn
+        @param left     The position of the left side of the bitmap being drawn
+        @param top      The position of the top side of the bitmap being drawn
+        @param paint    The paint used to draw the bitmap, or NULL
+    */
+    void drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint = NULL);
+
     /** Draw the text, with origin at (x,y), using the specified paint.
         The origin is interpreted based on the Align setting in the paint.
         @param text The text to be drawn
@@ -1279,9 +1292,7 @@ protected:
                                   SrcRectConstraint);
     virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                                   const SkPaint*);
-#ifdef SK_SUPPORT_LEGACY_ONDRAWSPRITE
-    virtual void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) {}
-#endif
+    virtual void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
