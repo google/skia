@@ -80,6 +80,7 @@ def get_args(bot):
     match.append('~desk_carsvg')
     match.append('~keymobi')
     match.append('~path_hairline')
+    match.append('~GLInstancedArraysBench') # skia:4714
 
   # the 32-bit GCE bots run out of memory in DM when running these large images
   # so defensively disable them in nanobench, too.

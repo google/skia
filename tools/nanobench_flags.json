@@ -231,6 +231,7 @@
     "~desk_carsvg", 
     "~keymobi", 
     "~path_hairline", 
+    "~GLInstancedArraysBench", 
     "~inc0.gif", 
     "~inc1.gif", 
     "~incInterlaced.gif", 
