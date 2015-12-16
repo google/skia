@@ -360,6 +360,7 @@ public:
 
     bool write(const void* buffer, size_t size) override;
     void flush() override;
+    void fsync();
     size_t bytesWritten() const override;
 
 private:

@@ -463,6 +463,14 @@ void SkFILEWStream::flush()
     }
 }
 
+void SkFILEWStream::fsync()
+{
+    flush();
+    if (fFILE) {
+        sk_fsync(fFILE);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////
 
 SkMemoryWStream::SkMemoryWStream(void* buffer, size_t size)

@@ -41,6 +41,7 @@ size_t  sk_fwrite(const void* buffer, size_t byteCount, FILE*);
 char*   sk_fgets(char* str, int size, FILE* f);
 
 void    sk_fflush(FILE*);
+void    sk_fsync(FILE*);
 
 bool    sk_fseek(FILE*, size_t);
 bool    sk_fmove(FILE*, long);
