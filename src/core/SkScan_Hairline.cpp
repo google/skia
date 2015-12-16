@@ -471,6 +471,10 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
             case SkPath::kClose_Verb:
                 pts[0] = lastPt;
                 pts[1] = firstPt;
+                if (SkPaint::kButt_Cap != capStyle && prevVerb == SkPath::kMove_Verb) {
+                    // cap moveTo/close to match svg expectations for degenerate segments
+                    extend_pts<capStyle>(prevVerb, iter.peek(), pts, 2);
+                }
                 lineproc(pts, 2, clip, blitter);
                 break;
             case SkPath::kDone_Verb:
