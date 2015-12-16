@@ -283,6 +283,7 @@ private:
     void flushStencil(const GrStencilSettings&);
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
 
+    void generateConfigTable();
     bool configToGLFormats(GrPixelConfig config,
                            bool getSizedInternal,
                            GrGLenum* internalFormat,
@@ -500,6 +501,19 @@ private:
         }
     } fHWBlendState;
 
+    TriState fMSAAEnabled;
+
+    GrStencilSettings           fHWStencilSettings;
+    TriState                    fHWStencilTestEnabled;
+
+
+    GrPipelineBuilder::DrawFace fHWDrawFace;
+    TriState                    fHWWriteToColor;
+    uint32_t                    fHWBoundRenderTargetUniqueID;
+    TriState                    fHWSRGBFramebuffer;
+    SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
+    ///@}
+
     /** IDs for copy surface program. */
     struct {
         GrGLuint    fProgram;
@@ -525,19 +539,16 @@ private:
         }
     }
 
-    TriState fMSAAEnabled;
+    struct ConfigEntry {
+        // Default constructor inits to known bad GL enum values.
+        ConfigEntry() { memset(this, 0xAB, sizeof(ConfigEntry)); }
+        GrGLenum fBaseInternalFormat;
+        GrGLenum fSizedInternalFormat;
+        GrGLenum fExternalFormat;
+        GrGLenum fExternalType;
+    };
 
-    GrStencilSettings           fHWStencilSettings;
-    TriState                    fHWStencilTestEnabled;
-
-
-    GrPipelineBuilder::DrawFace fHWDrawFace;
-    TriState                    fHWWriteToColor;
-    uint32_t                    fHWBoundRenderTargetUniqueID;
-    TriState                    fHWSRGBFramebuffer;
-    SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
-
-    ///@}
+    ConfigEntry fConfigTable[kLast_GrPixelConfig + 1];
 
     // Mapping of pixel configs to known supported stencil formats to be used
     // when adding a stencil buffer to a framebuffer.
