@@ -41,6 +41,9 @@ double SkDLine::nearPoint(const SkDPoint& xy, bool* unequal) const {
     if (!between(0, numer, denom)) {
         return -1;
     }
+    if (!denom) {
+        return 0;
+    }
     double t = numer / denom;
     SkDPoint realPt = ptAtT(t);
     double dist = realPt.distance(xy);   // OPTIMIZATION: can we compare against distSq instead ?
@@ -48,7 +51,7 @@ double SkDLine::nearPoint(const SkDPoint& xy, bool* unequal) const {
     double tiniest = SkTMin(SkTMin(SkTMin(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
     double largest = SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
     largest = SkTMax(largest, -tiniest);
-    if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
+    if (!AlmostEqualUlps_Pin(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
     if (unequal) {
