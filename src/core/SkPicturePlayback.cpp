@@ -368,11 +368,11 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             canvas->drawRRect(rrect, paint);
         } break;
         case DRAW_SPRITE: {
-            const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
-            int left = reader->readInt();
-            int top = reader->readInt();
-            canvas->drawSprite(bitmap, left, top, paint);
+            /* const SkPaint* paint = */ fPictureData->getPaint(reader);
+            /* const SkBitmap bitmap = */ shallow_copy(fPictureData->getBitmap(reader));
+            /* int left = */ reader->readInt();
+            /* int top = */ reader->readInt();
+            // drawSprite removed dec-2015
         } break;
         case DRAW_TEXT: {
             const SkPaint& paint = *fPictureData->getPaint(reader);

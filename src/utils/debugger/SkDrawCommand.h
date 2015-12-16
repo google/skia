@@ -41,7 +41,6 @@ public:
         kDrawPosTextH_OpType,
         kDrawRect_OpType,
         kDrawRRect_OpType,
-        kDrawSprite_OpType,
         kDrawText_OpType,
         kDrawTextBlob_OpType,
         kDrawTextOnPath_OpType,
@@ -514,21 +513,6 @@ private:
     SkRRect fOuter;
     SkRRect fInner;
     SkPaint fPaint;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkDrawSpriteCommand : public SkDrawCommand {
-public:
-    SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int top, const SkPaint* paint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-private:
-    SkBitmap fBitmap;
-    int      fLeft;
-    int      fTop;
-    SkPaint  fPaint;
-    SkPaint* fPaintPtr;
 
     typedef SkDrawCommand INHERITED;
 };

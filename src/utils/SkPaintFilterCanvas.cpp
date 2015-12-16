@@ -110,12 +110,6 @@ void SkPaintFilterCanvas::onDrawBitmapNine(const SkBitmap& bm, const SkIRect& ce
     this->INHERITED::onDrawBitmapNine(bm, center, dst, apf.paint());
 }
 
-void SkPaintFilterCanvas::onDrawSprite(const SkBitmap& bm, int left, int top,
-                                       const SkPaint* paint) {
-    AutoPaintFilter apf(this, kBitmap_Type, paint);
-    this->INHERITED::onDrawSprite(bm, left, top, apf.paint());
-}
-
 void SkPaintFilterCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                          const SkPoint vertices[], const SkPoint texs[],
                                          const SkColor colors[], SkXfermode* xmode,

@@ -63,7 +63,6 @@ namespace SkRecords {
     M(DrawTextOnPath)                                               \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
-    M(DrawSprite)                                                   \
     M(DrawTextBlob)                                                 \
     M(DrawAtlas)                                                    \
     M(DrawVertices)
@@ -315,11 +314,6 @@ RECORD(DrawRRect, kDraw_Tag,
 RECORD(DrawRect, kDraw_Tag,
         SkPaint paint;
         SkRect rect);
-RECORD(DrawSprite, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        int left;
-        int top);
 RECORD(DrawText, kDraw_Tag|kHasText_Tag,
         SkPaint paint;
         PODArray<char> text;

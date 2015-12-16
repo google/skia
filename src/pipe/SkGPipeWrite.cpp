@@ -284,7 +284,6 @@ protected:
                          const SkPaint*) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                           const SkPaint*) override;
-    void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                         const SkPoint vertices[], const SkPoint texs[],
                         const SkColor colors[], SkXfermode* xmode,
@@ -825,16 +824,6 @@ void SkGPipeCanvas::onDrawBitmapNine(const SkBitmap& bm, const SkIRect& center,
         fWriter.write32(center.fRight);
         fWriter.write32(center.fBottom);
         fWriter.writeRect(dst);
-    }
-}
-
-void SkGPipeCanvas::onDrawSprite(const SkBitmap& bm, int left, int top, const SkPaint* paint) {
-    NOTIFY_SETUP(this);
-    size_t opBytesNeeded = sizeof(int32_t) * 2;
-
-    if (this->commonDrawBitmap(bm, kDrawSprite_DrawOp, 0, opBytesNeeded, paint)) {
-        fWriter.write32(left);
-        fWriter.write32(top);
     }
 }
 

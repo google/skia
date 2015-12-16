@@ -1194,7 +1194,7 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
     canvas->drawBitmapRect(bitmap, rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
     canvas->drawBitmapNine(bitmap, irect, rect, &paint);
-    canvas->drawSprite(bitmap, 1, 1);
+    canvas->drawBitmap(bitmap, 1, 1);   // drawSprite
 }
 
 static void test_draw_bitmaps(SkCanvas* canvas) {
