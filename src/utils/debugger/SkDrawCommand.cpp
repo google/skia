@@ -48,7 +48,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawPosTextH_OpType: return "DrawPosTextH";
         case kDrawRect_OpType: return "DrawRect";
         case kDrawRRect_OpType: return "DrawRRect";
-        case kDrawSprite_OpType: return "DrawSprite";
         case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
@@ -796,36 +795,6 @@ void SkDrawDRRectCommand::execute(SkCanvas* canvas) const {
 
 bool SkDrawDRRectCommand::render(SkCanvas* canvas) const {
     render_drrect(canvas, fOuter, fInner);
-    return true;
-}
-
-SkDrawSpriteCommand::SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int top,
-                                         const SkPaint* paint)
-    : INHERITED(kDrawSprite_OpType) {
-    fBitmap = bitmap;
-    fLeft = left;
-    fTop = top;
-    if (paint) {
-        fPaint = *paint;
-        fPaintPtr = &fPaint;
-    } else {
-        fPaintPtr = nullptr;
-    }
-
-    fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    fInfo.push(SkObjectParser::IntToString(left, "Left: "));
-    fInfo.push(SkObjectParser::IntToString(top, "Top: "));
-    if (paint) {
-        fInfo.push(SkObjectParser::PaintToString(*paint));
-    }
-}
-
-void SkDrawSpriteCommand::execute(SkCanvas* canvas) const {
-    canvas->drawSprite(fBitmap, fLeft, fTop, fPaintPtr);
-}
-
-bool SkDrawSpriteCommand::render(SkCanvas* canvas) const {
-    render_bitmap(canvas, fBitmap);
     return true;
 }
 

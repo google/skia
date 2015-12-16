@@ -626,19 +626,6 @@ void SkPictureRecord::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& ce
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawSprite(const SkBitmap& bitmap, int left, int top,
-                                   const SkPaint* paint) {
-    // op + paint index + bitmap index + left + top
-    size_t size = 5 * kUInt32Size;
-    size_t initialOffset = this->addDraw(DRAW_SPRITE, &size);
-    SkASSERT(initialOffset+get_paint_offset(DRAW_SPRITE, size) == fWriter.bytesWritten());
-    this->addPaintPtr(paint);
-    this->addBitmap(bitmap);
-    this->addInt(left);
-    this->addInt(top);
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                  const SkPaint& paint) {
     // op + paint index + length + 'length' worth of chars + x + y

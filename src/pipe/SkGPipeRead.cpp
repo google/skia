@@ -654,17 +654,6 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
     }
 }
 
-static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
-                          SkGPipeState* state) {
-    BitmapHolder holder(reader, op32, state);
-    bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
-    const SkIPoint* point = skip<SkIPoint>(reader);
-    const SkBitmap* bitmap = holder.getBitmap();
-    if (state->shouldDraw()) {
-        canvas->drawSprite(*bitmap, point->fX, point->fY, hasPaint ? &state->paint() : nullptr);
-    }
-}
-
 static void drawImage_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32, SkGPipeState* state) {
     unsigned slot = DrawOp_unpackData(op32);
     unsigned flags = DrawOp_unpackFlags(op32);
@@ -891,7 +880,6 @@ static const ReadProc gReadTable[] = {
     drawPosTextH_rp,
     drawRect_rp,
     drawRRect_rp,
-    drawSprite_rp,
     drawText_rp,
     drawTextBlob_rp,
     drawTextOnPath_rp,

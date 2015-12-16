@@ -484,10 +484,6 @@ void SkDebugCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     this->addDrawCommand(new SkDrawDRRectCommand(outer, inner, paint));
 }
 
-void SkDebugCanvas::onDrawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawSpriteCommand(bitmap, left, top, paint));
-}
-
 void SkDebugCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                const SkPaint& paint) {
     this->addDrawCommand(new SkDrawTextCommand(text, byteLength, x, y, paint));

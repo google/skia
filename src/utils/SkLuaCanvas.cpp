@@ -245,13 +245,6 @@ void SkLuaCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const
     }
 }
 
-void SkLuaCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint* paint) {
-    AUTO_LUA("drawSprite");
-    if (paint) {
-        lua.pushPaint(*paint, "paint");
-    }
-}
-
 void SkLuaCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     AUTO_LUA("drawText");
