@@ -21,9 +21,6 @@
 #include "RecordingBench.h"
 #include "SKPAnimationBench.h"
 #include "SKPBench.h"
-#include "SubsetSingleBench.h"
-#include "SubsetTranslateBench.h"
-#include "SubsetZoomBench.h"
 #include "Stats.h"
 
 #include "SkBitmapRegionDecoder.h"
@@ -506,66 +503,6 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     return target;
 }
 
-/*
- * We only run our subset benches on files that are supported by BitmapRegionDecoder:
- * i.e. PNG, JPEG, and WEBP. We do *not* test WEBP, since we do not have a scanline
- * decoder for WEBP, which is necessary for running the subset bench. (Another bench
- * must be used to test WEBP, which decodes subsets natively.)
- */
-static bool run_subset_bench(const SkString& path) {
-    static const char* const exts[] = {
-        "jpg", "jpeg", "png",
-        "JPG", "JPEG", "PNG",
-    };
-
-    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
-        if (path.endsWith(exts[i])) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/*
- * Returns true if set up for a subset decode succeeds, false otherwise
- * If the set-up succeeds, the width and height parameters will be set
- */
-static bool valid_subset_bench(const SkString& path, SkColorType colorType,
-        int* width, int* height) {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
-    SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encoded));
-
-    // Check that we can create a codec.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
-    if (nullptr == codec) {
-        SkDebugf("Could not create codec for %s.  Skipping bench.\n", path.c_str());
-        return false;
-    }
-
-    // These will be initialized by SkCodec if the color type is kIndex8 and
-    // unused otherwise.
-    SkPMColor colors[256];
-    int colorCount;
-    const SkImageInfo info = codec->getInfo().makeColorType(colorType);
-    if (codec->startScanlineDecode(info, nullptr, colors, &colorCount) != SkCodec::kSuccess)
-    {
-        SkDebugf("Could not create scanline decoder for %s with color type %s.  "
-                "Skipping bench.\n", path.c_str(), color_type_to_str(colorType));
-        return false;
-    }
-    *width = info.width();
-    *height = info.height();
-
-    // Check if the image is large enough for a meaningful subset benchmark.
-    if (*width <= 512 && *height <= 512) {
-        // This should not print a message since it is not an error.
-        return false;
-    }
-
-    return true;
-}
-
 static bool valid_brd_bench(SkData* encoded, SkBitmapRegionDecoder::Strategy strategy,
         SkColorType colorType, uint32_t sampleSize, uint32_t minOutputSize, int* width,
         int* height) {
@@ -617,7 +554,6 @@ public:
                       , fCurrentUseMPD(0)
                       , fCurrentCodec(0)
                       , fCurrentImage(0)
-                      , fCurrentSubsetImage(0)
                       , fCurrentBRDImage(0)
                       , fCurrentColorType(0)
                       , fCurrentSubsetType(0)
@@ -869,54 +805,6 @@ public:
             fCurrentImage++;
         }
 
-        // Run the SubsetBenches
-        while (fCurrentSubsetImage < fImages.count()) {
-            fSourceType = "image";
-            fBenchType = "skcodec";
-            const SkString& path = fImages[fCurrentSubsetImage];
-            if (!run_subset_bench(path)) {
-                fCurrentSubsetImage++;
-                continue;
-            }
-            while (fCurrentColorType < fColorTypes.count()) {
-                SkColorType colorType = fColorTypes[fCurrentColorType];
-                while (fCurrentSubsetType <= kLast_SubsetType) {
-                    int width = 0;
-                    int height = 0;
-                    int currentSubsetType = fCurrentSubsetType++;
-                    if (valid_subset_bench(path, colorType, &width, &height)) {
-                        switch (currentSubsetType) {
-                            case kTopLeft_SubsetType:
-                                return new SubsetSingleBench(path, colorType, width/3,
-                                        height/3, 0, 0);
-                            case kTopRight_SubsetType:
-                                return new SubsetSingleBench(path, colorType, width/3,
-                                        height/3, 2*width/3, 0);
-                            case kMiddle_SubsetType:
-                                return new SubsetSingleBench(path, colorType, width/3,
-                                        height/3, width/3, height/3);
-                            case kBottomLeft_SubsetType:
-                                return new SubsetSingleBench(path, colorType, width/3,
-                                        height/3, 0, 2*height/3);
-                            case kBottomRight_SubsetType:
-                                return new SubsetSingleBench(path, colorType, width/3,
-                                        height/3, 2*width/3, 2*height/3);
-                            case kTranslate_SubsetType:
-                                return new SubsetTranslateBench(path, colorType, 512, 512);
-                            case kZoom_SubsetType:
-                                return new SubsetZoomBench(path, colorType, 512, 512);
-                        }
-                    } else {
-                        break;
-                    }
-                }
-                fCurrentSubsetType = 0;
-                fCurrentColorType++;
-            }
-            fCurrentColorType = 0;
-            fCurrentSubsetImage++;
-        }
-
         // Run the BRDBenches
         // We will benchmark multiple BRD strategies.
         static const struct {
@@ -1074,7 +962,6 @@ private:
     int fCurrentUseMPD;
     int fCurrentCodec;
     int fCurrentImage;
-    int fCurrentSubsetImage;
     int fCurrentBRDImage;
     int fCurrentColorType;
     int fCurrentSubsetType;
