@@ -820,6 +820,7 @@
 #define GR_GL_STENCIL                        0x1802
 
 #define GR_GL_NONE                           0
+#define GR_GL_FRAMEBUFFER_DEFAULT            0x8218
 
 #define GR_GL_FRAMEBUFFER_COMPLETE                      0x8CD5
 #define GR_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT         0x8CD6

@@ -37,7 +37,9 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
 #include "GrRenderTarget.h"
+#include "SkGr.h"
 #endif
 
 /*
@@ -1145,6 +1147,35 @@ int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPai
     return this->saveLayer(bounds, paint, (SaveFlags)flags);
 }
 
+static void draw_filter_into_device(SkBaseDevice* src, SkImageFilter* filter, SkBaseDevice* dst) {
+
+    SkBitmap srcBM;
+
+#if SK_SUPPORT_GPU
+    GrRenderTarget* srcRT = src->accessRenderTarget();
+    if (srcRT && !srcRT->asTexture() && dst->accessRenderTarget()) {
+        // When both the src & the dst are on the gpu but the src doesn't have a texture,
+        // we create a temporary texture for the draw.
+        // TODO: we should actually only copy the portion of the source needed to apply the image
+        // filter
+        GrContext* context = srcRT->getContext();
+        SkAutoTUnref<GrTexture> tex(context->textureProvider()->createTexture(srcRT->desc(), true));
+
+        context->copySurface(tex, srcRT);
+
+        GrWrapTextureInBitmap(tex, src->width(), src->height(), src->isOpaque(), &srcBM);
+    } else
+#endif
+    {
+        srcBM = src->accessBitmap(false);
+    }
+
+    SkCanvas c(dst);
+
+    SkPaint p;
+    p.setImageFilter(filter);
+    c.drawBitmap(srcBM, 0, 0, &p);
+}
 
 void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
                                  SaveLayerStrategy strategy) {
@@ -1210,6 +1241,11 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     }
 
     device->setOrigin(ir.fLeft, ir.fTop);
+
+    if (0) {
+        draw_filter_into_device(fMCRec->fTopLayer->fDevice, nullptr, device);
+    }
+
     DeviceCM* layer =
             new DeviceCM(device, paint, this, fConservativeRasterClip, forceSpriteOnRestore);
     device->unref();
