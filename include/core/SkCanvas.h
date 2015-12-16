@@ -1279,9 +1279,6 @@ protected:
                                   SrcRectConstraint);
     virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                                   const SkPaint*);
-#ifdef SK_SUPPORT_LEGACY_ONDRAWSPRITE
-    virtual void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) {}
-#endif
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
