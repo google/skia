@@ -3542,6 +3542,16 @@ static void test_contains(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !p.contains(7, 7));
     p.reset();
     p.moveTo(4, 4);
+    p.lineTo(8, 4);
+    p.lineTo(8, 8);
+    p.lineTo(4, 8);
+    // test on vertices
+    REPORTER_ASSERT(reporter, p.contains(4, 4));
+    REPORTER_ASSERT(reporter, p.contains(8, 4));
+    REPORTER_ASSERT(reporter, p.contains(8, 8));
+    REPORTER_ASSERT(reporter, p.contains(4, 8));
+    p.reset();
+    p.moveTo(4, 4);
     p.lineTo(6, 8);
     p.lineTo(2, 8);
     // test on edge

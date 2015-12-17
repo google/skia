@@ -2844,7 +2844,7 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
     if (y < y0 || y > y1) {
         return 0;
     }
-    if (y == y1) {
+    if (y == pts[1].fY) {
         if (y0 == y1 && between(x0, x, x1) && x != x1) {  // check if on horizontal line
             *onCurveCount += 1;
         }
@@ -2853,9 +2853,10 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
     SkScalar cross = SkScalarMul(x1 - x0, y - pts[0].fY) - SkScalarMul(dy, x - x0);
 
     if (!cross) {
-        if (x != x1 || y != pts[1].fY) { // don't test end points since they're also start points
-            *onCurveCount += 1;   // zero cross means the point is on the line
-        }
+        // zero cross means the point is on the line, and since the case where
+        // y of the query point is at the end point is handled above, we can be
+        // sure that we're on the line (excluding the end point) here
+        *onCurveCount += 1;
         dir = 0;
     } else if (SkScalarSignAsInt(cross) == dir) {
         dir = 0;
