@@ -1628,12 +1628,8 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
             //[Mask -> Mask]
             SkMask filteredMask;
-            if (filter &&
-                filter->filterMask(&filteredMask, *mask, *d.fMatrix, nullptr)) {
-
+            if (filter && filter->filterMask(&filteredMask, *mask, *d.fMatrix, nullptr)) {
                 mask = &filteredMask;
-            } else {
-                filteredMask.fImage = nullptr;
             }
             SkAutoMaskFreeImage filteredAmi(filteredMask.fImage);
 
@@ -1675,13 +1671,8 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
             //[Mask -> Mask]
             SkMask filteredMask;
-            if (filter->filterMask(&filteredMask,
-                                   rasteredMask,
-                                   matrix,
-                                   nullptr)) {
+            if (filter->filterMask(&filteredMask, rasteredMask, matrix, nullptr)) {
                 mask = &filteredMask;
-            } else {
-                filteredMask.fImage = nullptr;
             }
             SkAutoMaskFreeImage filteredAmi(filteredMask.fImage);
 

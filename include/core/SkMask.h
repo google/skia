@@ -17,6 +17,8 @@
     the 3-channel 3D format. These are passed to SkMaskFilter objects.
 */
 struct SkMask {
+    SkMask() : fImage(nullptr) {}
+
     enum Format {
         kBW_Format, //!< 1bit per pixel mask (e.g. monochrome)
         kA8_Format, //!< 8bits per pixel mask (e.g. antialiasing)

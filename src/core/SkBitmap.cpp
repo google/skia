@@ -1033,7 +1033,6 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     // compute our (larger?) dst bounds if we have a filter
     if (filter) {
         identity.reset();
-        srcM.fImage = nullptr;
         if (!filter->filterMask(&dstM, srcM, identity, nullptr)) {
             goto NO_FILTER_CASE;
         }

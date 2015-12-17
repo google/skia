@@ -170,8 +170,9 @@ static void ground_truth_2d(int width, int height,
 
     memset(src.fImage, 0xff, src.computeTotalImageSize());
 
-    dst.fImage = nullptr;
-    SkBlurMask::BlurGroundTruth(sigma, &dst, src, kNormal_SkBlurStyle);
+    if (!SkBlurMask::BlurGroundTruth(sigma, &dst, src, kNormal_SkBlurStyle)) {
+        return;
+    }
 
     int midX = dst.fBounds.centerX();
     int midY = dst.fBounds.centerY();

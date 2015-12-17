@@ -199,7 +199,10 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
                     SkBlurStyle style = styles[k];
 
                     SkMask mask;
-                    SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(radius), &mask, r, style);
+                    if (!SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(radius),
+                                              &mask, r, style)) {
+                        continue;
+                    }
 
                     SkAutoMaskFreeImage amfi(mask.fImage);
 

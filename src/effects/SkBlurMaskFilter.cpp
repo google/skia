@@ -353,7 +353,6 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     SkIPoint margin;
     SkMask  srcM, dstM;
     srcM.fBounds = rrect.rect().roundOut();
-    srcM.fImage = nullptr;
     srcM.fFormat = SkMask::kA8_Format;
     srcM.fRowBytes = 0;
 
@@ -473,7 +472,6 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     SkIPoint margin;
     SkMask  srcM, dstM;
     srcM.fBounds = rects[0].roundOut();
-    srcM.fImage = nullptr;
     srcM.fFormat = SkMask::kA8_Format;
     srcM.fRowBytes = 0;
 
@@ -989,8 +987,10 @@ const GrFragmentProcessor* GrRRectBlurEffect::Create(GrTextureProvider* texProvi
                            SkMask::kJustRenderImage_CreateMode, SkPaint::kFill_Style);
 
         SkMask blurredMask;
-        SkBlurMask::BoxBlur(&blurredMask, mask, sigma, kNormal_SkBlurStyle, kHigh_SkBlurQuality,
-                            nullptr, true);
+        if (!SkBlurMask::BoxBlur(&blurredMask, mask, sigma, kNormal_SkBlurStyle,
+                                 kHigh_SkBlurQuality, nullptr, true)) {
+            return nullptr;
+        }
 
         unsigned int texSide = smallRectSide + 2*blurRadius;
         GrSurfaceDesc texDesc;

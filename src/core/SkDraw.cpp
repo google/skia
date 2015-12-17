@@ -908,10 +908,8 @@ void SkDraw::drawDevMask(const SkMask& srcM, const SkPaint& paint) const {
 
     SkMask dstM;
     if (paint.getMaskFilter() &&
-            paint.getMaskFilter()->filterMask(&dstM, srcM, *fMatrix, nullptr)) {
+        paint.getMaskFilter()->filterMask(&dstM, srcM, *fMatrix, nullptr)) {
         mask = &dstM;
-    } else {
-        dstM.fImage = nullptr;
     }
     SkAutoMaskFreeImage ami(dstM.fImage);
 
@@ -2013,7 +2011,6 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
 
         srcM.fBounds = *bounds;
         srcM.fFormat = SkMask::kA8_Format;
-        srcM.fImage = nullptr;
         if (!filter->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
             return false;
         }

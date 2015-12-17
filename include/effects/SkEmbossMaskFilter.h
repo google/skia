@@ -29,8 +29,8 @@ public:
     //  This method is not exported to java.
     SkMask::Format getFormat() const override;
     //  This method is not exported to java.
-    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin) const override;
+    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+                    SkIPoint* margin) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmbossMaskFilter)

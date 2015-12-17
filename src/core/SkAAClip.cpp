@@ -2165,7 +2165,6 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
 
     // if we're BW, we need to upscale to A8 (ugh)
     SkMask  grayMask;
-    grayMask.fImage = nullptr;
     if (SkMask::kBW_Format == origMask.fFormat) {
         grayMask.fFormat = SkMask::kA8_Format;
         grayMask.fBounds = origMask.fBounds;

@@ -63,7 +63,7 @@ protected:
         preBenchSetup(r);
 
         for (int i = 0; i < loops; i++) {
-            makeBlurryRect(r);
+            this->makeBlurryRect(r);
         }
     }
 
@@ -90,8 +90,10 @@ class BlurRectDirectBench: public BlurRectBench {
 protected:
     void makeBlurryRect(const SkRect& r) override {
         SkMask mask;
-        SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                             &mask, r, kNormal_SkBlurStyle);
+        if (!SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
+                                  &mask, r, kNormal_SkBlurStyle)) {
+            return;    
+        }
         SkMask::FreeImage(mask.fImage);
     }
 private:
@@ -101,9 +103,7 @@ private:
 class BlurRectSeparableBench: public BlurRectBench {
 
 public:
-    BlurRectSeparableBench(SkScalar rad) : INHERITED(rad) {
-        fSrcMask.fImage = nullptr;
-    }
+    BlurRectSeparableBench(SkScalar rad) : INHERITED(rad) { }
 
     ~BlurRectSeparableBench() {
         SkMask::FreeImage(fSrcMask.fImage);
@@ -144,9 +144,10 @@ protected:
 
     void makeBlurryRect(const SkRect&) override {
         SkMask mask;
-        mask.fImage = nullptr;
-        SkBlurMask::BoxBlur(&mask, fSrcMask, SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                            kNormal_SkBlurStyle, kHigh_SkBlurQuality);
+        if (!SkBlurMask::BoxBlur(&mask, fSrcMask, SkBlurMask::ConvertRadiusToSigma(this->radius()),
+                                 kNormal_SkBlurStyle, kHigh_SkBlurQuality)) {
+            return;
+        }
         SkMask::FreeImage(mask.fImage);
     }
 private:
@@ -171,9 +172,10 @@ protected:
 
     void makeBlurryRect(const SkRect&) override {
         SkMask mask;
-        mask.fImage = nullptr;
-        SkBlurMask::BlurGroundTruth(SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                                    &mask, fSrcMask, kNormal_SkBlurStyle);
+        if (!SkBlurMask::BlurGroundTruth(SkBlurMask::ConvertRadiusToSigma(this->radius()),
+                                         &mask, fSrcMask, kNormal_SkBlurStyle)) {
+            return;
+        }
         SkMask::FreeImage(mask.fImage);
     }
 private:
