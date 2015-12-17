@@ -114,11 +114,15 @@ endif()
 remove_srcs(../src/gpu/gl/angle/*)  # TODO
 remove_srcs(../src/codec/* ../src/android/*)  # TODO: Requires Chromium's libjpeg-turbo, and incompatible giflib.
 
-# Certain files must be compiled with support for SSSE3 or SSE4.1 intrinsics.
+# Certain files must be compiled with support for SSSE3, SSE4.1, AVX, or AVX2 intrinsics.
 file (GLOB_RECURSE ssse3_srcs ../src/*ssse3*.cpp ../src/*SSSE3*.cpp)
 file (GLOB_RECURSE sse41_srcs ../src/*sse4*.cpp ../src/*SSE4*.cpp)
+file (GLOB_RECURSE avx_srcs   ../src/*_avx.cpp)
+file (GLOB_RECURSE avx2_srcs  ../src/*_avx2.cpp)
 set_source_files_properties(${ssse3_srcs} PROPERTIES COMPILE_FLAGS -mssse3)
 set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
+set_source_files_properties(${avx_srcs}   PROPERTIES COMPILE_FLAGS -mavx)
+set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2)
 
 # Detect our optional dependencies.
 # If we can't find them, don't build the parts of Skia that use them.

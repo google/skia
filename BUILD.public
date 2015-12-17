@@ -84,6 +84,8 @@ BASE_SRCS_UNIX = glob(
         # Included in :opts_sse4 library.
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
+        # Included in :opts_avx or :opts_avx2
+        "src/opts/*avx*",
         "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
@@ -123,6 +125,7 @@ BASE_SRCS_ANDROID = glob(
         "src/opts/*ssse3*",
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
+        "src/opts/*avx*",
         "src/opts/*x86*",
         "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
@@ -165,6 +168,7 @@ BASE_SRCS_IOS = glob(
         "src/opts/*ssse3*",
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
+        "src/opts/*avx*",
         "src/opts/*x86*",
         "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
@@ -212,6 +216,18 @@ SSE4_SRCS = glob(
     ],
 )
 
+AVX_SRCS = glob(
+    [
+        "src/opts/*_avx.cpp",
+    ],
+)
+
+AVX2_SRCS = glob(
+    [
+        "src/opts/*_avx2.cpp",
+    ],
+)
+
 BASE_HDRS = glob(
     [
         "include/**/*.h",
@@ -229,6 +245,8 @@ BASE_HDRS = glob(
 
 # Dependencies.
 BASE_DEPS_UNIX = [
+    ":opts_avx2",
+    ":opts_avx",
     ":opts_sse4",
     ":opts_ssse3",
 ]
@@ -419,6 +437,24 @@ cc_library(
     name = "opts_sse4",
     srcs = SSE4_SRCS,
     copts = COPTS + ["-msse4"],
+    defines = DEFINES,
+    includes = INCLUDES,
+    deps = EXTERNAL_DEPS_ALL,
+)
+
+cc_library(
+    name = "opts_avx",
+    srcs = AVX_SRCS,
+    copts = COPTS + ["-mavx"],
+    defines = DEFINES,
+    includes = INCLUDES,
+    deps = EXTERNAL_DEPS_ALL,
+)
+
+cc_library(
+    name = "opts_avx2",
+    srcs = AVX2_SRCS,
+    copts = COPTS + ["-mavx2"],
     defines = DEFINES,
     includes = INCLUDES,
     deps = EXTERNAL_DEPS_ALL,
