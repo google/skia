@@ -730,15 +730,19 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo, bool sr
     }
 
     if (this->isConfigTexturable(kBGRA_8888_GrPixelConfig)) {
-        fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kNo_MSAA]  = true;
-        // The GL_EXT_texture_format_BGRA8888 extension does not add BGRA to the list of
-        // configs that are color-renderable and can be passed to glRenderBufferStorageMultisample.
-        // Chromium may have an extension to allow BGRA renderbuffers to work on desktop platforms.
-        if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888")) {
-            fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] = true;
-        } else {
-            fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] =
-                !fBGRAIsInternalFormat || !this->usesMSAARenderBuffers();
+        // On iOS, BGRA is not supported as a renderable target on ES 3.0+
+        if (!ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888") ||
+            ctxInfo.version() < GR_GL_VER(3,0)) {
+            fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kNo_MSAA]  = true;
+            // The GL_EXT_texture_format_BGRA8888 extension does not add BGRA to the list of
+            // configs that are color-renderable and can be passed to glRenderBufferStorageMultisample.
+            // Chromium may have an extension to allow BGRA renderbuffers to work on desktop platforms.
+            if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888")) {
+                fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] = true;
+            } else {
+                fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] =
+                    !fBGRAIsInternalFormat || !this->usesMSAARenderBuffers();
+            }
         }
     }
 
