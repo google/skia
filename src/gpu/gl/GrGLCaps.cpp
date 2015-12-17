@@ -39,7 +39,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fImagingSupport = false;
     fTwoFormatLimit = false;
     fVertexArrayObjectSupport = false;
-    fInstancedDrawingSupport = false;
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
@@ -208,16 +207,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
                                     ctxInfo.hasExtension("GL_OES_vertex_array_object");
-    }
-
-    if ((kGL_GrGLStandard == standard && version >= GR_GL_VER(3,2)) ||
-        (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0))) {
-        fInstancedDrawingSupport = true;
-    } else {
-        fInstancedDrawingSupport = (ctxInfo.hasExtension("GL_ARB_draw_instanced") ||
-                                    ctxInfo.hasExtension("GL_EXT_draw_instanced")) &&
-                                   (ctxInfo.hasExtension("GL_ARB_instanced_arrays") ||
-                                    ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -1221,7 +1210,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
     r.appendf("Two Format Limit: %s\n", (fTwoFormatLimit ? "YES": "NO"));
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
-    r.appendf("Instanced drawing support: %s\n", (fInstancedDrawingSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
     r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));

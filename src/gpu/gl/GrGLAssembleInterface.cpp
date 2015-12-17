@@ -779,13 +779,18 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(CoverageModulation, CHROMIUM);
     }
 
-    if (version >= GR_GL_VER(3,0) || extensions.has("GL_EXT_draw_instanced")) {
+    if (version >= GR_GL_VER(3,0)) {
         GET_PROC(DrawArraysInstanced);
         GET_PROC(DrawElementsInstanced);
+    } else if (extensions.has("GL_EXT_draw_instanced")) {
+        GET_PROC_SUFFIX(DrawArraysInstanced, EXT);
+        GET_PROC_SUFFIX(DrawElementsInstanced, EXT);
     }
 
-    if (version >= GR_GL_VER(3,0) || extensions.has("GL_EXT_instanced_arrays")) {
+    if (version >= GR_GL_VER(3,0)) {
         GET_PROC(VertexAttribDivisor);
+    } else if (extensions.has("GL_EXT_instanced_arrays")) {
+        GET_PROC_SUFFIX(VertexAttribDivisor, EXT);
     }
 
     if (extensions.has("GL_NV_bindless_texture")) {

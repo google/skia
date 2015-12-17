@@ -209,9 +209,6 @@ public:
     /// Is there support for Vertex Array Objects?
     bool vertexArrayObjectSupport() const { return fVertexArrayObjectSupport; }
 
-    /// Is there support for glDraw*Instanced and glVertexAttribDivisor?
-    bool instancedDrawingSupport() const { return fInstancedDrawingSupport; }
-
     /// Is there support for GL_EXT_direct_state_access?
     bool directStateAccessSupport() const { return fDirectStateAccessSupport; }
 
@@ -363,7 +360,6 @@ private:
     bool fImagingSupport  : 1;
     bool fTwoFormatLimit : 1;
     bool fVertexArrayObjectSupport : 1;
-    bool fInstancedDrawingSupport : 1;
     bool fDirectStateAccessSupport : 1;
     bool fDebugSupport : 1;
     bool fES2CompatibilitySupport : 1;
