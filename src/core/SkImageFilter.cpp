@@ -18,6 +18,7 @@
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkTDynamicHash.h"
+#include "SkTHash.h"
 #include "SkTInternalLList.h"
 #include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
@@ -201,6 +202,7 @@ SkImageFilter::~SkImageFilter() {
         SkSafeUnref(fInputs[i]);
     }
     delete[] fInputs;
+    Cache::Get()->purgeByImageFilterId(fUniqueID);
 }
 
 SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
@@ -600,6 +602,13 @@ public:
             removeInternal(v);
         }
         Value* v = new Value(key, result, offset);
+        if (SkTArray<Key>** array = fIdToKeys.find(key.fUniqueID)) {
+            (*array)->push_back(key);
+        } else {
+            SkTArray<Key>* keyArray = new SkTArray<Key>();
+            keyArray->push_back(key);
+            fIdToKeys.set(key.fUniqueID, keyArray);
+        }
         fLookup.add(v);
         fLRU.addToHead(v);
         fCurrentBytes += result.getSize();
@@ -622,6 +631,19 @@ public:
         }
     }
 
+    void purgeByImageFilterId(uint32_t uniqueID) override {
+        SkAutoMutexAcquire mutex(fMutex);
+        if (SkTArray<Key>** array = fIdToKeys.find(uniqueID)) {
+            for (auto& key : **array) {
+                if (Value* v = fLookup.find(key)) {
+                    this->removeInternal(v);
+                }
+            }
+            fIdToKeys.remove(uniqueID);
+            delete *array; // This can be deleted outside the lock
+        }
+    }
+
 private:
     void removeInternal(Value* v) {
         fCurrentBytes -= v->fBitmap.getSize();
@@ -630,11 +652,12 @@ private:
         delete v;
     }
 private:
-    SkTDynamicHash<Value, Key>         fLookup;
-    mutable SkTInternalLList<Value>    fLRU;
-    size_t                             fMaxBytes;
-    size_t                             fCurrentBytes;
-    mutable SkMutex                    fMutex;
+    SkTDynamicHash<Value, Key>            fLookup;
+    SkTHashMap<uint32_t, SkTArray<Key>*>  fIdToKeys;
+    mutable SkTInternalLList<Value>       fLRU;
+    size_t                                fMaxBytes;
+    size_t                                fCurrentBytes;
+    mutable SkMutex                       fMutex;
 };
 
 } // namespace
