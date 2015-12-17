@@ -570,7 +570,7 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         SkXfermode* xfer = fXfermode;
         do {
             shaderContext->shadeSpan(x, y, span, width);
-            xfer->xfer32((SkPMColor*)dstRow, span, width, maskRow);
+            xfer->xfer32(reinterpret_cast<SkPMColor*>(dstRow), span, width, maskRow);
             dstRow += dstRB;
             maskRow += maskRB;
             y += 1;
@@ -578,7 +578,7 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     } else {
         do {
             shaderContext->shadeSpan(x, y, span, width);
-            proc(dstRow, maskRow, span, width);
+            proc(reinterpret_cast<SkPMColor*>(dstRow), maskRow, span, width);
             dstRow += dstRB;
             maskRow += maskRB;
             y += 1;
