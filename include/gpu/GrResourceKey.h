@@ -293,11 +293,13 @@ private:
 #define GR_DECLARE_STATIC_UNIQUE_KEY(name) SK_DECLARE_STATIC_ONCE(name##_once)
 
 /** Place inside function where the key is used. */
-#define GR_DEFINE_STATIC_UNIQUE_KEY(name)                           \
-    static GrUniqueKey name;                                        \
-    SkOnce(&name##_once, gr_init_static_unique_key_once, &name)
+#define GR_DEFINE_STATIC_UNIQUE_KEY(name)                                                       \
+    static SkAlignedSTStorage<1, GrUniqueKey> name##_storage;                                   \
+    SkOnce(&name##_once, gr_init_static_unique_key_once, &name##_storage);                      \
+    static const GrUniqueKey& name = *reinterpret_cast<GrUniqueKey*>(name##_storage.get());
 
-static inline void gr_init_static_unique_key_once(GrUniqueKey* key) {
+static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1,GrUniqueKey>* keyStorage) {
+    GrUniqueKey* key = new (keyStorage->get()) GrUniqueKey;
     GrUniqueKey::Builder builder(key, GrUniqueKey::GenerateDomain(), 0);
 }
 
