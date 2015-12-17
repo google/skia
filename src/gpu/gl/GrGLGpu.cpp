@@ -671,15 +671,12 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
 /**
  * Determines if sized internal formats are available for the texture being created.
  *
- * @param useTexStorage The result of a call to can_use_tex_storage().
  * @param info          Info about the GL context.
  * @param textureConfig The pixel configuration for the texture being created.
  */
-static bool use_sized_format_for_texture(bool useTexStorage, const GrGLContextInfo& info,
-                                         GrPixelConfig textureConfig) {
-    // glTexStorage requires sized internal formats on both desktop and ES. ES2 requires an unsized
-    // format for glTexImage, unlike ES3 and desktop.
-    bool useSizedFormat = useTexStorage;
+static bool use_sized_format_for_texture(const GrGLContextInfo& info, GrPixelConfig textureConfig) {
+    // ES2 requires an unsized format for glTexImage, unlike ES3 and desktop.
+    bool useSizedFormat = false;
     if (kGL_GrGLStandard == info.standard() ||
         (info.version() >= GR_GL_VER(3, 0) &&
          // ES3 only works with sized BGRA8 format if "GL_APPLE_texture_format_BGRA8888" enabled
@@ -718,25 +715,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     SkAutoSMalloc<128 * 128> tempStorage;
 #endif
 
-    // We currently lazily create MIPMAPs when the we see a draw with
-    // GrTextureParams::kMipMap_FilterMode. Using texture storage requires that the
-    // MIP levels are all created when the texture is created. So for now we don't use
-    // texture storage.
-    bool useTexStorage = false &&
-                         isNewTexture &&
-                         this->glCaps().texStorageSupport();
-
-    if (useTexStorage && kGL_GrGLStandard == this->glStandard()) {
-        // 565 is not a sized internal format on desktop GL. So on desktop with
-        // 565 we always use an unsized internal format to let the system pick
-        // the best sized format to convert the 565 data to. Since TexStorage
-        // only allows sized internal formats we will instead use TexImage2D.
-        useTexStorage = desc.fConfig != kRGB_565_GrPixelConfig;
-    }
-
-
-    bool useSizedFormat = use_sized_format_for_texture(useTexStorage, this->ctxInfo(),
-                                                       desc.fConfig);
+    bool useSizedFormat = use_sized_format_for_texture(this->ctxInfo(), desc.fConfig);
 
     // Internal format comes from the texture desc.
     GrGLenum internalFormat = useSizedFormat ?
@@ -799,40 +778,17 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, config_alignment(dataConfig)));
     }
     bool succeeded = true;
-    if (isNewTexture &&
-        0 == left && 0 == top &&
-        desc.fWidth == width && desc.fHeight == height) {
-        CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-        if (useTexStorage) {
-            // We never resize  or change formats of textures.
-            GL_ALLOC_CALL(this->glInterface(),
-                          TexStorage2D(target,
-                                       1, // levels
-                                       internalFormat,
-                                       desc.fWidth, desc.fHeight));
-        } else {
-            GL_ALLOC_CALL(this->glInterface(),
-                          TexImage2D(target,
-                                     0, // level
-                                     internalFormat,
-                                     desc.fWidth, desc.fHeight,
-                                     0, // border
-                                     externalFormat, externalType,
-                                     data));
-        }
-        GrGLenum error = check_alloc_error(desc, this->glInterface());
-        if (error != GR_GL_NO_ERROR) {
+    if (isNewTexture) {
+        if (data && !(0 == left && 0 == top && desc.fWidth == width && desc.fHeight == height)) {
             succeeded = false;
         } else {
-            // if we have data and we used TexStorage to create the texture, we
-            // now upload with TexSubImage.
-            if (data && useTexStorage) {
-                GL_CALL(TexSubImage2D(target,
-                                      0, // level
-                                      left, top,
-                                      width, height,
-                                      externalFormat, externalType,
-                                      data));
+            CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
+            GL_ALLOC_CALL(this->glInterface(), TexImage2D(target, 0, internalFormat, desc.fWidth,
+                                                          desc.fHeight, 0,  externalFormat,
+                                                          externalType, data));
+            GrGLenum error = check_alloc_error(desc, this->glInterface());
+            if (error != GR_GL_NO_ERROR) {
+                succeeded = false;
             }
         }
     } else {
@@ -1287,7 +1243,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         GrGLenum internalFormat = 0x0; // suppress warning
         GrGLenum externalFormat = 0x0; // suppress warning
         GrGLenum externalType = 0x0;   // suppress warning
-        bool useSizedFormat = use_sized_format_for_texture(false, this->ctxInfo(), config);
+        bool useSizedFormat = use_sized_format_for_texture(this->ctxInfo(), config);
         if (!this->configToGLFormats(config, useSizedFormat, &internalFormat,
                                      &externalFormat, &externalType)) {
             GL_CALL(DeleteTextures(1, &colorID));
@@ -3532,7 +3488,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     GrGLenum externalFormat = 0x0; // suppress warning
     GrGLenum externalType = 0x0;   // suppress warning
 
-    bool useSizedFormat = use_sized_format_for_texture(false, this->ctxInfo(), config);
+    bool useSizedFormat = use_sized_format_for_texture(this->ctxInfo(), config);
     this->configToGLFormats(config, useSizedFormat, &internalFormat, &externalFormat,
                             &externalType);
 
