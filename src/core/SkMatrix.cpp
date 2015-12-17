@@ -1488,9 +1488,15 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
             results[1] = apluscdiv2 + x;
         }
     }
+    if (SkScalarIsNaN(results[0])) {
+        return false;
+    }
     SkASSERT(results[0] >= 0);
     results[0] = SkScalarSqrt(results[0]);
     if (kBoth_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
+        if (SkScalarIsNaN(results[1])) {
+            return false;
+        }
         SkASSERT(results[1] >= 0);
         results[1] = SkScalarSqrt(results[1]);
     }

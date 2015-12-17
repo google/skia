@@ -205,11 +205,18 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     perspX.setPerspX(SK_Scalar1 / 1000);
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMinScale());
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxScale());
-    // Verify that getMinMaxScales() doesn't update the scales array on failure.
-    scales[0] = -5;
-    scales[1] = -5;
     success = perspX.getMinMaxScales(scales);
-    REPORTER_ASSERT(reporter, !success && -5 * SK_Scalar1 == scales[0] && -5 * SK_Scalar1  == scales[1]);
+    REPORTER_ASSERT(reporter, !success);
+
+    // skbug.com/4718
+    SkMatrix big;
+    big.setAll(2.39394089e+36f, 8.85347779e+36f, 9.26526204e+36f,
+               3.9159619e+36f, 1.44823453e+37f, 1.51559342e+37f,
+               0.f, 0.f, 1.f);
+    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMinScale());
+    REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxScale());
+    success = big.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, !success);
 
     SkMatrix perspY;
     perspY.reset();
