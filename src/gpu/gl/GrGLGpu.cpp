@@ -160,14 +160,6 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Used in the map of pixel configs to stencil format indices. This value is used to
-// indicate that a stencil format has not yet been set for the given config.
-static const int kUnknownStencilIndex = -1;
-// This value is used as the stencil index when no stencil configs are supported with the
-// given pixel config.
-static const int kUnsupportedStencilIndex = -2;
-
-///////////////////////////////////////////////////////////////////////////////
 
 GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
                        GrContext* context) {
@@ -222,9 +214,6 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
 
     SkASSERT(this->glCaps().maxVertexAttributes() >= GrGeometryProcessor::kMaxVertexAttribs);
 
-    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-        fPixelConfigToStencilIndex[i] = kUnknownStencilIndex;
-    }
     fHWProgramID = 0;
     fTempSrcFBOID = 0;
     fTempDstFBOID = 0;
@@ -1279,9 +1268,9 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 
 int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
     static const int kSize = 16;
-    if (kUnknownStencilIndex == fPixelConfigToStencilIndex[config]) {
+    if (ConfigEntry::kUnknown_StencilIndex == fConfigTable[config].fStencilFormatIndex) {
         // Default to unsupported
-        fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
+        fConfigTable[config].fStencilFormatIndex = ConfigEntry::kUnsupported_StencilFormatIndex;
         // Create color texture
         GrGLuint colorID = 0;
         GL_CALL(GenTextures(1, &colorID));
@@ -1307,8 +1296,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         if (!this->configToGLFormats(config, useSizedFormat, &internalFormat,
                                      &externalFormat, &externalType)) {
             GL_CALL(DeleteTextures(1, &colorID));
-            fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
-            return kUnsupportedStencilIndex;
+            return ConfigEntry::kUnsupported_StencilFormatIndex;
         }
 
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
@@ -1322,8 +1310,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
                                                       NULL));
         if (GR_GL_NO_ERROR != GR_GL_GET_ERROR(this->glInterface())) {
             GL_CALL(DeleteTextures(1, &colorID));
-            fPixelConfigToStencilIndex[config] = kUnsupportedStencilIndex;
-            return kUnsupportedStencilIndex;
+            return ConfigEntry::kUnsupported_StencilFormatIndex;
         }
 
         // unbind the texture from the texture unit before binding it to the frame buffer
@@ -1380,7 +1367,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
                                                         GR_GL_RENDERBUFFER, 0));
                     }
                 } else {
-                    fPixelConfigToStencilIndex[config] = i;
+                    fConfigTable[config].fStencilFormatIndex = i;
                     break;
                 }
             }
@@ -1391,8 +1378,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, 0));
         GL_CALL(DeleteFramebuffers(1, &fb));
     }
-    SkASSERT(kUnknownStencilIndex != fPixelConfigToStencilIndex[config]);
-    return fPixelConfigToStencilIndex[config];
+    SkASSERT(ConfigEntry::kUnknown_StencilIndex != fConfigTable[config].fStencilFormatIndex);
+    return fConfigTable[config].fStencilFormatIndex;
 }
 
 GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
@@ -1408,7 +1395,7 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
     GrGLStencilAttachment::IDDesc sbDesc;
 
     int sIdx = this->getCompatibleStencilIndex(rt->config());
-    if (sIdx == kUnsupportedStencilIndex) {
+    if (sIdx < 0) {
         return nullptr;
     }
 

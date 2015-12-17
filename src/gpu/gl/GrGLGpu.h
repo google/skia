@@ -153,7 +153,7 @@ private:
     GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                               GrWrapOwnership) override;
     // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
-    // compatible stencil format.
+    // compatible stencil format, or negative if there is no compatible stencil format.
     int getCompatibleStencilIndex(GrPixelConfig config);
 
     void onClear(GrRenderTarget*, const SkIRect& rect, GrColor color) override;
@@ -541,18 +541,27 @@ private:
 
     struct ConfigEntry {
         // Default constructor inits to known bad GL enum values.
-        ConfigEntry() { memset(this, 0xAB, sizeof(ConfigEntry)); }
+        ConfigEntry() {
+            memset(this, 0xAB, sizeof(ConfigEntry));
+            fStencilFormatIndex = kUnknown_StencilIndex;
+        }
         GrGLenum fBaseInternalFormat;
         GrGLenum fSizedInternalFormat;
         GrGLenum fExternalFormat;
         GrGLenum fExternalType;
+
+        // Index into GrGLCaps's list of stencil formats. Support is determined experimentally and
+        // lazily.
+        int      fStencilFormatIndex;
+        enum {
+            // This indicates that a stencil format has not yet been determined for the config.
+            kUnknown_StencilIndex = -1,
+            // This indicates that there is no supported stencil format for the config.
+            kUnsupported_StencilFormatIndex = -2
+        };
     };
 
-    ConfigEntry fConfigTable[kLast_GrPixelConfig + 1];
-
-    // Mapping of pixel configs to known supported stencil formats to be used
-    // when adding a stencil buffer to a framebuffer.
-    int fPixelConfigToStencilIndex[kGrPixelConfigCnt];
+    ConfigEntry fConfigTable[kGrPixelConfigCnt];
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.
