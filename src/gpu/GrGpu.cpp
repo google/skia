@@ -160,6 +160,13 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, bool budgeted,
 
 GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
     this->handleDirtyContext();
+    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+        return nullptr;
+    }
+    if ((desc.fFlags & kRenderTarget_GrBackendTextureFlag) &&
+        !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return nullptr;
+    }
     GrTexture* tex = this->onWrapBackendTexture(desc, ownership);
     if (nullptr == tex) {
         return nullptr;
@@ -176,6 +183,9 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwn
 
 GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc,
                                                GrWrapOwnership ownership) {
+    if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return nullptr;
+    }
     this->handleDirtyContext();
     return this->onWrapBackendRenderTarget(desc, ownership);
 }

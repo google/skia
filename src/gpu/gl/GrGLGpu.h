@@ -550,6 +550,10 @@ private:
         GrGLenum fExternalFormat;
         GrGLenum fExternalType;
 
+        // The <format> parameter to use for glTexImage and glTexSubImage.
+        // This is usually the same as fExternalFormat except for kSRGBA on some GL contexts.
+        GrGLenum fExternalFormatForTexImage;
+
         // Index into GrGLCaps's list of stencil formats. Support is determined experimentally and
         // lazily.
         int      fStencilFormatIndex;

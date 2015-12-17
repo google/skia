@@ -701,6 +701,8 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
+    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
+
     size_t bpp = GrBytesPerPixel(dataConfig);
     if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
                                                &width, &height, &data, &rowBytes)) {
@@ -732,28 +734,21 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         useTexStorage = desc.fConfig != kRGB_565_GrPixelConfig;
     }
 
-    GrGLenum internalFormat = 0x0; // suppress warning
-    GrGLenum externalFormat = 0x0; // suppress warning
-    GrGLenum externalType = 0x0;   // suppress warning
 
     bool useSizedFormat = use_sized_format_for_texture(useTexStorage, this->ctxInfo(),
                                                        desc.fConfig);
 
-    if (!this->configToGLFormats(desc.fConfig, useSizedFormat, &internalFormat,
-                                 &externalFormat, &externalType)) {
-        return false;
-    }
+    // Internal format comes from the texture desc.
+    GrGLenum internalFormat = useSizedFormat ?
+                                fConfigTable[desc.fConfig].fSizedInternalFormat:
+                                fConfigTable[desc.fConfig].fBaseInternalFormat;
 
-    if (dataConfig != desc.fConfig) {
-        // call this again if we're going to upload a different config than the texture's config.
-        if (!this->configToGLFormats(dataConfig, false, nullptr, &externalFormat,
-                                     &externalType)) {
-            return false;
-        }
-    }
+    // External format and type come from the upload data.
+    GrGLenum externalFormat = fConfigTable[dataConfig].fExternalFormatForTexImage;
+    GrGLenum externalType = fConfigTable[dataConfig].fExternalType;
 
     /*
-     *  check whether to allocate a temporary buffer for flipping y or
+     *  Check whether to allocate a temporary buffer for flipping y or
      *  because our srcData has extra bytes past each row. If so, we need
      *  to trim those off here, since GL ES may not let us specify
      *  GL_UNPACK_ROW_LENGTH.
@@ -2053,12 +2048,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         return false;
     }
 
-    // glReadPixels does not allow GL_SRGB_ALPHA. Instead use GL_RGBA. This will not trigger a
-    // conversion when the src is srgb.
-    if (GR_GL_SRGB_ALPHA == format) {
-        format = GR_GL_RGBA;
-    }
-
     // resolve the render target if necessary
     switch (tgt->getResolveType()) {
         case GrGLRenderTarget::kCantResolve_ResolveType:
@@ -2695,20 +2684,9 @@ void GrGLGpu::generateConfigTable() {
 
     fConfigTable[kSRGBA_8888_GrPixelConfig].fBaseInternalFormat = GR_GL_SRGB_ALPHA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
-    // OpenGL ES 2.0 + GL_EXT_sRGB allows GL_SRGB_ALPHA to be specified as the <format>
-    // param to Tex(Sub)Image2D. ES 2.0 requires the internalFormat and format to match.
-    // Thus, on ES 2.0 we will use GL_SRGB_ALPHA as the externalFormat. However,
-    // onReadPixels needs code to override that because GL_SRGB_ALPHA is not allowed as a
-    // glReadPixels format.
-    // On OpenGL and ES 3.0 GL_SRGB_ALPHA does not work for the <format> param to
-    // glReadPixels nor does it work with Tex(Sub)Image2D So we always set the externalFormat
-    // return to GL_RGBA.
-    if (this->glStandard() == kGLES_GrGLStandard &&
-        this->glVersion() == GR_GL_VER(2,0)) {
-        fConfigTable[kSRGBA_8888_GrPixelConfig].fExternalFormat = GR_GL_SRGB_ALPHA;
-    } else {
-        fConfigTable[kSRGBA_8888_GrPixelConfig].fExternalFormat = GR_GL_RGBA;
-    }
+    // GL does not do srgb<->rgb conversions when transferring between cpu and gpu. Thus, the
+    // external format is GL_RGBA. See below for note about ES2.0 and glTex[Sub]Image.
+    fConfigTable[kSRGBA_8888_GrPixelConfig].fExternalFormat = GR_GL_RGBA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fExternalType = GR_GL_UNSIGNED_BYTE;
 
 
@@ -2808,10 +2786,23 @@ void GrGLGpu::generateConfigTable() {
     fConfigTable[kASTC_12x12_GrPixelConfig].fExternalFormat = 0;
     fConfigTable[kASTC_12x12_GrPixelConfig].fExternalType = 0;
 
+
+    // Almost always we want to pass fExternalFormat as the <format> param to glTex[Sub]Image.
+    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+        fConfigTable[i].fExternalFormatForTexImage = fConfigTable[i].fExternalFormat;
+    }
+    // OpenGL ES 2.0 + GL_EXT_sRGB allows GL_SRGB_ALPHA to be specified as the <format>
+    // param to Tex(Sub)Image. ES 2.0 requires the <internalFormat> and <format> params to match.
+    // Thus, on ES 2.0 we will use GL_SRGB_ALPHA as the <format> param.
+    // On OpenGL and ES 3.0+ GL_SRGB_ALPHA does not work for the <format> param to glTexImage.
+    if (this->glStandard() == kGLES_GrGLStandard && this->glVersion() == GR_GL_VER(2,0)) {
+        fConfigTable[kSRGBA_8888_GrPixelConfig].fExternalFormatForTexImage = GR_GL_SRGB_ALPHA;
+    }
+
 #ifdef SK_DEBUG
     // Make sure we initialized everything.
     ConfigEntry defaultEntry;
-    for (int i = 0; i < kLast_GrPixelConfig; ++i) {
+    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         SkASSERT(defaultEntry.fBaseInternalFormat != fConfigTable[i].fBaseInternalFormat);
         SkASSERT(defaultEntry.fSizedInternalFormat != fConfigTable[i].fSizedInternalFormat);
         SkASSERT(defaultEntry.fExternalFormat != fConfigTable[i].fExternalFormat);
