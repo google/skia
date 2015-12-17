@@ -187,9 +187,6 @@ def get_args(bot):
   if 'NexusPlayer' in bot:
     match.append('~ResourceCache')
 
-  if 'iOS' in bot:
-    match.append('~WritePixels')
-
   if 'GalaxyS4' in bot:  # skia:4079
     match.append('~imagefiltersclipped')
     match.append('~imagefilterscropexpand')
