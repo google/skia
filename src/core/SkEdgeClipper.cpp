@@ -358,14 +358,19 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
     }
 }
 
+static bool quick_reject_in_y(const SkPoint pts[4], const SkRect& clip) {
+    Sk4s ys(pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY);
+    Sk4s t(clip.top());
+    Sk4s b(clip.bottom());
+
+    return (ys < t).allTrue() || (ys > b).allTrue();
+}
+
 bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
 
-    SkRect  bounds;
-    bounds.set(srcPts, 4);
-
-    if (!quick_reject(bounds, clip)) {
+    if (!quick_reject_in_y(srcPts, clip)) {
         SkPoint monoY[10];
         int countY = SkChopCubicAtYExtrema(srcPts, monoY);
         for (int y = 0; y <= countY; y++) {

@@ -318,8 +318,69 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     lineproc(tmp, lines + 1, clip, blitter);
 }
 
-static inline void haircubic(const SkPoint pts[4], const SkRegion* clip,
+static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
+    SkASSERT(SkScalarsAreFinite(&pts[0].fX, 8));
+
+    Sk2s min = Sk2s::Load(&pts[0].fX);
+    Sk2s max = min;
+    for (int i = 1; i < 4; ++i) {
+        Sk2s pair = Sk2s::Load(&pts[i].fX);
+        min = Sk2s::Min(min, pair);
+        max = Sk2s::Max(max, pair);
+    }
+    return { min.kth<0>(), min.kth<1>(), max.kth<0>(), max.kth<1>() };
+}
+
+static bool is_inverted(const SkRect& r) {
+    return r.fLeft > r.fRight || r.fTop > r.fBottom;
+}
+
+// Can't call SkRect::intersects, since it cares about empty, and we don't (since we tracking
+// something to be stroked, so empty can still draw something (e.g. horizontal line)
+static bool geometric_overlap(const SkRect& a, const SkRect& b) {
+    SkASSERT(!is_inverted(a) && !is_inverted(b));
+    return a.fLeft < b.fRight && b.fLeft < a.fRight &&
+           a.fTop < b.fBottom && b.fTop < a.fBottom;
+}
+
+// Can't call SkRect::contains, since it cares about empty, and we don't (since we tracking
+// something to be stroked, so empty can still draw something (e.g. horizontal line)
+static bool geometric_contains(const SkRect& outer, const SkRect& inner) {
+    SkASSERT(!is_inverted(outer) && !is_inverted(inner));
+    return inner.fRight <= outer.fRight && inner.fLeft >= outer.fLeft &&
+           inner.fBottom <= outer.fBottom && inner.fTop >= outer.fTop;
+}
+
+//#define SK_SHOW_HAIRCLIP_STATS
+#ifdef SK_SHOW_HAIRCLIP_STATS
+static int gKillClip, gRejectClip, gClipCount;
+#endif
+
+static inline void haircubic(const SkPoint pts[4], const SkRegion* clip, const SkRect* insetClip, const SkRect* outsetClip,
                       SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
+    if (insetClip) {
+        SkASSERT(outsetClip);
+#ifdef SK_SHOW_HAIRCLIP_STATS
+        gClipCount += 1;
+#endif
+        SkRect bounds = compute_nocheck_cubic_bounds(pts);
+        if (!geometric_overlap(*outsetClip, bounds)) {
+#ifdef SK_SHOW_HAIRCLIP_STATS
+            gRejectClip += 1;
+#endif
+            return;
+        } else if (geometric_contains(*insetClip, bounds)) {
+            clip = nullptr;
+#ifdef SK_SHOW_HAIRCLIP_STATS
+            gKillClip += 1;
+#endif
+        }
+#ifdef SK_SHOW_HAIRCLIP_STATS
+        if (0 == gClipCount % 256)
+            SkDebugf("kill %g reject %g total %d\n", 1.0*gKillClip / gClipCount, 1.0*gRejectClip/gClipCount, gClipCount);
+#endif
+    }
+
     if (quick_cubic_niceness_check(pts)) {
         hair_cubic(pts, clip, blitter, lineproc);
     } else {
@@ -400,6 +461,9 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
 
     SkAAClipBlitterWrapper wrap;
     const SkRegion* clip = nullptr;
+    SkRect insetStorage, outsetStorage;
+    const SkRect* insetClip = nullptr;
+    const SkRect* outsetClip = nullptr;
 
     {
         const SkIRect ibounds = path.getBounds().roundOut().makeOutset(1, 1);
@@ -415,6 +479,35 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 blitter = wrap.getBlitter();
                 clip = &wrap.getRgn();
             }
+
+            /*
+             *  We now cache two scalar rects, to use for culling per-segment (e.g. cubic).
+             *  Since we're hairlining, the "bounds" of the control points isn't necessairly the
+             *  limit of where a segment can draw (it might draw up to 1 pixel beyond in aa-hairs).
+             *
+             *  Compute the pt-bounds per segment is easy, so we do that, and then inversely adjust
+             *  the culling bounds so we can just do a straight compare per segment.
+             *
+             *  insetClip is use for quick-accept (i.e. the segment is not clipped), so we inset
+             *  it from the clip-bounds (since segment bounds can be off by 1).
+             *
+             *  outsetClip is used for quick-reject (i.e. the segment is entirely outside), so we
+             *  outset it from the clip-bounds.
+             */
+            insetStorage.set(clip->getBounds());
+            outsetStorage = insetStorage.makeOutset(1, 1);
+            insetStorage.inset(1, 1);
+            if (is_inverted(insetStorage)) {
+                /*
+                 *  our bounds checks assume the rects are never inverted. If insetting has
+                 *  created that, we assume that the area is too small to safely perform a
+                 *  quick-accept, so we just mark the rect as empty (so the quick-accept check
+                 *  will always fail.
+                 */
+                insetStorage.setEmpty();    // just so we don't pass an inverted rect
+            }
+            insetClip = &insetStorage;
+            outsetClip = &outsetStorage;
         }
     }
 
@@ -465,7 +558,7 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 if (SkPaint::kButt_Cap != capStyle) {
                     extend_pts<capStyle>(prevVerb, iter.peek(), pts, 4);
                 }
-                haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
+                haircubic(pts, clip, insetClip, outsetClip, blitter, kMaxCubicSubdivideLevel, lineproc);
                 lastPt = pts[3];
             } break;
             case SkPath::kClose_Verb:
