@@ -319,10 +319,8 @@ void SkAndroidSDKCanvas::willSave() {
     fProxyTarget->save();
 }
 
-SkCanvas::SaveLayerStrategy SkAndroidSDKCanvas::willSaveLayer(const SkRect* rect,
-                                                              const SkPaint* paint,
-                                                              SaveFlags flags) {
-    fProxyTarget->saveLayer(rect, paint, flags);
+SkCanvas::SaveLayerStrategy SkAndroidSDKCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    fProxyTarget->saveLayer(rec);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
