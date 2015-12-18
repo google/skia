@@ -342,9 +342,15 @@ private:
         SkIRect devPathBounds;
         scaledBounds.roundOut(&devPathBounds);
         // pad to allow room for antialiasing
-        devPathBounds.outset(SkScalarCeilToInt(kAntiAliasPad), SkScalarCeilToInt(kAntiAliasPad));
-        // move origin to upper left corner
-        devPathBounds.offsetTo(0,0);
+        const int intPad = SkScalarCeilToInt(kAntiAliasPad);
+        // pre-move origin (after outset, will be 0,0)
+        int width = devPathBounds.width();
+        int height = devPathBounds.height();
+        devPathBounds.fLeft = intPad;
+        devPathBounds.fTop = intPad;
+        devPathBounds.fRight = intPad + width;
+        devPathBounds.fBottom = intPad + height;
+        devPathBounds.outset(intPad, intPad);
 
         // draw path to bitmap
         SkMatrix drawMatrix;
@@ -381,8 +387,8 @@ private:
 
         // generate signed distance field
         devPathBounds.outset(SK_DistanceFieldPad, SK_DistanceFieldPad);
-        int width = devPathBounds.width();
-        int height = devPathBounds.height();
+        width = devPathBounds.width();
+        height = devPathBounds.height();
         // TODO We should really generate this directly into the plot somehow
         SkAutoSMalloc<1024> dfStorage(width * height * sizeof(unsigned char));
 
