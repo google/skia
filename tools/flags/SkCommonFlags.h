@@ -10,11 +10,9 @@
 
 #include "SkCommandLineFlags.h"
 
-DECLARE_string(config);
 DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
 DECLARE_bool(gpu);
-DECLARE_string(gpuAPI);
 DECLARE_string(images);
 DECLARE_string(match);
 DECLARE_bool(quiet);
