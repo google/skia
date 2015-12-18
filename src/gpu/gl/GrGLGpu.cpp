@@ -415,9 +415,6 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
 
 GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
                                          GrWrapOwnership ownership) {
-    if (!this->configToGLFormats(desc.fConfig, false, nullptr, nullptr, nullptr)) {
-        return nullptr;
-    }
 #ifdef SK_IGNORE_GL_TEXTURE_TARGET
     if (!desc.fTextureHandle) {
         return nullptr;
@@ -800,6 +797,7 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
                                       const void* data,
                                       bool isNewTexture,
                                       int left, int top, int width, int height) {
+    SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
     SkASSERT(data || isNewTexture);
 
     // No support for software flip y, yet...
@@ -827,11 +825,9 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
     // is a multiple of the block size.
     size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
 
-    // We only need the internal format for compressed 2D textures.
-    GrGLenum internalFormat = 0;
-    if (!this->configToGLFormats(desc.fConfig, false, &internalFormat, nullptr, nullptr)) {
-        return false;
-    }
+    // We only need the internal format for compressed 2D textures. There is on
+    // sized vs base internal format distinction for compressed textures.
+    GrGLenum internalFormat = fConfigTable[desc.fConfig].fSizedInternalFormat;
 
     if (isNewTexture) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
@@ -1971,12 +1967,9 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         return false;
     }
 
-    GrGLenum format = 0;
-    GrGLenum type = 0;
+    GrGLenum format = fConfigTable[config].fExternalFormat;
+    GrGLenum type = fConfigTable[config].fExternalType;
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
-    if (!this->configToGLFormats(config, false, nullptr, &format, &type)) {
-        return false;
-    }
 
     // resolve the render target if necessary
     switch (tgt->getResolveType()) {
