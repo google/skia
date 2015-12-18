@@ -21,9 +21,8 @@ public:
     {}
 
 protected:
-    virtual SaveLayerStrategy willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                            SaveFlags flags) override {
-        this->INHERITED::willSaveLayer(bounds, paint, flags);
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
+        (void)this->INHERITED::getSaveLayerStrategy(rec);
         return kNoLayer_SaveLayerStrategy;
     }
 

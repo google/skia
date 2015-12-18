@@ -524,10 +524,9 @@ void SkDebugCanvas::willSave() {
     this->INHERITED::willSave();
 }
 
-SkCanvas::SaveLayerStrategy SkDebugCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                                         SaveFlags flags) {
-    this->addDrawCommand(new SkSaveLayerCommand(bounds, paint, flags));
-    this->INHERITED::willSaveLayer(bounds, paint, flags);
+SkCanvas::SaveLayerStrategy SkDebugCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    this->addDrawCommand(new SkSaveLayerCommand(rec));
+    (void)this->INHERITED::getSaveLayerStrategy(rec);
     // No need for a full layer.
     return kNoLayer_SaveLayerStrategy;
 }

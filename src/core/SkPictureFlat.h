@@ -51,7 +51,7 @@ enum DrawType {
     RESTORE,
     ROTATE,
     SAVE,
-    SAVE_LAYER,
+    SAVE_LAYER_SAVEFLAGS_DEPRECATED,
     SCALE,
     SET_MATRIX,
     SKEW,
@@ -75,7 +75,9 @@ enum DrawType {
     DRAW_IMAGE_NINE,
     DRAW_IMAGE_RECT,
 
-    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_RECT
+    SAVE_LAYER_SAVELAYERFLAGS,
+
+    LAST_DRAWTYPE_ENUM = SAVE_LAYER_SAVELAYERFLAGS,
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

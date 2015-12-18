@@ -455,10 +455,17 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             }
             canvas->save();
             break;
-        case SAVE_LAYER: {
+        case SAVE_LAYER_SAVEFLAGS_DEPRECATED: {
             const SkRect* boundsPtr = get_rect_ptr(reader);
             const SkPaint* paint = fPictureData->getPaint(reader);
-            canvas->saveLayer(boundsPtr, paint, (SkCanvas::SaveFlags) reader->readInt());
+            const SkCanvas::SaveFlags flags = (SkCanvas::SaveFlags)reader->readInt();
+            canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint,
+                                           SkCanvas::SaveFlagsToSaveLayerFlags(flags)));
+        } break;
+        case SAVE_LAYER_SAVELAYERFLAGS: {
+            const SkRect* boundsPtr = get_rect_ptr(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint, reader->readInt()));
         } break;
         case SCALE: {
             SkScalar sx = reader->readScalar();

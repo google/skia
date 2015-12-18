@@ -248,7 +248,7 @@ public:
 
 protected:
     void willSave() override;
-    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) override;
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
 
     void didConcat(const SkMatrix&) override;
@@ -542,29 +542,28 @@ void SkGPipeCanvas::willSave() {
     this->INHERITED::willSave();
 }
 
-SkCanvas::SaveLayerStrategy SkGPipeCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                                         SaveFlags saveFlags) {
+SkCanvas::SaveLayerStrategy SkGPipeCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     NOTIFY_SETUP(this);
     size_t size = 0;
     unsigned opFlags = 0;
 
-    if (bounds) {
+    if (rec.fBounds) {
         opFlags |= kSaveLayer_HasBounds_DrawOpFlag;
         size += sizeof(SkRect);
     }
-    if (paint) {
+    if (rec.fPaint) {
         opFlags |= kSaveLayer_HasPaint_DrawOpFlag;
-        this->writePaint(*paint);
+        this->writePaint(*rec.fPaint);
     }
 
     if (this->needOpBytes(size)) {
-        this->writeOp(kSaveLayer_DrawOp, opFlags, saveFlags);
-        if (bounds) {
-            fWriter.writeRect(*bounds);
+        this->writeOp(kSaveLayer_DrawOp, opFlags, rec.fSaveLayerFlags);
+        if (rec.fBounds) {
+            fWriter.writeRect(*rec.fBounds);
         }
     }
 
-    this->INHERITED::willSaveLayer(bounds, paint, saveFlags);
+    (void)this->INHERITED::getSaveLayerStrategy(rec);
     // we don't create a layer
     return kNoLayer_SaveLayerStrategy;
 }

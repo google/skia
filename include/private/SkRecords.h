@@ -197,7 +197,7 @@ RECORD(Save, 0);
 RECORD(SaveLayer, 0,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
-       SkCanvas::SaveFlags flags);
+       SkCanvas::SaveLayerFlags saveLayerFlags);
 
 RECORD(SetMatrix, 0,
         TypedMatrix matrix);

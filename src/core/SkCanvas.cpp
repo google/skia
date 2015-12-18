@@ -481,7 +481,7 @@ public:
                 // Make rawBounds include all paint outsets except for those due to image filters.
                 rawBounds = &apply_paint_to_bounds_sans_imagefilter(*fPaint, *rawBounds, &storage);
             }
-            (void)canvas->internalSaveLayer(rawBounds, &tmp, SkCanvas::kARGB_ClipLayer_SaveFlag,
+            (void)canvas->internalSaveLayer(SkCanvas::SaveLayerRec(rawBounds, &tmp, 0),
                                             SkCanvas::kFullLayer_SaveLayerStrategy);
             fTempLayerForImageFilter = true;
             // we remove the imagefilter/xfermode inside doNext()
@@ -1053,15 +1053,15 @@ void SkCanvas::internalSave() {
     fClipStack->save();
 }
 
-static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
+bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    return (flags & SkCanvas::kClipToLayer_SaveFlag) != 0;
+    return !(saveLayerFlags & SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag);
 #else
     return true;
 #endif
 }
 
-bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
+bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlags,
                               SkIRect* intersection, const SkImageFilter* imageFilter) {
     SkIRect clipBounds;
     if (!this->getClipDeviceBounds(&clipBounds)) {
@@ -1098,7 +1098,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         r.roundOut(&ir);
         // early exit if the layer's bounds are clipped out
         if (!ir.intersect(clipBounds)) {
-            if (bounds_affects_clip(flags)) {
+            if (BoundsAffectsClip(saveLayerFlags)) {
                 fCachedLocalClipBoundsDirty = true;
                 fMCRec->fRasterClip.setEmpty();
             }
@@ -1109,7 +1109,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     }
     SkASSERT(!ir.isEmpty());
 
-    if (bounds_affects_clip(flags)) {
+    if (BoundsAffectsClip(saveLayerFlags)) {
         // Simplify the current clips since they will be applied properly during restore()
         fCachedLocalClipBoundsDirty = true;
         fClipStack->clipDevRect(ir, SkRegion::kReplace_Op);
@@ -1122,29 +1122,53 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     return true;
 }
 
-int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
-    if (gIgnoreSaveLayerBounds) {
-        bounds = nullptr;
+uint32_t SkCanvas::SaveFlagsToSaveLayerFlags(SaveFlags flags) {
+    uint32_t layerFlags = 0;
+
+    if (0 == (flags & kClipToLayer_SaveFlag)) {
+        layerFlags |= kDontClipToLayer_PrivateSaveLayerFlag;
     }
-    SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag);
-    fSaveCount += 1;
-    this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, strategy);
-    return this->getSaveCount() - 1;
+    if (0 == (flags & kHasAlphaLayer_SaveFlag)) {
+        layerFlags |= kIsOpaque_SaveLayerFlag;
+    }
+    return layerFlags;
+}
+
+#ifdef SK_SUPPORT_LEGACY_SAVELAYERPARAMS
+SkCanvas::SaveLayerStrategy SkCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    uint32_t flags = 0;
+
+    if (0 == (rec.fSaveLayerFlags & kDontClipToLayer_PrivateSaveLayerFlag)) {
+        flags |= kClipToLayer_SaveFlag;
+    }
+    if (0 == (rec.fSaveLayerFlags & kIsOpaque_SaveLayerFlag)) {
+        flags |= kHasAlphaLayer_SaveFlag;
+    }
+    return this->willSaveLayer(rec.fBounds, rec.fPaint, (SaveFlags)flags);
+}
+#endif
+
+int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
+    return this->saveLayer(SaveLayerRec(bounds, paint, 0));
 }
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags) {
-    if (gIgnoreSaveLayerBounds) {
-        bounds = nullptr;
-    }
-    SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, flags);
-    fSaveCount += 1;
-    this->internalSaveLayer(bounds, paint, flags, strategy);
-    return this->getSaveCount() - 1;
+    return this->saveLayer(SaveLayerRec(bounds, paint, SaveFlagsToSaveLayerFlags(flags)));
 }
 
 int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint) {
-    unsigned flags = kARGB_ClipLayer_SaveFlag | kPreserveLCDText_PrivateSaveFlag;
-    return this->saveLayer(bounds, paint, (SaveFlags)flags);
+    return this->saveLayer(SaveLayerRec(bounds, paint, kPreserveLCDText_SaveLayerFlag));
+}
+
+int SkCanvas::saveLayer(const SaveLayerRec& origRec) {
+    SaveLayerRec rec(origRec);
+    if (gIgnoreSaveLayerBounds) {
+        rec.fBounds = nullptr;
+    }
+    SaveLayerStrategy strategy = this->getSaveLayerStrategy(rec);
+    fSaveCount += 1;
+    this->internalSaveLayer(rec, strategy);
+    return this->getSaveCount() - 1;
 }
 
 static void draw_filter_into_device(SkBaseDevice* src, SkImageFilter* filter, SkBaseDevice* dst) {
@@ -1177,10 +1201,13 @@ static void draw_filter_into_device(SkBaseDevice* src, SkImageFilter* filter, Sk
     c.drawBitmap(srcBM, 0, 0, &p);
 }
 
-void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
-                                 SaveLayerStrategy strategy) {
+void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
+    const SkRect* bounds = rec.fBounds;
+    const SkPaint* paint = rec.fPaint;
+    SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
+
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    flags |= kClipToLayer_SaveFlag;
+    saveLayerFlags &= ~kDontClipToLayer_PrivateSaveLayerFlag;
 #endif
 
     // do this before we create the layer. We don't call the public save() since
@@ -1190,7 +1217,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     fDeviceCMDirty = true;
 
     SkIRect ir;
-    if (!this->clipRectBounds(bounds, flags, &ir, paint ? paint->getImageFilter() : nullptr)) {
+    if (!this->clipRectBounds(bounds, saveLayerFlags, &ir, paint ? paint->getImageFilter() : nullptr)) {
         return;
     }
 
@@ -1200,7 +1227,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
         return;
     }
 
-    bool isOpaque = !SkToBool(flags & kHasAlphaLayer_SaveFlag);
+    bool isOpaque = SkToBool(saveLayerFlags & kIsOpaque_SaveLayerFlag);
     SkPixelGeometry geo = fProps.pixelGeometry();
     if (paint) {
         // TODO: perhaps add a query to filters so we might preserve opaqueness...
@@ -1221,7 +1248,7 @@ void SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Sav
     bool forceSpriteOnRestore = false;
     {
         const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
-                                     SkToBool(flags & kPreserveLCDText_PrivateSaveFlag);
+                                     (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
                                                                             preserveLCDText, false);

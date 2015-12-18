@@ -153,7 +153,7 @@ protected:
     bool onPeekPixels(SkPixmap*) override { return false; }
 
     void willSave() override;
-    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) override;
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
 
     void didConcat(const SkMatrix&) override;
@@ -218,7 +218,7 @@ protected:
     size_t recordClipPath(int pathID, SkRegion::Op op, bool doAA);
     size_t recordClipRegion(const SkRegion& region, SkRegion::Op op);
     void recordSave();
-    void recordSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
+    void recordSaveLayer(const SaveLayerRec&);
     void recordRestore(bool fillInSkips = true);
 
 private:

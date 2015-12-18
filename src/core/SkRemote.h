@@ -91,7 +91,7 @@ namespace SkRemote {
 
         virtual void    save() = 0;
         virtual void restore() = 0;
-        virtual void saveLayer(ID bounds, CommonIDs, SkCanvas::SaveFlags) = 0;
+        virtual void saveLayer(ID bounds, CommonIDs, uint32_t saveLayerFlags) = 0;
 
         virtual void setMatrix(ID matrix) = 0;
 

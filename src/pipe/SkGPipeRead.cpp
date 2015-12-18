@@ -335,7 +335,7 @@ static void save_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 static void saveLayer_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                          SkGPipeState* state) {
     unsigned flags = DrawOp_unpackFlags(op32);
-    SkCanvas::SaveFlags saveFlags = (SkCanvas::SaveFlags)DrawOp_unpackData(op32);
+    SkCanvas::SaveLayerFlags saveLayerFlags = DrawOp_unpackData(op32);
 
     const SkRect* bounds = nullptr;
     if (flags & kSaveLayer_HasBounds_DrawOpFlag) {
@@ -345,7 +345,7 @@ static void saveLayer_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     if (flags & kSaveLayer_HasPaint_DrawOpFlag) {
         paint = &state->paint();
     }
-    canvas->saveLayer(bounds, paint, saveFlags);
+    canvas->saveLayer(SkCanvas::SaveLayerRec(bounds, paint, saveLayerFlags));
 }
 
 static void restore_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,

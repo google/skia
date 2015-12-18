@@ -925,36 +925,35 @@ void SkSaveCommand::execute(SkCanvas* canvas) const {
     canvas->save();
 }
 
-SkSaveLayerCommand::SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
-                                       SkCanvas::SaveFlags flags)
+SkSaveLayerCommand::SkSaveLayerCommand(const SkCanvas::SaveLayerRec& rec)
     : INHERITED(kSaveLayer_OpType) {
-    if (bounds) {
-        fBounds = *bounds;
+    if (rec.fBounds) {
+        fBounds = *rec.fBounds;
     } else {
         fBounds.setEmpty();
     }
 
-    if (paint) {
-        fPaint = *paint;
+    if (rec.fPaint) {
+        fPaint = *rec.fPaint;
         fPaintPtr = &fPaint;
     } else {
         fPaintPtr = nullptr;
     }
-    fFlags = flags;
+    fSaveLayerFlags = rec.fSaveLayerFlags;
 
-    if (bounds) {
-        fInfo.push(SkObjectParser::RectToString(*bounds, "Bounds: "));
+    if (rec.fBounds) {
+        fInfo.push(SkObjectParser::RectToString(*rec.fBounds, "Bounds: "));
     }
-    if (paint) {
-        fInfo.push(SkObjectParser::PaintToString(*paint));
+    if (rec.fPaint) {
+        fInfo.push(SkObjectParser::PaintToString(*rec.fPaint));
     }
-    fInfo.push(SkObjectParser::SaveFlagsToString(flags));
+    fInfo.push(SkObjectParser::SaveLayerFlagsToString(fSaveLayerFlags));
 }
 
 void SkSaveLayerCommand::execute(SkCanvas* canvas) const {
-    canvas->saveLayer(fBounds.isEmpty() ? nullptr : &fBounds,
-                      fPaintPtr,
-                      fFlags);
+    canvas->saveLayer(SkCanvas::SaveLayerRec(fBounds.isEmpty() ? nullptr : &fBounds,
+                                             fPaintPtr,
+                                             fSaveLayerFlags));
 }
 
 void SkSaveLayerCommand::vizExecute(SkCanvas* canvas) const {

@@ -83,7 +83,7 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         0,  // RESTORE - no paint
         0,  // ROTATE - no paint
         0,  // SAVE - no paint
-        0,  // SAVE_LAYER - see below - this paint's location varies
+        0,  // SAVE_LAYER_SAVEFLAGS_DEPRECATED - see below - this paint's location varies
         0,  // SCALE - no paint
         0,  // SET_MATRIX - no paint
         0,  // SKEW - no paint
@@ -103,6 +103,7 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         1,  // DRAW_ATLAS - right after op code
         1,  // DRAW_IMAGE_NINE - right after op code
         1,  // DRAW_IMAGE_RECT - right after op code
+        0,  // SAVE_LAYER_SAVELAYERFLAGS - see below - this paint's location varies
     };
 
     static_assert(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1, "need_to_be_in_sync");
@@ -115,7 +116,8 @@ static inline size_t get_paint_offset(DrawType op, size_t opSize) {
         overflow = sizeof(uint32_t);
     }
 
-    if (SAVE_LAYER == op) {
+    SkASSERT(SAVE_LAYER_SAVEFLAGS_DEPRECATED != op);
+    if (SAVE_LAYER_SAVELAYERFLAGS == op) {
         static const uint32_t kSaveLayerNoBoundsPaintOffset = 2 * kUInt32Size;
         static const uint32_t kSaveLayerWithBoundsPaintOffset = 2 * kUInt32Size + sizeof(SkRect);
 
@@ -151,14 +153,13 @@ void SkPictureRecord::recordSave() {
     this->validate(initialOffset, size);
 }
 
-SkCanvas::SaveLayerStrategy SkPictureRecord::willSaveLayer(const SkRect* bounds,
-                                                           const SkPaint* paint, SaveFlags flags) {
+SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLayerRec& rec) {
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
     fRestoreOffsetStack.push(-(int32_t)fWriter.bytesWritten());
-    this->recordSaveLayer(bounds, paint, flags);
+    this->recordSaveLayer(rec);
 
-    this->INHERITED::willSaveLayer(bounds, paint, flags);
+    (void)this->INHERITED::getSaveLayerStrategy(rec);
     /*  No need for a (potentially very big) layer which we don't actually need
         at this time (and may not be able to afford since during record our
         clip starts out the size of the picture, which is often much larger
@@ -167,25 +168,24 @@ SkCanvas::SaveLayerStrategy SkPictureRecord::willSaveLayer(const SkRect* bounds,
     return kNoLayer_SaveLayerStrategy;
 }
 
-void SkPictureRecord::recordSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                      SaveFlags flags) {
+void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     fContentInfo.onSaveLayer();
 
     // op + bool for 'bounds'
     size_t size = 2 * kUInt32Size;
-    if (bounds) {
-        size += sizeof(*bounds); // + rect
+    if (rec.fBounds) {
+        size += sizeof(*rec.fBounds); // + rect
     }
     // + paint index + flags
     size += 2 * kUInt32Size;
 
     SkASSERT(kSaveLayerNoBoundsSize == size || kSaveLayerWithBoundsSize == size);
 
-    size_t initialOffset = this->addDraw(SAVE_LAYER, &size);
-    this->addRectPtr(bounds);
-    SkASSERT(initialOffset+get_paint_offset(SAVE_LAYER, size) == fWriter.bytesWritten());
-    this->addPaintPtr(paint);
-    this->addInt(flags);
+    size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERFLAGS, &size);
+    this->addRectPtr(rec.fBounds);
+    SkASSERT(initialOffset+get_paint_offset(SAVE_LAYER_SAVELAYERFLAGS, size) == fWriter.bytesWritten());
+    this->addPaintPtr(rec.fPaint);
+    this->addInt(rec.fSaveLayerFlags);
 
     this->validate(initialOffset, size);
 }
@@ -321,7 +321,8 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t
         // assert that the final offset value points to a save verb
         uint32_t opSize;
         DrawType drawOp = peek_op_and_size(&fWriter, -offset, &opSize);
-        SkASSERT(SAVE == drawOp || SAVE_LAYER == drawOp);
+        SkASSERT(SAVE_LAYER_SAVEFLAGS_DEPRECATED != drawOp);
+        SkASSERT(SAVE == drawOp || SAVE_LAYER_SAVELAYERFLAGS == drawOp);
     }
 #endif
 }

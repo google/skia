@@ -551,8 +551,7 @@ private:
 
 class SkSaveLayerCommand : public SkDrawCommand {
 public:
-    SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
-                       SkCanvas::SaveFlags flags);
+    SkSaveLayerCommand(const SkCanvas::SaveLayerRec&);
     void execute(SkCanvas* canvas) const override;
     void vizExecute(SkCanvas* canvas) const override;
     Action action() const override{ return kPushLayer_Action; }
@@ -562,12 +561,12 @@ public:
     const SkPaint* paint() const { return fPaintPtr; }
 
 private:
-    SkRect              fBounds;
-    SkPaint             fPaint;
-    SkPaint*            fPaintPtr;
-    SkCanvas::SaveFlags fFlags;
+    SkRect      fBounds;
+    SkPaint     fPaint;
+    SkPaint*    fPaintPtr;
+    uint32_t    fSaveLayerFlags;
 
-    bool                fActive;
+    bool        fActive;
 
     typedef SkDrawCommand INHERITED;
 };

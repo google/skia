@@ -86,17 +86,16 @@ void SkLuaCanvas::willSave() {
     this->INHERITED::willSave();
 }
 
-SkCanvas::SaveLayerStrategy SkLuaCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                                       SaveFlags flags) {
+SkCanvas::SaveLayerStrategy SkLuaCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     AUTO_LUA("saveLayer");
-    if (bounds) {
-        lua.pushRect(*bounds, "bounds");
+    if (rec.fBounds) {
+        lua.pushRect(*rec.fBounds, "bounds");
     }
-    if (paint) {
-        lua.pushPaint(*paint, "paint");
+    if (rec.fPaint) {
+        lua.pushPaint(*rec.fPaint, "paint");
     }
 
-    this->INHERITED::willSaveLayer(bounds, paint, flags);
+    (void)this->INHERITED::getSaveLayerStrategy(rec);
     // No need for a layer.
     return kNoLayer_SaveLayerStrategy;
 }

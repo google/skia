@@ -110,10 +110,10 @@ public:
     static SkString* RegionToString(const SkRegion& region);
 
     /**
-        Returns a string representation of the SkCanvas::SaveFlags enum.
-        @param flags  SkCanvas::SaveFlags enum
+        Returns a string representation of the SkCanvas::SaveLayerFlags enum.
+        @param flags  SkCanvas::SaveLayerFlags enum
      */
-    static SkString* SaveFlagsToString(SkCanvas::SaveFlags flags);
+    static SkString* SaveLayerFlagsToString(uint32_t saveLayerFlags);
 
     /**
         Returns a string representation of an SkScalar with the text parameter

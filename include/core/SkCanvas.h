@@ -391,6 +391,27 @@ public:
     SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha, SaveFlags flags);
 
+    enum {
+        kIsOpaque_SaveLayerFlag         = 1 << 0,
+        kPreserveLCDText_SaveLayerFlag  = 1 << 1,
+    };
+    typedef uint32_t SaveLayerFlags;
+
+    struct SaveLayerRec {
+        SaveLayerRec() : fBounds(nullptr), fPaint(nullptr), fSaveLayerFlags(0) {}
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
+            : fBounds(bounds)
+            , fPaint(paint)
+            , fSaveLayerFlags(saveLayerFlags)
+        {}
+
+        const SkRect*   fBounds;    // optional
+        const SkPaint*  fPaint;     // optional
+        SaveLayerFlags  fSaveLayerFlags;
+    };
+
+    int saveLayer(const SaveLayerRec&);
+
     /** This call balances a previous call to save(), and is used to remove all
         modifications to the matrix/clip/drawFilter state since the last save
         call.
@@ -1217,16 +1238,24 @@ protected:
 
     // Subclass save/restore notifiers.
     // Overriders should call the corresponding INHERITED method up the inheritance chain.
-    // willSaveLayer()'s return value may suppress full layer allocation.
+    // getSaveLayerStrategy()'s return value may suppress full layer allocation.
     enum SaveLayerStrategy {
         kFullLayer_SaveLayerStrategy,
-        kNoLayer_SaveLayerStrategy
+        kNoLayer_SaveLayerStrategy,
     };
 
     virtual void willSave() {}
+#ifdef SK_SUPPORT_LEGACY_SAVELAYERPARAMS
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) {
         return kFullLayer_SaveLayerStrategy;
     }
+    virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&);
+#else
+    // Overriders should call the corresponding INHERITED method up the inheritance chain.
+    virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) {
+        return kFullLayer_SaveLayerStrategy;
+    }
+#endif
     virtual void willRestore() {}
     virtual void didRestore() {}
     virtual void didConcat(const SkMatrix&) {}
@@ -1304,15 +1333,16 @@ protected:
     // returns false if the entire rectangle is entirely clipped out
     // If non-NULL, The imageFilter parameter will be used to expand the clip
     // and offscreen bounds for any margin required by the filter DAG.
-    bool clipRectBounds(const SkRect* bounds, SaveFlags flags,
-                        SkIRect* intersection,
+    bool clipRectBounds(const SkRect* bounds, SaveLayerFlags, SkIRect* intersection,
                         const SkImageFilter* imageFilter = NULL);
 
 private:
-    enum PrivateSaveFlags {
-        // These must not overlap the public flags.
-        kPreserveLCDText_PrivateSaveFlag = 1 << 5,
+    enum PrivateSaveLayerFlags {
+        kDontClipToLayer_PrivateSaveLayerFlag   = 1 << 31,
     };
+
+    static bool BoundsAffectsClip(SaveLayerFlags);
+    static uint32_t SaveFlagsToSaveLayerFlags(SaveFlags);
 
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
@@ -1373,6 +1403,7 @@ private:
     friend class SkNoSaveLayerCanvas;   // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
+    friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,
@@ -1404,7 +1435,7 @@ private:
                                 const SkRect& dst, const SkPaint* paint,
                                 SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
-    void internalSaveLayer(const SkRect* bounds, const SkPaint*, SaveFlags, SaveLayerStrategy);
+    void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, bool isBitmapDevice);
 
     // shared by save() and saveLayer()
