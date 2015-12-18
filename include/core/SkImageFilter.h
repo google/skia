@@ -42,7 +42,6 @@ public:
         virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
         virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
         virtual void purge() {}
-        virtual void purgeByImageFilterId(uint32_t) {}
     };
 
     enum SizeConstraint {
