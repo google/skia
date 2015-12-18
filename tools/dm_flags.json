@@ -188,9 +188,7 @@
     "msaa16", 
     "gm", 
     "_", 
-    "tilemodesProcess", 
-    "--match", 
-    "~WritePixels"
+    "tilemodesProcess"
   ], 
   "Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release": [
     "--config", 
