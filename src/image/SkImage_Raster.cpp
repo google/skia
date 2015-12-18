@@ -48,7 +48,7 @@ public:
             return false;
         }
 
-        if (rowBytes < SkImageMinRowBytes(info)) {
+        if (rowBytes < info.minRowBytes()) {
             return false;
         }
 
