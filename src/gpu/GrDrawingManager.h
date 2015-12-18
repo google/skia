@@ -60,7 +60,8 @@ private:
         , fNVPRTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
-        , fFlushState(context->getGpu(), context->resourceProvider()) {
+        , fFlushState(context->getGpu(), context->resourceProvider())
+        , fFlushing(false) {
         sk_bzero(fTextContexts, sizeof(fTextContexts));
     }
 
@@ -87,6 +88,7 @@ private:
     GrSoftwarePathRenderer*     fSoftwarePathRenderer;
 
     GrBatchFlushState           fFlushState;
+    bool                        fFlushing;
 };
 
 #endif

@@ -288,7 +288,6 @@ private:
     GrContext*                                  fContext;
     GrGpu*                                      fGpu;
     GrResourceProvider*                         fResourceProvider;
-    bool                                        fFlushing;
 
     SkDEBUGCODE(int                             fDebugID;)
     uint32_t                                    fFlags;

@@ -64,6 +64,11 @@ void GrDrawingManager::reset() {
 }
 
 void GrDrawingManager::flush() {
+    if (fFlushing) {
+        return;
+    }
+    fFlushing = true;
+
     SkDEBUGCODE(bool result =) 
                         SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
     SkASSERT(result);
@@ -107,6 +112,7 @@ void GrDrawingManager::flush() {
 #endif
 
     fFlushState.reset();
+    fFlushing = false;
 }
 
 GrTextContext* GrDrawingManager::textContext(const SkSurfaceProps& props,

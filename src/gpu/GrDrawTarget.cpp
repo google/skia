@@ -39,7 +39,6 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
                            const Options& options)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
-    , fFlushing(false)
     , fFlags(0)
     , fRenderTarget(rt) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
@@ -183,11 +182,6 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
 }
 
 void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
-    if (fFlushing) {
-        return;
-    }
-    fFlushing = true;
-
     // Semi-usually the drawTargets are already closed at this point, but sometimes Ganesh
     // needs to flush mid-draw. In that case, the SkGpuDevice's drawTargets won't be closed
     // but need to be flushed anyway. Closing such drawTargets here will mean new
@@ -216,8 +210,6 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
         }
         fBatches[i]->draw(flushState);
     }
-
-    fFlushing = false;
 }
 
 void GrDrawTarget::reset() {
