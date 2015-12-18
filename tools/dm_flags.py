@@ -194,6 +194,9 @@ def get_args(bot):
     match.append('~bleed_image')  # skia:4367
     match.append('~ReadPixels')  # skia:4368
 
+  if 'ANGLE' in bot and 'Debug' in bot:
+    match.append('~GLPrograms') # skia:4717
+
   if match:
     args.append('--match')
     args.extend(match)

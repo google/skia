@@ -2179,6 +2179,8 @@
     "_", 
     "image", 
     "_", 
-    "interlaced3.png"
+    "interlaced3.png", 
+    "--match", 
+    "~GLPrograms"
   ]
 }
