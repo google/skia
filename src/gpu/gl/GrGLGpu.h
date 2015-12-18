@@ -284,11 +284,7 @@ private:
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
 
     void generateConfigTable();
-    bool configToGLFormats(GrPixelConfig config,
-                           bool getSizedInternal,
-                           GrGLenum* internalFormat,
-                           GrGLenum* externalFormat,
-                           GrGLenum* externalType) const;
+
     // helper for onCreateTexture and writeTexturePixels
     bool uploadTexData(const GrSurfaceDesc& desc,
                        GrGLenum target,

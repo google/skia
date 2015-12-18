@@ -913,7 +913,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
 
     GrGLenum status;
 
-    GrGLenum msColorFormat = 0; // suppress warning
+    GrGLenum colorRenderbufferFormat = 0; // suppress warning
 
     if (desc.fSampleCnt > 0 && GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType()) {
         goto FAILED;
@@ -924,7 +924,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
         goto FAILED;
     }
 
-
     // If we are using multisampling we will create two FBOS. We render to one and then resolve to
     // the texture bound to the other. The exception is the IMG multisample extension. With this
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
@@ -933,15 +932,15 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
         GL_CALL(GenFramebuffers(1, &idDesc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &idDesc->fMSColorRenderbufferID));
         if (!idDesc->fRTFBOID ||
-            !idDesc->fMSColorRenderbufferID ||
-            !this->configToGLFormats(desc.fConfig,
-                                     // ES2 and ES3 require sized internal formats for rb storage.
-                                     kGLES_GrGLStandard == this->glStandard(),
-                                     &msColorFormat,
-                                     nullptr,
-                                     nullptr)) {
+            !idDesc->fMSColorRenderbufferID) {
             goto FAILED;
         }
+        // All ES versions (thus far) require sized internal formats for render buffers.
+        // TODO: Always use sized internal format?
+        // If this rule gets more complicated, add a field to ConfigEntry rather than logic here.
+        colorRenderbufferFormat = kGLES_GrGLStandard == this->glStandard() ?
+                                                fConfigTable[desc.fConfig].fSizedInternalFormat :
+                                                fConfigTable[desc.fConfig].fBaseInternalFormat;
     } else {
         idDesc->fRTFBOID = idDesc->fTexFBOID;
     }
@@ -953,7 +952,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, idDesc->fMSColorRenderbufferID));
         if (!renderbuffer_storage_msaa(*fGLContext,
                                        desc.fSampleCnt,
-                                       msColorFormat,
+                                       colorRenderbufferFormat,
                                        desc.fWidth, desc.fHeight)) {
             goto FAILED;
         }
@@ -2753,32 +2752,6 @@ void GrGLGpu::generateConfigTable() {
         SkASSERT(defaultEntry.fExternalType != fConfigTable[i].fExternalType);
     }
 #endif
-}
-
-bool GrGLGpu::configToGLFormats(GrPixelConfig config,
-                                bool getSizedInternalFormat,
-                                GrGLenum* internalFormat,
-                                GrGLenum* externalFormat,
-                                GrGLenum* externalType) const {
-    if(!this->glCaps().isConfigTexturable(config)) {
-        return false;
-    }
-
-    if (nullptr != internalFormat) {
-        if (getSizedInternalFormat) {
-            *internalFormat = fConfigTable[config].fSizedInternalFormat;
-        } else {
-            *internalFormat = fConfigTable[config].fBaseInternalFormat;
-        }
-    }
-    if (nullptr != externalFormat) {
-        *externalFormat = fConfigTable[config].fExternalFormat;
-    }
-    if (nullptr != externalType) {
-        *externalType = fConfigTable[config].fExternalType;
-    }
-
-    return true;
 }
 
 void GrGLGpu::setTextureUnit(int unit) {
