@@ -824,15 +824,10 @@ void  Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void* sIn, int x, int y,
     SkFractionalInt fx;
     int dstY;
     {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf, SkIntToScalar(y) + SK_ScalarHalf,
-                   &pt);
-        fx = SkScalarToFractionalInt(pt.fY)
-            + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleY());
+        const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
-        dstY = SkClampMax(SkFractionalIntToInt(fx), maxY);
-        fx = SkScalarToFractionalInt(pt.fX)
-            + bitmap_sampler_inv_bias(s.fInvMatrix.getScaleX());
+        dstY = SkClampMax(SkFixedFloorToInt(mapper.y()), maxY);
+        fx = SkFixedToFractionalInt(mapper.x());
     }
 
     const SkPMColor* SK_RESTRICT src = s.fPixmap.addr32(0, dstY);
@@ -868,4 +863,3 @@ void  Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void* sIn, int x, int y,
         }
     }
 }
-
