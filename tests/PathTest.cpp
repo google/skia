@@ -3591,6 +3591,10 @@ static void test_contains(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p.contains(5, 5));
     REPORTER_ASSERT(reporter, p.contains(5, 8));
     REPORTER_ASSERT(reporter, p.contains(4, 5));
+    // test quad endpoints
+    REPORTER_ASSERT(reporter, p.contains(4, 4));
+    REPORTER_ASSERT(reporter, p.contains(8, 8));
+    REPORTER_ASSERT(reporter, p.contains(4, 8));
 
     p.reset();
     const SkPoint qPts[] = {{6, 6}, {8, 8}, {6, 8}, {4, 8}, {4, 6}, {4, 4}, {6, 6}};
@@ -3622,6 +3626,10 @@ static void test_contains(skiatest::Reporter* reporter) {
         halfway = conic.evalAt(0.5f);
         REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
     }
+    // test conic end points
+    REPORTER_ASSERT(reporter, p.contains(4, 4));
+    REPORTER_ASSERT(reporter, p.contains(8, 8));
+    REPORTER_ASSERT(reporter, p.contains(4, 8));
 
     // test cubics
     SkPoint pts[] = {{5, 4}, {6, 5}, {7, 6}, {6, 6}, {4, 6}, {5, 7}, {5, 5}, {5, 4}, {6, 5}, {7, 6}};
@@ -3639,6 +3647,10 @@ static void test_contains(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
         SkEvalCubicAt(&pts[i + 3], 0.5f, &halfway, nullptr, nullptr);
         REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+        // test cubic end points
+        REPORTER_ASSERT(reporter, p.contains(pts[i].fX, pts[i].fY));
+        REPORTER_ASSERT(reporter, p.contains(pts[i + 3].fX, pts[i + 3].fY));
+        REPORTER_ASSERT(reporter, p.contains(pts[i + 6].fX, pts[i + 6].fY));
     }
 }
 

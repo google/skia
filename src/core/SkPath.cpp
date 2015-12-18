@@ -2621,19 +2621,34 @@ template <size_t N> static void find_minmax(const SkPoint pts[],
     *maxPtr = max;
 }
 
+static bool checkOnCurve(SkScalar x, SkScalar y, const SkPoint& start, const SkPoint& end) {
+    if (start.fY == end.fY) {
+        return between(start.fX, x, end.fX) && x != end.fX;
+    } else {
+        return x == start.fX && y == start.fY;
+    }
+}
+
 static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
-    if (!between(pts[0].fY, y, pts[3].fY)) {
+    SkScalar y0 = pts[0].fY;
+    SkScalar y3 = pts[3].fY;
+
+    int dir = 1;
+    if (y0 > y3) {
+        SkTSwap(y0, y3);
+        dir = -1;
+    }
+    if (y < y0 || y > y3) {
         return 0;
     }
-    if (y == pts[3].fY) {
-        // if the cubic is a horizontal line, check if the point is on it
-        // but don't check the last point, because that point is shared with the next curve
-        if (pts[0].fY == pts[3].fY && between(pts[0].fX, x, pts[3].fX) && x != pts[3].fX) {
-            *onCurveCount += 1;
-        }
+    if (checkOnCurve(x, y, pts[0], pts[3])) {
+        *onCurveCount += 1;
         return 0;
     }
-    int dir = pts[0].fY > pts[3].fY ? -1 : 1;
+    if (y == y3) {
+        return 0;
+    }
+
     // quickreject or quickaccept
     SkScalar min, max;
     find_minmax<4>(pts, &min, &max);
@@ -2651,6 +2666,7 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* 
     if (SkScalarNearlyEqual(xt, x)) {
         if (x != pts[3].fX || y != pts[3].fY) {  // don't test end points; they're start points
             *onCurveCount += 1;
+            return 0;
         }
     }
     return xt < x ? dir : 0;
@@ -2697,10 +2713,11 @@ static int winding_mono_conic(const SkConic& conic, SkScalar x, SkScalar y, int*
     if (y < y0 || y > y2) {
         return 0;
     }
+    if (checkOnCurve(x, y, pts[0], pts[2])) {
+        *onCurveCount += 1;
+        return 0;
+    }
     if (y == y2) {
-        if (y0 == y2 && between(pts[0].fX, x, pts[2].fX) && x != pts[2].fX) {  // check horizontal
-            *onCurveCount += 1;
-        }
         return 0;
     }
 
@@ -2715,10 +2732,10 @@ static int winding_mono_conic(const SkConic& conic, SkScalar x, SkScalar y, int*
     SkASSERT(n <= 1);
     SkScalar xt;
     if (0 == n) {
-        SkScalar mid = SkScalarAve(y0, y2);
-        // Need [0] and [2] if dir == 1
-        // and  [2] and [0] if dir == -1
-        xt = y < mid ? pts[1 - dir].fX : pts[dir - 1].fX;
+        // zero roots are returned only when y0 == y
+        // Need [0] if dir == 1
+        // and  [2] if dir == -1
+        xt = pts[1 - dir].fX;
     } else {
         SkScalar t = roots[0];
         xt = conic_eval_numerator(&pts[0].fX, conic.fW, t) / conic_eval_denominator(conic.fW, t);
@@ -2726,6 +2743,7 @@ static int winding_mono_conic(const SkConic& conic, SkScalar x, SkScalar y, int*
     if (SkScalarNearlyEqual(xt, x)) {
         if (x != pts[2].fX || y != pts[2].fY) {  // don't test end points; they're start points
             *onCurveCount += 1;
+            return 0;
         }
     }
     return xt < x ? dir : 0;
@@ -2773,10 +2791,11 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* o
     if (y < y0 || y > y2) {
         return 0;
     }
+    if (checkOnCurve(x, y, pts[0], pts[2])) {
+        *onCurveCount += 1;
+        return 0;
+    }
     if (y == y2) {
-        if (y0 == y2 && between(pts[0].fX, x, pts[2].fX) && x != pts[2].fX) {  // check horizontal
-            *onCurveCount += 1;
-        }
         return 0;
     }
     // bounds check on X (not required. is it faster?)
@@ -2794,10 +2813,10 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* o
     SkASSERT(n <= 1);
     SkScalar xt;
     if (0 == n) {
-        SkScalar mid = SkScalarAve(y0, y2);
-        // Need [0] and [2] if dir == 1
-        // and  [2] and [0] if dir == -1
-        xt = y < mid ? pts[1 - dir].fX : pts[dir - 1].fX;
+        // zero roots are returned only when y0 == y
+        // Need [0] if dir == 1
+        // and  [2] if dir == -1
+        xt = pts[1 - dir].fX;
     } else {
         SkScalar t = roots[0];
         SkScalar C = pts[0].fX;
@@ -2808,6 +2827,7 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* o
     if (SkScalarNearlyEqual(xt, x)) {
         if (x != pts[2].fX || y != pts[2].fY) {  // don't test end points; they're start points
             *onCurveCount += 1;
+            return 0;
         }
     }
     return xt < x ? dir : 0;
@@ -2844,10 +2864,11 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
     if (y < y0 || y > y1) {
         return 0;
     }
-    if (y == pts[1].fY) {
-        if (y0 == y1 && between(x0, x, x1) && x != x1) {  // check if on horizontal line
-            *onCurveCount += 1;
-        }
+    if (checkOnCurve(x, y, pts[0], pts[1])) {
+        *onCurveCount += 1;
+        return 0;
+    }
+    if (y == y1) {
         return 0;
     }
     SkScalar cross = SkScalarMul(x1 - x0, y - pts[0].fY) - SkScalarMul(dy, x - x0);
@@ -2856,7 +2877,9 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
         // zero cross means the point is on the line, and since the case where
         // y of the query point is at the end point is handled above, we can be
         // sure that we're on the line (excluding the end point) here
-        *onCurveCount += 1;
+        if (x != x1 || y != pts[1].fY) {
+            *onCurveCount += 1;
+        }
         dir = 0;
     } else if (SkScalarSignAsInt(cross) == dir) {
         dir = 0;
@@ -3023,6 +3046,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     // If the point touches an even number of curves, and the fill is winding, check for  
     // coincidence. Count coincidence as places where the on curve points have identical tangents.
     iter.setPath(*this, true);
+    done = false;
     SkTDArray<SkVector> tangents;
     do {
         SkPoint pts[4];
@@ -3056,8 +3080,8 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
                 for (int index = 0; index < last; ++index) {
                     const SkVector& test = tangents[index];
                     if (SkScalarNearlyZero(test.cross(tangent))
-                            && SkScalarSignAsInt(tangent.fX - test.fX) <= 0
-                            && SkScalarSignAsInt(tangent.fY - test.fY) <= 0) {
+                            && SkScalarSignAsInt(tangent.fX * test.fX) <= 0
+                            && SkScalarSignAsInt(tangent.fY * test.fY) <= 0) {
                         tangents.remove(last);
                         tangents.removeShuffle(index);
                         break;
