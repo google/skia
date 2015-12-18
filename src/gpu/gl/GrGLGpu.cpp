@@ -668,24 +668,6 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
     }
 }
 
-/**
- * Determines if sized internal formats are available for the texture being created.
- *
- * @param info          Info about the GL context.
- * @param textureConfig The pixel configuration for the texture being created.
- */
-static bool use_sized_format_for_texture(const GrGLContextInfo& info, GrPixelConfig textureConfig) {
-    // ES2 requires an unsized format for glTexImage, unlike ES3 and desktop.
-    bool useSizedFormat = false;
-    if (kGL_GrGLStandard == info.standard() ||
-        (info.version() >= GR_GL_VER(3, 0) &&
-         // ES3 only works with sized BGRA8 format if "GL_APPLE_texture_format_BGRA8888" enabled
-         (kBGRA_8888_GrPixelConfig != textureConfig || !info.caps()->bgraIsInternalFormat())))  {
-        useSizedFormat = true;
-    }
-    return useSizedFormat;
-}
-
 bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
                             GrGLenum target,
                             bool isNewTexture,
@@ -715,12 +697,8 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     SkAutoSMalloc<128 * 128> tempStorage;
 #endif
 
-    bool useSizedFormat = use_sized_format_for_texture(this->ctxInfo(), desc.fConfig);
-
     // Internal format comes from the texture desc.
-    GrGLenum internalFormat = useSizedFormat ?
-                                fConfigTable[desc.fConfig].fSizedInternalFormat:
-                                fConfigTable[desc.fConfig].fBaseInternalFormat;
+    GrGLenum internalFormat = fConfigTable[desc.fConfig].fInternalFormatTexImage;
 
     // External format and type come from the upload data.
     GrGLenum externalFormat = fConfigTable[dataConfig].fExternalFormatForTexImage;
@@ -1219,6 +1197,7 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 
 int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
     static const int kSize = 16;
+    SkASSERT(this->caps()->isConfigRenderable(config, false));
     if (ConfigEntry::kUnknown_StencilIndex == fConfigTable[config].fStencilFormatIndex) {
         // Default to unsupported
         fConfigTable[config].fStencilFormatIndex = ConfigEntry::kUnsupported_StencilFormatIndex;
@@ -1240,19 +1219,14 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
                               GR_GL_TEXTURE_WRAP_T,
                               GR_GL_CLAMP_TO_EDGE));
 
-        GrGLenum internalFormat = 0x0; // suppress warning
-        GrGLenum externalFormat = 0x0; // suppress warning
-        GrGLenum externalType = 0x0;   // suppress warning
-        bool useSizedFormat = use_sized_format_for_texture(this->ctxInfo(), config);
-        if (!this->configToGLFormats(config, useSizedFormat, &internalFormat,
-                                     &externalFormat, &externalType)) {
-            GL_CALL(DeleteTextures(1, &colorID));
-            return ConfigEntry::kUnsupported_StencilFormatIndex;
-        }
+        GrGLenum internalFormat = fConfigTable[config].fInternalFormatTexImage;
+        GrGLenum externalFormat = fConfigTable[config].fExternalFormatForTexImage;
+        GrGLenum externalType = fConfigTable[config].fExternalType;
 
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         GL_ALLOC_CALL(this->glInterface(), TexImage2D(GR_GL_TEXTURE_2D,
-                                                      0, internalFormat,
+                                                      0,
+                                                      internalFormat,
                                                       kSize,
                                                       kSize,
                                                       0,
@@ -2742,10 +2716,17 @@ void GrGLGpu::generateConfigTable() {
     fConfigTable[kASTC_12x12_GrPixelConfig].fExternalFormat = 0;
     fConfigTable[kASTC_12x12_GrPixelConfig].fExternalType = 0;
 
+    // Bulk populate the texture internal/external formats here and then deal with exceptions below.
 
-    // Almost always we want to pass fExternalFormat as the <format> param to glTex[Sub]Image.
+    // ES 2.0 requires that the internal/external formats match.
+    bool useSizedFormats = (kGL_GrGLStandard == this->glStandard() ||
+                            this->glVersion() >= GR_GL_VER(3,0));
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+        // Almost always we want to pass fExternalFormat as the <format> param to glTex[Sub]Image.
         fConfigTable[i].fExternalFormatForTexImage = fConfigTable[i].fExternalFormat;
+        fConfigTable[i].fInternalFormatTexImage = useSizedFormats ?
+                                                        fConfigTable[i].fSizedInternalFormat :
+                                                        fConfigTable[i].fBaseInternalFormat;
     }
     // OpenGL ES 2.0 + GL_EXT_sRGB allows GL_SRGB_ALPHA to be specified as the <format>
     // param to Tex(Sub)Image. ES 2.0 requires the <internalFormat> and <format> params to match.
@@ -2753,6 +2734,20 @@ void GrGLGpu::generateConfigTable() {
     // On OpenGL and ES 3.0+ GL_SRGB_ALPHA does not work for the <format> param to glTexImage.
     if (this->glStandard() == kGLES_GrGLStandard && this->glVersion() == GR_GL_VER(2,0)) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fExternalFormatForTexImage = GR_GL_SRGB_ALPHA;
+    }
+
+    // If BGRA is supported as an internal format it must always be specified to glTex[Sub]Image
+    // as a base format.
+    // GL_EXT_texture_format_BGRA8888:
+    //      This extension GL_BGRA as an unsized internal format. However, it is written against ES
+    //      2.0 and therefore doesn't define a value for GL_BGRA8 as ES 2.0 uses unsized internal
+    //      formats.
+    // GL_APPLE_texture_format_BGRA8888: 
+    //     ES 2.0: the extension makes BGRA an external format but not an internal format.
+    //     ES 3.0: the extension explicitly states GL_BGRA8 is not a valid internal format for
+    //             glTexImage (just for glTexStorage).
+    if (useSizedFormats && this->glCaps().bgraIsInternalFormat())  {
+        fConfigTable[kBGRA_8888_GrPixelConfig].fInternalFormatTexImage = GR_GL_BGRA;
     }
 
 #ifdef SK_DEBUG
@@ -3472,6 +3467,9 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                          GrPixelConfig config) const {
+    if (!this->caps()->isConfigTexturable(config)) {
+        return false;
+    }
     GrGLTextureInfo* info = new GrGLTextureInfo;
     info->fTarget = GR_GL_TEXTURE_2D;
     info->fID = 0;
@@ -3484,13 +3482,9 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
     GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
 
-    GrGLenum internalFormat = 0x0; // suppress warning
-    GrGLenum externalFormat = 0x0; // suppress warning
-    GrGLenum externalType = 0x0;   // suppress warning
-
-    bool useSizedFormat = use_sized_format_for_texture(this->ctxInfo(), config);
-    this->configToGLFormats(config, useSizedFormat, &internalFormat, &externalFormat,
-                            &externalType);
+    GrGLenum internalFormat = fConfigTable[config].fInternalFormatTexImage;
+    GrGLenum externalFormat = fConfigTable[config].fExternalFormatForTexImage;
+    GrGLenum externalType = fConfigTable[config].fExternalType;
 
     GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, w, h, 0, externalFormat,
                        externalType, pixels));

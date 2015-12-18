@@ -553,6 +553,8 @@ private:
         // The <format> parameter to use for glTexImage and glTexSubImage.
         // This is usually the same as fExternalFormat except for kSRGBA on some GL contexts.
         GrGLenum fExternalFormatForTexImage;
+        // Either the base or sized internal format depending on the GL and config.
+        GrGLenum fInternalFormatTexImage;
 
         // Index into GrGLCaps's list of stencil formats. Support is determined experimentally and
         // lazily.
