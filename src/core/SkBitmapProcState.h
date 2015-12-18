@@ -43,11 +43,9 @@ struct SkBitmapProcState {
     SkBitmapProcState(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy);
     ~SkBitmapProcState();
 
-    typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
-                                 SkPMColor[], int count);
+    typedef void (*ShaderProc32)(const void* ctx, int x, int y, SkPMColor[], int count);
 
-    typedef void (*ShaderProc16)(const SkBitmapProcState&, int x, int y,
-                                 uint16_t[], int count);
+    typedef void (*ShaderProc16)(const void* ctx, int x, int y, uint16_t[], int count);
 
     typedef void (*MatrixProc)(const SkBitmapProcState&,
                                uint32_t bitmapXY[],
