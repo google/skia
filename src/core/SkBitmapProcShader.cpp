@@ -174,7 +174,7 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan(int x, int y, SkPMCo
                                                             int count) {
     const SkBitmapProcState& state = *fState;
     if (state.getShaderProc32()) {
-        state.getShaderProc32()(&state, x, y, dstC, count);
+        state.getShaderProc32()(state, x, y, dstC, count);
         return;
     }
 
@@ -225,7 +225,7 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint
                                                               int count) {
     const SkBitmapProcState& state = *fState;
     if (state.getShaderProc16()) {
-        state.getShaderProc16()(&state, x, y, dstC, count);
+        state.getShaderProc16()(state, x, y, dstC, count);
         return;
     }
 
