@@ -41,7 +41,6 @@ CWD := $(shell pwd)
 # world.
 VALID_TARGETS := \
                  nanobench \
-                 visualbench \
                  debugger \
                  dm \
                  everything \
