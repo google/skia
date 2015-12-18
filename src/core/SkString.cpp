@@ -624,34 +624,15 @@ SkString SkStringPrintf(const char* format, ...) {
     return formattedOutput;
 }
 
-void SkStrSplit(const char* str, const char* delimiters, SkStrSplitMode splitMode,
-                SkTArray<SkString>* out) {
-    if (splitMode == kCoalesce_SkStrSplitMode) {
-        // Skip any delimiters.
-        str += strspn(str, delimiters);
-    }
-    if (!*str) {
-        return;
-    }
-
-    while (true) {
+void SkStrSplit(const char* str, const char* delimiters, SkTArray<SkString>* out) {
+    const char* end = str + strlen(str);
+    while (str != end) {
         // Find a token.
         const size_t len = strcspn(str, delimiters);
-        if (splitMode == kStrict_SkStrSplitMode || len > 0) {
-            out->push_back().set(str, len);
-            str += len;
-        }
-
-        if (!*str) {
-            return;
-        }
-        if (splitMode == kCoalesce_SkStrSplitMode) {
-            // Skip any delimiters.
-            str += strspn(str, delimiters);
-        } else {
-            // Skip one delimiter.
-            str += 1;
-        }
+        out->push_back().set(str, len);
+        str += len;
+        // Skip any delimiters.
+        str += strspn(str, delimiters);
     }
 }
 

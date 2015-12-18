@@ -435,21 +435,17 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
                 return;
             }
 #if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
             // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
             if (type == GrContextFactory::kANGLE_GLContextType) {
                 maxStages = 2;
             }
 #endif
-#endif
 #if SK_COMMAND_BUFFER
-#ifdef SK_BUILD_FOR_WIN
             // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
             // TODO(hendrikw): This only needs to happen with the ANGLE comand buffer backend.
             if (type == GrContextFactory::kCommandBuffer_GLContextType) {
                 maxStages = 2;
             }
-#endif
 #endif
             REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
         }

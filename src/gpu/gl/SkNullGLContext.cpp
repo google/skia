@@ -578,7 +578,10 @@ static void set_current_context_from_interface(const GrGLInterface* interface) {
 }
 #endif
 
-SkNullGLContext* SkNullGLContext::Create() {
+SkNullGLContext* SkNullGLContext::Create(GrGLStandard forcedGpuAPI) {
+    if (kGLES_GrGLStandard == forcedGpuAPI) {
+        return nullptr;
+    }
     SkNullGLContext* ctx = new SkNullGLContext;
     if (!ctx->isValid()) {
         delete ctx;
