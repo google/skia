@@ -25,6 +25,17 @@ typedef SkFixed3232    SkFractionalInt;
 #define SkFixedToFractionalInt(x)   SkFixedToFixed3232(x)
 #define SkFractionalIntToInt(x)     SkFixed3232ToInt(x)
 
+// Applying a fixed point (SkFixed, SkFractionalInt) epsilon bias ensures that the inverse-mapped
+// bitmap coordinates are rounded consistently WRT geometry.  Note that we only have to do this
+// when the scale is positive - for negative scales we're already rounding in the right direction.
+static inline int bitmap_sampler_inv_bias(SkScalar scale) {
+#ifndef SK_SUPPORT_LEGACY_BITMAP_SAMPLER_BIAS
+    return -(scale > 0);
+#else
+    return 0;
+#endif
+}
+
 class SkPaint;
 
 struct SkBitmapProcState {
@@ -200,33 +211,5 @@ void S32_D16_filter_DX(const SkBitmapProcState& s,
                        const uint32_t* xy, int count, uint16_t* colors);
 void S32_D16_filter_DXDY(const SkBitmapProcState& s,
                          const uint32_t* xy, int count, uint16_t* colors);
-
-// Helper class for mapping the middle of pixel (x, y) into SkFixed bitmap space.
-class SkBitmapProcStateAutoMapper {
-public:
-    SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y) {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix,
-                   SkIntToScalar(x) + SK_ScalarHalf,
-                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
-
-#ifndef SK_SUPPORT_LEGACY_BITMAP_SAMPLER_BIAS
-        // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
-        // consistently WRT geometry.  Note that we only need the bias for positive scales:
-        // for negative scales, the rounding is intrinsically correct.
-        fX = SkScalarToFixed(pt.x()) - (s.fInvMatrix.getScaleX() > 0);
-        fY = SkScalarToFixed(pt.y()) - (s.fInvMatrix.getScaleY() > 0);
-#else
-        fX = SkScalarToFixed(pt.x());
-        fY = SkScalarToFixed(pt.y());
-#endif
-    }
-
-    SkFixed x() const { return fX; }
-    SkFixed y() const { return fY; }
-
-private:
-    SkFixed fX, fY;
-};
 
 #endif
