@@ -89,8 +89,12 @@ private:
 
     struct Segment {
         SkScalar    fDistance;  // total distance up to this point
-        unsigned    fPtIndex : 15; // index into the fPts array
+        unsigned    fPtIndex; // index into the fPts array
+#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
         unsigned    fTValue : 15;
+#else
+        unsigned    fTValue : 30;
+#endif
         unsigned    fType : 2;
 
         SkScalar getScalarT() const;

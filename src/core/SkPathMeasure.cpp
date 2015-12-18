@@ -20,11 +20,20 @@ enum {
     kConic_SegType,
 };
 
+#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
 #define kMaxTValue  32767
+#else
+#define kMaxTValue  0x3FFFFFFF
+#endif
 
 static inline SkScalar tValue2Scalar(int t) {
     SkASSERT((unsigned)t <= kMaxTValue);
+#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
     return t * 3.05185e-5f; // t / 32767
+#else
+    const SkScalar kMaxTReciprocal = 1.0f / kMaxTValue;
+    return t * kMaxTReciprocal;
+#endif
 }
 
 SkScalar SkPathMeasure::Segment::getScalarT() const {

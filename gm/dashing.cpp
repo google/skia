@@ -476,6 +476,32 @@ private:
     bool fDoAA;
 };
 
+DEF_SIMPLE_GM(longpathdash, canvas, 512, 512) {
+    SkPath lines;
+    for (int x = 32; x < 256; x += 16) {
+        for (SkScalar a = 0; a < 3.141592f * 2; a += 0.03141592f) {
+            SkPoint pts[2] = {
+                { 256 + (float) sin(a) * x,
+                  256 + (float) cos(a) * x },
+                { 256 + (float) sin(a + 3.141592 / 3) * (x + 64),
+                  256 + (float) cos(a + 3.141592 / 3) * (x + 64) }
+            };
+            lines.moveTo(pts[0]);
+            for (SkScalar i = 0; i < 1; i += 0.05f) {
+                lines.lineTo(pts[0].fX * (1 - i) + pts[1].fX * i,
+                             pts[0].fY * (1 - i) + pts[1].fY * i);
+            }
+        }
+    }
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(1);
+    const SkScalar intervals[] = { 1, 1 };
+    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
+    canvas->drawPath(lines, p);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new DashingGM;)
