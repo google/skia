@@ -1245,17 +1245,10 @@ protected:
     };
 
     virtual void willSave() {}
-#ifdef SK_SUPPORT_LEGACY_SAVELAYERPARAMS
-    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) {
-        return kFullLayer_SaveLayerStrategy;
-    }
-    virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&);
-#else
     // Overriders should call the corresponding INHERITED method up the inheritance chain.
     virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) {
         return kFullLayer_SaveLayerStrategy;
     }
-#endif
     virtual void willRestore() {}
     virtual void didRestore() {}
     virtual void didConcat(const SkMatrix&) {}

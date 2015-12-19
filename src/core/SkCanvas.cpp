@@ -1134,20 +1134,6 @@ uint32_t SkCanvas::SaveFlagsToSaveLayerFlags(SaveFlags flags) {
     return layerFlags;
 }
 
-#ifdef SK_SUPPORT_LEGACY_SAVELAYERPARAMS
-SkCanvas::SaveLayerStrategy SkCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
-    uint32_t flags = 0;
-
-    if (0 == (rec.fSaveLayerFlags & kDontClipToLayer_PrivateSaveLayerFlag)) {
-        flags |= kClipToLayer_SaveFlag;
-    }
-    if (0 == (rec.fSaveLayerFlags & kIsOpaque_SaveLayerFlag)) {
-        flags |= kHasAlphaLayer_SaveFlag;
-    }
-    return this->willSaveLayer(rec.fBounds, rec.fPaint, (SaveFlags)flags);
-}
-#endif
-
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, 0));
 }
