@@ -9,6 +9,7 @@
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/command_buffer/SkCommandBufferGLContext.h"
+#include "../ports/SkOSEnvironment.h"
 #include "../ports/SkOSLibrary.h"
 
 #if defined SK_BUILD_FOR_MAC
@@ -189,6 +190,8 @@ void SkCommandBufferGLContext::initializeGLContext(void* nativeWindow, const int
         return;
     }
 
+    // Make sure CHROMIUM_path_rendering is enabled for NVPR support.
+    sk_setenv("CHROME_COMMAND_BUFFER_GLES2_ARGS", "--enable-gl-path-rendering");
     fDisplay = gfGetDisplay(EGL_DEFAULT_DISPLAY);
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Command Buffer: Could not create EGL display.\n");
