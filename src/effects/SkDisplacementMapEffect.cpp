@@ -164,12 +164,12 @@ bool channel_selector_type_is_valid(SkDisplacementMapEffect::ChannelSelectorType
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImageFilter* SkDisplacementMapEffect::Create(ChannelSelectorType xChannelSelector,
-                                               ChannelSelectorType yChannelSelector,
-                                               SkScalar scale,
-                                               SkImageFilter* displacement,
-                                               SkImageFilter* color,
-                                               const CropRect* cropRect) {
+SkDisplacementMapEffect* SkDisplacementMapEffect::Create(ChannelSelectorType xChannelSelector,
+                                                         ChannelSelectorType yChannelSelector,
+                                                         SkScalar scale,
+                                                         SkImageFilter* displacement,
+                                                         SkImageFilter* color,
+                                                         const CropRect* cropRect) {
     if (!channel_selector_type_is_valid(xChannelSelector) ||
         !channel_selector_type_is_valid(yChannelSelector)) {
         return nullptr;

@@ -18,7 +18,7 @@ DEF_TEST(DashPathEffectTest_crbug_348821, r) {
     SkScalar intervals[] = { 1.76934361e+36f, 2.80259693e-45f };  // Values from bug.
     const int count = 2;
     SkScalar phase = SK_ScalarInfinity;  // Used to force the bad fInitialDashLength = -1 path.
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, count, phase));
+    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, count, phase));
 
     // nullptr -> refuses to work with flattening framework.
     REPORTER_ASSERT(r, dash->getFactory() != nullptr);
@@ -33,7 +33,7 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
 
     const SkScalar intervals[] = { 1.0f, 1.0f };
     const int count = 2;
-    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, count, 0.0f));
+    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, count, 0.0f));
 
     SkRect cull = SkRect::MakeWH(1.0f, 1.0f);
 

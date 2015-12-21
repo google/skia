@@ -95,7 +95,7 @@ protected:
             SkPaint p;
             p.setColor(SK_ColorWHITE);
             p.setAntiAlias(true);
-            SkDrawLooper* shadowLooper =
+            SkBlurDrawLooper* shadowLooper =
                 SkBlurDrawLooper::Create(SK_ColorWHITE,
                                          SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
                                          SkIntToScalar(5), SkIntToScalar(10),

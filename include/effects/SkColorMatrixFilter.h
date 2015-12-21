@@ -13,10 +13,10 @@
 
 class SK_API SkColorMatrixFilter : public SkColorFilter {
 public:
-    static SkColorFilter* Create(const SkColorMatrix& cm) {
+    static SkColorMatrixFilter* Create(const SkColorMatrix& cm) {
         return new SkColorMatrixFilter(cm);
     }
-    static SkColorFilter* Create(const SkScalar array[20]) {
+    static SkColorMatrixFilter* Create(const SkScalar array[20]) {
         return new SkColorMatrixFilter(array);
     }
 

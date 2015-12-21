@@ -55,8 +55,8 @@ static const int gWidth = 32;
 static const int gHeight = 32;
 
 class TilingView : public SampleView {
-    SkAutoTUnref<SkPicture>     fTextPicture;
-    SkAutoTUnref<SkDrawLooper>  fLooper;
+    SkAutoTUnref<SkPicture>        fTextPicture;
+    SkAutoTUnref<SkBlurDrawLooper> fLooper;
 public:
     TilingView()
             : fLooper(SkBlurDrawLooper::Create(0x88000000,

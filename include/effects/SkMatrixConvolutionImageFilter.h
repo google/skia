@@ -52,15 +52,15 @@ public:
                               passed to filterImage() is used instead.
         @param cropRect       The rectangle to which the output processing will be limited.
     */
-    static SkImageFilter* Create(const SkISize& kernelSize,
-                                 const SkScalar* kernel,
-                                 SkScalar gain,
-                                 SkScalar bias,
-                                 const SkIPoint& kernelOffset,
-                                 TileMode tileMode,
-                                 bool convolveAlpha,
-                                 SkImageFilter* input = NULL,
-                                 const CropRect* cropRect = NULL);
+    static SkMatrixConvolutionImageFilter* Create(const SkISize& kernelSize,
+                                                  const SkScalar* kernel,
+                                                  SkScalar gain,
+                                                  SkScalar bias,
+                                                  const SkIPoint& kernelOffset,
+                                                  TileMode tileMode,
+                                                  bool convolveAlpha,
+                                                  SkImageFilter* input = NULL,
+                                                  const CropRect* cropRect = NULL);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)

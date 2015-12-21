@@ -50,7 +50,7 @@ protected:
 
 private:
     typedef Benchmark INHERITED;
-    SkImageFilter* fFilter;
+    SkMatrixConvolutionImageFilter* fFilter;
     SkString fName;
 };
 

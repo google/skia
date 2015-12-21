@@ -13,7 +13,7 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
-SkMaskFilter* SkEmbossMaskFilter::Create(SkScalar blurSigma, const Light& light) {
+SkEmbossMaskFilter* SkEmbossMaskFilter::Create(SkScalar blurSigma, const Light& light) {
     return new SkEmbossMaskFilter(blurSigma, light);
 }
 

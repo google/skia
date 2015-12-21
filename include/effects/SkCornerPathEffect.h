@@ -20,7 +20,8 @@ public:
     /** radius must be > 0 to have an effect. It specifies the distance from each corner
         that should be "rounded".
     */
-    static SkPathEffect* Create(SkScalar radius) { return new SkCornerPathEffect(radius); }
+    static SkCornerPathEffect* Create(SkScalar radius) { return new SkCornerPathEffect(radius); }
+    virtual ~SkCornerPathEffect();
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;
@@ -33,8 +34,6 @@ public:
 #endif
 
 protected:
-    virtual ~SkCornerPathEffect();
-
     explicit SkCornerPathEffect(SkScalar radius);
     void flatten(SkWriteBuffer&) const override;
 

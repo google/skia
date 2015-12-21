@@ -146,7 +146,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         path.lineTo(50, 50);
 
         SkScalar intervals[] = { 1.0f, 1.0f };
-        SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+        SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);

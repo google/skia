@@ -35,8 +35,8 @@ public:
         kAll_BlurFlag               = 0x07
     };
 
-    static SkDrawLooper* Create(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
-                                uint32_t flags = kNone_BlurFlag) {
+    static SkBlurDrawLooper* Create(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
+                                    uint32_t flags = kNone_BlurFlag) {
         return new SkBlurDrawLooper(color, sigma, dx, dy, flags);
     }
 

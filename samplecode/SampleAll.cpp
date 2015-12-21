@@ -382,7 +382,7 @@ protected:
         light.fAmbient        = 0x48;
         light.fSpecular        = 0x80;
         SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(12)/5);
-        SkMaskFilter* embossFilter = SkEmbossMaskFilter::Create(sigma, light);
+        SkEmbossMaskFilter* embossFilter = SkEmbossMaskFilter::Create(sigma, light);
 
         SkXfermode* xfermode = SkXfermode::Create(SkXfermode::kXor_Mode);
         SkColorFilter* lightingFilter = SkColorFilter::CreateLightingFilter(
