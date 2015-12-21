@@ -2525,14 +2525,14 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
                                              start.fY);
             r.fTop = offset;
             r.fBottom = offset + height;
-            DrawRect(draw, paint, r, textSize);
+            DrawRect(draw, paint, r, 1);
         }
         if (flags & SkPaint::kStrikeThruText_Flag) {
             SkScalar offset = SkScalarMulAdd(textSize, kStdStrikeThru_Offset,
                                              start.fY);
             r.fTop = offset;
             r.fBottom = offset + height;
-            DrawRect(draw, paint, r, textSize);
+            DrawRect(draw, paint, r, 1);
         }
     }
 }
