@@ -28,29 +28,30 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                                            builder.hasMixedSamples(),
                                                            &args.fDstTexture,
                                                            *args.fCaps));
+        if (!xferProcessor) {
+            return nullptr;
+        }
     } else {
+        // This may return nullptr in the common case of src-over implemented using hw blending.
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
                                                                         *args.fCaps,
                                                                         args.fOpts,
                                                                         builder.hasMixedSamples(),
                                                                         &args.fDstTexture));
     }
-
-    if (!xferProcessor) {
-        return nullptr;
-    }
-
-    GrColor overrideColor = GrColor_ILLEGAL;
+   GrColor overrideColor = GrColor_ILLEGAL;
     if (args.fOpts.fColorPOI.firstEffectiveProcessorIndex() != 0) {
         overrideColor = args.fOpts.fColorPOI.inputColorToFirstEffectiveProccesor();
     }
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
-    optFlags = xferProcessor->getOptimizations(args.fOpts,
-                                               builder.getStencil().doesWrite(),
-                                               &overrideColor,
-                                               *args.fCaps);
+    const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() : 
+                                                       &GrPorterDuffXPFactory::SimpleSrcOverXP();
+    optFlags = xpForOpts->getOptimizations(args.fOpts,
+                                           builder.getStencil().doesWrite(),
+                                           &overrideColor,
+                                           *args.fCaps);
 
     // When path rendering the stencil settings are not always set on the GrPipelineBuilder
     // so we must check the draw type. In cases where we will skip drawing we simply return a
@@ -167,14 +168,12 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
         add_dependencies_for_processor(fFragmentProcessors[i].get(), rt);
     }
 
-    if (fXferProcessor.get()) {
-        const GrXferProcessor* xfer = fXferProcessor.get();
+    const GrXferProcessor& xfer = this->getXferProcessor();
 
-        for (int i = 0; i < xfer->numTextures(); ++i) {
-            GrTexture* texture = xfer->textureAccess(i).getTexture();   
-            SkASSERT(rt->getLastDrawTarget());
-            rt->getLastDrawTarget()->addDependency(texture);
-        }
+    for (int i = 0; i < xfer.numTextures(); ++i) {
+        GrTexture* texture = xfer.textureAccess(i).getTexture();   
+        SkASSERT(rt->getLastDrawTarget());
+        rt->getLastDrawTarget()->addDependency(texture);
     }
 }
 
@@ -185,7 +184,7 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 int* firstColorProcessorIdx,
                                                 int* firstCoverageProcessorIdx) {
     fIgnoresCoverage = SkToBool(flags & GrXferProcessor::kIgnoreCoverage_OptFlag);
-    fReadsFragPosition = fXferProcessor->willReadFragmentPosition();
+    fReadsFragPosition = this->getXferProcessor().willReadFragmentPosition();
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
@@ -221,8 +220,11 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
         return false;
     }
 
-    if (!a.getXferProcessor()->isEqual(*b.getXferProcessor())) {
-        return false;
+    // Most of the time both are nullptr
+    if (a.fXferProcessor.get() || b.fXferProcessor.get()) {
+        if (!a.getXferProcessor().isEqual(b.getXferProcessor())) {
+            return false;
+        }
     }
 
     for (int i = 0; i < a.numFragmentProcessors(); i++) {

@@ -125,7 +125,7 @@ bool GrGLProgramDescBuilder::Build(GrProgramDesc* desc,
         }
     }
 
-    const GrXferProcessor& xp = *pipeline.getXferProcessor();
+    const GrXferProcessor& xp = pipeline.getXferProcessor();
     xp.getGLSLProcessorKey(*gpu->glCaps().glslCaps(), &b);
     //**** use glslCaps here?
     if (!gen_meta_key(xp, gpu->glCaps(), 0, &b)) {

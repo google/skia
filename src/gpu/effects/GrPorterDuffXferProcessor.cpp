@@ -850,6 +850,12 @@ void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // SrcOver Global functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
+const GrXferProcessor& GrPorterDuffXPFactory::SimpleSrcOverXP() {
+    static BlendFormula gSrcOverBlendFormula = COEFF_FORMULA(kOne_GrBlendCoeff,
+                                                             kISA_GrBlendCoeff);
+    static PorterDuffXferProcessor gSrcOverXP(gSrcOverBlendFormula);
+    return gSrcOverXP;
+}
 
 GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrCaps& caps,
@@ -860,12 +866,11 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         !(optimizations.fCoveragePOI.isSolidWhite() &&
           !hasMixedSamples &&
           optimizations.fColorPOI.isOpaque())) {
-        static BlendFormula gSrcOverBlendFormula = COEFF_FORMULA(kOne_GrBlendCoeff,
-                                                                 kISA_GrBlendCoeff);
-        static PorterDuffXferProcessor gSrcOverXP(gSrcOverBlendFormula);
-        SkASSERT(!dstTexture || !dstTexture->texture());
-        gSrcOverXP.ref();
-        return &gSrcOverXP;
+        // We return nullptr here, which our caller interprets as meaning "use SimpleSrcOverXP".
+        // We don't simply return the address of that XP here because our caller would have to unref
+        // it and since it is a global object and GrProgramElement's ref-cnting system is not thread
+        // safe.
+        return nullptr;
     }
 
     BlendFormula blendFormula;

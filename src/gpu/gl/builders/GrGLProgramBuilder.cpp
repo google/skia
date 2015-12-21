@@ -93,7 +93,7 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
     this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentProcessors(), inputColor);
     this->emitAndInstallFragProcs(this->pipeline().numColorFragmentProcessors(), numProcs,
                                   inputCoverage);
-    this->emitAndInstallXferProc(*this->pipeline().getXferProcessor(), *inputColor, *inputCoverage,
+    this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor, *inputCoverage,
                                  this->pipeline().ignoresCoverage());
     return true;
 }

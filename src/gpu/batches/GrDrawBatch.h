@@ -83,7 +83,7 @@ public:
                            this->pipeline()->getCoverageFragmentProcessor(i).name(),
                            this->pipeline()->getCoverageFragmentProcessor(i).dumpInfo().c_str());
         }
-        string.appendf("XP: %s\n", this->pipeline()->getXferProcessor()->name());
+        string.appendf("XP: %s\n", this->pipeline()->getXferProcessor().name());
         return string;
     }
 

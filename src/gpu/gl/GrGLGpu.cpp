@@ -1495,7 +1495,7 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
 bool GrGLGpu::flushGLState(const DrawArgs& args) {
     GrXferProcessor::BlendInfo blendInfo;
     const GrPipeline& pipeline = *args.fPipeline;
-    args.fPipeline->getXferProcessor()->getBlendInfo(&blendInfo);
+    args.fPipeline->getXferProcessor().getBlendInfo(&blendInfo);
 
     this->flushColorWrite(blendInfo.fWriteColor);
     this->flushDrawFace(pipeline.getDrawFace());

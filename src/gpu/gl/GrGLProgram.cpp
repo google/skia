@@ -89,7 +89,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc,
 
     this->setFragmentData(primProc, pipeline, textureBindings);
 
-    const GrXferProcessor& xp = *pipeline.getXferProcessor();
+    const GrXferProcessor& xp = pipeline.getXferProcessor();
     fXferProcessor->fGLProc->setData(fProgramDataManager, xp);
     append_texture_bindings(fXferProcessor.get(), xp, textureBindings);
 }

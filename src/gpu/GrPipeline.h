@@ -103,7 +103,15 @@ public:
     }
     int numFragmentProcessors() const { return fFragmentProcessors.count(); }
 
-    const GrXferProcessor* getXferProcessor() const { return fXferProcessor.get(); }
+    const GrXferProcessor& getXferProcessor() const {
+        if (fXferProcessor.get()) {
+            return *fXferProcessor.get();
+        } else {
+            // A null xp member means the common src-over case. GrXferProcessor's ref'ing
+            // mechanism is not thread safe so we do not hold a ref on this global.
+            return GrPorterDuffXPFactory::SimpleSrcOverXP();
+        }
+    }
 
     const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
         SkASSERT(idx < this->numColorFragmentProcessors());
@@ -136,7 +144,7 @@ public:
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return fXferProcessor->xferBarrierType(fRenderTarget.get(), caps);
+        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
     }
 
     /**
