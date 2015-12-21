@@ -81,7 +81,7 @@ protected:
         // AA with blur
         SkPaint p;
         p.setAntiAlias(true);
-        SkBlurDrawLooper* shadowLooper =
+        SkDrawLooper* shadowLooper =
             SkBlurDrawLooper::Create(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
                                      SkIntToScalar(5), SkIntToScalar(10),

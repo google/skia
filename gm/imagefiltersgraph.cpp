@@ -153,13 +153,13 @@ protected:
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
-            SkAutoTUnref<SkColorMatrixFilter> matrixCF(SkColorMatrixFilter::Create(matrix));
+            SkAutoTUnref<SkColorFilter> matrixCF(SkColorMatrixFilter::Create(matrix));
             SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF));
             SkAutoTUnref<SkImageFilter> offsetFilter(
                 SimpleOffsetFilter::Create(10.0f, 10.f, matrixFilter));
 
             SkAutoTUnref<SkXfermode> arith(SkArithmeticMode::Create(0, SK_Scalar1, SK_Scalar1, 0));
-            SkAutoTUnref<SkXfermodeImageFilter> arithFilter(
+            SkAutoTUnref<SkImageFilter> arithFilter(
                 SkXfermodeImageFilter::Create(arith, matrixFilter, offsetFilter));
 
             SkPaint paint;

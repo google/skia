@@ -246,7 +246,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     SkAutoTUnref<SkImage> invalidImage(SkImage::NewFromBitmap(invalidBitmap));
     SkAutoTUnref<SkImageFilter> invalidBitmapSource(SkImageSource::Create(invalidImage));
     SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
-    SkAutoTUnref<SkXfermodeImageFilter> xfermodeImageFilter(
+    SkAutoTUnref<SkImageFilter> xfermodeImageFilter(
         SkXfermodeImageFilter::Create(mode, invalidBitmapSource, validBitmapSource));
 
     SkAutoTUnref<SkImageFilter> deserializedFilter(

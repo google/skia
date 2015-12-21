@@ -83,7 +83,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(24));
-        SkAutoTUnref<SkBlurDrawLooper> looper(
+        SkAutoTUnref<SkDrawLooper> looper(
             SkBlurDrawLooper::Create(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
                                      0, 0));

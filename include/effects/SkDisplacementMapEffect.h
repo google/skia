@@ -23,11 +23,11 @@ public:
 
     ~SkDisplacementMapEffect();
 
-    static SkDisplacementMapEffect* Create(ChannelSelectorType xChannelSelector,
-                                           ChannelSelectorType yChannelSelector,
-                                           SkScalar scale, SkImageFilter* displacement,
-                                           SkImageFilter* color = NULL,
-                                           const CropRect* cropRect = NULL);
+    static SkImageFilter* Create(ChannelSelectorType xChannelSelector,
+                                 ChannelSelectorType yChannelSelector,
+                                 SkScalar scale, SkImageFilter* displacement,
+                                 SkImageFilter* color = NULL,
+                                 const CropRect* cropRect = NULL);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDisplacementMapEffect)
 
