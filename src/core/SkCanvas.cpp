@@ -1122,6 +1122,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     return true;
 }
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
 uint32_t SkCanvas::SaveFlagsToSaveLayerFlags(SaveFlags flags) {
     uint32_t layerFlags = 0;
 
@@ -1133,14 +1134,17 @@ uint32_t SkCanvas::SaveFlagsToSaveLayerFlags(SaveFlags flags) {
     }
     return layerFlags;
 }
+#endif
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, 0));
 }
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags) {
     return this->saveLayer(SaveLayerRec(bounds, paint, SaveFlagsToSaveLayerFlags(flags)));
 }
+#endif
 
 int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, kPreserveLCDText_SaveLayerFlag));
@@ -1269,9 +1273,16 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
 }
 
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
-    return this->saveLayerAlpha(bounds, alpha, kARGB_ClipLayer_SaveFlag);
+    if (0xFF == alpha) {
+        return this->saveLayer(bounds, nullptr);
+    } else {
+        SkPaint tmpPaint;
+        tmpPaint.setAlpha(alpha);
+        return this->saveLayer(bounds, &tmpPaint);
+    }
 }
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
                              SaveFlags flags) {
     if (0xFF == alpha) {
@@ -1282,6 +1293,7 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
         return this->saveLayer(bounds, &tmpPaint, flags);
     }
 }
+#endif
 
 void SkCanvas::internalRestore() {
     SkASSERT(fMCStack.count() != 0);

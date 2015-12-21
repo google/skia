@@ -16,6 +16,28 @@
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
+// matches old SkCanvas::SaveFlags
+enum LegacySaveFlags {
+    kHasAlphaLayer_LegacySaveFlags    = 0x04,
+    kClipToLayer_LegacySaveFlags      = 0x10,
+};
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
+static_assert(kHasAlphaLayer_LegacySaveFlags == (int)SkCanvas::kHasAlphaLayer_SaveFlag, "");
+static_assert(kClipToLayer_LegacySaveFlags == (int)SkCanvas::kClipToLayer_SaveFlag, "");
+#endif
+
+SkCanvas::SaveLayerFlags SkCanvas::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
+    uint32_t layerFlags = 0;
+    
+    if (0 == (flags & kClipToLayer_LegacySaveFlags)) {
+        layerFlags |= SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
+    }
+    if (0 == (flags & kHasAlphaLayer_LegacySaveFlags)) {
+        layerFlags |= kIsOpaque_SaveLayerFlag;
+    }
+    return layerFlags;
+}
+
 /*
  * Read the next op code and chunk size from 'reader'. The returned size
  * is the entire size of the chunk (including the opcode). Thus, the
@@ -458,9 +480,8 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
         case SAVE_LAYER_SAVEFLAGS_DEPRECATED: {
             const SkRect* boundsPtr = get_rect_ptr(reader);
             const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkCanvas::SaveFlags flags = (SkCanvas::SaveFlags)reader->readInt();
-            canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint,
-                                           SkCanvas::SaveFlagsToSaveLayerFlags(flags)));
+            auto flags = SkCanvas::LegacySaveFlagsToSaveLayerFlags(reader->readInt());
+            canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint, flags));
         } break;
         case SAVE_LAYER_SAVELAYERFLAGS: {
             const SkRect* boundsPtr = get_rect_ptr(reader);

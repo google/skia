@@ -37,6 +37,16 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
+/*
+ *  If you want the legacy cliptolayer flag (i.e. android), then you must have the new
+ *  legacy saveflags.
+ */
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+#ifndef SK_SUPPORT_LEGACY_SAVEFLAGS
+    #define SK_SUPPORT_LEGACY_SAVEFLAGS
+#endif
+#endif
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -53,6 +63,10 @@ class SkTextBlob;
     etc.
 */
 class SK_API SkCanvas : public SkRefCnt {
+    enum PrivateSaveLayerFlags {
+        kDontClipToLayer_PrivateSaveLayerFlag   = 1 << 31,
+    };
+    
 public:
     /**
      *  Attempt to allocate raster canvas, matching the ImageInfo, that will draw directly into the
@@ -281,6 +295,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
     enum SaveFlags {
         /** save the matrix state, restoring it on restore() */
         // [deprecated] kMatrix_SaveFlag            = 0x01,
@@ -307,6 +322,7 @@ public:
 #endif
         kARGB_ClipLayer_SaveFlag    = 0x1F
     };
+#endif
 
     /** This call saves the current matrix, clip, and drawFilter, and pushes a
         copy onto a private stack. Subsequent calls to translate, scale,
@@ -343,6 +359,7 @@ public:
      */
     int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
     /** DEPRECATED - use saveLayer(const SkRect*, const SkPaint*) instead.
 
         This behaves the same as saveLayer(const SkRect*, const SkPaint*),
@@ -360,6 +377,7 @@ public:
     */
     SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
     int saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
+#endif
 
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
@@ -374,6 +392,7 @@ public:
     */
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
     /** DEPRECATED - use saveLayerAlpha(const SkRect*, U8CPU) instead.
 
         This behaves the same as saveLayerAlpha(const SkRect*, U8CPU),
@@ -390,10 +409,15 @@ public:
     */
     SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha, SaveFlags flags);
+#endif
 
     enum {
         kIsOpaque_SaveLayerFlag         = 1 << 0,
         kPreserveLCDText_SaveLayerFlag  = 1 << 1,
+
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+        kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
+#endif
     };
     typedef uint32_t SaveLayerFlags;
 
@@ -1330,12 +1354,11 @@ protected:
                         const SkImageFilter* imageFilter = NULL);
 
 private:
-    enum PrivateSaveLayerFlags {
-        kDontClipToLayer_PrivateSaveLayerFlag   = 1 << 31,
-    };
-
     static bool BoundsAffectsClip(SaveLayerFlags);
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
     static uint32_t SaveFlagsToSaveLayerFlags(SaveFlags);
+#endif
+    static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
@@ -1574,6 +1597,7 @@ private:
     size_t      fRowBytes;
 };
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
 static inline SkCanvas::SaveFlags operator|(const SkCanvas::SaveFlags lhs,
                                             const SkCanvas::SaveFlags rhs) {
     return static_cast<SkCanvas::SaveFlags>(static_cast<int>(lhs) | static_cast<int>(rhs));
@@ -1584,6 +1608,7 @@ static inline SkCanvas::SaveFlags& operator|=(SkCanvas::SaveFlags& lhs,
     lhs = lhs | rhs;
     return lhs;
 }
+#endif
 
 class SkCanvasClipVisitor {
 public:
