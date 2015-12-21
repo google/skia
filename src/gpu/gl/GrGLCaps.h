@@ -175,7 +175,7 @@ public:
      * using isConfigVerifiedColorAttachment().
      */
     void markConfigAsValidColorAttachment(GrPixelConfig config) {
-        fVerifiedColorConfigs.markVerified(config);
+        fConfigTable[config].fFlags |= ConfigInfo::kVerifiedColorAttachment_Flag;
     }
 
     /**
@@ -183,7 +183,7 @@ public:
      * attachment.
      */
     bool isConfigVerifiedColorAttachment(GrPixelConfig config) const {
-        return fVerifiedColorConfigs.isVerified(config);
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kVerifiedColorAttachment_Flag);
     }
 
     /**
@@ -335,43 +335,6 @@ private:
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
-    /**
-     * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
-     * performing glCheckFrameBufferStatus for the same config.
-     */
-    struct VerifiedColorConfigs {
-        VerifiedColorConfigs() {
-            this->reset();
-        }
-
-        void reset() {
-            for (int i = 0; i < kNumUints; ++i) {
-                fVerifiedColorConfigs[i] = 0;
-            }
-        }
-
-        static const int kNumUints = (kGrPixelConfigCnt  + 31) / 32;
-        uint32_t fVerifiedColorConfigs[kNumUints];
-
-        void markVerified(GrPixelConfig config) {
-#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
-                return;
-#endif
-            int u32Idx = config / 32;
-            int bitIdx = config % 32;
-            fVerifiedColorConfigs[u32Idx] |= 1 << bitIdx;
-        }
-
-        bool isVerified(GrPixelConfig config) const {
-#if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
-            return false;
-#endif
-            int u32Idx = config / 32;
-            int bitIdx = config % 32;
-            return SkToBool(fVerifiedColorConfigs[u32Idx] & (1 << bitIdx));
-        }
-    };
-
     void initFSAASupport(const GrGLContextInfo&, const GrGLInterface*);
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
@@ -388,10 +351,6 @@ private:
     void initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps* glslCaps);
 
     void initConfigTable(const GrGLContextInfo&);
-
-    // tracks configs that have been verified to pass the FBO completeness when
-    // used as a color attachment
-    VerifiedColorConfigs fVerifiedColorConfigs;
 
     SkTArray<StencilFormat, true> fStencilFormats;
 
@@ -431,13 +390,9 @@ private:
     bool fExternalTextureSupport : 1;
 
     struct ConfigInfo {
-        ConfigInfo() : fStencilFormatIndex(kUnknown_StencilIndex) {};
+        ConfigInfo() : fStencilFormatIndex(kUnknown_StencilIndex), fFlags(0) {};
 
         ConfigFormats fFormats;
-
-        // Index into GrGLCaps's list of stencil formats. Support is determined experimentally and
-        // lazily.
-        int      fStencilFormatIndex;
 
         enum {
             // This indicates that a stencil format has not yet been determined for the config.
@@ -445,6 +400,14 @@ private:
             // This indicates that there is no supported stencil format for the config.
             kUnsupported_StencilFormatIndex = -2
         };
+
+        // Index fStencilFormats.
+        int      fStencilFormatIndex;
+
+        enum {
+            kVerifiedColorAttachment_Flag = 0x1
+        };
+        uint32_t fFlags;
     };
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
