@@ -483,6 +483,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
     // Requires fTexutreSwizzleSupport and fTextureRedSupport to be set before this point.
     this->initConfigSwizzleTable(ctxInfo, glslCaps);
+    // Requires various members are already correctly initialized (e.g. fTextureRedSupport).
+    this->initConfigTable(ctxInfo);
 
     this->applyOptionsOverrides(contextOptions);
     glslCaps->applyOptionsOverrides(contextOptions);
@@ -724,8 +726,9 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo, bool sr
             ctxInfo.version() < GR_GL_VER(3,0)) {
             fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kNo_MSAA]  = true;
             // The GL_EXT_texture_format_BGRA8888 extension does not add BGRA to the list of
-            // configs that are color-renderable and can be passed to glRenderBufferStorageMultisample.
-            // Chromium may have an extension to allow BGRA renderbuffers to work on desktop platforms.
+            // configs that are color-renderable and can be passed to
+            // glRenderBufferStorageMultisample. Chromium may have an extension to allow BGRA
+            // renderbuffers to work on desktop platforms.
             if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888")) {
                 fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] = true;
             } else {
@@ -1342,6 +1345,186 @@ void GrGLCaps::initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps
     glslCaps->fConfigSwizzle[kRGBA_float_GrPixelConfig] = "rgba";
     glslCaps->fConfigSwizzle[kRGBA_half_GrPixelConfig] = "rgba";
 
+}
+
+void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo) {
+    fConfigTable[kUnknown_GrPixelConfig].fFormats.fBaseInternalFormat = 0;
+    fConfigTable[kUnknown_GrPixelConfig].fFormats.fSizedInternalFormat = 0;
+    fConfigTable[kUnknown_GrPixelConfig].fFormats.fExternalFormat = 0;
+    fConfigTable[kUnknown_GrPixelConfig].fFormats.fExternalType = 0;
+
+    fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8;
+    fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+
+    if (this->bgraIsInternalFormat()) {
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_BGRA;
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_BGRA8;
+    } else {
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8;
+    }
+    fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalFormat= GR_GL_BGRA;
+    fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalType  = GR_GL_UNSIGNED_BYTE;
+
+
+    fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
+    fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
+    // GL does not do srgb<->rgb conversions when transferring between cpu and gpu. Thus, the
+    // external format is GL_RGBA. See below for note about ES2.0 and glTex[Sub]Image.
+    fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RGBA;
+    fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+
+
+    fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
+    if (this->ES2CompatibilitySupport()) {
+        fConfigTable[kRGB_565_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGB565;
+    } else {
+        fConfigTable[kRGB_565_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGB5;
+    }
+    fConfigTable[kRGB_565_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RGB;
+    fConfigTable[kRGB_565_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_5_6_5;
+
+    fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA4;
+    fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
+
+
+    if (this->textureRedSupport()) {
+        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
+        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R8;
+        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RED;
+    } else {
+        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_ALPHA;
+        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_ALPHA8;
+        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalFormat = GR_GL_ALPHA;
+    }
+    fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+
+    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA32F;
+    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fExternalType = GR_GL_FLOAT;
+
+    if (this->textureRedSupport()) {
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R16F;
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RED;
+    } else {
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_ALPHA;
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_ALPHA16F;
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalFormat = GR_GL_ALPHA;
+    }
+    if (kGL_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(3, 0)) {
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT;
+    } else {
+        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
+    }
+
+    fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
+    fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA16F;
+    fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RGBA;
+    if (kGL_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(3, 0)) {
+        fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT;
+    } else {
+        fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
+    }
+
+    // No sized/unsized internal format distinction for compressed formats, no external format.
+
+    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_PALETTE8_RGBA8;
+    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_PALETTE8_RGBA8;
+    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fExternalFormat = 0;
+    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fExternalType = 0;
+
+    switch(this->latcAlias()) {
+        case GrGLCaps::kLATC_LATCAlias:
+            fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat =
+                GR_GL_COMPRESSED_LUMINANCE_LATC1;
+            fConfigTable[kLATC_GrPixelConfig].fFormats.fSizedInternalFormat =
+                GR_GL_COMPRESSED_LUMINANCE_LATC1;
+            break;
+        case GrGLCaps::kRGTC_LATCAlias:
+            fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat =
+                GR_GL_COMPRESSED_RED_RGTC1;
+            fConfigTable[kLATC_GrPixelConfig].fFormats.fSizedInternalFormat =
+                GR_GL_COMPRESSED_RED_RGTC1;
+            break;
+        case GrGLCaps::k3DC_LATCAlias:
+            fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_3DC_X;
+            fConfigTable[kLATC_GrPixelConfig].fFormats.fSizedInternalFormat =
+                GR_GL_COMPRESSED_3DC_X;
+            break;
+    }
+    fConfigTable[kLATC_GrPixelConfig].fFormats.fExternalFormat = 0;
+    fConfigTable[kLATC_GrPixelConfig].fFormats.fExternalType = 0;
+
+    fConfigTable[kETC1_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
+    fConfigTable[kETC1_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
+    fConfigTable[kETC1_GrPixelConfig].fFormats.fExternalFormat = 0;
+    fConfigTable[kETC1_GrPixelConfig].fFormats.fExternalType = 0;
+
+    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_R11_EAC;
+    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_COMPRESSED_R11_EAC;
+    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fExternalFormat = 0;
+    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fExternalType = 0;
+
+    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fBaseInternalFormat =
+        GR_GL_COMPRESSED_RGBA_ASTC_12x12;
+    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fSizedInternalFormat =
+        GR_GL_COMPRESSED_RGBA_ASTC_12x12;
+    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fExternalFormat = 0;
+    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fExternalType = 0;
+
+    // Bulk populate the texture internal/external formats here and then deal with exceptions below.
+
+    // ES 2.0 requires that the internal/external formats match.
+    bool useSizedFormats = (kGL_GrGLStandard == ctxInfo.standard() ||
+                            ctxInfo.version() >= GR_GL_VER(3,0));
+    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+        // Almost always we want to pass fExternalFormat as the <format> param to glTex[Sub]Image.
+        fConfigTable[i].fFormats.fExternalFormatForTexImage =
+            fConfigTable[i].fFormats.fExternalFormat;
+        fConfigTable[i].fFormats.fInternalFormatTexImage = useSizedFormats ?
+            fConfigTable[i].fFormats.fSizedInternalFormat :
+            fConfigTable[i].fFormats.fBaseInternalFormat;
+    }
+    // OpenGL ES 2.0 + GL_EXT_sRGB allows GL_SRGB_ALPHA to be specified as the <format>
+    // param to Tex(Sub)Image. ES 2.0 requires the <internalFormat> and <format> params to match.
+    // Thus, on ES 2.0 we will use GL_SRGB_ALPHA as the <format> param.
+    // On OpenGL and ES 3.0+ GL_SRGB_ALPHA does not work for the <format> param to glTexImage.
+    if (ctxInfo.standard() == kGLES_GrGLStandard && ctxInfo.version() == GR_GL_VER(2,0)) {
+        fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fExternalFormatForTexImage =
+            GR_GL_SRGB_ALPHA;
+    }
+
+    // If BGRA is supported as an internal format it must always be specified to glTex[Sub]Image
+    // as a base format.
+    // GL_EXT_texture_format_BGRA8888:
+    //      This extension GL_BGRA as an unsized internal format. However, it is written against ES
+    //      2.0 and therefore doesn't define a value for GL_BGRA8 as ES 2.0 uses unsized internal
+    //      formats.
+    // GL_APPLE_texture_format_BGRA8888: 
+    //     ES 2.0: the extension makes BGRA an external format but not an internal format.
+    //     ES 3.0: the extension explicitly states GL_BGRA8 is not a valid internal format for
+    //             glTexImage (just for glTexStorage).
+    if (useSizedFormats && this->bgraIsInternalFormat())  {
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_BGRA;
+    }
+
+#ifdef SK_DEBUG
+    // Make sure we initialized everything.
+    ConfigFormats defaultEntry;
+    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+        SkASSERT(defaultEntry.fBaseInternalFormat != fConfigTable[i].fFormats.fBaseInternalFormat);
+        SkASSERT(defaultEntry.fSizedInternalFormat !=
+                 fConfigTable[i].fFormats.fSizedInternalFormat);
+        SkASSERT(defaultEntry.fExternalFormat != fConfigTable[i].fFormats.fExternalFormat);
+        SkASSERT(defaultEntry.fExternalType != fConfigTable[i].fFormats.fExternalType);
+    }
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {}

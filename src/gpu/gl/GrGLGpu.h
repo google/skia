@@ -283,8 +283,6 @@ private:
     void flushStencil(const GrStencilSettings&);
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
 
-    void generateConfigTable();
-
     // helper for onCreateTexture and writeTexturePixels
     bool uploadTexData(const GrSurfaceDesc& desc,
                        GrGLenum target,
@@ -534,36 +532,6 @@ private:
             return 1;
         }
     }
-
-    struct ConfigEntry {
-        // Default constructor inits to known bad GL enum values.
-        ConfigEntry() {
-            memset(this, 0xAB, sizeof(ConfigEntry));
-            fStencilFormatIndex = kUnknown_StencilIndex;
-        }
-        GrGLenum fBaseInternalFormat;
-        GrGLenum fSizedInternalFormat;
-        GrGLenum fExternalFormat;
-        GrGLenum fExternalType;
-
-        // The <format> parameter to use for glTexImage and glTexSubImage.
-        // This is usually the same as fExternalFormat except for kSRGBA on some GL contexts.
-        GrGLenum fExternalFormatForTexImage;
-        // Either the base or sized internal format depending on the GL and config.
-        GrGLenum fInternalFormatTexImage;
-
-        // Index into GrGLCaps's list of stencil formats. Support is determined experimentally and
-        // lazily.
-        int      fStencilFormatIndex;
-        enum {
-            // This indicates that a stencil format has not yet been determined for the config.
-            kUnknown_StencilIndex = -1,
-            // This indicates that there is no supported stencil format for the config.
-            kUnsupported_StencilFormatIndex = -2
-        };
-    };
-
-    ConfigEntry fConfigTable[kGrPixelConfigCnt];
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.

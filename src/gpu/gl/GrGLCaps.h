@@ -28,6 +28,24 @@ class GrGLCaps : public GrCaps {
 public:
     typedef GrGLStencilAttachment::Format StencilFormat;
 
+    /** Provides information about the mappiing from GrPixelConfig to GL formats. */
+    struct ConfigFormats {
+        ConfigFormats() {
+            // Inits to known bad GL enum values.
+            memset(this, 0xAB, sizeof(ConfigFormats));
+        }
+        GrGLenum fBaseInternalFormat;
+        GrGLenum fSizedInternalFormat;
+        GrGLenum fExternalFormat;
+        GrGLenum fExternalType;
+
+        // The <format> parameter to use for glTexImage and glTexSubImage.
+        // This is usually the same as fExternalFormat except for kSRGBA on some GL contexts.
+        GrGLenum fExternalFormatForTexImage;
+        // Either the base or sized internal format depending on the GL and config.
+        GrGLenum fInternalFormatTexImage;
+    };
+
     /**
      * The type of MSAA for FBOs supported. Different extensions have different
      * semantics of how / when a resolve is performed.
@@ -105,6 +123,52 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
+    /** Returns conversions to various GL format parameters for a GrPixelCfonig. */
+    const ConfigFormats& configGLFormats(GrPixelConfig config) const {
+        return fConfigTable[config].fFormats;
+    }
+
+
+    /**
+    * Gets an array of legal stencil formats. These formats are not guaranteed
+    * to be supported by the driver but are legal GLenum names given the GL
+    * version and extensions supported.
+    */
+    const SkTArray<StencilFormat, true>& stencilFormats() const {
+        return fStencilFormats;
+    }
+
+    /**
+     * Has a stencil format index been found for the config (or we've found that no format works).
+     */
+    bool hasStencilFormatBeenDeterminedForConfig(GrPixelConfig config) const {
+        return fConfigTable[config].fStencilFormatIndex != ConfigInfo::kUnknown_StencilIndex;
+    }
+
+    /**
+     * Gets the stencil format index for the config. This assumes
+     * hasStencilFormatBeenDeterminedForConfig has already been checked. Returns a value < 0 if
+     * no stencil format is supported with the config. Otherwise, returned index refers to the array
+     * returned by stencilFormats().
+     */
+    int getStencilFormatIndexForConfig(GrPixelConfig config) const {
+        SkASSERT(this->hasStencilFormatBeenDeterminedForConfig(config));
+        return fConfigTable[config].fStencilFormatIndex;
+    }
+
+    /**
+     * If index is >= 0 this records an index into stencilFormats() as the best stencil format for
+     * the config. If < 0 it records that the config has no supported stencil format index.
+     */
+    void setStencilFormatIndexForConfig(GrPixelConfig config, int index) {
+        SkASSERT(!this->hasStencilFormatBeenDeterminedForConfig(config));
+        if (index < 0) {
+            fConfigTable[config].fStencilFormatIndex = ConfigInfo::kUnsupported_StencilFormatIndex;
+        } else {
+            fConfigTable[config].fStencilFormatIndex = index;
+        }
+    }
+
     /**
      * Call to note that a color config has been verified as a valid color
      * attachment. This may save future calls to glCheckFramebufferStatus
@@ -153,15 +217,6 @@ public:
 
     /// What type of transfer buffer is supported?
     TransferBufferType transferBufferType() const { return fTransferBufferType; }
-
-    /**
-     * Gets an array of legal stencil formats. These formats are not guaranteed
-     * to be supported by the driver but are legal GLenum names given the GL
-     * version and extensions supported.
-     */
-    const SkTArray<StencilFormat, true>& stencilFormats() const {
-        return fStencilFormats;
-    }
 
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
@@ -332,6 +387,8 @@ private:
 
     void initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps* glslCaps);
 
+    void initConfigTable(const GrGLContextInfo&);
+
     // tracks configs that have been verified to pass the FBO completeness when
     // used as a color attachment
     VerifiedColorConfigs fVerifiedColorConfigs;
@@ -372,6 +429,25 @@ private:
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
     bool fExternalTextureSupport : 1;
+
+    struct ConfigInfo {
+        ConfigInfo() : fStencilFormatIndex(kUnknown_StencilIndex) {};
+
+        ConfigFormats fFormats;
+
+        // Index into GrGLCaps's list of stencil formats. Support is determined experimentally and
+        // lazily.
+        int      fStencilFormatIndex;
+
+        enum {
+            // This indicates that a stencil format has not yet been determined for the config.
+            kUnknown_StencilIndex = -1,
+            // This indicates that there is no supported stencil format for the config.
+            kUnsupported_StencilFormatIndex = -2
+        };
+    };
+
+    ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
     struct ReadPixelsSupportedFormat {
         GrGLenum fFormat;
