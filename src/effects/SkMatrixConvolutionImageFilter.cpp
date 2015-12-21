@@ -47,7 +47,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     SkASSERT(kernelOffset.fY >= 0 && kernelOffset.fY < kernelSize.fHeight);
 }
 
-SkMatrixConvolutionImageFilter* SkMatrixConvolutionImageFilter::Create(
+SkImageFilter* SkMatrixConvolutionImageFilter::Create(
     const SkISize& kernelSize,
     const SkScalar* kernel,
     SkScalar gain,
