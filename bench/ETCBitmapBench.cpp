@@ -81,7 +81,7 @@ class ETCBitmapBenchBase : public Benchmark {
 public:
     ETCBitmapBenchBase() : fPKMData(loadPKM()) {
         if (nullptr == fPKMData) {
-            SkDebugf("Could not load PKM data!");
+            SkDebugf("Could not load PKM data!\n");
         }
     }
 
