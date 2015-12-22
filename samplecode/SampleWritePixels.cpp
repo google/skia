@@ -9,7 +9,6 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkCornerPathEffect.h"
-#include "SkCullPoints.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkRegion.h"
