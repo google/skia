@@ -14,10 +14,7 @@ class SkDebugGLContext : public SkGLContext {
 public:
     ~SkDebugGLContext() override;
 
-    static SkDebugGLContext* Create(GrGLStandard forcedGpuAPI) {
-        if (kGLES_GrGLStandard == forcedGpuAPI) {
-            return nullptr;
-        }
+    static SkDebugGLContext* Create() {
         return new SkDebugGLContext;
     }
 private:

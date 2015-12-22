@@ -16,10 +16,7 @@ class SkCommandBufferGLContext : public SkGLContext {
 public:
     ~SkCommandBufferGLContext() override;
 
-    static SkCommandBufferGLContext* Create(GrGLStandard forcedGpuAPI) {
-        if (kGL_GrGLStandard == forcedGpuAPI) {
-            return nullptr;
-        }
+    static SkCommandBufferGLContext* Create() {
         SkCommandBufferGLContext* ctx = new SkCommandBufferGLContext;
         if (!ctx->isValid()) {
             delete ctx;

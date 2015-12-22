@@ -22,8 +22,10 @@ template <typename T> static void ignore_result(const T&) {}
 
 bool SkFlagInfo::CreateStringFlag(const char* name, const char* shortName,
                                   SkCommandLineFlags::StringArray* pStrings,
-                                  const char* defaultValue, const char* helpString) {
-    SkFlagInfo* info = new SkFlagInfo(name, shortName, kString_FlagType, helpString);
+                                  const char* defaultValue, const char* helpString,
+                                  const char* extendedHelpString) {
+    SkFlagInfo* info = new SkFlagInfo(name, shortName, kString_FlagType, helpString,
+                                      extendedHelpString);
     info->fDefaultString.set(defaultValue);
 
     info->fStrings = pStrings;
@@ -151,29 +153,16 @@ void SkCommandLineFlags::SetUsage(const char* usage) {
 // Maximum line length for the help message.
 #define LINE_LENGTH 72
 
-static void print_help_for_flag(const SkFlagInfo* flag) {
-    SkDebugf("    --%s", flag->name().c_str());
-    const SkString& shortName = flag->shortName();
-    if (shortName.size() > 0) {
-        SkDebugf(" or -%s", shortName.c_str());
-    }
-    SkDebugf(":\ttype: %s", flag->typeAsString().c_str());
-    if (flag->defaultValue().size() > 0) {
-        SkDebugf("\tdefault: %s", flag->defaultValue().c_str());
-    }
-    SkDebugf("\n");
-    const SkString& help = flag->help();
-    size_t length = help.size();
-    const char* currLine = help.c_str();
+static void print_indented(const SkString& text) {
+    size_t length = text.size();
+    const char* currLine = text.c_str();
     const char* stop = currLine + length;
     while (currLine < stop) {
-        if (strlen(currLine) < LINE_LENGTH) {
-            // Only one line length's worth of text left.
-            SkDebugf("        %s\n", currLine);
-            break;
-        }
         int lineBreak = SkStrFind(currLine, "\n");
-        if (lineBreak < 0 || lineBreak > LINE_LENGTH) {
+        if (lineBreak < 0) {
+            lineBreak = static_cast<int>(strlen(currLine));
+        }
+        if (lineBreak > LINE_LENGTH) {
             // No line break within line length. Will need to insert one.
             // Find a space before the line break.
             int spaceIndex = LINE_LENGTH - 1;
@@ -198,6 +187,26 @@ static void print_help_for_flag(const SkFlagInfo* flag) {
             currLine += lineBreak;
         }
     }
+}
+
+static void print_help_for_flag(const SkFlagInfo* flag) {
+    SkDebugf("    --%s", flag->name().c_str());
+    const SkString& shortName = flag->shortName();
+    if (shortName.size() > 0) {
+        SkDebugf(" or -%s", shortName.c_str());
+    }
+    SkDebugf(":\ttype: %s", flag->typeAsString().c_str());
+    if (flag->defaultValue().size() > 0) {
+        SkDebugf("\tdefault: %s", flag->defaultValue().c_str());
+    }
+    SkDebugf("\n");
+    const SkString& help = flag->help();
+    print_indented(help);
+    SkDebugf("\n");
+}
+static void print_extended_help_for_flag(const SkFlagInfo* flag) {
+    print_help_for_flag(flag);
+    print_indented(flag->extendedHelp());
     SkDebugf("\n");
 }
 
@@ -248,6 +257,10 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                          CompareFlagsByName());
                 for (int i = 0; i < allFlags.count(); ++i) {
                     print_help_for_flag(allFlags[i]);
+                    if (allFlags[i]->extendedHelp().size() > 0) {
+                        SkDebugf("        Use '--help %s' for more information.\n",
+                                 allFlags[i]->name().c_str());
+                    }
                 }
             } else {
                 for (SkFlagInfo* flag = SkCommandLineFlags::gHead; flag;
@@ -255,7 +268,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                     for (int k = 0; k < helpFlags.count(); k++) {
                         if (flag->name().equals(helpFlags[k]) ||
                             flag->shortName().equals(helpFlags[k])) {
-                            print_help_for_flag(flag);
+                            print_extended_help_for_flag(flag);
                             helpFlags.remove(k);
                             break;
                         }

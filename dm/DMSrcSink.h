@@ -215,7 +215,7 @@ public:
 class GPUSink : public Sink {
 public:
     GPUSink(GrContextFactory::GLContextType, GrContextFactory::GLContextOptions,
-            GrGLStandard, int samples, bool diText, bool threaded);
+            int samples, bool diText, bool threaded);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override;
@@ -224,7 +224,6 @@ public:
 private:
     GrContextFactory::GLContextType    fContextType;
     GrContextFactory::GLContextOptions fContextOptions;
-    GrGLStandard                       fGpuAPI;
     int                                fSampleCount;
     bool                               fUseDIText;
     bool                               fThreaded;
