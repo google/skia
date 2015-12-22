@@ -1,6 +1,15 @@
 Tips & FAQ
 ==========
 
++   [Gyp Options](#gypdefines)
++   [Bitmap Subsetting](#bitmap-subsetting)
++   [Capture a `.skp` file on a web page in Chromium](#skp-capture)
++   [How to add hardware acceleration in Skia](#hw-acceleration)
++   [Does Skia support Font hinting?](#font-hinting)
++   [Does Skia shape text (kerning)?](#kerning)
+
+* * *
+
 <span id="gypdefines"></span>
 
 Gyp Options
@@ -33,8 +42,8 @@ To build with clang and enable a compiler warning for unused parameters in C++
 
 <!--?prettify lang=sh?-->
 
-    CXXFLAGS='-Wunused-parameter'
-    CC='clang' CXX='clang++' python bin/sync-and-gyp
+    CXXFLAGS='-Wunused-parameter' \
+        CC='clang' CXX='clang++' python bin/sync-and-gyp
     ninja -C out/Debug
 
 
@@ -77,6 +86,8 @@ drawBitmapNine():
     SkBitmap subset;
     bitmap.extractSubset(&subset, rect);
     canvas->drawBitmapNine(subset, ...);
+
+[An example](https://fiddle.skia.org/c/c91694020f0810994917b56c323e4559)
 
 * * *
 
