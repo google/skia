@@ -29,7 +29,6 @@
         '<(skia_include_path)/utils/SkNullCanvas.h',
         '<(skia_include_path)/utils/SkPaintFilterCanvas.h',
         '<(skia_include_path)/utils/SkParse.h',
-        '<(skia_include_path)/utils/SkParsePaint.h',
         '<(skia_include_path)/utils/SkParsePath.h',
         '<(skia_include_path)/utils/SkPictureUtils.h',
         '<(skia_include_path)/utils/SkRandom.h',
