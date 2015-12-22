@@ -79,6 +79,9 @@ protected:
             { 0, 0, W, 0 },
             { 0, 0, 0, H },
             { 0, 0, 0, 0 },
+            { 0, 0, W, FLT_EPSILON },
+            { 0, 0, FLT_EPSILON, H },
+            { 0, 0, FLT_EPSILON, FLT_EPSILON },
         };
 
         for (int doFill = 0; doFill <= 1; ++doFill) {
