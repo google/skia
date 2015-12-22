@@ -28,7 +28,6 @@
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
-#include "SkCommonFlagsConfig.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -169,10 +168,11 @@ struct GPUTarget : public Target {
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
         this->surface.reset(SkSurface::NewRenderTarget(gGrFactory->get(this->config.ctxType,
+                                                                       kNone_GrGLStandard,
                                                                        this->config.ctxOptions),
                                                          SkSurface::kNo_Budgeted, info,
                                                          this->config.samples, &props));
-        this->gl = gGrFactory->getContextInfo(this->config.ctxType,
+        this->gl = gGrFactory->getContextInfo(this->config.ctxType, kNone_GrGLStandard,
                                               this->config.ctxOptions)->fGLContext;
         if (!this->surface.get()) {
             return false;
@@ -390,7 +390,7 @@ static bool is_gpu_config_allowed(const char* name, GrContextFactory::GLContextT
     if (!is_cpu_config_allowed(name)) {
         return false;
     }
-    if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOptions)) {
+    if (const GrContext* ctx = gGrFactory->get(ctxType, kNone_GrGLStandard, ctxOptions)) {
         return sampleCnt <= ctx->caps()->maxSampleCount();
     }
     return false;
@@ -446,13 +446,11 @@ static void create_configs(SkTDArray<Config>* configs) {
         GPU_CONFIG(gpudft, kNative_GLContextType, kNone_GLContextOptions, 0, true)
         GPU_CONFIG(debug, kDebug_GLContextType, kNone_GLContextOptions, 0, false)
         GPU_CONFIG(nullgpu, kNull_GLContextType, kNone_GLContextOptions, 0, false)
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
+#ifdef SK_ANGLE
         GPU_CONFIG(angle, kANGLE_GLContextType, kNone_GLContextOptions, 0, false)
-#endif
         GPU_CONFIG(angle-gl, kANGLE_GL_GLContextType, kNone_GLContextOptions, 0, false)
 #endif
-#if SK_COMMAND_BUFFER
+#ifdef SK_COMMAND_BUFFER
         GPU_CONFIG(commandbuffer, kCommandBuffer_GLContextType, kNone_GLContextOptions, 0, false)
 #endif
 #if SK_MESA
@@ -1168,7 +1166,7 @@ int nanobench_main() {
 #if SK_SUPPORT_GPU
             if (FLAGS_gpuStats && Benchmark::kGPU_Backend == configs[i].backend) {
                 GrContext* context = gGrFactory->get(configs[i].ctxType,
-                                                     configs[i].ctxOptions);
+                                                     kNone_GrGLStandard, configs[i].ctxOptions);
                 context->printCacheStats();
                 context->printGpuStats();
             }

@@ -29,15 +29,9 @@
     {
       'target_name': 'flags_common',
       'type': 'static_library',
-      'include_dirs': [
-          '../include/gpu',
-          '../src/gpu',
-      ],
       'sources': [
         '../tools/flags/SkCommonFlags.cpp',
         '../tools/flags/SkCommonFlags.h',
-        '../tools/flags/SkCommonFlagsConfig.cpp',
-        '../tools/flags/SkCommonFlagsConfig.h',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
@@ -45,8 +39,6 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          '../include/gpu',
-          '../src/gpu',
           '../tools/flags',
         ],
       }

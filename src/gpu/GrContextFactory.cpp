@@ -24,10 +24,13 @@
 #include "GrCaps.h"
 
 GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType type,
+                                                                GrGLStandard forcedGpuAPI,
                                                                 GLContextOptions options) {
     for (int i = 0; i < fContexts.count(); ++i) {
         if (fContexts[i]->fType == type &&
-            fContexts[i]->fOptions == options) {
+            fContexts[i]->fOptions == options &&
+            (forcedGpuAPI == kNone_GrGLStandard ||
+             forcedGpuAPI == fContexts[i]->fGLContext->gl()->fStandard)) {
             fContexts[i]->fGLContext->makeCurrent();
             return fContexts[i];
         }
@@ -36,39 +39,31 @@ GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType ty
     SkAutoTUnref<GrContext> grCtx;
     switch (type) {
         case kNative_GLContextType:
-            glCtx.reset(SkCreatePlatformGLContext(kNone_GrGLStandard));
+            glCtx.reset(SkCreatePlatformGLContext(forcedGpuAPI));
             break;
-        case kGL_GLContextType:
-            glCtx.reset(SkCreatePlatformGLContext(kGL_GrGLStandard));
-            break;
-        case kGLES_GLContextType:
-            glCtx.reset(SkCreatePlatformGLContext(kGLES_GrGLStandard));
-            break;
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
+#ifdef SK_ANGLE
         case kANGLE_GLContextType:
-            glCtx.reset(SkANGLEGLContext::CreateDirectX());
+            glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI, false));
             break;
-#endif
         case kANGLE_GL_GLContextType:
-            glCtx.reset(SkANGLEGLContext::CreateOpenGL());
+            glCtx.reset(SkANGLEGLContext::Create(forcedGpuAPI, true));
             break;
 #endif
-#if SK_COMMAND_BUFFER
+#ifdef SK_COMMAND_BUFFER
         case kCommandBuffer_GLContextType:
-            glCtx.reset(SkCommandBufferGLContext::Create());
+            glCtx.reset(SkCommandBufferGLContext::Create(forcedGpuAPI));
             break;
 #endif
-#if SK_MESA
+#ifdef SK_MESA
         case kMESA_GLContextType:
-            glCtx.reset(SkMesaGLContext::Create());
+            glCtx.reset(SkMesaGLContext::Create(forcedGpuAPI));
             break;
 #endif
         case kNull_GLContextType:
-            glCtx.reset(SkNullGLContext::Create());
+            glCtx.reset(SkNullGLContext::Create(forcedGpuAPI));
             break;
         case kDebug_GLContextType:
-            glCtx.reset(SkDebugGLContext::Create());
+            glCtx.reset(SkDebugGLContext::Create(forcedGpuAPI));
             break;
     }
     if (nullptr == glCtx.get()) {
