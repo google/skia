@@ -236,6 +236,38 @@ DEF_SIMPLE_GM(zerolinestroke, canvas, 90, 120) {
     canvas->drawPath(path, paint);
 }
 
+DEF_SIMPLE_GM(quadcap, canvas, 200, 200) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(0);
+    SkPath path;
+    SkPoint pts[] = {{105.738571f,13.126318f},
+            {105.738571f,13.126318f}, 
+            {123.753784f,1.f}};
+    SkVector tangent = pts[1] - pts[2];
+    tangent.normalize();
+    SkPoint pts2[3];
+    memcpy(pts2, pts, sizeof(pts));
+    const SkScalar capOutset = SK_ScalarPI / 8;
+    pts2[0].fX += tangent.fX * capOutset;
+    pts2[0].fY += tangent.fY * capOutset;
+    pts2[1].fX += tangent.fX * capOutset;
+    pts2[1].fY += tangent.fY * capOutset;
+    pts2[2].fX += -tangent.fX * capOutset;
+    pts2[2].fY += -tangent.fY * capOutset;
+    path.moveTo(pts2[0]);
+    path.quadTo(pts2[1], pts2[2]);
+    canvas->drawPath(path, p);
+
+    path.reset();
+    path.moveTo(pts[0]);
+    path.quadTo(pts[1], pts[2]);
+    p.setStrokeCap(SkPaint::kRound_Cap);
+    canvas->translate(30, 0);
+    canvas->drawPath(path, p);
+}
+
 class Strokes2GM : public skiagm::GM {
     SkPath fPath;
 protected:

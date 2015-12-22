@@ -428,11 +428,15 @@ void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int 
         } while (tangent.isZero() && --controls > 0);
         if (tangent.isZero()) {
             tangent.set(1, 0);
+            controls = ptCount - 1;  // If all points are equal, move all but one
         } else {
             tangent.normalize();
         }
-        first->fX += tangent.fX * capOutset;
-        first->fY += tangent.fY * capOutset;
+        do {    // If the end point and control points are equal, loop to move them in tandem.
+            first->fX += tangent.fX * capOutset;
+            first->fY += tangent.fY * capOutset;
+            ++first;
+        } while (++controls < ptCount);
     }
     if (SkPath::kMove_Verb == nextVerb || SkPath::kDone_Verb == nextVerb) {
         SkPoint* last = &pts[ptCount - 1];
@@ -444,11 +448,15 @@ void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int 
         } while (tangent.isZero() && --controls > 0);
         if (tangent.isZero()) {
             tangent.set(-1, 0);
+            controls = ptCount - 1;
         } else {
             tangent.normalize();
         }
-        last->fX += tangent.fX * capOutset;
-        last->fY += tangent.fY * capOutset;
+        do {
+            last->fX += tangent.fX * capOutset;
+            last->fY += tangent.fY * capOutset;
+            --last;
+        } while (++controls < ptCount);
     }
 }
 
@@ -466,8 +474,8 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
     const SkRect* outsetClip = nullptr;
 
     {
-        const SkIRect ibounds = path.getBounds().roundOut().makeOutset(1, 1);
-
+        const int capOut = SkPaint::kButt_Cap == capStyle ? 1 : 2;
+        const SkIRect ibounds = path.getBounds().roundOut().makeOutset(capOut, capOut);
         if (rclip.quickReject(ibounds)) {
             return;
         }
