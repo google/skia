@@ -790,13 +790,11 @@ DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::GLContextType ct,
                  GrContextFactory::GLContextOptions options,
-                 GrGLStandard gpuAPI,
                  int samples,
                  bool diText,
                  bool threaded)
     : fContextType(ct)
     , fContextOptions(options)
-    , fGpuAPI(gpuAPI)
     , fSampleCount(samples)
     , fUseDIText(diText)
     , fThreaded(threaded) {}
@@ -826,8 +824,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(
-            NewGpuSurface(&factory, fContextType, fContextOptions, fGpuAPI, info, fSampleCount,
-                          fUseDIText));
+            NewGpuSurface(&factory, fContextType, fContextOptions, info, fSampleCount, fUseDIText));
     if (!surface) {
         return "Could not create a surface.";
     }

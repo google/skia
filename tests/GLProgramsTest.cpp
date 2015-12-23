@@ -401,7 +401,45 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     return true;
 }
 
-DEF_GPUTEST(GLPrograms, reporter, factory) {
+static int get_glprograms_max_stages(GrContext* context) {
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
+    /*
+     * For the time being, we only support the test with desktop GL or for android on
+     * ARM platforms
+     * TODO When we run ES 3.00 GLSL in more places, test again
+     */
+    if (kGL_GrGLStandard == gpu->glStandard() ||
+        kARM_GrGLVendor == gpu->ctxInfo().vendor()) {
+        return 6;
+    } else if (kTegra3_GrGLRenderer == gpu->ctxInfo().renderer() ||
+               kOther_GrGLRenderer == gpu->ctxInfo().renderer()) {
+        return 1;
+    }
+    return 0;
+}
+
+static void test_glprograms_native(skiatest::Reporter* reporter, GrContext* context) {
+    int maxStages = get_glprograms_max_stages(context);
+    if (maxStages == 0) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+}
+
+static void test_glprograms_other_contexts(skiatest::Reporter* reporter, GrContext* context) {
+    int maxStages = get_glprograms_max_stages(context);
+#ifdef SK_BUILD_FOR_WIN
+    // Some long shaders run out of temporary registers in the D3D compiler on ANGLE and
+    // command buffer.
+    maxStages = SkTMin(maxStages, 2);
+#endif
+    if (maxStages == 0) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+}
+
+DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
     // Set a locale that would cause shader compilation to fail because of , as decimal separator.
     // skbug 3330
 #ifdef SK_BUILD_FOR_WIN
@@ -414,42 +452,10 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
     GrContextOptions opts;
     opts.fSuppressPrints = true;
     GrContextFactory debugFactory(opts);
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        GrContext* context = debugFactory.get(static_cast<GrContextFactory::GLContextType>(type));
-        if (context) {
-            GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
-
-            /*
-             * For the time being, we only support the test with desktop GL or for android on
-             * ARM platforms
-             * TODO When we run ES 3.00 GLSL in more places, test again
-             */
-            int maxStages;
-            if (kGL_GrGLStandard == gpu->glStandard() ||
-                kARM_GrGLVendor == gpu->ctxInfo().vendor()) {
-                maxStages = 6;
-            } else if (kTegra3_GrGLRenderer == gpu->ctxInfo().renderer() ||
-                       kOther_GrGLRenderer == gpu->ctxInfo().renderer()) {
-                maxStages = 1;
-            } else {
-                return;
-            }
-#if SK_ANGLE
-            // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
-            if (type == GrContextFactory::kANGLE_GLContextType) {
-                maxStages = 2;
-            }
-#endif
-#if SK_COMMAND_BUFFER
-            // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
-            // TODO(hendrikw): This only needs to happen with the ANGLE comand buffer backend.
-            if (type == GrContextFactory::kCommandBuffer_GLContextType) {
-                maxStages = 2;
-            }
-#endif
-            REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
-        }
-    }
+    skiatest::RunWithGPUTestContexts(test_glprograms_native, skiatest::kNative_GPUTestContexts,
+                                     reporter, &debugFactory);
+    skiatest::RunWithGPUTestContexts(test_glprograms_other_contexts,
+                                     skiatest::kOther_GPUTestContexts, reporter, &debugFactory);
 }
 
 #endif

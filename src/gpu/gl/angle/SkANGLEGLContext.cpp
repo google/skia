@@ -180,7 +180,12 @@ GrGLuint SkANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
 }
 
 SkGLContext* SkANGLEGLContext::createNew() const {
-    SkGLContext* ctx = SkANGLEGLContext::Create(this->gl()->fStandard, fIsGLBackend);
+#ifdef SK_BUILD_FOR_WIN
+    SkGLContext* ctx = fIsGLBackend ? SkANGLEGLContext::CreateOpenGL()
+                                    : SkANGLEGLContext::CreateDirectX();
+#else
+    SkGLContext* ctx = SkANGLEGLContext::CreateOpenGL();
+#endif
     if (ctx) {
         ctx->makeCurrent();
     }
