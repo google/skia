@@ -1395,31 +1395,6 @@ bool SkCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
     return dev && dev->accessPixels(pmap);
 }
 
-SkAutoROCanvasPixels::SkAutoROCanvasPixels(SkCanvas* canvas) {
-    fAddr = canvas->peekPixels(&fInfo, &fRowBytes);
-    if (nullptr == fAddr) {
-        fInfo = canvas->imageInfo();
-        if (kUnknown_SkColorType == fInfo.colorType() || !fBitmap.tryAllocPixels(fInfo)) {
-            return; // failure, fAddr is nullptr
-        }
-        if (!canvas->readPixels(&fBitmap, 0, 0)) {
-            return; // failure, fAddr is nullptr
-        }
-        fAddr = fBitmap.getPixels();
-        fRowBytes = fBitmap.rowBytes();
-    }
-    SkASSERT(fAddr);    // success
-}
-
-bool SkAutoROCanvasPixels::asROBitmap(SkBitmap* bitmap) const {
-    if (fAddr) {
-        return bitmap->installPixels(fInfo, const_cast<void*>(fAddr), fRowBytes);
-    } else {
-        bitmap->reset();
-        return false;
-    }
-}
-
 /////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
