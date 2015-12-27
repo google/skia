@@ -59,7 +59,7 @@ public:
         fFlags = SkToU8((fFlags & ~kReset) | (int)reset);
     }
 
-    Result  timeToT(SkMSec time, SkScalar* T, int* index, SkBool* exact) const;
+    Result  timeToT(SkMSec time, SkScalar* T, int* index, bool* exact) const;
 
 protected:
     enum Flags {

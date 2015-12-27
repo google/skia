@@ -248,12 +248,6 @@ typedef int S16CPU;
 typedef unsigned U16CPU;
 
 /**
- *  Meant to be faster than bool (doesn't promise to be 0 or 1,
- *  just 0 or non-zero
- */
-typedef int SkBool;
-
-/**
  *  Meant to be a small version of bool, for storage purposes. Will be 0 or 1
  */
 typedef uint8_t SkBool8;
@@ -439,17 +433,6 @@ static inline int32_t SkFastMin32(int32_t value, int32_t max) {
 /** Returns value pinned between min and max, inclusively. */
 template <typename T> static inline const T& SkTPin(const T& value, const T& min, const T& max) {
     return SkTMax(SkTMin(value, max), min);
-}
-
-static inline uint32_t SkSetClearShift(uint32_t bits, bool cond,
-                                       unsigned shift) {
-    SkASSERT((int)cond == 0 || (int)cond == 1);
-    return (bits & ~(1 << shift)) | ((int)cond << shift);
-}
-
-static inline uint32_t SkSetClearMask(uint32_t bits, bool cond,
-                                      uint32_t mask) {
-    return cond ? bits | mask : bits & ~mask;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

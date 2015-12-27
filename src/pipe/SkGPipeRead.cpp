@@ -84,6 +84,10 @@ public:
     ~SkRefCntTDArray() { this->unrefAll(); }
 };
 
+static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
+    return cond ? bits | mask : bits & ~mask;
+}
+
 class SkGPipeState : public SkBitmapHeapReader {
 public:
     SkGPipeState();
@@ -213,7 +217,7 @@ private:
             return;
         }
         bool crossProcess = SkToBool(fFlags & SkGPipeWriter::kCrossProcess_Flag);
-        fReader->setFlags(SkSetClearMask(fReader->getFlags(), crossProcess,
+        fReader->setFlags(set_clear_mask(fReader->getFlags(), crossProcess,
                                          SkReadBuffer::kCrossProcess_Flag));
         if (crossProcess) {
             fReader->setFactoryArray(&fFactoryArray);

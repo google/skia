@@ -1,13 +1,14 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkScript2_DEFINED
 #define SkScript2_DEFINED
 
+#include "SkDisplayType.h"
 #include "SkOperand2.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
