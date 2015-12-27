@@ -632,13 +632,6 @@ public:
     SkAnnotation* setAnnotation(SkAnnotation*);
 
     /**
-     *  Returns true if there is an annotation installed on this paint, and
-     *  the annotation specifics no-drawing.
-     */
-    SK_ATTR_DEPRECATED("use getAnnotation and check for non-null")
-    bool isNoDrawAnnotation() const { return this->getAnnotation() != NULL; }
-
-    /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
      *  reference count.
      */
