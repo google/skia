@@ -290,6 +290,12 @@ public:
         }
     }
 
+    SkGlyphCache* setupCache(int runIndex,
+                             const SkSurfaceProps& props,
+                             const SkPaint& skPaint,
+                             const SkMatrix* viewMatrix,
+                             bool noGamma);
+
     // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
     // as a path.
     void appendGlyph(int runIndex,
