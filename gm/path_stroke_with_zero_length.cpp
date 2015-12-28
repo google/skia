@@ -117,7 +117,7 @@ protected:
         bool aliases[] = { false, true };
         for (bool antialias : aliases) {
             canvas->save();
-            for (SkScalar width : widths) { 
+            for (SkScalar width : widths) {
                 canvas->save();
                 SkPaint butt;
                 butt.setAntiAlias(antialias);
@@ -147,6 +147,7 @@ private:
         SkBitmap offscreen;
         offscreen.allocN32Pixels(SkScalarRoundToInt(bounds.width() + 4),
                 SkScalarRoundToInt(bounds.height() + 4));
+        offscreen.eraseColor(SK_ColorWHITE);
         SkScalar pathX = bounds.fLeft - 2;
         SkScalar pathY = bounds.fTop - 2;
         SkMatrix cMatrix = canvas->getTotalMatrix();
