@@ -1082,8 +1082,9 @@ private:
     friend class SkCanvas;
     friend class SkDraw;
     friend class SkPDFDevice;
-    friend class GrAtlasTextBlob;
+    friend class GrBitmapTextContext;
     friend class GrAtlasTextContext;
+    friend class GrDistanceFieldTextContext;
     friend class GrStencilAndCoverTextContext;
     friend class GrPathRendering;
     friend class GrTextUtils;

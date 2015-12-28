@@ -23,7 +23,7 @@
 
 void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
                               GrBatchFontCache* fontCache,
-                              const SkSurfaceProps& props, const SkPaint& skPaint,
+                              SkGlyphCache* cache, const SkPaint& skPaint,
                               GrColor color,
                               const SkMatrix& viewMatrix,
                               const char text[], size_t byteLength,
@@ -38,7 +38,6 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
     GrBatchTextStrike* currStrike = nullptr;
 
     // Get GrFontScaler from cache
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, skPaint, &viewMatrix, false);
     GrFontScaler* fontScaler = GrTextContext::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessText(
@@ -53,13 +52,11 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
                 color, fontScaler);
         }
     );
-
-    SkGlyphCache::AttachCache(cache);
 }
 
 void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
                                  GrBatchFontCache* fontCache,
-                                 const SkSurfaceProps& props, const SkPaint& skPaint,
+                                 SkGlyphCache* cache, const SkPaint& skPaint,
                                  GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const char text[], size_t byteLength,
@@ -76,7 +73,6 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
     GrBatchTextStrike* currStrike = nullptr;
 
     // Get GrFontScaler from cache
-    SkGlyphCache* cache = blob->setupCache(runIndex, props, skPaint, &viewMatrix, false);
     GrFontScaler* fontScaler = GrTextContext::GetGrFontScaler(cache);
 
     SkFindAndPlaceGlyph::ProcessPosText(
@@ -91,8 +87,6 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
                 color, fontScaler);
         }
     );
-
-    SkGlyphCache::AttachCache(cache);
 }
 
 void GrTextUtils::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,

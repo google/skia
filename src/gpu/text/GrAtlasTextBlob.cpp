@@ -13,24 +13,8 @@
 #include "GrTextUtils.h"
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
-#include "SkGlyphCache.h"
 #include "SkTextBlobRunIterator.h"
 #include "batches/GrAtlasTextBatch.h"
-
-SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
-                                          const SkSurfaceProps& props,
-                                          const SkPaint& skPaint,
-                                          const SkMatrix* viewMatrix,
-                                          bool noGamma) {
-    GrAtlasTextBlob::Run* run = &fRuns[runIndex];
-
-    // if we have an override descriptor for the run, then we should use that
-    SkAutoDescriptor* desc = run->fOverrideDescriptor.get() ? run->fOverrideDescriptor.get() :
-                                                              &run->fDescriptor;
-    skPaint.getScalerContextDescriptor(desc, props, viewMatrix, noGamma);
-    run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
-    return SkGlyphCache::DetachCache(run->fTypeface, desc->getDesc());
-}
 
 void GrAtlasTextBlob::appendGlyph(int runIndex,
                                   const SkRect& positions,

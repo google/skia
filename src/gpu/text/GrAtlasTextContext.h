@@ -74,13 +74,13 @@ private:
                                     const SkPoint& offset);
 
     void internalDrawDFText(GrAtlasTextBlob*, int runIndex,
-                            const SkPaint&,
+                            SkGlyphCache*, const SkPaint&,
                             GrColor color, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
                             SkScalar x, SkScalar y,
                             SkScalar textRatio, const SkPaint& origPaint);
     void internalDrawDFPosText(GrAtlasTextBlob*, int runIndex,
-                               const SkPaint&,
+                               SkGlyphCache*, const SkPaint&,
                                GrColor color, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
@@ -90,6 +90,7 @@ private:
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
+    inline SkGlyphCache* setupCache(Run*, const SkPaint&, const SkMatrix* viewMatrix, bool noGamma);
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,

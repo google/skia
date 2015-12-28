@@ -35,14 +35,13 @@ class GrTextUtils {
 public:
     // Functions for appending BMP text to GrAtlasTextBlob
     static void DrawBmpText(GrAtlasTextBlob*, int runIndex,
-                            GrBatchFontCache*, const SkSurfaceProps&,
-                            const SkPaint&,
+                            GrBatchFontCache*, SkGlyphCache*, const SkPaint&,
                             GrColor, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
                             SkScalar x, SkScalar y);
 
     static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex,
-                               GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
+                               GrBatchFontCache*, SkGlyphCache*, const SkPaint&,
                                GrColor, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
