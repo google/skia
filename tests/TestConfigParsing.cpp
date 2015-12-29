@@ -91,8 +91,10 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[11]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getSamples() == 16);
     REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getUseNVPR());
+    REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getSamples() == 4);
     REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getUseNVPR());
+    REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, !configs[14]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[15]->asConfigGpu());
     REPORTER_ASSERT(reporter, !configs[16]->asConfigGpu());
@@ -125,7 +127,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
 
 DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
-        "gpu(nvpr=true,dit=true)",
+        "gpu(nvpr=true,dit=false)",
         "gpu(api=angle)",
         "gpu(api=angle-gl)",
         "gpu(api=mesa,samples=77)",
@@ -144,7 +146,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getContextType() ==
                     GrContextFactory::kNative_GLContextType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR());
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, !configs[0]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
