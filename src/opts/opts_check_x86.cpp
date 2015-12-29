@@ -13,8 +13,8 @@
 #include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE4.h"
-#include "SkOncePtr.h"
 #include "SkRTConf.h"
+#include <mutex>
 
 #if defined(_MSC_VER) && defined(_WIN64)
 #include <intrin.h>
@@ -68,37 +68,12 @@ static inline void getcpuid(int info_type, int info[4]) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/* Fetch the SIMD level directly from the CPU, at run-time.
- * Only checks the levels needed by the optimizations in this file.
- */
-static int* get_SIMD_level() {
-    int cpu_info[4] = { 0, 0, 0, 0 };
-    getcpuid(1, cpu_info);
-
-    int* level = new int;
-
-    if ((cpu_info[2] & (1<<20)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSE42;
-    } else if ((cpu_info[2] & (1<<19)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSE41;
-    } else if ((cpu_info[2] & (1<<9)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSSE3;
-    } else if ((cpu_info[3] & (1<<26)) != 0) {
-        *level = SK_CPU_SSE_LEVEL_SSE2;
-    } else {
-        *level = 0;
-    }
-    return level;
-}
-
-SK_DECLARE_STATIC_ONCE_PTR(int, gSIMDLevel);
-
 /* Verify that the requested SIMD level is supported in the build.
  * If not, check if the platform supports it.
  */
-static inline bool supports_simd(int minLevel) {
+static inline bool supports_simd(int level) {
 #if defined(SK_CPU_SSE_LEVEL)
-    if (minLevel <= SK_CPU_SSE_LEVEL) {
+    if (level <= SK_CPU_SSE_LEVEL) {
         return true;
     } else
 #endif
@@ -112,7 +87,18 @@ static inline bool supports_simd(int minLevel) {
          */
         return false;
 #else
-        return minLevel <= *gSIMDLevel.get(get_SIMD_level);
+        static std::once_flag once;
+        static int maxLevel = 0;
+        std::call_once(once, [&]{
+            int cpu_info[4] = { 0, 0, 0, 0 };
+            getcpuid(1, cpu_info);
+
+            if (cpu_info[3] & (1<<26)) { maxLevel = SK_CPU_SSE_LEVEL_SSE2 ; }
+            if (cpu_info[2] & (1<< 9)) { maxLevel = SK_CPU_SSE_LEVEL_SSSE3; }
+            if (cpu_info[2] & (1<<19)) { maxLevel = SK_CPU_SSE_LEVEL_SSE41; }
+            if (cpu_info[2] & (1<<20)) { maxLevel = SK_CPU_SSE_LEVEL_SSE42; }
+        });
+        return level <= maxLevel;
 #endif
     }
 }
