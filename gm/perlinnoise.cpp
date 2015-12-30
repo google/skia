@@ -154,7 +154,7 @@ protected:
 
         SkMatrix lm;
         lm.setScale(2, 2);
-        paint.setShader(SkShader::CreateLocalMatrixShader(paint.getShader(), lm))->unref();
+        paint.setShader(paint.getShader()->newWithLocalMatrix(lm))->unref();
         r.fRight += r.width();
         r.fBottom += r.height();
 

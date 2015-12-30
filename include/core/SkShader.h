@@ -346,8 +346,17 @@ public:
 #endif
 
     //////////////////////////////////////////////////////////////////////////
-    //  Factory methods for stock shaders
+    //  Methods to create combinations or variants of shaders
 
+    /**
+     *  Return a shader that will apply the specified localMatrix to this shader.
+     *  The specified matrix will be applied before any matrix associated with this shader.
+     */
+    SkShader* newWithLocalMatrix(const SkMatrix&) const;
+    
+    //////////////////////////////////////////////////////////////////////////
+    //  Factory methods for stock shaders
+    
     /**
      *  Call this to create a new "empty" shader, that will not draw anything.
      */
@@ -397,14 +406,6 @@ public:
                                          TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix,
                                          const SkRect* tile);
-
-    /**
-     *  Return a shader that will apply the specified localMatrix to the proxy shader.
-     *  The specified matrix will be applied before any matrix associated with the proxy.
-     *
-     *  Note: ownership of the proxy is not transferred (though a ref is taken).
-     */
-    static SkShader* CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix);
 
     /**
      *  If this shader can be represented by another shader + a localMatrix, return that shader

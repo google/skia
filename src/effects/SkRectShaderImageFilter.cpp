@@ -68,7 +68,7 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
     SkPaint paint;
     SkMatrix matrix(ctx.ctm());
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    SkSafeUnref(paint.setShader(SkShader::CreateLocalMatrixShader(fShader, matrix)));
+    SkSafeUnref(paint.setShader(fShader->newWithLocalMatrix(matrix)));
 
     SkRect rect = SkRect::MakeWH(SkIntToScalar(bounds.width()), SkIntToScalar(bounds.height()));
     canvas.drawRect(rect, paint);
