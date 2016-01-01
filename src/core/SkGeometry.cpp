@@ -1146,24 +1146,6 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
 //             {t^2 (2 - 2 w), t (-2 + 2 w), 1}
 //
 
-static SkScalar conic_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
-    SkASSERT(src);
-    SkASSERT(t >= 0 && t <= SK_Scalar1);
-
-    SkScalar    src2w = SkScalarMul(src[2], w);
-    SkScalar    C = src[0];
-    SkScalar    A = src[4] - 2 * src2w + C;
-    SkScalar    B = 2 * (src2w - C);
-    SkScalar numer = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
-
-    B = 2 * (w - SK_Scalar1);
-    C = SK_Scalar1;
-    A = -B;
-    SkScalar denom = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
-
-    return numer / denom;
-}
-
 // F' = 2 (C t (1 + t (-1 + w)) - A (-1 + t) (t (-1 + w) - w) + B (1 - 2 t) w)
 //
 //  t^2 : (2 P0 - 2 P2 - 2 P0 w + 2 P2 w)
@@ -1228,18 +1210,6 @@ static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
     dst[0].set(src[0].fX * 1, src[0].fY * 1, 1);
     dst[1].set(src[1].fX * w, src[1].fY * w, w);
     dst[2].set(src[2].fX * 1, src[2].fY * 1, 1);
-}
-
-void SkConic::evalAt(SkScalar t, SkPoint* pt, SkVector* tangent) const {
-    SkASSERT(t >= 0 && t <= SK_Scalar1);
-
-    if (pt) {
-        pt->set(conic_eval_pos(&fPts[0].fX, fW, t),
-                conic_eval_pos(&fPts[0].fY, fW, t));
-    }
-    if (tangent) {
-        *tangent = evalTangentAt(t);
-    }
 }
 
 void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
@@ -1315,6 +1285,17 @@ SkVector SkConic::evalTangentAt(SkScalar t) const {
     Sk2s B = p20 - C - C;
 
     return to_vector(quad_poly_eval(A, B, C, Sk2s(t)));
+}
+
+void SkConic::evalAt(SkScalar t, SkPoint* pt, SkVector* tangent) const {
+    SkASSERT(t >= 0 && t <= SK_Scalar1);
+    
+    if (pt) {
+        *pt = this->evalAt(t);
+    }
+    if (tangent) {
+        *tangent = this->evalTangentAt(t);
+    }
 }
 
 static SkScalar subdivide_w_value(SkScalar w) {
