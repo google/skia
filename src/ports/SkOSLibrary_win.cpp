@@ -12,7 +12,7 @@
 #include <windows.h>
 
 void* DynamicLoadLibrary(const char* libraryName) {
-    return LoadLibrary(libraryName);
+    return LoadLibraryA(libraryName);
 }
 
 void* GetProcedureAddress(void* library, const char* functionName) {
