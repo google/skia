@@ -476,10 +476,6 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
         usePath = true;
     }
 
-    if (!usePath && paint.isAntiAlias() && !draw.fMatrix->rectStaysRect()) {
-        usePath = true;
-    }
-
     if (usePath) {
         SkPath path;
         path.setIsVolatile(true);

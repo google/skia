@@ -268,28 +268,35 @@ void GrDrawContext::drawRect(const GrClip& clip,
         }
     }
 
-    GrColor color = paint.getColor();
-    bool needAA = should_apply_coverage_aa(paint, fRenderTarget);
-
-    // The fill path can handle rotation but not skew
-    // The stroke path needs the rect to remain axis aligned (no rotation or skew)
-    // None of our AA draw rect calls can handle perspective yet
-    bool canApplyAA = width >=0 ? viewMatrix.rectStaysRect() :
-                                  view_matrix_ok_for_aa_fill_rect(viewMatrix);
-
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    GrColor color = paint.getColor();
 
-    if (needAA && canApplyAA) {
-        SkASSERT(!viewMatrix.hasPerspective());
+    if (should_apply_coverage_aa(paint, fRenderTarget)) {
         SkAutoTUnref<GrDrawBatch> batch;
         if (width >= 0) {
-            batch.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect, *strokeInfo));
+            // The stroke path needs the rect to remain axis aligned (no rotation or skew).
+            if (viewMatrix.rectStaysRect()) {
+                batch.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect,
+                                                               *strokeInfo));
+            }
         } else {
-            SkRect devBoundRect;
-            viewMatrix.mapRect(&devBoundRect, rect);
-            batch.reset(GrRectBatchFactory::CreateAAFill(color, viewMatrix, rect, devBoundRect));
+            // The fill path can handle rotation but not skew.
+            if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+                SkRect devBoundRect;
+                viewMatrix.mapRect(&devBoundRect, rect);
+                batch.reset(GrRectBatchFactory::CreateAAFill(color, viewMatrix, rect,
+                                                             devBoundRect));
+            }
         }
-        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+        if (batch) {
+            this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+        } else {
+            SkPath path;
+            path.setIsVolatile(true);
+            path.addRect(rect);
+            this->internalDrawPath(&pipelineBuilder, viewMatrix, color, true, path, *strokeInfo);
+            SkASSERT(paint.isAntiAlias());
+        }
         return;
     }
 
