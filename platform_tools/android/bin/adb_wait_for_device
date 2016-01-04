@@ -72,7 +72,7 @@ while [ "$($ADB $DEVICE_SERIAL shell getprop sys.boot_completed | tr -d '\r')" !
 done
 
 # Wait for battery charge.
-DESIRED_BATTERY_LEVEL=100
+DESIRED_BATTERY_LEVEL=80
 CURRENT_BATTERY_LEVEL="$(get_battery_level)"
 while [ "${CURRENT_BATTERY_LEVEL}" -lt "${DESIRED_BATTERY_LEVEL}" ]; do
   echo "Battery level is ${CURRENT_BATTERY_LEVEL}; waiting to charge to ${DESIRED_BATTERY_LEVEL}"
