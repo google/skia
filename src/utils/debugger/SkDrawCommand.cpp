@@ -675,6 +675,12 @@ void SkDrawPosTextHCommand::execute(SkCanvas* canvas) const {
     canvas->drawPosTextH(fText, fByteLength, fXpos, fConstY, fPaint);
 }
 
+static const char* gPositioningLabels[] = {
+    "kDefault_Positioning",
+    "kHorizontal_Positioning",
+    "kFull_Positioning",
+};
+
 SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                              const SkPaint& paint)
     : INHERITED(kDrawTextBlob_OpType)
@@ -694,11 +700,15 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x,
     SkPaint runPaint(paint);
     SkTextBlobRunIterator iter(blob);
     while (!iter.done()) {
-        SkAutoTDelete<SkString> label(new SkString);
-        label->printf("==== Run [%d] ====", runs++);
-        fInfo.push(label.release());
+        SkAutoTDelete<SkString> tmpStr(new SkString);
+        tmpStr->printf("==== Run [%d] ====", runs++);
+        fInfo.push(tmpStr.release());
 
         fInfo.push(SkObjectParser::IntToString(iter.glyphCount(), "GlyphCount: "));
+        tmpStr.reset(new SkString("GlyphPositioning: "));
+        tmpStr->append(gPositioningLabels[iter.positioning()]);
+        fInfo.push(tmpStr.release());
+
         iter.applyFontToPaint(&runPaint);
         fInfo.push(SkObjectParser::PaintToString(runPaint));
 
