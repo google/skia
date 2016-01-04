@@ -15,7 +15,7 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-#include "SkTSearch.h"
+#include "../private/SkTSearch.h"
 
 #include <stdlib.h>
 

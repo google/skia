@@ -11,7 +11,7 @@
 #define SkViewInflate_DEFINED
 
 #include "SkDOM.h"
-#include "SkTDict.h"
+#include "../private/SkTDict.h"
 #include "SkEvent.h"
 
 class SkView;
