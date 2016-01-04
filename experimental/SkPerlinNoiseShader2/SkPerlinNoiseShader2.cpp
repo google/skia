@@ -603,19 +603,6 @@ void SkPerlinNoiseShader2::PerlinNoiseShaderContext::shadeSpan(
     }
 }
 
-void SkPerlinNoiseShader2::PerlinNoiseShaderContext::shadeSpan16(
-        int x, int y, uint16_t result[], int count) {
-    SkPoint point = SkPoint::Make(SkIntToScalar(x), SkIntToScalar(y));
-    StitchData stitchData;
-    DITHER_565_SCAN(y);
-    for (int i = 0; i < count; ++i) {
-        unsigned dither = DITHER_VALUE(x);
-        result[i] = SkDitherRGB32To565(shade(point, stitchData), dither);
-        DITHER_INC_X(x);
-        point.fX += SK_Scalar1;
-    }
-}
-
 /////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

@@ -314,11 +314,6 @@ SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
     if (shader.fColorsAreOpaque && paintAlpha == 0xFF) {
         fFlags |= kOpaqueAlpha_Flag;
     }
-    // we can do span16 as long as our individual colors are opaque,
-    // regardless of the paint's alpha
-    if (shader.fColorsAreOpaque) {
-        fFlags |= kHasSpan16_Flag;
-    }
 }
 
 SkGradientShaderBase::GradientShaderCache::GradientShaderCache(

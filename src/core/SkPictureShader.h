@@ -62,7 +62,6 @@ private:
 
         ShadeProc asAShadeProc(void** ctx) override;
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
-        void shadeSpan16(int x, int y, uint16_t dstC[], int count) override;
 
     private:
         PictureShaderContext(const SkPictureShader&, const ContextRec&, SkShader* bitmapShader);

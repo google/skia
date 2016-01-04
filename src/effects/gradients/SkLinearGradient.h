@@ -35,7 +35,6 @@ public:
         LinearGradientContext(const SkLinearGradient&, const ContextRec&);
 
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
-        void shadeSpan16(int x, int y, uint16_t dstC[], int count) override;
 
         struct Rec {
             Sk4fStorage fColor;

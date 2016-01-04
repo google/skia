@@ -67,7 +67,6 @@
 
     '<(skia_src_path)/effects/gradients/SkClampRange.cpp',
     '<(skia_src_path)/effects/gradients/SkClampRange.h',
-    '<(skia_src_path)/effects/gradients/SkRadialGradient_Table.h',
     '<(skia_src_path)/effects/gradients/SkGradientBitmapCache.cpp',
     '<(skia_src_path)/effects/gradients/SkGradientBitmapCache.h',
     '<(skia_src_path)/effects/gradients/SkGradientShader.cpp',

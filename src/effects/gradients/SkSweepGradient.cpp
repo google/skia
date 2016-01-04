@@ -119,52 +119,6 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
     }
 }
 
-void SkSweepGradient::SweepGradientContext::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
-                                                        int count) {
-    SkMatrix::MapXYProc proc = fDstToIndexProc;
-    const SkMatrix&     matrix = fDstToIndex;
-    const uint16_t* SK_RESTRICT cache = fCache->getCache16();
-    int                 toggle = init_dither_toggle16(x, y);
-    SkPoint             srcPt;
-
-    if (fDstToIndexClass != kPerspective_MatrixClass) {
-        proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
-                     SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkScalar dx, fx = srcPt.fX;
-        SkScalar dy, fy = srcPt.fY;
-
-        if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            SkFixed storage[2];
-            (void)matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf,
-                                      &storage[0], &storage[1]);
-            dx = SkFixedToScalar(storage[0]);
-            dy = SkFixedToScalar(storage[1]);
-        } else {
-            SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = matrix.getScaleX();
-            dy = matrix.getSkewY();
-        }
-
-        for (; count > 0; --count) {
-            int index = SkATan2_255(fy, fx) >> (8 - kCache16Bits);
-            *dstC++ = cache[toggle + index];
-            toggle = next_dither_toggle16(toggle);
-            fx += dx;
-            fy += dy;
-        }
-    } else {  // perspective case
-        for (int stop = x + count; x < stop; x++) {
-            proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
-                         SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-
-            int index = SkATan2_255(srcPt.fY, srcPt.fX);
-            index >>= (8 - kCache16Bits);
-            *dstC++ = cache[toggle + index];
-            toggle = next_dither_toggle16(toggle);
-        }
-    }
-}
-
 /////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

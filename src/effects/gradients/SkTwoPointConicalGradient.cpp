@@ -224,9 +224,6 @@ SkTwoPointConicalGradient::TwoPointConicalGradientContext::TwoPointConicalGradie
         const SkTwoPointConicalGradient& shader, const ContextRec& rec)
     : INHERITED(shader, rec)
 {
-    // we don't have a span16 proc
-    fFlags &= ~kHasSpan16_Flag;
-
     // in general, we might discard based on computed-radius, so clear
     // this flag (todo: sometimes we can detect that we never discard...)
     fFlags &= ~kOpaqueAlpha_Flag;
