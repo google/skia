@@ -1353,6 +1353,11 @@ protected:
     bool clipRectBounds(const SkRect* bounds, SaveLayerFlags, SkIRect* intersection,
                         const SkImageFilter* imageFilter = NULL);
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
+    // Needed by SkiaCanvasProxy in Android. Make sure that class is updated
+    // before removing this method.
+    static uint32_t SaveLayerFlagsToSaveFlags(SaveLayerFlags);
+#endif
 private:
     static bool BoundsAffectsClip(SaveLayerFlags);
 #ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
