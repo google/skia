@@ -162,7 +162,14 @@ static SkShader* make_linear_gradient_shader(int length) {
 
 class ComposeShaderBitmapGM : public skiagm::GM {
 public:
-    ComposeShaderBitmapGM() {
+    ComposeShaderBitmapGM()
+        : fColorBitmapShader(nullptr)
+        , fAlpha8BitmapShader(nullptr)
+        , fLinearGradientShader(nullptr)
+    {
+    }
+
+    void onOnceBeforeDraw() override {
         draw_color_bm(&fColorBitmap, squareLength);
         draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
         SkMatrix s;
@@ -173,6 +180,7 @@ public:
                                                      SkShader::kRepeat_TileMode, &s);
         fLinearGradientShader = make_linear_gradient_shader(squareLength);
     }
+
     ~ComposeShaderBitmapGM() {
         SkSafeUnref(fColorBitmapShader);
         SkSafeUnref(fAlpha8BitmapShader);

@@ -825,24 +825,6 @@ public:
     }
 
     /**
-     *  Variant of round() that explicitly performs the rounding step (i.e. floor(x + 0.5)) using
-     *  double instead of SkScalar (float). It does this by calling SkDScalarRoundToInt(), which
-     *  may be slower than calling SkScalarRountToInt(), but gives slightly more accurate results.
-     *
-     *  e.g.
-     *      SkScalar x = 0.49999997f;
-     *      int ix = SkScalarRoundToInt(x);
-     *      SkASSERT(0 == ix);  // <--- fails
-     *      ix = SkDScalarRoundToInt(x);
-     *      SkASSERT(0 == ix);  // <--- succeeds
-     */
-    void dround(SkIRect* dst) const {
-        SkASSERT(dst);
-        dst->set(SkDScalarRoundToInt(fLeft), SkDScalarRoundToInt(fTop),
-                 SkDScalarRoundToInt(fRight), SkDScalarRoundToInt(fBottom));
-    }
-
-    /**
      *  Set the dst rectangle by rounding "out" this rectangle, choosing the
      *  SkScalarFloor of top and left, and the SkScalarCeil of right and bottom.
      */
