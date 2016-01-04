@@ -137,12 +137,6 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
     SkXfermode*        mode = static_cast<const SkComposeShader&>(fShader).fMode;
     unsigned           scale = SkAlpha255To256(this->getPaintAlpha());
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    // In the Android framework, make compose shader ignore the paint's alpha.
-    // This matches the old behavior. FIXME: Can we remove this difference?
-    scale = 256;
-#endif
-
     SkPMColor   tmp[TMP_COLOR_COUNT];
 
     if (nullptr == mode) {   // implied SRC_OVER
