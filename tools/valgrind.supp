@@ -12,6 +12,18 @@
    fun:main
 }
 
+# Intentional thread / memory leak in nanobench.
+{
+   nanobench_keepalive_thread_leak
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   fun:_ZN8SkThreadC1EPFvPvES0_
+   fun:_ZL15start_keepalivev
+   fun:_Z14nanobench_mainv
+   fun:main
+}
+
 # Third party lib, driver issues.
 {
     ati_driver_bug_1

@@ -137,6 +137,8 @@
     "1", 
     "--samples", 
     "1", 
+    "--keepAlive", 
+    "true", 
     "--match", 
     "~interlaced1.png", 
     "~interlaced2.png", 
