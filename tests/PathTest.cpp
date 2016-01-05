@@ -3514,7 +3514,8 @@ static void test_contains(skiatest::Reporter* reporter) {
     p.lineTo(SkBits2Float(0x609b9872), SkBits2Float(0xdf730de8));  // 8.96947e+19f, -1.75139e+19f
     p.conicTo(SkBits2Float(0x6018b296), SkBits2Float(0xdeee870d), SkBits2Float(0xe008cd8e), SkBits2Float(0x5ed5b2db), SkBits2Float(0x3f3504f3));  // 4.40121e+19f, -8.59386e+18f, -3.94308e+19f, 7.69931e+18f, 0.707107f
     p.conicTo(SkBits2Float(0xe0d526d9), SkBits2Float(0x5fa67b31), SkBits2Float(0xe085e7b2), SkBits2Float(0x5f512c01), SkBits2Float(0x3f3504f3));  // -1.22874e+20f, 2.39925e+19f, -7.7191e+19f, 1.50724e+19f, 0.707107f
-    REPORTER_ASSERT(reporter, !p.contains(-77.2027664f, 15.3066053f));
+    // this may return true or false, depending on the platform's numerics, but it should not crash
+    (void) p.contains(-77.2027664f, 15.3066053f);
 
     p.reset();
     p.setFillType(SkPath::kInverseWinding_FillType);
