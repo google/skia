@@ -90,7 +90,7 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
     SkScalar* r = roots;
 
     SkScalar R = B*B - 4*A*C;
-    if (R < 0 || SkScalarIsNaN(R)) {  // complex roots
+    if (R < 0 || !SkScalarIsFinite(R)) {  // complex roots
         return 0;
     }
     R = SkScalarSqrt(R);
