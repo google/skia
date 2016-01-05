@@ -23,16 +23,56 @@
 #include "gl/GrGLGpu.h"
 #include "GrCaps.h"
 
-GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType type,
-                                                                GLContextOptions options) {
+GrContextFactory::GrContextFactory() { }
+
+GrContextFactory::GrContextFactory(const GrContextOptions& opts)
+    : fGlobalOptions(opts) {
+}
+
+GrContextFactory::~GrContextFactory() {
+    this->destroyContexts();
+}
+
+void GrContextFactory::destroyContexts() {
+    for (Context& context : fContexts) {
+        if (context.fGLContext) {
+            context.fGLContext->makeCurrent();
+        }
+        if (!context.fGrContext->unique()) {
+            context.fGrContext->abandonContext();
+        }
+        context.fGrContext->unref();
+        delete(context.fGLContext);
+    }
+    fContexts.reset();
+}
+
+void GrContextFactory::abandonContexts() {
+    for (Context& context : fContexts) {
+        if (context.fGLContext) {
+            context.fGLContext->makeCurrent();
+            context.fGLContext->testAbandon();
+            delete(context.fGLContext);
+            context.fGLContext = nullptr;
+        }
+        context.fGrContext->abandonContext();
+    }
+}
+
+GrContextFactory::ContextInfo GrContextFactory::getContextInfo(GLContextType type,
+                                                               GLContextOptions options) {
     for (int i = 0; i < fContexts.count(); ++i) {
-        if (fContexts[i]->fType == type &&
-            fContexts[i]->fOptions == options) {
-            fContexts[i]->fGLContext->makeCurrent();
-            return fContexts[i];
+        Context& context = fContexts[i];
+        if (!context.fGLContext) {
+            continue;
+        }
+        if (context.fType == type &&
+            context.fOptions == options) {
+            context.fGLContext->makeCurrent();
+            return ContextInfo(context.fGrContext, context.fGLContext);
         }
     }
-    SkAutoTUnref<SkGLContext> glCtx;
+    SkAutoTDelete<SkGLContext> glCtx;
     SkAutoTUnref<GrContext> grCtx;
     switch (type) {
         case kNative_GLContextType:
@@ -72,7 +112,7 @@ GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType ty
             break;
     }
     if (nullptr == glCtx.get()) {
-        return nullptr;
+        return ContextInfo();
     }
 
     SkASSERT(glCtx->isValid());
@@ -82,7 +122,7 @@ GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType ty
     if (!(kEnableNVPR_GLContextOptions & options)) {
         glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface));
         if (!glInterface) {
-            return nullptr;
+            return ContextInfo();
         }
     }
 
@@ -94,18 +134,18 @@ GrContextFactory::ContextInfo* GrContextFactory::getContextInfo(GLContextType ty
     grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx, fGlobalOptions));
 #endif
     if (!grCtx.get()) {
-        return nullptr;
+        return ContextInfo();
     }
     if (kEnableNVPR_GLContextOptions & options) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
-            return nullptr;
+            return ContextInfo();
         }
     }
 
-    ContextInfo* ctx = fContexts.emplace_back(new ContextInfo);
-    ctx->fGLContext = SkRef(glCtx.get());
-    ctx->fGrContext = SkRef(grCtx.get());
-    ctx->fType = type;
-    ctx->fOptions = options;
-    return ctx;
+    Context& context = fContexts.push_back();
+    context.fGLContext = glCtx.detach();
+    context.fGrContext = SkRef(grCtx.get());
+    context.fType = type;
+    context.fOptions = options;
+    return ContextInfo(context.fGrContext, context.fGLContext);
 }

@@ -41,6 +41,10 @@
           'include_dirs': [
             '../src/gpu',
           ],
+	  'sources': [
+            '../src/gpu/GrContextFactory.cpp',
+            '../src/gpu/GrContextFactory.h',
+          ]
         }],
       ],
     },
