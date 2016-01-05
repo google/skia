@@ -285,9 +285,8 @@ public:
 
     /// Does ReadPixels support the provided format/type combo?
     bool readPixelsSupported(const GrGLInterface* intf,
-                             GrGLenum format,
-                             GrGLenum type,
-                             GrGLenum currFboFormat) const;
+                             GrPixelConfig readConfig,
+                             GrPixelConfig currFBOConfig) const;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
@@ -342,8 +341,6 @@ private:
     void initConfigRenderableTable(const GrGLContextInfo&, bool srgbSupport);
     void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*, bool srgbSupport);
 
-    bool doReadPixelsSupported(const GrGLInterface* intf, GrGLenum format, GrGLenum type) const;
-
     void initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                                   const GrGLInterface* intf,
                                   GrGLSLCaps* glslCaps);
@@ -374,7 +371,6 @@ private:
     bool fTexStorageSupport : 1;
     bool fTextureRedSupport : 1;
     bool fImagingSupport  : 1;
-    bool fTwoFormatLimit : 1;
     bool fVertexArrayObjectSupport : 1;
     bool fDirectStateAccessSupport : 1;
     bool fDebugSupport : 1;
@@ -389,10 +385,29 @@ private:
     bool fBindUniformLocationSupport : 1;
     bool fExternalTextureSupport : 1;
 
+    /** Number type of the components (with out considering number of bits.) */
+    enum FormatType {
+        kNormalizedFixedPoint_FormatType,
+        kFloat_FormatType,
+    };
+
+    struct ReadPixelsFormat {
+        ReadPixelsFormat() : fFormat(0), fType(0) {}
+        GrGLenum fFormat;
+        GrGLenum fType;
+    };
+
     struct ConfigInfo {
-        ConfigInfo() : fStencilFormatIndex(kUnknown_StencilIndex), fFlags(0) {};
+        ConfigInfo() : fStencilFormatIndex(kUnknown_StencilIndex), fFlags(0) {}
 
         ConfigFormats fFormats;
+
+        FormatType fFormatType;
+
+        // On ES contexts there are restrictions on type type/format that may be used for
+        // ReadPixels. One is implicitly specified by the current FBO's format. The other is
+        // queryable. This stores the queried option (lazily).
+        ReadPixelsFormat fSecondReadPixelsFormat;
 
         enum {
             // This indicates that a stencil format has not yet been determined for the config.
@@ -411,19 +426,6 @@ private:
     };
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
-
-    struct ReadPixelsSupportedFormat {
-        GrGLenum fFormat;
-        GrGLenum fType;
-        GrGLenum fFboFormat;
-
-        bool operator==(const ReadPixelsSupportedFormat& rhs) const {
-            return fFormat    == rhs.fFormat
-                && fType      == rhs.fType
-                && fFboFormat == rhs.fFboFormat;
-        }
-    };
-    mutable SkTHashMap<ReadPixelsSupportedFormat, bool> fReadPixelsSupportedCache;
 
     typedef GrCaps INHERITED;
 };

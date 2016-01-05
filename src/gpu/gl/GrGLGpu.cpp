@@ -1925,8 +1925,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         tempDrawInfo->fSwapRAndB = true;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (readConfig == kBGRA_8888_GrPixelConfig &&
-               !this->glCaps().readPixelsSupported(this->glInterface(), GR_GL_BGRA,
-                                                   GR_GL_UNSIGNED_BYTE, srcConfig)) {
+               !this->glCaps().readPixelsSupported(this->glInterface(), readConfig, srcConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
         tempDrawInfo->fSwapRAndB = true;
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
