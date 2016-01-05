@@ -14,6 +14,7 @@
 #include "SkDocument.h"
 #include "SkError.h"
 #include "SkImageGenerator.h"
+#include "SkMallocPixelRef.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
@@ -973,8 +974,10 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
     SkAlphaType alphaType = kPremul_SkAlphaType;
     (void)SkColorTypeValidateAlphaType(fColorType, alphaType, &alphaType);
 
-    dst->allocPixels(SkImageInfo::Make(size.width(), size.height(), fColorType, alphaType));
-    dst->eraseColor(SK_ColorTRANSPARENT);
+    SkMallocPixelRef::ZeroedPRFactory factory;
+    dst->allocPixels(SkImageInfo::Make(size.width(), size.height(), fColorType, alphaType),
+                     &factory,
+                     nullptr/*colortable*/);
     SkCanvas canvas(*dst);
     return src.draw(&canvas);
 }
