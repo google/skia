@@ -7,13 +7,6 @@
 
 #include "SkVarAlloc.h"
 
-// We use non-standard malloc diagnostic methods to make sure our allocations are sized well.
-#if defined(SK_BUILD_FOR_MAC)
-    #include <malloc/malloc.h>
-#elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN32)
-    #include <malloc.h>
-#endif
-
 struct SkVarAlloc::Block {
     Block* prev;
     char* data() { return (char*)(this + 1); }
@@ -60,11 +53,4 @@ void SkVarAlloc::makeSpace(size_t bytes) {
     fBlock = Block::Alloc(fBlock, alloc);
     fByte = fBlock->data();
     fRemaining = alloc - sizeof(Block);
-
-#if defined(SK_BUILD_FOR_MAC)
-    SkASSERT(alloc == malloc_good_size(alloc));
-#elif defined(SK_BUILD_FOR_UNIX) && !defined(__UCLIBC__)
-    // TODO(mtklein): tune so we can assert something like this
-    //SkASSERT(alloc == malloc_usable_size(fBlock));
-#endif
 }
