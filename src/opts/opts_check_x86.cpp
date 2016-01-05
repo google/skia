@@ -161,17 +161,6 @@ void SkBitmapProcState::platformProcs() {
         }
     }
 
-    /* Check fSampleProc16 */
-    if (fSampleProc16 == S32_D16_filter_DX) {
-        if (ssse3) {
-            fSampleProc16 = S32_D16_filter_DX_SSSE3;
-        } else {
-            fSampleProc16 = S32_D16_filter_DX_SSE2;
-        }
-    } else if (ssse3 && fSampleProc16 == S32_D16_filter_DXDY) {
-        fSampleProc16 = S32_D16_filter_DXDY_SSSE3;
-    }
-
     /* Check fMatrixProc */
     if (fMatrixProc == ClampX_ClampY_filter_scale) {
         fMatrixProc = ClampX_ClampY_filter_scale_SSE2;

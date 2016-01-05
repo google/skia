@@ -34,15 +34,12 @@ public:
         ColorShaderContext(const SkColorShader& shader, const ContextRec&);
 
         uint32_t getFlags() const override;
-        uint8_t getSpan16Alpha() const override;
         void shadeSpan(int x, int y, SkPMColor span[], int count) override;
-        void shadeSpan16(int x, int y, uint16_t span[], int count) override;
         void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) override;
 
     private:
         SkPMColor   fPMColor;
         uint32_t    fFlags;
-        uint16_t    fColor16;
 
         typedef SkShader::Context INHERITED;
     };

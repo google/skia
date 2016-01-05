@@ -43,7 +43,6 @@ protected:
 
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
         ShadeProc asAShadeProc(void** ctx) override;
-        void shadeSpan16(int x, int y, uint16_t dstC[], int count) override;
 
         uint32_t getFlags() const override { return fFlags; }
 

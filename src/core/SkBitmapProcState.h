@@ -46,11 +46,6 @@ struct SkBitmapProcState {
                                  int count,
                                  SkPMColor colors[]);
 
-    typedef void (*SampleProc16)(const SkBitmapProcState&,
-                                 const uint32_t[],
-                                 int count,
-                                 uint16_t colors[]);
-
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
     typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
@@ -117,7 +112,6 @@ struct SkBitmapProcState {
     MatrixProc getMatrixProc() const { return fMatrixProc; }
 #endif
     SampleProc32 getSampleProc32() const { return fSampleProc32; }
-    SampleProc16 getSampleProc16() const { return fSampleProc16; }
 
 private:
     friend class SkBitmapProcShader;
@@ -128,7 +122,6 @@ private:
     // These are used if the shaderproc is nullptr
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
-    SampleProc16        fSampleProc16;      // chooseProcs
 
     const SkBitmapProvider fProvider;
 

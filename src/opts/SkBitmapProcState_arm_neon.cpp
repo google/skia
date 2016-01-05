@@ -15,7 +15,6 @@
 
 // Required to ensure the table is part of the final binary.
 extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];
-extern const SkBitmapProcState::SampleProc16 gSkBitmapProcStateSample16_neon[];
 
 #define   NAME_WRAP(x)  x ## _neon
 #include "SkBitmapProcState_filter_neon.h"
@@ -77,30 +76,6 @@ const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[] = {
     SG8_alpha_D32_filter_DXDY_neon,
     SG8_alpha_D32_filter_DX_neon,
     SG8_alpha_D32_filter_DX_neon,
-};
-
-const SkBitmapProcState::SampleProc16 gSkBitmapProcStateSample16_neon[] = {
-    S32_D16_nofilter_DXDY_neon,
-    S32_D16_nofilter_DX_neon,
-    S32_D16_filter_DXDY_neon,
-    S32_D16_filter_DX_neon,
-
-    S16_D16_nofilter_DXDY_neon,
-    S16_D16_nofilter_DX_neon,
-    S16_D16_filter_DXDY_neon,
-    S16_D16_filter_DX_neon,
-
-    SI8_D16_nofilter_DXDY_neon,
-    SI8_D16_nofilter_DX_neon,
-    SI8_D16_filter_DXDY_neon,
-    SI8_D16_filter_DX_neon,
-
-    // Don't support 4444 -> 565
-    nullptr, nullptr, nullptr, nullptr,
-    // Don't support A8 -> 565
-    nullptr, nullptr, nullptr, nullptr,
-    // Don't support G8 -> 565 (but we could)
-    nullptr, nullptr, nullptr, nullptr,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -46,9 +46,6 @@ uint32_t SkFilterShader::FilterShaderContext::getFlags() const {
     uint32_t shaderF = fShaderContext->getFlags();
     uint32_t filterF = filterShader.fFilter->getFlags();
 
-    // filters don't support 16bit, so clear the matching bit in the shader
-    shaderF &= ~SkShader::kHasSpan16_Flag;
-
     // if the filter might change alpha, clear the opaque flag in the shader
     if (!(filterF & SkColorFilter::kAlphaUnchanged_Flag)) {
         shaderF &= ~SkShader::kOpaqueAlpha_Flag;
