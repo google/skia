@@ -178,6 +178,7 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
     switch (type) {
         default:
             SkFAIL("Unsupported type conversion");
+            return kVoid_GrSLType;
         case kUByte_GrVertexAttribType:
         case kFloat_GrVertexAttribType:
             return kFloat_GrSLType;
