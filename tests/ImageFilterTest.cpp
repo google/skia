@@ -1261,6 +1261,53 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     REPORTER_ASSERT(reporter, *bm.getAddr32(0, 0) == SkPreMultiplyColor(SK_ColorGREEN));
 }
 
+static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas) {
+    SkBitmap largeBmp;
+    int largeW = 5000;
+    int largeH = 5000;
+#if SK_SUPPORT_GPU
+    // If we're GPU-backed make the bitmap too large to be converted into a texture.
+    if (GrContext* ctx = canvas->getGrContext()) {
+        largeW = ctx->caps()->maxTextureSize() + 1;
+    }
+#endif
+
+    largeBmp.allocN32Pixels(largeW, largeH);
+    if (!largeBmp.getPixels()) {
+        ERRORF(reporter, "Failed to allocate large bmp.");
+        return;
+    }
+
+    SkAutoTUnref<SkImage> largeImage(SkImage::NewFromBitmap(largeBmp));
+    if (!largeImage) {
+        ERRORF(reporter, "Failed to create large image.");
+        return;
+    }
+
+    SkAutoTUnref<SkImageFilter> largeSource(SkImageSource::Create(largeImage));
+    if (!largeSource) {
+        ERRORF(reporter, "Failed to create large SkImageSource.");
+        return;
+    }
+
+    SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(10.f, 10.f, largeSource));
+    if (!blur) {
+        ERRORF(reporter, "Failed to create SkBlurImageFilter.");
+        return;
+    }
+
+    SkPaint paint;
+    paint.setImageFilter(blur);
+
+    // This should not crash (http://crbug.com/570479).
+    canvas->drawRect(SkRect::MakeIWH(largeW, largeH), paint);
+}
+
+DEF_TEST(BlurLargeImage, reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(SkImageInfo::MakeN32Premul(100, 100)));
+    test_large_blur_input(reporter, surface->getCanvas());
+}
+
 #if SK_SUPPORT_GPU
 
 DEF_GPUTEST_FOR_NATIVE_CONTEXT(ImageFilterCropRect_Gpu, reporter, context) {
@@ -1317,5 +1364,12 @@ DEF_GPUTEST_FOR_NATIVE_CONTEXT(TestNegativeBlurSigma_Gpu, reporter, context) {
     SkImageFilter::DeviceProxy proxy(device);
 
     test_negative_blur_sigma(&proxy, reporter);
+}
+
+DEF_GPUTEST_FOR_ALL_CONTEXTS(BlurLargeImage_Gpu, reporter, context) {
+    SkAutoTUnref<SkSurface> surface(
+        SkSurface::NewRenderTarget(context, SkSurface::kYes_Budgeted,
+                                   SkImageInfo::MakeN32Premul(100, 100)));
+    test_large_blur_input(reporter, surface->getCanvas());
 }
 #endif

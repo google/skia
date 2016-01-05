@@ -544,7 +544,10 @@ bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
                 return false;
             }
             SkAutoTUnref<GrTexture> resultTex(
-                GrRefCachedBitmapTexture(context, *result,GrTextureParams::ClampNoFilter()));
+                GrRefCachedBitmapTexture(context, *result, GrTextureParams::ClampNoFilter()));
+            if (!resultTex) {
+                return false;
+            }
             result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
         }
         return true;
