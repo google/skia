@@ -172,6 +172,11 @@ private:
                        GrPixelConfig config, const void* buffer,
                        size_t rowBytes) override;
 
+    bool onTransferPixels(GrSurface*,
+                          int left, int top, int width, int height,
+                          GrPixelConfig config, GrTransferBuffer* buffer,
+                          size_t offset, size_t rowBytes) override;
+
     void onResolveRenderTarget(GrRenderTarget* target) override;
 
     void onDraw(const DrawArgs&, const GrNonInstancedVertices&) override;
@@ -284,9 +289,14 @@ private:
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
 
     // helper for onCreateTexture and writeTexturePixels
+    enum UploadType {
+        kNewTexture_UploadType,    // we are creating a new texture
+        kWrite_UploadType,         // we are using TexSubImage2D to copy data to an existing texture
+        kTransfer_UploadType,      // we are using a transfer buffer to copy data
+    };
     bool uploadTexData(const GrSurfaceDesc& desc,
                        GrGLenum target,
-                       bool isNewTexture,
+                       UploadType uploadType,
                        int left, int top, int width, int height,
                        GrPixelConfig dataConfig,
                        const void* data,
@@ -301,7 +311,7 @@ private:
     bool uploadCompressedTexData(const GrSurfaceDesc& desc,
                                  GrGLenum target,
                                  const void* data,
-                                 bool isNewTexture = true,
+                                 UploadType uploadType = kNewTexture_UploadType,
                                  int left = 0, int top = 0,
                                  int width = -1, int height = -1);
 

@@ -129,11 +129,6 @@ public:
      */
     GrIndexBuffer* createIndexBuffer(size_t size, bool dynamic);
 
-    enum TransferType {
-        kCpuToGpu_TransferType,
-        kGpuToCpu_TransferType
-    };
-
     /**
      * Creates a transfer buffer.
      *
@@ -266,6 +261,25 @@ public:
                      size_t rowBytes);
 
     /**
+     * Updates the pixels in a rectangle of a surface using a GrTransferBuffer
+     *
+     * @param surface       The surface to write to.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        GrTransferBuffer to read pixels from
+     * @param offset        offset from the start of the buffer
+     * @param rowBytes      number of bytes between consecutive rows. Zero
+     *                      means rows are tightly packed.
+     */
+    bool transferPixels(GrSurface* surface,
+                        int left, int top, int width, int height,
+                        GrPixelConfig config, GrTransferBuffer* buffer,
+                        size_t offset, size_t rowBytes);
+
+    /**
      * Clear the passed in render target. Ignores the draw state and clip.
      */
     void clear(const SkIRect& rect, GrColor color, GrRenderTarget* renderTarget);
@@ -344,6 +358,7 @@ public:
             fShaderCompilations = 0;
             fTextureCreates = 0;
             fTextureUploads = 0;
+            fTransfersToTexture = 0;
             fStencilAttachmentCreates = 0;
             fNumDraws = 0;
         }
@@ -356,6 +371,8 @@ public:
         void incTextureCreates() { fTextureCreates++; }
         int textureUploads() const { return fTextureUploads; }
         void incTextureUploads() { fTextureUploads++; }
+        int transfersToTexture() const { return fTransfersToTexture; }
+        void incTransfersToTexture() { fTransfersToTexture++; }
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
         void incNumDraws() { fNumDraws++; }
         void dump(SkString*);
@@ -366,6 +383,7 @@ public:
         int fShaderCompilations;
         int fTextureCreates;
         int fTextureUploads;
+        int fTransfersToTexture;
         int fStencilAttachmentCreates;
         int fNumDraws;
 #else
@@ -375,6 +393,7 @@ public:
         void incShaderCompilations() {}
         void incTextureCreates() {}
         void incTextureUploads() {}
+        void incTransfersToTexture() {}
         void incStencilAttachmentCreates() {}
         void incNumDraws() {}
 #endif
@@ -507,6 +526,12 @@ private:
                                int left, int top, int width, int height,
                                GrPixelConfig config, const void* buffer,
                                size_t rowBytes) = 0;
+
+    // overridden by backend-specific derived class to perform the surface write
+    virtual bool onTransferPixels(GrSurface*,
+                                  int left, int top, int width, int height,
+                                  GrPixelConfig config, GrTransferBuffer* buffer,
+                                  size_t offset, size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
     virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;

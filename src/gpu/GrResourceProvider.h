@@ -112,6 +112,7 @@ public:
     };
     GrIndexBuffer* createIndexBuffer(size_t size, BufferUsage, uint32_t flags);
     GrVertexBuffer* createVertexBuffer(size_t size, BufferUsage, uint32_t flags);
+    GrTransferBuffer* createTransferBuffer(size_t size, TransferType, uint32_t flags);
 
     GrTexture* createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
         SkASSERT(0 == flags || kNoPendingIO_Flag == flags);

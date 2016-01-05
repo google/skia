@@ -146,6 +146,16 @@ GrVertexBuffer* GrResourceProvider::createVertexBuffer(size_t size, BufferUsage 
     return this->gpu()->createVertexBuffer(size, dynamic);
 }
 
+GrTransferBuffer* GrResourceProvider::createTransferBuffer(size_t size, TransferType type,
+                                                           uint32_t flags) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    //bool noPendingIO = SkToBool(flags & kNoPendingIO_Flag);
+    return this->gpu()->createTransferBuffer(size, type);
+}
+
 GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
                                               int width, int height,
                                               int numPlotsX, int numPlotsY,

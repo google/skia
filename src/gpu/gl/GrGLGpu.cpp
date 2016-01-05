@@ -593,11 +593,8 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     return true;
 }
 
-bool GrGLGpu::onWritePixels(GrSurface* surface,
-                            int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer,
-                            size_t rowBytes) {
-    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
+static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surface,
+                                            GrPixelConfig config) {
     if (!glTex) {
         return false;
     }
@@ -607,8 +604,21 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
         return false;
     }
 
-    // Write pixels is only implemented for TEXTURE_2D textures
+    // Write or transfer of pixels is only implemented for TEXTURE_2D textures
     if (GR_GL_TEXTURE_2D != glTex->target()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool GrGLGpu::onWritePixels(GrSurface* surface,
+                            int left, int top, int width, int height,
+                            GrPixelConfig config, const void* buffer,
+                            size_t rowBytes) {
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
+
+    if (!check_write_and_transfer_input(glTex, surface, config)) {
         return false;
     }
 
@@ -619,12 +629,49 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
     if (GrPixelConfigIsCompressed(glTex->desc().fConfig)) {
         // We check that config == desc.fConfig in GrGLGpu::canWriteTexturePixels()
         SkASSERT(config == glTex->desc().fConfig);
-        success = this->uploadCompressedTexData(glTex->desc(), glTex->target(), buffer, false, left,
-                                                top, width, height);
+        success = this->uploadCompressedTexData(glTex->desc(), glTex->target(), buffer, 
+                                                kWrite_UploadType, left, top, width, height);
     } else {
-        success = this->uploadTexData(glTex->desc(), glTex->target(), false, left, top, width,
-                                      height, config, buffer, rowBytes);
+        success = this->uploadTexData(glTex->desc(), glTex->target(), kWrite_UploadType,
+                                      left, top, width, height, config, buffer, rowBytes);
     }
+
+    if (success) {
+        glTex->texturePriv().dirtyMipMaps(true);
+        return true;
+    }
+
+    return false;
+}
+
+bool GrGLGpu::onTransferPixels(GrSurface* surface,
+                               int left, int top, int width, int height,
+                               GrPixelConfig config, GrTransferBuffer* buffer,
+                               size_t offset, size_t rowBytes) {
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
+
+    if (!check_write_and_transfer_input(glTex, surface, config)) {
+        return false;
+    }
+
+    // For the moment, can't transfer compressed data
+    if (GrPixelConfigIsCompressed(glTex->desc().fConfig)) {
+        return false;
+    }
+
+    this->setScratchTextureUnit();
+    GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
+
+    SkASSERT(!buffer->isMapped());
+    GrGLTransferBuffer* glBuffer = reinterpret_cast<GrGLTransferBuffer*>(buffer);
+    // bind the transfer buffer
+    SkASSERT(GR_GL_PIXEL_UNPACK_BUFFER == glBuffer->bufferType() ||
+             GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM == glBuffer->bufferType());
+    GL_CALL(BindBuffer(glBuffer->bufferType(), glBuffer->bufferID()));
+
+    bool success = false;
+    success = this->uploadTexData(glTex->desc(), glTex->target(), kTransfer_UploadType,
+                                  left, top, width, height, config, buffer, rowBytes);
 
     if (success) {
         glTex->texturePriv().dirtyMipMaps(true);
@@ -666,12 +713,13 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
 
 bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
                             GrGLenum target,
-                            bool isNewTexture,
+                            UploadType uploadType,
                             int left, int top, int width, int height,
                             GrPixelConfig dataConfig,
-                            const void* data,
+                            const void* dataOrOffset,
                             size_t rowBytes) {
-    SkASSERT(data || isNewTexture);
+    SkASSERT(dataOrOffset || kNewTexture_UploadType == uploadType || 
+             kTransfer_UploadType == uploadType);
 
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
@@ -680,7 +728,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
 
     size_t bpp = GrBytesPerPixel(dataConfig);
     if (!GrSurfacePriv::AdjustWritePixelParams(desc.fWidth, desc.fHeight, bpp, &left, &top,
-                                               &width, &height, &data, &rowBytes)) {
+                                               &width, &height, &dataOrOffset, &rowBytes)) {
         return false;
     }
     size_t trimRowBytes = width * bpp;
@@ -711,7 +759,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     bool restoreGLRowLength = false;
     bool swFlipY = false;
     bool glFlipY = false;
-    if (data) {
+    if (dataOrOffset) {
         if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
             if (this->glCaps().unpackFlipYSupport()) {
                 glFlipY = true;
@@ -726,11 +774,11 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
                 GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
                 restoreGLRowLength = true;
             }
-        } else {
+        } else if (kTransfer_UploadType != uploadType) {
             if (trimRowBytes != rowBytes || swFlipY) {
                 // copy data into our new storage, skipping the trailing bytes
                 size_t trimSize = height * trimRowBytes;
-                const char* src = (const char*)data;
+                const char* src = (const char*)dataOrOffset;
                 if (swFlipY) {
                     src += (height - 1) * rowBytes;
                 }
@@ -745,8 +793,10 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
                     dst += trimRowBytes;
                 }
                 // now point data to our copied version
-                data = tempStorage.get();
+                dataOrOffset = tempStorage.get();
             }
+        } else {
+            return false;
         }
         if (glFlipY) {
             GL_CALL(PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
@@ -754,14 +804,15 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, config_alignment(dataConfig)));
     }
     bool succeeded = true;
-    if (isNewTexture) {
-        if (data && !(0 == left && 0 == top && desc.fWidth == width && desc.fHeight == height)) {
+    if (kNewTexture_UploadType == uploadType) {
+        if (dataOrOffset && 
+            !(0 == left && 0 == top && desc.fWidth == width && desc.fHeight == height)) {
             succeeded = false;
         } else {
             CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
             GL_ALLOC_CALL(this->glInterface(), TexImage2D(target, 0, internalFormat, desc.fWidth,
                                                           desc.fHeight, 0,  externalFormat,
-                                                          externalType, data));
+                                                          externalType, dataOrOffset));
             GrGLenum error = check_alloc_error(desc, this->glInterface());
             if (error != GR_GL_NO_ERROR) {
                 succeeded = false;
@@ -775,7 +826,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
                               0, // level
                               left, top,
                               width, height,
-                              externalFormat, externalType, data));
+                              externalFormat, externalType, dataOrOffset));
     }
 
     if (restoreGLRowLength) {
@@ -796,10 +847,11 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
 bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
                                       GrGLenum target,
                                       const void* data,
-                                      bool isNewTexture,
+                                      UploadType uploadType,
                                       int left, int top, int width, int height) {
     SkASSERT(this->caps()->isConfigTexturable(desc.fConfig));
-    SkASSERT(data || isNewTexture);
+    SkASSERT(kTransfer_UploadType != uploadType && 
+             (data || kNewTexture_UploadType != uploadType));
 
     // No support for software flip y, yet...
     SkASSERT(kBottomLeft_GrSurfaceOrigin != desc.fOrigin);
@@ -830,7 +882,7 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
     // sized vs base internal format distinction for compressed textures.
     GrGLenum internalFormat =this->glCaps().configGLFormats(desc.fConfig).fSizedInternalFormat;
 
-    if (isNewTexture) {
+    if (kNewTexture_UploadType == uploadType) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         GL_ALLOC_CALL(this->glInterface(),
                       CompressedTexImage2D(target,
@@ -1076,7 +1128,7 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
                           GR_GL_TEXTURE_WRAP_T,
                           initialTexParams.fWrapT));
-    if (!this->uploadTexData(desc, idDesc.fInfo.fTarget, true, 0, 0,
+    if (!this->uploadTexData(desc, idDesc.fInfo.fTarget, kNewTexture_UploadType, 0, 0,
                              desc.fWidth, desc.fHeight,
                              desc.fConfig, srcData, rowBytes)) {
         GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
@@ -1438,16 +1490,17 @@ GrTransferBuffer* GrGLGpu::onCreateTransferBuffer(size_t size, TransferType xfer
     if (desc.fID) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // make sure driver can allocate memory for this bmapuffer
-        GrGLenum type;
+        GrGLenum target;
         if (GrGLCaps::kChromium_TransferBufferType == xferBufferType) {
-            type = toGpu ? GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM
+            target = toGpu ? GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM
                          : GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM;
         } else {
             SkASSERT(GrGLCaps::kPBO_TransferBufferType == xferBufferType);
-            type = toGpu ? GR_GL_PIXEL_UNPACK_BUFFER : GR_GL_PIXEL_PACK_BUFFER;
+            target = toGpu ? GR_GL_PIXEL_UNPACK_BUFFER : GR_GL_PIXEL_PACK_BUFFER;
         }
-        GL_ALLOC_CALL(this->glInterface(),
-                      BufferData(type,
+        GL_CALL(BindBuffer(target, desc.fID));
+        GL_ALLOC_CALL(this->glInterface(), 
+                      BufferData(target,
                                  (GrGLsizeiptr) desc.fSizeInBytes,
                                  nullptr,  // data ptr
                                  (toGpu ? GR_GL_STREAM_DRAW : GR_GL_STREAM_READ)));
@@ -1455,7 +1508,7 @@ GrTransferBuffer* GrGLGpu::onCreateTransferBuffer(size_t size, TransferType xfer
             GL_CALL(DeleteBuffers(1, &desc.fID));
             return nullptr;
         }
-        GrTransferBuffer* transferBuffer = new GrGLTransferBuffer(this, desc, type);
+        GrTransferBuffer* transferBuffer = new GrGLTransferBuffer(this, desc, target);
         return transferBuffer;
     }
 
@@ -1655,11 +1708,14 @@ void* GrGLGpu::mapBuffer(GrGLuint id, GrGLenum type, GrGLBufferImpl::Usage usage
             if (currentSize != requestedSize) {
                 GL_CALL(BufferData(type, requestedSize, nullptr, glUsage));
             }
-            static const GrGLbitfield kWriteAccess = GR_GL_MAP_INVALIDATE_BUFFER_BIT |
-                                                     GR_GL_MAP_WRITE_BIT;
+            GrGLbitfield writeAccess = GR_GL_MAP_WRITE_BIT;
+            // TODO: allow the client to specify invalidation in the stream draw case
+            if (GrGLBufferImpl::kStreamDraw_Usage != usage) {
+                writeAccess |= GR_GL_MAP_INVALIDATE_BUFFER_BIT;
+            }
             GL_CALL_RET(mapPtr, MapBufferRange(type, 0, requestedSize, readOnly ? 
                                                                        GR_GL_MAP_READ_BIT :                                                       
-                                                                       kWriteAccess));
+                                                                       writeAccess));
             break;
         }
         case GrGLCaps::kChromium_MapBufferType:

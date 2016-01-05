@@ -23,6 +23,7 @@ public:
 
     GrGLuint bufferID() const { return fImpl.bufferID(); }
     size_t baseOffset() const { return fImpl.baseOffset(); }
+    GrGLenum bufferType() const { return fImpl.bufferType(); }
 
 protected:
     void onAbandon() override;

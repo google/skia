@@ -46,6 +46,7 @@ public:
 
     GrGLuint bufferID() const { return fDesc.fID; }
     size_t baseOffset() const { return reinterpret_cast<size_t>(fCPUData); }
+    GrGLenum bufferType() const { return fBufferType; }
 
     void* map(GrGLGpu* gpu);
     void unmap(GrGLGpu* gpu);
@@ -56,7 +57,7 @@ private:
     void validate() const;
 
     Desc         fDesc;
-    GrGLenum     fBufferType; // GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
+    GrGLenum     fBufferType; // GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER, e.g.
     void*        fCPUData;
     void*        fMapPtr;
     size_t       fGLSizeInBytes;     // In certain cases we make the size of the GL buffer object

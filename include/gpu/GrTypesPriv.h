@@ -268,6 +268,17 @@ private:
     SkIRect fRect;
 };
 
+/**
+ * Indicates the transfer direction for a transfer buffer
+ */
+enum TransferType {
+    /** Caller intends to use the buffer to transfer data to the GPU */
+    kCpuToGpu_TransferType,
+    /** Caller intends to use the buffer to transfer data from the GPU */
+    kGpuToCpu_TransferType
+};
+
+
 #ifdef SK_DEBUG
 // Takes a pointer to a GrCaps, and will suppress prints if required
 #define GrCapsDebugf(caps, ...)         \

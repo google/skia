@@ -334,13 +334,28 @@ bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, const void* buffer,
                         size_t rowBytes) {
-    if (!buffer) {
+    if (!buffer || !surface) {
         return false;
     }
 
     this->handleDirtyContext();
     if (this->onWritePixels(surface, left, top, width, height, config, buffer, rowBytes)) {
         fStats.incTextureUploads();
+        return true;
+    }
+    return false;
+}
+
+bool GrGpu::transferPixels(GrSurface* surface,
+                           int left, int top, int width, int height,
+                           GrPixelConfig config, GrTransferBuffer* buffer,
+                           size_t offset, size_t rowBytes) {
+    SkASSERT(buffer);
+
+    this->handleDirtyContext();
+    if (this->onTransferPixels(surface, left, top, width, height, config, 
+                               buffer, offset, rowBytes)) {
+        fStats.incTransfersToTexture();
         return true;
     }
     return false;

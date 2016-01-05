@@ -173,6 +173,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
     out->appendf("Texture Uploads: %d\n", fTextureUploads);
+    out->appendf("Transfers to Texture: %d\n", fTransfersToTexture);
     out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
     out->appendf("Number of draws: %d\n", fNumDraws);
 }
@@ -182,6 +183,7 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
     keys->push_back(SkString("textures_created")); values->push_back(fTextureCreates);
     keys->push_back(SkString("texture_uploads")); values->push_back(fTextureUploads);
+    keys->push_back(SkString("transfers_to_texture")); values->push_back(fTransfersToTexture);
     keys->push_back(SkString("stencil_buffer_creates")); values->push_back(fStencilAttachmentCreates);
     keys->push_back(SkString("number_of_draws")); values->push_back(fNumDraws);
 }
@@ -334,6 +336,13 @@ private:
                        int left, int top, int width, int height,
                        GrPixelConfig config, const void* buffer,
                        size_t rowBytes) override {
+        return false;
+    }
+
+    bool onTransferPixels(GrSurface* surface,
+                          int left, int top, int width, int height,
+                          GrPixelConfig config, GrTransferBuffer* buffer,
+                          size_t offset, size_t rowBytes) override {
         return false;
     }
 
