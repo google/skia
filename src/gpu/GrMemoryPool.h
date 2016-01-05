@@ -44,7 +44,7 @@ public:
     bool isEmpty() const { return fTail == fHead && !fHead->fLiveCount; }
 
     /**
-     * Returns the total allocated size of the GrMemoryPool
+     * Returns the total allocated size of the GrMemoryPool minus any preallocated amount
      */
     size_t size() const { return fSize; }
 

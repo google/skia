@@ -21,7 +21,7 @@ GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
     fMinAllocSize = GrSizeAlignUp(minAllocSize + kPerAllocPad, kAlignment),
     fPreallocSize = GrSizeAlignUp(preallocSize + kPerAllocPad, kAlignment);
     fPreallocSize = SkTMax(fPreallocSize, fMinAllocSize);
-    fSize = fPreallocSize;
+    fSize = 0;
 
     fHead = CreateBlock(fPreallocSize);
     fTail = fHead;
@@ -165,6 +165,6 @@ void GrMemoryPool::validate() {
     } while ((block = block->fNext));
     SkASSERT(allocCount == fAllocationCnt);
     SkASSERT(prev == fTail);
-    SkASSERT(fAllocBlockCnt != 0 || fSize == fPreallocSize);
+    SkASSERT(fAllocBlockCnt != 0 || fSize == 0);
 #endif
 }
