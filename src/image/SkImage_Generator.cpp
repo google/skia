@@ -24,7 +24,7 @@ public:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
     SkImageCacherator* peekCacherator() const override { return fCache; }
-    SkData* onRefEncoded() const override;
+    SkData* onRefEncoded(GrContext*) const override;
     bool isOpaque() const override { return fCache->info().isOpaque(); }
     SkImage* onNewSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
@@ -66,8 +66,8 @@ const void* SkImage_Generator::onPeekPixels(SkImageInfo* infoPtr, size_t* rowByt
     return NULL;
 }
 
-SkData* SkImage_Generator::onRefEncoded() const {
-    return fCache->refEncoded();
+SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
+    return fCache->refEncoded(ctx);
 }
 
 bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {

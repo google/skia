@@ -137,7 +137,7 @@ bool SkImageGenerator::generateScaledPixels(const SkISize& scaledSize,
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-SkData* SkImageGenerator::onRefEncodedData() {
+SkData* SkImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
     return nullptr;
 }
 

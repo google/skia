@@ -68,7 +68,7 @@ public:
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
-    SkData* onRefEncoded() const override;
+    SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
     SkImage* onNewSubset(const SkIRect&) const override;
@@ -150,7 +150,7 @@ const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesP
     return fBitmap.getPixels();
 }
 
-SkData* SkImage_Raster::onRefEncoded() const {
+SkData* SkImage_Raster::onRefEncoded(GrContext*) const {
     SkPixelRef* pr = fBitmap.pixelRef();
     const SkImageInfo prInfo = pr->info();
     const SkImageInfo bmInfo = fBitmap.info();

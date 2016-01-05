@@ -22,6 +22,12 @@ class SkMatrix;
 class SkPaint;
 class SkPicture;
 
+#ifdef SK_SUPPORT_LEGACY_REFENCODEDDATA_NOCTX
+    #define SK_REFENCODEDDATA_CTXPARAM
+#else
+    #define SK_REFENCODEDDATA_CTXPARAM  GrContext* ctx
+#endif
+
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
  *  whatever reason, it will return false and immediatetely delete
@@ -64,12 +70,20 @@ public:
 
     /**
      *  Return a ref to the encoded (i.e. compressed) representation,
-     *  of this data.
+     *  of this data. If the GrContext is non-null, then the caller is only interested in
+     *  gpu-specific formats, so the impl may return null even if they have encoded data,
+     *  assuming they know it is not suitable for the gpu.
      *
      *  If non-NULL is returned, the caller is responsible for calling
      *  unref() on the data when it is finished.
      */
-    SkData* refEncodedData() { return this->onRefEncodedData(); }
+    SkData* refEncodedData(GrContext* ctx = nullptr) {
+#ifdef SK_SUPPORT_LEGACY_REFENCODEDDATA_NOCTX
+        return this->onRefEncodedData();
+#else
+        return this->onRefEncodedData(ctx);
+#endif
+    }
 
     /**
      *  Return the ImageInfo associated with this generator.
@@ -230,7 +244,7 @@ public:
 protected:
     SkImageGenerator(const SkImageInfo& info);
 
-    virtual SkData* onRefEncodedData();
+    virtual SkData* onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM);
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount);

@@ -69,9 +69,9 @@ SkImageCacherator::SkImageCacherator(SkImageGenerator* gen, const SkImageInfo& i
     , fUniqueID(uniqueID)
 {}
 
-SkData* SkImageCacherator::refEncoded() {
+SkData* SkImageCacherator::refEncoded(GrContext* ctx) {
     ScopedGenerator generator(this);
-    return generator->refEncodedData();
+    return generator->refEncodedData(ctx);
 }
 
 static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
@@ -259,7 +259,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo);
 
     // 3. Ask the generator to return a compressed form that the GPU might support
-    SkAutoTUnref<SkData> data(this->refEncoded());
+    SkAutoTUnref<SkData> data(this->refEncoded(ctx));
     if (data) {
         GrTexture* tex = load_compressed_into_texture(ctx, data, desc);
         if (tex) {
