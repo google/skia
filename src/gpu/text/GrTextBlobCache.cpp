@@ -55,4 +55,7 @@ void GrTextBlobCache::freeAll() {
         ++iter;
     }
     fCache.rewind();
+
+    // There should be no allocations in the memory pool at this point
+    SkASSERT(fPool.isEmpty());
 }

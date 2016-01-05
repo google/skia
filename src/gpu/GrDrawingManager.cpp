@@ -20,6 +20,9 @@ void GrDrawingManager::cleanup() {
         fDrawTargets[i]->makeClosed();  // no drawTarget should receive a new command after this
         fDrawTargets[i]->clearRT();
 
+        // We shouldn't need to do this, but it turns out some clients still hold onto drawtargets
+        // after a cleanup
+        fDrawTargets[i]->reset();
         fDrawTargets[i]->unref();
     }
 
