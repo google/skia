@@ -19,7 +19,7 @@
    match-leak-kinds: possible
    ...
    fun:_ZN8SkThreadC1EPFvPvES0_
-   fun:_ZL15start_keepalivev
+   ...
    fun:_Z14nanobench_mainv
    fun:main
 }
