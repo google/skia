@@ -33,7 +33,6 @@ class SampleWindow : public SkOSWindow {
 public:
     enum DeviceType {
         kRaster_DeviceType,
-        kPicture_DeviceType,
 #if SK_SUPPORT_GPU
         kGPU_DeviceType,
 #if SK_ANGLE
@@ -181,6 +180,7 @@ private:
     SkAutoTUnref<SkDocument> fPDFDocument;
 
     bool fUseClip;
+    bool fUseMPD;
     bool fAnimating;
     bool fRotate;
     bool fPerspAnim;

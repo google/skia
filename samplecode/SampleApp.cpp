@@ -189,7 +189,6 @@ public:
 #if SK_SUPPORT_GPU
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
-            case kPicture_DeviceType:    // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native backend
                 fBackend = kNativeGL_BackEndType;
@@ -222,7 +221,6 @@ public:
         SkAutoTUnref<const GrGLInterface> glInterface;
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
-            case kPicture_DeviceType:   // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native interface
                 glInterface.reset(GrGLCreateNativeInterface());
@@ -678,17 +676,16 @@ void SampleWindow::updatePointer(int x, int y) {
 
 static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType ct) {
     static const SampleWindow::DeviceType gCT[] = {
-        SampleWindow::kPicture_DeviceType,
+        SampleWindow::kRaster_DeviceType
 #if SK_SUPPORT_GPU
-        SampleWindow::kGPU_DeviceType,
+        , SampleWindow::kGPU_DeviceType
 #if SK_ANGLE
-        SampleWindow::kANGLE_DeviceType,
+        , SampleWindow::kANGLE_DeviceType
 #endif // SK_ANGLE
 #if SK_COMMAND_BUFFER
-        SampleWindow::kCommandBuffer_DeviceType,
+        , SampleWindow::kCommandBuffer_DeviceType
 #endif // SK_COMMAND_BUFFER
 #endif // SK_SUPPORT_GPU
-        SampleWindow::kRaster_DeviceType,
     };
     static_assert(SK_ARRAY_COUNT(gCT) == SampleWindow::kDeviceTypeCnt, "array_size_mismatch");
     return gCT[ct];
@@ -862,6 +859,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #endif
 
     fUseClip = false;
+    fUseMPD = false;
     fAnimating = false;
     fRotate = false;
     fPerspAnim = false;
@@ -895,15 +893,16 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->setTitle("Global Settings");
     int itemID;
 
-    itemID =fAppMenu->appendList("Device Type", "Device Type", sinkID, 0,
-                                "Raster", "Picture", "OpenGL",
+    itemID = fAppMenu->appendList("Device Type", "Device Type", sinkID, 0,
+                                  "Raster",
+                                  "OpenGL",
 #if SK_ANGLE
-                                "ANGLE",
+                                  "ANGLE",
 #endif
 #if SK_COMMAND_BUFFER
-                                "Command Buffer",
+                                  "Command Buffer",
 #endif
-                                nullptr);
+                                  nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'd');
     itemID = fAppMenu->appendTriState("AA", "AA", sinkID, fAAState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'b');
@@ -1331,7 +1330,9 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
 #endif
         fPDFDocument.reset(SkDocument::CreatePDF(name.c_str()));
         canvas = fPDFDocument->beginPage(this->width(), this->height());
-    } else if (kPicture_DeviceType == fDeviceType) {
+    } else if (fSaveToSKP) {
+        canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
+    } else if (fUseMPD) {
         canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
     } else {
         canvas = this->INHERITED::beforeChildren(canvas);
@@ -1380,17 +1381,21 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             SkImageEncoder::EncodeFile(name.c_str(), bmp,
                                        SkImageEncoder::kPNG_Type, 100);
         }
+        this->inval(nullptr);
+        return;
     }
 
-    if (kPicture_DeviceType == fDeviceType) {
+    if (fSaveToSKP) {
         SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
+        SkFILEWStream stream("sample_app.skp");
+        picture->serialize(&stream);
+        fSaveToSKP = false;
+        this->inval(nullptr);
+        return;
+    }
 
-        if (fSaveToSKP) {
-            SkFILEWStream stream("sample_app.skp");
-            picture->serialize(&stream);
-            fSaveToSKP = false;
-        }
-
+    if (fUseMPD) {
+        SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
         if (true) {
             if (true) {
                 SkImageInfo info;
@@ -1791,6 +1796,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             fSaveToSKP = true;
             this->inval(nullptr);
             return true;
+        case 'M':
+            fUseMPD = !fUseMPD;
+            this->inval(nullptr);
+            this->updateTitle();
+            return true;
 #if SK_SUPPORT_GPU
         case 'p':
             {
@@ -2011,7 +2021,6 @@ void SampleWindow::loadView(SkView* view) {
 
 static const char* gDeviceTypePrefix[] = {
     "raster: ",
-    "picture: ",
 #if SK_SUPPORT_GPU
     "opengl: ",
 #if SK_ANGLE
@@ -2064,6 +2073,9 @@ void SampleWindow::updateTitle() {
     }
     if (this->getSurfaceProps().flags() & SkSurfaceProps::kUseDeviceIndependentFonts_Flag) {
         title.prepend("<DIF> ");
+    }
+    if (fUseMPD) {
+        title.prepend("<MPD> ");
     }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));

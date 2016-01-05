@@ -54,9 +54,7 @@ public:
         
 #if SK_SUPPORT_GPU
         switch (win->getDeviceType()) {
-            // these two don't use GL
             case SampleWindow::kRaster_DeviceType:
-            case SampleWindow::kPicture_DeviceType:
                 break;
             // these guys use the native backend
             case SampleWindow::kGPU_DeviceType:
@@ -76,9 +74,7 @@ public:
         
         SkASSERT(NULL == fCurIntf);
         switch (win->getDeviceType()) {
-            // these two don't use GL
             case SampleWindow::kRaster_DeviceType:
-            case SampleWindow::kPicture_DeviceType:
                 fCurIntf = NULL;
                 break;
             case SampleWindow::kGPU_DeviceType:
