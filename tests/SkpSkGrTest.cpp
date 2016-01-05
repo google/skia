@@ -171,7 +171,7 @@ SkpSkGrThreadedTestRunner::~SkpSkGrThreadedTestRunner() {
 void SkpSkGrThreadedTestRunner::render() {
     // TODO: we don't really need to be using SkRunnables here anymore.
     // We can just write the code we'd run right in the for loop.
-    sk_parallel_for(fRunnables.count(), [&](int i) {
+    SkTaskGroup().batch(fRunnables.count(), [&](int i) {
         fRunnables[i]->run();
     });
 }

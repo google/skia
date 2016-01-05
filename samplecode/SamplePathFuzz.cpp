@@ -619,7 +619,7 @@ static bool contains_only_moveTo(const SkPath& path) {
 #include "SkTDArray.h"
 
 static void path_fuzz_stroker(SkBitmap* bitmap, int seed) {
-    sk_parallel_for(100, [&](int i) {
+    SkTaskGroup().batch(100, [&](int i) {
         int localSeed = seed + i;
 
         FuzzPath fuzzPath;

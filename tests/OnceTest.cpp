@@ -32,7 +32,7 @@ SK_DECLARE_STATIC_ONCE(mt_once);
 DEF_TEST(SkOnce_Multithreaded, r) {
     int x = 0;
     // Run a bunch of tasks to be the first to add six to x.
-    sk_parallel_for(1021, [&](int) {
+    SkTaskGroup().batch(1021, [&](int) {
         void(*add_six)(int*) = [](int* p) { *p += 6; };
         SkOnce(&mt_once, add_six, &x);
     });

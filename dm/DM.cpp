@@ -1093,12 +1093,13 @@ int dm_main() {
     }
 
     SkTaskGroup tg;
-    tg.batch([](int i){ run_test(&gThreadedTests[i]); }, gThreadedTests.count());
+    tg.batch(gThreadedTests.count(), [](int i){ run_test(&gThreadedTests[i]); });
     for (int i = 0; i < kNumEnclaves; i++) {
         SkTArray<Task>* currentEnclave = &enclaves[i];
         switch(i) {
             case kAnyThread_Enclave:
-                tg.batch([currentEnclave](int j) { Task::Run(&(*currentEnclave)[j]); }, currentEnclave->count());
+                tg.batch(currentEnclave->count(),
+                         [currentEnclave](int j) { Task::Run(&(*currentEnclave)[j]); });
                 break;
             case kGPU_Enclave:
                 tg.add([currentEnclave](){ run_enclave_and_gpu_tests(currentEnclave); });

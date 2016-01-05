@@ -54,12 +54,12 @@ public:
         gGlobal->add(fn, pending);
     }
 
-    static void Batch(std::function<void(int)> fn, int N, SkAtomic<int32_t>* pending) {
+    static void Batch(int N, std::function<void(int)> fn, SkAtomic<int32_t>* pending) {
         if (!gGlobal) {
             for (int i = 0; i < N; i++) { fn(i); }
             return;
         }
-        gGlobal->batch(fn, N, pending);
+        gGlobal->batch(N, fn, pending);
     }
 
     static void Wait(SkAtomic<int32_t>* pending) {
@@ -142,7 +142,7 @@ private:
         fWorkAvailable.signal(1);
     }
 
-    void batch(std::function<void(int)> fn, int N, SkAtomic<int32_t>* pending) {
+    void batch(int N, std::function<void(int)> fn, SkAtomic<int32_t>* pending) {
         pending->fetch_add(+N, sk_memory_order_relaxed);  // No barrier needed.
         {
             AutoLock lock(&fWorkLock);
@@ -196,7 +196,6 @@ private:
     static ThreadPool* gGlobal;
 
     friend struct SkTaskGroup::Enabler;
-    friend int ::sk_parallel_for_thread_count();
 };
 ThreadPool* ThreadPool::gGlobal = nullptr;
 
@@ -216,13 +215,7 @@ SkTaskGroup::SkTaskGroup() : fPending(0) {}
 void SkTaskGroup::wait()                            { ThreadPool::Wait(&fPending); }
 void SkTaskGroup::add(SkRunnable* task)             { ThreadPool::Add(task, &fPending); }
 void SkTaskGroup::add(std::function<void(void)> fn) { ThreadPool::Add(fn, &fPending); }
-void SkTaskGroup::batch (std::function<void(int)> fn, int N) {
-    ThreadPool::Batch(fn, N, &fPending);
+void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
+    ThreadPool::Batch(N, fn, &fPending);
 }
 
-int sk_parallel_for_thread_count() {
-    if (ThreadPool::gGlobal != nullptr) {
-        return ThreadPool::gGlobal->fThreads.count();
-    }
-    return 0;
-}

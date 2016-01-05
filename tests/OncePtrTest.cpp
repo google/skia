@@ -18,14 +18,7 @@ DEF_TEST(OncePtr, r) {
         return new int(5);
     };
 
-    SkAtomic<int> force_a_race(sk_parallel_for_thread_count());
-    if (force_a_race < 1) {
-        return;
-    }
-    sk_parallel_for(sk_num_cores()*4, [&](size_t) {
-        force_a_race.fetch_add(-1);
-        while (force_a_race.load() > 0);
-
+    SkTaskGroup().batch(sk_num_cores()*4, [&](size_t) {
         int* n = once.get(create);
         REPORTER_ASSERT(r, *n == 5);
     });
@@ -39,7 +32,7 @@ DEF_TEST(OnceNoPtr, r) {
     static SkAtomic<int> calls(0);
 
     SkAtomic<int> force_a_race(sk_num_cores());
-    sk_parallel_for(sk_num_cores()*4, [&](size_t) {
+    SkTaskGroup().batch(sk_num_cores()*4, [&](size_t) {
         force_a_race.fetch_add(-1);
         while (force_a_race.load() > 0);
 

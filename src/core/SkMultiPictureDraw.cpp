@@ -94,7 +94,7 @@ void SkMultiPictureDraw::draw(bool flush) {
         fThreadSafeDrawData[i].draw();
     }
 #else
-    sk_parallel_for(fThreadSafeDrawData.count(), [&](int i) {
+    SkTaskGroup().batch(fThreadSafeDrawData.count(), [&](int i) {
         fThreadSafeDrawData[i].draw();
     });
 #endif

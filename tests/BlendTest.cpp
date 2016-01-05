@@ -98,5 +98,5 @@ DEF_TEST(Blend_premul_begets_premul, r) {
     };
 
     // Parallelism helps speed things up on my desktop from ~725s to ~50s.
-    sk_parallel_for(SkXfermode::kLastMode, test_mode);
+    SkTaskGroup().batch(SkXfermode::kLastMode, test_mode);
 }

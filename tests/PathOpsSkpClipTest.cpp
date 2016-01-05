@@ -307,7 +307,7 @@ TestRunner::~TestRunner() {
 void TestRunner::render() {
     // TODO: this doesn't really need to use SkRunnables any more.
     // We can just write the code to run in the for-loop directly.
-    sk_parallel_for(fRunnables.count(), [&](int i) {
+    SkTaskGroup().batch(fRunnables.count(), [&](int i) {
         fRunnables[i]->run();
     });
 }
