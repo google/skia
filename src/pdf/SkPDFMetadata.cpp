@@ -7,6 +7,7 @@
 
 #include "SkPDFMetadata.h"
 #include "SkPDFTypes.h"
+#include <utility>
 
 #ifdef SK_PDF_GENERATE_PDFA
 #include "SkMD5.h"
@@ -117,7 +118,7 @@ static SkString sk_string_printf(const char* format, ...) {
     va_end(args);
     SkASSERT(check == length);
     SkASSERT(string[length] == '\0');
-    return skstd::move(string);
+    return std::move(string);
 #else  // C99/C++11 standard vsnprintf
     // TODO: When all compilers support this, remove windows-specific code.
     va_list args;
@@ -138,7 +139,7 @@ static SkString sk_string_printf(const char* format, ...) {
     va_end(args);
     SkASSERT(check == length);
     SkASSERT(string[length] == '\0');
-    return skstd::move(string);
+    return std::move(string);
 #endif
 }
 
@@ -185,7 +186,7 @@ static SkString uuid_to_string(const SkPDFMetadata::UUID& uuid) {
 namespace {
 class PDFXMLObject final : public SkPDFObject {
 public:
-    PDFXMLObject(SkString xml) : fXML(skstd::move(xml)) {}
+    PDFXMLObject(SkString xml) : fXML(std::move(xml)) {}
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& omap,
                     const SkPDFSubstituteMap& smap) const override {
@@ -258,7 +259,7 @@ const SkString escape_xml(const SkString& input,
     // Validate that we haven't written outside of our string.
     SkASSERT(out == &output.writable_str()[output.size()]);
     *out = '\0';
-    return skstd::move(output);
+    return std::move(output);
 }
 
 SkPDFObject* SkPDFMetadata::createXMPObject(const UUID& doc,

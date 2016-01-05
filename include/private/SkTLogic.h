@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  *
  *
- * This header provides some of the helpers (std::integral_constant) and
- * type transformations (std::conditional) which will become available with
- * C++11 in the type_traits header.
+ * This header provides some of the helpers (like std::enable_if_t) which will
+ * become available with C++14 in the type_traits header (in the skstd
+ * namespace). This header also provides several Skia specific additions such
+ * as SK_WHEN and the sknonstd namespace.
  */
 
 #ifndef SkTLogic_DEFINED
@@ -17,77 +18,46 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <type_traits>
+#include <utility>
 
 namespace skstd {
 
-using nullptr_t = decltype(nullptr);
+template <bool B> using bool_constant = std::integral_constant<bool, B>;
 
-template <typename T, T v> struct integral_constant {
-    static const/*expr*/ T value = v;
-    using value_type = T;
-    using type = integral_constant<T, v>;
-    //constexpr operator value_type() const noexcept { return value; }
-    //constexpr value_type operator()() const noexcept { return value; }
-};
+template <bool B, typename T, typename F> using conditional_t = typename std::conditional<B, T, F>::type;
+template <bool B, typename T = void> using enable_if_t = typename std::enable_if<B, T>::type;
 
-template <bool B> using bool_constant = integral_constant<bool, B>;
+template <typename T> using remove_const_t = typename std::remove_const<T>::type;
+template <typename T> using remove_volatile_t = typename std::remove_volatile<T>::type;
+template <typename T> using remove_cv_t = typename std::remove_cv<T>::type;
+template <typename T> using remove_reference_t = typename std::remove_reference<T>::type;
+template <typename T> using remove_extent_t = typename std::remove_extent<T>::type;
 
-using true_type = bool_constant<true>;
-using false_type = bool_constant<false>;
-
-template <bool B, typename T, typename F> struct conditional { using type = T; };
-template <typename T, typename F> struct conditional<false, T, F> { using type = F; };
-template <bool B, typename T, typename F> using conditional_t = typename conditional<B, T, F>::type;
-
-template <bool B, typename T = void> struct enable_if { using type = T; };
-template <typename T> struct enable_if<false, T> {};
-template <bool B, typename T = void> using enable_if_t = typename enable_if<B, T>::type;
-
-template <typename T> struct remove_const { using type = T; };
-template <typename T> struct remove_const<const T> { using type = T; };
-template <typename T> using remove_const_t = typename remove_const<T>::type;
-
-template <typename T> struct remove_volatile { using type = T; };
-template <typename T> struct remove_volatile<volatile T> { using type = T; };
-template <typename T> using remove_volatile_t = typename remove_volatile<T>::type;
-
-template <typename T> struct remove_cv { using type = remove_volatile_t<remove_const_t<T>>; };
-template <typename T> using remove_cv_t = typename remove_cv<T>::type;
-
-template <typename T> struct remove_reference { using type = T; };
-template <typename T> struct remove_reference<T&> { using type = T; };
-template <typename T> struct remove_reference<T&&> { using type = T; };
-template <typename T> using remove_reference_t = typename remove_reference<T>::type;
-
-template <typename T> struct remove_extent { using type = T; };
-template <typename T> struct remove_extent<T[]> { using type = T; };
-template <typename T, size_t N> struct remove_extent<T[N]> { using type = T;};
-template <typename T> using remove_extent_t = typename remove_extent<T>::type;
-
-template <typename T, typename U> struct is_same : false_type {};
-template <typename T> struct is_same<T, T> : true_type {};
+template <typename T, typename U> struct is_same : std::false_type {};
+template <typename T> struct is_same<T, T> : std::true_type {};
 
 template <typename T> struct is_void : is_same<void, remove_cv_t<T>> {};
 
-template <typename T> struct is_const : false_type {};
-template <typename T> struct is_const<const T> : true_type {};
+template <typename T> struct is_const : std::false_type {};
+template <typename T> struct is_const<const T> : std::true_type {};
 
-template <typename T> struct is_volatile : false_type {};
-template <typename T> struct is_volatile<volatile T> : true_type {};
+template <typename T> struct is_volatile : std::false_type {};
+template <typename T> struct is_volatile<volatile T> : std::true_type {};
 
-template <typename T> struct is_pointer_detector : false_type {};
-template <typename T> struct is_pointer_detector<T*> : true_type {};
+template <typename T> struct is_pointer_detector : std::false_type {};
+template <typename T> struct is_pointer_detector<T*> : std::true_type {};
 template <typename T> struct is_pointer : is_pointer_detector<remove_cv_t<T>> {};
 
-template <typename T> struct is_reference : false_type {};
-template <typename T> struct is_reference<T&> : true_type {};
-template <typename T> struct is_reference<T&&> : true_type {};
+template <typename T> struct is_reference : std::false_type {};
+template <typename T> struct is_reference<T&> : std::true_type {};
+template <typename T> struct is_reference<T&&> : std::true_type {};
 
-template <typename T> struct is_lvalue_reference : false_type {};
-template <typename T> struct is_lvalue_reference<T&> : true_type {};
+template <typename T> struct is_lvalue_reference : std::false_type {};
+template <typename T> struct is_lvalue_reference<T&> : std::true_type {};
 
-template <typename T> struct is_rvalue_reference : false_type {};
-template <typename T> struct is_rvalue_reference<T&&> : true_type {};
+template <typename T> struct is_rvalue_reference : std::false_type {};
+template <typename T> struct is_rvalue_reference<T&&> : std::true_type {};
 
 template <typename T> struct is_class_detector {
     using yes_type = uint8_t;
@@ -107,56 +77,46 @@ template <typename T> struct is_empty_detector<T, false> {
 };
 template <typename T> struct is_empty : bool_constant<is_empty_detector<T>::value> {};
 
-template <typename T> struct is_array : false_type {};
-template <typename T> struct is_array<T[]> : true_type {};
-template <typename T, size_t N> struct is_array<T[N]> : true_type {};
+template <typename T> struct is_array : std::false_type {};
+template <typename T> struct is_array<T[]> : std::true_type {};
+template <typename T, size_t N> struct is_array<T[N]> : std::true_type {};
 
 // template<typename R, typename... Args> struct is_function<
-//     R [calling-convention] (Args...[, ...]) [const] [volatile] [&|&&]> : true_type {};
+//     R [calling-convention] (Args...[, ...]) [const] [volatile] [&|&&]> : std::true_type {};
 // The cv and ref-qualified versions are strange types we're currently avoiding, so not supported.
 // On all platforms, variadic functions only exist in the c calling convention.
-template <typename> struct is_function : false_type { };
+template <typename> struct is_function : std::false_type {};
 #if !defined(SK_BUILD_FOR_WIN)
-template <typename R, typename... Args> struct is_function<R(Args...)> : true_type {};
+template <typename R, typename... Args> struct is_function<R(Args...)> : std::true_type {};
 #else
 #if defined(_M_IX86)
-template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : true_type {};
-template <typename R, typename... Args> struct is_function<R __stdcall (Args...)> : true_type {};
-template <typename R, typename... Args> struct is_function<R __fastcall (Args...)> : true_type {};
+template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : std::true_type {};
+template <typename R, typename... Args> struct is_function<R __stdcall (Args...)> : std::true_type {};
+template <typename R, typename... Args> struct is_function<R __fastcall (Args...)> : std::true_type {};
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : true_type {};
+template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : std::true_type {};
 #endif
 #else
-template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : true_type {};
-template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : true_type {};
+template <typename R, typename... Args> struct is_function<R __cdecl (Args...)> : std::true_type {};
+template <typename R, typename... Args> struct is_function<R __vectorcall (Args...)> : std::true_type {};
 #endif
 #endif
-template <typename R, typename... Args> struct is_function<R(Args..., ...)> : true_type {};
+template <typename R, typename... Args> struct is_function<R(Args..., ...)> : std::true_type {};
 
-template <typename T> struct add_const { using type = const T; };
-template <typename T> using add_const_t = typename add_const<T>::type;
-
-template <typename T> struct add_volatile { using type = volatile T; };
-template <typename T> using add_volatile_t = typename add_volatile<T>::type;
-
-template <typename T> struct add_cv { using type = add_volatile_t<add_const_t<T>>; };
-template <typename T> using add_cv_t = typename add_cv<T>::type;
-
-template <typename T> struct add_pointer { using type = remove_reference_t<T>*; };
-template <typename T> using add_pointer_t = typename add_pointer<T>::type;
+template <typename T> using add_const_t = typename std::add_const<T>::type;
+template <typename T> using add_volatile_t = typename std::add_volatile<T>::type;
+template <typename T> using add_cv_t = typename std::add_cv<T>::type;
+template <typename T> using add_pointer_t = typename std::add_pointer<T>::type;
 
 template <typename T, bool=is_void<T>::value> struct add_lvalue_reference_init { using type = T; };
 template <typename T> struct add_lvalue_reference_init<T, false> { using type = T&; };
-template <typename T> struct add_lvalue_reference : add_lvalue_reference_init<T> { };
+template <typename T> struct add_lvalue_reference : add_lvalue_reference_init<T> {};
 template <typename T> using add_lvalue_reference_t = typename add_lvalue_reference<T>::type;
 
 template <typename T, bool=is_void<T>::value> struct add_rvalue_reference_init { using type = T; };
 template <typename T> struct add_rvalue_reference_init<T, false> { using type = T&&; };
 template <typename T> struct add_rvalue_reference : add_rvalue_reference_init<T> {};
 template <typename T> using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
-
-/* This is 'just' a forward declaration. */
-template <typename T> add_rvalue_reference_t<T> declval() /*noexcept*/;
 
 template <typename S, typename D, bool=is_void<S>::value||is_function<D>::value||is_array<D>::value>
 struct is_convertible_detector {
@@ -169,14 +129,14 @@ template <typename S, typename D> struct is_convertible_detector<S, D, false> {
     template <typename To> static void param_convertable_to(To);
 
     template <typename From, typename To>
-    static decltype(param_convertable_to<To>(declval<From>()), yes_type()) convertible(int);
+    static decltype(param_convertable_to<To>(std::declval<From>()), yes_type()) convertible(int);
 
     template <typename, typename> static no_type convertible(...);
 
     static const/*expr*/ bool value = sizeof(convertible<S, D>(0)) == sizeof(yes_type);
 };
 template<typename S, typename D> struct is_convertible
-    : bool_constant<is_convertible_detector<S, D>::value> { };
+    : bool_constant<is_convertible_detector<S, D>::value> {};
 
 template <typename T> struct decay {
     using U = remove_reference_t<T>;

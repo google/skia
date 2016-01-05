@@ -14,7 +14,6 @@
 #include "SkTLogic.h"
 #include "SkTypes.h"
 #include "SkUniquePtr.h"
-#include "SkUtility.h"
 #include <limits.h>
 #include <new>
 

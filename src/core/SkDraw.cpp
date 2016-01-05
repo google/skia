@@ -30,7 +30,6 @@
 #include "SkTemplates.h"
 #include "SkTextMapStateProc.h"
 #include "SkTLazy.h"
-#include "SkUtility.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
 

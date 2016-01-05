@@ -11,6 +11,7 @@
 #include "../private/SkTemplates.h"
 #include "SkTypes.h"
 #include <new>
+#include <utility>
 
 /**
  *  Efficient way to defer allocating/initializing a class until it is needed
@@ -50,7 +51,7 @@ public:
         if (this->isValid()) {
             fPtr->~T();
         }
-        fPtr = new (SkTCast<T*>(fStorage.get())) T(skstd::forward<Args>(args)...);
+        fPtr = new (SkTCast<T*>(fStorage.get())) T(std::forward<Args>(args)...);
         return fPtr;
     }
 

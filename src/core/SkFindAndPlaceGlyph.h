@@ -14,6 +14,7 @@
 #include "SkPaint.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
+#include <utility>
 
 // Calculate a type with the same size as the max of all the Ts.
 // This must be top level because the is no specialization of inner classes.
@@ -91,7 +92,7 @@ private:
             #define alignof __alignof
         #endif
             SkASSERT(alignof(Variant) <= alignof(Space));
-            new(&fSpace) Variant(skstd::forward<Args>(args)...);
+            new(&fSpace) Variant(std::forward<Args>(args)...);
         }
 
     private:
@@ -609,7 +610,7 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
             SkPoint mappedPoint = mapper.TranslationMapper::map(
                 positions.HorizontalPositions::nextPoint());
             positioner.Positioner::findAndPositionGlyph(
-                &cursor, mappedPoint, skstd::forward<ProcessOneGlyph>(processOneGlyph));
+                &cursor, mappedPoint, std::forward<ProcessOneGlyph>(processOneGlyph));
         }
         return;
     }
@@ -681,7 +682,7 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
     while (text < stop) {
         SkPoint mappedPoint = mapper->map(positionReader->nextPoint());
         findAndPosition->findAndPositionGlyph(
-            &text, mappedPoint, skstd::forward<ProcessOneGlyph>(processOneGlyph));
+            &text, mappedPoint, std::forward<ProcessOneGlyph>(processOneGlyph));
     }
 }
 
@@ -725,7 +726,7 @@ inline void SkFindAndPlaceGlyph::ProcessText(
     while (text < stop) {
         current =
             findAndPosition->findAndPositionGlyph(
-                &text, current, skstd::forward<ProcessOneGlyph>(processOneGlyph));
+                &text, current, std::forward<ProcessOneGlyph>(processOneGlyph));
 
     }
 }

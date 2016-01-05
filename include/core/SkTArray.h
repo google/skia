@@ -12,6 +12,7 @@
 #include "SkTypes.h"
 
 #include <new>
+#include <utility>
 
 template <typename T, bool MEM_COPY = false> class SkTArray;
 
@@ -198,7 +199,7 @@ public:
      */
     template<class... Args> T& emplace_back(Args&&... args) {
         T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
-        return *new (newT) T(skstd::forward<Args>(args)...);
+        return *new (newT) T(std::forward<Args>(args)...);
     }
 
     /**
