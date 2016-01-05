@@ -776,6 +776,10 @@ static ImplicitString is_blacklisted(const char* sink, const char* src,
     return "";
 }
 
+// Even when a Task Sink reports to be non-threadsafe (e.g. GPU), we know things like
+// .png encoding are definitely thread safe.  This lets us offload that work to CPU threads.
+static SkTaskGroup gDefinitelyThreadSafeWork;
+
 // The finest-grained unit of work we can run: draw a single Src into a single Sink,
 // report any errors, and perhaps write out the output: a .png of the bitmap, or a raw stream.
 struct Task {
@@ -823,55 +827,63 @@ struct Task {
                      name, note, log);
                 return;
             }
-            SkAutoTDelete<SkStreamAsset> data(stream.detachAsStream());
 
-            SkString md5;
-            if (!FLAGS_writePath.isEmpty() || !FLAGS_readPath.isEmpty()) {
-                SkMD5 hash;
-                if (data->getLength()) {
-                    hash.writeStream(data, data->getLength());
-                    data->rewind();
-                } else {
-                    // If we're BGRA (Linux, Windows), swizzle over to RGBA (Mac, Android).
-                    // This helps eliminate multiple 0-pixel-diff hashes on gold.skia.org.
-                    // (Android's general slow speed breaks the tie arbitrarily in RGBA's favor.)
-                    // We might consider promoting 565 to RGBA too.
-                    if (bitmap.colorType() == kBGRA_8888_SkColorType) {
-                        SkBitmap swizzle;
-                        SkAssertResult(bitmap.copyTo(&swizzle, kRGBA_8888_SkColorType));
-                        hash.write(swizzle.getPixels(), swizzle.getSize());
+            // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
+            SkStreamAsset* data = stream.detachAsStream();
+            gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
+                SkAutoTDelete<SkStreamAsset> ownedData(data);
+
+                // Why doesn't the copy constructor do this when we have pre-locked pixels?
+                bitmap.lockPixels();
+
+                SkString md5;
+                if (!FLAGS_writePath.isEmpty() || !FLAGS_readPath.isEmpty()) {
+                    SkMD5 hash;
+                    if (data->getLength()) {
+                        hash.writeStream(data, data->getLength());
+                        data->rewind();
                     } else {
-                        hash.write(bitmap.getPixels(), bitmap.getSize());
+                        // If we're BGRA (Linux, Windows), swizzle over to RGBA (Mac, Android).
+                        // This helps eliminate multiple 0-pixel-diff hashes on gold.skia.org.
+                        // (Android's general slow speed breaks the tie arbitrarily in RGBA's favor.)
+                        // We might consider promoting 565 to RGBA too.
+                        if (bitmap.colorType() == kBGRA_8888_SkColorType) {
+                            SkBitmap swizzle;
+                            SkAssertResult(bitmap.copyTo(&swizzle, kRGBA_8888_SkColorType));
+                            hash.write(swizzle.getPixels(), swizzle.getSize());
+                        } else {
+                            hash.write(bitmap.getPixels(), bitmap.getSize());
+                        }
+                    }
+                    SkMD5::Digest digest;
+                    hash.finish(digest);
+                    for (int i = 0; i < 16; i++) {
+                        md5.appendf("%02x", digest.data[i]);
                     }
                 }
-                SkMD5::Digest digest;
-                hash.finish(digest);
-                for (int i = 0; i < 16; i++) {
-                    md5.appendf("%02x", digest.data[i]);
-                }
-            }
 
-            if (!FLAGS_readPath.isEmpty() &&
-                !gGold.contains(Gold(task->sink.tag.c_str(), task->src.tag.c_str(),
-                                     task->src.options.c_str(), name, md5))) {
-                fail(SkStringPrintf("%s not found for %s %s %s %s in %s",
-                                    md5.c_str(),
-                                    task->sink.tag.c_str(),
-                                    task->src.tag.c_str(),
-                                    task->src.options.c_str(),
-                                    name.c_str(),
-                                    FLAGS_readPath[0]));
-            }
-
-            if (!FLAGS_writePath.isEmpty()) {
-                const char* ext = task->sink->fileExtension();
-                if (data->getLength()) {
-                    WriteToDisk(*task, md5, ext, data, data->getLength(), nullptr);
-                    SkASSERT(bitmap.drawsNothing());
-                } else if (!bitmap.drawsNothing()) {
-                    WriteToDisk(*task, md5, ext, nullptr, 0, &bitmap);
+                if (!FLAGS_readPath.isEmpty() &&
+                    !gGold.contains(Gold(task->sink.tag.c_str(), task->src.tag.c_str(),
+                                         task->src.options.c_str(), name, md5))) {
+                    fail(SkStringPrintf("%s not found for %s %s %s %s in %s",
+                                        md5.c_str(),
+                                        task->sink.tag.c_str(),
+                                        task->src.tag.c_str(),
+                                        task->src.options.c_str(),
+                                        name.c_str(),
+                                        FLAGS_readPath[0]));
                 }
-            }
+
+                if (!FLAGS_writePath.isEmpty()) {
+                    const char* ext = task->sink->fileExtension();
+                    if (data->getLength()) {
+                        WriteToDisk(*task, md5, ext, data, data->getLength(), nullptr);
+                        SkASSERT(bitmap.drawsNothing());
+                    } else if (!bitmap.drawsNothing()) {
+                        WriteToDisk(*task, md5, ext, nullptr, 0, &bitmap);
+                    }
+                }
+            });
         }
         done(now_ms()-timerStart, task->sink.tag.c_str(), task->src.tag.c_str(), task->src.options.c_str(),
              name, note, log);
@@ -1110,6 +1122,8 @@ int dm_main() {
         }
     }
     tg.wait();
+    gDefinitelyThreadSafeWork.wait();
+
     // At this point we're back in single-threaded land.
     sk_tool_utils::release_portable_typefaces();
 
