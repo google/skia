@@ -175,7 +175,7 @@ struct GPUTarget : public Target {
                                                          SkSurface::kNo_Budgeted, info,
                                                          this->config.samples, &props));
         this->gl = gGrFactory->getContextInfo(this->config.ctxType,
-                                              this->config.ctxOptions).fGLContext;
+                                              this->config.ctxOptions)->fGLContext;
         if (!this->surface.get()) {
             return false;
         }

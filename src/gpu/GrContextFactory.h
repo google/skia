@@ -98,47 +98,59 @@ public:
         }
     }
 
-    explicit GrContextFactory(const GrContextOptions& opts);
-    GrContextFactory();
+    explicit GrContextFactory(const GrContextOptions& opts) : fGlobalOptions(opts) { }
+    GrContextFactory() { }
 
-    ~GrContextFactory();
+    ~GrContextFactory() { this->destroyContexts(); }
 
-    void destroyContexts();
-    void abandonContexts();
+    void destroyContexts() {
+        for (int i = 0; i < fContexts.count(); ++i) {
+            if (fContexts[i]->fGLContext) {  //  could be abandoned.
+                fContexts[i]->fGLContext->makeCurrent();
+            }
+            fContexts[i]->fGrContext->unref();
+            SkSafeUnref(fContexts[i]->fGLContext);
+        }
+        fContexts.reset();
+    }
+
+    void abandonContexts() {
+        for (int i = 0; i < fContexts.count(); ++i) {
+            if (fContexts[i]->fGLContext) {
+                fContexts[i]->fGLContext->testAbandon();
+                SkSafeSetNull(fContexts[i]->fGLContext);
+            }
+            fContexts[i]->fGrContext->abandonContext();
+        }
+    }
 
     struct ContextInfo {
-        ContextInfo()
-            : fGrContext(nullptr), fGLContext(nullptr) { }
-        ContextInfo(GrContext* grContext, SkGLContext* glContext)
-            : fGrContext(grContext), fGLContext(glContext) { }
-        GrContext* fGrContext;
-        SkGLContext* fGLContext; //! Valid until the factory destroys it via abandonContexts() or
-                                 //! destroyContexts().
+        GLContextType             fType;
+        GLContextOptions          fOptions;
+        SkGLContext*              fGLContext;
+        GrContext*                fGrContext;
     };
-
     /**
      * Get a context initialized with a type of GL context. It also makes the GL context current.
+     * Pointer is valid until destroyContexts() is called.
      */
-    ContextInfo getContextInfo(GLContextType type,
-                               GLContextOptions options = kNone_GLContextOptions);
+    ContextInfo* getContextInfo(GLContextType type,
+                                GLContextOptions options = kNone_GLContextOptions);
+
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(GLContextType type,
-                   GLContextOptions options = kNone_GLContextOptions) {
-        return this->getContextInfo(type, options).fGrContext;
+    GrContext* get(GLContextType type, GLContextOptions options = kNone_GLContextOptions) {
+        if (ContextInfo* info = this->getContextInfo(type, options)) {
+            return info->fGrContext;
+        }
+        return nullptr;
     }
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
-    struct Context {
-        GLContextType fType;
-        GLContextOptions fOptions;
-        SkGLContext*  fGLContext;
-        GrContext*    fGrContext;
-    };
-    SkTArray<Context, true> fContexts;
-    const GrContextOptions  fGlobalOptions;
+    SkTArray<SkAutoTDelete<ContextInfo>, true> fContexts;
+    const GrContextOptions        fGlobalOptions;
 };
 
 #endif

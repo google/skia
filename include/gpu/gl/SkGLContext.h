@@ -17,9 +17,9 @@
  * This class is intended for Skia's testing needs and not for general
  * use.
  */
-class SK_API SkGLContext : public SkNoncopyable {
+class SK_API SkGLContext : public SkRefCnt {
 public:
-    virtual ~SkGLContext();
+    ~SkGLContext() override;
 
     bool isValid() const { return NULL != gl(); }
 
@@ -106,6 +106,8 @@ private:
     SkAutoTUnref<const GrGLInterface> fGL;
 
     friend class GLFenceSync;  // For onPlatformGetProcAddress.
+
+    typedef SkRefCnt INHERITED;
 };
 
 /** Creates platform-dependent GL context object

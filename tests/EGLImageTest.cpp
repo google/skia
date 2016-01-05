@@ -28,6 +28,7 @@ static void cleanup(SkGLContext* glctx0, GrGLuint texID0, SkGLContext* glctx1, G
         if (GR_EGL_NO_IMAGE != image1) {
             glctx1->destroyEGLImage(image1);
         }
+        glctx1->unref();
     }
 
     glctx0->makeCurrent();
@@ -90,7 +91,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EGLImageTest, reporter, context0, glCtx0) {
         return;
     }
 
-    SkAutoTDelete<SkGLContext> glCtx1 = glCtx0->createNew();
+    SkGLContext* glCtx1 = glCtx0->createNew();
     if (!glCtx1) {
         return;
     }

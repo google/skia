@@ -1147,16 +1147,16 @@ typedef void(*TestWithGrContext)(skiatest::Reporter*, GrContext*);
 typedef void(*TestWithGrContextAndGLContext)(skiatest::Reporter*, GrContext*, SkGLContext*);
 #if SK_SUPPORT_GPU
 template<typename T>
-void call_test(T test, skiatest::Reporter* reporter, const GrContextFactory::ContextInfo& context);
+void call_test(T test, skiatest::Reporter* reporter, GrContextFactory::ContextInfo* context);
 template<>
 void call_test(TestWithGrContext test, skiatest::Reporter* reporter,
-               const GrContextFactory::ContextInfo& context) {
-    test(reporter, context.fGrContext);
+               GrContextFactory::ContextInfo* context) {
+    test(reporter, context->fGrContext);
 }
 template<>
 void call_test(TestWithGrContextAndGLContext test, skiatest::Reporter* reporter,
-               const GrContextFactory::ContextInfo& context) {
-    test(reporter, context.fGrContext, context.fGLContext);
+               GrContextFactory::ContextInfo* context) {
+    test(reporter, context->fGrContext, context->fGLContext);
 }
 #endif
 } // namespace
@@ -1202,13 +1202,11 @@ void RunWithGPUTestContexts(T test, GPUTestContexts testContexts, Reporter* repo
         if ((testContexts & contextSelector) == 0) {
             continue;
         }
-        GrContextFactory::ContextInfo context = factory->getContextInfo(contextType);
-        if (context.fGrContext) {
+        if (GrContextFactory::ContextInfo* context = factory->getContextInfo(contextType)) {
             call_test(test, reporter, context);
         }
-        context = factory->getContextInfo(contextType,
-                                          GrContextFactory::kEnableNVPR_GLContextOptions);
-        if (context.fGrContext) {
+        if (GrContextFactory::ContextInfo* context =
+            factory->getContextInfo(contextType, GrContextFactory::kEnableNVPR_GLContextOptions)) {
             call_test(test, reporter, context);
         }
     }
