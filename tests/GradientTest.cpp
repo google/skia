@@ -212,9 +212,31 @@ static void test_nearly_vertical(skiatest::Reporter* reporter) {
     surface->getCanvas()->drawPaint(paint);
 }
 
+// A linear gradient interval can, due to numerical imprecision (likely in the divide)
+// finish an interval with the final fx not landing outside of [p0...p1].
+// The old code had an assert which this test triggered.
+// We now explicitly clamp the resulting fx value.
+static void test_linear_fuzz(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1300, 630));
+
+    const SkPoint pts[] = {{ 179.5f, -179.5f }, { 1074.5f, 715.5f }};
+    const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE };
+    const SkScalar pos[] = {0, 0.200000003f, 0.800000012f, 1 };
+
+
+    SkAutoTUnref<SkShader> gradient(
+                   SkGradientShader::CreateLinear(pts, colors, pos, 4, SkShader::kClamp_TileMode));
+
+    SkPaint paint;
+    paint.setShader(gradient);
+    SkRect r = {0, 83, 1254, 620};
+    surface->getCanvas()->drawRect(r, paint);
+}
+
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestConstantGradient(reporter);
     test_big_grad(reporter);
     test_nearly_vertical(reporter);
+    test_linear_fuzz(reporter);
 }
