@@ -27,6 +27,8 @@
 #include "text/GrStencilAndCoverTextContext.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
+#define ASSERT_SINGLE_OWNER \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fSingleOwner);)
 #define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->abandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->abandoned()) { return nullptr; }
@@ -69,10 +71,12 @@ void GrDrawContext::validate() const {
 #endif
 
 GrDrawContext::~GrDrawContext() {
+    ASSERT_SINGLE_OWNER
     SkSafeUnref(fDrawTarget);
 }
 
 GrDrawTarget* GrDrawContext::getDrawTarget() {
+    ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
     if (!fDrawTarget || fDrawTarget->isClosed()) {
@@ -83,6 +87,7 @@ GrDrawTarget* GrDrawContext::getDrawTarget() {
 }
 
 void GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -94,6 +99,7 @@ void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
                              const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -111,6 +117,7 @@ void GrDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
                                 const char text[], size_t byteLength,
                                 const SkScalar pos[], int scalarsPerPosition,
                                 const SkPoint& offset, const SkIRect& clipBounds) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -127,6 +134,7 @@ void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
                                  const SkMatrix& viewMatrix, const SkTextBlob* blob,
                                  SkScalar x, SkScalar y,
                                  SkDrawFilter* filter, const SkIRect& clipBounds) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -138,6 +146,7 @@ void GrDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
 }
 
 void GrDrawContext::discard() {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -148,6 +157,7 @@ void GrDrawContext::discard() {
 void GrDrawContext::clear(const SkIRect* rect,
                           const GrColor color,
                           bool canIgnoreRect) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -159,6 +169,7 @@ void GrDrawContext::clear(const SkIRect* rect,
 void GrDrawContext::drawPaint(const GrClip& clip,
                               const GrPaint& origPaint,
                               const SkMatrix& viewMatrix) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -224,6 +235,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                              const SkMatrix& viewMatrix,
                              const SkRect& rect,
                              const GrStrokeInfo* strokeInfo) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -323,6 +335,7 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
                                    const SkMatrix& viewMatrix,
                                    const SkRect& rectToDraw,
                                    const SkRect& localRect) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -350,6 +363,7 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
                                             const SkMatrix& viewMatrix,
                                             const SkRect& rectToDraw,
                                             const SkMatrix& localMatrix) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -381,6 +395,7 @@ void GrDrawContext::drawVertices(const GrClip& clip,
                                  const GrColor colors[],
                                  const uint16_t indices[],
                                  int indexCount) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -424,6 +439,7 @@ void GrDrawContext::drawAtlas(const GrClip& clip,
                               const SkRSXform xform[],
                               const SkRect texRect[],
                               const SkColor colors[]) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -446,6 +462,7 @@ void GrDrawContext::drawRRect(const GrClip& clip,
                               const SkMatrix& viewMatrix,
                               const SkRRect& rrect,
                               const GrStrokeInfo& strokeInfo) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -482,6 +499,7 @@ void GrDrawContext::drawDRRect(const GrClip& clip,
                                const SkMatrix& viewMatrix,
                                const SkRRect& outer,
                                const SkRRect& inner) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -519,6 +537,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
                              const SkMatrix& viewMatrix,
                              const SkRect& oval,
                              const GrStrokeInfo& strokeInfo) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -555,6 +574,7 @@ void GrDrawContext::drawImageNine(const GrClip& clip,
                                   int imageHeight,
                                   const SkIRect& center,
                                   const SkRect& dst) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -621,6 +641,7 @@ static bool is_nested_rects(const SkMatrix& viewMatrix,
 
 void GrDrawContext::drawBatch(const GrClip& clip,
                               const GrPaint& paint, GrDrawBatch* batch) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -632,6 +653,7 @@ void GrDrawContext::drawBatch(const GrClip& clip,
 
 void GrDrawContext::drawPathBatch(const GrPipelineBuilder& pipelineBuilder,
                                   GrDrawPathBatchBase* batch) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -645,6 +667,7 @@ void GrDrawContext::drawPath(const GrClip& clip,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
                              const GrStrokeInfo& strokeInfo) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 
@@ -704,6 +727,7 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
                                      bool useAA,
                                      const SkPath& path,
                                      const GrStrokeInfo& strokeInfo) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkASSERT(!path.isEmpty());
 
@@ -800,6 +824,7 @@ void GrDrawContext::internalDrawPath(GrPipelineBuilder* pipelineBuilder,
 }
 
 void GrDrawContext::drawBatch(GrPipelineBuilder* pipelineBuilder, GrDrawBatch* batch) {
+    ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
 

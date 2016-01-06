@@ -54,6 +54,9 @@
       '<(skia_include_path)/gpu/gl/GrGLSLPrettyPrint.h',
       '<(skia_include_path)/gpu/gl/GrGLTypes.h',
 
+      # Private includes
+      '<(skia_include_path)/private/GrSingleOwner.h',
+
       '<(skia_src_path)/gpu/GrAutoLocaleSetter.h',
       '<(skia_src_path)/gpu/GrAllocator.h',
       '<(skia_src_path)/gpu/GrBatchAtlas.cpp',

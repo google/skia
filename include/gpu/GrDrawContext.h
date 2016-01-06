@@ -12,6 +12,7 @@
 #include "GrRenderTarget.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
+#include "../private/GrSingleOwner.h"
 
 class GrClip;
 class GrContext;
@@ -306,6 +307,9 @@ private:
     GrTextContext*    fTextContext; // lazily gotten from GrContext::DrawingManager
 
     SkSurfaceProps    fSurfaceProps;
+
+    // In debug builds we guard against improper thread handling
+    SkDEBUGCODE(mutable GrSingleOwner fSingleOwner;)
 };
 
 #endif

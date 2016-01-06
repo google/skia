@@ -15,9 +15,10 @@
 #include "GrRenderTarget.h"
 #include "GrTextureProvider.h"
 #include "SkMatrix.h"
-#include "../private/SkMutex.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
+#include "../private/GrSingleOwner.h"
+#include "../private/SkMutex.h"
 
 struct GrBatchAtlasConfig;
 class GrBatchFontCache;
@@ -389,6 +390,9 @@ private:
     // a mechanism to make a SkPicture safe for multithreaded sw rasterization.
     SkMutex                         fReadPixelsMutex;
     SkMutex                         fTestPMConversionsMutex;
+
+    // In debug builds we guard against improper thread handling
+    SkDEBUGCODE(mutable GrSingleOwner fSingleOwner;)
 
     struct CleanUpData {
         PFCleanUpFunc fFunc;
