@@ -407,6 +407,9 @@ DEFINES_ALL = [
     # Chrome DEFINES.
     "SK_USE_FLOATBITS",
     "SK_USE_FREETYPE_EMBOLDEN",
+    # TODO(benjaminwagner): Needed for internal cl/107719535, but will be fixed
+    # up after that CL is submitted.
+    "SK_SUPPORT_LEGACY_SAVEFLAGS",
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
 ]
