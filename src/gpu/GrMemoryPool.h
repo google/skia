@@ -68,11 +68,21 @@ private:
         size_t       fSize;      ///< total allocated size of the block
     };
 
+    static const uint32_t kAssignedMarker = 0xCDCDCDCD;
+    static const uint32_t kFreedMarker    = 0xEFEFEFEF;
+
+    struct AllocHeader {
+#ifdef SK_DEBUG
+        uint32_t fSentinal;      ///< known value to check for memory stomping (e.g., (CD)*)
+#endif
+        BlockHeader* fHeader;    ///< pointer back to the block header in which an alloc resides
+    };
+
     enum {
         // We assume this alignment is good enough for everybody.
         kAlignment    = 8,
         kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
-        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(BlockHeader*), kAlignment),
+        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
     };
     size_t                            fSize;
     size_t                            fPreallocSize;

@@ -40,8 +40,8 @@ GrMemoryPool::~GrMemoryPool() {
 
 void* GrMemoryPool::allocate(size_t size) {
     VALIDATE;
-    size = GrSizeAlignUp(size, kAlignment);
     size += kPerAllocPad;
+    size = GrSizeAlignUp(size, kAlignment);
     if (fTail->fFreeSize < size) {
         size_t blockSize = size;
         blockSize = SkTMax<size_t>(blockSize, fMinAllocSize);
@@ -59,7 +59,9 @@ void* GrMemoryPool::allocate(size_t size) {
     intptr_t ptr = fTail->fCurrPtr;
     // We stash a pointer to the block header, just before the allocated space,
     // so that we can decrement the live count on delete in constant time.
-    *reinterpret_cast<BlockHeader**>(ptr) = fTail;
+    AllocHeader* allocData = reinterpret_cast<AllocHeader*>(ptr);
+    SkDEBUGCODE(allocData->fSentinal = kAssignedMarker);
+    allocData->fHeader = fTail;
     ptr += kPerAllocPad;
     fTail->fPrevPtr = fTail->fCurrPtr;
     fTail->fCurrPtr += size;
@@ -74,7 +76,10 @@ void* GrMemoryPool::allocate(size_t size) {
 void GrMemoryPool::release(void* p) {
     VALIDATE;
     intptr_t ptr = reinterpret_cast<intptr_t>(p) - kPerAllocPad;
-    BlockHeader* block = *reinterpret_cast<BlockHeader**>(ptr);
+    AllocHeader* allocData = reinterpret_cast<AllocHeader*>(ptr);
+    SkASSERT(kAssignedMarker == allocData->fSentinal);
+    SkDEBUGCODE(allocData->fSentinal = kFreedMarker);
+    BlockHeader* block = allocData->fHeader;
     if (1 == block->fLiveCount) {
         // the head block is special, it is reset rather than deleted
         if (fHead == block) {
@@ -159,8 +164,12 @@ void GrMemoryPool::validate() {
             SkASSERT(ptrOffset ==  kHeaderSize);
             SkASSERT(userStart == block->fCurrPtr);
         } else {
-            SkASSERT(block == *reinterpret_cast<BlockHeader**>(userStart));
+            AllocHeader* allocData = reinterpret_cast<AllocHeader*>(userStart);
+            SkASSERT(allocData->fSentinal == kAssignedMarker || 
+                     allocData->fSentinal == kFreedMarker);
+            SkASSERT(block == allocData->fHeader);
         }
+
         prev = block;
     } while ((block = block->fNext));
     SkASSERT(allocCount == fAllocationCnt);
