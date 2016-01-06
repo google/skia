@@ -2764,16 +2764,10 @@ static bool is_mono_quad(SkScalar y0, SkScalar y1, SkScalar y2) {
 static int winding_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar weight,
                          int* onCurveCount) {
     SkConic conic(pts, weight);
-    SkConic *c = &conic;
     SkConic chopped[2];
-    int     n = 0;
-
-    if (!is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY)) {
-        n = conic.chopAtYExtrema(chopped);
-        c = chopped;
-    }
-    int w = winding_mono_conic(*c, x, y, onCurveCount);
-    if (n > 0) {
+    bool isMono = is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY) || !conic.chopAtYExtrema(chopped);
+    int w = winding_mono_conic(isMono ? conic : chopped[0], x, y, onCurveCount);
+    if (!isMono) {
         w += winding_mono_conic(chopped[1], x, y, onCurveCount);
     }
     return w;
