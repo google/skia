@@ -150,8 +150,6 @@ def get_args(bot):
     blacklist.extend('pdf gm _ fontmgr_iter_factory'.split(' '))
 
   if 'Valgrind' in bot:
-    # PDF + .webp -> jumps depending on uninitialized memory.  skia:3505
-    blacklist.extend('pdf _ _ .webp'.split(' '))
     # These take 18+ hours to run.
     blacklist.extend('pdf gm _ fontmgr_iter'.split(' '))
     blacklist.extend('pdf _ _ PANO_20121023_214540.jpg'.split(' '))
