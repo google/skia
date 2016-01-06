@@ -168,6 +168,28 @@ def get_args(bot):
     blacklist.extend('_ image _ interlaced2.png'.split(' '))
     blacklist.extend('_ image _ interlaced3.png'.split(' '))
 
+  # skia:4095
+  for test in ['not_native32_bitmap_config',
+               'bleed_image',
+               'bleed_alpha_image',
+               'bleed_alpha_image_shader',
+               'blend',
+               'c_gms',
+               'colortype',
+               'colortype_xfermodes',
+               'colorwheelnative',
+               'drawfilter',
+               'fontmgr_bounds_0.75_0',
+               'fontmgr_bounds_1_-0.25',
+               'fontmgr_bounds',
+               'fontmgr_match',
+               'fontmgr_iter',
+               'lightingshader',
+               'localmatriximagefilter',
+               'path_stroke_with_zero_length',
+               'textblobgeometrychange']:
+    blacklist.extend(['serialize-8888', 'gm', '_', test])
+
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)
@@ -178,7 +200,7 @@ def get_args(bot):
 
   if 'GalaxyS3' in bot:  # skia:1699
     match.append('~WritePixels')
-  
+
   if 'AndroidOne' in bot:  # skia:4711
     match.append('~WritePixels')
 
