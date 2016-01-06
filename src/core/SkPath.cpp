@@ -2765,6 +2765,8 @@ static int winding_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar w
                          int* onCurveCount) {
     SkConic conic(pts, weight);
     SkConic chopped[2];
+    // If the data points are very large, the conic may not be monotonic but may also
+    // fail to chop. Then, the chopper does not split the original conic in two.
     bool isMono = is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY) || !conic.chopAtYExtrema(chopped);
     int w = winding_mono_conic(isMono ? conic : chopped[0], x, y, onCurveCount);
     if (!isMono) {
