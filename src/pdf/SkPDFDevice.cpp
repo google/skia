@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <tuple>
 #include "SkPDFDevice.h"
 
 #include "SkAnnotation.h"
@@ -48,15 +47,12 @@ static bool excessive_translation(const SkMatrix& m) {
         || SkScalarAbs(m.getTranslateY()) > kExcessiveTranslation;
 }
 
-static std::tuple<SkMatrix, SkVector> untranslate(const SkDraw& d) {
+static SkMatrix untranslate(const SkMatrix& matrix, SkScalar x, SkScalar y) {
     // https://bug.skia.org/257 If the translation is too large,
     // PDF can't exactly represent the float values as numbers.
-    SkScalar translateX = d.fMatrix->getTranslateX() / d.fMatrix->getScaleX();
-    SkScalar translateY = d.fMatrix->getTranslateY() / d.fMatrix->getScaleY();
-    SkMatrix mat = *d.fMatrix;
-    mat.preTranslate(-translateX, -translateY);
-    SkASSERT(SkScalarAbs(mat.getTranslateX()) <= 1.0);
-    return std::make_tuple(mat, SkVector::Make(translateX, translateY));
+    SkMatrix result(matrix);
+    result.preTranslate(x, y);
+    return result;
 }
 
 // If the paint will definitely draw opaquely, replace kSrc_Mode with
@@ -802,7 +798,7 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint,
                           &contentEntry->fContent);
 }
 
-void SkPDFDevice::drawPoints(const SkDraw& d,
+void SkPDFDevice::drawPoints(const SkDraw& srcDraw,
                              SkCanvas::PointMode mode,
                              size_t count,
                              const SkPoint* points,
@@ -815,19 +811,20 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
     }
 
     if (SkAnnotation* annotation = passedPaint.getAnnotation()) {
-        if (handlePointAnnotation(points, count, *d.fMatrix, annotation)) {
+        if (handlePointAnnotation(points, count, *srcDraw.fMatrix, annotation)) {
             return;
         }
     }
+    SkMatrix newMatrix;
+    SkDraw d(srcDraw);
+    SkTArray<SkPoint> pointsCopy;
     if (excessive_translation(*d.fMatrix)) {
-        SkVector translate; SkMatrix translateMatrix;
-        std::tie(translateMatrix, translate) = untranslate(d);
-        SkDraw drawCopy(d);
-        drawCopy.fMatrix = &translateMatrix;
-        SkTArray<SkPoint> pointsCopy(points, SkToInt(count));
-        SkPoint::Offset(&pointsCopy[0], SkToInt(count), translate);
-        this->drawPoints(drawCopy, mode, count, &pointsCopy[0], srcPaint);
-        return;  // NOTE: shader behavior will be off.
+        newMatrix = untranslate(*d.fMatrix, points[0].x(), points[0].y());
+        d.fMatrix = &newMatrix;
+        pointsCopy.reset(points, SkToInt(count));
+        SkPoint::Offset(&pointsCopy[0], SkToInt(count),
+                        -points[0].x(), -points[0].y());
+        points = &pointsCopy[0];
     }
 
     // SkDraw::drawPoints converts to multiple calls to fDevice->drawPath.
@@ -949,7 +946,7 @@ static SkPDFDict* create_link_named_dest(const SkData* nameData,
     return annotation.detach();
 }
 
-void SkPDFDevice::drawRect(const SkDraw& d,
+void SkPDFDevice::drawRect(const SkDraw& srcDraw,
                            const SkRect& rect,
                            const SkPaint& srcPaint) {
     SkPaint paint = srcPaint;
@@ -957,15 +954,12 @@ void SkPDFDevice::drawRect(const SkDraw& d,
     SkRect r = rect;
     r.sort();
 
+    SkMatrix newMatrix;
+    SkDraw d(srcDraw);
     if (excessive_translation(*d.fMatrix)) {
-        SkVector translate; SkMatrix translateMatrix;
-        std::tie(translateMatrix, translate) = untranslate(d);
-        SkDraw drawCopy(d);
-        drawCopy.fMatrix = &translateMatrix;
-        SkRect rectCopy = rect;
-        rectCopy.offset(translate.x(), translate.y());
-        this->drawRect(drawCopy, rectCopy, srcPaint);
-        return;  // NOTE: shader behavior will be off.
+        newMatrix = untranslate(*d.fMatrix, r.x(), r.y());
+        d.fMatrix = &newMatrix;
+        r.offsetTo(0, 0);
     }
 
     if (paint.getPathEffect()) {
@@ -1015,35 +1009,40 @@ void SkPDFDevice::drawOval(const SkDraw& draw,
     this->drawPath(draw, path, paint, nullptr, true);
 }
 
-void SkPDFDevice::drawPath(const SkDraw& d,
+void SkPDFDevice::drawPath(const SkDraw& srcDraw,
                            const SkPath& origPath,
                            const SkPaint& srcPaint,
                            const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
+    SkMatrix newMatrix;
+    SkDraw d(srcDraw);
+    SkPath modifiedPath;
+    SkPath* pathPtr = const_cast<SkPath*>(&origPath);
     if (excessive_translation(*d.fMatrix)) {
-        SkVector translate; SkMatrix translateMatrix;
-        std::tie(translateMatrix, translate) = untranslate(d);
-        SkDraw drawCopy(d);
-        drawCopy.fMatrix = &translateMatrix;
-        SkPath pathCopy(origPath);
-        pathCopy.offset(translate.x(), translate.y());
-        this->drawPath(drawCopy, pathCopy, srcPaint, prePathMatrix, true);
-        return;  // NOTE: shader behavior will be off.
+        SkPoint firstPt;
+        if (origPath.getPoints(&firstPt, 1) > 0) {
+            newMatrix = untranslate(*d.fMatrix, firstPt.x(), firstPt.y());
+            d.fMatrix = &newMatrix;
+            modifiedPath = origPath;
+            modifiedPath.offset(-firstPt.x(), -firstPt.y());
+            pathPtr = &modifiedPath;  // NOTE: shader behavior will be off.
+            pathIsMutable = true;
+        }
     }
 
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
-    SkPath modifiedPath;
-    SkPath* pathPtr = const_cast<SkPath*>(&origPath);
 
     SkMatrix matrix = *d.fMatrix;
     if (prePathMatrix) {
         if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
-            if (!pathIsMutable) {
+            if (pathIsMutable) {
+                pathPtr->transform(*prePathMatrix);
+            } else {
+                pathPtr->transform(*prePathMatrix, &modifiedPath);
                 pathPtr = &modifiedPath;
                 pathIsMutable = true;
             }
-            origPath.transform(*prePathMatrix, pathPtr);
         } else {
             matrix.preConcat(*prePathMatrix);
         }
@@ -1053,11 +1052,14 @@ void SkPDFDevice::drawPath(const SkDraw& d,
         if (d.fClip->isEmpty()) {
             return;
         }
-        if (!pathIsMutable) {
+        bool fill;
+        if (pathIsMutable) {
+            fill = paint.getFillPath(*pathPtr, pathPtr);
+        } else {
+            fill = paint.getFillPath(*pathPtr, &modifiedPath);
             pathPtr = &modifiedPath;
             pathIsMutable = true;
         }
-        bool fill = paint.getFillPath(origPath, pathPtr);
 
         SkPaint noEffectPaint(paint);
         noEffectPaint.setPathEffect(nullptr);
@@ -1321,16 +1323,15 @@ static void draw_transparent_text(SkPDFDevice* device,
 }
 
 
-void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
+void SkPDFDevice::drawText(const SkDraw& srcDraw, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& srcPaint) {
+    SkMatrix newMatrix;
+    SkDraw d(srcDraw);
     if (excessive_translation(*d.fMatrix)) {
-        SkVector translate; SkMatrix translateMatrix;
-        std::tie(translateMatrix, translate) = untranslate(d);
-        SkDraw drawCopy(d);
-        drawCopy.fMatrix = &translateMatrix;
-        this->drawText(drawCopy, text, len, x + translate.x(),
-                       y + translate.y(), srcPaint);
-        return;  // NOTE: shader behavior will be off.
+        newMatrix = untranslate(*d.fMatrix, x, y);
+        d.fMatrix = &newMatrix;
+        x = 0;
+        y = 0;
     }
 
     if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {
@@ -1391,19 +1392,44 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     content.entry()->fContent.writeText("ET\n");
 }
 
-void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
+void SkPDFDevice::drawPosText(const SkDraw& srcDraw, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
-                              const SkPoint& offset, const SkPaint& srcPaint) {
+                              const SkPoint& srcOffset, const SkPaint& srcPaint) {
+    if (len == 0) {
+        return;
+    }
+    SkMatrix newMatrix;
+    SkDraw d(srcDraw);
+    SkPoint offset(srcOffset);
+    SkAutoTMalloc<SkScalar> scalarsBuffer;
     if (excessive_translation(*d.fMatrix)) {
-        SkVector translate; SkMatrix translateMatrix;
-        std::tie(translateMatrix, translate) = untranslate(d);
-        SkDraw drawCopy(d);
-        drawCopy.fMatrix = &translateMatrix;
-        SkPoint offsetCopy = offset;
-        SkPoint::Offset(&offsetCopy, 1, translate.x(), translate.y());
-        this->drawPosText(drawCopy, text, len, pos, scalarsPerPos, offsetCopy,
-                          srcPaint);
-        return;  // NOTE: shader behavior will be off.
+        SkPoint first;
+        if (scalarsPerPos != 2) {
+            first.set(pos[0], 0);
+        } else {
+            first.set(pos[0], pos[1]);
+        }
+        newMatrix = untranslate(*d.fMatrix,
+                                first.x() + offset.x(),
+                                first.y() + offset.y());
+        d.fMatrix = &newMatrix;
+        offset.set(0, 0);  // offset -= offset;
+        if (first.x() != 0 || first.y() != 0) {
+            int glyphCount = srcPaint.textToGlyphs(text, len, NULL);
+            if (scalarsPerPos != 2) {
+                scalarsBuffer.reset(glyphCount);
+                for (int i = 0; i < glyphCount; ++i) {
+                    scalarsBuffer[i] = pos[i] - first.x();
+                }
+            } else {
+                scalarsBuffer.reset(2 * glyphCount);
+                for (int i = 0; i < glyphCount; ++i) {
+                    scalarsBuffer[2 * i]     = pos[2 * i]     - first.x();
+                    scalarsBuffer[2 * i + 1] = pos[2 * i + 1] - first.y();
+                }
+            }
+            pos = &scalarsBuffer[0];
+        }
     }
 
     if (!SkPDFFont::CanEmbedTypeface(srcPaint.getTypeface(), fCanon)) {

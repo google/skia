@@ -154,3 +154,15 @@ DEF_TEST(document_dct_encoder, r) {
         REPORTER_ASSERT(r, count_bytes(bm, true) < count_bytes(bm, false));
     }
 }
+
+DEF_TEST(document_skbug_4734, r) {
+    REQUIRE_PDF_DOCUMENT(document_skbug_4734, r);
+    SkDynamicMemoryWStream stream;
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
+    SkCanvas* canvas = doc->beginPage(64, 64);
+    canvas->scale(10000.0f, 10000.0f);
+    canvas->translate(20.0f, 10.0f);
+    canvas->rotate(30.0f);
+    const char text[] = "HELLO";
+    canvas->drawText(text, strlen(text), 0, 0, SkPaint());
+}
