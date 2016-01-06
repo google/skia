@@ -62,13 +62,16 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     // we trust the caller to use a large enough buffer.
 
     if (0 == bytesRead) {
-        SkCodecPrintf("Could not peek!\n");
+        // TODO: After implementing peek in CreateJavaOutputStreamAdaptor.cpp, this
+        // printf could be useful to notice failures.
+        // SkCodecPrintf("Encoded image data failed to peek!\n");
+
         // It is possible the stream does not support peeking, but does support
         // rewinding.
         // Attempt to read() and pass the actual amount read to the decoder.
         bytesRead = stream->read(buffer, bytesToRead);
         if (!stream->rewind()) {
-            SkCodecPrintf("Could not rewind!\n");
+            SkCodecPrintf("Encoded image data could not peek or rewind to determine format!\n");
             return nullptr;
         }
     }
