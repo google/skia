@@ -37,6 +37,7 @@ private:
 
      void exit() {
          SkAutoMutexAcquire lock(fMutex);
+         SkASSERT(fOwner == SkGetThreadID());
          fReentranceCount--;
          if (fReentranceCount == 0) {
              fOwner = kIllegalThreadID;
