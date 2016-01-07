@@ -198,17 +198,14 @@ public:
                    SkIntToScalar(x) + SK_ScalarHalf,
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
 
-#ifndef SK_SUPPORT_LEGACY_BITMAP_SAMPLER_BIAS
         // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
         // consistently WRT geometry.  Note that we only need the bias for positive scales:
         // for negative scales, the rounding is intrinsically correct.
         // We scale it to persist SkFractionalInt -> SkFixed conversions.
-        fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(s.fInvMatrix.getScaleX() > 0);
-        fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(s.fInvMatrix.getScaleY() > 0);
-#else
-        fX = SkScalarToFractionalInt(pt.x());
-        fY = SkScalarToFractionalInt(pt.y());
-#endif
+        const SkFixed biasX = (s.fInvMatrix.getScaleX() > 0);
+        const SkFixed biasY = (s.fInvMatrix.getScaleY() > 0);
+        fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(biasX);
+        fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(biasY);
     }
 
     SkFractionalInt x() const { return fX; }
