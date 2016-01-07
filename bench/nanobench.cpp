@@ -42,6 +42,10 @@
 
 #include <stdlib.h>
 
+#ifndef SK_BUILD_FOR_WIN32
+    #include <unistd.h>
+#endif
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     #include "nanobenchAndroid.h"
 #endif
