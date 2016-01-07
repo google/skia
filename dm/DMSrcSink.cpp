@@ -1084,15 +1084,6 @@ Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStr
 
 Error ViaSerialization::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    // Draw the Src directly as a reference.
-    SkBitmap reference;
-    if (bitmap) {
-        Error err = fSink->draw(src, &reference, nullptr, log);
-        if (!err.isEmpty()) {
-            return err;
-        }
-    }
-
     // Record our Src into a picture.
     auto size = src.size();
     SkPictureRecorder recorder;
@@ -1111,15 +1102,6 @@ Error ViaSerialization::draw(
 
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);
-        // Check against the reference if we have one.
-        if (bitmap) {
-            if (reference.getSize() != bitmap->getSize()) {
-                return "Serialized and direct have different dimensions.";
-            }
-            if (0 != memcmp(reference.getPixels(), bitmap->getPixels(), reference.getSize())) {
-                return "Serialized and direct have different pixels.";
-            }
-        }
         return "";
     });
 }
