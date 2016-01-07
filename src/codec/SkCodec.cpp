@@ -7,16 +7,16 @@
 
 #include "SkBmpCodec.h"
 #include "SkCodec.h"
-#include "SkData.h"
-#include "SkCodec_libgif.h"
-#include "SkCodec_libico.h"
 #include "SkCodec_libpng.h"
-#include "SkCodec_wbmp.h"
 #include "SkCodecPriv.h"
+#include "SkData.h"
+#include "SkGifCodec.h"
+#include "SkIcoCodec.h"
 #if !defined(GOOGLE3)
 #include "SkJpegCodec.h"
 #endif
 #include "SkStream.h"
+#include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
 
 struct DecoderProc {

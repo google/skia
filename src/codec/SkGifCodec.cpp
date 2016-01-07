@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec_libgif.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
+#include "SkGifCodec.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkUtils.h"
