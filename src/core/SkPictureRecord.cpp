@@ -76,19 +76,44 @@ SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLaye
 void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     fContentInfo.onSaveLayer();
 
-    // op + bool for 'bounds'
+    // op + flatflags
     size_t size = 2 * kUInt32Size;
+    uint32_t flatFlags = 0;
+
     if (rec.fBounds) {
-        size += sizeof(*rec.fBounds); // + rect
+        flatFlags |= SAVELAYERREC_HAS_BOUNDS;
+        size += sizeof(*rec.fBounds);
     }
-    // + paint index + flags
-    size += 2 * kUInt32Size;
+    if (rec.fPaint) {
+        flatFlags |= SAVELAYERREC_HAS_PAINT;
+        size += sizeof(uint32_t); // index
+    }
+    if (rec.fBackdrop) {
+        flatFlags |= SAVELAYERREC_HAS_BACKDROP;
+        size += sizeof(uint32_t); // (paint) index
+    }
+    if (rec.fSaveLayerFlags) {
+        flatFlags |= SAVELAYERREC_HAS_FLAGS;
+        size += sizeof(uint32_t);
+    }
 
-    size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERFLAGS, &size);
-    this->addRectPtr(rec.fBounds);
-    this->addPaintPtr(rec.fPaint);
-    this->addInt(rec.fSaveLayerFlags);
-
+    const size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERREC, &size);
+    this->addInt(flatFlags);
+    if (flatFlags & SAVELAYERREC_HAS_BOUNDS) {
+        this->addRect(*rec.fBounds);
+    }
+    if (flatFlags & SAVELAYERREC_HAS_PAINT) {
+        this->addPaintPtr(rec.fPaint);
+    }
+    if (flatFlags & SAVELAYERREC_HAS_BACKDROP) {
+        // overkill, but we didn't already track single flattenables, so using a paint for that
+        SkPaint paint;
+        paint.setImageFilter(const_cast<SkImageFilter*>(rec.fBackdrop));
+        this->addPaint(paint);
+    }
+    if (flatFlags & SAVELAYERREC_HAS_FLAGS) {
+        this->addInt(rec.fSaveLayerFlags);
+    }
     this->validate(initialOffset, size);
 }
 
@@ -224,7 +249,8 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t
         uint32_t opSize;
         DrawType drawOp = peek_op_and_size(&fWriter, -offset, &opSize);
         SkASSERT(SAVE_LAYER_SAVEFLAGS_DEPRECATED != drawOp);
-        SkASSERT(SAVE == drawOp || SAVE_LAYER_SAVELAYERFLAGS == drawOp);
+        SkASSERT(SAVE_LAYER_SAVELAYERFLAGS_DEPRECATED_JAN_2016 != drawOp);
+        SkASSERT(SAVE == drawOp || SAVE_LAYER_SAVELAYERREC == drawOp);
     }
 #endif
 }
