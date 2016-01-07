@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <cmath>
 #include "SkRRect.h"
 #include "SkMatrix.h"
 
@@ -110,6 +109,28 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
     SkDEBUGCODE(this->validate();)
 }
 
+/*
+ *  TODO: clean this guy up and possibly add to SkScalar.h
+ */
+static inline SkScalar SkScalarDecULP(SkScalar value) {
+#if SK_SCALAR_IS_FLOAT
+        return SkBits2Float(SkFloat2Bits(value) - 1);
+#else
+    #error "need impl for doubles"
+#endif
+}
+
+ /**
+ *  We need all combinations of predicates to be true to have a "safe" radius value.
+ */
+static SkScalar clamp_radius_check_predicates(SkScalar rad, SkScalar min, SkScalar max) {
+    SkASSERT(min < max);
+    if (rad > max - min || min + rad > max || max - rad < min) {
+        rad = SkScalarDecULP(rad);
+    }
+    return rad;
+}
+
 // These parameters intentionally double. Apropos crbug.com/463920, if one of the
 // radii is huge while the other is small, single precision math can completely
 // miss the fact that a scale is required.
@@ -118,48 +139,6 @@ static double compute_min_scale(double rad1, double rad2, double limit, double c
         return SkTMin(curMin, limit / (rad1 + rad2));
     }
     return curMin;
-}
-
-// This code assumes that a and b fit in in a float, and therefore the resulting smaller value of
-// a and b will fit in a float. The side of the rectangle may be larger than a float.
-// Scale must be less than or equal to the ratio limit / (*a + *b).
-static void adjust_radii(double limit, double scale, float* a, float* b) {
-    SkASSERT(scale < 1.0 && scale > 0.0);
-    // This check is conservative. (double)*a + (double)*b >= (double)(*a + *b)
-    if ((double)*a + (double)*b > limit) {
-        float* minRadius = a;
-        float* maxRadius = b;
-        // Force minRadius to be the smaller of the two.
-        if (*minRadius > *maxRadius) {
-            SkTSwap(minRadius, maxRadius);
-        }
-        // newMinRadius must be float in order to give the actual value of the radius.
-        // The newMinRadius will always be smaller than limit. The largest that minRadius can be
-        // is 1/2 the ratio of minRadius : (minRadius + maxRadius), therefore in the resulting
-        // division, minRadius can be no larger than 1/2 limit + ULP.
-        float newMinRadius = *minRadius * scale;
-        *minRadius = newMinRadius;
-        // Because newMaxRadius is the result of a double to float conversion, it can be larger
-        // than limit, but only by one ULP.
-        float newMaxRadius = (float)(limit - newMinRadius);
-        // If newMaxRadius is larger than the same value as a double, then it needs to be
-        // reduced by one ULP to be less than limit - newMinRadius.
-        // Note: nexttowardf is a c99 call and should be std::nexttoward, but this is not
-        // implemented in the ARM compiler.
-        if (newMaxRadius > limit - newMinRadius) {
-            newMaxRadius = nexttowardf(newMaxRadius, limit - newMinRadius);
-        }
-        // This handles the case where both sets of radii are larger than a side by differing
-        // scale factors. The one that needs the larger scale factor (the radii with less
-        // overlap) will produce radii that are short enough just using the smaller scale factor
-        // from the side where the radii overlap is larger.
-        *maxRadius = SkMinScalar(scale * *maxRadius, newMaxRadius);
-    } else {
-        *a *= scale;
-        *b *= scale;
-    }
-    SkASSERT(*a >= 0.0f && *b >= 0.0f);
-    SkASSERT((*a + *b) <= limit);
 }
 
 void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
@@ -211,21 +190,29 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     // If f < 1, then all corner radii are reduced by multiplying them by f."
     double scale = 1.0;
 
-    // The sides of the rectangle may be larger than a float.
-    double width = (double)fRect.fRight - (double)fRect.fLeft;
-    double height = (double)fRect.fBottom - (double)fRect.fTop;
-    scale = compute_min_scale(fRadii[0].fX, fRadii[1].fX, width,  scale);
-    scale = compute_min_scale(fRadii[1].fY, fRadii[2].fY, height, scale);
-    scale = compute_min_scale(fRadii[2].fX, fRadii[3].fX, width,  scale);
-    scale = compute_min_scale(fRadii[3].fY, fRadii[0].fY, height, scale);
+    scale = compute_min_scale(fRadii[0].fX, fRadii[1].fX, fRect.width(),  scale);
+    scale = compute_min_scale(fRadii[1].fY, fRadii[2].fY, fRect.height(), scale);
+    scale = compute_min_scale(fRadii[2].fX, fRadii[3].fX, fRect.width(),  scale);
+    scale = compute_min_scale(fRadii[3].fY, fRadii[0].fY, fRect.height(), scale);
 
     if (scale < 1.0) {
-        adjust_radii(width,  scale, &fRadii[0].fX, &fRadii[1].fX);
-        adjust_radii(height, scale, &fRadii[1].fY, &fRadii[2].fY);
-        adjust_radii(width,  scale, &fRadii[2].fX, &fRadii[3].fX);
-        adjust_radii(height, scale, &fRadii[3].fY, &fRadii[0].fY);
+        for (int i = 0; i < 4; ++i) {
+            fRadii[i].fX *= scale;
+            fRadii[i].fY *= scale;
+        }
     }
 
+    // https://bug.skia.org/3239 -- its possible that we can hit the following inconsistency:
+    //     rad == bounds.bottom - bounds.top
+    //     bounds.bottom - radius < bounds.top
+    //     YIKES
+    // We need to detect and "fix" this now, otherwise we can have the following wackiness:
+    //     path.addRRect(rrect);
+    //     rrect.rect() != path.getBounds()
+    for (int i = 0; i < 4; ++i) {
+        fRadii[i].fX = clamp_radius_check_predicates(fRadii[i].fX, fRect.fLeft, fRect.fRight);
+        fRadii[i].fY = clamp_radius_check_predicates(fRadii[i].fY, fRect.fTop, fRect.fBottom);
+    }
     // At this point we're either oval, simple, or complex (not empty or rect).
     this->computeType();
 

@@ -313,39 +313,6 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, filteredPath.isEmpty());
 }
 
-// http://crbug.com/472147
-// This is a simplified version from the bug. RRect radii not properly scaled.
-static void test_crbug_472147_simple(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint p;
-    SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);
-    SkVector radii[4] = {
-        { 13.0f, 8.0f }, { 170.0f, 2.0 }, { 256.0f, 33554430.0f }, { 120.0f, 5.0f }
-    };
-    SkRRect rr;
-    rr.setRectRadii(r, radii);
-    canvas->drawRRect(rr, p);
-}
-
-// http://crbug.com/472147
-// RRect radii not properly scaled.
-static void test_crbug_472147_actual(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint p;
-    SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);
-    SkVector radii[4] = {
-        { 13.0f, 8.0f }, { 170.0f, 2.0 }, { 256.0f, 33554430.0f }, { 120.0f, 5.0f }
-    };
-    SkRRect rr;
-    rr.setRectRadii(r, radii);
-    canvas->clipRRect(rr, SkRegion::kIntersect_Op, false);
-
-    SkRect r2 = SkRect::MakeLTRB(0, 33, 1102, 33554464);
-    canvas->drawRect(r2, p);
-}
-
 DEF_TEST(DrawPath, reporter) {
     test_giantaa();
     test_bug533();
@@ -358,8 +325,6 @@ DEF_TEST(DrawPath, reporter) {
     if (false) test_crbug131181();
     test_infinite_dash(reporter);
     test_crbug_165432(reporter);
-    test_crbug_472147_simple(reporter);
-    test_crbug_472147_actual(reporter);
     test_big_aa_rect(reporter);
     test_halfway();
 }
