@@ -264,6 +264,8 @@ install(TARGETS skia DESTINATION lib)
 # SkUserConfig.h
 if (CMAKE_BUILD_TYPE STREQUAL Release)
     set (SK_RELEASE 1)
+else()
+    set (SK_RELEASE 0)
 endif()
 configure_file ("SkUserConfig.h.in" "${userconfig_directory}/SkUserConfig.h")
 
