@@ -259,8 +259,9 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
     png_set_read_fn(png_ptr, static_cast<void*>(stream), sk_read_fn);
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
-    // FIXME: Does this need to be installed so early?
-    // hookup our chunkReader so we can see any user-chunks the caller may be interested in
+    // Hookup our chunkReader so we can see any user-chunks the caller may be interested in.
+    // This needs to be installed before we read the png header.  Android may store ninepatch
+    // chunks in the header.
     if (chunkReader) {
         png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"", 0);
         png_set_read_user_chunk_fn(png_ptr, (png_voidp) chunkReader, sk_read_user_chunk);

@@ -742,17 +742,17 @@ DEF_TEST(Codec_pngChunkReader, r) {
 
     // Create some chunks that match the Android framework's use.
     static png_unknown_chunk gUnknowns[] = {
-        { "npOl", (png_byte*)"outline", sizeof("outline"), PNG_HAVE_PLTE },
-        { "npLb", (png_byte*)"layoutBounds", sizeof("layoutBounds"), PNG_HAVE_PLTE },
-        { "npTc", (png_byte*)"ninePatchData", sizeof("ninePatchData"), PNG_HAVE_PLTE },
+        { "npOl", (png_byte*)"outline", sizeof("outline"), PNG_HAVE_IHDR },
+        { "npLb", (png_byte*)"layoutBounds", sizeof("layoutBounds"), PNG_HAVE_IHDR },
+        { "npTc", (png_byte*)"ninePatchData", sizeof("ninePatchData"), PNG_HAVE_IHDR },
     };
 
     png_set_keep_unknown_chunks(png, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"npOl\0npLb\0npTc\0", 3);
     png_set_unknown_chunks(png, info, gUnknowns, SK_ARRAY_COUNT(gUnknowns));
 #if PNG_LIBPNG_VER < 10600
     /* Deal with unknown chunk location bug in 1.5.x and earlier */
-    png_set_unknown_chunk_location(png, info, 0, PNG_HAVE_PLTE);
-    png_set_unknown_chunk_location(png, info, 1, PNG_HAVE_PLTE);
+    png_set_unknown_chunk_location(png, info, 0, PNG_HAVE_IHDR);
+    png_set_unknown_chunk_location(png, info, 1, PNG_HAVE_IHDR);
 #endif
 
     png_write_info(png, info);
