@@ -15,6 +15,7 @@
 #include "SkPaint.h"
 #include "../gpu/GrColor.h"
 
+class SkColorFilter;
 class SkPath;
 class SkPicture;
 class SkXfermode;
@@ -309,6 +310,12 @@ public:
      *  The specified matrix will be applied before any matrix associated with this shader.
      */
     SkShader* newWithLocalMatrix(const SkMatrix&) const;
+
+    /**
+     *  Create a new shader that produces the same colors as invoking this shader and then applying
+     *  the colorfilter.
+     */
+    SkShader* newWithColorFilter(SkColorFilter*) const;
     
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

@@ -25,6 +25,7 @@
 #include "SkColorCubeFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkColorFilterShader.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorShader.h"
 #include "SkComposeImageFilter.h"
@@ -91,6 +92,7 @@ public:
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurDrawLooper)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurImageFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorCubeFilter)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorFilterShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposePathEffect)

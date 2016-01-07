@@ -9,7 +9,6 @@
 #include "SkAntiRun.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
-#include "SkFilterShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMask.h"
@@ -858,7 +857,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (cf) {
         SkASSERT(shader);
-        shader = new SkFilterShader(shader, cf);
+        shader = shader->newWithColorFilter(cf);
         paint.writable()->setShader(shader)->unref();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.
