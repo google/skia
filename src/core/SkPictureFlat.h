@@ -75,10 +75,9 @@ enum DrawType {
     DRAW_IMAGE_NINE,
     DRAW_IMAGE_RECT,
 
-    SAVE_LAYER_SAVELAYERFLAGS_DEPRECATED_JAN_2016,
-    SAVE_LAYER_SAVELAYERREC,
+    SAVE_LAYER_SAVELAYERFLAGS,
 
-    LAST_DRAWTYPE_ENUM = SAVE_LAYER_SAVELAYERREC,
+    LAST_DRAWTYPE_ENUM = SAVE_LAYER_SAVELAYERFLAGS,
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*
@@ -94,13 +93,6 @@ enum DrawVertexFlags {
 enum DrawAtlasFlags {
     DRAW_ATLAS_HAS_COLORS   = 1 << 0,
     DRAW_ATLAS_HAS_CULL     = 1 << 1,
-};
-
-enum SaveLayerRecFlatFlags {
-    SAVELAYERREC_HAS_BOUNDS     = 1 << 0,
-    SAVELAYERREC_HAS_PAINT      = 1 << 1,
-    SAVELAYERREC_HAS_BACKDROP   = 1 << 2,
-    SAVELAYERREC_HAS_FLAGS      = 1 << 3,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

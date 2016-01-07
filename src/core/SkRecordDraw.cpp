@@ -78,7 +78,7 @@ template <> void Draw::draw(const NoOp&) {}
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
 DRAW(Restore, restore());
 DRAW(Save, save());
-DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds, r.paint, r.backdrop, r.saveLayerFlags)));
+DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds, r.paint, r.saveLayerFlags)));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
 

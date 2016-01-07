@@ -10,7 +10,6 @@
 
 #include "SkCanvas.h"
 #include "SkDrawable.h"
-#include "SkImageFilter.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -198,7 +197,6 @@ RECORD(Save, 0);
 RECORD(SaveLayer, 0,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
-       RefBox<const SkImageFilter> backdrop;
        SkCanvas::SaveLayerFlags saveLayerFlags);
 
 RECORD(SetMatrix, 0,
