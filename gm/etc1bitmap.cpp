@@ -105,6 +105,10 @@ protected:
         }
 
         SkAutoTUnref<SkImage> image(SkImage::NewFromEncoded(fileData));
+        if (nullptr == image) {
+            SkDebugf("Could not decode the ETC file. ETC may not be included in this platform.\n");
+            return;
+        }
         canvas->drawImage(image, 0, 0);
     }
 
