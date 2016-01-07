@@ -55,6 +55,7 @@ void* GrMemoryPool::allocate(size_t size) {
         fSize += block->fSize;
         SkDEBUGCODE(++fAllocBlockCnt);
     }
+    SkASSERT(kAssignedMarker == fTail->fBlockSentinal);
     SkASSERT(fTail->fFreeSize >= size);
     intptr_t ptr = fTail->fCurrPtr;
     // We stash a pointer to the block header, just before the allocated space,
@@ -80,6 +81,7 @@ void GrMemoryPool::release(void* p) {
     SkASSERT(kAssignedMarker == allocData->fSentinal);
     SkDEBUGCODE(allocData->fSentinal = kFreedMarker);
     BlockHeader* block = allocData->fHeader;
+    SkASSERT(kAssignedMarker == block->fBlockSentinal);
     if (1 == block->fLiveCount) {
         // the head block is special, it is reset rather than deleted
         if (fHead == block) {
@@ -119,6 +121,7 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t size) {
         reinterpret_cast<BlockHeader*>(sk_malloc_throw(paddedSize));
     // we assume malloc gives us aligned memory
     SkASSERT(!(reinterpret_cast<intptr_t>(block) % kAlignment));
+    SkDEBUGCODE(block->fBlockSentinal = kAssignedMarker);
     block->fLiveCount = 0;
     block->fFreeSize = size;
     block->fCurrPtr = reinterpret_cast<intptr_t>(block) + kHeaderSize;
@@ -128,6 +131,8 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t size) {
 }
 
 void GrMemoryPool::DeleteBlock(BlockHeader* block) {
+    SkASSERT(kAssignedMarker == block->fBlockSentinal);
+    SkDEBUGCODE(block->fBlockSentinal = kFreedMarker); // FWIW
     sk_free(block);
 }
 
@@ -138,6 +143,7 @@ void GrMemoryPool::validate() {
     SkASSERT(block);
     int allocCount = 0;
     do {
+        SkASSERT(kAssignedMarker == block->fBlockSentinal);
         allocCount += block->fLiveCount;
         SkASSERT(prev == block->fPrev);
         if (prev) {

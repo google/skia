@@ -58,6 +58,9 @@ private:
     void validate();
 
     struct BlockHeader {
+#ifdef SK_DEBUG
+        uint32_t     fBlockSentinal;  ///< known value to check for bad back pointers to blocks
+#endif
         BlockHeader* fNext;      ///< doubly-linked list of blocks.
         BlockHeader* fPrev;
         int          fLiveCount; ///< number of outstanding allocations in the
