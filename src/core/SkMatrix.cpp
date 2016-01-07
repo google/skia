@@ -1623,8 +1623,14 @@ void SkMatrix::toString(SkString* str) const {
 
 #include "SkMatrixUtils.h"
 
-bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
-                     unsigned subpixelBits) {
+bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkPaint& paint) {
+    // Our path aa is 2-bits, and our rect aa is 8, so we could use 8,
+    // but in practice 4 seems enough (still looks smooth) and allows
+    // more slightly fractional cases to fall into the fast (sprite) case.
+    static const unsigned kAntiAliasSubpixelBits = 4;
+
+    const unsigned subpixelBits = paint.isAntiAlias() ? kAntiAliasSubpixelBits : 0;
+
     // quick reject on affine or perspective
     if (mat.getType() & ~(SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         return false;
@@ -1641,7 +1647,7 @@ bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
     }
 
     SkRect dst;
-    SkIRect isrc = { 0, 0, width, height };
+    SkIRect isrc = SkIRect::MakeSize(size);
 
     {
         SkRect src;
@@ -1654,10 +1660,10 @@ bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
                 SkScalarRoundToInt(mat.getTranslateY()));
 
     if (subpixelBits) {
-        isrc.fLeft <<= subpixelBits;
-        isrc.fTop <<= subpixelBits;
-        isrc.fRight <<= subpixelBits;
-        isrc.fBottom <<= subpixelBits;
+        isrc.fLeft = SkLeftShift(isrc.fLeft, subpixelBits);
+        isrc.fTop = SkLeftShift(isrc.fTop, subpixelBits);
+        isrc.fRight = SkLeftShift(isrc.fRight, subpixelBits);
+        isrc.fBottom = SkLeftShift(isrc.fBottom, subpixelBits);
 
         const float scale = 1 << subpixelBits;
         dst.fLeft *= scale;
