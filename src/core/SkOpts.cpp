@@ -49,6 +49,58 @@
     #include <cpu-features.h>
 #endif
 
+namespace sk_default {
+
+// These variable names in these functions just pretend the input is BGRA.
+// They work fine with both RGBA and BGRA.
+
+static void premul_xxxa(uint32_t dst[], const uint32_t src[], int count) {
+    for (int i = 0; i < count; i++) {
+        uint8_t a = src[i] >> 24,
+                r = src[i] >> 16,
+                g = src[i] >>  8,
+                b = src[i] >>  0;
+        r = (r*a+127)/255;
+        g = (g*a+127)/255;
+        b = (b*a+127)/255;
+        dst[i] = (uint32_t)a << 24
+               | (uint32_t)r << 16
+               | (uint32_t)g <<  8
+               | (uint32_t)b <<  0;
+    }
+}
+
+static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
+    for (int i = 0; i < count; i++) {
+        uint8_t a = src[i] >> 24,
+                r = src[i] >> 16,
+                g = src[i] >>  8,
+                b = src[i] >>  0;
+        dst[i] = (uint32_t)a << 24
+               | (uint32_t)b << 16
+               | (uint32_t)g <<  8
+               | (uint32_t)r <<  0;
+    }
+}
+
+static void premul_swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
+    for (int i = 0; i < count; i++) {
+        uint8_t a = src[i] >> 24,
+                r = src[i] >> 16,
+                g = src[i] >>  8,
+                b = src[i] >>  0;
+        r = (r*a+127)/255;
+        g = (g*a+127)/255;
+        b = (b*a+127)/255;
+        dst[i] = (uint32_t)a << 24
+               | (uint32_t)b << 16
+               | (uint32_t)g <<  8
+               | (uint32_t)r <<  0;
+    }
+}
+
+}  // namespace sk_default
+
 namespace SkOpts {
     // Define default function pointer values here...
     // If our global compile options are set high enough, these defaults might even be
@@ -79,6 +131,10 @@ namespace SkOpts {
     decltype(matrix_translate)       matrix_translate       = sk_default::matrix_translate;
     decltype(matrix_scale_translate) matrix_scale_translate = sk_default::matrix_scale_translate;
     decltype(matrix_affine)          matrix_affine          = sk_default::matrix_affine;
+
+    decltype(       premul_xxxa)        premul_xxxa = sk_default::       premul_xxxa;
+    decltype(       swaprb_xxxa)        swaprb_xxxa = sk_default::       swaprb_xxxa;
+    decltype(premul_swaprb_xxxa) premul_swaprb_xxxa = sk_default::premul_swaprb_xxxa;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
