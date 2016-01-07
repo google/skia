@@ -392,7 +392,9 @@ private:
     SkMutex                         fTestPMConversionsMutex;
 
     // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner fSingleOwner;)
+    // This guard is passed to the GrDrawingManager and, from there to all the
+    // GrDrawContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
+    mutable GrSingleOwner fSingleOwner;
 
     struct CleanUpData {
         PFCleanUpFunc fFunc;

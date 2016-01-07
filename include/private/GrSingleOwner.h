@@ -48,6 +48,8 @@ private:
      SkThreadID fOwner;    // guarded by fMutex
      int fReentranceCount; // guarded by fMutex
 };
+#else
+class GrSingleOwner {}; // Provide a dummy implementation so we can pass pointers to constructors
 #endif
 
 #endif
