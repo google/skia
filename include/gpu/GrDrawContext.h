@@ -310,7 +310,7 @@ private:
     SkSurfaceProps    fSurfaceProps;
 
     // In debug builds we guard against improper thread handling
-    mutable GrSingleOwner* fSingleOwner;
+    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
 
 #endif
