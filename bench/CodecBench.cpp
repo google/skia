@@ -11,12 +11,15 @@
 #include "SkCodec.h"
 #include "SkOSFile.h"
 
-CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType)
+CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType,
+        SkAlphaType alphaType)
     : fColorType(colorType)
+    , fAlphaType(alphaType)
     , fData(SkRef(encoded))
 {
     // Parse filename and the color type to give the benchmark a useful name
-    fName.printf("Codec_%s_%s", baseName.c_str(), color_type_to_str(colorType));
+    fName.printf("Codec_%s_%s%s", baseName.c_str(), color_type_to_str(colorType),
+            alpha_type_to_str(alphaType));
 #ifdef SK_DEBUG
     // Ensure that we can create an SkCodec from this data.
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fData));
@@ -35,15 +38,7 @@ bool CodecBench::isSuitableFor(Backend backend) {
 void CodecBench::onDelayedSetup() {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fData));
 
-    fInfo = codec->getInfo().makeColorType(fColorType);
-    SkAlphaType alphaType;
-    // Caller should not have created this CodecBench if the alpha type was
-    // invalid.
-    SkAssertResult(SkColorTypeValidateAlphaType(fColorType, fInfo.alphaType(),
-                                                &alphaType));
-    if (alphaType != fInfo.alphaType()) {
-        fInfo = fInfo.makeAlphaType(alphaType);
-    }
+    fInfo = codec->getInfo().makeColorType(fColorType).makeAlphaType(fAlphaType);
 
     fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
 }

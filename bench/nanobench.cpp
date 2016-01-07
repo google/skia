@@ -564,6 +564,7 @@ public:
                       , fCurrentImage(0)
                       , fCurrentBRDImage(0)
                       , fCurrentColorType(0)
+                      , fCurrentAlphaType(0)
                       , fCurrentSubsetType(0)
                       , fCurrentBRDStrategy(0)
                       , fCurrentBRDSampleSize(0)
@@ -752,19 +753,35 @@ public:
 
             while (fCurrentColorType < fColorTypes.count()) {
                 const SkColorType colorType = fColorTypes[fCurrentColorType];
-                fCurrentColorType++;
 
-                // Make sure we can decode to this color type.
-                SkImageInfo info = codec->getInfo().makeColorType(colorType);
-                SkAlphaType alphaType;
-                if (!SkColorTypeValidateAlphaType(colorType, info.alphaType(),
-                                                  &alphaType)) {
-                    continue;
-                }
-                if (alphaType != info.alphaType()) {
-                    info = info.makeAlphaType(alphaType);
+                SkAlphaType alphaType = codec->getInfo().alphaType();
+                switch (alphaType) {
+                    case kOpaque_SkAlphaType:
+                        // We only need to test one alpha type (opaque).
+                        fCurrentColorType++;
+                        break;
+                    case kUnpremul_SkAlphaType:
+                    case kPremul_SkAlphaType:
+                        if (0 == fCurrentAlphaType) {
+                            // Test unpremul first.
+                            alphaType = kUnpremul_SkAlphaType;
+                            fCurrentAlphaType++;
+                        } else {
+                            // Test premul.
+                            alphaType = kPremul_SkAlphaType;
+                            fCurrentAlphaType = 0;
+                            fCurrentColorType++;
+                        }
+                        break;
+                    default:
+                        SkASSERT(false);
+                        fCurrentColorType++;
+                        break;
                 }
 
+                // Make sure we can decode to this color type and alpha type.
+                SkImageInfo info =
+                        codec->getInfo().makeColorType(colorType).makeAlphaType(alphaType);
                 const size_t rowBytes = info.minRowBytes();
                 SkAutoMalloc storage(info.getSafeSize(rowBytes));
 
@@ -779,7 +796,7 @@ public:
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput:
                         return new CodecBench(SkOSPath::Basename(path.c_str()),
-                                encoded, colorType);
+                                encoded, colorType, alphaType);
                     case SkCodec::kInvalidConversion:
                         // This is okay. Not all conversions are valid.
                         break;
@@ -972,6 +989,7 @@ private:
     int fCurrentImage;
     int fCurrentBRDImage;
     int fCurrentColorType;
+    int fCurrentAlphaType;
     int fCurrentSubsetType;
     int fCurrentBRDStrategy;
     int fCurrentBRDSampleSize;
