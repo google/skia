@@ -94,24 +94,25 @@ private:
 
 public:
     /*constexpr*/ unique_ptr() /*noexcept*/ : data() {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
     /*constexpr*/ unique_ptr(std::nullptr_t) /*noexcept*/ : unique_ptr() { }
 
     explicit unique_ptr(pointer ptr) /*noexcept*/ : data(ptr, deleter_type()) {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
     unique_ptr(pointer ptr,
-               conditional_t<is_reference<deleter_type>::value, deleter_type,const deleter_type&> d)
+               conditional_t<std::is_reference<deleter_type>::value,
+                             deleter_type, const deleter_type&> d)
     /*noexcept*/ : data(ptr, d)
     {}
 
     unique_ptr(pointer ptr, remove_reference_t<deleter_type>&& d) /*noexcept*/
         : data(std::move(ptr), std::move(d))
     {
-        static_assert(!is_reference<deleter_type>::value,
+        static_assert(!std::is_reference<deleter_type>::value,
             "Binding an rvalue reference deleter as an lvalue reference deleter is not allowed.");
     }
 
@@ -122,8 +123,10 @@ public:
 
     template <typename U, typename ThatD, typename = enable_if_t<
         is_convertible<typename unique_ptr<U, ThatD>::pointer, pointer>::value &&
-        !is_array<U>::value &&
-        conditional_t<is_reference<D>::value, is_same<ThatD, D>, is_convertible<ThatD, D>>::value>>
+        !std::is_array<U>::value &&
+        conditional_t<std::is_reference<D>::value,
+                      std::is_same<ThatD, D>,
+                      is_convertible<ThatD, D>>::value>>
     unique_ptr(unique_ptr<U, ThatD>&& that) /*noexcept*/
         : data(that.release(), std::forward<ThatD>(that.get_deleter()))
     {}
@@ -144,7 +147,7 @@ public:
 
     template <typename U, typename ThatD> enable_if_t<
         is_convertible<typename unique_ptr<U, ThatD>::pointer, pointer>::value &&
-        !is_array<U>::value,
+        !std::is_array<U>::value,
     unique_ptr&> operator=(unique_ptr<U, ThatD>&& that) /*noexcept*/ {
         reset(that.release());
         get_deleter() = std::forward<ThatD>(that.get_deleter());
@@ -264,24 +267,25 @@ private:
 
 public:
     /*constexpr*/ unique_ptr() /*noexcept*/ : data() {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
     /*constexpr*/ unique_ptr(std::nullptr_t) /*noexcept*/ : unique_ptr() { }
 
     explicit unique_ptr(pointer ptr) /*noexcept*/ : data(ptr, deleter_type()) {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
     unique_ptr(pointer ptr,
-               conditional_t<is_reference<deleter_type>::value, deleter_type,const deleter_type&> d)
+               conditional_t<std::is_reference<deleter_type>::value,
+                             deleter_type, const deleter_type&> d)
     /*noexcept*/ : data(ptr, d)
     {}
 
     unique_ptr(pointer ptr, remove_reference_t<deleter_type>&& d) /*noexcept*/
         : data(std::move(ptr), std::move(d))
     {
-        static_assert(!is_reference<deleter_type>::value,
+        static_assert(!std::is_reference<deleter_type>::value,
             "Binding an rvalue reference deleter as an lvalue reference deleter is not allowed.");
     }
 
