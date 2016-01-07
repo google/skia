@@ -123,11 +123,24 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
+    bool isConfigTexturable(GrPixelConfig config) const override {
+        SkASSERT(kGrPixelConfigCnt > config);
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
+    }
+
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
+        SkASSERT(kGrPixelConfigCnt > config)    ;
+        if (withMSAA) {
+            return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderableWithMSAA_Flag);
+        } else {
+            return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag);
+        }
+    }
+
     /** Returns conversions to various GL format parameters for a GrPixelCfonig. */
     const ConfigFormats& configGLFormats(GrPixelConfig config) const {
         return fConfigTable[config].fFormats;
     }
-
 
     /**
     * Gets an array of legal stencil formats. These formats are not guaranteed
@@ -227,15 +240,12 @@ public:
     /// maximum number of texture units accessible in the fragment shader.
     int maxFragmentTextureUnits() const { return fMaxFragmentTextureUnits; }
 
-    /// ES requires an extension to support RGBA8 in RenderBufferStorage
-    bool rgba8RenderbufferSupport() const { return fRGBA8RenderbufferSupport; }
-
     /**
      * Depending on the ES extensions present the BGRA external format may
-     * correspond either a BGRA or RGBA internalFormat. On desktop GL it is
+     * correspond to either a BGRA or RGBA internalFormat. On desktop GL it is
      * RGBA.
      */
-    bool bgraIsInternalFormat() const { return fBGRAIsInternalFormat; }
+    bool bgraIsInternalFormat() const;
 
     /// Is there support for GL_UNPACK_ROW_LENGTH
     bool unpackRowLengthSupport() const { return fUnpackRowLengthSupport; }
@@ -309,19 +319,6 @@ public:
      */
     SkString dump() const override;
 
-    /**
-     * LATC can appear under one of three possible names. In order to know
-     * which GL internal format to use, we need to keep track of which name
-     * we found LATC under. The default is LATC.
-     */
-    enum LATCAlias {
-        kLATC_LATCAlias,
-        kRGTC_LATCAlias,
-        k3DC_LATCAlias
-    };
-
-    LATCAlias latcAlias() const { return fLATCAlias; }
-
     bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
     bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }
 
@@ -338,8 +335,7 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initConfigRenderableTable(const GrGLContextInfo&, bool srgbSupport);
-    void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*, bool srgbSupport);
+    void initConfigTable(const GrGLContextInfo&, const GrGLInterface* gli);
 
     void initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                                   const GrGLInterface* intf,
@@ -347,7 +343,6 @@ private:
 
     void initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps* glslCaps);
 
-    void initConfigTable(const GrGLContextInfo&);
 
     SkTArray<StencilFormat, true> fStencilFormats;
 
@@ -359,10 +354,7 @@ private:
     InvalidateFBType    fInvalidateFBType;
     MapBufferType       fMapBufferType;
     TransferBufferType  fTransferBufferType;
-    LATCAlias           fLATCAlias;
 
-    bool fRGBA8RenderbufferSupport : 1;
-    bool fBGRAIsInternalFormat : 1;
     bool fUnpackRowLengthSupport : 1;
     bool fUnpackFlipYSupport : 1;
     bool fPackRowLengthSupport : 1;
@@ -420,7 +412,10 @@ private:
         int      fStencilFormatIndex;
 
         enum {
-            kVerifiedColorAttachment_Flag = 0x1
+            kVerifiedColorAttachment_Flag = 0x1,
+            kTextureable_Flag             = 0x2,
+            kRenderable_Flag              = 0x4,
+            kRenderableWithMSAA_Flag      = 0x8,
         };
         uint32_t fFlags;
     };

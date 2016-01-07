@@ -194,15 +194,8 @@ public:
     // Will be 0 if MSAA is not supported
     int maxSampleCount() const { return fMaxSampleCount; }
 
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
-        SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigRenderSupport[config][withMSAA];
-    }
-
-    bool isConfigTexturable(GrPixelConfig config) const {
-        SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigTextureSupport[config];
-    }
+    virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
+    virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -269,10 +262,6 @@ protected:
     int fMaxTextureSize;
     int fMaxTileSize;
     int fMaxSampleCount;
-
-    // The first entry for each config is without msaa and the second is with.
-    bool fConfigRenderSupport[kGrPixelConfigCnt][2];
-    bool fConfigTextureSupport[kGrPixelConfigCnt];
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};
