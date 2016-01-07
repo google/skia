@@ -114,7 +114,6 @@ bool SkCanvas::Internal_Private_GetTreatSpriteAsBitmap() {
 
 // experimental for faster tiled drawing...
 //#define SK_ENABLE_CLIP_QUICKREJECT
-
 //#define SK_TRACE_SAVERESTORE
 
 #ifdef SK_TRACE_SAVERESTORE
@@ -481,7 +480,7 @@ public:
                 // Make rawBounds include all paint outsets except for those due to image filters.
                 rawBounds = &apply_paint_to_bounds_sans_imagefilter(*fPaint, *rawBounds, &storage);
             }
-            (void)canvas->internalSaveLayer(SkCanvas::SaveLayerRec(rawBounds, &tmp, 0),
+            (void)canvas->internalSaveLayer(SkCanvas::SaveLayerRec(rawBounds, &tmp),
                                             SkCanvas::kFullLayer_SaveLayerStrategy);
             fTempLayerForImageFilter = true;
             // we remove the imagefilter/xfermode inside doNext()
@@ -1173,7 +1172,8 @@ int SkCanvas::saveLayer(const SaveLayerRec& origRec) {
     return this->getSaveCount() - 1;
 }
 
-static void draw_filter_into_device(SkBaseDevice* src, SkImageFilter* filter, SkBaseDevice* dst) {
+static void draw_filter_into_device(SkBaseDevice* src, const SkImageFilter* filter,
+                                    SkBaseDevice* dst, const SkMatrix& ctm) {
 
     SkBitmap srcBM;
 
@@ -1198,9 +1198,12 @@ static void draw_filter_into_device(SkBaseDevice* src, SkImageFilter* filter, Sk
 
     SkCanvas c(dst);
 
+    SkAutoTUnref<SkImageFilter> localF(filter->newWithLocalMatrix(ctm));
     SkPaint p;
-    p.setImageFilter(filter);
-    c.drawBitmap(srcBM, 0, 0, &p);
+    p.setImageFilter(localF);
+    const SkScalar x = SkIntToScalar(src->getOrigin().x());
+    const SkScalar y = SkIntToScalar(src->getOrigin().y());
+    c.drawBitmap(srcBM, x, y, &p);
 }
 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
@@ -1268,11 +1271,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         }
         device = newDev;
     }
-
     device->setOrigin(ir.fLeft, ir.fTop);
 
-    if (0) {
-        draw_filter_into_device(fMCRec->fTopLayer->fDevice, nullptr, device);
+    if (rec.fBackdrop) {
+        draw_filter_into_device(fMCRec->fTopLayer->fDevice, rec.fBackdrop, device, fMCRec->fMatrix);
     }
 
     DeviceCM* layer =

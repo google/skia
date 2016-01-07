@@ -1396,6 +1396,15 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
     if (fUseMPD) {
         SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
+
+        if (false) {
+            SkDynamicMemoryWStream wstream;
+            picture->serialize(&wstream);
+
+            SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
+            picture.reset(SkPicture::CreateFromStream(rstream));
+        }
+
         if (true) {
             if (true) {
                 SkImageInfo info;

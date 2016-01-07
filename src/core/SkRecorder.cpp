@@ -337,7 +337,8 @@ void SkRecorder::willSave() {
 }
 
 SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec& rec) {
-    APPEND(SaveLayer, this->copy(rec.fBounds), this->copy(rec.fPaint), rec.fSaveLayerFlags);
+    APPEND(SaveLayer,
+           this->copy(rec.fBounds), this->copy(rec.fPaint), rec.fBackdrop, rec.fSaveLayerFlags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
