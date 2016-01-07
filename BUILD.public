@@ -20,6 +20,7 @@ BASE_SRCS = glob(
     ],
     exclude = [
         # Exclude platform-dependent files.
+        "src/codec/*",
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
         "src/fonts/SkFontMgr_fontconfig.cpp",
@@ -29,6 +30,7 @@ BASE_SRCS = glob(
         "src/gpu/gl/iOS/*",
         "src/gpu/gl/mac/*",
         "src/gpu/gl/win/*",
+        "src/images/*",
         "src/opts/**/*",
         "src/ports/**/*",
         "src/utils/android/**/*",
@@ -46,7 +48,6 @@ BASE_SRCS = glob(
         "src/gpu/gl/GrGLDefaultInterface_native.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
-        "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
         "src/gpu/gl/angle/*",  # Requires SK_ANGLE define.
         "src/gpu/gl/command_buffer/*",  # unknown type name 'HMODULE'
         "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
@@ -67,13 +68,16 @@ BASE_SRCS = glob(
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = glob(
     [
+        "src/codec/*",
         "src/fonts/SkFontMgr_fontconfig.cpp",
+        "src/images/*",
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
     ],
     exclude = [
+        "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
         "src/opts/*arm*",
         "src/opts/*mips*",
         "src/opts/*NEON*",
@@ -112,6 +116,8 @@ BASE_SRCS_UNIX = glob(
 # Platform-dependent SRCS for google3-default Android.
 BASE_SRCS_ANDROID = glob(
     [
+        "src/codec/*",
+        "src/images/*",
         # TODO(benjaminwagner): Figure out how to compile with EGL.
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
@@ -119,6 +125,7 @@ BASE_SRCS_ANDROID = glob(
         "src/ports/**/*.h",
     ],
     exclude = [
+        "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
         "src/opts/*mips*",
         "src/opts/*SSE2*",
         "src/opts/*SSSE3*",
