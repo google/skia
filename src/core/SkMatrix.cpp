@@ -1623,14 +1623,8 @@ void SkMatrix::toString(SkString* str) const {
 
 #include "SkMatrixUtils.h"
 
-bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkPaint& paint) {
-    // Our path aa is 2-bits, and our rect aa is 8, so we could use 8,
-    // but in practice 4 seems enough (still looks smooth) and allows
-    // more slightly fractional cases to fall into the fast (sprite) case.
-    static const unsigned kAntiAliasSubpixelBits = 4;
-
-    const unsigned subpixelBits = paint.isAntiAlias() ? kAntiAliasSubpixelBits : 0;
-
+bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
+                     unsigned subpixelBits) {
     // quick reject on affine or perspective
     if (mat.getType() & ~(SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         return false;
@@ -1647,7 +1641,7 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkPaint& pa
     }
 
     SkRect dst;
-    SkIRect isrc = SkIRect::MakeSize(size);
+    SkIRect isrc = { 0, 0, width, height };
 
     {
         SkRect src;

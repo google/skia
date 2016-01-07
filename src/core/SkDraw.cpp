@@ -1172,11 +1172,20 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     proc(*devPathPtr, *fRC, blitter);
 }
 
+/** For the purposes of drawing bitmaps, if a matrix is "almost" translate
+    go ahead and treat it as if it were, so that subsequent code can go fast.
+ */
+static bool just_translate(const SkMatrix& matrix, const SkBitmap& bitmap) {
+    unsigned bits = 0;  // TODO: find a way to allow the caller to tell us to
+                        // respect filtering.
+    return SkTreatAsSprite(matrix, bitmap.width(), bitmap.height(), bits);
+}
+
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
                               const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
-    if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint)) {
+    if (just_translate(*fMatrix, bitmap)) {
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
@@ -1291,8 +1300,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-    if (bitmap.colorType() != kAlpha_8_SkColorType
-        && SkTreatAsSprite(matrix, bitmap.dimensions(), paint)) {
+    if (bitmap.colorType() != kAlpha_8_SkColorType && just_translate(matrix, bitmap)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.

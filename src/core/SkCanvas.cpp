@@ -2220,7 +2220,8 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
     }
 
     const SkMatrix& ctm = this->getTotalMatrix();
-    if (!SkTreatAsSprite(ctm, SkISize::Make(w, h), paint)) {
+    const unsigned kSubpixelBits = 0;   // matching SkDraw::drawBitmap()
+    if (!SkTreatAsSprite(ctm, w, h, kSubpixelBits)) {
         return false;
     }
 
