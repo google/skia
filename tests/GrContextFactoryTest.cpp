@@ -46,4 +46,30 @@ DEF_GPUTEST(GrContextFactory_NoPathRenderingUnlessNVPRRequested, reporter, /*fac
     }
 }
 
+DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
+    GrContextFactory testFactory;
+    for (int i = 0; i < GrContextFactory::kGLContextTypeCnt; ++i) {
+        GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType) i;
+        GrContextFactory::ContextInfo info1 =
+                testFactory.getContextInfo(glCtxType);
+        if (!info1.fGrContext) {
+            continue;
+        }
+        REPORTER_ASSERT(reporter, info1.fGLContext);
+         // Ref for comparison. The API does not explicitly say that this stays alive.
+        info1.fGrContext->ref();
+        testFactory.abandonContexts();
+
+        // Test that we get different context after abandon.
+        GrContextFactory::ContextInfo info2 =
+                testFactory.getContextInfo(glCtxType);
+        REPORTER_ASSERT(reporter, info2.fGrContext);
+        REPORTER_ASSERT(reporter, info2.fGLContext);
+        REPORTER_ASSERT(reporter, info1.fGrContext != info2.fGrContext);
+        // fGLContext should also change, but it also could get the same address.
+
+        info1.fGrContext->unref();
+    }
+}
+
 #endif
