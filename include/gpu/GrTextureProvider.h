@@ -11,8 +11,6 @@
 #include "GrTexture.h"
 #include "SkImageFilter.h"
 
-class GrSingleOwner;
-
 class SK_API GrTextureProvider {
 public:
     ///////////////////////////////////////////////////////////////////////////
@@ -44,7 +42,15 @@ public:
     }
 
     /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
-    GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
+    GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key) {
+        GrGpuResource* resource = this->findAndRefResourceByUniqueKey(key);
+        if (resource) {
+            GrTexture* texture = static_cast<GrSurface*>(resource)->asTexture();
+            SkASSERT(texture);
+            return texture;
+        }
+        return NULL;
+    }
 
     /**
      * Determines whether a texture is associated with the unique key. If the texture is found it
@@ -128,7 +134,7 @@ public:
      GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 
 protected:
-    GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* singleOwner);
+    GrTextureProvider(GrGpu* gpu, GrResourceCache* cache) : fCache(cache), fGpu(gpu) {}
 
     /**
      * Assigns a unique key to a resource. If the key is associated with another resource that
@@ -180,9 +186,6 @@ protected:
 private:
     GrResourceCache* fCache;
     GrGpu* fGpu;
-
-    // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
 
 #endif

@@ -17,7 +17,6 @@ class GrBatchAtlas;
 class GrIndexBuffer;
 class GrPath;
 class GrRenderTarget;
-class GrSingleOwner;
 class GrStencilAttachment;
 class GrStrokeInfo;
 class GrVertexBuffer;
@@ -36,7 +35,7 @@ class SkTypeface;
  */
 class GrResourceProvider : protected GrTextureProvider {
 public:
-    GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner);
+    GrResourceProvider(GrGpu* gpu, GrResourceCache* cache);
 
     template <typename T> T* findAndRefTByUniqueKey(const GrUniqueKey& key) {
         return static_cast<T*>(this->findAndRefResourceByUniqueKey(key));

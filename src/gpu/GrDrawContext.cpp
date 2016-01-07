@@ -57,10 +57,7 @@ GrDrawContext::GrDrawContext(GrDrawingManager* drawingMgr,
     , fDrawTarget(SkSafeRef(rt->getLastDrawTarget()))
     , fTextContext(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-#ifdef SK_DEBUG
-    , fSingleOwner(singleOwner)
-#endif
-{
+    , fSingleOwner(singleOwner) {
     SkDEBUGCODE(this->validate();)
 }
 

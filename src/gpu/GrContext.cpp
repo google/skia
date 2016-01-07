@@ -85,7 +85,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fCaps = SkRef(fGpu->caps());
     fResourceCache = new GrResourceCache(fCaps);
     fResourceCache->setOverBudgetCallback(OverBudgetCB, this);
-    fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
+    fResourceProvider = new GrResourceProvider(fGpu, fResourceCache);
 
     fLayerCache.reset(new GrLayerCache(this));
 
