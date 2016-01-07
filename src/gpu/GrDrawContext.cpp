@@ -28,7 +28,7 @@
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == fDrawingManager->getContext())
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fSingleOwner);)
 #define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->abandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED   if (fDrawingManager->abandoned()) { return nullptr; }
@@ -50,14 +50,12 @@ private:
 // when the drawContext attempts to use it (via getDrawTarget).
 GrDrawContext::GrDrawContext(GrDrawingManager* drawingMgr,
                              GrRenderTarget* rt,
-                             const SkSurfaceProps* surfaceProps,
-                             GrSingleOwner* singleOwner)
+                             const SkSurfaceProps* surfaceProps)
     : fDrawingManager(drawingMgr)
     , fRenderTarget(rt)
     , fDrawTarget(SkSafeRef(rt->getLastDrawTarget()))
     , fTextContext(nullptr)
-    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-    , fSingleOwner(singleOwner) {
+    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
     SkDEBUGCODE(this->validate();)
 }
 

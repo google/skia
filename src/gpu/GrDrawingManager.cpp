@@ -202,5 +202,5 @@ GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
         return nullptr;
     }
 
-    return new GrDrawContext(this, rt, surfaceProps, fSingleOwner);
+    return new GrDrawContext(this, rt, surfaceProps);
 }
