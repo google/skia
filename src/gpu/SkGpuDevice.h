@@ -15,6 +15,7 @@
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
+#include "GrDrawContext.h"
 #include "GrContext.h"
 #include "GrSurfacePriv.h"
 
@@ -53,7 +54,7 @@ public:
     static SkGpuDevice* Create(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
                                int sampleCount, const SkSurfaceProps*, InitContents);
 
-    virtual ~SkGpuDevice();
+    ~SkGpuDevice() override {}
 
     SkGpuDevice* cloneDevice(const SkSurfaceProps& props) {
         SkBaseDevice* dev = this->onCreateDevice(CreateInfo(this->imageInfo(), kPossible_TileUsage,
@@ -153,12 +154,14 @@ protected:
                                           const SkMatrix*, const SkPaint*) override;
 
 private:
-    GrContext*                      fContext;
+    // We want these unreffed in DrawContext, RenderTarget, GrContext order.
+    SkAutoTUnref<GrContext>         fContext;
+    SkAutoTUnref<GrRenderTarget>    fRenderTarget;
+    SkAutoTUnref<GrDrawContext>     fDrawContext;
+
     SkAutoTUnref<const SkClipStack> fClipStack;
     SkIPoint                        fClipOrigin;
-    GrClip                          fClip;
-    SkAutoTUnref<GrDrawContext>     fDrawContext;
-    GrRenderTarget*                 fRenderTarget;
+    GrClip                          fClip;;
     // remove when our clients don't rely on accessBitmap()
     SkBitmap                        fLegacyBitmap;
     bool                            fNeedClear;

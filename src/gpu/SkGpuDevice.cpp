@@ -10,7 +10,6 @@
 #include "GrBlurUtils.h"
 #include "GrContext.h"
 #include "SkDraw.h"
-#include "GrDrawContext.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
@@ -171,12 +170,10 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, SkSurface::Budgeted budgete
 SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
                          const SkSurfaceProps* props, unsigned flags)
     : INHERITED(SkSurfacePropsCopyOrDefault(props))
-{
-    fContext = SkRef(rt->getContext());
+    , fContext(SkRef(rt->getContext()))
+    , fRenderTarget(SkRef(rt)) {
     fNeedClear = SkToBool(flags & kNeedClear_Flag);
     fOpaque = SkToBool(flags & kIsOpaque_Flag);
-
-    fRenderTarget = SkRef(rt);
 
     SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     SkImageInfo info = rt->surfacePriv().info(at).makeWH(width, height);
@@ -224,11 +221,6 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::B
     }
     SkASSERT(nullptr != texture->asRenderTarget());
     return texture->asRenderTarget();
-}
-
-SkGpuDevice::~SkGpuDevice() {
-    fRenderTarget->unref();
-    fContext->unref();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -346,8 +338,7 @@ void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
 
     SkASSERT(fRenderTarget != newRT);
 
-    fRenderTarget->unref();
-    fRenderTarget = newRT.detach();
+    fRenderTarget.reset(newRT.detach());
 
 #ifdef SK_DEBUG
     SkImageInfo info = fRenderTarget->surfacePriv().info(fOpaque ? kOpaque_SkAlphaType :
