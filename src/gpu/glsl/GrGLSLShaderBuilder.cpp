@@ -5,69 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "GrSwizzle.h"
 #include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLTextureSampler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
-
-static void map_swizzle(const char* swizzleMap, const char* swizzle, char* mangledSwizzle) {
-    int i;
-    for (i = 0; '\0' != swizzle[i]; ++i) {
-        switch (swizzle[i]) {
-            case 'r':
-                mangledSwizzle[i] = swizzleMap[0];
-                break;
-            case 'g':
-                mangledSwizzle[i] = swizzleMap[1];
-                break;
-            case 'b':
-                mangledSwizzle[i] = swizzleMap[2];
-                break;
-            case 'a':
-                mangledSwizzle[i] = swizzleMap[3];
-                break;
-            default:
-                SkFAIL("Unsupported swizzle");
-        }
-    }
-    mangledSwizzle[i] ='\0';
-}
-
-static void append_texture_lookup(SkString* out,
-                                  const GrGLSLCaps* glslCaps,
-                                  const char* samplerName,
-                                  const char* coordName,
-                                  GrPixelConfig config,
-                                  const char* swizzle,
-                                  GrSLType varyingType = kVec2f_GrSLType) {
-    SkASSERT(coordName);
-
-    out->appendf("%s(%s, %s)",
-                 GrGLSLTexture2DFunctionName(varyingType, glslCaps->generation()),
-                 samplerName,
-                 coordName);
-
-    char mangledSwizzle[5];
-
-    // This refers to any swizzling we may need to get from some backend internal format to the
-    // format used in GrPixelConfig. Some backends will automatically do the sizzling for us.
-    if (glslCaps->mustSwizzleInShader()) {
-        const char* swizzleMap = glslCaps->getSwizzleMap(config);
-        // if the map is simply 'rgba' then we don't need to do any manual swizzling to get us to
-        // a GrPixelConfig format.
-        if (memcmp(swizzleMap, "rgba", 4)) {
-            // Manually 'swizzle' the swizzle using our mapping
-            map_swizzle(swizzleMap, swizzle, mangledSwizzle);
-            swizzle = mangledSwizzle;
-        }
-    }
-
-    // For shader prettiness we omit the swizzle rather than appending ".rgba".
-    if (memcmp(swizzle, "rgba", 4)) {
-        out->appendf(".%s", swizzle);
-    }
-}
 
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
@@ -117,14 +60,21 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               const GrGLSLTextureSampler& sampler,
                                               const char* coordName,
                                               GrSLType varyingType) const {
+    const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
-    append_texture_lookup(out,
-                          fProgramBuilder->glslCaps(),
-                          uniformHandler->getUniformCStr(sampler.fSamplerUniform),
-                          coordName,
-                          sampler.config(),
-                          sampler.swizzle(),
-                          varyingType);
+    out->appendf("%s(%s, %s)",
+                 GrGLSLTexture2DFunctionName(varyingType, glslCaps->generation()),
+                 uniformHandler->getUniformCStr(sampler.fSamplerUniform),
+                 coordName);
+
+    // This refers to any swizzling we may need to get from some backend internal format to the
+    // format used in GrPixelConfig. If this is implemented by the GrGpu object, then swizzle will
+    // be rgba. For shader prettiness we omit the swizzle rather than appending ".rgba".
+    const GrSwizzle& configSwizzle = glslCaps->configTextureSwizzle(sampler.config());
+
+    if (configSwizzle != GrSwizzle::RGBA()) {
+        out->appendf(".%s", configSwizzle.c_str());
+    }
 }
 
 void GrGLSLShaderBuilder::appendTextureLookup(const GrGLSLTextureSampler& sampler,
