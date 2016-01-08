@@ -48,14 +48,6 @@ public:
     void store2(SkPMColor[2]) const;
     void store1(SkPMColor[1]) const;
 
-    // Same as above for 565.
-    static Sk4px Load4(const SkPMColor16 src[4]);
-    static Sk4px Load2(const SkPMColor16 src[2]);
-    static Sk4px Load1(const SkPMColor16 src[1]);
-    void store4(SkPMColor16 dst[4]) const;
-    void store2(SkPMColor16 dst[2]) const;
-    void store1(SkPMColor16 dst[1]) const;
-
     // 1, 2, or 4 SkPMColors with 16-bit components.
     // This is most useful as the result of a multiply, e.g. from mulWiden().
     class Wide : public Sk16h {
@@ -105,8 +97,8 @@ public:
 
     // A generic driver that maps fn over a src array into a dst array.
     // fn should take an Sk4px (4 src pixels) and return an Sk4px (4 dst pixels).
-    template <typename Fn, typename Dst>
-    static void MapSrc(int n, Dst* dst, const SkPMColor* src, const Fn& fn) {
+    template <typename Fn>
+    static void MapSrc(int n, SkPMColor* dst, const SkPMColor* src, const Fn& fn) {
         SkASSERT(dst);
         SkASSERT(src);
         // This looks a bit odd, but it helps loop-invariant hoisting across different calls to fn.
@@ -137,8 +129,8 @@ public:
     }
 
     // As above, but with dst4' = fn(dst4, src4).
-    template <typename Fn, typename Dst>
-    static void MapDstSrc(int n, Dst* dst, const SkPMColor* src, const Fn& fn) {
+    template <typename Fn>
+    static void MapDstSrc(int n, SkPMColor* dst, const SkPMColor* src, const Fn& fn) {
         SkASSERT(dst);
         SkASSERT(src);
         while (n > 0) {
@@ -167,8 +159,8 @@ public:
     }
 
     // As above, but with dst4' = fn(dst4, alpha4).
-    template <typename Fn, typename Dst>
-    static void MapDstAlpha(int n, Dst* dst, const SkAlpha* a, const Fn& fn) {
+    template <typename Fn>
+    static void MapDstAlpha(int n, SkPMColor* dst, const SkAlpha* a, const Fn& fn) {
         SkASSERT(dst);
         SkASSERT(a);
         while (n > 0) {
@@ -197,8 +189,8 @@ public:
     }
 
     // As above, but with dst4' = fn(dst4, src4, alpha4).
-    template <typename Fn, typename Dst>
-    static void MapDstSrcAlpha(int n, Dst* dst, const SkPMColor* src, const SkAlpha* a,
+    template <typename Fn>
+    static void MapDstSrcAlpha(int n, SkPMColor* dst, const SkPMColor* src, const SkAlpha* a,
                                const Fn& fn) {
         SkASSERT(dst);
         SkASSERT(src);

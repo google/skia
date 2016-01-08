@@ -106,35 +106,4 @@ inline Sk4px Sk4px::zeroColors() const {
                  0,0,0, this->kth<15>());
 }
 
-inline Sk4px Sk4px::Load4(const SkPMColor16 src[4]) {
-    SkPMColor src32[4];
-    for (int i = 0; i < 4; i++) { src32[i] = SkPixel16ToPixel32(src[i]); }
-    return Load4(src32);
-}
-inline Sk4px Sk4px::Load2(const SkPMColor16 src[2]) {
-    SkPMColor src32[2];
-    for (int i = 0; i < 2; i++) { src32[i] = SkPixel16ToPixel32(src[i]); }
-    return Load2(src32);
-}
-inline Sk4px Sk4px::Load1(const SkPMColor16 src[1]) {
-    SkPMColor src32 = SkPixel16ToPixel32(src[0]);
-    return Load1(&src32);
-}
-
-inline void Sk4px::store4(SkPMColor16 dst[4]) const {
-    SkPMColor dst32[4];
-    this->store4(dst32);
-    for (int i = 0; i < 4; i++) { dst[i] = SkPixel32ToPixel16(dst32[i]); }
-}
-inline void Sk4px::store2(SkPMColor16 dst[2]) const {
-    SkPMColor dst32[2];
-    this->store2(dst32);
-    for (int i = 0; i < 2; i++) { dst[i] = SkPixel32ToPixel16(dst32[i]); }
-}
-inline void Sk4px::store1(SkPMColor16 dst[1]) const {
-    SkPMColor dst32;
-    this->store1(&dst32);
-    dst[0] = SkPixel32ToPixel16(dst32);
-}
-
 }  // namespace

@@ -300,14 +300,6 @@
 #  endif
 #endif
 
-#if defined(SK_BUILD_FOR_WIN) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #define SK_VECTORCALL __vectorcall
-#elif defined(SK_CPU_ARM32)
-    #define SK_VECTORCALL __attribute__((pcs("aapcs-vfp")))
-#else
-    #define SK_VECTORCALL
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
