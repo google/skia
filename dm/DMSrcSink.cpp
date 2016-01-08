@@ -1004,6 +1004,36 @@ static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkS
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DEFINE_bool(check, true, "If true, have most Via- modes fail if they affect the output.");
+
+// Is *bitmap identical to what you get drawing src into sink?
+static Error check_against_reference(const SkBitmap* bitmap, const Src& src, Sink* sink) {
+    // We can only check raster outputs.
+    // (Non-raster outputs like .pdf, .skp, .svg may differ but still draw identically.)
+    if (FLAGS_check && bitmap) {
+        SkBitmap reference;
+        SkString log;
+        Error err = sink->draw(src, &reference, nullptr, &log);
+        // If we can draw into this Sink via some pipeline, we should be able to draw directly.
+        SkASSERT(err.isEmpty());
+        if (!err.isEmpty()) {
+            return err;
+        }
+        // The dimensions are a property of the Src only, and so should be identical.
+        SkASSERT(reference.getSize() == bitmap->getSize());
+        if (reference.getSize() != bitmap->getSize()) {
+            return "Dimensions don't match reference";
+        }
+        // All SkBitmaps in DM are pre-locked and tight, so this comparison is easy.
+        if (0 != memcmp(reference.getPixels(), bitmap->getPixels(), reference.getSize())) {
+            return "Pixels don't match reference";
+        }
+    }
+    return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 static SkISize auto_compute_translate(SkMatrix* matrix, int srcW, int srcH) {
     SkRect bounds = SkRect::MakeIWH(srcW, srcH);
     matrix->mapRect(&bounds);
@@ -1073,15 +1103,6 @@ Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStr
 
 Error ViaSerialization::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    // Draw the Src directly as a reference.
-    SkBitmap reference;
-    if (bitmap) {
-        Error err = fSink->draw(src, &reference, nullptr, log);
-        if (!err.isEmpty()) {
-            return err;
-        }
-    }
-
     // Record our Src into a picture.
     auto size = src.size();
     SkPictureRecorder recorder;
@@ -1100,16 +1121,7 @@ Error ViaSerialization::draw(
 
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);
-        // Check against the reference if we have one.
-        if (bitmap) {
-            if (reference.getSize() != bitmap->getSize()) {
-                return "Serialized and direct have different dimensions.";
-            }
-            if (0 != memcmp(reference.getPixels(), bitmap->getPixels(), reference.getSize())) {
-                return "Serialized and direct have different pixels.";
-            }
-        }
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 
@@ -1169,6 +1181,24 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        SkPictureRecorder recorder;
+        SkAutoTUnref<SkPicture> pic;
+        Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                     SkIntToScalar(size.height())));
+        if (!err.isEmpty()) {
+            return err;
+        }
+        pic.reset(recorder.endRecordingAsPicture());
+        canvas->drawPicture(pic);
+        return check_against_reference(bitmap, src, fSink);
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 // Draw the Src into two pictures, then draw the second picture into the wrapped Sink.
 // This tests that any shortcuts we may take while recording that second picture are legal.
 Error ViaSecondPicture::draw(
@@ -1186,7 +1216,7 @@ Error ViaSecondPicture::draw(
             pic.reset(recorder.endRecordingAsPicture());
         }
         canvas->drawPicture(pic);
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 
@@ -1203,7 +1233,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
                 return err;
             }
         }
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 
@@ -1273,7 +1303,7 @@ Error ViaSingletonPictures::draw(
         SkAutoTUnref<SkPicture> macroPic(macroRec.endRecordingAsPicture());
 
         canvas->drawPicture(macroPic);
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 

@@ -37,6 +37,7 @@ def get_args(bot):
 
   if '-GCE-' in bot:
     configs.append('sp-8888')
+    configs.extend(['twice-8888', '2ndpic-8888'])
     configs.extend(['remote-8888', 'remote_cache-8888'])
 
   if '-TSAN' not in bot:
@@ -67,7 +68,7 @@ def get_args(bot):
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
-                   ['serialize', 'tiles_rt', 'pipe'])
+                   ['serialize', 'tiles_rt', 'pic'])
 
   if 'ANGLE' in bot:
     configs.append('angle')
@@ -191,6 +192,16 @@ def get_args(bot):
                'verylargebitmap',              # Windows only.
                'verylarge_picture_image']:     # Windows only.
     blacklist.extend(['serialize-8888', 'gm', '_', test])
+  # skia:4769
+  for test in ['blend',
+               'drawfilter',
+               'path_stroke_with_zero_length',
+               'textblobgeometrychange']:
+    blacklist.extend(['pic-8888', 'gm', '_', test])
+    blacklist.extend(['2ndpic-8888', 'gm', '_', test])
+    blacklist.extend(['sp-8888', 'gm', '_', test])
+  for test in ['patch_primitive']:
+    blacklist.extend(['sp-8888', 'gm', '_', test])
 
   if blacklist:
     args.append('--blacklist')
