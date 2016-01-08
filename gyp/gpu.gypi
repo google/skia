@@ -55,8 +55,10 @@
       '<(skia_include_path)/gpu/gl/GrGLTypes.h',
 
       # Private includes
+      '<(skia_include_path)/private/GrAuditTrail.h',
       '<(skia_include_path)/private/GrSingleOwner.h',
 
+      '<(skia_src_path)/gpu/GrAuditTrail.cpp',
       '<(skia_src_path)/gpu/GrAutoLocaleSetter.h',
       '<(skia_src_path)/gpu/GrAllocator.h',
       '<(skia_src_path)/gpu/GrBatchAtlas.cpp',

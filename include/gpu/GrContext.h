@@ -17,6 +17,7 @@
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
+#include "../private/GrAuditTrail.h"
 #include "../private/GrSingleOwner.h"
 #include "../private/SkMutex.h"
 
@@ -358,6 +359,8 @@ public:
     /** Get pointer to atlas texture for given mask format */
     GrTexture* getFontAtlasTexture(GrMaskFormat format);
 
+    SkString dumpAuditTrailToJson() const { return fAuditTrail.toJson(); }
+
 private:
     GrGpu*                          fGpu;
     const GrCaps*                   fCaps;
@@ -404,6 +407,8 @@ private:
     const uint32_t                  fUniqueID;
 
     SkAutoTDelete<GrDrawingManager> fDrawingManager;
+
+    GrAuditTrail                    fAuditTrail;
 
     // TODO: have the CMM use drawContexts and rm this friending
     friend class GrClipMaskManager; // the CMM is friended just so it can call 'drawingManager'
