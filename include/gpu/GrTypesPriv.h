@@ -12,10 +12,10 @@
 #include "SkTArray.h"
 #include "SkRect.h"
 
-/**
- * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
- * but should be applicable to other shader languages.)
- */
+ /**
+  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
+  * but should be applicable to other shader languages.)
+  */
 enum GrSLType {
     kVoid_GrSLType,
     kFloat_GrSLType,

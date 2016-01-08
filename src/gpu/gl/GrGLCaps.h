@@ -9,9 +9,10 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
-#include "GrCaps.h"
 #include "glsl/GrGLSL.h"
+#include "GrCaps.h"
 #include "GrGLStencilAttachment.h"
+#include "GrSwizzle.h"
 #include "SkChecksum.h"
 #include "SkTHash.h"
 #include "SkTArray.h"
@@ -140,6 +141,11 @@ public:
     /** Returns conversions to various GL format parameters for a GrPixelCfonig. */
     const ConfigFormats& configGLFormats(GrPixelConfig config) const {
         return fConfigTable[config].fFormats;
+    }
+
+    /** Returns the mapping between GrPixelConfig components and GL internal format components. */
+    const GrSwizzle& configSwizzle(GrPixelConfig config) const {
+        return fConfigTable[config].fSwizzle;
     }
 
     /**
@@ -307,6 +313,9 @@ public:
     /// Are textures with GL_TEXTURE_EXTERNAL_OES type supported.
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
+    /// GL_ARB_texture_swizzle
+    bool textureSwizzleSupport() const { return fTextureSwizzleSupport; }
+
     /**
      * Is there support for enabling/disabling sRGB writes for sRGB-capable color attachments?
      * If false this does not mean sRGB is not supported but rather that if it is supported
@@ -335,14 +344,11 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initConfigTable(const GrGLContextInfo&, const GrGLInterface* gli);
+    void initConfigTable(const GrGLContextInfo&, const GrGLInterface* gli, GrGLSLCaps* glslCaps);
 
     void initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                                   const GrGLInterface* intf,
                                   GrGLSLCaps* glslCaps);
-
-    void initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps* glslCaps);
-
 
     SkTArray<StencilFormat, true> fStencilFormats;
 
@@ -376,6 +382,7 @@ private:
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
     bool fExternalTextureSupport : 1;
+    bool fTextureSwizzleSupport : 1;
 
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {
@@ -418,6 +425,8 @@ private:
             kRenderableWithMSAA_Flag      = 0x8,
         };
         uint32_t fFlags;
+
+        GrSwizzle fSwizzle;
     };
 
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
