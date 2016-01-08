@@ -7,6 +7,7 @@
 
 #include "SkSwizzler.h"
 #include "Test.h"
+#include "SkOpts.h"
 
 // These are the values that we will look for to indicate that the fill was successful
 static const uint8_t kFillIndex = 0x11;
@@ -123,4 +124,36 @@ DEF_TEST(SwizzlerFill, r) {
             }
         }
     }
+}
+
+DEF_TEST(SwizzleOpts, r) {
+    uint32_t dst, src;
+
+    // forall c, c*255 == c, c*0 == 0
+    for (int c = 0; c <= 255; c++) {
+        src = (255<<24) | c;
+        SkOpts::premul_xxxa(&dst, &src, 1);
+        REPORTER_ASSERT(r, dst == src);
+        SkOpts::premul_swaprb_xxxa(&dst, &src, 1);
+        REPORTER_ASSERT(r, dst == (uint32_t)((255<<24) | (c<<16)));
+
+        src = (0<<24) | c;
+        SkOpts::premul_xxxa(&dst, &src, 1);
+        REPORTER_ASSERT(r, dst == 0);
+        SkOpts::premul_swaprb_xxxa(&dst, &src, 1);
+        REPORTER_ASSERT(r, dst == 0);
+    }
+
+    // check a totally arbitrary color
+    src = 0xFACEB004;
+    SkOpts::premul_xxxa(&dst, &src, 1);
+    REPORTER_ASSERT(r, dst == 0xFACAAD04);
+
+    // swap red and blue
+    SkOpts::swaprb_xxxa(&dst, &src, 1);
+    REPORTER_ASSERT(r, dst == 0xFA04B0CE);
+
+    // all together now
+    SkOpts::premul_swaprb_xxxa(&dst, &src, 1);
+    REPORTER_ASSERT(r, dst == 0xFA04ADCA);
 }
