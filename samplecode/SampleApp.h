@@ -180,7 +180,7 @@ private:
     SkAutoTUnref<SkDocument> fPDFDocument;
 
     bool fUseClip;
-    bool fUseMPD;
+    bool fUsePicture;
     bool fAnimating;
     bool fRotate;
     bool fPerspAnim;

@@ -840,7 +840,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 #endif
 
     fUseClip = false;
-    fUseMPD = false;
+    fUsePicture = false;
     fAnimating = false;
     fRotate = false;
     fPerspAnim = false;
@@ -1308,7 +1308,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         canvas = fPDFDocument->beginPage(this->width(), this->height());
     } else if (fSaveToSKP) {
         canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
-    } else if (fUseMPD) {
+    } else if (fUsePicture) {
         canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
     } else {
         canvas = this->INHERITED::beforeChildren(canvas);
@@ -1370,9 +1370,10 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         return;
     }
 
-    if (fUseMPD) {
+    if (fUsePicture) {
         SkAutoTUnref<const SkPicture> picture(fRecorder.endRecording());
 
+        // serialize/deserialize?
         if (false) {
             SkDynamicMemoryWStream wstream;
             picture->serialize(&wstream);
@@ -1380,54 +1381,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
             picture.reset(SkPicture::CreateFromStream(rstream));
         }
-
-        if (true) {
-            if (true) {
-                SkImageInfo info;
-                size_t rowBytes;
-                void* addr = orig->accessTopLayerPixels(&info, &rowBytes);
-                if (addr) {
-                    SkSurface* surfs[4];
-                    SkMultiPictureDraw md;
-
-                    SkImageInfo n = SkImageInfo::Make(info.width()/2, info.height()/2,
-                                                      info.colorType(), info.alphaType());
-                    int index = 0;
-                    for (int y = 0; y < 2; ++y) {
-                        for (int x = 0; x < 2; ++x) {
-                            char* p = (char*)addr;
-                            p += y * n.height() * rowBytes;
-                            p += x * n.width() * sizeof(SkPMColor);
-                            surfs[index] = SkSurface::NewRasterDirect(n, p, rowBytes);
-                            SkCanvas* c = surfs[index]->getCanvas();
-                            c->translate(SkIntToScalar(-x * n.width()),
-                                         SkIntToScalar(-y * n.height()));
-                            c->concat(orig->getTotalMatrix());
-                            md.add(c, picture, nullptr, nullptr);
-                            index++;
-                        }
-                    }
-                    md.draw();
-                    for (int i = 0; i < 4; ++i) {
-                        surfs[i]->unref();
-                    }
-                }
-            } else {
-                orig->drawPicture(picture);
-            }
-        } else if (true) {
-            SkDynamicMemoryWStream ostream;
-            picture->serialize(&ostream);
-
-            SkAutoDataUnref data(ostream.copyToData());
-            SkMemoryStream istream(data->data(), data->size());
-            SkAutoTUnref<SkPicture> pict(SkPicture::CreateFromStream(&istream));
-            if (pict.get() != nullptr) {
-                orig->drawPicture(pict.get());
-            }
-        } else {
-            picture->playback(orig);
-        }
+        orig->drawPicture(picture);
     }
 
     // Do this after presentGL and other finishing, rather than in afterChild
@@ -1772,7 +1726,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(nullptr);
             return true;
         case 'M':
-            fUseMPD = !fUseMPD;
+            fUsePicture = !fUsePicture;
             this->inval(nullptr);
             this->updateTitle();
             return true;
@@ -2043,8 +1997,8 @@ void SampleWindow::updateTitle() {
     if (this->getSurfaceProps().flags() & SkSurfaceProps::kUseDeviceIndependentFonts_Flag) {
         title.prepend("<DIF> ");
     }
-    if (fUseMPD) {
-        title.prepend("<MPD> ");
+    if (fUsePicture) {
+        title.prepend("<P> ");
     }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
