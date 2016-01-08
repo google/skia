@@ -9,7 +9,11 @@
 #include "CodecBenchPriv.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
+#include "SkCommandLineFlags.h"
 #include "SkOSFile.h"
+
+// Actually zeroing the memory would throw off timing, so we just lie.
+DEFINE_bool(zero_init, false, "Pretend our destination is zero-intialized, simulating Android?");
 
 CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType,
         SkAlphaType alphaType)
@@ -47,6 +51,10 @@ void CodecBench::onDraw(int n, SkCanvas* canvas) {
     SkAutoTDelete<SkCodec> codec;
     SkPMColor colorTable[256];
     int colorCount;
+    SkCodec::Options options;
+    if (FLAGS_zero_init) {
+        options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+    }
     for (int i = 0; i < n; i++) {
         colorCount = 256;
         codec.reset(SkCodec::NewFromData(fData));
@@ -54,7 +62,7 @@ void CodecBench::onDraw(int n, SkCanvas* canvas) {
         const SkCodec::Result result =
 #endif
         codec->getPixels(fInfo, fPixelStorage.get(), fInfo.minRowBytes(),
-                         nullptr, colorTable, &colorCount);
+                         &options, colorTable, &colorCount);
         SkASSERT(result == SkCodec::kSuccess
                  || result == SkCodec::kIncompleteInput);
     }
