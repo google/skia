@@ -258,10 +258,19 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 
 class GrPipeline;
 
+class MockCaps : public GrCaps {
+public:
+    explicit MockCaps(const GrContextOptions& options) : INHERITED(options) {}
+    bool isConfigTexturable(GrPixelConfig config) const override { return false; }
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
+private:
+    typedef GrCaps INHERITED;
+};
+
 class MockGpu : public GrGpu {
 public:
     MockGpu(GrContext* context, const GrContextOptions& options) : INHERITED(context) {
-        fCaps.reset(new GrCaps(options));
+        fCaps.reset(new MockCaps(options));
     }
     ~MockGpu() override {}
 
