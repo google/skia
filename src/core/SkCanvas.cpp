@@ -42,6 +42,8 @@
 #include "SkGr.h"
 #endif
 
+#define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
+
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -1929,11 +1931,13 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 }
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
+    RETURN_ON_NULL(image);
     this->onDrawImage(image, x, y, paint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
+    RETURN_ON_NULL(image);
     if (dst.isEmpty() || src.isEmpty()) {
         return;
     }
@@ -1942,17 +1946,20 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
+    RETURN_ON_NULL(image);
     this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
                              SrcRectConstraint constraint) {
+    RETURN_ON_NULL(image);
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         constraint);
 }
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
+    RETURN_ON_NULL(image);
     if (dst.isEmpty()) {
         return;
     }
@@ -2002,6 +2009,7 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, con
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                          const SkColor colors[], int count, SkXfermode::Mode mode,
                          const SkRect* cull, const SkPaint* paint) {
+    RETURN_ON_NULL(atlas);
     if (count <= 0) {
         return;
     }
@@ -2644,10 +2652,9 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath&
 }
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
+    RETURN_ON_NULL(blob);
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawTextBlob()");
-    if (blob) {
-        this->onDrawTextBlob(blob, x, y, paint);
-    }
+    this->onDrawTextBlob(blob, x, y, paint);
 }
 
 void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
@@ -2698,23 +2705,21 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 }
 
 void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
-    if (dr) {
-        if (x || y) {
-            SkMatrix matrix = SkMatrix::MakeTrans(x, y);
-            this->onDrawDrawable(dr, &matrix);
-        } else {
-            this->onDrawDrawable(dr, nullptr);
-        }
+    RETURN_ON_NULL(dr);
+    if (x || y) {
+        SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+        this->onDrawDrawable(dr, &matrix);
+    } else {
+        this->onDrawDrawable(dr, nullptr);
     }
 }
 
 void SkCanvas::drawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
-    if (dr) {
-        if (matrix && matrix->isIdentity()) {
-            matrix = nullptr;
-        }
-        this->onDrawDrawable(dr, matrix);
+    RETURN_ON_NULL(dr);
+    if (matrix && matrix->isIdentity()) {
+        matrix = nullptr;
     }
+    this->onDrawDrawable(dr, matrix);
 }
 
 void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
@@ -2884,17 +2889,17 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 #define kMaxPictureOpsToUnrollInsteadOfRef  1
 
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
+    RETURN_ON_NULL(picture);
+
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPicture()");
-    if (picture) {
-        if (matrix && matrix->isIdentity()) {
-            matrix = nullptr;
-        }
-        if (picture->approximateOpCount() <= kMaxPictureOpsToUnrollInsteadOfRef) {
-            SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-            picture->playback(this);
-        } else {
-            this->onDrawPicture(picture, matrix, paint);
-        }
+    if (matrix && matrix->isIdentity()) {
+        matrix = nullptr;
+    }
+    if (picture->approximateOpCount() <= kMaxPictureOpsToUnrollInsteadOfRef) {
+        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+        picture->playback(this);
+    } else {
+        this->onDrawPicture(picture, matrix, paint);
     }
 }
 

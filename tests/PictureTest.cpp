@@ -46,14 +46,13 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
 
 // For a while willPlayBackBitmaps() ignored SkImages and just looked for SkBitmaps.
 static void test_images_are_found_by_willPlayBackBitmaps(skiatest::Reporter* reporter) {
-    // We just need _some_ SkImage.
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(SkBitmap()));
+    // We just need _some_ SkImage
+    const SkPMColor pixel = 0;
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    SkAutoTUnref<SkImage> image(SkImage::NewRasterCopy(info, &pixel, sizeof(pixel)));
 
     SkPictureRecorder recorder;
-    {
-        auto canvas = recorder.beginRecording(100,100);
-        canvas->drawImage(image, 0,0);
-    }
+    recorder.beginRecording(100,100)->drawImage(image, 0,0);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     REPORTER_ASSERT(reporter, picture->willPlayBackBitmaps());
