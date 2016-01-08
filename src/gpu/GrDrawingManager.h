@@ -16,6 +16,7 @@
 
 class GrContext;
 class GrDrawContext;
+class GrSingleOWner;
 class GrSoftwarePathRenderer;
 class GrTextContext;
 
@@ -53,9 +54,11 @@ public:
     static bool ProgramUnitTest(GrContext* context, int maxStages);
 
 private:
-    GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets)
+    GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets,
+                     GrSingleOwner* singleOwner)
         : fContext(context)
         , fOptionsForDrawTargets(optionsForDrawTargets)
+        , fSingleOwner(singleOwner)
         , fAbandoned(false)
         , fNVPRTextContext(nullptr)
         , fPathRendererChain(nullptr)
@@ -77,6 +80,9 @@ private:
 
     GrContext*                  fContext;
     GrDrawTarget::Options       fOptionsForDrawTargets;
+
+    // In debug builds we guard against improper thread handling
+    GrSingleOwner*              fSingleOwner;
 
     bool                        fAbandoned;
     SkTDArray<GrDrawTarget*>    fDrawTargets;

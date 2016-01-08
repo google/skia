@@ -283,7 +283,8 @@ private:
 
     SkDEBUGCODE(void validate() const;)
 
-    GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps);
+    GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps,
+                  GrSingleOwner*);
 
     void internalDrawPath(GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
@@ -309,7 +310,7 @@ private:
     SkSurfaceProps    fSurfaceProps;
 
     // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner fSingleOwner;)
+    mutable GrSingleOwner* fSingleOwner;
 };
 
 #endif
