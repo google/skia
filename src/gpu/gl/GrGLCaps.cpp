@@ -42,7 +42,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
     fExternalTextureSupport = false;
-    fTextureSwizzleSupport = false;
     fSRGBWriteControl = false;
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
@@ -216,16 +215,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                    ctxInfo.hasExtension("OES_EGL_image_external_essl3")) {
             // At least one driver has been found that has this extension without the "GL_" prefix.
             fExternalTextureSupport = true;
-        }
-    }
-
-    if (kGL_GrGLStandard == standard) {
-        if (version >= GR_GL_VER(3,3) || ctxInfo.hasExtension("GL_ARB_texture_swizzle")) {
-            fTextureSwizzleSupport = true;
-        }
-    } else {
-        if (version >= GR_GL_VER(3,0)) {
-            fTextureSwizzleSupport = true;
         }
     }
 
@@ -448,14 +437,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
-
-    if (contextOptions.fUseShaderSwizzling) {
-        fTextureSwizzleSupport = false;
-    }
-
-    // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
-    // already been detected.
-    this->initConfigTable(ctxInfo, gli, glslCaps);
+    // Requires fTexutreSwizzleSupport and fTextureRedSupport to be set before this point.
+    this->initConfigSwizzleTable(ctxInfo, glslCaps);
+    // Requires various members are already correctly initialized (e.g. fTextureRedSupport,
+    // msaa support).
+    this->initConfigTable(ctxInfo, gli);
 
     this->applyOptionsOverrides(contextOptions);
     glslCaps->applyOptionsOverrides(contextOptions);
@@ -880,8 +866,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
-    r.appendf("External texture support: %s\n", (fExternalTextureSupport ? "YES" : "NO"));
-    r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
 
     r.append("Configs\n-------\n");
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
@@ -984,12 +968,49 @@ void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
     }
 }
 
+void GrGLCaps::initConfigSwizzleTable(const GrGLContextInfo& ctxInfo, GrGLSLCaps* glslCaps) {
+    GrGLStandard standard = ctxInfo.standard();
+    GrGLVersion version = ctxInfo.version();
+
+    glslCaps->fMustSwizzleInShader = true;
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3,3) || ctxInfo.hasExtension("GL_ARB_texture_swizzle")) {
+            glslCaps->fMustSwizzleInShader = false;
+        }
+    } else {
+        if (version >= GR_GL_VER(3,0)) {
+            glslCaps->fMustSwizzleInShader = false;
+        }
+    }
+
+    glslCaps->fConfigSwizzle[kUnknown_GrPixelConfig] = nullptr;
+    if (fTextureRedSupport) {
+        glslCaps->fConfigSwizzle[kAlpha_8_GrPixelConfig] = "rrrr";
+        glslCaps->fConfigSwizzle[kAlpha_half_GrPixelConfig] = "rrrr";
+    } else {
+        glslCaps->fConfigSwizzle[kAlpha_8_GrPixelConfig] = "aaaa";
+        glslCaps->fConfigSwizzle[kAlpha_half_GrPixelConfig] = "aaaa";
+    }
+    glslCaps->fConfigSwizzle[kIndex_8_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kRGB_565_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kRGBA_4444_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kRGBA_8888_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kBGRA_8888_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kSRGBA_8888_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kETC1_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kLATC_GrPixelConfig] = "rrrr";
+    glslCaps->fConfigSwizzle[kR11_EAC_GrPixelConfig] = "rrrr";
+    glslCaps->fConfigSwizzle[kASTC_12x12_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kRGBA_float_GrPixelConfig] = "rgba";
+    glslCaps->fConfigSwizzle[kRGBA_half_GrPixelConfig] = "rgba";
+
+}
+
 bool GrGLCaps::bgraIsInternalFormat() const {
     return fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat == GR_GL_BGRA;
 }
 
-void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
-                               GrGLSLCaps* glslCaps) {
+void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     /*
         Comments on renderability of configs on various GL versions.
           OpenGL < 3.0:
@@ -1072,7 +1093,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fExternalFormat = 0;
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fExternalType = 0;
     fConfigTable[kUnknown_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kUnknown_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
     fConfigTable[kRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8;
@@ -1089,7 +1109,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= allRenderFlags;
         }
     }
-    fConfigTable[kRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalFormat= GR_GL_BGRA;
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalType  = GR_GL_UNSIGNED_BYTE;
@@ -1125,7 +1144,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             }
         }
     }
-    fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     // We only enable srgb support if both textures and FBOs support srgb.
     bool srgbSupport = false;
@@ -1159,7 +1177,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                          allRenderFlags;
     }
-    fConfigTable[kSRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
     if (this->ES2CompatibilitySupport()) {
@@ -1178,7 +1195,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     } else {
         fConfigTable[kRGB_565_GrPixelConfig].fFlags |= allRenderFlags;
     }
-    fConfigTable[kRGB_565_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
     fConfigTable[kRGBA_4444_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA4;
@@ -1193,18 +1209,15 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     } else {
         fConfigTable[kRGBA_4444_GrPixelConfig].fFlags |= allRenderFlags;
     }
-    fConfigTable[kRGBA_4444_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     if (this->textureRedSupport()) {
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R8;
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RED;
-        fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
     } else {
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_ALPHA;
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_ALPHA8;
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalFormat = GR_GL_ALPHA;
-        fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
     }
     fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
     fConfigTable[kAlpha_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
@@ -1260,18 +1273,15 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fConfigTable[kRGBA_float_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
-    fConfigTable[kRGBA_float_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     if (this->textureRedSupport()) {
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R16F;
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalFormat = GR_GL_RED;
-        fConfigTable[kAlpha_half_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
     } else {
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_ALPHA;
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_ALPHA16F;
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalFormat = GR_GL_ALPHA;
-        fConfigTable[kAlpha_half_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
     }
     if (kGL_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(3, 0)) {
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT;
@@ -1307,7 +1317,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
-    fConfigTable[kRGBA_half_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     // Compressed texture support
 
@@ -1341,7 +1350,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             }
         }
     }
-    fConfigTable[kIndex_8_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     // May change the internal format based on extensions.
     fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat =
@@ -1370,7 +1378,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     fConfigTable[kLATC_GrPixelConfig].fFormats.fExternalFormat = 0;
     fConfigTable[kLATC_GrPixelConfig].fFormats.fExternalType = 0;
     fConfigTable[kLATC_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kLATC_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
 
     fConfigTable[kETC1_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
     fConfigTable[kETC1_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
@@ -1390,7 +1397,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fConfigTable[kETC1_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
         }
     }
-    fConfigTable[kETC1_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_R11_EAC;
     fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_COMPRESSED_R11_EAC;
@@ -1402,7 +1408,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     if (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) {
         fConfigTable[kR11_EAC_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     }
-    fConfigTable[kR11_EAC_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
 
     fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fBaseInternalFormat =
         GR_GL_COMPRESSED_RGBA_ASTC_12x12;
@@ -1416,7 +1421,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         ctxInfo.hasExtension("GL_OES_texture_compression_astc")) {
         fConfigTable[kASTC_12x12_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     }
-    fConfigTable[kASTC_12x12_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     // Bulk populate the texture internal/external formats here and then deal with exceptions below.
 
@@ -1452,14 +1456,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     //             glTexImage (just for glTexStorage).
     if (useSizedFormats && this->bgraIsInternalFormat())  {
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_BGRA;
-    }
-
-    // If we don't have texture swizzle support then the shader generator must insert the
-    // swizzle into shader code.
-    if (!this->textureSwizzleSupport()) {
-        for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-            glslCaps->fConfigTextureSwizzle[i] = fConfigTable[i].fSwizzle;
-        }
     }
 
 #ifdef SK_DEBUG

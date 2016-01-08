@@ -2485,11 +2485,11 @@ static GrGLenum get_component_enum_from_char(char component) {
 /** If texture swizzling is available using tex parameters then it is preferred over mangling
   the generated shader code. This potentially allows greater reuse of cached shaders. */
 static void get_tex_param_swizzle(GrPixelConfig config,
-                                  const GrGLCaps& caps,
+                                  const GrGLSLCaps& caps,
                                   GrGLenum* glSwizzle) {
-    const GrSwizzle& swizzle = caps.configSwizzle(config);
+    const char* swizzle = caps.getSwizzleMap(config);
     for (int i = 0; i < 4; ++i) {
-        glSwizzle[i] = get_component_enum_from_char(swizzle.c_str()[i]);
+        glSwizzle[i] = get_component_enum_from_char(swizzle[i]);
     }
 }
 
@@ -2558,7 +2558,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
 
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
     newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
-    get_tex_param_swizzle(texture->config(), this->glCaps(), newTexParams.fSwizzleRGBA);
+    get_tex_param_swizzle(texture->config(), *this->glCaps().glslCaps(), newTexParams.fSwizzleRGBA);
     if (setAll || newTexParams.fMagFilter != oldTexParams.fMagFilter) {
         this->setTextureUnit(unitIdx);
         GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAG_FILTER, newTexParams.fMagFilter));
@@ -2575,7 +2575,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
         this->setTextureUnit(unitIdx);
         GL_CALL(TexParameteri(target, GR_GL_TEXTURE_WRAP_T, newTexParams.fWrapT));
     }
-    if (this->glCaps().textureSwizzleSupport() &&
+    if (!this->glCaps().glslCaps()->mustSwizzleInShader() &&
         (setAll || memcmp(newTexParams.fSwizzleRGBA,
                           oldTexParams.fSwizzleRGBA,
                           sizeof(newTexParams.fSwizzleRGBA)))) {

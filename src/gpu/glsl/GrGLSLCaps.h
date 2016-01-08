@@ -11,7 +11,6 @@
 
 #include "GrCaps.h"
 #include "GrGLSL.h"
-#include "GrSwizzle.h"
 
 class GrGLSLCaps : public GrShaderCaps {
 public:
@@ -105,14 +104,14 @@ public:
         return fExternalTextureExtensionString;
     }
 
+    bool mustSwizzleInShader() const { return fMustSwizzleInShader; }
+
     /**
-     * Given a texture's config, this determines what swizzle must be appended to accesses to the
-     * texture in generated shader code. Swizzling may be implemented in texture parameters or a
-     * sampler rather than in the shader. In this case the shader swizzle will always be "rgba".
+     * Returns a string which represents how to map from an internal GLFormat to a given
+     * GrPixelConfig. The function mustSwizzleInShader determines whether this swizzle is applied
+     * in the generated shader code or using sample state in the 3D API.
      */
-    const GrSwizzle& configTextureSwizzle(GrPixelConfig config) const {
-        return fConfigTextureSwizzle[config];
-    }
+    const char* getSwizzleMap(GrPixelConfig config) const { return fConfigSwizzle[config]; }
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
@@ -149,11 +148,13 @@ private:
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
-    GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
+    bool        fMustSwizzleInShader;
+    const char* fConfigSwizzle[kGrPixelConfigCnt];
 
     friend class GrGLCaps;  // For initialization.
 
     typedef GrShaderCaps INHERITED;
 };
+
 
 #endif

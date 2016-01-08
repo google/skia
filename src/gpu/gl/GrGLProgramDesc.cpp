@@ -13,23 +13,36 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
+/**
+ * Do we need to either map r,g,b->a or a->r. configComponentMask indicates which channels are
+ * present in the texture's config. swizzleComponentMask indicates the channels present in the
+ * shader swizzle.
+ */
+static bool swizzle_requires_alpha_remapping(const GrGLSLCaps& caps, GrPixelConfig config) {
+    if (!caps.mustSwizzleInShader()) {
+        // Any remapping is handled using texture swizzling not shader modifications.
+        return false;
+    }
+    const char* swizzleMap = caps.getSwizzleMap(config);
+    
+    return SkToBool(memcmp(swizzleMap, "rgba", 4));
+}
 
-static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
-                            const GrGLSLCaps& caps) {
+static uint32_t gen_texture_key(const GrProcessor& proc, const GrGLCaps& caps) {
+    uint32_t key = 0;
     int numTextures = proc.numTextures();
-    // Need two bytes per key (swizzle and target).
-    int word32Count = (proc.numTextures() + 1) / 2;
-    if (0 == word32Count) {
-        return;
+    int shift = 0;
+    for (int t = 0; t < numTextures; ++t) {
+        const GrTextureAccess& access = proc.textureAccess(t);
+        if (swizzle_requires_alpha_remapping(*caps.glslCaps(), access.getTexture()->config())) {
+            key |= 1 << shift;
+        }
+        if (GR_GL_TEXTURE_EXTERNAL == static_cast<GrGLTexture*>(access.getTexture())->target()) {
+            key |= 2 << shift;
+        }
+        shift += 2;
     }
-    uint16_t* k16 = SkTCast<uint16_t*>(b->add32n(word32Count));
-    for (int i = 0; i < numTextures; ++i) {
-        const GrTextureAccess& access = proc.textureAccess(i);
-        bool isExternal = (GR_GL_TEXTURE_EXTERNAL ==
-                           static_cast<GrGLTexture*>(access.getTexture())->target());
-        k16[i] = caps.configTextureSwizzle(access.getTexture()->config()).asKey() |
-                 (isExternal ? 0xFF00 : 0x0000);
-    }
+    return key;
 }
 
 /**
@@ -38,14 +51,15 @@ static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
  * in its key (e.g. the pixel format of textures used). So we create a meta-key for
  * every effect using this function. It is also responsible for inserting the effect's class ID
  * which must be different for every GrProcessor subclass. It can fail if an effect uses too many
- * transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share this
- * function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
+ * textures, transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share
+ * this function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
  */
 static bool gen_meta_key(const GrProcessor& proc,
                          const GrGLCaps& caps,
                          uint32_t transformKey,
                          GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
+    uint32_t textureKey = gen_texture_key(proc, caps);
     uint32_t classID = proc.classID();
 
     // Currently we allow 16 bits for the class id and the overall processor key size.
@@ -54,11 +68,10 @@ static bool gen_meta_key(const GrProcessor& proc,
         return false;
     }
 
-    add_texture_key(b, proc, *caps.glslCaps());
-
-    uint32_t* key = b->add32n(2);
+    uint32_t* key = b->add32n(3);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
-    key[1] = transformKey;
+    key[1] = textureKey;
+    key[2] = transformKey;
     return true;
 }
 

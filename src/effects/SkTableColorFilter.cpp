@@ -487,7 +487,7 @@ const GrFragmentProcessor* ColorTableEffect::Create(GrContext* context, SkBitmap
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row,
                                    unsigned flags)
-    : fTextureAccess(texture)
+    : fTextureAccess(texture, "a")
     , fFlags(flags)
     , fAtlas(atlas)
     , fRow(row) {
