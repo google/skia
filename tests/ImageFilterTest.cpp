@@ -23,6 +23,7 @@
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPicture.h"
 #include "SkPictureImageFilter.h"
@@ -30,7 +31,6 @@
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
-#include "SkRectShaderImageFilter.h"
 #include "SkSurface.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
@@ -439,14 +439,15 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     SkAutoTUnref<SkImageFilter> pictureFilter(SkPictureImageFilter::Create(picture.get()));
     SkAutoTUnref<SkShader> shader(SkPerlinNoiseShader::CreateTurbulence(SK_Scalar1, SK_Scalar1, 1, 0));
+    SkPaint noisePaint;
+    noisePaint.setShader(shader);
 
-    SkAutoTUnref<SkImageFilter> rectShaderFilter(SkRectShaderImageFilter::Create(shader.get()));
+    SkAutoTUnref<SkImageFilter> paintFilter(SkPaintImageFilter::Create(noisePaint));
 
-    SkAutoTUnref<SkShader> greenColorShader(SkShader::CreateColorShader(SK_ColorGREEN));
     SkImageFilter::CropRect leftSideCropRect(SkRect::MakeXYWH(0, 0, 32, 64));
-    SkAutoTUnref<SkImageFilter> rectShaderFilterLeft(SkRectShaderImageFilter::Create(greenColorShader.get(), &leftSideCropRect));
+    SkAutoTUnref<SkImageFilter> paintFilterLeft(SkPaintImageFilter::Create(greenPaint, &leftSideCropRect));
     SkImageFilter::CropRect rightSideCropRect(SkRect::MakeXYWH(32, 0, 32, 64));
-    SkAutoTUnref<SkImageFilter> rectShaderFilterRight(SkRectShaderImageFilter::Create(greenColorShader.get(), &rightSideCropRect));
+    SkAutoTUnref<SkImageFilter> paintFilterRight(SkPaintImageFilter::Create(greenPaint, &rightSideCropRect));
 
     struct {
         const char*    fName;
@@ -471,7 +472,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
                   SkMatrixConvolutionImageFilter::kRepeat_TileMode, false) },
         { "merge", SkMergeImageFilter::Create(nullptr, nullptr, SkXfermode::kSrcOver_Mode) },
         { "merge with disjoint inputs", SkMergeImageFilter::Create(
-              rectShaderFilterLeft, rectShaderFilterRight, SkXfermode::kSrcOver_Mode) },
+              paintFilterLeft, paintFilterRight, SkXfermode::kSrcOver_Mode) },
         { "offset", SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1) },
         { "dilate", SkDilateImageFilter::Create(3, 2) },
         { "erode", SkErodeImageFilter::Create(2, 3) },
@@ -480,7 +481,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
         { "matrix", SkImageFilter::CreateMatrixFilter(matrix, kLow_SkFilterQuality) },
         { "blur and offset", SkOffsetImageFilter::Create(five, five, blur.get()) },
         { "picture and blur", SkBlurImageFilter::Create(five, five, pictureFilter.get()) },
-        { "rect shader and blur", SkBlurImageFilter::Create(five, five, rectShaderFilter.get()) },
+        { "paint and blur", SkBlurImageFilter::Create(five, five, paintFilter.get()) },
     };
 
     SkBitmap untiledResult, tiledResult;

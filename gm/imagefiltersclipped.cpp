@@ -16,9 +16,9 @@
 #include "SkLightingImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPoint3.h"
-#include "SkRectShaderImageFilter.h"
 #include "SkScalar.h"
 #include "SkSurface.h"
 #include "gm.h"
@@ -139,7 +139,9 @@ protected:
             SkSafeUnref(filters[i]);
         }
 
-        SkAutoTUnref<SkImageFilter> rectFilter(SkRectShaderImageFilter::Create(noise));
+        SkPaint noisePaint;
+        noisePaint.setShader(noise);
+        SkAutoTUnref<SkImageFilter> rectFilter(SkPaintImageFilter::Create(noisePaint));
         canvas->translate(SK_ARRAY_COUNT(filters)*(r.width() + margin), 0);
         for (int xOffset = 0; xOffset < 80; xOffset += 16) {
             bounds.fLeft = SkIntToScalar(xOffset);

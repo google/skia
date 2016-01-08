@@ -5,32 +5,46 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
+#include "Sk1DPathEffect.h"
+#include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
+#include "SkArcToPathEffect.h"
+#include "SkAnnotation.h"
 #include "SkBlurImageFilter.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorCubeFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkColorMatrixFilter.h"
 #include "SkComposeImageFilter.h"
+#include "SkCornerPathEffect.h"
+#include "SkDashPathEffect.h"
 #include "SkData.h"
+#include "SkDiscretePathEffect.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
+#include "SkEmbossMaskFilter.h"
 #include "SkFlattenableSerialization.h"
 #include "SkImageSource.h"
+#include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
+#include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
 #include "SkRandom.h"
-#include "SkRectShaderImageFilter.h"
+#include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
 #include "SkTileImageFilter.h"
+#include "SkTypeface.h"
 #include "SkView.h"
 #include "SkXfermodeImageFilter.h"
 #include <stdio.h>
@@ -94,6 +108,36 @@ static SkScalar make_scalar(bool positiveOnly = false) {
     return make_number(positiveOnly);
 }
 
+static SkString make_string() {
+    int length = R(1000);
+    SkString str(length);
+    for (int i = 0; i < length; ++i) {
+        str[i] = static_cast<char>(R(256));
+    }
+    return str;
+}
+
+static SkString make_font_name() {
+    int sel = R(8);
+
+    switch(sel) {
+        case 0: return SkString("Courier New");
+        case 1: return SkString("Helvetica");
+        case 2: return SkString("monospace");
+        case 3: return SkString("sans-serif");
+        case 4: return SkString("serif");
+        case 5: return SkString("Times");
+        case 6: return SkString("Times New Roman");
+        case 7:
+        default:
+            return make_string();
+    }
+}
+
+static bool make_bool() {
+    return R(2) == 1;
+}
+
 static SkRect make_rect() {
     return SkRect::MakeWH(SkIntToScalar(R(static_cast<float>(kBitmapSize))),
                           SkIntToScalar(R(static_cast<float>(kBitmapSize))));
@@ -117,6 +161,50 @@ static SkMatrix make_matrix() {
 
 static SkXfermode::Mode make_xfermode() {
     return static_cast<SkXfermode::Mode>(R(SkXfermode::kLastMode+1));
+}
+
+static SkPaint::Align make_paint_align() {
+    return static_cast<SkPaint::Align>(R(SkPaint::kRight_Align+1));
+}
+
+static SkPaint::Hinting make_paint_hinting() {
+    return static_cast<SkPaint::Hinting>(R(SkPaint::kFull_Hinting+1));
+}
+
+static SkPaint::Style make_paint_style() {
+    return static_cast<SkPaint::Style>(R(SkPaint::kStrokeAndFill_Style+1));
+}
+
+static SkPaint::Cap make_paint_cap() {
+    return static_cast<SkPaint::Cap>(R(SkPaint::kDefault_Cap+1));
+}
+
+static SkPaint::Join make_paint_join() {
+    return static_cast<SkPaint::Join>(R(SkPaint::kDefault_Join+1));
+}
+
+static SkPaint::TextEncoding make_paint_text_encoding() {
+    return static_cast<SkPaint::TextEncoding>(R(SkPaint::kGlyphID_TextEncoding+1));
+}
+
+static SkBlurStyle make_blur_style() {
+    return static_cast<SkBlurStyle>(R(kLastEnum_SkBlurStyle+1));
+}
+
+static SkBlurMaskFilter::BlurFlags make_blur_mask_filter_flag() {
+    return static_cast<SkBlurMaskFilter::BlurFlags>(R(SkBlurMaskFilter::kAll_BlurFlag+1));
+}
+
+static SkFilterQuality make_filter_quality() {
+    return static_cast<SkFilterQuality>(R(kHigh_SkFilterQuality+1));
+}
+
+static SkTypeface::Style make_typeface_style() {
+    return static_cast<SkTypeface::Style>(R(SkTypeface::kBoldItalic+1));
+}
+
+static SkPath1DPathEffect::Style make_path_1d_path_effect_style() {
+    return static_cast<SkPath1DPathEffect::Style>(R(SkPath1DPathEffect::kStyleCount));
 }
 
 static SkColor make_color() {
@@ -257,7 +345,213 @@ static void drawSomething(SkCanvas* canvas) {
     canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
 }
 
-static SkImageFilter* make_image_filter(bool canBeNull = true) {
+static void rand_color_table(uint8_t* table) {
+    for (int i = 0; i < 256; ++i) {
+        table[i] = R(256);
+    }
+}
+
+static SkColorFilter* make_color_filter() {
+    SkColorFilter* colorFilter;
+    switch (R(6)) {
+        case 0: {
+            SkScalar array[20];
+            for (int i = 0; i < 20; ++i) {
+                array[i] = make_scalar();
+            }
+            colorFilter = SkColorMatrixFilter::Create(array);
+            break;
+        }
+        case 1:
+            colorFilter = SkLumaColorFilter::Create();
+            break;
+        case 2: {
+            uint8_t tableA[256];
+            uint8_t tableR[256];
+            uint8_t tableG[256];
+            uint8_t tableB[256];
+            rand_color_table(tableA);
+            rand_color_table(tableR);
+            rand_color_table(tableG);
+            rand_color_table(tableB);
+            colorFilter = SkTableColorFilter::CreateARGB(tableA, tableR, tableG, tableB);
+            break;
+        }
+        case 3:
+            colorFilter = SkColorFilter::CreateModeFilter(make_color(), make_xfermode());
+            break;
+        case 4:
+            colorFilter = SkColorFilter::CreateLightingFilter(make_color(), make_color());
+            break;
+        case 5:
+        default:
+            colorFilter = nullptr;
+            break;
+    }
+    return colorFilter;
+}
+
+static SkPath make_path() {
+    SkPath path;
+    int numOps = R(30);
+    for (int i = 0; i < numOps; ++i) {
+        switch (R(6)) {
+            case 0:
+                path.moveTo(make_scalar(), make_scalar());
+                break;
+            case 1:
+                path.lineTo(make_scalar(), make_scalar());
+                break;
+            case 2:
+                path.quadTo(make_scalar(), make_scalar(), make_scalar(), make_scalar());
+                break;
+            case 3:
+                path.conicTo(make_scalar(), make_scalar(), make_scalar(), make_scalar(), make_scalar());
+                break;
+            case 4:
+                path.cubicTo(make_scalar(), make_scalar(), make_scalar(),
+                             make_scalar(), make_scalar(), make_scalar());
+                break;
+            case 5:
+            default:
+                path.arcTo(make_scalar(), make_scalar(), make_scalar(), make_scalar(), make_scalar());
+                break;
+
+        }
+    }
+    path.close();
+    return path;
+}
+
+static SkPathEffect* make_path_effect(bool canBeNull = true) {
+    SkPathEffect* pathEffect = nullptr;
+    if (canBeNull && (R(3) == 1)) { return pathEffect; }
+
+    switch (R(9)) {
+        case 0:
+            pathEffect = SkArcToPathEffect::Create(make_scalar(true));
+            break;
+        case 1: {
+            SkAutoTUnref<SkPathEffect> outer(make_path_effect(false));
+            SkAutoTUnref<SkPathEffect> inner(make_path_effect(false));
+            pathEffect = SkComposePathEffect::Create(outer, inner);
+            break;
+        }
+        case 2:
+            pathEffect = SkCornerPathEffect::Create(make_scalar());
+            break;
+        case 3: {
+            int count = R(10);
+            SkScalar intervals[10];
+            for (int i = 0; i < count; ++i) {
+                intervals[i] = make_scalar();
+            }
+            pathEffect = SkDashPathEffect::Create(intervals, count, make_scalar());
+            break;
+        }
+        case 4:
+            pathEffect = SkDiscretePathEffect::Create(make_scalar(), make_scalar());
+            break;
+        case 5:
+            pathEffect = SkPath1DPathEffect::Create(make_path(),
+                                                    make_scalar(),
+                                                    make_scalar(),
+                                                    make_path_1d_path_effect_style());
+            break;
+        case 6:
+            pathEffect = SkLine2DPathEffect::Create(make_scalar(), make_matrix());
+            break;
+        case 7:
+            pathEffect = SkPath2DPathEffect::Create(make_matrix(), make_path());
+            break;
+        case 8:
+        default:
+            pathEffect = SkSumPathEffect::Create(make_path_effect(false),
+                                                 make_path_effect(false));
+            break;
+    }
+    return pathEffect;
+}
+
+static SkMaskFilter* make_mask_filter() {
+    SkMaskFilter* maskFilter;
+    switch (R(3)) {
+        case 0:
+            maskFilter = SkBlurMaskFilter::Create(make_blur_style(),
+                                                  make_scalar(),
+                                                  make_blur_mask_filter_flag());
+        case 1: {
+            SkEmbossMaskFilter::Light light;
+            for (int i = 0; i < 3; ++i) {
+                light.fDirection[i] = make_scalar();
+            }
+            light.fPad = R(65536);
+            light.fAmbient = R(256);
+            light.fSpecular = R(256);
+            maskFilter = SkEmbossMaskFilter::Create(make_scalar(),
+                                                    light);
+        }
+        case 2:
+        default:
+            maskFilter = nullptr;
+            break;
+    }
+    return maskFilter;
+}
+
+static SkImageFilter* make_image_filter(bool canBeNull = true);
+
+static SkPaint make_paint() {
+    SkPaint paint;
+    paint.setHinting(make_paint_hinting());
+    paint.setAntiAlias(make_bool());
+    paint.setDither(make_bool());
+    paint.setLinearText(make_bool());
+    paint.setSubpixelText(make_bool());
+    paint.setLCDRenderText(make_bool());
+    paint.setEmbeddedBitmapText(make_bool());
+    paint.setAutohinted(make_bool());
+    paint.setVerticalText(make_bool());
+    paint.setUnderlineText(make_bool());
+    paint.setStrikeThruText(make_bool());
+    paint.setFakeBoldText(make_bool());
+    paint.setDevKernText(make_bool());
+    paint.setFilterQuality(make_filter_quality());
+    paint.setStyle(make_paint_style());
+    paint.setColor(make_color());
+    paint.setStrokeWidth(make_scalar());
+    paint.setStrokeMiter(make_scalar());
+    paint.setStrokeCap(make_paint_cap());
+    paint.setStrokeJoin(make_paint_join());
+    paint.setColorFilter(make_color_filter());
+    paint.setXfermodeMode(make_xfermode());
+    paint.setPathEffect(make_path_effect());
+    paint.setMaskFilter(make_mask_filter());
+    SkAutoTUnref<SkTypeface> typeface(
+        SkTypeface::CreateFromName(make_font_name().c_str(), make_typeface_style()));
+    paint.setTypeface(typeface);
+    SkLayerRasterizer::Builder rasterizerBuilder;
+    SkPaint paintForRasterizer;
+    if (R(2) == 1) {
+        paintForRasterizer = make_paint();
+    }
+    rasterizerBuilder.addLayer(paintForRasterizer);
+    SkAutoTUnref<SkRasterizer> rasterizer(rasterizerBuilder.detachRasterizer());
+    paint.setRasterizer(rasterizer);
+    paint.setImageFilter(make_image_filter());
+    SkAutoDataUnref data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
+    SkAutoTUnref<SkAnnotation> annotation(
+        SkAnnotation::Create(make_string().c_str(), data));
+    paint.setAnnotation(annotation);
+    paint.setTextAlign(make_paint_align());
+    paint.setTextSize(make_scalar());
+    paint.setTextScaleX(make_scalar());
+    paint.setTextSkewX(make_scalar());
+    paint.setTextEncoding(make_paint_text_encoding());
+    return paint;
+}
+
+static SkImageFilter* make_image_filter(bool canBeNull) {
     SkImageFilter* filter = 0;
 
     // Add a 1 in 3 chance to get a nullptr input
@@ -266,7 +560,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     enum { ALPHA_THRESHOLD, MERGE, COLOR, LUT3D, BLUR, MAGNIFIER,
            DOWN_SAMPLE, XFERMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
-           MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, NUM_FILTERS };
+           MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, PAINT, NUM_FILTERS };
 
     switch (R(NUM_FILTERS)) {
     case ALPHA_THRESHOLD:
@@ -277,9 +571,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         break;
     case COLOR:
     {
-        SkAutoTUnref<SkColorFilter> cf((R(2) == 1) ?
-                 SkColorFilter::CreateModeFilter(make_color(), make_xfermode()) :
-                 SkColorFilter::CreateLightingFilter(make_color(), make_color()));
+        SkAutoTUnref<SkColorFilter> cf(make_color_filter());
         filter = cf.get() ? SkColorFilterImageFilter::Create(cf, make_image_filter()) : 0;
     }
         break;
@@ -372,9 +664,11 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()) :
             SkPerlinNoiseShader::CreateTurbulence(
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()));
+        SkPaint paint;
+        paint.setShader(shader);
         SkImageFilter::CropRect cropR(SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                                      SkIntToScalar(kBitmapSize)));
-        filter = SkRectShaderImageFilter::Create(shader, &cropR);
+        filter = SkPaintImageFilter::Create(paint, &cropR);
     }
         break;
     case DROP_SHADOW:
@@ -421,6 +715,11 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         filter = SkPictureImageFilter::Create(pict.get(), make_rect());
     }
         break;
+    case PAINT:
+    {
+        SkImageFilter::CropRect cropR(make_rect());
+        filter = SkPaintImageFilter::Create(make_paint(), &cropR);
+    }
     default:
         break;
     }

@@ -51,6 +51,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkOnce.h"
+#include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkPictureShader.h"
@@ -95,6 +96,7 @@ public:
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLine2DPathEffect)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
+        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPaintImageFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureImageFilter)

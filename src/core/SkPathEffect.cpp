@@ -67,7 +67,11 @@ void SkPairPathEffect::toString(SkString* str) const {
 SkFlattenable* SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkPathEffect> pe0(buffer.readPathEffect());
     SkAutoTUnref<SkPathEffect> pe1(buffer.readPathEffect());
-    return SkComposePathEffect::Create(pe0, pe1);
+    if (pe0 && pe1) {
+        return SkComposePathEffect::Create(pe0, pe1);
+    } else {
+        return nullptr;
+    }
 }
 
 bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
@@ -100,7 +104,11 @@ void SkComposePathEffect::toString(SkString* str) const {
 SkFlattenable* SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkAutoTUnref<SkPathEffect> pe0(buffer.readPathEffect());
     SkAutoTUnref<SkPathEffect> pe1(buffer.readPathEffect());
-    return SkSumPathEffect::Create(pe0, pe1);
+    if (pe0 && pe1) {
+        return SkSumPathEffect::Create(pe0, pe1);
+    } else {
+        return nullptr;
+    }
 }
 
 bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
