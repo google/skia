@@ -835,6 +835,13 @@ void GrAAConvexTessellator::lineTo(SkPoint p, bool isCurve) {
         this->popLastPt();
         fNorms.pop();
         fIsCurve.pop();
+        // double-check that the new last point is not a duplicate of the new point. In an ideal
+        // world this wouldn't be necessary (since it's only possible for non-convex paths), but
+        // floating point precision issues mean it can actually happen on paths that were determined
+        // to be convex.
+        if (duplicate_pt(p, this->lastPoint())) {
+            return;
+        }
     }
     SkScalar initialRingCoverage = fStrokeWidth < 0.0f ? 0.5f : 1.0f;
     this->addPt(p, 0.0f, initialRingCoverage, false, isCurve);
