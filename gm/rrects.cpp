@@ -26,12 +26,15 @@ public:
         kAA_Clip_Type,
         kEffect_Type,
     };
-    RRectGM(Type type) : fType(type) {
+    RRectGM(Type type) : fType(type) { }
+
+protected:
+
+    void onOnceBeforeDraw() override {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
         this->setUpRRects();
     }
 
-protected:
     SkString onShortName() override {
         SkString name("rrect");
         switch (fType) {
