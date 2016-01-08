@@ -264,7 +264,7 @@ public:
     // Otherwise, the filter will be processed in software and
     // uploaded to the GPU.
     bool filterInputGPU(int index, SkImageFilter::Proxy* proxy, const SkBitmap& src, const Context&,
-                        SkBitmap* result, SkIPoint* offset, bool relaxSizeConstraint = true) const;
+                        SkBitmap* result, SkIPoint* offset) const;
 #endif
 
     SK_TO_STRING_PUREVIRT()

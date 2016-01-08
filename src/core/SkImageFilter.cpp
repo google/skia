@@ -520,8 +520,7 @@ void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBit
 
 bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
                                    const SkBitmap& src, const Context& origCtx,
-                                   SkBitmap* result, SkIPoint* offset,
-                                   bool relaxSizeConstraint) const {
+                                   SkBitmap* result, SkIPoint* offset) const {
     SkImageFilter* input = this->getInput(index);
     if (!input) {
         return true;
@@ -531,11 +530,7 @@ bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
     // called are restored before we return to the caller.
     GrContext* context = src.getTexture()->getContext();
 
-    SizeConstraint constraint = origCtx.sizeConstraint();
-    if (relaxSizeConstraint && (kExact_SizeConstraint == constraint)) {
-        constraint = kApprox_SizeConstraint;
-    }
-    Context ctx(origCtx.ctm(), origCtx.clipBounds(), origCtx.cache(), constraint);
+    Context ctx(origCtx.ctm(), origCtx.clipBounds(), origCtx.cache(), kApprox_SizeConstraint);
 
     if (input->filterImage(proxy, src, this->mapContext(ctx), result, offset)) {
         if (!result->getTexture()) {
