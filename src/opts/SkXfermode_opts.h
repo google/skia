@@ -17,7 +17,7 @@ namespace {
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
 #define XFERMODE(Xfermode) \
     struct Xfermode { Sk4px operator()(const Sk4px&, const Sk4px&) const; }; \
-    inline Sk4px Xfermode::operator()(const Sk4px& s, const Sk4px& d) const
+    inline Sk4px Xfermode::operator()(const Sk4px& d, const Sk4px& s) const
 
 XFERMODE(Clear) { return Sk4px::DupPMColor(0); }
 XFERMODE(Src)   { return s; }
@@ -25,13 +25,13 @@ XFERMODE(Dst)   { return d; }
 XFERMODE(SrcIn)   { return     s.approxMulDiv255(d.alphas()      ); }
 XFERMODE(SrcOut)  { return     s.approxMulDiv255(d.alphas().inv()); }
 XFERMODE(SrcOver) { return s + d.approxMulDiv255(s.alphas().inv()); }
-XFERMODE(DstIn)   { return SrcIn  ()(d,s); }
-XFERMODE(DstOut)  { return SrcOut ()(d,s); }
-XFERMODE(DstOver) { return SrcOver()(d,s); }
+XFERMODE(DstIn)   { return SrcIn  ()(s,d); }
+XFERMODE(DstOut)  { return SrcOut ()(s,d); }
+XFERMODE(DstOver) { return SrcOver()(s,d); }
 
 // [ S * Da + (1 - Sa) * D]
 XFERMODE(SrcATop) { return (s * d.alphas() + d * s.alphas().inv()).div255(); }
-XFERMODE(DstATop) { return SrcATop()(d,s); }
+XFERMODE(DstATop) { return SrcATop()(s,d); }
 //[ S * (1 - Da) + (1 - Sa) * D ]
 XFERMODE(Xor) { return (s * d.alphas().inv() + d * s.alphas().inv()).div255(); }
 // [S + D ]
@@ -81,7 +81,7 @@ XFERMODE(HardLight) {
     auto colors = (both + isLite.thenElse(lite, dark)).div255();
     return alphas.zeroColors() + colors.zeroAlphas();
 }
-XFERMODE(Overlay) { return HardLight()(d,s); }
+XFERMODE(Overlay) { return HardLight()(s,d); }
 
 XFERMODE(Darken) {
     auto sa = s.alphas(),
@@ -186,14 +186,14 @@ XFERMODE(SoftLight) {
 // A reasonable fallback mode for doing AA is to simply apply the transfermode first,
 // then linearly interpolate the AA.
 template <typename Xfermode>
-static Sk4px xfer_aa(const Sk4px& s, const Sk4px& d, const Sk4px& aa) {
-    Sk4px bw = Xfermode()(s, d);
+static Sk4px xfer_aa(const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
+    Sk4px bw = Xfermode()(d, s);
     return (bw * aa + d * aa.inv()).div255();
 }
 
 // For some transfermodes we specialize AA, either for correctness or performance.
 #define XFERMODE_AA(Xfermode) \
-    template <> Sk4px xfer_aa<Xfermode>(const Sk4px& s, const Sk4px& d, const Sk4px& aa)
+    template <> Sk4px xfer_aa<Xfermode>(const Sk4px& d, const Sk4px& s, const Sk4px& aa)
 
 // Plus' clamp needs to happen after AA.  skia:3852
 XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
@@ -210,14 +210,9 @@ public:
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         if (nullptr == aa) {
-            Sk4px::MapDstSrc(n, dst, src, [&](const Sk4px& dst4, const Sk4px& src4) {
-                return Xfermode()(src4, dst4);
-            });
+            Sk4px::MapDstSrc(n, dst, src, Xfermode());
         } else {
-            Sk4px::MapDstSrcAlpha(n, dst, src, aa,
-                    [&](const Sk4px& dst4, const Sk4px& src4, const Sk4px& alpha) {
-                return xfer_aa<Xfermode>(src4, dst4, alpha);
-           });
+            Sk4px::MapDstSrcAlpha(n, dst, src, aa, xfer_aa<Xfermode>);
         }
     }
 
