@@ -6,7 +6,6 @@
  */
 
 #include "DMSrcSink.h"
-#include "SamplePipeControllers.h"
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
@@ -1059,16 +1058,6 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
-        PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
-        SkGPipeWriter pipe;
-        const uint32_t kFlags = 0;
-        return src.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
-    });
-}
 
 Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* target) {

@@ -15,7 +15,6 @@
     '../src/pathops',
     '../src/pdf',
     '../src/ports',
-    '../src/pipe/utils',
     '../src/utils',
     '../src/utils/debugger',
   ],
@@ -58,7 +57,6 @@
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkObjectParser.h',
     '../src/utils/debugger/SkObjectParser.cpp',
-    '../src/pipe/utils/SamplePipeControllers.cpp',
   ],
   'sources!': [
     '../tests/SkpSkGrTest.cpp',

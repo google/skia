@@ -191,12 +191,6 @@ private:
     bool fMagnify;
     int fTilingMode;
 
-
-    SkOSMenu::TriState fPipeState;  // Mixed uses a tiled pipe
-                                    // On uses a normal pipe
-                                    // Off uses no pipe
-    int  fUsePipeMenuItemID;
-
     // The following are for the 'fatbits' drawing
     // Latest position of the mouse.
     int fMouseX, fMouseY;

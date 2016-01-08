@@ -312,9 +312,6 @@
 #        '<(skia_src_path)/image/SkSurface_Gpu.cpp',
         '<(skia_src_path)/image/SkSurface_Raster.cpp',
 
-        '<(skia_src_path)/pipe/SkGPipeRead.cpp',
-        '<(skia_src_path)/pipe/SkGPipeWrite.cpp',
-
         '<(skia_include_path)/core/SkBBHFactory.h',
         '<(skia_include_path)/core/SkBitmap.h',
         '<(skia_include_path)/core/SkBitmapDevice.h',

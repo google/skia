@@ -137,7 +137,6 @@ protected:
     // overrides
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
-    virtual void draw(SkCanvas*);
     virtual void onDraw(SkCanvas*);
 
     SkOSMenu::TriState fPipeState;

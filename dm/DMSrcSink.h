@@ -15,7 +15,6 @@
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkGPipe.h"
 #include "SkPicture.h"
 #include "gm.h"
 
@@ -314,12 +313,6 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const SkMatrix fMatrix;
-};
-
-class ViaPipe : public Via {
-public:
-    explicit ViaPipe(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaRemote : public Via {

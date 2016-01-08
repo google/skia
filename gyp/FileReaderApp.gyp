@@ -10,13 +10,11 @@
       'mac_bundle' : 1,
 
       'include_dirs' : [
-        '../include/pipe',
         '../experimental/FileReaderApp',
         '../experimental/SimpleCocoaApp',
       ],
       'sources': [
         '../experimental/FileReaderApp/ReaderView.cpp',
-        '../src/pipe/SkGPipeRead.cpp',
       ],
       'sources!': [
         '../src/utils/mac/SkOSWindow_Mac.cpp',
