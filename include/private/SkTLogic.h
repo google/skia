@@ -35,29 +35,12 @@ template <typename T> using remove_pointer_t = typename std::remove_pointer<T>::
 template <typename T> using remove_reference_t = typename std::remove_reference<T>::type;
 template <typename T> using remove_extent_t = typename std::remove_extent<T>::type;
 
-template <typename T> struct is_class_detector {
-    using yes_type = uint8_t;
-    using no_type = uint16_t;
-    template <typename U> static yes_type clazz(int U::*);
-    template <typename U> static no_type clazz(...);
-    static const/*expr*/ bool value = sizeof(clazz<T>(0)) == sizeof(yes_type) &&
-                                      !std::is_union<T>::value;
-};
-template <typename T> struct is_class : bool_constant<is_class_detector<T>::value> {};
-
-template <typename T, bool = is_class<T>::value> struct is_empty_detector {
-    struct Derived : public T { char unused; };
-    static const/*expr*/ bool value = sizeof(Derived) == sizeof(char);
-};
-template <typename T> struct is_empty_detector<T, false> {
-    static const/*expr*/ bool value = false;
-};
-template <typename T> struct is_empty : bool_constant<is_empty_detector<T>::value> {};
-
 // template<typename R, typename... Args> struct is_function<
 //     R [calling-convention] (Args...[, ...]) [const] [volatile] [&|&&]> : std::true_type {};
 // The cv and ref-qualified versions are strange types we're currently avoiding, so not supported.
+// These aren't supported in msvc either until vs2015u2.
 // On all platforms, variadic functions only exist in the c calling convention.
+// mcvc 2013 introduced __vectorcall, but it wan't until 2015 that it was added to is_function.
 template <typename> struct is_function : std::false_type {};
 #if !defined(SK_BUILD_FOR_WIN)
 template <typename R, typename... Args> struct is_function<R(Args...)> : std::true_type {};
@@ -80,16 +63,7 @@ template <typename T> using add_const_t = typename std::add_const<T>::type;
 template <typename T> using add_volatile_t = typename std::add_volatile<T>::type;
 template <typename T> using add_cv_t = typename std::add_cv<T>::type;
 template <typename T> using add_pointer_t = typename std::add_pointer<T>::type;
-
-template <typename T, bool=std::is_void<T>::value> struct add_lvalue_reference_init { using type = T; };
-template <typename T> struct add_lvalue_reference_init<T, false> { using type = T&; };
-template <typename T> struct add_lvalue_reference : add_lvalue_reference_init<T> {};
-template <typename T> using add_lvalue_reference_t = typename add_lvalue_reference<T>::type;
-
-template <typename T, bool=std::is_void<T>::value> struct add_rvalue_reference_init { using type = T; };
-template <typename T> struct add_rvalue_reference_init<T, false> { using type = T&&; };
-template <typename T> struct add_rvalue_reference : add_rvalue_reference_init<T> {};
-template <typename T> using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
+template <typename T> using add_lvalue_reference_t = typename std::add_lvalue_reference<T>::type;
 
 template <typename S, typename D,
           bool=std::is_void<S>::value || is_function<D>::value || std::is_array<D>::value>
@@ -109,18 +83,10 @@ template <typename S, typename D> struct is_convertible_detector<S, D, false> {
 
     static const/*expr*/ bool value = sizeof(convertible<S, D>(0)) == sizeof(yes_type);
 };
+// std::is_convertable is known to be broken (not work with incomplete types) in Android clang NDK.
+// This is currently what prevents us from using std::unique_ptr.
 template<typename S, typename D> struct is_convertible
     : bool_constant<is_convertible_detector<S, D>::value> {};
-
-template <typename T> struct decay {
-    using U = remove_reference_t<T>;
-    using type = conditional_t<std::is_array<U>::value,
-                               remove_extent_t<U>*,
-                               conditional_t<is_function<U>::value,
-                                             add_pointer_t<U>,
-                                             remove_cv_t<U>>>;
-};
-template <typename T> using decay_t = typename decay<T>::type;
 
 }  // namespace skstd
 

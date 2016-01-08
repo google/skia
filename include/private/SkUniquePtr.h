@@ -48,7 +48,7 @@ public:
     using deleter_type = D;
 
 private:
-    template <typename B, bool = is_empty<B>::value /*&& !is_final<B>::value*/>
+    template <typename B, bool = std::is_empty<B>::value /*&& !is_final<B>::value*/>
     struct compressed_base : private B {
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : B(b) {}
@@ -221,7 +221,7 @@ public:
     using deleter_type = D;
 
 private:
-    template <typename B, bool = is_empty<B>::value /*&& !is_final<B>::value*/>
+    template <typename B, bool = std::is_empty<B>::value /*&& !is_final<B>::value*/>
     struct compressed_base : private B {
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : B(b) {}
