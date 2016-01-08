@@ -42,15 +42,10 @@ static SkColorFilter* cf_make_colorize(SkColor color) {
     return SkColorFilter::CreateModeFilter(color, SkXfermode::kSrc_Mode);
 }
 
-static const SkTDArray<SkColorFilter*>& sk_gm_get_colorfilters() {
-    static SkTDArray<SkColorFilter*> gColorFilters;
-    
-    if (gColorFilters.count() == 0) {
-        *gColorFilters.append() = cf_make_brightness(0.5f);
-        *gColorFilters.append() = cf_make_grayscale();
-        *gColorFilters.append() = cf_make_colorize(SK_ColorBLUE);
-    }
-    return gColorFilters;
+static void sk_gm_get_colorfilters(SkTDArray<SkColorFilter*>* array) {
+    *array->append() = cf_make_brightness(0.5f);
+    *array->append() = cf_make_grayscale();
+    *array->append() = cf_make_colorize(SK_ColorBLUE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,15 +70,10 @@ static SkShader* sh_make_image() {
     return image->newShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 }
 
-static const SkTDArray<SkShader*>& sk_gm_get_shaders() {
-    static SkTDArray<SkShader*> gShaders;
-    
-    if (gShaders.count() == 0) {
-        *gShaders.append() = sh_make_lineargradient0();
-        *gShaders.append() = sh_make_lineargradient1();
-        *gShaders.append() = sh_make_image();
-    }
-    return gShaders;
+static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
+    *array->append() = sh_make_lineargradient0();
+    *array->append() = sh_make_lineargradient1();
+    *array->append() = sh_make_image();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,9 +180,17 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename T> class SkTRefArray : public SkTDArray<T> {
+public:
+    ~SkTRefArray() { this->unrefAll(); }
+};
+
 DEF_SIMPLE_GM(colorfiltershader, canvas, 800, 800) {
-    const SkTDArray<SkColorFilter*>& filters = sk_gm_get_colorfilters();
-    const SkTDArray<SkShader*>& shaders = sk_gm_get_shaders();
+    SkTRefArray<SkColorFilter*> filters;
+    sk_gm_get_colorfilters(&filters);
+
+    SkTRefArray<SkShader*> shaders;
+    sk_gm_get_shaders(&shaders);
 
     SkPaint paint;
     SkRect r = SkRect::MakeWH(120, 120);
