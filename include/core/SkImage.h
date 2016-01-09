@@ -324,28 +324,6 @@ public:
      */
     bool isLazyGenerated() const;
 
-    /**
-     *  Apply the specified filter to this image, and return the result as a new image.
-     *
-     *  if forceResultToOriginalSize is true, then the resulting image will be the same size as the
-     *  src, regardless of the normal output of the filter.
-     *
-     *  If offset is non-null, it is set to the relative offset needed to draw the resulting image
-     *  in the same logical place as the original.
-     *
-     *  e.g.
-     *      If the filter makes the result larger by a margin of 4 the output would be:
-     *          result->width()  == this->width + 8
-     *          result->height() == this->height + 8
-     *          offset.x()       == -4
-     *          offset.y()       == -4
-     *
-     *  If the filter fails to create a resulting image, null is returned, and the offset parameter
-     *  (if specified) will be undefined.
-     */
-    SkImage* applyFilter(SkImageFilter* filter, SkIPoint* offset,
-                         bool forceResultToOriginalSize) const;
-
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
 

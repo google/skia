@@ -39,9 +39,6 @@ public:
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
-    virtual SkImage* onApplyFilter(SkImageFilter*, SkIPoint* offset,
-                                   bool forceResultToOriginalSize) const;
-
     virtual SkSurface* onNewSurface(const SkImageInfo& info) const {
         return SkSurface::NewRaster(info);
     }
