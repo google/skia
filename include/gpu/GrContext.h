@@ -361,6 +361,9 @@ public:
 
     GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 
+    /** This is only useful for debug purposes */
+    SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fSingleOwner; } )
+
 private:
     GrGpu*                          fGpu;
     const GrCaps*                   fCaps;
