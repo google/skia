@@ -185,12 +185,4 @@ typedef unsigned __int64 uint64_t;
     #endif
 #endif
 
-/**
- * GR_FORCE_GPU_TRACE_DEBUGGING will force gpu tracing/debug markers to be turned on. The trace
- * markers will be printed out instead of making the backend calls to push and pop them.
- */
-#if !defined(GR_FORCE_GPU_TRACE_DEBUGGING)
-    #define GR_FORCE_GPU_TRACE_DEBUGGING 0
-#endif
-
 #endif

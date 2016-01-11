@@ -118,11 +118,7 @@ public:
     bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
     bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
-#if GR_FORCE_GPU_TRACE_DEBUGGING
-    bool gpuTracingSupport() const { return true; }
-#else
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
-#endif
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
