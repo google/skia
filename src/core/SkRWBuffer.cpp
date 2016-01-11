@@ -150,6 +150,9 @@ const void* SkROBuffer::Iter::data() const {
 }
 
 size_t SkROBuffer::Iter::size() const {
+    if (!fBlock) {
+        return 0;
+    }
     return SkTMin(fBlock->fUsed, fRemaining);
 }
 

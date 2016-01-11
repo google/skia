@@ -313,3 +313,18 @@ DEF_TEST(RWBuffer, reporter) {
         delete streams[i];
     }
 }
+
+// Tests that it is safe to call SkROBuffer::Iter::size() when exhausted.
+DEF_TEST(RWBuffer_size, r) {
+    SkRWBuffer buffer;
+    buffer.append(gABC, 26);
+
+    SkAutoTUnref<SkROBuffer> roBuffer(buffer.newRBufferSnapshot());
+    SkROBuffer::Iter iter(roBuffer);
+    REPORTER_ASSERT(r, iter.data());
+    REPORTER_ASSERT(r, iter.size() == 26);
+
+    // There is only one block in this buffer.
+    REPORTER_ASSERT(r, !iter.next());
+    REPORTER_ASSERT(r, 0 == iter.size());
+}
