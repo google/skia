@@ -197,11 +197,19 @@ def get_args(bot):
                'drawfilter',
                'path_stroke_with_zero_length',
                'textblobgeometrychange']:
-    blacklist.extend(['pic-8888', 'gm', '_', test])
+    blacklist.extend([    'sp-8888', 'gm', '_', test])
+    blacklist.extend([   'pic-8888', 'gm', '_', test])
     blacklist.extend(['2ndpic-8888', 'gm', '_', test])
-    blacklist.extend(['sp-8888', 'gm', '_', test])
   for test in ['patch_primitive']:
     blacklist.extend(['sp-8888', 'gm', '_', test])
+  # skia:4703
+  for test in ['image-cacherator-from-picture',
+               'image-cacherator-from-raster',
+               'image-cacherator-from-ctable']:
+    blacklist.extend([       'sp-8888', 'gm', '_', test])
+    blacklist.extend([      'pic-8888', 'gm', '_', test])
+    blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
+    blacklist.extend(['serialize-8888', 'gm', '_', test])
 
   if blacklist:
     args.append('--blacklist')
