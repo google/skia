@@ -743,6 +743,9 @@ public:
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+                continue;
+            }
             SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(path.c_str()));
             SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
             if (!codec) {
@@ -810,11 +813,14 @@ public:
         }
 
         // Run the DecodingBenches
-        while (fCurrentImage < fImages.count()) {
+        for (; fCurrentImage < fImages.count(); fCurrentImage++) {
             fSourceType = "image";
             fBenchType = "skimagedecoder";
+            const SkString& path = fImages[fCurrentImage];
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+                continue;
+            }
             while (fCurrentColorType < fColorTypes.count()) {
-                const SkString& path = fImages[fCurrentImage];
                 SkColorType colorType = fColorTypes[fCurrentColorType];
                 fCurrentColorType++;
                 // Check if the image decodes to the right color type
@@ -827,7 +833,6 @@ public:
                 }
             }
             fCurrentColorType = 0;
-            fCurrentImage++;
         }
 
         // Run the BRDBenches
@@ -856,12 +861,15 @@ public:
         //         these tests are sufficient to provide good coverage of our scaling options.
         const uint32_t sampleSizes[] = { 1, 2, 4, 8, 16, 32, 64 };
         const uint32_t minOutputSize = 512;
-        while (fCurrentBRDImage < fImages.count()) {
+        for (; fCurrentBRDImage < fImages.count(); fCurrentBRDImage++) {
+            const SkString& path = fImages[fCurrentBRDImage];
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+                continue;
+            }
             while (fCurrentBRDStrategy < (int) SK_ARRAY_COUNT(strategies)) {
                 fSourceType = "image";
                 fBenchType = strategies[fCurrentBRDStrategy].fName;
 
-                const SkString& path = fImages[fCurrentBRDImage];
                 const SkBitmapRegionDecoder::Strategy strategy =
                         strategies[fCurrentBRDStrategy].fStrategy;
 
@@ -927,7 +935,6 @@ public:
                 fCurrentBRDStrategy++;
             }
             fCurrentBRDStrategy = 0;
-            fCurrentBRDImage++;
         }
 
         return nullptr;
