@@ -265,25 +265,16 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
 }
 
 bool SkImageFilter::filterInput(int index, Proxy* proxy, const SkBitmap& src,
-                                const Context& origCtx,
-                                SkBitmap* result, SkIPoint* offset,
-                                bool relaxSizeConstraint) const {
+                                const Context& ctx,
+                                SkBitmap* result, SkIPoint* offset) const {
     SkImageFilter* input = this->getInput(index);
     if (!input) {
         return true;
     }
-
-    SizeConstraint constraint = origCtx.sizeConstraint();
-    if (relaxSizeConstraint && (kExact_SizeConstraint == constraint)) {
-        constraint = kApprox_SizeConstraint;
-    }
-    Context ctx(origCtx.ctm(), origCtx.clipBounds(), origCtx.cache(), constraint);
-
     return input->filterImage(proxy, src, this->mapContext(ctx), result, offset);
 }
 
-bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                 SkIRect* dst) const {
+bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst) const {
     SkASSERT(dst);
     return this->onFilterBounds(src, ctm, dst);
 }
@@ -353,8 +344,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     desc.fHeight = bounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createTexture(desc,
-                                      GrTextureProvider::FromImageFilter(ctx.sizeConstraint())));
+    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
     if (!dst) {
         return false;
     }
@@ -488,7 +478,7 @@ SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
     SkIRect clipBounds;
     this->onFilterNodeBounds(ctx.clipBounds(), ctx.ctm(), &clipBounds,
                              MapDirection::kReverse_MapDirection);
-    return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.sizeConstraint());
+    return Context(ctx.ctm(), clipBounds, ctx.cache());
 #endif
 }
 
@@ -519,7 +509,7 @@ void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBit
 }
 
 bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
-                                   const SkBitmap& src, const Context& origCtx,
+                                   const SkBitmap& src, const Context& ctx,
                                    SkBitmap* result, SkIPoint* offset) const {
     SkImageFilter* input = this->getInput(index);
     if (!input) {
@@ -529,9 +519,6 @@ bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
     // matrix with no clip and that the matrix, clip, and render target set before this function was
     // called are restored before we return to the caller.
     GrContext* context = src.getTexture()->getContext();
-
-    Context ctx(origCtx.ctm(), origCtx.clipBounds(), origCtx.cache(), kApprox_SizeConstraint);
-
     if (input->filterImage(proxy, src, this->mapContext(ctx), result, offset)) {
         if (!result->getTexture()) {
             const SkImageInfo info = result->info();

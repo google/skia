@@ -64,31 +64,6 @@ public:
      */
     GrTexture* createApproxTexture(const GrSurfaceDesc&);
 
-    enum SizeConstraint {
-        kExact_SizeConstraint,
-        kApprox_SizeConstraint,
-    };
-
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SizeConstraint constraint) {
-        switch (constraint) {
-            case kExact_SizeConstraint:
-                return this->createTexture(desc, true);
-            case kApprox_SizeConstraint:
-                return this->createApproxTexture(desc);
-        }
-        sk_throw();
-        return nullptr;
-    }
-
-    static SizeConstraint FromImageFilter(SkImageFilter::SizeConstraint constraint) {
-        if (SkImageFilter::kExact_SizeConstraint == constraint) {
-            return kExact_SizeConstraint;
-        } else {
-            SkASSERT(SkImageFilter::kApprox_SizeConstraint == constraint);
-            return kApprox_SizeConstraint;
-        }
-    }
-
     /** Legacy function that no longer should be used. */
     enum ScratchTexMatch {
         kExact_ScratchTexMatch,

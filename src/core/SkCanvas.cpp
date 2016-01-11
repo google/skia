@@ -1439,8 +1439,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
             SkIRect clipBounds = iter.fClip->getBounds().makeOffset(-pos.x(), -pos.y());
 #endif
             SkAutoTUnref<SkImageFilter::Cache> cache(dstDev->getImageFilterCache());
-            SkImageFilter::Context ctx(matrix, clipBounds, cache.get(),
-                                       SkImageFilter::kApprox_SizeConstraint);
+            SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
             if (filter->filterImage(&proxy, src, ctx, &dst, &offset)) {
                 SkPaint tmpUnfiltered(*paint);
                 tmpUnfiltered.setImageFilter(nullptr);

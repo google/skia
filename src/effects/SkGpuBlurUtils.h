@@ -40,8 +40,7 @@ namespace SkGpuBlurUtils {
                             const SkRect& dstBounds,
                             const SkRect* srcBounds,
                             float sigmaX,
-                            float sigmaY,
-                            GrTextureProvider::SizeConstraint);
+                            float sigmaY);
 #endif
 
 };

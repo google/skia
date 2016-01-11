@@ -383,8 +383,7 @@ bool SkLightingImageFilterInternal::filterImageGPU(Proxy* proxy,
     desc.fHeight = bounds.height();
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    auto constraint = GrTextureProvider::FromImageFilter(ctx.sizeConstraint());
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createTexture(desc, constraint));
+    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
     if (!dst) {
         return false;
     }

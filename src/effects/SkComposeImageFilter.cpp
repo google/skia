@@ -37,8 +37,8 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
     outerMatrix.postTranslate(SkIntToScalar(-innerOffset.x()), SkIntToScalar(-innerOffset.y()));
     SkIRect clipBounds = ctx.clipBounds();
     clipBounds.offset(-innerOffset.x(), -innerOffset.y());
-    Context outerContext(outerMatrix, clipBounds, ctx.cache(), ctx.sizeConstraint());
-    if (!this->filterInput(0, proxy, tmp, outerContext, result, &outerOffset, false)) {
+    Context outerContext(outerMatrix, clipBounds, ctx.cache());
+    if (!this->filterInput(0, proxy, tmp, outerContext, result, &outerOffset)) {
         return false;
     }
 

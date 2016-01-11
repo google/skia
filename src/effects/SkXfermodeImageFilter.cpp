@@ -155,8 +155,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     desc.fWidth = src.width();
     desc.fHeight = src.height();
     desc.fConfig = kSkia8888_GrPixelConfig;
-    auto constraint = GrTextureProvider::FromImageFilter(ctx.sizeConstraint());
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createTexture(desc, constraint));
+    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
     if (!dst) {
         return false;
     }

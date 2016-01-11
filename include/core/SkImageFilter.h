@@ -45,31 +45,22 @@ public:
         virtual void purgeByImageFilterId(uint32_t) {}
     };
 
-    enum SizeConstraint {
-        kExact_SizeConstraint,
-        kApprox_SizeConstraint,
-    };
-
     class Context {
     public:
-        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache,
-                SizeConstraint constraint)
+        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache)
             : fCTM(ctm)
             , fClipBounds(clipBounds)
             , fCache(cache)
-            , fSizeConstraint(constraint)
         {}
 
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
         Cache* cache() const { return fCache; }
-        SizeConstraint sizeConstraint() const { return fSizeConstraint; }
 
     private:
         SkMatrix        fCTM;
         SkIRect         fClipBounds;
         Cache*          fCache;
-        SizeConstraint  fSizeConstraint;
     };
 
     class CropRect {
@@ -373,7 +364,7 @@ protected:
     // calls filterImage() on that input, and returns true on success.
     // i.e., return !getInput(index) || getInput(index)->filterImage(...);
     bool filterInput(int index, Proxy*, const SkBitmap& src, const Context&,
-                     SkBitmap* result, SkIPoint* offset, bool relaxSizeConstraint = true) const;
+                     SkBitmap* result, SkIPoint* offset) const;
 
     /**
      *  Return true (and return a ref'd colorfilter) if this node in the DAG is just a

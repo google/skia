@@ -167,8 +167,7 @@ GrTexture* GaussianBlur(GrContext* context,
                         const SkRect& dstBounds,
                         const SkRect* srcBounds,
                         float sigmaX,
-                        float sigmaY,
-                        GrTextureProvider::SizeConstraint constraint) {
+                        float sigmaY) {
     SkASSERT(context);
     SkIRect clearRect;
     int scaleFactorX, radiusX;
@@ -211,12 +210,12 @@ GrTexture* GaussianBlur(GrContext* context,
     GrTexture* tempTexture;
     SkAutoTUnref<GrTexture> temp1, temp2;
 
-    temp1.reset(context->textureProvider()->createTexture(desc, constraint));
+    temp1.reset(context->textureProvider()->createApproxTexture(desc));
     dstTexture = temp1.get();
     if (canClobberSrc) {
         tempTexture = srcTexture;
     } else {
-        temp2.reset(context->textureProvider()->createTexture(desc, constraint));
+        temp2.reset(context->textureProvider()->createApproxTexture(desc));
         tempTexture = temp2.get();
     }
 
