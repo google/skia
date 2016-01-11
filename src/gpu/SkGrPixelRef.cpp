@@ -25,7 +25,7 @@ SkROLockPixelsPixelRef::~SkROLockPixelsPixelRef() {}
 bool SkROLockPixelsPixelRef::onNewLockPixels(LockRec* rec) {
     fBitmap.reset();
 //    SkDebugf("---------- calling readpixels in support of lockpixels\n");
-    if (!this->onReadPixels(&fBitmap, nullptr)) {
+    if (!this->onReadPixels(&fBitmap, this->info().colorType(), nullptr)) {
         SkDebugf("SkROLockPixelsPixelRef::onLockPixels failed!\n");
         return false;
     }
@@ -155,8 +155,17 @@ static bool tryAllocBitmapPixels(SkBitmap* bitmap) {
     }
 }
 
-bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
+bool SkGrPixelRef::onReadPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subset) {
     if (nullptr == fSurface || fSurface->wasDestroyed()) {
+        return false;
+    }
+
+    GrPixelConfig config;
+    if (kRGBA_8888_SkColorType == colorType) {
+        config = kRGBA_8888_GrPixelConfig;
+    } else if (kBGRA_8888_SkColorType == colorType) {
+        config = kBGRA_8888_GrPixelConfig;
+    } else {
         return false;
     }
 
@@ -172,7 +181,9 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
         //Cache miss
 
         SkBitmap cachedBitmap;
-        cachedBitmap.setInfo(this->info().makeWH(bounds.width(), bounds.height()));
+        cachedBitmap.setInfo(SkImageInfo::Make(bounds.width(), bounds.height(), colorType,
+                                               this->info().alphaType(),
+                                               this->info().profileType()));
 
         // If we can't alloc the pixels, then fail
         if (!tryAllocBitmapPixels(&cachedBitmap)) {
@@ -183,8 +194,7 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
         void* buffer = cachedBitmap.getPixels();
         bool readPixelsOk = fSurface->readPixels(bounds.fLeft, bounds.fTop,
                                 bounds.width(), bounds.height(),
-                                kSkia8888_GrPixelConfig,
-                                buffer, cachedBitmap.rowBytes());
+                                config, buffer, cachedBitmap.rowBytes());
 
         if (!readPixelsOk) {
             return false;

@@ -225,7 +225,8 @@ public:
         return this->onGetYUV8Planes(sizes, planes, rowBytes, colorSpace);
     }
 
-    bool readPixels(SkBitmap* dst, const SkIRect* subset = NULL);
+    /** Populates dst with the pixels of this pixelRef, converting them to colorType. */
+    bool readPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subset = NULL);
 
     /**
      *  Makes a deep copy of this PixelRef, respecting the requested config.
@@ -299,7 +300,7 @@ protected:
      *
      *  The base class implementation returns false;
      */
-    virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subsetOrNull);
+    virtual bool onReadPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subsetOrNull);
 
     // default impl returns NULL.
     virtual SkData* onRefEncodedData();
