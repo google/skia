@@ -395,7 +395,7 @@ static SkSwizzler::ResultAlpha swizzle_bgra_to_n32_premul(
     for (int x = 0; x < dstWidth; x++) {
         uint8_t alpha = src[3];
         UPDATE_RESULT_ALPHA(alpha);
-        dst[x] = SkPreMultiplyARGB(alpha, src[2], src[1], src[0]);
+        dst[x] = SkPremultiplyARGBInline(alpha, src[2], src[1], src[0]);
         src += deltaSrc;
     }
     return COMPUTE_RESULT_ALPHA;
@@ -440,7 +440,7 @@ static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_premul(
     for (int x = 0; x < dstWidth; x++) {
         unsigned alpha = src[3];
         UPDATE_RESULT_ALPHA(alpha);
-        dst[x] = SkPreMultiplyARGB(alpha, src[0], src[1], src[2]);
+        dst[x] = SkPremultiplyARGBInline(alpha, src[0], src[1], src[2]);
         src += deltaSrc;
     }
     return COMPUTE_RESULT_ALPHA;
@@ -473,7 +473,7 @@ static SkSwizzler::ResultAlpha swizzle_rgba_to_n32_premul_skipZ(
         unsigned alpha = src[3];
         UPDATE_RESULT_ALPHA(alpha);
         if (0 != alpha) {
-            dst[x] = SkPreMultiplyARGB(alpha, src[0], src[1], src[2]);
+            dst[x] = SkPremultiplyARGBInline(alpha, src[0], src[1], src[2]);
         }
         src += deltaSrc;
     }
@@ -779,7 +779,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
     // Store bpp in bytes if it is an even multiple, otherwise use bits
     int srcBPP = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) : BitsPerPixel(sc);
     int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
-    
+
     int srcOffset = 0;
     int srcWidth = dstInfo.width();
     int dstOffset = 0;
