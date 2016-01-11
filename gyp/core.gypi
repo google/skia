@@ -165,6 +165,7 @@
         '<(skia_src_path)/core/SkMipMap.cpp',
         '<(skia_src_path)/core/SkMipMap.h',
         '<(skia_src_path)/core/SkMiniRecorder.cpp',
+        '<(skia_src_path)/core/SkModeColorFilter.cpp',
         '<(skia_src_path)/core/SkMultiPictureDraw.cpp',
         '<(skia_src_path)/core/SkNextID.h',
         '<(skia_src_path)/core/SkNinePatchIter.cpp',

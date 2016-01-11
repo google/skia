@@ -27,7 +27,6 @@
     '<(skia_src_path)/effects/SkBlurImageFilter.cpp',
     '<(skia_src_path)/effects/SkBlurMaskFilter.cpp',
     '<(skia_src_path)/effects/SkColorCubeFilter.cpp',
-    '<(skia_src_path)/effects/SkColorFilters.cpp',
     '<(skia_src_path)/effects/SkColorFilterImageFilter.cpp',
     '<(skia_src_path)/effects/SkColorMatrix.cpp',
     '<(skia_src_path)/effects/SkColorMatrixFilter.cpp',

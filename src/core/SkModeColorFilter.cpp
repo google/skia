@@ -15,6 +15,17 @@
 #include "SkString.h"
 #include "SkValidationUtils.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef SK_IGNORE_TO_STRING
+void SkModeColorFilter::toString(SkString* str) const {
+    str->append("SkModeColorFilter: color: 0x");
+    str->appendHex(fColor);
+    str->append(" mode: ");
+    str->append(SkXfermode::ModeName(fMode));
+}
+#endif
+
 bool SkModeColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) const {
     if (color) {
         *color = fColor;
@@ -100,7 +111,7 @@ const GrFragmentProcessor* SkModeColorFilter::asFragmentProcessor(GrContext*) co
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Src_SkModeColorFilter : public SkModeColorFilter {
+class Src_SkModeColorFilter final : public SkModeColorFilter {
 public:
     Src_SkModeColorFilter(SkColor color) : INHERITED(color, SkXfermode::kSrc_Mode) {}
 
@@ -112,7 +123,7 @@ private:
     typedef SkModeColorFilter INHERITED;
 };
 
-class SrcOver_SkModeColorFilter : public SkModeColorFilter {
+class SrcOver_SkModeColorFilter final : public SkModeColorFilter {
 public:
     SrcOver_SkModeColorFilter(SkColor color) : INHERITED(color, SkXfermode::kSrcOver_Mode) { }
 

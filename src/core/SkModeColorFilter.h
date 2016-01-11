@@ -1,17 +1,15 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
+#include "SkColorFilter.h"
+#include "SkXfermode.h"
+
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
-
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkString.h"
-#include "SkXfermode.h"
 
 class SkModeColorFilter : public SkColorFilter {
 public:
@@ -28,12 +26,7 @@ public:
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override;
 
 #ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const override {
-        str->append("SkModeColorFilter: color: 0x");
-        str->appendHex(fColor);
-        str->append(" mode: ");
-        str->append(SkXfermode::ModeName(fMode));
-    }
+    void toString(SkString* str) const override;
 #endif
 
 #if SK_SUPPORT_GPU
@@ -58,6 +51,8 @@ private:
     SkXfermodeProc      fProc;
 
     void updateCache();
+
+    friend class SkColorFilter;
 
     typedef SkColorFilter INHERITED;
 };
