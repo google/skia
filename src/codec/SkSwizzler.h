@@ -154,6 +154,12 @@ private:
                             int dstWidth, int bpp, int deltaSrc, int offset,
                             const SkPMColor ctable[]);
 
+    template <RowProc Proc>
+    static void SkipLeading8888ZerosThen(void* SK_RESTRICT dstRow,
+                                         const uint8_t* SK_RESTRICT src,
+                                         int dstWidth, int bpp, int deltaSrc, int offset,
+                                         const SkPMColor ctable[]);
+
     const RowProc       fRowProc;
     const SkPMColor*    fColorTable;      // Unowned pointer
 

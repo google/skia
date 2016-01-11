@@ -395,21 +395,6 @@ static void swizzle_rgba_to_n32_unpremul(
     }
 }
 
-static void swizzle_rgba_to_n32_premul_skipZ(
-        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
-        int bpp, int deltaSrc, int offset, const SkPMColor ctable[]) {
-
-    src += offset;
-    SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
-    for (int x = 0; x < dstWidth; x++) {
-        unsigned alpha = src[3];
-        if (0 != alpha) {
-            dst[x] = SkPremultiplyARGBInline(alpha, src[0], src[1], src[2]);
-        }
-        src += deltaSrc;
-    }
-}
-
 // kCMYK
 //
 // CMYK is stored as four bytes per pixel.
@@ -487,33 +472,24 @@ static void swizzle_cmyk_to_565(
     }
 }
 
-/**
-    FIXME: This was my idea to cheat in order to continue taking advantage of skipping zeroes.
-    This would be fine for drawing normally, but not for drawing with transfer modes. Being
-    honest means we can draw correctly with transfer modes, with the cost of not being able
-    to take advantage of Android's free unwritten pages. Something to keep in mind when we
-    decide whether to switch to unpremul default.
-static bool swizzle_rgba_to_n32_unpremul_skipZ(void* SK_RESTRICT dstRow,
-                                               const uint8_t* SK_RESTRICT src,
-                                               int dstWidth, int bitsPerPixel, int offset,
-                                               const SkPMColor[]) {
-    src += offset;
-    SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
-    unsigned alphaMask = 0xFF;
-    for (int x = 0; x < dstWidth; x++) {
-        unsigned alpha = src[3];
-        // NOTE: We cheat here. The caller requested unpremul and skip zeroes. It's possible
-        // the color components are not zero, but we skip them anyway, meaning they'll remain
-        // zero (implied by the request to skip zeroes).
-        if (0 != alpha) {
-            dst[x] = SkPackARGB32NoCheck(alpha, src[0], src[1], src[2]);
-        }
-        src += deltaSrc;
-        alphaMask &= alpha;
+template <SkSwizzler::RowProc proc>
+void SkSwizzler::SkipLeading8888ZerosThen(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
+        int bpp, int deltaSrc, int offset, const SkPMColor ctable[]) {
+    SkASSERT(!ctable);
+
+    auto src32 = (const uint32_t*)(src+offset);
+    auto dst32 = (uint32_t*)dstRow;
+
+    // This may miss opportunities to skip when the output is premultiplied,
+    // e.g. for a src pixel 0x00FFFFFF which is not zero but becomes zero after premultiplication.
+    while (dstWidth > 0 && *src32 == 0x00000000) {
+        dstWidth--;
+        dst32++;
+        src32 += deltaSrc/4;
     }
-    return alphaMask != 0xFF;
+    proc(dst32, (const uint8_t*)src32, dstWidth, bpp, deltaSrc, 0, ctable);
 }
-*/
 
 SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                                        const SkPMColor* ctable,
@@ -649,11 +625,14 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
                     if (dstInfo.alphaType() == kUnpremul_SkAlphaType) {
-                        // Respect zeroInit?
-                        proc = &swizzle_rgba_to_n32_unpremul;
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_n32_unpremul>;
+                        } else {
+                            proc = &swizzle_rgba_to_n32_unpremul;
+                        }
                     } else {
                         if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                            proc = &swizzle_rgba_to_n32_premul_skipZ;
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_n32_premul>;
                         } else {
                             proc = &swizzle_rgba_to_n32_premul;
                         }
