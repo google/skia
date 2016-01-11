@@ -30,6 +30,10 @@ static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
         k16[i] = caps.configTextureSwizzle(access.getTexture()->config()).asKey() |
                  (isExternal ? 0xFF00 : 0x0000);
     }
+    // zero the last 16 bits if the number of textures is odd.
+    if (numTextures & 0x1) {
+        k16[numTextures] = 0;
+    }
 }
 
 /**
