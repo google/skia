@@ -465,34 +465,39 @@ class FlagsFilterCanvas : public SkPaintFilterCanvas {
 public:
     FlagsFilterCanvas(SkCanvas* canvas, SkOSMenu::TriState lcd, SkOSMenu::TriState aa,
                       SkOSMenu::TriState subpixel, int hinting, int filterQuality)
-        : INHERITED(canvas->imageInfo().width(), canvas->imageInfo().height())
+        : INHERITED(canvas)
         , fLCDState(lcd)
         , fAAState(aa)
         , fSubpixelState(subpixel)
         , fHintingState(hinting)
         , fFilterQualityIndex(filterQuality) {
         SkASSERT((unsigned)filterQuality < SK_ARRAY_COUNT(gFilterQualityStates));
-
-        this->addCanvas(canvas);
     }
 
 protected:
-    void onFilterPaint(SkPaint* paint, Type t) const override {
+    bool onFilter(const SkPaint* paint, Type t, SkTLazy<SkPaint>* filteredPaint) const override {
+        if (!paint) {
+            return true;
+        }
+
+        filteredPaint->set(*paint);
         if (kText_Type == t && SkOSMenu::kMixedState != fLCDState) {
-            paint->setLCDRenderText(SkOSMenu::kOnState == fLCDState);
+            filteredPaint->get()->setLCDRenderText(SkOSMenu::kOnState == fLCDState);
         }
         if (SkOSMenu::kMixedState != fAAState) {
-            paint->setAntiAlias(SkOSMenu::kOnState == fAAState);
+            filteredPaint->get()->setAntiAlias(SkOSMenu::kOnState == fAAState);
         }
         if (0 != fFilterQualityIndex) {
-            paint->setFilterQuality(gFilterQualityStates[fFilterQualityIndex].fQuality);
+            filteredPaint->get()->setFilterQuality(
+                gFilterQualityStates[fFilterQualityIndex].fQuality);
         }
         if (SkOSMenu::kMixedState != fSubpixelState) {
-            paint->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);
+            filteredPaint->get()->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);
         }
         if (0 != fHintingState && fHintingState < (int)SK_ARRAY_COUNT(gHintingStates)) {
-            paint->setHinting(gHintingStates[fHintingState].hinting);
+            filteredPaint->get()->setHinting(gHintingStates[fHintingState].hinting);
         }
+        return true;
     }
 
 private:
