@@ -54,15 +54,31 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     srcRect.roundOut(&srcIRect);
     srcIRect.offset(-srcOffset);
     SkBitmap subset;
-    SkIRect bounds;
-    source.getBounds(&bounds);
+    SkIRect srcBounds;
+    source.getBounds(&srcBounds);
 
-    if (!srcIRect.intersect(bounds)) {
+    if (!SkIRect::Intersects(srcIRect, srcBounds)) {
         offset->fX = offset->fY = 0;
         return true;
-    } else if (!source.extractSubset(&subset, srcIRect)) {
-        return false;
     }
+    if (srcBounds.contains(srcIRect)) {
+        if (!source.extractSubset(&subset, srcIRect)) {
+            return false;
+        }
+    } else {
+        SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(srcIRect.width(),
+                                                              srcIRect.height(),
+                                                              kPossible_TileUsage));
+        if (!device) {
+            return false;
+        }
+        SkCanvas canvas(device);
+        canvas.drawBitmap(src, SkIntToScalar(srcOffset.x()),
+                               SkIntToScalar(srcOffset.y()));
+        subset = device->accessBitmap(false);
+    }
+    SkASSERT(subset.width() == srcIRect.width());
+    SkASSERT(subset.height() == srcIRect.height());
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(w, h));
     if (nullptr == device.get()) {
@@ -72,12 +88,8 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
 
-    SkMatrix shaderMatrix;
-    shaderMatrix.setTranslate(SkIntToScalar(srcOffset.fX),
-                              SkIntToScalar(srcOffset.fY));
     SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(subset,
-                                  SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
-                                  &shaderMatrix));
+                                  SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
     paint.setShader(shader);
     canvas.translate(-dstRect.fLeft, -dstRect.fTop);
     canvas.drawRect(dstRect, paint);

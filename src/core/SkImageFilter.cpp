@@ -663,9 +663,10 @@ void SkImageFilter::PurgeCache() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBaseDevice* SkImageFilter::DeviceProxy::createDevice(int w, int h) {
+SkBaseDevice* SkImageFilter::DeviceProxy::createDevice(int w, int h, TileUsage usage) {
     SkBaseDevice::CreateInfo cinfo(SkImageInfo::MakeN32Premul(w, h),
-                                   SkBaseDevice::kNever_TileUsage,
+                                   kPossible_TileUsage == usage ? SkBaseDevice::kPossible_TileUsage
+                                                                : SkBaseDevice::kNever_TileUsage,
                                    kUnknown_SkPixelGeometry,
                                    false,   /* preserveLCDText */
                                    true /*forImageFilter*/);

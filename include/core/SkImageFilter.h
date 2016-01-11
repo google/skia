@@ -98,11 +98,17 @@ public:
         uint32_t fFlags;
     };
 
+    enum TileUsage {
+        kPossible_TileUsage,    //!< the created device may be drawn tiled
+        kNever_TileUsage,       //!< the created device will never be drawn tiled
+    };
+
     class Proxy {
     public:
         virtual ~Proxy() {}
 
-        virtual SkBaseDevice* createDevice(int width, int height) = 0;
+        virtual SkBaseDevice* createDevice(int width, int height,
+                                           TileUsage usage = kNever_TileUsage) = 0;
 
         // Returns true if the proxy handled the filter itself. If this returns
         // false then the filter's code will be called.
@@ -115,7 +121,8 @@ public:
     public:
         DeviceProxy(SkBaseDevice* device) : fDevice(device) {}
 
-        SkBaseDevice* createDevice(int width, int height) override;
+        SkBaseDevice* createDevice(int width, int height,
+                                   TileUsage usage = kNever_TileUsage) override;
 
         // Returns true if the proxy handled the filter itself. If this returns
         // false then the filter's code will be called.

@@ -47,6 +47,12 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
+        SkPaint red;
+        red.setColor(SK_ColorRED);
+        red.setStyle(SkPaint::kStroke_Style);
+        SkPaint blue;
+        blue.setColor(SK_ColorBLUE);
+        blue.setStyle(SkPaint::kStroke_Style);
 
         int x = 0, y = 0;
         for (size_t i = 0; i < 4; i++) {
@@ -67,6 +73,8 @@ protected:
             SkPaint paint;
             paint.setImageFilter(filter);
             canvas->drawImage(fBitmap, 0, 0, &paint);
+            canvas->drawRect(srcRect, red);
+            canvas->drawRect(dstRect, blue);
             canvas->restore();
             x += image->width() + MARGIN;
             if (x + image->width() > WIDTH) {
@@ -96,6 +104,8 @@ protected:
         canvas->saveLayer(&dstRect, &paint);
         canvas->drawImage(fBitmap, 0, 0);
         canvas->restore();
+        canvas->drawRect(srcRect, red);
+        canvas->drawRect(dstRect, blue);
         canvas->restore();
     }
 private:
