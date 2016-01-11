@@ -10,7 +10,7 @@
 SkString GrAuditTrail::toJson() const {
     SkString json;
     json.append("{\n");
-    json.append("Ops: [\n");
+    json.append("\"Ops\": [\n");
     for (int i = 0; i < fOps.count(); i++) {
         json.append(fOps[i].toJson());
         if (i < fOps.count() - 1) {
@@ -25,7 +25,7 @@ SkString GrAuditTrail::toJson() const {
 SkString GrAuditTrail::Op::toJson() const {
     SkString json;
     json.append("{\n");
-    json.appendf("%s\n", fName.c_str());
+    json.appendf("\"Name\": \"%s\"\n", fName.c_str());
     json.append("}\n");
     return json;
 }

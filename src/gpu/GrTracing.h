@@ -86,16 +86,18 @@ private:
     GrGpuTraceMarkerGenerator SK_MACRO_APPEND_LINE(TMG)(target);                  \
     SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                    \
 
-#define GR_CREATE_TRACE_MARKER_CONTEXT(name, context)                                              \
+#define GR_CREATE_TRACE_MARKER_CONTEXT(classname, op, context)                                     \
     /* Chromium tracing */                                                                         \
     static int SK_MACRO_APPEND_LINE(name_counter) = 0;                                             \
     bool SK_MACRO_APPEND_LINE(gpuTracingEnabled);                                                  \
     TRACE_EVENT_CATEGORY_GROUP_ENABLED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),                      \
                                        &SK_MACRO_APPEND_LINE(gpuTracingEnabled));                  \
     if (SK_MACRO_APPEND_LINE(gpuTracingEnabled)) {                                                 \
-        INTERNAL_GR_CREATE_TRACE_MARKER_SCOPED_C(name, SK_MACRO_APPEND_LINE(name_counter), context)\
+        INTERNAL_GR_CREATE_TRACE_MARKER_SCOPED_C(classname "::" op,                                \
+                                                 SK_MACRO_APPEND_LINE(name_counter), context)      \
     }                                                                                              \
-    INTERNAL_TRACE_EVENT_ADD_SCOPED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), name,                   \
+    GR_AUDIT_TRAIL_ADDOP(context->getAuditTrail(), SkString(op));                                  \
+    INTERNAL_TRACE_EVENT_ADD_SCOPED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), classname "::" op,      \
                                     "id", SK_MACRO_APPEND_LINE(name_counter));
 
 #define INTERNAL_GR_CREATE_TRACE_MARKER_SCOPED_C(name, name_counter, context)     \

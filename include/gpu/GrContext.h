@@ -359,7 +359,7 @@ public:
     /** Get pointer to atlas texture for given mask format */
     GrTexture* getFontAtlasTexture(GrMaskFormat format);
 
-    SkString dumpAuditTrailToJson() const { return fAuditTrail.toJson(); }
+    GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 
 private:
     GrGpu*                          fGpu;

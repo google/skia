@@ -185,4 +185,11 @@ typedef unsigned __int64 uint64_t;
     #endif
 #endif
 
+/**
+ * Enable batch debugging output as json
+ * TODO make this runtime configurable
+ */
+#if !defined(GR_BATCH_DEBUGGING_OUTPUT)
+    #define GR_BATCH_DEBUGGING_OUTPUT 0
+#endif
 #endif
