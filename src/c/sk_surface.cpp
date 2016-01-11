@@ -147,66 +147,6 @@ static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* d
     return false;
 }
 
-static SkData* AsData(const sk_data_t* cdata) {
-    return reinterpret_cast<SkData*>(const_cast<sk_data_t*>(cdata));
-}
-
-static sk_data_t* ToData(SkData* data) {
-    return reinterpret_cast<sk_data_t*>(data);
-}
-
-static sk_rect_t ToRect(const SkRect& rect) {
-    return reinterpret_cast<const sk_rect_t&>(rect);
-}
-
-static const SkRect& AsRect(const sk_rect_t& crect) {
-    return reinterpret_cast<const SkRect&>(crect);
-}
-
-static const SkPath& AsPath(const sk_path_t& cpath) {
-    return reinterpret_cast<const SkPath&>(cpath);
-}
-
-static SkPath* as_path(sk_path_t* cpath) {
-    return reinterpret_cast<SkPath*>(cpath);
-}
-
-static const SkImage* AsImage(const sk_image_t* cimage) {
-    return reinterpret_cast<const SkImage*>(cimage);
-}
-
-static sk_image_t* ToImage(SkImage* cimage) {
-    return reinterpret_cast<sk_image_t*>(cimage);
-}
-
-static sk_canvas_t* ToCanvas(SkCanvas* canvas) {
-    return reinterpret_cast<sk_canvas_t*>(canvas);
-}
-
-static SkCanvas* AsCanvas(sk_canvas_t* ccanvas) {
-    return reinterpret_cast<SkCanvas*>(ccanvas);
-}
-
-static SkPictureRecorder* AsPictureRecorder(sk_picture_recorder_t* crec) {
-    return reinterpret_cast<SkPictureRecorder*>(crec);
-}
-
-static sk_picture_recorder_t* ToPictureRecorder(SkPictureRecorder* rec) {
-    return reinterpret_cast<sk_picture_recorder_t*>(rec);
-}
-
-static const SkPicture* AsPicture(const sk_picture_t* cpic) {
-    return reinterpret_cast<const SkPicture*>(cpic);
-}
-
-static SkPicture* AsPicture(sk_picture_t* cpic) {
-    return reinterpret_cast<SkPicture*>(cpic);
-}
-
-static sk_picture_t* ToPicture(SkPicture* pic) {
-    return reinterpret_cast<sk_picture_t*>(pic);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 sk_colortype_t sk_colortype_get_default_8888() {
