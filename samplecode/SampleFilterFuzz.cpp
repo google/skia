@@ -381,7 +381,7 @@ static SkColorFilter* make_color_filter() {
             colorFilter = SkColorFilter::CreateModeFilter(make_color(), make_xfermode());
             break;
         case 4:
-            colorFilter = SkColorFilter::CreateLightingFilter(make_color(), make_color());
+            colorFilter = SkColorMatrixFilter::CreateLightingFilter(make_color(), make_color());
             break;
         case 5:
         default:

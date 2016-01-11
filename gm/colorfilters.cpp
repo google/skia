@@ -7,7 +7,7 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkColorFilter.h"
+#include "SkColorMatrixFilter.h"
 #include "SkGradientShader.h"
 
 static SkShader* make_shader(const SkRect& bounds) {
@@ -31,7 +31,7 @@ static void install_nothing(SkPaint* paint, uint32_t, uint32_t) {
 }
 
 static void install_lighting(SkPaint* paint, uint32_t mul, uint32_t add) {
-    paint->setColorFilter(SkColorFilter::CreateLightingFilter(mul, add))->unref();
+    paint->setColorFilter(SkColorMatrixFilter::CreateLightingFilter(mul, add))->unref();
 }
 
 class ColorFiltersGM : public skiagm::GM {

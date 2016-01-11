@@ -10,7 +10,7 @@
 #include "Sk2DPathEffect.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
-#include "SkColorFilter.h"
+#include "SkColorMatrixFilter.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -98,7 +98,7 @@ static void color_filter(SkPaint* paint) {
     SkRect r;
     r.setWH(SkIntToScalar(kWidth), 50);
     paint->setShader(make_shader(r))->unref();
-    paint->setColorFilter(SkColorFilter::CreateLightingFilter(0xF0F0F0, 0))->unref();
+    paint->setColorFilter(SkColorMatrixFilter::CreateLightingFilter(0xF0F0F0, 0))->unref();
 }
 
 static void kitchen_sink(SkPaint* paint) {

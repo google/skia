@@ -20,6 +20,14 @@ public:
         return new SkColorMatrixFilter(array);
     }
 
+    /**
+     *  Create a colorfilter that multiplies the RGB channels by one color, and
+     *  then adds a second color, pinning the result for each component to
+     *  [0..255]. The alpha components of the mul and add arguments
+     *  are ignored.
+     */
+    static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
+
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
     uint32_t getFlags() const override;
     bool asColorMatrix(SkScalar matrix[20]) const override;

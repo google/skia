@@ -338,3 +338,32 @@ void SkColorMatrixFilter::toString(SkString* str) const {
     str->append(")");
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+static SkScalar byte_to_scale(U8CPU byte) {
+    if (0xFF == byte) {
+        // want to get this exact
+        return 1;
+    } else {
+        return byte * 0.00392156862745f;
+    }
+}
+
+SkColorFilter* SkColorMatrixFilter::CreateLightingFilter(SkColor mul, SkColor add) {
+    SkColorMatrix matrix;
+    matrix.setScale(byte_to_scale(SkColorGetR(mul)),
+                    byte_to_scale(SkColorGetG(mul)),
+                    byte_to_scale(SkColorGetB(mul)),
+                    1);
+    matrix.postTranslate(SkIntToScalar(SkColorGetR(add)),
+                         SkIntToScalar(SkColorGetG(add)),
+                         SkIntToScalar(SkColorGetB(add)),
+                         0);
+    return SkColorMatrixFilter::Create(matrix);
+}
+
+// DEPRECTED -- remove this when chrome/android stop calling it
+SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
+    return SkColorMatrixFilter::CreateLightingFilter(mul, add);
+}

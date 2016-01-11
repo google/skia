@@ -106,11 +106,7 @@ public:
     */
     static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode);
 
-    /** Create a colorfilter that multiplies the RGB channels by one color, and
-        then adds a second color, pinning the result for each component to
-        [0..255]. The alpha components of the mul and add arguments
-        are ignored.
-    */
+    // DEPRECATED -- call this from SkColorMatrixFilter instead -- see skbug.com/4791
     static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
