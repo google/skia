@@ -226,18 +226,6 @@ public:
      */
     SkCodec::Result getAndroidPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
-    /**
-     *  Some images may initially report that they have alpha due to the format
-     *  of the encoded data, but then never use any colors which have alpha
-     *  less than 100%. This function can be called *after* decoding to
-     *  determine if such an image truly had alpha. Calling it before decoding
-     *  is undefined.
-     *  FIXME: see skbug.com/3582.
-     */
-    bool reallyHasAlpha() const {
-        return fCodec->reallyHasAlpha();
-    }
-
 protected:
 
     SkAndroidCodec(SkCodec*);

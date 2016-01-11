@@ -9,6 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkMath.h"
 #include "SkSampledCodec.h"
+#include "SkSampler.h"
 #include "SkTemplates.h"
 
 SkSampledCodec::SkSampledCodec(SkCodec* codec)

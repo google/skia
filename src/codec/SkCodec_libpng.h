@@ -32,7 +32,6 @@ protected:
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
     bool onRewind() override;
     uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
-    bool onReallyHasAlpha() const final;
 
     // Helper to set up swizzler and color table. Also calls png_read_update_info.
     Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,
@@ -49,19 +48,6 @@ protected:
     SkSwizzler::SrcConfig srcConfig() const { return fSrcConfig; }
     int numberPasses() const { return fNumberPasses; }
 
-    enum AlphaState {
-        // This class has done no decoding, or threw away its knowledge (in
-        // scanline decodes).
-        kUnknown_AlphaState,
-        // This class found the image (possibly partial, in the case of a
-        // scanline decode) to be opaque.
-        kOpaque_AlphaState,
-        // Ths class found the image to have alpha.
-        kHasAlpha_AlphaState,
-    };
-
-    virtual AlphaState alphaInScanlineDecode() const = 0;
-
 private:
     SkAutoTUnref<SkPngChunkReader>  fPngChunkReader;
     png_structp                     fPng_ptr;
@@ -74,7 +60,6 @@ private:
     SkSwizzler::SrcConfig           fSrcConfig;
     const int                       fNumberPasses;
     int                             fBitDepth;
-    AlphaState                      fAlphaState;
 
     bool decodePalette(bool premultiply, int* ctableCount);
     void destroyReadStruct();

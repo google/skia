@@ -38,42 +38,6 @@ public:
 
     /*
      *
-     * Result code for the alpha components of a row.
-     *
-     */
-    typedef uint16_t ResultAlpha;
-    static const ResultAlpha kOpaque_ResultAlpha = 0xFFFF;
-    static const ResultAlpha kTransparent_ResultAlpha = 0x0000;
-
-    /*
-     *
-     * Checks if the result of decoding a row indicates that the row was
-     * transparent.
-     *
-     */
-    static bool IsTransparent(ResultAlpha r) {
-        return kTransparent_ResultAlpha == r;
-    }
-
-    /*
-     *
-     * Checks if the result of decoding a row indicates that the row was
-     * opaque.
-     *
-     */
-    static bool IsOpaque(ResultAlpha r) {
-        return kOpaque_ResultAlpha == r;
-    }
-
-    /*
-     *
-     * Constructs the proper result code based on accumulated alpha masks
-     *
-     */
-    static ResultAlpha GetResult(uint8_t zeroAlpha, uint8_t maxAlpha);
-
-    /*
-     *
      * Returns bits per pixel for source config
      *
      */
@@ -149,10 +113,8 @@ public:
      *  subset decodes.
      *  @param dst Where we write the output.
      *  @param src The next row of the source data.
-     *  @return A result code describing if the row was fully opaque, fully
-     *          transparent, or neither
      */
-    ResultAlpha swizzle(void* dst, const uint8_t* SK_RESTRICT src);
+    void swizzle(void* dst, const uint8_t* SK_RESTRICT src);
 
     /**
      * Implement fill using a custom width.
@@ -187,10 +149,10 @@ private:
      *  @param offset The offset before the first pixel to sample.
                         Is in bytes or bits based on what deltaSrc is in.
      */
-    typedef ResultAlpha (*RowProc)(void* SK_RESTRICT dstRow,
-                                   const uint8_t* SK_RESTRICT src,
-                                   int dstWidth, int bpp, int deltaSrc, int offset,
-                                   const SkPMColor ctable[]);
+    typedef void (*RowProc)(void* SK_RESTRICT dstRow,
+                            const uint8_t* SK_RESTRICT src,
+                            int dstWidth, int bpp, int deltaSrc, int offset,
+                            const SkPMColor ctable[]);
 
     const RowProc       fRowProc;
     const SkPMColor*    fColorTable;      // Unowned pointer

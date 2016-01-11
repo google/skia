@@ -278,18 +278,6 @@ public:
     Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
-     *  Some images may initially report that they have alpha due to the format
-     *  of the encoded data, but then never use any colors which have alpha
-     *  less than 100%. This function can be called *after* decoding to
-     *  determine if such an image truly had alpha. Calling it before decoding
-     *  is undefined.
-     *  FIXME: see skbug.com/3582.
-     */
-    bool reallyHasAlpha() const {
-        return kOpaque_SkAlphaType != this->getInfo().alphaType() && this->onReallyHasAlpha();
-    }
-
-    /**
      * The remaining functions revolve around decoding scanlines.
      */
 
@@ -484,16 +472,6 @@ protected:
     virtual bool onGetValidSubset(SkIRect* /* desiredSubset */) const {
         // By default, subsets are not supported.
         return false;
-    }
-
-    /**
-     * This is only called if the image indicates that it is not opaque.
-     * By default we will assume that the image is in fact non-opaque.
-     * Subclasses may override this function if they intend to verify
-     * that the image actually has alpha.
-     */
-    virtual bool onReallyHasAlpha() const {
-        return true;
     }
 
     /**
