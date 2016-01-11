@@ -99,6 +99,11 @@ SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, vo
                        SkBitmapProvider(fRawBitmap), rec, storage);
 }
 
+static bool only_scale_and_translate(const SkMatrix& matrix) {
+    unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
+    return (matrix.getType() & ~mask) == 0;
+}
+
 SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(const SkShader& shader,
                                                                      const ContextRec& rec,
                                                                      SkBitmapProcState* state)
@@ -108,6 +113,10 @@ SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(const SkSha
     fFlags = 0;
     if (fState->fPixmap.isOpaque() && (255 == this->getPaintAlpha())) {
         fFlags |= kOpaqueAlpha_Flag;
+    }
+
+    if (1 == fState->fPixmap.height() && only_scale_and_translate(this->getTotalInverse())) {
+        fFlags |= kConstInY32_Flag;
     }
 }
 
