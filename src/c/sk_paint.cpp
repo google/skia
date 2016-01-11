@@ -30,6 +30,25 @@ const struct {
     { BEVEL_SK_STROKE_JOIN, SkPaint::kBevel_Join },
 };
 
+const struct {
+    sk_text_align_t fC;
+    SkPaint::Align  fSK;
+} MAKE_FROM_TO_NAME(sk_text_align_t)[] = {
+    { LEFT_SK_TEXT_ALIGN, SkPaint::kLeft_Align },
+    { CENTER_SK_TEXT_ALIGN, SkPaint::kCenter_Align },
+    { RIGHT_SK_TEXT_ALIGN, SkPaint::kRight_Align },
+};
+
+const struct {
+    sk_text_encoding_t    fC;
+    SkPaint::TextEncoding fSK;
+} MAKE_FROM_TO_NAME(sk_text_encoding_t)[] = {
+    { UTF8_SK_TEXT_ENCODING, SkPaint::kUTF8_TextEncoding },
+    { UTF16_SK_TEXT_ENCODING, SkPaint::kUTF16_TextEncoding },
+    { UTF32_SK_TEXT_ENCODING, SkPaint::kUTF32_TextEncoding },
+    { GLYPH_ID_SK_TEXT_ENCODING, SkPaint::kGlyphID_TextEncoding },
+};
+
 #define CType           sk_stroke_cap_t
 #define SKType          SkPaint::Cap
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_cap_t)
@@ -38,6 +57,16 @@ const struct {
 #define CType           sk_stroke_join_t
 #define SKType          SkPaint::Join
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_join_t)
+#include "sk_c_from_to.h"
+
+#define CType           sk_text_align_t
+#define SKType          SkPaint::Align
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_align_t)
+#include "sk_c_from_to.h"
+
+#define CType           sk_text_encoding_t
+#define SKType          SkPaint::TextEncoding
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_encoding_t)
 #include "sk_c_from_to.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +125,7 @@ void sk_paint_set_stroke_miter(sk_paint_t* cpaint, float miter) {
 
 sk_stroke_cap_t sk_paint_get_stroke_cap(const sk_paint_t* cpaint) {
     sk_stroke_cap_t ccap;
-    if (find_c(AsPaint(*cpaint).getStrokeCap(), &ccap)) {
+    if (!find_c(AsPaint(*cpaint).getStrokeCap(), &ccap)) {
         ccap = BUTT_SK_STROKE_CAP;
     }
     return ccap;
@@ -113,7 +142,7 @@ void sk_paint_set_stroke_cap(sk_paint_t* cpaint, sk_stroke_cap_t ccap) {
 
 sk_stroke_join_t sk_paint_get_stroke_join(const sk_paint_t* cpaint) {
     sk_stroke_join_t cjoin;
-    if (find_c(AsPaint(*cpaint).getStrokeJoin(), &cjoin)) {
+    if (!find_c(AsPaint(*cpaint).getStrokeJoin(), &cjoin)) {
         cjoin = MITER_SK_STROKE_JOIN;
     }
     return cjoin;
@@ -152,5 +181,55 @@ float sk_paint_get_textsize(sk_paint_t* paint)
 void sk_paint_set_textsize(sk_paint_t* paint, float size)
 {
     AsPaint(paint)->setTextSize(size);
+}
+
+sk_text_align_t sk_paint_get_text_align(const sk_paint_t* cpaint) {
+    sk_text_align_t calign;
+    if (!find_c(AsPaint(*cpaint).getTextAlign(), &calign)) {
+        calign = LEFT_SK_TEXT_ALIGN;
+    }
+    return calign;
+}
+
+void sk_paint_set_text_align(sk_paint_t* cpaint, sk_text_align_t calign) {
+    SkPaint::Align skalign;
+    if (find_sk(calign, &skalign)) {
+        AsPaint(cpaint)->setTextAlign(skalign);
+    } else {
+        // unknown calign
+    }
+}
+
+sk_text_encoding_t sk_paint_get_text_encoding(const sk_paint_t* cpaint) {
+    sk_text_encoding_t cencoding;
+    if (!find_c(AsPaint(*cpaint).getTextEncoding(), &cencoding)) {
+        cencoding = UTF8_SK_TEXT_ENCODING;
+    }
+    return cencoding;
+}
+
+void sk_paint_set_text_encoding(sk_paint_t* cpaint, sk_text_encoding_t cencoding) {
+    SkPaint::TextEncoding skencoding;
+    if (find_sk(cencoding, &skencoding)) {
+        AsPaint(cpaint)->setTextEncoding(skencoding);
+    } else {
+        // unknown cencoding
+    }
+}
+
+float sk_paint_get_text_scale_x(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->getTextScaleX();
+}
+
+void sk_paint_set_text_scale_x(sk_paint_t* cpaint, float scale) {
+    AsPaint(cpaint)->setTextScaleX(scale);
+}
+
+float sk_paint_get_text_skew_x(const sk_paint_t* cpaint) {
+    return AsPaint(cpaint)->getTextSkewX();
+}
+
+void sk_paint_set_text_skew_x(sk_paint_t* cpaint, float skew) {
+    AsPaint(cpaint)->setTextSkewX(skew);
 }
 
