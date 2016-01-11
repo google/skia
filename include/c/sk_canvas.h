@@ -65,6 +65,19 @@ SK_API void sk_canvas_save_layer(sk_canvas_t*, const sk_rect_t*, const sk_paint_
     save_layer were called.
 */
 SK_API void sk_canvas_restore(sk_canvas_t*);
+/**
+    Returns the number of matrix/clip states on the SkCanvas' private stack.
+    This will equal # save() calls - # restore() calls + 1. The save count on
+    a new canvas is 1.
+*/
+SK_API int sk_canvas_get_save_count(sk_canvas_t*);
+/**
+    Efficient way to pop any calls to sk_canvas_save() that happened after the save
+    count reached saveCount. It is an error for saveCount to be greater than
+    getSaveCount(). To pop all the way back to the initial matrix/clip context
+    pass saveCount == 1.
+*/
+SK_API void sk_canvas_restore_to_count(sk_canvas_t*, int saveCount);
 
 /**
     Preconcat the current coordinate transformation matrix with the

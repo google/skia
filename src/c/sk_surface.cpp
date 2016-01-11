@@ -328,11 +328,19 @@ void sk_canvas_discard(sk_canvas_t* ccanvas) {
     AsCanvas(ccanvas)->discard();
 }
 void sk_canvas_save_layer(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
+    AsCanvas(ccanvas)->saveLayer(AsRect(crect), AsPaint(cpaint));
 }
 
 void sk_canvas_restore(sk_canvas_t* ccanvas) {
     AsCanvas(ccanvas)->restore();
+}
+
+int sk_canvas_get_save_count(sk_canvas_t* ccanvas) {
+    return AsCanvas(ccanvas)->getSaveCount();
+}
+
+void sk_canvas_restore_to_count(sk_canvas_t* ccanvas, int saveCount) {
+    AsCanvas(ccanvas)->restoreToCount(saveCount);
 }
 
 void sk_canvas_translate(sk_canvas_t* ccanvas, float dx, float dy) {
