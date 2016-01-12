@@ -38,10 +38,6 @@ public:
     static double GetNSecs();
 };
 
-#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN32)
-    extern SkMSec gForceTickCount;
-#endif
-
 #define SK_TIME_FACTOR      1
 
 ///////////////////////////////////////////////////////////////////////////////
