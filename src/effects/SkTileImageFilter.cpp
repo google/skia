@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkOffsetImageFilter.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMatrix.h"
@@ -20,6 +21,16 @@ SkImageFilter* SkTileImageFilter::Create(const SkRect& srcRect, const SkRect& ds
                                          SkImageFilter* input) {
     if (!SkIsValidRect(srcRect) || !SkIsValidRect(dstRect)) {
         return nullptr;
+    }
+    if (srcRect.width() == dstRect.width() && srcRect.height() == dstRect.height()) {
+        SkRect ir = dstRect;
+        if (!ir.intersect(srcRect)) {
+            return SkSafeRef(input);
+        }
+        CropRect cropRect(ir);
+        return SkOffsetImageFilter::Create(dstRect.x() - srcRect.x(),
+                                           dstRect.y() - srcRect.y(),
+                                           input, &cropRect);
     }
     return new SkTileImageFilter(srcRect, dstRect, input);
 }
