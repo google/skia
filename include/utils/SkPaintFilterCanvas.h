@@ -58,15 +58,7 @@ protected:
      *        To also filter encapsulated paints (e.g. SkPicture, SkTextBlob), clients may need to
      *        override the relevant methods (i.e. drawPicture, drawTextBlob).
      */
-    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const {
-        if (*paint) {
-            this->onFilterPaint(paint->writable(), type);
-        }
-        return true;
-    }
-
-    // DEPRECATED - do not use
-    virtual void onFilterPaint(SkPaint*, Type) const { }
+    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const = 0;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
