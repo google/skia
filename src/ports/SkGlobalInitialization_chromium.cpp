@@ -59,7 +59,6 @@
 #include "SkPictureImageFilter.h"
 #include "SkPictureShader.h"
 #include "SkPixelXorXfermode.h"
-#include "SkRectShaderImageFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTestImageFilters.h"
 #include "SkTileImageFilter.h"
@@ -121,7 +120,6 @@ public:
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureImageFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPictureShader)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPixelXorXfermode)
-        SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRectShaderImageFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTileImageFilter)
         SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixImageFilter)
