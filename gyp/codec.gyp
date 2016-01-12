@@ -32,6 +32,7 @@
         '../include/private',
         '../src/codec',
         '../src/core',
+        '../src/utils',
       ],
       'sources': [
         '../src/codec/SkAndroidCodec.cpp',

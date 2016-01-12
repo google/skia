@@ -160,7 +160,10 @@ private:
                                          int dstWidth, int bpp, int deltaSrc, int offset,
                                          const SkPMColor ctable[]);
 
-    const RowProc       fRowProc;
+    // May be NULL.  We will not always be able to used an optimized function.
+    RowProc             fFastProc;
+    // Always non-NULL.  We use this if fFastProc is NULL.
+    const RowProc       fProc;
     const SkPMColor*    fColorTable;      // Unowned pointer
 
     // Subset Swizzles
@@ -247,8 +250,8 @@ private:
                                           //     fBPP is bitsPerPixel
     const int           fDstBPP;          // Bytes per pixel for the destination color type
 
-    SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int srcWidth, int dstOffset,
-            int dstWidth, int srcBPP, int dstBPP);
+    SkSwizzler(RowProc fastProc, RowProc proc, const SkPMColor* ctable, int srcOffset,
+            int srcWidth, int dstOffset, int dstWidth, int srcBPP, int dstBPP);
 
     int onSetSampleX(int) override;
 

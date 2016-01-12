@@ -7,6 +7,7 @@
 
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
+#include "SkOpts.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
 
@@ -367,7 +368,6 @@ static void swizzle_rgbx_to_565(
     }
 }
 
-
 // kRGBA
 static void swizzle_rgba_to_n32_premul(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
@@ -380,6 +380,21 @@ static void swizzle_rgba_to_n32_premul(
         dst[x] = SkPremultiplyARGBInline(alpha, src[0], src[1], src[2]);
         src += deltaSrc;
     }
+}
+
+static void fast_swizzle_rgba_to_n32_premul(
+        void* dst, const uint8_t* src, int width, int bpp, int deltaSrc,
+        int offset, const SkPMColor ctable[]) {
+
+    // This function must not be called if we are sampling.  If we are not
+    // sampling, deltaSrc should equal bpp.
+    SkASSERT(deltaSrc == bpp);
+
+#ifdef SK_PMCOLOR_IS_RGBA
+    SkOpts::premul_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+#else
+    SkOpts::premul_swaprb_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+#endif
 }
 
 static void swizzle_rgba_to_n32_unpremul(
@@ -503,6 +518,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             && nullptr == ctable) {
         return nullptr;
     }
+    RowProc fastProc = nullptr;
     RowProc proc = nullptr;
     SkCodec::ZeroInitialized zeroInit = options.fZeroInitialized;
     switch (sc) {
@@ -610,7 +626,6 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             }
             break;
         case kRGBX:
-            // TODO: Support other swizzles.
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
                     proc = &swizzle_rgbx_to_n32;
@@ -633,8 +648,10 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                     } else {
                         if (SkCodec::kYes_ZeroInitialized == zeroInit) {
                             proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_n32_premul>;
+                            fastProc = &SkipLeading8888ZerosThen<fast_swizzle_rgba_to_n32_premul>;
                         } else {
                             proc = &swizzle_rgba_to_n32_premul;
+                            fastProc = &fast_swizzle_rgba_to_n32_premul;
                         }
                     }
                     break;
@@ -675,9 +692,6 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
         default:
             break;
     }
-    if (nullptr == proc) {
-        return nullptr;
-    }
 
     // Store bpp in bytes if it is an even multiple, otherwise use bits
     int srcBPP = SkIsAlign8(BitsPerPixel(sc)) ? BytesPerPixel(sc) : BitsPerPixel(sc);
@@ -699,12 +713,14 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
         srcWidth = frame->width();
     }
 
-    return new SkSwizzler(proc, ctable, srcOffset, srcWidth, dstOffset, dstWidth, srcBPP, dstBPP);
+    return new SkSwizzler(fastProc, proc, ctable, srcOffset, srcWidth, dstOffset, dstWidth,
+            srcBPP, dstBPP);
 }
 
-SkSwizzler::SkSwizzler(RowProc proc, const SkPMColor* ctable, int srcOffset, int srcWidth,
-        int dstOffset, int dstWidth, int srcBPP, int dstBPP)
-    : fRowProc(proc)
+SkSwizzler::SkSwizzler(RowProc fastProc, RowProc proc, const SkPMColor* ctable, int srcOffset,
+        int srcWidth, int dstOffset, int dstWidth, int srcBPP, int dstBPP)
+    : fFastProc(fastProc)
+    , fProc(proc)
     , fColorTable(ctable)
     , fSrcOffset(srcOffset)
     , fDstOffset(dstOffset)
@@ -728,11 +744,15 @@ int SkSwizzler::onSetSampleX(int sampleX) {
     fSwizzleWidth = get_scaled_dimension(fSrcWidth, sampleX);
     fAllocatedWidth = get_scaled_dimension(fDstWidth, sampleX);
 
+    // The optimized swizzler routines do not (yet) support sampling.
+    fFastProc = nullptr;
+
     return fAllocatedWidth;
 }
 
 void SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
     SkASSERT(nullptr != dst && nullptr != src);
-    fRowProc(SkTAddOffset<void>(dst, fDstOffsetBytes), src, fSwizzleWidth, fSrcBPP,
+    RowProc proc = fFastProc ? fFastProc : fProc;
+    proc(SkTAddOffset<void>(dst, fDstOffsetBytes), src, fSwizzleWidth, fSrcBPP,
             fSampleX * fSrcBPP, fSrcOffsetUnits, fColorTable);
 }
