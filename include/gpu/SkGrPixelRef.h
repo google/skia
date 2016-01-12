@@ -49,7 +49,7 @@ public:
 
 protected:
     // overrides from SkPixelRef
-    bool onReadPixels(SkBitmap* dst, const SkIRect* subset) override;
+    bool onReadPixels(SkBitmap* dst, SkColorType, const SkIRect* subset) override;
     SkPixelRef* deepCopy(SkColorType, SkColorProfileType,
                          const SkIRect* subset) override;
     void onNotifyPixelsChanged() override;

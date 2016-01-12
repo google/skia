@@ -806,7 +806,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
         SkIRect subset;
         subset.setXYWH(fPixelRefOrigin.fX, fPixelRefOrigin.fY,
                        fInfo.width(), fInfo.height());
-        if (fPixelRef->readPixels(&tmpSrc, &subset)) {
+        if (fPixelRef->readPixels(&tmpSrc, dstColorType, &subset)) {
             if (fPixelRef->info().alphaType() == kUnpremul_SkAlphaType) {
                 // FIXME: The only meaningful implementation of readPixels
                 // (GrPixelRef) assumes premultiplied pixels.
