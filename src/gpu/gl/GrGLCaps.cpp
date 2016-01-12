@@ -1548,6 +1548,19 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
     }
 
+    // Shader output swizzles will default to RGBA. When we've use GL_RED instead of GL_ALPHA to
+    // implement kAlpha_8_GrPixelConfig we need to swizzle the shader outputs so the alpha channel
+    // gets written to the single component.
+    if (this->textureRedSupport()) {
+        for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+            GrPixelConfig config = static_cast<GrPixelConfig>(i);
+            if (GrPixelConfigIsAlphaOnly(config) &&
+                fConfigTable[i].fFormats.fBaseInternalFormat == GR_GL_RED) {
+                glslCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
+            }
+        }
+    }
+
 #ifdef SK_DEBUG
     // Make sure we initialized everything.
     ConfigInfo defaultEntry;

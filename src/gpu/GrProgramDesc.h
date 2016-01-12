@@ -70,15 +70,16 @@ public:
     }
 
     struct KeyHeader {
-        uint8_t                     fFragPosKey;   // set by GrGLShaderBuilder if there are
-                                                   // effects that read the fragment position.
-                                                   // Otherwise, 0.
+        // Set by GrGLShaderBuilder if there are effects that read the fragment position. Otherwise,
+        // 0.
+        uint8_t                     fFragPosKey;
+        // Set to uniquely idenitify any swizzling of the shader's output color(s).
+        uint8_t                     fOutputSwizzle;
         uint8_t                     fSnapVerticesToPixelCenters;
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
         uint8_t                     fIgnoresCoverage;
     };
-    GR_STATIC_ASSERT(sizeof(KeyHeader) == 5);
 
     int numColorEffects() const {
         return this->header().fColorEffectCnt;

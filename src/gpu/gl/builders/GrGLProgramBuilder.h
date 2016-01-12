@@ -92,6 +92,7 @@ private:
                                 const GrGLSLExpr4& colorIn,
                                 const GrGLSLExpr4& coverageIn,
                                 bool ignoresCoverage);
+    void emitFSOutputSwizzle(bool hasSecondaryOutput);
 
     void verify(const GrPrimitiveProcessor&);
     void verify(const GrXferProcessor&);

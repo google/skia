@@ -10,6 +10,7 @@
 #include "GrAutoLocaleSetter.h"
 #include "GrCoordTransform.h"
 #include "GrGLProgramBuilder.h"
+#include "GrSwizzle.h"
 #include "GrTexture.h"
 #include "SkRTConf.h"
 #include "SkTraceEvent.h"
@@ -95,6 +96,7 @@ bool GrGLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr
                                   inputCoverage);
     this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor, *inputCoverage,
                                  this->pipeline().ignoresCoverage());
+    this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
     return true;
 }
 
@@ -260,6 +262,22 @@ void GrGLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     // asks for dst color, then the emit code needs to follow suit
     verify(xp);
     fFS.codeAppend("}");
+}
+
+void GrGLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
+    // Swizzle the fragment shader outputs if necessary.
+    GrSwizzle swizzle;
+    swizzle.setFromKey(this->desc().header().fOutputSwizzle);
+    if (swizzle != GrSwizzle::RGBA()) {
+        fFS.codeAppendf("%s = %s.%s;", fFS.getPrimaryColorOutputName(),
+                        fFS.getPrimaryColorOutputName(),
+                        swizzle.c_str());
+        if (hasSecondaryOutput) {
+            fFS.codeAppendf("%s = %s.%s;", fFS.getSecondaryColorOutputName(),
+                            fFS.getSecondaryColorOutputName(),
+                            swizzle.c_str());
+        }
+    }
 }
 
 void GrGLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {

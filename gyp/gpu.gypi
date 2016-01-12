@@ -175,6 +175,7 @@
       '<(skia_src_path)/gpu/GrSoftwarePathRenderer.h',
       '<(skia_src_path)/gpu/GrSurfacePriv.h',
       '<(skia_src_path)/gpu/GrSurface.cpp',
+      '<(skia_src_path)/gpu/GrSwizzle.h',
       '<(skia_src_path)/gpu/GrTexture.cpp',
       '<(skia_src_path)/gpu/GrTextureParamsAdjuster.h',
       '<(skia_src_path)/gpu/GrTextureParamsAdjuster.cpp',

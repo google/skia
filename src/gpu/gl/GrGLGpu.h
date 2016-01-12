@@ -26,6 +26,7 @@
 
 class GrPipeline;
 class GrNonInstancedVertices;
+class GrSwizzle;
 
 #ifdef SK_DEVELOPER
 #define PROGRAM_CACHE_STATS
@@ -199,8 +200,7 @@ private:
                        const GrNonInstancedVertices& vertices,
                        size_t* indexOffsetInBytes);
 
-    // Subclasses should call this to flush the blend state.
-    void flushBlend(const GrXferProcessor::BlendInfo& blendInfo);
+    void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
     bool hasExtension(const char* ext) const { return fGLContext->hasExtension(ext); }
 

@@ -1570,7 +1570,10 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     }
 
     if (blendInfo.fWriteColor) {
-        this->flushBlend(blendInfo);
+        // Swizzle the blend to match what the shader will output.
+        const GrSwizzle& swizzle = this->glCaps().glslCaps()->configOutputSwizzle(
+            args.fPipeline->getRenderTarget()->config());
+        this->flushBlend(blendInfo, swizzle);
     }
 
     SkSTArray<8, const GrTextureAccess*> textureAccesses;
@@ -1650,7 +1653,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
 void GrGLGpu::buildProgramDesc(GrProgramDesc* desc,
                                const GrPrimitiveProcessor& primProc,
                                const GrPipeline& pipeline) const {
-    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, this)) {
+    if (!GrGLProgramDescBuilder::Build(desc, primProc, pipeline, *this->glCaps().glslCaps())) {
         SkDEBUGFAIL("Failed to generate GL program descriptor");
     }
 }
@@ -2395,7 +2398,7 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     }
 }
 
-void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
+void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle& swizzle) {
     // Any optimization to disable blending should have already been applied and
     // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
 
@@ -2448,15 +2451,16 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
         fHWBlendState.fDstCoeff = dstCoeff;
     }
 
-    GrColor blendConst = blendInfo.fBlendConstant;
-    if ((BlendCoeffReferencesConstant(srcCoeff) ||
-         BlendCoeffReferencesConstant(dstCoeff)) &&
-        (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst)) {
-        GrGLfloat c[4];
-        GrColorToRGBAFloat(blendConst, c);
-        GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
-        fHWBlendState.fConstColor = blendConst;
-        fHWBlendState.fConstColorValid = true;
+    if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {
+        GrColor blendConst = blendInfo.fBlendConstant;
+        blendConst = swizzle.applyTo(blendConst);
+        if (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst) {
+            GrGLfloat c[4];
+            GrColorToRGBAFloat(blendConst, c);
+            GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
+            fHWBlendState.fConstColor = blendConst;
+            fHWBlendState.fConstColorValid = true;
+        }
     }
 }
 
@@ -2840,6 +2844,12 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
+    // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
+    // swizzle.
+    if (this->glCaps().glslCaps()->configOutputSwizzle(src->config()) !=
+        this->glCaps().glslCaps()->configOutputSwizzle(dst->config())) {
+        return false;
+    }
     if (src->asTexture() && dst->asRenderTarget()) {
         this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
         return true;
@@ -3064,6 +3074,9 @@ void GrGLGpu::createWireRectProgram() {
 }
 
 void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor color) {
+    // TODO: This should swizzle the output to match dst's config, though it is a debugging
+    // visualization.
+
     this->handleDirtyContext();
     if (!fWireRectProgram.fProgram) {
         this->createWireRectProgram();
@@ -3114,7 +3127,7 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
 
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
-    this->flushBlend(blendInfo);
+    this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
     this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
     this->flushHWAAState(glRT, false);
@@ -3185,7 +3198,7 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
 
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
-    this->flushBlend(blendInfo);
+    this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
     this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
     this->flushHWAAState(dstRT, false);
