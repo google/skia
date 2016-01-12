@@ -13,23 +13,20 @@
 class SkPaintFilterCanvas::AutoPaintFilter {
 public:
     AutoPaintFilter(const SkPaintFilterCanvas* canvas, Type type, const SkPaint* paint)
-        : fOrigPaint(paint) {
-        fShouldDraw = canvas->onFilter(fOrigPaint, type, &fFilteredPaint);
+        : fPaint(paint) {
+        fShouldDraw = canvas->onFilter(&fPaint, type);
     }
 
     AutoPaintFilter(const SkPaintFilterCanvas* canvas, Type type, const SkPaint& paint)
         : AutoPaintFilter(canvas, type, &paint) { }
 
-    const SkPaint* paint() const {
-        return fFilteredPaint.isValid() ? fFilteredPaint.get() : fOrigPaint;
-    }
+    const SkPaint* paint() const { return fPaint; }
 
     bool shouldDraw() const { return fShouldDraw; }
 
 private:
-    const SkPaint*   fOrigPaint;
-    SkTLazy<SkPaint> fFilteredPaint;
-    bool             fShouldDraw;
+    SkTCopyOnFirstWrite<SkPaint> fPaint;
+    bool                         fShouldDraw;
 };
 
 SkPaintFilterCanvas::SkPaintFilterCanvas(int width, int height) : INHERITED(width, height) { }

@@ -131,6 +131,8 @@ class SkTCopyOnFirstWrite {
 public:
     SkTCopyOnFirstWrite(const T& initial) : fObj(&initial) {}
 
+    SkTCopyOnFirstWrite(const T* initial) : fObj(initial) {}
+
     // Constructor for delayed initialization.
     SkTCopyOnFirstWrite() : fObj(NULL) {}
 

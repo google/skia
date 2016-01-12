@@ -49,22 +49,18 @@ public:
 protected:
     /**
      *  Called with the paint that will be used to draw the specified type.
-     *
-     *  Upon return, if filteredPaint is initialized it will replace the original paint
-     *  for the current draw.  Note that that implementation is responsible for
-     *  initializing *filteredPaint (e.g. via set(*paint)).
+     *  The implementation may modify the paint as they wish (using SkTCopyOnFirstWrite::writable).
      *
      *  The result bool is used to determine whether the draw op is to be
-     *  executed (true) or skipped (false).  When the draw is skipped, filteredPaint is
-     *  ignored.
+     *  executed (true) or skipped (false).
      *
      *  Note: The base implementation calls onFilter() for top-level/explicit paints only.
      *        To also filter encapsulated paints (e.g. SkPicture, SkTextBlob), clients may need to
      *        override the relevant methods (i.e. drawPicture, drawTextBlob).
      */
-    virtual bool onFilter(const SkPaint* paint, Type type, SkTLazy<SkPaint>* filteredPaint) const {
-        if (paint) {
-            this->onFilterPaint(filteredPaint->set(*paint), type);
+    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const {
+        if (*paint) {
+            this->onFilterPaint(paint->writable(), type);
         }
         return true;
     }

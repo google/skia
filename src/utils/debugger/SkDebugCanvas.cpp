@@ -69,16 +69,15 @@ public:
         , fFilterQuality(quality) {}
 
 protected:
-    bool onFilter(const SkPaint* paint, Type, SkTLazy<SkPaint>* filteredPaint) const override {
-        if (paint) {
-            filteredPaint->set(*paint);
+    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
+        if (*paint) {
             if (nullptr != fOverdrawXfermode.get()) {
-                filteredPaint->get()->setAntiAlias(false);
-                filteredPaint->get()->setXfermode(fOverdrawXfermode.get());
+                paint->writable()->setAntiAlias(false);
+                paint->writable()->setXfermode(fOverdrawXfermode.get());
             }
 
             if (fOverrideFilterQuality) {
-                filteredPaint->get()->setFilterQuality(fFilterQuality);
+                paint->writable()->setFilterQuality(fFilterQuality);
             }
         }
         return true;

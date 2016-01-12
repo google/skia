@@ -475,27 +475,25 @@ public:
     }
 
 protected:
-    bool onFilter(const SkPaint* paint, Type t, SkTLazy<SkPaint>* filteredPaint) const override {
-        if (!paint) {
+    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type t) const override {
+        if (!*paint) {
             return true;
         }
 
-        filteredPaint->set(*paint);
         if (kText_Type == t && SkOSMenu::kMixedState != fLCDState) {
-            filteredPaint->get()->setLCDRenderText(SkOSMenu::kOnState == fLCDState);
+            paint->writable()->setLCDRenderText(SkOSMenu::kOnState == fLCDState);
         }
         if (SkOSMenu::kMixedState != fAAState) {
-            filteredPaint->get()->setAntiAlias(SkOSMenu::kOnState == fAAState);
+            paint->writable()->setAntiAlias(SkOSMenu::kOnState == fAAState);
         }
         if (0 != fFilterQualityIndex) {
-            filteredPaint->get()->setFilterQuality(
-                gFilterQualityStates[fFilterQualityIndex].fQuality);
+            paint->writable()->setFilterQuality(gFilterQualityStates[fFilterQualityIndex].fQuality);
         }
         if (SkOSMenu::kMixedState != fSubpixelState) {
-            filteredPaint->get()->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);
+            paint->writable()->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);
         }
         if (0 != fHintingState && fHintingState < (int)SK_ARRAY_COUNT(gHintingStates)) {
-            filteredPaint->get()->setHinting(gHintingStates[fHintingState].hinting);
+            paint->writable()->setHinting(gHintingStates[fHintingState].hinting);
         }
         return true;
     }
