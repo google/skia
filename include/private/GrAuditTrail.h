@@ -19,36 +19,77 @@
  */
 class GrAuditTrail {
 public:
-    void addOp(const SkString& name) {
+    GrAuditTrail() : fUniqueID(0) {}
+
+    class AutoFrame {
+    public:
+        AutoFrame(GrAuditTrail* auditTrail, const char* name)
+            : fAuditTrail(auditTrail) {
+            if (GR_BATCH_DEBUGGING_OUTPUT) {
+                fAuditTrail->pushFrame(name);
+            }
+        }
+
+        ~AutoFrame() {
+            if (GR_BATCH_DEBUGGING_OUTPUT) {
+                fAuditTrail->popFrame();
+            }
+        }
+
+    private:
+        GrAuditTrail* fAuditTrail;
+    };
+
+    void pushFrame(const char* name) {
         SkASSERT(GR_BATCH_DEBUGGING_OUTPUT);
-        fOps.push_back().fName = name;
+        Frame* frame;
+        if (fStack.empty()) {
+            frame = &fFrames.push_back();
+        } else {
+            frame = &fStack.back()->fChildren.push_back();
+        }
+
+        frame->fUniqueID = fUniqueID++;
+        frame->fName = name;
+        fStack.push_back(frame);
     }
 
-    void addBatch(const SkString& name, const SkRect& bounds) {
+    void popFrame() {
         SkASSERT(GR_BATCH_DEBUGGING_OUTPUT);
-        Op::Batch& batch = fOps.back().fBatches.push_back();
+        fStack.pop_back();
+    }
+
+    void addBatch(const char* name, const SkRect& bounds) {
+        // TODO when every internal callsite pushes a frame, we can add the assert
+        SkASSERT(GR_BATCH_DEBUGGING_OUTPUT /*&& !fStack.empty()*/);
+        Frame::Batch& batch = fStack.back()->fBatches.push_back();
         batch.fName = name;
         batch.fBounds = bounds;
     }
 
     SkString toJson() const;
 
-    void reset() { SkASSERT(GR_BATCH_DEBUGGING_OUTPUT); fOps.reset(); }
+    void reset() { SkASSERT(GR_BATCH_DEBUGGING_OUTPUT && fStack.empty()); fFrames.reset(); }
 
 private:
-    struct Op {
+    struct Frame {
         SkString toJson() const;
         struct Batch {
             SkString toJson() const;
-            SkString fName;
+            const char* fName;
             SkRect fBounds;
         };
 
-        SkString fName;
+        const char* fName;
+        // TODO combine these into a single array
         SkTArray<Batch> fBatches;
+        SkTArray<Frame> fChildren;
+        uint64_t fUniqueID;
     };
 
-    SkTArray<Op> fOps;
+    SkTArray<Frame> fFrames;
+    SkTArray<Frame*> fStack;
+    uint64_t fUniqueID;
 };
 
 #define GR_AUDIT_TRAIL_INVOKE_GUARD(invoke, ...) \
@@ -56,13 +97,13 @@ private:
         invoke(__VA_ARGS__);                     \
     }
 
-#define GR_AUDIT_TRAIL_ADDOP(audit_trail, opname) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail->addOp, opname);
+#define GR_AUDIT_TRAIL_AUTO_FRAME(audit_trail, framename) \
+    GrAuditTrail::AutoFrame SK_MACRO_APPEND_LINE(auto_frame)(audit_trail, framename);
 
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
     GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail->reset);
 
 #define GR_AUDIT_TRAIL_ADDBATCH(audit_trail, batchname, bounds) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail->addBatch, SkString(batchname), bounds);
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail->addBatch, batchname, bounds);
 
 #endif

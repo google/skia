@@ -8,12 +8,16 @@
 #include "GrAuditTrail.h"
 
 template <class T>
-static void jsonify_tarray(SkString* json, const SkTArray<T>& array) {
-    for (int i = 0; i < array.count(); i++) {
-        json->append(array[i].toJson());
-        if (i < array.count() - 1) {
-            json->append(",");
+static void jsonify_tarray(SkString* json, const char* name, const SkTArray<T>& array) {
+    if (array.count()) {
+        json->appendf("\"%s\": [", name);
+        for (int i = 0; i < array.count(); i++) {
+            json->append(array[i].toJson());
+            if (i < array.count() - 1) {
+                json->append(",");
+            }
         }
+        json->append("]");
     }
 }
 
@@ -87,30 +91,27 @@ static SkString pretty_print_json(SkString json) {
 SkString GrAuditTrail::toJson() const {
     SkString json;
     json.append("{");
-    json.append("\"Ops\": [");
-    jsonify_tarray(&json, fOps);
-    json.append("]");
+    jsonify_tarray(&json, "Stacks", fFrames);
     json.append("}");
 
     // TODO if this becomes a performance issue we should make pretty print configurable
     return pretty_print_json(json);
 }
 
-SkString GrAuditTrail::Op::toJson() const {
+SkString GrAuditTrail::Frame::toJson() const {
     SkString json;
     json.append("{");
-    json.appendf("\"Name\": \"%s\",", fName.c_str());
-    json.append("\"Batches\": [");
-    jsonify_tarray(&json, fBatches);
-    json.append("]");
+    json.appendf("\"Name\": \"%s\",", fName);
+    jsonify_tarray(&json, "Batches", fBatches);
+    jsonify_tarray(&json, "Frames", fChildren);
     json.append("}");
     return json;
 }
 
-SkString GrAuditTrail::Op::Batch::toJson() const {
+SkString GrAuditTrail::Frame::Batch::toJson() const {
     SkString json;
     json.append("{");
-    json.appendf("\"Name\": \"%s\",", fName.c_str());
+    json.appendf("\"Name\": \"%s\",", fName);
     json.append("\"Bounds\": {");
     json.appendf("\"Left\": %f,", fBounds.fLeft);
     json.appendf("\"Right\": %f,", fBounds.fRight);

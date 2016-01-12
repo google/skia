@@ -58,7 +58,7 @@ private:
 /**
  * GR_CREATE_TRACE_MARKER will place begin and end trace markers for both
  * cpu and gpu (if gpu tracing enabled) for the current scope.
- * marker is of type const char* and target is of type GrDrawTarget*
+ * name is of type const char* and target is of type GrDrawTarget*
  */
 #define GR_CREATE_TRACE_MARKER(name, target)                                                       \
     /* Chromium tracing */                                                                         \
@@ -86,6 +86,10 @@ private:
     GrGpuTraceMarkerGenerator SK_MACRO_APPEND_LINE(TMG)(target);                  \
     SK_MACRO_APPEND_LINE(TMG).initialize(name, &name_counter);                    \
 
+/**
+ * Context level GrTracing macros, classname and op are const char*, context is GrContext
+ * TODO can we just have one set of macros?  Probably.
+ */
 #define GR_CREATE_TRACE_MARKER_CONTEXT(classname, op, context)                                     \
     /* Chromium tracing */                                                                         \
     static int SK_MACRO_APPEND_LINE(name_counter) = 0;                                             \
@@ -96,7 +100,7 @@ private:
         INTERNAL_GR_CREATE_TRACE_MARKER_SCOPED_C(classname "::" op,                                \
                                                  SK_MACRO_APPEND_LINE(name_counter), context)      \
     }                                                                                              \
-    GR_AUDIT_TRAIL_ADDOP(context->getAuditTrail(), SkString(op));                                  \
+    GR_AUDIT_TRAIL_AUTO_FRAME(context->getAuditTrail(), classname "::" op);                        \
     INTERNAL_TRACE_EVENT_ADD_SCOPED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), classname "::" op,      \
                                     "id", SK_MACRO_APPEND_LINE(name_counter));
 
