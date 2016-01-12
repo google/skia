@@ -34,6 +34,7 @@
 
 //#define ENABLE_MDB 1
 
+class GrAuditTrail;
 class GrBatch;
 class GrClip;
 class GrCaps;
@@ -50,7 +51,7 @@ public:
         int  fMaxBatchLookback;
     };
 
-    GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, const Options&);
+    GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, GrAuditTrail*, const Options&);
 
     ~GrDrawTarget() override;
 
@@ -288,6 +289,7 @@ private:
     GrContext*                                  fContext;
     GrGpu*                                      fGpu;
     GrResourceProvider*                         fResourceProvider;
+    GrAuditTrail*                               fAuditTrail;
 
     SkDEBUGCODE(int                             fDebugID;)
     uint32_t                                    fFlags;

@@ -411,6 +411,7 @@ static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkP
 void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
                              size_t count, const SkPoint pts[], const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPoints", fContext);
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw);
 
@@ -1784,12 +1785,6 @@ void SkGpuDevice::flush() {
     ASSERT_SINGLE_OWNER
     DO_DEFERRED_CLEAR();
     fRenderTarget->prepareForExternalIO();
-
-    // Clear batch debugging output
-    if (GR_BATCH_DEBUGGING_OUTPUT) {
-        SkDebugf("%s\n", fContext->getAuditTrail()->toJson().c_str());
-        GR_AUDIT_TRAIL_RESET(fContext->getAuditTrail());
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

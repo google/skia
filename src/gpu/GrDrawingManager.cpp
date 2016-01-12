@@ -114,6 +114,13 @@ void GrDrawingManager::flush() {
     fDrawTargets.reset();
 #endif
 
+    // Clear batch debugging output
+    if (GR_BATCH_DEBUGGING_OUTPUT) {
+        SkDebugf("%s\n", fContext->getAuditTrail()->toJson().c_str());
+        // TODO This currently crashes because not all ops are accounted for
+        //GR_AUDIT_TRAIL_RESET(fContext->getAuditTrail());
+    }
+
     fFlushState.reset();
     fFlushing = false;
 }
@@ -162,7 +169,7 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
 #endif
 
     GrDrawTarget* dt = new GrDrawTarget(rt, fContext->getGpu(), fContext->resourceProvider(),
-                                        fOptionsForDrawTargets);
+                                        fContext->getAuditTrail(), fOptionsForDrawTargets);
 
     *fDrawTargets.append() = dt;
 

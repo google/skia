@@ -8,6 +8,7 @@
 
 #include "GrDrawTarget.h"
 
+#include "GrAuditTrail.h"
 #include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrPath.h"
@@ -20,6 +21,8 @@
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
 
+#include "SkStrokeRec.h"
+
 #include "batches/GrClearBatch.h"
 #include "batches/GrCopySurfaceBatch.h"
 #include "batches/GrDiscardBatch.h"
@@ -28,17 +31,16 @@
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrStencilPathBatch.h"
 
-#include "SkStrokeRec.h"
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // Experimentally we have found that most batching occurs within the first 10 comparisons.
 static const int kDefaultMaxBatchLookback = 10;
 
 GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider,
-                           const Options& options)
+                           GrAuditTrail* auditTrail, const Options& options)
     : fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
+    , fAuditTrail(auditTrail)
     , fFlags(0)
     , fRenderTarget(rt) {
     // TODO: Stop extracting the context (currently needed by GrClipMaskManager)
@@ -466,7 +468,7 @@ void GrDrawTarget::recordBatch(GrBatch* batch) {
     // 1) check every draw
     // 2) intersect with something
     // 3) find a 'blocker'
-
+    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, batch->name(), batch->bounds());
     GrBATCH_INFO("Re-Recording (%s, B%u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         batch->name(),
