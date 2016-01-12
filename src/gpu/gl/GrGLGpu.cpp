@@ -742,14 +742,14 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
 #endif
 
     // Internal format comes from the texture desc.
-    GrGLenum internalFormat =
-        this->glCaps().configGLFormats(desc.fConfig).fInternalFormatTexImage;
-
+    GrGLenum internalFormat;
     // External format and type come from the upload data.
-    GrGLenum externalFormat =
-        this->glCaps().configGLFormats(dataConfig).fExternalFormatForTexImage;
-    GrGLenum externalType = this->glCaps().configGLFormats(dataConfig).fExternalType;
-
+    GrGLenum externalFormat;
+    GrGLenum externalType;
+    if (!this->glCaps().getTexImageFormats(desc.fConfig, dataConfig, &internalFormat,
+                                           &externalFormat, &externalType)) {
+        return false;
+    }
     /*
      *  Check whether to allocate a temporary buffer for flipping y or
      *  because our srcData has extra bytes past each row. If so, we need
@@ -811,7 +811,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         } else {
             CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
             GL_ALLOC_CALL(this->glInterface(), TexImage2D(target, 0, internalFormat, desc.fWidth,
-                                                          desc.fHeight, 0,  externalFormat,
+                                                          desc.fHeight, 0, externalFormat,
                                                           externalType, dataOrOffset));
             GrGLenum error = check_alloc_error(desc, this->glInterface());
             if (error != GR_GL_NO_ERROR) {
@@ -878,9 +878,11 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
     // is a multiple of the block size.
     size_t dataSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
 
-    // We only need the internal format for compressed 2D textures. There is on
-    // sized vs base internal format distinction for compressed textures.
-    GrGLenum internalFormat =this->glCaps().configGLFormats(desc.fConfig).fSizedInternalFormat;
+    // We only need the internal format for compressed 2D textures.
+    GrGLenum internalFormat;
+    if (!this->glCaps().getCompressedTexImageFormats(desc.fConfig, &internalFormat)) {
+        return false;
+    }
 
     if (kNewTexture_UploadType == uploadType) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
@@ -988,12 +990,9 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
             !idDesc->fMSColorRenderbufferID) {
             goto FAILED;
         }
-        // All ES versions (thus far) require sized internal formats for render buffers.
-        // TODO: Always use sized internal format?
-        // If this rule gets more complicated, add a field to ConfigEntry rather than logic here.
-        colorRenderbufferFormat = kGLES_GrGLStandard == this->glStandard() ?
-                            this->glCaps().configGLFormats(desc.fConfig).fSizedInternalFormat :
-                            this->glCaps().configGLFormats(desc.fConfig).fBaseInternalFormat;
+        if (!this->glCaps().getRenderbufferFormat(desc.fConfig, &colorRenderbufferFormat)) {
+            return false;
+        }
     } else {
         idDesc->fRTFBOID = idDesc->fTexFBOID;
     }
@@ -1267,17 +1266,22 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
                               GR_GL_TEXTURE_WRAP_T,
                               GR_GL_CLAMP_TO_EDGE));
 
-        const GrGLCaps::ConfigFormats colorFormats = this->glCaps().configGLFormats(config);
-
+        GrGLenum internalFormat;
+        GrGLenum externalFormat;
+        GrGLenum externalType;
+        if (!this->glCaps().getTexImageFormats(config, config, &internalFormat, &externalFormat,
+                                               &externalType)) {
+            return false;
+        }
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         GL_ALLOC_CALL(this->glInterface(), TexImage2D(GR_GL_TEXTURE_2D,
                                                       0,
-                                                      colorFormats.fInternalFormatTexImage,
+                                                      internalFormat,
                                                       kSize,
                                                       kSize,
                                                       0,
-                                                      colorFormats.fExternalFormatForTexImage,
-                                                      colorFormats.fExternalType,
+                                                      externalFormat,
+                                                      externalType,
                                                       NULL));
         if (GR_GL_NO_ERROR != CHECK_ALLOC_ERROR(this->glInterface())) {
             GL_CALL(DeleteTextures(1, &colorID));
@@ -2016,8 +2020,12 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         return false;
     }
 
-    GrGLenum format = this->glCaps().configGLFormats(config).fExternalFormat;
-    GrGLenum type = this->glCaps().configGLFormats(config).fExternalType;
+    GrGLenum externalFormat;
+    GrGLenum externalType;
+    if (!this->glCaps().getReadPixelsFormat(surface->config(), config, &externalFormat,
+                                            &externalType)) {
+        return false;
+    }
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
 
     // resolve the render target if necessary
@@ -2070,7 +2078,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
     GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom,
                        readRect.fWidth, readRect.fHeight,
-                       format, type, readDst));
+                       externalFormat, externalType, readDst));
     if (readDstRowBytes != tightRowBytes) {
         SkASSERT(this->glCaps().packRowLengthSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
@@ -2443,8 +2451,7 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
     GrColor blendConst = blendInfo.fBlendConstant;
     if ((BlendCoeffReferencesConstant(srcCoeff) ||
          BlendCoeffReferencesConstant(dstCoeff)) &&
-        (!fHWBlendState.fConstColorValid ||
-         fHWBlendState.fConstColor != blendConst)) {
+        (!fHWBlendState.fConstColorValid || fHWBlendState.fConstColor != blendConst)) {
         GrGLfloat c[4];
         GrColorToRGBAFloat(blendConst, c);
         GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
@@ -3326,9 +3333,19 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
     GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_WRAP_T, GR_GL_CLAMP_TO_EDGE));
 
-    GrGLenum internalFormat = this->glCaps().configGLFormats(config).fInternalFormatTexImage;
-    GrGLenum externalFormat = this->glCaps().configGLFormats(config).fExternalFormatForTexImage;
-    GrGLenum externalType = this->glCaps().configGLFormats(config).fExternalType;
+    GrGLenum internalFormat;
+    GrGLenum externalFormat;
+    GrGLenum externalType;
+
+    if (!this->glCaps().getTexImageFormats(config, config, &internalFormat, &externalFormat,
+                                           &externalType)) {
+        delete info;
+#ifdef SK_IGNORE_GL_TEXTURE_TARGET
+        return 0;
+#else
+        return reinterpret_cast<GrBackendObject>(nullptr);
+#endif
+    }
 
     GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, w, h, 0, externalFormat,
                        externalType, pixels));
