@@ -6,8 +6,7 @@
 #define SK_CONVOLVER_H
 
 #include "SkSize.h"
-#include "SkTypes.h"
-#include "SkTArray.h"
+#include "SkTDArray.h"
 
 // avoid confusion with Mac OS X's math library (Carbon)
 #if defined(__APPLE__)
@@ -58,6 +57,11 @@ public:
     // output image.
     int numValues() const { return static_cast<int>(fFilters.count()); }
 
+    void reserveAdditional(int filterCount, int filterValueCount) {
+        fFilters.setReserve(fFilters.count() + filterCount);
+        fFilterValues.setReserve(fFilterValues.count() + filterValueCount);
+    }
+
     // Appends the given list of scaling values for generating a given output
     // pixel. |filterOffset| is the distance from the edge of the image to where
     // the scaling factors start. The scaling factors apply to the source pixels
@@ -68,13 +72,6 @@ public:
     // brighness of the image.
     //
     // The filterLength must be > 0.
-    //
-    // This version will automatically convert your input to ConvolutionFixed point.
-    SK_API void AddFilter(int filterOffset,
-                          const float* filterValues,
-                          int filterLength);
-
-    // Same as the above version, but the input is already ConvolutionFixed point.
     void AddFilter(int filterOffset,
                    const ConvolutionFixed* filterValues,
                    int filterLength);
@@ -112,7 +109,7 @@ public:
     // SIMD padding which happens outside of this class.
 
     void addFilterValue( ConvolutionFixed val ) {
-        fFilterValues.push_back( val );
+        fFilterValues.push( val );
     }
 private:
     struct FilterInstance {
@@ -132,12 +129,12 @@ private:
     };
 
     // Stores the information for each filter added to this class.
-    SkTArray<FilterInstance> fFilters;
+    SkTDArray<FilterInstance> fFilters;
 
     // We store all the filter values in this flat list, indexed by
     // |FilterInstance.data_location| to avoid the mallocs required for storing
     // each one separately.
-    SkTArray<ConvolutionFixed> fFilterValues;
+    SkTDArray<ConvolutionFixed> fFilterValues;
 
     // The maximum size of any filter we've added.
     int fMaxFilter;

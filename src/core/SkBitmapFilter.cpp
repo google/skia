@@ -20,7 +20,7 @@ SK_CONF_DECLARE(const char *, c_bitmapFilter, "bitmap.filter", "mitchell", "Whic
 
 SkBitmapFilter *SkBitmapFilter::Allocate() {
     if (!strcmp(c_bitmapFilter, "mitchell")) {
-        return new SkMitchellFilter(1.f / 3.f, 1.f / 3.f);
+        return new SkMitchellFilter;
     } else if (!strcmp(c_bitmapFilter, "lanczos")) {
         return new SkLanczosFilter;
     } else if (!strcmp(c_bitmapFilter, "hamming")) {
