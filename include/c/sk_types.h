@@ -174,6 +174,13 @@ typedef struct sk_surface_t sk_surface_t;
     Typeface objects are immutable, and so they can be shared between threads.
 */
 typedef struct sk_typeface_t sk_typeface_t;
+/**
+   Various stream types
+*/
+typedef struct sk_stream_t sk_stream_t;
+typedef struct sk_stream_filestream_t sk_stream_filestream_t;
+typedef struct sk_stream_asset_t sk_stream_asset_t;
+typedef struct sk_stream_memorystream_t sk_stream_memorystream_t;
 
 typedef enum {
 	UTF8_ENCODING,

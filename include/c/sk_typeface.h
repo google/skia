@@ -31,6 +31,10 @@ SK_API void sk_typeface_unref(sk_typeface_t*);
 
 SK_API sk_typeface_t* sk_typeface_create_from_typeface(sk_typeface_t* typeface, sk_typeface_style_t sstyle);
 
+SK_API sk_typeface_t* sk_typeface_create_from_file(const char* path, int index);
+
+SK_API sk_typeface_t* sk_typeface_create_from_stream(sk_stream_asset_t* stream, int index);
+
 SK_API int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_encoding_t encoding, uint16_t glyphs [], int glyphCount);
 
 SK_C_PLUS_PLUS_END_GUARD

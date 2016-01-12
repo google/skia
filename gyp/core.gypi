@@ -13,7 +13,8 @@
     'sources': [
         '<(skia_src_path)/c/sk_paint.cpp',
         '<(skia_src_path)/c/sk_surface.cpp',
-	'<(skia_src_path)/c/sk_typeface.cpp',
+        '<(skia_src_path)/c/sk_typeface.cpp',
+        '<(skia_src_path)/c/sk_stream.cpp',
         '<(skia_src_path)/c/sk_types_priv.h',
 
         '<(skia_src_path)/core/Sk4px.h',

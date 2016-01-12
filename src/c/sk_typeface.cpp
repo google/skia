@@ -58,6 +58,16 @@ sk_typeface_t* sk_typeface_create_from_typeface(sk_typeface_t* typeface, sk_type
 	return (sk_typeface_t *) SkTypeface::CreateFromTypeface ((SkTypeface *) typeface, style);
 }
 
+sk_typeface_t* sk_typeface_create_from_file(const char* path, int index)
+{
+	return (sk_typeface_t *) SkTypeface::CreateFromFile (path, index);
+}
+
+sk_typeface_t* sk_typeface_create_from_stream(sk_stream_asset_t* stream, int index)
+{
+	return (sk_typeface_t *) SkTypeface::CreateFromStream ((SkStreamAsset*) stream, index);
+}
+
 int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_encoding_t encoding, uint16_t glyphs [], int glyphCount)
 {
 	SkTypeface::Encoding e;

@@ -18,6 +18,9 @@ class SkPaint;
 class SkImage;
 class SkShader;
 class SkCanvas;
+class SkStream;
+class SkFILEStream;
+class SkMemoryStream;
 class SkPictureRecorder;
 
 static inline SkData* AsData(const sk_data_t* cdata) {
@@ -106,6 +109,30 @@ static inline sk_maskfilter_t* ToMaskFilter(SkMaskFilter* filter) {
 
 static inline SkShader* AsShader(sk_shader_t* cshader) {
     return reinterpret_cast<SkShader*>(cshader);
+}
+
+static inline const SkFILEStream* AsFileStream(const sk_stream_filestream_t* cfilestream) {
+    return reinterpret_cast<const SkFILEStream*>(cfilestream);
+}
+
+static inline SkFILEStream* AsFileStream(sk_stream_filestream_t* cfilestream) {
+    return reinterpret_cast<SkFILEStream*>(cfilestream);
+}
+
+static inline const SkMemoryStream* AsMemoryStream(const sk_stream_memorystream_t* cmemorystream) {
+    return reinterpret_cast<const SkMemoryStream*>(cmemorystream);
+}
+
+static inline SkMemoryStream* AsMemoryStream(sk_stream_memorystream_t* cmemorystream) {
+    return reinterpret_cast<SkMemoryStream*>(cmemorystream);
+}
+
+static inline const SkStream* AsStream(const sk_stream_t* cstream) {
+    return reinterpret_cast<const SkStream*>(cstream);
+}
+
+static inline SkStream* AsStream(sk_stream_t* cstream) {
+    return reinterpret_cast<SkStream*>(cstream);
 }
 
 static inline SkXfermode::Mode MapXferMode(sk_xfermode_mode_t mode)
