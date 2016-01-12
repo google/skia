@@ -684,6 +684,10 @@ DEF_GPUTEST(BitmapCopy_Texture, reporter, factory) {
                 SkAutoTUnref<GrTexture> texture(
                     ctx->textureProvider()->createTexture(desc, false, srcData, 0));
 
+                if (!texture) {
+                    continue;
+                }
+
                 SkBitmap srcBmp;
                 GrWrapTextureInBitmap(texture, 2, 2, false, &srcBmp);
                 if (srcBmp.isNull()) {
