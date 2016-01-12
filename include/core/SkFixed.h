@@ -86,9 +86,9 @@ typedef int32_t             SkFixed;
 #if defined(SK_SUPPORT_LEGACY_DIVBITS_UB)
     #define SkFixedDiv(numer, denom) SkDivBits(numer, denom, 16)
 #else
-    // TODO(reed): this clamp shouldn't be needed.  Use SkToS32().
+    // The divide may exceed 32 bits. Clamp to a signed 32 bit result.
     #define SkFixedDiv(numer, denom) \
-        SkTPin<int32_t>((int32_t)(SkLeftShift((int64_t)numer, 16) / denom), SK_MinS32, SK_MaxS32)
+        SkToS32(SkTPin<int64_t>((SkLeftShift((int64_t)numer, 16) / denom), SK_MinS32, SK_MaxS32))
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
