@@ -46,12 +46,10 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
 
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
-#ifndef SK_DISABLE_TILE_IMAGE_FILTER_DEST_OPTIMIZATION
     if (!dstRect.intersect(SkRect::Make(ctx.clipBounds()))) {
         offset->fX = offset->fY = 0;
         return true;
     }
-#endif
     const SkIRect dstIRect = dstRect.roundOut();
     int w = dstIRect.width();
     int h = dstIRect.height();
