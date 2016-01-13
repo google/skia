@@ -137,18 +137,6 @@ public:
                        const SkMatrix& viewMatrix,
                        const SkRect& rect);
 
-    void drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
-                       GrColor color,
-                       const SkMatrix& viewMatrix,
-                       const SkRect& rect,
-                       const SkMatrix& localMatrix);
-
-    void drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
-                       GrColor color,
-                       const SkMatrix& viewMatrix,
-                       const SkRect& rect,
-                       const SkRect& localRect);
-
     void drawNonAARect(const GrPipelineBuilder& ds,
                        GrColor color,
                        const SkMatrix& viewM,

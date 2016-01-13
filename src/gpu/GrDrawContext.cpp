@@ -225,11 +225,10 @@ void GrDrawContext::drawPaint(const GrClip& clip,
         AutoCheckFlush acf(fDrawingManager);
 
         GrPipelineBuilder pipelineBuilder(*paint, fRenderTarget, clip);
-        this->getDrawTarget()->drawNonAARect(pipelineBuilder,
-                                             paint->getColor(),
-                                             SkMatrix::I(),
-                                             r,
-                                             localMatrix);
+        SkAutoTUnref<GrDrawBatch> batch(
+                GrRectBatchFactory::CreateNonAAFill(paint->getColor(), SkMatrix::I(), r, nullptr,
+                                                    &localMatrix));
+        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
     }
 }
 
@@ -300,8 +299,8 @@ void GrDrawContext::drawRect(const GrClip& clip,
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
     GrColor color = paint.getColor();
 
+    SkAutoTUnref<GrDrawBatch> batch;
     if (should_apply_coverage_aa(paint, fRenderTarget)) {
-        SkAutoTUnref<GrDrawBatch> batch;
         if (width >= 0) {
             // The stroke path needs the rect to remain axis aligned (no rotation or skew).
             if (viewMatrix.rectStaysRect()) {
@@ -317,34 +316,30 @@ void GrDrawContext::drawRect(const GrClip& clip,
                                                              devBoundRect));
             }
         }
-        if (batch) {
-            this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
-        } else {
+        if (!batch) {
             SkPath path;
             path.setIsVolatile(true);
             path.addRect(rect);
             this->internalDrawPath(&pipelineBuilder, viewMatrix, color, true, path, *strokeInfo);
             SkASSERT(paint.isAntiAlias());
+            return;
         }
-        return;
-    }
-
-    if (width >= 0) {
+    } else if (width >= 0) {
         // Non-AA hairlines are snapped to pixel centers to make which pixels are hit deterministic
         bool snapToPixelCenters = (0 == width && !fRenderTarget->isUnifiedMultisampled());
-        SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAStroke(
-                                        color, viewMatrix, rect, width, snapToPixelCenters));
+        batch.reset(GrRectBatchFactory::CreateNonAAStroke(color, viewMatrix, rect, width,
+                                                          snapToPixelCenters));
 
         // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
         // hairline rects. We jam all the vertices to pixel centers to avoid this, but not when MSAA
         // is enabled because it can cause ugly artifacts.
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
                                  snapToPixelCenters);
-        this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
     } else {
         // filled BW rect
-        this->getDrawTarget()->drawNonAARect(pipelineBuilder, color, viewMatrix, rect);
+        batch.reset(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect, nullptr, nullptr));
     }
+    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
 void GrDrawContext::fillRectToRect(const GrClip& clip,
@@ -360,19 +355,18 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
+    SkAutoTUnref<GrDrawBatch> batch;
     if (should_apply_coverage_aa(paint, fRenderTarget) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        SkAutoTUnref<GrDrawBatch> batch(GrAAFillRectBatch::CreateWithLocalRect(
-            paint.getColor(), viewMatrix, rectToDraw, localRect));
-        if (batch) {
-            this->drawBatch(&pipelineBuilder, batch);
-        }
+        batch.reset(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix, rectToDraw,
+                                                           localRect));
     } else {
-        this->getDrawTarget()->drawNonAARect(pipelineBuilder,
-                                             paint.getColor(),
-                                             viewMatrix,
-                                             rectToDraw,
-                                             localRect);
+        batch.reset(GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rectToDraw,
+                                                        &localRect, nullptr));
+    }
+
+    if (batch) {
+        this->drawBatch(&pipelineBuilder, batch);
     }
 }
 
@@ -390,18 +384,16 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(paint, fRenderTarget, clip);
 
+    SkAutoTUnref<GrDrawBatch> batch;
     if (should_apply_coverage_aa(paint, fRenderTarget) &&
         view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        SkAutoTUnref<GrDrawBatch> batch(GrAAFillRectBatch::Create(
-            paint.getColor(), viewMatrix, localMatrix, rectToDraw));
-        this->drawBatch(&pipelineBuilder, batch);
+        batch.reset(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, localMatrix,
+                                              rectToDraw));
     } else {
-        this->getDrawTarget()->drawNonAARect(pipelineBuilder,
-                                             paint.getColor(),
-                                             viewMatrix,
-                                             rectToDraw,
-                                             localMatrix);
+        batch.reset(GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rectToDraw,
+                                                        nullptr, &localMatrix));
     }
+    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }
 
 void GrDrawContext::drawVertices(const GrClip& clip,

@@ -7,10 +7,14 @@
 
 #include "gm.h"
 #if SK_SUPPORT_GPU
-#include "GrTest.h"
-#include "effects/GrRRectEffect.h"
+#include "GrContext.h"
+#include "GrDrawContext.h"
+#include "GrPipelineBuilder.h"
 #include "SkDevice.h"
 #include "SkRRect.h"
+#include "batches/GrDrawBatch.h"
+#include "batches/GrRectBatchFactory.h"
+#include "effects/GrRRectEffect.h"
 
 namespace skiagm {
 
@@ -53,6 +57,11 @@ protected:
             return;
         }
 
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            return;
+        }
+
         SkPaint paint;
 
         int y = kPad;
@@ -72,12 +81,6 @@ protected:
                 paint.setColor(SK_ColorWHITE);
                 canvas->drawRect(testBounds, paint);
 
-                GrTestTarget tt;
-                context->getTestTarget(&tt, rt);
-                if (!tt.target()) {
-                    SkDEBUGFAIL("Couldn't get Gr test target.");
-                    return;
-                }
                 GrPipelineBuilder pipelineBuilder;
                 pipelineBuilder.setXPFactory(
                     GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
@@ -93,10 +96,10 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    tt.target()->drawNonAARect(pipelineBuilder,
-                                               0xff000000,
-                                               SkMatrix::I(),
-                                               bounds);
+                    SkAutoTUnref<GrDrawBatch> batch(
+                            GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(), bounds,
+                                                                nullptr, nullptr));
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
             canvas->restore();
             x = x + fTestOffsetX;

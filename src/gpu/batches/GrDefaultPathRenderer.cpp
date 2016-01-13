@@ -20,6 +20,7 @@
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
 
+#include "batches/GrRectBatchFactory.h"
 #include "batches/GrVertexBatch.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
@@ -697,7 +698,10 @@ bool GrDefaultPathRenderer::internalDrawPath(GrDrawTarget* target,
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            target->drawNonAARect(*pipelineBuilder, color, viewM, bounds, localMatrix);
+            SkAutoTUnref<GrDrawBatch> batch(
+                    GrRectBatchFactory::CreateNonAAFill(color, viewM, bounds, nullptr,
+                                                        &localMatrix));
+            target->drawBatch(*pipelineBuilder, batch);
         } else {
             if (passCount > 1) {
                 pipelineBuilder->setDisableColorXPFactory();

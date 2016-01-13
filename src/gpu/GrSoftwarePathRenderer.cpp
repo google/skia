@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrSWMaskHelper.h"
 #include "GrVertexBuffer.h"
+#include "batches/GrRectBatchFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -65,6 +66,17 @@ bool get_path_and_clip_bounds(const GrPipelineBuilder* pipelineBuilder,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+static void draw_non_aa_rect(GrDrawTarget* drawTarget,
+                             const GrPipelineBuilder& pipelineBuilder,
+                             GrColor color,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect,
+                             const SkMatrix& localMatrix) {
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
+                                                                        nullptr, &localMatrix));
+    drawTarget->drawBatch(pipelineBuilder, batch);
+}
+
 void draw_around_inv_path(GrDrawTarget* target,
                           GrPipelineBuilder* pipelineBuilder,
                           GrColor color,
@@ -80,22 +92,22 @@ void draw_around_inv_path(GrDrawTarget* target,
     if (devClipBounds.fTop < devPathBounds.fTop) {
         rect.iset(devClipBounds.fLeft, devClipBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fTop);
-        target->drawNonAARect(*pipelineBuilder, color, SkMatrix::I(), rect, invert);
+        draw_non_aa_rect(target, *pipelineBuilder, color, SkMatrix::I(), rect, invert);
     }
     if (devClipBounds.fLeft < devPathBounds.fLeft) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fTop,
                   devPathBounds.fLeft, devPathBounds.fBottom);
-        target->drawNonAARect(*pipelineBuilder, color, SkMatrix::I(), rect, invert);
+        draw_non_aa_rect(target, *pipelineBuilder, color, SkMatrix::I(), rect, invert);
     }
     if (devClipBounds.fRight > devPathBounds.fRight) {
         rect.iset(devPathBounds.fRight, devPathBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fBottom);
-        target->drawNonAARect(*pipelineBuilder, color, SkMatrix::I(), rect, invert);
+        draw_non_aa_rect(target, *pipelineBuilder, color, SkMatrix::I(), rect, invert);
     }
     if (devClipBounds.fBottom > devPathBounds.fBottom) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fBottom,
                   devClipBounds.fRight, devClipBounds.fBottom);
-        target->drawNonAARect(*pipelineBuilder, color, SkMatrix::I(), rect, invert);
+        draw_non_aa_rect(target, *pipelineBuilder, color, SkMatrix::I(), rect, invert);
     }
 }
 

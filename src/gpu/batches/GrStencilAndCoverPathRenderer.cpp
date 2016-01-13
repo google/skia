@@ -16,6 +16,7 @@
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
+#include "batches/GrRectBatchFactory.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
@@ -121,7 +122,11 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         if (pipelineBuilder->getRenderTarget()->hasMixedSamples()) {
             pipelineBuilder->disableState(GrPipelineBuilder::kHWAntialias_Flag);
         }
-        args.fTarget->drawNonAARect(*pipelineBuilder, args.fColor, viewM, bounds, invert);
+
+        SkAutoTUnref<GrDrawBatch> batch(
+                GrRectBatchFactory::CreateNonAAFill(args.fColor, viewM, bounds, nullptr,
+                                                    &invert));
+        args.fTarget->drawBatch(*pipelineBuilder, batch);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,

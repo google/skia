@@ -13,11 +13,14 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrTest.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "GrDrawContext.h"
+#include "GrPipelineBuilder.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
+#include "batches/GrDrawBatch.h"
+#include "batches/GrRectBatchFactory.h"
+#include "effects/GrYUVtoRGBEffect.h"
 
 #define YSIZE 8
 #define USIZE 4
@@ -77,10 +80,8 @@ protected:
             return;
         }
 
-        GrTestTarget tt;
-        context->getTestTarget(&tt, rt);
-        if (nullptr == tt.target()) {
-            SkDEBUGFAIL("Couldn't get Gr test target.");
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
             return;
         }
 
@@ -128,10 +129,10 @@ protected:
                     viewMatrix.setTranslate(x, y);
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorFragmentProcessor(fp);
-                    tt.target()->drawNonAARect(pipelineBuilder,
-                                               GrColor_WHITE,
-                                               viewMatrix,
-                                               renderRect);
+                    SkAutoTUnref<GrDrawBatch> batch(
+                            GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
+                                                                renderRect, nullptr, nullptr));
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 x += renderRect.width() + kTestPad;
             }

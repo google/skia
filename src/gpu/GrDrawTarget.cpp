@@ -359,27 +359,6 @@ void GrDrawTarget::drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
    this->drawBatch(pipelineBuilder, batch);
 }
 
-void GrDrawTarget::drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
-                              GrColor color,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
-                              const SkMatrix& localMatrix) {
-   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
-                                                                       nullptr, &localMatrix));
-   this->drawBatch(pipelineBuilder, batch);
-}
-
-void GrDrawTarget::drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
-                              GrColor color,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
-                              const SkRect& localRect) {
-   SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
-                                                                       &localRect, nullptr));
-   this->drawBatch(pipelineBuilder, batch);
-}
-
-
 void GrDrawTarget::drawAARect(const GrPipelineBuilder& pipelineBuilder,
                               GrColor color,
                               const SkMatrix& viewMatrix,

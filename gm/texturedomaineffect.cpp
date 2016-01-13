@@ -12,12 +12,14 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrDrawContext.h"
 #include "GrContext.h"
-#include "GrTest.h"
-#include "effects/GrTextureDomain.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
+#include "batches/GrDrawBatch.h"
+#include "batches/GrRectBatchFactory.h"
+#include "effects/GrTextureDomain.h"
 
 namespace skiagm {
 /**
@@ -79,10 +81,8 @@ protected:
             return;
         }
 
-        GrTestTarget tt;
-        context->getTestTarget(&tt, rt);
-        if (nullptr == tt.target()) {
-            SkDEBUGFAIL("Couldn't get Gr test target.");
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
             return;
         }
 
@@ -132,10 +132,10 @@ protected:
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
-                    tt.target()->drawNonAARect(pipelineBuilder,
-                                               GrColor_WHITE,
-                                               viewMatrix,
-                                               renderRect);
+                    SkAutoTUnref<GrDrawBatch> batch(
+                            GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
+                                                                renderRect, nullptr, nullptr));
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

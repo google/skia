@@ -19,6 +19,7 @@
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
+#include "batches/GrRectBatchFactory.h"
 #include "batches/GrVertexBatch.h"
 #include "effects/GrRRectEffect.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -1493,7 +1494,9 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawNonAARect(pipelineBuilder, color, SkMatrix::I(), bounds, invert);
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
+                                                                        bounds, nullptr, &invert));
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 

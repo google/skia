@@ -7,7 +7,10 @@
 
 #include "gm.h"
 #if SK_SUPPORT_GPU
-#include "GrTest.h"
+#include "GrContext.h"
+#include "GrDrawContext.h"
+#include "batches/GrDrawBatch.h"
+#include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
 #endif
 #include "SkDevice.h"
@@ -64,6 +67,10 @@ protected:
 #if SK_SUPPORT_GPU
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         context = rt ? rt->getContext() : nullptr;
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            return;
+        }
 #endif
         if (kEffect_Type == fType && nullptr == context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
@@ -103,12 +110,6 @@ protected:
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     if (kEffect_Type == fType) {
 #if SK_SUPPORT_GPU
-                        GrTestTarget tt;
-                        context->getTestTarget(&tt, rt);
-                        if (nullptr == tt.target()) {
-                            SkDEBUGFAIL("Couldn't get Gr test target.");
-                            return;
-                        }
                         GrPipelineBuilder pipelineBuilder;
                         pipelineBuilder.setXPFactory(
                             GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
@@ -125,10 +126,10 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            tt.target()->drawNonAARect(pipelineBuilder,
-                                                       0xff000000,
-                                                       SkMatrix::I(),
-                                                       bounds);
+                            SkAutoTUnref<GrDrawBatch> batch(
+                                    GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
+                                                                        bounds, nullptr, nullptr));
+                            drawContext->internal_drawBatch(pipelineBuilder, batch);
                         } else {
                             drew = false;
                         }
