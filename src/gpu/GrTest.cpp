@@ -251,6 +251,24 @@ void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
 void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newTimestamp; }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+#define ASSERT_SINGLE_OWNER \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
+#define RETURN_IF_ABANDONED        if (fDrawingManager->abandoned()) { return; }
+
+void GrDrawContext::internal_drawBatch(const GrPipelineBuilder& pipelineBuilder,
+                                       GrDrawBatch* batch) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
+    this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
+}
+
+#undef ASSERT_SINGLE_OWNER
+#undef RETURN_IF_ABANDONED
+
+///////////////////////////////////////////////////////////////////////////////
 // Code for the mock context. It's built on a mock GrGpu class that does nothing.
 ////
 

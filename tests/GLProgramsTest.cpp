@@ -15,6 +15,7 @@
 #include "GrAutoLocaleSetter.h"
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
+#include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
@@ -356,10 +357,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        GrTestTarget tt;
-        context->getTestTarget(&tt, rt);
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            SkDebugf("Could not allocate drawContext");
+            return false;
+        }
 
-        tt.target()->drawBatch(pipelineBuilder, batch);
+        drawContext->internal_drawBatch(pipelineBuilder, batch);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -390,10 +394,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Create(fp));
             builder.addColorFragmentProcessor(blockFP);
 
-            GrTestTarget tt;
-            context->getTestTarget(&tt, rt);
+            SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+            if (!drawContext) {
+                SkDebugf("Could not allocate a drawcontext");
+                return false;
+            }
 
-            tt.target()->drawBatch(builder, batch);
+            drawContext->internal_drawBatch(builder, batch);
             drawingManager->flush();
         }
     }
