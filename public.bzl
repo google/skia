@@ -1,13 +1,63 @@
-# Description:
-#   Skia graphics library.
-#
-#   Definitions for Google BUILD file.
+################################################################################
+# Skylark macros
+################################################################################
 
-exports_files(["BUILD.public"])
+is_bazel = not hasattr(native, "genmpm")
+
+def portable_select(select_dict, bazel_condition, default_condition):
+  """Replaces select() with a Bazel-friendly wrapper.
+
+  Args:
+    select_dict: Dictionary in the same format as select().
+  Returns:
+    If Blaze platform, returns select() using select_dict.
+    If Bazel platform, returns dependencies for condition
+        bazel_condition, or empty list if none specified.
+  """
+  if is_bazel:
+    return select_dict.get(bazel_condition, select_dict[default_condition])
+  else:
+    return select(select_dict)
+
+def skia_select(conditions, results):
+  """Replaces select() for conditions [UNIX, ANDROID, IOS]
+
+  Args:
+    conditions: [CONDITION_UNIX, CONDITION_ANDROID, CONDITION_IOS]
+    results: [RESULT_UNIX, RESULT_ANDROID, RESULT_IOS]
+  Returns:
+    The result matching the platform condition.
+  """
+  if len(conditions) != 3 or len(results) != 3:
+    fail("Must provide exactly 3 conditions and 3 results")
+
+  selector = {}
+  for i in range(3):
+    selector[conditions[i]] = results[i]
+  return portable_select(selector, conditions[2], conditions[0])
+
+def skia_glob(srcs):
+  """Replaces glob() with a version that accepts a struct.
+
+  Args:
+    srcs: struct(include=[], exclude=[])
+  Returns:
+    Equivalent of glob(srcs.include, exclude=srcs.exclude)
+  """
+  if hasattr(srcs, 'include'):
+    if hasattr(srcs, 'exclude'):
+      return native.glob(srcs.include, exclude=srcs.exclude)
+    else:
+      return native.glob(srcs.include)
+  return []
+
+################################################################################
+## BASE_SRCS
+################################################################################
 
 # All platform-independent SRCS.
-BASE_SRCS = glob(
-    [
+BASE_SRCS_ALL = struct(
+    include = [
         "include/private/*.h",
         "src/**/*.h",
         "src/**/*.cpp",
@@ -66,8 +116,8 @@ BASE_SRCS = glob(
 )
 
 # Platform-dependent SRCS for google3-default platform.
-BASE_SRCS_UNIX = glob(
-    [
+BASE_SRCS_UNIX = struct(
+    include = [
         "src/codec/*",
         "src/fonts/SkFontMgr_fontconfig.cpp",
         "src/images/*",
@@ -114,8 +164,8 @@ BASE_SRCS_UNIX = glob(
 )
 
 # Platform-dependent SRCS for google3-default Android.
-BASE_SRCS_ANDROID = glob(
-    [
+BASE_SRCS_ANDROID = struct(
+    include = [
         "src/codec/*",
         "src/images/*",
         # TODO(benjaminwagner): Figure out how to compile with EGL.
@@ -159,8 +209,8 @@ BASE_SRCS_ANDROID = glob(
 )
 
 # Platform-dependent SRCS for google3-default iOS.
-BASE_SRCS_IOS = glob(
-    [
+BASE_SRCS_IOS = struct(
+    include = [
         "src/opts/**/*.cpp",
         "src/opts/**/*.h",
         "src/ports/**/*.cpp",
@@ -203,40 +253,38 @@ BASE_SRCS_IOS = glob(
     ],
 )
 
-BASE_SRCS_PLATFORM = select({
-    CONDITION_ANDROID: BASE_SRCS_ANDROID,
-    CONDITION_IOS: BASE_SRCS_IOS,
-    "//conditions:default": BASE_SRCS_UNIX,
-})
+################################################################################
+## SSSE3/SSE4/AVX/AVX2 SRCS
+################################################################################
 
-SSSE3_SRCS = glob(
-    [
+SSSE3_SRCS = struct(
+    include = [
         "src/opts/*SSSE3*.cpp",
         "src/opts/*ssse3*.cpp",
-    ],
-)
+    ])
 
-SSE4_SRCS = glob(
-    [
+SSE4_SRCS = struct(
+    include = [
         "src/opts/*SSE4*.cpp",
         "src/opts/*sse4*.cpp",
-    ],
-)
+    ])
 
-AVX_SRCS = glob(
-    [
+AVX_SRCS = struct(
+    include = [
         "src/opts/*_avx.cpp",
-    ],
-)
+    ])
 
-AVX2_SRCS = glob(
-    [
+AVX2_SRCS = struct(
+    include = [
         "src/opts/*_avx2.cpp",
-    ],
-)
+    ])
 
-BASE_HDRS = glob(
-    [
+################################################################################
+## BASE_HDRS
+################################################################################
+
+BASE_HDRS = struct(
+    include = [
         "include/**/*.h",
     ],
     exclude = [
@@ -247,26 +295,28 @@ BASE_HDRS = glob(
         "include/views/**/*",
         "include/xml/SkBML_WXMLParser.h",
         "include/xml/SkBML_XMLParser.h",
-    ],
-)
+    ])
 
-# Dependencies.
+################################################################################
+## BASE_DEPS
+################################################################################
+
+BASE_DEPS_ALL = []
+
 BASE_DEPS_UNIX = [
-    ":opts_avx2",
-    ":opts_avx",
-    ":opts_sse4",
     ":opts_ssse3",
+    ":opts_sse4",
+    ":opts_avx",
+    ":opts_avx2",
 ]
 
 BASE_DEPS_ANDROID = []
 
 BASE_DEPS_IOS = []
 
-BASE_DEPS = select({
-    CONDITION_ANDROID: BASE_DEPS_ANDROID + BASE_EXTERNAL_DEPS_ANDROID,
-    CONDITION_IOS: BASE_DEPS_IOS + BASE_EXTERNAL_DEPS_IOS,
-    "//conditions:default": BASE_DEPS_UNIX + BASE_EXTERNAL_DEPS_UNIX,
-}) + EXTERNAL_DEPS_ALL
+################################################################################
+## INCLUDES
+################################################################################
 
 # Includes needed by Skia implementation.  Not public includes.
 INCLUDES = [
@@ -299,13 +349,14 @@ INCLUDES = [
     "src/utils",
     "third_party/etc1",
     "third_party/ktx",
-] + EXTERNAL_INCLUDES
+]
 
-## :dm
+################################################################################
+## DM_SRCS
+################################################################################
 
-# Platform-independent SRCS for DM.
-DM_SRCS = glob(
-    [
+DM_SRCS_ALL = struct(
+    include = [
         "dm/*.cpp",
         "dm/*.h",
         "gm/*.c",
@@ -348,20 +399,21 @@ DM_SRCS = glob(
     ],
 )
 
-DM_SRCS_UNIX = []
+DM_SRCS_UNIX = struct()
 
-DM_SRCS_ANDROID = glob(
-    [
+DM_SRCS_ANDROID = struct(
+    include = [
         # Depends on Android HWUI library that is not available in google3.
         #"dm/DMSrcSinkAndroid.cpp",
         "tests/FontMgrAndroidParserTest.cpp",
     ],
 )
 
-DM_PLATFORM_SRCS = select({
-    CONDITION_ANDROID: DM_SRCS_ANDROID,
-    "//conditions:default": DM_SRCS_UNIX,
-})
+DM_SRCS_IOS = struct()
+
+################################################################################
+## DM_INCLUDES
+################################################################################
 
 DM_INCLUDES = [
     "gm",
@@ -378,20 +430,44 @@ DM_INCLUDES = [
     "tools/timer",
 ]
 
-COPTS_ANDROID = ["-mfpu=neon"]
+################################################################################
+## DM_ARGS
+################################################################################
 
-COPTS_IOS = []
+def DM_ARGS(base_dir):
+    return [
+        "--nogpu",
+        "--verbose",
+        # TODO(mtklein): maybe investigate why these fail?
+        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~RecordDraw_TextBounds",
+        "--resourcePath %s/resources" % base_dir,
+        "--images %s/resources" % base_dir,
+    ]
+
+################################################################################
+## COPTS
+################################################################################
 
 COPTS_UNIX = [
     "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
     "-Wno-deprecated-declarations",  # Internal use of deprecated methods. :(
 ]
 
-COPTS = select({
-    CONDITION_ANDROID: COPTS_ANDROID,
-    CONDITION_IOS: COPTS_IOS,
-    "//conditions:default": COPTS_UNIX,
-})
+COPTS_ANDROID = ["-mfpu=neon"]
+
+COPTS_IOS = []
+
+COPTS_ALL = []
+
+################################################################################
+## DEFINES
+################################################################################
+
+DEFINES_UNIX = [
+    "SK_BUILD_FOR_UNIX",
+    "SK_SAMPLES_FOR_X",
+    "SK_SFNTLY_SUBSETTER",
+]
 
 DEFINES_ANDROID = [
     "SK_BUILD_FOR_ANDROID",
@@ -404,12 +480,6 @@ DEFINES_IOS = [
     "SK_IGNORE_ETC1_SUPPORT",
 ]
 
-DEFINES_UNIX = [
-    "SK_BUILD_FOR_UNIX",
-    "SK_SAMPLES_FOR_X",
-    "SK_SFNTLY_SUBSETTER",
-]
-
 DEFINES_ALL = [
     # Chrome DEFINES.
     "SK_USE_FLOATBITS",
@@ -418,88 +488,19 @@ DEFINES_ALL = [
     "GOOGLE3",
 ]
 
-DEFINES = select({
-    CONDITION_ANDROID: DEFINES_ANDROID,
-    CONDITION_IOS: DEFINES_IOS,
-    "//conditions:default": DEFINES_UNIX,
-}) + DEFINES_ALL
+################################################################################
+## LINKOPTS
+################################################################################
 
-LINKOPTS = select({
-    CONDITION_ANDROID: [
-        "-ldl",
-        "-lEGL",
-    ],
-    "//conditions:default": ["-ldl"],
-})
+LINKOPTS_UNIX = []
 
-cc_library(
-    name = "opts_ssse3",
-    srcs = SSSE3_SRCS,
-    copts = COPTS + ["-mssse3"],
-    defines = DEFINES,
-    includes = INCLUDES,
-    deps = EXTERNAL_DEPS_ALL,
-)
+LINKOPTS_ANDROID = [
+    "-lEGL",
+]
 
-cc_library(
-    name = "opts_sse4",
-    srcs = SSE4_SRCS,
-    copts = COPTS + ["-msse4"],
-    defines = DEFINES,
-    includes = INCLUDES,
-    deps = EXTERNAL_DEPS_ALL,
-)
+LINKOPTS_IOS = []
 
-cc_library(
-    name = "opts_avx",
-    srcs = AVX_SRCS,
-    copts = COPTS + ["-mavx"],
-    defines = DEFINES,
-    includes = INCLUDES,
-    deps = EXTERNAL_DEPS_ALL,
-)
+LINKOPTS_ALL = [
+    "-ldl",
+]
 
-cc_library(
-    name = "opts_avx2",
-    srcs = AVX2_SRCS,
-    copts = COPTS + ["-mavx2"],
-    defines = DEFINES,
-    includes = INCLUDES,
-    deps = EXTERNAL_DEPS_ALL,
-)
-
-# If you need Ganesh (GPU) support in Skia, please contact skia-team@google.com
-# for help.
-cc_library(
-    name = "skia",
-    srcs = BASE_SRCS + BASE_SRCS_PLATFORM,
-    hdrs = BASE_HDRS,
-    copts = COPTS,
-    defines = DEFINES,
-    includes = INCLUDES,
-    linkopts = LINKOPTS,
-    visibility = [":skia_clients"],
-    deps = BASE_DEPS,
-    alwayslink = 1,
-)
-
-cc_test(
-    name = "dm",
-    size = "large",
-    srcs = DM_SRCS + DM_PLATFORM_SRCS,
-    args = [
-        "--nogpu",
-        "--verbose",
-        # TODO(mtklein): maybe investigate why these fail?
-        "--match ~FontMgr ~Scalar ~Canvas ~Codec_stripes ~Codec_Dimensions ~Codec ~Stream ~skps ~RecordDraw_TextBounds",
-        "--resourcePath %s/resources" % BASE_DIR,
-        "--images %s/resources" % BASE_DIR,
-    ],
-    copts = COPTS,
-    data = glob(["resources/**/*"]),
-    defines = DEFINES,
-    includes = DM_INCLUDES,
-    deps = DM_EXTERNAL_DEPS + [
-        ":skia",
-    ] + EXTERNAL_DEPS_ALL,
-)
