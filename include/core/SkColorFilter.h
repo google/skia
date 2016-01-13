@@ -106,9 +106,6 @@ public:
     */
     static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode);
 
-    // DEPRECATED -- call this from SkColorMatrixFilter instead -- see skbug.com/4791
-    static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
-
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  the outer filter to the result of the inner's.
      *  The reference counts for outer and inner are incremented.

@@ -362,8 +362,3 @@ SkColorFilter* SkColorMatrixFilter::CreateLightingFilter(SkColor mul, SkColor ad
                          0);
     return SkColorMatrixFilter::Create(matrix);
 }
-
-// DEPRECTED -- remove this when chrome/android stop calling it
-SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
-    return SkColorMatrixFilter::CreateLightingFilter(mul, add);
-}
