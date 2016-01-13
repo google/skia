@@ -9,7 +9,4 @@
 # Suppress third_party/externals.  We mostly care about our own code.
 src:.*third_party/externals.*
 
-# Temporarily stifle while we fix integer overflow.  skia:4667
-fun:_ZN7SkCodec13NewFromStreamEP8SkStreamP16SkPngChunkReader
-
 #endif
