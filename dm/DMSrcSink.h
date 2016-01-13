@@ -104,6 +104,10 @@ class CodecSrc : public Src {
 public:
     enum Mode {
         kCodec_Mode,
+        // We choose to test only one mode with zero initialized memory.
+        // This will exercise all of the interesting cases in SkSwizzler
+        // without doubling the size of our test suite.
+        kCodecZeroInit_Mode,
         kScanline_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
         kSubset_Mode, // For codecs that support subsets directly.

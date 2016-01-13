@@ -316,14 +316,22 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
 
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
+    SkPixelRefFactory* factory = nullptr;
+    SkMallocPixelRef::ZeroedPRFactory zeroFactory;
+    SkCodec::Options options;
+    if (kCodecZeroInit_Mode == fMode) {
+        factory = &zeroFactory;
+        options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+    }
+    if (!bitmap.tryAllocPixels(decodeInfo, factory, colorTable.get())) {
         return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
 
     switch (fMode) {
+        case kCodecZeroInit_Mode:
         case kCodec_Mode: {
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), nullptr,
+            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options,
                     colorPtr, colorCountPtr)) {
                 case SkCodec::kSuccess:
                     // We consider incomplete to be valid, since we should still decode what is

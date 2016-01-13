@@ -232,6 +232,9 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kCodec_Mode:
             folder.append("codec");
             break;
+        case CodecSrc::kCodecZeroInit_Mode:
+            folder.append("codec_zero_init");
+            break;
         case CodecSrc::kScanline_Mode:
             folder.append("scanline");
             break;
@@ -311,8 +314,8 @@ static void push_codec_srcs(Path path) {
     // SkJpegCodec natively supports scaling to: 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875
     const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
-    const CodecSrc::Mode nativeModes[] = { CodecSrc::kCodec_Mode, CodecSrc::kScanline_Mode,
-            CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode };
+    const CodecSrc::Mode nativeModes[] = { CodecSrc::kCodec_Mode, CodecSrc::kCodecZeroInit_Mode,
+            CodecSrc::kScanline_Mode, CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode };
 
     CodecSrc::DstColorType colorTypes[3];
     uint32_t numColorTypes;
