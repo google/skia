@@ -122,36 +122,6 @@ public:
     void drawPathBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawPathBatchBase* batch);
 
     /**
-     * Helper function for drawing rects.
-     *
-     * @param rect        the rect to draw
-     * @param localRect   optional rect that specifies local coords to map onto
-     *                    rect. If nullptr then rect serves as the local coords.
-     * @param localMatrix Optional local matrix. The local coordinates are specified by localRect,
-     *                    or if it is nullptr by rect. This matrix applies to the coordinate implied by
-     *                    that rectangle before it is input to GrCoordTransforms that read local
-     *                    coordinates
-     */
-    void drawNonAARect(const GrPipelineBuilder& pipelineBuilder,
-                       GrColor color,
-                       const SkMatrix& viewMatrix,
-                       const SkRect& rect);
-
-    void drawNonAARect(const GrPipelineBuilder& ds,
-                       GrColor color,
-                       const SkMatrix& viewM,
-                       const SkIRect& irect) {
-        SkRect rect = SkRect::Make(irect);
-        this->drawNonAARect(ds, color, viewM, rect);
-    }
-
-    void drawAARect(const GrPipelineBuilder& pipelineBuilder,
-                    GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect);
-
-    /**
      * Clear the passed in render target. Ignores the GrPipelineBuilder and clip. Clears the whole
      * thing if rect is nullptr, otherwise just the rect. If canIgnoreRect is set then the entire
      * render target can be optionally cleared.

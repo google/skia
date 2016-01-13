@@ -20,6 +20,7 @@
 #include "GrSWMaskHelper.h"
 #include "SkRasterClip.h"
 #include "SkTLazy.h"
+#include "batches/GrRectBatchFactory.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrRRectEffect.h"
@@ -45,6 +46,16 @@ static const GrFragmentProcessor* create_fp_for_mask(GrTexture* result, const Sk
                                          GrTextureDomain::kDecal_Mode,
                                          GrTextureParams::kNone_FilterMode,
                                          kDevice_GrCoordSet);
+}
+
+static void draw_non_aa_rect(GrDrawTarget* drawTarget,
+                             const GrPipelineBuilder& pipelineBuilder,
+                             GrColor color,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect) {
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, viewMatrix, rect,
+                                                                        nullptr, nullptr));
+    drawTarget->drawBatch(pipelineBuilder, batch);
 }
 
 // Does the path in 'element' require SW rendering? If so, return true (and,
@@ -506,20 +517,24 @@ bool GrClipMaskManager::drawElement(GrPipelineBuilder* pipelineBuilder,
         case Element::kEmpty_Type:
             SkDEBUGFAIL("Should never get here with an empty element.");
             break;
-        case Element::kRect_Type:
+        case Element::kRect_Type: {
             // TODO: Do rects directly to the accumulator using a aa-rect GrProcessor that covers
             // the entire mask bounds and writes 0 outside the rect.
             if (element->isAA()) {
                 SkRect devRect = element->getRect();
                 viewMatrix.mapRect(&devRect);
 
-                fDrawTarget->drawAARect(*pipelineBuilder, color, viewMatrix,
-                                        element->getRect(), devRect);
+                SkAutoTUnref<GrDrawBatch> batch(
+                        GrRectBatchFactory::CreateAAFill(color, viewMatrix, element->getRect(),
+                                                         devRect));
+
+                fDrawTarget->drawBatch(*pipelineBuilder, batch);
             } else {
-                fDrawTarget->drawNonAARect(*pipelineBuilder, color, viewMatrix,
-                                           element->getRect());
+                draw_non_aa_rect(fDrawTarget, *pipelineBuilder, color, viewMatrix,
+                                 element->getRect());
             }
             return true;
+        }
         default: {
             SkPath path;
             element->asPath(&path);
@@ -691,8 +706,8 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 backgroundPipelineBuilder.setStencil(kDrawOutsideElement);
 
                 // The color passed in here does not matter since the coverageSetOpXP won't read it.
-                fDrawTarget->drawNonAARect(backgroundPipelineBuilder, GrColor_WHITE, translate,
-                                           clipSpaceIBounds);
+                draw_non_aa_rect(fDrawTarget, backgroundPipelineBuilder, GrColor_WHITE, translate,
+                                 SkRect::Make(clipSpaceIBounds));
             }
         } else {
             GrPipelineBuilder pipelineBuilder;
@@ -831,11 +846,8 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 if (Element::kRect_Type == element->getType()) {
                     *pipelineBuilder.stencil() = gDrawToStencil;
 
-                    // We need this AGP until everything is in GrBatch
-                    fDrawTarget->drawNonAARect(pipelineBuilder,
-                                               GrColor_WHITE,
-                                               viewMatrix,
-                                               element->getRect());
+                    draw_non_aa_rect(fDrawTarget, pipelineBuilder, GrColor_WHITE, viewMatrix,
+                                     element->getRect());
                 } else {
                     if (!clipPath.isEmpty()) {
                         if (canRenderDirectToStencil) {
@@ -873,11 +885,8 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
 
                 if (canDrawDirectToClip) {
                     if (Element::kRect_Type == element->getType()) {
-                        // We need this AGP until everything is in GrBatch
-                        fDrawTarget->drawNonAARect(pipelineBuilder,
-                                                   GrColor_WHITE,
-                                                   viewMatrix,
-                                                   element->getRect());
+                        draw_non_aa_rect(fDrawTarget, pipelineBuilder, GrColor_WHITE, viewMatrix,
+                                         element->getRect());
                     } else {
                         GrPathRenderer::DrawPathArgs args;
                         args.fTarget = fDrawTarget;
@@ -893,10 +902,8 @@ bool GrClipMaskManager::createStencilClipMask(GrRenderTarget* rt,
                 } else {
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    fDrawTarget->drawNonAARect(pipelineBuilder,
-                                               GrColor_WHITE,
-                                               viewMatrix,
-                                               SkRect::Make(clipSpaceIBounds));
+                    draw_non_aa_rect(fDrawTarget, pipelineBuilder, GrColor_WHITE, viewMatrix,
+                                     SkRect::Make(clipSpaceIBounds));
                 }
             }
         }
