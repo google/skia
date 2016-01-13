@@ -249,46 +249,55 @@ void SkResizeFilter::computeFilters(int srcSize,
   }
 }
 
-bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeMethod method,
-                            int destWidth, int destHeight, SkBitmap::Allocator* allocator) {
-    if (nullptr == source.addr() || source.colorType() != kN32_SkColorType ||
-        source.width() < 1 || source.height() < 1)
-    {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static bool valid_for_resize(const SkPixmap& source, int dstW, int dstH) {
+    // TODO: Seems like we shouldn't care about the swizzle of source, just that it's 8888
+    return source.addr() && source.colorType() == kN32_SkColorType &&
+           source.width() >= 1 && source.height() >= 1 && dstW >= 1 && dstH >= 1;
+}
+
+bool SkBitmapScaler::Resize(const SkPixmap& result, const SkPixmap& source, ResizeMethod method) {
+    if (!valid_for_resize(source, result.width(), result.height())) {
         return false;
     }
-
-    if (destWidth < 1 || destHeight < 1) {
+    if (!result.addr() || result.colorType() != source.colorType()) {
         return false;
     }
 
     SkConvolutionProcs convolveProcs= { 0, nullptr, nullptr, nullptr, nullptr };
     PlatformConvolutionProcs(&convolveProcs);
 
-    SkRect destSubset = SkRect::MakeIWH(destWidth, destHeight);
+    SkRect destSubset = SkRect::MakeIWH(result.width(), result.height());
 
     SkResizeFilter filter(method, source.width(), source.height(),
-                        destWidth, destHeight, destSubset, convolveProcs);
+                          result.width(), result.height(), destSubset, convolveProcs);
 
     // Get a subset encompassing this touched area. We construct the
     // offsets and row strides such that it looks like a new bitmap, while
     // referring to the old data.
     const uint8_t* sourceSubset = reinterpret_cast<const uint8_t*>(source.addr());
 
-    // Convolve into the result.
-    SkBitmap result;
-    result.setInfo(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
-                                      SkScalarCeilToInt(destSubset.height()),
-                                      source.alphaType()));
-    result.allocPixels(allocator, nullptr);
-    if (!result.readyToDraw()) {
-      return false;
+    return BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
+                          !source.isOpaque(), filter.xFilter(), filter.yFilter(),
+                          static_cast<int>(result.rowBytes()),
+                          static_cast<unsigned char*>(result.writable_addr()),
+                          convolveProcs, true);
+}
+
+bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeMethod method,
+                            int destWidth, int destHeight, SkBitmap::Allocator* allocator) {
+    // Preflight some of the checks, to avoid allocating the result if we don't need it.
+    if (!valid_for_resize(source, destWidth, destHeight)) {
+        return false;
     }
 
-    if (!BGRAConvolve2D(sourceSubset, static_cast<int>(source.rowBytes()),
-                        !source.isOpaque(), filter.xFilter(), filter.yFilter(),
-                        static_cast<int>(result.rowBytes()),
-                        static_cast<unsigned char*>(result.getPixels()),
-                        convolveProcs, true)) {
+    SkBitmap result;
+    result.setInfo(SkImageInfo::MakeN32(destWidth, destHeight, source.alphaType()));
+    result.allocPixels(allocator, nullptr);
+
+    SkPixmap resultPM;
+    if (!result.peekPixels(&resultPM) || !Resize(resultPM, source, method)) {
         return false;
     }
 
