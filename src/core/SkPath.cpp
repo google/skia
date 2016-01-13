@@ -1909,6 +1909,13 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
+    if (!pathRef) {
+        return 0;
+    }
+
+    fPathRef.reset(pathRef);
+    SkDEBUGCODE(this->validate();)
+    buffer.skipToAlign4();
 
     // compatibility check
     if (version < kPathPrivFirstDirection_Version) {
@@ -1929,17 +1936,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         fFirstDirection = dir;
     }
 
-    size_t sizeRead = 0;
-    if (buffer.isValid()) {
-        fPathRef.reset(pathRef);
-        SkDEBUGCODE(this->validate();)
-        buffer.skipToAlign4();
-        sizeRead = buffer.pos();
-    } else if (pathRef) {
-        // If the buffer is not valid, pathRef should be nullptr
-        sk_throw();
-    }
-    return sizeRead;
+    return buffer.pos();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

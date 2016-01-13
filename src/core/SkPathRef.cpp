@@ -138,8 +138,11 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     int32_t verbCount, pointCount, conicCount;
     if (!buffer->readU32(&(ref->fGenerationID)) ||
         !buffer->readS32(&verbCount) ||
+        verbCount < 0 ||
         !buffer->readS32(&pointCount) ||
-        !buffer->readS32(&conicCount)) {
+        pointCount < 0 ||
+        !buffer->readS32(&conicCount) ||
+        conicCount < 0) {
         delete ref;
         return nullptr;
     }

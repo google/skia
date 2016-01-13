@@ -1946,6 +1946,9 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
 
 void SkPaint::unflatten(SkReadBuffer& buffer) {
     SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
+    if (!buffer.validateAvailable(kPODPaintSize)) {
+        return;
+    }
     const void* podData = buffer.skip(kPODPaintSize);
     const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
 
