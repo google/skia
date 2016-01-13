@@ -158,6 +158,7 @@ private:
     GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
 
     friend class GrGLCaps;  // For initialization.
+    friend class GrVkCaps;
 
     typedef GrShaderCaps INHERITED;
 };

@@ -194,6 +194,7 @@ private:
     bool fHasReadDstColor;
     bool fHasReadFragmentPosition;
 
+    friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
 
     typedef GrGLSLXPFragmentBuilder INHERITED;

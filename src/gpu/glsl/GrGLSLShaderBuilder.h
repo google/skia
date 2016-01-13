@@ -191,7 +191,9 @@ protected:
     int fCodeIndex;
     bool fFinalized;
 
+    friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
     friend class GrGLPathProgramBuilder; // to access fInputs.
+    friend class GrVkProgramBuilder;
 };
 #endif

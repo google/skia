@@ -108,9 +108,9 @@ protected:
                 GrGLuint programID,
                 const UniformInfoArray&,
                 const VaryingInfoArray&, // used for NVPR only currently
-                GrGLInstalledGeoProc* geometryProcessor,
-                GrGLInstalledXferProc* xferProcessor,
-                GrGLInstalledFragProcs* fragmentProcessors,
+                GrGLSLPrimitiveProcessor* geometryProcessor,
+                GrGLSLXferProcessor* xferProcessor,
+                const GrGLSLFragProcs& fragmentProcessors,
                 SkTArray<UniformHandle>* passSamplerUniforms);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
@@ -118,8 +118,7 @@ protected:
                          SkTArray<const GrTextureAccess*>* textureBindings);
     void setTransformData(const GrPrimitiveProcessor&,
                           const GrFragmentProcessor&,
-                          int index,
-                          GrGLInstalledFragProc*);
+                          int index);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
@@ -130,9 +129,9 @@ protected:
     GrGLuint fProgramID;
 
     // the installed effects
-    SkAutoTDelete<GrGLInstalledGeoProc> fGeometryProcessor;
-    SkAutoTDelete<GrGLInstalledXferProc> fXferProcessor;
-    SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
+    SkAutoTDelete<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    SkAutoTDelete<GrGLSLXferProcessor> fXferProcessor;
+    GrGLSLFragProcs fFragmentProcessors;
 
     GrProgramDesc fDesc;
     GrGLGpu* fGpu;
