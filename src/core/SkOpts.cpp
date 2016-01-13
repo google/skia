@@ -16,6 +16,7 @@
 #include "SkFloatingPoint_opts.h"
 #include "SkMatrix_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
@@ -48,58 +49,6 @@
       !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     #include <cpu-features.h>
 #endif
-
-namespace sk_default {
-
-// These variable names in these functions just pretend the input is BGRA.
-// They work fine with both RGBA and BGRA.
-
-static void premul_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                r = src[i] >> 16,
-                g = src[i] >>  8,
-                b = src[i] >>  0;
-        r = (r*a+127)/255;
-        g = (g*a+127)/255;
-        b = (b*a+127)/255;
-        dst[i] = (uint32_t)a << 24
-               | (uint32_t)r << 16
-               | (uint32_t)g <<  8
-               | (uint32_t)b <<  0;
-    }
-}
-
-static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                r = src[i] >> 16,
-                g = src[i] >>  8,
-                b = src[i] >>  0;
-        dst[i] = (uint32_t)a << 24
-               | (uint32_t)b << 16
-               | (uint32_t)g <<  8
-               | (uint32_t)r <<  0;
-    }
-}
-
-static void premul_swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                r = src[i] >> 16,
-                g = src[i] >>  8,
-                b = src[i] >>  0;
-        r = (r*a+127)/255;
-        g = (g*a+127)/255;
-        b = (b*a+127)/255;
-        dst[i] = (uint32_t)a << 24
-               | (uint32_t)b << 16
-               | (uint32_t)g <<  8
-               | (uint32_t)r <<  0;
-    }
-}
-
-}  // namespace sk_default
 
 namespace SkOpts {
     // Define default function pointer values here...
