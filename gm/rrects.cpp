@@ -67,9 +67,17 @@ protected:
 #if SK_SUPPORT_GPU
         GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         context = rt ? rt->getContext() : nullptr;
-        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
-        if (!drawContext) {
-            return;
+        SkAutoTUnref<GrDrawContext> drawContext;
+        if (kEffect_Type == fType) {
+            if (!context) {
+                skiagm::GM::DrawGpuOnlyMessage(canvas);
+                return;
+            }
+
+            drawContext.reset(context->drawContext(rt));
+            if (!drawContext) {
+                return;
+            }
         }
 #endif
         if (kEffect_Type == fType && nullptr == context) {
