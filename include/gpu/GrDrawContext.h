@@ -14,6 +14,7 @@
 #include "SkSurfaceProps.h"
 #include "../private/GrSingleOwner.h"
 
+class GrAuditTrail;
 class GrClip;
 class GrContext;
 class GrDrawBatch;
@@ -284,7 +285,7 @@ private:
     SkDEBUGCODE(void validate() const;)
 
     GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps,
-                  GrSingleOwner*);
+                  GrAuditTrail*, GrSingleOwner*);
 
     void internalDrawPath(GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
@@ -308,6 +309,7 @@ private:
     GrTextContext*    fTextContext; // lazily gotten from GrContext::DrawingManager
 
     SkSurfaceProps    fSurfaceProps;
+    GrAuditTrail*     fAuditTrail;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

@@ -1784,6 +1784,14 @@ bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
 void SkGpuDevice::flush() {
     ASSERT_SINGLE_OWNER
     DO_DEFERRED_CLEAR();
+
+    // Clear batch debugging output
+    // TODO not exactly sure where this should live
+    if (GR_BATCH_DEBUGGING_OUTPUT) {
+        SkDebugf("%s\n", fContext->getAuditTrail()->toJson().c_str());
+        // TODO This currently crashes because not all ops are accounted for
+        GR_AUDIT_TRAIL_RESET(fContext->getAuditTrail());
+    }
     fRenderTarget->prepareForExternalIO();
 }
 

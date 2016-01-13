@@ -114,13 +114,6 @@ void GrDrawingManager::flush() {
     fDrawTargets.reset();
 #endif
 
-    // Clear batch debugging output
-    if (GR_BATCH_DEBUGGING_OUTPUT) {
-        SkDebugf("%s\n", fContext->getAuditTrail()->toJson().c_str());
-        // TODO This currently crashes because not all ops are accounted for
-        //GR_AUDIT_TRAIL_RESET(fContext->getAuditTrail());
-    }
-
     fFlushState.reset();
     fFlushing = false;
 }
@@ -209,5 +202,5 @@ GrDrawContext* GrDrawingManager::drawContext(GrRenderTarget* rt,
         return nullptr;
     }
 
-    return new GrDrawContext(this, rt, surfaceProps, fSingleOwner);
+    return new GrDrawContext(this, rt, surfaceProps, fContext->getAuditTrail(), fSingleOwner);
 }

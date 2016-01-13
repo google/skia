@@ -240,6 +240,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     RETURN_FALSE_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(surface);
     SkASSERT(surface);
+    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::writeSurfacePixels");
 
     this->testPMConversionsIfNecessary(pixelOpsFlags);
 
@@ -379,6 +380,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     RETURN_FALSE_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(src);
     SkASSERT(src);
+    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::readSurfacePixels");
 
     this->testPMConversionsIfNecessary(flags);
     SkAutoMutexAcquire ama(fReadPixelsMutex);
@@ -520,6 +522,8 @@ void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
                             const SkIPoint& dstPoint, uint32_t pixelOpsFlags) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
+    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::copySurface");
+
     if (!src || !dst) {
         return;
     }
