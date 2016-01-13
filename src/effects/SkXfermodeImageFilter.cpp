@@ -147,13 +147,18 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     }
     GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();
+    SkIRect bounds = background.bounds().makeOffset(backgroundOffset.x(), backgroundOffset.y());
+    bounds.join(foreground.bounds().makeOffset(foregroundOffset.x(), foregroundOffset.y()));
+    if (bounds.isEmpty()) {
+        return false;
+    }
 
     const GrFragmentProcessor* xferFP = nullptr;
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = src.width();
-    desc.fHeight = src.height();
+    desc.fWidth = bounds.width();
+    desc.fHeight = bounds.height();
     desc.fConfig = kSkia8888_GrPixelConfig;
     SkAutoTUnref<GrTexture> dst(context->textureProvider()->createApproxTexture(desc));
     if (!dst) {
@@ -161,32 +166,36 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     }
 
     GrPaint paint;
-    SkMatrix bgMatrix;
-    bgMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
-    SkAutoTUnref<const GrFragmentProcessor> bgFP(
-        GrSimpleTextureEffect::Create(backgroundTex, bgMatrix));
+    SkMatrix backgroundMatrix;
+    backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
+    backgroundMatrix.preTranslate(SkIntToScalar(-backgroundOffset.fX),
+                                  SkIntToScalar(-backgroundOffset.fY));
+    SkAutoTUnref<const GrFragmentProcessor> bgFP(GrTextureDomainEffect::Create(
+        backgroundTex, backgroundMatrix,
+        GrTextureDomain::MakeTexelDomain(backgroundTex, background.bounds()),
+        GrTextureDomain::kDecal_Mode,
+        GrTextureParams::kNone_FilterMode)
+    );
     if (!fMode || !fMode->asFragmentProcessor(&xferFP, bgFP)) {
         // canFilterImageGPU() should've taken care of this
         SkASSERT(false);
         return false;
     }
 
-    SkMatrix foregroundMatrix = GrCoordTransform::MakeDivByTextureWHMatrix(foregroundTex);
-    foregroundMatrix.preTranslate(SkIntToScalar(backgroundOffset.fX-foregroundOffset.fX),
-                                  SkIntToScalar(backgroundOffset.fY-foregroundOffset.fY));
+    SkMatrix foregroundMatrix;
+    foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
+    foregroundMatrix.preTranslate(SkIntToScalar(-foregroundOffset.fX),
+                                  SkIntToScalar(-foregroundOffset.fY));
 
 
-    SkRect srcRect;
-    src.getBounds(&srcRect);
-
-    SkAutoTUnref<const GrFragmentProcessor> foregroundDomain(GrTextureDomainEffect::Create(
+    SkAutoTUnref<const GrFragmentProcessor> foregroundFP(GrTextureDomainEffect::Create(
         foregroundTex, foregroundMatrix,
         GrTextureDomain::MakeTexelDomain(foregroundTex, foreground.bounds()),
         GrTextureDomain::kDecal_Mode,
         GrTextureParams::kNone_FilterMode)
     );
 
-    paint.addColorFragmentProcessor(foregroundDomain.get());
+    paint.addColorFragmentProcessor(foregroundFP.get());
     if (xferFP) {
         paint.addColorFragmentProcessor(xferFP)->unref();
     }
@@ -197,11 +206,13 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
         return false;
     }
 
-    drawContext->drawRect(GrClip::WideOpen(), paint, SkMatrix::I(), srcRect);
+    SkMatrix matrix;
+    matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
+    drawContext->drawRect(GrClip::WideOpen(), paint, matrix, SkRect::Make(bounds));
 
-    offset->fX = backgroundOffset.fX;
-    offset->fY = backgroundOffset.fY;
-    WrapTexture(dst, src.width(), src.height(), result);
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
+    WrapTexture(dst, bounds.width(), bounds.height(), result);
     return true;
 }
 
