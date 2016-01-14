@@ -1955,8 +1955,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
     // This subclass can only read pixels from a render target. We could use glTexSubImage2D on
     // GL versions that support it but we don't today.
-    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
-    if (!srcAsRT) {
+    if (!srcSurface->asRenderTarget()) {
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
@@ -1997,20 +1996,13 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
         tempDrawInfo->fSwapRAndB = true;
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    } else if (kRequireDraw_DrawPreference == *drawPreference &&
-               readConfig == kAlpha_8_GrPixelConfig &&
-               !this->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-        // On some GLs there is no renderable single channel format. In that case we fall back
-        // to rendering to a RGBA and then will extract the alpha from that.
-        if (this->caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig, false)) {
-            tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
-        } else {
-            return false;
-        }
     }
 
-    if (srcAsRT && read_pixels_pays_for_y_flip(srcAsRT, this->glCaps(), width, height, readConfig,
-                                               rowBytes)) {
+    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
+    if (!srcAsRT) {
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    } else if (read_pixels_pays_for_y_flip(srcAsRT, this->glCaps(), width, height, readConfig,
+                                           rowBytes)) {
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     }
 
@@ -2059,28 +2051,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
             break;
         default:
             SkFAIL("Unknown resolve type");
-    }
-
-    // We have a special case fallback for reading alpha from a RGBA/BGRA surface. We will read
-    // back all the channels as RGBA and then extract A.
-    // This must be called after the RT is bound as the FBO above.
-    if (!this->glCaps().readPixelsSupported(this->glInterface(), config, tgt->config())) {
-        if ((tgt->config() == kRGBA_8888_GrPixelConfig ||
-             tgt->config() == kBGRA_8888_GrPixelConfig) &&
-            kAlpha_8_GrPixelConfig == config) {
-            SkAutoTDeleteArray<uint32_t> temp(new uint32_t[width * height * 4]);
-            if (this->onReadPixels(surface, left, top, width, height, kRGBA_8888_GrPixelConfig,
-                                   temp.get(), width*4)) {
-                uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
-                for (int j = 0; j < height; ++j) {
-                    for (int i = 0; i < width; ++i) {
-                        dst[j*rowBytes + i] = (0xFF000000U & temp[j*width+i]) >> 24;
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
     }
 
     const GrGLIRect& glvp = tgt->getViewport();

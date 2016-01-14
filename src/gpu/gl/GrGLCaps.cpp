@@ -637,22 +637,7 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
     }
 
     if (kGL_GrGLStandard == intf->fStandard) {
-        // Some OpenGL implementations allow GL_ALPHA as a format to glReadPixels. However,
-        // the manual (https://www.opengl.org/sdk/docs/man/) says only these formats are allowed:
-        // GL_STENCIL_INDEX, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL, GL_RED, GL_GREEN, GL_BLUE,
-        // GL_RGB, GL_BGR, GL_RGBA, and GL_BGRA. We check for the subset that we would use.
-        if (readFormat != GR_GL_RED && readFormat != GR_GL_RGB && readFormat != GR_GL_RGBA &&
-            readFormat != GR_GL_BGRA) {
-            return false;
-        }
-        // There is also a set of allowed types, but all the types we use are in the set:
-        // GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT,
-        // GL_HALF_FLOAT, GL_FLOAT, GL_UNSIGNED_BYTE_3_3_2, GL_UNSIGNED_BYTE_2_3_3_REV,
-        // GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_5_6_5_REV, GL_UNSIGNED_SHORT_4_4_4_4,
-        // GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_UNSIGNED_SHORT_5_5_5_1, GL_UNSIGNED_SHORT_1_5_5_5_REV,
-        // GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_INT_8_8_8_8_REV,GL_UNSIGNED_INT_10_10_10_2,
-        // GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_INT_10F_11F_11F_REV,
-        // GL_UNSIGNED_INT_5_9_9_9_REV, or GL_FLOAT_32_UNSIGNED_INT_24_8_REV.
+        // All of our renderable configs can be converted to each other by glReadPixels in OpenGL.
         return true;
     }
 
@@ -1065,17 +1050,6 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
 
     *externalFormat = fConfigTable[memoryConfig].fFormats.fExternalFormat[usage];
     *externalType = fConfigTable[memoryConfig].fFormats.fExternalType;
-
-    // When GL_RED is supported as a texture format, our alpha-only textures are stored using
-    // GL_RED and we swizzle in order to map all components to 'r'. However, in this case the
-    // surface is not alpha-only and we want alpha to really mean the alpha component of the
-    // texture, not the red component.
-    if (memoryIsAlphaOnly && !surfaceIsAlphaOnly) {
-        if (this->textureRedSupport()) {
-            SkASSERT(GR_GL_RED == *externalFormat);
-            *externalFormat = GR_GL_ALPHA;
-        }
-    }
 
     return true;
 }
