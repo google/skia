@@ -33,8 +33,8 @@ static uint8_t paeth_alt(uint8_t a, uint8_t b, uint8_t c) {
 }
 
 DEF_FUZZ(Paeth, fuzz) {
-    int a = fuzz->nextU(),
-        b = fuzz->nextU(),
-        c = fuzz->nextU();
+    auto a = fuzz->nextB(),
+         b = fuzz->nextB(),
+         c = fuzz->nextB();
     ASSERT(paeth_alt(a,b,c) == paeth_std(a,b,c));
 }

@@ -6,35 +6,41 @@
  */
 
 #include "Fuzz.h"
-#include "SkCommandLineFlags.h"
-
-DEFINE_string2(match, m, "", "The usual match patterns, applied to name.");
-DEFINE_string2(bytes, b, "", "Path to file containing fuzzed bytes.");
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
-    SkAutoTUnref<SkData> bytes;
-    if (!FLAGS_bytes.isEmpty()) {
-        bytes.reset(SkData::NewFromFileName(FLAGS_bytes[0]));
-    }
+    ASSERT(argc > 2);
+    const char* name = argv[1];
+    const char* path = argv[2];
+
+    SkAutoTUnref<SkData> bytes(SkData::NewFromFileName(path));
+    Fuzz fuzz(bytes);
 
     for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
         auto fuzzable = r->factory();
-        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, fuzzable.name)) {
-            SkDebugf("Running %s...\n", fuzzable.name);
-            Fuzz fuzz(bytes);
+        if (0 == strcmp(name, fuzzable.name)) {
             fuzzable.fn(&fuzz);
+            return 0;
         }
     }
-    return 0;
+    return 1;
 }
 
 
-Fuzz::Fuzz(SkData* bytes) : fBytes(SkSafeRef(bytes)) {}
+Fuzz::Fuzz(SkData* bytes) : fBytes(SkSafeRef(bytes)), fNextByte(0) {}
 
-// These methods are all TODO(kjlubick).
-uint32_t Fuzz::nextU() { return    0; }
-float    Fuzz::nextF() { return 0.0f; }
-uint32_t Fuzz::nextURange(uint32_t min, uint32_t max) { return min; }
-float    Fuzz::nextFRange(float    min, float    max) { return min; }
+template <typename T>
+static T read(const SkData* data, int* next) {
+    ASSERT(sizeof(T) <= data->size());
+    if (*next + sizeof(T) > data->size()) {
+        *next = 0;
+    }
+    T val;
+    memcpy(&val, data->bytes() + *next, sizeof(T));
+    *next += sizeof(T);
+    return val;
+}
+
+uint8_t  Fuzz::nextB() { return read<uint8_t >(fBytes, &fNextByte); }
+uint32_t Fuzz::nextU() { return read<uint32_t>(fBytes, &fNextByte); }
+float    Fuzz::nextF() { return read<float   >(fBytes, &fNextByte); }
 

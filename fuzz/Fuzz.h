@@ -17,15 +17,13 @@ class Fuzz : SkNoncopyable {
 public:
     explicit Fuzz(SkData*);
 
+    uint8_t  nextB();
     uint32_t nextU();
     float    nextF();
 
-    // These return a value in [min, max).
-    uint32_t nextURange(uint32_t min, uint32_t max);
-    float    nextFRange(float    min, float    max);
-
 private:
     SkAutoTUnref<SkData> fBytes;
+    int fNextByte;
 };
 
 struct Fuzzable {
