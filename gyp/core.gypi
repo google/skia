@@ -67,7 +67,6 @@
         '<(skia_src_path)/core/SkChecksum.cpp',
         '<(skia_src_path)/core/SkChunkAlloc.cpp',
         '<(skia_src_path)/core/SkClipStack.cpp',
-        '<(skia_src_path)/core/SkCodecImageGenerator.cpp',
         '<(skia_src_path)/core/SkColor.cpp',
         '<(skia_src_path)/core/SkColorFilter.cpp',
         '<(skia_src_path)/core/SkColorFilterShader.cpp',
