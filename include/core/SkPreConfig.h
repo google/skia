@@ -24,7 +24,7 @@
         #include "TargetConditionals.h"
     #endif
 
-    #if defined(WIN32) || defined(__SYMBIAN32__)
+    #if defined(WIN32) || defined(_WIN32) || defined(__SYMBIAN32__)
         #define SK_BUILD_FOR_WIN32
     #elif defined(ANDROID)
         #define SK_BUILD_FOR_ANDROID
@@ -203,7 +203,7 @@
 #endif
 
 #if defined(SKIA_DLL)
-    #if defined(WIN32)
+    #if defined(WIN32) || defined(_WIN32)
         #if SKIA_IMPLEMENTATION
             #define SK_API __declspec(dllexport)
         #else
