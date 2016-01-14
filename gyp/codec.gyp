@@ -55,6 +55,8 @@
         '../src/codec/SkWbmpCodec.cpp',
         '../src/codec/SkWebpAdapterCodec.cpp',
         '../src/codec/SkWebpCodec.cpp',
+
+        '../src/codec/SkCodecImageGenerator.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

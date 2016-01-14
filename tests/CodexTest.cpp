@@ -9,6 +9,7 @@
 #include "SkAndroidCodec.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
+#include "SkCodecImageGenerator.h"
 #include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkMD5.h"
@@ -377,6 +378,18 @@ static void check(skiatest::Reporter* r,
         SkMD5::Digest scaledCodecDigest;
         test_android_codec(r, codec, bm, info, size, expectedResult,
                 &scaledCodecDigest, &codecDigest);
+    }
+
+    // Test SkCodecImageGenerator
+    if (!isIncomplete) {
+        SkAutoTDelete<SkStream> stream(resource(path));
+        SkAutoTUnref<SkData> fullData(SkData::NewFromStream(stream, stream->getLength()));
+        SkAutoTDelete<SkImageGenerator> gen(SkCodecImageGenerator::NewFromEncodedCodec(fullData));
+        SkBitmap bm;
+        bm.allocPixels(info);
+        SkAutoLockPixels autoLockPixels(bm);
+        REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
+        compare_to_good_digest(r, codecDigest, bm);
     }
 
     // If we've just tested incomplete decodes, let's run the same test again on full decodes.
