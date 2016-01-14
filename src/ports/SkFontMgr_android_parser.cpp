@@ -663,11 +663,6 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
                                                      const char* dir,
                                                      const SkString& basePath)
 {
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // The framework is beyond Android 4.2 and can therefore skip this function
-    return;
-#endif
-
     SkAutoTCallIProc<DIR, closedir> fontDirectory(opendir(dir));
     if (nullptr == fontDirectory) {
         return;
