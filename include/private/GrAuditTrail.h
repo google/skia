@@ -42,11 +42,11 @@ public:
 
     void pushFrame(const char* name) {
         SkASSERT(GR_BATCH_DEBUGGING_OUTPUT);
-        Frame* frame;
+        Frame* frame = new Frame;
         if (fStack.empty()) {
-            frame = &fFrames.push_back();
+            fFrames.emplace_back(frame);
         } else {
-            frame = &fStack.back()->fChildren.push_back();
+            fStack.back()->fChildren.emplace_back(frame);
         }
 
         frame->fUniqueID = fUniqueID++;
@@ -60,11 +60,11 @@ public:
     }
 
     void addBatch(const char* name, const SkRect& bounds) {
-        // TODO when every internal callsite pushes a frame, we can add the assert
-        SkASSERT(GR_BATCH_DEBUGGING_OUTPUT /*&& !fStack.empty()*/);
-        Frame::Batch& batch = fStack.back()->fBatches.push_back();
-        batch.fName = name;
-        batch.fBounds = bounds;
+        SkASSERT(GR_BATCH_DEBUGGING_OUTPUT && !fStack.empty());
+        Batch* batch = new Batch;
+        fStack.back()->fChildren.emplace_back(batch);
+        batch->fName = name;
+        batch->fBounds = bounds;
     }
 
     SkString toJson() const;
@@ -72,22 +72,29 @@ public:
     void reset() { SkASSERT(GR_BATCH_DEBUGGING_OUTPUT && fStack.empty()); fFrames.reset(); }
 
 private:
-    struct Frame {
-        SkString toJson() const;
-        struct Batch {
-            SkString toJson() const;
-            const char* fName;
-            SkRect fBounds;
-        };
+    // TODO if performance becomes an issue, we can move to using SkVarAlloc
+    struct Event {
+        virtual ~Event() {}
+        virtual SkString toJson() const=0;
 
         const char* fName;
-        // TODO combine these into a single array
-        SkTArray<Batch> fBatches;
-        SkTArray<Frame> fChildren;
         uint64_t fUniqueID;
     };
 
-    SkTArray<Frame> fFrames;
+    typedef SkTArray<SkAutoTDelete<Event>, true> FrameArray;
+    struct Frame : public Event {
+        SkString toJson() const override;
+        FrameArray fChildren;
+    };
+
+    struct Batch : public Event {
+        SkString toJson() const override;
+        SkRect fBounds;
+    };
+
+    static void JsonifyTArray(SkString* json, const char* name, const FrameArray& array);
+
+    FrameArray fFrames;
     SkTArray<Frame*> fStack;
     uint64_t fUniqueID;
 };
