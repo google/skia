@@ -42,6 +42,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
     fExternalTextureSupport = false;
+    fRectangleTextureSupport = false;
     fTextureSwizzleSupport = false;
     fSRGBWriteControl = false;
     fRGBA8888PixelsOpsAreSlow = false;
@@ -217,6 +218,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             // At least one driver has been found that has this extension without the "GL_" prefix.
             fExternalTextureSupport = true;
         }
+    }
+
+    if ((kGL_GrGLStandard == standard && version >= GR_GL_VER(3, 2)) ||
+        ctxInfo.hasExtension("GL_ARB_texture_rectangle")) {
+        fRectangleTextureSupport = true;
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -885,6 +891,7 @@ SkString GrGLCaps::dump() const {
     r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
     r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
     r.appendf("External texture support: %s\n", (fExternalTextureSupport ? "YES" : "NO"));
+    r.appendf("Rectangle texture support: %s\n", (fRectangleTextureSupport? "YES" : "NO"));
     r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
 
     r.append("Configs\n-------\n");

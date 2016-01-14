@@ -48,12 +48,23 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration);
  * Gets the name of the function that should be used to sample a 2D texture. Coord type is used
  * to indicate whether the texture is sampled using projective textured (kVec3f) or not (kVec2f).
  */
-inline const char* GrGLSLTexture2DFunctionName(GrSLType coordType, GrGLSLGeneration glslGen) {
+inline const char* GrGLSLTexture2DFunctionName(GrSLType coordType, GrSLType samplerType,
+                                               GrGLSLGeneration glslGen) {
+    SkASSERT(GrSLTypeIsSamplerType(samplerType));
+    SkASSERT(kVec2f_GrSLType == coordType || kVec3f_GrSLType == coordType);
+    // GL_TEXTURE_RECTANGLE_ARB is written against OpenGL 2.0/GLSL 1.10. At that time there were
+    // separate texture*() functions. In OpenGL 3.0/GLSL 1.30 the different texture*() functions
+    // were deprecated in favor or the unified texture() function. RECTANGLE textures became
+    // standard in OpenGL 3.2/GLSL 1.50 and use texture(). It isn't completely clear what function
+    // should be used for RECTANGLE textures in GLSL versions >= 1.30 && < 1.50. We're going with
+    // using texture().
+    if (glslGen >= k130_GrGLSLGeneration) {
+        return (kVec2f_GrSLType == coordType) ? "texture" : "textureProj";
+    }
     if (kVec2f_GrSLType == coordType) {
-        return glslGen >= k130_GrGLSLGeneration ? "texture" : "texture2D";
+        return (samplerType == kSampler2DRect_GrSLType) ? "texture2DRect" : "texture2D";
     } else {
-        SkASSERT(kVec3f_GrSLType == coordType);
-        return glslGen >= k130_GrGLSLGeneration ? "textureProj" : "texture2DProj";
+        return (samplerType == kSampler2DRect_GrSLType) ? "texture2DRectProj" : "texture2DProj";
     }
 }
 
@@ -87,6 +98,8 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "sampler2D";
         case kSamplerExternal_GrSLType:
             return "samplerExternalOES";
+        case kSampler2DRect_GrSLType:
+            return "sampler2DRect";
         default:
             SkFAIL("Unknown shader var type.");
             return ""; // suppress warning

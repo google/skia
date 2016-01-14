@@ -7,12 +7,19 @@
 #include "GrGLProgramDesc.h"
 
 #include "GrProcessor.h"
-#include "GrGLGpu.h"
 #include "GrPipeline.h"
 #include "SkChecksum.h"
+#include "gl/GrGLDefines.h"
+#include "gl/GrGLTexture.h"
+#include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLCaps.h"
 
+static uint16_t texture_target_key(GrGLenum target) {
+    SkASSERT((uint32_t)target < SK_MaxU16);
+    return target;
+}
 
 static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
                             const GrGLSLCaps& caps) {
@@ -25,10 +32,9 @@ static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     uint16_t* k16 = SkTCast<uint16_t*>(b->add32n(word32Count));
     for (int i = 0; i < numTextures; ++i) {
         const GrTextureAccess& access = proc.textureAccess(i);
-        bool isExternal = (GR_GL_TEXTURE_EXTERNAL ==
-                           static_cast<GrGLTexture*>(access.getTexture())->target());
-        k16[i] = caps.configTextureSwizzle(access.getTexture()->config()).asKey() |
-                 (isExternal ? 0xFF00 : 0x0000);
+        GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
+        k16[i] = caps.configTextureSwizzle(texture->config()).asKey() |
+                 (texture_target_key(texture->target()) << 16);
     }
     // zero the last 16 bits if the number of textures is odd.
     if (numTextures & 0x1) {

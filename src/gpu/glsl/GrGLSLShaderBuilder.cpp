@@ -62,8 +62,9 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               GrSLType varyingType) const {
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
+    GrSLType samplerType = uniformHandler->getUniformVariable(sampler.fSamplerUniform).getType();
     out->appendf("%s(%s, %s)",
-                 GrGLSLTexture2DFunctionName(varyingType, glslCaps->generation()),
+                 GrGLSLTexture2DFunctionName(varyingType, samplerType, glslCaps->generation()),
                  uniformHandler->getUniformCStr(sampler.fSamplerUniform),
                  coordName);
 

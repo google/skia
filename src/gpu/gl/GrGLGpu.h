@@ -524,7 +524,7 @@ private:
         GrGLint     fTextureUniform;
         GrGLint     fTexCoordXformUniform;
         GrGLint     fPosXformUniform;
-    }                           fCopyPrograms[2];
+    }                           fCopyPrograms[3];
     GrGLuint                    fCopyProgramArrayBuffer;
 
     struct {
@@ -535,11 +535,16 @@ private:
     GrGLuint                    fWireRectArrayBuffer;
 
     static int TextureTargetToCopyProgramIdx(GrGLenum target) {
-        if (target == GR_GL_TEXTURE_2D) {
-            return 0;
-        } else {
-            SkASSERT(target == GR_GL_TEXTURE_EXTERNAL);
-            return 1;
+        switch (target) {
+            case GR_GL_TEXTURE_2D:
+                return 0;
+            case GR_GL_TEXTURE_EXTERNAL:
+                return 1;
+            case GR_GL_TEXTURE_RECTANGLE:
+                return 2;
+            default:
+                SkFAIL("Unexpected texture target type.");
+                return 0;
         }
     }
 

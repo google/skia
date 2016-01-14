@@ -297,6 +297,9 @@ public:
     /// Are textures with GL_TEXTURE_EXTERNAL_OES type supported.
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
+    /// Are textures with GL_TEXTURE_RECTANGLE type supported.
+    bool rectangleTextureSupport() const { return fRectangleTextureSupport; }
+
     /// GL_ARB_texture_swizzle
     bool textureSwizzleSupport() const { return fTextureSwizzleSupport; }
 
@@ -377,6 +380,7 @@ private:
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
     bool fExternalTextureSupport : 1;
+    bool fRectangleTextureSupport : 1;
     bool fTextureSwizzleSupport : 1;
 
     /** Number type of the components (with out considering number of bits.) */

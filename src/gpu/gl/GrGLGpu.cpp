@@ -447,6 +447,7 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
 #else
     idDesc.fInfo = *info;
 #endif
+
     if (GR_GL_TEXTURE_EXTERNAL == idDesc.fInfo.fTarget) {
         if (renderTarget) {
             // This combination is not supported.
@@ -455,8 +456,15 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         if (!this->glCaps().externalTextureSupport()) {
             return nullptr;
         }
+    } else  if (GR_GL_TEXTURE_RECTANGLE == idDesc.fInfo.fTarget) {
+        if (!this->glCaps().rectangleTextureSupport()) {
+            return nullptr;
+        }
+    } else if (GR_GL_TEXTURE_2D != idDesc.fInfo.fTarget) {
+        return nullptr;
     }
-    // Sample count is interpretted to mean the number of samples that Gr code should allocate
+
+    // Sample count is interpreted to mean the number of samples that Gr code should allocate
     // for a render buffer that resolves to the texture. We don't support MSAA textures.
     if (desc.fSampleCnt && !renderTarget) {
         return nullptr;
@@ -469,7 +477,7 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         case kBorrow_GrWrapOwnership:
             idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
             break;
-    }    
+    }
 
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
     surfDesc.fWidth = desc.fWidth;
@@ -546,8 +554,8 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     } else {
         GrGLTexture* texture = static_cast<GrGLTexture*>(dstSurface->asTexture());
-        if (GR_GL_TEXTURE_2D != texture->target()) {
-             // We don't currently support writing pixels to non-TEXTURE_2D textures.
+        if (GR_GL_TEXTURE_EXTERNAL == texture->target()) {
+             // We don't currently support writing pixels to EXTERNAL textures.
              return false;
         }
     }
@@ -608,8 +616,8 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surfac
         return false;
     }
 
-    // Write or transfer of pixels is only implemented for TEXTURE_2D textures
-    if (GR_GL_TEXTURE_2D != glTex->target()) {
+    // Write or transfer of pixels is not implemented for TEXTURE_EXTERNAL textures
+    if (GR_GL_TEXTURE_EXTERNAL == glTex->target()) {
         return false;
     }
 
@@ -2876,10 +2884,18 @@ void GrGLGpu::createCopyPrograms() {
         fCopyPrograms[i].fProgram = 0;
     }
     const char* version = this->glCaps().glslCaps()->versionDeclString();
-    static const GrSLType kSamplerTypes[2] = { kSampler2D_GrSLType, kSamplerExternal_GrSLType };
-    SkASSERT(2 == SK_ARRAY_COUNT(fCopyPrograms));
-    int programCount = this->glCaps().externalTextureSupport() ? 2 : 1;
-    for (int i = 0; i < programCount; ++i) {
+    static const GrSLType kSamplerTypes[3] = { kSampler2D_GrSLType, kSamplerExternal_GrSLType,
+                                               kSampler2DRect_GrSLType };
+    SkASSERT(3 == SK_ARRAY_COUNT(fCopyPrograms));
+    for (int i = 0; i < 3; ++i) {
+        if (kSamplerExternal_GrSLType == kSamplerTypes[i] &&
+            !this->glCaps().externalTextureSupport()) {
+            continue;
+        }
+        if (kSampler2DRect_GrSLType == kSamplerTypes[i] &&
+            !this->glCaps().rectangleTextureSupport()) {
+            continue;
+        }
         GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
         GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                      GrShaderVar::kUniform_TypeModifier);
@@ -2938,7 +2954,7 @@ void GrGLGpu::createCopyPrograms() {
             "  %s = %s(u_texture, v_texCoord);"
             "}",
             fsOutName,
-            GrGLSLTexture2DFunctionName(kVec2f_GrSLType, this->glslGeneration())
+            GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSamplerTypes[i], this->glslGeneration())
         );
     
         GL_CALL_RET(fCopyPrograms[i].fProgram, CreateProgram());
@@ -3183,16 +3199,23 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
         dy1 = -dy1;
     }
 
-    // src rect edges in normalized texture space (0 to 1)
-    int sw = src->width();
+    GrGLfloat sx0 = (GrGLfloat)srcRect.fLeft;
+    GrGLfloat sx1 = (GrGLfloat)(srcRect.fLeft + w);
+    GrGLfloat sy0 = (GrGLfloat)srcRect.fTop;
+    GrGLfloat sy1 = (GrGLfloat)(srcRect.fTop + h);
     int sh = src->height();
-    GrGLfloat sx0 = (GrGLfloat)srcRect.fLeft / sw;
-    GrGLfloat sx1 = (GrGLfloat)(srcRect.fLeft + w) / sw;
-    GrGLfloat sy0 = (GrGLfloat)srcRect.fTop / sh;
-    GrGLfloat sy1 = (GrGLfloat)(srcRect.fTop + h) / sh;
     if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
-        sy0 = 1.f - sy0;
-        sy1 = 1.f - sy1;
+        sy0 = sh - sy0;
+        sy1 = sh - sy1;
+    }
+    // src rect edges in normalized texture space (0 to 1) unless we're using a RECTANGLE texture.
+    GrGLenum srcTarget = srcTex->target();
+    if (GR_GL_TEXTURE_RECTANGLE != srcTarget) {
+        int sw = src->width();
+        sx0 /= sw;
+        sx1 /= sw;
+        sy0 /= sh;
+        sy1 /= sh;
     }
 
     GL_CALL(Uniform4f(fCopyPrograms[progIdx].fPosXformUniform, dx1 - dx0, dy1 - dy0, dx0, dy0));

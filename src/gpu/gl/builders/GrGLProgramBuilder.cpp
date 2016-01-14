@@ -74,6 +74,8 @@ static GrSLType get_sampler_type(const GrTextureAccess& access) {
     GrGLTexture* glTexture = static_cast<GrGLTexture*>(access.getTexture());
     if (glTexture->target() == GR_GL_TEXTURE_EXTERNAL) {
         return kSamplerExternal_GrSLType;
+    } else if (glTexture->target() == GR_GL_TEXTURE_RECTANGLE) {
+        return kSampler2DRect_GrSLType;
     } else {
         SkASSERT(glTexture->target() == GR_GL_TEXTURE_2D);
         return kSampler2D_GrSLType;

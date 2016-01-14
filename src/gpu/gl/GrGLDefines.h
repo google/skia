@@ -939,6 +939,9 @@
 /* GL_OES_EGL_image_external */
 #define GR_GL_TEXTURE_EXTERNAL                              0x8D65
 
+/* GL_ARB_texture_rectangle */
+#define GR_GL_TEXTURE_RECTANGLE                             0x84F5
+
 /* EGL Defines */
 #define GR_EGL_NO_DISPLAY                                   ((GrEGLDisplay)0)
 #define GR_EGL_EXTENSIONS                                   0x3055

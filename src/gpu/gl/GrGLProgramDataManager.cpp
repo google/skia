@@ -63,7 +63,8 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
 
 void GrGLProgramDataManager::setSampler(UniformHandle u, int texUnit) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kSampler2D_GrSLType || uni.fType == kSamplerExternal_GrSLType);
+    SkASSERT(uni.fType == kSampler2D_GrSLType || uni.fType == kSamplerExternal_GrSLType ||
+             uni.fType == kSampler2DRect_GrSLType);
     SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
     // FIXME: We still insert a single sampler uniform for every stage. If the shader does not
     // reference the sampler then the compiler may have optimized it out. Uncomment this assert
