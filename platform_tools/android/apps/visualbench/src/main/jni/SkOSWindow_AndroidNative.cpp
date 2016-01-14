@@ -50,25 +50,27 @@ bool SkOSWindow::attach(SkBackEndTypes attachType,
         },
     };
 
-    size_t apiLimit = SK_ARRAY_COUNT(kAPIs);
+    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    if (EGL_NO_DISPLAY == display) {
+        return false;
+    }
 
-    for (size_t api = 0; api < apiLimit; ++api) {
-        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    EGLint majorVersion;
+    EGLint minorVersion;
+    if (!eglInitialize(display, &majorVersion, &minorVersion)) {
+        return false;
+    }
 
-        EGLint majorVersion;
-        EGLint minorVersion;
-        eglInitialize(display, &majorVersion, &minorVersion);
-
+    for (size_t api = 0; api < SK_ARRAY_COUNT(kAPIs); ++api) {
+        if (!eglBindAPI(kAPIs[api].fAPI)) {
+            continue;
+        }
 #if 0
         SkDebugf("VENDOR: %s\n", eglQueryString(fDisplay, EGL_VENDOR));
         SkDebugf("APIS: %s\n", eglQueryString(fDisplay, EGL_CLIENT_APIS));
         SkDebugf("VERSION: %s\n", eglQueryString(fDisplay, EGL_VERSION));
         SkDebugf("EXTENSIONS %s\n", eglQueryString(fDisplay, EGL_EXTENSIONS));
 #endif
-
-        if (!eglBindAPI(kAPIs[api].fAPI)) {
-            continue;
-        }
 
         const EGLint configAttribs[] = {
             EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
@@ -89,31 +91,44 @@ bool SkOSWindow::attach(SkBackEndTypes attachType,
         /* Here, the application chooses the configuration it desires. In this
          * sample, we have a very simplified selection process, where we pick
          * the first EGLConfig that matches our criteria */
-        eglChooseConfig(display, configAttribs, &config, 1, &numConfigs);
+        if (!eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) ||
+            numConfigs != 1) {
+            continue;
+        }
 
         /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
          * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
          * As soon as we picked a EGLConfig, we can safely reconfigure the
          * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-        eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+        if (!eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format)) {
+            continue;
+        }
 
         ANativeWindow_setBuffersGeometry(fNativeWindow, 0, 0, format);
 
         surface = eglCreateWindowSurface(display, config, fNativeWindow, nullptr);
+        if (EGL_NO_SURFACE == surface) {
+            SkDebugf("eglCreateWindowSurface failed.  EGL Error: 0x%08x\n", eglGetError());
+            continue;
+        }
         context = eglCreateContext(display, config, nullptr, kAPIs[api].fContextAttribs);
         if (EGL_NO_CONTEXT == context) {
             SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", eglGetError());
+            eglDestroySurface(display, surface);
             continue;
         }
 
         if (!eglMakeCurrent(display, surface, surface, context)) {
             SkDebugf("eglMakeCurrent failed.  EGL Error: 0x%08x\n", eglGetError());
+            eglDestroyContext(display, context);
+            eglDestroySurface(display, surface);
             continue;
         }
 
         fWindow.fDisplay = display;
         fWindow.fContext = context;
         fWindow.fSurface = surface;
+        break;
     }
 
     if (fWindow.fDisplay && fWindow.fContext && fWindow.fSurface) {
