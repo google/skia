@@ -250,11 +250,6 @@ public:
                                              SkImageFilter* input = NULL);
 
 #if SK_SUPPORT_GPU
-    /**
-     * Wrap the given texture in a texture-backed SkBitmap.
-     */
-    static void WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result);
-
     // Helper function which invokes GPU filter processing on the
     // input at the specified "index". If the input is null, it leaves
     // "result" and "offset" untouched, and returns true. If the input

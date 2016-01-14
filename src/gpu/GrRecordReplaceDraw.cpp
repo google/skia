@@ -10,16 +10,11 @@
 #include "GrRecordReplaceDraw.h"
 #include "SkBigPicture.h"
 #include "SkCanvasPriv.h"
-#include "SkGrPixelRef.h"
+#include "SkGr.h"
 #include "SkImage.h"
 #include "SkRecordDraw.h"
 #include "SkRecords.h"
 
-static inline void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* result) {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    result->setInfo(info);
-    result->setPixelRef(new SkGrPixelRef(info, texture))->unref();
-}
 
 static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canvas) {
 
@@ -30,10 +25,11 @@ static inline void draw_replacement_bitmap(GrCachedLayer* layer, SkCanvas* canva
     }
 
     SkBitmap bm;
-    wrap_texture(layer->texture(),
-                 !layer->isAtlased() ? layer->rect().width()  : layer->texture()->width(),
-                 !layer->isAtlased() ? layer->rect().height() : layer->texture()->height(),
-                 &bm);
+    GrWrapTextureInBitmap(layer->texture(),
+                          !layer->isAtlased() ? layer->rect().width()  : layer->texture()->width(),
+                          !layer->isAtlased() ? layer->rect().height() : layer->texture()->height(),
+                          false,
+                          &bm);
 
     canvas->save();
     canvas->setMatrix(SkMatrix::I());

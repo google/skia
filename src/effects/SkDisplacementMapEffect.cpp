@@ -16,6 +16,7 @@
 #include "GrDrawContext.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
+#include "SkGr.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -465,7 +466,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     drawContext->drawRect(GrClip::WideOpen(), paint, matrix, SkRect::Make(colorBounds));
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    WrapTexture(dst, bounds.width(), bounds.height(), result);
+    GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
     return true;
 }
 

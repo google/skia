@@ -15,6 +15,7 @@
 #include "SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "SkGr.h"
 #endif
 
 // This rather arbitrary-looking value results in a maximum box blur kernel size
@@ -227,7 +228,7 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     if (!tex) {
         return false;
     }
-    WrapTexture(tex, dstBounds.width(), dstBounds.height(), result);
+    GrWrapTextureInBitmap(tex, dstBounds.width(), dstBounds.height(), false, result);
     return true;
 #else
     SkDEBUGFAIL("Should not call in GPU-less build");

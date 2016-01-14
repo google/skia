@@ -368,7 +368,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
         if (drawContext) {
             drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
-            WrapTexture(dst, bounds.width(), bounds.height(), result);
+            GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
             return true;
         }
     }
@@ -501,12 +501,6 @@ SkImageFilter* SkImageFilter::newWithLocalMatrix(const SkMatrix& matrix) const {
 }
 
 #if SK_SUPPORT_GPU
-
-void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    result->setInfo(info);
-    result->setPixelRef(new SkGrPixelRef(info, texture))->unref();
-}
 
 bool SkImageFilter::filterInputGPU(int index, SkImageFilter::Proxy* proxy,
                                    const SkBitmap& src, const Context& ctx,

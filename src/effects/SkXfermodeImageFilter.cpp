@@ -212,7 +212,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
 
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    WrapTexture(dst, bounds.width(), bounds.height(), result);
+    GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
     return true;
 }
 

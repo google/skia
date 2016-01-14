@@ -20,6 +20,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrPaint.h"
+#include "SkGr.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -424,7 +425,7 @@ bool SkLightingImageFilterInternal::filterImageGPU(Proxy* proxy,
     this->drawRect(drawContext, srcTexture, matrix, clip, bottom, kBottom_BoundaryMode, bounds);
     this->drawRect(drawContext, srcTexture, matrix, clip, bottomRight,
                    kBottomRight_BoundaryMode, bounds);
-    WrapTexture(dst, bounds.width(), bounds.height(), result);
+    GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
     return true;
 }
 #endif

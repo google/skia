@@ -19,7 +19,6 @@
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 #include "SkGr.h"
-#include "SkGrPixelRef.h"
 #endif
 
 SkMaskFilter::NinePatch::~NinePatch() {

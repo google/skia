@@ -18,6 +18,7 @@
 #include "GrDrawContext.h"
 #include "GrInvariantOutput.h"
 #include "GrTexture.h"
+#include "SkGr.h"
 #include "effects/Gr1DKernelEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -606,7 +607,7 @@ bool apply_morphology(const SkBitmap& input,
 
         srcTexture.reset(scratch);
     }
-    SkImageFilter::WrapTexture(srcTexture, rect.width(), rect.height(), dst);
+    GrWrapTextureInBitmap(srcTexture, rect.width(), rect.height(), false, dst);
     return true;
 }
 

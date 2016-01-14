@@ -641,13 +641,6 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBitmap wrap_texture(GrTexture* texture, int width, int height) {
-    SkBitmap result;
-    result.setInfo(SkImageInfo::MakeN32Premul(width, height));
-    result.setPixelRef(new SkGrPixelRef(result.info(), texture))->unref();
-    return result;
-}
-
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
@@ -1139,8 +1132,9 @@ bool SkGpuDevice::filterTexture(GrContext* context, GrTexture* texture,
     SkImageFilter::DeviceProxy proxy(this);
 
     if (filter->canFilterImageGPU()) {
-        return filter->filterImageGPU(&proxy, wrap_texture(texture, width, height),
-                                      ctx, result, offset);
+        SkBitmap bm;
+        GrWrapTextureInBitmap(texture, width, height, false, &bm);
+        return filter->filterImageGPU(&proxy, bm, ctx, result, offset);
     } else {
         return false;
     }
