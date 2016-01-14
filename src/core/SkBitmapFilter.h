@@ -65,8 +65,6 @@ public:
     }
 #endif
 
-    static SkBitmapFilter* Allocate();
-
 protected:
     float fWidth;
     float fInvWidth;
