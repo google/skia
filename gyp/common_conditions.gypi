@@ -47,8 +47,11 @@
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
           '_HAS_EXCEPTIONS=0',
+          'SKIA_DLL',
+          'SKIA_IMPLEMENTATION=1',
         ],
         'msvs_disabled_warnings': [
+            4251,  # An exported class member was of a type that was not exported
             4275,  # An exported class was derived from a class that was not exported
             4345,  # This is an FYI about a behavior change from long ago. Chrome stifles it too.
             4355,  # 'this' used in base member initializer list. Off by default in newer compilers.
