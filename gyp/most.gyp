@@ -28,11 +28,13 @@
         'dm.gyp:dm',
         'visualbench.gyp:visualbench',
         'fuzz.gyp:fuzz',
+        'kilobench.gyp:kilobench',
       ],
       'conditions': [
         [ 'skia_gpu == 0', {
           'dependencies!': [
-            'visualbench.gyp:visualbench'
+            'visualbench.gyp:visualbench',
+            'kilobench.gyp:kilobench',
           ]
         }],
         [ 'skia_gpu == 0 or skia_os == "android"', {
