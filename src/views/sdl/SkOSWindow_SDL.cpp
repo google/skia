@@ -15,72 +15,39 @@
 #include <gl.h>
 #endif
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int kInitialWindowWidth = 640;
+const int kInitialWindowHeight = 480;
+static SkOSWindow* gCurrentWindow;
 
-static void handle_error() {
+static void report_sdl_error(const char* failure) {
     const char* error = SDL_GetError();
-    SkDebugf("SDL Error: %s\n", error);
+    SkASSERT(error); // Called only to check SDL error.
+    SkDebugf("%s SDL Error: %s.\n", failure, error);
     SDL_ClearError();
 }
+SkOSWindow::SkOSWindow(void*)
+    : fWindow(nullptr)
+    , fGLContext(nullptr)
+    , fWindowMSAASampleCount(0) {
 
-SkOSWindow::SkOSWindow(void* screen) : fQuit(false) , fGLContext(nullptr) {
-#if defined(SK_BUILD_FOR_ANDROID)
-    // TODO we should try and get a 3.0 context first
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    fWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
-                   SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP |
-                   SDL_WINDOW_ALLOW_HIGHDPI;
-#else
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_StartTextInput();
+    SkASSERT(!gCurrentWindow);
+    gCurrentWindow = this;
 
-    fWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-#endif
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
-        handle_error();
-        return;
-    }
-
-    SDL_DisplayMode dm;
-    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
-        handle_error();
-        return;
-    }
-
-    fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                               dm.w, dm.h, fWindowFlags);
-
-    if (!fWindow) {
-        handle_error();
-        return;
-    }
-    this->resize(dm.w, dm.h);
+    this->createWindow(0);
 }
 
 SkOSWindow::~SkOSWindow() {
-    if (fGLContext) {
-        SDL_GL_DeleteContext(fGLContext);
+    this->destroyWindow();
+    gCurrentWindow = nullptr;
+}
+
+SkOSWindow* SkOSWindow::GetInstanceForWindowID(Uint32 windowID) {
+    if (gCurrentWindow &&
+        gCurrentWindow->fWindow &&
+        SDL_GetWindowID(gCurrentWindow->fWindow) == windowID) {
+        return gCurrentWindow;
     }
-
-    //Destroy window
-    SDL_DestroyWindow(fWindow);
-
-    //Quit SDL subsystems
-    SDL_Quit();
+    return nullptr;
 }
 
 void SkOSWindow::detach() {
@@ -88,67 +55,67 @@ void SkOSWindow::detach() {
         SDL_GL_DeleteContext(fGLContext);
         fGLContext = nullptr;
     }
-
-#if defined(SK_BUILD_FOR_ANDROID)
-    if (fWindow) {
-        // Destroy window
-        // Not totally sure why, but we have to do this or swapbuffers will hang
-        SDL_DestroyWindow(fWindow);
-        fWindow = nullptr;
-    }
-#endif
 }
 
 bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info) {
+    this->createWindow(msaaSampleCount);
     if (!fWindow) {
-        fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                   SCREEN_WIDTH, SCREEN_HEIGHT,
-                                   fWindowFlags);
+        return false;
+    }
+    if (!fGLContext) {
+        fGLContext = SDL_GL_CreateContext(fWindow);
+        if (!fGLContext) {
+            report_sdl_error("Failed to create SDL GL context.");
+            return false;
+        }
+        glClearColor(0, 0, 0, 0);
+        glClearStencil(0);
+        glStencilMask(0xffffffff);
+        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    if (msaaSampleCount > 0) {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaaSampleCount);
+    if (SDL_GL_MakeCurrent(fWindow, fGLContext) != 0) {
+        report_sdl_error("Failed to make SDL GL context current.");
+        this->detach();
+        return false;
     }
 
     info->fSampleCount = msaaSampleCount;
     info->fStencilBits = 8;
 
-    fGLContext = SDL_GL_CreateContext(fWindow);
-    if (!fGLContext) {
-        handle_error();
-        return false;
-    }
-
-    int success =  SDL_GL_MakeCurrent(fWindow, fGLContext);
-    if (success != 0) {
-        handle_error();
-        return false;
-    }
-
-    glViewport(0, 0, SkScalarFloorToInt(this->width()), SkScalarFloorToInt(this->height()));
-    glClearColor(1, 1, 1, 1);
-    glClearStencil(0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+    glViewport(0, 0, SkScalarRoundToInt(this->width()), SkScalarRoundToInt(this->height()));
     return true;
 }
 
 void SkOSWindow::present() {
+    if (!fWindow) {
+        return;
+    }
     SDL_GL_SwapWindow(fWindow);
 }
 
 bool SkOSWindow::makeFullscreen() {
-    SDL_SetWindowFullscreen(fWindow, SDL_WINDOW_FULLSCREEN);
+    if (!fWindow) {
+        return false;
+    }
+    SDL_SetWindowFullscreen(fWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
     return true;
 }
 
 void SkOSWindow::setVsync(bool vsync) {
+    if (!fWindow) {
+        return;
+    }
     SDL_GL_SetSwapInterval(vsync ? 1 : 0);
 }
 
 void SkOSWindow::closeWindow() {
-    fQuit = true;
+    this->destroyWindow();
+
+    // Currently closing the window causes the app to quit.
+    SDL_Event event;
+    event.type = SDL_QUIT;
+    SDL_PushEvent(&event);
 }
 
 static SkKey convert_sdlkey_to_skkey(SDL_Keycode src) {
@@ -194,59 +161,200 @@ static SkKey convert_sdlkey_to_skkey(SDL_Keycode src) {
     }
 }
 
-void SkOSWindow::handleEvents() {
-    SkEvent::ServiceQueueTimer();
-    SkEvent::ProcessEvent();
+void SkOSWindow::createWindow(int msaaSampleCount) {
+    if (fWindowMSAASampleCount != msaaSampleCount) {
+        this->destroyWindow();
+    }
+    if (fWindow) {
+        return;
+    }
+    uint32_t windowFlags =
+#if defined(SK_BUILD_FOR_ANDROID)
+            SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP |
+            SDL_WINDOW_ALLOW_HIGHDPI |
+#endif
+            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
-    SDL_Event event;
-    while(SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_MOUSEMOTION:
-                if (event.motion.state == SDL_PRESSED) {
-                    this->handleClick(event.motion.x, event.motion.y,
-                                     SkView::Click::kMoved_State, nullptr);
-                }
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-                this->handleClick(event.button.x, event.button.y,
-                                  event.button.state == SDL_PRESSED ?
-                                  SkView::Click::kDown_State :
-                                  SkView::Click::kUp_State, nullptr);
-                break;
-            case SDL_KEYDOWN: {
-                SDL_Keycode key = event.key.keysym.sym;
-                SkKey sk = convert_sdlkey_to_skkey(key);
-                if (kNONE_SkKey != sk) {
-                    if (event.key.state == SDL_PRESSED) {
-                        this->handleKey(sk);
-                    } else {
-                        this->handleKeyUp(sk);
-                    }
-                } else if (key == SDLK_ESCAPE) {
-                    fQuit = true;
-                }
-                break;
-            }
-            case SDL_TEXTINPUT: {
-                size_t len = strlen(event.text.text);
-                for (size_t i = 0; i < len; i++) {
-                    this->handleChar((SkUnichar)event.text.text[i]);
-                }
-                break;
-            }
-            case SDL_QUIT:
-                fQuit = true;
-                break;
-            default:
-                break;
+    // GL settings are part of SDL_WINDOW_OPENGL window creation arguments.
+#if defined(SK_BUILD_FOR_ANDROID)
+    // TODO we should try and get a 3.0 context first
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#endif
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+#if defined(SK_BUILD_FOR_UNIX)
+    // Apparently MSAA request matches "slow caveat". Make SDL not set anything for caveat for MSAA
+    // by setting -1 for ACCELERATED_VISUAL. For non-MSAA, set ACCELERATED_VISUAL to 1 just for
+    // compatiblity with other platforms.
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, msaaSampleCount > 0 ? -1 : 1);
+#else
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+#endif
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, msaaSampleCount > 0 ? 1 : 0);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaaSampleCount);
+
+    // This is an approximation for sizing purposes.
+    bool isInitialWindow = this->width() == 0 && this->height() == 0;
+    SkScalar windowWidth = isInitialWindow ? kInitialWindowWidth : this->width();
+    SkScalar windowHeight = isInitialWindow ? kInitialWindowHeight : this->height();
+
+    fWindow = SDL_CreateWindow(this->getTitle(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                               windowWidth, windowHeight, windowFlags);
+    if (!fWindow) {
+        report_sdl_error("Failed to create SDL window.");
+        return;
+    }
+    fWindowMSAASampleCount = msaaSampleCount;
+}
+
+void SkOSWindow::destroyWindow() {
+    this->detach();
+    if (fWindow) {
+        SDL_DestroyWindow(fWindow);
+        fWindow = nullptr;
+        fWindowMSAASampleCount = 0;
+    }
+}
+
+bool SkOSWindow::HasDirtyWindows() {
+    if (gCurrentWindow && gCurrentWindow->fWindow) {
+        return gCurrentWindow->isDirty();
+    }
+    return false;
+}
+
+void SkOSWindow::UpdateDirtyWindows() {
+    if (gCurrentWindow && gCurrentWindow->fWindow) {
+        if (gCurrentWindow->isDirty()) {
+            // This will call present.
+            gCurrentWindow->update(nullptr);
         }
     }
 }
 
+void SkOSWindow::HandleEvent(const SDL_Event& event) {
+    switch (event.type) {
+        case SDL_MOUSEMOTION:
+            if (SkOSWindow* window = GetInstanceForWindowID(event.motion.windowID)) {
+                if (event.motion.state == SDL_PRESSED) {
+                    window->handleClick(event.motion.x, event.motion.y,
+                                        SkView::Click::kMoved_State, nullptr);
+                }
+            }
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            if (SkOSWindow* window = GetInstanceForWindowID(event.button.windowID)) {
+                window->handleClick(event.button.x, event.button.y,
+                                    event.button.state == SDL_PRESSED ?
+                                    SkView::Click::kDown_State :
+                                    SkView::Click::kUp_State, nullptr);
+            }
+            break;
+        case SDL_KEYDOWN:
+            if (SkOSWindow* window = GetInstanceForWindowID(event.key.windowID)) {
+                SDL_Keycode key = event.key.keysym.sym;
+                SkKey sk = convert_sdlkey_to_skkey(key);
+                if (kNONE_SkKey != sk) {
+                    if (event.key.state == SDL_PRESSED) {
+                        window->handleKey(sk);
+                    } else {
+                        window->handleKeyUp(sk);
+                    }
+                } else if (key == SDLK_ESCAPE) {
+                    window->closeWindow();
+                }
+            }
+            break;
+        case SDL_TEXTINPUT:
+            if (SkOSWindow* window = GetInstanceForWindowID(event.text.windowID)) {
+                size_t len = strlen(event.text.text);
+                for (size_t i = 0; i < len; i++) {
+                    window->handleChar((SkUnichar)event.text.text[i]);
+                }
+            }
+            break;
+        case SDL_WINDOWEVENT:
+            switch (event.window.event) {
+                case SDL_WINDOWEVENT_SHOWN:
+                    // For initialization purposes, we resize upon first show.
+                    // Fallthrough.
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                    if (SkOSWindow* window = GetInstanceForWindowID(event.window.windowID)) {
+                        int w = 0;
+                        int h = 0;
+                        SDL_GetWindowSize(window->fWindow, &w, &h);
+                        window->resize(w, h);
+                    }
+                    break;
+                case SDL_WINDOWEVENT_FOCUS_GAINED:
+                    if (GetInstanceForWindowID(event.text.windowID)) {
+                        SDL_StartTextInput();
+                    }
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+SkMSec gTimerDelay;
+
+void SkOSWindow::RunEventLoop() {
+    for (;;) {
+        SkEvent::ServiceQueueTimer();
+        bool hasMoreSkEvents = SkEvent::ProcessEvent();
+
+        SDL_Event event;
+        bool hasSDLEvents = SDL_PollEvent(&event) == 1;
+
+        // Invalidations do not post to event loop, rather we just go through the
+        // windows for each event loop iteration.
+        bool hasDirtyWindows = HasDirtyWindows();
+
+        if (!hasSDLEvents && !hasMoreSkEvents && !hasDirtyWindows) {
+            // If there is no SDL events, SkOSWindow updates or SkEvents
+            // to be done, wait for the SDL events.
+            if (gTimerDelay > 0) {
+                hasSDLEvents = SDL_WaitEventTimeout(&event, gTimerDelay) == 1;
+            } else {
+                hasSDLEvents = SDL_WaitEvent(&event) == 1;
+            }
+        }
+        while (hasSDLEvents) {
+            if (event.type == SDL_QUIT) {
+                return;
+            }
+            HandleEvent(event);
+            hasSDLEvents = SDL_PollEvent(&event);
+        }
+        UpdateDirtyWindows();
+    }
+}
 
 void SkOSWindow::onSetTitle(const char title[]) {
-    SDL_SetWindowTitle(fWindow, title);
+    if (!fWindow) {
+        return;
+    }
+    this->updateWindowTitle();
+}
+
+void SkOSWindow::updateWindowTitle() {
+    SDL_SetWindowTitle(fWindow, this->getTitle());
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -255,13 +363,7 @@ void SkEvent::SignalNonEmptyQueue() {
 }
 
 void SkEvent::SignalQueueTimer(SkMSec delay) {
-    // just need to record the delay time. We handle waking up for it in
-}
-
-void SkOSWindow::onHandleInval(const SkIRect& rect) {
-}
-
-void SkOSWindow::onPDFSaved(const char title[], const char desc[], const char path[]) {
+    gTimerDelay = delay;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,17 +377,24 @@ int SDL_main(int argc, char** argv) {
 #else
 int main(int argc, char** argv) {
 #endif
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+        report_sdl_error("Failed to init SDL.");
+        return -1;
+    }
+
+    application_init();
+
     SkOSWindow* window = create_sk_window(nullptr, argc, argv);
 
     // drain any events that occurred before |window| was assigned.
     while (SkEvent::ProcessEvent());
 
-    // Start normal Skia sequence
-    application_init();
-
-    window->loop();
+    SkOSWindow::RunEventLoop();
 
     delete window;
     application_term();
+
+    SDL_Quit();
+
     return 0;
 }

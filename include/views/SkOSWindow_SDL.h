@@ -14,16 +14,11 @@
 
 class SkOSWindow : public SkWindow {
 public:
-    SkOSWindow(void* screen);
+    SkOSWindow(void*);
     virtual ~SkOSWindow();
 
-    static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay) {
-        SkFAIL("not implemented\n");
-        return false;
-    }
-
     enum SkBackEndTypes {
-        kNone_BackEndType,
+        kNone_BackEndType, // TODO: remove this, it's not a real option.
         kNativeGL_BackEndType,
 #if SK_ANGLE
         kANGLE_BackEndType,
@@ -39,25 +34,23 @@ public:
     bool makeFullscreen();
     void setVsync(bool);
     void closeWindow();
-    void loop() {
-        while (!fQuit) {
-            this->handleEvents();
-            this->update(nullptr);
-        }
-    }
+    static void RunEventLoop();
 
 protected:
     void onSetTitle(const char title[]) override;
-    void onHandleInval(const SkIRect&) override;
-    void onPDFSaved(const char title[], const char desc[], const char path[]) override;
 
 private:
-    void handleEvents();
-    bool fQuit;
-    uint32_t fWindowFlags;
+    void createWindow(int msaaSampleCount);
+    void destroyWindow();
+    void updateWindowTitle();
+    static SkOSWindow* GetInstanceForWindowID(Uint32 windowID);
+    static bool HasDirtyWindows();
+    static void UpdateDirtyWindows();
+    static void HandleEvent(const SDL_Event&);
+
     SDL_Window* fWindow;
     SDL_GLContext fGLContext;
-
+    int fWindowMSAASampleCount;
     typedef SkWindow INHERITED;
 };
 
