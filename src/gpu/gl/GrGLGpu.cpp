@@ -227,6 +227,10 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
 }
 
 GrGLGpu::~GrGLGpu() {
+    // Delete the path rendering explicitly, since it will need working gpu object to release the
+    // resources the object itself holds.
+    fPathRendering.reset();
+
     if (0 != fHWProgramID) {
         // detach the current program so there is no confusion on OpenGL's part
         // that we want it to be deleted
