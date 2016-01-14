@@ -1223,8 +1223,8 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& origDst,
                                  const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
+    CHECK_SHOULD_DRAW(draw);
     if (bitmap.getTexture()) {
-        CHECK_SHOULD_DRAW(draw);
         GrBitmapTextureAdjuster adjuster(&bitmap);
         this->drawTextureProducer(&adjuster, src, &origDst, constraint, *draw.fMatrix, fClip,
                                   paint);
