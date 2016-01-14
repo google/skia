@@ -191,63 +191,6 @@ class DownsampleBitmapImageGM: public DownsampleBitmapGM {
       typedef DownsampleBitmapGM INHERITED;
 };
 
-#include "SkMipMap.h"
-
-static void release_mipmap(void*, void* context) {
-    ((SkMipMap*)context)->unref();
-}
-
-class ShowMipLevels : public skiagm::GM {
-public:
-    SkBitmap    fBM;
-
-    ShowMipLevels() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-        make_checker(&fBM, 512, 256);
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("showmiplevels");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(fBM.width() + 8, 2 * fBM.height() + 80);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkScalar x = 4;
-        SkScalar y = 4;
-        canvas->drawBitmap(fBM, x, y, nullptr);
-        y += fBM.height() + 4;
-
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(fBM, nullptr));
-
-        SkMipMap::Level level;
-        SkScalar scale = 0.5f;
-        while (mm->extractLevel(scale, &level)) {
-            SkImageInfo info = SkImageInfo::MakeN32Premul(level.fWidth, level.fHeight);
-            SkBitmap bm;
-            bm.installPixels(info, level.fPixels, level.fRowBytes, nullptr,
-                             &release_mipmap, (void*)(SkRef(mm.get())));
-            bm.setImmutable();
-            canvas->drawBitmap(bm, x, y, nullptr);
-            y += bm.height() + 4;
-            scale /= 2;
-            if (info.width() == 1 || info.height() == 1) {
-                break;
-            }
-        }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new ShowMipLevels; )
-
-//////////////////////////////////////////////////////////////////////////////
-
 DEF_GM( return new DownsampleBitmapTextGM(72, kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kHigh_SkFilterQuality); )
 DEF_GM( return new DownsampleBitmapImageGM("mandrill_512.png", kHigh_SkFilterQuality); )
