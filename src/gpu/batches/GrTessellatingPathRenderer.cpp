@@ -249,6 +249,8 @@ private:
 };
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+                              "GrTessellatingPathRenderer::onDrawPath");
     SkASSERT(!args.fAntiAlias);
     const GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
     if (nullptr == rt) {

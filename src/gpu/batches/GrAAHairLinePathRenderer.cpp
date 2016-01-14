@@ -974,6 +974,7 @@ static GrDrawBatch* create_hairline_batch(GrColor color,
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),"GrAAHairlinePathRenderer::onDrawPath");
     SkIRect devClipBounds;
     GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
     args.fPipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), &devClipBounds);

@@ -261,6 +261,7 @@ void GrDrawContext::internal_drawBatch(const GrPipelineBuilder& pipelineBuilder,
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::internal_drawBatch");
 
     this->getDrawTarget()->drawBatch(pipelineBuilder, batch);
 }

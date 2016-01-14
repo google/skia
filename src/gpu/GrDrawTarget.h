@@ -167,6 +167,8 @@ public:
 
     const CMMAccess cmmAccess() { return CMMAccess(this); }
 
+    GrAuditTrail* getAuditTrail() const { return fAuditTrail; }
+
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
 

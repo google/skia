@@ -64,12 +64,16 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& s
 }
 
 void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+                              "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fPath->isInverseFillType());
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fPath, *args.fStroke));
     args.fTarget->stencilPath(*args.fPipelineBuilder, *args.fViewMatrix, p, p->getFillType());
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+                              "GrStencilAndCoverPathRenderer::onDrawPath");
     SkASSERT(!args.fStroke->isHairlineStyle());
     const SkPath& path = *args.fPath;
     GrPipelineBuilder* pipelineBuilder = args.fPipelineBuilder;

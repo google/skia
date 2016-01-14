@@ -1002,6 +1002,7 @@ private:
 };
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrAAConvexPathRenderer::onDrawPath");
     if (args.fPath->isEmpty()) {
         return true;
     }

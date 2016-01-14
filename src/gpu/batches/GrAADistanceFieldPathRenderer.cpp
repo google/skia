@@ -538,6 +538,8 @@ private:
 };
 
 bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+                              "GrAADistanceFieldPathRenderer::onDrawPath");
     // we've already bailed on inverse filled paths, so this is safe
     if (args.fPath->isEmpty()) {
         return true;

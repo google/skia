@@ -730,6 +730,7 @@ bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(), "GrDefaultPathRenderer::onDrawPath");
     return this->internalDrawPath(args.fTarget,
                                   args.fPipelineBuilder,
                                   args.fColor,
@@ -740,6 +741,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),"GrDefaultPathRenderer::onStencilPath");
     SkASSERT(SkPath::kInverseEvenOdd_FillType != args.fPath->getFillType());
     SkASSERT(SkPath::kInverseWinding_FillType != args.fPath->getFillType());
     this->internalDrawPath(args.fTarget, args.fPipelineBuilder, GrColor_WHITE, *args.fViewMatrix,
