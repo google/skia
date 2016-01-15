@@ -16,9 +16,18 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 
-static uint16_t texture_target_key(GrGLenum target) {
-    SkASSERT((uint32_t)target < SK_MaxU16);
-    return target;
+static uint8_t texture_target_key(GrGLenum target) {
+    switch (target) {
+        case GR_GL_TEXTURE_2D:
+            return 0;
+        case GR_GL_TEXTURE_EXTERNAL:
+            return 1;
+        case GR_GL_TEXTURE_RECTANGLE:
+            return 2;
+        default:
+            SkFAIL("Unexpected texture target.");
+            return 0;
+    }
 }
 
 static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
@@ -33,8 +42,8 @@ static void add_texture_key(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     for (int i = 0; i < numTextures; ++i) {
         const GrTextureAccess& access = proc.textureAccess(i);
         GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
-        k16[i] = caps.configTextureSwizzle(texture->config()).asKey() |
-                 (texture_target_key(texture->target()) << 16);
+        k16[i] = SkToU16(caps.configTextureSwizzle(texture->config()).asKey() |
+                         (texture_target_key(texture->target()) << 8));
     }
     // zero the last 16 bits if the number of textures is odd.
     if (numTextures & 0x1) {
