@@ -18,6 +18,8 @@
 #include "Resources.h"
 #include "sk_tool_utils.h"
 
+#define SHOW_MIP_COLOR  0xFF000000
+
 static SkBitmap make_bitmap(int w, int h) {
     SkBitmap bm;
     bm.allocN32Pixels(w, h);
@@ -26,6 +28,7 @@ static SkBitmap make_bitmap(int w, int h) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(w / 16.0f);
+    paint.setColor(SHOW_MIP_COLOR);
     canvas.drawCircle(w/2.0f, h/2.0f, w/3.0f, paint);
     return bm;
 }
@@ -36,6 +39,7 @@ static SkBitmap make_bitmap2(int w, int h) {
     SkCanvas canvas(bm);
     canvas.clear(0xFFFFFFFF);
     SkPaint paint;
+    paint.setColor(SHOW_MIP_COLOR);
     paint.setStyle(SkPaint::kStroke_Style);
 
     SkScalar inset = 2;
@@ -57,6 +61,7 @@ static SkBitmap make_bitmap3(int w, int h) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(2.1f);
+    paint.setColor(SHOW_MIP_COLOR);
 
     SkScalar s = SkIntToScalar(w);
     Sk4f p(s, -s, -s, s);
@@ -222,7 +227,7 @@ class ShowMipLevels2 : public skiagm::GM {
 
 public:
     ShowMipLevels2(int w, int h) : fW(w), fH(h) {
-        fBM[0] = sk_tool_utils::create_checkerboard_bitmap(w, h, SK_ColorBLACK, SK_ColorWHITE, 2);
+        fBM[0] = sk_tool_utils::create_checkerboard_bitmap(w, h, SHOW_MIP_COLOR, SK_ColorWHITE, 2);
         fBM[1] = make_bitmap(w, h);
         fBM[2] = make_bitmap2(w, h);
         fBM[3] = make_bitmap3(w, h);
