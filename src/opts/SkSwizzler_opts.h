@@ -47,6 +47,19 @@ static void premul_swaprb_xxxa_portable(uint32_t dst[], const uint32_t src[], in
     }
 }
 
+static void swaprb_xxxa_portable(uint32_t dst[], const uint32_t src[], int count) {
+    for (int i = 0; i < count; i++) {
+        uint8_t a = src[i] >> 24,
+                r = src[i] >> 16,
+                g = src[i] >>  8,
+                b = src[i] >>  0;
+        dst[i] = (uint32_t)a << 24
+               | (uint32_t)b << 16
+               | (uint32_t)g <<  8
+               | (uint32_t)r <<  0;
+    }
+}
+
 #if defined(SK_ARM_HAS_NEON)
 
 // Rounded divide by 255, (x + 127) / 255
@@ -123,6 +136,38 @@ static void premul_swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) 
     premul_xxxa_should_swaprb<true>(dst, src, count);
 }
 
+static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
+    while (count >= 16) {
+        // Load 16 pixels.
+        uint8x16x4_t bgra = vld4q_u8((const uint8_t*) src);
+
+        // Swap r and b.
+        SkTSwap(bgra.val[0], bgra.val[2]);
+
+        // Store 16 pixels.
+        vst4q_u8((uint8_t*) dst, bgra);
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
+    if (count >= 8) {
+        // Load 8 pixels.
+        uint8x8x4_t bgra = vld4_u8((const uint8_t*) src);
+
+        // Swap r and b.
+        SkTSwap(bgra.val[0], bgra.val[2]);
+
+        // Store 8 pixels.
+        vst4_u8((uint8_t*) dst, bgra);
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    swaprb_xxxa_portable(dst, src, count);
+}
+
 #else
 
 static void premul_xxxa(uint32_t dst[], const uint32_t src[], int count) {
@@ -133,20 +178,11 @@ static void premul_swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) 
     premul_swaprb_xxxa_portable(dst, src, count);
 }
 
-#endif
-
 static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                r = src[i] >> 16,
-                g = src[i] >>  8,
-                b = src[i] >>  0;
-        dst[i] = (uint32_t)a << 24
-               | (uint32_t)b << 16
-               | (uint32_t)g <<  8
-               | (uint32_t)r <<  0;
-    }
+    swaprb_xxxa_portable(dst, src, count);
 }
+
+#endif
 
 }
 
