@@ -16,11 +16,8 @@ DEFINE_string2(match, m, "", "The usual --match, applied to DEF_FUZZ names.");
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_bytes.isEmpty()) {
-        SkDebugf("Usage: %s -b <path/to/fuzzed.data> [-m pattern]\n", argv[0]);
-        return 1;
-    }
-    SkAutoTUnref<SkData> bytes(SkData::NewFromFileName(FLAGS_bytes[0]));
+    const char* path = FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];
+    SkAutoTUnref<SkData> bytes(SkData::NewFromFileName(path));
 
     for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
         auto fuzzable = r->factory();
