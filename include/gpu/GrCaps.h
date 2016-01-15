@@ -122,7 +122,7 @@ public:
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
-    bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
+    bool usesMixedSamples() const { return fUsesMixedSamples; }
 
     bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
     bool useDrawInsteadOfPartialRenderTargetWrite() const {
@@ -188,7 +188,19 @@ public:
     int maxTileSize() const { SkASSERT(fMaxTileSize <= fMaxTextureSize); return fMaxTileSize; }
 
     // Will be 0 if MSAA is not supported
-    int maxSampleCount() const { return fMaxSampleCount; }
+    int maxColorSampleCount() const { return fMaxColorSampleCount; }
+    // Will be 0 if MSAA is not supported
+    int maxStencilSampleCount() const { return fMaxStencilSampleCount; }
+    // We require the sample count to be less than maxColorSampleCount and maxStencilSampleCount.
+    // If we are using mixed samples, we only care about stencil.
+    int maxSampleCount() const {
+        if (this->usesMixedSamples()) {
+            return this->maxStencilSampleCount();
+        } else {
+            return SkTMin(this->maxColorSampleCount(), this->maxStencilSampleCount());
+        }
+    }
+
 
     virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
@@ -235,7 +247,7 @@ protected:
     bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
-    bool fMixedSamplesSupport                        : 1;
+    bool fUsesMixedSamples                           : 1;
     bool fSupportsInstancedDraws                     : 1;
     bool fFullClearIsFree                            : 1;
     bool fMustClearUploadedBufferData                : 1;
@@ -257,7 +269,8 @@ protected:
     int fMaxRenderTargetSize;
     int fMaxTextureSize;
     int fMaxTileSize;
-    int fMaxSampleCount;
+    int fMaxColorSampleCount;
+    int fMaxStencilSampleCount;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};

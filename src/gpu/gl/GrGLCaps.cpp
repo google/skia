@@ -283,17 +283,19 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // We need dual source blending and the ability to disable multisample in order to support mixed
     // samples in every corner case.
-    if (fMultisampleDisableSupport && glslCaps->dualSourceBlendingSupport()) {
-        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
+    if (fMultisampleDisableSupport &&
+        glslCaps->dualSourceBlendingSupport() &&
+        fShaderCaps->pathRenderingSupport()) {
+        fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
                 ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
         // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
-        if (fMixedSamplesSupport && kNVIDIA_GrGLDriver == ctxInfo.driver()) {
+        if (fUsesMixedSamples && kNVIDIA_GrGLDriver == ctxInfo.driver()) {
             fDiscardRenderTargetSupport = false;
             fInvalidateFBType = kNone_InvalidateFBType;
         }
     }
 
-    // fPathRenderingSupport and fMixedSamplesSupport must be set before calling initFSAASupport.
+    // fUsesMixedSamples must be set before calling initFSAASupport.
     this->initFSAASupport(ctxInfo, gli);
     this->initBlendEqationSupport(ctxInfo);
     this->initStencilFormats(ctxInfo);
@@ -402,10 +404,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // initFSAASupport() must have been called before this point
     if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxSampleCount);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxColorSampleCount);
     } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxSampleCount);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxColorSampleCount);
     }
+    fMaxStencilSampleCount = fMaxColorSampleCount;
 
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
@@ -684,7 +687,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
-        } else if (fMixedSamplesSupport && fShaderCaps->pathRenderingSupport()) {
+        } else if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = GrGLCaps::kES_3_0_MSFBOType;
@@ -696,7 +699,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fMSFBOType = kES_Apple_MSFBOType;
         }
     } else {
-        if (fMixedSamplesSupport && fShaderCaps->pathRenderingSupport()) {
+        if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
         } else if ((ctxInfo.version() >= GR_GL_VER(3,0)) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
