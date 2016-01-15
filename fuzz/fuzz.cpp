@@ -6,29 +6,31 @@
  */
 
 #include "Fuzz.h"
-#include <stdlib.h>
+#include "SkCommandLineFlags.h"
 #include <signal.h>
+#include <stdlib.h>
+
+DEFINE_string2(bytes, b, "", "A path to a file containing fuzzed bytes.");
+DEFINE_string2(match, m, "", "The usual --match, applied to DEF_FUZZ names.");
 
 int main(int argc, char** argv) {
-    if (argc < 3) {
-        SkDebugf("Usage: %s <fuzz name> <path/to/fuzzed.data>\n", argv[0]);
+    SkCommandLineFlags::Parse(argc, argv);
+
+    if (FLAGS_bytes.isEmpty()) {
+        SkDebugf("Usage: %s -b <path/to/fuzzed.data> [-m pattern]\n", argv[0]);
         return 1;
     }
-    const char* name = argv[1];
-    const char* path = argv[2];
-
-    SkAutoTUnref<SkData> bytes(SkData::NewFromFileName(path));
-    Fuzz fuzz(bytes);
+    SkAutoTUnref<SkData> bytes(SkData::NewFromFileName(FLAGS_bytes[0]));
 
     for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
         auto fuzzable = r->factory();
-        if (0 == strcmp(name, fuzzable.name)) {
-            SkDebugf("Running %s\n", fuzzable.name);
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, fuzzable.name)) {
+            SkDebugf("Fuzzing %s...\n", fuzzable.name);
+            Fuzz fuzz(bytes);
             fuzzable.fn(&fuzz);
-            return 0;
         }
     }
-    return 1;
+    return 0;
 }
 
 

@@ -9,9 +9,9 @@
         'target_name': 'fuzz',
         'type': 'executable',
         'sources': [ '<!@(python find.py ../fuzz "*.cpp")' ],
-        'dependencies': [ 'skia_lib.gyp:skia_lib' ],
-        'xcode_settings': {
-            'DEAD_CODE_STRIPPING': 'YES',
-        },
+        'dependencies': [
+            'flags.gyp:flags',
+            'skia_lib.gyp:skia_lib',
+        ],
     }],
 }
