@@ -104,7 +104,7 @@ static void test_clear(skiatest::Reporter* reporter, GrContext* context,
         SkAutoTMalloc<uint32_t> expectedPixels(pixelCnt);
 
         // The clear color is a GrColor, our readback is to kRGBA_8888, which may be different.
-        uint32_t expectedColor0;
+        uint32_t expectedColor0 = 0;
         uint8_t* expectedBytes0 = SkTCast<uint8_t*>(&expectedColor0);
         expectedBytes0[0] = GrColorUnpackR(color0);
         expectedBytes0[1] = GrColorUnpackG(color0);
@@ -119,7 +119,7 @@ static void test_clear(skiatest::Reporter* reporter, GrContext* context,
         SkIRect rect = SkIRect::MakeWH(w, h/2);
         dc->clear(&rect, color1, false);
 
-        uint32_t expectedColor1;
+        uint32_t expectedColor1 = 0;
         uint8_t* expectedBytes1 = SkTCast<uint8_t*>(&expectedColor1);
         expectedBytes1[0] = GrColorUnpackR(color1);
         expectedBytes1[1] = GrColorUnpackG(color1);
