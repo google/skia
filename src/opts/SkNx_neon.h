@@ -187,6 +187,8 @@ public:
     static SkNx Min(const SkNx& l, const SkNx& r) { return vminq_f32(l.fVec, r.fVec); }
     static SkNx Max(const SkNx& l, const SkNx& r) { return vmaxq_f32(l.fVec, r.fVec); }
 
+    SkNx abs() const { return vabsq_f32(fVec); }
+
     SkNx rsqrt0() const { return vrsqrteq_f32(fVec); }
     SkNx rsqrt1() const {
         float32x4_t est0 = this->rsqrt0().fVec;

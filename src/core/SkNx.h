@@ -74,6 +74,8 @@ public:
         return SkNx(SkNx<N/2, T>::Max(a.fLo, b.fLo), SkNx<N/2, T>::Max(a.fHi, b.fHi));
     }
 
+    SkNx abs() const { return SkNx(fLo.abs(), fHi.abs()); }
+
     SkNx sqrt() const { return SkNx(fLo.sqrt(), fHi.sqrt()); }
     // Generally, increasing precision, increasing cost.
     SkNx rsqrt0() const { return SkNx(fLo.rsqrt0(), fHi.rsqrt0()); }
@@ -133,6 +135,8 @@ public:
 
     static SkNx Min(const SkNx& a, const SkNx& b) { return SkNx(SkTMin(a.fVal, b.fVal)); }
     static SkNx Max(const SkNx& a, const SkNx& b) { return SkNx(SkTMax(a.fVal, b.fVal)); }
+
+    SkNx abs() const { return SkTAbs(fVal); }
 
     SkNx  sqrt () const { return SkNx(Sqrt(fVal)); }
     SkNx rsqrt0() const { return this->sqrt().invert();  }

@@ -176,6 +176,8 @@ public:
     static SkNx Min(const SkNx& l, const SkNx& r) { return _mm_min_ps(l.fVec, r.fVec); }
     static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
+    SkNx abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
+
     SkNx  sqrt() const { return _mm_sqrt_ps (fVec);  }
     SkNx rsqrt0() const { return _mm_rsqrt_ps(fVec); }
     SkNx rsqrt1() const { return this->rsqrt0(); }

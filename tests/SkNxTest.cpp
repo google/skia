@@ -216,3 +216,11 @@ DEF_TEST(SkNx_cast, r) {
     REPORTER_ASSERT(r, is.kth<2>() ==  0);
     REPORTER_ASSERT(r, is.kth<3>() ==  1);
 }
+
+DEF_TEST(SkNx_abs, r) {
+    auto fs = Sk4f(0.0f, -0.0f, 2.0f, -4.0f).abs();
+    REPORTER_ASSERT(r, fs.kth<0>() == 0.0f);
+    REPORTER_ASSERT(r, fs.kth<1>() == 0.0f);
+    REPORTER_ASSERT(r, fs.kth<2>() == 2.0f);
+    REPORTER_ASSERT(r, fs.kth<3>() == 4.0f);
+}
