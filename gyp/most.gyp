@@ -37,6 +37,11 @@
             'kilobench.gyp:kilobench',
           ]
         }],
+        [ 'skia_os != "android" and skia_os != "linux"', {
+          'dependencies!': [
+            'kilobench.gyp:kilobench',
+          ],
+        }],
         [ 'skia_gpu == 0 or skia_os == "android"', {
           'dependencies!': [
             'example.gyp:HelloWorld',

@@ -8,6 +8,7 @@
 #include "GrCaps.h"
 #include "GrContextFactory.h"
 #include "Benchmark.h"
+#include "ResultsWriter.h"
 #include "SkCommandLineFlags.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -17,6 +18,11 @@
 #include "Timer.h"
 #include "VisualSKPBench.h"
 #include "gl/GrGLDefines.h"
+
+// posix only for now
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 /*
  * This is an experimental GPU only benchmarking program.  The initial implementation will only
@@ -62,6 +68,11 @@ DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
 DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
 DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
+
+static SkString humanize(double ms) {
+    return HumanizeMs(ms);
+}
+#define HUMANIZE(ms) humanize(ms).c_str()
 
 namespace kilobench {
 class BenchmarkStream {
@@ -322,76 +333,135 @@ static int setup_gpu_bench(GPUTarget* target, Benchmark* bench, int maxGpuFrameL
     return loops;
 }
 
-static SkString humanize(double ms) {
-    return HumanizeMs(ms);
-}
-#define HUMANIZE(ms) humanize(ms).c_str()
+struct AutoSetupContextBenchAndTarget {
+    AutoSetupContextBenchAndTarget(Benchmark* bench) : fBenchmark(bench) {
+        GrContextOptions grContextOpts;
+        fCtxFactory.reset(new GrContextFactory(grContextOpts));
 
-void benchmark_inner_loop(Benchmark* bench, GrContextFactory* ctxFactory) {
-    SkTArray<double> samples;
-    GPUTarget target;
-    SkAssertResult(target.init(bench, ctxFactory, false,
-                               GrContextFactory::kNative_GLContextType,
-                               GrContextFactory::kNone_GLContextOptions, 0));
+        SkAssertResult(fTarget.init(bench, fCtxFactory, false,
+                                    GrContextFactory::kNative_GLContextType,
+                                    GrContextFactory::kNone_GLContextOptions, 0));
 
-    SkCanvas* canvas = target.getCanvas();
-    target.setup();
+        fCanvas = fTarget.getCanvas();
+        fTarget.setup();
 
-    bench->perCanvasPreDraw(canvas);
-    int maxFrameLag;
-    target.needsFrameTiming(&maxFrameLag);
-    int loops = setup_gpu_bench(&target, bench, maxFrameLag);
-
-    samples.reset(FLAGS_samples);
-    for (int s = 0; s < FLAGS_samples; s++) {
-        samples[s] = time(loops, bench, &target) / loops;
+        bench->perCanvasPreDraw(fCanvas);
+        fTarget.needsFrameTiming(&fMaxFrameLag);
     }
 
-    bench->perCanvasPostDraw(canvas);
+    int getLoops() { return setup_gpu_bench(&fTarget, fBenchmark, fMaxFrameLag); }
 
-    Stats stats(samples);
-    const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
-    SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
-            , loops
-            , HUMANIZE(stats.min)
-            , HUMANIZE(stats.median)
-            , HUMANIZE(stats.mean)
-            , HUMANIZE(stats.max)
-            , stddev_percent
-            , stats.plot.c_str()
-            , "gpu"
-            , bench->getUniqueName()
-            );
+    double timeSample(int loops) {
+        for (int i = 0; i < fMaxFrameLag; i++) {
+            time(loops, fBenchmark, &fTarget);
+        }
+
+        return time(loops, fBenchmark, &fTarget) / loops;
+    }
+    void teardownBench() { fBenchmark->perCanvasPostDraw(fCanvas); }
+
+    SkAutoTDelete<GrContextFactory> fCtxFactory;
+    GPUTarget fTarget;
+    SkCanvas* fCanvas;
+    Benchmark* fBenchmark;
+    int fMaxFrameLag;
+};
+
+int setup_loops(Benchmark* bench) {
+    AutoSetupContextBenchAndTarget ascbt(bench);
+    int loops = ascbt.getLoops();
+    ascbt.teardownBench();
 
     if (!FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
         SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], "gpu");
         pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getUniqueName());
         pngFilename.append(".png");
-        write_canvas_png(&target, pngFilename);
+        write_canvas_png(&ascbt.fTarget, pngFilename);
     }
+    return loops;
+}
+
+double time_sample(Benchmark* bench, int loops) {
+    AutoSetupContextBenchAndTarget ascbt(bench);
+    double sample = ascbt.timeSample(loops);
+    ascbt.teardownBench();
+
+    return sample;
 }
 
 } // namespace kilobench
 
+static const int kOutResultSize = 1024;
+
 int kilobench_main() {
-    SkAutoTDelete<GrContextFactory> ctxFactory;
-
-    GrContextOptions grContextOpts;
-    ctxFactory.reset(new GrContextFactory(grContextOpts));
-
     kilobench::BenchmarkStream benchStream;
 
     SkDebugf("loops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
              FLAGS_samples, "samples");
 
-    while (Benchmark* b = benchStream.next()) {
-        SkAutoTDelete<Benchmark> bench(b);
-        kilobench::benchmark_inner_loop(bench.get(), ctxFactory.get());
+    int descriptors[2];
+    if (pipe(descriptors) != 0) {
+        SkFAIL("Failed to open a pipe\n");
     }
 
-    // Make sure we clean up the global GrContextFactory here, otherwise we might race with the
-    // SkEventTracer destructor
-    ctxFactory.reset(nullptr);
+    while (Benchmark* b = benchStream.next()) {
+        SkAutoTDelete<Benchmark> bench(b);
+
+        int loops;
+        SkTArray<double> samples;
+        for (int i = 0; i < FLAGS_samples + 1; i++) {
+            // We fork off a new process to setup the grcontext and run the test while we wait
+            int childPid = fork();
+            if (childPid > 0) {
+                char result[kOutResultSize];
+                if (read(descriptors[0], result, kOutResultSize) < 0) {
+                     SkFAIL("Failed to read from pipe\n");
+                }
+
+                // if samples == 0 then parse # of loops
+                // else parse float
+                if (i == 0) {
+                    sscanf(result, "%d", &loops);
+                } else {
+                    sscanf(result, "%lf", &samples.push_back());
+                }
+
+                // wait until exit
+                int status;
+                waitpid(childPid, &status, 0);
+            } else if (0 == childPid) {
+                char result[kOutResultSize];
+                if (i == 0) {
+                    sprintf(result, "%d", kilobench::setup_loops(bench));
+                } else {
+                    sprintf(result, "%lf", kilobench::time_sample(bench, loops));
+                }
+
+                // Make sure to write the null terminator
+                if (write(descriptors[1], result, strlen(result) + 1) < 0) {
+                    SkFAIL("Failed to write to pipe\n");
+                }
+                return 0;
+            } else {
+                SkFAIL("Fork failed\n");
+            }
+        }
+
+        Stats stats(samples);
+        const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+        SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
+                , loops
+                , HUMANIZE(stats.min)
+                , HUMANIZE(stats.median)
+                , HUMANIZE(stats.mean)
+                , HUMANIZE(stats.max)
+                , stddev_percent
+                , stats.plot.c_str()
+                , "gpu"
+                , bench->getUniqueName()
+                );
+
+    }
     return 0;
 }
 
