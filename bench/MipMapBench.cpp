@@ -11,24 +11,28 @@
 
 class MipMapBench: public Benchmark {
     SkBitmap fBitmap;
+    SkString fName;
+    const int fN;
 
 public:
-    MipMapBench() {}
+    MipMapBench(int N) : fN(N) {
+        fName.printf("mipmap_build_%d", N);
+    }
 
 protected:
     bool isSuitableFor(Backend backend) override {
         return kNonRendering_Backend == backend;
     }
 
-    const char* onGetName() override { return "mipmap_build"; }
+    const char* onGetName() override { return fName.c_str(); }
 
     void onDelayedSetup() override {
-        fBitmap.allocN32Pixels(1000, 1000, true);
+        fBitmap.allocN32Pixels(fN, fN, true);
         fBitmap.eraseColor(SK_ColorWHITE);  // so we don't read uninitialized memory
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        for (int i = 0; i < loops; i++) {
+        for (int i = 0; i < loops * 4; i++) {
             SkMipMap::Build(fBitmap, nullptr)->unref();
         }
     }
@@ -37,4 +41,5 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new MipMapBench; )
+DEF_BENCH( return new MipMapBench(511); )
+DEF_BENCH( return new MipMapBench(512); )
