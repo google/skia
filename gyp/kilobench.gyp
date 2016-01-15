@@ -13,22 +13,24 @@
       'target_name': 'kilobench',
       'type': 'executable',
       'include_dirs': [
-        '../tools/VisualBench',
         '../bench',
         '../gm',
+        '../src/core',
+        '../tools/VisualBench',
       ],
       'sources': [ 
         '<!@(python find.py ../tools/kilobench "*.cpp")',
         '../bench/Benchmark.cpp',
         '../tools/VisualBench/VisualSKPBench.cpp',
       ],
-
       'dependencies': [
         'flags.gyp:flags',
+        'gputest.gyp:skgputest',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
         'tools.gyp:proc_stats',
+        'tools.gyp:resources',
         'tools.gyp:timer',
       ],
     },

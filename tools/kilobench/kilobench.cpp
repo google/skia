@@ -5,11 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "GrCaps.h"
+#include "GrContextFactory.h"
 #include "Benchmark.h"
 #include "SkCommandLineFlags.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
+#include "SkSurface.h"
+#include "SkTime.h"
+#include "Stats.h"
+#include "Timer.h"
 #include "VisualSKPBench.h"
+#include "gl/GrGLDefines.h"
 
 /*
  * This is an experimental GPU only benchmarking program.  The initial implementation will only
@@ -21,8 +28,25 @@
 #include "SkImageDecoder.h"
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-DEFINE_string(skps, "skps", "Directory to read skps from.");
 
+static const int kAutoTuneLoops = 0;
+
+static const int kDefaultLoops =
+#ifdef SK_DEBUG
+    1;
+#else
+    kAutoTuneLoops;
+#endif
+
+static SkString loops_help_txt() {
+    SkString help;
+    help.printf("Number of times to run each bench. Set this to %d to auto-"
+                "tune for each bench. Timings are only reported when auto-tuning.",
+                kAutoTuneLoops);
+    return help;
+}
+
+DEFINE_string(skps, "skps", "Directory to read skps from.");
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of GM name to run.\n"
                "Multiple matches may be separated by spaces.\n"
@@ -32,6 +56,12 @@ DEFINE_string2(match, m, nullptr,
                "^ and $ requires an exact match\n"
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
+DEFINE_int32(gpuFrameLag, 5, "If unknown, estimated maximum number of frames GPU allows to lag.");
+DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
+DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
+DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
+DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
+DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
 
 namespace kilobench {
 class BenchmarkStream {
@@ -103,14 +133,265 @@ private:
     int fCurrentSKP;
 };
 
+struct GPUTarget {
+    void setup() {
+        this->gl->makeCurrent();
+        // Make sure we're done with whatever came before.
+        SK_GL(*this->gl, Finish());
+    }
+
+    SkCanvas* beginTiming(SkCanvas* canvas) { return canvas; }
+
+    void endTiming() {
+        if (this->gl) {
+            SK_GL(*this->gl, Flush());
+            this->gl->swapBuffers();
+        }
+    }
+    void fence() {
+        SK_GL(*this->gl, Finish());
+    }
+
+    bool needsFrameTiming(int* maxFrameLag) const {
+        if (!this->gl->getMaxGpuFrameLag(maxFrameLag)) {
+            // Frame lag is unknown.
+            *maxFrameLag = FLAGS_gpuFrameLag;
+        }
+        return true;
+    }
+
+    bool init(Benchmark* bench, GrContextFactory* factory, bool useDfText,
+              GrContextFactory::GLContextType ctxType,
+              GrContextFactory::GLContextOptions ctxOptions, int numSamples) {
+        GrContext* context = factory->get(ctxType, ctxOptions);
+        int maxRTSize = context->caps()->maxRenderTargetSize();
+        SkImageInfo info = SkImageInfo::Make(SkTMin(bench->getSize().fX, maxRTSize),
+                                             SkTMin(bench->getSize().fY, maxRTSize),
+                                              kN32_SkColorType, kPremul_SkAlphaType);
+        uint32_t flags = useDfText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
+                                                  0;
+        SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+        this->surface.reset(SkSurface::NewRenderTarget(context,
+                                                       SkSurface::kNo_Budgeted, info,
+                                                       numSamples, &props));
+        this->gl = factory->getContextInfo(ctxType, ctxOptions).fGLContext;
+        if (!this->surface.get()) {
+            return false;
+        }
+
+        // Kilobench should only be used on platforms with fence sync support
+        SkASSERT(this->gl->fenceSyncSupport());
+        return true;
+    }
+
+    SkCanvas* getCanvas() const {
+        if (!surface.get()) {
+            return nullptr;
+        }
+        return surface->getCanvas();
+    }
+
+    bool capturePixels(SkBitmap* bmp) {
+        SkCanvas* canvas = this->getCanvas();
+        if (!canvas) {
+            return false;
+        }
+        bmp->setInfo(canvas->imageInfo());
+        if (!canvas->readPixels(bmp, 0, 0)) {
+            SkDebugf("Can't read canvas pixels.\n");
+            return false;
+        }
+        return true;
+    }
+
+private:
+    //const Config config;
+    SkGLContext* gl;
+    SkAutoTDelete<SkSurface> surface;
+};
+
+static bool write_canvas_png(GPUTarget* target, const SkString& filename) {
+
+    if (filename.isEmpty()) {
+        return false;
+    }
+    if (target->getCanvas() &&
+        kUnknown_SkColorType == target->getCanvas()->imageInfo().colorType()) {
+        return false;
+    }
+
+    SkBitmap bmp;
+
+    if (!target->capturePixels(&bmp)) {
+        return false;
+    }
+
+    SkString dir = SkOSPath::Dirname(filename.c_str());
+    if (!sk_mkdir(dir.c_str())) {
+        SkDebugf("Can't make dir %s.\n", dir.c_str());
+        return false;
+    }
+    SkFILEWStream stream(filename.c_str());
+    if (!stream.isValid()) {
+        SkDebugf("Can't write %s.\n", filename.c_str());
+        return false;
+    }
+    if (!SkImageEncoder::EncodeStream(&stream, bmp, SkImageEncoder::kPNG_Type, 100)) {
+        SkDebugf("Can't encode a PNG.\n");
+        return false;
+    }
+    return true;
+}
+
+static int detect_forever_loops(int loops) {
+    // look for a magic run-forever value
+    if (loops < 0) {
+        loops = SK_MaxS32;
+    }
+    return loops;
+}
+
+static int clamp_loops(int loops) {
+    if (loops < 1) {
+        SkDebugf("ERROR: clamping loops from %d to 1. "
+                 "There's probably something wrong with the bench.\n", loops);
+        return 1;
+    }
+    if (loops > FLAGS_maxLoops) {
+        SkDebugf("WARNING: clamping loops from %d to FLAGS_maxLoops, %d.\n", loops, FLAGS_maxLoops);
+        return FLAGS_maxLoops;
+    }
+    return loops;
+}
+
+static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
+static double time(int loops, Benchmark* bench, GPUTarget* target) {
+    SkCanvas* canvas = target->getCanvas();
+    if (canvas) {
+        canvas->clear(SK_ColorWHITE);
+    }
+    bench->preDraw(canvas);
+    double start = now_ms();
+    canvas = target->beginTiming(canvas);
+    bench->draw(loops, canvas);
+    if (canvas) {
+        canvas->flush();
+    }
+    target->endTiming();
+    double elapsed = now_ms() - start;
+    bench->postDraw(canvas);
+    return elapsed;
+}
+
+static int setup_gpu_bench(GPUTarget* target, Benchmark* bench, int maxGpuFrameLag) {
+    // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
+    int loops = bench->calculateLoops(FLAGS_loops);
+    if (kAutoTuneLoops == loops) {
+        loops = 1;
+        double elapsed = 0;
+        do {
+            if (1<<30 == loops) {
+                // We're about to wrap.  Something's wrong with the bench.
+                loops = 0;
+                break;
+            }
+            loops *= 2;
+            // If the GPU lets frames lag at all, we need to make sure we're timing
+            // _this_ round, not still timing last round.
+            for (int i = 0; i < maxGpuFrameLag; i++) {
+                elapsed = time(loops, bench, target);
+            }
+        } while (elapsed < FLAGS_gpuMs);
+
+        // We've overshot at least a little.  Scale back linearly.
+        loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
+        loops = clamp_loops(loops);
+
+        // Make sure we're not still timing our calibration.
+        target->fence();
+    } else {
+        loops = detect_forever_loops(loops);
+    }
+
+    // Pretty much the same deal as the calibration: do some warmup to make
+    // sure we're timing steady-state pipelined frames.
+    for (int i = 0; i < maxGpuFrameLag - 1; i++) {
+        time(loops, bench, target);
+    }
+
+    return loops;
+}
+
+static SkString humanize(double ms) {
+    return HumanizeMs(ms);
+}
+#define HUMANIZE(ms) humanize(ms).c_str()
+
+void benchmark_inner_loop(Benchmark* bench, GrContextFactory* ctxFactory) {
+    SkTArray<double> samples;
+    GPUTarget target;
+    SkAssertResult(target.init(bench, ctxFactory, false,
+                               GrContextFactory::kNative_GLContextType,
+                               GrContextFactory::kNone_GLContextOptions, 0));
+
+    SkCanvas* canvas = target.getCanvas();
+    target.setup();
+
+    bench->perCanvasPreDraw(canvas);
+    int maxFrameLag;
+    target.needsFrameTiming(&maxFrameLag);
+    int loops = setup_gpu_bench(&target, bench, maxFrameLag);
+
+    samples.reset(FLAGS_samples);
+    for (int s = 0; s < FLAGS_samples; s++) {
+        samples[s] = time(loops, bench, &target) / loops;
+    }
+
+    bench->perCanvasPostDraw(canvas);
+
+    Stats stats(samples);
+    const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+    SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
+            , loops
+            , HUMANIZE(stats.min)
+            , HUMANIZE(stats.median)
+            , HUMANIZE(stats.mean)
+            , HUMANIZE(stats.max)
+            , stddev_percent
+            , stats.plot.c_str()
+            , "gpu"
+            , bench->getUniqueName()
+            );
+
+    if (!FLAGS_writePath.isEmpty() && FLAGS_writePath[0]) {
+        SkString pngFilename = SkOSPath::Join(FLAGS_writePath[0], "gpu");
+        pngFilename = SkOSPath::Join(pngFilename.c_str(), bench->getUniqueName());
+        pngFilename.append(".png");
+        write_canvas_png(&target, pngFilename);
+    }
+}
+
 } // namespace kilobench
 
 int kilobench_main() {
+    SkAutoTDelete<GrContextFactory> ctxFactory;
+
+    GrContextOptions grContextOpts;
+    ctxFactory.reset(new GrContextFactory(grContextOpts));
+
     kilobench::BenchmarkStream benchStream;
+
+    SkDebugf("loops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
+             FLAGS_samples, "samples");
+
     while (Benchmark* b = benchStream.next()) {
         SkAutoTDelete<Benchmark> bench(b);
-        // TODO actual stuff
+        kilobench::benchmark_inner_loop(bench.get(), ctxFactory.get());
     }
+
+    // Make sure we clean up the global GrContextFactory here, otherwise we might race with the
+    // SkEventTracer destructor
+    ctxFactory.reset(nullptr);
     return 0;
 }
 
