@@ -11,7 +11,6 @@
 #include "SkData.h"
 #include "SkTRegistry.h"
 #include "SkTypes.h"
-#include <stdlib.h>
 
 class Fuzz : SkNoncopyable {
 public:
@@ -21,7 +20,13 @@ public:
     uint32_t nextU();
     float    nextF();
 
+    void signalBug   ();  // Tell afl-fuzz these inputs found a bug.
+    void signalBoring();  // Tell afl-fuzz these inputs are not worth testing.
+
 private:
+    template <typename T>
+    T nextT();
+
     SkAutoTUnref<SkData> fBytes;
     int fNextByte;
 };
@@ -35,7 +40,5 @@ struct Fuzzable {
     static void fuzz_##name(Fuzz*);                              \
     SkTRegistry<Fuzzable> register_##name({#name, fuzz_##name}); \
     static void fuzz_##name(Fuzz* f)
-
-#define ASSERT(cond) do { if (!(cond)) abort(); } while(false)
 
 #endif//Fuzz_DEFINED

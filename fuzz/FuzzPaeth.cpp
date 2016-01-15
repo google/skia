@@ -6,6 +6,7 @@
  */
 
 #include "Fuzz.h"
+#include <stdlib.h>
 
 // This really is just an example Fuzz*.cpp file.
 // It tests that two different ways of calculating the Paeth predictor function are equivalent.
@@ -36,5 +37,13 @@ DEF_FUZZ(Paeth, fuzz) {
     auto a = fuzz->nextB(),
          b = fuzz->nextB(),
          c = fuzz->nextB();
-    ASSERT(paeth_alt(a,b,c) == paeth_std(a,b,c));
+    SkDebugf("Paeth(%d,%d,%d)\n", a,b,c);
+
+    if (a == b && b == c) {
+        fuzz->signalBoring();  // Not really boring, just demoing signalBoring().
+    }
+
+    if (paeth_alt(a,b,c) != paeth_std(a,b,c)) {
+        fuzz->signalBug();
+    }
 }
