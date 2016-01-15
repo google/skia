@@ -958,6 +958,7 @@ protected:
         cinfo.input_gamma = 1;
 
         jpeg_set_defaults(&cinfo);
+        cinfo.optimize_coding = TRUE;
         jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
 #ifdef DCT_IFAST_SUPPORTED
         cinfo.dct_method = JDCT_IFAST;
