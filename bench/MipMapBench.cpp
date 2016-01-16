@@ -12,11 +12,11 @@
 class MipMapBench: public Benchmark {
     SkBitmap fBitmap;
     SkString fName;
-    const int fN;
+    const int fW, fH;
 
 public:
-    MipMapBench(int N) : fN(N) {
-        fName.printf("mipmap_build_%d", N);
+    MipMapBench(int w, int h) : fW(w), fH(h) {
+        fName.printf("mipmap_build_%dx%d", w, h);
     }
 
 protected:
@@ -27,7 +27,7 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDelayedSetup() override {
-        fBitmap.allocN32Pixels(fN, fN, true);
+        fBitmap.allocN32Pixels(fW, fH, true);
         fBitmap.eraseColor(SK_ColorWHITE);  // so we don't read uninitialized memory
     }
 
@@ -41,5 +41,10 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new MipMapBench(511); )
-DEF_BENCH( return new MipMapBench(512); )
+// Build variants that exercise the width and heights being even or odd at each level, as the
+// impl specializes on each of these.
+//
+DEF_BENCH( return new MipMapBench(511, 511); )
+DEF_BENCH( return new MipMapBench(512, 511); )
+DEF_BENCH( return new MipMapBench(511, 512); )
+DEF_BENCH( return new MipMapBench(512, 512); )
