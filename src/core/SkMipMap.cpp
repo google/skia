@@ -383,66 +383,95 @@ template <typename T> T add_121(T a, T b, T c) {
 //  we need to sample in each dimension to produce 1 dst pixel.
 //
 
-template <typename F> void downsample_2_2(void* dst, const void* src, size_t srcRB) {
+template <typename F> void downsample_2_2(void* dst, const void* src, size_t srcRB, int count) {
     auto p0 = static_cast<const typename F::Type*>(src);
     auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
+    auto d = static_cast<typename F::Type*>(dst);
 
-    auto c00 = F::Expand(p0[0]);
-    auto c01 = F::Expand(p0[1]);
-    auto c10 = F::Expand(p1[0]);
-    auto c11 = F::Expand(p1[1]);
+    for (int i = 0; i < count; ++i) {
+        auto c00 = F::Expand(p0[0]);
+        auto c01 = F::Expand(p0[1]);
+        auto c10 = F::Expand(p1[0]);
+        auto c11 = F::Expand(p1[1]);
 
-    auto c = c00 + c10 + c01 + c11;
-    *(typename F::Type*)dst = F::Compact(c >> 2);
+        auto c = c00 + c10 + c01 + c11;
+        d[i] = F::Compact(c >> 2);
+        p0 += 2;
+        p1 += 2;
+    }
 }
 
-template <typename F> void downsample_3_2(void* dst, const void* src, size_t srcRB) {
+template <typename F> void downsample_3_2(void* dst, const void* src, size_t srcRB, int count) {
+    SkASSERT(count > 0);
     auto p0 = static_cast<const typename F::Type*>(src);
     auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
+    auto d = static_cast<typename F::Type*>(dst);
+    
+    auto c02 = F::Expand(p0[0]);
+    auto c12 = F::Expand(p1[0]);
+    for (int i = 0; i < count; ++i) {
+        auto c00 = c02;
+        auto c01 = F::Expand(p0[1]);
+             c02 = F::Expand(p0[2]);
+        auto c10 = c12;
+        auto c11 = F::Expand(p1[1]);
+             c12 = F::Expand(p1[2]);
 
-    auto c00 = F::Expand(p0[0]);
-    auto c01 = F::Expand(p0[1]);
-    auto c02 = F::Expand(p0[2]);
-    auto c10 = F::Expand(p1[0]);
-    auto c11 = F::Expand(p1[1]);
-    auto c12 = F::Expand(p1[2]);
-
-    auto c = add_121(c00, c01, c02) + add_121(c10, c11, c12);
-    *(typename F::Type*)dst = F::Compact(c >> 3);
+        auto c = add_121(c00, c01, c02) + add_121(c10, c11, c12);
+        d[i] = F::Compact(c >> 3);
+        p0 += 2;
+        p1 += 2;
+    }
 }
 
-template <typename F> void downsample_2_3(void* dst, const void* src, size_t srcRB) {
+template <typename F> void downsample_2_3(void* dst, const void* src, size_t srcRB, int count) {
     auto p0 = static_cast<const typename F::Type*>(src);
     auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
     auto p2 = (const typename F::Type*)((const char*)p1 + srcRB);
+    auto d = static_cast<typename F::Type*>(dst);
+    
+    for (int i = 0; i < count; ++i) {
+        auto c00 = F::Expand(p0[0]);
+        auto c01 = F::Expand(p0[1]);
+        auto c10 = F::Expand(p1[0]);
+        auto c11 = F::Expand(p1[1]);
+        auto c20 = F::Expand(p2[0]);
+        auto c21 = F::Expand(p2[1]);
 
-    auto c00 = F::Expand(p0[0]);
-    auto c01 = F::Expand(p0[1]);
-    auto c10 = F::Expand(p1[0]);
-    auto c11 = F::Expand(p1[1]);
-    auto c20 = F::Expand(p2[0]);
-    auto c21 = F::Expand(p2[1]);
-    auto c = add_121(c00, c10, c20) + add_121(c01, c11, c21);
-    *(typename F::Type*)dst = F::Compact(c >> 3);
+        auto c = add_121(c00, c10, c20) + add_121(c01, c11, c21);
+        d[i] = F::Compact(c >> 3);
+        p0 += 2;
+        p1 += 2;
+        p2 += 2;
+    }
 }
 
-template <typename F> void downsample_3_3(void* dst, const void* src, size_t srcRB) {
+template <typename F> void downsample_3_3(void* dst, const void* src, size_t srcRB, int count) {
     auto p0 = static_cast<const typename F::Type*>(src);
     auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
     auto p2 = (const typename F::Type*)((const char*)p1 + srcRB);
+    auto d = static_cast<typename F::Type*>(dst);
 
-    auto c00 = F::Expand(p0[0]);
-    auto c01 = F::Expand(p0[1]);
-    auto c02 = F::Expand(p0[2]);
-    auto c10 = F::Expand(p1[0]);
-    auto c11 = F::Expand(p1[1]);
-    auto c12 = F::Expand(p1[2]);
-    auto c20 = F::Expand(p2[0]);
-    auto c21 = F::Expand(p2[1]);
-    auto c22 = F::Expand(p2[2]);
+    auto c02 = F::Expand(p0[0]);
+    auto c12 = F::Expand(p1[0]);
+    auto c22 = F::Expand(p2[0]);
+    for (int i = 0; i < count; ++i) {
+        auto c00 = c02;
+        auto c01 = F::Expand(p0[1]);
+             c02 = F::Expand(p0[2]);
+        auto c10 = c12;
+        auto c11 = F::Expand(p1[1]);
+             c12 = F::Expand(p1[2]);
+        auto c20 = c22;
+        auto c21 = F::Expand(p2[1]);
+             c22 = F::Expand(p2[2]);
 
-    auto c = add_121(c00, c01, c02) + (add_121(c10, c11, c12) << 1) + add_121(c20, c21, c22);
-    *(typename F::Type*)dst = F::Compact(c >> 4);
+        auto c = add_121(c00, c01, c02) + (add_121(c10, c11, c12) << 1) + add_121(c20, c21, c22);
+        d[i] = F::Compact(c >> 4);
+        p0 += 2;
+        p1 += 2;
+        p2 += 2;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -459,7 +488,7 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
 }
 
 SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
-    typedef void FilterProc(void*, const void* srcPtr, size_t srcRB);
+    typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
     FilterProc* proc_2_2 = nullptr;
     FilterProc* proc_2_3 = nullptr;
@@ -559,9 +588,21 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     uint32_t    rowBytes;
     SkPixmap    srcPM(srcPixmap);
 
-    int prevW = width;
-    int prevH = height;
     for (int i = 0; i < countLevels; ++i) {
+        FilterProc* proc;
+        if (height & 1) {        // src-height is 3
+            if (width & 1) {    // src-width is 3
+                proc = proc_3_3;
+            } else {            // src-width is 2
+                proc = proc_2_3;
+            }
+        } else {                // src-height is 2
+            if (width & 1) {    // src-width is 3
+                proc = proc_3_2;
+            } else {            // src-width is 2
+                proc = proc_2_2;
+            }
+        }
         width >>= 1;
         height >>= 1;
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
@@ -574,44 +615,17 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
 
         SkPixmap dstPM(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
 
-        const size_t pixelSize = srcPM.info().bytesPerPixel();
-
         const void* srcBasePtr = srcPM.addr();
         void* dstBasePtr = dstPM.writable_addr();
 
-        FilterProc* proc;
-        if (prevH & 1) {        // src-height is 3
-            if (prevW & 1) {    // src-width is 3
-                proc = proc_3_3;
-            } else {            // src-width is 2
-                proc = proc_2_3;
-            }
-        } else {                // src-height is 2
-            if (prevW & 1) {    // src-width is 3
-                proc = proc_3_2;
-            } else {            // src-width is 2
-                proc = proc_2_2;
-            }
-        }
-
         const size_t srcRB = srcPM.rowBytes();
         for (int y = 0; y < height; y++) {
-            const void* srcPtr = srcBasePtr;
-            void* dstPtr = dstBasePtr;
-
-            for (int x = 0; x < width; x++) {
-                proc(dstPtr, srcPtr, srcRB);
-                srcPtr = (char*)srcPtr + pixelSize * 2;
-                dstPtr = (char*)dstPtr + pixelSize;
-            }
-
+            proc(dstBasePtr, srcBasePtr, srcRB, width);
             srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
             dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
         }
         srcPM = dstPM;
         addr += height * rowBytes;
-        prevW = width;
-        prevH = height;
     }
     SkASSERT(addr == baseAddr + size);
 
