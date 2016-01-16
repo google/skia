@@ -15,7 +15,6 @@
         '<(skia_include_path)/utils/SkFrontBufferedStream.h',
         '<(skia_include_path)/utils/SkCamera.h',
         '<(skia_include_path)/utils/SkCanvasStateUtils.h',
-        '<(skia_include_path)/utils/SkDebugUtils.h',
         '<(skia_include_path)/utils/SkDumpCanvas.h',
         '<(skia_include_path)/utils/SkEventTracer.h',
         '<(skia_include_path)/utils/SkInterpolator.h',
