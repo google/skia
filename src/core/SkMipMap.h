@@ -9,6 +9,7 @@
 #define SkMipMap_DEFINED
 
 #include "SkCachedData.h"
+#include "SkPixmap.h"
 #include "SkScalar.h"
 
 class SkBitmap;
@@ -18,12 +19,11 @@ typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
 
 class SkMipMap : public SkCachedData {
 public:
+    static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc);
     static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
     struct Level {
-        void*       fPixels;
-        uint32_t    fRowBytes;
-        uint32_t    fWidth, fHeight;
+        SkPixmap    fPixmap;
         float       fScale; // < 1.0
     };
 

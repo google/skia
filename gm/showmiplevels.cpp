@@ -151,23 +151,19 @@ protected:
         SkMipMap::Level level;
         SkScalar scale = 0.5f;
         while (mm->extractLevel(scale, &level)) {
-            SkImageInfo info = SkImageInfo::Make(level.fWidth, level.fHeight,
-                                                 baseBM.colorType(), baseBM.alphaType());
-            SkPixmap levelPM{ info, level.fPixels, level.fRowBytes };
-
-            SkBitmap bm = func(prevPM, levelPM);
+            SkBitmap bm = func(prevPM, level.fPixmap);
             DrawAndFrame(canvas, bm, x, y);
 
-            if (info.width() <= 2 || info.height() <= 2) {
+            if (level.fPixmap.width() <= 2 || level.fPixmap.height() <= 2) {
                 break;
             }
             if (index & 1) {
-                x += info.width() + 4;
+                x += level.fPixmap.width() + 4;
             } else {
-                y += info.height() + 4;
+                y += level.fPixmap.height() + 4;
             }
             scale /= 2;
-            prevPM = levelPM;
+            prevPM = level.fPixmap;
             index += 1;
         }
     }
@@ -263,20 +259,17 @@ protected:
         SkMipMap::Level level;
         SkScalar scale = 0.5f;
         while (mm->extractLevel(scale, &level)) {
-            SkImageInfo info = SkImageInfo::Make(level.fWidth, level.fHeight,
-                                                 baseBM.colorType(), baseBM.alphaType());
-
             SkBitmap bm;
-            bm.installPixels(info, level.fPixels, level.fRowBytes);
+            bm.installPixels(level.fPixmap);
             DrawAndFrame(canvas, bm, x, y);
 
-            if (info.width() <= 2 || info.height() <= 2) {
+            if (level.fPixmap.width() <= 2 || level.fPixmap.height() <= 2) {
                 break;
             }
             if (index & 1) {
-                x += info.width() + 4;
+                x += level.fPixmap.width() + 4;
             } else {
-                y += info.height() + 4;
+                y += level.fPixmap.height() + 4;
             }
             scale /= 2;
             index += 1;

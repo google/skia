@@ -39,14 +39,14 @@ DEF_TEST(MipMap, reporter) {
 
             SkMipMap::Level level;
             if (mm->extractLevel(scale, &level)) {
-                REPORTER_ASSERT(reporter, level.fPixels);
-                REPORTER_ASSERT(reporter, level.fWidth > 0);
-                REPORTER_ASSERT(reporter, level.fHeight > 0);
-                REPORTER_ASSERT(reporter, level.fRowBytes >= level.fWidth * 4);
+                REPORTER_ASSERT(reporter, level.fPixmap.addr());
+                REPORTER_ASSERT(reporter, level.fPixmap.width() > 0);
+                REPORTER_ASSERT(reporter, level.fPixmap.height() > 0);
+                REPORTER_ASSERT(reporter, (int)level.fPixmap.rowBytes() >= level.fPixmap.width() * 4);
 
-                if (prevLevel.fPixels) {
-                    REPORTER_ASSERT(reporter, level.fWidth <= prevLevel.fWidth);
-                    REPORTER_ASSERT(reporter, level.fHeight <= prevLevel.fHeight);
+                if (prevLevel.fPixmap.addr()) {
+                    REPORTER_ASSERT(reporter, level.fPixmap.width() <= prevLevel.fPixmap.width());
+                    REPORTER_ASSERT(reporter, level.fPixmap.height() <= prevLevel.fPixmap.height());
                 }
                 prevLevel = level;
             }

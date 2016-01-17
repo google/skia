@@ -185,10 +185,9 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
             SkScalar invScaleFixup = level.fScale;
             fInvMatrix.postScale(invScaleFixup, invScaleFixup);
             
-            const SkImageInfo info = provider.info().makeWH(level.fWidth, level.fHeight);
             // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
             //       that here, and not need to explicitly track it ourselves.
-            return fResultBitmap.installPixels(info, level.fPixels, level.fRowBytes);
+            return fResultBitmap.installPixels(level.fPixmap);
         } else {
             // failed to extract, so release the mipmap
             fCurrMip.reset(nullptr);

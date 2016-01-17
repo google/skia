@@ -183,7 +183,7 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
 
 typedef void SkDownSampleProc(void*, int x, int y, const void* srcPtr, const SkPixmap& srcPM);
 
-SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
+SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     SkDownSampleProc* proc_nocheck, *proc_check;
 
     const SkColorType ct = src.colorType();
@@ -236,16 +236,6 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         return nullptr;
     }
 
-    SkAutoPixmapUnlock srcUnlocker;
-    if (!src.requestLock(&srcUnlocker)) {
-        return nullptr;
-    }
-    const SkPixmap& srcPixmap = srcUnlocker.pixmap();
-    // Try to catch where we might have returned nullptr for src crbug.com/492818
-    if (nullptr == srcPixmap.addr()) {
-        sk_throw();
-    }
-
     SkMipMap* mipmap;
     if (fact) {
         SkDiscardableMemory* dm = fact(storageSize);
@@ -267,17 +257,14 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     int         width = src.width();
     int         height = src.height();
     uint32_t    rowBytes;
-    SkPixmap    srcPM(srcPixmap);
+    SkPixmap    srcPM(src);
 
     for (int i = 0; i < countLevels; ++i) {
         width >>= 1;
         height >>= 1;
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
-        levels[i].fPixels   = addr;
-        levels[i].fWidth    = width;
-        levels[i].fHeight   = height;
-        levels[i].fRowBytes = rowBytes;
+        levels[i].fPixmap = SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
         levels[i].fScale    = (float)width / src.width();
 
         SkPixmap dstPM(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
@@ -487,7 +474,7 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return sk_64_asS32(size);
 }
 
-SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
+SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
     FilterProc* proc_2_2 = nullptr;
@@ -555,16 +542,6 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         return nullptr;
     }
 
-    SkAutoPixmapUnlock srcUnlocker;
-    if (!src.requestLock(&srcUnlocker)) {
-        return nullptr;
-    }
-    const SkPixmap& srcPixmap = srcUnlocker.pixmap();
-    // Try to catch where we might have returned nullptr for src crbug.com/492818
-    if (nullptr == srcPixmap.addr()) {
-        sk_throw();
-    }
-
     SkMipMap* mipmap;
     if (fact) {
         SkDiscardableMemory* dm = fact(storageSize);
@@ -586,7 +563,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     int         width = src.width();
     int         height = src.height();
     uint32_t    rowBytes;
-    SkPixmap    srcPM(srcPixmap);
+    SkPixmap    srcPM(src);
 
     for (int i = 0; i < countLevels; ++i) {
         FilterProc* proc;
@@ -607,14 +584,10 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
         height >>= 1;
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
-        levels[i].fPixels   = addr;
-        levels[i].fWidth    = width;
-        levels[i].fHeight   = height;
-        levels[i].fRowBytes = rowBytes;
-        levels[i].fScale    = (float)width / src.width();
+        levels[i].fPixmap = SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
+        levels[i].fScale  = (float)width / src.width();
 
-        SkPixmap dstPM(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
-
+        const SkPixmap& dstPM = levels[i].fPixmap;
         const void* srcBasePtr = srcPM.addr();
         void* dstBasePtr = dstPM.writable_addr();
 
@@ -666,3 +639,19 @@ bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
     }
     return true;
 }
+
+// Helper which extacts a pixmap from the src bitmap
+//
+SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
+    SkAutoPixmapUnlock srcUnlocker;
+    if (!src.requestLock(&srcUnlocker)) {
+        return nullptr;
+    }
+    const SkPixmap& srcPixmap = srcUnlocker.pixmap();
+    // Try to catch where we might have returned nullptr for src crbug.com/492818
+    if (nullptr == srcPixmap.addr()) {
+        sk_throw();
+    }
+    return Build(srcPixmap, fact);
+}
+
