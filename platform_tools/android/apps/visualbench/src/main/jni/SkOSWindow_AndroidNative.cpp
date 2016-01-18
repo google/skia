@@ -188,9 +188,6 @@ void SkOSWindow::onSetTitle(const char title[]) {
 void SkOSWindow::onHandleInval(const SkIRect& rect) {
 }
 
-void SkOSWindow::onPDFSaved(const char title[], const char desc[], const char path[]) {
-}
-
 ///////////////////////////////////////////
 /////////////// SkEvent impl //////////////
 ///////////////////////////////////////////
