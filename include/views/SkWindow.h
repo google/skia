@@ -43,8 +43,7 @@ public:
 
     const SkBitmap& getBitmap() const { return fBitmap; }
 
-    void    setColorType(SkColorType);
-    void    resize(int width, int height, SkColorType = kUnknown_SkColorType);
+    void    resize(int width, int height);
 
     bool    isDirty() const { return !fDirtyRgn.isEmpty(); }
     bool    update(SkIRect* updateArea);
@@ -96,7 +95,6 @@ protected:
 
 private:
     SkSurfaceProps  fSurfaceProps;
-    SkColorType fColorType;
     SkBitmap    fBitmap;
     SkRegion    fDirtyRgn;
 

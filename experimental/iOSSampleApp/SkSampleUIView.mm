@@ -326,8 +326,7 @@ static FPSState gFPS;
         fDevManager = new SkiOSDeviceManager(fGL.fFramebuffer);
         fWind = new SampleWindow(self, argc, argv, fDevManager);
 
-        fWind->resize(self.frame.size.width, self.frame.size.height,
-                      kN32_SkColorType);
+        fWind->resize(self.frame.size.width, self.frame.size.height);
         
         for (int i = 0; i < argc; ++i) {
             delete [] argv[i];

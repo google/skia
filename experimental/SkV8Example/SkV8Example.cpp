@@ -52,7 +52,6 @@ SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd, JsContext* context)
     , fCurSurface(NULL)
 #endif
 {
-    this->setColorType(kBGRA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 

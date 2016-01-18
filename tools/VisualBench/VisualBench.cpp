@@ -86,7 +86,6 @@ SkSurface* VisualBench::createSurface() {
 }
 
 bool VisualBench::setupBackend() {
-    this->setColorType(kRGBA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 

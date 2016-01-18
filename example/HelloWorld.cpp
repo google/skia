@@ -59,7 +59,6 @@ void HelloWorldWindow::setTitle() {
 }
 
 bool HelloWorldWindow::setUpBackend() {
-    this->setColorType(kRGBA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 

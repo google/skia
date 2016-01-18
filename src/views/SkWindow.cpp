@@ -20,7 +20,6 @@ SkWindow::SkWindow()
 {
     fClicks.reset();
     fWaitingOnInval = false;
-    fColorType = kN32_SkColorType;
     fMatrix.reset();
 }
 
@@ -53,22 +52,13 @@ void SkWindow::postConcat(const SkMatrix& matrix) {
     this->setMatrix(m);
 }
 
-void SkWindow::setColorType(SkColorType ct) {
-    this->resize(fBitmap.width(), fBitmap.height(), ct);
-}
-
-void SkWindow::resize(int width, int height, SkColorType ct) {
-    if (ct == kUnknown_SkColorType)
-        ct = fColorType;
-
-    if (width != fBitmap.width() || height != fBitmap.height() || ct != fColorType) {
-        fColorType = ct;
-        fBitmap.allocPixels(SkImageInfo::Make(width, height,
-                                              ct, kPremul_SkAlphaType));
-
-        this->setSize(SkIntToScalar(width), SkIntToScalar(height));
+void SkWindow::resize(int width, int height) {
+    if (width != fBitmap.width() || height != fBitmap.height()) {
+        fBitmap.allocPixels(SkImageInfo::Make(width, height, kN32_SkColorType,
+                                              kPremul_SkAlphaType));
         this->inval(nullptr);
     }
+    this->setSize(SkIntToScalar(width), SkIntToScalar(height));
 }
 
 bool SkWindow::handleInval(const SkRect* localR) {
