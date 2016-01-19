@@ -107,7 +107,13 @@ private:
     void     buildSegments();
     SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
+#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
     SkScalar compute_conic_segs(const SkConic&, SkScalar distance, int mint, int maxt, int ptIndex);
+#else
+    SkScalar compute_conic_segs(const SkConic&, SkScalar distance,
+                                int mint, const SkPoint& minPt,
+                                int maxt, const SkPoint& maxPt, int ptIndex);
+#endif
     SkScalar compute_cubic_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
     const Segment* distanceToSegment(SkScalar distance, SkScalar* t);

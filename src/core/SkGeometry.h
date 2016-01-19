@@ -23,7 +23,11 @@ static inline SkPoint to_point(const Sk2s& x) {
 
 static inline Sk2s sk2s_cubic_eval(const Sk2s& A, const Sk2s& B, const Sk2s& C, const Sk2s& D,
                                    const Sk2s& t) {
-    return ((A * t + B) * t + C) * t + D;
+    return ((A * t + B) * t + C) * t + D;	
+}
+
+static Sk2s times_2(const Sk2s& value) {
+    return value + value;
 }
 
 /** Given a quadratic equation Ax^2 + Bx + C = 0, return 0, 1, 2 roots for the
@@ -42,10 +46,10 @@ SkPoint SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t);
 void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent = nullptr);
 
 /**
- *  output is : eval(t) == coeff[0] * t^2 + coeff[1] * t + coeff[2]
- */
+ *  output is : eval(t) == coeff[0] * t^2 + coeff[1] * t + coeff[2]	
+ */	
 void SkQuadToCoeff(const SkPoint pts[3], SkPoint coeff[3]);
-
+  
 /**
  *  output is : eval(t) == coeff[0] * t^3 + coeff[1] * t^2 + coeff[2] * t + coeff[3]
  */
@@ -241,6 +245,7 @@ struct SkConic {
      */
     void evalAt(SkScalar t, SkPoint* pos, SkVector* tangent = nullptr) const;
     void chopAt(SkScalar t, SkConic dst[2]) const;
+    void chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const;
     void chop(SkConic dst[2]) const;
 
     SkPoint evalAt(SkScalar t) const;
@@ -286,6 +291,102 @@ struct SkConic {
     static int BuildUnitArc(const SkVector& start, const SkVector& stop, SkRotationDirection,
                             const SkMatrix*, SkConic conics[kMaxConicsForArc]);
 };
+
+// inline helpers are contained in a namespace to avoid external leakage to fragile SkNx members
+namespace {
+
+/**
+ *  use for : eval(t) == A * t^2 + B * t + C
+ */
+struct SkQuadCoeff {
+    SkQuadCoeff() {}
+
+    SkQuadCoeff(const Sk2s& A, const Sk2s& B, const Sk2s& C)
+        : fA(A)
+        , fB(B)
+        , fC(C)
+    {
+    }
+
+    SkQuadCoeff(const SkPoint src[3]) {
+        fC = from_point(src[0]);
+        Sk2s P1 = from_point(src[1]);
+        Sk2s P2 = from_point(src[2]);
+        fB = times_2(P1 - fC);
+        fA = P2 - times_2(P1) + fC;
+    }
+
+    Sk2s eval(SkScalar t) {
+        Sk2s tt(t);
+        return eval(tt);
+    }
+
+    Sk2s eval(const Sk2s& tt) {
+        return (fA * tt + fB) * tt + fC;
+    }
+
+    Sk2s fA;
+    Sk2s fB;
+    Sk2s fC;
+};
+
+struct SkConicCoeff {
+    SkConicCoeff(const SkConic& conic) {
+        Sk2s p0 = from_point(conic.fPts[0]);
+        Sk2s p1 = from_point(conic.fPts[1]);
+        Sk2s p2 = from_point(conic.fPts[2]);
+        Sk2s ww(conic.fW);
+
+        Sk2s p1w = p1 * ww;
+        fNumer.fC = p0;
+        fNumer.fA = p2 - times_2(p1w) + p0;
+        fNumer.fB = times_2(p1w - p0);
+
+        fDenom.fC = Sk2s(1);
+        fDenom.fB = times_2(ww - fDenom.fC);
+        fDenom.fA = Sk2s(0) - fDenom.fB;
+    }
+
+    Sk2s eval(SkScalar t) {
+        Sk2s tt(t);
+        Sk2s numer = fNumer.eval(tt);
+        Sk2s denom = fDenom.eval(tt);
+        return numer / denom;
+    }
+
+    SkQuadCoeff fNumer;
+    SkQuadCoeff fDenom;
+};
+
+struct SkCubicCoeff {
+    SkCubicCoeff(const SkPoint src[4]) {
+        Sk2s P0 = from_point(src[0]);
+        Sk2s P1 = from_point(src[1]);
+        Sk2s P2 = from_point(src[2]);
+        Sk2s P3 = from_point(src[3]);
+        Sk2s three(3);
+        fA = P3 + three * (P1 - P2) - P0;
+        fB = three * (P2 - times_2(P1) + P0);
+        fC = three * (P1 - P0);
+        fD = P0;
+    }
+
+    Sk2s eval(SkScalar t) {
+        Sk2s tt(t);
+        return eval(tt);
+    }
+
+    Sk2s eval(const Sk2s& t) {
+        return ((fA * t + fB) * t + fC) * t + fD;
+    }
+
+    Sk2s fA;
+    Sk2s fB;
+    Sk2s fC;
+    Sk2s fD;
+};
+
+}
 
 #include "SkTemplates.h"
 

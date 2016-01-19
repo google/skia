@@ -73,6 +73,15 @@ static bool quad_too_curvy(const SkPoint pts[3]) {
     return dist > CHEAP_DIST_LIMIT;
 }
 
+static bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
+                            const SkPoint& lastPt) {
+    SkPoint midEnds = firstPt + lastPt;
+    midEnds *= 0.5f;
+    SkVector dxy = midTPt - midEnds;
+    SkScalar dist = SkMaxScalar(SkScalarAbs(dxy.fX), SkScalarAbs(dxy.fY));
+    return dist > CHEAP_DIST_LIMIT;
+}
+
 static bool cheap_dist_exceeds_limit(const SkPoint& pt,
                                      SkScalar x, SkScalar y) {
     SkScalar dist = SkMaxScalar(SkScalarAbs(x - pt.fX), SkScalarAbs(y - pt.fY));
@@ -90,27 +99,57 @@ static bool cubic_too_curvy(const SkPoint pts[4]) {
                          SkScalarInterp(pts[0].fY, pts[3].fY, SK_Scalar1*2/3));
 }
 
-/* from http://www.malczak.linuxpl.com/blog/quadratic-bezier-curve-length/ */
-static SkScalar compute_quad_len(const SkPoint pts[3]) {
-     SkPoint a,b;
-     a.fX = pts[0].fX - 2 * pts[1].fX + pts[2].fX;
-     a.fY = pts[0].fY - 2 * pts[1].fY + pts[2].fY;
-     b.fX = 2 * (pts[1].fX - pts[0].fX);
-     b.fY = 2 * (pts[1].fY - pts[0].fY);
-     SkScalar A = 4 * (a.fX * a.fX + a.fY * a.fY);
-     SkScalar B = 4 * (a.fX * b.fX + a.fY * b.fY);
-     SkScalar C =      b.fX * b.fX + b.fY * b.fY;
-
-     SkScalar Sabc = 2 * SkScalarSqrt(A + B + C);
-     SkScalar A_2  = SkScalarSqrt(A);
-     SkScalar A_32 = 2 * A * A_2;
-     SkScalar C_2  = 2 * SkScalarSqrt(C);
-     SkScalar BA   = B / A_2;
-
-     return (A_32 * Sabc + A_2 * B * (Sabc - C_2) +
-            (4 * C * A - B * B) * SkScalarLog((2 * A_2 + BA + Sabc) / (BA + C_2))) / (4 * A_32);
+static SkScalar quad_folded_len(const SkPoint pts[3]) {
+    SkScalar t = SkFindQuadMaxCurvature(pts);
+    SkPoint pt = SkEvalQuadAt(pts, t);
+    SkVector a = pts[2] - pt;
+    SkScalar result = a.length();
+    if (0 != t) {
+        SkVector b = pts[0] - pt;
+        result += b.length();
+    }
+    SkASSERT(SkScalarIsFinite(result));
+    return result;
 }
 
+/* from http://www.malczak.linuxpl.com/blog/quadratic-bezier-curve-length/ */
+/* This works -- more needs to be done to see if it is performant on all platforms.
+   To use this to measure parts of quads requires recomputing everything -- perhaps
+   a chop-like interface can start from a larger measurement and get two new measurements
+   with one call here.
+ */
+static SkScalar compute_quad_len(const SkPoint pts[3]) {
+    SkPoint a,b;
+    a.fX = pts[0].fX - 2 * pts[1].fX + pts[2].fX;
+    a.fY = pts[0].fY - 2 * pts[1].fY + pts[2].fY;
+    SkScalar A = 4 * (a.fX * a.fX + a.fY * a.fY);
+    if (0 == A) {
+        a = pts[2] - pts[0];
+        return a.length();
+    }
+    b.fX = 2 * (pts[1].fX - pts[0].fX);
+    b.fY = 2 * (pts[1].fY - pts[0].fY);
+    SkScalar B = 4 * (a.fX * b.fX + a.fY * b.fY);
+    SkScalar C =      b.fX * b.fX + b.fY * b.fY;
+    SkScalar Sabc = 2 * SkScalarSqrt(A + B + C);
+    SkScalar A_2  = SkScalarSqrt(A);
+    SkScalar A_32 = 2 * A * A_2;
+    SkScalar C_2  = 2 * SkScalarSqrt(C);
+    SkScalar BA   = B / A_2;
+    if (0 == BA + C_2) {
+        return quad_folded_len(pts);
+    }
+    SkScalar J = A_32 * Sabc + A_2 * B * (Sabc - C_2);
+    SkScalar K = 4 * C * A - B * B;
+    SkScalar L = (2 * A_2 + BA + Sabc) / (BA + C_2);
+    if (L <= 0) {
+        return quad_folded_len(pts);
+    }
+    SkScalar M = SkScalarLog(L);
+    SkScalar result = (J + K * M) / (4 * A_32);
+    SkASSERT(SkScalarIsFinite(result));
+    return result;
+}
 
 SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
                           SkScalar distance, int mint, int maxt, int ptIndex) {
@@ -136,6 +175,7 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
     return distance;
 }
 
+#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
 SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic,
                                            SkScalar distance, int mint, int maxt, int ptIndex) {
     if (tspan_big_enough(maxt - mint) && quad_too_curvy(conic.fPts)) {
@@ -159,6 +199,30 @@ SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic,
     }
     return distance;
 }
+#else
+SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distance,
+                                           int mint, const SkPoint& minPt,
+                                           int maxt, const SkPoint& maxPt, int ptIndex) {
+    int halft = (mint + maxt) >> 1;
+    SkPoint halfPt = conic.evalAt(tValue2Scalar(halft));
+    if (tspan_big_enough(maxt - mint) && conic_too_curvy(minPt, halfPt, maxPt)) {
+        distance = this->compute_conic_segs(conic, distance, mint, minPt, halft, halfPt, ptIndex);
+        distance = this->compute_conic_segs(conic, distance, halft, halfPt, maxt, maxPt, ptIndex);
+    } else {
+        SkScalar d = SkPoint::Distance(minPt, maxPt);
+        SkScalar prevD = distance;
+        distance += d;
+        if (distance > prevD) {
+            Segment* seg = fSegments.append();
+            seg->fDistance = distance;
+            seg->fPtIndex = ptIndex;
+            seg->fType = kConic_SegType;
+            seg->fTValue = maxt;
+        }
+    }
+    return distance;
+}
+#endif
 
 SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
                            SkScalar distance, int mint, int maxt, int ptIndex) {
@@ -253,7 +317,12 @@ void SkPathMeasure::buildSegments() {
             case SkPath::kConic_Verb: {
                 const SkConic conic(pts, fIter.conicWeight());
                 SkScalar prevD = distance;
+#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
                 distance = this->compute_conic_segs(conic, distance, 0, kMaxTValue, ptIndex);
+#else
+                distance = this->compute_conic_segs(conic, distance, 0, conic.fPts[0],
+                                                    kMaxTValue, conic.fPts[2], ptIndex);
+#endif
                 if (distance > prevD) {
                     // we store the conic weight in our next point, followed by the last 2 pts
                     // thus to reconstitue a conic, you'd need to say
@@ -406,7 +475,8 @@ static void seg_to(const SkPoint pts[], int segType,
                     dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
                 }
             } else {
-                SkConic tmp1[2];
+#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
+                SkConic tmp1[2];	
                 conic.chopAt(startT, tmp1);
                 if (SK_Scalar1 == stopT) {
                     dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
@@ -415,6 +485,17 @@ static void seg_to(const SkPoint pts[], int segType,
                     tmp1[1].chopAt((stopT - startT) / (SK_Scalar1 - startT), tmp2);
                     dst->conicTo(tmp2[0].fPts[1], tmp2[0].fPts[2], tmp2[0].fW);
                 }
+#else
+                if (SK_Scalar1 == stopT) {
+                    SkConic tmp1[2];
+                    conic.chopAt(startT, tmp1);
+                    dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
+                } else {
+                    SkConic tmp;
+                    conic.chopAt(startT, stopT, &tmp);
+                    dst->conicTo(tmp.fPts[1], tmp.fPts[2], tmp.fW);
+                }
+#endif
             }
         } break;
         case kCubic_SegType:

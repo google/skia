@@ -9,18 +9,6 @@
 #include "SkMatrix.h"
 #include "SkNx.h"
 
-#if 0
-static Sk2s from_point(const SkPoint& point) {
-    return Sk2s::Load(&point.fX);
-}
-
-static SkPoint to_point(const Sk2s& x) {
-    SkPoint point;
-    x.store(&point.fX);
-    return point;
-}
-#endif
-
 static SkVector to_vector(const Sk2s& x) {
     SkVector vector;
     x.store(&vector.fX);
@@ -220,7 +208,7 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
 }
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
-    SkChopQuadAt(src, dst, 0.5f); return;
+    SkChopQuadAt(src, dst, 0.5f);
 }
 
 /** Quad'(t) = At + B, where
@@ -1246,8 +1234,34 @@ void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
     dst[1].fW = tmp2[2].fZ / root;
 }
 
-static Sk2s times_2(const Sk2s& value) {
-    return value + value;
+void SkConic::chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const {
+    if (0 == t1 || 1 == t2) {
+        if (0 == t1 && 1 == t2) {
+            *dst = *this;
+        } else {
+            SkConic pair[2];
+            this->chopAt(t1 ? t1 : t2, pair);
+            *dst = pair[SkToBool(t1)];
+        }
+        return;
+    }
+    SkConicCoeff coeff(*this);
+    Sk2s tt1(t1);
+    Sk2s aXY = coeff.fNumer.eval(tt1);
+    Sk2s aZZ = coeff.fDenom.eval(tt1);
+    Sk2s midTT((t1 + t2) / 2);
+    Sk2s dXY = coeff.fNumer.eval(midTT);
+    Sk2s dZZ = coeff.fDenom.eval(midTT);
+    Sk2s tt2(t2);
+    Sk2s cXY = coeff.fNumer.eval(tt2);
+    Sk2s cZZ = coeff.fDenom.eval(tt2);
+    Sk2s bXY = times_2(dXY) - (aXY + cXY) * Sk2s(0.5f);
+    Sk2s bZZ = times_2(dZZ) - (aZZ + cZZ) * Sk2s(0.5f);
+    dst->fPts[0] = to_point(aXY / aZZ);
+    dst->fPts[1] = to_point(bXY / bZZ);
+    dst->fPts[2] = to_point(cXY / cZZ);
+    Sk2s ww = bZZ / (aZZ * cZZ).sqrt();
+    dst->fW = ww.kth<0>();
 }
 
 SkPoint SkConic::evalAt(SkScalar t) const {

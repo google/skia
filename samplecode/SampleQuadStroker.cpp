@@ -9,6 +9,7 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
+#include "SkGeometry.h"
 #include "SkPathMeasure.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
@@ -122,6 +123,7 @@ class QuadStrokerView : public SampleView {
     bool fAnimate;
     bool fDrawRibs;
     bool fDrawTangents;
+    bool fDrawTDivs;
 #ifdef SK_DEBUG
     #define kStrokerErrorMin 0.001f
     #define kStrokerErrorMax 5
@@ -288,16 +290,84 @@ protected:
         SkScalar total = meas.getLength();
 
         SkScalar delta = 8;
-        SkPaint paint;
+        SkPaint paint, labelP;
         paint.setColor(color);
-
+        labelP.setColor(color & 0xff5f9f5f);
         SkPoint pos, tan;
+        int index = 0;
         for (SkScalar dist = 0; dist <= total; dist += delta) {
             if (meas.getPosTan(dist, &pos, &tan)) {
                 tan.scale(radius);
                 tan.rotateCCW();
                 canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
                                  pos.x() - tan.x(), pos.y() - tan.y(), paint);
+                if (0 == index % 10) {
+                    SkString label;
+                    label.appendS32(index);
+                    SkRect dot = SkRect::MakeXYWH(pos.x() - 2, pos.y() - 2, 4, 4);
+                    canvas->drawRect(dot, labelP);
+                    canvas->drawText(label.c_str(), label.size(),
+                        pos.x() - tan.x() * 1.25f, pos.y() - tan.y() * 1.25f, labelP);
+                }
+            }
+            ++index;
+        }
+    }
+
+    void draw_t_divs(SkCanvas* canvas, const SkPath& path, SkScalar width, SkColor color) {
+        const SkScalar radius = width / 2;
+        SkPaint paint;
+        paint.setColor(color);
+        SkPathMeasure meas(path, false);
+        SkScalar total = meas.getLength();
+        SkScalar delta = 8;
+        int ribs = 0;
+        for (SkScalar dist = 0; dist <= total; dist += delta) {
+            ++ribs;
+        }
+        SkPath::RawIter iter(path);
+        SkPoint pts[4];
+        if (SkPath::kMove_Verb != iter.next(pts)) {
+            SkASSERT(0);
+            return;
+        }
+        SkPath::Verb verb = iter.next(pts);
+        SkASSERT(SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb);
+        SkPoint pos, tan;
+        for (int index = 0; index < ribs; ++index) {
+            SkScalar t = (SkScalar) index / ribs;
+            switch (verb) {
+                case SkPath::kLine_Verb:
+                    tan = pts[1] - pts[0];
+                    pos = pts[0];
+                    pos.fX += tan.fX * t;
+                    pos.fY += tan.fY * t;
+                    break;
+                case SkPath::kQuad_Verb:
+                    pos = SkEvalQuadAt(pts, t);
+                    tan = SkEvalQuadTangentAt(pts, t);
+                    break;
+                case SkPath::kConic_Verb: {
+                    SkConic conic(pts, iter.conicWeight());
+                    pos = conic.evalAt(t);
+                    tan = conic.evalTangentAt(t);
+                    } break;
+                case SkPath::kCubic_Verb:
+                    SkEvalCubicAt(pts, t, &pos, &tan, nullptr);
+                    break;
+                default:
+                    SkASSERT(0);
+                    return;
+            }
+            tan.setLength(radius);
+            tan.rotateCCW();
+            canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
+                                pos.x() - tan.x(), pos.y() - tan.y(), paint);
+            if (0 == index % 10) {
+                SkString label;
+                label.appendS32(index);
+                canvas->drawText(label.c_str(), label.size(),
+                    pos.x() + tan.x() * 1.25f, pos.y() + tan.y() * 1.25f, paint);
             }
         }
     }
@@ -341,6 +411,10 @@ protected:
 
         if (fDrawRibs) {
             draw_ribs(canvas, scaled, width, 0xFF00FF00);
+        }
+
+        if (fDrawTDivs) {
+            draw_t_divs(canvas, scaled, width, 0xFF3F3F00);
         }
 
         SkPath fill;
@@ -428,17 +502,24 @@ protected:
     void setForGeometry() {
         fDrawRibs = true;
         fDrawTangents = true;
+        fDrawTDivs = false;
         fWidthScale = 1;
     }
 
     void setForText() {
-        fDrawRibs = fDrawTangents = false;
+        fDrawRibs = fDrawTangents = fDrawTDivs = false;
         fWidthScale = 0.002f;
     }
 
+    void setForSingles() {
+        setForGeometry();
+        fDrawTDivs = true;
+    }
+
     void setAsNeeded() {
-        if (fConicButton.fEnabled || fCubicButton.fEnabled || fQuadButton.fEnabled
-                || fRRectButton.fEnabled || fCircleButton.fEnabled) {
+        if (fConicButton.fEnabled || fCubicButton.fEnabled || fQuadButton.fEnabled) {
+            setForSingles();
+        } else if (fRRectButton.fEnabled || fCircleButton.fEnabled) {
             setForGeometry();
         } else {
             setForText();
@@ -452,14 +533,15 @@ protected:
         if (fCubicButton.fEnabled) {
             path.moveTo(fPts[0]);
             path.cubicTo(fPts[1], fPts[2], fPts[3]);
-            setForGeometry();
+            setForSingles();
             draw_stroke(canvas, path, width, 950, false);
         }
 
         if (fConicButton.fEnabled) {
+            path.reset();
             path.moveTo(fPts[4]);
             path.conicTo(fPts[5], fPts[6], fWeight);
-            setForGeometry();
+            setForSingles();
             draw_stroke(canvas, path, width, 950, false);
         }
 
@@ -467,7 +549,7 @@ protected:
             path.reset();
             path.moveTo(fPts[7]);
             path.quadTo(fPts[8], fPts[9]);
-            setForGeometry();
+            setForSingles();
             draw_stroke(canvas, path, width, 950, false);
         }
 
