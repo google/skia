@@ -20,7 +20,7 @@ public:
      */
     enum SrcConfig {
         kUnknown,  // Invalid type.
-        kBit,      // A single bit to distinguish between white and black
+        kBit,      // A single bit to distinguish between white and black.
         kGray,
         kIndex1,
         kIndex2,
@@ -28,12 +28,13 @@ public:
         kIndex,
         kRGB,
         kBGR,
-        kRGBX,
-        kBGRX,
+        kBGRX,     // The alpha channel can be anything, but the image is opaque.
         kRGBA,
         kBGRA,
-        kRGB_565,
         kCMYK,
+        kNoOp8,    // kNoOp modes are used exclusively for sampling, subsetting, and
+        kNoOp16,   // copying.  The pixels themselves do not need to be modified.
+        kNoOp32,
     };
 
     /*
@@ -52,17 +53,18 @@ public:
                 return 4;
             case kGray:
             case kIndex:
+            case kNoOp8:
                 return 8;
-            case kRGB_565:
+            case kNoOp16:
                 return 16;
             case kRGB:
             case kBGR:
                 return 24;
-            case kRGBX:
             case kRGBA:
             case kBGRX:
             case kBGRA:
             case kCMYK:
+            case kNoOp32:
                 return 32;
             default:
                 SkASSERT(false);

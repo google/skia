@@ -329,18 +329,17 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     if (JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
         srcConfig = SkSwizzler::kCMYK;
     } else {
+        // If the out_color_space is not CMYK, the only reason we would need a swizzler is
+        // for sampling and/or subsetting.
         switch (dstInfo.colorType()) {
             case kGray_8_SkColorType:
-                srcConfig = SkSwizzler::kGray;
+                srcConfig = SkSwizzler::kNoOp8;
                 break;
-            case kRGBA_8888_SkColorType:
-                srcConfig = SkSwizzler::kRGBX;
-                break;
-            case kBGRA_8888_SkColorType:
-                srcConfig = SkSwizzler::kBGRX;
+            case kN32_SkColorType:
+                srcConfig = SkSwizzler::kNoOp32;
                 break;
             case kRGB_565_SkColorType:
-                srcConfig = SkSwizzler::kRGB_565;
+                srcConfig = SkSwizzler::kNoOp16;
                 break;
             default:
                 // This function should only be called if the colorType is supported by jpeg

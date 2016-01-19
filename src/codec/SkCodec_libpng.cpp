@@ -313,8 +313,6 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
                 png_set_tRNS_to_alpha(png_ptr);
                 skAlphaType = kUnpremul_SkAlphaType;
             } else {
-                //convert to RGBA with Opaque Alpha 
-                png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
                 skAlphaType = kOpaque_SkAlphaType;
             }
             skColorType = kN32_SkColorType;
@@ -427,7 +425,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
             break; 
         case kN32_SkColorType:
             if (this->getInfo().alphaType() == kOpaque_SkAlphaType) {
-                    fSrcConfig = SkSwizzler::kRGBX;
+                    fSrcConfig = SkSwizzler::kRGB;
                 } else {
                     fSrcConfig = SkSwizzler::kRGBA;
             }
