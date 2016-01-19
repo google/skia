@@ -68,14 +68,26 @@ SkImageFilter* SkAlphaThresholdFilter::Create(const SkRegion& region,
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
+namespace {
+
+SkMatrix make_div_and_translate_matrix(GrTexture* texture, int x, int y) {
+    SkMatrix matrix = GrCoordTransform::MakeDivByTextureWHMatrix(texture);
+    matrix.preTranslate(SkIntToScalar(x), SkIntToScalar(y));
+    return matrix;
+}
+
+};
+
 class AlphaThresholdEffect : public GrFragmentProcessor {
 
 public:
     static GrFragmentProcessor* Create(GrTexture* texture,
                                        GrTexture* maskTexture,
                                        float innerThreshold,
-                                       float outerThreshold) {
-        return new AlphaThresholdEffect(texture, maskTexture, innerThreshold, outerThreshold);
+                                       float outerThreshold,
+                                       const SkIRect& bounds) {
+        return new AlphaThresholdEffect(texture, maskTexture, innerThreshold, outerThreshold,
+                                        bounds);
     }
 
     virtual ~AlphaThresholdEffect() {};
@@ -89,7 +101,8 @@ private:
     AlphaThresholdEffect(GrTexture* texture,
                          GrTexture* maskTexture,
                          float innerThreshold,
-                         float outerThreshold)
+                         float outerThreshold,
+                         const SkIRect& bounds)
         : fInnerThreshold(innerThreshold)
         , fOuterThreshold(outerThreshold)
         , fImageCoordTransform(kLocal_GrCoordSet,
@@ -97,7 +110,8 @@ private:
                                GrTextureParams::kNone_FilterMode)
         , fImageTextureAccess(texture)
         , fMaskCoordTransform(kLocal_GrCoordSet,
-                              GrCoordTransform::MakeDivByTextureWHMatrix(maskTexture), maskTexture,
+                              make_div_and_translate_matrix(maskTexture, -bounds.x(), -bounds.y()),
+                              maskTexture,
                               GrTextureParams::kNone_FilterMode)
         , fMaskTextureAccess(maskTexture) {
         this->initClassID<AlphaThresholdEffect>();
@@ -205,7 +219,14 @@ const GrFragmentProcessor* AlphaThresholdEffect::TestCreate(GrProcessorTestData*
     GrTexture* maskTex = d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx];
     float innerThresh = d->fRandom->nextUScalar1();
     float outerThresh = d->fRandom->nextUScalar1();
-    return AlphaThresholdEffect::Create(bmpTex, maskTex, innerThresh, outerThresh);
+    const int kMaxWidth = 1000;
+    const int kMaxHeight = 1000;
+    uint32_t width = d->fRandom->nextULessThan(kMaxWidth);
+    uint32_t height = d->fRandom->nextULessThan(kMaxHeight);
+    uint32_t x = d->fRandom->nextULessThan(kMaxWidth - width);
+    uint32_t y = d->fRandom->nextULessThan(kMaxHeight - height);
+    SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
+    return AlphaThresholdEffect::Create(bmpTex, maskTex, innerThresh, outerThresh, bounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -260,7 +281,7 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
                                                      GrTexture* texture,
                                                      const SkMatrix& inMatrix,
-                                                     const SkIRect&) const {
+                                                     const SkIRect& bounds) const {
     if (fp) {
         GrContext* context = texture->getContext();
         GrSurfaceDesc maskDesc;
@@ -272,8 +293,8 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
         maskDesc.fFlags = kRenderTarget_GrSurfaceFlag;
         // Add one pixel of border to ensure that clamp mode will be all zeros
         // the outside.
-        maskDesc.fWidth = texture->width();
-        maskDesc.fHeight = texture->height();
+        maskDesc.fWidth = bounds.width();
+        maskDesc.fHeight = bounds.height();
         SkAutoTUnref<GrTexture> maskTexture(
             context->textureProvider()->createApproxTexture(maskDesc));
         if (!maskTexture) {
@@ -288,9 +309,10 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
             SkRegion::Iterator iter(fRegion);
             drawContext->clear(nullptr, 0x0, true);
 
+            GrClip clip(SkRect::Make(SkIRect::MakeWH(bounds.width(), bounds.height())));
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());
-                drawContext->drawRect(GrClip::WideOpen(), grPaint, inMatrix, rect);
+                drawContext->drawRect(clip, grPaint, inMatrix, rect);
                 iter.next();
             }
         }
@@ -298,7 +320,8 @@ bool SkAlphaThresholdFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
         *fp = AlphaThresholdEffect::Create(texture,
                                            maskTexture,
                                            fInnerThreshold,
-                                           fOuterThreshold);
+                                           fOuterThreshold,
+                                           bounds);
     }
     return true;
 }
