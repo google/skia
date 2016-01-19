@@ -87,6 +87,8 @@
             '../third_party/externals/libwebp/src/dsp/rescaler.c',
             '../third_party/externals/libwebp/src/dsp/rescaler_mips32.c',
             '../third_party/externals/libwebp/src/dsp/rescaler_mips_dsp_r2.c',
+            '../third_party/externals/libwebp/src/dsp/rescaler_neon.c',
+            '../third_party/externals/libwebp/src/dsp/rescaler_sse2.c',
             '../third_party/externals/libwebp/src/dsp/upsampling.c',
             '../third_party/externals/libwebp/src/dsp/upsampling_mips_dsp_r2.c',
             '../third_party/externals/libwebp/src/dsp/upsampling_sse2.c',
