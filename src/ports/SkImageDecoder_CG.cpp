@@ -10,6 +10,7 @@
 
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
+#include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkMovie.h"
@@ -28,17 +29,19 @@
 #include <MobileCoreServices/MobileCoreServices.h>
 #endif
 
-static void malloc_release_proc(void* info, const void* data, size_t size) {
-    sk_free(info);
+static void data_unref_proc(void* skdata, const void*, size_t) {
+    SkASSERT(skdata);
+    static_cast<SkData*>(skdata)->unref();
 }
 
 static CGDataProviderRef SkStreamToDataProvider(SkStream* stream) {
     // TODO: use callbacks, so we don't have to load all the data into RAM
-    SkAutoMalloc storage;
-    const size_t len = SkCopyStreamToStorage(&storage, stream);
-    void* data = storage.detach();
+    SkData* skdata = SkCopyStreamToData(stream);
+    if (!skdata) {
+        return nullptr;
+    }
 
-    return CGDataProviderCreateWithData(data, data, len, malloc_release_proc);
+    return CGDataProviderCreateWithData(skdata, skdata->data(), skdata->size(), data_unref_proc);
 }
 
 static CGImageSourceRef SkStreamToCGImageSource(SkStream* stream) {

@@ -6,6 +6,7 @@
  */
 
 #include "SkColorPriv.h"
+#include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
@@ -74,14 +75,18 @@ static int calculateRowBytesFor8888(int w, int bitCount)
 
 SkImageDecoder::Result SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
 {
-    SkAutoMalloc autoMal;
-    const size_t length = SkCopyStreamToStorage(&autoMal, stream);
+    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+    if (!data) {
+        return kFailure;
+    }
+
+    const size_t length = data->size();
     // Check that the buffer is large enough to read the directory header
     if (length < 6) {
         return kFailure;
     }
 
-    unsigned char* buf = (unsigned char*)autoMal.get();
+    unsigned char* buf = (unsigned char*) data->data();
 
     //these should always be the same - should i use for error checking? - what about files that have some
     //incorrect values, but still decode properly?

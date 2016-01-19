@@ -6,6 +6,7 @@
  */
 
 #include "SkColorPriv.h"
+#include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
@@ -33,13 +34,12 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////////
 
 SkImageDecoder::Result SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
-    SkAutoMalloc autoMal;
-    const size_t length = SkCopyStreamToStorage(&autoMal, stream);
-    if (0 == length) {
+    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+    if (!data || !data->size()) {
         return kFailure;
     }
 
-    unsigned char* buf = (unsigned char*)autoMal.get();
+    unsigned char* buf = (unsigned char*) data->data();
 
     // Make sure original PKM header is there...
     SkASSERT(etc1_pkm_is_valid(buf));
