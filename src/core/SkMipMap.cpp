@@ -8,6 +8,7 @@
 #include "SkMipMap.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkNx.h"
 
 //
 // ColorTypeFilter is the "Type" we pass to some downsample template functions.
@@ -18,12 +19,23 @@
 
 struct ColorTypeFilter_8888 {
     typedef uint32_t Type;
+#if defined(SKNX_IS_FAST)
+    static Sk4h Expand(uint32_t x) {
+        return SkNx_cast<uint16_t>(Sk4b::Load((const uint8_t*)&x));
+    }
+    static uint32_t Compact(const Sk4h& x) {
+        uint32_t r;
+        SkNx_cast<uint8_t>(x).store((uint8_t*)&r);
+        return r;
+    }
+#else
     static uint64_t Expand(uint32_t x) {
         return (x & 0xFF00FF) | ((uint64_t)(x & 0xFF00FF00) << 24);
     }
     static uint32_t Compact(uint64_t x) {
         return (uint32_t)((x & 0xFF00FF) | ((x >> 24) & 0xFF00FF00));
     }
+#endif
 };
 
 struct ColorTypeFilter_565 {
@@ -56,7 +68,7 @@ struct ColorTypeFilter_8 {
     }
 };
 
-template <typename T> T add_121(T a, T b, T c) {
+template <typename T> T add_121(const T& a, const T& b, const T& c) {
     return a + b + b + c;
 }
 
@@ -93,7 +105,7 @@ template <typename F> void downsample_3_2(void* dst, const void* src, size_t src
     auto p0 = static_cast<const typename F::Type*>(src);
     auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
     auto d = static_cast<typename F::Type*>(dst);
-    
+
     auto c02 = F::Expand(p0[0]);
     auto c12 = F::Expand(p1[0]);
     for (int i = 0; i < count; ++i) {
@@ -116,7 +128,7 @@ template <typename F> void downsample_2_3(void* dst, const void* src, size_t src
     auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
     auto p2 = (const typename F::Type*)((const char*)p1 + srcRB);
     auto d = static_cast<typename F::Type*>(dst);
-    
+
     for (int i = 0; i < count; ++i) {
         auto c00 = F::Expand(p0[0]);
         auto c01 = F::Expand(p0[1]);
