@@ -124,12 +124,12 @@ public:
     PixmapScalerBench(SkBitmapScaler::ResizeMethod method, const char suffix[]) : fMethod(method) {
         fName.printf("pixmapscaler_%s", suffix);
     }
-    
+
 protected:
     const char* onGetName() override {
         return fName.c_str();
     }
-    
+
     SkIPoint onGetSize() override { return{ 100, 100 }; }
 
     bool isSuitableFor(Backend backend) override {
@@ -138,9 +138,10 @@ protected:
 
     void onDelayedSetup() override {
         fSrc.allocN32Pixels(640, 480);
+        fSrc.eraseColor(SK_ColorWHITE);
         fDst.allocN32Pixels(300, 250);
     }
-    
+
     void onDraw(int loops, SkCanvas*) override {
         SkPixmap src, dst;
         fSrc.peekPixels(&src);
