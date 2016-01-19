@@ -73,6 +73,7 @@ static bool quad_too_curvy(const SkPoint pts[3]) {
     return dist > CHEAP_DIST_LIMIT;
 }
 
+#ifndef SK_SUPPORT_LEGACY_CONIC_MEASURE
 static bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
                             const SkPoint& lastPt) {
     SkPoint midEnds = firstPt + lastPt;
@@ -81,6 +82,7 @@ static bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
     SkScalar dist = SkMaxScalar(SkScalarAbs(dxy.fX), SkScalarAbs(dxy.fY));
     return dist > CHEAP_DIST_LIMIT;
 }
+#endif
 
 static bool cheap_dist_exceeds_limit(const SkPoint& pt,
                                      SkScalar x, SkScalar y) {
