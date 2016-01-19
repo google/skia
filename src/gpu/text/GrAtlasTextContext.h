@@ -55,11 +55,6 @@ private:
     typedef Run::SubRunInfo PerSubRunInfo;
 
     inline bool canDrawAsDistanceFields(const SkPaint&, const SkMatrix& viewMatrix);
-    GrAtlasTextBlob* setupDFBlob(int glyphCount, const SkPaint& origPaint,
-                                 const SkMatrix& viewMatrix, SkPaint* dfPaint, 
-                                 SkScalar* textRatio);
-    void bmpAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, int left, int top,
-                        GrColor color, GrFontScaler*);
     bool dfAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, SkScalar sx, SkScalar sy,
                        GrColor color, GrFontScaler*, SkScalar textRatio,
                        const SkMatrix& viewMatrix);
@@ -77,24 +72,20 @@ private:
                             const SkPaint&,
                             GrColor color, const SkMatrix& viewMatrix,
                             const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y,
-                            SkScalar textRatio, const SkPaint& origPaint);
+                            SkScalar x, SkScalar y);
     void internalDrawDFPosText(GrAtlasTextBlob*, int runIndex,
                                const SkPaint&,
                                GrColor color, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
-                               const SkPoint& offset,
-                               SkScalar textRatio,
-                               const SkPaint& origPaint);
+                               const SkPoint& offset);
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,
                             const SkMatrix& viewMatrix,
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
-                            SkDrawFilter* drawFilter,
-                            const GrClip&);
+                            SkDrawFilter* drawFilter);
     inline static bool HasLCD(const SkTextBlob*);
     inline void initDistanceFieldPaint(GrAtlasTextBlob*, SkPaint*, SkScalar* textRatio,
                                        const SkMatrix&);

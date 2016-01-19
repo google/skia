@@ -290,6 +290,14 @@ public:
         }
     }
 
+    // sets the last subrun of runIndex to use distance field text
+    void setSubRunHasDistanceFields(int runIndex, bool hasLCD) {
+        Run& run = fRuns[runIndex];
+        Run::SubRunInfo& subRun = run.fSubRunInfo.back();
+        subRun.setUseLCDText(hasLCD);
+        subRun.setDrawAsDistanceFields();
+    }
+
     SkGlyphCache* setupCache(int runIndex,
                              const SkSurfaceProps& props,
                              const SkPaint& skPaint,

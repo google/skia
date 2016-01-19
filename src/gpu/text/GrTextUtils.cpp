@@ -35,6 +35,9 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
         return;
     }
 
+    // Ensure the blob is set for bitmaptext
+    blob->setHasBitmap();
+
     GrBatchTextStrike* currStrike = nullptr;
 
     // Get GrFontScaler from cache
@@ -72,6 +75,9 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
     if (text == nullptr || byteLength == 0) {
         return;
     }
+
+    // Ensure the blob is set for bitmaptext
+    blob->setHasBitmap();
 
     GrBatchTextStrike* currStrike = nullptr;
 
