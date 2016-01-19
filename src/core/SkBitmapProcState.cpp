@@ -173,9 +173,13 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         if (fInvMatrix.invert(&forward)) {
             if (clampClamp ? just_trans_clamp(forward, fPixmap)
                            : just_trans_general(forward)) {
+#ifdef SK_SUPPORT_LEGACY_TRANSLATEROUNDHACK
                 SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
                 SkScalar ty = -SkScalarRoundToScalar(forward.getTranslateY());
                 fInvMatrix.setTranslate(tx, ty);
+#else
+                fInvMatrix.setTranslate(-forward.getTranslateX(), -forward.getTranslateY());
+#endif
             }
         }
     }
