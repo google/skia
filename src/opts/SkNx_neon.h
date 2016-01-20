@@ -230,45 +230,6 @@ public:
     float32x4_t fVec;
 };
 
-// It's possible that for our current use cases, representing this as
-// half a uint16x8_t might be better than representing it as a uint16x4_t.
-// It'd make conversion to Sk4b one step simpler.
-template <>
-class SkNx<4, uint16_t> {
-public:
-    SkNx(const uint16x4_t& vec) : fVec(vec) {}
-
-    SkNx() {}
-    SkNx(uint16_t val) : fVec(vdup_n_u16(val)) {}
-    static SkNx Load(const uint16_t vals[4]) { return vld1_u16(vals); }
-
-    SkNx(uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
-        fVec = (uint16x4_t) { a,b,c,d };
-    }
-
-    void store(uint16_t vals[4]) const { vst1_u16(vals, fVec); }
-
-    SkNx operator + (const SkNx& o) const { return vadd_u16(fVec, o.fVec); }
-    SkNx operator - (const SkNx& o) const { return vsub_u16(fVec, o.fVec); }
-    SkNx operator * (const SkNx& o) const { return vmul_u16(fVec, o.fVec); }
-
-    SkNx operator << (int bits) const { SHIFT16(vshl_n_u16, fVec, bits); }
-    SkNx operator >> (int bits) const { SHIFT16(vshr_n_u16, fVec, bits); }
-
-    static SkNx Min(const SkNx& a, const SkNx& b) { return vmin_u16(a.fVec, b.fVec); }
-
-    template <int k> uint16_t kth() const {
-        SkASSERT(0 <= k && k < 4);
-        return vget_lane_u16(fVec, k&3);
-    }
-
-    SkNx thenElse(const SkNx& t, const SkNx& e) const {
-        return vbsl_u16(fVec, t.fVec, e.fVec);
-    }
-
-    uint16x4_t fVec;
-};
-
 template <>
 class SkNx<8, uint16_t> {
 public:
@@ -388,14 +349,6 @@ static inline void Sk4f_ToBytes(uint8_t bytes[16],
                                       (uint8x16_t)vcvtq_u32_f32(b.fVec)).val[0],
                              vuzpq_u8((uint8x16_t)vcvtq_u32_f32(c.fVec),
                                       (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0]);
-}
-
-template<> inline Sk4h SkNx_cast<uint16_t, uint8_t, 4>(const Sk4b& src) {
-    return vget_low_u16(vmovl_u8(src.fVec));
-}
-
-template<> inline Sk4b SkNx_cast<uint8_t, uint16_t, 4>(const Sk4h& src) {
-    return vmovn_u16(vcombine_u16(src.fVec, src.fVec));
 }
 
 }  // namespace
