@@ -54,32 +54,6 @@ private:
     typedef GrAtlasTextBlob::Run Run;
     typedef Run::SubRunInfo PerSubRunInfo;
 
-    inline bool canDrawAsDistanceFields(const SkPaint&, const SkMatrix& viewMatrix);
-    bool dfAppendGlyph(GrAtlasTextBlob*, int runIndex, const SkGlyph&, SkScalar sx, SkScalar sy,
-                       GrColor color, GrFontScaler*, SkScalar textRatio,
-                       const SkMatrix& viewMatrix);
-
-    // A helper for drawing BitmapText in a run of distance fields
-    inline void fallbackDrawPosText(GrAtlasTextBlob*, int runIndex,
-                                    GrColor color,
-                                    const SkPaint&, const SkMatrix& viewMatrix,
-                                    const SkTDArray<char>& fallbackTxt,
-                                    const SkTDArray<SkScalar>& fallbackPos,
-                                    int scalarsPerPosition,
-                                    const SkPoint& offset);
-
-    void internalDrawDFText(GrAtlasTextBlob*, int runIndex,
-                            const SkPaint&,
-                            GrColor color, const SkMatrix& viewMatrix,
-                            const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y);
-    void internalDrawDFPosText(GrAtlasTextBlob*, int runIndex,
-                               const SkPaint&,
-                               GrColor color, const SkMatrix& viewMatrix,
-                               const char text[], size_t byteLength,
-                               const SkScalar pos[], int scalarsPerPosition,
-                               const SkPoint& offset);
-
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,
@@ -87,8 +61,6 @@ private:
                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                             SkDrawFilter* drawFilter);
     inline static bool HasLCD(const SkTextBlob*);
-    inline void initDistanceFieldPaint(GrAtlasTextBlob*, SkPaint*, SkScalar* textRatio,
-                                       const SkMatrix&);
 
     // Test methods
     // TODO this is really ugly.  It'd be much nicer if positioning could be moved to batch

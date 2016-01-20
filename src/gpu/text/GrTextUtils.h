@@ -18,6 +18,7 @@ class GrClip;
 class GrContext;
 class GrDrawContext;
 class GrFontScaler;
+class GrShaderCaps;
 class SkGlyph;
 class SkMatrix;
 struct SkIRect;
@@ -48,6 +49,24 @@ public:
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset);
 
+    // functions for appending distance field text
+    static bool CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                                        const SkSurfaceProps& props, const GrShaderCaps& caps);
+
+    static void DrawDFText(GrAtlasTextBlob* blob, int runIndex,
+                           GrBatchFontCache*, const SkSurfaceProps&,
+                           const SkPaint& skPaint, GrColor color,
+                           const SkMatrix& viewMatrix,
+                           const char text[], size_t byteLength,
+                           SkScalar x, SkScalar y);
+
+    static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
+                              GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
+                              GrColor color, const SkMatrix& viewMatrix,
+                              const char text[], size_t byteLength,
+                              const SkScalar pos[], int scalarsPerPosition,
+                              const SkPoint& offset);
+
     // Functions for drawing text as paths
     static void DrawTextAsPath(GrContext*, GrDrawContext*, const GrClip& clip,
                                const SkPaint& origPaint, const SkMatrix& viewMatrix,
@@ -63,9 +82,20 @@ public:
                                   const SkScalar pos[], int scalarsPerPosition,
                                   const SkPoint& offset, const SkIRect& clipBounds);
 private:
+    static void InitDistanceFieldPaint(GrAtlasTextBlob* blob,
+                                       SkPaint* skPaint,
+                                       SkScalar* textRatio,
+                                       const SkMatrix& viewMatrix);
+
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrBatchFontCache*,
                                GrBatchTextStrike**, const SkGlyph&, int left, int top,
                                GrColor color, GrFontScaler*);
+
+    static bool DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrBatchFontCache*,
+                              GrBatchTextStrike**, const SkGlyph&,
+                              SkScalar sx, SkScalar sy, GrColor color,
+                              GrFontScaler* scaler,
+                              SkScalar textRatio, const SkMatrix& viewMatrix);
 };
 
 #endif

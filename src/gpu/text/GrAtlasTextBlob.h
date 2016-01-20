@@ -298,6 +298,15 @@ public:
         subRun.setDrawAsDistanceFields();
     }
 
+    // inits the override descriptor on the current run.  All following subruns must use this
+    // descriptor
+    void initOverride(int runIndex) {
+        Run& run = fRuns[runIndex];
+        // Push back a new subrun to fill and set the override descriptor
+        run.push_back();
+        run.fOverrideDescriptor.reset(new SkAutoDescriptor);
+    }
+
     SkGlyphCache* setupCache(int runIndex,
                              const SkSurfaceProps& props,
                              const SkPaint& skPaint,
