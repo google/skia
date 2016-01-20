@@ -63,7 +63,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
     subRun->setMaskFormat(format);
 
-    run.fVertexBounds.joinNonEmptyArg(positions);
+    subRun->joinGlyphBounds(positions);
     subRun->setColor(color);
 
     intptr_t vertex = reinterpret_cast<intptr_t>(this->fVertices + subRun->vertexEndIndex());
@@ -218,7 +218,6 @@ bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
         (*outTransX) = x - fX;
         (*outTransY) = y - fY;
     }
-
 
     // If we can reuse the blob, then make sure we update the blob's viewmatrix, and x/y
     // offsets.  Note, we offset the vertex bounds right before flushing
@@ -383,7 +382,6 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
                                   drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
-        fRuns[run].fVertexBounds.offset(transX, transY);
         this->flushRun(dc, &pipelineBuilder, run, color,
                        transX, transY, skPaint, props,
                        distanceAdjustTable, context->getBatchFontCache());
