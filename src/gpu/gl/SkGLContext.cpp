@@ -78,9 +78,13 @@ void SkGLContext::makeCurrent() const {
 }
 
 void SkGLContext::swapBuffers() {
+    this->onPlatformSwapBuffers();
+}
+
+void SkGLContext::waitOnSyncOrSwap() {
     if (!fFenceSync) {
         // Fallback on the platform SwapBuffers method for synchronization. This may have no effect.
-        this->onPlatformSwapBuffers();
+        this->swapBuffers();
         return;
     }
 

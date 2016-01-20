@@ -52,6 +52,8 @@ public:
      */
     virtual GrGLuint eglImageToExternalTexture(GrEGLImage) const { return 0; }
 
+    void swapBuffers();
+
     /**
      * The only purpose of this function it to provide a means of scheduling
      * work on the GPU (since all of the subclasses create primary buffers for
@@ -65,7 +67,7 @@ public:
      * not perform some sort of synchronization, depending on whether the
      * drawing surface provided by the platform is double buffered.
      */
-    void swapBuffers();
+    void waitOnSyncOrSwap();
 
     /**
      * This notifies the context that we are deliberately testing abandoning

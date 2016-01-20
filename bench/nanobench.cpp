@@ -156,7 +156,7 @@ struct GPUTarget : public Target {
     void endTiming() override {
         if (this->gl) {
             SK_GL(*this->gl, Flush());
-            this->gl->swapBuffers();
+            this->gl->waitOnSyncOrSwap();
         }
     }
     void fence() override {
