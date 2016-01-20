@@ -1301,13 +1301,16 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar 
         return;
     }
 
-    SkScalar dist = SkScalarMulDiv(radius, SK_Scalar1 - cosh, sinh);
-    if (dist < 0) {
-        dist = -dist;
-    }
+    SkScalar dist = SkScalarAbs(SkScalarMulDiv(radius, SK_Scalar1 - cosh, sinh));
 
     SkScalar xx = x1 - SkScalarMul(dist, before.fX);
     SkScalar yy = y1 - SkScalarMul(dist, before.fY);
+#ifndef SK_SUPPORT_LEGACY_ARCTO
+    after.setLength(dist);
+    this->lineTo(xx, yy);
+    SkScalar weight = SkScalarSqrt(SK_ScalarHalf + cosh * SK_ScalarHalf);
+    this->conicTo(x1, y1, x1 + after.fX, y1 + after.fY, weight);
+#else
     SkRotationDirection arcDir;
 
     // now turn before/after into normals
@@ -1336,6 +1339,7 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar 
     for (int i = 1; i < count; i += 2) {
         this->quadTo(pts[i], pts[i+1]);
     }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

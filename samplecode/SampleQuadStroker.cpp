@@ -77,7 +77,10 @@ static void getContourCounts(const SkPath& path, SkTArray<int>* contourCounts) {
 }
 
 static void erase(SkSurface* surface) {
-    surface->getCanvas()->clear(SK_ColorTRANSPARENT);
+    SkCanvas* canvas = surface->getCanvas();
+    if (canvas) {
+        canvas->clear(SK_ColorTRANSPARENT);
+    }
 }
 
 struct StrokeTypeButton {
@@ -97,10 +100,11 @@ class QuadStrokerView : public SampleView {
     };
 
     enum {
-        kCount = 15
+        kCount = 18
     };
     SkPoint fPts[kCount];
     SkRect fWeightControl;
+    SkRect fRadiusControl;
     SkRect fErrorControl;
     SkRect fWidthControl;
     SkRect fBounds;
@@ -111,12 +115,14 @@ class QuadStrokerView : public SampleView {
     StrokeTypeButton fCubicButton;
     StrokeTypeButton fConicButton;
     StrokeTypeButton fQuadButton;
+    StrokeTypeButton fArcButton;
     StrokeTypeButton fRRectButton;
     CircleTypeButton fCircleButton;
     StrokeTypeButton fTextButton;
     SkString fText;
     SkScalar fTextSize;
     SkScalar fWeight;
+    SkScalar fRadius;
     SkScalar fWidth, fDWidth;
     SkScalar fWidthScale;
     int fW, fH, fZoom;
@@ -147,32 +153,39 @@ public:
         fPts[8].set(150, 200);
         fPts[9].set(250, 150);
 
-        fPts[10].set(200, 200); // rrect
-        fPts[11].set(400, 400);
+        fPts[10].set(250, 200);  // arc
+        fPts[11].set(250, 300);
+        fPts[12].set(150, 350);
 
-        fPts[12].set(250, 250);  // oval
-        fPts[13].set(450, 450);
+        fPts[13].set(200, 200); // rrect
+        fPts[14].set(400, 400);
+
+        fPts[15].set(250, 250);  // oval
+        fPts[16].set(450, 450);
 
         fText = "a";
         fTextSize = 12;
         fWidth = 50;
         fDWidth = 0.25f;
         fWeight = 1;
+        fRadius = 150;
 
         fCubicButton.fLabel = 'C';
         fCubicButton.fEnabled = false;
         fConicButton.fLabel = 'K';
-        fConicButton.fEnabled = true;
+        fConicButton.fEnabled = false;
         fQuadButton.fLabel = 'Q';
         fQuadButton.fEnabled = false;
+        fArcButton.fLabel = 'A';
+        fArcButton.fEnabled = true;
         fRRectButton.fLabel = 'R';
         fRRectButton.fEnabled = false;
         fCircleButton.fLabel = 'O';
-        fCircleButton.fEnabled = false;
-        fCircleButton.fFill = false;
+        fCircleButton.fEnabled = true;
+        fCircleButton.fFill = true;
         fTextButton.fLabel = 'T';
         fTextButton.fEnabled = false;
-        fAnimate = true;
+        fAnimate = false;
         setAsNeeded();
     }
 
@@ -205,6 +218,7 @@ protected:
     }
 
     void onSizeChange() override {
+        fRadiusControl.setXYWH(this->width() - 200, 30, 30, 400);
         fWeightControl.setXYWH(this->width() - 150, 30, 30, 400);
         fErrorControl.setXYWH(this->width() - 100, 30, 30, 400);
         fWidthControl.setXYWH(this->width() -  50, 30, 30, 400);
@@ -214,6 +228,8 @@ protected:
         fConicButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
         buttonOffset += 50;
         fQuadButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
+        buttonOffset += 50;
+        fArcButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
         buttonOffset += 50;
         fRRectButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
         buttonOffset += 50;
@@ -519,11 +535,45 @@ protected:
     void setAsNeeded() {
         if (fConicButton.fEnabled || fCubicButton.fEnabled || fQuadButton.fEnabled) {
             setForSingles();
-        } else if (fRRectButton.fEnabled || fCircleButton.fEnabled) {
+        } else if (fRRectButton.fEnabled || fCircleButton.fEnabled || fArcButton.fEnabled) {
             setForGeometry();
         } else {
             setForText();
         }
+    }
+
+    bool arcCenter(SkPoint* center) {
+        SkPath path;
+        path.moveTo(fPts[10]);
+        path.arcTo(fPts[11], fPts[12], fRadius);
+        SkPath::Iter iter(path, false);
+        SkPoint pts[4];
+        iter.next(pts);
+        if (SkPath::kLine_Verb == iter.next(pts)) {
+            iter.next(pts);
+        }
+        SkVector before = pts[0] - pts[1];
+        SkVector after = pts[1] - pts[2];
+        before.setLength(fRadius);
+        after.setLength(fRadius);
+        SkVector beforeCCW, afterCCW;
+        before.rotateCCW(&beforeCCW);
+        after.rotateCCW(&afterCCW);
+        beforeCCW += pts[0];
+        afterCCW += pts[2];
+        *center = beforeCCW;
+        if (SkScalarNearlyEqual(beforeCCW.fX, afterCCW.fX)
+                && SkScalarNearlyEqual(beforeCCW.fY, afterCCW.fY)) {
+            return true;
+        }
+        SkVector beforeCW, afterCW;
+        before.rotateCW(&beforeCW);
+        after.rotateCW(&afterCW);
+        beforeCW += pts[0];
+        afterCW += pts[2];
+        *center = beforeCW;
+        return SkScalarNearlyEqual(beforeCW.fX, afterCW.fX)
+                && SkScalarNearlyEqual(beforeCCW.fY, afterCW.fY);
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -553,10 +603,23 @@ protected:
             draw_stroke(canvas, path, width, 950, false);
         }
 
+        if (fArcButton.fEnabled) {
+            path.reset();
+            path.moveTo(fPts[10]);
+            path.arcTo(fPts[11], fPts[12], fRadius);
+            setForGeometry();
+            draw_stroke(canvas, path, width, 950, false);
+            SkPath pathPts;
+            pathPts.moveTo(fPts[10]);
+            pathPts.lineTo(fPts[11]);
+            pathPts.lineTo(fPts[12]);
+            draw_points(canvas, pathPts, SK_ColorDKGRAY, true);
+        }
+
         if (fRRectButton.fEnabled) {
             SkScalar rad = 32;
             SkRect r;
-            r.set(&fPts[10], 2);
+            r.set(&fPts[13], 2);
             path.reset();
             SkRRect rr;
             rr.setRectXY(r, rad, rad);
@@ -579,10 +642,17 @@ protected:
         if (fCircleButton.fEnabled) {
             path.reset();
             SkRect r;
-            r.set(&fPts[12], 2);
+            r.set(&fPts[15], 2);
             path.addOval(r);
             setForGeometry();
             if (fCircleButton.fFill) {
+                if (fArcButton.fEnabled) {
+                    SkPoint center;
+                    if (arcCenter(&center)) {
+                        r.set(center.fX - fRadius, center.fY - fRadius, center.fX + fRadius, 
+                                center.fY + fRadius);
+                    }
+                }
                 draw_fill(canvas, r, width);
             } else {
                 draw_stroke(canvas, path, width, 950, false);
@@ -611,6 +681,9 @@ protected:
         if (fConicButton.fEnabled) {
             draw_control(canvas, fWeightControl, fWeight, 0, 5, "weight");
         }
+        if (fArcButton.fEnabled) {
+            draw_control(canvas, fRadiusControl, fRadius, 0, 500, "radius");
+        }
 #ifdef SK_DEBUG
         draw_control(canvas, fErrorControl, gDebugStrokerError, kStrokerErrorMin, kStrokerErrorMax,
                 "error");
@@ -620,6 +693,7 @@ protected:
         draw_button(canvas, fQuadButton);
         draw_button(canvas, fCubicButton);
         draw_button(canvas, fConicButton);
+        draw_button(canvas, fArcButton);
         draw_button(canvas, fRRectButton);
         draw_button(canvas, fCircleButton);
         draw_button(canvas, fTextButton);
@@ -643,39 +717,46 @@ protected:
         if (fWeightControl.contains(rectPt)) {
             return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 1);
         }
+        if (fRadiusControl.contains(rectPt)) {
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 2);
+        }
 #ifdef SK_DEBUG
         if (fErrorControl.contains(rectPt)) {
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 2);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 3);
         }
 #endif
         if (fWidthControl.contains(rectPt)) {
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 3);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 4);
         }
         if (fCubicButton.fBounds.contains(rectPt)) {
             fCubicButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 4);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 5);
         }
         if (fConicButton.fBounds.contains(rectPt)) {
             fConicButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 5);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 6);
         }
         if (fQuadButton.fBounds.contains(rectPt)) {
             fQuadButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 6);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 7);
+        }
+        if (fArcButton.fBounds.contains(rectPt)) {
+            fArcButton.fEnabled ^= true;
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 8);
         }
         if (fRRectButton.fBounds.contains(rectPt)) {
             fRRectButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 7);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 9);
         }
         if (fCircleButton.fBounds.contains(rectPt)) {
             bool wasEnabled = fCircleButton.fEnabled;
             fCircleButton.fEnabled = !fCircleButton.fFill;
             fCircleButton.fFill = wasEnabled && !fCircleButton.fFill;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 8);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 10);
         }
         if (fTextButton.fBounds.contains(rectPt)) {
             fTextButton.fEnabled ^= true;
-            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 9);
+            return new MyClick(this, (int) SK_ARRAY_COUNT(fPts) + 11);
         }
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
@@ -693,15 +774,17 @@ protected:
             this->inval(nullptr);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
             fWeight = MapScreenYtoValue(click->fICurr.fY, fWeightControl, 0, 5);
+        } else if (index == (int) SK_ARRAY_COUNT(fPts) + 2) {
+            fRadius = MapScreenYtoValue(click->fICurr.fY, fRadiusControl, 0, 500);
         }
 #ifdef SK_DEBUG
-        else if (index == (int) SK_ARRAY_COUNT(fPts) + 2) {
+        else if (index == (int) SK_ARRAY_COUNT(fPts) + 3) {
             gDebugStrokerError = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fICurr.fY,
                     fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
             gDebugStrokerErrorSet = true;
         }
 #endif
-        else if (index == (int) SK_ARRAY_COUNT(fPts) + 3) {
+        else if (index == (int) SK_ARRAY_COUNT(fPts) + 4) {
             fWidth = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fICurr.fY, fWidthControl,
                     kWidthMin, kWidthMax));
             fAnimate = fWidth <= kWidthMin;

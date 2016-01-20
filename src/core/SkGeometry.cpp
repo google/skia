@@ -951,6 +951,7 @@ bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar x, SkPoint dst[7]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_ARCTO
 /*  Find t value for quadratic [a, b, c] = d.
     Return 0 if there is no solution within [0, 1)
 */
@@ -1120,7 +1121,7 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
     matrix.mapPoints(quadPoints, pointCount);
     return pointCount;
 }
-
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //

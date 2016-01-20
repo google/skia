@@ -194,6 +194,7 @@ enum SkRotationDirection {
     kCCW_SkRotationDirection
 };
 
+#ifdef SK_SUPPORT_LEGACY_ARCTO
 /** Maximum number of points needed in the quadPoints[] parameter for
     SkBuildQuadArc()
 */
@@ -207,6 +208,7 @@ enum SkRotationDirection {
 */
 int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop,
                    SkRotationDirection, const SkMatrix*, SkPoint quadPoints[]);
+#endif
 
 struct SkConic {
     SkConic() {}
