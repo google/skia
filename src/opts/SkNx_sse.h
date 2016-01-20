@@ -379,6 +379,14 @@ static inline void Sk4f_ToBytes(uint8_t bytes[16],
                                                        _mm_cvttps_epi32(d.fVec))));
 }
 
+template<> inline Sk4h SkNx_cast<uint16_t, uint8_t, 4>(const Sk4b& src) {
+    return _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128());
+}
+
+template<> inline Sk4b SkNx_cast<uint8_t, uint16_t, 4>(const Sk4h& src) {
+    return _mm_packus_epi16(src.fVec, src.fVec);
+}
+
 
 }  // namespace
 
