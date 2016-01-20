@@ -156,10 +156,15 @@ void SkGLContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {
 GrGLint SkGLContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
                                             GrGLenum externalFormat, GrGLenum externalType,
                                             GrGLvoid* data) {
-    if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL) >= GR_GL_VER(3, 2)) &&
+    if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL) >= GR_GL_VER(3, 1)) &&
         !fGL->fExtensions.has("GL_ARB_texture_rectangle")) {
         return 0;
     }
+
+    if  (GrGLGetGLSLVersion(fGL) < GR_GLSL_VER(1, 40)) {
+        return 0;
+    }
+
     GrGLuint id;
     GR_GL_CALL(fGL, GenTextures(1, &id));
     GR_GL_CALL(fGL, BindTexture(GR_GL_TEXTURE_RECTANGLE, id));

@@ -3491,3 +3491,19 @@ GrGLAttribArrayState* GrGLGpu::HWGeometryState::internalBind(GrGLGpu* gpu,
     }
     return attribState;
 }
+
+bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrTextureParams& textureParams,
+                                         GrTextureProducer::CopyParams* copyParams) const {
+    if (textureParams.isTiled() ||
+        GrTextureParams::kMipMap_FilterMode == textureParams.filterMode()) {
+        GrGLTexture* glTexture = static_cast<GrGLTexture*>(texture);
+        if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
+            GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
+            copyParams->fFilter = GrTextureParams::kNone_FilterMode;
+            copyParams->fWidth = texture->width();
+            copyParams->fHeight = texture->height();
+            return true;
+        }
+    }
+    return false;
+}

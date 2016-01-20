@@ -133,6 +133,28 @@ GrTextureAdjuster::GrTextureAdjuster(GrTexture* original,
     }
 }
 
+GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
+    GrTexture* texture = this->originalTexture();
+    GrContext* context = texture->getContext();
+    const SkIRect* contentArea = this->contentAreaOrNull();
+    GrUniqueKey key;
+    this->makeCopyKey(copyParams, &key);
+    if (key.isValid()) {
+        GrTexture* cachedCopy = context->textureProvider()->findAndRefTextureByUniqueKey(key);
+        if (cachedCopy) {
+            return cachedCopy;
+        }
+    }
+    GrTexture* copy = copy_on_gpu(texture, contentArea, copyParams);
+    if (copy) {
+        if (key.isValid()) {
+            copy->resourcePriv().setUniqueKey(key);
+            this->didCacheCopy(key);
+        }
+    }
+    return copy;
+}
+
 GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& params,
                                                       SkIPoint* outOffset) {
     GrTexture* texture = this->originalTexture();
@@ -146,8 +168,7 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& par
         copyParams.fWidth = contentArea->width();
         copyParams.fHeight = contentArea->height();
         copyParams.fFilter = GrTextureParams::kBilerp_FilterMode;
-    } else if (!context->getGpu()->makeCopyForTextureParams(texture->width(), texture->height(),
-                                                            params, &copyParams)) {
+    } else if (!context->getGpu()->makeCopyForTextureParams(texture, params, &copyParams)) {
         if (outOffset) {
             if (contentArea) {
                 outOffset->set(contentArea->fLeft, contentArea->fRight);
@@ -157,25 +178,12 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& par
         }
         return SkRef(texture);
     }
-    GrUniqueKey key;
-    this->makeCopyKey(copyParams, &key);
-    if (key.isValid()) {
-        GrTexture* result = context->textureProvider()->findAndRefTextureByUniqueKey(key);
-        if (result) {
-            return result;
-        }
+
+    GrTexture* copy = this->refCopy(copyParams);
+    if (copy && outOffset) {
+        outOffset->set(0, 0);
     }
-    GrTexture* result = copy_on_gpu(texture, contentArea, copyParams);
-    if (result) {
-        if (key.isValid()) {
-            result->resourcePriv().setUniqueKey(key);
-            this->didCacheCopy(key);
-        }
-        if (outOffset) {
-            outOffset->set(0, 0);
-        }
-    }
-    return result;
+    return copy;
 }
 
 enum DomainMode {
@@ -352,7 +360,7 @@ static const GrFragmentProcessor* create_fp_for_domain_and_filter(
             return GrBicubicEffect::Create(texture, textureMatrix, domain);
         } else {
             static const SkShader::TileMode kClampClamp[] =
-            { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+                { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
             return GrBicubicEffect::Create(texture, textureMatrix, kClampClamp);
         }
     }
@@ -378,7 +386,20 @@ const GrFragmentProcessor* GrTextureAdjuster::createFragmentProcessor(
     }
 
     SkRect domain;
-    GrTexture* texture = this->originalTexture();
+    GrTextureParams params;
+    if (filterOrNullForBicubic) {
+        params.setFilterMode(*filterOrNullForBicubic);
+    }
+    SkAutoTUnref<GrTexture> texture(this->refTextureSafeForParams(params, nullptr));
+    if (!texture) {
+        return nullptr;
+    }
+    // If we made a copy then we only copied the contentArea, in which case the new texture is all
+    // content.
+    if (texture != this->originalTexture()) {
+        contentArea = nullptr;
+    }
+
     DomainMode domainMode =
         determine_domain_mode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                               texture->width(), texture->height(),

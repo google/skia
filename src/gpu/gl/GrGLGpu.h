@@ -161,6 +161,9 @@ private:
 
     void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
 
+    bool onMakeCopyForTextureParams(GrTexture*, const GrTextureParams&,
+                                    GrTextureProducer::CopyParams*) const override;
+
     bool onReadPixels(GrSurface*,
                       int left, int top,
                       int width, int height,

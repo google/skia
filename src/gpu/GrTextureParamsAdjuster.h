@@ -153,6 +153,8 @@ private:
     SkTLazy<SkIRect>    fContentArea;
     GrTexture*          fOriginal;
 
+    GrTexture* refCopy(const CopyParams &copyParams);
+
     typedef GrTextureProducer INHERITED;
 };
 
