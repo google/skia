@@ -1054,7 +1054,12 @@ int nanobench_main() {
 
     SkAutoTDelete<ResultsWriter> log(new ResultsWriter);
     if (!FLAGS_outResultsFile.isEmpty()) {
+#if defined(SK_RELEASE)
         log.reset(new NanoJSONResultsWriter(FLAGS_outResultsFile[0]));
+#else
+        SkDebugf("I'm ignoring --outResultsFile because this is a Debug build.");
+        return 1;
+#endif
     }
 
     if (1 == FLAGS_properties.count() % 2) {
