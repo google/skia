@@ -133,6 +133,15 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix = inv;
     fFilterLevel = paint.getFilterQuality();
 
+    const int origW = fProvider.info().width();
+    const int origH = fProvider.info().height();
+    bool allow_ignore_fractional_translate = true;  // historical default
+#ifndef SK_SUPPORT_LEGACY_TRANSLATEROUNDHACK
+    if (kMedium_SkFilterQuality == fFilterLevel) {
+        allow_ignore_fractional_translate = false;
+    }
+#endif
+
     SkDefaultBitmapController controller;
     fBMState = controller.requestBitmap(fProvider, inv, paint.getFilterQuality(),
                                         fBMStateStorage.get(), fBMStateStorage.size());
@@ -171,7 +180,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     if (matrix_only_scale_translate(fInvMatrix)) {
         SkMatrix forward;
         if (fInvMatrix.invert(&forward)) {
-            if (clampClamp ? just_trans_clamp(forward, fPixmap)
+            if ((clampClamp && allow_ignore_fractional_translate)
+                           ? just_trans_clamp(forward, fPixmap)
                            : just_trans_general(forward)) {
 #ifdef SK_SUPPORT_LEGACY_TRANSLATEROUNDHACK
                 SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
@@ -202,7 +212,17 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
     trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
 
-    if (kLow_SkFilterQuality == fFilterLevel) {
+    // If our target pixmap is the same as the original, then we revert back to legacy behavior
+    // and allow the code to ignore fractional translate.
+    //
+    // The width/height check allows allow_ignore_fractional_translate to stay false if we
+    // previously set it that way (e.g. we started in kMedium).
+    //
+    if (fPixmap.width() == origW && fPixmap.height() == origH) {
+        allow_ignore_fractional_translate = true;
+    }
+
+    if (kLow_SkFilterQuality == fFilterLevel && allow_ignore_fractional_translate) {
         // Only try bilerp if the matrix is "interesting" and
         // the image has a suitable size.
 
