@@ -236,8 +236,7 @@ void GrTextUtils::InitDistanceFieldPaint(GrAtlasTextBlob* blob,
     // against these values to decide if we can reuse or not(ie, will a given scale change our mip
     // level)
     SkASSERT(dfMaskScaleFloor <= scaledTextSize && scaledTextSize <= dfMaskScaleCeil);
-    blob->fMaxMinScale = SkMaxScalar(dfMaskScaleFloor / scaledTextSize, blob->fMaxMinScale);
-    blob->fMinMaxScale = SkMinScalar(dfMaskScaleCeil / scaledTextSize, blob->fMinMaxScale);
+    blob->setMinAndMaxScale(dfMaskScaleFloor / scaledTextSize, dfMaskScaleCeil / scaledTextSize);
 
     skPaint->setLCDRenderText(false);
     skPaint->setAutohinted(false);

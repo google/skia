@@ -121,10 +121,6 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
     }
 }
 
-typedef GrAtlasTextBlob Blob;
-typedef Blob::Run Run;
-typedef Run::SubRunInfo TextInfo;
-
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
 inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Blob* blob, Run* run,
                                         TextInfo* info, SkGlyphCache** cache,

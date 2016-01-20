@@ -51,9 +51,6 @@ private:
                       const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 
-    typedef GrAtlasTextBlob::Run Run;
-    typedef Run::SubRunInfo PerSubRunInfo;
-
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     void regenerateTextBlob(GrAtlasTextBlob* bmp, const SkPaint& skPaint, GrColor,

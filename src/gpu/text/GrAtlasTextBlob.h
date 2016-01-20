@@ -45,6 +45,210 @@ class GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrAtlasTextBlob);
 
+    GrAtlasTextBlob()
+        : fMaxMinScale(-SK_ScalarMax)
+        , fMinMaxScale(SK_ScalarMax)
+        , fTextType(0) {}
+
+    ~GrAtlasTextBlob() {
+        for (int i = 0; i < fRunCount; i++) {
+            fRuns[i].~Run();
+        }
+    }
+
+    struct Key {
+        Key() {
+            sk_bzero(this, sizeof(Key));
+        }
+        uint32_t fUniqueID;
+        // Color may affect the gamma of the mask we generate, but in a fairly limited way.
+        // Each color is assigned to on of a fixed number of buckets based on its
+        // luminance. For each luminance bucket there is a "canonical color" that
+        // represents the bucket.  This functionality is currently only supported for A8
+        SkColor fCanonicalColor;
+        SkPaint::Style fStyle;
+        SkPixelGeometry fPixelGeometry;
+        bool fHasBlur;
+
+        bool operator==(const Key& other) const {
+            return 0 == memcmp(this, &other, sizeof(Key));
+        }
+    };
+
+    static const Key& GetKey(const GrAtlasTextBlob& blob) {
+        return blob.fKey;
+    }
+
+    static uint32_t Hash(const Key& key) {
+        return SkChecksum::Murmur3(&key, sizeof(Key));
+    }
+
+    void operator delete(void* p) {
+        GrAtlasTextBlob* blob = reinterpret_cast<GrAtlasTextBlob*>(p);
+        blob->fPool->release(p);
+    }
+    void* operator new(size_t) {
+        SkFAIL("All blobs are created by placement new.");
+        return sk_malloc_throw(0);
+    }
+
+    void* operator new(size_t, void* p) { return p; }
+    void operator delete(void* target, void* placement) {
+        ::operator delete(target, placement);
+    }
+
+    bool hasDistanceField() const { return SkToBool(fTextType & kHasDistanceField_TextType); }
+    bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
+    void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
+    void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
+
+    void push_back_run(int currRun) {
+        SkASSERT(currRun < fRunCount);
+        if (currRun > 0) {
+            Run::SubRunInfo& newRun = fRuns[currRun].fSubRunInfo.back();
+            Run::SubRunInfo& lastRun = fRuns[currRun - 1].fSubRunInfo.back();
+            newRun.setAsSuccessor(lastRun);
+        }
+    }
+
+    // sets the last subrun of runIndex to use distance field text
+    void setSubRunHasDistanceFields(int runIndex, bool hasLCD) {
+        Run& run = fRuns[runIndex];
+        Run::SubRunInfo& subRun = run.fSubRunInfo.back();
+        subRun.setUseLCDText(hasLCD);
+        subRun.setDrawAsDistanceFields();
+    }
+
+    void setRunDrawAsPaths(int runIndex) {
+        fRuns[runIndex].fDrawAsPaths = true;
+    }
+
+    void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
+        // we init fMaxMinScale and fMinMaxScale in the constructor
+        fMaxMinScale = SkMaxScalar(scaledMax, fMaxMinScale);
+        fMinMaxScale = SkMinScalar(scaledMin, fMinMaxScale);
+    }
+
+    // inits the override descriptor on the current run.  All following subruns must use this
+    // descriptor
+    void initOverride(int runIndex) {
+        Run& run = fRuns[runIndex];
+        // Push back a new subrun to fill and set the override descriptor
+        run.push_back();
+        run.fOverrideDescriptor.reset(new SkAutoDescriptor);
+    }
+
+    SkGlyphCache* setupCache(int runIndex,
+                             const SkSurfaceProps& props,
+                             const SkPaint& skPaint,
+                             const SkMatrix* viewMatrix,
+                             bool noGamma);
+
+    // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
+    // as a path.
+    void appendGlyph(int runIndex,
+                     const SkRect& positions,
+                     GrColor color,
+                     GrBatchTextStrike* strike,
+                     GrGlyph* glyph,
+                     GrFontScaler* scaler, const SkGlyph& skGlyph,
+                     SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
+
+    static size_t GetVertexStride(GrMaskFormat maskFormat) {
+        switch (maskFormat) {
+            case kA8_GrMaskFormat:
+                return kGrayTextVASize;
+            case kARGB_GrMaskFormat:
+                return kColorTextVASize;
+            default:
+                return kLCDTextVASize;
+        }
+    }
+
+    bool mustRegenerate(SkScalar* outTransX, SkScalar* outTransY, const SkPaint& paint,
+                        GrColor color, const SkMaskFilter::BlurRec& blurRec,
+                        const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
+
+    // flush a GrAtlasTextBlob associated with a SkTextBlob
+    void flushCached(GrContext* context,
+                     GrDrawContext* dc,
+                     const SkTextBlob* blob,
+                     const SkSurfaceProps& props,
+                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                     const SkPaint& skPaint,
+                     const GrPaint& grPaint,
+                     SkDrawFilter* drawFilter,
+                     const GrClip& clip,
+                     const SkMatrix& viewMatrix,
+                     const SkIRect& clipBounds,
+                     SkScalar x, SkScalar y,
+                     SkScalar transX, SkScalar transY);
+
+    // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
+    void flushThrowaway(GrContext* context,
+                        GrDrawContext* dc,
+                        const SkSurfaceProps& props,
+                        const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                        const SkPaint& skPaint,
+                        const GrPaint& grPaint,
+                        const GrClip& clip,
+                        const SkIRect& clipBounds);
+
+    // position + local coord
+    static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
+    static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
+    static const size_t kLCDTextVASize = kGrayTextVASize;
+    static const int kVerticesPerGlyph = 4;
+
+#ifdef CACHE_SANITY_CHECK
+    static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
+    size_t fSize;
+#endif
+
+    // The color here is the GrPaint color, and it is used to determine whether we
+    // have to regenerate LCD text blobs.
+    // We use this color vs the SkPaint color because it has the colorfilter applied.
+    void initReusableBlob(GrColor color, const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+        fPaintColor = color;
+        fViewMatrix = viewMatrix;
+        fX = x;
+        fY = y;
+    }
+
+    void initThrowawayBlob(const SkMatrix& viewMatrix) {
+        fViewMatrix = viewMatrix;
+    }
+
+    GrDrawBatch* test_createBatch(int glyphCount, int run, int subRun,
+                                  GrColor color, SkScalar transX, SkScalar transY,
+                                  const SkPaint& skPaint, const SkSurfaceProps& props,
+                                  const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                  GrBatchFontCache* cache);
+
+private:
+    void appendLargeGlyph(GrGlyph* glyph, GrFontScaler* scaler, const SkGlyph& skGlyph,
+                          SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
+
+    inline void flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBuilder,
+                         int run, GrColor color,
+                         SkScalar transX, SkScalar transY,
+                         const SkPaint& skPaint, const SkSurfaceProps& props,
+                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                         GrBatchFontCache* cache);
+
+    void flushBigGlyphs(GrContext* context, GrDrawContext* dc,
+                        const GrClip& clip, const SkPaint& skPaint,
+                        SkScalar transX, SkScalar transY,
+                        const SkIRect& clipBounds);
+
+    void flushRunAsPaths(GrContext* context,
+                         GrDrawContext* dc,
+                         const SkSurfaceProps& props,
+                         const SkTextBlobRunIterator& it,
+                         const GrClip& clip, const SkPaint& skPaint,
+                         SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
+                         const SkIRect& clipBounds, SkScalar x, SkScalar y);
+
     /*
      * Each Run inside of the blob can have its texture coordinates regenerated if required.
      * To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
@@ -177,6 +381,13 @@ public:
         bool fDrawAsPaths;
     };
 
+    inline GrDrawBatch* createBatch(const Run::SubRunInfo& info,
+                                    int glyphCount, int run, int subRun,
+                                    GrColor color, SkScalar transX, SkScalar transY,
+                                    const SkPaint& skPaint, const SkSurfaceProps& props,
+                                    const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                    GrBatchFontCache* cache);
+
     struct BigGlyph {
         BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool applyVM)
             : fPath(path)
@@ -189,25 +400,6 @@ public:
         SkScalar fVy;
         SkScalar fScale;
         bool fApplyVM;
-    };
-
-    struct Key {
-        Key() {
-            sk_bzero(this, sizeof(Key));
-        }
-        uint32_t fUniqueID;
-        // Color may affect the gamma of the mask we generate, but in a fairly limited way.
-        // Each color is assigned to on of a fixed number of buckets based on its
-        // luminance. For each luminance bucket there is a "canonical color" that
-        // represents the bucket.  This functionality is currently only supported for A8
-        SkColor fCanonicalColor;
-        SkPaint::Style fStyle;
-        SkPixelGeometry fPixelGeometry;
-        bool fHasBlur;
-
-        bool operator==(const Key& other) const {
-            return 0 == memcmp(this, &other, sizeof(Key));
-        }
     };
 
     struct StrokeInfo {
@@ -243,169 +435,8 @@ public:
     int fRunCount;
     uint8_t fTextType;
 
-    GrAtlasTextBlob()
-        : fMaxMinScale(-SK_ScalarMax)
-        , fMinMaxScale(SK_ScalarMax)
-        , fTextType(0) {}
-
-    ~GrAtlasTextBlob() {
-        for (int i = 0; i < fRunCount; i++) {
-            fRuns[i].~Run();
-        }
-    }
-
-    static const Key& GetKey(const GrAtlasTextBlob& blob) {
-        return blob.fKey;
-    }
-
-    static uint32_t Hash(const Key& key) {
-        return SkChecksum::Murmur3(&key, sizeof(Key));
-    }
-
-    void operator delete(void* p) {
-        GrAtlasTextBlob* blob = reinterpret_cast<GrAtlasTextBlob*>(p);
-        blob->fPool->release(p);
-    }
-    void* operator new(size_t) {
-        SkFAIL("All blobs are created by placement new.");
-        return sk_malloc_throw(0);
-    }
-
-    void* operator new(size_t, void* p) { return p; }
-    void operator delete(void* target, void* placement) {
-        ::operator delete(target, placement);
-    }
-
-    bool hasDistanceField() const { return SkToBool(fTextType & kHasDistanceField_TextType); }
-    bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
-    void setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
-    void setHasBitmap() { fTextType |= kHasBitmap_TextType; }
-
-    void push_back_run(int currRun) {
-        SkASSERT(currRun < fRunCount);
-        if (currRun > 0) {
-            Run::SubRunInfo& newRun = fRuns[currRun].fSubRunInfo.back();
-            Run::SubRunInfo& lastRun = fRuns[currRun - 1].fSubRunInfo.back();
-            newRun.setAsSuccessor(lastRun);
-        }
-    }
-
-    // sets the last subrun of runIndex to use distance field text
-    void setSubRunHasDistanceFields(int runIndex, bool hasLCD) {
-        Run& run = fRuns[runIndex];
-        Run::SubRunInfo& subRun = run.fSubRunInfo.back();
-        subRun.setUseLCDText(hasLCD);
-        subRun.setDrawAsDistanceFields();
-    }
-
-    // inits the override descriptor on the current run.  All following subruns must use this
-    // descriptor
-    void initOverride(int runIndex) {
-        Run& run = fRuns[runIndex];
-        // Push back a new subrun to fill and set the override descriptor
-        run.push_back();
-        run.fOverrideDescriptor.reset(new SkAutoDescriptor);
-    }
-
-    SkGlyphCache* setupCache(int runIndex,
-                             const SkSurfaceProps& props,
-                             const SkPaint& skPaint,
-                             const SkMatrix* viewMatrix,
-                             bool noGamma);
-
-    // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
-    // as a path.
-    void appendGlyph(int runIndex,
-                     const SkRect& positions,
-                     GrColor color,
-                     GrBatchTextStrike* strike,
-                     GrGlyph* glyph,
-                     GrFontScaler* scaler, const SkGlyph& skGlyph,
-                     SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
-
-    static size_t GetVertexStride(GrMaskFormat maskFormat) {
-        switch (maskFormat) {
-            case kA8_GrMaskFormat:
-                return kGrayTextVASize;
-            case kARGB_GrMaskFormat:
-                return kColorTextVASize;
-            default:
-                return kLCDTextVASize;
-        }
-    }
-
-    bool mustRegenerate(SkScalar* outTransX, SkScalar* outTransY, const SkPaint& paint,
-                        GrColor color, const SkMaskFilter::BlurRec& blurRec,
-                        const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
-
-    // flush a GrAtlasTextBlob associated with a SkTextBlob
-    void flushCached(GrContext* context,
-                     GrDrawContext* dc,
-                     const SkTextBlob* blob,
-                     const SkSurfaceProps& props,
-                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                     const SkPaint& skPaint,
-                     const GrPaint& grPaint,
-                     SkDrawFilter* drawFilter,
-                     const GrClip& clip,
-                     const SkMatrix& viewMatrix,
-                     const SkIRect& clipBounds,
-                     SkScalar x, SkScalar y,
-                     SkScalar transX, SkScalar transY);
-
-    // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
-    void flushThrowaway(GrContext* context,
-                        GrDrawContext* dc,
-                        const SkSurfaceProps& props,
-                        const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                        const SkPaint& skPaint,
-                        const GrPaint& grPaint,
-                        const GrClip& clip,
-                        const SkIRect& clipBounds);
-
-    // position + local coord
-    static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
-    static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
-    static const size_t kLCDTextVASize = kGrayTextVASize;
-    static const int kVerticesPerGlyph = 4;
-
-#ifdef CACHE_SANITY_CHECK
-    static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
-    size_t fSize;
-#endif
-
-    // We'd like to inline this and make it private, but there is some test code which calls it.
-    // TODO refactor this
-    GrDrawBatch* createBatch(const Run::SubRunInfo& info,
-                             int glyphCount, int run, int subRun,
-                             GrColor color, SkScalar transX, SkScalar transY,
-                             const SkPaint& skPaint, const SkSurfaceProps& props,
-                             const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                             GrBatchFontCache* cache);
-
-private:
-    void appendLargeGlyph(GrGlyph* glyph, GrFontScaler* scaler, const SkGlyph& skGlyph,
-                          SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
-
-    inline void flushRun(GrDrawContext* dc, GrPipelineBuilder* pipelineBuilder,
-                         int run, GrColor color,
-                         SkScalar transX, SkScalar transY,
-                         const SkPaint& skPaint, const SkSurfaceProps& props,
-                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                         GrBatchFontCache* cache);
-
-    void flushBigGlyphs(GrContext* context, GrDrawContext* dc,
-                        const GrClip& clip, const SkPaint& skPaint,
-                        SkScalar transX, SkScalar transY,
-                        const SkIRect& clipBounds);
-
-    void flushRunAsPaths(GrContext* context,
-                         GrDrawContext* dc,
-                         const SkSurfaceProps& props,
-                         const SkTextBlobRunIterator& it,
-                         const GrClip& clip, const SkPaint& skPaint,
-                         SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
-                         const SkIRect& clipBounds, SkScalar x, SkScalar y);
+    friend class GrAtlasTextBatch; // We might be able to get rid of this friending
+    friend class GrTextBlobCache; // Needs to access the key
 };
 
 #endif

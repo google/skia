@@ -191,13 +191,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                                             const SkMatrix& viewMatrix,
                                             const SkTextBlob* blob, SkScalar x, SkScalar y,
                                             SkDrawFilter* drawFilter) {
-    // The color here is the GrPaint color, and it is used to determine whether we
-    // have to regenerate LCD text blobs.
-    // We use this color vs the SkPaint color because it has the colorfilter applied.
-    cacheBlob->fPaintColor = color;
-    cacheBlob->fViewMatrix = viewMatrix;
-    cacheBlob->fX = x;
-    cacheBlob->fY = y;
+    cacheBlob->initReusableBlob(color, viewMatrix, x, y);
 
     // Regenerate textblob
     SkPaint runPaint = skPaint;
@@ -248,7 +242,7 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                 }
             }
         } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
-            cacheBlob->fRuns[run].fDrawAsPaths = true;
+            cacheBlob->setRunDrawAsPaths(run);
         } else {
             switch (it.positioning()) {
                 case SkTextBlob::kDefault_Positioning:
@@ -287,7 +281,7 @@ GrAtlasTextContext::createDrawTextBlob(const GrPaint& paint, const SkPaint& skPa
     int glyphCount = skPaint.countText(text, byteLength);
 
     GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
-    blob->fViewMatrix = viewMatrix;
+    blob->initThrowawayBlob(viewMatrix);
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
                                              *fContext->caps()->shaderCaps())) {
@@ -310,7 +304,7 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrPaint& paint, const SkPaint& s
     int glyphCount = skPaint.countText(text, byteLength);
 
     GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
-    blob->fViewMatrix = viewMatrix;
+    blob->initThrowawayBlob(viewMatrix);
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
                                              *fContext->caps()->shaderCaps())) {
@@ -401,10 +395,9 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
 
     SkScalar transX = static_cast<SkScalar>(random->nextU());
     SkScalar transY = static_cast<SkScalar>(random->nextU());
-    const GrAtlasTextBlob::Run::SubRunInfo& info = blob->fRuns[0].fSubRunInfo[0];
-    return blob->createBatch(info, textLen, 0, 0, color, transX, transY, skPaint,
-                             gSurfaceProps, gTextContext->dfAdjustTable(),
-                             context->getBatchFontCache());
+    return blob->test_createBatch(textLen, 0, 0, color, transX, transY, skPaint,
+                                  gSurfaceProps, gTextContext->dfAdjustTable(),
+                                  context->getBatchFontCache());
 }
 
 #endif

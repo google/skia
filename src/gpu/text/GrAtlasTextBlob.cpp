@@ -232,12 +232,13 @@ bool GrAtlasTextBlob::mustRegenerate(SkScalar* outTransX, SkScalar* outTransY,
     return false;
 }
 
-GrDrawBatch* GrAtlasTextBlob::createBatch(const Run::SubRunInfo& info,
-                                          int glyphCount, int run, int subRun,
-                                          GrColor color, SkScalar transX, SkScalar transY,
-                                          const SkPaint& skPaint, const SkSurfaceProps& props,
-                                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                          GrBatchFontCache* cache) {
+inline GrDrawBatch* GrAtlasTextBlob::createBatch(
+                                              const Run::SubRunInfo& info,
+                                              int glyphCount, int run, int subRun,
+                                              GrColor color, SkScalar transX, SkScalar transY,
+                                              const SkPaint& skPaint, const SkSurfaceProps& props,
+                                              const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                              GrBatchFontCache* cache) {
     GrMaskFormat format = info.maskFormat();
     GrColor subRunColor;
     if (kARGB_GrMaskFormat == format) {
@@ -412,6 +413,16 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context,
     this->flushBigGlyphs(context, dc, clip, skPaint, 0, 0, clipBounds);
 }
 
+GrDrawBatch* GrAtlasTextBlob::test_createBatch(
+                                              int glyphCount, int run, int subRun,
+                                              GrColor color, SkScalar transX, SkScalar transY,
+                                              const SkPaint& skPaint, const SkSurfaceProps& props,
+                                              const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                              GrBatchFontCache* cache) {
+    const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[0].fSubRunInfo[0];
+    return this->createBatch(info, glyphCount, 0, 0, color, transX, transY, skPaint,
+                             props, distanceAdjustTable, cache);
+}
 
 // TODO get this code building again
 #ifdef CACHE_SANITY_CHECK
