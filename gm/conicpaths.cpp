@@ -132,3 +132,18 @@ DEF_GM(return new ConicPathsGM;)
 
 //////////////////////////////////////////////////////////////////////////////
 
+/* arc should be on top of circle */
+DEF_SIMPLE_GM(arccirclegap, canvas, 250, 250) {
+    canvas->translate(50, 100);
+    SkPoint c = { 1052.5390625f, 506.8760978034711f };
+    SkScalar radius = 1096.702150363923f;
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawCircle(c.fX, c.fY, radius, paint);
+    SkPath path;
+    path.moveTo(288.88884710654133f, -280.26680862609f);
+    path.arcTo(0, 0, -39.00216443306411f, 400.6058925796476f, radius);
+    paint.setColor(0xff007f00);
+    canvas->drawPath(path, paint);
+}
