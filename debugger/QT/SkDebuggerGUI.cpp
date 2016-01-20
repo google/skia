@@ -202,7 +202,6 @@ void SkDebuggerGUI::actionPlay() {
 void SkDebuggerGUI::actionRasterSettingsChanged() {
     fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kRaster_8888_WidgetType,
                                       !fSettingsWidget.isRasterEnabled());
-    fDebugger.setOverdrawViz(fSettingsWidget.isOverdrawVizEnabled());
     this->updateImage();
 }
 
@@ -210,6 +209,7 @@ void SkDebuggerGUI::actionVisualizationsChanged() {
     fDebugger.setMegaViz(fSettingsWidget.isMegaVizEnabled());
     fDebugger.setPathOps(fSettingsWidget.isPathOpsEnabled());
     fDebugger.highlightCurrentCommand(fSettingsWidget.isVisibilityFilterEnabled());
+    fDebugger.setOverdrawViz(fSettingsWidget.isOverdrawVizEnabled());
     this->updateImage();
 }
 

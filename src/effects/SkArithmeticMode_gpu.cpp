@@ -226,17 +226,8 @@ private:
         add_arithmetic_code(fragBuilder, srcColor, dstColor, outColor, kUni, fEnforcePMColor);
 
         // Apply coverage.
-        if (proc.dstReadUsesMixedSamples()) {
-            if (srcCoverage) {
-                fragBuilder->codeAppendf("%s *= %s;", outColor, srcCoverage);
-                fragBuilder->codeAppendf("%s = %s;", outColorSecondary, srcCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0);", outColorSecondary);
-            }
-        } else if (srcCoverage) {
-            fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
-                                     outColor, srcCoverage, outColor, srcCoverage, dstColor);
-        }
+        INHERITED::DefaultCoverageModulation(fragBuilder, srcCoverage, dstColor, outColor,
+                                             outColorSecondary, proc);
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
