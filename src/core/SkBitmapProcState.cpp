@@ -375,18 +375,6 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     const int maxY = s.fPixmap.height() - 1;
     int ix = s.fFilterOneX + x;
     int iy = SkClampMax(s.fFilterOneY + y, maxY);
-#ifdef SK_DEBUG
-    {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        int iy2 = SkClampMax(SkScalarFloorToInt(pt.fY), maxY);
-        int ix2 = SkScalarFloorToInt(pt.fX);
-
-        SkASSERT(iy == iy2);
-        SkASSERT(ix == ix2);
-    }
-#endif
     const SkPMColor* row = s.fPixmap.addr32(0, iy);
 
     // clamp to the left
@@ -450,18 +438,6 @@ static void Repeat_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     const int stopY = s.fPixmap.height();
     int ix = s.fFilterOneX + x;
     int iy = sk_int_mod(s.fFilterOneY + y, stopY);
-#ifdef SK_DEBUG
-    {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        int iy2 = sk_int_mod(SkScalarFloorToInt(pt.fY), stopY);
-        int ix2 = SkScalarFloorToInt(pt.fX);
-
-        SkASSERT(iy == iy2);
-        SkASSERT(ix == ix2);
-    }
-#endif
     const SkPMColor* row = s.fPixmap.addr32(0, iy);
 
     ix = sk_int_mod(ix, stopX);
