@@ -73,6 +73,7 @@ public:
 
     // Object
     void set(Key, SkValue);
+    const SkValue* get(Key) const;
     void foreach(std::function<void(Key, const SkValue&)>) const;
 
     // Array

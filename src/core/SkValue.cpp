@@ -135,6 +135,11 @@ void SkValue::set(SkValue::Key k, SkValue v) {
     fObject->set(k, std::move(v));
 }
 
+const SkValue* SkValue::get(Key k) const {
+    SkASSERT(this->isObject());
+    return fObject->get(k);
+}
+
 void SkValue::foreach(std::function<void(Key, const SkValue&)> fn) const {
     SkASSERT(this->isObject());
     fObject->foreach(fn);
@@ -182,6 +187,8 @@ SkValue SkValue::FromF32s(SkData* d) { return FromTs<   float>(F32s, d); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#define REQUIRE(cond) do { if (!(cond)) { SkASSERT(false); return false; } } while (false)
+
 template<> SkValue SkToValue<SkMatrix>(const SkMatrix& mat) {
     auto val = SkValue::Object(SkValue::Matrix);
     for (int i = 0; i < 9; ++i) {
@@ -192,26 +199,22 @@ template<> SkValue SkToValue<SkMatrix>(const SkMatrix& mat) {
     return val;
 }
 
-template<> bool SkFromValue<SkMatrix>(const SkValue& val, SkMatrix* m){
-    SkASSERT(val.type() == SkValue::Matrix);
-    if (val.type() != SkValue::Matrix) {
-        return false;
-    }
-    *m = SkMatrix::I();
-    bool good = true;
-    auto fn = [&](SkValue::Key key, const SkValue& v) {
-        if (key < 9) {
-            if (v.type() != SkValue::F32) {
-                SkASSERT(false);
-                good = false;
-            } else {
-                (*m)[key] = v.f32();
-            }
-        } else {
-            SkASSERT(false);
-            good = false;
-        }
-    };
-    val.foreach(fn);
-    return good;
+template<> bool SkFromValue<float>(const SkValue& val, float* f) {
+    REQUIRE(val.type() == SkValue::F32);
+    *f = val.f32();
+    return true;
 }
+
+template<> bool SkFromValue<SkMatrix>(const SkValue& val, SkMatrix* m){
+    REQUIRE(val.type() == SkValue::Matrix);
+
+    *m = SkMatrix::I();
+    for (int i = 0; i < 9; i++) {
+        if (auto v = val.get(i)) {
+            REQUIRE(SkFromValue(*v, &(*m)[i]));
+        }
+    }
+    return true;
+}
+
+#undef REQUIRE
