@@ -84,31 +84,14 @@ public:
         fBatch.fViewMatrix = geo.fBlob->fViewMatrix;
 
         // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
-        // into device space.
-        // We handle vertex bounds differently for distance field text and bitmap text because
-        // the vertex bounds of bitmap text are in device space.  If we are flushing multiple runs
-        // from one blob then we are going to pay the price here of mapping the rect for each run.
+        // into device space
         const Run& run = geo.fBlob->fRuns[geo.fRun];
-        SkRect bounds = run.fSubRunInfo[geo.fSubRun].vertexBounds();
         if (run.fSubRunInfo[geo.fSubRun].drawAsDistanceFields()) {
-            // Distance field text is positioned with the (X,Y) as part of the glyph position,
-            // and currently the view matrix is applied on the GPU
-            bounds.offset(geo.fBlob->fX - geo.fBlob->fInitialX,
-                          geo.fBlob->fY - geo.fBlob->fInitialY);
+            SkRect bounds = run.fVertexBounds;
             fBatch.fViewMatrix.mapRect(&bounds);
             this->setBounds(bounds);
         } else {
-            // Bitmap text is fully positioned on the CPU
-            SkMatrix boundsMatrix;
-            bounds.offset(-geo.fBlob->fInitialX, -geo.fBlob->fInitialY);
-            boundsMatrix.setConcat(fBatch.fViewMatrix, geo.fBlob->fInitialViewMatrixInverse);
-            boundsMatrix.mapRect(&bounds);
-
-            // Due to floating point numerical inaccuracies, we have to round out here
-            SkRect roundedOutBounds;
-            bounds.roundOut(&roundedOutBounds);
-            roundedOutBounds.offset(geo.fBlob->fX, geo.fBlob->fY);
-            this->setBounds(roundedOutBounds);
+            this->setBounds(run.fVertexBounds);
         }
     }
 

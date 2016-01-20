@@ -210,11 +210,13 @@ public:
     // We use this color vs the SkPaint color because it has the colorfilter applied.
     void initReusableBlob(GrColor color, const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
         fPaintColor = color;
-        this->setupViewMatrix(viewMatrix, x, y);
+        fViewMatrix = viewMatrix;
+        fX = x;
+        fY = y;
     }
 
-    void initThrowawayBlob(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        this->setupViewMatrix(viewMatrix, x, y);
+    void initThrowawayBlob(const SkMatrix& viewMatrix) {
+        fViewMatrix = viewMatrix;
     }
 
     GrDrawBatch* test_createBatch(int glyphCount, int run, int subRun,
@@ -247,20 +249,6 @@ private:
                          SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
                          const SkIRect& clipBounds, SkScalar x, SkScalar y);
 
-    // This function will only be called when we are regenerating a blob from scratch. We record the
-    // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
-    // these numbers.  When blobs are reused with new matrices, we need to return to model space so
-    // we can update the vertex bounds appropriately.
-    void setupViewMatrix(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        fViewMatrix = viewMatrix;
-        if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
-            fInitialViewMatrixInverse = SkMatrix::I();
-            SkDebugf("Could not invert viewmatrix\n");
-        }
-        fX = fInitialX = x;
-        fY = fInitialY = y;
-    }
-
     /*
      * Each Run inside of the blob can have its texture coordinates regenerated if required.
      * To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
@@ -288,6 +276,7 @@ private:
         Run()
             : fInitialized(false)
             , fDrawAsPaths(false) {
+            fVertexBounds.setLargestInverted();
             // To ensure we always have one subrun, we push back a fresh run here
             fSubRunInfo.push_back();
         }
@@ -301,13 +290,10 @@ private:
                 , fColor(GrColor_ILLEGAL)
                 , fMaskFormat(kA8_GrMaskFormat)
                 , fDrawAsDistanceFields(false)
-                , fUseLCDText(false) {
-                fVertexBounds.setLargestInverted();
-            }
+                , fUseLCDText(false) {}
             SubRunInfo(const SubRunInfo& that)
                 : fBulkUseToken(that.fBulkUseToken)
                 , fStrike(SkSafeRef(that.fStrike.get()))
-                , fVertexBounds(that.fVertexBounds)
                 , fAtlasGeneration(that.fAtlasGeneration)
                 , fVertexStartIndex(that.fVertexStartIndex)
                 , fVertexEndIndex(that.fVertexEndIndex)
@@ -352,11 +338,6 @@ private:
                 fVertexEndIndex = prev.vertexEndIndex();
             }
 
-            const SkRect& vertexBounds() const { return fVertexBounds; }
-            void joinGlyphBounds(const SkRect& glyphBounds) {
-                fVertexBounds.joinNonEmptyArg(glyphBounds);
-            }
-
             // df properties
             void setUseLCDText(bool useLCDText) { fUseLCDText = useLCDText; }
             bool hasUseLCDText() const { return fUseLCDText; }
@@ -366,7 +347,6 @@ private:
         private:
             GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
             SkAutoTUnref<GrBatchTextStrike> fStrike;
-            SkRect fVertexBounds;
             uint64_t fAtlasGeneration;
             size_t fVertexStartIndex;
             size_t fVertexEndIndex;
@@ -388,6 +368,7 @@ private:
         }
         static const int kMinSubRuns = 1;
         SkAutoTUnref<SkTypeface> fTypeface;
+        SkRect fVertexBounds;
         SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
         SkAutoDescriptor fDescriptor;
 
@@ -442,10 +423,7 @@ private:
     SkTArray<BigGlyph> fBigGlyphs;
     Key fKey;
     SkMatrix fViewMatrix;
-    SkMatrix fInitialViewMatrixInverse;
     GrColor fPaintColor;
-    SkScalar fInitialX;
-    SkScalar fInitialY;
     SkScalar fX;
     SkScalar fY;
 

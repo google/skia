@@ -413,19 +413,6 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
         size_t byteCount = info.byteCount();
         memcpy(currVertex, blob->fVertices + info.vertexStartIndex(), byteCount);
 
-#ifdef SK_DEBUG
-        // bounds sanity check
-        SkRect rect;
-        rect.setLargestInverted();
-        SkPoint* vertex = (SkPoint*) ((char*)blob->fVertices + info.vertexStartIndex());
-        rect.growToInclude(vertex, vertexStride, kVerticesPerGlyph * info.glyphCount());
-
-        if (this->usesDistanceFields()) {
-            fBatch.fViewMatrix.mapRect(&rect);
-        }
-        SkASSERT(fBounds.contains(rect));
-#endif
-
         currVertex += byteCount;
     }
 

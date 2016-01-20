@@ -281,7 +281,7 @@ GrAtlasTextContext::createDrawTextBlob(const GrPaint& paint, const SkPaint& skPa
     int glyphCount = skPaint.countText(text, byteLength);
 
     GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
-    blob->initThrowawayBlob(viewMatrix, x, y);
+    blob->initThrowawayBlob(viewMatrix);
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
                                              *fContext->caps()->shaderCaps())) {
@@ -304,7 +304,7 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrPaint& paint, const SkPaint& s
     int glyphCount = skPaint.countText(text, byteLength);
 
     GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
-    blob->initThrowawayBlob(viewMatrix, offset.x(), offset.y());
+    blob->initThrowawayBlob(viewMatrix);
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
                                              *fContext->caps()->shaderCaps())) {
