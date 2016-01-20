@@ -14,7 +14,7 @@ public:
     static GLFenceSync* CreateIfSupported(const SkGLContext*);
 
     SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool flushAndWaitFence(SkPlatformGpuFence fence) const override;
+    bool waitFence(SkPlatformGpuFence fence, bool flush) const override;
     void deleteFence(SkPlatformGpuFence fence) const override;
 
 private:
@@ -85,7 +85,7 @@ void SkGLContext::swapBuffers() {
     }
 
     if (fFrameFences[fCurrentFenceIdx]) {
-        if (!fFenceSync->flushAndWaitFence(fFrameFences[fCurrentFenceIdx])) {
+        if (!fFenceSync->waitFence(fFrameFences[fCurrentFenceIdx], true)) {
             SkDebugf("WARNING: Wait failed for fence sync. Timings might not be accurate.\n");
         }
         fFenceSync->deleteFence(fFrameFences[fCurrentFenceIdx]);
@@ -143,9 +143,9 @@ SkPlatformGpuFence SkGLContext::GLFenceSync::insertFence() const {
     return fGLFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
-bool SkGLContext::GLFenceSync::flushAndWaitFence(SkPlatformGpuFence fence) const {
+bool SkGLContext::GLFenceSync::waitFence(SkPlatformGpuFence fence, bool flush) const {
     GLsync glsync = static_cast<GLsync>(fence);
-    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, GL_SYNC_FLUSH_COMMANDS_BIT, -1);
+    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, flush ? GL_SYNC_FLUSH_COMMANDS_BIT : 0, -1);
 }
 
 void SkGLContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {

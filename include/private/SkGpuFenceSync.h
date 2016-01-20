@@ -20,7 +20,7 @@ typedef void* SkPlatformGpuFence;
 class SkGpuFenceSync {
 public:
     virtual SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const = 0;
-    virtual bool flushAndWaitFence(SkPlatformGpuFence) const = 0;
+    virtual bool waitFence(SkPlatformGpuFence, bool flush) const = 0;
     virtual void deleteFence(SkPlatformGpuFence) const = 0;
 
     virtual ~SkGpuFenceSync() {}
