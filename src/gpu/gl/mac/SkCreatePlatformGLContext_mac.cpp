@@ -109,7 +109,12 @@ GrGLFuncPtr MacGLContext::onPlatformGetProcAddress(const char* procName) const {
 
 } // anonymous namespace
 
-SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI, SkGLContext* shareContext) {
+    SkASSERT(!shareContext);
+    if (shareContext) {
+        return nullptr;
+    }
+
     if (kGLES_GrGLStandard == forcedGpuAPI) {
         return nullptr;
     }

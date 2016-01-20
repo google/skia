@@ -46,7 +46,7 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
 
 class GLXGLContext : public SkGLContext {
 public:
-    GLXGLContext(GrGLStandard forcedGpuAPI);
+    GLXGLContext(GrGLStandard forcedGpuAPI, GLXGLContext* shareList);
     ~GLXGLContext() override;
 
 private:
@@ -62,13 +62,14 @@ private:
     GLXPixmap fGlxPixmap;
 };
 
-GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
+GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI, GLXGLContext* shareContext)
     : fContext(nullptr)
     , fDisplay(nullptr)
     , fPixmap(0)
     , fGlxPixmap(0) {
-
     fDisplay = XOpenDisplay(0);
+
+    GLXContext glxShareContext = shareContext ? shareContext->fContext : nullptr;
 
     if (!fDisplay) {
         SkDebugf("Failed to open X display.\n");
@@ -189,7 +190,7 @@ GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
                     GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES2_PROFILE_BIT_EXT,
                     None
                 };
-                fContext = glXCreateContextAttribsARB(fDisplay, bestFbc, 0, True,
+                fContext = glXCreateContextAttribsARB(fDisplay, bestFbc, glxShareContext, True,
                                                       context_attribs_gles);
             }
         } else {
@@ -211,7 +212,8 @@ GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
                       None
                 };
                 fContext =
-                        glXCreateContextAttribsARB(fDisplay, bestFbc, 0, True, context_attribs_gl);
+                        glXCreateContextAttribsARB(fDisplay, bestFbc, glxShareContext, True,
+                                                   context_attribs_gl);
 
                 // Sync to ensure any errors generated are processed.
                 XSync(fDisplay, False);
@@ -237,7 +239,7 @@ GLXGLContext::GLXGLContext(GrGLStandard forcedGpuAPI)
 
                 ctxErrorOccurred = false;
 
-                fContext = glXCreateContextAttribsARB(fDisplay, bestFbc, 0, True,
+                fContext = glXCreateContextAttribsARB(fDisplay, bestFbc, glxShareContext, True,
                                                       context_attribs_gl_fallback);
             }
         }
@@ -331,8 +333,9 @@ GrGLFuncPtr GLXGLContext::onPlatformGetProcAddress(const char* procName) const {
 
 } // anonymous namespace
 
-SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
-    GLXGLContext *ctx = new GLXGLContext(forcedGpuAPI);
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI, SkGLContext* shareContext) {
+    GLXGLContext* glxShareContext = reinterpret_cast<GLXGLContext*>(shareContext);
+    GLXGLContext *ctx = new GLXGLContext(forcedGpuAPI, glxShareContext);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;

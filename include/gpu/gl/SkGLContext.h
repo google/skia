@@ -113,14 +113,16 @@ private:
     friend class GLFenceSync;  // For onPlatformGetProcAddress.
 };
 
-/** Creates platform-dependent GL context object
- * Returns a valid gl context object or NULL if such can not be created.
- * Note: If Skia embedder needs a custom GL context that sets up the GL
- * interface, this function should be implemented by the embedder.
- * Otherwise, the default implementation for the platform should be compiled in
- * the library.
+/** Creates platform-dependent GL context object.  The shareContext parameter is in an optional
+ * context with which to share display lists. This should be a pointer to an SkGLContext created
+ * with SkCreatePlatformGLContext.  NULL indicates that no sharing is to take place. Returns a valid
+ * gl context object or NULL if such can not be created.
+ * Note: If Skia embedder needs a custom GL context that sets up the GL interface, this function
+ * should be implemented by the embedder. Otherwise, the default implementation for the platform
+ * should be compiled in the library.
  */
-SK_API SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI);
+SK_API SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI,
+                                              SkGLContext* shareContext = nullptr);
 
 /**
  * Helper macros for using the GL context through the GrGLInterface. Example:

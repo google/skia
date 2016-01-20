@@ -317,7 +317,11 @@ void SkEGLFenceSync::deleteFence(SkPlatformGpuFence platformFence) const {
 
 } // anonymous namespace
 
-SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI, SkGLContext* shareContext) {
+    SkASSERT(!shareContext);
+    if (shareContext) {
+        return nullptr;
+    }
     EGLGLContext* ctx = new EGLGLContext(forcedGpuAPI);
     if (!ctx->isValid()) {
         delete ctx;

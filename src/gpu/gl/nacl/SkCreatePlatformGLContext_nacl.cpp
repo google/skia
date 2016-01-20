@@ -7,7 +7,8 @@
  */
 #include "gl/SkGLContext.h"
 
-SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI) {
+SkGLContext* SkCreatePlatformGLContext(GrGLStandard forcedGpuAPI, SkGLContext* shareContext) {
+    SkASSERT(!shareContext);
     return nullptr;
 }
 
