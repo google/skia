@@ -107,9 +107,6 @@ static void init_glyph_data(DFData* data, unsigned char* edges, const unsigned c
 // computes the distance to an edge given an edge normal vector and a pixel's alpha value
 // assumes that direction has been pre-normalized
 static float edge_distance(const SkPoint& direction, float alpha) {
-#if 1    // formula (1)
-    return 0.5f - alpha;
-#else    // formula (4)
     float dx = direction.fX;
     float dy = direction.fY;
     float distance;
@@ -146,7 +143,6 @@ static float edge_distance(const SkPoint& direction, float alpha) {
     }
 
     return distance;
-#endif
 }
 
 static void init_distances(DFData* data, unsigned char* edges, int width, int height) {
