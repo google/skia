@@ -318,6 +318,14 @@ void SkPath::rewind() {
     this->resetFields();
 }
 
+bool SkPath::isLastContourClosed() const {
+    int verbCount = fPathRef->countVerbs();
+    if (0 == verbCount) {
+        return false;
+    }
+    return kClose_Verb == fPathRef->atVerb(verbCount - 1);
+}
+
 bool SkPath::isLine(SkPoint line[2]) const {
     int verbCount = fPathRef->countVerbs();
 

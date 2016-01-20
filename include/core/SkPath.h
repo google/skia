@@ -187,6 +187,10 @@ public:
         return 0 == fPathRef->countVerbs();
     }
 
+    /** Return true if the last contour of this path ends with a close verb.
+     */
+    bool isLastContourClosed() const;
+
     /**
      *  Returns true if all of the points in this path are finite, meaning there
      *  are no infinities and no NaNs.

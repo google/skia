@@ -818,6 +818,23 @@ static void test_isfinite(skiatest::Reporter* reporter) {
     test_path_isfinite(reporter);
 }
 
+static void test_islastcontourclosed(skiatest::Reporter* reporter) {
+    SkPath path;
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.moveTo(0, 0);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.close();
+    REPORTER_ASSERT(reporter, path.isLastContourClosed());
+    path.lineTo(100, 100);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.moveTo(200, 200);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+    path.close();
+    REPORTER_ASSERT(reporter, path.isLastContourClosed());
+    path.moveTo(0, 0);
+    REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+}
+
 // assert that we always
 //  start with a moveTo
 //  only have 1 moveTo
@@ -4005,6 +4022,7 @@ DEF_TEST(Paths, reporter) {
     test_addPoly(reporter);
     test_isfinite(reporter);
     test_isfinite_after_transform(reporter);
+    test_islastcontourclosed(reporter);
     test_arb_round_rect_is_convex(reporter);
     test_arb_zero_rad_round_rect_is_rect(reporter);
     test_addrect(reporter);
