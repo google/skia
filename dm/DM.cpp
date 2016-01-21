@@ -815,7 +815,6 @@ struct Task {
             start(task->sink.tag.c_str(), task->src.tag, task->src.options, name.c_str());
             Error err = task->sink->draw(*task->src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
-                auto elapsed = now_ms() - timerStart;
                 if (err.isFatal()) {
                     fail(SkStringPrintf("%s %s %s %s: %s",
                                         task->sink.tag.c_str(),
@@ -825,10 +824,11 @@ struct Task {
                                         err.c_str()));
                 } else {
                     note.appendf(" (skipped: %s)", err.c_str());
+                    auto elapsed = now_ms() - timerStart;
+                    done(elapsed, task->sink.tag.c_str(), task->src.tag, task->src.options,
+                         name, note, log);
+                    return;
                 }
-                done(elapsed, task->sink.tag.c_str(), task->src.tag, task->src.options,
-                     name, note, log);
-                return;
             }
 
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
@@ -888,7 +888,8 @@ struct Task {
                 }
             });
         }
-        done(now_ms()-timerStart, task->sink.tag.c_str(), task->src.tag.c_str(), task->src.options.c_str(),
+        auto elapsed = now_ms() - timerStart;
+        done(elapsed, task->sink.tag.c_str(), task->src.tag.c_str(), task->src.options.c_str(),
              name, note, log);
     }
 
