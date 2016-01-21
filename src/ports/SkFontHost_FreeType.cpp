@@ -1741,3 +1741,57 @@ bool SkTypeface_FreeType::Scanner::scanFont(
     FT_Done_Face(face);
     return true;
 }
+
+/*static*/ void SkTypeface_FreeType::Scanner::computeAxisValues(
+    AxisDefinitions axisDefinitions,
+    const SkFontMgr::FontParameters::Axis* requestedAxes, int requestedAxisCount,
+    SkFixed* axisValues,
+    const SkString& name)
+{
+    for (int i = 0; i < axisDefinitions.count(); ++i) {
+        const Scanner::AxisDefinition& axisDefinition = axisDefinitions[i];
+        axisValues[i] = axisDefinition.fDefault;
+        for (int j = 0; j < requestedAxisCount; ++j) {
+            const SkFontMgr::FontParameters::Axis& axisSpecified = requestedAxes[j];
+            if (axisDefinition.fTag == axisSpecified.fTag) {
+                SkFixed axisValue = SkScalarToFixed(axisSpecified.fStyleValue);
+                axisValues[i] = SkTPin(axisValue, axisDefinition.fMinimum, axisDefinition.fMaximum);
+                if (axisValues[i] != axisValue) {
+                    SkDEBUGF(("Requested font axis value out of range: "
+                              "%s '%c%c%c%c' %f; pinned to %f.\n",
+                              name.c_str(),
+                              (axisDefinition.fTag >> 24) & 0xFF,
+                              (axisDefinition.fTag >> 16) & 0xFF,
+                              (axisDefinition.fTag >>  8) & 0xFF,
+                              (axisDefinition.fTag      ) & 0xFF,
+                              SkScalarToDouble(axisSpecified.fStyleValue),
+                              SkFixedToDouble(axisValues[i])));
+                }
+                break;
+            }
+        }
+        // TODO: warn on defaulted axis?
+    }
+
+    SkDEBUGCODE(
+        // Check for axis specified, but not matched in font.
+        for (int i = 0; i < requestedAxisCount; ++i) {
+            SkFourByteTag skTag = requestedAxes[i].fTag;
+            bool found = false;
+            for (int j = 0; j < axisDefinitions.count(); ++j) {
+                if (skTag == axisDefinitions[j].fTag) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                SkDEBUGF(("Requested font axis not found: %s '%c%c%c%c'\n",
+                          name.c_str(),
+                          (skTag >> 24) & 0xFF,
+                          (skTag >> 16) & 0xFF,
+                          (skTag >>  8) & 0xFF,
+                          (skTag)       & 0xFF));
+            }
+        }
+    )
+}

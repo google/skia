@@ -41,6 +41,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
+        SkAutoTUnref<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
         SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
@@ -54,9 +55,11 @@ protected:
                 SkScalar x = SkIntToScalar(10);
                 SkScalar y = SkIntToScalar(20);
 
-                SkFixed axis = SkDoubleToFixed(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
-                SkAutoTUnref<SkTypeface> typeface(SkTypeface::CreateFromFontData(
-                    new SkFontData(distortable->duplicate(), 0, &axis, 1)));
+                SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
+                SkScalar styleValue = SkDoubleToScalar(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
+                SkFontMgr::FontParameters::Axis axes[] = { { tag, styleValue } };
+                SkAutoTUnref<SkTypeface> typeface(fontMgr->createFromStream(
+                    distortable->duplicate(), SkFontMgr::FontParameters().setAxes(axes, 1)));
                 paint.setTypeface(typeface);
 
                 SkAutoCanvasRestore acr(canvas, true);

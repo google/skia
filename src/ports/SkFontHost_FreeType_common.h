@@ -15,6 +15,8 @@
 #include "SkTypeface.h"
 #include "SkTypes.h"
 
+#include "SkFontMgr.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -55,6 +57,12 @@ public:
         bool scanFont(SkStream* stream, int ttcIndex,
                       SkString* name, SkFontStyle* style, bool* isFixedPitch,
                       AxisDefinitions* axes) const;
+        static void computeAxisValues(
+            AxisDefinitions axisDefinitions,
+            const SkFontMgr::FontParameters::Axis* requestedAxis, int requestedAxisCount,
+            SkFixed* axisValues,
+            const SkString& name);
+
     private:
         FT_Face openFace(SkStream* stream, int ttcIndex, FT_Stream ftStream) const;
         FT_Library fLibrary;

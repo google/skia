@@ -6,7 +6,6 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_ANDROID)
 
 #include "SkFixed.h"
 #include "SkFontDescriptor.h"
@@ -208,26 +207,27 @@ public:
             }
 
             SkDEBUGCODE(
-                    // Check for axis specified, but not matched in font.
-                    for (int i = 0; i < fontFile.fAxes.count(); ++i) {
-                        SkFourByteTag skTag = fontFile.fAxes[i].fTag;
-                        bool found = false;
-                        for (int j = 0; j < axisDefinitions.count(); ++j) {
-                            if (skTag == axisDefinitions[j].fTag) {
-                                found = true;
-                                break;
-                            }
+                // Check for axis specified, but not matched in font.
+                for (int i = 0; i < fontFile.fAxes.count(); ++i) {
+                    SkFourByteTag skTag = fontFile.fAxes[i].fTag;
+                    bool found = false;
+                    for (int j = 0; j < axisDefinitions.count(); ++j) {
+                        if (skTag == axisDefinitions[j].fTag) {
+                            found = true;
+                            break;
                         }
-                        if (!found) {
-                            SkDEBUGF(("Requested font axis not found: %s '%c%c%c%c'\n",
-                                      familyName.c_str(), (skTag >> 24) & 0xFF,
-                                      (skTag >> 16) & 0xFF, (skTag >> 8) & 0xFF, (skTag)&0xFF));
-                        }
-                    })
+                    }
+                    if (!found) {
+                        SkDEBUGF(("Requested font axis not found: %s '%c%c%c%c'\n",
+                                    familyName.c_str(), (skTag >> 24) & 0xFF,
+                                    (skTag >> 16) & 0xFF, (skTag >> 8) & 0xFF, (skTag)&0xFF));
+                    }
+                }
+            )
 
-                    fStyles.push_back().reset(new SkTypeface_AndroidSystem(
-                            pathName, ttcIndex, axisValues.get(), axisDefinitions.count(), style,
-                            isFixedWidth, familyName, lang, variant));
+            fStyles.push_back().reset(new SkTypeface_AndroidSystem(
+                    pathName, ttcIndex, axisValues.get(), axisDefinitions.count(), style,
+                    isFixedWidth, familyName, lang, variant));
         }
     }
 
@@ -476,6 +476,29 @@ protected:
         return new SkTypeface_AndroidStream(data, style, isFixedPitch, name);
     }
 
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
+        using Scanner = SkTypeface_FreeType::Scanner;
+        SkAutoTDelete<SkStreamAsset> stream(s);
+        bool isFixedPitch;
+        SkFontStyle style;
+        SkString name;
+        Scanner::AxisDefinitions axisDefinitions;
+        if (!fScanner.scanFont(stream, params.getCollectionIndex(), &name, &style, &isFixedPitch,
+                               &axisDefinitions))
+        {
+            return nullptr;
+        }
+
+        int paramAxisCount;
+        const FontParameters::Axis* paramAxes = params.getAxes(&paramAxisCount);
+        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
+        Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
+
+        SkFontData* data(new SkFontData(stream.detach(), params.getCollectionIndex(),
+                                        axisValues.get(), axisDefinitions.count()));
+        return new SkTypeface_AndroidStream(data, style, isFixedPitch, name);
+    }
+
     SkTypeface* onCreateFromFontData(SkFontData* data) const override {
         SkStreamAsset* stream(data->getStream());
         bool isFixedPitch;
@@ -589,5 +612,3 @@ SkFontMgr* SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
 
     return new SkFontMgr_Android(custom);
 }
-
-#endif//defined(SK_BUILD_FOR_ANDROID)

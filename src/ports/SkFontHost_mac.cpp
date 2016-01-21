@@ -2371,6 +2371,145 @@ protected:
         return create_from_dataProvider(pr);
     }
 
+    static CFNumberRef get_tag_for_name(CFStringRef name, CFArrayRef ctAxes) {
+        CFIndex ctAxisCount = CFArrayGetCount(ctAxes);
+        for (int i = 0; i < ctAxisCount; ++i) {
+            CFTypeRef ctAxisInfo = CFArrayGetValueAtIndex(ctAxes, i);
+            if (CFDictionaryGetTypeID() != CFGetTypeID(ctAxisInfo)) {
+                return nullptr;
+            }
+            CFDictionaryRef ctAxisInfoDict = static_cast<CFDictionaryRef>(ctAxisInfo);
+
+            CFTypeRef ctAxisName = CFDictionaryGetValue(ctAxisInfoDict,
+                                                        kCTFontVariationAxisNameKey);
+            if (!ctAxisName || CFGetTypeID(ctAxisName) != CFStringGetTypeID()) {
+                return nullptr;
+            }
+
+            if (CFEqual(name, ctAxisName)) {
+                CFTypeRef tag = CFDictionaryGetValue(ctAxisInfoDict,
+                                                     kCTFontVariationAxisIdentifierKey);
+                if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
+                    return nullptr;
+                }
+                return static_cast<CFNumberRef>(tag);
+            }
+        }
+        return nullptr;
+    }
+    static CFDictionaryRef get_axes(CGFontRef cg, const FontParameters& params) {
+        AutoCFRelease<CFArrayRef> cgAxes(CGFontCopyVariationAxes(cg));
+        if (!cgAxes) {
+            return nullptr;
+        }
+        CFIndex axisCount = CFArrayGetCount(cgAxes);
+
+        // The CGFont variation data is keyed by name, and lacks the tag.
+        // The CTFont variation data is keyed by tag, and also has the name.
+        // We would like to work with CTFont variaitons, but creating a CTFont font with
+        // CTFont variation dictionary runs into bugs. So use the CTFont variation data
+        // to match names to tags to create the appropriate CGFont.
+        AutoCFRelease<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg, 0, nullptr, nullptr));
+        AutoCFRelease<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct));
+        if (!ctAxes || CFArrayGetCount(ctAxes) != axisCount) {
+            return nullptr;
+        }
+
+        int paramAxisCount;
+        const FontParameters::Axis* paramAxes = params.getAxes(&paramAxisCount);
+
+        CFMutableDictionaryRef dict = CFDictionaryCreateMutable(kCFAllocatorDefault, axisCount,
+                                                                &kCFTypeDictionaryKeyCallBacks,
+                                                                &kCFTypeDictionaryValueCallBacks);
+        for (int i = 0; i < axisCount; ++i) {
+            CFTypeRef axisInfo = CFArrayGetValueAtIndex(cgAxes, i);
+            if (CFDictionaryGetTypeID() != CFGetTypeID(axisInfo)) {
+                return nullptr;
+            }
+            CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
+
+            CFTypeRef axisName = CFDictionaryGetValue(axisInfoDict, kCGFontVariationAxisName);
+            if (!axisName || CFGetTypeID(axisName) != CFStringGetTypeID()) {
+                return nullptr;
+            }
+
+            CFNumberRef tagNumber = get_tag_for_name(static_cast<CFStringRef>(axisName), ctAxes);
+            if (!tagNumber) {
+                // Could not find a tag to go with the name of this index.
+                // This would be a bug in CG/CT.
+                continue;
+            }
+            int64_t tagLong;
+            if (!CFNumberGetValue(tagNumber, kCFNumberSInt64Type, &tagLong)) {
+                return nullptr;
+            }
+
+            // The variation axes can be set to any value, but cg will effectively pin them.
+            // Pin them here to normalize.
+            CFTypeRef min = CFDictionaryGetValue(axisInfoDict, kCGFontVariationAxisMinValue);
+            CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCGFontVariationAxisMaxValue);
+            CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCGFontVariationAxisDefaultValue);
+            if (!min || CFGetTypeID(min) != CFNumberGetTypeID() ||
+                !max || CFGetTypeID(max) != CFNumberGetTypeID() ||
+                !def || CFGetTypeID(def) != CFNumberGetTypeID())
+            {
+                return nullptr;
+            }
+            CFNumberRef minNumber = static_cast<CFNumberRef>(min);
+            CFNumberRef maxNumber = static_cast<CFNumberRef>(max);
+            CFNumberRef defNumber = static_cast<CFNumberRef>(def);
+            double minDouble;
+            double maxDouble;
+            double defDouble;
+            if (!CFNumberGetValue(minNumber, kCFNumberDoubleType, &minDouble) ||
+                !CFNumberGetValue(maxNumber, kCFNumberDoubleType, &maxDouble) ||
+                !CFNumberGetValue(defNumber, kCFNumberDoubleType, &defDouble))
+            {
+                return nullptr;
+            }
+
+            double value = defDouble;
+            for (int j = 0; j < paramAxisCount; ++j) {
+                if (paramAxes[j].fTag == tagLong) {
+                    value = SkTPin(SkScalarToDouble(paramAxes[j].fStyleValue),minDouble,maxDouble);
+                    break;
+                }
+            }
+            CFNumberRef valueNumber = CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType,
+                                                     &value);
+            CFDictionaryAddValue(dict, axisName, valueNumber);
+            CFRelease(valueNumber);
+        }
+        return dict;
+    }
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
+        AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(s));
+        if (nullptr == provider) {
+            return nullptr;
+        }
+        AutoCFRelease<CGFontRef> cg(CGFontCreateWithDataProvider(provider));
+        if (nullptr == cg) {
+            return nullptr;
+        }
+
+        AutoCFRelease<CFDictionaryRef> cgVariations(get_axes(cg, params));
+        // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
+        // created from a data provider does not appear to have any ownership of the underlying
+        // data. The original CGFontRef must be kept alive until the copy will no longer be used.
+        AutoCFRelease<CGFontRef> cgVariant;
+        if (cgVariations) {
+            cgVariant.reset(CGFontCreateCopyWithVariations(cg, cgVariations));
+        } else {
+            cgVariant.reset(cg.detach());
+        }
+
+        CTFontRef ct = CTFontCreateWithGraphicsFont(cgVariant, 0, nullptr, nullptr);
+        if (!ct) {
+            return nullptr;
+        }
+        return NewFromFontRef(ct, cg.detach(), nullptr, true);
+    }
+
     static CFDictionaryRef get_axes(CGFontRef cg, SkFontData* fontData) {
         AutoCFRelease<CFArrayRef> cgAxes(CGFontCopyVariationAxes(cg));
         if (!cgAxes) {

@@ -834,6 +834,29 @@ protected:
                                      isFixedWidth);
     }
 
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
+        using Scanner = SkTypeface_FreeType::Scanner;
+        SkAutoTDelete<SkStreamAsset> stream(s);
+        bool isFixedPitch;
+        SkFontStyle style;
+        SkString name;
+        Scanner::AxisDefinitions axisDefinitions;
+        if (!fScanner.scanFont(stream, params.getCollectionIndex(), &name, &style, &isFixedPitch,
+                               &axisDefinitions))
+        {
+            return nullptr;
+        }
+
+        int paramAxisCount;
+        const FontParameters::Axis* paramAxes = params.getAxes(&paramAxisCount);
+        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
+        Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
+
+        SkFontData* data(new SkFontData(stream.detach(), params.getCollectionIndex(),
+                                        axisValues.get(), axisDefinitions.count()));
+        return new SkTypeface_stream(data, style, isFixedPitch);
+    }
+
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
         return this->createFromStream(new SkMemoryStream(data), ttcIndex);
     }
