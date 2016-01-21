@@ -10,18 +10,22 @@
 
 #include "sk_types.h"
 #include "SkCanvas.h"
+#include "SkImageDecoder.h"
+#include "SkPath.h"
+#include "SkPaint.h"
+#include "SkData.h"
+#include "SkImage.h"
+#include "SkMaskFilter.h"
+#include "SkMatrix.h"
+#include "SkPictureRecorder.h"
+#include "SkSurface.h"
+#include "../../include/effects/SkGradientShader.h"
+#include "../../include/effects/SkBlurMaskFilter.h"
 
-struct SkRect;
-class SkData;
-class SkMaskFilter;
-class SkPaint;
-class SkImage;
-class SkShader;
-class SkCanvas;
-class SkStream;
 class SkFILEStream;
 class SkMemoryStream;
-class SkPictureRecorder;
+
+#define MAKE_FROM_TO_NAME(FROM)     g_ ## FROM ## _map
 
 static inline SkData* AsData(const sk_data_t* cdata) {
     return reinterpret_cast<SkData*>(const_cast<sk_data_t*>(cdata));
@@ -41,6 +45,14 @@ static inline const SkRect* AsRect(const sk_rect_t* crect) {
 
 static inline const SkRect& AsRect(const sk_rect_t& crect) {
     return reinterpret_cast<const SkRect&>(crect);
+}
+
+static inline const SkIRect* AsIRect(const sk_irect_t* crect) {
+    return reinterpret_cast<const SkIRect*>(crect);
+}
+
+static inline const SkIRect& AsIRect(const sk_irect_t& crect) {
+    return reinterpret_cast<const SkIRect&>(crect);
 }
 
 static inline const SkPath& AsPath(const sk_path_t& cpath) {
@@ -127,6 +139,10 @@ static inline SkMemoryStream* AsMemoryStream(sk_stream_memorystream_t* cmemoryst
     return reinterpret_cast<SkMemoryStream*>(cmemorystream);
 }
 
+static inline SkStreamRewindable* AsStreamRewindable(sk_stream_streamrewindable_t* cstreamrewindable) {
+    return reinterpret_cast<SkStreamRewindable*>(cstreamrewindable);
+}
+
 static inline const SkStream* AsStream(const sk_stream_t* cstream) {
     return reinterpret_cast<const SkStream*>(cstream);
 }
@@ -191,5 +207,140 @@ static inline SkCanvas::PointMode MapPointMode(sk_point_mode_t mode)
     return pointMode;
 }
 
+const struct {
+    sk_colortype_t  fC;
+    SkColorType     fSK;
+} MAKE_FROM_TO_NAME(sk_colortype_t)[] = {
+    { UNKNOWN_SK_COLORTYPE,     kUnknown_SkColorType    },
+    { RGBA_8888_SK_COLORTYPE,   kRGBA_8888_SkColorType  },
+    { BGRA_8888_SK_COLORTYPE,   kBGRA_8888_SkColorType  },
+    { ALPHA_8_SK_COLORTYPE,     kAlpha_8_SkColorType    },
+    { RGB_565_SK_COLORTYPE,     kRGB_565_SkColorType    },
+    { N_32_SK_COLORTYPE,        kN32_SkColorType        },
+};
+#define CType           sk_colortype_t
+#define SKType          SkColorType
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_colortype_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_alphatype_t  fC;
+    SkAlphaType     fSK;
+} MAKE_FROM_TO_NAME(sk_alphatype_t)[] = {
+    { OPAQUE_SK_ALPHATYPE,      kOpaque_SkAlphaType     },
+    { PREMUL_SK_ALPHATYPE,      kPremul_SkAlphaType     },
+    { UNPREMUL_SK_ALPHATYPE,    kUnpremul_SkAlphaType   },
+};
+#define CType           sk_alphatype_t
+#define SKType          SkAlphaType
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_alphatype_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_pixelgeometry_t fC;
+    SkPixelGeometry    fSK;
+} MAKE_FROM_TO_NAME(sk_pixelgeometry_t)[] = {
+    { UNKNOWN_SK_PIXELGEOMETRY, kUnknown_SkPixelGeometry },
+    { RGB_H_SK_PIXELGEOMETRY,   kRGB_H_SkPixelGeometry   },
+    { BGR_H_SK_PIXELGEOMETRY,   kBGR_H_SkPixelGeometry   },
+    { RGB_V_SK_PIXELGEOMETRY,   kRGB_V_SkPixelGeometry   },
+    { BGR_V_SK_PIXELGEOMETRY,   kBGR_V_SkPixelGeometry   },
+};
+#define CType           sk_pixelgeometry_t
+#define SKType          SkPixelGeometry
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_pixelgeometry_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_path_direction_t fC;
+    SkPath::Direction   fSK;
+} MAKE_FROM_TO_NAME(sk_path_direction_t)[] = {
+    { CW_SK_PATH_DIRECTION,  SkPath::kCW_Direction },
+    { CCW_SK_PATH_DIRECTION, SkPath::kCCW_Direction },
+};
+#define CType           sk_path_direction_t
+#define SKType          SkPath::Direction
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_path_direction_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_blurstyle_t  fC;
+    SkBlurStyle     fSK;
+} MAKE_FROM_TO_NAME(sk_blurstyle_t)[] = {
+    { NORMAL_SK_BLUR_STYLE, kNormal_SkBlurStyle },
+    { SOLID_SK_BLUR_STYLE,  kSolid_SkBlurStyle },
+    { OUTER_SK_BLUR_STYLE,  kOuter_SkBlurStyle },
+    { INNER_SK_BLUR_STYLE,  kInner_SkBlurStyle },
+};
+#define CType           sk_blurstyle_t
+#define SKType          SkBlurStyle
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_blurstyle_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_shader_tilemode_t    fC;
+    SkShader::TileMode      fSK;
+} MAKE_FROM_TO_NAME(sk_shader_tilemode_t)[] = {
+    { CLAMP_SK_SHADER_TILEMODE,     SkShader::kClamp_TileMode },
+    { REPEAT_SK_SHADER_TILEMODE,    SkShader::kRepeat_TileMode },
+    { MIRROR_SK_SHADER_TILEMODE,    SkShader::kMirror_TileMode  },
+};
+#define CType           sk_shader_tilemode_t
+#define SKType          SkShader::TileMode
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_shader_tilemode_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_stroke_cap_t fC;
+    SkPaint::Cap    fSK;
+} MAKE_FROM_TO_NAME(sk_stroke_cap_t)[] = {
+    { BUTT_SK_STROKE_CAP,   SkPaint::kButt_Cap   },
+    { ROUND_SK_STROKE_CAP,  SkPaint::kRound_Cap  },
+    { SQUARE_SK_STROKE_CAP, SkPaint::kSquare_Cap },
+};
+#define CType           sk_stroke_cap_t
+#define SKType          SkPaint::Cap
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_cap_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_stroke_join_t fC;
+    SkPaint::Join    fSK;
+} MAKE_FROM_TO_NAME(sk_stroke_join_t)[] = {
+    { MITER_SK_STROKE_JOIN, SkPaint::kMiter_Join },
+    { ROUND_SK_STROKE_JOIN, SkPaint::kRound_Join },
+    { BEVEL_SK_STROKE_JOIN, SkPaint::kBevel_Join },
+};
+#define CType           sk_stroke_join_t
+#define SKType          SkPaint::Join
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_join_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_text_align_t fC;
+    SkPaint::Align  fSK;
+} MAKE_FROM_TO_NAME(sk_text_align_t)[] = {
+    { LEFT_SK_TEXT_ALIGN, SkPaint::kLeft_Align },
+    { CENTER_SK_TEXT_ALIGN, SkPaint::kCenter_Align },
+    { RIGHT_SK_TEXT_ALIGN, SkPaint::kRight_Align },
+};
+#define CType           sk_text_align_t
+#define SKType          SkPaint::Align
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_align_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_text_encoding_t    fC;
+    SkPaint::TextEncoding fSK;
+} MAKE_FROM_TO_NAME(sk_text_encoding_t)[] = {
+    { UTF8_SK_TEXT_ENCODING, SkPaint::kUTF8_TextEncoding },
+    { UTF16_SK_TEXT_ENCODING, SkPaint::kUTF16_TextEncoding },
+    { UTF32_SK_TEXT_ENCODING, SkPaint::kUTF32_TextEncoding },
+    { GLYPH_ID_SK_TEXT_ENCODING, SkPaint::kGlyphID_TextEncoding },
+};
+#define CType           sk_text_encoding_t
+#define SKType          SkPaint::TextEncoding
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_encoding_t)
+#include "sk_c_from_to.h"
 
 #endif

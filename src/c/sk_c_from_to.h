@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-static bool find_sk(CType from, SKType* to) {
+static inline bool find_sk(CType from, SKType* to) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(CTypeSkTypeMap); ++i) {
         if (CTypeSkTypeMap[i].fC == from) {
             if (to) {
@@ -17,7 +17,7 @@ static bool find_sk(CType from, SKType* to) {
     return false;
 }
 
-static bool find_c(SKType from, CType* to) {
+static inline bool find_c(SKType from, CType* to) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(CTypeSkTypeMap); ++i) {
         if (CTypeSkTypeMap[i].fSK == from) {
             if (to) {

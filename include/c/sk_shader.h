@@ -18,11 +18,6 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 SK_API void sk_shader_ref(sk_shader_t*);
 SK_API void sk_shader_unref(sk_shader_t*);
 
-typedef enum {
-    CLAMP_SK_SHADER_TILEMODE,
-    REPEAT_SK_SHADER_TILEMODE,
-    MIRROR_SK_SHADER_TILEMODE,
-} sk_shader_tilemode_t;
 
 /**
     Returns a shader that generates a linear gradient between the two

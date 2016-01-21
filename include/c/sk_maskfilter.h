@@ -13,13 +13,6 @@
 
 #include "sk_types.h"
 
-typedef enum {
-    NORMAL_SK_BLUR_STYLE,   //!< fuzzy inside and outside
-    SOLID_SK_BLUR_STYLE,    //!< solid inside, fuzzy outside
-    OUTER_SK_BLUR_STYLE,    //!< nothing inside, fuzzy outside
-    INNER_SK_BLUR_STYLE,    //!< fuzzy inside, nothing outside
-} sk_blurstyle_t;
-
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 /**

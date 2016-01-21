@@ -10,65 +10,6 @@
 #include "sk_paint.h"
 #include "sk_types_priv.h"
 
-#define MAKE_FROM_TO_NAME(FROM)     g_ ## FROM ## _map
-
-const struct {
-    sk_stroke_cap_t fC;
-    SkPaint::Cap    fSK;
-} MAKE_FROM_TO_NAME(sk_stroke_cap_t)[] = {
-    { BUTT_SK_STROKE_CAP,   SkPaint::kButt_Cap   },
-    { ROUND_SK_STROKE_CAP,  SkPaint::kRound_Cap  },
-    { SQUARE_SK_STROKE_CAP, SkPaint::kSquare_Cap },
-};
-
-const struct {
-    sk_stroke_join_t fC;
-    SkPaint::Join    fSK;
-} MAKE_FROM_TO_NAME(sk_stroke_join_t)[] = {
-    { MITER_SK_STROKE_JOIN, SkPaint::kMiter_Join },
-    { ROUND_SK_STROKE_JOIN, SkPaint::kRound_Join },
-    { BEVEL_SK_STROKE_JOIN, SkPaint::kBevel_Join },
-};
-
-const struct {
-    sk_text_align_t fC;
-    SkPaint::Align  fSK;
-} MAKE_FROM_TO_NAME(sk_text_align_t)[] = {
-    { LEFT_SK_TEXT_ALIGN, SkPaint::kLeft_Align },
-    { CENTER_SK_TEXT_ALIGN, SkPaint::kCenter_Align },
-    { RIGHT_SK_TEXT_ALIGN, SkPaint::kRight_Align },
-};
-
-const struct {
-    sk_text_encoding_t    fC;
-    SkPaint::TextEncoding fSK;
-} MAKE_FROM_TO_NAME(sk_text_encoding_t)[] = {
-    { UTF8_SK_TEXT_ENCODING, SkPaint::kUTF8_TextEncoding },
-    { UTF16_SK_TEXT_ENCODING, SkPaint::kUTF16_TextEncoding },
-    { UTF32_SK_TEXT_ENCODING, SkPaint::kUTF32_TextEncoding },
-    { GLYPH_ID_SK_TEXT_ENCODING, SkPaint::kGlyphID_TextEncoding },
-};
-
-#define CType           sk_stroke_cap_t
-#define SKType          SkPaint::Cap
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_cap_t)
-#include "sk_c_from_to.h"
-
-#define CType           sk_stroke_join_t
-#define SKType          SkPaint::Join
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_stroke_join_t)
-#include "sk_c_from_to.h"
-
-#define CType           sk_text_align_t
-#define SKType          SkPaint::Align
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_align_t)
-#include "sk_c_from_to.h"
-
-#define CType           sk_text_encoding_t
-#define SKType          SkPaint::TextEncoding
-#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_encoding_t)
-#include "sk_c_from_to.h"
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_paint_t* sk_paint_new() { return (sk_paint_t*)new SkPaint; }

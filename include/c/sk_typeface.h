@@ -15,13 +15,6 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-typedef enum {
-	NORMAL_TYPEFACE_STYLE = 0,
-	BOLD_TYPEFACE_STYLE = 1,
-	ITALIC_TYPEFACE_STYLE = 2,
-	BOLD_ITALIC_TYPEFACE_STYLE = 3
-} sk_typeface_style_t;
-
 /**
 */
 SK_API sk_typeface_t* sk_typeface_create_from_name(const char *familyName, sk_typeface_style_t style);

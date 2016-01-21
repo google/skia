@@ -89,12 +89,6 @@ SK_API float sk_paint_get_stroke_miter(const sk_paint_t*);
 */
 SK_API void sk_paint_set_stroke_miter(sk_paint_t*, float miter);
 
-typedef enum {
-    BUTT_SK_STROKE_CAP,
-    ROUND_SK_STROKE_CAP,
-    SQUARE_SK_STROKE_CAP
-} sk_stroke_cap_t;
-
 /**
     Return the paint's stroke cap type, controlling how the start and
     end of stroked lines and paths are treated.
@@ -105,12 +99,6 @@ SK_API sk_stroke_cap_t sk_paint_get_stroke_cap(const sk_paint_t*);
     end of stroked lines and paths are treated.
 */
 SK_API void sk_paint_set_stroke_cap(sk_paint_t*, sk_stroke_cap_t);
-
-typedef enum {
-    MITER_SK_STROKE_JOIN,
-    ROUND_SK_STROKE_JOIN,
-    BEVEL_SK_STROKE_JOIN
-} sk_stroke_join_t;
 
 /**
     Return the paint's stroke join type, specifies the treatment that
@@ -156,12 +144,6 @@ SK_API float sk_paint_get_textsize(sk_paint_t*);
  */
 SK_API void sk_paint_set_textsize(sk_paint_t*, float);
 
-typedef enum {
-    LEFT_SK_TEXT_ALIGN,
-    CENTER_SK_TEXT_ALIGN,
-    RIGHT_SK_TEXT_ALIGN
-} sk_text_align_t;
-
 /**
  *  Get the paint's text alignment
  */
@@ -170,13 +152,6 @@ SK_API sk_text_align_t sk_paint_get_text_align(const sk_paint_t*);
  *  Set the paint's text alignment
  */
 SK_API void sk_paint_set_text_align(sk_paint_t*, sk_text_align_t);
-
-typedef enum {
-    UTF8_SK_TEXT_ENCODING,
-    UTF16_SK_TEXT_ENCODING,
-    UTF32_SK_TEXT_ENCODING,
-    GLYPH_ID_SK_TEXT_ENCODING
-} sk_text_encoding_t;
 
 /**
  *  Get the paint's text encoding

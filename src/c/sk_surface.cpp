@@ -24,70 +24,15 @@
 #include "sk_surface.h"
 #include "sk_types_priv.h"
 
-const struct {
-    sk_colortype_t  fC;
-    SkColorType     fSK;
-} gColorTypeMap[] = {
-    { UNKNOWN_SK_COLORTYPE,     kUnknown_SkColorType    },
-    { RGBA_8888_SK_COLORTYPE,   kRGBA_8888_SkColorType  },
-    { BGRA_8888_SK_COLORTYPE,   kBGRA_8888_SkColorType  },
-    { ALPHA_8_SK_COLORTYPE,     kAlpha_8_SkColorType    },
-};
-
-const struct {
-    sk_alphatype_t  fC;
-    SkAlphaType     fSK;
-} gAlphaTypeMap[] = {
-    { OPAQUE_SK_ALPHATYPE,      kOpaque_SkAlphaType     },
-    { PREMUL_SK_ALPHATYPE,      kPremul_SkAlphaType     },
-    { UNPREMUL_SK_ALPHATYPE,    kUnpremul_SkAlphaType   },
-};
-
-static bool from_c_colortype(sk_colortype_t cCT, SkColorType* skCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
-        if (gColorTypeMap[i].fC == cCT) {
-            if (skCT) {
-                *skCT = gColorTypeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool to_c_colortype(SkColorType skCT, sk_colortype_t* cCT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypeMap); ++i) {
-        if (gColorTypeMap[i].fSK == skCT) {
-            if (cCT) {
-                *cCT = gColorTypeMap[i].fC;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool from_c_alphatype(sk_alphatype_t cAT, SkAlphaType* skAT) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlphaTypeMap); ++i) {
-        if (gAlphaTypeMap[i].fC == cAT) {
-            if (skAT) {
-                *skAT = gAlphaTypeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     SkColorType ct;
     SkAlphaType at;
 
-    if (!from_c_colortype(cinfo.colorType, &ct)) {
+    if (!find_sk(cinfo.colorType, &ct)) {
         // optionally report error to client?
         return false;
     }
-    if (!from_c_alphatype(cinfo.alphaType, &at)) {
+    if (!find_sk(cinfo.alphaType, &at)) {
         // optionally report error to client?
         return false;
     }
@@ -97,61 +42,17 @@ static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     return true;
 }
 
-const struct {
-    sk_pixelgeometry_t fC;
-    SkPixelGeometry    fSK;
-} gPixelGeometryMap[] = {
-    { UNKNOWN_SK_PIXELGEOMETRY, kUnknown_SkPixelGeometry },
-    { RGB_H_SK_PIXELGEOMETRY,   kRGB_H_SkPixelGeometry   },
-    { BGR_H_SK_PIXELGEOMETRY,   kBGR_H_SkPixelGeometry   },
-    { RGB_V_SK_PIXELGEOMETRY,   kRGB_V_SkPixelGeometry   },
-    { BGR_V_SK_PIXELGEOMETRY,   kBGR_V_SkPixelGeometry   },
-};
-
-
-static bool from_c_pixelgeometry(sk_pixelgeometry_t cGeom, SkPixelGeometry* skGeom) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPixelGeometryMap); ++i) {
-        if (gPixelGeometryMap[i].fC == cGeom) {
-            if (skGeom) {
-                *skGeom = gPixelGeometryMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
                    cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
                    cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
 }
 
-const struct {
-    sk_path_direction_t fC;
-    SkPath::Direction   fSk;
-} gPathDirMap[] = {
-    { CW_SK_PATH_DIRECTION,  SkPath::kCW_Direction },
-    { CCW_SK_PATH_DIRECTION, SkPath::kCCW_Direction },
-};
-
-static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* dir) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPathDirMap); ++i) {
-        if (gPathDirMap[i].fC == cdir) {
-            if (dir) {
-                *dir = gPathDirMap[i].fSk;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 sk_colortype_t sk_colortype_get_default_8888() {
     sk_colortype_t ct;
-    if (!to_c_colortype(kN32_SkColorType, &ct)) {
+    if (!find_c(kN32_SkColorType, &ct)) {
         ct = UNKNOWN_SK_COLORTYPE;
     }
     return ct;
@@ -229,7 +130,7 @@ void sk_path_close(sk_path_t* cpath) {
 
 void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
     SkPath::Direction dir;
-    if (!from_c_path_direction(cdir, &dir)) {
+    if (!find_sk(cdir, &dir)) {
         return;
     }
     as_path(cpath)->addRect(AsRect(*crect), dir);
@@ -237,7 +138,7 @@ void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
 
 void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
     SkPath::Direction dir;
-    if (!from_c_path_direction(cdir, &dir)) {
+    if (!find_sk(cdir, &dir)) {
         return;
     }
     as_path(cpath)->addOval(AsRect(*crect), dir);
@@ -418,7 +319,7 @@ sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
         return NULL;
     }
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;
-    if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
+    if (props && !find_sk(props->pixelGeometry, &geo)) {
         return NULL;
     }
 
@@ -434,7 +335,7 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
         return NULL;
     }
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;
-    if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
+    if (props && !find_sk(props->pixelGeometry, &geo)) {
         return NULL;
     }
 
@@ -496,27 +397,6 @@ sk_rect_t sk_picture_get_bounds(sk_picture_t* cpic) {
 #include "../../include/effects/SkGradientShader.h"
 #include "sk_shader.h"
 
-const struct {
-    sk_shader_tilemode_t    fC;
-    SkShader::TileMode      fSK;
-} gTileModeMap[] = {
-    { CLAMP_SK_SHADER_TILEMODE,     SkShader::kClamp_TileMode },
-    { REPEAT_SK_SHADER_TILEMODE,    SkShader::kRepeat_TileMode },
-    { MIRROR_SK_SHADER_TILEMODE,    SkShader::kMirror_TileMode  },
-};
-
-static bool from_c_tilemode(sk_shader_tilemode_t cMode, SkShader::TileMode* skMode) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTileModeMap); ++i) {
-        if (cMode == gTileModeMap[i].fC) {
-            if (skMode) {
-                *skMode = gTileModeMap[i].fSK;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 void sk_shader_ref(sk_shader_t* cshader) {
     SkSafeRef(AsShader(cshader));
 }
@@ -532,7 +412,7 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
                                            sk_shader_tilemode_t cmode,
                                            const sk_matrix_t* cmatrix) {
     SkShader::TileMode mode;
-    if (!from_c_tilemode(cmode, &mode)) {
+    if (!find_sk(cmode, &mode)) {
         return NULL;
     }
     SkMatrix matrix;
@@ -559,7 +439,7 @@ sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
                                            sk_shader_tilemode_t cmode,
                                            const sk_matrix_t* cmatrix) {
     SkShader::TileMode mode;
-    if (!from_c_tilemode(cmode, &mode)) {
+    if (!find_sk(cmode, &mode)) {
         return NULL;
     }
     SkMatrix matrix;
@@ -607,7 +487,7 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
                                                       sk_shader_tilemode_t cmode,
                                                       const sk_matrix_t* cmatrix) {
     SkShader::TileMode mode;
-    if (!from_c_tilemode(cmode, &mode)) {
+    if (!find_sk(cmode, &mode)) {
         return NULL;
     }
     SkMatrix matrix;
@@ -632,28 +512,6 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
 #include "../../include/effects/SkBlurMaskFilter.h"
 #include "sk_maskfilter.h"
 
-const struct {
-    sk_blurstyle_t  fC;
-    SkBlurStyle     fSk;
-} gBlurStylePairs[] = {
-    { NORMAL_SK_BLUR_STYLE, kNormal_SkBlurStyle },
-    { SOLID_SK_BLUR_STYLE,  kSolid_SkBlurStyle },
-    { OUTER_SK_BLUR_STYLE,  kOuter_SkBlurStyle },
-    { INNER_SK_BLUR_STYLE,  kInner_SkBlurStyle },
-};
-
-static bool find_blurstyle(sk_blurstyle_t csrc, SkBlurStyle* dst) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gBlurStylePairs); ++i) {
-        if (gBlurStylePairs[i].fC == csrc) {
-            if (dst) {
-                *dst = gBlurStylePairs[i].fSk;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 void sk_maskfilter_ref(sk_maskfilter_t* cfilter) {
     SkSafeRef(AsMaskFilter(cfilter));
 }
@@ -664,7 +522,7 @@ void sk_maskfilter_unref(sk_maskfilter_t* cfilter) {
 
 sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     SkBlurStyle style;
-    if (!find_blurstyle(cstyle, &style)) {
+    if (!find_sk(cstyle, &style)) {
         return NULL;
     }
     return ToMaskFilter(SkBlurMaskFilter::Create(style, sigma));

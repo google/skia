@@ -45,6 +45,8 @@ typedef enum {
     RGBA_8888_SK_COLORTYPE,
     BGRA_8888_SK_COLORTYPE,
     ALPHA_8_SK_COLORTYPE,
+    RGB_565_SK_COLORTYPE,
+    N_32_SK_COLORTYPE,
 } sk_colortype_t;
 
 typedef enum {
@@ -181,6 +183,7 @@ typedef struct sk_stream_t sk_stream_t;
 typedef struct sk_stream_filestream_t sk_stream_filestream_t;
 typedef struct sk_stream_asset_t sk_stream_asset_t;
 typedef struct sk_stream_memorystream_t sk_stream_memorystream_t;
+typedef struct sk_stream_streamrewindable_t sk_stream_streamrewindable_t;
 
 typedef enum {
 	UTF8_ENCODING,
@@ -225,6 +228,56 @@ typedef enum {
     LINES_SK_POINT_MODE,
     POLYGON_SK_POINT_MODE
 } sk_point_mode_t;
+
+typedef enum {
+    NORMAL_SK_BLUR_STYLE,   //!< fuzzy inside and outside
+    SOLID_SK_BLUR_STYLE,    //!< solid inside, fuzzy outside
+    OUTER_SK_BLUR_STYLE,    //!< nothing inside, fuzzy outside
+    INNER_SK_BLUR_STYLE,    //!< fuzzy inside, nothing outside
+} sk_blurstyle_t;
+
+typedef enum {
+    BUTT_SK_STROKE_CAP,
+    ROUND_SK_STROKE_CAP,
+    SQUARE_SK_STROKE_CAP
+} sk_stroke_cap_t;
+
+typedef enum {
+    MITER_SK_STROKE_JOIN,
+    ROUND_SK_STROKE_JOIN,
+    BEVEL_SK_STROKE_JOIN
+} sk_stroke_join_t;
+
+typedef enum {
+    LEFT_SK_TEXT_ALIGN,
+    CENTER_SK_TEXT_ALIGN,
+    RIGHT_SK_TEXT_ALIGN
+} sk_text_align_t;
+
+typedef enum {
+    UTF8_SK_TEXT_ENCODING,
+    UTF16_SK_TEXT_ENCODING,
+    UTF32_SK_TEXT_ENCODING,
+    GLYPH_ID_SK_TEXT_ENCODING
+} sk_text_encoding_t;
+
+typedef enum {
+    CW_SK_PATH_DIRECTION,
+    CCW_SK_PATH_DIRECTION,
+} sk_path_direction_t;
+
+typedef enum {
+    CLAMP_SK_SHADER_TILEMODE,
+    REPEAT_SK_SHADER_TILEMODE,
+    MIRROR_SK_SHADER_TILEMODE,
+} sk_shader_tilemode_t;
+
+typedef enum {
+	NORMAL_TYPEFACE_STYLE = 0,
+	BOLD_TYPEFACE_STYLE = 1,
+	ITALIC_TYPEFACE_STYLE = 2,
+	BOLD_ITALIC_TYPEFACE_STYLE = 3
+} sk_typeface_style_t;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
