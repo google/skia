@@ -130,6 +130,13 @@ public:
     }
 
     /**
+     * Set the layout qualifier
+     */
+    void setLayoutQualifier(const char* layoutQualifier) {
+        fLayoutQualifier = layoutQualifier;
+    }
+
+    /**
      * Write a declaration of this variable to out.
      */
     void appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
