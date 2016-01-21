@@ -7,7 +7,7 @@
 
 #include "SkData.h"
 #include "SkMatrix.h"
-#include "SkValue.h"
+#include "SkToFromValue.h"
 #include "Test.h"
 
 static const SkValue::Type example_type =

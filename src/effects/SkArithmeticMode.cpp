@@ -11,6 +11,8 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
+#include "SkValue.h"
+#include "SkValueKeys.h"
 #if SK_SUPPORT_GPU
 #include "SkArithmeticMode_gpu.h"
 #endif
@@ -53,6 +55,18 @@ private:
         buffer.writeScalar(fK[3]);
         buffer.writeBool(fEnforcePMColor);
     }
+
+    SkValue asValue() const override {
+        auto value = SkValue::Object(SkValue::ArithmeticXfermode);
+        using namespace SkValueKeys::ArithmeticXfermode;
+        value.set(kK0, SkValue::FromF32(fK[0]));
+        value.set(kK1, SkValue::FromF32(fK[1]));
+        value.set(kK2, SkValue::FromF32(fK[2]));
+        value.set(kK3, SkValue::FromF32(fK[3]));
+        value.set(kEnforcePMColor, SkValue::FromS32(fEnforcePMColor ? 1 : 0));
+        return value;
+    }
+
     SkScalar fK[4];
     bool fEnforcePMColor;
 

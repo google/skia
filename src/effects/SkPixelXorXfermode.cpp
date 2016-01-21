@@ -12,6 +12,8 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
+#include "SkValue.h"
+#include "SkValueKeys.h"
 
 // we always return an opaque color, 'cause I don't know what to do with
 // the alpha-component and still return a valid premultiplied color.
@@ -35,3 +37,10 @@ void SkPixelXorXfermode::toString(SkString* str) const {
     str->appendHex(fOpColor);
 }
 #endif
+
+SkValue SkPixelXorXfermode::asValue() const {
+    auto value = SkValue::Object(SkValue::PixelXorXfermode);
+    value.set(SkValueKeys::PixelXorXfermode::kOpColor,
+              SkValue::FromU32(SkToU32(fOpColor)));
+    return value;
+}

@@ -27,6 +27,12 @@ public:
 
         Matrix,
 
+        ArithmeticXfermode,
+        DefaultXfermode,
+        LerpXfermode,
+        PixelXorXfermode,
+        ProcCoeffXfermode,
+
         kMaxPublicObject = 0x7FFFFFFF,
         // 2147483648+ won't be used by Skia.  They're open for
         // client-specific use, testing, etc.
@@ -107,11 +113,5 @@ private:
     template <typename T> static SkValue FromTs(SkValue::Type, SkData*);
     template <typename T> const T* asTs(SkValue::Type, int*) const;
 };
-
-template <typename T>
-SkValue SkToValue(const T&);
-
-template <typename T>
-bool SkFromValue(const SkValue&, T*);
 
 #endif  // SkValue_DEFINED

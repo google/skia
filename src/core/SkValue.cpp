@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "SkData.h"
-#include "SkMatrix.h"
 #include "SkValue.h"
 
 class SkValue::Obj {
@@ -184,37 +183,3 @@ SkValue SkValue::FromTs(SkValue::Type type, SkData* data) {
 SkValue SkValue::FromU16s(SkData* d) { return FromTs<uint16_t>(U16s, d); }
 SkValue SkValue::FromU32s(SkData* d) { return FromTs<uint32_t>(U32s, d); }
 SkValue SkValue::FromF32s(SkData* d) { return FromTs<   float>(F32s, d); }
-
-////////////////////////////////////////////////////////////////////////////////
-
-#define REQUIRE(cond) do { if (!(cond)) { SkASSERT(false); return false; } } while (false)
-
-template<> SkValue SkToValue<SkMatrix>(const SkMatrix& mat) {
-    auto val = SkValue::Object(SkValue::Matrix);
-    for (int i = 0; i < 9; ++i) {
-        if (mat[i] != SkMatrix::I()[i]) {
-            val.set(i, SkValue::FromF32(mat[i]));
-        }
-    }
-    return val;
-}
-
-template<> bool SkFromValue<float>(const SkValue& val, float* f) {
-    REQUIRE(val.type() == SkValue::F32);
-    *f = val.f32();
-    return true;
-}
-
-template<> bool SkFromValue<SkMatrix>(const SkValue& val, SkMatrix* m){
-    REQUIRE(val.type() == SkValue::Matrix);
-
-    *m = SkMatrix::I();
-    for (int i = 0; i < 9; i++) {
-        if (auto v = val.get(i)) {
-            REQUIRE(SkFromValue(*v, &(*m)[i]));
-        }
-    }
-    return true;
-}
-
-#undef REQUIRE

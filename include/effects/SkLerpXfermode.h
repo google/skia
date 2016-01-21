@@ -39,6 +39,8 @@ private:
 
     unsigned fScale256;  // 0..256
 
+    SkValue asValue() const override;
+
     typedef SkXfermode INHERITED;
 };
 
