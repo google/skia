@@ -67,13 +67,22 @@ static SkShader* sh_make_lineargradient1() {
 
 static SkShader* sh_make_image() {
     SkAutoTUnref<SkImage> image(GetResourceAsImage("mandrill_128.png"));
+    if (!image) {
+        return nullptr;
+    }
     return image->newShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 }
 
 static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
-    *array->append() = sh_make_lineargradient0();
-    *array->append() = sh_make_lineargradient1();
-    *array->append() = sh_make_image();
+    if (SkShader* shader = sh_make_lineargradient0()) {
+        *array->append() = shader;
+    }
+    if (SkShader* shader = sh_make_lineargradient1()) {
+        *array->append() = shader;
+    }
+    if (SkShader* shader = sh_make_image()) {
+        *array->append() = shader;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +207,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 800, 800) {
     canvas->translate(20, 20);
     for (int y = 0; y < shaders.count(); ++y) {
         SkShader* shader = shaders[y];
-        
+
         canvas->save();
         for (int x = -1; x < filters.count(); ++x) {
             SkColorFilter* filter = x >= 0 ? filters[x] : nullptr;
