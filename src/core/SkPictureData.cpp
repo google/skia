@@ -413,6 +413,9 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(fInfo.fFlags));
             buffer.setVersion(fInfo.fVersion);
 
+            if (!fFactoryPlayback) {
+                return false;
+            }
             fFactoryPlayback->setupBuffer(buffer);
             buffer.setBitmapDecoder(proc);
 
