@@ -78,4 +78,8 @@ static inline unsigned SkDiv255Round(unsigned prod) {
     return (prod + (prod >> 8)) >> 8;
 }
 
+static inline float SkPinToUnitFloat(float x) {
+    return SkTMin(SkTMax(x, 0.0f), 1.0f);
+}
+
 #endif

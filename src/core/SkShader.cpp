@@ -117,6 +117,10 @@ SkShader::Context::ShadeProc SkShader::Context::asAShadeProc(void** ctx) {
     return nullptr;
 }
 
+void SkShader::Context::shadeSpan4f(int x, int y, SkPM4f[], int count) {
+    SkASSERT(false && "shadeSpan4f called but not implemented");
+}
+
 #include "SkColorPriv.h"
 
 #define kTempColorQuadCount 6   // balance between speed (larger) and saving stack-space
@@ -279,7 +283,11 @@ SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shade
     }
     fPMColor = SkPackARGB32(a, r, g, b);
 
-    fFlags = kConstInY32_Flag;
+    SkColor4f c4 = SkColor4f::FromColor(shader.fColor);
+    c4.fA *= rec.fPaint->getAlpha() / 255.0f;
+    fPM4f = c4.premul();
+
+    fFlags = kConstInY32_Flag | kSupports4f_Flag;
     if (255 == a) {
         fFlags |= kOpaqueAlpha_Flag;
     }
@@ -291,6 +299,12 @@ void SkColorShader::ColorShaderContext::shadeSpan(int x, int y, SkPMColor span[]
 
 void SkColorShader::ColorShaderContext::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
     memset(alpha, SkGetPackedA32(fPMColor), count);
+}
+
+void SkColorShader::ColorShaderContext::shadeSpan4f(int x, int y, SkPM4f span[], int count) {
+    for (int i = 0; i < count; ++i) {
+        span[i] = fPM4f;
+    }
 }
 
 SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {

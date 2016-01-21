@@ -35,6 +35,10 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
     return SkUnPreMultiply::PMColorToColor(dst);
 }
 
+void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f[]) const {
+    SkASSERT(false && "filterSpan4f called but not implemented");
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*

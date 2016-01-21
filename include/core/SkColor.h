@@ -160,4 +160,44 @@ SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 */
 typedef SkPMColor (*SkXfermodeProc)(SkPMColor src, SkPMColor dst);
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+ *  The float values are 0...1 premultiplied
+ */
+struct SK_ATTRIBUTE(aligned(16)) SkPM4f {
+    float fVec[4];
+
+    float a() const { return fVec[SK_A32_SHIFT/8]; }
+};
+
+/*
+ *  The float values are 0...1 unpremultiplied
+ */
+struct SkColor4f {
+    float fA;
+    float fR;
+    float fG;
+    float fB;
+
+    bool operator==(const SkColor4f& other) const {
+        return fA == other.fA && fR == other.fR && fG == other.fG && fB == other.fB;
+    }
+    bool operator!=(const SkColor4f& other) const {
+        return !(*this == other);
+    }
+
+    const float* vec() const { return &fA; }
+    float* vec() { return &fA; }
+
+    static SkColor4f Pin(float a, float r, float g, float b);
+    static SkColor4f FromColor(SkColor);
+
+    SkColor4f pin() const {
+        return Pin(fA, fR, fG, fB);
+    }
+
+    SkPM4f premul() const;
+};
+
 #endif
