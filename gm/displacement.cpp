@@ -43,7 +43,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(500, 500);
+        return SkISize::Make(600, 500);
     }
 
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) const {
@@ -152,6 +152,13 @@ protected:
             SkDisplacementMapEffect::kA_ChannelSelectorType,
             40.0f, displ, nullptr, &cropRect))->unref();
         drawClippedBitmap(canvas, 400, 300, paint);
+
+        // Test for negative scale.
+        paint.setImageFilter(SkDisplacementMapEffect::Create(
+            SkDisplacementMapEffect::kG_ChannelSelectorType,
+            SkDisplacementMapEffect::kA_ChannelSelectorType,
+            -40.0f, displ))->unref();
+        this->drawClippedBitmap(canvas, 500, 0, paint);
 
         // Tests for images of different sizes
         displ.reset(SkImageSource::Create(fSmall));
