@@ -136,11 +136,9 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     const int origW = fProvider.info().width();
     const int origH = fProvider.info().height();
     bool allow_ignore_fractional_translate = true;  // historical default
-#ifndef SK_SUPPORT_LEGACY_TRANSLATEROUNDHACK
     if (kMedium_SkFilterQuality == fFilterLevel) {
         allow_ignore_fractional_translate = false;
     }
-#endif
 
     SkDefaultBitmapController controller;
     fBMState = controller.requestBitmap(fProvider, inv, paint.getFilterQuality(),
@@ -183,13 +181,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             if ((clampClamp && allow_ignore_fractional_translate)
                            ? just_trans_clamp(forward, fPixmap)
                            : just_trans_general(forward)) {
-#ifdef SK_SUPPORT_LEGACY_TRANSLATEROUNDHACK
-                SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
-                SkScalar ty = -SkScalarRoundToScalar(forward.getTranslateY());
-                fInvMatrix.setTranslate(tx, ty);
-#else
                 fInvMatrix.setTranslate(-forward.getTranslateX(), -forward.getTranslateY());
-#endif
             }
         }
     }
