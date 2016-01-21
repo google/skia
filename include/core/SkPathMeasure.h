@@ -20,8 +20,11 @@ public:
         for the lifetime of the measure object, or until setPath() is called with
         a different path (or null), since the measure object keeps a pointer to the
         path object (does not copy its data).
+
+        resScale controls the precision of the measure. values > 1 increase the
+        precision (and possible slow down the computation).
     */
-    SkPathMeasure(const SkPath& path, bool forceClosed);
+    SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkPathMeasure();
 
     /** Reset the pathmeasure with the specified path. The path must remain valid
@@ -82,6 +85,7 @@ public:
 private:
     SkPath::Iter    fIter;
     const SkPath*   fPath;
+    SkScalar        fTolerance;
     SkScalar        fLength;            // relative to the current contour
     int             fFirstPtIndex;      // relative to the current contour
     bool            fIsClosed;          // relative to the current contour
@@ -117,6 +121,12 @@ private:
     SkScalar compute_cubic_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
     const Segment* distanceToSegment(SkScalar distance, SkScalar* t);
+    bool quad_too_curvy(const SkPoint pts[3]);
+#ifndef SK_SUPPORT_LEGACY_CONIC_MEASURE
+    bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,const SkPoint& lastPt);
+#endif
+    bool cheap_dist_exceeds_limit(const SkPoint& pt, SkScalar x, SkScalar y);
+    bool cubic_too_curvy(const SkPoint pts[4]);
 };
 
 #endif

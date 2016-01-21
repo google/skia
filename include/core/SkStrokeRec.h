@@ -63,6 +63,10 @@ public:
         fMiterLimit = miterLimit;
     }
 
+    SkScalar getResScale() const {
+        return fResScale;
+    }
+
     void setResScale(SkScalar rs) {
         SkASSERT(rs > 0 && SkScalarIsFinite(rs));
         fResScale = rs;

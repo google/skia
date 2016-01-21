@@ -242,7 +242,7 @@ bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec
     SpecialLineRec lineRec;
     bool specialLine = lineRec.init(*srcPtr, dst, rec, count >> 1, intervalLength);
 
-    SkPathMeasure   meas(*srcPtr, false);
+    SkPathMeasure   meas(*srcPtr, false, rec->getResScale());
 
     do {
         bool        skipFirstSegment = meas.isClosed();

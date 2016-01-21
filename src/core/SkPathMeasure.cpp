@@ -61,7 +61,7 @@ static inline int tspan_big_enough(int tspan) {
 // so we compare midpoints
 #define CHEAP_DIST_LIMIT    (SK_Scalar1/2)  // just made this value up
 
-static bool quad_too_curvy(const SkPoint pts[3]) {
+bool SkPathMeasure::quad_too_curvy(const SkPoint pts[3]) {
     // diff = (a/4 + b/2 + c/4) - (a/2 + c/2)
     // diff = -a/4 + b/2 - c/4
     SkScalar dx = SkScalarHalf(pts[1].fX) -
@@ -70,28 +70,28 @@ static bool quad_too_curvy(const SkPoint pts[3]) {
                         SkScalarHalf(SkScalarHalf(pts[0].fY + pts[2].fY));
 
     SkScalar dist = SkMaxScalar(SkScalarAbs(dx), SkScalarAbs(dy));
-    return dist > CHEAP_DIST_LIMIT;
+    return dist > fTolerance;
 }
 
 #ifndef SK_SUPPORT_LEGACY_CONIC_MEASURE
-static bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
+bool SkPathMeasure::conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
                             const SkPoint& lastPt) {
     SkPoint midEnds = firstPt + lastPt;
     midEnds *= 0.5f;
     SkVector dxy = midTPt - midEnds;
     SkScalar dist = SkMaxScalar(SkScalarAbs(dxy.fX), SkScalarAbs(dxy.fY));
-    return dist > CHEAP_DIST_LIMIT;
+    return dist > fTolerance;
 }
 #endif
 
-static bool cheap_dist_exceeds_limit(const SkPoint& pt,
+bool SkPathMeasure::cheap_dist_exceeds_limit(const SkPoint& pt,
                                      SkScalar x, SkScalar y) {
     SkScalar dist = SkMaxScalar(SkScalarAbs(x - pt.fX), SkScalarAbs(y - pt.fY));
     // just made up the 1/2
-    return dist > CHEAP_DIST_LIMIT;
+    return dist > fTolerance;
 }
 
-static bool cubic_too_curvy(const SkPoint pts[4]) {
+bool SkPathMeasure::cubic_too_curvy(const SkPoint pts[4]) {
     return  cheap_dist_exceeds_limit(pts[1],
                          SkScalarInterp(pts[0].fX, pts[3].fX, SK_Scalar1/3),
                          SkScalarInterp(pts[0].fY, pts[3].fY, SK_Scalar1/3))
@@ -529,13 +529,19 @@ static void seg_to(const SkPoint pts[], int segType,
 
 SkPathMeasure::SkPathMeasure() {
     fPath = nullptr;
+    fTolerance = CHEAP_DIST_LIMIT;
     fLength = -1;   // signal we need to compute it
     fForceClosed = false;
     fFirstPtIndex = -1;
 }
 
-SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed) {
+SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale) {
     fPath = &path;
+#ifdef SK_SUPPORT_LEGACY_DASH_MEASURE
+    fTolerance = CHEAP_DIST_LIMIT;
+#else
+    fTolerance = CHEAP_DIST_LIMIT * SkScalarInvert(resScale);
+#endif
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
     fFirstPtIndex = -1;
