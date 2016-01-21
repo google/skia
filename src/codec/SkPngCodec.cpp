@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec_libpng.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
 #include "SkBitmap.h"
 #include "SkMath.h"
+#include "SkPngCodec.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"

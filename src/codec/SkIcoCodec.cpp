@@ -6,11 +6,11 @@
  */
 
 #include "SkBmpCodec.h"
-#include "SkCodec_libpng.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkIcoCodec.h"
+#include "SkPngCodec.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTSort.h"

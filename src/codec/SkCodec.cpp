@@ -7,7 +7,6 @@
 
 #include "SkBmpCodec.h"
 #include "SkCodec.h"
-#include "SkCodec_libpng.h"
 #include "SkCodecPriv.h"
 #include "SkData.h"
 #include "SkGifCodec.h"
@@ -15,6 +14,7 @@
 #if !defined(GOOGLE3)
 #include "SkJpegCodec.h"
 #endif
+#include "SkPngCodec.h"
 #include "SkStream.h"
 #include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
