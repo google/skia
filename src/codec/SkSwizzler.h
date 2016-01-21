@@ -162,10 +162,14 @@ private:
                                          int dstWidth, int bpp, int deltaSrc, int offset,
                                          const SkPMColor ctable[]);
 
-    // May be NULL.  We will not always be able to used an optimized function.
-    RowProc             fFastProc;
-    // Always non-NULL.  We use this if fFastProc is NULL.
-    const RowProc       fProc;
+    // May be NULL.  We have not implemented optimized functions for all supported transforms.
+    const RowProc       fFastProc;
+    // Always non-NULL.  Supports sampling.
+    const RowProc       fSlowProc;
+    // The actual RowProc we are using.  This depends on if fFastProc is non-NULL and
+    // whether or not we are sampling.
+    RowProc             fActualProc;
+
     const SkPMColor*    fColorTable;      // Unowned pointer
 
     // Subset Swizzles

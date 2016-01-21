@@ -769,7 +769,8 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
 SkSwizzler::SkSwizzler(RowProc fastProc, RowProc proc, const SkPMColor* ctable, int srcOffset,
         int srcWidth, int dstOffset, int dstWidth, int srcBPP, int dstBPP)
     : fFastProc(fastProc)
-    , fProc(proc)
+    , fSlowProc(proc)
+    , fActualProc(fFastProc ? fFastProc : fSlowProc)
     , fColorTable(ctable)
     , fSrcOffset(srcOffset)
     , fDstOffset(dstOffset)
@@ -794,14 +795,17 @@ int SkSwizzler::onSetSampleX(int sampleX) {
     fAllocatedWidth = get_scaled_dimension(fDstWidth, sampleX);
 
     // The optimized swizzler routines do not (yet) support sampling.
-    fFastProc = nullptr;
+    if (1 == fSampleX && fFastProc) {
+        fActualProc = fFastProc;
+    } else {
+        fActualProc = fSlowProc;
+    }
 
     return fAllocatedWidth;
 }
 
 void SkSwizzler::swizzle(void* dst, const uint8_t* SK_RESTRICT src) {
     SkASSERT(nullptr != dst && nullptr != src);
-    RowProc proc = fFastProc ? fFastProc : fProc;
-    proc(SkTAddOffset<void>(dst, fDstOffsetBytes), src, fSwizzleWidth, fSrcBPP,
+    fActualProc(SkTAddOffset<void>(dst, fDstOffsetBytes), src, fSwizzleWidth, fSrcBPP,
             fSampleX * fSrcBPP, fSrcOffsetUnits, fColorTable);
 }
