@@ -215,16 +215,16 @@ def device_cfg(builder_dict):
     }.get(builder_dict['target_arch'], 'arm_v7_neon')
   elif builder_dict.get('os') == 'Android':
     return {
-      'AndroidOne': 'arm_v7_neon',
-      'GalaxyS3': 'arm_v7_neon',
-      'GalaxyS4': 'arm_v7_neon',
-      'Nexus5': 'arm_v7', # This'd be 'nexus_5', but we simulate no-NEON Clank.
-      'Nexus6': 'arm_v7_neon',
-      'Nexus7': 'nexus_7',
-      'Nexus9': 'nexus_9',
-      'Nexus10': 'nexus_10',
-      'NexusPlayer': 'x86',
+      'AndroidOne':    'arm_v7_neon',
+      'GalaxyS3':      'arm_v7_neon',
+      'GalaxyS4':      'arm_v7_neon',
       'NVIDIA_Shield': 'arm64',
+      'Nexus10':       'arm_v7_neon',
+      'Nexus5':        'arm_v7_neon',
+      'Nexus6':        'arm_v7_neon',
+      'Nexus7':        'arm_v7_neon',
+      'Nexus9':        'arm64',
+      'NexusPlayer':   'x86',
     }[builder_dict['model']]
 
   # ChromeOS.
