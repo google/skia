@@ -129,7 +129,7 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
                                     GrGLSLShaderVar::kIn_TypeModifier,
                                     "gl_FragCoord",
                                     kDefault_GrSLPrecision,
-                                    GrGLSLShaderVar::kUpperLeft_Origin);
+                                    "origin_upper_left");
             fSetupFragPosition = true;
         }
         return "gl_FragCoord";

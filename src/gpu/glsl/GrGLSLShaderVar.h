@@ -20,43 +20,30 @@
 class GrGLSLShaderVar : public GrShaderVar {
 public:
     /**
-     * See GL_ARB_fragment_coord_conventions.
-     */
-    enum Origin {
-        kDefault_Origin,        // when set to kDefault the origin field is ignored.
-        kUpperLeft_Origin,      // only used to declare vec4 in gl_FragCoord.
-    };
-
-    /**
      * Defaults to a float with no precision specifier
      */
     GrGLSLShaderVar()
         : GrShaderVar()
-        , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
     }
 
     GrGLSLShaderVar(const char* name, GrSLType type, int arrayCount = kNonArray,
                     GrSLPrecision precision = kDefault_GrSLPrecision)
         : GrShaderVar(name, type, arrayCount, precision)
-        , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        fOrigin = kDefault_Origin;
         fUseUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS;
     }
 
     GrGLSLShaderVar(const char* name, GrSLType type, TypeModifier typeModifier,
                     int arrayCount = kNonArray, GrSLPrecision precision = kDefault_GrSLPrecision)
         : GrShaderVar(name, type, typeModifier, arrayCount, precision)
-        , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
     }
 
     GrGLSLShaderVar(const GrShaderVar& var)
         : GrShaderVar(var)
-        , fOrigin(kDefault_Origin)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != var.getType());
     }
@@ -64,7 +51,6 @@ public:
     GrGLSLShaderVar(const GrGLSLShaderVar& var)
         : GrShaderVar(var.c_str(), var.getType(), var.getTypeModifier(),
                       var.getArrayCount(), var.getPrecision())
-        , fOrigin(var.fOrigin)
         , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {
         SkASSERT(kVoid_GrSLType != var.getType());
     }
@@ -84,12 +70,12 @@ public:
              TypeModifier typeModifier,
              const SkString& name,
              GrSLPrecision precision = kDefault_GrSLPrecision,
-             Origin origin = kDefault_Origin,
+             const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision);
-        fOrigin = origin;
+        fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -100,12 +86,12 @@ public:
              TypeModifier typeModifier,
              const char* name,
              GrSLPrecision precision = kDefault_GrSLPrecision,
-             Origin origin = kDefault_Origin,
+             const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision);
-        fOrigin = origin;
+        fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -117,12 +103,12 @@ public:
              const SkString& name,
              int count,
              GrSLPrecision precision = kDefault_GrSLPrecision,
-             Origin origin = kDefault_Origin,
+             const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision, count);
-        fOrigin = origin;
+        fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
 
@@ -134,34 +120,22 @@ public:
              const char* name,
              int count,
              GrSLPrecision precision = kDefault_GrSLPrecision,
-             Origin origin = kDefault_Origin,
+             const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision, count);
-        fOrigin = origin;
+        fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
     }
-
-    /**
-     * Get the origin of the var
-     */
-    Origin getOrigin() const { return fOrigin; }
-
-    /**
-     * Set the origin of the var
-     */
-    void setOrigin(Origin origin) { fOrigin = origin; }
 
     /**
      * Write a declaration of this variable to out.
      */
     void appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
         SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeIsFloatType(fType));
-        if (kUpperLeft_Origin == fOrigin) {
-            // this is the only place where we specify a layout modifier. If we use other layout
-            // modifiers in the future then they should be placed in a list.
-            out->append("layout(origin_upper_left) ");
+        if (!fLayoutQualifier.isEmpty()) {
+            out->appendf("layout(%s) ", fLayoutQualifier.c_str());
         }
         if (this->getTypeModifier() != kNone_TypeModifier) {
            out->append(TypeModifierString(glslCaps, this->getTypeModifier()));
@@ -245,10 +219,11 @@ private:
         }
     }
 
-    Origin          fOrigin;
     /// Work around driver bugs on some hardware that don't correctly
     /// support uniform float []
     bool            fUseUniformFloatArrays;
+
+    SkString        fLayoutQualifier;
 
     typedef GrShaderVar INHERITED;
 };
