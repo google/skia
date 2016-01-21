@@ -73,6 +73,7 @@ if (APPLE OR NOT UNIX)
     remove_srcs(../src/gpu/gl/glx/*
                 ../src/images/SkImageDecoder_FactoryDefault.cpp
                 ../src/ports/SkFontMgr_fontconfig*.cpp
+                ../src/ports/SkFontMgr_android*.cpp
                 ../src/*FreeType*)
 endif()
 
