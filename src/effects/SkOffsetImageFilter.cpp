@@ -66,13 +66,7 @@ void SkOffsetImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) cons
     } else {
         *dst = src;
     }
-#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
-    SkRect copy = *dst;
-#endif
     dst->offset(fOffset.fX, fOffset.fY);
-#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
-    dst->join(copy);
-#endif
 }
 
 void SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -85,9 +79,6 @@ void SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix&
 
     *dst = src;
     dst->offset(SkScalarCeilToInt(vec.fX), SkScalarCeilToInt(vec.fY));
-#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
-    dst->join(src);
-#endif
 }
 
 SkFlattenable* SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {
