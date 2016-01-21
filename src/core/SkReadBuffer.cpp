@@ -340,7 +340,10 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
             return nullptr; // writer failed to give us the flattenable
         }
         index -= 1;     // we stored the index-base-1
-        SkASSERT(index < fFactoryCount);
+        if ((unsigned)index >= (unsigned)fFactoryCount) {
+            this->validate(false);
+            return nullptr;
+        }
         factory = fFactoryArray[index];
     } else if (fFactoryTDArray) {
         int32_t index = fReader.readU32();
@@ -348,6 +351,10 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
             return nullptr; // writer failed to give us the flattenable
         }
         index -= 1;     // we stored the index-base-1
+        if ((unsigned)index >= (unsigned)fFactoryCount) {
+            this->validate(false);
+            return nullptr;
+        }
         factory = (*fFactoryTDArray)[index];
     } else {
         factory = (SkFlattenable::Factory)readFunctionPtr();
@@ -366,8 +373,8 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         // check that we read the amount we expected
         size_t sizeRead = fReader.offset() - offset;
         if (sizeRecorded != sizeRead) {
-            // we could try to fix up the offset...
-            sk_throw();
+            this->validate(false);
+            return nullptr;
         }
     } else {
         // we must skip the remaining data
