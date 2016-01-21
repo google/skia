@@ -99,6 +99,18 @@ static inline sk_picture_t* ToPicture(SkPicture* pic) {
     return reinterpret_cast<sk_picture_t*>(pic);
 }
 
+static inline const SkBitmap* AsBitmap(const sk_bitmap_t* cbitmap) {
+    return reinterpret_cast<const SkBitmap*>(cbitmap);
+}
+
+static inline const SkBitmap& AsBitmap(const sk_bitmap_t& cbitmap) {
+    return reinterpret_cast<const SkBitmap&>(cbitmap);
+}
+
+static inline SkBitmap* AsBitmap(sk_bitmap_t* cbitmap) {
+    return reinterpret_cast<SkBitmap*>(cbitmap);
+}
+
 static inline const SkPaint& AsPaint(const sk_paint_t& cpaint) {
     return reinterpret_cast<const SkPaint&>(cpaint);
 }
@@ -206,6 +218,52 @@ static inline SkCanvas::PointMode MapPointMode(sk_point_mode_t mode)
     }
     return pointMode;
 }
+
+const struct {
+    sk_imagedecoder_mode_t  fC;
+    SkImageDecoder::Mode    fSK;
+} MAKE_FROM_TO_NAME(sk_imagedecoder_mode_t)[] = {
+    { DECODEBOUNDS_SK_IMAGEDECODER_MODE, SkImageDecoder::kDecodeBounds_Mode },
+    { DECODEPIXELS_SK_IMAGEDECODER_MODE, SkImageDecoder::kDecodePixels_Mode },
+};
+#define CType           sk_imagedecoder_mode_t
+#define SKType          SkImageDecoder::Mode
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_mode_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_imagedecoder_result_t  fC;
+    SkImageDecoder::Result    fSK;
+} MAKE_FROM_TO_NAME(sk_imagedecoder_result_t)[] = {
+    { FAILURE_SK_IMAGEDECODER_RESULT,        SkImageDecoder::kFailure        },
+    { PARTIALSUCCESS_SK_IMAGEDECODER_RESULT, SkImageDecoder::kPartialSuccess },
+    { SUCCESS_SK_IMAGEDECODER_RESULT,        SkImageDecoder::kSuccess        },
+};
+#define CType           sk_imagedecoder_result_t
+#define SKType          SkImageDecoder::Result
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_result_t)
+#include "sk_c_from_to.h"
+
+const struct {
+    sk_imagedecoder_format_t  fC;
+    SkImageDecoder::Format    fSK;
+} MAKE_FROM_TO_NAME(sk_imagedecoder_format_t)[] = {
+    { UNKNOWN_SK_IMAGEDECODER_FORMAT, SkImageDecoder::kUnknown_Format },
+    { BMP_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kBMP_Format     },
+    { GIF_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kGIF_Format     },
+    { ICO_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kICO_Format     },
+    { JPEG_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kJPEG_Format    },
+    { PNG_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kPNG_Format     },
+    { WBMP_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kWBMP_Format    },
+    { WEBP_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kWEBP_Format    },
+    { PKM_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kPKM_Format     },
+    { KTX_SK_IMAGEDECODER_FORMAT,     SkImageDecoder::kKTX_Format     },
+    { ASTC_SK_IMAGEDECODER_FORMAT,    SkImageDecoder::kASTC_Format    },
+};
+#define CType           sk_imagedecoder_format_t
+#define SKType          SkImageDecoder::Format
+#define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_imagedecoder_format_t)
+#include "sk_c_from_to.h"
 
 const struct {
     sk_colortype_t  fC;

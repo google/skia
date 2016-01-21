@@ -405,6 +405,48 @@ void sk_shader_unref(sk_shader_t* cshader) {
     SkSafeUnref(AsShader(cshader));
 }
 
+sk_shader_t* sk_shader_new_empty() {
+    return (sk_shader_t*) SkShader::CreateEmptyShader();
+}
+
+sk_shader_t* sk_shader_new_color(sk_color_t color) {
+    return (sk_shader_t*) SkShader::CreateColorShader(reinterpret_cast<SkColor>(color));
+}
+
+sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t& src,
+                                  sk_shader_tilemode_t tmx,
+                                  sk_shader_tilemode_t tmy,
+                                  const sk_matrix_t* localMatrix) {
+    SkShader::TileMode modex;
+    if (!find_sk(tmx, &modex)) {
+        return NULL;
+    }
+    SkShader::TileMode modey;
+    if (!find_sk(tmy, &modey)) {
+        return NULL;
+    }
+    SkMatrix matrix;
+    if (localMatrix) {
+        from_c_matrix(localMatrix, &matrix);
+    } else {
+        matrix.setIdentity();
+    }
+    SkShader* s = SkShader::CreateBitmapShader(AsBitmap(src), modex, modey, &matrix);
+    return (sk_shader_t*)s;
+}
+
+sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
+                                        const sk_matrix_t* localMatrix) {
+    SkMatrix matrix;
+    if (localMatrix) {
+        from_c_matrix(localMatrix, &matrix);
+    } else {
+        matrix.setIdentity();
+    }
+    SkShader* s = SkShader::CreateLocalMatrixShader(AsShader(proxy), matrix);
+    return (sk_shader_t*)s;
+}
+
 sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
                                            const sk_color_t colors[],
                                            const float colorPos[],

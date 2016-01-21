@@ -18,6 +18,41 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 SK_API void sk_shader_ref(sk_shader_t*);
 SK_API void sk_shader_unref(sk_shader_t*);
 
+/**
+    Call this to create a new "empty" shader, that will not draw anything.
+*/
+SK_API sk_shader_t* sk_shader_new_empty();
+
+/**
+    Call this to create a new shader that just draws the specified color. This should always
+    draw the same as a paint with this color (and no shader).
+*/
+SK_API sk_shader_t* sk_shader_new_color(sk_color_t color);
+
+/** 
+    Call this to create a new shader that will draw with the specified bitmap.
+ 
+    If the bitmap cannot be used (e.g. has no pixels, or its dimensions
+    exceed implementation limits (currently at 64K - 1)) then SkEmptyShader
+    may be returned.
+ 
+    @param src  The bitmap to use inside the shader
+    @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
+    @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
+*/
+SK_API sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t& src,
+                                         sk_shader_tilemode_t tmx,
+                                         sk_shader_tilemode_t tmy,
+                                         const sk_matrix_t* localMatrix);
+
+/**
+    Return a shader that will apply the specified localMatrix to the proxy shader.
+    The specified matrix will be applied before any matrix associated with the proxy.
+
+    Note: ownership of the proxy is not transferred (though a ref is taken).
+*/
+SK_API sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
+                                               const sk_matrix_t* localMatrix);
 
 /**
     Returns a shader that generates a linear gradient between the two

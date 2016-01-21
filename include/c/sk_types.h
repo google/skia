@@ -125,6 +125,10 @@ typedef struct sk_data_t sk_data_t;
 */
 typedef struct sk_image_t sk_image_t;
 /**
+    A sk_bitmap_t is an abstraction that specifies a raster bitmap.
+*/
+typedef struct sk_bitmap_t sk_bitmap_t;
+/**
     A sk_maskfilter_t is an object that perform transformations on an
     alpha-channel mask before drawing it; it may be installed into a
     sk_paint_t.  Each time a primitive is drawn, it is first
@@ -228,6 +232,31 @@ typedef enum {
     LINES_SK_POINT_MODE,
     POLYGON_SK_POINT_MODE
 } sk_point_mode_t;
+
+typedef enum {
+    DECODEBOUNDS_SK_IMAGEDECODER_MODE,
+    DECODEPIXELS_SK_IMAGEDECODER_MODE
+} sk_imagedecoder_mode_t;
+
+typedef enum {
+    FAILURE_SK_IMAGEDECODER_RESULT,
+    PARTIALSUCCESS_SK_IMAGEDECODER_RESULT,
+    SUCCESS_SK_IMAGEDECODER_RESULT
+} sk_imagedecoder_result_t;
+
+typedef enum {
+    UNKNOWN_SK_IMAGEDECODER_FORMAT,
+    BMP_SK_IMAGEDECODER_FORMAT,
+    GIF_SK_IMAGEDECODER_FORMAT,
+    ICO_SK_IMAGEDECODER_FORMAT,
+    JPEG_SK_IMAGEDECODER_FORMAT,
+    PNG_SK_IMAGEDECODER_FORMAT,
+    WBMP_SK_IMAGEDECODER_FORMAT,
+    WEBP_SK_IMAGEDECODER_FORMAT,
+    PKM_SK_IMAGEDECODER_FORMAT,
+    KTX_SK_IMAGEDECODER_FORMAT,
+    ASTC_SK_IMAGEDECODER_FORMAT
+} sk_imagedecoder_format_t;
 
 typedef enum {
     NORMAL_SK_BLUR_STYLE,   //!< fuzzy inside and outside
