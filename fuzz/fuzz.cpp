@@ -23,13 +23,13 @@
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string2(bytes, b, "", "A path to a file.  This can be the fuzz bytes or a binary to parse.");
-DEFINE_string2(name, n, "", "If --type is 'api', run the DEF_FUZZ API fuzz with this name.");
+DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
 
 DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image', 'skp', or 'api'.");
 DEFINE_string2(dump, d, "", "If not empty, dump 'image' or 'skp' types as a PNG with this name.");
 
 static int printUsage(const char* name) {
-    SkDebugf("Usage: %s -t <type> -b <path/to/file> [-n api_fuzz_name]\n", name);
+    SkDebugf("Usage: %s -t <type> -b <path/to/file> [-n api-to-fuzz]\n", name);
     return 1;
 }
 
@@ -47,25 +47,34 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    switch (FLAGS_type[0][0]) {
-        case 'a': return fuzz_api(bytes);
-        case 'i': return fuzz_img(bytes);
-        case 's': return fuzz_skp(bytes);
+    if (!FLAGS_type.isEmpty()) {
+        switch (FLAGS_type[0][0]) {
+            case 'a': return fuzz_api(bytes);
+            case 'i': return fuzz_img(bytes);
+            case 's': return fuzz_skp(bytes);
+        }
     }
     return printUsage(argv[0]);
 }
 
 int fuzz_api(SkData* bytes) {
+    const char* name = FLAGS_name.isEmpty() ? "" : FLAGS_name[0];
+
     for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
         auto fuzzable = r->factory();
-        if (0 == strcmp(FLAGS_name[0], fuzzable.name)) {
+        if (0 == strcmp(name, fuzzable.name)) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
             Fuzz fuzz(bytes);
             fuzzable.fn(&fuzz);
             return 0;
         }
     }
-    SkDebugf("API fuzz %s not found\n", FLAGS_name[0]);
+
+    SkDebugf("When using --type api, please choose an API to fuzz with --name/-n:\n");
+    for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
+        auto fuzzable = r->factory();
+        SkDebugf("\t%s\n", fuzzable.name);
+    }
     return 1;
 }
 
