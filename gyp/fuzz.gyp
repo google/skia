@@ -13,5 +13,8 @@
             'flags.gyp:flags',
             'skia_lib.gyp:skia_lib',
         ],
+        'include_dirs': [
+            '../src/core',
+        ],
     }],
 }
