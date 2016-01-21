@@ -37,6 +37,7 @@ SK_API void sk_bitmap_lock_pixels(sk_bitmap_t* cbitmap);
 SK_API void sk_bitmap_unlock_pixels(sk_bitmap_t* cbitmap);
 SK_API void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors);
 SK_API void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors);
+SK_API bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes);
         
 SK_API bool sk_imagedecoder_decode_stream (sk_stream_streamrewindable_t* cstream, sk_bitmap_t* bitmap, sk_colortype_t pref, sk_imagedecoder_mode_t mode, sk_imagedecoder_format_t* format);
 

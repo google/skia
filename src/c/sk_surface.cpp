@@ -24,24 +24,6 @@
 #include "sk_surface.h"
 #include "sk_types_priv.h"
 
-static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
-    SkColorType ct;
-    SkAlphaType at;
-
-    if (!find_sk(cinfo.colorType, &ct)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (!find_sk(cinfo.alphaType, &at)) {
-        // optionally report error to client?
-        return false;
-    }
-    if (info) {
-        *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at);
-    }
-    return true;
-}
-
 static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
                    cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
@@ -63,7 +45,7 @@ sk_colortype_t sk_colortype_get_default_8888() {
 sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t* cinfo, const void* pixels,
                                      size_t rowBytes) {
     SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
+    if (!find_sk(*cinfo, &info)) {
         return NULL;
     }
     return (sk_image_t*)SkImage::NewRasterCopy(info, pixels, rowBytes);
@@ -315,7 +297,7 @@ void sk_canvas_draw_text_on_path (sk_canvas_t* ccanvas, const char *text, size_t
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
                                     const sk_surfaceprops_t* props) {
     SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
+    if (!find_sk(*cinfo, &info)) {
         return NULL;
     }
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;
@@ -331,7 +313,7 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
                                            size_t rowBytes,
                                            const sk_surfaceprops_t* props) {
     SkImageInfo info;
-    if (!from_c_info(*cinfo, &info)) {
+    if (!find_sk(*cinfo, &info)) {
         return NULL;
     }
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;

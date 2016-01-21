@@ -401,4 +401,39 @@ const struct {
 #define CTypeSkTypeMap  MAKE_FROM_TO_NAME(sk_text_encoding_t)
 #include "sk_c_from_to.h"
 
+static inline bool find_sk(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
+    SkColorType ct;
+    SkAlphaType at;
+
+    if (!find_sk(cinfo.colorType, &ct)) {
+        // optionally report error to client?
+        return false;
+    }
+    if (!find_sk(cinfo.alphaType, &at)) {
+        // optionally report error to client?
+        return false;
+    }
+    if (info) {
+        *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at);
+    }
+    return true;
+}
+
+static inline bool find_c(const SkImageInfo& info, sk_imageinfo_t* cinfo)
+{
+    sk_imageinfo_t tempInfo;
+    tempInfo.width = info.width();
+    tempInfo.height = info.height();
+    if (!find_c(info.colorType(), &tempInfo.colorType)) {
+        return false;
+    }
+    if (find_c(info.alphaType(), &tempInfo.alphaType)) {
+        return false;
+    }
+    if (cinfo) {
+        *cinfo = tempInfo;
+    }
+    return true;
+}
+
 #endif

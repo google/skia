@@ -73,13 +73,8 @@ sk_bitmap_t* sk_bitmap_new ()
 
 sk_imageinfo_t sk_bitmap_get_info(sk_bitmap_t* cbitmap)
 {
-    SkImageInfo info = AsBitmap(cbitmap)->info();
-    
     sk_imageinfo_t cinfo;
-    cinfo.width = info.width();
-    cinfo.height = info.height();
-    find_c(info.colorType(), &cinfo.colorType);
-    find_c(info.alphaType(), &cinfo.alphaType);
+    find_c(AsBitmap(cbitmap)->info(), &cinfo);
     
     return cinfo;
 }
@@ -246,6 +241,18 @@ void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
     default:
         break;
     }
+}
+
+bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+    
+    SkImageInfo info;
+    if (!find_sk(*requestedInfo, &info)) {
+        return false;
+    }
+    
+    return bmp->tryAllocPixels(info, rowBytes);
 }
 
 
