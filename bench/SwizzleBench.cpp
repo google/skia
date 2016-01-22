@@ -10,7 +10,7 @@
 
 class SwizzleBench : public Benchmark {
 public:
-    SwizzleBench(const char* name, SkOpts::Swizzle_8888_8888 fn) : fName(name), fFn(fn) {}
+    SwizzleBench(const char* name, SkOpts::Swizzle_8888 fn) : fName(name), fFn(fn) {}
 
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
     const char* onGetName() override { return fName; }
@@ -23,10 +23,10 @@ public:
     }
 private:
     const char* fName;
-    SkOpts::Swizzle_8888_8888 fFn;
+    SkOpts::Swizzle_8888 fFn;
 };
 
 
-DEF_BENCH(return new SwizzleBench("SkOpts::premul_xxxa", SkOpts::premul_xxxa));
-DEF_BENCH(return new SwizzleBench("SkOpts::swaprb_xxxa", SkOpts::swaprb_xxxa));
-DEF_BENCH(return new SwizzleBench("SkOpts::premul_swaprb_xxxa", SkOpts::premul_swaprb_xxxa));
+DEF_BENCH(return new SwizzleBench("SkOpts::RGBA_to_rgbA", SkOpts::RGBA_to_rgbA));
+DEF_BENCH(return new SwizzleBench("SkOpts::RGBA_to_bgrA", SkOpts::RGBA_to_bgrA));
+DEF_BENCH(return new SwizzleBench("SkOpts::RGBA_to_BGRA", SkOpts::RGBA_to_BGRA));

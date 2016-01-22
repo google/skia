@@ -12,18 +12,33 @@
 
 namespace SK_OPTS_NS {
 
-// These variable names in these functions just pretend the input is BGRA.
-// They work fine with both RGBA and BGRA.
-
-static void premul_xxxa_portable(uint32_t dst[], const uint32_t src[], int count) {
+static void RGBA_to_rgbA_portable(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
     for (int i = 0; i < count; i++) {
         uint8_t a = src[i] >> 24,
-                r = src[i] >> 16,
+                b = src[i] >> 16,
                 g = src[i] >>  8,
-                b = src[i] >>  0;
-        r = (r*a+127)/255;
-        g = (g*a+127)/255;
+                r = src[i] >>  0;
         b = (b*a+127)/255;
+        g = (g*a+127)/255;
+        r = (r*a+127)/255;
+        dst[i] = (uint32_t)a << 24
+               | (uint32_t)b << 16
+               | (uint32_t)g <<  8
+               | (uint32_t)r <<  0;
+    }
+}
+
+static void RGBA_to_bgrA_portable(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        uint8_t a = src[i] >> 24,
+                b = src[i] >> 16,
+                g = src[i] >>  8,
+                r = src[i] >>  0;
+        b = (b*a+127)/255;
+        g = (g*a+127)/255;
+        r = (r*a+127)/255;
         dst[i] = (uint32_t)a << 24
                | (uint32_t)r << 16
                | (uint32_t)g <<  8
@@ -31,32 +46,17 @@ static void premul_xxxa_portable(uint32_t dst[], const uint32_t src[], int count
     }
 }
 
-static void premul_swaprb_xxxa_portable(uint32_t dst[], const uint32_t src[], int count) {
+static void RGBA_to_BGRA_portable(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
     for (int i = 0; i < count; i++) {
         uint8_t a = src[i] >> 24,
-                r = src[i] >> 16,
+                b = src[i] >> 16,
                 g = src[i] >>  8,
-                b = src[i] >>  0;
-        r = (r*a+127)/255;
-        g = (g*a+127)/255;
-        b = (b*a+127)/255;
+                r = src[i] >>  0;
         dst[i] = (uint32_t)a << 24
-               | (uint32_t)b << 16
+               | (uint32_t)r << 16
                | (uint32_t)g <<  8
-               | (uint32_t)r <<  0;
-    }
-}
-
-static void swaprb_xxxa_portable(uint32_t dst[], const uint32_t src[], int count) {
-    for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                r = src[i] >> 16,
-                g = src[i] >>  8,
-                b = src[i] >>  0;
-        dst[i] = (uint32_t)a << 24
-               | (uint32_t)b << 16
-               | (uint32_t)g <<  8
-               | (uint32_t)r <<  0;
+               | (uint32_t)b <<  0;
     }
 }
 
@@ -92,30 +92,31 @@ static uint8x8_t scale(uint8x8_t x, uint8x8_t y) {
 }
 
 template <bool kSwapRB>
-static void premul_xxxa_should_swaprb(uint32_t dst[], const uint32_t src[], int count) {
+static void premul_should_swapRB(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
     while (count >= 8) {
         // Load 8 pixels.
         uint8x8x4_t bgra = vld4_u8((const uint8_t*) src);
 
         uint8x8_t a = bgra.val[3],
-                  r = bgra.val[2],
+                  b = bgra.val[2],
                   g = bgra.val[1],
-                  b = bgra.val[0];
+                  r = bgra.val[0];
 
         // Premultiply.
-        r = scale(r, a);
-        g = scale(g, a);
         b = scale(b, a);
+        g = scale(g, a);
+        r = scale(r, a);
 
         // Store 8 premultiplied pixels.
         if (kSwapRB) {
-            bgra.val[2] = b;
-            bgra.val[1] = g;
-            bgra.val[0] = r;
-        } else {
             bgra.val[2] = r;
             bgra.val[1] = g;
             bgra.val[0] = b;
+        } else {
+            bgra.val[2] = b;
+            bgra.val[1] = g;
+            bgra.val[0] = r;
         }
         vst4_u8((uint8_t*) dst, bgra);
         src += 8;
@@ -124,19 +125,20 @@ static void premul_xxxa_should_swaprb(uint32_t dst[], const uint32_t src[], int 
     }
 
     // Call portable code to finish up the tail of [0,8) pixels.
-    auto proc = kSwapRB ? premul_swaprb_xxxa_portable : premul_xxxa_portable;
+    auto proc = kSwapRB ? RGBA_to_bgrA_portable : RGBA_to_rgbA_portable;
     proc(dst, src, count);
 }
 
-static void premul_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    premul_xxxa_should_swaprb<false>(dst, src, count);
+static void RGBA_to_rgbA(uint32_t* dst, const void* src, int count) {
+    premul_should_swapRB<false>(dst, src, count);
 }
 
-static void premul_swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    premul_xxxa_should_swaprb<true>(dst, src, count);
+static void RGBA_to_bgrA(uint32_t* dst, const void* src, int count) {
+    premul_should_swapRB<true>(dst, src, count);
 }
 
-static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
+static void RGBA_to_BGRA(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
     while (count >= 16) {
         // Load 16 pixels.
         uint8x16x4_t bgra = vld4q_u8((const uint8_t*) src);
@@ -165,13 +167,14 @@ static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
         count -= 8;
     }
 
-    swaprb_xxxa_portable(dst, src, count);
+    RGBA_to_BGRA_portable(dst, src, count);
 }
 
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
 template <bool kSwapRB>
-static void premul_xxxa_should_swaprb(uint32_t dst[], const uint32_t src[], int count) {
+static void premul_should_swapRB(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
 
     auto premul8 = [](__m128i* lo, __m128i* hi) {
         const __m128i zeros = _mm_setzero_si128();
@@ -185,27 +188,27 @@ static void premul_xxxa_should_swaprb(uint32_t dst[], const uint32_t src[], int 
         }
 
         // Swizzle the pixels to 8-bit planar.
-        *lo = _mm_shuffle_epi8(*lo, planar);                      // bbbbgggg rrrraaaa
-        *hi = _mm_shuffle_epi8(*hi, planar);                      // BBBBGGGG RRRRAAAA
-        __m128i bg = _mm_unpacklo_epi32(*lo, *hi),                // bbbbBBBB ggggGGGG
-                ra = _mm_unpackhi_epi32(*lo, *hi);                // rrrrRRRR aaaaAAAA
+        *lo = _mm_shuffle_epi8(*lo, planar);                      // rrrrgggg bbbbaaaa
+        *hi = _mm_shuffle_epi8(*hi, planar);                      // RRRRGGGG BBBBAAAA
+        __m128i rg = _mm_unpacklo_epi32(*lo, *hi),                // rrrrRRRR ggggGGGG
+                ba = _mm_unpackhi_epi32(*lo, *hi);                // bbbbBBBB aaaaAAAA
 
         // Unpack to 16-bit planar.
-        __m128i b = _mm_unpacklo_epi8(bg, zeros),                 // b_b_b_b_ B_B_B_B_
-                g = _mm_unpackhi_epi8(bg, zeros),                 // g_g_g_g_ G_G_G_G_
-                r = _mm_unpacklo_epi8(ra, zeros),                 // r_r_r_r_ R_R_R_R_
-                a = _mm_unpackhi_epi8(ra, zeros);                 // a_a_a_a_ A_A_A_A_
+        __m128i r = _mm_unpacklo_epi8(rg, zeros),                 // r_r_r_r_ R_R_R_R_
+                g = _mm_unpackhi_epi8(rg, zeros),                 // g_g_g_g_ G_G_G_G_
+                b = _mm_unpacklo_epi8(ba, zeros),                 // b_b_b_b_ B_B_B_B_
+                a = _mm_unpackhi_epi8(ba, zeros);                 // a_a_a_a_ A_A_A_A_
 
         // Premultiply!  (x+127)/255 == ((x+128)*257)>>16 for 0 <= x <= 255*255.
-        b = _mm_mulhi_epu16(_mm_add_epi16(_mm_mullo_epi16(b, a), _128), _257);
-        g = _mm_mulhi_epu16(_mm_add_epi16(_mm_mullo_epi16(g, a), _128), _257);
         r = _mm_mulhi_epu16(_mm_add_epi16(_mm_mullo_epi16(r, a), _128), _257);
+        g = _mm_mulhi_epu16(_mm_add_epi16(_mm_mullo_epi16(g, a), _128), _257);
+        b = _mm_mulhi_epu16(_mm_add_epi16(_mm_mullo_epi16(b, a), _128), _257);
 
         // Repack into interlaced pixels.
-        bg = _mm_or_si128(b, _mm_slli_epi16(g, 8));               // bgbgbgbg BGBGBGBG
-        ra = _mm_or_si128(r, _mm_slli_epi16(a, 8));               // rararara RARARARA
-        *lo = _mm_unpacklo_epi16(bg, ra);                         // bgrabgra bgrabgra
-        *hi = _mm_unpackhi_epi16(bg, ra);                         // BRGABGRA BGRABGRA
+        rg = _mm_or_si128(r, _mm_slli_epi16(g, 8));               // rgrgrgrg RGRGRGRG
+        ba = _mm_or_si128(b, _mm_slli_epi16(a, 8));               // babababa BABABABA
+        *lo = _mm_unpacklo_epi16(rg, ba);                         // rgbargba rgbargba
+        *hi = _mm_unpackhi_epi16(rg, ba);                         // RGBARGBA RGBARGBA
     };
 
     while (count >= 8) {
@@ -236,46 +239,47 @@ static void premul_xxxa_should_swaprb(uint32_t dst[], const uint32_t src[], int 
     }
 
     // Call portable code to finish up the tail of [0,4) pixels.
-    auto proc = kSwapRB ? premul_swaprb_xxxa_portable : premul_xxxa_portable;
+    auto proc = kSwapRB ? RGBA_to_bgrA_portable : RGBA_to_rgbA_portable;
     proc(dst, src, count);
 }
 
-static void premul_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    premul_xxxa_should_swaprb<false>(dst, src, count);
+static void RGBA_to_rgbA(uint32_t* dst, const void* src, int count) {
+    premul_should_swapRB<false>(dst, src, count);
 }
 
-static void premul_swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    premul_xxxa_should_swaprb<true>(dst, src, count);
+static void RGBA_to_bgrA(uint32_t* dst, const void* src, int count) {
+    premul_should_swapRB<true>(dst, src, count);
 }
 
-static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
+static void RGBA_to_BGRA(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
     const __m128i swapRB = _mm_setr_epi8(2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15);
 
     while (count >= 4) {
-        __m128i bgra = _mm_loadu_si128((const __m128i*) src);
-        __m128i rgba = _mm_shuffle_epi8(bgra, swapRB);
-        _mm_storeu_si128((__m128i*) dst, rgba);
+        __m128i rgba = _mm_loadu_si128((const __m128i*) src);
+        __m128i bgra = _mm_shuffle_epi8(rgba, swapRB);
+        _mm_storeu_si128((__m128i*) dst, bgra);
 
         src += 4;
         dst += 4;
         count -= 4;
     }
 
-    swaprb_xxxa_portable(dst, src, count);
+    RGBA_to_BGRA_portable(dst, src, count);
 }
 
 #else
 
-static void premul_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    premul_xxxa_portable(dst, src, count);
+static void RGBA_to_rgbA(uint32_t* dst, const void* src, int count) {
+    RGBA_to_rgbA_portable(dst, src, count);
 }
 
-static void premul_swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    premul_swaprb_xxxa_portable(dst, src, count);
+static void RGBA_to_bgrA(uint32_t* dst, const void* src, int count) {
+    RGBA_to_bgrA_portable(dst, src, count);
 }
 
-static void swaprb_xxxa(uint32_t dst[], const uint32_t src[], int count) {
-    swaprb_xxxa_portable(dst, src, count);
+static void RGBA_to_BGRA(uint32_t* dst, const void* src, int count) {
+    RGBA_to_BGRA_portable(dst, src, count);
 }
 
 #endif

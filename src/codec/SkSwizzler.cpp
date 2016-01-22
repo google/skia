@@ -333,7 +333,7 @@ static void fast_swizzle_bgra_to_n32_unpremul(
 
     // These swizzles trust that the alpha value is already 0xFF.
 #ifdef SK_PMCOLOR_IS_RGBA
-    SkOpts::swaprb_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+    SkOpts::RGBA_to_BGRA((uint32_t*) dst, src + offset, width);
 #else
     memcpy(dst, src + offset, width * bpp);
 #endif
@@ -361,9 +361,9 @@ static void fast_swizzle_bgra_to_n32_premul(
     SkASSERT(deltaSrc == bpp);
 
 #ifdef SK_PMCOLOR_IS_RGBA
-    SkOpts::premul_swaprb_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+    SkOpts::RGBA_to_bgrA((uint32_t*) dst, src + offset, width);
 #else
-    SkOpts::premul_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+    SkOpts::RGBA_to_rgbA((uint32_t*) dst, src + offset, width);
 #endif
 }
 
@@ -419,9 +419,9 @@ static void fast_swizzle_rgba_to_n32_premul(
     SkASSERT(deltaSrc == bpp);
 
 #ifdef SK_PMCOLOR_IS_RGBA
-    SkOpts::premul_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+    SkOpts::RGBA_to_rgbA((uint32_t*) dst, src + offset, width);
 #else
-    SkOpts::premul_swaprb_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+    SkOpts::RGBA_to_bgrA((uint32_t*) dst, src + offset, width);
 #endif
 }
 
@@ -450,7 +450,7 @@ static void fast_swizzle_rgba_to_n32_unpremul(
 #ifdef SK_PMCOLOR_IS_RGBA
     memcpy(dst, src + offset, width * bpp);
 #else
-    SkOpts::swaprb_xxxa((uint32_t*) dst, (const uint32_t*) (src + offset), width);
+    SkOpts::RGBA_to_BGRA((uint32_t*) dst, src + offset, width);
 #endif
 }
 

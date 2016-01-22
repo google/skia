@@ -49,8 +49,8 @@ namespace SkOpts {
         matrix_scale_translate = sk_neon::matrix_scale_translate;
         matrix_affine          = sk_neon::matrix_affine;
 
-        premul_xxxa        = sk_neon::premul_xxxa;
-        premul_swaprb_xxxa = sk_neon::premul_swaprb_xxxa;
-        swaprb_xxxa        = sk_neon::swaprb_xxxa;
+        RGBA_to_BGRA = sk_neon::RGBA_to_BGRA;
+        RGBA_to_rgbA = sk_neon::RGBA_to_rgbA;
+        RGBA_to_bgrA = sk_neon::RGBA_to_bgrA;
     }
 }
