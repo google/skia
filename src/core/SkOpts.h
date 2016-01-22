@@ -23,6 +23,9 @@ namespace SkOpts {
 
     // Declare function pointers here...
 
+    // Returns a fast approximation of 1.0f/sqrtf(x).
+    extern float (*rsqrt)(float);
+
     // See SkUtils.h
     extern void (*memset16)(uint16_t[], uint16_t, int);
     extern void (*memset32)(uint32_t[], uint32_t, int);
