@@ -1080,6 +1080,7 @@ extern SkTypeface* (*gCreateTypefaceDelegate)(const char [], SkTypeface::Style )
 int dm_main();
 int dm_main() {
     SetupCrashHandler();
+    JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
     gCreateTypefaceDelegate = &create_from_name;
