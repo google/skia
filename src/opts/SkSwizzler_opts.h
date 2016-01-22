@@ -60,6 +60,34 @@ static void RGBA_to_BGRA_portable(uint32_t* dst, const void* vsrc, int count) {
     }
 }
 
+static void RGB_to_RGB1_portable(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        uint8_t r = src[0],
+                g = src[1],
+                b = src[2];
+        src += 3;
+        dst[i] = (uint32_t)0xFF << 24
+               | (uint32_t)b    << 16
+               | (uint32_t)g    <<  8
+               | (uint32_t)r    <<  0;
+    }
+}
+
+static void RGB_to_BGR1_portable(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        uint8_t r = src[0],
+                g = src[1],
+                b = src[2];
+        src += 3;
+        dst[i] = (uint32_t)0xFF << 24
+               | (uint32_t)r    << 16
+               | (uint32_t)g    <<  8
+               | (uint32_t)b    <<  0;
+    }
+}
+
 #if defined(SK_ARM_HAS_NEON)
 
 // Rounded divide by 255, (x + 127) / 255
@@ -96,12 +124,12 @@ static void premul_should_swapRB(uint32_t* dst, const void* vsrc, int count) {
     auto src = (const uint32_t*)vsrc;
     while (count >= 8) {
         // Load 8 pixels.
-        uint8x8x4_t bgra = vld4_u8((const uint8_t*) src);
+        uint8x8x4_t rgba = vld4_u8((const uint8_t*) src);
 
-        uint8x8_t a = bgra.val[3],
-                  b = bgra.val[2],
-                  g = bgra.val[1],
-                  r = bgra.val[0];
+        uint8x8_t a = rgba.val[3],
+                  b = rgba.val[2],
+                  g = rgba.val[1],
+                  r = rgba.val[0];
 
         // Premultiply.
         b = scale(b, a);
@@ -110,15 +138,15 @@ static void premul_should_swapRB(uint32_t* dst, const void* vsrc, int count) {
 
         // Store 8 premultiplied pixels.
         if (kSwapRB) {
-            bgra.val[2] = r;
-            bgra.val[1] = g;
-            bgra.val[0] = b;
+            rgba.val[2] = r;
+            rgba.val[1] = g;
+            rgba.val[0] = b;
         } else {
-            bgra.val[2] = b;
-            bgra.val[1] = g;
-            bgra.val[0] = r;
+            rgba.val[2] = b;
+            rgba.val[1] = g;
+            rgba.val[0] = r;
         }
-        vst4_u8((uint8_t*) dst, bgra);
+        vst4_u8((uint8_t*) dst, rgba);
         src += 8;
         dst += 8;
         count -= 8;
@@ -141,13 +169,13 @@ static void RGBA_to_BGRA(uint32_t* dst, const void* vsrc, int count) {
     auto src = (const uint32_t*)vsrc;
     while (count >= 16) {
         // Load 16 pixels.
-        uint8x16x4_t bgra = vld4q_u8((const uint8_t*) src);
+        uint8x16x4_t rgba = vld4q_u8((const uint8_t*) src);
 
         // Swap r and b.
-        SkTSwap(bgra.val[0], bgra.val[2]);
+        SkTSwap(rgba.val[0], rgba.val[2]);
 
         // Store 16 pixels.
-        vst4q_u8((uint8_t*) dst, bgra);
+        vst4q_u8((uint8_t*) dst, rgba);
         src += 16;
         dst += 16;
         count -= 16;
@@ -155,19 +183,81 @@ static void RGBA_to_BGRA(uint32_t* dst, const void* vsrc, int count) {
 
     if (count >= 8) {
         // Load 8 pixels.
-        uint8x8x4_t bgra = vld4_u8((const uint8_t*) src);
+        uint8x8x4_t rgba = vld4_u8((const uint8_t*) src);
 
         // Swap r and b.
-        SkTSwap(bgra.val[0], bgra.val[2]);
+        SkTSwap(rgba.val[0], rgba.val[2]);
 
         // Store 8 pixels.
-        vst4_u8((uint8_t*) dst, bgra);
+        vst4_u8((uint8_t*) dst, rgba);
         src += 8;
         dst += 8;
         count -= 8;
     }
 
     RGBA_to_BGRA_portable(dst, src, count);
+}
+
+template <bool kSwapRB>
+static void insert_alpha_should_swaprb(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*) vsrc;
+    while (count >= 16) {
+        // Load 16 pixels.
+        uint8x16x3_t rgb = vld3q_u8(src);
+
+        // Insert an opaque alpha channel and swap if needed.
+        uint8x16x4_t rgba;
+        if (kSwapRB) {
+            rgba.val[0] = rgb.val[2];
+            rgba.val[2] = rgb.val[0];
+        } else {
+            rgba.val[0] = rgb.val[0];
+            rgba.val[2] = rgb.val[2];
+        }
+        rgba.val[1] = rgb.val[1];
+        rgba.val[3] = vdupq_n_u8(0xFF);
+
+        // Store 16 pixels.
+        vst4q_u8((uint8_t*) dst, rgba);
+        src += 16*3;
+        dst += 16;
+        count -= 16;
+    }
+
+    if (count >= 8) {
+        // Load 8 pixels.
+        uint8x8x3_t rgb = vld3_u8(src);
+
+        // Insert an opaque alpha channel and swap if needed.
+        uint8x8x4_t rgba;
+        if (kSwapRB) {
+            rgba.val[0] = rgb.val[2];
+            rgba.val[2] = rgb.val[0];
+        } else {
+            rgba.val[0] = rgb.val[0];
+            rgba.val[2] = rgb.val[2];
+        }
+        rgba.val[1] = rgb.val[1];
+        rgba.val[3] = vdup_n_u8(0xFF);
+
+        // Store 8 pixels.
+        vst4_u8((uint8_t*) dst, rgba);
+        src += 8*3;
+        dst += 8;
+        count -= 8;
+    }
+
+    // Call portable code to finish up the tail of [0,8) pixels.
+    auto proc = kSwapRB ? RGB_to_BGR1_portable : RGB_to_RGB1_portable;
+    proc(dst, src, count);
+}
+
+static void RGB_to_RGB1(uint32_t dst[], const void* src, int count) {
+    insert_alpha_should_swaprb<false>(dst, src, count);
+}
+
+static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
+    insert_alpha_should_swaprb<true>(dst, src, count);
 }
 
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
@@ -268,6 +358,14 @@ static void RGBA_to_BGRA(uint32_t* dst, const void* vsrc, int count) {
     RGBA_to_BGRA_portable(dst, src, count);
 }
 
+static void RGB_to_RGB1(uint32_t dst[], const void* src, int count) {
+    RGB_to_RGB1_portable(dst, src, count);
+}
+
+static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
+    RGB_to_BGR1_portable(dst, src, count);
+}
+
 #else
 
 static void RGBA_to_rgbA(uint32_t* dst, const void* src, int count) {
@@ -280,6 +378,14 @@ static void RGBA_to_bgrA(uint32_t* dst, const void* src, int count) {
 
 static void RGBA_to_BGRA(uint32_t* dst, const void* src, int count) {
     RGBA_to_BGRA_portable(dst, src, count);
+}
+
+static void RGB_to_RGB1(uint32_t dst[], const void* src, int count) {
+    RGB_to_RGB1_portable(dst, src, count);
+}
+
+static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
+    RGB_to_BGR1_portable(dst, src, count);
 }
 
 #endif

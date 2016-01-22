@@ -331,7 +331,6 @@ static void fast_swizzle_bgra_to_n32_unpremul(
     // sampling, deltaSrc should equal bpp.
     SkASSERT(deltaSrc == bpp);
 
-    // These swizzles trust that the alpha value is already 0xFF.
 #ifdef SK_PMCOLOR_IS_RGBA
     SkOpts::RGBA_to_BGRA((uint32_t*) dst, src + offset, width);
 #else
@@ -376,12 +375,25 @@ static void swizzle_rgb_to_n32(
     src += offset;
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < dstWidth; x++) {
-        dst[x] = SkPackARGB32(0xFF, src[0], src[1], src[2]);
+        dst[x] = SkPackARGB32NoCheck(0xFF, src[0], src[1], src[2]);
         src += deltaSrc;
     }
 }
 
+static void fast_swizzle_rgb_to_n32(
+        void* dst, const uint8_t* src, int width, int bpp, int deltaSrc,
+        int offset, const SkPMColor ctable[]) {
 
+    // This function must not be called if we are sampling.  If we are not
+    // sampling, deltaSrc should equal bpp.
+    SkASSERT(deltaSrc == bpp);
+
+#ifdef SK_PMCOLOR_IS_RGBA
+    SkOpts::RGB_to_RGB1((uint32_t*) dst, src + offset, width);
+#else
+    SkOpts::RGB_to_BGR1((uint32_t*) dst, src + offset, width);
+#endif
+}
 
 static void swizzle_rgb_to_565(
        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
@@ -446,7 +458,6 @@ static void fast_swizzle_rgba_to_n32_unpremul(
     // sampling, deltaSrc should equal bpp.
     SkASSERT(deltaSrc == bpp);
 
-    // These swizzles trust that the alpha value is already 0xFF.
 #ifdef SK_PMCOLOR_IS_RGBA
     memcpy(dst, src + offset, width * bpp);
 #else
@@ -682,6 +693,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
                     proc = &swizzle_rgb_to_n32;
+                    fastProc = &fast_swizzle_rgb_to_n32;
                     break;
                 case kRGB_565_SkColorType:
                     proc = &swizzle_rgb_to_565;

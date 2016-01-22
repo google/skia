@@ -82,6 +82,8 @@ namespace SkOpts {
     decltype(RGBA_to_BGRA) RGBA_to_BGRA = sk_default::RGBA_to_BGRA;
     decltype(RGBA_to_rgbA) RGBA_to_rgbA = sk_default::RGBA_to_rgbA;
     decltype(RGBA_to_bgrA) RGBA_to_bgrA = sk_default::RGBA_to_bgrA;
+    decltype(RGB_to_RGB1)  RGB_to_RGB1  = sk_default::RGB_to_RGB1;
+    decltype(RGB_to_BGR1)  RGB_to_BGR1  = sk_default::RGB_to_BGR1;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
