@@ -444,7 +444,11 @@ public:
                    bool skipLayerForImageFilter = false,
                    const SkRect* rawBounds = nullptr) : fOrigPaint(paint) {
         fCanvas = canvas;
+#ifdef SK_SUPPORT_LEGACY_DRAWFLTER
         fFilter = canvas->getDrawFilter();
+#else
+        fFilter = nullptr;
+#endif
         fPaint = &fOrigPaint;
         fSaveCount = canvas->getSaveCount();
         fTempLayerForImageFilter = false;
@@ -778,6 +782,7 @@ SkCanvas::~SkCanvas() {
     dec_canvas();
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFLTER
 SkDrawFilter* SkCanvas::getDrawFilter() const {
     return fMCRec->fFilter;
 }
@@ -787,6 +792,7 @@ SkDrawFilter* SkCanvas::setDrawFilter(SkDrawFilter* filter) {
     SkRefCnt_SafeAssign(fMCRec->fFilter, filter);
     return filter;
 }
+#endif
 
 SkMetaData& SkCanvas::getMetaData() {
     // metadata users are rare, so we lazily allocate it. If that changes we

@@ -292,6 +292,7 @@ void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFLTER
 SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     Iter iter(fList);
     while (iter.next()) {
@@ -299,3 +300,4 @@ SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     }
     return this->INHERITED::setDrawFilter(filter);
 }
+#endif

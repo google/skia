@@ -260,11 +260,6 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     canvasState->layers = (SkCanvasLayerState*) sk_malloc_throw(layerWriter.bytesWritten());
     layerWriter.flatten(canvasState->layers);
 
-    // for now, just ignore any client supplied DrawFilter.
-    if (canvas->getDrawFilter()) {
-//        SkDEBUGF(("CaptureCanvasState will ignore the canvas's draw filter.\n"));
-    }
-
     return canvasState.detach();
 }
 
