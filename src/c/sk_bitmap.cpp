@@ -71,12 +71,14 @@ sk_bitmap_t* sk_bitmap_new ()
     return (sk_bitmap_t*) new SkBitmap();
 }
 
-sk_imageinfo_t sk_bitmap_get_info(sk_bitmap_t* cbitmap)
+bool sk_bitmap_get_info(sk_bitmap_t* cbitmap, sk_imageinfo_t* info)
 {
     sk_imageinfo_t cinfo;
-    find_c(AsBitmap(cbitmap)->info(), &cinfo);
-    
-    return cinfo;
+    bool result = find_c(AsBitmap(cbitmap)->info(), &cinfo);
+    if (result) {
+        *info = cinfo;
+    }
+    return result;
 }
 
 void* sk_bitmap_get_pixels(sk_bitmap_t* cbitmap, size_t* length)

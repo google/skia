@@ -427,7 +427,7 @@ static inline bool find_c(const SkImageInfo& info, sk_imageinfo_t* cinfo)
     if (!find_c(info.colorType(), &tempInfo.colorType)) {
         return false;
     }
-    if (find_c(info.alphaType(), &tempInfo.alphaType)) {
+    if (!find_c(info.alphaType(), &tempInfo.alphaType)) {
         return false;
     }
     if (cinfo) {

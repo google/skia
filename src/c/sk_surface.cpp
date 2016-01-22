@@ -392,7 +392,7 @@ sk_shader_t* sk_shader_new_empty() {
 }
 
 sk_shader_t* sk_shader_new_color(sk_color_t color) {
-    return (sk_shader_t*) SkShader::CreateColorShader(reinterpret_cast<SkColor>(color));
+    return (sk_shader_t*) SkShader::CreateColorShader(color);
 }
 
 sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t& src,
