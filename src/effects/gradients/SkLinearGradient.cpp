@@ -100,7 +100,12 @@ SkLinearGradient::LinearGradientContext::LinearGradientContext(
         SkDEBUGCODE(rec[0].fPosScale = SK_FloatNaN;)   // should never get used
         for (int i = 1; i < count; ++i) {
             rec[i].fPos = SkTPin(shader.fOrigPos[i], rec[i - 1].fPos, 1.0f);
-            rec[i].fPosScale = 1.0f / (rec[i].fPos - rec[i - 1].fPos);
+            float diff = rec[i].fPos - rec[i - 1].fPos;
+            if (diff > 0) {
+                rec[i].fPosScale = 1.0f / diff;
+            } else {
+                rec[i].fPosScale = 0;
+            }
         }
         rec[count - 1].fPos = 1;    // overwrite the last value just to be sure we end at 1.0
     } else {
@@ -483,7 +488,7 @@ find_forward(const SkLinearGradient::LinearGradientContext::Rec rec[], float til
     SkASSERT(rec[1].fPos >= 0 && rec[1].fPos <= 1);
     SkASSERT(rec[0].fPos <= rec[1].fPos);
     rec += 1;
-    while (rec->fPos < tiledX) {
+    while (rec->fPos < tiledX || rec->fPosScale == 0) {
         SkASSERT(rec[0].fPos >= 0 && rec[0].fPos <= 1);
         SkASSERT(rec[1].fPos >= 0 && rec[1].fPos <= 1);
         SkASSERT(rec[0].fPos <= rec[1].fPos);
@@ -499,7 +504,7 @@ find_backward(const SkLinearGradient::LinearGradientContext::Rec rec[], float ti
     SkASSERT(rec[0].fPos >= 0 && rec[0].fPos <= 1);
     SkASSERT(rec[1].fPos >= 0 && rec[1].fPos <= 1);
     SkASSERT(rec[0].fPos <= rec[1].fPos);
-    while (tiledX < rec->fPos) {
+    while (tiledX < rec->fPos || rec[1].fPosScale == 0) {
         rec -= 1;
         SkASSERT(rec[0].fPos >= 0 && rec[0].fPos <= 1);
         SkASSERT(rec[1].fPos >= 0 && rec[1].fPos <= 1);
