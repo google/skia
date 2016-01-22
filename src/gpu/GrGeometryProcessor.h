@@ -20,8 +20,7 @@
 class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
     GrGeometryProcessor()
-        : INHERITED(false)
-        , fWillUseGeoShader(false)
+        : fWillUseGeoShader(false)
         , fLocalCoordsType(kUnused_LocalCoordsType) {}
 
     bool willUseGeoShader() const override { return fWillUseGeoShader; }

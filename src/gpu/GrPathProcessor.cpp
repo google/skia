@@ -123,8 +123,7 @@ GrPathProcessor::GrPathProcessor(GrColor color,
                                  const GrXPOverridesForBatch& overrides,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
-    : INHERITED(true)
-    , fColor(color)
+    : fColor(color)
     , fViewMatrix(viewMatrix)
     , fLocalMatrix(localMatrix)
     , fOverrides(overrides) {

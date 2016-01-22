@@ -20,6 +20,7 @@
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
+#include "gl/GrGLRenderTarget.h"
 
 #include "SkStrokeRec.h"
 
@@ -212,6 +213,8 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
         }
         fBatches[i]->draw(flushState);
     }
+
+    fGpu->performFlushWorkaround();
 }
 
 void GrDrawTarget::reset() {
@@ -487,6 +490,31 @@ bool GrDrawTarget::installPipelineInDrawBatch(const GrPipelineBuilder* pipelineB
     args.fCaps = this->caps();
     args.fScissor = scissor;
     batch->getPipelineOptimizations(&args.fOpts);
+    GrScissorState finalScissor;
+    if (args.fOpts.fOverrides.fUsePLSDstRead) {
+        GrRenderTarget* rt = pipelineBuilder->getRenderTarget();
+        GrGLIRect viewport;
+        viewport.fLeft = 0;
+        viewport.fBottom = 0;
+        viewport.fWidth = rt->width();
+        viewport.fHeight = rt->height();
+        SkIRect ibounds;
+        ibounds.fLeft = SkTPin(SkScalarFloorToInt(batch->bounds().fLeft), viewport.fLeft, 
+                              viewport.fWidth);
+        ibounds.fTop = SkTPin(SkScalarFloorToInt(batch->bounds().fTop), viewport.fBottom, 
+                             viewport.fHeight);
+        ibounds.fRight = SkTPin(SkScalarCeilToInt(batch->bounds().fRight), viewport.fLeft, 
+                               viewport.fWidth);
+        ibounds.fBottom = SkTPin(SkScalarCeilToInt(batch->bounds().fBottom), viewport.fBottom, 
+                                viewport.fHeight);
+        if (scissor != nullptr && scissor->enabled()) {
+            if (!ibounds.intersect(scissor->rect())) {
+                ibounds = scissor->rect();
+            }
+        }
+        finalScissor.set(ibounds);
+        args.fScissor = &finalScissor;
+    }
     args.fOpts.fColorPOI.completeCalculations(pipelineBuilder->fColorFragmentProcessors.begin(),
                                               pipelineBuilder->numColorFragmentProcessors());
     args.fOpts.fCoveragePOI.completeCalculations(

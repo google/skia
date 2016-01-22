@@ -12,6 +12,7 @@
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPipeline.h"
+#include "GrPLSGeometryProcessor.h"
 #include "GrRenderTargetPriv.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
@@ -20,6 +21,7 @@
 #include "builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLPLSPathRendering.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
 
@@ -37,7 +39,6 @@
     #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL(iface, call)
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
 #endif
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -224,6 +225,14 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     this->createCopyPrograms();
     fWireRectProgram.fProgram = 0;
     fWireRectArrayBuffer = 0;
+    if (this->glCaps().shaderCaps()->plsPathRenderingSupport()) {
+        this->createPLSSetupProgram();
+    }
+    else {
+        memset(&fPLSSetupProgram, 0, sizeof(fPLSSetupProgram));
+    }
+    fHWPLSEnabled = false;
+    fPLSHasBeenUsed = false;
 }
 
 GrGLGpu::~GrGLGpu() {
@@ -265,7 +274,104 @@ GrGLGpu::~GrGLGpu() {
         GL_CALL(DeleteBuffers(1, &fWireRectArrayBuffer));
     }
 
+    if (0 != fPLSSetupProgram.fArrayBuffer) {
+        GL_CALL(DeleteBuffers(1, &fPLSSetupProgram.fArrayBuffer));
+    }
+
+    if (0 != fPLSSetupProgram.fProgram) {
+        GL_CALL(DeleteProgram(fPLSSetupProgram.fProgram));
+    }
+
     delete fProgramCache;
+}
+
+void GrGLGpu::createPLSSetupProgram() {
+    const char* version = this->glCaps().glslCaps()->versionDeclString();
+
+    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
+                                   GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uTexture("u_texture", kSampler2D_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    
+    SkString vshaderTxt(version);
+    aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
+    uTexCoordXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
+    uPosXform.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
+    vTexCoord.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
+    
+    vshaderTxt.append(
+        "// PLS Setup Program VS\n"
+        "void main() {"
+        "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
+        "  gl_Position.zw = vec2(0, 1);"
+        "}"
+    );
+
+    SkString fshaderTxt(version);
+    fshaderTxt.append("#extension ");
+    fshaderTxt.append(this->glCaps().glslCaps()->fbFetchExtensionString());
+    fshaderTxt.append(" : require\n");
+    fshaderTxt.append("#extension GL_EXT_shader_pixel_local_storage : require\n");
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
+                                                 *this->glCaps().glslCaps(),
+                                                 &fshaderTxt);
+    vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+    vTexCoord.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    fshaderTxt.append(";");
+    uTexture.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    fshaderTxt.append(";");
+
+    fshaderTxt.appendf(
+        "// PLS Setup Program FS\n"
+        GR_GL_PLS_PATH_DATA_DECL
+        "void main() {\n"
+        "    " GR_GL_PLS_DSTCOLOR_NAME " = gl_LastFragColorARM;\n"
+        "    pls.windings = ivec4(0, 0, 0, 0);\n"
+        "}"
+    );
+    GL_CALL_RET(fPLSSetupProgram.fProgram, CreateProgram());
+    const char* str;
+    GrGLint length;
+
+    str = vshaderTxt.c_str();
+    length = SkToInt(vshaderTxt.size());
+    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fPLSSetupProgram.fProgram,
+                                                  GR_GL_VERTEX_SHADER, &str, &length, 1, &fStats);
+
+    str = fshaderTxt.c_str();
+    length = SkToInt(fshaderTxt.size());
+    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fPLSSetupProgram.fProgram,
+                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1, &fStats);
+
+    GL_CALL(LinkProgram(fPLSSetupProgram.fProgram));
+
+    GL_CALL_RET(fPLSSetupProgram.fPosXformUniform, GetUniformLocation(fPLSSetupProgram.fProgram,
+                                                                  "u_posXform"));
+
+    GL_CALL(BindAttribLocation(fPLSSetupProgram.fProgram, 0, "a_vertex"));
+
+    GL_CALL(DeleteShader(vshader));
+    GL_CALL(DeleteShader(fshader));
+
+    GL_CALL(GenBuffers(1, &fPLSSetupProgram.fArrayBuffer));
+    fHWGeometryState.setVertexBufferID(this, fPLSSetupProgram.fArrayBuffer);
+    static const GrGLfloat vdata[] = {
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 1
+    };
+    GL_ALLOC_CALL(this->glInterface(),
+                  BufferData(GR_GL_ARRAY_BUFFER,
+                             (GrGLsizeiptr) sizeof(vdata),
+                             vdata,  // data ptr
+                             GR_GL_STATIC_DRAW));
 }
 
 void GrGLGpu::contextAbandoned() {
@@ -2145,8 +2251,28 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) {
+void GrGLGpu::performFlushWorkaround() {
+    if (fPLSHasBeenUsed) {
+        /* There is an ARM driver bug where if we use PLS, and then draw a frame which does not 
+         * use PLS, it leaves garbage all over the place. As a workaround, we use PLS in a 
+         * trivial way every frame. And since we use it every frame, there's never a point at which
+         * it becomes safe to stop using this workaround once we start.
+         */
+        this->disableScissor();
+        // using PLS in the presence of MSAA results in GL_INVALID_OPERATION
+        this->flushHWAAState(nullptr, false);
+        SkASSERT(!fHWPLSEnabled);
+        SkASSERT(fMSAAEnabled != kYes_TriState);
+        GL_CALL(Enable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
+        this->stampRectUsingProgram(fPLSSetupProgram.fProgram, 
+                                    SkRect::MakeXYWH(-100.0f, -100.0f, 0.01f, 0.01f), 
+                                    fPLSSetupProgram.fPosXformUniform, 
+                                    fPLSSetupProgram.fArrayBuffer);
+        GL_CALL(Disable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
+    }
+}
 
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) {
     SkASSERT(target);
 
     uint32_t rtID = target->getUniqueID();
@@ -2229,6 +2355,19 @@ void GrGLGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
         return;
     }
 
+    GrPixelLocalStorageState plsState = args.fPrimitiveProcessor->getPixelLocalStorageState();
+    if (!fHWPLSEnabled && plsState != 
+        GrPixelLocalStorageState::kDisabled_GrPixelLocalStorageState) {
+        GL_CALL(Enable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
+        this->setupPixelLocalStorage(args);
+        fHWPLSEnabled = true;
+    }
+    if (plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState) {
+        GrStencilSettings stencil;
+        stencil.setDisabled();
+        this->flushStencil(stencil);
+    }
+
     size_t indexOffsetInBytes = 0;
     this->setupGeometry(*args.fPrimitiveProcessor, vertices, &indexOffsetInBytes);
 
@@ -2250,6 +2389,16 @@ void GrGLGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
         GL_CALL(DrawArrays(gPrimitiveType2GLMode[vertices.primitiveType()], 0,
                            vertices.vertexCount()));
     }
+
+    if (fHWPLSEnabled && plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState) {
+        // PLS draws always involve multiple draws, finishing up with a non-PLS
+        // draw that writes to the color buffer. That draw ends up here; we wait
+        // until after it is complete to actually disable PLS.
+        GL_CALL(Disable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
+        fHWPLSEnabled = false;
+        this->disableScissor();
+    }
+
 #if SWAP_PER_DRAW
     glFlush();
     #if defined(SK_BUILD_FOR_MAC)
@@ -2262,6 +2411,57 @@ void GrGLGpu::onDraw(const DrawArgs& args, const GrNonInstancedVertices& vertice
         SwapBuf();
     #endif
 #endif
+}
+
+void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform, 
+                                    GrGLuint arrayBuffer) {
+    GL_CALL(UseProgram(program));
+    this->fHWGeometryState.setVertexArrayID(this, 0);
+
+    GrGLAttribArrayState* attribs =
+            this->fHWGeometryState.bindArrayAndBufferToDraw(this, arrayBuffer);
+    attribs->set(this, 0, arrayBuffer, 2, GR_GL_FLOAT, false, 2 * sizeof(GrGLfloat), 0);
+    attribs->disableUnusedArrays(this, 0x1);
+
+    GL_CALL(Uniform4f(posXformUniform, bounds.width(), bounds.height(), bounds.left(), 
+                      bounds.top()));
+
+    GrXferProcessor::BlendInfo blendInfo;
+    blendInfo.reset();
+    this->flushBlend(blendInfo, GrSwizzle());
+    this->flushColorWrite(true);
+    this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
+    if (!fHWStencilSettings.isDisabled()) {
+        GL_CALL(Disable(GR_GL_STENCIL_TEST));
+    }
+    GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
+    GL_CALL(UseProgram(fHWProgramID));
+    if (!fHWStencilSettings.isDisabled()) {
+        GL_CALL(Enable(GR_GL_STENCIL_TEST));
+    }
+}
+
+void GrGLGpu::setupPixelLocalStorage(const DrawArgs& args) {
+    fPLSHasBeenUsed = true;
+    const SkRect& bounds = 
+            static_cast<const GrPLSGeometryProcessor*>(args.fPrimitiveProcessor)->getBounds();
+    // setup pixel local storage -- this means capturing and storing the current framebuffer color
+    // and initializing the winding counts to zero
+    GrRenderTarget* rt = args.fPipeline->getRenderTarget();
+    SkScalar width = SkIntToScalar(rt->width());
+    SkScalar height = SkIntToScalar(rt->height());
+    // dst rect edges in NDC (-1 to 1)
+    // having some issues with rounding, just expand the bounds by 1 and trust the scissor to keep
+    // it contained properly
+    GrGLfloat dx0 = 2.0f * (bounds.left() - 1) / width - 1.0f;
+    GrGLfloat dx1 = 2.0f * (bounds.right() + 1) / width - 1.0f;
+    GrGLfloat dy0 = -2.0f * (bounds.top() - 1) / height + 1.0f;
+    GrGLfloat dy1 = -2.0f * (bounds.bottom() + 1) / height + 1.0f;
+    SkRect deviceBounds = SkRect::MakeXYWH(dx0, dy0, dx1 - dx0, dy1 - dy0);
+    
+    GL_CALL(Enable(GR_GL_FETCH_PER_SAMPLE_ARM));
+    this->stampRectUsingProgram(fPLSSetupProgram.fProgram, deviceBounds, 
+                                fPLSSetupProgram.fPosXformUniform, fPLSSetupProgram.fArrayBuffer);
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {

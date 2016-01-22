@@ -217,3 +217,10 @@ bool GrXPFactory::willNeedDstTexture(const GrCaps& caps,
     return (this->willReadDstColor(caps, optimizations, hasMixedSamples) &&
             !caps.shaderCaps()->dstReadInShaderSupport());
 }
+
+bool GrXPFactory::willReadDstColor(const GrCaps& caps,
+                                   const GrPipelineOptimizations& optimizations,
+                                   bool hasMixedSamples) const {
+    return optimizations.fOverrides.fUsePLSDstRead || this->onWillReadDstColor(caps, optimizations,
+                                                                               hasMixedSamples);
+}

@@ -131,7 +131,8 @@ private:
     void emitAndInstallXferProc(const GrXferProcessor&,
                                 const GrGLSLExpr4& colorIn,
                                 const GrGLSLExpr4& coverageIn,
-                                bool ignoresCoverage);
+                                bool ignoresCoverage,
+                                GrPixelLocalStorageState plsState);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
 
     void verify(const GrPrimitiveProcessor&);

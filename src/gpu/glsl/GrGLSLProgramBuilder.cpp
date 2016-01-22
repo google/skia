@@ -53,9 +53,13 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     this->emitAndInstallFragProcs(0, this->pipeline().numColorFragmentProcessors(), inputColor);
     this->emitAndInstallFragProcs(this->pipeline().numColorFragmentProcessors(), numProcs,
                                   inputCoverage);
-    this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor, *inputCoverage,
-                                 this->pipeline().ignoresCoverage());
-    this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
+    if (primProc.getPixelLocalStorageState() != 
+        GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
+        this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor, 
+                                     *inputCoverage, this->pipeline().ignoresCoverage(),
+                                     primProc.getPixelLocalStorageState());
+        this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
+    }
     return true;
 }
 
@@ -151,7 +155,8 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
 void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                                   const GrGLSLExpr4& colorIn,
                                                   const GrGLSLExpr4& coverageIn,
-                                                  bool ignoresCoverage) {
+                                                  bool ignoresCoverage,
+                                                  GrPixelLocalStorageState plsState) {
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
 
@@ -174,6 +179,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkSTArray<4, GrGLSLTextureSampler> samplers(xp.numTextures());
     this->emitSamplers(xp, &samplers);
 
+    bool usePLSDstRead = (plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState);
     GrGLSLXferProcessor::EmitArgs args(&fFS,
                                        this->uniformHandler(),
                                        this->glslCaps(),
@@ -181,7 +187,8 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                        ignoresCoverage ? nullptr : coverageIn.c_str(),
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
-                                       samplers);
+                                       samplers,
+                                       usePLSDstRead);
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
