@@ -165,7 +165,7 @@ typedef SkPMColor (*SkXfermodeProc)(SkPMColor src, SkPMColor dst);
 /*
  *  The float values are 0...1 premultiplied
  */
-struct SK_ATTRIBUTE(aligned(16)) SkPM4f {
+struct SkPM4f {
     float fVec[4];
 
     float a() const { return fVec[SK_A32_SHIFT/8]; }
