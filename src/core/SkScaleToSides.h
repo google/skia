@@ -45,10 +45,10 @@ public:
 
             // If newMaxRadius forces the total over the limit, then it needs to be
             // reduced by one ULP to be less than limit - newMinRadius.
-            // Note: nexttowardf is a c99 call and should be std::nexttoward, but this is not
-            // implemented in the ARM compiler.
+            // Note: nextafterf is a c99 call and should be std::nextafter, but this is not
+            // implemented in the GCC ARM compiler.
             if (newMaxRadius + newMinRadius > limit) {
-                newMaxRadius = nexttowardf(newMaxRadius, 0.0);
+                newMaxRadius = nextafterf(newMaxRadius, 0.0f);
             }
             *maxRadius = newMaxRadius;
         }
