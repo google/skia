@@ -9,6 +9,8 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
+#include <functional>
+
 #include "glsl/GrGLSL.h"
 #include "GrCaps.h"
 #include "GrGLStencilAttachment.h"
@@ -19,6 +21,7 @@
 
 class GrGLContextInfo;
 class GrGLSLCaps;
+class GrGLRenderTarget;
 
 /**
  * Stores some capabilities of a GL context. Most are determined by the GL
@@ -283,10 +286,11 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
-    /// Does ReadPixels support the provided format/type combo?
-    bool readPixelsSupported(const GrGLInterface* intf,
+    /// Does ReadPixels support reading readConfig pixels from a FBO that is renderTargetConfig?
+    bool readPixelsSupported(GrPixelConfig renderTargetConfig,
                              GrPixelConfig readConfig,
-                             GrPixelConfig currFBOConfig) const;
+                             std::function<void (GrGLenum, GrGLint*)> getIntegerv,
+                             std::function<bool ()> bindRenderTarget) const;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
@@ -347,6 +351,8 @@ private:
     void initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                                   const GrGLInterface* intf,
                                   GrGLSLCaps* glslCaps);
+
+    GrGLStandard fStandard;
 
     SkTArray<StencilFormat, true> fStencilFormats;
 

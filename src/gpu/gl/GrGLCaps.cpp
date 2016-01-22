@@ -10,6 +10,7 @@
 
 #include "GrContextOptions.h"
 #include "GrGLContext.h"
+#include "GrGLRenderTarget.h"
 #include "glsl/GrGLSLCaps.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -17,6 +18,8 @@
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,
                    const GrGLInterface* glInterface) : INHERITED(contextOptions) {
+    fStandard = ctxInfo.standard();
+
     fStencilFormats.reset();
     fMSFBOType = kNone_MSFBOType;
     fInvalidateFBType = kNone_InvalidateFBType;
@@ -648,47 +651,52 @@ bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrG
     }
     return true;
 }
-bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
+
+bool GrGLCaps::readPixelsSupported(GrPixelConfig rtConfig,
                                    GrPixelConfig readConfig,
-                                   GrPixelConfig currFBOConfig) const {
-    SkASSERT(this->isConfigRenderable(currFBOConfig, false));
+                                   std::function<void (GrGLenum, GrGLint*)> getIntegerv,
+                                   std::function<bool ()> bindRenderTarget) const {
+    SkASSERT(this->isConfigRenderable(rtConfig, false));
 
     GrGLenum readFormat;
     GrGLenum readType;
-    if (!this->getReadPixelsFormat(currFBOConfig, readConfig, &readFormat, &readType)) {
+    if (!this->getReadPixelsFormat(rtConfig, readConfig, &readFormat, &readType)) {
         return false;
     }
 
-    if (kGL_GrGLStandard == intf->fStandard) {
+    if (kGL_GrGLStandard == fStandard) {
         // All of our renderable configs can be converted to each other by glReadPixels in OpenGL.
         return true;
     }
 
     // See Section 16.1.2 in the ES 3.2 specification.
 
-    if (kNormalizedFixedPoint_FormatType == fConfigTable[currFBOConfig].fFormatType) {
+    if (kNormalizedFixedPoint_FormatType == fConfigTable[rtConfig].fFormatType) {
         if (GR_GL_RGBA == readFormat && GR_GL_UNSIGNED_BYTE == readType) {
             return true;
         }
     } else {
-        SkASSERT(kFloat_FormatType == fConfigTable[currFBOConfig].fFormatType);
+        SkASSERT(kFloat_FormatType == fConfigTable[rtConfig].fFormatType);
         if (GR_GL_RGBA == readFormat && GR_GL_FLOAT == readType) {
             return true;
         }
     }
 
-    if (0 == fConfigTable[currFBOConfig].fSecondReadPixelsFormat.fFormat) {
+    if (0 == fConfigTable[rtConfig].fSecondReadPixelsFormat.fFormat) {
         ReadPixelsFormat* rpFormat =
-            const_cast<ReadPixelsFormat*>(&fConfigTable[currFBOConfig].fSecondReadPixelsFormat);
+            const_cast<ReadPixelsFormat*>(&fConfigTable[rtConfig].fSecondReadPixelsFormat);
         GrGLint format = 0, type = 0;
-        GR_GL_GetIntegerv(intf, GR_GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
-        GR_GL_GetIntegerv(intf, GR_GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
+        if (!bindRenderTarget()) {
+            return false;
+        }
+        getIntegerv(GR_GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
+        getIntegerv(GR_GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
         rpFormat->fFormat = format;
         rpFormat->fType = type;
     }
 
-    return fConfigTable[currFBOConfig].fSecondReadPixelsFormat.fFormat == readFormat &&
-           fConfigTable[currFBOConfig].fSecondReadPixelsFormat.fType == readType;
+    return fConfigTable[rtConfig].fSecondReadPixelsFormat.fFormat == readFormat &&
+           fConfigTable[rtConfig].fSecondReadPixelsFormat.fType == readType;
 }
 
 void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

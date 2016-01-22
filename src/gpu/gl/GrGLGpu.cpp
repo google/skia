@@ -2069,12 +2069,55 @@ static bool read_pixels_pays_for_y_flip(GrRenderTarget* renderTarget, const GrGL
     return caps.packRowLengthSupport() || GrBytesPerPixel(config) * width == rowBytes;
 }
 
+bool GrGLGpu::readPixelsSupported(GrRenderTarget* target, GrPixelConfig readConfig) {
+    auto bindRenderTarget = [this, target]() -> bool {
+        this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target), &SkIRect::EmptyIRect());
+        return true;
+    };
+    auto getIntegerv = [this](GrGLenum query, GrGLint* value) {
+        GR_GL_GetIntegerv(this->glInterface(), query, value);
+    };
+    GrPixelConfig rtConfig = target->config();
+    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget);
+}
+
+bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConfig) {
+    auto bindRenderTarget = [this, rtConfig]() -> bool {
+        GrTextureDesc desc;
+        desc.fConfig = rtConfig;
+        desc.fWidth = desc.fHeight = 16;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        SkAutoTUnref<GrTexture> temp(this->createTexture(desc, false, nullptr, 0));
+        if (!temp) {
+            return false;
+        }
+        GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(temp->asRenderTarget());
+        this->flushRenderTarget(glrt, &SkIRect::EmptyIRect());
+        return true;
+    };
+    auto getIntegerv = [this](GrGLenum query, GrGLint* value) {
+        GR_GL_GetIntegerv(this->glInterface(), query, value);
+    };
+    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget);
+}
+
+bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig) {
+    if (GrRenderTarget* rt = surfaceForConfig->asRenderTarget()) {
+        return this->readPixelsSupported(rt, readConfig);
+    } else {
+        GrPixelConfig config = surfaceForConfig->config();
+        return this->readPixelsSupported(config, readConfig);
+    }
+}
+
 bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
+    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
+
     // This subclass can only read pixels from a render target. We could use glTexSubImage2D on
     // GL versions that support it but we don't today.
-    if (!srcSurface->asRenderTarget()) {
+    if (!srcAsRT) {
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
@@ -2099,33 +2142,38 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     GrPixelConfig srcConfig = srcSurface->config();
     tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
 
-    if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig) {
+    if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig &&
+        this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
         tempDrawInfo->fReadConfig = kBGRA_8888_GrPixelConfig;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (kMesa_GrGLDriver == this->glContext().driver() &&
                GrBytesPerPixel(readConfig) == 4 &&
-               GrPixelConfigSwapRAndB(readConfig) == srcConfig) {
+               GrPixelConfigSwapRAndB(readConfig) == srcConfig &&
+               this->readPixelsSupported(srcSurface, srcConfig)) {
         // Mesa 3D takes a slow path on when reading back BGRA from an RGBA surface and vice-versa.
         // Better to do a draw with a R/B swap and then read as the original config.
         tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
         tempDrawInfo->fReadConfig = srcConfig;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
-    } else if (readConfig == kBGRA_8888_GrPixelConfig &&
-               !this->glCaps().readPixelsSupported(this->glInterface(), readConfig, srcConfig)) {
-        tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
-        tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    } else if (!this->readPixelsSupported(srcSurface, readConfig)) {
+        if (readConfig == kBGRA_8888_GrPixelConfig &&
+            this->glCaps().isConfigRenderable(kRGBA_8888_GrPixelConfig, false) &&
+            this->readPixelsSupported(kRGBA_8888_GrPixelConfig, kRGBA_8888_GrPixelConfig)) {
+
+            tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
+            tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+            tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        } else {
+            return false;
+        }
     }
 
-    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
-    if (!srcAsRT) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    } else if (read_pixels_pays_for_y_flip(srcAsRT, this->glCaps(), width, height, readConfig,
-                                           rowBytes)) {
+    if (srcAsRT &&
+        read_pixels_pays_for_y_flip(srcAsRT, this->glCaps(), width, height, readConfig, rowBytes)) {
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     }
 
