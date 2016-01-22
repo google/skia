@@ -646,3 +646,93 @@ private:
 DEF_GM( return new LinearGradientTinyGM(); )
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct GradRun {
+    SkColor  fColors[4];
+    SkScalar fPos[4];
+    int      fCount;
+};
+
+#define SIZE 121
+
+static SkShader* make_linear(const GradRun& run, SkShader::TileMode mode) {
+    const SkPoint pts[] { { 30, 30 }, { SIZE - 30, SIZE - 30 } };
+    return SkGradientShader::CreateLinear(pts, run.fColors, run.fPos, run.fCount, mode);
+}
+
+static SkShader* make_radial(const GradRun& run, SkShader::TileMode mode) {
+    const SkScalar half = SIZE * 0.5f;
+    return SkGradientShader::CreateRadial({half,half}, half - 10,
+                                          run.fColors, run.fPos, run.fCount, mode);
+}
+
+static SkShader* make_conical(const GradRun& run, SkShader::TileMode mode) {
+    const SkScalar half = SIZE * 0.5f;
+    const SkPoint center { half, half };
+    return SkGradientShader::CreateTwoPointConical(center, 20, center, half - 10,
+                                          run.fColors, run.fPos, run.fCount, mode);
+}
+
+static SkShader* make_sweep(const GradRun& run, SkShader::TileMode) {
+    const SkScalar half = SIZE * 0.5f;
+    return SkGradientShader::CreateSweep(half, half, run.fColors, run.fPos, run.fCount);
+}
+
+/*
+ *  Exercise duplicate color-stops, at the ends, and in the middle
+ *
+ *  At the time of this writing, only Linear correctly deals with duplicates at the ends,
+ *  and then only correctly on CPU backend.
+ */
+DEF_SIMPLE_GM(gradients_dup_color_stops, canvas, 704, 564) {
+    const SkColor preColor  = 0xFFFF0000;   // clamp color before start
+    const SkColor postColor = 0xFF0000FF;   // clamp color after end
+    const SkColor color0    = 0xFF000000;
+    const SkColor color1    = 0xFF00FF00;
+    const SkColor badColor  = 0xFF3388BB;   // should never be seen, fills out fixed-size array
+
+    const GradRun runs[] = {
+        {   { color0, color1, badColor, badColor },
+            { 0, 1, -1, -1 },
+            2,
+        },
+        {   { preColor, color0, color1, badColor },
+            { 0, 0, 1, -1 },
+            3,
+        },
+        {   { color0, color1, postColor, badColor },
+            { 0, 1, 1, -1 },
+            3,
+        },
+        {   { preColor, color0, color1, postColor },
+            { 0, 0, 1, 1 },
+            4,
+        },
+        {   { color0, color0, color1, color1 },
+            { 0, 0.5f, 0.5f, 1 },
+            4,
+        },
+    };
+    SkShader* (*factories[])(const GradRun&, SkShader::TileMode) {
+        make_linear, make_radial, make_conical, make_sweep
+    };
+
+    const SkRect rect = SkRect::MakeWH(SIZE, SIZE);
+    const SkScalar dx = SIZE + 20;
+    const SkScalar dy = SIZE + 20;
+    const SkShader::TileMode mode = SkShader::kClamp_TileMode;
+
+    SkPaint paint;
+    canvas->translate(10, 10 - dy);
+    for (auto factory : factories) {
+        canvas->translate(0, dy);
+        SkAutoCanvasRestore acr(canvas, true);
+        for (const auto& run : runs) {
+            paint.setShader(factory(run, mode))->unref();
+            canvas->drawRect(rect, paint);
+            canvas->translate(dx, 0);
+        }
+    }
+}
