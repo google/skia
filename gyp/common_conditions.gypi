@@ -471,6 +471,28 @@
 
     [ 'skia_os == "mac"',
       {
+        'variables': {
+            # Setup some flags that are used below in both the XCode/ninja build as well as the
+            # cmake build.
+            'common_c_and_cpp_flags': [
+              '-mssse3',
+              '-fvisibility=hidden',
+              '-fvisibility-inlines-hidden',
+              '-Wall',
+              '-Wextra',
+              '-Winit-self',
+              '-Wpointer-arith',
+              '-Wsign-compare',
+              '-Wno-unused-parameter',
+            ],
+            'common_cpp_flags': [
+              '-fno-threadsafe-statics',
+              '-fno-exceptions',
+              '-fno-rtti',
+              '-std=c++11',
+              '-stdlib=libc++'
+            ],
+        },
         'defines': [ 'SK_BUILD_FOR_MAC' ],
         'conditions': [
             # ANGLE for mac hits -Wunneeded-internal-declaration if this isn't set.
@@ -504,12 +526,14 @@
               'MACOSX_DEPLOYMENT_TARGET': '<(skia_osx_deployment_target)',
             }],
             [ 'skia_sanitizer', {
-              'GCC_ENABLE_CPP_RTTI': 'YES',                         # vptr needs rtti
               'OTHER_CFLAGS': [
                 '-fsanitize=<(skia_sanitizer)',                     # Turn on sanitizers.
                 '-fno-sanitize-recover=<(skia_sanitizer)',          # Make any failure fatal.
                 '-fsanitize-blacklist=<(skia_sanitizer_blacklist)', # Compile in our blacklist.
                 '-include <(skia_sanitizer_blacklist)',             # Make every .cpp depend on it.
+              ],
+              'OTHER_CPLUSPLUSFLAGS': [
+                '-frtti',                                           # vptr needs rtti
               ],
               # We want to pass -fsanitize=... to our final link call,
               # but not to libtool. OTHER_LDFLAGS is passed to both.
@@ -520,25 +544,24 @@
             }],
           ],
           'CLANG_CXX_LIBRARY':                         'libc++',
-          'CLANG_CXX_LANGUAGE_STANDARD':               'c++11',
-          'GCC_ENABLE_CPP_EXCEPTIONS':                 'NO',   # -fno-exceptions
-          'GCC_ENABLE_CPP_RTTI':                       'NO',   # -fno-rtti
-          'GCC_THREADSAFE_STATICS':                    'NO',   # -fno-threadsafe-statics
-          'GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS': 'YES',  # -mssse3
-          'GCC_SYMBOLS_PRIVATE_EXTERN':                'NO',   # -fvisibility=hidden
-          'GCC_INLINES_ARE_PRIVATE_EXTERN':            'NO',   # -fvisibility-inlines-hidden
           'GCC_CW_ASM_SYNTAX':                         'NO',   # remove -fasm-blocks
           'GCC_ENABLE_PASCAL_STRINGS':                 'NO',   # remove -mpascal-strings
-          'WARNING_CFLAGS': [
-            '-Wall',
-            '-Wextra',
-            '-Winit-self',
-            '-Wpointer-arith',
-            '-Wsign-compare',
-
-            '-Wno-unused-parameter',
+          # Used by XCode and ninja
+          'OTHER_CPLUSPLUSFLAGS': [
+            '<@(common_cpp_flags)',
+            '<@(common_c_and_cpp_flags)',
+          ],
+          'OTHER_CFLAGS': [
+            '<@(common_c_and_cpp_flags)',
           ],
         },
+        # Used by cmake
+        'cflags': [
+          '<@(common_c_and_cpp_flags)',
+        ],
+        'cflags_cc': [
+          '<@(common_cpp_flags)',
+        ],
       },
     ],
 
