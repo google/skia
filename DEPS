@@ -41,6 +41,9 @@ deps = {
 
   # sdl will be needed for native windows
   "third_party/externals/sdl" : "https://skia.googlesource.com/third_party/sdl@9b526d28cb2d7f0ccff0613c94bb52abc8f53b6f",
+
+  # microhttpd for skiaserve
+  "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
 }
 
 recursedeps = [ "common" ]
