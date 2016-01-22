@@ -12,7 +12,7 @@
 #include "SkScalar.h"
 #include "SkTypes.h"
 
-class ScaleToSides {
+class SkScaleToSides {
 public:
     // This code assumes that a and b fit in a float, and therefore the resulting smaller value
     // of a and b will fit in a float. The side of the rectangle may be larger than a float.

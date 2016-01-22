@@ -35,7 +35,7 @@ DEF_FUZZ(ScaleToSides, fuzz) {
         fuzz->signalBoring();
     }
     SkDebugf("%g %g %g %g\n", radius1, radius2, width, scale);
-    ScaleToSides::AdjustRadii(width, scale, &radius1, &radius2);
+    SkScaleToSides::AdjustRadii(width, scale, &radius1, &radius2);
 
     // TODO(mtklein): add fuzz->keepResult()
     volatile float junk = 0.0f;

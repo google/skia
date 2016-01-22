@@ -48,7 +48,7 @@ DEF_TEST(ScaleToSides, reporter) {
                             scale = std::min(scale, interestingValues[s-1]);
                         }
                         if (scale < 1.0 && scale > 0.0) {
-                            ScaleToSides::AdjustRadii(width, scale, &radius1, &radius2);
+                            SkScaleToSides::AdjustRadii(width, scale, &radius1, &radius2);
                         }
                     }
                 }
