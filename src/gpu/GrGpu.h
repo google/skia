@@ -11,6 +11,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrProgramDesc.h"
 #include "GrStencil.h"
+#include "GrSwizzle.h"
 #include "GrTextureParamsAdjuster.h"
 #include "GrXferProcessor.h"
 #include "SkPath.h"
@@ -155,13 +156,15 @@ public:
         /** Indicates whether there is a performance advantage to using an exact match texture
             (in terms of width and height) for the intermediate texture instead of approximate. */
         bool            fUseExactScratch;
-        /** The caller should swap the R and B channel in the temp draw and then instead of reading
-            the desired config back it should read GrPixelConfigSwapRAndB(readConfig). The swap
-            during the draw and the swap at readback time cancel and the client gets the correct
-            data. The swapped read back is either faster for or required by the underlying backend
-            3D API. */
-        bool            fSwapRAndB;
+        /** Swizzle to apply during the draw. This is used to compensate for either feature or
+            performance limitations in the underlying 3D API. */
+        GrSwizzle       fSwizzle;
+        /** The config that should be used to read from the temp surface after the draw. This may be
+            different than the original read config in order to compensate for swizzling. The
+            read data will effectively be in the original read config. */
+        GrPixelConfig   fReadConfig;
     };
+
     /** Describes why an intermediate draw must/should be performed before readPixels. */
     enum DrawPreference {
         /** On input means that the caller would proceed without draw if the GrGpu doesn't request
@@ -202,12 +205,13 @@ public:
             should upload the pixels such that the upper left pixel of the upload rect is at 0,0 in
             the intermediate surface.*/
         GrSurfaceDesc   fTempSurfaceDesc;
-        /** If set, fTempSurfaceDesc's config will be a R/B swap of the src pixel config. The caller
-            should upload the pixels as is such that R and B will be swapped in the intermediate
-            surface. When the intermediate is drawn to the dst the shader should swap R/B again
-            such that the correct swizzle results in the dst. This is done to work around either
-            performance or API restrictions in the backend 3D API implementation. */
-        bool            fSwapRAndB;
+        /** Swizzle to apply during the draw. This is used to compensate for either feature or
+            performance limitations in the underlying 3D API. */
+        GrSwizzle       fSwizzle;
+        /** The config that should be specified when uploading the *original* data to the temp
+            surface before the draw. This may be different than the original src data config in
+            order to compensate for swizzling that will occur when drawing. */
+        GrPixelConfig   fWriteConfig;
     };
 
     /**

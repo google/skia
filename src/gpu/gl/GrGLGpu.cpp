@@ -670,7 +670,9 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
-    tempDrawInfo->fSwapRAndB = false;
+    // Start off assuming no swizzling
+    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
+    tempDrawInfo->fWriteConfig = srcConfig;
 
     // These settings we will always want if a temp draw is performed. Initially set the config
     // to srcConfig, though that may be modified if we decide to do a R/G swap.
@@ -687,19 +689,22 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
         if (!this->caps()->isConfigTexturable(srcConfig)) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-            tempDrawInfo->fSwapRAndB = true;
+            tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+            tempDrawInfo->fWriteConfig = dstSurface->config();
         } else if (this->glCaps().rgba8888PixelsOpsAreSlow() &&
                    kRGBA_8888_GrPixelConfig == srcConfig) {
             ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-            tempDrawInfo->fSwapRAndB = true;
+            tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+            tempDrawInfo->fWriteConfig = dstSurface->config();
         } else if (kGLES_GrGLStandard == this->glStandard() &&
                    this->glCaps().bgraIsInternalFormat()) {
             // The internal format and external formats must match texture uploads so we can't
             // swizzle while uploading when BGRA is a distinct internal format.
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
             tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
-            tempDrawInfo->fSwapRAndB = true;
+            tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+            tempDrawInfo->fWriteConfig = dstSurface->config();
         }
     }
 
@@ -2077,7 +2082,8 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
-    tempDrawInfo->fSwapRAndB = false;
+    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
+    tempDrawInfo->fReadConfig = readConfig;
 
     // These settings we will always want if a temp draw is performed. The config is set below
     // depending on whether we want to do a R/B swap or not.
@@ -2095,20 +2101,23 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
 
     if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
-        tempDrawInfo->fSwapRAndB = true;
+        tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+        tempDrawInfo->fReadConfig = kBGRA_8888_GrPixelConfig;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (kMesa_GrGLDriver == this->glContext().driver() &&
                GrBytesPerPixel(readConfig) == 4 &&
                GrPixelConfigSwapRAndB(readConfig) == srcConfig) {
-        // Mesa 3D takes a slow path on when reading back  BGRA from an RGBA surface and vice-versa.
+        // Mesa 3D takes a slow path on when reading back BGRA from an RGBA surface and vice-versa.
         // Better to do a draw with a R/B swap and then read as the original config.
         tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
-        tempDrawInfo->fSwapRAndB = true;
+        tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+        tempDrawInfo->fReadConfig = srcConfig;
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (readConfig == kBGRA_8888_GrPixelConfig &&
                !this->glCaps().readPixelsSupported(this->glInterface(), readConfig, srcConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
-        tempDrawInfo->fSwapRAndB = true;
+        tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
+        tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
@@ -2160,8 +2169,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
             this->onResolveRenderTarget(tgt);
             // we don't track the state of the READ FBO ID.
             fStats.incRenderTargetBinds();
-            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER,
-                                    tgt->textureFBOID()));
+            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, tgt->textureFBOID()));
             break;
         default:
             SkFAIL("Unknown resolve type");
