@@ -12,6 +12,8 @@
 #include "SkDrawFilter.h"
 #include "SkPaint.h"
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+
 /**
  * Initial test coverage for SkDrawFilter.
  * Draws two rectangles; if draw filters are broken, they will match.
@@ -70,3 +72,4 @@ private:
 
 DEF_GM( return new DrawFilterGM; )
 
+#endif

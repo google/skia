@@ -262,6 +262,8 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+
 class TestDrawFilter : public SkDrawFilter {
 public:
     bool filter(SkPaint*, Type) override { return true; }
@@ -286,6 +288,8 @@ DEF_TEST(CanvasState_test_draw_filters, reporter) {
     tmpCanvas->unref();
     SkCanvasStateUtils::ReleaseCanvasState(state);
 }
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

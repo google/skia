@@ -515,8 +515,11 @@ static void AssertCanvasStatesEqual(skiatest::Reporter* reporter, const TestData
     REPORTER_ASSERT_MESSAGE(reporter, bounds1 == bounds2,
                             testStep->assertMessage());
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     REPORTER_ASSERT_MESSAGE(reporter, canvas1->getDrawFilter() ==
         canvas2->getDrawFilter(), testStep->assertMessage());
+#endif
+
     SkIRect deviceBounds1, deviceBounds2;
     REPORTER_ASSERT_MESSAGE(reporter,
         canvas1->getClipDeviceBounds(&deviceBounds1) ==

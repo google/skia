@@ -10,6 +10,8 @@
 #include "SkSurface.h"
 #include "Test.h"
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+
 namespace {
 class TestFilter : public SkDrawFilter {
 public:
@@ -43,3 +45,5 @@ static void test_saverestore(skiatest::Reporter* reporter) {
 DEF_TEST(DrawFilter, reporter) {
     test_saverestore(reporter);
 }
+
+#endif
