@@ -78,7 +78,12 @@
               'visualbench.gyp:visualbench',
             ]
           }
-        ]
+        ],
+        [ 'skia_build_server', {
+          'dependencies': [
+            'skiaserve.gyp:skiaserve',
+          ],
+        }],
       ],
     },
   ],
