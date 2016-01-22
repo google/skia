@@ -81,24 +81,6 @@ public:
     */
     bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
 
-    /**
-     * PLS storage size in bytes (0 when not supported). The PLS spec defines a minimum size of 16 
-     * bytes whenever PLS is supported.
-     */
-    int pixelLocalStorageSize() const { return fPixelLocalStorageSize; }
-
-    /**
-     * True if this context supports the necessary extensions and features to enable the PLS path
-     * renderer.
-     */
-    bool plsPathRenderingSupport() const { 
-#if GR_ENABLE_PLS_PATH_RENDERING
-        return fPLSPathRenderingSupport;
-#else
-        return false;
-#endif
-    }
-
 protected:
     /** Subclasses must call this after initialization in order to apply caps overrides requested by
         the client. Note that overrides will only reduce the caps never expand them. */
@@ -112,8 +94,6 @@ protected:
 
     bool fShaderPrecisionVaries;
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
-    int fPixelLocalStorageSize;
-    bool fPLSPathRenderingSupport;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};

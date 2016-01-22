@@ -73,7 +73,7 @@ public:
              const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision);
         fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -89,7 +89,7 @@ public:
              const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision);
         fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -106,7 +106,7 @@ public:
              const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision, count);
         fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -123,7 +123,7 @@ public:
              const char* layoutQualifier = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
         INHERITED::set(type, name, typeModifier, precision, count);
         fLayoutQualifier = layoutQualifier;
         fUseUniformFloatArrays = useUniformFloatArrays;
@@ -140,22 +140,16 @@ public:
      * Write a declaration of this variable to out.
      */
     void appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
-        SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeIsNumeric(fType));
+        SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeIsFloatType(fType));
         if (!fLayoutQualifier.isEmpty()) {
             out->appendf("layout(%s) ", fLayoutQualifier.c_str());
         }
         if (this->getTypeModifier() != kNone_TypeModifier) {
-            if (GrSLTypeIsIntType(fType) && (this->getTypeModifier() == kVaryingIn_TypeModifier ||
-                                             this->getTypeModifier() == kVaryingOut_TypeModifier)) {
-                out->append("flat ");
-            }
-            out->append(TypeModifierString(glslCaps, this->getTypeModifier()));
-            out->append(" ");
+           out->append(TypeModifierString(glslCaps, this->getTypeModifier()));
+           out->append(" ");
         }
+        out->append(PrecisionString(glslCaps, fPrecision));
         GrSLType effectiveType = this->getType();
-        if (effectiveType != kBool_GrSLType) {
-            out->append(PrecisionString(glslCaps, fPrecision));
-        }
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
                 out->appendf("%s %s[]",

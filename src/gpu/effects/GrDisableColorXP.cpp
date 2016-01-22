@@ -6,7 +6,6 @@
  */
 
 #include "effects/GrDisableColorXP.h"
-#include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -98,7 +97,6 @@ GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                const GrPipelineOptimizations& optimizations,
                                                bool hasMixedSamples,
                                                const DstTexture* dst) const {
-    SkASSERT(!optimizations.fOverrides.fUsePLSDstRead);
     return DisableColorXP::Create();
 }
 

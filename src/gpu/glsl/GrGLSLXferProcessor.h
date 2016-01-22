@@ -32,8 +32,7 @@ public:
                  const char* inputCoverage,
                  const char* outputPrimary,
                  const char* outputSecondary,
-                 const TextureSamplerArray& samplers,
-                 const bool usePLSDstRead)
+                 const TextureSamplerArray& samplers)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fGLSLCaps(caps)
@@ -42,8 +41,7 @@ public:
             , fInputCoverage(inputCoverage)
             , fOutputPrimary(outputPrimary)
             , fOutputSecondary(outputSecondary)
-            , fSamplers(samplers)
-            , fUsePLSDstRead(usePLSDstRead) {}
+            , fSamplers(samplers) {}
 
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
@@ -54,7 +52,6 @@ public:
         const char* fOutputPrimary;
         const char* fOutputSecondary;
         const TextureSamplerArray& fSamplers;
-        bool fUsePLSDstRead;
     };
     /**
      * This is similar to emitCode() in the base class, except it takes a full shader builder.

@@ -257,7 +257,6 @@ void GrAtlasTextBatch::computePipelineOptimizations(GrInitInvariantOutput* color
         case kColorBitmapMask_MaskType:
             coverage->setKnownSingleComponent(0xff);
     }
-    overrides->fUsePLSDstRead = false;
 }
 
 void GrAtlasTextBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {

@@ -98,7 +98,6 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     opt.fColorPOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false);
     // Setting 2nd to last value to false and last to true will force covPOI to LCD coverage.
     opt.fCoveragePOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false, true);
-    opt.fOverrides.fUsePLSDstRead = false;
 
     SkASSERT(!opt.fColorPOI.isOpaque());
     SkASSERT(!opt.fColorPOI.isSolidWhite());
@@ -291,7 +290,6 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                                                   false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
                                                      true);
-    optimizations.fOverrides.fUsePLSDstRead = false;
 
     SkASSERT(!optimizations.fColorPOI.isOpaque());
     SkASSERT(!optimizations.fColorPOI.isSolidWhite());
@@ -486,7 +484,6 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                                    kR_GrColorComponentFlag | kB_GrColorComponentFlag, false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
                                                      kRGBA_GrColorComponentFlags, true);
-    optimizations.fOverrides.fUsePLSDstRead = false;
 
     SkASSERT(!optimizations.fColorPOI.isOpaque());
     SkASSERT(!optimizations.fColorPOI.isSolidWhite());
@@ -691,7 +688,6 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                                                   kA_GrColorComponentFlag, false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags, 
                                                      true);
-    optimizations.fOverrides.fUsePLSDstRead = false;
 
     SkASSERT(optimizations.fColorPOI.isOpaque());
     SkASSERT(!optimizations.fColorPOI.isSolidWhite());
@@ -891,7 +887,6 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                                    kG_GrColorComponentFlag | kA_GrColorComponentFlag, false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255), 
                                                      kRGBA_GrColorComponentFlags, true);
-    optimizations.fOverrides.fUsePLSDstRead = false;
 
     SkASSERT(optimizations.fColorPOI.isOpaque());
     SkASSERT(!optimizations.fColorPOI.isSolidWhite());

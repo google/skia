@@ -26,7 +26,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
     SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_Visibility | kFragment_Visibility);
     SkASSERT(0 == (~kVisibilityMask & visibility));
     SkASSERT(0 != visibility);
-    SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsNumeric(type));
+    SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
 
     UniformInfo& uni = fUniforms.push_back();
     uni.fVariable.setType(type);

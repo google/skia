@@ -47,16 +47,6 @@ class GrGLSLPrimitiveProcessor;
 
 struct GrInitInvariantOutput;
 
-// Describes the state of pixel local storage with respect to the current draw. 
-enum GrPixelLocalStorageState {
-    // The draw is actively updating PLS.
-    kDraw_GrPixelLocalStorageState,
-    // The draw is a "finish" operation which is reading from PLS and writing color.
-    kFinish_GrPixelLocalStorageState,
-    // The draw does not use PLS.
-    kDisabled_GrPixelLocalStorageState
-};
-
 /*
  * This class allows the GrPipeline to communicate information about the pipeline to a
  * GrBatch which should be forwarded to the GrPrimitiveProcessor(s) created by the batch.
@@ -209,7 +199,7 @@ public:
         the object. */
     virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const = 0;
 
-    virtual bool isPathRendering() const { return false; }
+    bool isPathRendering() const { return fIsPathRendering; }
 
     /**
      * No Local Coord Transformation is needed in the shader, instead transformed local coords will
@@ -217,19 +207,11 @@ public:
      */
     virtual bool hasTransformedLocalCoords() const = 0;
 
-    virtual GrPixelLocalStorageState getPixelLocalStorageState() const { 
-        return kDisabled_GrPixelLocalStorageState;
-    }
-
-    /**
-     * If non-null, overrides the dest color returned by GrGLSLFragmentShaderBuilder::dstColor().
-     */
-    virtual const char* getDestColorOverride() const { return nullptr; }
-    
 protected:
-    GrPrimitiveProcessor()
+    GrPrimitiveProcessor(bool isPathRendering)
         : fNumAttribs(0)
-        , fVertexStride(0) {}
+        , fVertexStride(0)
+        , fIsPathRendering(isPathRendering) {}
 
     Attribute fAttribs[kMaxVertexAttribs];
     int fNumAttribs;
@@ -238,6 +220,8 @@ protected:
 private:
     void notifyRefCntIsZero() const final {};
     virtual bool hasExplicitLocalCoords() const = 0;
+
+    bool fIsPathRendering;
 
     typedef GrProcessor INHERITED;
 };

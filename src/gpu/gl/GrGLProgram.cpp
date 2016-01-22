@@ -89,12 +89,9 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc,
 
     this->setFragmentData(primProc, pipeline, textureBindings);
 
-    if (primProc.getPixelLocalStorageState() != 
-        GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
-        const GrXferProcessor& xp = pipeline.getXferProcessor();
-        fXferProcessor->setData(fProgramDataManager, xp);
-        append_texture_bindings(xp, textureBindings);
-    }
+    const GrXferProcessor& xp = pipeline.getXferProcessor();
+    fXferProcessor->setData(fProgramDataManager, xp);
+    append_texture_bindings(xp, textureBindings);
 }
 
 void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,

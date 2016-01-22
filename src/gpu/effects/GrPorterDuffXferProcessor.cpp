@@ -748,9 +748,6 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                              const GrPipelineOptimizations& optimizations,
                                              bool hasMixedSamples,
                                              const DstTexture* dstTexture) const {
-    if (optimizations.fOverrides.fUsePLSDstRead) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fXfermode);
-    }
     BlendFormula blendFormula;
     if (optimizations.fCoveragePOI.isFourChannelOutput()) {
         if (SkXfermode::kSrcOver_Mode == fXfermode &&
@@ -807,9 +804,9 @@ void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
     }
 }
 
-bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
-                                               const GrPipelineOptimizations& optimizations,
-                                               bool hasMixedSamples) const {
+bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps,
+                                             const GrPipelineOptimizations& optimizations,
+                                             bool hasMixedSamples) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -866,9 +863,6 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrPipelineOptimizations& optimizations,
         bool hasMixedSamples,
         const GrXferProcessor::DstTexture* dstTexture) {
-    if (optimizations.fOverrides.fUsePLSDstRead) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkXfermode::kSrcOver_Mode);
-    }
     if (!optimizations.fCoveragePOI.isFourChannelOutput() &&
         !(optimizations.fCoveragePOI.isSolidWhite() &&
           !hasMixedSamples &&

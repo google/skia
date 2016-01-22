@@ -134,8 +134,6 @@ public:
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override;
 
-    void performFlushWorkaround() override;
-
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 
@@ -235,11 +233,6 @@ private:
                                       GrSurface* src,
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
-
-    void stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGLint posXformUniform, 
-                               GrGLuint arrayBuffer);
-
-    void setupPixelLocalStorage(const DrawArgs& args);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -361,8 +354,6 @@ private:
     void createCopyPrograms();
     void createWireRectProgram();
     void createUnitRectBuffer();
-
-    void createPLSSetupProgram();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -573,15 +564,6 @@ private:
                 return 0;
         }
     }
-
-    struct {
-        GrGLuint    fProgram;
-        GrGLint     fPosXformUniform;
-        GrGLuint    fArrayBuffer;
-    } fPLSSetupProgram;
-
-    bool fHWPLSEnabled;
-    bool fPLSHasBeenUsed;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.
