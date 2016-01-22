@@ -8,6 +8,7 @@
 #include "DMSrcSink.h"
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
+#include "SkCodecImageGenerator.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -240,11 +241,14 @@ CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, float scale)
 {}
 
 bool CodecSrc::veto(SinkFlags flags) const {
-    // No need to test decoding to non-raster or indirect backend.
-    // TODO: Once we implement GPU paths (e.g. JPEG YUV), we should use a deferred decode to
-    // let the GPU handle it.
-    return flags.type != SinkFlags::kRaster
-        || flags.approach != SinkFlags::kDirect;
+    // Test CodecImageGenerator on 8888, 565, and gpu
+    if (kGen_Mode == fMode) {
+        return (flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect) &&
+                flags.type != SinkFlags::kGPU;
+    }
+
+    // Test all other modes to direct raster backends (8888 and 565).
+    return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
 bool get_decode_info(SkImageInfo* decodeInfo, const SkImageInfo& defaultInfo,
@@ -274,11 +278,37 @@ bool get_decode_info(SkImageInfo* decodeInfo, const SkImageInfo& defaultInfo,
     return true;
 }
 
+Error test_gen(SkCanvas* canvas, SkData* data) {
+    SkImageGenerator* gen = SkCodecImageGenerator::NewFromEncodedCodec(data);
+    if (!gen) {
+        return "Could not create image generator.";
+    }
+
+    // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
+    // Currently, we will avoid creating a CodecSrc for this case (see DM.cpp).
+    SkASSERT(kGray_8_SkColorType != gen->getInfo().colorType());
+
+    SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen, nullptr));
+    if (!image) {
+        return "Could not create image from codec image generator.";
+    }
+
+    canvas->drawImage(image, 0, 0);
+    return "";
+}
+
 Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
+
+    // The CodecImageGenerator test does not share much code with the other tests,
+    // so we will handle it in its own function.
+    if (kGen_Mode == fMode) {
+        return test_gen(canvas, encoded);
+    }
+
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
@@ -509,6 +539,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
             return "";
         }
+        default:
+            SkASSERT(false);
+            return "Invalid fMode";
     }
     return "";
 }
@@ -541,8 +574,6 @@ AndroidCodecSrc::AndroidCodecSrc(Path path, Mode mode, CodecSrc::DstColorType ds
 
 bool AndroidCodecSrc::veto(SinkFlags flags) const {
     // No need to test decoding to non-raster or indirect backend.
-    // TODO: Once we implement GPU paths (e.g. JPEG YUV), we should use a deferred decode to
-    // let the GPU handle it.
     return flags.type != SinkFlags::kRaster
         || flags.approach != SinkFlags::kDirect;
 }

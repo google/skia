@@ -111,6 +111,7 @@ public:
         kScanline_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
         kSubset_Mode, // For codecs that support subsets directly.
+        kGen_Mode,    // Test SkCodecImageGenerator (includes YUV)
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,

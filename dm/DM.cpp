@@ -244,6 +244,9 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kSubset_Mode:
             folder.append("codec_subset");
             break;
+        case CodecSrc::kGen_Mode:
+            folder.append("gen");
+            break;
     }
 
     switch (dstColorType) {
@@ -315,7 +318,8 @@ static void push_codec_srcs(Path path) {
     const float nativeScales[] = { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f, 1.0f };
 
     const CodecSrc::Mode nativeModes[] = { CodecSrc::kCodec_Mode, CodecSrc::kCodecZeroInit_Mode,
-            CodecSrc::kScanline_Mode, CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode };
+            CodecSrc::kScanline_Mode, CodecSrc::kStripe_Mode, CodecSrc::kSubset_Mode,
+            CodecSrc::kGen_Mode };
 
     CodecSrc::DstColorType colorTypes[3];
     uint32_t numColorTypes;
@@ -341,8 +345,21 @@ static void push_codec_srcs(Path path) {
             break;
     }
 
-    for (float scale : nativeScales) {
-        for (CodecSrc::Mode mode : nativeModes) {
+
+    for (CodecSrc::Mode mode : nativeModes) {
+        // SkCodecImageGenerator only runs for the default colorType
+        // recommended by SkCodec.  There is no need to generate multiple
+        // tests for different colorTypes.
+        // TODO (msarett): Add scaling support to SkCodecImageGenerator.
+        if (CodecSrc::kGen_Mode == mode) {
+            // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
+            if (kGray_8_SkColorType != codec->getInfo().colorType()) {
+                push_codec_src(path, mode, CodecSrc::kGetFromCanvas_DstColorType, 1.0f);
+            }
+            continue;
+        }
+
+        for (float scale : nativeScales) {
             for (uint32_t i = 0; i < numColorTypes; i++) {
                 push_codec_src(path, mode, colorTypes[i], scale);
             }

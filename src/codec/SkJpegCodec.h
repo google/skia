@@ -48,6 +48,10 @@ protected:
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             SkPMColor*, int*, int*) override;
 
+    bool onQueryYUV8(YUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
+
+    Result onGetYUV8Planes(const YUVSizeInfo& sizeInfo, void* pixels[3]) override;
+
     SkEncodedFormat onGetEncodedFormat() const override {
         return kJPEG_SkEncodedFormat;
     }

@@ -277,6 +277,68 @@ public:
      */
     Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
+    struct YUVSizeInfo {
+        SkISize fYSize;
+        SkISize fUSize;
+        SkISize fVSize;
+
+        /**
+         * While the widths of the Y, U, and V planes are not restricted, the
+         * implementation requires that the width of the memory allocated for
+         * each plane be a multiple of DCTSIZE (which is always 8).
+         *
+         * This struct allows us to inform the client how many "widthBytes"
+         * that we need.  Note that we use the new idea of "widthBytes"
+         * because this idea is distinct from "rowBytes" (used elsewhere in
+         * Skia).  "rowBytes" allow the last row of the allocation to not
+         * include any extra padding, while, in this case, every single row of
+         * the allocation must be at least "widthBytes".
+         */
+        size_t fYWidthBytes;
+        size_t fUWidthBytes;
+        size_t fVWidthBytes;
+    };
+
+    /**
+     *  If decoding to YUV is supported, this returns true.  Otherwise, this
+     *  returns false and does not modify any of the parameters.
+     *
+     *  @param sizeInfo   Output parameter indicating the sizes and required
+     *                    allocation widths of the Y, U, and V planes.
+     *  @param colorSpace Output parameter.  If non-NULL this is set to kJPEG,
+     *                    otherwise this is ignored.
+     */
+    bool queryYUV8(YUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+        if (nullptr == sizeInfo) {
+            return false;
+        }
+
+        return this->onQueryYUV8(sizeInfo, colorSpace);
+    }
+
+    /**
+     *  Returns kSuccess, or another value explaining the type of failure.
+     *  This always attempts to perform a full decode.  If the client only
+     *  wants size, it should call queryYUV8().
+     *
+     *  @param sizeInfo   Needs to exactly match the values returned by the
+     *                    query, except the WidthBytes may be larger than the
+     *                    recommendation (but not smaller).
+     *  @param planes     Memory for each of the Y, U, and V planes.
+     */
+    Result getYUV8Planes(const YUVSizeInfo& sizeInfo, void* planes[3]) {
+        if (nullptr == planes || nullptr == planes[0] || nullptr == planes[1] ||
+                nullptr == planes[2]) {
+            return kInvalidInput;
+        }
+
+        if (!this->rewindIfNeeded()) {
+            return kCouldNotRewind;
+        }
+
+        return this->onGetYUV8Planes(sizeInfo, planes);
+    }
+
     /**
      * The remaining functions revolve around decoding scanlines.
      */
@@ -442,7 +504,7 @@ public:
 protected:
     SkCodec(const SkImageInfo&, SkStream*);
 
-    virtual SkISize onGetScaledDimensions(float /* desiredScale */) const {
+    virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
         return this->getInfo().dimensions();
     }
@@ -469,7 +531,15 @@ protected:
                                SkPMColor ctable[], int* ctableCount,
                                int* rowsDecoded) = 0;
 
-    virtual bool onGetValidSubset(SkIRect* /* desiredSubset */) const {
+    virtual bool onQueryYUV8(YUVSizeInfo*, SkYUVColorSpace*) const {
+        return false;
+    }
+
+    virtual Result onGetYUV8Planes(const YUVSizeInfo&, void*[3] /*planes*/) {
+        return kUnimplemented;
+    }
+
+    virtual bool onGetValidSubset(SkIRect* /*desiredSubset*/) const {
         // By default, subsets are not supported.
         return false;
     }

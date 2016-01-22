@@ -39,5 +39,11 @@ private:
     SkAutoTDelete<SkCodec> fCodec;
     SkAutoTUnref<SkData> fData;
 
+    // FIXME: These fields are necessary only until we change the API of SkImageGenerator
+    //        to match SkCodec.  Once the API is changed, they should be removed.
+    int fYWidth;
+    int fUWidth;
+    int fVWidth;
+
     typedef SkImageGenerator INHERITED;
 };

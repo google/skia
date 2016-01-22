@@ -451,3 +451,196 @@ bool SkJpegCodec::onSkipScanlines(int count) {
 
     return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
 }
+
+static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
+    // Scaling is not supported in raw data mode.
+    SkASSERT(dinfo->scale_num == dinfo->scale_denom);
+
+    // I can't imagine that this would ever change, but we do depend on it.
+    static_assert(8 == DCTSIZE, "DCTSIZE (defined in jpeg library) should always be 8.");
+
+    if (JCS_YCbCr != dinfo->jpeg_color_space) {
+        return false;
+    }
+
+    SkASSERT(3 == dinfo->num_components);
+    SkASSERT(dinfo->comp_info);
+
+    // It is possible to perform a YUV decode for any combination of
+    // horizontal and vertical sampling that is supported by
+    // libjpeg/libjpeg-turbo.  However, we will start by supporting only the
+    // common cases (where U and V have samp_factors of one).
+    //
+    // The definition of samp_factor is kind of the opposite of what SkCodec
+    // thinks of as a sampling factor.  samp_factor is essentially a
+    // multiplier, and the larger the samp_factor is, the more samples that
+    // there will be.  Ex:
+    //     U_plane_width = image_width * (U_h_samp_factor / max_h_samp_factor)
+    //
+    // Supporting cases where the samp_factors for U or V were larger than
+    // that of Y would be an extremely difficult change, given that clients
+    // allocate memory as if the size of the Y plane is always the size of the
+    // image.  However, this case is very, very rare.
+    if (!(1 == dinfo->comp_info[1].h_samp_factor) &&
+         (1 == dinfo->comp_info[1].v_samp_factor) &&
+         (1 == dinfo->comp_info[2].h_samp_factor) &&
+         (1 == dinfo->comp_info[2].v_samp_factor)) {
+        return false;
+    }
+
+    // Support all common cases of Y samp_factors.
+    // TODO (msarett): As mentioned above, it would be possible to support
+    //                 more combinations of samp_factors.  The issues are:
+    //                 (1) Are there actually any images that are not covered
+    //                     by these cases?
+    //                 (2) How much complexity would be added to the
+    //                     implementation in order to support these rare
+    //                     cases?
+    int hSampY = dinfo->comp_info[0].h_samp_factor;
+    int vSampY = dinfo->comp_info[0].v_samp_factor;
+    return (1 == hSampY && 1 == vSampY) ||
+           (2 == hSampY && 1 == vSampY) ||
+           (2 == hSampY && 2 == vSampY) ||
+           (1 == hSampY && 2 == vSampY) ||
+           (4 == hSampY && 1 == vSampY) ||
+           (4 == hSampY && 2 == vSampY);
+}
+
+bool SkJpegCodec::onQueryYUV8(YUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+    if (!is_yuv_supported(dinfo)) {
+        return false;
+    }
+
+    sizeInfo->fYSize.set(dinfo->comp_info[0].downsampled_width,
+                         dinfo->comp_info[0].downsampled_height);
+    sizeInfo->fUSize.set(dinfo->comp_info[1].downsampled_width,
+                         dinfo->comp_info[1].downsampled_height);
+    sizeInfo->fVSize.set(dinfo->comp_info[2].downsampled_width,
+                         dinfo->comp_info[2].downsampled_height);
+    sizeInfo->fYWidthBytes = dinfo->comp_info[0].width_in_blocks * DCTSIZE;
+    sizeInfo->fUWidthBytes = dinfo->comp_info[1].width_in_blocks * DCTSIZE;
+    sizeInfo->fVWidthBytes = dinfo->comp_info[2].width_in_blocks * DCTSIZE;
+
+    if (colorSpace) {
+        *colorSpace = kJPEG_SkYUVColorSpace;
+    }
+
+    return true;
+}
+
+SkCodec::Result SkJpegCodec::onGetYUV8Planes(const YUVSizeInfo& sizeInfo, void* pixels[3]) {
+    YUVSizeInfo defaultInfo;
+
+    // This will check is_yuv_supported(), so we don't need to here.
+    bool supportsYUV = this->onQueryYUV8(&defaultInfo, nullptr);
+    if (!supportsYUV || sizeInfo.fYSize != defaultInfo.fYSize ||
+            sizeInfo.fUSize != defaultInfo.fUSize ||
+            sizeInfo.fVSize != defaultInfo.fVSize ||
+            sizeInfo.fYWidthBytes < defaultInfo.fYWidthBytes ||
+            sizeInfo.fUWidthBytes < defaultInfo.fUWidthBytes ||
+            sizeInfo.fVWidthBytes < defaultInfo.fVWidthBytes) {
+        return fDecoderMgr->returnFailure("onGetYUV8Planes", kInvalidInput);
+    }
+
+    // Set the jump location for libjpeg errors
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
+        return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
+    }
+
+    // Get a pointer to the decompress info since we will use it quite frequently
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+
+    dinfo->raw_data_out = TRUE;
+    if (!jpeg_start_decompress(dinfo)) {
+        return fDecoderMgr->returnFailure("startDecompress", kInvalidInput);
+    }
+
+    // A previous implementation claims that the return value of is_yuv_supported()
+    // may change after calling jpeg_start_decompress().  It looks to me like this
+    // was caused by a bug in the old code, but we'll be safe and check here.
+    SkASSERT(is_yuv_supported(dinfo));
+
+    // Currently, we require that the Y plane dimensions match the image dimensions
+    // and that the U and V planes are the same dimensions.
+    SkASSERT(sizeInfo.fUSize == sizeInfo.fVSize);
+    SkASSERT((uint32_t) sizeInfo.fYSize.width() == dinfo->output_width &&
+            (uint32_t) sizeInfo.fYSize.height() == dinfo->output_height);
+
+    // Build a JSAMPIMAGE to handle output from libjpeg-turbo.  A JSAMPIMAGE has
+    // a 2-D array of pixels for each of the components (Y, U, V) in the image.
+    // Cheat Sheet:
+    //     JSAMPIMAGE == JSAMPLEARRAY* == JSAMPROW** == JSAMPLE***
+    JSAMPARRAY yuv[3];
+
+    // Set aside enough space for pointers to rows of Y, U, and V.
+    JSAMPROW rowptrs[2 * DCTSIZE + DCTSIZE + DCTSIZE];
+    yuv[0] = &rowptrs[0];           // Y rows (DCTSIZE or 2 * DCTSIZE)
+    yuv[1] = &rowptrs[2 * DCTSIZE]; // U rows (DCTSIZE)
+    yuv[2] = &rowptrs[3 * DCTSIZE]; // V rows (DCTSIZE)
+
+    // Initialize rowptrs.
+    int numYRowsPerBlock = DCTSIZE * dinfo->comp_info[0].v_samp_factor;
+    for (int i = 0; i < numYRowsPerBlock; i++) {
+        rowptrs[i] = SkTAddOffset<JSAMPLE>(pixels[0], i * sizeInfo.fYWidthBytes);
+    }
+    for (int i = 0; i < DCTSIZE; i++) {
+        rowptrs[i + 2 * DCTSIZE] = SkTAddOffset<JSAMPLE>(pixels[1], i * sizeInfo.fUWidthBytes);
+        rowptrs[i + 3 * DCTSIZE] = SkTAddOffset<JSAMPLE>(pixels[2], i * sizeInfo.fVWidthBytes);
+    }
+
+    // After each loop iteration, we will increment pointers to Y, U, and V.
+    size_t blockIncrementY = numYRowsPerBlock * sizeInfo.fYWidthBytes;
+    size_t blockIncrementU = DCTSIZE * sizeInfo.fUWidthBytes;
+    size_t blockIncrementV = DCTSIZE * sizeInfo.fVWidthBytes;
+
+    uint32_t numRowsPerBlock = numYRowsPerBlock;
+
+    // We intentionally round down here, as this first loop will only handle
+    // full block rows.  As a special case at the end, we will handle any
+    // remaining rows that do not make up a full block.
+    const int numIters = dinfo->output_height / numRowsPerBlock;
+    for (int i = 0; i < numIters; i++) {
+        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numRowsPerBlock);
+        if (linesRead < numRowsPerBlock) {
+            // FIXME: Handle incomplete YUV decodes without signalling an error.
+            return kInvalidInput;
+        }
+
+        // Update rowptrs.
+        for (int i = 0; i < numYRowsPerBlock; i++) {
+            rowptrs[i] += blockIncrementY;
+        }
+        for (int i = 0; i < DCTSIZE; i++) {
+            rowptrs[i + 2 * DCTSIZE] += blockIncrementU;
+            rowptrs[i + 3 * DCTSIZE] += blockIncrementV;
+        }
+    }
+
+    uint32_t remainingRows = dinfo->output_height - dinfo->output_scanline;
+    SkASSERT(remainingRows == dinfo->output_height % numRowsPerBlock);
+    SkASSERT(dinfo->output_scanline == numIters * numRowsPerBlock);
+    if (remainingRows > 0) {
+        // libjpeg-turbo needs memory to be padded by the block sizes.  We will fulfill
+        // this requirement using a dummy row buffer.
+        // FIXME: Should SkCodec have an extra memory buffer that can be shared among
+        //        all of the implementations that use temporary/garbage memory?
+        SkAutoTMalloc<JSAMPLE> dummyRow(sizeInfo.fYWidthBytes);
+        for (int i = remainingRows; i < numYRowsPerBlock; i++) {
+            rowptrs[i] = dummyRow.get();
+        }
+        int remainingUVRows = dinfo->comp_info[1].downsampled_height - DCTSIZE * numIters;
+        for (int i = remainingUVRows; i < DCTSIZE; i++) {
+            rowptrs[i + 2 * DCTSIZE] = dummyRow.get();
+            rowptrs[i + 3 * DCTSIZE] = dummyRow.get();
+        }
+
+        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numRowsPerBlock);
+        if (linesRead < remainingRows) {
+            // FIXME: Handle incomplete YUV decodes without signalling an error.
+            return kInvalidInput;
+        }
+    }
+
+    return kSuccess;
+}
