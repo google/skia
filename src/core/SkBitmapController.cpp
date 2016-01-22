@@ -160,8 +160,15 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     if (!fInvMatrix.decomposeScale(&invScaleSize, nullptr)) {
         return false;
     }
+
+#ifdef SK_SUPPORT_LEGACY_ANISOTROPIC_MIPMAPS
     SkScalar invScale = SkScalarSqrt(invScaleSize.width() * invScaleSize.height());
-    
+#else
+    // Use the largest (non-inverse) scale, to ensure anisotropic consistency.
+    SkASSERT(invScaleSize.width() >= 0 && invScaleSize.height() >= 0);
+    const SkScalar invScale = SkTMin(invScaleSize.width(), invScaleSize.height());
+#endif
+
     if (invScale > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc()));
         if (nullptr == fCurrMip.get()) {
@@ -182,9 +189,9 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
         SkScalar levelScale = SkScalarInvert(invScale);
         SkMipMap::Level level;
         if (fCurrMip->extractLevel(levelScale, &level)) {
-            SkScalar invScaleFixup = level.fScale;
-            fInvMatrix.postScale(invScaleFixup, invScaleFixup);
-            
+            const SkSize& invScaleFixup = level.fScale;
+            fInvMatrix.postScale(invScaleFixup.width(), invScaleFixup.height());
+
             // todo: if we could wrap the fCurrMip in a pixelref, then we could just install
             //       that here, and not need to explicitly track it ourselves.
             return fResultBitmap.installPixels(level.fPixmap);

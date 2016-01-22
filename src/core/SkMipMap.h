@@ -11,6 +11,7 @@
 #include "SkCachedData.h"
 #include "SkPixmap.h"
 #include "SkScalar.h"
+#include "SkSize.h"
 
 class SkBitmap;
 class SkDiscardableMemory;
@@ -24,7 +25,7 @@ public:
 
     struct Level {
         SkPixmap    fPixmap;
-        float       fScale; // < 1.0
+        SkSize      fScale; // < 1.0
     };
 
     bool extractLevel(SkScalar scale, Level*) const;
