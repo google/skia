@@ -57,8 +57,6 @@
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkObjectParser.h',
     '../src/utils/debugger/SkObjectParser.cpp',
-    '../src/utils/debugger/SkOverdrawMode.h',
-    '../src/utils/debugger/SkOverdrawMode.cpp',
   ],
   'sources!': [
     '../tests/SkpSkGrTest.cpp',

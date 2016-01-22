@@ -71,14 +71,6 @@ public:
      */
     void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp);
 
-protected:
-    static void DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
-                                          const char* srcCoverage,
-                                          const char* dstColor,
-                                          const char* outColor,
-                                          const char* outColorSecondary,
-                                          const GrXferProcessor& proc);
-
 private:
     /**
      * Called by emitCode() when the XP will not be performing a dst read. This method is

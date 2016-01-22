@@ -21,13 +21,13 @@ static const bool gUseUnpremul = false;
 
 class SkArithmeticMode_scalar : public SkXfermode {
 public:
-    static SkXfermode* Create(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
-                              bool enforcePMColor) {
+    static SkArithmeticMode_scalar* Create(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
+                                           bool enforcePMColor) {
         return new SkArithmeticMode_scalar(k1, k2, k3, k4, enforcePMColor);
     }
 
-    void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
-                const SkAlpha aa[]) const override;
+    virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
+                        const SkAlpha aa[]) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
