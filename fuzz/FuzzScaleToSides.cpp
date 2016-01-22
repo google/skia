@@ -19,23 +19,22 @@ DEF_FUZZ(ScaleToSides, fuzz) {
     float radius1 = fuzz->nextF(),
           radius2 = fuzz->nextF(),
           width   = fuzz->nextF();
-    SkDebugf("%g %g %g\n", radius1, radius2, width);
 
     if (!std::isfinite(radius1) ||
         !std::isfinite(radius2) ||
-        !std::isfinite(width))
+        !std::isfinite(width)   ||
+        radius1 <= 0.0f         ||
+        radius2 <= 0.0f         ||
+        width <= 0.0f)
     {
         fuzz->signalBoring();
     }
 
-    if (width <= 0.0f) {
-        fuzz->signalBoring();
-    }
-
     double scale = (double)width / ((double)radius1 + (double)radius2);
-    if (scale >= 1.0) {
+    if (scale >= 1.0 || scale <= 0.0) {
         fuzz->signalBoring();
     }
+    SkDebugf("%g %g %g %g\n", radius1, radius2, width, scale);
     ScaleToSides::AdjustRadii(width, scale, &radius1, &radius2);
 
     // TODO(mtklein): add fuzz->keepResult()
