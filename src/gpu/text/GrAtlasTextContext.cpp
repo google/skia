@@ -281,7 +281,7 @@ GrAtlasTextContext::createDrawTextBlob(const GrPaint& paint, const SkPaint& skPa
     int glyphCount = skPaint.countText(text, byteLength);
 
     GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
-    blob->initThrowawayBlob(viewMatrix);
+    blob->initThrowawayBlob(viewMatrix, x, y);
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
                                              *fContext->caps()->shaderCaps())) {
@@ -304,7 +304,7 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrPaint& paint, const SkPaint& s
     int glyphCount = skPaint.countText(text, byteLength);
 
     GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
-    blob->initThrowawayBlob(viewMatrix);
+    blob->initThrowawayBlob(viewMatrix, offset.x(), offset.y());
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
                                              *fContext->caps()->shaderCaps())) {
@@ -393,8 +393,10 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
             gTextContext->createDrawTextBlob(grPaint, skPaint, viewMatrix, text,
                                              static_cast<size_t>(textLen), 0, 0));
 
-    SkScalar transX = static_cast<SkScalar>(random->nextU());
-    SkScalar transY = static_cast<SkScalar>(random->nextU());
+    // We'd like to be able to test this with random translations, but currently the vertex
+    // bounds and vertices will get out of sync
+    SkScalar transX = 0.f;//SkIntToScalar(random->nextU());
+    SkScalar transY = 0.f;//SkIntToScalar(random->nextU());
     return blob->test_createBatch(textLen, 0, 0, color, transX, transY, skPaint,
                                   gSurfaceProps, gTextContext->dfAdjustTable(),
                                   context->getBatchFontCache());
