@@ -45,10 +45,11 @@ void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
     bool usesAlpha = (array[3] || array[8] || array[13]);
 
     if (changesAlpha || usesAlpha) {
-        fFlags = changesAlpha ? 0 : SkColorFilter::kAlphaUnchanged_Flag;
+        fFlags = changesAlpha ? 0 : kAlphaUnchanged_Flag;
     } else {
-        fFlags = SkColorFilter::kAlphaUnchanged_Flag;
+        fFlags = kAlphaUnchanged_Flag;
     }
+    fFlags |= kSupports4f_Flag;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,28 +90,28 @@ static SkPMColor round(const Sk4f& x) {
     return c;
 }
 
-void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
+template <typename Adaptor, typename T>
+void filter_span(const float array[], const T src[], int count, T dst[]) {
     // c0-c3 are already in [0,1].
-    const Sk4f c0 = Sk4f::Load(fTranspose + 0);
-    const Sk4f c1 = Sk4f::Load(fTranspose + 4);
-    const Sk4f c2 = Sk4f::Load(fTranspose + 8);
-    const Sk4f c3 = Sk4f::Load(fTranspose + 12);
+    const Sk4f c0 = Sk4f::Load(array + 0);
+    const Sk4f c1 = Sk4f::Load(array + 4);
+    const Sk4f c2 = Sk4f::Load(array + 8);
+    const Sk4f c3 = Sk4f::Load(array + 12);
     // c4 (the translate vector) is in [0, 255].  Bring it back to [0,1].
-    const Sk4f c4 = Sk4f::Load(fTranspose + 16)*Sk4f(1.0f/255);
+    const Sk4f c4 = Sk4f::Load(array + 16)*Sk4f(1.0f/255);
 
     // todo: we could cache this in the constructor...
-    SkPMColor matrix_translate_pmcolor = round(premul(clamp_0_1(c4)));
+    T matrix_translate_pmcolor = Adaptor::From4f(premul(clamp_0_1(c4)));
 
     for (int i = 0; i < count; i++) {
-        const SkPMColor src_c = src[i];
-        if (0 == src_c) {
+        Sk4f srcf = Adaptor::To4f(src[i]);
+        float srcA = srcf.kth<SK_A32_SHIFT/8>();
+
+        if (0 == srcA) {
             dst[i] = matrix_translate_pmcolor;
             continue;
         }
-
-        Sk4f srcf = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&src_c)) * Sk4f(1.0f/255);
-
-        if (0xFF != SkGetPackedA32(src_c)) {
+        if (1 != srcA) {
             srcf = unpremul(srcf);
         }
 
@@ -122,9 +123,34 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
         // apply matrix
         Sk4f dst4 = c0 * r4 + c1 * g4 + c2 * b4 + c3 * a4 + c4;
 
-        // clamp, re-premul, and write
-        dst[i] = round(premul(clamp_0_1(dst4)));
+        dst[i] = Adaptor::From4f(premul(clamp_0_1(dst4)));
     }
+}
+
+struct SkPMColorAdaptor {
+    static SkPMColor From4f(const Sk4f& c4) {
+        return round(c4);
+    }
+    static Sk4f To4f(SkPMColor c) {
+        return SkNx_cast<float>(Sk4b::Load((const uint8_t*)&c)) * Sk4f(1.0f/255);
+    }
+};
+void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
+    filter_span<SkPMColorAdaptor>(fTranspose, src, count, dst);
+}
+
+struct SkPM4fAdaptor {
+    static SkPM4f From4f(const Sk4f& c4) {
+        SkPM4f c;
+        c4.store(c.fVec);
+        return c;
+    }
+    static Sk4f To4f(const SkPM4f& c) {
+        return Sk4f::Load(c.fVec);
+    }
+};
+void SkColorMatrixFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    filter_span<SkPM4fAdaptor>(fTranspose, src, count, dst);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

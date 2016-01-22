@@ -81,6 +81,7 @@ public:
             shadeSpan().
          */
         kConstInY32_Flag = 1 << 1,
+        kSupports4f_Flag = 1 << 2,
     };
 
     /**
@@ -126,6 +127,8 @@ public:
          *  to the specified device coordinates.
          */
         virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
+
+        virtual void shadeSpan4f(int x, int y, SkPM4f[], int count);
 
         /**
          * The const void* ctx is only const because all the implementations are const.
