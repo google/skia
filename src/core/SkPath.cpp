@@ -275,7 +275,7 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
                 orig.set(pts, iter.conicWeight());
                 SkPoint quadPts[5];
                 int count = orig.chopIntoQuadsPOW2(quadPts, 1);
-                SK_ALWAYSBREAK(2 == count);
+                SkASSERT_RELEASE(2 == count);
 
                 if (!check_edge_against_rect(quadPts[0], quadPts[2], rect, direction)) {
                     return false;

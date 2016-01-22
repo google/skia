@@ -42,7 +42,7 @@ SkTypeface* create_font(const char* name, SkTypeface::Style style) {
         }
         if (!fontData) {
             // Once all legacy callers to portable fonts are converted, replace this with
-            // SK_CRASH();
+            // SK_ABORT();
             SkDebugf("missing %s %d\n", name, style);
             // If we called SkTypeface::CreateFromName() here we'd recurse infinitely,
             // so we reimplement its core logic here inline without the recursive aspect.

@@ -170,7 +170,7 @@ private:
                     memcpy(buf.pos, pos.begin(), count * sizeof(SkScalar) * 2);
                 } break;
                 default:
-                    SkFAIL("unhandled pos value");
+                    SK_ABORT("unhandled pos value");
                 }
 
                 currentGlyph += count;

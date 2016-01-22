@@ -30,7 +30,7 @@ static SkCachedData* make_data(size_t size, SkDiscardableMemoryPool* pool) {
     if (pool) {
         SkDiscardableMemory* dm = pool->create(size);
         // the pool "can" return null, but it shouldn't in these controlled conditions
-        SK_ALWAYSBREAK(dm);
+        SkASSERT_RELEASE(dm);
         return new SkCachedData(size, dm);
     } else {
         return new SkCachedData(sk_malloc_throw(size), size);

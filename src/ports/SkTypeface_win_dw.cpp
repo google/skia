@@ -111,7 +111,7 @@ int DWriteFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         break;
     }
     default:
-        SK_CRASH();
+        SK_ABORT("Invalid Text Encoding");
     }
 
     for (int i = 0; i < glyphCount; ++i) {

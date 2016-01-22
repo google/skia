@@ -55,7 +55,7 @@ private:
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace1))) {
             // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
-            SK_ALWAYSBREAK(nullptr == fDWriteFontFace1.get());
+            SkASSERT_RELEASE(nullptr == fDWriteFontFace1.get());
         }
 #endif
     }

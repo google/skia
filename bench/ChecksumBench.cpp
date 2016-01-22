@@ -45,7 +45,7 @@ protected:
             case kSHA1_ChecksumType: return "compute_sha1";
             case kMurmur3_ChecksumType: return "compute_murmur3";
 
-            default: SK_CRASH(); return "";
+            default: SK_ABORT("Invalid Type"); return "";
         }
     }
 

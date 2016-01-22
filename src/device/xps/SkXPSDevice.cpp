@@ -2044,7 +2044,7 @@ static int num_glyph_guess(SkPaint::TextEncoding encoding, const void* text, siz
     case SkPaint::kGlyphID_TextEncoding:
         return SkToInt(byteLength / 2);
     default:
-        SK_ALWAYSBREAK(true);
+        SK_ABORT("Invalid Text Encoding");
     }
     return 0;
 }
@@ -2254,7 +2254,6 @@ SkBaseDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*
 #if 0
     if (SkBaseDevice::kGeneral_Usage == info.fUsage) {
         return nullptr;
-        SK_CRASH();
         //To what stream do we write?
         //SkXPSDevice* dev = new SkXPSDevice(this);
         //SkSize s = SkSize::Make(width, height);

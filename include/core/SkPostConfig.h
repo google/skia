@@ -103,17 +103,6 @@
 // TODO(mdempsky): Move elsewhere as appropriate.
 #include <new>
 
-#ifndef SK_CRASH
-#  ifdef SK_BUILD_FOR_WIN
-#    define SK_CRASH() __debugbreak()
-#  else
-#    if 1   // set to 0 for infinite loop, which can help connecting gdb
-#      define SK_CRASH() do { SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0; } while (false)
-#    else
-#      define SK_CRASH() do { SkNO_RETURN_HINT(); } while (true)
-#    endif
-#  endif
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -148,31 +137,21 @@
 #endif
 
 #if defined(GOOGLE3)
-    // Used as argument to DumpStackTrace in SK_ALWAYSBREAK.
     void SkDebugfForDumpStackTrace(const char* data, void* unused);
+    void DumpStackTrace(int skip_count, void w(const char*, void*), void* arg);
+#  define SK_DUMP_GOOGLE3_STACK() DumpStackTrace(0, SkDebugfForDumpStackTrace, nullptr)
+#else
+#  define SK_DUMP_GOOGLE3_STACK()
 #endif
 
-#ifndef SK_ALWAYSBREAK
-#  if defined(GOOGLE3)
-     void DumpStackTrace(int skip_count, void w(const char*, void*),
-                         void* arg);
-#    define SK_ALWAYSBREAK(cond) do { \
-              if (cond) break; \
-              SkNO_RETURN_HINT(); \
-              SkDebugf("%s:%d: failed assertion \"%s\"\n", __FILE__, __LINE__, #cond); \
-              DumpStackTrace(0, SkDebugfForDumpStackTrace, nullptr); \
-              SK_CRASH(); \
-        } while (false)
-#  elif defined(SK_DEBUG)
-#    define SK_ALWAYSBREAK(cond) do { \
-              if (cond) break; \
-              SkNO_RETURN_HINT(); \
-              SkDebugf("%s:%d: failed assertion \"%s\"\n", __FILE__, __LINE__, #cond); \
-              SK_CRASH(); \
-        } while (false)
-#  else
-#    define SK_ALWAYSBREAK(cond) do { if (cond) break; SK_CRASH(); } while (false)
-#  endif
+#ifndef SK_ABORT
+#  define SK_ABORT(msg) \
+    do { \
+       SkNO_RETURN_HINT(); \
+       SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, #msg); \
+       SK_DUMP_GOOGLE3_STACK(); \
+       sk_abort_no_print(); \
+    } while (false)
 #endif
 
 /**
