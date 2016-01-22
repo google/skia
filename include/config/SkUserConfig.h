@@ -58,6 +58,13 @@
 //#define SK_DEBUG_GLYPH_CACHE
 //#define SK_DEBUG_PATH
 
+/*  If, in debugging mode, Skia needs to stop (presumably to invoke a debugger)
+    it will call SK_CRASH(). If this is not defined it, it is defined in
+    SkPostConfig.h to write to an illegal address
+ */
+//#define SK_CRASH() *(int *)(uintptr_t)0 = 0
+
+
 /*  preconfig will have attempted to determine the endianness of the system,
     but you can change these mutually exclusive flags here.
  */

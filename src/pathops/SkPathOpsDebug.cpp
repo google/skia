@@ -1094,13 +1094,13 @@ void SkOpAngle::debugValidateNext() const {
     const SkOpAngle* next = first;
     SkTDArray<const SkOpAngle*>(angles);
     do {
-//        SkASSERT_RELEASE(next->fSegment->debugContains(next));
+//        SK_ALWAYSBREAK(next->fSegment->debugContains(next));
         angles.push(next);
         next = next->next();
         if (next == first) {
             break;
         }
-        SkASSERT_RELEASE(!angles.contains(next));
+        SK_ALWAYSBREAK(!angles.contains(next));
         if (!next) {
             return;
         }

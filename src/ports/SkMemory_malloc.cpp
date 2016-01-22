@@ -26,7 +26,8 @@ static inline void* throw_on_failure(size_t size, void* p) {
     return p;
 }
 
-void sk_abort_no_print() {
+void sk_throw() {
+    SkDEBUGFAIL("sk_throw");
     abort();
 }
 

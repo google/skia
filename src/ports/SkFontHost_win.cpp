@@ -2176,7 +2176,7 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         break;
     }
     default:
-        SK_ABORT("Invalid Text Encoding");
+        SK_CRASH();
     }
 
     if (sc) {

@@ -67,7 +67,7 @@ SK_API extern void sk_out_of_memory(void);
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.
 */
-SK_API extern void sk_abort_no_print(void);
+SK_API extern void sk_throw(void);
 
 enum {
     SK_MALLOC_TEMP  = 0x01, //!< hint to sk_malloc that the requested memory will be freed in the scope of the stack frame
@@ -128,10 +128,8 @@ inline void operator delete(void* p) {
     SK_API void SkDebugf(const char format[], ...);
 #endif
 
-#define SkASSERT_RELEASE(cond)          if(!(cond)) { SK_ABORT(#cond); }
-
 #ifdef SK_DEBUG
-    #define SkASSERT(cond)              SkASSERT_RELEASE(cond)
+    #define SkASSERT(cond)              SK_ALWAYSBREAK(cond)
     #define SkDEBUGFAIL(message)        SkASSERT(false && message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(code)           code
@@ -152,9 +150,7 @@ inline void operator delete(void* p) {
     #define SkAssertResult(cond)        cond
 #endif
 
-// Legacy macro names for SK_ABORT
-#define SkFAIL(message)                 SK_ABORT(message)
-#define sk_throw()                      SK_ABORT("sk_throw")
+#define SkFAIL(message)                 SK_ALWAYSBREAK(false && message)
 
 // We want to evaluate cond only once, and inside the SkASSERT somewhere so we see its string form.
 // So we use the comma operator to make an SkDebugf that always returns false: we'll evaluate cond,

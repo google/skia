@@ -947,7 +947,7 @@ public:
             log->configOption("clip",
                     SkStringPrintf("%d %d %d %d", fClip.fLeft, fClip.fTop,
                                                   fClip.fRight, fClip.fBottom).c_str());
-            SkASSERT_RELEASE(fCurrentScale < fScales.count());  // debugging paranoia
+            SK_ALWAYSBREAK(fCurrentScale < fScales.count());  // debugging paranoia
             log->configOption("scale", SkStringPrintf("%.2g", fScales[fCurrentScale]).c_str());
             if (fCurrentUseMPD > 0) {
                 SkASSERT(1 == fCurrentUseMPD || 2 == fCurrentUseMPD);

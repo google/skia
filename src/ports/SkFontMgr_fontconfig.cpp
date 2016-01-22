@@ -113,7 +113,7 @@ template <typename T, T* (*C)(), void (*D)(T*)> class SkAutoFc
 public:
     SkAutoFc() : SkAutoTCallVProc<T, FcTDestroy<T, D> >(C()) {
         T* obj = this->operator T*();
-        SkASSERT_RELEASE(nullptr != obj);
+        SK_ALWAYSBREAK(nullptr != obj);
     }
     explicit SkAutoFc(T* obj) : SkAutoTCallVProc<T, FcTDestroy<T, D> >(obj) {}
 };
