@@ -71,11 +71,6 @@
      SK_B32_SHIFT == SK_BGRA_B32_SHIFT)
 
 
-#define SK_A_INDEX  (SK_A32_SHIFT/8)
-#define SK_R_INDEX  (SK_R32_SHIFT/8)
-#define SK_G_INDEX  (SK_G32_SHIFT/8)
-#define SK_B_INDEX  (SK_B32_SHIFT/8)
-
 #if defined(SK_PMCOLOR_IS_RGBA) && !LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
     #error "SK_PMCOLOR_IS_RGBA does not match SK_*32_SHIFT values"
 #endif

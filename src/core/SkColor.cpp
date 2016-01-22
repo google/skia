@@ -100,37 +100,3 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
     }
     return SkColorSetARGB(a, r, g, b);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkNx.h"
-
-SkColor4f SkColor4f::Pin(float a, float r, float g, float b) {
-    SkColor4f c4;
-    Sk4f::Min(Sk4f::Max(Sk4f(a, r, g, b), Sk4f(0)), Sk4f(1)).store(c4.vec());
-    return c4;
-}
-
-SkColor4f SkColor4f::FromColor(SkColor c) {
-    Sk4f value = SkNx_shuffle<3,2,1,0>(SkNx_cast<float>(Sk4b::Load((const uint8_t*)&c)));
-    SkColor4f c4;
-    (value * Sk4f(1.0f / 255)).store(c4.vec());
-    return c4;
-}
-
-SkPM4f SkColor4f::premul() const {
-    auto src = Sk4f::Load(this->pin().vec());
-    float srcAlpha = src.kth<0>();  // need the pinned version of our alpha
-    src = src * Sk4f(1, srcAlpha, srcAlpha, srcAlpha);
-
-#ifdef SK_PMCOLOR_IS_BGRA
-    // ARGB -> BGRA
-    Sk4f dst = SkNx_shuffle<3,2,1,0>(src);
-#else
-    // ARGB -> RGBA
-    Sk4f dst = SkNx_shuffle<1,2,3,0>(src);
-#endif
-
-    SkPM4f pm4;
-    dst.store(pm4.fVec);
-    return pm4;
-}

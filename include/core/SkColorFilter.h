@@ -68,13 +68,10 @@ public:
     */
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) const = 0;
 
-    virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
-
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
         */
-        kAlphaUnchanged_Flag = 1 << 0,
-        kSupports4f_Flag     = 1 << 1,
+        kAlphaUnchanged_Flag = 0x01,
     };
 
     /** Returns the flags for this filter. Override in subclasses to return custom flags.

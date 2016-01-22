@@ -29,7 +29,6 @@ public:
     static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f[]) const override;
     uint32_t getFlags() const override;
     bool asColorMatrix(SkScalar matrix[20]) const override;
     SkColorFilter* newComposed(const SkColorFilter*) const override;
