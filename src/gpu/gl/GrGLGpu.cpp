@@ -2239,13 +2239,13 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bound) 
             }
         }
     }
+
+    // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bound || !bound->isEmpty()) {
         target->flagAsNeedingResolve(bound);
-    }
-
-    GrTexture *texture = target->asTexture();
-    if (texture) {
-        texture->texturePriv().dirtyMipMaps(true);
+        if (GrTexture *texture = target->asTexture()) {
+            texture->texturePriv().dirtyMipMaps(true);
+        }
     }
 }
 
