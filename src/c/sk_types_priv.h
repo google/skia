@@ -111,6 +111,18 @@ static inline SkBitmap* AsBitmap(sk_bitmap_t* cbitmap) {
     return reinterpret_cast<SkBitmap*>(cbitmap);
 }
 
+static inline const SkImageDecoder* AsImageDecoder(const sk_imagedecoder_t* cdecoder) {
+    return reinterpret_cast<const SkImageDecoder*>(cdecoder);
+}
+
+static inline const SkImageDecoder& AsImageDecoder(const sk_imagedecoder_t& cdecoder) {
+    return reinterpret_cast<const SkImageDecoder&>(cdecoder);
+}
+
+static inline SkImageDecoder* AsImageDecoder(sk_imagedecoder_t* cdecoder) {
+    return reinterpret_cast<SkImageDecoder*>(cdecoder);
+}
+
 static inline const SkPaint& AsPaint(const sk_paint_t& cpaint) {
     return reinterpret_cast<const SkPaint&>(cpaint);
 }

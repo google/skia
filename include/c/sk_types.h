@@ -129,6 +129,10 @@ typedef struct sk_image_t sk_image_t;
 */
 typedef struct sk_bitmap_t sk_bitmap_t;
 /**
+    Base class for decoding compressed images into a sk_bitmap_t
+*/
+typedef struct sk_imagedecoder_t sk_imagedecoder_t;
+/**
     A sk_maskfilter_t is an object that perform transformations on an
     alpha-channel mask before drawing it; it may be installed into a
     sk_paint_t.  Each time a primitive is drawn, it is first
