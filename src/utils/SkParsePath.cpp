@@ -64,6 +64,7 @@ static const char* find_scalar(const char str[], SkScalar* value,
     if (isRelative) {
         *value += relative;
     }
+    str = skip_sep(str);
     return str;
 }
 
@@ -156,6 +157,17 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                 lastc = points[0];
                 c = points[1];
                 break;
+            case 'A': {
+                SkPoint radii;
+                data = find_points(data, &radii, 1, false, nullptr);
+                SkScalar angle, largeArc, sweep;
+                data = find_scalar(data, &angle, false, 0);
+                data = find_scalar(data, &largeArc, false, 0);
+                data = find_scalar(data, &sweep, false, 0);
+                data = find_points(data, &points[0], 1, relative, &c);
+                path.arcTo(radii, angle, (SkPath::ArcSize) SkToBool(largeArc),
+                        (SkPath::Direction) !SkToBool(sweep), points[0]);
+                } break;
             case 'Z':
                 path.close();
 #if 0   // !!! still a bug?

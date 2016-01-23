@@ -499,10 +499,12 @@ public:
         this->arcTo(p1.fX, p1.fY, p2.fX, p2.fY, radius);
     }
 
-    /** Close the current contour. If the current point is not equal to the
-        first point of the contour, a line segment is automatically added.
-    */
-    void close();
+    enum ArcSize {
+        /** the smaller of the two possible SVG arcs. */
+        kSmall_ArcSize,
+        /** the larger of the two possible SVG arcs. */
+        kLarge_ArcSize,
+    };
 
     enum Direction {
         /** clockwise direction for adding closed contours */
@@ -510,6 +512,48 @@ public:
         /** counter-clockwise direction for adding closed contours */
         kCCW_Direction,
     };
+
+    /**
+     *  Append an elliptical arc from the current point in the format used by SVG.
+     *  The center of the ellipse is computed to satisfy the constraints below.
+     *
+     *  @param rx,ry The radii in the x and y directions respectively.
+     *  @param xAxisRotate The angle in degrees relative to the x-axis.
+     *  @param largeArc Determines whether the smallest or largest arc possible
+     *         is drawn.
+     *  @param sweep Determines if the arc should be swept in an anti-clockwise or
+     *         clockwise direction. Note that this enum value is opposite the SVG
+     *         arc sweep value.
+     *  @param x,y The destination coordinates.
+     */
+    void arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+               Direction sweep, SkScalar x, SkScalar y);
+
+    void arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
+               const SkPoint xy) {
+        this->arcTo(r.fX, r.fY, xAxisRotate, largeArc, sweep, xy.fX, xy.fY);
+    }
+
+    /** Same as arcTo format used by SVG, but the destination coordinate is relative to the
+     *  last point on this contour. If there is no previous point, then a
+     *  moveTo(0,0) is inserted automatically.
+     *
+     *  @param rx,ry The radii in the x and y directions respectively.
+     *  @param xAxisRotate The angle in degrees relative to the x-axis.
+     *  @param largeArc Determines whether the smallest or largest arc possible
+     *         is drawn.
+     *  @param sweep Determines if the arc should be swept in an anti-clockwise or
+     *         clockwise direction. Note that this enum value is opposite the SVG
+     *         arc sweep value.
+     *  @param dx,dy The destination coordinates relative to the last point.
+     */
+    void rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+                Direction sweep, SkScalar dx, SkScalar dy);
+
+    /** Close the current contour. If the current point is not equal to the
+        first point of the contour, a line segment is automatically added.
+    */
+    void close();
 
     /**
      *  Returns whether or not a fill type is inverted

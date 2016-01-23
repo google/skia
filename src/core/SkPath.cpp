@@ -1257,6 +1257,113 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     }
 }
 
+// This converts the SVG arc to conics.
+// Partly adapted from Niko's code in kdelibs/kdecore/svgicons.
+// Then transcribed from webkit/chrome's SVGPathNormalizer::decomposeArcToCubic()
+// See also SVG implementation notes:
+// http://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
+// Note that arcSweep bool value is flipped from the original implementation.
+void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arcLarge,
+                   SkPath::Direction arcSweep, SkScalar x, SkScalar y) {
+    SkPoint srcPts[2];
+    this->getLastPt(&srcPts[0]);
+    // If rx = 0 or ry = 0 then this arc is treated as a straight line segment (a "lineto")
+    // joining the endpoints.
+    // http://www.w3.org/TR/SVG/implnote.html#ArcOutOfRangeParameters
+    if (!rx || !ry) {
+        return;
+    }
+    // If the current point and target point for the arc are identical, it should be treated as a
+    // zero length path. This ensures continuity in animations.
+    srcPts[1].set(x, y);
+    if (srcPts[0] == srcPts[1]) {
+        return;
+    }
+    rx = SkScalarAbs(rx);
+    ry = SkScalarAbs(ry);
+    SkVector midPointDistance = srcPts[0] - srcPts[1];
+    midPointDistance *= 0.5f;
+
+    SkMatrix pointTransform;
+    pointTransform.setRotate(-angle);
+
+    SkPoint transformedMidPoint;
+    pointTransform.mapPoints(&transformedMidPoint, &midPointDistance, 1);
+    SkScalar squareRx = rx * rx;
+    SkScalar squareRy = ry * ry;
+    SkScalar squareX = transformedMidPoint.fX * transformedMidPoint.fX;
+    SkScalar squareY = transformedMidPoint.fY * transformedMidPoint.fY;
+
+    // Check if the radii are big enough to draw the arc, scale radii if not.
+    // http://www.w3.org/TR/SVG/implnote.html#ArcCorrectionOutOfRangeRadii
+    SkScalar radiiScale = squareX / squareRx + squareY / squareRy;
+    if (radiiScale > 1) {
+        radiiScale = SkScalarSqrt(radiiScale);
+        rx *= radiiScale;
+        ry *= radiiScale;
+    }
+
+    pointTransform.setScale(1 / rx, 1 / ry);
+    pointTransform.preRotate(-angle);
+
+    SkPoint unitPts[2];
+    pointTransform.mapPoints(unitPts, srcPts, (int) SK_ARRAY_COUNT(unitPts));
+    SkVector delta = unitPts[1] - unitPts[0];
+
+    SkScalar d = delta.fX * delta.fX + delta.fY * delta.fY;
+    SkScalar scaleFactorSquared = SkTMax(1 / d - 0.25f, 0.f);
+
+    SkScalar scaleFactor = SkScalarSqrt(scaleFactorSquared);
+    if (SkToBool(arcSweep) != SkToBool(arcLarge)) {  // flipped from the original implementation
+        scaleFactor = -scaleFactor;
+    }
+    delta.scale(scaleFactor);
+    SkPoint centerPoint = unitPts[0] + unitPts[1];
+    centerPoint *= 0.5f;
+    centerPoint.offset(-delta.fY, delta.fX);
+    unitPts[0] -= centerPoint;
+    unitPts[1] -= centerPoint;
+    SkScalar theta1 = SkScalarATan2(unitPts[0].fY, unitPts[0].fX);
+    SkScalar theta2 = SkScalarATan2(unitPts[1].fY, unitPts[1].fX);
+    SkScalar thetaArc = theta2 - theta1;
+    if (thetaArc < 0 && !arcSweep) {  // arcSweep flipped from the original implementation
+        thetaArc += SK_ScalarPI * 2;
+    } else if (thetaArc > 0 && arcSweep) {  // arcSweep flipped from the original implementation
+        thetaArc -= SK_ScalarPI * 2;
+    }
+    pointTransform.setRotate(angle);
+    pointTransform.preScale(rx, ry);
+
+    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (SK_ScalarPI / 2)));
+    SkScalar thetaWidth = thetaArc / segments;
+    SkScalar t = SkScalarTan(0.5f * thetaWidth);
+    if (!SkScalarIsFinite(t)) {
+        return;
+    }
+    SkScalar startTheta = theta1;
+    SkScalar w = SkScalarSqrt(SK_ScalarHalf + SkScalarCos(thetaWidth) * SK_ScalarHalf);
+    for (int i = 0; i < segments; ++i) {
+        SkScalar endTheta = startTheta + thetaWidth;
+        SkScalar cosEndTheta, sinEndTheta = SkScalarSinCos(endTheta, &cosEndTheta);
+
+        unitPts[1].set(cosEndTheta, sinEndTheta);
+        unitPts[1] += centerPoint;
+        unitPts[0] = unitPts[1];
+        unitPts[0].offset(t * sinEndTheta, -t * cosEndTheta);
+        SkPoint mapped[2];
+        pointTransform.mapPoints(mapped, unitPts, (int) SK_ARRAY_COUNT(unitPts));
+        this->conicTo(mapped[0], mapped[1], w);
+        startTheta = endTheta;
+    }
+}
+
+void SkPath::rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, SkPath::ArcSize largeArc,
+                    SkPath::Direction sweep, SkScalar dx, SkScalar dy) {
+    SkPoint currentPoint;
+    this->getLastPt(&currentPoint);
+    this->arcTo(rx, ry, xAxisRotate, largeArc, sweep, currentPoint.fX + dx, currentPoint.fY + dy);
+}
+
 void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle) {
     if (oval.isEmpty() || 0 == sweepAngle) {
         return;
