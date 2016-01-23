@@ -169,8 +169,6 @@ struct SkPM4f {
     float fVec[4];
 
     float a() const { return fVec[SK_A32_SHIFT/8]; }
-
-    static SkPM4f FromPMColor(SkPMColor);
 };
 
 /*

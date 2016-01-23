@@ -121,10 +121,6 @@ public:
          */
         virtual uint32_t getFlags() const { return 0; }
 
-        bool supports4f() const {
-            return SkToBool(this->getFlags() & kSupports4f_Flag);
-        }
-
         /**
          *  Called for each span of the object being drawn. Your subclass should
          *  set the appropriate colors (with premultiplied alpha) that correspond
