@@ -269,7 +269,7 @@ void SkDisplacementMapEffect::computeFastBounds(const SkRect& src, SkRect* dst) 
     } else {
         *dst = src;
     }
-    dst->outset(fScale * SK_ScalarHalf, fScale * SK_ScalarHalf);
+    dst->outset(SkScalarAbs(fScale) * SK_ScalarHalf, SkScalarAbs(fScale) * SK_ScalarHalf);
 }
 
 void SkDisplacementMapEffect::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -277,8 +277,8 @@ void SkDisplacementMapEffect::onFilterNodeBounds(const SkIRect& src, const SkMat
     *dst = src;
     SkVector scale = SkVector::Make(fScale, fScale);
     ctm.mapVectors(&scale, 1);
-    dst->outset(SkScalarCeilToInt(scale.fX * SK_ScalarHalf),
-                SkScalarCeilToInt(scale.fY * SK_ScalarHalf));
+    dst->outset(SkScalarCeilToInt(SkScalarAbs(scale.fX) * SK_ScalarHalf),
+                SkScalarCeilToInt(SkScalarAbs(scale.fY) * SK_ScalarHalf));
 }
 
 bool SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
