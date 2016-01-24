@@ -33,7 +33,8 @@ public:
         uint32_t getFlags() const override;
         
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
-        
+        void shadeSpan4f(int x, int y, SkPM4f[], int count) override;
+
         void set3DMask(const SkMask* mask) override {
             // forward to our proxy
             fShaderContext->set3DMask(mask);

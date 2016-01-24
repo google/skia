@@ -43,9 +43,14 @@ uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
     uint32_t shaderF = fShaderContext->getFlags();
     uint32_t filterF = filterShader.fFilter->getFlags();
 
-    // if the filter might change alpha, clear the opaque flag in the shader
+    // If the filter does not support a given feature, but sure to clear the corresponding flag
+    // in the shader flags.
+    //
     if (!(filterF & SkColorFilter::kAlphaUnchanged_Flag)) {
         shaderF &= ~SkShader::kOpaqueAlpha_Flag;
+    }
+    if (!(filterF & SkColorFilter::kSupports4f_Flag)) {
+        shaderF &= ~SkShader::kSupports4f_Flag;
     }
     return shaderF;
 }
@@ -82,6 +87,14 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan(int x, int y, SkPMColor
 
     fShaderContext->shadeSpan(x, y, result, count);
     filterShader.fFilter->filterSpan(result, count, result);
+}
+
+void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f result[],
+                                                          int count) {
+    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
+
+    fShaderContext->shadeSpan4f(x, y, result, count);
+    filterShader.fFilter->filterSpan4f(result, count, result);
 }
 
 #if SK_SUPPORT_GPU

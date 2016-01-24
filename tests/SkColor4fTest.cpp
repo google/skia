@@ -77,9 +77,29 @@ DEF_TEST(Color4f_premul, reporter) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-static SkShader* make_color() { return SkShader::CreateColorShader(0xFFBB8855); }
+static SkColorFilter* make_mode_cf() {
+    return SkColorFilter::CreateModeFilter(0xFFBB8855, SkXfermode::kPlus_Mode);
+}
 
-static SkShader* make_image() {
+static SkColorFilter* make_mx_cf() {
+    const float mx[] = {
+        0.5f, 0,    0, 0, 0.1f,
+        0,    0.5f, 0, 0, 0.2f,
+        0,    0,    1, 0, -0.1f,
+        0,    0,    0, 1, 0,
+    };
+    return SkColorMatrixFilter::Create(mx);
+}
+
+static SkColorFilter* make_compose_cf() {
+    SkAutoTUnref<SkColorFilter> cf0(make_mode_cf());
+    SkAutoTUnref<SkColorFilter> cf1(make_mx_cf());
+    return SkColorFilter::CreateComposeFilter(cf0, cf1);
+}
+
+static SkShader* make_color_sh() { return SkShader::CreateColorShader(0xFFBB8855); }
+
+static SkShader* make_image_sh() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
     const SkPMColor pixels[] {
         SkPackARGB32(0xFF, 0xBB, 0x88, 0x55),
@@ -91,10 +111,16 @@ static SkShader* make_image() {
     return image->newShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
 }
 
-static SkShader* make_grad() {
+static SkShader* make_grad_sh() {
     const SkPoint pts[] {{ 0, 0 }, { 100, 100 }};
     const SkColor colors[] { SK_ColorRED, SK_ColorBLUE };
     return SkGradientShader::CreateLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+}
+
+static SkShader* make_cf_sh() {
+    SkAutoTUnref<SkColorFilter> filter(make_mx_cf());
+    SkAutoTUnref<SkShader> shader(make_color_sh());
+    return shader->newWithColorFilter(filter);
 }
 
 static void compare_spans(const SkPM4f span4f[], const SkPMColor span4b[], int count,
@@ -111,9 +137,10 @@ DEF_TEST(Color4f_shader, reporter) {
         SkShader*   (*fFact)();
         bool        fSupports4f;
     } recs[] = {
-        { make_color, true },
-        { make_grad,  false },
-        { make_image, false },
+        { make_color_sh, true },
+        { make_grad_sh,  false },
+        { make_image_sh, false },
+        { make_cf_sh,    true },
     };
 
     SkPaint paint;
@@ -134,26 +161,6 @@ DEF_TEST(Color4f_shader, reporter) {
         }
         ctx->~Context();
     }
-}
-
-static SkColorFilter* make_mode_cf() {
-    return SkColorFilter::CreateModeFilter(0xFFBB8855, SkXfermode::kPlus_Mode);
-}
-
-static SkColorFilter* make_mx_cf() {
-    const float mx[] = {
-        0.5f, 0,    0, 0, 0.1f,
-        0,    0.5f, 0, 0, 0.2f,
-        0,    0,    1, 0, -0.1f,
-        0,    0,    0, 1, 0,
-    };
-    return SkColorMatrixFilter::Create(mx);
-}
-
-static SkColorFilter* make_compose_cf() {
-    SkAutoTUnref<SkColorFilter> cf0(make_mode_cf());
-    SkAutoTUnref<SkColorFilter> cf1(make_mx_cf());
-    return SkColorFilter::CreateComposeFilter(cf0, cf1);
 }
 
 DEF_TEST(Color4f_colorfilter, reporter) {
