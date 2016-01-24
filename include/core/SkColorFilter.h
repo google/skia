@@ -81,6 +81,10 @@ public:
     */
     virtual uint32_t getFlags() const { return 0; }
 
+    bool supports4f() const {
+        return SkToBool(this->getFlags() & kSupports4f_Flag);
+    }
+
     /**
      *  If this subclass can optimally createa composition with the inner filter, return it as
      *  a new filter (which the caller must unref() when it is done). If no such optimization
