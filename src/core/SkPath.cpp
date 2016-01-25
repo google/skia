@@ -1414,41 +1414,10 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar 
 
     SkScalar xx = x1 - SkScalarMul(dist, before.fX);
     SkScalar yy = y1 - SkScalarMul(dist, before.fY);
-#ifndef SK_SUPPORT_LEGACY_ARCTO
     after.setLength(dist);
     this->lineTo(xx, yy);
     SkScalar weight = SkScalarSqrt(SK_ScalarHalf + cosh * SK_ScalarHalf);
     this->conicTo(x1, y1, x1 + after.fX, y1 + after.fY, weight);
-#else
-    SkRotationDirection arcDir;
-
-    // now turn before/after into normals
-    if (sinh > 0) {
-        before.rotateCCW();
-        after.rotateCCW();
-        arcDir = kCW_SkRotationDirection;
-    } else {
-        before.rotateCW();
-        after.rotateCW();
-        arcDir = kCCW_SkRotationDirection;
-    }
-
-    SkMatrix    matrix;
-    SkPoint     pts[kSkBuildQuadArcStorage];
-
-    matrix.setScale(radius, radius);
-    matrix.postTranslate(xx - SkScalarMul(radius, before.fX),
-                         yy - SkScalarMul(radius, before.fY));
-
-    int count = SkBuildQuadArc(before, after, arcDir, &matrix, pts);
-
-    this->incReserve(count);
-    // [xx,yy] == pts[0]
-    this->lineTo(xx, yy);
-    for (int i = 1; i < count; i += 2) {
-        this->quadTo(pts[i], pts[i+1]);
-    }
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -94,11 +94,7 @@ private:
     struct Segment {
         SkScalar    fDistance;  // total distance up to this point
         unsigned    fPtIndex; // index into the fPts array
-#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
-        unsigned    fTValue : 15;
-#else
         unsigned    fTValue : 30;
-#endif
         unsigned    fType : 2;
 
         SkScalar getScalarT() const;
@@ -111,20 +107,14 @@ private:
     void     buildSegments();
     SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
-#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
-    SkScalar compute_conic_segs(const SkConic&, SkScalar distance, int mint, int maxt, int ptIndex);
-#else
     SkScalar compute_conic_segs(const SkConic&, SkScalar distance,
                                 int mint, const SkPoint& minPt,
                                 int maxt, const SkPoint& maxPt, int ptIndex);
-#endif
     SkScalar compute_cubic_segs(const SkPoint pts[3], SkScalar distance,
                                 int mint, int maxt, int ptIndex);
     const Segment* distanceToSegment(SkScalar distance, SkScalar* t);
     bool quad_too_curvy(const SkPoint pts[3]);
-#ifndef SK_SUPPORT_LEGACY_CONIC_MEASURE
     bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,const SkPoint& lastPt);
-#endif
     bool cheap_dist_exceeds_limit(const SkPoint& pt, SkScalar x, SkScalar y);
     bool cubic_too_curvy(const SkPoint pts[4]);
 };

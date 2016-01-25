@@ -1146,9 +1146,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                     proc SK_INIT_TO_AVOID_WARNING;
                     SkDEBUGFAIL("unknown paint cap type");
             }
-#ifdef SK_SUPPORT_LEGACY_HAIR_IGNORES_CAPS
-            proc = SkScan::AntiHairPath;
-#endif
         } else {
             switch (paint->getStrokeCap()) {
                 case SkPaint::kButt_Cap:
@@ -1164,9 +1161,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                     proc SK_INIT_TO_AVOID_WARNING;
                     SkDEBUGFAIL("unknown paint cap type");
             }
-#ifdef SK_SUPPORT_LEGACY_HAIR_IGNORES_CAPS
-            proc = SkScan::HairPath;
-#endif
         }
     }
     proc(*devPathPtr, *fRC, blitter);

@@ -194,22 +194,6 @@ enum SkRotationDirection {
     kCCW_SkRotationDirection
 };
 
-#ifdef SK_SUPPORT_LEGACY_ARCTO
-/** Maximum number of points needed in the quadPoints[] parameter for
-    SkBuildQuadArc()
-*/
-#define kSkBuildQuadArcStorage  17
-
-/** Given 2 unit vectors and a rotation direction, fill out the specified
-    array of points with quadratic segments. Return is the number of points
-    written to, which will be { 0, 3, 5, 7, ... kSkBuildQuadArcStorage }
-
-    matrix, if not null, is appled to the points before they are returned.
-*/
-int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop,
-                   SkRotationDirection, const SkMatrix*, SkPoint quadPoints[]);
-#endif
-
 struct SkConic {
     SkConic() {}
     SkConic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {

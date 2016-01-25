@@ -20,20 +20,12 @@ enum {
     kConic_SegType,
 };
 
-#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
-#define kMaxTValue  32767
-#else
 #define kMaxTValue  0x3FFFFFFF
-#endif
 
 static inline SkScalar tValue2Scalar(int t) {
     SkASSERT((unsigned)t <= kMaxTValue);
-#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
-    return t * 3.05185e-5f; // t / 32767
-#else
     const SkScalar kMaxTReciprocal = 1.0f / kMaxTValue;
     return t * kMaxTReciprocal;
-#endif
 }
 
 SkScalar SkPathMeasure::Segment::getScalarT() const {
@@ -73,7 +65,6 @@ bool SkPathMeasure::quad_too_curvy(const SkPoint pts[3]) {
     return dist > fTolerance;
 }
 
-#ifndef SK_SUPPORT_LEGACY_CONIC_MEASURE
 bool SkPathMeasure::conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
                             const SkPoint& lastPt) {
     SkPoint midEnds = firstPt + lastPt;
@@ -82,7 +73,6 @@ bool SkPathMeasure::conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTP
     SkScalar dist = SkMaxScalar(SkScalarAbs(dxy.fX), SkScalarAbs(dxy.fY));
     return dist > fTolerance;
 }
-#endif
 
 bool SkPathMeasure::cheap_dist_exceeds_limit(const SkPoint& pt,
                                      SkScalar x, SkScalar y) {
@@ -177,31 +167,6 @@ SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
     return distance;
 }
 
-#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
-SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic,
-                                           SkScalar distance, int mint, int maxt, int ptIndex) {
-    if (tspan_big_enough(maxt - mint) && quad_too_curvy(conic.fPts)) {
-        SkConic tmp[2];
-        conic.chop(tmp);
-
-        int halft = (mint + maxt) >> 1;
-        distance = this->compute_conic_segs(tmp[0], distance, mint, halft, ptIndex);
-        distance = this->compute_conic_segs(tmp[1], distance, halft, maxt, ptIndex);
-    } else {
-        SkScalar d = SkPoint::Distance(conic.fPts[0], conic.fPts[2]);
-        SkScalar prevD = distance;
-        distance += d;
-        if (distance > prevD) {
-            Segment* seg = fSegments.append();
-            seg->fDistance = distance;
-            seg->fPtIndex = ptIndex;
-            seg->fType = kConic_SegType;
-            seg->fTValue = maxt;
-        }
-    }
-    return distance;
-}
-#else
 SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distance,
                                            int mint, const SkPoint& minPt,
                                            int maxt, const SkPoint& maxPt, int ptIndex) {
@@ -224,7 +189,6 @@ SkScalar SkPathMeasure::compute_conic_segs(const SkConic& conic, SkScalar distan
     }
     return distance;
 }
-#endif
 
 SkScalar SkPathMeasure::compute_cubic_segs(const SkPoint pts[4],
                            SkScalar distance, int mint, int maxt, int ptIndex) {
@@ -319,12 +283,8 @@ void SkPathMeasure::buildSegments() {
             case SkPath::kConic_Verb: {
                 const SkConic conic(pts, fIter.conicWeight());
                 SkScalar prevD = distance;
-#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
-                distance = this->compute_conic_segs(conic, distance, 0, kMaxTValue, ptIndex);
-#else
                 distance = this->compute_conic_segs(conic, distance, 0, conic.fPts[0],
                                                     kMaxTValue, conic.fPts[2], ptIndex);
-#endif
                 if (distance > prevD) {
                     // we store the conic weight in our next point, followed by the last 2 pts
                     // thus to reconstitue a conic, you'd need to say
@@ -477,17 +437,6 @@ static void seg_to(const SkPoint pts[], int segType,
                     dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
                 }
             } else {
-#ifdef SK_SUPPORT_LEGACY_CONIC_MEASURE
-                SkConic tmp1[2];	
-                conic.chopAt(startT, tmp1);
-                if (SK_Scalar1 == stopT) {
-                    dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
-                } else {
-                    SkConic tmp2[2];
-                    tmp1[1].chopAt((stopT - startT) / (SK_Scalar1 - startT), tmp2);
-                    dst->conicTo(tmp2[0].fPts[1], tmp2[0].fPts[2], tmp2[0].fW);
-                }
-#else
                 if (SK_Scalar1 == stopT) {
                     SkConic tmp1[2];
                     conic.chopAt(startT, tmp1);
@@ -497,7 +446,6 @@ static void seg_to(const SkPoint pts[], int segType,
                     conic.chopAt(startT, stopT, &tmp);
                     dst->conicTo(tmp.fPts[1], tmp.fPts[2], tmp.fW);
                 }
-#endif
             }
         } break;
         case kCubic_SegType:
@@ -537,11 +485,7 @@ SkPathMeasure::SkPathMeasure() {
 
 SkPathMeasure::SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale) {
     fPath = &path;
-#ifdef SK_SUPPORT_LEGACY_DASH_MEASURE
-    fTolerance = CHEAP_DIST_LIMIT;
-#else
     fTolerance = CHEAP_DIST_LIMIT * SkScalarInvert(resScale);
-#endif
     fLength = -1;   // signal we need to compute it
     fForceClosed = forceClosed;
     fFirstPtIndex = -1;
