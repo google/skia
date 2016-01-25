@@ -9,8 +9,8 @@
 #define SkRefCnt_DEFINED
 
 #include "../private/SkAtomics.h"
-#include "../private/SkUniquePtr.h"
 #include "SkTypes.h"
+#include <memory>
 
 /** \class SkRefCntBase
 
@@ -185,12 +185,22 @@ template <typename T> struct SkTUnref {
 /**
  *  Utility class that simply unref's its argument in the destructor.
  */
-template <typename T> class SkAutoTUnref : public skstd::unique_ptr<T, SkTUnref<T>> {
+template <typename T> class SkAutoTUnref {
 public:
-    explicit SkAutoTUnref(T* obj = nullptr) : skstd::unique_ptr<T, SkTUnref<T>>(obj) {}
+    explicit SkAutoTUnref(T* obj = nullptr) : fPtr(obj) {}
 
-    T* detach() { return this->release(); }
-    operator T*() const { return this->get(); }
+    void swap(SkAutoTUnref& other) { fPtr.swap(other.fPtr); }
+
+    T*        get() const { return fPtr.get(); }
+    operator T*  () const { return fPtr.get(); }
+    T* operator->() const { return fPtr.get(); }
+
+    void reset(T* ptr = nullptr) { fPtr.reset(ptr); }
+    T* detach()  { return fPtr.release(); }
+    T* release() { return fPtr.release(); }
+
+private:
+    std::unique_ptr<T, SkTUnref<T>> fPtr;
 };
 // Can't use the #define trick below to guard a bare SkAutoTUnref(...) because it's templated. :(
 
