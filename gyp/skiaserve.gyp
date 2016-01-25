@@ -12,11 +12,6 @@
     {
       'target_name': 'skiaserve',
       'type': 'executable',
-      'include_dirs': [
-        '../src/core',
-        #TODO make this a real project
-        '../third_party/externals/microhttpd/src/include',
-      ],
       'sources': [ 
         '<!@(python find.py ../tools/skiaserve "*.cpp")',
       ],
@@ -24,20 +19,12 @@
         'flags.gyp:flags',
         'gputest.gyp:skgputest',
         'jsoncpp.gyp:jsoncpp',
+        'microhttpd.gyp:microhttpd',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:crash_handler',
         'tools.gyp:proc_stats',
         'tools.gyp:resources',
       ],
-      #TODO real libmicrohttpd gyp
-      'link_settings': {
-        'ldflags': [
-          '-L../../third_party/externals/microhttpd/src/microhttpd/.libs',
-        ],
-        'libraries': [
-          '-lmicrohttpd',
-        ],
-      },
     },
   ],
 }
