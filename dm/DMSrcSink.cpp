@@ -288,6 +288,11 @@ Error test_gen(SkCanvas* canvas, SkData* data) {
     // Currently, we will avoid creating a CodecSrc for this case (see DM.cpp).
     SkASSERT(kGray_8_SkColorType != gen->getInfo().colorType());
 
+    if (kOpaque_SkAlphaType != gen->getInfo().alphaType() &&
+            kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
+        return Error::Nonfatal("Skip testing non-opaque images to 565.");
+    }
+
     SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen, nullptr));
     if (!image) {
         return "Could not create image from codec image generator.";
