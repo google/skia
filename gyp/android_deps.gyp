@@ -64,30 +64,6 @@
             },
           },
           {
-            'target_name': 'dng_sdk',
-            'type': 'none',
-            'direct_dependent_settings': {
-              'libraries' : [
-                '-ldng_sdk',
-              ],
-              'include_dirs': [
-                'external/dng_sdk',
-              ],
-            },
-          },
-          {
-            'target_name': 'piex',
-            'type': 'none',
-            'direct_dependent_settings': {
-              'libraries' : [
-                '-lpiex',
-              ],
-              'include_dirs': [
-                'external/piex',
-              ],
-            },
-          },
-          {
             'target_name': 'cpu_features',
             'type': 'none',
           },

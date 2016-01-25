@@ -37,11 +37,6 @@
   #
   'variables': {  # level 1
     'angle_path%': '../',
-
-    # RAW codec needs exceptions. Due to that, it is a separate target. Its usage can be controlled
-    # by this variable.
-    'skia_codec_decodes_raw%': 1,
-
     'variables': {  # level 2
 
       # Variables needed by conditions list within the level-2 variables dict.

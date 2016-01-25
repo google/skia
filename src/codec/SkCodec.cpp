@@ -15,9 +15,6 @@
 #include "SkJpegCodec.h"
 #endif
 #include "SkPngCodec.h"
-#ifdef SK_CODEC_DECODES_RAW
-#include "SkRawCodec.h"
-#endif
 #include "SkStream.h"
 #include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
@@ -89,11 +86,6 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
                 return proc.NewFromStream(streamDeleter.detach());
             }
         }
-
-#ifdef SK_CODEC_DECODES_RAW
-        // Try to treat the input as RAW if all the other checks failed.
-        return SkRawCodec::NewFromStream(streamDeleter.detach());
-#endif
     }
 
     return nullptr;
