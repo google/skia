@@ -8,6 +8,9 @@
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
+#ifdef SK_CODEC_DECODES_RAW
+#include "SkRawAdapterCodec.h"
+#endif
 #include "SkSampledCodec.h"
 #include "SkWebpAdapterCodec.h"
 
@@ -37,6 +40,10 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
         case kGIF_SkEncodedFormat:
         case kICO_SkEncodedFormat:
             return new SkSampledCodec(codec.detach());
+#ifdef SK_CODEC_DECODES_RAW
+        case kRAW_SkEncodedFormat:
+            return new SkRawAdapterCodec((SkRawCodec*)codec.detach());
+#endif
         default:
             return nullptr;
     }
