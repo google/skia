@@ -64,7 +64,6 @@ DEFINE_string(uninterestingHashesFile, "",
 
 DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
-DEFINE_bool2(pre_log, p, false, "Log before running each test. May be incomprehensible when threading");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 using namespace DM;

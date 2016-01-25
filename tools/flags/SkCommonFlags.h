@@ -25,6 +25,7 @@ DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
+DECLARE_bool(pre_log);
 
 DECLARE_string(key);
 DECLARE_string(properties);

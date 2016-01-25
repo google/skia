@@ -1124,6 +1124,12 @@ int nanobench_main() {
             SkCanvas* canvas = target->getCanvas();
             const char* config = target->config.name;
 
+            if (FLAGS_pre_log) {
+                SkDebugf("Running %s\t%s\n"
+                         , bench->getUniqueName()
+                         , config);
+            }
+
             target->setup();
             bench->perCanvasPreDraw(canvas);
 
