@@ -9,11 +9,11 @@
   'type': 'none',
   'conditions': [
     [ 'skia_android_framework', {
-        'dependencies': [ 'android_deps.gyp:dng_sdk' ],
-        'export_dependent_settings': [ 'android_deps.gyp:dng_sdk' ],
+        'dependencies': [ 'android_deps.gyp:libdng_sdk' ],
+        'export_dependent_settings': [ 'android_deps.gyp:libdng_sdk' ],
       }, {
-        'dependencies': [ 'dng_sdk' ],
-        'export_dependent_settings': [ 'dng_sdk' ],
+        'dependencies': [ 'dng_sdk.gyp:dng_sdk' ],
+        'export_dependent_settings': [ 'dng_sdk.gyp:dng_sdk' ],
     }]
   ]
 },{
@@ -131,11 +131,11 @@
     ],
   },
   'dependencies': [
-    'libjpeg-turbo.gyp:libjpeg-turbo',
+    'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
     'zlib.gyp:zlib',
   ],
   'export_dependent_settings': [
-    'libjpeg-turbo.gyp:libjpeg-turbo',
+    'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
     'zlib.gyp:zlib',
   ],
   'direct_dependent_settings': {

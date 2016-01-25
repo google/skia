@@ -17,11 +17,11 @@
   'type': 'none',
   'conditions': [
     [ 'skia_android_framework', {
-        'dependencies': [ 'android_deps.gyp:piex' ],
-        'export_dependent_settings': [ 'android_deps.gyp:piex' ],
+        'dependencies': [ 'android_deps.gyp:libpiex' ],
+        'export_dependent_settings': [ 'android_deps.gyp:libpiex' ],
       }, {
-        'dependencies': [ 'piex' ],
-        'export_dependent_settings': [ 'piex' ],
+        'dependencies': [ 'piex.gyp:piex' ],
+        'export_dependent_settings': [ 'piex.gyp:piex' ],
     }]
   ]
 },{

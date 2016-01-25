@@ -64,7 +64,7 @@
             },
           },
           {
-            'target_name': 'dng_sdk',
+            'target_name': 'libdng_sdk',
             'type': 'none',
             'direct_dependent_settings': {
               'libraries' : [
@@ -76,7 +76,7 @@
             },
           },
           {
-            'target_name': 'piex',
+            'target_name': 'libpiex',
             'type': 'none',
             'direct_dependent_settings': {
               'libraries' : [
