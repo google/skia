@@ -452,7 +452,9 @@ DEF_TEST(Codec, r) {
     check(r, "yellow_rose.png", SkISize::Make(400, 301), true, false, false);
 
     // RAW
+#if defined(SK_CODEC_DECODES_RAW)
     check(r, "sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
+#endif
 }
 
 // Test interlaced PNG in stripes, similar to DM's kStripe_Mode
