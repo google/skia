@@ -2004,26 +2004,21 @@ bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig rea
     }
 }
 
+static bool requires_srgb_conversion(GrPixelConfig a, GrPixelConfig b) {
+    if (GrPixelConfigIsSRGB(a)) {
+        return !GrPixelConfigIsSRGB(b) && !GrPixelConfigIsAlphaOnly(b);
+    } else if (GrPixelConfigIsSRGB(b)) {
+        return !GrPixelConfigIsSRGB(a) && !GrPixelConfigIsAlphaOnly(a);
+    }
+    return false;
+}
+
 bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
-    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
+    GrPixelConfig srcConfig = srcSurface->config();
 
-    // This subclass can only read pixels from a render target. We could use glTexSubImage2D on
-    // GL versions that support it but we don't today.
-    if (!srcAsRT) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    }
-
-    if (GrPixelConfigIsSRGB(srcSurface->config()) != GrPixelConfigIsSRGB(readConfig)) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    }
-
-    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
-    tempDrawInfo->fReadConfig = readConfig;
-
-    // These settings we will always want if a temp draw is performed. The config is set below
-    // depending on whether we want to do a R/B swap or not.
+    // These settings we will always want if a temp draw is performed.
     tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
@@ -2031,10 +2026,33 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
     tempDrawInfo->fUseExactScratch = this->glCaps().partialFBOReadIsSlow();
 
-    // Start off assuming that any temp draw should be to the readConfig, then check if that will
-    // be inefficient.
-    GrPixelConfig srcConfig = srcSurface->config();
-    tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
+    // For now assume no swizzling, we may change that below.
+    tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
+
+    // Depends on why we need/want a temp draw. Start off assuming no change, the surface we read
+    // from will be srcConfig and we will read readConfig pixels from it.
+    // Not that if we require a draw and return a non-renderable format for the temp surface the
+    // base class will fail for us.
+    tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
+    tempDrawInfo->fReadConfig = readConfig;
+
+    if (requires_srgb_conversion(srcConfig, readConfig)) {
+        if (!this->readPixelsSupported(readConfig, readConfig)) {
+            return false;
+        }
+        // Draw to do srgb to linear conversion or vice versa.
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        tempDrawInfo->fTempSurfaceDesc.fConfig = readConfig;
+        tempDrawInfo->fReadConfig = readConfig;
+        return true;
+    }
+
+    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
+    if (!srcAsRT) {
+        // For now keep assuming the draw is not a format transformation, just a draw to get to a
+        // RT. We may add additional transformations below.
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+    }
 
     if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig &&
         this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
@@ -2056,11 +2074,35 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         if (readConfig == kBGRA_8888_GrPixelConfig &&
             this->glCaps().isConfigRenderable(kRGBA_8888_GrPixelConfig, false) &&
             this->readPixelsSupported(kRGBA_8888_GrPixelConfig, kRGBA_8888_GrPixelConfig)) {
-
+            // We're trying to read BGRA but it's not supported. If RGBA is renderable and
+            // we can read it back, then do a swizzling draw to a RGBA and read it back (which
+            // will effectively be BGRA).
             tempDrawInfo->fTempSurfaceDesc.fConfig = kRGBA_8888_GrPixelConfig;
             tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
             tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        } else if (readConfig == kAlpha_8_GrPixelConfig) {
+            // onReadPixels implements a fallback for cases where we are want to read kAlpha_8,
+            // it's unsupported, but 32bit RGBA reads are supported.
+            // Don't attempt to do any srgb conversions since we only care about alpha.
+            GrPixelConfig cpuTempConfig = kRGBA_8888_GrPixelConfig;
+            if (GrPixelConfigIsSRGB(srcSurface->config())) {
+                cpuTempConfig = kSRGBA_8888_GrPixelConfig;
+            }
+            if (!this->readPixelsSupported(srcSurface, cpuTempConfig)) {
+                // If we can't read RGBA from the src try to draw to a kRGBA_8888 (or kSRGBA_8888)
+                // first and then onReadPixels will read that to a 32bit temporary buffer.
+                if (this->caps()->isConfigRenderable(cpuTempConfig, false)) {
+                    ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+                    tempDrawInfo->fTempSurfaceDesc.fConfig = cpuTempConfig;
+                    tempDrawInfo->fReadConfig = kAlpha_8_GrPixelConfig;
+                } else {
+                    return false;
+                }
+            } else {
+                SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
+                SkASSERT(tempDrawInfo->fReadConfig == kAlpha_8_GrPixelConfig);
+            }
         } else {
             return false;
         }
@@ -2082,46 +2124,71 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
                            size_t rowBytes) {
     SkASSERT(surface);
 
-    GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
-    if (!tgt) {
+    GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
+    if (!renderTarget) {
         return false;
     }
 
     // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
-    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
+    if (requires_srgb_conversion(surface->config(), config)) {
+        return false;
+    }
+
+    // We have a special case fallback for reading eight bit alpha. We will read back all four 8
+    // bit channels as RGBA and then extract A.
+    if (!this->readPixelsSupported(renderTarget, config)) {
+        // Don't attempt to do any srgb conversions since we only care about alpha.
+        GrPixelConfig tempConfig = kRGBA_8888_GrPixelConfig;
+        if (GrPixelConfigIsSRGB(renderTarget->config())) {
+            tempConfig = kSRGBA_8888_GrPixelConfig;
+        }
+        if (kAlpha_8_GrPixelConfig == config &&
+            this->readPixelsSupported(renderTarget, tempConfig)) {
+            SkAutoTDeleteArray<uint32_t> temp(new uint32_t[width * height * 4]);
+            if (this->onReadPixels(renderTarget, left, top, width, height, tempConfig, temp.get(),
+                                   width*4)) {
+                uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
+                for (int j = 0; j < height; ++j) {
+                    for (int i = 0; i < width; ++i) {
+                        dst[j*rowBytes + i] = (0xFF000000U & temp[j*width+i]) >> 24;
+                    }
+                }
+                return true;
+            }
+        }
         return false;
     }
 
     GrGLenum externalFormat;
     GrGLenum externalType;
-    if (!this->glCaps().getReadPixelsFormat(surface->config(), config, &externalFormat,
+    if (!this->glCaps().getReadPixelsFormat(renderTarget->config(), config, &externalFormat,
                                             &externalType)) {
         return false;
     }
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
 
     // resolve the render target if necessary
-    switch (tgt->getResolveType()) {
+    switch (renderTarget->getResolveType()) {
         case GrGLRenderTarget::kCantResolve_ResolveType:
             return false;
         case GrGLRenderTarget::kAutoResolves_ResolveType:
-            this->flushRenderTarget(tgt, &SkIRect::EmptyIRect());
+            this->flushRenderTarget(renderTarget, &SkIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
-            this->onResolveRenderTarget(tgt);
+            this->onResolveRenderTarget(renderTarget);
             // we don't track the state of the READ FBO ID.
             fStats.incRenderTargetBinds();
-            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, tgt->textureFBOID()));
+            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
             break;
         default:
             SkFAIL("Unknown resolve type");
     }
 
-    const GrGLIRect& glvp = tgt->getViewport();
+    const GrGLIRect& glvp = renderTarget->getViewport();
 
     // the read rect is viewport-relative
     GrGLIRect readRect;
-    readRect.setRelativeTo(glvp, left, top, width, height, tgt->origin());
+    readRect.setRelativeTo(glvp, left, top, width, height, renderTarget->origin());
 
     size_t tightRowBytes = GrBytesPerPixel(config) * width;
 
