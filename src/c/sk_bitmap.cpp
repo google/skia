@@ -258,6 +258,11 @@ bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requ
 }
 
 
+void sk_imagedecoder_destructor (sk_imagedecoder_t* cdecoder)
+{
+    delete AsImageDecoder(cdecoder);
+}
+
 sk_imagedecoder_format_t sk_imagedecoder_get_decoder_format (sk_imagedecoder_t* cdecoder)
 {
     sk_imagedecoder_format_t cformat;

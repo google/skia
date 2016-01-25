@@ -39,6 +39,7 @@ SK_API void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
 SK_API void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors);
 SK_API bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes);
         
+SK_API void sk_imagedecoder_destructor(sk_imagedecoder_t* cdecoder);
 SK_API sk_imagedecoder_format_t sk_imagedecoder_get_decoder_format (sk_imagedecoder_t* cdecoder);
 SK_API sk_imagedecoder_format_t sk_imagedecoder_get_stream_format (sk_stream_streamrewindable_t* cstream);
 SK_API const char* sk_imagedecoder_get_format_name_from_format (sk_imagedecoder_format_t cformat);

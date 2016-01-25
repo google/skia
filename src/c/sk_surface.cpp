@@ -292,6 +292,26 @@ void sk_canvas_draw_text_on_path (sk_canvas_t* ccanvas, const char *text, size_t
     AsCanvas(ccanvas)->drawTextOnPathHV(text, byteLength, AsPath(*path), hOffset, vOffset, *AsPaint(cpaint));
 }
 
+void sk_canvas_draw_bitmap(sk_canvas_t* ccanvas, const sk_bitmap_t& cbitmap, float x, float y, const sk_paint_t* cpaint)
+{
+    AsCanvas(ccanvas)->drawBitmap(AsBitmap(cbitmap), x, y, AsPaint(cpaint));
+}
+
+void sk_canvas_draw_bitmap_rect(sk_canvas_t* ccanvas, const sk_bitmap_t& cbitmap, const sk_rect_t* csrcR, const sk_rect_t* cdstR, const sk_paint_t* cpaint)
+{
+    SkCanvas* canvas = AsCanvas(ccanvas);
+    const SkBitmap& bitmap = AsBitmap(cbitmap);
+    const SkRect& dst = AsRect(*cdstR);
+    const SkPaint* paint = AsPaint(cpaint);
+
+    if (csrcR) {
+        canvas->drawBitmapRect(bitmap, AsRect(*csrcR), dst, paint);
+    }
+    else {
+        canvas->drawBitmapRect(bitmap, dst, paint);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
