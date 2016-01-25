@@ -16,7 +16,7 @@ void* DynamicLoadLibrary(const char* libraryName) {
 }
 
 void* GetProcedureAddress(void* library, const char* functionName) {
-    return ::GetProcAddress((HMODULE)library, functionName);
+    return reinterpret_cast<void*>(::GetProcAddress((HMODULE)library, functionName));
 }
 
 #endif//defined(SK_BUILD_FOR_WIN32)
