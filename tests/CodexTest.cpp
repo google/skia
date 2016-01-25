@@ -649,7 +649,9 @@ DEF_TEST(Codec_Dimensions, r) {
     test_dimensions(r, "mandrill_16.png");
 
     // RAW
+#if defined(SK_CODEC_DECODES_RAW)
     test_dimensions(r, "sample_1mp.dng");
+#endif
 }
 
 static void test_invalid(skiatest::Reporter* r, const char path[]) {
