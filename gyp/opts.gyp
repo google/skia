@@ -149,7 +149,7 @@
       ],
       'sources': [ '<@(avx_sources)' ],
       'msvs_settings': { 'VCCLCompilerTool': { 'EnableEnhancedInstructionSet': '3' } },
-      'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx' ] },
+      'xcode_settings': { 'OTHER_CPLUSPLUSFLAGS': [ '-mavx' ] },
       'conditions': [
         [ 'not skia_android_framework', { 'cflags': [ '-mavx' ] }],
       ],
@@ -167,7 +167,7 @@
       ],
       'sources': [ '<@(avx2_sources)' ],
       'msvs_settings': { 'VCCLCompilerTool': { 'EnableEnhancedInstructionSet': '5' } },
-      'xcode_settings': { 'OTHER_CFLAGS': [ '-mavx2' ] },
+      'xcode_settings': { 'OTHER_CPLUSPLUSFLAGS': [ '-mavx2' ] },
       'conditions': [
         [ 'not skia_android_framework', { 'cflags': [ '-mavx2' ] }],
       ],
