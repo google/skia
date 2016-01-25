@@ -291,13 +291,20 @@ void GrGLPathRendering::deletePaths(GrGLuint path, GrGLsizei range) {
 
 void GrGLPathRendering::flushPathStencilSettings(const GrStencilSettings& stencilSettings) {
     if (fHWPathStencilSettings != stencilSettings) {
+        SkASSERT(stencilSettings.isValid());
         // Just the func, ref, and mask is set here. The op and write mask are params to the call
         // that draws the path to the SB (glStencilFillPath)
-        GrGLenum func =
-            GrToGLStencilFunc(stencilSettings.func(GrStencilSettings::kFront_Face));
-        GL_CALL(PathStencilFunc(func, stencilSettings.funcRef(GrStencilSettings::kFront_Face),
-                                stencilSettings.funcMask(GrStencilSettings::kFront_Face)));
+        const GrStencilSettings::Face kFront_Face = GrStencilSettings::kFront_Face;
+        GrStencilFunc func = stencilSettings.func(kFront_Face);
+        uint16_t funcRef = stencilSettings.funcRef(kFront_Face);
+        uint16_t funcMask = stencilSettings.funcMask(kFront_Face);
 
+        if (!fHWPathStencilSettings.isValid() ||
+            func != fHWPathStencilSettings.func(kFront_Face) ||
+            funcRef != fHWPathStencilSettings.funcRef(kFront_Face) ||
+            funcMask != fHWPathStencilSettings.funcMask(kFront_Face)) {
+            GL_CALL(PathStencilFunc(GrToGLStencilFunc(func), funcRef, funcMask));
+        }
         fHWPathStencilSettings = stencilSettings;
     }
 }

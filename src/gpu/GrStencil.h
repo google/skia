@@ -277,8 +277,12 @@ public:
 
     void invalidate()  {
         // write an illegal value to the first member
-        fPassOps[0] = (GrStencilOp)(uint8_t)-1;
+        fPassOps[0] = kStencilOpCount;
         fFlags = 0;
+    }
+
+    bool isValid() const {
+        return fPassOps[0] < kStencilOpCount;
     }
 
     bool operator == (const GrStencilSettings& s) const {
