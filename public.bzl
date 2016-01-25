@@ -70,6 +70,7 @@ BASE_SRCS_ALL = struct(
     ],
     exclude = [
         # Exclude platform-dependent files.
+        "src/android/*",
         "src/codec/*",
         "src/device/xps/*",  # Windows-only. Move to ports?
         "src/doc/*_XPS.cpp",  # Windows-only. Move to ports?
@@ -118,6 +119,7 @@ BASE_SRCS_ALL = struct(
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = struct(
     include = [
+        "src/android/*",
         "src/codec/*",
         "src/fonts/SkFontMgr_fontconfig.cpp",
         "src/images/*",
@@ -168,6 +170,7 @@ BASE_SRCS_UNIX = struct(
 # Platform-dependent SRCS for google3-default Android.
 BASE_SRCS_ANDROID = struct(
     include = [
+        "src/android/*",
         "src/codec/*",
         "src/images/*",
         # TODO(benjaminwagner): Figure out how to compile with EGL.
@@ -232,8 +235,8 @@ BASE_SRCS_IOS = struct(
         "src/opts/*avx*",
         "src/opts/*x86*",
         "src/opts/SkBitmapProcState_opts_none.cpp",
-        "src/opts/SkBlitMask_opts_none.cpp",
-        "src/opts/SkBlitRow_opts_none.cpp",
+        "src/opts/SkBlitMask_opts_arm*.cpp",
+        "src/opts/SkBlitRow_opts_arm*.cpp",
         "src/ports/*android*",
         "src/ports/*chromium*",
         "src/ports/*fontconfig*",
@@ -294,6 +297,7 @@ AVX2_SRCS = struct(
 BASE_HDRS = struct(
     include = [
         "include/**/*.h",
+        "src/utils/SkWhitelistChecksums.cpp",
     ],
     exclude = [
         "include/private/**/*",
@@ -487,6 +491,7 @@ DEFINES_ANDROID = [
 DEFINES_IOS = [
     "SK_BUILD_FOR_IOS",
     "SK_IGNORE_ETC1_SUPPORT",
+    "SKNX_NO_SIMD",
 ]
 
 DEFINES_ALL = [
