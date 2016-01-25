@@ -234,7 +234,7 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
 
     // handle NVPR separable varyings
     if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
-        !fGpu->glPathRendering()->shouldBindFragmentInputs()) {
+        fGpu->glPathRendering()->shouldBindFragmentInputs()) {
         return;
     }
     int count = fVaryingHandler.fPathProcVaryingInfos.count();
