@@ -1271,12 +1271,14 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
     // joining the endpoints.
     // http://www.w3.org/TR/SVG/implnote.html#ArcOutOfRangeParameters
     if (!rx || !ry) {
+        this->lineTo(x, y);
         return;
     }
     // If the current point and target point for the arc are identical, it should be treated as a
     // zero length path. This ensures continuity in animations.
     srcPts[1].set(x, y);
     if (srcPts[0] == srcPts[1]) {
+        this->lineTo(x, y);
         return;
     }
     rx = SkScalarAbs(rx);

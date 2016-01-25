@@ -35,6 +35,12 @@ The arcto test below should draw the same as this SVG:
 
 <path d="M250,400  A120,80 0 0,1 250,500"
     fill="none" stroke="blue" stroke-width="5"/>
+
+<path d="M100,100  A  0, 0 0 0,1 200,200"
+    fill="none" stroke="blue" stroke-width="5" stroke-linecap="round"/>
+
+<path d="M200,100  A 80,80 0 0,1 200,100"
+    fill="none" stroke="blue" stroke-width="5" stroke-linecap="round"/>
 </svg>
  */
 
@@ -44,7 +50,7 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(2);
     paint.setColor(0xFF660000);
-    canvas->scale(2, 2);
+//    canvas->scale(2, 2);  // for testing on retina
     SkRect oval = SkRect::MakeXYWH(100, 100, 100, 100);
     SkPath svgArc;
 
@@ -83,4 +89,16 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
         paint.setColor(colors[cIndex++]);
         canvas->drawPath(svgArc, paint);
     }
+
+    // test that zero length arcs still draw round cap
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+    SkPath path;
+    path.moveTo(100, 100);
+    path.arcTo(0, 0, 0, SkPath::kLarge_ArcSize, SkPath::kCW_Direction, 200, 200);
+    canvas->drawPath(path, paint);
+
+    path.reset();
+    path.moveTo(200, 100);
+    path.arcTo(80, 80, 0, SkPath::kLarge_ArcSize, SkPath::kCW_Direction, 200, 100);
+    canvas->drawPath(path, paint);
 }
