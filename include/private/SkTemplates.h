@@ -13,8 +13,8 @@
 #include "SkMath.h"
 #include "SkTLogic.h"
 #include "SkTypes.h"
+#include "SkUniquePtr.h"
 #include <limits.h>
-#include <memory>
 #include <new>
 
 /** \file SkTemplates.h
@@ -57,18 +57,13 @@ template <typename R, typename T, R (*P)(T*)> struct SkFunctionWrapper {
     reference is null when the destructor is called, we do not call the
     function.
 */
-template <typename T, void (*P)(T*)> class SkAutoTCallVProc {
+template <typename T, void (*P)(T*)> class SkAutoTCallVProc
+    : public skstd::unique_ptr<T, SkFunctionWrapper<void, T, P>> {
 public:
-    SkAutoTCallVProc(T* obj) : fPtr(obj) {}
+    SkAutoTCallVProc(T* obj): skstd::unique_ptr<T, SkFunctionWrapper<void, T, P>>(obj) {}
 
-    T*        get() const { return fPtr.get(); }
-    operator T*  () const { return fPtr.get(); }
-    T* operator->() const { return fPtr.get(); }
-
-    T* detach() { return fPtr.release(); }
-    void reset(T* ptr = nullptr) { fPtr.reset(ptr); }
-private:
-    std::unique_ptr<T, SkFunctionWrapper<void, T, P>> fPtr;
+    operator T*() const { return this->get(); }
+    T* detach() { return this->release(); }
 };
 
 /** \class SkAutoTCallIProc
@@ -79,18 +74,13 @@ If detach() is called, the object reference is set to null. If the object
 reference is null when the destructor is called, we do not call the
 function.
 */
-template <typename T, int (*P)(T*)> class SkAutoTCallIProc {
+template <typename T, int (*P)(T*)> class SkAutoTCallIProc
+    : public skstd::unique_ptr<T, SkFunctionWrapper<int, T, P>> {
 public:
-    SkAutoTCallIProc(T* obj) : fPtr(obj) {}
+    SkAutoTCallIProc(T* obj): skstd::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
 
-    T*        get() const { return fPtr.get(); }
-    operator T*  () const { return fPtr.get(); }
-    T* operator->() const { return fPtr.get(); }
-
-    T* detach() { return fPtr.release(); }
-    void reset(T* ptr = nullptr) { fPtr.reset(ptr); }
-private:
-    std::unique_ptr<T, SkFunctionWrapper<int, T, P>> fPtr;
+    operator T*() const { return this->get(); }
+    T* detach() { return this->release(); }
 };
 
 /** \class SkAutoTDelete
@@ -103,27 +93,18 @@ private:
 
   The size of a SkAutoTDelete is small: sizeof(SkAutoTDelete<T>) == sizeof(T*)
 */
-template <typename T> class SkAutoTDelete {
+template <typename T> class SkAutoTDelete : public skstd::unique_ptr<T> {
 public:
-    SkAutoTDelete(T* obj = NULL) : fPtr(obj) {}
+    SkAutoTDelete(T* obj = NULL) : skstd::unique_ptr<T>(obj) {}
 
-    void swap(SkAutoTDelete& other) { fPtr.swap(other.fPtr); }
-
-    T*        get() const { return fPtr.get(); }
-    operator T*  () const { return fPtr.get(); }
-    T* operator->() const { return fPtr.get(); }
-
-    void reset(T* ptr = nullptr) { fPtr.reset(ptr); }
-    void free() { fPtr.reset(nullptr); }
-    T* detach() { return fPtr.release(); }
-    T* release() { return fPtr.release(); }
-private:
-    std::unique_ptr<T> fPtr;
+    operator T*() const { return this->get(); }
+    void free() { this->reset(nullptr); }
+    T* detach() { return this->release(); }
 };
 
-template <typename T> class SkAutoTDeleteArray : public std::unique_ptr<T[]> {
+template <typename T> class SkAutoTDeleteArray : public skstd::unique_ptr<T[]> {
 public:
-    SkAutoTDeleteArray(T array[]) : std::unique_ptr<T[]>(array) {}
+    SkAutoTDeleteArray(T array[]) : skstd::unique_ptr<T[]>(array) {}
 
     void free() { this->reset(nullptr); }
     T* detach() { return this->release(); }

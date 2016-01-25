@@ -409,6 +409,7 @@
         '<(skia_include_path)/private/SkTDict.h',
         '<(skia_include_path)/private/SkTSearch.h',
         '<(skia_include_path)/private/SkTLogic.h',
+        '<(skia_include_path)/private/SkUniquePtr.h',
         '<(skia_include_path)/private/SkWeakRefCnt.h',
 
         # Path ops
