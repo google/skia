@@ -128,6 +128,8 @@ BASE_SRCS_UNIX = struct(
     ],
     exclude = [
         "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
+        # TODO(benjaminwagner): Can this be enabled?
+        "src/codec/SkRaw*",
         "src/opts/*arm*",
         "src/opts/*mips*",
         "src/opts/*NEON*",
@@ -176,6 +178,8 @@ BASE_SRCS_ANDROID = struct(
     ],
     exclude = [
         "src/codec/SkJpegCodec.cpp",  # libjpeg_turbo version mismatch.
+        # TODO(benjaminwagner): Can this be enabled?
+        "src/codec/SkRaw*",
         "src/opts/*mips*",
         "src/opts/*SSE2*",
         "src/opts/*SSSE3*",
@@ -261,23 +265,27 @@ SSSE3_SRCS = struct(
     include = [
         "src/opts/*SSSE3*.cpp",
         "src/opts/*ssse3*.cpp",
-    ])
+    ],
+)
 
 SSE4_SRCS = struct(
     include = [
         "src/opts/*SSE4*.cpp",
         "src/opts/*sse4*.cpp",
-    ])
+    ],
+)
 
 AVX_SRCS = struct(
     include = [
         "src/opts/*_avx.cpp",
-    ])
+    ],
+)
 
 AVX2_SRCS = struct(
     include = [
         "src/opts/*_avx2.cpp",
-    ])
+    ],
+)
 
 ################################################################################
 ## BASE_HDRS
@@ -295,7 +303,8 @@ BASE_HDRS = struct(
         "include/views/**/*",
         "include/xml/SkBML_WXMLParser.h",
         "include/xml/SkBML_XMLParser.h",
-    ])
+    ],
+)
 
 ################################################################################
 ## BASE_DEPS
@@ -503,4 +512,3 @@ LINKOPTS_IOS = []
 LINKOPTS_ALL = [
     "-ldl",
 ]
-
