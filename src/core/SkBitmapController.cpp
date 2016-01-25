@@ -161,13 +161,9 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
         return false;
     }
 
-#ifdef SK_SUPPORT_LEGACY_ANISOTROPIC_MIPMAPS
-    SkScalar invScale = SkScalarSqrt(invScaleSize.width() * invScaleSize.height());
-#else
     // Use the largest (non-inverse) scale, to ensure anisotropic consistency.
     SkASSERT(invScaleSize.width() >= 0 && invScaleSize.height() >= 0);
     const SkScalar invScale = SkTMin(invScaleSize.width(), invScaleSize.height());
-#endif
 
     if (invScale > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc()));

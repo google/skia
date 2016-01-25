@@ -380,7 +380,6 @@ void SkMatrix::preScale(SkScalar sx, SkScalar sy) {
     fMat[kMScaleY] *= sy;
     fMat[kMPersp1] *= sy;
 
-#ifndef SK_SUPPORT_LEGACY_PRESCALE_SEMANTICS
     // Attempt to simplify our type when applying an inverse scale.
     // TODO: The persp/affine preconditions are in place to keep the mask consistent with
     //       what computeTypeMask() would produce (persp/skew always implies kScale).
@@ -391,9 +390,6 @@ void SkMatrix::preScale(SkScalar sx, SkScalar sy) {
     } else {
         this->orTypeMask(kScale_Mask);
     }
-#else
-    this->orTypeMask(kScale_Mask);
-#endif
 }
 
 void SkMatrix::postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {

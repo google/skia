@@ -297,13 +297,8 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
         levels[i].fPixmap = SkPixmap(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
-#ifdef SK_SUPPORT_LEGACY_ANISOTROPIC_MIPMAPS
-        levels[i].fScale  = SkSize::Make(SkIntToScalar(width) / src.width(),
-                                         SkIntToScalar(width) / src.width());
-#else
         levels[i].fScale  = SkSize::Make(SkIntToScalar(width)  / src.width(),
                                          SkIntToScalar(height) / src.height());
-#endif
 
         const SkPixmap& dstPM = levels[i].fPixmap;
         const void* srcBasePtr = srcPM.addr();
