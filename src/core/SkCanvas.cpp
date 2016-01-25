@@ -444,7 +444,7 @@ public:
                    bool skipLayerForImageFilter = false,
                    const SkRect* rawBounds = nullptr) : fOrigPaint(paint) {
         fCanvas = canvas;
-#ifdef SK_SUPPORT_LEGACY_DRAWFLTER
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
         fFilter = canvas->getDrawFilter();
 #else
         fFilter = nullptr;
@@ -782,7 +782,7 @@ SkCanvas::~SkCanvas() {
     dec_canvas();
 }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWFLTER
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
 SkDrawFilter* SkCanvas::getDrawFilter() const {
     return fMCRec->fFilter;
 }

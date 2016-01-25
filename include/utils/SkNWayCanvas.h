@@ -24,7 +24,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // These are forwarded to the N canvases we're referencing
 
-#ifdef SK_SUPPORT_LEGACY_DRAWFLTER
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     SkDrawFilter* setDrawFilter(SkDrawFilter*) override;
 #endif
 

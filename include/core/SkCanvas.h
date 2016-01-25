@@ -1150,12 +1150,12 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
 #ifdef SK_INTERNAL
-#ifndef SK_SUPPORT_LEGACY_DRAWFLTER
-    #define SK_SUPPORT_LEGACY_DRAWFLTER
+#ifndef SK_SUPPORT_LEGACY_DRAWFILTER
+    #define SK_SUPPORT_LEGACY_DRAWFILTER
 #endif
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_DRAWFLTER
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     /** Get the current filter object. The filter's reference count is not
         affected. The filter is saved/restored, just like the matrix and clip.
         @return the canvas' filter (or NULL).
