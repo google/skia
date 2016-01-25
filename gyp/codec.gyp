@@ -66,6 +66,63 @@
       'defines': [
         'TURBO_HAS_SKIP',
       ],
+      'conditions': [
+        # FIXME: fix the support for Windows. (Issue with _hypot in DNG SDK).
+        ['skia_codec_decodes_raw and skia_os != "win" and skia_os != "chromeos"', {
+          'dependencies': [
+            'raw_codec',
+          ],
+        },],
+      ],
+    }, {
+      # RAW codec needs exceptions. Due to that, it is a separate target. Its usage can be
+      # controlled by SK_CODEC_DECODES_RAW flag.
+      'target_name': 'raw_codec',
+      'product_name': 'raw_codec',
+      'type': 'static_library',
+      'dependencies': [
+        'core.gyp:*',
+        'dng_sdk.gyp:dng_sdk-selector',
+        'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
+        'piex.gyp:piex-selector',
+      ],
+      'cflags':[
+        '-fexceptions',
+      ],
+      'include_dirs': [
+        '../include/codec',
+        '../include/private',
+        '../src/codec',
+        '../src/core',
+      ],
+      'sources': [
+        '../src/codec/SkRawAdapterCodec.cpp',
+        '../src/codec/SkRawCodec.cpp',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../include/codec',
+        ],
+        'defines': [
+          'SK_CODEC_DECODES_RAW',
+        ],
+      },
+      'defines': [
+        'SK_CODEC_DECODES_RAW',
+      ],
+      'conditions': [
+        ['skia_arch_type == "x86" or skia_arch_type == "arm"', {
+          'defines': [
+            'qDNGBigEndian=0',
+          ],
+        }],
+        ['skia_os == "ios" or skia_os == "mac"', {
+          'xcode_settings': {
+            'OTHER_CFLAGS': ['-fexceptions'],
+            'OTHER_CPLUSPLUSFLAGS': ['-fexceptions'],
+          },
+        }],
+      ],
     },
   ],
 }
