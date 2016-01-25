@@ -48,7 +48,7 @@ public:
     using deleter_type = D;
 
 private:
-    template <typename B, bool = std::is_empty<B>::value /*&& !is_final<B>::value*/>
+    template <typename B, bool>
     struct compressed_base : private B {
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : B(b) {}
@@ -68,25 +68,29 @@ private:
         void swap(compressed_base& that) /*noexcept*/ { SkTSwap(fb, that.fB); }
     };
 
-    struct compressed_data : private compressed_base<deleter_type> {
+    // C++14 adds '&& !std::is_final<deleter_type>::value' to the bool condition.
+    // compressed_base_t exists and has this form to work around a bug in vs2013sp2-3
+    using compressed_base_t = compressed_base<deleter_type, std::is_empty<deleter_type>::value>;
+
+    struct compressed_data : private compressed_base_t {
         pointer fPtr;
-        /*constexpr*/ compressed_data() : compressed_base<deleter_type>(), fPtr() {}
+        /*constexpr*/ compressed_data() : compressed_base_t(), fPtr() {}
         /*constexpr*/ compressed_data(const pointer& ptr, const deleter_type& d)
-            : compressed_base<deleter_type>(d), fPtr(ptr) {}
+            : compressed_base_t(d), fPtr(ptr) {}
         template <typename U1, typename U2, typename = enable_if_t<
             is_convertible<U1, pointer>::value && is_convertible<U2, deleter_type>::value
         >> /*constexpr*/ compressed_data(U1&& ptr, U2&& d)
-            : compressed_base<deleter_type>(std::forward<U2>(d)), fPtr(std::forward<U1>(ptr)) {}
+            : compressed_base_t(std::forward<U2>(d)), fPtr(std::forward<U1>(ptr)) {}
         /*constexpr*/ pointer& getPointer() /*noexcept*/ { return fPtr; }
         /*constexpr*/ pointer const& getPointer() const /*noexcept*/ { return fPtr; }
         /*constexpr*/ deleter_type& getDeleter() /*noexcept*/ {
-            return compressed_base<deleter_type>::get();
+            return compressed_base_t::get();
         }
         /*constexpr*/ deleter_type const& getDeleter() const /*noexcept*/ {
-            return compressed_base<deleter_type>::get();
+            return compressed_base_t::get();
         }
         void swap(compressed_data& that) /*noexcept*/ {
-            compressed_base<deleter_type>::swap(static_cast<compressed_base<deleter_type>>(that));
+            compressed_base_t::swap(static_cast<compressed_base_t>(that));
             SkTSwap(fPtr, that.fPtr);
         }
     };
@@ -221,8 +225,7 @@ public:
     using deleter_type = D;
 
 private:
-    template <typename B, bool = std::is_empty<B>::value /*&& !is_final<B>::value*/>
-    struct compressed_base : private B {
+    template <typename B, bool> struct compressed_base : private B {
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : B(b) {}
         /*constexpr*/ compressed_base(B&& b) : B(std::move(b)) {}
@@ -241,25 +244,29 @@ private:
         void swap(compressed_base& that) /*noexcept*/ { SkTSwap(fb, that.fB); }
     };
 
-    struct compressed_data : private compressed_base<deleter_type> {
+    // C++14 adds '&& !std::is_final<deleter_type>::value' to the bool condition.
+    // compressed_base_t exists and has this form to work around a bug in vs2013sp2-3
+    using compressed_base_t = compressed_base<deleter_type, std::is_empty<deleter_type>::value>;
+
+    struct compressed_data : private compressed_base_t {
         pointer fPtr;
-        /*constexpr*/ compressed_data() : compressed_base<deleter_type>(), fPtr() {}
+        /*constexpr*/ compressed_data() : compressed_base_t(), fPtr() {}
         /*constexpr*/ compressed_data(const pointer& ptr, const deleter_type& d)
-            : compressed_base<deleter_type>(d), fPtr(ptr) {}
+            : compressed_base_t(d), fPtr(ptr) {}
         template <typename U1, typename U2, typename = enable_if_t<
             is_convertible<U1, pointer>::value && is_convertible<U2, deleter_type>::value
         >> /*constexpr*/ compressed_data(U1&& ptr, U2&& d)
-            : compressed_base<deleter_type>(std::forward<U2>(d)), fPtr(std::forward<U1>(ptr)) {}
+            : compressed_base_t(std::forward<U2>(d)), fPtr(std::forward<U1>(ptr)) {}
         /*constexpr*/ pointer& getPointer() /*noexcept*/ { return fPtr; }
         /*constexpr*/ pointer const& getPointer() const /*noexcept*/ { return fPtr; }
         /*constexpr*/ deleter_type& getDeleter() /*noexcept*/ {
-            return compressed_base<deleter_type>::get();
+            return compressed_base_t::get();
         }
         /*constexpr*/ deleter_type const& getDeleter() const /*noexcept*/ {
-            return compressed_base<deleter_type>::get();
+            return compressed_base_t::get();
         }
         void swap(compressed_data& that) /*noexcept*/ {
-            compressed_base<deleter_type>::swap(static_cast<compressed_base<deleter_type>>(that));
+            compressed_base_t::swap(static_cast<compressed_base_t>(that));
             SkTSwap(fPtr, that.fPtr);
         }
     };
