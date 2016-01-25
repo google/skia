@@ -218,7 +218,7 @@ static inline SkScalar SkScalarSignAsScalar(SkScalar x) {
 #define SK_ScalarNearlyZero         (SK_Scalar1 / (1 << 12))
 
 static inline bool SkScalarNearlyZero(SkScalar x,
-                                    SkScalar tolerance = SK_ScalarNearlyZero) {
+                                      SkScalar tolerance = SK_ScalarNearlyZero) {
     SkASSERT(tolerance >= 0);
     return SkScalarAbs(x) <= tolerance;
 }

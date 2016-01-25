@@ -29,7 +29,6 @@ public:
 
         ArithmeticXfermode,
         DefaultXfermode,
-        LerpXfermode,
         PixelXorXfermode,
         ProcCoeffXfermode,
 

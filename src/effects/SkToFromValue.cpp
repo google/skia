@@ -6,7 +6,6 @@
  */
 
 #include "SkArithmeticMode.h"
-#include "SkLerpXfermode.h"
 #include "SkMatrix.h"
 #include "SkPixelXorXfermode.h"
 #include "SkToFromValue.h"
@@ -89,14 +88,6 @@ static bool from_value_ArithmeticXfermode(const SkValue& val,
     return true;
 }
 
-static bool from_value_LerpXfermode(const SkValue& val,
-                                    SkAutoTUnref<SkXfermode>* dst) {
-    float scale;
-    REQUIRE(getT(val, SkValueKeys::LerpXfermode::kScale, &scale));
-    dst->reset(SkLerpXfermode::Create(scale));
-    return true;
-}
-
 static bool from_value_PixelXorXfermode(const SkValue& val,
                                         SkAutoTUnref<SkXfermode>* dst) {
     uint32_t opColor;
@@ -118,7 +109,6 @@ template<> bool SkFromValue< SkAutoTUnref<SkXfermode> >(
     switch (val.type()) {
         case SkValue::DefaultXfermode:    return from_value_DefaultXfermode(val, dst);
         case SkValue::ArithmeticXfermode: return from_value_ArithmeticXfermode(val, dst);
-        case SkValue::LerpXfermode:       return from_value_LerpXfermode(val, dst);
         case SkValue::PixelXorXfermode:   return from_value_PixelXorXfermode(val, dst);
         case SkValue::ProcCoeffXfermode:  return from_value_ProcCoeffXfermode(val, dst);
         default:                          REQUIRE(false);

@@ -19,7 +19,6 @@
 #include "SkPathMeasure.h"
 #include "SkRandom.h"
 #include "SkColorPriv.h"
-#include "SkPixelXorXfermode.h"
 
 #define CORNER_RADIUS   12
 

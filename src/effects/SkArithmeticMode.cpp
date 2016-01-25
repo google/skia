@@ -21,8 +21,16 @@ static const bool gUseUnpremul = false;
 
 class SkArithmeticMode_scalar : public SkXfermode {
 public:
-    static SkArithmeticMode_scalar* Create(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
-                                           bool enforcePMColor) {
+    static SkXfermode* Create(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
+                              bool enforcePMColor) {
+        if (SkScalarNearlyZero(k1) && SkScalarNearlyEqual(k2, SK_Scalar1) &&
+            SkScalarNearlyZero(k3) && SkScalarNearlyZero(k4)) {
+            return SkXfermode::Create(SkXfermode::kSrc_Mode);
+        } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) && 
+                   SkScalarNearlyEqual(k3, SK_Scalar1) && SkScalarNearlyZero(k4)) {
+            return SkXfermode::Create(SkXfermode::kDst_Mode);
+        }
+
         return new SkArithmeticMode_scalar(k1, k2, k3, k4, enforcePMColor);
     }
 

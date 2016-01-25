@@ -28,7 +28,6 @@
 #include "SkImageSource.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
-#include "SkLerpXfermode.h"
 #include "SkLightingImageFilter.h"
 #include "SkLightingShader.h"
 #include "SkLumaColorFilter.h"
@@ -82,7 +81,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SkLightingShader::InitializeFlattenables();
 
     // Xfermode
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLerpXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPixelXorXfermode)
 
     // PathEffect
