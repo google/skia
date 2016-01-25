@@ -279,7 +279,7 @@ bool get_decode_info(SkImageInfo* decodeInfo, const SkImageInfo& defaultInfo,
 }
 
 Error test_gen(SkCanvas* canvas, SkData* data) {
-    SkImageGenerator* gen = SkCodecImageGenerator::NewFromEncodedCodec(data);
+    SkAutoTDelete<SkImageGenerator> gen = SkCodecImageGenerator::NewFromEncodedCodec(data);
     if (!gen) {
         return "Could not create image generator.";
     }
@@ -293,7 +293,7 @@ Error test_gen(SkCanvas* canvas, SkData* data) {
         return Error::Nonfatal("Skip testing non-opaque images to 565.");
     }
 
-    SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen, nullptr));
+    SkAutoTDelete<SkImage> image(SkImage::NewFromGenerator(gen.detach(), nullptr));
     if (!image) {
         return "Could not create image from codec image generator.";
     }
