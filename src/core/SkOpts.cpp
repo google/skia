@@ -13,7 +13,6 @@
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
-#include "SkFloatingPoint_opts.h"
 #include "SkMatrix_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
@@ -55,7 +54,6 @@ namespace SkOpts {
     // If our global compile options are set high enough, these defaults might even be
     // CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
-    decltype(rsqrt)                     rsqrt = sk_default::rsqrt;
     decltype(memset16)               memset16 = sk_default::memset16;
     decltype(memset32)               memset32 = sk_default::memset32;
     decltype(create_xfermode) create_xfermode = sk_default::create_xfermode;

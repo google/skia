@@ -12,7 +12,6 @@
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
 #include "SkColorCubeFilter_opts.h"
-#include "SkFloatingPoint_opts.h"
 #include "SkMatrix_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
@@ -22,7 +21,6 @@
 
 namespace SkOpts {
     void Init_neon() {
-        rsqrt           = sk_neon::rsqrt;
         memset16        = sk_neon::memset16;
         memset32        = sk_neon::memset32;
         create_xfermode = sk_neon::create_xfermode;

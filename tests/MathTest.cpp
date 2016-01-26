@@ -382,14 +382,15 @@ static void unittest_half(skiatest::Reporter* reporter) {
 
 }
 
-static void test_rsqrt(skiatest::Reporter* reporter) {
+template <typename RSqrtFn>
+static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
     const float maxRelativeError = 6.50196699e-4f;
 
     // test close to 0 up to 1
     float input = 0.000001f;
     for (int i = 0; i < 1000; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.001f;
@@ -399,7 +400,7 @@ static void test_rsqrt(skiatest::Reporter* reporter) {
     input = 1.0f;
     for (int i = 0; i < 1000; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.01f;
@@ -409,7 +410,7 @@ static void test_rsqrt(skiatest::Reporter* reporter) {
     input = 1000000.0f;
     for (int i = 0; i < 100; ++i) {
         float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = sk_float_rsqrt(input);
+        float estimate = rsqrt(input);
         float relativeError = sk_float_abs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 754326.f;
@@ -555,7 +556,8 @@ DEF_TEST(Math, reporter) {
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
-    test_rsqrt(reporter);
+    test_rsqrt(reporter, sk_float_rsqrt);
+    test_rsqrt(reporter, sk_float_rsqrt_portable);
 
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
