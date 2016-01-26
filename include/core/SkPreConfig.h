@@ -193,7 +193,7 @@
 
 // All 64-bit ARM chips have NEON.  Many 32-bit ARM chips do too.
 // TODO: Why don't we want NEON on iOS?
-#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_FOR_IOS) && defined(__ARM_NEON)
+#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_FOR_IOS) && (defined(__ARM_NEON__) || defined(__ARM_NEON))
     #define SK_ARM_HAS_NEON
 #endif
 
