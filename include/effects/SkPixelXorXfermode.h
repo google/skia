@@ -17,7 +17,16 @@
 */
 class SK_API SkPixelXorXfermode : public SkXfermode {
 public:
-    static SkXfermode* Create(SkColor opColor) { return new SkPixelXorXfermode(opColor); }
+    static SkXfermode* Create(SkColor opColor) {
+        return new SkPixelXorXfermode(opColor);
+    }
+
+#if SK_SUPPORT_GPU
+    bool asFragmentProcessor(const GrFragmentProcessor** output,
+                             const GrFragmentProcessor* dst) const override;
+
+    bool asXPFactory(GrXPFactory**) const override;
+#endif
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPixelXorXfermode)

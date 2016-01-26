@@ -49,7 +49,7 @@ protected:
         // the green & blue channels alone
         SkPaint p1;
         p1.setColor(SK_ColorBLACK); // noop
-        p1.setXfermode(SkPixelXorXfermode::Create(SK_ColorRED))->unref();
+        p1.setXfermode(SkPixelXorXfermode::Create(0x7FFF0000))->unref();
 
         canvas->drawRect(r, p1);
 
