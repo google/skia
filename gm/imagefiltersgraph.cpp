@@ -15,6 +15,7 @@
 #include "SkColorMatrixFilter.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
+#include "SkMatrixConvolutionImageFilter.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMergeImageFilter.h"
@@ -107,7 +108,7 @@ protected:
         return SkString("imagefiltersgraph");
     }
 
-    SkISize onISize() override { return SkISize::Make(500, 150); }
+    SkISize onISize() override { return SkISize::Make(600, 150); }
 
     void onOnceBeforeDraw() override {
         fImage.reset(SkImage::NewFromBitmap(
@@ -178,6 +179,40 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(blend);
+            DrawClippedImage(canvas, fImage, paint);
+            canvas->translate(SkIntToScalar(100), 0);
+        }
+        {
+            // Dilate -> matrix convolution.
+            // This tests that a filter using asFragmentProcessor (matrix
+            // convolution) correctly handles a non-zero source offset
+            // (supplied by the dilate).
+            SkAutoTUnref<SkImageFilter> dilate(SkDilateImageFilter::Create(5, 5));
+
+            SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcIn_Mode));
+
+            SkScalar kernel[9] = {
+                SkIntToScalar(-1), SkIntToScalar( -1 ), SkIntToScalar(-1),
+                SkIntToScalar(-1), SkIntToScalar(  7 ), SkIntToScalar(-1),
+                SkIntToScalar(-1), SkIntToScalar( -1 ), SkIntToScalar(-1),
+            };
+            SkISize kernelSize = SkISize::Make(3, 3);
+            SkScalar gain = 1.0f, bias = SkIntToScalar(0);
+            SkIPoint kernelOffset = SkIPoint::Make(1, 1);
+            auto tileMode = SkMatrixConvolutionImageFilter::kClamp_TileMode;
+            bool convolveAlpha = false;
+            SkAutoTUnref<SkImageFilter> convolve(
+                SkMatrixConvolutionImageFilter::Create(kernelSize,
+                                                       kernel,
+                                                       gain,
+                                                       bias,
+                                                       kernelOffset,
+                                                       tileMode,
+                                                       convolveAlpha,
+                                                       dilate));
+
+            SkPaint paint;
+            paint.setImageFilter(convolve);
             DrawClippedImage(canvas, fImage, paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
