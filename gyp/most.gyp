@@ -82,6 +82,7 @@
         [ 'skia_build_server', {
           'dependencies': [
             'skiaserve.gyp:skiaserve',
+            'json.gyp:json',
           ],
         }],
       ],
