@@ -525,7 +525,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
         case kBorrow_GrWrapOwnership:
             idDesc.fLifeCycle = GrGpuResource::kBorrowed_LifeCycle;
             break;
-    }    
+    }
     idDesc.fSampleConfig = GrRenderTarget::kUnified_SampleConfig;
 
     GrSurfaceDesc desc;
@@ -2856,7 +2856,7 @@ static inline bool can_copy_texsubimage(const GrSurface* dst,
     }
 
     const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(src->asTexture());
-    
+
     // Check that we could wrap the source in an FBO, that the dst is TEXTURE_2D, that no mirroring
     // is required.
     if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
@@ -2905,7 +2905,7 @@ void GrGLGpu::bindSurfaceFBOForCopy(GrSurface* surface, GrGLenum fboTarget, GrGL
 }
 
 void GrGLGpu::unbindTextureFBOForCopy(GrGLenum fboTarget, GrSurface* surface) {
-    // bindSurfaceFBOForCopy temporarily binds textures that are not render targets to 
+    // bindSurfaceFBOForCopy temporarily binds textures that are not render targets to
     if (!surface->asRenderTarget()) {
         SkASSERT(surface->asTexture());
         GrGLenum textureTarget = static_cast<GrGLTexture*>(surface->asTexture())->target();
@@ -2989,7 +2989,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
         this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
         return true;
     }
-    
+
     if (can_copy_texsubimage(dst, src, this)) {
         this->copySurfaceAsCopyTexSubImage(dst, src, srcRect, dstPoint);
         return true;
@@ -3040,7 +3040,7 @@ void GrGLGpu::createCopyPrograms() {
         vshaderTxt.append(";");
         vTexCoord.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
         vshaderTxt.append(";");
-    
+
         vshaderTxt.append(
             "// Copy Program VS\n"
             "void main() {"
@@ -3079,7 +3079,7 @@ void GrGLGpu::createCopyPrograms() {
             fsOutName,
             GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSamplerTypes[i], this->glslGeneration())
         );
-    
+
         GL_CALL_RET(fCopyPrograms[i].fProgram, CreateProgram());
         const char* str;
         GrGLint length;

@@ -18,7 +18,7 @@
 void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     if (mipMapsDirty) {
         if (kValid_MipMapsStatus == fMipMapsStatus) {
-           fMipMapsStatus = kAllocated_MipMapsStatus;
+            fMipMapsStatus = kAllocated_MipMapsStatus;
         }
     } else {
         const bool sizeChanged = kNotAllocated_MipMapsStatus == fMipMapsStatus;

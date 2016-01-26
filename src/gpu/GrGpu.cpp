@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -353,7 +352,7 @@ bool GrGpu::transferPixels(GrSurface* surface,
     SkASSERT(buffer);
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(surface, left, top, width, height, config, 
+    if (this->onTransferPixels(surface, left, top, width, height, config,
                                buffer, offset, rowBytes)) {
         fStats.incTransfersToTexture();
         return true;

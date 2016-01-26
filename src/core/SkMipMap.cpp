@@ -352,7 +352,7 @@ bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
     return true;
 }
 
-// Helper which extacts a pixmap from the src bitmap
+// Helper which extracts a pixmap from the src bitmap
 //
 SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDiscardableFactoryProc fact) {
     SkAutoPixmapUnlock srcUnlocker;

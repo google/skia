@@ -62,7 +62,7 @@ private:
     GrTexturePriv* operator&();
 
     GrTexture* fTexture;
-        
+
     friend class GrTexture; // to construct/copy this type.
 };
 

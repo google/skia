@@ -197,7 +197,7 @@ public:
     bool getReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
                            GrPixelConfig readConfig, DrawPreference*, ReadPixelTempDrawInfo*);
 
-    /** Info struct returned by getWritePixelsInfo about performing an intermediate draw in order 
+    /** Info struct returned by getWritePixelsInfo about performing an intermediate draw in order
         to write pixels to a GrSurface for either performance or correctness reasons. */
     struct WritePixelTempDrawInfo {
         /** If the GrGpu is requesting that the caller upload to an intermediate surface and draw

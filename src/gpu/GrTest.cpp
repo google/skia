@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -386,7 +385,7 @@ private:
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config) const override {
-        return 0; 
+        return 0;
     }
     bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
     void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) const override {}
