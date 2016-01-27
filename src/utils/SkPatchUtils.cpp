@@ -30,33 +30,14 @@
 class FwDCubicEvaluator {
     
 public:
-    FwDCubicEvaluator()
-    : fMax(0)
-    , fCurrent(0)
-    , fDivisions(0) {
-        memset(fPoints, 0, 4 * sizeof(SkPoint));
-        memset(fPoints, 0, 4 * sizeof(SkPoint));
-        memset(fPoints, 0, 4 * sizeof(SkPoint));
-    }
     
     /**
      * Receives the 4 control points of the cubic bezier.
      */
-    FwDCubicEvaluator(SkPoint a, SkPoint b, SkPoint c, SkPoint d) {
-        fPoints[0] = a;
-        fPoints[1] = b;
-        fPoints[2] = c;
-        fPoints[3] = d;
-        
-        SkCubicToCoeff(fPoints, fCoefs);
-        
-        this->restart(1);
-    }
     
-    explicit FwDCubicEvaluator(const SkPoint points[4])  {
+    explicit FwDCubicEvaluator(const SkPoint points[4])
+            : fCoefs(points) {
         memcpy(fPoints, points, 4 * sizeof(SkPoint));
-        
-        SkCubicToCoeff(fPoints, fCoefs);
         
         this->restart(1);
     }
@@ -66,18 +47,16 @@ public:
      */
     void restart(int divisions)  {
         fDivisions = divisions;
-        SkScalar h  = 1.f / fDivisions;
         fCurrent    = 0;
         fMax        = fDivisions + 1;
-        fFwDiff[0]  = fCoefs[3];
-        SkScalar h2 = h * h;
-        SkScalar h3 = h2 * h;
-        
-        fFwDiff[3].set(6.f * fCoefs[0].x() * h3, 6.f * fCoefs[0].y() * h3); //6ah^3
-        fFwDiff[2].set(fFwDiff[3].x() + 2.f * fCoefs[1].x() * h2, //6ah^3 + 2bh^2
-                       fFwDiff[3].y() + 2.f * fCoefs[1].y() * h2);
-        fFwDiff[1].set(fCoefs[0].x() * h3 + fCoefs[1].x() * h2 + fCoefs[2].x() * h,//ah^3 + bh^2 +ch
-                       fCoefs[0].y() * h3 + fCoefs[1].y() * h2 + fCoefs[2].y() * h);
+        Sk2s h  = Sk2s(1.f / fDivisions);
+        Sk2s h2 = h * h;
+        Sk2s h3 = h2 * h;
+        Sk2s fwDiff3 = Sk2s(6) * fCoefs.fA * h3;
+        fFwDiff[3] = to_point(fwDiff3);
+        fFwDiff[2] = to_point(fwDiff3 + times_2(fCoefs.fB) * h2);
+        fFwDiff[1] = to_point(fCoefs.fA * h3 + fCoefs.fB * h2 + fCoefs.fC * h);
+        fFwDiff[0] = to_point(fCoefs.fD);
     }
     
     /**
@@ -104,8 +83,9 @@ public:
     }
     
 private:
+    SkCubicCoeff fCoefs;
     int fMax, fCurrent, fDivisions;
-    SkPoint fFwDiff[4], fCoefs[4], fPoints[4];
+    SkPoint fFwDiff[4], fPoints[4];
 };
 
 ////////////////////////////////////////////////////////////////////////////////

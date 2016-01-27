@@ -218,8 +218,7 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
                      SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
     SkASSERT(level <= kMaxQuadSubdivideLevel);
 
-    SkPoint coeff[3];
-    SkQuadToCoeff(pts, coeff);
+    SkQuadCoeff coeff(pts);
 
     const int lines = 1 << level;
     Sk2s t(0);
@@ -229,9 +228,9 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
     SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
 
     tmp[0] = pts[0];
-    Sk2s A = Sk2s::Load(&coeff[0].fX);
-    Sk2s B = Sk2s::Load(&coeff[1].fX);
-    Sk2s C = Sk2s::Load(&coeff[2].fX);
+    Sk2s A = coeff.fA;
+    Sk2s B = coeff.fB;
+    Sk2s C = coeff.fC;
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
         ((A * t + B) * t + C).store(&tmp[i].fX);
@@ -296,8 +295,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
         return;
     }
 
-    SkPoint coeff[4];
-    SkCubicToCoeff(pts, coeff);
+    SkCubicCoeff coeff(pts);
 
     const Sk2s dt(SK_Scalar1 / lines);
     Sk2s t(0);
@@ -306,10 +304,10 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     SkASSERT((unsigned)lines < SK_ARRAY_COUNT(tmp));
 
     tmp[0] = pts[0];
-    Sk2s A = Sk2s::Load(&coeff[0].fX);
-    Sk2s B = Sk2s::Load(&coeff[1].fX);
-    Sk2s C = Sk2s::Load(&coeff[2].fX);
-    Sk2s D = Sk2s::Load(&coeff[3].fX);
+    Sk2s A = coeff.fA;
+    Sk2s B = coeff.fB;
+    Sk2s C = coeff.fC;
+    Sk2s D = coeff.fD;
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
         (((A * t + B) * t + C) * t + D).store(&tmp[i].fX);
