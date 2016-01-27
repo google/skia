@@ -405,7 +405,7 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     }
 
     void* dstRow = dst;
-    uint8_t srcRow[width * 3];
+    SkAutoTMalloc<uint8_t> srcRow(width * 3);
 
     dng_pixel_buffer buffer;
     buffer.fData = &srcRow[0];
