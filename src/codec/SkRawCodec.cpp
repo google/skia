@@ -42,8 +42,8 @@ namespace {
 dng_point num_tiles_in_area(const dng_point &areaSize,
                             const dng_point_real64 &tileSize) {
   // FIXME: Add a ceil_div() helper in SkCodecPriv.h
-  return dng_point((areaSize.v + tileSize.v - 1) / tileSize.v,
-                   (areaSize.h + tileSize.h - 1) / tileSize.h);
+  return dng_point(static_cast<int32>((areaSize.v + tileSize.v - 1) / tileSize.v),
+                   static_cast<int32>((areaSize.h + tileSize.h - 1) / tileSize.h));
 }
 
 int num_tasks_required(const dng_point& tilesInTask,
@@ -92,7 +92,7 @@ std::vector<dng_rect> compute_task_areas(const int maxTasks, const dng_rect& are
 
 class SkDngHost : public dng_host {
 public:
-    using dng_host::dng_host;
+    explicit SkDngHost(dng_memory_allocator* allocater) : dng_host(allocater) {}
 
     void PerformAreaTask(dng_area_task& task, const dng_rect& area) override {
         // The area task gets split up into max_tasks sub-tasks. The max_tasks is defined by the
@@ -105,7 +105,7 @@ public:
         // tileSize is typically 256x256
         const dng_point tileSize(task.FindTileSize(area));
         const std::vector<dng_rect> taskAreas = compute_task_areas(maxTasks, area, tileSize);
-        const int numTasks = taskAreas.size();
+        const int numTasks = static_cast<int>(taskAreas.size());
 
         task.Start(numTasks, tileSize, &Allocator(), Sniffer());
         for (int taskIndex = 0; taskIndex < numTasks; ++taskIndex) {
