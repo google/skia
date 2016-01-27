@@ -22,7 +22,7 @@ deps = {
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
 
   "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@671e9caebb6a6d5580ae9bd7676c09501715b6f8",
-  "third_party/externals/piex"    : "https://android.googlesource.com/platform/external/piex.git@afc6ebdcba72e4eeeaafab1547c19025fcec5d1f",
+  "third_party/externals/piex"    : "https://android.googlesource.com/platform/external/piex.git@a9540117cdd785b0dd75f8c4c28b278f86eb485c",
 
   "third_party/externals/libjpeg-turbo"             : "https://skia.googlesource.com/third_party/libjpeg-turbo.git@36422d9e165a33914436068536772cc6ed1e7886",
   # libjpeg-turbo depends on yasm to compile .asm files
