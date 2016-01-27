@@ -8,7 +8,6 @@
 #ifndef SkJSONRenderer_DEFINED
 #define SkJSONRenderer_DEFINED
 
-
 #include "SkCanvas.h"
 
 namespace SkJSONRenderer {

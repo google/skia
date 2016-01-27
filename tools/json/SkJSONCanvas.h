@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include "SkStream.h"
+#include "SkJSONCPP.h"
 
 #define SKJSONCANVAS_VERSION                     "version"
 #define SKJSONCANVAS_COMMANDS                    "commands"
@@ -58,6 +59,7 @@
 #define SKJSONCANVAS_ATTRIBUTE_STYLE             "style"
 #define SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH       "strokeWidth"
 #define SKJSONCANVAS_ATTRIBUTE_ANTIALIAS         "antiAlias"
+#define SKJSONCANVAS_ATTRIBUTE_REGION            "region"
 #define SKJSONCANVAS_ATTRIBUTE_REGIONOP          "op"
 #define SKJSONCANVAS_ATTRIBUTE_EDGESTYLE         "edgeStyle"
 #define SKJSONCANVAS_ATTRIBUTE_DEVICEREGION      "deviceRegion"
@@ -175,41 +177,34 @@ public:
     void willRestore() override;
 
 private:
-    void writef(const char* fmt, ...);
+    Json::Value makePoint(const SkPoint& point);
 
-    void open(const char* name);
+    Json::Value makePoint(SkScalar x, SkScalar y);
 
-    void close();
+    Json::Value makeRect(const SkRect& rect);
 
-    void writeString(const char* name, const char* text);
+    Json::Value makeRRect(const SkRRect& rrect);
 
-    void writeString(const char* name, const void* text, size_t length);
+    Json::Value makePath(const SkPath& path);
 
-    void writePoint(const char* name, const SkPoint& point);
-
-    void writeRect(const char* name, const SkRect& rect);
-
-    void writeRRect(const char* name, const SkRRect& rrect);
-
-    void writePath(const char* name, const SkPath& path);
-
-    void writeRegion(const char* name, const SkRegion& region);
+    Json::Value makeRegion(const SkRegion& region);
   
-    void writePaint(const SkPaint& paint);
+    Json::Value makePaint(const SkPaint& paint);
   
-    void writeRegionOp(const char* name, SkRegion::Op op);
+    Json::Value makeRegionOp(SkRegion::Op op);
   
-    void writeEdgeStyle(const char* name, SkCanvas::ClipEdgeStyle edgeStyle);
+    Json::Value makeEdgeStyle(SkCanvas::ClipEdgeStyle edgeStyle);
   
-    void writePointMode(const char* name, SkCanvas::PointMode mode);
+    Json::Value makePointMode(SkCanvas::PointMode mode);
   
-    void writeMatrix(const char* name, const SkMatrix& matrix);
+    Json::Value makeMatrix(const SkMatrix& matrix);
   
     void updateMatrix();
 
-    SkWStream& fOut;
-    SkMatrix   fLastMatrix;
-    bool       fFirstCommand;
+    SkWStream&  fOut;
+    SkMatrix    fLastMatrix;
+    Json::Value fRoot;
+    Json::Value fCommands;
 
     typedef SkCanvas INHERITED;
 };
