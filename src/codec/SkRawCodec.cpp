@@ -243,7 +243,7 @@ public:
             ThrowReadFile();
         }
 
-        if (!fStreamBuffer.read(data, offset, count)) {
+        if (!fStreamBuffer.read(data, static_cast<size_t>(offset), count)) {
             ThrowReadFile();
         }
     }
@@ -396,9 +396,10 @@ private:
             fNegative->PostParse(*fHost, *fDngStream, *fInfo);
             fNegative->SynchronizeMetadata();
 
-            fImageInfo = SkImageInfo::Make(fNegative->DefaultCropSizeH().As_real64(),
-                                           fNegative->DefaultCropSizeV().As_real64(),
-                                           kN32_SkColorType, kOpaque_SkAlphaType);
+            fImageInfo = SkImageInfo::Make(
+                static_cast<int>(fNegative->DefaultCropSizeH().As_real64()),
+                static_cast<int>(fNegative->DefaultCropSizeV().As_real64()),
+                kN32_SkColorType, kOpaque_SkAlphaType);
 
             // The DNG SDK scales only for at demosaicing, so only when a mosaic info
             // is available also scale is available.
@@ -533,7 +534,7 @@ SkISize SkRawCodec::onGetScaledDimensions(float desiredScale) const {
     }
 
     // Limits the minimum size to be 80 on the short edge.
-    const float shortEdge = SkTMin(dim.fWidth, dim.fHeight);
+    const float shortEdge = static_cast<float>(SkTMin(dim.fWidth, dim.fHeight));
     if (desiredScale < 80.f / shortEdge) {
         desiredScale = 80.f / shortEdge;
     }
@@ -546,14 +547,14 @@ SkISize SkRawCodec::onGetScaledDimensions(float desiredScale) const {
 
     // Round to integer-factors.
     const float finalScale = std::floor(1.f/ desiredScale);
-    return SkISize::Make(std::floor(dim.fWidth / finalScale),
-                         std::floor(dim.fHeight / finalScale));
+    return SkISize::Make(static_cast<int32_t>(std::floor(dim.fWidth / finalScale)),
+                         static_cast<int32_t>(std::floor(dim.fHeight / finalScale)));
 }
 
 bool SkRawCodec::onDimensionsSupported(const SkISize& dim) {
     const SkISize fullDim = this->getInfo().dimensions();
-    const float fullShortEdge = SkTMin(fullDim.fWidth, fullDim.fHeight);
-    const float shortEdge = SkTMin(dim.fWidth, dim.fHeight);
+    const float fullShortEdge = static_cast<float>(SkTMin(fullDim.fWidth, fullDim.fHeight));
+    const float shortEdge = static_cast<float>(SkTMin(dim.fWidth, dim.fHeight));
 
     SkISize sizeFloor = this->onGetScaledDimensions(1.f / std::floor(fullShortEdge / shortEdge));
     SkISize sizeCeil = this->onGetScaledDimensions(1.f / std::ceil(fullShortEdge / shortEdge));

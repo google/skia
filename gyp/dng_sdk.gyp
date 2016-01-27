@@ -29,6 +29,7 @@
   'msvs_settings': {
     'VCCLCompilerTool': {
       'WarningLevel': '0',
+      'AdditionalOptions': ['/wd4189', ],
     },
   },
   'xcode_settings': {

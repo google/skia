@@ -67,8 +67,8 @@
         'TURBO_HAS_SKIP',
       ],
       'conditions': [
-        # FIXME: fix the support for Windows. (Issue with _hypot in DNG SDK).
-        ['skia_codec_decodes_raw and skia_os != "win" and skia_os != "chromeos"', {
+        # FIXME: fix the support for ChromeOS [DNG SDK issue with clock_gettime()].
+        ['skia_codec_decodes_raw and skia_os != "chromeos"', {
           'dependencies': [
             'raw_codec',
           ],
@@ -89,6 +89,13 @@
       'cflags':[
         '-fexceptions',
       ],
+      'msvs_settings': {
+        'VCCLCompilerTool': {
+          # Need this because we are handling exception in SkRawCodec, which will trigger warning
+          # C4530. Add this flag as suggested by the compiler.
+          'AdditionalOptions': ['/EHsc', ],
+        },
+      },
       'include_dirs': [
         '../include/codec',
         '../include/private',
