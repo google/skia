@@ -15,9 +15,13 @@
       'sources': [ 
         '<!@(python find.py ../tools/skiaserve "*.cpp")',
       ],
+      'include_dirs': [
+        '../tools/json',
+      ],
       'dependencies': [
         'flags.gyp:flags',
         'gputest.gyp:skgputest',
+        'json.gyp:json',
         'jsoncpp.gyp:jsoncpp',
         'microhttpd.gyp:microhttpd',
         'skia_lib.gyp:skia_lib',
