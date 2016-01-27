@@ -40,8 +40,6 @@ private:
 
     SkColor fOpColor;
 
-    SkValue asValue() const override;
-
     typedef SkXfermode INHERITED;
 };
 

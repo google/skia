@@ -61,7 +61,6 @@
     '<(skia_src_path)/effects/SkTableMaskFilter.cpp',
     '<(skia_src_path)/effects/SkTestImageFilters.cpp',
     '<(skia_src_path)/effects/SkTileImageFilter.cpp',
-    '<(skia_src_path)/effects/SkToFromValue.cpp',
     '<(skia_src_path)/effects/SkXfermodeImageFilter.cpp',
 
     '<(skia_src_path)/effects/gradients/SkClampRange.cpp',

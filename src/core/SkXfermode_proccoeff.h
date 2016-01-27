@@ -67,8 +67,6 @@ private:
 
     friend class SkXfermode;
 
-    SkValue asValue() const override;
-
     typedef SkXfermode INHERITED;
 };
 

@@ -10,8 +10,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
-#include "SkValue.h"
-#include "SkValueKeys.h"
 
 // we always return an opaque color, 'cause I don't know what to do with
 // the alpha-component and still return a valid premultiplied color.
@@ -66,8 +64,8 @@ static void add_pixelxor_code(GrGLSLFragmentBuilder* fragBuilder,
     SkString xorFuncName;
 
     // The xor function checks if the three passed in floats (f1, f2, f3) would
-    // have a bit in the log2(fPowerOf2Divisor)-th position if they were 
-    // represented by an int. It then performs an xor of the 3 bits (using 
+    // have a bit in the log2(fPowerOf2Divisor)-th position if they were
+    // represented by an int. It then performs an xor of the 3 bits (using
     // the property that serial xors can be treated as a sum of 0s & 1s mod 2).
     fragBuilder->emitFunction(kFloat_GrSLType,
                               "xor",
@@ -298,7 +296,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrXferProcessor& processor) override {
         const PixelXorXP& pixelXor = processor.cast<PixelXorXP>();
-        pdman.set3f(fOpColorUni, 
+        pdman.set3f(fOpColorUni,
                     SkColorGetR(pixelXor.opColor())/255.0f,
                     SkColorGetG(pixelXor.opColor())/255.0f,
                     SkColorGetB(pixelXor.opColor())/255.0f);
@@ -388,10 +386,3 @@ bool SkPixelXorXfermode::asXPFactory(GrXPFactory** xpf) const {
 }
 
 #endif
-
-SkValue SkPixelXorXfermode::asValue() const {
-    auto value = SkValue::Object(SkValue::PixelXorXfermode);
-    value.set(SkValueKeys::PixelXorXfermode::kOpColor,
-              SkValue::FromU32(SkToU32(fOpColor)));
-    return value;
-}

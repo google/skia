@@ -17,7 +17,6 @@ class GrFragmentProcessor;
 class GrTexture;
 class GrXPFactory;
 class SkString;
-class SkValue;
 
 /** \class SkXfermode
  *
@@ -246,9 +245,6 @@ private:
     enum {
         kModeCount = kLastMode + 1
     };
-
-    template<typename T> friend SkValue SkToValue(const T*);
-    virtual SkValue asValue() const;
 
     typedef SkFlattenable INHERITED;
 };
