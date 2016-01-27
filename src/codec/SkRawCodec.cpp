@@ -17,9 +17,11 @@
 #include "SkStream.h"
 #include "SkStreamPriv.h"
 #include "SkSwizzler.h"
+#include "SkTaskGroup.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
+#include "dng_area_task.h"
 #include "dng_color_space.h"
 #include "dng_exceptions.h"
 #include "dng_host.h"
@@ -34,6 +36,96 @@
 #include <limits>
 
 namespace {
+
+// Caluclates the number of tiles of tile_size that fit into the area in vertical and horizontal
+// directions.
+dng_point num_tiles_in_area(const dng_point &areaSize,
+                            const dng_point_real64 &tileSize) {
+  // FIXME: Add a ceil_div() helper in SkCodecPriv.h
+  return dng_point((areaSize.v + tileSize.v - 1) / tileSize.v,
+                   (areaSize.h + tileSize.h - 1) / tileSize.h);
+}
+
+int num_tasks_required(const dng_point& tilesInTask,
+                         const dng_point& tilesInArea) {
+  return ((tilesInArea.v + tilesInTask.v - 1) / tilesInTask.v) *
+         ((tilesInArea.h + tilesInTask.h - 1) / tilesInTask.h);
+}
+
+// Calculate the number of tiles to process per task, taking into account the maximum number of
+// tasks. It prefers to increase horizontally for better locality of reference.
+dng_point num_tiles_per_task(const int maxTasks,
+                             const dng_point &tilesInArea) {
+  dng_point tilesInTask = {1, 1};
+  while (num_tasks_required(tilesInTask, tilesInArea) > maxTasks) {
+      if (tilesInTask.h < tilesInArea.h) {
+          ++tilesInTask.h;
+      } else if (tilesInTask.v < tilesInArea.v) {
+          ++tilesInTask.v;
+      } else {
+          ThrowProgramError("num_tiles_per_task calculation is wrong.");
+      }
+  }
+  return tilesInTask;
+}
+
+std::vector<dng_rect> compute_task_areas(const int maxTasks, const dng_rect& area,
+                                         const dng_point& tileSize) {
+  std::vector<dng_rect> taskAreas;
+  const dng_point tilesInArea = num_tiles_in_area(area.Size(), tileSize);
+  const dng_point tilesPerTask = num_tiles_per_task(maxTasks, tilesInArea);
+  const dng_point taskAreaSize = {tilesPerTask.v * tileSize.v,
+                                    tilesPerTask.h * tileSize.h};
+  for (int v = 0; v < tilesInArea.v; v += tilesPerTask.v) {
+    for (int h = 0; h < tilesInArea.h; h += tilesPerTask.h) {
+      dng_rect taskArea;
+      taskArea.t = area.t + v * tileSize.v;
+      taskArea.l = area.l + h * tileSize.h;
+      taskArea.b = Min_int32(taskArea.t + taskAreaSize.v, area.b);
+      taskArea.r = Min_int32(taskArea.l + taskAreaSize.h, area.r);
+
+      taskAreas.push_back(taskArea);
+    }
+  }
+  return taskAreas;
+}
+
+class SkDngHost : public dng_host {
+public:
+    using dng_host::dng_host;
+
+    void PerformAreaTask(dng_area_task& task, const dng_rect& area) override {
+        // The area task gets split up into max_tasks sub-tasks. The max_tasks is defined by the
+        // dng-sdks default implementation of dng_area_task::MaxThreads() which returns 8 or 32
+        // sub-tasks depending on the architecture.
+        const int maxTasks = static_cast<int>(task.MaxThreads());
+
+        SkTaskGroup taskGroup;
+
+        // tileSize is typically 256x256
+        const dng_point tileSize(task.FindTileSize(area));
+        const std::vector<dng_rect> taskAreas = compute_task_areas(maxTasks, area, tileSize);
+        const int numTasks = taskAreas.size();
+
+        task.Start(numTasks, tileSize, &Allocator(), Sniffer());
+        for (int taskIndex = 0; taskIndex < numTasks; ++taskIndex) {
+            taskGroup.add([&task, this, taskIndex, taskAreas, tileSize] {
+                task.ProcessOnThread(taskIndex, taskAreas[taskIndex], tileSize, this->Sniffer());
+            });
+        }
+
+        taskGroup.wait();
+        task.Finish(numTasks);
+    }
+
+    uint32 PerformAreaTaskThreads() override {
+        // FIXME: Need to get the real amount of available threads used in the SkTaskGroup.
+        return kMaxMPThreads;
+    }
+
+private:
+    typedef dng_host INHERITED;
+};
 
 // T must be unsigned type.
 template <class T>
@@ -288,7 +380,7 @@ public:
 private:
     bool readDng() {
         // Due to the limit of DNG SDK, we need to reset host and info.
-        fHost.reset(new dng_host(&fAllocator));
+        fHost.reset(new SkDngHost(&fAllocator));
         fInfo.reset(new dng_info);
         fDngStream.reset(new SkDngStream(fStream));
         try {
