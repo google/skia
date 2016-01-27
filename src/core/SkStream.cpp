@@ -890,12 +890,9 @@ SkData* SkCopyStreamToData(SkStream* stream) {
     }
 
     SkDynamicMemoryWStream tempStream;
-    const size_t bufferSize = 4096;
-    char buffer[bufferSize];
-    do {
-        size_t bytesRead = stream->read(buffer, bufferSize);
-        tempStream.write(buffer, bytesRead);
-    } while (!stream->isAtEnd());
+    if (!SkStreamCopy(&tempStream, stream)) {
+        return nullptr;
+    }
     return tempStream.copyToData();
 }
 
