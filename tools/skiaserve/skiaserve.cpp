@@ -163,12 +163,14 @@ static int SendTemplate(MHD_Connection* connection, bool redirect = false,
         (void*) const_cast<char*>(debuggerTemplate.c_str()),
         MHD_RESPMEM_MUST_COPY);
 
+    int status = MHD_HTTP_OK;
+
     if (redirect) {
         MHD_add_response_header (response, "Location", redirectUrl);
+        status = MHD_HTTP_SEE_OTHER;
     }
 
-
-    int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+    int ret = MHD_queue_response(connection, status, response);
     MHD_destroy_response(response);
     return ret;
 }
