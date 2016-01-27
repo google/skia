@@ -14,7 +14,6 @@
 #include "CodecBench.h"
 #include "CodecBenchPriv.h"
 #include "CrashHandler.h"
-#include "DecodingBench.h"
 #include "GMBench.h"
 #include "ProcStats.h"
 #include "ResultsWriter.h"
@@ -561,7 +560,6 @@ public:
                       , fCurrentSKP(0)
                       , fCurrentUseMPD(0)
                       , fCurrentCodec(0)
-                      , fCurrentImage(0)
                       , fCurrentBRDImage(0)
                       , fCurrentColorType(0)
                       , fCurrentAlphaType(0)
@@ -812,29 +810,6 @@ public:
             fCurrentColorType = 0;
         }
 
-        // Run the DecodingBenches
-        for (; fCurrentImage < fImages.count(); fCurrentImage++) {
-            fSourceType = "image";
-            fBenchType = "skimagedecoder";
-            const SkString& path = fImages[fCurrentImage];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
-                continue;
-            }
-            while (fCurrentColorType < fColorTypes.count()) {
-                SkColorType colorType = fColorTypes[fCurrentColorType];
-                fCurrentColorType++;
-                // Check if the image decodes to the right color type
-                // before creating the benchmark
-                SkBitmap bitmap;
-                if (SkImageDecoder::DecodeFile(path.c_str(), &bitmap,
-                        colorType, SkImageDecoder::kDecodePixels_Mode)
-                        && bitmap.colorType() == colorType) {
-                    return new DecodingBench(path, colorType);
-                }
-            }
-            fCurrentColorType = 0;
-        }
-
         // Run the BRDBenches
         // We will benchmark multiple BRD strategies.
         static const struct {
@@ -993,7 +968,6 @@ private:
     int fCurrentSKP;
     int fCurrentUseMPD;
     int fCurrentCodec;
-    int fCurrentImage;
     int fCurrentBRDImage;
     int fCurrentColorType;
     int fCurrentAlphaType;

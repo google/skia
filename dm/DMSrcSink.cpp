@@ -733,56 +733,6 @@ Name AndroidCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ImageSrc::ImageSrc(Path path) : fPath(path) {}
-
-bool ImageSrc::veto(SinkFlags flags) const {
-    // No need to test decoding to non-raster or indirect backend.
-    // TODO: Instead, use lazy decoding to allow the GPU to handle cases like YUV.
-    return flags.type != SinkFlags::kRaster
-        || flags.approach != SinkFlags::kDirect;
-}
-
-Error ImageSrc::draw(SkCanvas* canvas) const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    if (!encoded) {
-        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
-    }
-    const SkColorType dstColorType = canvas->imageInfo().colorType();
-
-    // Decode the full image.
-    SkBitmap bitmap;
-    if (!SkImageDecoder::DecodeMemory(encoded->data(), encoded->size(), &bitmap,
-                                      dstColorType, SkImageDecoder::kDecodePixels_Mode)) {
-        return SkStringPrintf("Couldn't decode %s.", fPath.c_str());
-    }
-    if (kRGB_565_SkColorType == dstColorType && !bitmap.isOpaque()) {
-        // Do not draw a bitmap with alpha to a destination without alpha.
-        return Error::Nonfatal("Uninteresting to decode image with alpha into 565.");
-    }
-    encoded.reset((SkData*)nullptr);  // Might as well drop this when we're done with it.
-    canvas->drawBitmap(bitmap, 0,0);
-    return "";
-}
-
-SkISize ImageSrc::size() const {
-    SkAutoTUnref<SkData> encoded(SkData::NewFromFileName(fPath.c_str()));
-    SkBitmap bitmap;
-    if (!encoded || !SkImageDecoder::DecodeMemory(encoded->data(),
-                                                  encoded->size(),
-                                                  &bitmap,
-                                                  kUnknown_SkColorType,
-                                                  SkImageDecoder::kDecodeBounds_Mode)) {
-        return SkISize::Make(0,0);
-    }
-    return bitmap.dimensions();
-}
-
-Name ImageSrc::name() const {
-    return SkOSPath::Basename(fPath.c_str());
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 static const SkRect kSKPViewport = {0,0, 1000,1000};
 
 SKPSrc::SKPSrc(Path path) : fPath(path) {}

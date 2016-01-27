@@ -180,18 +180,6 @@ private:
     uint32_t                                 fSampleSize;
 };
 
-class ImageSrc : public Src {
-public:
-    explicit ImageSrc(Path path);
-
-    Error draw(SkCanvas*) const override;
-    SkISize size() const override;
-    Name name() const override;
-    bool veto(SinkFlags) const override;
-private:
-    Path fPath;
-};
-
 class SKPSrc : public Src {
 public:
     explicit SKPSrc(Path path);

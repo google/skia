@@ -93,57 +93,6 @@ def get_args(bot):
 
   blacklist = []
 
-  # Several of the newest version bmps fail on SkImageDecoder
-  blacklist.extend('_ image decode pal8os2v2.bmp'.split(' '))
-  blacklist.extend('_ image decode pal8v4.bmp'.split(' '))
-  blacklist.extend('_ image decode pal8v5.bmp'.split(' '))
-  blacklist.extend('_ image decode rgb16-565.bmp'.split(' '))
-  blacklist.extend('_ image decode rgb16-565pal.bmp'.split(' '))
-  blacklist.extend('_ image decode rgb32-111110.bmp'.split(' '))
-  blacklist.extend('_ image decode rgb32bf.bmp'.split(' '))
-  blacklist.extend('_ image decode rgba32.bmp'.split(' '))
-  blacklist.extend('_ image decode rgba32abf.bmp'.split(' '))
-  blacklist.extend('_ image decode rgb24largepal.bmp'.split(' '))
-  blacklist.extend('_ image decode pal8os2v2-16.bmp'.split(' '))
-  blacklist.extend('_ image decode pal8oversizepal.bmp'.split(' '))
-  blacklist.extend('_ image decode pal4rletrns.bmp'.split(' '))
-  blacklist.extend('_ image decode pal8rletrns.bmp'.split(' '))
-  blacklist.extend('_ image decode 4bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image decode 8bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image decode 24bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image decode 32bpp-pixeldata-cropped.bmp'.split(' '))
-  blacklist.extend('_ image decode testcase7.bmp'.split(' '))
-
-  # New ico files that fail on SkImageDecoder
-  blacklist.extend('_ image decode Hopstarter-Mac-Folders-Apple.ico'.split(' '))
-
-  # Gif test image uses uninitialized memory on Mac bots
-  if 'Mac' in bot:
-    blacklist.extend('_ image decode frame_larger_than_image.gif'.split(' '))
-
-  # Incomplete image tests that fail on SkImageDecoder
-  blacklist.extend('_ image decode inc0.gif'.split(' '))
-  blacklist.extend('_ image decode inc1.gif'.split(' '))
-  blacklist.extend('_ image decode incInterlaced.gif'.split(' '))
-  blacklist.extend('_ image decode inc0.jpg'.split(' '))
-  blacklist.extend('_ image decode incGray.jpg'.split(' '))
-  blacklist.extend('_ image decode inc0.wbmp'.split(' '))
-  blacklist.extend('_ image decode inc1.wbmp'.split(' '))
-  blacklist.extend('_ image decode inc0.webp'.split(' '))
-  blacklist.extend('_ image decode inc1.webp'.split(' '))
-  blacklist.extend('_ image decode inc0.ico'.split(' '))
-  blacklist.extend('_ image decode inc1.ico'.split(' '))
-  blacklist.extend('_ image decode inc0.png'.split(' '))
-  blacklist.extend('_ image decode inc1.png'.split(' '))
-  blacklist.extend('_ image decode inc2.png'.split(' '))
-  blacklist.extend('_ image decode inc12.png'.split(' '))
-  blacklist.extend('_ image decode inc13.png'.split(' '))
-  blacklist.extend('_ image decode inc14.png'.split(' '))
-
-  # Leon doesn't care about this, so why run it?
-  if 'Win' in bot:
-    blacklist.extend('_ image decode _'.split(' '))
-
   # Certain gm's on win7 gpu and pdf are never finishing and keeping the test
   # running forever
   if 'Win7' in bot:
@@ -160,7 +109,6 @@ def get_args(bot):
 
   if 'iOS' in bot:
     blacklist.extend('gpu skp _ _ msaa skp _ _'.split(' '))
-    blacklist.extend('gpu image decode _ msaa image decode _'.split(' '))
     blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
 
   # the 32-bit GCE bots run out of memory in DM when running these large images
