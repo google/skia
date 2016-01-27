@@ -66,6 +66,7 @@ int fuzz_api(SkData* bytes) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
             Fuzz fuzz(bytes);
             fuzzable.fn(&fuzz);
+            SkDebugf("Success!");
             return 0;
         }
     }
@@ -153,7 +154,7 @@ int fuzz_skp(SkData* bytes) {
     }
     SkCanvas canvas(bitmap);
     canvas.drawPicture(pic);
-    SkDebugf("Decoded and rendered an SkPicture!\n");
+    SkDebugf("Success! Decoded and rendered an SkPicture!\n");
     dump_png(bitmap);
     return 0;
 }
