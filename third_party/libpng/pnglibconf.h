@@ -211,6 +211,9 @@
 /* custom settings */
 #define PNG_ARM_NEON_API_SUPPORTED
 #define PNG_ARM_NEON_CHECK_SUPPORTED
+#if defined(__SSE2__)
+    #define PNG_FILTER_OPTIMIZATIONS sk_png_init_filter_functions_sse2
+#endif
 /* end of custom settings */
 
 #endif /* PNGLCONF_H */

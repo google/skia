@@ -11,10 +11,28 @@
 #include "SkBitmap.h"
 #include "SkMath.h"
 #include "SkPngCodec.h"
+#include "SkPngFilters.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
+
+#if defined(__SSE2__)
+    #include "pngstruct.h"
+
+    extern "C" void sk_png_init_filter_functions_sse2(png_structp png, unsigned int bpp) {
+        if (bpp == 3) {
+            png->read_filter[PNG_FILTER_VALUE_SUB  -1] =   sk_sub3_sse2;
+            png->read_filter[PNG_FILTER_VALUE_AVG  -1] =   sk_avg3_sse2;
+            png->read_filter[PNG_FILTER_VALUE_PAETH-1] = sk_paeth3_sse2;
+        }
+        if (bpp == 4) {
+            png->read_filter[PNG_FILTER_VALUE_SUB  -1] =   sk_sub4_sse2;
+            png->read_filter[PNG_FILTER_VALUE_AVG  -1] =   sk_avg4_sse2;
+            png->read_filter[PNG_FILTER_VALUE_PAETH-1] = sk_paeth4_sse2;
+        }
+    }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper macros
@@ -331,8 +349,8 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
             }
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            //FIXME: support gray with alpha as a color type 
-            //convert to RGBA 
+            //FIXME: support gray with alpha as a color type
+            //convert to RGBA
             png_set_gray_to_rgb(png_ptr);
             skColorType = kN32_SkColorType;
             skAlphaType = kUnpremul_SkAlphaType;
@@ -406,7 +424,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
         SkCodecPrintf("setjmp long jump!\n");
         return kInvalidInput;
     }
-    png_read_update_info(fPng_ptr, fInfo_ptr);  
+    png_read_update_info(fPng_ptr, fInfo_ptr);
 
     //srcColorType was determined in read_header() which determined png color type
     const SkColorType srcColorType = this->getInfo().colorType();
@@ -422,7 +440,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
             break;
         case kGray_8_SkColorType:
             fSrcConfig = SkSwizzler::kGray;
-            break; 
+            break;
         case kN32_SkColorType:
             if (this->getInfo().alphaType() == kOpaque_SkAlphaType) {
                     fSrcConfig = SkSwizzler::kRGB;
@@ -433,7 +451,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
         default:
             //would have exited before now if the colorType was supported by png
             SkASSERT(false);
-    }  
+    }
 
     // Copy the color table to the client if they request kIndex8 mode
     copy_color_table(requestedInfo, fColorTable, ctable, ctableCount);
@@ -624,8 +642,8 @@ public:
             SkCodecPrintf("setjmp long jump!\n");
             return false;
         }
-        //there is a potential tradeoff of memory vs speed created by putting this in a loop. 
-        //calling png_read_rows in a loop is insignificantly slower than calling it once with count 
+        //there is a potential tradeoff of memory vs speed created by putting this in a loop.
+        //calling png_read_rows in a loop is insignificantly slower than calling it once with count
         //as png_read_rows has it's own loop which calls png_read_row count times.
         for (int row = 0; row < count; row++) {
             png_read_rows(this->png_ptr(), &fSrcRow, png_bytepp_NULL, 1);
@@ -656,7 +674,7 @@ public:
     Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
             SkPMColor ctable[], int* ctableCount) override {
         if (!conversion_possible(dstInfo, this->getInfo())) {
-            return kInvalidConversion;    
+            return kInvalidConversion;
         }
 
         const Result result = this->initializeSwizzler(dstInfo, options, ctable,
