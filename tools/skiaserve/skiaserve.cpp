@@ -246,7 +246,7 @@ public:
         fHandlers.push_back({MHD_HTTP_METHOD_GET, "/", rootHandler});
         fHandlers.push_back({MHD_HTTP_METHOD_POST, "/new", postHandler});
         fHandlers.push_back({MHD_HTTP_METHOD_GET, "/img", imgHandler});
-        //fHandlers.push_back({MHD_HTTP_METHOD_GET, "/cmd", infoHandler});
+        fHandlers.push_back({MHD_HTTP_METHOD_GET, "/cmd", infoHandler});
     }
 
     // This is clearly not efficient for a large number of urls and handlers
