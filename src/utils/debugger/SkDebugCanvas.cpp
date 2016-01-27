@@ -6,55 +6,11 @@
  */
 
 #include "SkClipStack.h"
-#include "SkColorPriv.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkDevice.h"
 #include "SkPaintFilterCanvas.h"
-#include "SkXfermode.h"
-
-namespace {
-
-class OverdrawXfermode : public SkXfermode {
-public:
-    SkPMColor xferColor(SkPMColor src, SkPMColor dst) const override {
-        // This table encodes the color progression of the overdraw visualization
-        static const SkPMColor gTable[] = {
-            SkPackARGB32(0x00, 0x00, 0x00, 0x00),
-            SkPackARGB32(0xFF, 128, 158, 255),
-            SkPackARGB32(0xFF, 170, 185, 212),
-            SkPackARGB32(0xFF, 213, 195, 170),
-            SkPackARGB32(0xFF, 255, 192, 127),
-            SkPackARGB32(0xFF, 255, 185, 85),
-            SkPackARGB32(0xFF, 255, 165, 42),
-            SkPackARGB32(0xFF, 255, 135, 0),
-            SkPackARGB32(0xFF, 255,  95, 0),
-            SkPackARGB32(0xFF, 255,  50, 0),
-            SkPackARGB32(0xFF, 255,  0, 0)
-        };
-
-
-        int idx;
-        if (SkColorGetR(dst) < 64) { // 0
-            idx = 0;
-        } else if (SkColorGetG(dst) < 25) { // 10
-            idx = 9;  // cap at 9 for upcoming increment
-        } else if ((SkColorGetB(dst)+21)/42 > 0) { // 1-6
-            idx = 7 - (SkColorGetB(dst)+21)/42;
-        } else { // 7-9
-            idx = 10 - (SkColorGetG(dst)+22)/45;
-        }
-        ++idx;
-        SkASSERT(idx < (int)SK_ARRAY_COUNT(gTable));
-
-        return gTable[idx];
-    }
-
-    Factory getFactory() const override { return nullptr; }
-#ifndef SK_IGNORE_TO_STRING
-    void toString(SkString* str) const override { str->set("OverdrawXfermode"); }
-#endif
-};
+#include "SkOverdrawMode.h"
 
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
@@ -64,7 +20,7 @@ public:
                            bool overrideFilterQuality,
                            SkFilterQuality quality)
         : INHERITED(width, height)
-        , fOverdrawXfermode(overdrawViz ? new OverdrawXfermode : nullptr)
+        , fOverdrawXfermode(overdrawViz ? SkOverdrawMode::Create() : nullptr)
         , fOverrideFilterQuality(overrideFilterQuality)
         , fFilterQuality(quality) {}
 
@@ -98,8 +54,6 @@ private:
 
     typedef SkPaintFilterCanvas INHERITED;
 };
-
-}
 
 SkDebugCanvas::SkDebugCanvas(int width, int height)
         : INHERITED(width, height)

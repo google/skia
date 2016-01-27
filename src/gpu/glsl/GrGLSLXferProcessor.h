@@ -75,7 +75,7 @@ protected:
                                           const char* outColor,
                                           const char* outColorSecondary,
                                           const GrXferProcessor& proc);
-    
+
 private:
     /**
      * Called by emitCode() when the XP will not be performing a dst read. This method is

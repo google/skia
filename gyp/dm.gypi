@@ -44,6 +44,8 @@
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkDrawCommand.cpp',
     '../src/utils/debugger/SkObjectParser.cpp',
+    '../src/utils/debugger/SkOverdrawMode.h',
+    '../src/utils/debugger/SkOverdrawMode.cpp',
   ],
   'conditions': [
     [ 'skia_gpu == 1', {

@@ -48,9 +48,9 @@ GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 39;
+static const int kFPFactoryCount = 40;
 static const int kGPFactoryCount = 14;
-static const int kXPFactoryCount = 6;
+static const int kXPFactoryCount = 7;
 
 template<>
 void GrProcessorTestFactory<GrFragmentProcessor>::VerifyFactoryCount() {
