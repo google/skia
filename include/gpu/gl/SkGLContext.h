@@ -85,6 +85,11 @@ public:
 
     class GLFenceSync;  // SkGpuFenceSync implementation that uses the OpenGL functionality.
 
+    /*
+     * returns the fencesync object owned by this SkGLContext
+     */
+    SkGpuFenceSync* fenceSync() { return fFenceSync.get(); }
+
 protected:
     SkGLContext();
 

@@ -14,10 +14,15 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTime.h"
+#include "SkTLList.h"
+#include "SkThreadUtils.h"
 #include "Stats.h"
 #include "Timer.h"
 #include "VisualSKPBench.h"
 #include "gl/GrGLDefines.h"
+#include "../private/SkMutex.h"
+#include "../private/SkSemaphore.h"
+#include "../private/SkGpuFenceSync.h"
 
 // posix only for now
 #include <unistd.h>
@@ -33,7 +38,6 @@
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 __SK_FORCE_IMAGE_DECODER_LINKING;
-
 
 static const int kAutoTuneLoops = 0;
 
@@ -68,6 +72,8 @@ DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
 DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
 DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
+DEFINE_bool(useBackgroundThread, true, "If false, kilobench will time cpu / gpu work together");
+DEFINE_bool(useMultiProcess, true, "If false, kilobench will run all tests in one process");
 
 static SkString humanize(double ms) {
     return HumanizeMs(ms);
@@ -146,25 +152,29 @@ private:
 
 struct GPUTarget {
     void setup() {
-        this->gl->makeCurrent();
+        fGL->makeCurrent();
         // Make sure we're done with whatever came before.
-        SK_GL(*this->gl, Finish());
+        SK_GL(*fGL, Finish());
     }
 
     SkCanvas* beginTiming(SkCanvas* canvas) { return canvas; }
 
-    void endTiming() {
-        if (this->gl) {
-            SK_GL(*this->gl, Flush());
-            this->gl->swapBuffers();
+    void endTiming(bool usePlatformSwapBuffers) {
+        if (fGL) {
+            SK_GL(*fGL, Flush());
+            if (usePlatformSwapBuffers) {
+                fGL->swapBuffers();
+            } else {
+                fGL->waitOnSyncOrSwap();
+            }
         }
     }
-    void fence() {
-        SK_GL(*this->gl, Finish());
+    void finish() {
+        SK_GL(*fGL, Finish());
     }
 
     bool needsFrameTiming(int* maxFrameLag) const {
-        if (!this->gl->getMaxGpuFrameLag(maxFrameLag)) {
+        if (!fGL->getMaxGpuFrameLag(maxFrameLag)) {
             // Frame lag is unknown.
             *maxFrameLag = FLAGS_gpuFrameLag;
         }
@@ -182,24 +192,24 @@ struct GPUTarget {
         uint32_t flags = useDfText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-        this->surface.reset(SkSurface::NewRenderTarget(context,
-                                                       SkSurface::kNo_Budgeted, info,
-                                                       numSamples, &props));
-        this->gl = factory->getContextInfo(ctxType, ctxOptions).fGLContext;
-        if (!this->surface.get()) {
+        fSurface.reset(SkSurface::NewRenderTarget(context,
+                                                  SkSurface::kNo_Budgeted, info,
+                                                  numSamples, &props));
+        fGL = factory->getContextInfo(ctxType, ctxOptions).fGLContext;
+        if (!fSurface.get()) {
             return false;
         }
 
         // Kilobench should only be used on platforms with fence sync support
-        SkASSERT(this->gl->fenceSyncSupport());
+        SkASSERT(fGL->fenceSyncSupport());
         return true;
     }
 
     SkCanvas* getCanvas() const {
-        if (!surface.get()) {
+        if (!fSurface.get()) {
             return nullptr;
         }
-        return surface->getCanvas();
+        return fSurface->getCanvas();
     }
 
     bool capturePixels(SkBitmap* bmp) {
@@ -215,10 +225,11 @@ struct GPUTarget {
         return true;
     }
 
+    SkGLContext* gl() { return fGL; }
+
 private:
-    //const Config config;
-    SkGLContext* gl;
-    SkAutoTDelete<SkSurface> surface;
+    SkGLContext* fGL;
+    SkAutoTDelete<SkSurface> fSurface;
 };
 
 static bool write_canvas_png(GPUTarget* target, const SkString& filename) {
@@ -276,24 +287,159 @@ static int clamp_loops(int loops) {
 }
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
-static double time(int loops, Benchmark* bench, GPUTarget* target) {
-    SkCanvas* canvas = target->getCanvas();
-    if (canvas) {
-        canvas->clear(SK_ColorWHITE);
+
+struct TimingThread {
+    TimingThread(SkGLContext* mainContext)
+        : fFenceSync(mainContext->fenceSync())
+        ,  fMainContext(mainContext)
+        ,  fDone(false) {}
+
+    static void Loop(void* data) {
+        TimingThread* timingThread = reinterpret_cast<TimingThread*>(data);
+        timingThread->timingLoop();
     }
+
+    // To ensure waiting for the sync actually does something, we check to make sure the we exceed
+    // some small value
+    const double kMinElapsed = 1e-6;
+    bool sanity(double start) const {
+        double elapsed = now_ms() - start;
+        return elapsed > kMinElapsed;
+    }
+
+    void waitFence(SkPlatformGpuFence sync) {
+        SkDEBUGCODE(double start = now_ms());
+        fFenceSync->waitFence(sync, false);
+        SkASSERT(sanity(start));
+    }
+
+    void timingLoop() {
+        // Create a context which shares display lists with the main thread
+        SkAutoTDelete<SkGLContext> glContext(SkCreatePlatformGLContext(kNone_GrGLStandard,
+                                                                       fMainContext));
+        glContext->makeCurrent();
+
+        // Basic timing methodology is:
+        // 1) Wait on semaphore until main thread indicates its time to start timing the frame
+        // 2) Wait on frame start sync, record time.  This is start of the frame.
+        // 3) Wait on semaphore until main thread indicates its time to finish timing the frame
+        // 4) Wait on frame end sync, record time.  FrameEndTime - FrameStartTime = frame time
+        // 5) Wait on semaphore until main thread indicates we should time the next frame or quit
+        while (true) {
+            fSemaphore.wait();
+
+            // get start sync
+            SkPlatformGpuFence startSync = this->popStartSync();
+
+            // wait on sync
+            this->waitFence(startSync);
+            double start = kilobench::now_ms();
+
+            // do we want to sleep here?
+            // wait for end sync
+            fSemaphore.wait();
+
+            // get end sync
+            SkPlatformGpuFence endSync = this->popEndSync();
+
+            // wait on sync
+            this->waitFence(endSync);
+            double elapsed = kilobench::now_ms() - start;
+
+            // No mutex needed, client won't touch timings until we're done
+            fTimings.push_back(elapsed);
+
+            // clean up fences
+            fFenceSync->deleteFence(startSync);
+            fFenceSync->deleteFence(endSync);
+
+            fSemaphore.wait();
+            if (this->isDone()) {
+                break;
+            }
+        }
+    }
+
+    void pushStartSync() { this->pushSync(&fFrameStartSyncs, &fFrameStartSyncsMutex); }
+
+    SkPlatformGpuFence popStartSync() {
+        return this->popSync(&fFrameStartSyncs, &fFrameStartSyncsMutex);
+    }
+
+    void pushEndSync() { this->pushSync(&fFrameEndSyncs, &fFrameEndSyncsMutex); }
+
+    SkPlatformGpuFence popEndSync() { return this->popSync(&fFrameEndSyncs, &fFrameEndSyncsMutex); }
+
+    void setDone() {
+        SkAutoMutexAcquire done(fDoneMutex);
+        fDone = true;
+        fSemaphore.signal();
+    }
+
+    typedef SkTLList<SkPlatformGpuFence, 1> SyncQueue;
+
+    void pushSync(SyncQueue* queue, SkMutex* mutex) {
+        SkAutoMutexAcquire am(mutex);
+        *queue->addToHead() = fFenceSync->insertFence();
+        fSemaphore.signal();
+    }
+
+    SkPlatformGpuFence popSync(SyncQueue* queue, SkMutex* mutex) {
+        SkAutoMutexAcquire am(mutex);
+        SkPlatformGpuFence sync = *queue->head();
+        queue->popHead();
+        return sync;
+    }
+
+    bool isDone() {
+        SkAutoMutexAcquire am1(fFrameStartSyncsMutex);
+        SkAutoMutexAcquire done(fDoneMutex);
+        if (fDone && fFrameStartSyncs.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    const SkTArray<double>& timings() const { SkASSERT(fDone); return fTimings; }
+
+private:
+    SkGpuFenceSync* fFenceSync;
+    SkSemaphore fSemaphore;
+    SkMutex fFrameStartSyncsMutex;
+    SyncQueue fFrameStartSyncs;
+    SkMutex fFrameEndSyncsMutex;
+    SyncQueue fFrameEndSyncs;
+    SkTArray<double> fTimings;
+    SkMutex fDoneMutex;
+    SkGLContext* fMainContext;
+    bool fDone;
+};
+
+static double time(int loops, Benchmark* bench, GPUTarget* target, TimingThread* timingThread) {
+    SkCanvas* canvas = target->getCanvas();
+    canvas->clear(SK_ColorWHITE);
     bench->preDraw(canvas);
+
+    if (timingThread) {
+        timingThread->pushStartSync();
+    }
     double start = now_ms();
     canvas = target->beginTiming(canvas);
     bench->draw(loops, canvas);
-    if (canvas) {
-        canvas->flush();
-    }
-    target->endTiming();
+    canvas->flush();
+    target->endTiming(timingThread ? true : false);
+
     double elapsed = now_ms() - start;
+    if (timingThread) {
+        timingThread->pushEndSync();
+        timingThread->setDone();
+    }
     bench->postDraw(canvas);
     return elapsed;
 }
 
+// TODO For now we don't use the background timing thread to tune loops
 static int setup_gpu_bench(GPUTarget* target, Benchmark* bench, int maxGpuFrameLag) {
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = bench->calculateLoops(FLAGS_loops);
@@ -310,7 +456,7 @@ static int setup_gpu_bench(GPUTarget* target, Benchmark* bench, int maxGpuFrameL
             // If the GPU lets frames lag at all, we need to make sure we're timing
             // _this_ round, not still timing last round.
             for (int i = 0; i < maxGpuFrameLag; i++) {
-                elapsed = time(loops, bench, target);
+                elapsed = time(loops, bench, target, nullptr);
             }
         } while (elapsed < FLAGS_gpuMs);
 
@@ -319,7 +465,7 @@ static int setup_gpu_bench(GPUTarget* target, Benchmark* bench, int maxGpuFrameL
         loops = clamp_loops(loops);
 
         // Make sure we're not still timing our calibration.
-        target->fence();
+        target->finish();
     } else {
         loops = detect_forever_loops(loops);
     }
@@ -327,7 +473,7 @@ static int setup_gpu_bench(GPUTarget* target, Benchmark* bench, int maxGpuFrameL
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
     for (int i = 0; i < maxGpuFrameLag - 1; i++) {
-        time(loops, bench, target);
+        time(loops, bench, target, nullptr);
     }
 
     return loops;
@@ -351,13 +497,14 @@ struct AutoSetupContextBenchAndTarget {
 
     int getLoops() { return setup_gpu_bench(&fTarget, fBenchmark, fMaxFrameLag); }
 
-    double timeSample(int loops) {
+    double timeSample(int loops, TimingThread* timingThread) {
         for (int i = 0; i < fMaxFrameLag; i++) {
-            time(loops, fBenchmark, &fTarget);
+            time(loops, fBenchmark, &fTarget, timingThread);
         }
 
-        return time(loops, fBenchmark, &fTarget) / loops;
+        return time(loops, fBenchmark, &fTarget, timingThread) / loops;
     }
+
     void teardownBench() { fBenchmark->perCanvasPostDraw(fCanvas); }
 
     SkAutoTDelete<GrContextFactory> fCtxFactory;
@@ -381,9 +528,32 @@ int setup_loops(Benchmark* bench) {
     return loops;
 }
 
-double time_sample(Benchmark* bench, int loops) {
+struct Sample {
+    double fCpu;
+    double fGpu;
+};
+
+Sample time_sample(Benchmark* bench, int loops) {
     AutoSetupContextBenchAndTarget ascbt(bench);
-    double sample = ascbt.timeSample(loops);
+
+    Sample sample;
+    if (FLAGS_useBackgroundThread) {
+        TimingThread timingThread(ascbt.fTarget.gl());
+        SkAutoTDelete<SkThread> nativeThread(new SkThread(TimingThread::Loop, &timingThread));
+        nativeThread->start();
+        sample.fCpu = ascbt.timeSample(loops, &timingThread);
+        nativeThread->join();
+
+        // return the min
+        double min = SK_ScalarMax;
+        for (int i = 0; i < timingThread.timings().count(); i++) {
+            min = SkTMin(min, timingThread.timings()[i]);
+        }
+        sample.fGpu = min;
+    } else {
+        sample.fCpu = ascbt.timeSample(loops, nullptr);
+    }
+
     ascbt.teardownBench();
 
     return sample;
@@ -392,6 +562,24 @@ double time_sample(Benchmark* bench, int loops) {
 } // namespace kilobench
 
 static const int kOutResultSize = 1024;
+
+void printResult(const SkTArray<double>& samples, int loops, const char* name, const char* mod) {
+    SkString newName(name);
+    newName.appendf("_%s", mod);
+    Stats stats(samples);
+    const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+    SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
+        , loops
+        , HUMANIZE(stats.min)
+        , HUMANIZE(stats.median)
+        , HUMANIZE(stats.mean)
+        , HUMANIZE(stats.max)
+        , stddev_percent
+        , stats.plot.c_str()
+        , "gpu"
+        , newName.c_str()
+    );
+}
 
 int kilobench_main() {
     kilobench::BenchmarkStream benchStream;
@@ -407,60 +595,63 @@ int kilobench_main() {
     while (Benchmark* b = benchStream.next()) {
         SkAutoTDelete<Benchmark> bench(b);
 
-        int loops;
-        SkTArray<double> samples;
+        int loops = 1;
+        SkTArray<double> cpuSamples;
+        SkTArray<double> gpuSamples;
         for (int i = 0; i < FLAGS_samples + 1; i++) {
             // We fork off a new process to setup the grcontext and run the test while we wait
-            int childPid = fork();
-            if (childPid > 0) {
-                char result[kOutResultSize];
-                if (read(descriptors[0], result, kOutResultSize) < 0) {
-                     SkFAIL("Failed to read from pipe\n");
-                }
+            if (FLAGS_useMultiProcess) {
+                int childPid = fork();
+                if (childPid > 0) {
+                    char result[kOutResultSize];
+                    if (read(descriptors[0], result, kOutResultSize) < 0) {
+                         SkFAIL("Failed to read from pipe\n");
+                    }
 
-                // if samples == 0 then parse # of loops
-                // else parse float
-                if (i == 0) {
-                    sscanf(result, "%d", &loops);
+                    // if samples == 0 then parse # of loops
+                    // else parse float
+                    if (i == 0) {
+                        sscanf(result, "%d", &loops);
+                    } else {
+                        sscanf(result, "%lf %lf", &cpuSamples.push_back(),
+                                                  &gpuSamples.push_back());
+                    }
+
+                    // wait until exit
+                    int status;
+                    waitpid(childPid, &status, 0);
+                } else if (0 == childPid) {
+                    char result[kOutResultSize];
+                    if (i == 0) {
+                        sprintf(result, "%d", kilobench::setup_loops(bench));
+                    } else {
+                        kilobench::Sample sample = kilobench::time_sample(bench, loops);
+                        sprintf(result, "%lf %lf", sample.fCpu, sample.fGpu);
+                    }
+
+                    // Make sure to write the null terminator
+                    if (write(descriptors[1], result, strlen(result) + 1) < 0) {
+                        SkFAIL("Failed to write to pipe\n");
+                    }
+                    return 0;
                 } else {
-                    sscanf(result, "%lf", &samples.push_back());
+                    SkFAIL("Fork failed\n");
                 }
-
-                // wait until exit
-                int status;
-                waitpid(childPid, &status, 0);
-            } else if (0 == childPid) {
-                char result[kOutResultSize];
-                if (i == 0) {
-                    sprintf(result, "%d", kilobench::setup_loops(bench));
-                } else {
-                    sprintf(result, "%lf", kilobench::time_sample(bench, loops));
-                }
-
-                // Make sure to write the null terminator
-                if (write(descriptors[1], result, strlen(result) + 1) < 0) {
-                    SkFAIL("Failed to write to pipe\n");
-                }
-                return 0;
             } else {
-                SkFAIL("Fork failed\n");
+                if (i == 0) {
+                    loops = kilobench::setup_loops(bench);
+                } else {
+                    kilobench::Sample sample = kilobench::time_sample(bench, loops);
+                    cpuSamples.push_back(sample.fCpu);
+                    gpuSamples.push_back(sample.fGpu);
+                }
             }
         }
 
-        Stats stats(samples);
-        const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
-        SkDebugf("%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
-                , loops
-                , HUMANIZE(stats.min)
-                , HUMANIZE(stats.median)
-                , HUMANIZE(stats.mean)
-                , HUMANIZE(stats.max)
-                , stddev_percent
-                , stats.plot.c_str()
-                , "gpu"
-                , bench->getUniqueName()
-                );
-
+        printResult(cpuSamples, loops, bench->getUniqueName(), "cpu");
+        if (FLAGS_useBackgroundThread) {
+            printResult(gpuSamples, loops, bench->getUniqueName(), "gpu");
+        }
     }
     return 0;
 }
