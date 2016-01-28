@@ -9,6 +9,8 @@
 #define SK_COMMON_FLAGS_H
 
 #include "SkCommandLineFlags.h"
+#include "SkTArray.h"
+#include "SkString.h"
 
 DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
@@ -29,5 +31,19 @@ DECLARE_bool(pre_log);
 
 DECLARE_string(key);
 DECLARE_string(properties);
+
+/**
+ *  Helper to assist in collecting image paths from --images.
+ *
+ *  Populates an array of strings with paths to images to test.
+ *
+ *  Returns true if each argument to --images is meaningful:
+ *  - If the file/directory does not exist, return false.
+ *  - If a directory passed to --images does not have any supported images (based on file
+ *  type), return false.
+ *  - If a file is passed to --images, assume the user is deliberately testing this image,
+ *  regardless of file type.
+ */
+bool CollectImages(SkTArray<SkString>*);
 
 #endif
