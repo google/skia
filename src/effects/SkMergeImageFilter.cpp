@@ -92,7 +92,8 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     }
 
     // Apply the crop rect to the union of the inputs' bounds.
-    if (!this->getCropRect().applyTo(bounds, ctx, &bounds)) {
+    this->getCropRect().applyTo(bounds, ctx.ctm(), &bounds);
+    if (!bounds.intersect(ctx.clipBounds())) {
         return false;
     }
 

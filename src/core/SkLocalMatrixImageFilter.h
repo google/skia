@@ -27,7 +27,8 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                        SkBitmap* result, SkIPoint* offset) const override;
-    bool onFilterBounds(const SkIRect& src, const SkMatrix&, SkIRect* dst) const override;
+    bool onFilterBounds(const SkIRect& src, const SkMatrix&, SkIRect* dst,
+                        MapDirection) const override;
 
 private:
     SkLocalMatrixImageFilter(const SkMatrix& localM, SkImageFilter* input);

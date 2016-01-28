@@ -116,8 +116,9 @@ void SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& c
 }
 
 bool SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                       SkIRect* dst) const {
-    this->onFilterNodeBounds(src, ctm, dst, kReverse_MapDirection);
+                                       SkIRect* dst, MapDirection direction) const {
+    // Don't recurse into inputs.
+    *dst = src;
     return true;
 }
 

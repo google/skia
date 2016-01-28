@@ -86,12 +86,9 @@ public:
          *  set, then the corresponding edge from imageBounds will be used.
          *
          *  Note: imageBounds is in "device" space, as the output cropped rectangle will be,
-         *  so the context's CTM is ignore for those. It is only applied the croprect's bounds.
-         *
-         *  The resulting rect will be intersected with the context's clip. If that intersection is
-         *  empty, then this returns false and cropped is unmodified.
+         *  so the matrix is ignored for those. It is only applied the croprect's bounds.
          */
-        bool applyTo(const SkIRect& imageBounds, const Context&, SkIRect* cropped) const;
+        void applyTo(const SkIRect& imageBounds, const SkMatrix&, SkIRect* cropped) const;
 
     private:
         SkRect fRect;
@@ -149,11 +146,23 @@ public:
     bool filterImage(Proxy*, const SkBitmap& src, const Context&,
                      SkBitmap* result, SkIPoint* offset) const;
 
+    enum MapDirection {
+        kForward_MapDirection,
+        kReverse_MapDirection
+    };
     /**
-     *  Given the src bounds of an image, this returns the bounds of the result
-     *  image after the filter has been applied.
+     * Map a device-space rect recursively forward or backward through the
+     * filter DAG. kForward_MapDirection is used to determine which pixels of
+     * the destination canvas a source image rect would touch after filtering.
+     * kBackward_MapDirection is used to determine which rect of the source
+     * image would be required to fill the given rect (typically, clip bounds).
+     * Used for clipping and temp-buffer allocations, so the result need not
+     * be exact, but should never be smaller than the real answer. The default
+     * implementation recursively unions all input bounds, or returns false if
+     * no inputs.
      */
-    bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst) const;
+    bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst,
+                      MapDirection = kReverse_MapDirection) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most
@@ -332,18 +341,21 @@ protected:
      */
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const;
-    // Given the bounds of the destination rect to be filled in device
-    // coordinates (first parameter), and the CTM, compute (conservatively)
-    // which rect of the source image would be required (third parameter).
-    // Used for clipping and temp-buffer allocations, so the result need not
-    // be exact, but should never be smaller than the real answer. The default
-    // implementation recursively unions all input bounds, or returns false if
-    // no inputs.
-    virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const;
-    enum MapDirection {
-        kForward_MapDirection,
-        kReverse_MapDirection
-    };
+
+    /**
+     * This function recurses into its inputs with the given clip rect (first
+     * argument), calls filterBounds() with the given map direction on each,
+     * and unions the result (third argument). If the rect cannot be mapped,
+     * false is returned and the destination rect is left unchanged.
+     * If a derived class has special recursion requirements (e.g., it has an
+     * input which does not participate in bounds computation), it can be
+     * overridden here.
+     *
+     * Note that this function is *not* responsible for mapping the rect for
+     * this node's filter bounds requirements (i.e., calling
+     * onFilterNodeBounds()); that is handled by filterBounds().
+     */
+    virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const;
 
     /**
      * Performs a forwards or reverse mapping of the given rect to accommodate

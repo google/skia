@@ -48,12 +48,14 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
 
 bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
                                           const SkMatrix& ctm,
-                                          SkIRect* dst) const {
+                                          SkIRect* dst,
+                                          MapDirection direction) const {
     SkImageFilter* outer = getInput(0);
     SkImageFilter* inner = getInput(1);
 
     SkIRect tmp;
-    return inner->filterBounds(src, ctm, &tmp) && outer->filterBounds(tmp, ctm, dst);
+    return inner->filterBounds(src, ctm, &tmp, direction) &&
+           outer->filterBounds(tmp, ctm, dst, direction);
 }
 
 SkFlattenable* SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {

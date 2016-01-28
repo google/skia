@@ -36,7 +36,7 @@ protected:
     }
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const override;
-    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const override;
+    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
 
 private:
     typedef SkImageFilter INHERITED;
