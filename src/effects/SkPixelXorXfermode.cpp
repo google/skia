@@ -120,7 +120,7 @@ class GLPixelXorFP;
 
 class PixelXorFP : public GrFragmentProcessor {
 public:
-    static const GrFragmentProcessor* Create(SkColor opColor, const GrFragmentProcessor* dst) {
+    static const GrFragmentProcessor* Create(SkPMColor opColor, const GrFragmentProcessor* dst) {
         return new PixelXorFP(opColor, dst);
     }
 
@@ -134,7 +134,7 @@ public:
         return str;
     }
 
-    SkColor opColor() const { return fOpColor; }
+    SkPMColor opColor() const { return fOpColor; }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -150,7 +150,7 @@ private:
         inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
     }
 
-    PixelXorFP(SkColor opColor, const GrFragmentProcessor* dst)
+    PixelXorFP(SkPMColor opColor, const GrFragmentProcessor* dst)
         : fOpColor(opColor) {
         this->initClassID<PixelXorFP>();
 
@@ -159,7 +159,7 @@ private:
         SkASSERT(0 == dstIndex);
     }
 
-    SkColor fOpColor;
+    SkPMColor fOpColor;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
     typedef GrFragmentProcessor INHERITED;
@@ -193,9 +193,9 @@ protected:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
         const PixelXorFP& pixXor = proc.cast<PixelXorFP>();
         pdman.set3f(fOpColorUni,
-                    SkColorGetR(pixXor.opColor())/255.0f,
-                    SkColorGetG(pixXor.opColor())/255.0f,
-                    SkColorGetB(pixXor.opColor())/255.0f);
+                    SkGetPackedR32(pixXor.opColor())/255.0f,
+                    SkGetPackedG32(pixXor.opColor())/255.0f,
+                    SkGetPackedB32(pixXor.opColor())/255.0f);
     }
 
 private:
@@ -218,7 +218,7 @@ const GrFragmentProcessor* PixelXorFP::TestCreate(GrProcessorTestData* d) {
     SkColor color = d->fRandom->nextU();
 
     SkAutoTUnref<const GrFragmentProcessor> dst(GrProcessorUnitTest::CreateChildFP(d));
-    return new PixelXorFP(color, dst);
+    return new PixelXorFP(SkPreMultiplyColor(color), dst);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(PixelXorFP);
@@ -229,7 +229,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(PixelXorFP);
 
 class PixelXorXP : public GrXferProcessor {
 public:
-    PixelXorXP(const DstTexture* dstTexture, bool hasMixedSamples, SkColor opColor)
+    PixelXorXP(const DstTexture* dstTexture, bool hasMixedSamples, SkPMColor opColor)
         : INHERITED(dstTexture, true, hasMixedSamples)
         , fOpColor(opColor) {
         this->initClassID<PixelXorXP>();
@@ -239,7 +239,7 @@ public:
 
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
-    SkColor opColor() const { return fOpColor; }
+    SkPMColor opColor() const { return fOpColor; }
 
 private:
     GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
@@ -257,7 +257,7 @@ private:
         return fOpColor == xp.fOpColor;
     }
 
-    SkColor fOpColor;
+    SkPMColor fOpColor;
 
     typedef GrXferProcessor INHERITED;
 };
@@ -296,10 +296,10 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrXferProcessor& processor) override {
         const PixelXorXP& pixelXor = processor.cast<PixelXorXP>();
-        pdman.set3f(fOpColorUni,
-                    SkColorGetR(pixelXor.opColor())/255.0f,
-                    SkColorGetG(pixelXor.opColor())/255.0f,
-                    SkColorGetB(pixelXor.opColor())/255.0f);
+        pdman.set3f(fOpColorUni, 
+                    SkGetPackedR32(pixelXor.opColor())/255.0f,
+                    SkGetPackedG32(pixelXor.opColor())/255.0f,
+                    SkGetPackedB32(pixelXor.opColor())/255.0f);
     };
 
     GrGLSLProgramDataManager::UniformHandle fOpColorUni;
@@ -319,7 +319,7 @@ GrGLSLXferProcessor* PixelXorXP::createGLSLInstance() const { return new GLPixel
 
 class GrPixelXorXPFactory : public GrXPFactory {
 public:
-    static GrXPFactory* Create(SkColor opColor) {
+    static GrXPFactory* Create(SkPMColor opColor) {
         return new GrPixelXorXPFactory(opColor);
     }
 
@@ -330,7 +330,7 @@ public:
     }
 
 private:
-    GrPixelXorXPFactory(SkColor opColor)
+    GrPixelXorXPFactory(SkPMColor opColor)
         : fOpColor(opColor) {
         this->initClassID<GrPixelXorXPFactory>();
     }
@@ -355,7 +355,7 @@ private:
 
     GR_DECLARE_XP_FACTORY_TEST;
 
-    SkColor fOpColor;
+    SkPMColor fOpColor;
 
     typedef GrXPFactory INHERITED;
 };
@@ -365,13 +365,13 @@ GR_DEFINE_XP_FACTORY_TEST(GrPixelXorXPFactory);
 const GrXPFactory* GrPixelXorXPFactory::TestCreate(GrProcessorTestData* d) {
     SkColor color = d->fRandom->nextU();
 
-    return GrPixelXorXPFactory::Create(color);
+    return GrPixelXorXPFactory::Create(SkPreMultiplyColor(color));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkPixelXorXfermode::asFragmentProcessor(const GrFragmentProcessor** output,
-    const GrFragmentProcessor* dst) const {
+                                             const GrFragmentProcessor* dst) const {
     if (output) {
         *output = PixelXorFP::Create(fOpColor, dst);
     }

@@ -36,9 +36,11 @@ protected:
     SkPMColor xferColor(SkPMColor src, SkPMColor dst) const override;
 
 private:
-    explicit SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
+    explicit SkPixelXorXfermode(SkColor opColor) {
+        fOpColor = SkPreMultiplyColor(opColor | 0xFF000000);
+    }
 
-    SkColor fOpColor;
+    SkPMColor fOpColor;
 
     typedef SkXfermode INHERITED;
 };
