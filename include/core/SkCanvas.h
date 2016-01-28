@@ -37,16 +37,6 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
-/*
- *  If you want the legacy cliptolayer flag (i.e. android), then you must have the new
- *  legacy saveflags.
- */
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-#ifndef SK_SUPPORT_LEGACY_SAVEFLAGS
-    #define SK_SUPPORT_LEGACY_SAVEFLAGS
-#endif
-#endif
-
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
