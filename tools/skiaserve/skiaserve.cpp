@@ -22,12 +22,8 @@
 #include "SkImageDecoder.h"
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-// TODO make this configurable
-#define PORT 8888
-
-DEFINE_string(dir, "skps", "Directory to read skp.");
-DEFINE_string(name, "desk_carsvg", "skp to load.");
-DEFINE_bool(useTemplate, true, "whether or not to use the skdebugger template string.");
+DEFINE_string(source, "https://debugger.skia.org", "Where to load the web UI from.");
+DEFINE_int32(port, 8888, "The port to listen on.");
 
 // TODO probably want to make this configurable
 static const int kImageWidth = 1920;
@@ -156,7 +152,7 @@ static int SendJSON(MHD_Connection* connection, SkPicture* picture) {
 
 static int SendTemplate(MHD_Connection* connection, bool redirect = false,
                         const char* redirectUrl = nullptr) {
-    SkString debuggerTemplate = generateTemplate(SkString("https://debugger.skia.org"));
+    SkString debuggerTemplate = generateTemplate(SkString(FLAGS_source[0]));
 
     MHD_Response* response = MHD_create_response_from_buffer(
         debuggerTemplate.size(),
@@ -288,7 +284,8 @@ int answer_to_connection(void* cls, struct MHD_Connection* connection,
 int skiaserve_main() {
     Request request; // This simple server has one request
     struct MHD_Daemon* daemon;
-    daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, PORT, nullptr, nullptr,
+    // TODO Add option to bind this strictly to an address, e.g. localhost, for security.
+    daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, FLAGS_port, nullptr, nullptr,
                               &answer_to_connection, &request,
                               MHD_OPTION_END);
     if (NULL == daemon) {
