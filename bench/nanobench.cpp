@@ -436,12 +436,11 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     #undef CPU_CONFIG
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    if (is_cpu_config_allowed("hwui", config)) {
-        Config config = { "hwui", Benchmark::kHWUI_Backend, kRGBA_8888_SkColorType,
+    if (config->getTag().equals("hwui")) {
+        Config config = { SkString("hwui"), Benchmark::kHWUI_Backend, kRGBA_8888_SkColorType,
                           kPremul_SkAlphaType, 0, kBogusGLContextType, kBogusGLContextOptions,
                           false };
         configs->push_back(config);
-        return;
     }
 #endif
 }
