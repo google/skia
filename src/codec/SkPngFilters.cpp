@@ -6,7 +6,6 @@
  */
 
 #include "SkPngFilters.h"
-#include "SkTypes.h"
 
 // Functions in this file look at most 3 pixels (a,b,c) to predict the fourth (d).
 // They're positioned like this:
@@ -35,7 +34,7 @@
     }
 
     template <int bpp>
-    static void sk_sub_sse2(png_row_infop row_info, png_bytep row, png_const_bytep) {
+    static void sk_sub_sse2(png_row_infop row_info, uint8_t* row, const uint8_t*) {
         // The Sub filter predicts each pixel as the previous pixel, a.
         // There is no pixel to the left of the first pixel.  It's encoded directly.
         // That works with our main loop if we just say that left pixel was zero.
@@ -53,7 +52,7 @@
     }
 
     template <int bpp>
-    void sk_avg_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_avg_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         // The Avg filter predicts each pixel as the (truncated) average of a and b.
         // There's no pixel to the left of the first pixel.  Luckily, it's
         // predicted to be half of the pixel above it.  So again, this works
@@ -94,7 +93,7 @@
     }
 
     template <int bpp>
-    void sk_paeth_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_paeth_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         // Paeth tries to predict pixel d using the pixel to the left of it, a,
         // and two pixels from the previous row, b and c:
         //   prev: c b
@@ -144,24 +143,24 @@
         }
     }
 
-    void sk_sub3_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_sub3_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         sk_sub_sse2<3>(row_info, row, prev);
     }
-    void sk_sub4_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_sub4_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         sk_sub_sse2<4>(row_info, row, prev);
     }
 
-    void sk_avg3_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_avg3_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         sk_avg_sse2<3>(row_info, row, prev);
     }
-    void sk_avg4_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_avg4_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         sk_avg_sse2<4>(row_info, row, prev);
     }
 
-    void sk_paeth3_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_paeth3_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         sk_paeth_sse2<3>(row_info, row, prev);
     }
-    void sk_paeth4_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev) {
+    void sk_paeth4_sse2(png_row_infop row_info, uint8_t* row, const uint8_t* prev) {
         sk_paeth_sse2<4>(row_info, row, prev);
     }
 
