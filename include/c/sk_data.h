@@ -43,6 +43,10 @@ SK_API sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length);
 */
 SK_API sk_data_t* sk_data_new_subset(const sk_data_t* src, size_t offset, size_t length);
 
+SK_API sk_data_t* sk_data_new_from_file(const char* path);
+
+SK_API sk_data_t* sk_data_new_from_stream(sk_stream_t* stream, size_t length);
+
 /**
     Increment the reference count on the given sk_data_t. Must be
     balanced by a call to sk_data_unref().
@@ -64,6 +68,8 @@ SK_API size_t sk_data_get_size(const sk_data_t*);
     Returns the pointer to the data.
  */
 SK_API const void* sk_data_get_data(const sk_data_t*);
+
+SK_API const uint8_t* sk_data_get_bytes(const sk_data_t*);
 
 SK_C_PLUS_PLUS_END_GUARD
 

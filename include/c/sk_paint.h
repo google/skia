@@ -116,17 +116,27 @@ SK_API void sk_paint_set_stroke_join(sk_paint_t*, sk_stroke_join_t);
  *  any previous value, and call ref() on the new value.
  */
 SK_API void sk_paint_set_shader(sk_paint_t*, sk_shader_t*);
+SK_API sk_shader_t* sk_paint_get_shader(sk_paint_t*);
 
 /**
  *  Set the paint's maskfilter to the specified parameter. This will automatically call unref() on
  *  any previous value, and call ref() on the new value.
  */
 SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
+SK_API sk_maskfilter_t* sk_paint_get_maskfilter(sk_paint_t*);
+
+SK_API void sk_paint_set_colorfilter(sk_paint_t*, sk_colorfilter_t*);
+SK_API sk_colorfilter_t* sk_paint_get_colorfilter(sk_paint_t*);
+
+SK_API void sk_paint_set_imagefilter(sk_paint_t*, sk_imagefilter_t*);
+SK_API sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t*);
 
 /**
  *  Set the paint's xfermode to the specified parameter.
  */
 SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
+SK_API sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t*);
+
 /**
  *  Get the paint's typeface
  */

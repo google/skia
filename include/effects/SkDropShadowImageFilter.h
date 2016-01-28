@@ -9,6 +9,9 @@
 #include "SkImageFilter.h"
 #include "SkScalar.h"
 
+#ifndef SkDropShadowImageFilter_DEFINED
+#define SkDropShadowImageFilter_DEFINED
+
 class SK_API SkDropShadowImageFilter : public SkImageFilter {
 public:
     enum ShadowMode {
@@ -47,3 +50,5 @@ private:
 
     typedef SkImageFilter INHERITED;
 };
+
+#endif

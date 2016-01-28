@@ -45,6 +45,12 @@ SK_API sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t& src,
                                          sk_shader_tilemode_t tmy,
                                          const sk_matrix_t* localMatrix);
 
+SK_API sk_shader_t* sk_shader_new_picture(const sk_picture_t* src,
+                                         sk_shader_tilemode_t tmx,
+                                         sk_shader_tilemode_t tmy,
+                                         const sk_matrix_t* localMatrix,
+                                         const sk_rect_t* tile);
+
 /**
     Return a shader that will apply the specified localMatrix to the proxy shader.
     The specified matrix will be applied before any matrix associated with the proxy.
@@ -167,6 +173,29 @@ SK_API sk_shader_t* sk_shader_new_two_point_conical_gradient(
         int colorCount,
         sk_shader_tilemode_t tileMode,
         const sk_matrix_t* localMatrix);
+
+SK_API sk_shader_t* sk_shader_new_perlin_noise_fractal_noise(
+    float baseFrequencyX,
+    float baseFrequencyY,
+    int numOctaves,
+    float seed,
+    const sk_isize_t* tileSize);
+
+SK_API sk_shader_t* sk_shader_new_perlin_noise_turbulence(
+    float baseFrequencyX,
+    float baseFrequencyY,
+    int numOctaves,
+    float seed,
+    const sk_isize_t* tileSize);
+
+SK_API sk_shader_t* sk_shader_new_compose(
+    sk_shader_t* shaderA,
+    sk_shader_t* shaderB);
+
+SK_API sk_shader_t* sk_shader_new_compose_with_mode(
+    sk_shader_t* shaderA,
+    sk_shader_t* shaderB,
+    sk_xfermode_mode_t mode);
 
 SK_C_PLUS_PLUS_END_GUARD
 

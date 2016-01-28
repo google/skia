@@ -87,7 +87,28 @@ typedef struct {
 typedef struct {
     float   x;
     float   y;
+    float   z;
+} sk_point3_t;
+
+typedef struct {
+    float   x;
+    float   y;
 } sk_point_t;
+
+typedef struct {
+    float   x;
+    float   y;
+} sk_ipoint_t;
+
+typedef struct {
+    float   w;
+    float   h;
+} sk_size_t;
+
+typedef struct {
+    float   w;
+    float   h;
+} sk_isize_t;
 
 typedef struct {
     int32_t left;
@@ -141,6 +162,9 @@ typedef struct sk_imagedecoder_t sk_imagedecoder_t;
     destination.
  */
 typedef struct sk_maskfilter_t sk_maskfilter_t;
+typedef struct sk_colorfilter_t sk_colorfilter_t;
+typedef struct sk_imagefilter_t sk_imagefilter_t;
+typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
 /**
     A sk_paint_t holds the style and color information about how to
     draw geometries, text and bitmaps.
@@ -311,6 +335,40 @@ typedef enum {
 	ITALIC_TYPEFACE_STYLE = 2,
 	BOLD_ITALIC_TYPEFACE_STYLE = 3
 } sk_typeface_style_t;
+
+typedef enum {
+    NONE_SK_FILTER_QUALITY,
+    LOW_SK_FILTER_QUALITY,
+    MEDIUM_SK_FILTER_QUALITY,
+    HIGH_SK_FILTER_QUALITY
+} sk_filter_quality_t;
+
+typedef enum {
+    HAS_LEFT_SK_CROP_RECT_FLAG   = 0x01,
+    HAS_TOP_SK_CROP_RECT_FLAG    = 0x02,
+    HAS_WIDTH_SK_CROP_RECT_FLAG  = 0x04,
+    HAS_HEIGHT_SK_CROP_RECT_FLAG = 0x08,
+    HAS_ALL_SK_CROP_RECT_FLAG    = 0x0F,
+} sk_crop_rect_flags_t;
+
+typedef enum {
+    DRAW_SHADOW_AND_FOREGROUND_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,
+    DRAW_SHADOW_ONLY_SK_DROP_SHADOW_IMAGE_FILTER_SHADOW_MODE,
+} sk_drop_shadow_image_filter_shadow_mode_t;
+
+typedef enum {
+    UNKNOWN_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
+    R_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
+    G_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
+    B_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
+    A_SK_DISPLACEMENT_MAP_EFFECT_CHANNEL_SELECTOR_TYPE,
+} sk_displacement_map_effect_channel_selector_type_t;
+
+typedef enum {
+    CLAMP_SK_MATRIX_CONVOLUTION_TILEMODE,
+    REPEAT_SK_MATRIX_CONVOLUTION_TILEMODE,
+    CLAMP_TO_BLACK_SK_MATRIX_CONVOLUTION_TILEMODE,
+} sk_matrix_convolution_tilemode_t;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 

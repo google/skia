@@ -36,8 +36,32 @@ void sk_paint_set_shader(sk_paint_t* cpaint, sk_shader_t* cshader) {
     AsPaint(cpaint)->setShader(AsShader(cshader));
 }
 
+sk_shader_t* sk_paint_get_shader(sk_paint_t* cpaint) {
+    return ToShader(AsPaint(cpaint)->getShader());
+}
+
 void sk_paint_set_maskfilter(sk_paint_t* cpaint, sk_maskfilter_t* cfilter) {
     AsPaint(cpaint)->setMaskFilter(AsMaskFilter(cfilter));
+}
+
+sk_maskfilter_t* sk_paint_get_maskfilter(sk_paint_t* cpaint) {
+    return ToMaskFilter(AsPaint(cpaint)->getMaskFilter());
+}
+
+void sk_paint_set_colorfilter(sk_paint_t* cpaint, sk_colorfilter_t* cfilter) {
+    AsPaint(cpaint)->setColorFilter(AsColorFilter(cfilter));
+}
+
+sk_colorfilter_t* sk_paint_get_colorfilter(sk_paint_t* cpaint) {
+    return ToColorFilter(AsPaint(cpaint)->getColorFilter());
+}
+
+void sk_paint_set_imagefilter(sk_paint_t* cpaint, sk_imagefilter_t* cfilter) {
+    AsPaint(cpaint)->setImageFilter(AsImageFilter(cfilter));
+}
+
+sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t* cpaint) {
+    return ToImageFilter(AsPaint(cpaint)->getImageFilter());
 }
 
 bool sk_paint_is_stroke(const sk_paint_t* cpaint) {
@@ -101,7 +125,21 @@ void sk_paint_set_stroke_join(sk_paint_t* cpaint, sk_stroke_join_t cjoin) {
 void sk_paint_set_xfermode_mode(sk_paint_t* paint, sk_xfermode_mode_t mode) {
     SkASSERT(paint);
 
-    AsPaint(paint)->setXfermodeMode(MapXferMode (mode));
+    SkXfermode::Mode m;
+    if (find_sk(mode, &m)) {
+        AsPaint(paint)->setXfermodeMode(m);
+    }
+}
+
+sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t* paint) {
+    SkASSERT(paint);
+
+    SkXfermode::Mode mode;
+    sk_xfermode_mode_t cmode;
+    if (SkXfermode::AsMode(AsPaint(paint)->getXfermode(), &mode) && find_c(mode, &cmode)) {
+        return cmode;
+    }
+    return SRCOVER_SK_XFERMODE_MODE;
 }
 
 sk_typeface_t* sk_paint_get_typeface(sk_paint_t* paint)

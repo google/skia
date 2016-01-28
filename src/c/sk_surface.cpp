@@ -24,12 +24,6 @@
 #include "sk_surface.h"
 #include "sk_types_priv.h"
 
-static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
-    matrix->setAll(cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
-                   cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
-                   cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 sk_colortype_t sk_colortype_get_default_8888() {
@@ -189,7 +183,7 @@ void sk_canvas_skew(sk_canvas_t* ccanvas, float sx, float sy) {
 void sk_canvas_concat(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
     SkASSERT(cmatrix);
     SkMatrix matrix;
-    from_c_matrix(cmatrix, &matrix);
+    from_c(cmatrix, &matrix);
     AsCanvas(ccanvas)->concat(matrix);
 }
 
@@ -205,8 +199,11 @@ void sk_canvas_draw_paint(sk_canvas_t* ccanvas, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawPaint(AsPaint(*cpaint));
 }
 
-void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_xfermode_mode_t mode) {
-    AsCanvas(ccanvas)->drawColor(color, MapXferMode (mode));
+void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_xfermode_mode_t cmode) {
+    SkXfermode::Mode mode;
+    if (find_sk(cmode, &mode)) {
+        AsCanvas(ccanvas)->drawColor(color, mode);
+    }
 }
 
 void sk_canvas_draw_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
@@ -270,7 +267,7 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
     const SkMatrix* matrixPtr = NULL;
     SkMatrix matrix;
     if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
+        from_c(cmatrix, &matrix);
         matrixPtr = &matrix;
     }
     AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), matrixPtr, AsPaint(cpaint));
@@ -397,6 +394,8 @@ sk_rect_t sk_picture_get_bounds(sk_picture_t* cpic) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../../include/effects/SkGradientShader.h"
+#include "../../include/effects/SkPerlinNoiseShader.h"
+#include "../../include/core/SkComposeShader.h"
 #include "sk_shader.h"
 
 void sk_shader_ref(sk_shader_t* cshader) {
@@ -429,7 +428,7 @@ sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t& src,
     }
     SkMatrix matrix;
     if (localMatrix) {
-        from_c_matrix(localMatrix, &matrix);
+        from_c(localMatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
@@ -437,11 +436,35 @@ sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t& src,
     return (sk_shader_t*)s;
 }
 
+sk_shader_t* sk_shader_new_picture(const sk_picture_t* src,
+                                  sk_shader_tilemode_t tmx,
+                                  sk_shader_tilemode_t tmy,
+                                  const sk_matrix_t* localMatrix,
+                                  const sk_rect_t* tile) {
+    SkShader::TileMode modex;
+    if (!find_sk(tmx, &modex)) {
+        return NULL;
+    }
+    SkShader::TileMode modey;
+    if (!find_sk(tmy, &modey)) {
+        return NULL;
+    }
+    SkMatrix matrix;
+    if (localMatrix) {
+        from_c(localMatrix, &matrix);
+    }
+    else {
+        matrix.setIdentity();
+    }
+    SkShader* s = SkShader::CreatePictureShader(AsPicture(src), modex, modey, &matrix, AsRect(tile));
+    return (sk_shader_t*)s;
+}
+
 sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
                                         const sk_matrix_t* localMatrix) {
     SkMatrix matrix;
     if (localMatrix) {
-        from_c_matrix(localMatrix, &matrix);
+        from_c(localMatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
@@ -461,7 +484,7 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
     }
     SkMatrix matrix;
     if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
+        from_c(cmatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
@@ -469,10 +492,6 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
                                                  reinterpret_cast<const SkColor*>(colors),
                                                  colorPos, colorCount, mode, 0, &matrix);
     return (sk_shader_t*)s;
-}
-
-static const SkPoint& to_skpoint(const sk_point_t& p) {
-    return reinterpret_cast<const SkPoint&>(p);
 }
 
 sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
@@ -488,11 +507,11 @@ sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
     }
     SkMatrix matrix;
     if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
+        from_c(cmatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
-    SkPoint center = to_skpoint(*ccenter);
+    SkPoint center = AsPoint(*ccenter);
     SkShader* s = SkGradientShader::CreateRadial(
             center, (SkScalar)radius,
             reinterpret_cast<const SkColor*>(colors),
@@ -508,7 +527,7 @@ sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter,
                                           const sk_matrix_t* cmatrix) {
     SkMatrix matrix;
     if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
+        from_c(cmatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
@@ -536,12 +555,12 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
     }
     SkMatrix matrix;
     if (cmatrix) {
-        from_c_matrix(cmatrix, &matrix);
+        from_c(cmatrix, &matrix);
     } else {
         matrix.setIdentity();
     }
-    SkPoint skstart = to_skpoint(*start);
-    SkPoint skend = to_skpoint(*end);
+    SkPoint skstart = AsPoint(*start);
+    SkPoint skend = AsPoint(*end);
     SkShader* s = SkGradientShader::CreateTwoPointConical(
             skstart, (SkScalar)startRadius,
             skend, (SkScalar)endRadius,
@@ -551,9 +570,65 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
     return (sk_shader_t*)s;
 }
 
+sk_shader_t* sk_shader_new_perlin_noise_fractal_noise(
+    float baseFrequencyX,
+    float baseFrequencyY,
+    int numOctaves,
+    float seed,
+    const sk_isize_t* ctileSize) {
+
+    const SkISize* tileSize = AsISize(ctileSize);
+    SkShader* s = SkPerlinNoiseShader::CreateFractalNoise(
+        baseFrequencyX,
+        baseFrequencyY,
+        numOctaves,
+        seed,
+        tileSize);
+    return (sk_shader_t*)s;
+}
+
+sk_shader_t* sk_shader_new_perlin_noise_turbulence(
+    float baseFrequencyX,
+    float baseFrequencyY,
+    int numOctaves,
+    float seed,
+    const sk_isize_t* ctileSize) {
+
+    const SkISize* tileSize = AsISize(ctileSize);
+    SkShader* s = SkPerlinNoiseShader::CreateTurbulence(
+        baseFrequencyX,
+        baseFrequencyY, 
+        numOctaves, 
+        seed, 
+        tileSize);
+    return (sk_shader_t*)s;
+}
+
+sk_shader_t* sk_shader_new_compose(
+    sk_shader_t* shaderA,
+    sk_shader_t* shaderB) {
+
+    SkShader* s = new SkComposeShader(AsShader(shaderA), AsShader(shaderB));
+    return (sk_shader_t*)s;
+}
+
+sk_shader_t* sk_shader_new_compose_with_mode(
+    sk_shader_t* shaderA,
+    sk_shader_t* shaderB,
+    sk_xfermode_mode_t cmode) {
+
+    SkXfermode::Mode mode;
+    if (!find_sk(cmode, &mode)) {
+        return NULL;
+    }
+    SkShader* s = new SkComposeShader(AsShader(shaderA), AsShader(shaderB), SkXfermode::Create(mode));
+    return (sk_shader_t*)s;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../../include/effects/SkBlurMaskFilter.h"
+#include "../../include/effects/SkTableMaskFilter.h"
 #include "sk_maskfilter.h"
 
 void sk_maskfilter_ref(sk_maskfilter_t* cfilter) {
@@ -570,6 +645,581 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
         return NULL;
     }
     return ToMaskFilter(SkBlurMaskFilter::Create(style, sigma));
+}
+
+sk_maskfilter_t* sk_maskfilter_new_emboss(
+    float blurSigma, 
+    const float direction[3],
+    float ambient, 
+    float specular) {
+    return ToMaskFilter(SkBlurMaskFilter::CreateEmboss(blurSigma, direction, ambient, specular));
+}
+
+sk_maskfilter_t* sk_maskfilter_new_table(const uint8_t table[256]) {
+    return ToMaskFilter(SkTableMaskFilter::Create(table));
+}
+
+sk_maskfilter_t* sk_maskfilter_new_gamma(float gamma) {
+    return ToMaskFilter(SkTableMaskFilter::CreateGamma(gamma));
+}
+
+sk_maskfilter_t* sk_maskfilter_new_clip(uint8_t min, uint8_t max) {
+    return ToMaskFilter(SkTableMaskFilter::CreateClip(min, max));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+#include "sk_maskfilter.h"
+
+sk_imagefilter_croprect_t* sk_imagefilter_croprect_new() {
+    return (sk_imagefilter_croprect_t*) new SkImageFilter::CropRect();
+}
+
+sk_imagefilter_croprect_t* sk_imagefilter_croprect_new_with_rect(const sk_rect_t* rect, uint32_t flags) {
+    return (sk_imagefilter_croprect_t*) new SkImageFilter::CropRect(*AsRect(rect), flags);
+}
+
+void sk_imagefilter_croprect_destructor(sk_imagefilter_croprect_t* cropRect) {
+    delete AsImageFilterCropRect(cropRect);
+}
+
+void sk_imagefilter_croprect_get_rect(sk_imagefilter_croprect_t* cropRect, sk_rect_t* rect) {
+    if (rect) {
+        *rect = ToRect(AsImageFilterCropRect(cropRect)->rect());
+    }
+}
+
+uint32_t sk_imagefilter_croprect_get_flags(sk_imagefilter_croprect_t* cropRect) {
+    return AsImageFilterCropRect(cropRect)->flags();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+#include "../../include/effects/SkAlphaThresholdFilter.h"
+#include "../../include/effects/SkBlurImageFilter.h"
+#include "../../include/effects/SkColorFilterImageFilter.h"
+#include "../../include/effects/SkComposeImageFilter.h"
+#include "../../include/effects/SkDisplacementMapEffect.h"
+#include "../../include/effects/SkDropShadowImageFilter.h"
+#include "../../include/effects/SkLightingImageFilter.h"
+#include "../../include/effects/SkMagnifierImageFilter.h"
+#include "../../include/effects/SkMatrixConvolutionImageFilter.h"
+#include "../../include/effects/SkMergeImageFilter.h"
+#include "../../include/effects/SkMorphologyImageFilter.h"
+#include "../../include/effects/SkOffsetImageFilter.h"
+#include "../../include/effects/SkPictureImageFilter.h"
+#include "../../include/effects/SkRectShaderImageFilter.h"
+#include "../../include/effects/SkTestImageFilters.h"
+#include "../../include/effects/SkTileImageFilter.h"
+#include "../../include/effects/SkXfermodeImageFilter.h"
+#include "sk_maskfilter.h"
+
+void sk_imagefilter_unref(sk_imagefilter_t* cfilter) {
+    SkSafeUnref(AsImageFilter(cfilter));
+}
+
+sk_imagefilter_t* sk_imagefilter_new_matrix(
+    const sk_matrix_t* cmatrix,
+    sk_filter_quality_t cquality,
+    sk_imagefilter_t* input /*NULL*/) {
+
+    SkMatrix matrix;
+    from_c(cmatrix, &matrix);
+
+    SkFilterQuality quality;
+    if (!find_sk(cquality, &quality)) {
+        return NULL;
+    }
+
+    SkImageFilter* filter = SkImageFilter::CreateMatrixFilter(matrix, quality, AsImageFilter(input));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_alpha_threshold(
+    const sk_irect_t* region,
+    float innerThreshold,
+    float outerThreshold,
+    sk_imagefilter_t* input /*NULL*/) {
+
+    SkRegion r = SkRegion(AsIRect(*region));
+
+    SkImageFilter* filter = SkAlphaThresholdFilter::Create(r, innerThreshold, outerThreshold, AsImageFilter(input));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_blur(
+    float sigmaX,
+    float sigmaY,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkBlurImageFilter::Create(sigmaX, sigmaY, AsImageFilter(input), AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_color_filter(
+    sk_colorfilter_t* cf,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkColorFilterImageFilter::Create(AsColorFilter(cf), AsImageFilter(input), AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_compose(
+    sk_imagefilter_t* outer,
+    sk_imagefilter_t* inner) {
+
+    SkImageFilter* filter = SkComposeImageFilter::Create(AsImageFilter(outer), AsImageFilter(inner));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_displacement_map_effect(
+    sk_displacement_map_effect_channel_selector_type_t xChannelSelector,
+    sk_displacement_map_effect_channel_selector_type_t yChannelSelector,
+    float scale,
+    sk_imagefilter_t* displacement,
+    sk_imagefilter_t* color /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkDisplacementMapEffect::ChannelSelectorType xSel;
+    if (!find_sk(xChannelSelector, &xSel)) {
+        return NULL;
+    }
+    SkDisplacementMapEffect::ChannelSelectorType ySel;
+    if (!find_sk(yChannelSelector, &ySel)) {
+        return NULL;
+    }
+
+    SkImageFilter* filter = SkDisplacementMapEffect::Create(
+        xSel,
+        ySel, 
+        scale, 
+        AsImageFilter(displacement),
+        AsImageFilter(color), 
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_downsample(
+    float scale,
+    sk_imagefilter_t* input /*NULL*/) {
+
+    SkImageFilter* filter = SkDownSampleImageFilter::Create(
+        scale,
+        AsImageFilter(input));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_drop_shadow(
+    float dx,
+    float dy,
+    float sigmaX,
+    float sigmaY,
+    sk_color_t color,
+    sk_drop_shadow_image_filter_shadow_mode_t cShadowMode,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkDropShadowImageFilter::ShadowMode shadowMode;
+    if (!find_sk(cShadowMode, &shadowMode)) {
+        return NULL;
+    }
+
+    SkImageFilter* filter = SkDropShadowImageFilter::Create(
+        dx,
+        dy, 
+        sigmaX, 
+        sigmaY,
+        color,
+        shadowMode,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_distant_lit_diffuse(
+    const sk_point3_t* direction,
+    sk_color_t lightColor,
+    float surfaceScale,
+    float kd,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkLightingImageFilter::CreateDistantLitDiffuse(
+        *AsPoint3(direction),
+        lightColor,
+        surfaceScale,
+        kd,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_point_lit_diffuse(
+    const sk_point3_t* location,
+    sk_color_t lightColor,
+    float surfaceScale,
+    float kd,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkLightingImageFilter::CreatePointLitDiffuse(
+        *AsPoint3(location),
+        lightColor,
+        surfaceScale,
+        kd,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_spot_lit_diffuse(
+    const sk_point3_t* location,
+    const sk_point3_t* target,
+    float specularExponent,
+    float cutoffAngle,
+    sk_color_t lightColor,
+    float surfaceScale,
+    float kd,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkLightingImageFilter::CreateSpotLitDiffuse(
+        *AsPoint3(location),
+        *AsPoint3(target),
+        specularExponent,
+        cutoffAngle,
+        lightColor,
+        surfaceScale,
+        kd,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_distant_lit_specular(
+    const sk_point3_t* direction,
+    sk_color_t lightColor,
+    float surfaceScale,
+    float ks,
+    float shininess,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkLightingImageFilter::CreateDistantLitSpecular(
+        *AsPoint3(direction),
+        lightColor,
+        surfaceScale,
+        ks,
+        shininess,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_point_lit_specular(
+    const sk_point3_t* location,
+    sk_color_t lightColor,
+    float surfaceScale,
+    float ks,
+    float shininess,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkLightingImageFilter::CreatePointLitSpecular(
+        *AsPoint3(location),
+        lightColor,
+        surfaceScale,
+        ks,
+        shininess,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_spot_lit_specular(
+    const sk_point3_t* location,
+    const sk_point3_t* target,
+    float specularExponent,
+    float cutoffAngle,
+    sk_color_t lightColor,
+    float surfaceScale,
+    float ks,
+    float shininess,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkLightingImageFilter::CreateSpotLitSpecular(
+        *AsPoint3(location),
+        *AsPoint3(target),
+        specularExponent,
+        cutoffAngle,
+        lightColor,
+        surfaceScale,
+        ks,
+        shininess,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_magnifier(
+    const sk_rect_t* src,
+    float inset,
+    sk_imagefilter_t* input /*NULL*/) {
+
+    SkImageFilter* filter = SkMagnifierImageFilter::Create(
+        *AsRect(src),
+        inset,
+        AsImageFilter(input));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_matrix_convolution(
+    const sk_isize_t* kernelSize,
+    const float kernel[],
+    float gain,
+    float bias,
+    const sk_ipoint_t* kernelOffset,
+    sk_matrix_convolution_tilemode_t ctileMode,
+    bool convolveAlpha,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkMatrixConvolutionImageFilter::TileMode tileMode;
+    if (!find_sk(ctileMode, &tileMode)) {
+        return NULL;
+    }
+
+    SkImageFilter* filter = SkMatrixConvolutionImageFilter::Create(
+        *AsISize(kernelSize),
+        kernel,
+        gain,
+        bias,
+        *AsIPoint(kernelOffset),
+        tileMode,
+        convolveAlpha,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_merge(
+    sk_imagefilter_t* filters[],
+    int count,
+    const sk_xfermode_mode_t cmodes[] /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkXfermode::Mode* modes = new SkXfermode::Mode[count];
+    for (int i = 0; i < count; i++) {
+        if (!find_sk(cmodes[i], &modes[i])) {
+            delete[] modes;
+            return NULL;
+        }
+    }
+    
+    SkImageFilter* filter = SkMergeImageFilter::Create(
+        AsImageFilters(filters),
+        count,
+        modes,
+        AsImageFilterCropRect(cropRect));
+
+    delete[] modes;
+
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_dilate(
+    int radiusX,
+    int radiusY,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkDilateImageFilter::Create(
+        radiusX,
+        radiusY,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_erode(
+    int radiusX,
+    int radiusY,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkErodeImageFilter::Create(
+        radiusX,
+        radiusY,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_offset(
+    float dx,
+    float dy,
+    sk_imagefilter_t* input /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkOffsetImageFilter::Create(
+        dx,
+        dy,
+        AsImageFilter(input),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_picture(
+    sk_picture_t* picture) {
+
+    SkImageFilter* filter = SkPictureImageFilter::Create(
+        AsPicture(picture));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_picture_with_croprect(
+    sk_picture_t* picture,
+    const sk_rect_t* cropRect) {
+
+    SkImageFilter* filter = SkPictureImageFilter::Create(
+        AsPicture(picture),
+        *AsRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_picture_for_localspace(
+    sk_picture_t* picture,
+    const sk_rect_t* cropRect,
+    sk_filter_quality_t filterQuality) {
+
+    SkFilterQuality quality;
+    if (!find_sk(filterQuality, &quality)) {
+        return NULL;
+    }
+
+    SkImageFilter* filter = SkPictureImageFilter::CreateForLocalSpace(
+        AsPicture(picture),
+        *AsRect(cropRect),
+        quality);
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_rect_shader(
+    sk_shader_t* shader,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkImageFilter* filter = SkRectShaderImageFilter::Create(
+        AsShader(shader),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_tile(
+    const sk_rect_t* src,
+    const sk_rect_t* dst,
+    sk_imagefilter_t* input) {
+
+    SkImageFilter* filter = SkTileImageFilter::Create(
+        *AsRect(src),
+        *AsRect(dst),
+        AsImageFilter(input));
+    return ToImageFilter(filter);
+}
+
+sk_imagefilter_t* sk_imagefilter_new_xfermode(
+    sk_xfermode_mode_t cmode,
+    sk_imagefilter_t* background,
+    sk_imagefilter_t* foreground /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    SkXfermode::Mode mode;
+    if (!find_sk(cmode, &mode)) {
+        return NULL;
+    }
+
+    SkImageFilter* filter = SkXfermodeImageFilter::Create(
+        SkXfermode::Create(mode),
+        AsImageFilter(background),
+        AsImageFilter(foreground),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+#include "../../include/effects/SkModeColorFilter.h"
+#include "../../include/effects/SkColorCubeFilter.h"
+#include "../../include/effects/SkColorMatrixFilter.h"
+#include "../../include/effects/SkLumaColorFilter.h"
+#include "../../include/effects/SkTableColorFilter.h"
+#include "sk_maskfilter.h"
+
+void sk_colorfilter_unref(sk_colorfilter_t* filter) {
+    SkSafeUnref(AsColorFilter(filter));
+}
+
+sk_colorfilter_t* sk_colorfilter_new_mode(sk_color_t c, sk_xfermode_mode_t cmode) {
+
+    SkXfermode::Mode mode;
+    if (!find_sk(cmode, &mode)) {
+        return NULL;
+    }
+
+    SkColorFilter* filter = SkColorFilter::CreateModeFilter(
+        c,
+        mode);
+    return ToColorFilter(filter);
+}
+
+sk_colorfilter_t* sk_colorfilter_new_lighting(sk_color_t mul, sk_color_t add) {
+
+    SkColorFilter* filter = SkColorFilter::CreateLightingFilter(
+        mul,
+        add);
+    return ToColorFilter(filter);
+}
+
+sk_colorfilter_t* sk_colorfilter_new_compose(sk_colorfilter_t* outer, sk_colorfilter_t* inner) {
+
+    SkColorFilter* filter = SkColorFilter::CreateComposeFilter(
+        AsColorFilter(outer),
+        AsColorFilter(inner));
+    return ToColorFilter(filter);
+}
+
+sk_colorfilter_t* sk_colorfilter_new_color_cube(sk_data_t* cubeData, int cubeDimension) {
+
+    SkColorFilter* filter = SkColorCubeFilter::Create(
+        AsData(cubeData),
+        cubeDimension);
+    return ToColorFilter(filter);
+}
+
+sk_colorfilter_t* sk_colorfilter_new_color_matrix(const float array[20]) {
+
+    SkColorFilter* filter = SkColorMatrixFilter::Create(
+        array);
+    return ToColorFilter(filter);
+}
+
+sk_colorfilter_t* sk_colorfilter_new_luma_color() {
+
+    SkColorFilter* filter = SkLumaColorFilter::Create();
+    return ToColorFilter(filter);
+}
+
+sk_colorfilter_t* sk_colorfilter_new_table(const uint8_t table[256]) {
+
+    SkColorFilter* filter = SkTableColorFilter::Create(table);
+    return ToColorFilter(filter);
+}
+
+sk_colorfilter_t* sk_colorfilter_new_table_argb(const uint8_t tableA[256], const uint8_t tableR[256], const uint8_t tableG[256], const uint8_t tableB[256]) {
+    SkColorFilter* filter = SkTableColorFilter::CreateARGB(tableA, tableR, tableG, tableB);
+    return ToColorFilter(filter);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -590,6 +1240,14 @@ sk_data_t* sk_data_new_subset(const sk_data_t* csrc, size_t offset, size_t lengt
     return ToData(SkData::NewSubset(AsData(csrc), offset, length));
 }
 
+sk_data_t* sk_data_new_from_file(const char* path) {
+    return ToData(SkData::NewFromFileName(path));
+}
+
+sk_data_t* sk_data_new_from_stream(sk_stream_t* stream, size_t length) {
+    return ToData(SkData::NewFromStream(AsStream(stream), length));
+}
+
 void sk_data_ref(const sk_data_t* cdata) {
     SkSafeRef(AsData(cdata));
 }
@@ -604,6 +1262,10 @@ size_t sk_data_get_size(const sk_data_t* cdata) {
 
 const void* sk_data_get_data(const sk_data_t* cdata) {
     return AsData(cdata)->data();
+}
+
+const uint8_t* sk_data_get_bytes(const sk_data_t* cdata) {
+    return AsData(cdata)->bytes();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
