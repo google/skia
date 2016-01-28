@@ -22,7 +22,7 @@ class SkBitmap;
 class SkCanvas;
 
 struct Config {
-    const char* name;
+    SkString name;
     Benchmark::Backend backend;
     SkColorType color;
     SkAlphaType alpha;
