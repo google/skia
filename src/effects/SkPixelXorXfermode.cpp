@@ -21,7 +21,9 @@ SkPMColor SkPixelXorXfermode::xferColor(SkPMColor src, SkPMColor dst) const {
 }
 
 void SkPixelXorXfermode::flatten(SkWriteBuffer& wb) const {
-    wb.writeColor(fOpColor);
+    wb.writeColor(SkColorSetRGB(SkGetPackedR32(fOpColor),
+                                SkGetPackedG32(fOpColor),
+                                SkGetPackedB32(fOpColor)));
 }
 
 SkFlattenable* SkPixelXorXfermode::CreateProc(SkReadBuffer& buffer) {
