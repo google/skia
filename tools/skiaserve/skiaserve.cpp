@@ -156,12 +156,13 @@ static int SendJSON(MHD_Connection* connection, SkPicture* picture) {
 
 static int SendTemplate(MHD_Connection* connection, bool redirect = false,
                         const char* redirectUrl = nullptr) {
-    SkString debuggerTemplate = generateTemplate(SkString("http://debugger.skia.org"));
+    SkString debuggerTemplate = generateTemplate(SkString("https://debugger.skia.org"));
 
     MHD_Response* response = MHD_create_response_from_buffer(
         debuggerTemplate.size(),
         (void*) const_cast<char*>(debuggerTemplate.c_str()),
         MHD_RESPMEM_MUST_COPY);
+    MHD_add_response_header (response, "Access-Control-Allow-Origin", "*");
 
     int status = MHD_HTTP_OK;
 
