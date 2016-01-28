@@ -17,7 +17,8 @@
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
 
-#if defined(__SSE2__)
+// png_struct::read_filter[] was added in libpng 1.5.7.
+#if defined(__SSE2__) && PNG_LIBPNG_VER >= 10507
     #include "pngstruct.h"
 
     extern "C" void sk_png_init_filter_functions_sse2(png_structp png, unsigned int bpp) {
