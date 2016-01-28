@@ -207,7 +207,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
+#if 0 // Disabled due to https://bug.skia.org/4454
     fBindUniformLocationSupport = ctxInfo.hasExtension("GL_CHROMIUM_bind_uniform_location");
+#else
+    fBindUniformLocationSupport = false;
+#endif
 
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external")) {
         if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
