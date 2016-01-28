@@ -246,6 +246,9 @@ private:
         kModeCount = kLastMode + 1
     };
 
+    // TODO(benjaminwagner): This is crazy, but it fixes the Google3 Android build. :-(
+    virtual void doNothing() const;
+
     typedef SkFlattenable INHERITED;
 };
 
