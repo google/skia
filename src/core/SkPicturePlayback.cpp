@@ -21,10 +21,6 @@ enum LegacySaveFlags {
     kHasAlphaLayer_LegacySaveFlags    = 0x04,
     kClipToLayer_LegacySaveFlags      = 0x10,
 };
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-static_assert(kHasAlphaLayer_LegacySaveFlags == (int)SkCanvas::kHasAlphaLayer_SaveFlag, "");
-static_assert(kClipToLayer_LegacySaveFlags == (int)SkCanvas::kClipToLayer_SaveFlag, "");
-#endif
 
 SkCanvas::SaveLayerFlags SkCanvas::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
     uint32_t layerFlags = 0;

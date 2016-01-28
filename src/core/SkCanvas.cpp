@@ -1115,41 +1115,10 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-uint32_t SkCanvas::SaveFlagsToSaveLayerFlags(SaveFlags flags) {
-    uint32_t layerFlags = 0;
-
-    if (0 == (flags & kClipToLayer_SaveFlag)) {
-        layerFlags |= kDontClipToLayer_PrivateSaveLayerFlag;
-    }
-    if (0 == (flags & kHasAlphaLayer_SaveFlag)) {
-        layerFlags |= kIsOpaque_SaveLayerFlag;
-    }
-    return layerFlags;
-}
-
-uint32_t SkCanvas::SaveLayerFlagsToSaveFlags(SaveLayerFlags layerFlags) {
-    uint32_t saveFlags = 0;
-
-    if (0 == (layerFlags & kDontClipToLayer_PrivateSaveLayerFlag)) {
-        saveFlags |= kClipToLayer_SaveFlag;
-    }
-    if (0 == (layerFlags & kIsOpaque_SaveLayerFlag)) {
-        saveFlags |= kHasAlphaLayer_SaveFlag;
-    }
-    return saveFlags;
-}
-#endif
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, 0));
 }
-
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags) {
-    return this->saveLayer(SaveLayerRec(bounds, paint, SaveFlagsToSaveLayerFlags(flags)));
-}
-#endif
 
 int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, kPreserveLCDText_SaveLayerFlag));
@@ -1289,19 +1258,6 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
         return this->saveLayer(bounds, &tmpPaint);
     }
 }
-
-#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
-int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
-                             SaveFlags flags) {
-    if (0xFF == alpha) {
-        return this->saveLayer(bounds, nullptr, flags);
-    } else {
-        SkPaint tmpPaint;
-        tmpPaint.setAlpha(alpha);
-        return this->saveLayer(bounds, &tmpPaint, flags);
-    }
-}
-#endif
 
 void SkCanvas::internalRestore() {
     SkASSERT(fMCStack.count() != 0);
