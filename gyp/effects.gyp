@@ -20,7 +20,6 @@
       ],
       'include_dirs': [
         '../include/effects',
-        '../include/client/android',
         '../include/private',
         '../src/effects',
         '../src/opts',
@@ -29,7 +28,6 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/effects',
-          '../include/client/android',
         ],
       },
       'sources': [
