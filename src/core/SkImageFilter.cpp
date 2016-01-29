@@ -334,8 +334,6 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     if (!this->applyCropRect(ctx, proxy, input, &srcOffset, &bounds, &input)) {
         return false;
     }
-    SkRect srcRect = SkRect::Make(bounds);
-    SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
     GrContext* context = srcTexture->getContext();
 
     GrSurfaceDesc desc;
@@ -348,9 +346,6 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     if (!dst) {
         return false;
     }
-
-    // setup new clip
-    GrClip clip(dstRect);
 
     GrFragmentProcessor* fp;
     offset->fX = bounds.left();
@@ -366,6 +361,9 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
 
         SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(dst->asRenderTarget()));
         if (drawContext) {
+            SkRect srcRect = SkRect::Make(bounds);
+            SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
+            GrClip clip(dstRect);
             drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
             GrWrapTextureInBitmap(dst, bounds.width(), bounds.height(), false, result);
