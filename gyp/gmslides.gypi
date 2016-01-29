@@ -7,6 +7,7 @@
   'include_dirs': [
     '../gm',
     # include dirs needed by particular GMs
+    '../include/client/android',
     '../src/utils/debugger',
     '../src/images',
     '../src/lazy',

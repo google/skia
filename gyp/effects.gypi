@@ -56,7 +56,6 @@
     '<(skia_src_path)/effects/SkPaintImageFilter.cpp',
     '<(skia_src_path)/effects/SkPerlinNoiseShader.cpp',
     '<(skia_src_path)/effects/SkPictureImageFilter.cpp',
-    '<(skia_src_path)/effects/SkPixelXorXfermode.cpp',
     '<(skia_src_path)/effects/SkTableColorFilter.cpp',
     '<(skia_src_path)/effects/SkTableMaskFilter.cpp',
     '<(skia_src_path)/effects/SkTestImageFilters.cpp',
@@ -110,10 +109,12 @@
     '<(skia_include_path)/effects/SkPaintFlagsDrawFilter.h',
     '<(skia_include_path)/effects/SkPaintImageFilter.h',
     '<(skia_include_path)/effects/SkPerlinNoiseShader.h',
-    '<(skia_include_path)/effects/SkPixelXorXfermode.h',
     '<(skia_include_path)/effects/SkTableColorFilter.h',
     '<(skia_include_path)/effects/SkTableMaskFilter.h',
     '<(skia_include_path)/effects/SkTileImageFilter.h',
     '<(skia_include_path)/effects/SkXfermodeImageFilter.h',
+
+    '<(skia_include_path)/client/android/SkPixelXorXfermode.h',
+    '<(skia_src_path)/android/effects/SkPixelXorXfermode.cpp',
   ],
 }
