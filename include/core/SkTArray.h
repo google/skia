@@ -507,7 +507,7 @@ void* operator new(size_t, SkTArray<T, MEM_COPY>* array, int SkDEBUGCODE(atIndex
 // exception.
 template <typename T, bool MEM_COPY>
 void operator delete(void*, SkTArray<T, MEM_COPY>* /*array*/, int /*atIndex*/) {
-    SK_CRASH();
+    SK_ABORT("Invalid Operation");
 }
 
 // Constructs a new object as the last element of an SkTArray.
