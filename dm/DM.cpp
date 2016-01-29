@@ -519,7 +519,7 @@ static bool brd_supported(const char* ext) {
     return false;
 }
 
-static bool gather_srcs() {
+static void gather_srcs() {
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         push_src("gm", "", new GMSrc(r->factory()));
     }
@@ -534,25 +534,31 @@ static bool gather_srcs() {
             push_src("skp", "", new SKPSrc(path));
         }
     }
-
-    SkTArray<SkString> images;
-    if (!CollectImages(&images)) {
-        return false;
-    }
-
-    for (auto image : images) {
-        push_codec_srcs(image);
-        const char* ext = "";
-        int index = image.findLastOf('.');
-        if (index >= 0 && (size_t) ++index < image.size()) {
-            ext = &image.c_str()[index];
+    static const char* const exts[] = {
+        "bmp", "gif", "jpg", "jpeg", "png", "webp", "ktx", "astc", "wbmp", "ico",
+        "BMP", "GIF", "JPG", "JPEG", "PNG", "WEBP", "KTX", "ASTC", "WBMP", "ICO",
+        "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
+        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
+    };
+    for (int i = 0; i < FLAGS_images.count(); i++) {
+        const char* flag = FLAGS_images[i];
+        if (sk_isdir(flag)) {
+            for (size_t j = 0; j < SK_ARRAY_COUNT(exts); j++) {
+                SkOSFile::Iter it(flag, exts[j]);
+                for (SkString file; it.next(&file); ) {
+                    SkString path = SkOSPath::Join(flag, file.c_str());
+                    push_codec_srcs(path);
+                    if (brd_supported(exts[j])) {
+                        push_brd_srcs(path);
+                    }
+                }
+            }
+        } else if (sk_exists(flag)) {
+            // assume that FLAGS_images[i] is a valid image if it is a file.
+            push_codec_srcs(flag);
+            push_brd_srcs(flag);
         }
-        if (brd_supported(ext)) {
-            push_brd_srcs(image);
-        }
     }
-
-    return true;
 }
 
 static void push_sink(const SkCommandLineConfig& config, Sink* s) {
@@ -1100,9 +1106,7 @@ int dm_main() {
     gather_gold();
     gather_uninteresting_hashes();
 
-    if (!gather_srcs()) {
-        return 1;
-    }
+    gather_srcs();
     gather_sinks();
     gather_tests();
 

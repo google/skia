@@ -68,7 +68,8 @@
         'TURBO_HAS_SKIP',
       ],
       'conditions': [
-        ['skia_codec_decodes_raw', {
+        # FIXME: fix the support for ChromeOS [DNG SDK issue with clock_gettime()].
+        ['skia_codec_decodes_raw and skia_os != "chromeos"', {
           'dependencies': [
             'raw_codec',
           ],
@@ -76,7 +77,7 @@
       ],
     }, {
       # RAW codec needs exceptions. Due to that, it is a separate target. Its usage can be
-      # controlled by skia_codec_decodes_raw flag.
+      # controlled by SK_CODEC_DECODES_RAW flag.
       'target_name': 'raw_codec',
       'product_name': 'raw_codec',
       'type': 'static_library',
@@ -110,7 +111,13 @@
         'include_dirs': [
           '../include/codec',
         ],
+        'defines': [
+          'SK_CODEC_DECODES_RAW',
+        ],
       },
+      'defines': [
+        'SK_CODEC_DECODES_RAW',
+      ],
       'conditions': [
         ['skia_arch_type == "x86" or skia_arch_type == "arm"', {
           'defines': [

@@ -12,11 +12,6 @@
     'SK_FORCE_DISTANCE_FIELD_TEXT=<(skia_force_distance_field_text)',
   ],
   'conditions' : [
-    [ 'skia_codec_decodes_raw', {
-      'defines': [
-        'SK_CODEC_DECODES_RAW',
-      ],
-    }],
     ['skia_pic', {
      'cflags': [
        '-fPIC',
