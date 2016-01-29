@@ -63,6 +63,18 @@
 #define SKJSONCANVAS_ATTRIBUTE_REGIONOP          "op"
 #define SKJSONCANVAS_ATTRIBUTE_EDGESTYLE         "edgeStyle"
 #define SKJSONCANVAS_ATTRIBUTE_DEVICEREGION      "deviceRegion"
+#define SKJSONCANVAS_ATTRIBUTE_BLUR              "blur"
+#define SKJSONCANVAS_ATTRIBUTE_SIGMA             "sigma"
+#define SKJSONCANVAS_ATTRIBUTE_QUALITY           "quality"
+#define SKJSONCANVAS_ATTRIBUTE_TEXTALIGN         "textAlign"
+#define SKJSONCANVAS_ATTRIBUTE_TEXTSIZE          "textSize"
+#define SKJSONCANVAS_ATTRIBUTE_TEXTSCALEX        "textScaleX"
+#define SKJSONCANVAS_ATTRIBUTE_TEXTSKEWX         "textSkewX"
+#define SKJSONCANVAS_ATTRIBUTE_DASHING           "dashing"
+#define SKJSONCANVAS_ATTRIBUTE_INTERVALS         "intervals"
+#define SKJSONCANVAS_ATTRIBUTE_PHASE             "phase"
+#define SKJSONCANVAS_ATTRIBUTE_FILLTYPE          "fillType"
+#define SKJSONCANVAS_ATTRIBUTE_VERBS             "verbs"
 
 #define SKJSONCANVAS_VERB_MOVE                   "move"
 #define SKJSONCANVAS_VERB_LINE                   "line"
@@ -75,9 +87,6 @@
 #define SKJSONCANVAS_STYLE_STROKE                "stroke"
 #define SKJSONCANVAS_STYLE_STROKEANDFILL         "strokeAndFill"
 
-#define SKJSONCANVAS_EDGESTYLE_HARD              "hard"
-#define SKJSONCANVAS_EDGESTYLE_SOFT              "soft"
-
 #define SKJSONCANVAS_POINTMODE_POINTS            "points"
 #define SKJSONCANVAS_POINTMODE_LINES             "lines"
 #define SKJSONCANVAS_POINTMODE_POLYGON           "polygon"
@@ -88,6 +97,23 @@
 #define SKJSONCANVAS_REGIONOP_XOR                "xor"
 #define SKJSONCANVAS_REGIONOP_REVERSE_DIFFERENCE "reverseDifference"
 #define SKJSONCANVAS_REGIONOP_REPLACE            "replace"
+
+#define SKJSONCANVAS_BLURSTYLE_NORMAL            "normal"
+#define SKJSONCANVAS_BLURSTYLE_SOLID             "solid"
+#define SKJSONCANVAS_BLURSTYLE_OUTER             "outer"
+#define SKJSONCANVAS_BLURSTYLE_INNER             "inner"
+
+#define SKJSONCANVAS_BLURQUALITY_LOW             "low"
+#define SKJSONCANVAS_BLURQUALITY_HIGH            "high"
+
+#define SKJSONCANVAS_ALIGN_LEFT                  "left"
+#define SKJSONCANVAS_ALIGN_CENTER                "center"
+#define SKJSONCANVAS_ALIGN_RIGHT                 "right"
+
+#define SKJSONCANVAS_FILLTYPE_WINDING            "winding"
+#define SKJSONCANVAS_FILLTYPE_EVENODD            "evenOdd"
+#define SKJSONCANVAS_FILLTYPE_INVERSEWINDING     "inverseWinding"
+#define SKJSONCANVAS_FILLTYPE_INVERSEEVENODD     "inverseEvenOdd"
 
 /* 
  * Implementation of SkCanvas which writes JSON when drawn to. The JSON describes all of the draw

@@ -6,7 +6,10 @@
  */
 
 #include "SkJSONCanvas.h"
+#include "SkMaskFilter.h"
+#include "SkPaintDefaults.h"
 #include "SkPath.h"
+#include "SkPathEffect.h"
 #include "SkRRect.h"
 
 SkJSONCanvas::SkJSONCanvas(int width, int height, SkWStream& out) 
@@ -50,13 +53,28 @@ Json::Value SkJSONCanvas::makeRRect(const SkRRect& rrect) {
     result.append(this->makeRect(rrect.rect()));
     result.append(this->makePoint(rrect.radii(SkRRect::kUpperLeft_Corner)));
     result.append(this->makePoint(rrect.radii(SkRRect::kUpperRight_Corner)));
-    result.append(this->makePoint(rrect.radii(SkRRect::kLowerLeft_Corner)));
     result.append(this->makePoint(rrect.radii(SkRRect::kLowerRight_Corner)));
+    result.append(this->makePoint(rrect.radii(SkRRect::kLowerLeft_Corner)));
     return result;
 }
 
 Json::Value SkJSONCanvas::makePath(const SkPath& path) {
-    Json::Value result(Json::arrayValue);
+    Json::Value result(Json::objectValue);
+    switch (path.getFillType()) {
+        case SkPath::kWinding_FillType:
+            result[SKJSONCANVAS_ATTRIBUTE_FILLTYPE] = SKJSONCANVAS_FILLTYPE_WINDING;
+            break;
+        case SkPath::kEvenOdd_FillType:
+            result[SKJSONCANVAS_ATTRIBUTE_FILLTYPE] = SKJSONCANVAS_FILLTYPE_EVENODD;
+            break;
+        case SkPath::kInverseWinding_FillType:
+            result[SKJSONCANVAS_ATTRIBUTE_FILLTYPE] = SKJSONCANVAS_FILLTYPE_INVERSEWINDING;
+            break;
+        case SkPath::kInverseEvenOdd_FillType:
+            result[SKJSONCANVAS_ATTRIBUTE_FILLTYPE] = SKJSONCANVAS_FILLTYPE_INVERSEEVENODD;
+            break;
+    }    
+    Json::Value verbs(Json::arrayValue);
     SkPath::Iter iter(path, false);
     SkPoint pts[4];
     SkPath::Verb verb;
@@ -65,7 +83,7 @@ Json::Value SkJSONCanvas::makePath(const SkPath& path) {
             case SkPath::kLine_Verb: {
                 Json::Value line(Json::objectValue);
                 line[SKJSONCANVAS_VERB_LINE] = this->makePoint(pts[1]);
-                result.append(line);
+                verbs.append(line);
                 break;
             }
             case SkPath::kQuad_Verb: {
@@ -74,7 +92,7 @@ Json::Value SkJSONCanvas::makePath(const SkPath& path) {
                 coords.append(this->makePoint(pts[1]));
                 coords.append(this->makePoint(pts[2]));
                 quad[SKJSONCANVAS_VERB_QUAD] = coords;
-                result.append(quad);
+                verbs.append(quad);
                 break;
             }
             case SkPath::kCubic_Verb: {
@@ -84,7 +102,7 @@ Json::Value SkJSONCanvas::makePath(const SkPath& path) {
                 coords.append(this->makePoint(pts[2]));
                 coords.append(this->makePoint(pts[3]));
                 cubic[SKJSONCANVAS_VERB_CUBIC] = coords;
-                result.append(cubic);
+                verbs.append(cubic);
                 break;
             }
             case SkPath::kConic_Verb: {
@@ -94,27 +112,40 @@ Json::Value SkJSONCanvas::makePath(const SkPath& path) {
                 coords.append(this->makePoint(pts[2]));
                 coords.append(Json::Value(iter.conicWeight()));
                 conic[SKJSONCANVAS_VERB_CONIC] = coords;
-                result.append(conic);
+                verbs.append(conic);
                 break;
             }
             case SkPath::kMove_Verb: {
                 Json::Value move(Json::objectValue);
                 move[SKJSONCANVAS_VERB_MOVE] = this->makePoint(pts[0]);
-                result.append(move);
+                verbs.append(move);
                 break;
             }
             case SkPath::kClose_Verb:
-                result.append(Json::Value(SKJSONCANVAS_VERB_CLOSE));
+                verbs.append(Json::Value(SKJSONCANVAS_VERB_CLOSE));
                 break;
             case SkPath::kDone_Verb:
                 break;
         }
     }
+    result[SKJSONCANVAS_ATTRIBUTE_VERBS] = verbs;
     return result;
 }
 
 Json::Value SkJSONCanvas::makeRegion(const SkRegion& region) {
     return Json::Value("<unimplemented>");
+}
+
+void store_scalar(Json::Value* target, const char* key, SkScalar value, SkScalar defaultValue) {
+    if (value != defaultValue) {
+        (*target)[key] = Json::Value(value);
+    }
+}
+
+void store_bool(Json::Value* target, const char* key, bool value, bool defaultValue) {
+    if (value != defaultValue) {
+        (*target)[key] = Json::Value(value);
+    }
 }
 
 Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
@@ -144,12 +175,86 @@ Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
             default: SkASSERT(false);
         }
     }
-    SkScalar strokeWidth = paint.getStrokeWidth();
-    if (strokeWidth != 0.0f) {
-        result[SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH] = Json::Value(strokeWidth);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH, paint.getStrokeWidth(), 0.0f);
+    store_bool(&result, SKJSONCANVAS_ATTRIBUTE_ANTIALIAS, paint.isAntiAlias(), false);
+    SkMaskFilter* maskFilter = paint.getMaskFilter();
+    if (maskFilter != nullptr) {
+        SkMaskFilter::BlurRec blurRec;
+        if (maskFilter->asABlur(&blurRec)) {
+            Json::Value blur(Json::objectValue);
+            blur[SKJSONCANVAS_ATTRIBUTE_SIGMA] = Json::Value(blurRec.fSigma);
+            switch (blurRec.fStyle) {
+                case SkBlurStyle::kNormal_SkBlurStyle:
+                    blur[SKJSONCANVAS_ATTRIBUTE_STYLE] = Json::Value(SKJSONCANVAS_BLURSTYLE_NORMAL);
+                    break;
+                case SkBlurStyle::kSolid_SkBlurStyle:
+                    blur[SKJSONCANVAS_ATTRIBUTE_STYLE] = Json::Value(SKJSONCANVAS_BLURSTYLE_SOLID);
+                    break;
+                case SkBlurStyle::kOuter_SkBlurStyle:
+                    blur[SKJSONCANVAS_ATTRIBUTE_STYLE] = Json::Value(SKJSONCANVAS_BLURSTYLE_OUTER);
+                    break;
+                case SkBlurStyle::kInner_SkBlurStyle:
+                    blur[SKJSONCANVAS_ATTRIBUTE_STYLE] = Json::Value(SKJSONCANVAS_BLURSTYLE_INNER);
+                    break;
+                default:
+                    SkASSERT(false);
+            }
+            switch (blurRec.fQuality) {
+                case SkBlurQuality::kLow_SkBlurQuality:
+                    blur[SKJSONCANVAS_ATTRIBUTE_QUALITY] = Json::Value(SKJSONCANVAS_BLURQUALITY_LOW);
+                    break;
+                case SkBlurQuality::kHigh_SkBlurQuality:
+                    blur[SKJSONCANVAS_ATTRIBUTE_QUALITY] = Json::Value(SKJSONCANVAS_BLURQUALITY_HIGH);
+                    break;
+                default:
+                    SkASSERT(false);
+            }
+            result[SKJSONCANVAS_ATTRIBUTE_BLUR] = blur;
+        }
+        else {
+            SkDebugf("unimplemented: non-blur maskfilter");
+            SkASSERT(false);
+        }
     }
-    if (paint.isAntiAlias()) {
-        result[SKJSONCANVAS_ATTRIBUTE_ANTIALIAS] = Json::Value(true);
+    SkPathEffect* pathEffect = paint.getPathEffect();
+    if (pathEffect != nullptr) {
+        SkPathEffect::DashInfo dashInfo;
+        SkPathEffect::DashType dashType = pathEffect->asADash(&dashInfo);
+        if (dashType == SkPathEffect::kDash_DashType) {
+            dashInfo.fIntervals = (SkScalar*) sk_malloc_throw(dashInfo.fCount * sizeof(SkScalar));
+            pathEffect->asADash(&dashInfo);
+            Json::Value dashing(Json::objectValue);
+            Json::Value intervals(Json::arrayValue);
+            for (int32_t i = 0; i < dashInfo.fCount; i++) {
+                intervals.append(Json::Value(dashInfo.fIntervals[i]));
+            }
+            free(dashInfo.fIntervals);
+            dashing[SKJSONCANVAS_ATTRIBUTE_INTERVALS] = intervals;
+            dashing[SKJSONCANVAS_ATTRIBUTE_PHASE] = dashInfo.fPhase;
+            result[SKJSONCANVAS_ATTRIBUTE_DASHING] = dashing;
+        }
+        else {
+            SkDebugf("unimplemented: non-dash patheffect");
+            SkASSERT(false);
+        }
+    }
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSIZE, paint.getTextSize(), 
+                 SkPaintDefaults_TextSize);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextScaleX(), SK_Scalar1);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextSkewX(), 0.0f);
+    SkPaint::Align textAlign = paint.getTextAlign();
+    if (textAlign != SkPaint::kLeft_Align) {
+        switch (textAlign) {
+            case SkPaint::kCenter_Align: {
+                result[SKJSONCANVAS_ATTRIBUTE_TEXTALIGN] = SKJSONCANVAS_ALIGN_CENTER;
+                break;
+            }
+            case SkPaint::kRight_Align: {
+                result[SKJSONCANVAS_ATTRIBUTE_TEXTALIGN] = SKJSONCANVAS_ALIGN_RIGHT;
+                break;
+            }
+            default: SkASSERT(false);
+        }
     }
     return result;
 }
@@ -191,18 +296,6 @@ Json::Value SkJSONCanvas::makeRegionOp(SkRegion::Op op) {
         default:
             SkASSERT(false);
             return Json::Value("<invalid region op>");
-    };
-}
-
-Json::Value SkJSONCanvas::makeEdgeStyle(SkCanvas::ClipEdgeStyle edgeStyle) {
-    switch (edgeStyle) {
-        case SkCanvas::kHard_ClipEdgeStyle: 
-            return Json::Value(SKJSONCANVAS_EDGESTYLE_HARD);
-        case SkCanvas::kSoft_ClipEdgeStyle:
-            return Json::Value(SKJSONCANVAS_EDGESTYLE_SOFT);
-        default:
-            SkASSERT(false);
-            return Json::Value("<invalid edge style>");
     };
 }
 
@@ -352,7 +445,18 @@ void SkJSONCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x,
 
 void SkJSONCanvas::onDrawPosText(const void* text, size_t byteLength,
                                  const SkPoint pos[], const SkPaint& paint) {
-    SkDebugf("unsupported: drawPosText\n");
+    this->updateMatrix();
+    Json::Value command(Json::objectValue);
+    command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_POSTEXT);
+    command[SKJSONCANVAS_ATTRIBUTE_TEXT] = Json::Value((const char*) text, 
+                                                       ((const char*) text) + byteLength);
+    Json::Value coords(Json::arrayValue);
+    for (size_t i = 0; i < byteLength; i++) {
+        coords.append(this->makePoint(pos[i]));
+    }
+    command[SKJSONCANVAS_ATTRIBUTE_COORDS] = coords;
+    command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(paint);
+    fCommands.append(command);
 }
 
 void SkJSONCanvas::onDrawPosTextH(const void* text, size_t byteLength,
@@ -388,7 +492,7 @@ void SkJSONCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_CLIPRECT);
     command[SKJSONCANVAS_ATTRIBUTE_COORDS] = this->makeRect(rect);
     command[SKJSONCANVAS_ATTRIBUTE_REGIONOP] = this->makeRegionOp(op);
-    command[SKJSONCANVAS_ATTRIBUTE_EDGESTYLE] = this->makeEdgeStyle(edgeStyle);
+    command[SKJSONCANVAS_ATTRIBUTE_ANTIALIAS] = (edgeStyle == SkCanvas::kSoft_ClipEdgeStyle);
     fCommands.append(command);
 }
 
@@ -398,7 +502,7 @@ void SkJSONCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeSt
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_CLIPRRECT);
     command[SKJSONCANVAS_ATTRIBUTE_COORDS] = this->makeRRect(rrect);
     command[SKJSONCANVAS_ATTRIBUTE_REGIONOP] = this->makeRegionOp(op);
-    command[SKJSONCANVAS_ATTRIBUTE_EDGESTYLE] = this->makeEdgeStyle(edgeStyle);
+    command[SKJSONCANVAS_ATTRIBUTE_ANTIALIAS] = (edgeStyle == SkCanvas::kSoft_ClipEdgeStyle);
     fCommands.append(command);
 }
 
@@ -408,7 +512,7 @@ void SkJSONCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_CLIPPATH);
     command[SKJSONCANVAS_ATTRIBUTE_PATH] = this->makePath(path);
     command[SKJSONCANVAS_ATTRIBUTE_REGIONOP] = this->makeRegionOp(op);
-    command[SKJSONCANVAS_ATTRIBUTE_EDGESTYLE] = this->makeEdgeStyle(edgeStyle);
+    command[SKJSONCANVAS_ATTRIBUTE_ANTIALIAS] = (edgeStyle == SkCanvas::kSoft_ClipEdgeStyle);
     fCommands.append(command);
 }
 
@@ -422,6 +526,7 @@ void SkJSONCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
 }
 
 void SkJSONCanvas::willSave() {
+    this->updateMatrix();
     Json::Value command(Json::objectValue);
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_SAVE);
     fCommands.append(command);
