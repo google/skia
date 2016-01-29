@@ -1167,6 +1167,7 @@ int dm_main() {
     #ifdef SK_PDF_IMAGE_STATS
     SkPDFImageDumpStats();
     #endif  // SK_PDF_IMAGE_STATS
+    SkDebugf("Finished!\n");
     return 0;
 }
 
