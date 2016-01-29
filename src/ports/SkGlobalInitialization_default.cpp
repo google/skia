@@ -10,6 +10,7 @@
 #include "SkAlphaThresholdFilter.h"
 #include "SkArithmeticMode.h"
 #include "SkArcToPathEffect.h"
+#include "SkAvoidXfermode.h"
 #include "SkBitmapSourceDeserializer.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurImageFilter.h"
@@ -82,6 +83,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
 
     // Xfermode
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPixelXorXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAvoidXfermode)
 
     // PathEffect
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArcToPathEffect)
