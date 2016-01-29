@@ -87,3 +87,20 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
         }
     }
 }
+
+DEF_TEST(DashPath_bug4871, r) {
+    SkPath path;
+    path.moveTo(30, 24);
+    path.cubicTo(30.002f, 24, 30, 24, 30, 24);
+    path.close();
+
+    SkScalar intervals[2] = { 1, 1 };
+    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setPathEffect(dash);
+
+    SkPath fill;
+    paint.getFillPath(path, &fill);
+}

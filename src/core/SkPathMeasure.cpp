@@ -652,6 +652,9 @@ bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     if (startD > stopD) {
         return false;
     }
+    if (!fSegments.count()) {
+        return false;
+    }
 
     SkPoint  p;
     SkScalar startT, stopT;
