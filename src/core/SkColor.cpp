@@ -141,3 +141,8 @@ SkPM4f SkColor4f::premul() const {
     dst.store(pm4.fVec);
     return pm4;
 }
+
+bool SkPM4f::isUnit() const {
+    auto c4 = Sk4f::Load(fVec);
+    return (c4 >= Sk4f(0)).allTrue() && (c4 <= Sk4f(1)).allTrue();
+}

@@ -293,6 +293,7 @@
         '<(skia_src_path)/core/SkVertState.cpp',
         '<(skia_src_path)/core/SkWriteBuffer.cpp',
         '<(skia_src_path)/core/SkWriter32.cpp',
+        '<(skia_src_path)/core/SkXfer4f.cpp',
         '<(skia_src_path)/core/SkXfermode.cpp',
         '<(skia_src_path)/core/SkXfermode_proccoeff.h',
         '<(skia_src_path)/core/SkXfermodeInterpretation.cpp',

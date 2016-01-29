@@ -110,8 +110,7 @@ SK_API void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3]);
     @param color the argb color to convert. Note: the alpha component is ignored.
     @param hsv  3 element array which holds the resulting HSV components.
 */
-static inline void SkColorToHSV(SkColor color, SkScalar hsv[3])
-{
+static inline void SkColorToHSV(SkColor color, SkScalar hsv[3]) {
     SkRGBToHSV(SkColorGetR(color), SkColorGetG(color), SkColorGetB(color), hsv);
 }
 
@@ -134,8 +133,7 @@ SK_API SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3]);
     @param hsv  3 element array which holds the input HSV components.
     @return the resulting argb color
 */
-static inline SkColor SkHSVToColor(const SkScalar hsv[3])
-{
+static inline SkColor SkHSVToColor(const SkScalar hsv[3]) {
     return SkHSVToColor(0xFF, hsv);
 }
 
@@ -166,11 +164,19 @@ typedef SkPMColor (*SkXfermodeProc)(SkPMColor src, SkPMColor dst);
  *  The float values are 0...1 premultiplied
  */
 struct SkPM4f {
+    enum {
+        A = SK_A32_SHIFT/8,
+        R = SK_R32_SHIFT/8,
+        G = SK_G32_SHIFT/8,
+        B = SK_B32_SHIFT/8,
+    };
     float fVec[4];
 
-    float a() const { return fVec[SK_A32_SHIFT/8]; }
+    float a() const { return fVec[3]; }
 
     static SkPM4f FromPMColor(SkPMColor);
+
+    bool isUnit() const;
 };
 
 /*
