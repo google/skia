@@ -197,6 +197,7 @@ void Renderer::getPaint(Json::Value& command, SkPaint* result) {
             SkASSERT(false);
             textAlign = SkPaint::kLeft_Align;
         }
+        result->setTextAlign(textAlign);
     }
     if (jsonPaint.isMember(SKJSONCANVAS_ATTRIBUTE_TEXTSIZE)) {
         float textSize = jsonPaint[SKJSONCANVAS_ATTRIBUTE_TEXTSIZE].asFloat();
