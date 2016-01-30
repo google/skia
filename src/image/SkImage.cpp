@@ -339,4 +339,8 @@ SkImage* SkImage::NewFromTextureCopy(GrContext*, const GrBackendTextureDesc&, Sk
     return nullptr;
 }
 
+SkImage* SkImage::newTextureImage(GrContext*) const {
+    return nullptr;
+}
+
 #endif

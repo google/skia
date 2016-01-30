@@ -300,6 +300,13 @@ public:
      */
     SkImage* newSubset(const SkIRect& subset) const;
 
+    /**
+     *  Ensures that an image is backed by a texture (when GrContext is non-null). If no
+     *  transformation is required, the returned image may be the same as this image. If the this
+     *  image is from a different GrContext, this will fail.
+     */
+    SkImage* newTextureImage(GrContext*) const;
+
     // Helper functions to convert to SkBitmap
 
     enum LegacyBitmapMode {

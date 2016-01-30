@@ -282,6 +282,37 @@ SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx , SkYUVColorSpace colorS
                            kOpaque_SkAlphaType, dst, budgeted);
 }
 
+static SkImage* create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
+    SkAutoTUnref<GrTexture> texture(maker->refTextureForParams(GrTextureParams::ClampNoFilter()));
+    if (!texture) {
+        return nullptr;
+    }
+    return new SkImage_Gpu(texture->width(), texture->height(), id, at, texture,
+                           SkSurface::kNo_Budgeted);
+}
+
+SkImage* SkImage::newTextureImage(GrContext *context) const {
+    if (!context) {
+        return nullptr;
+    }
+    if (GrTexture* peek = as_IB(this)->peekTexture()) {
+        return peek->getContext() == context ? SkRef(const_cast<SkImage*>(this)) : nullptr;
+    }
+    // No way to check whether a image is premul or not?
+    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+
+    if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
+        GrImageTextureMaker maker(context, cacher, this, kDisallow_CachingHint);
+        return create_image_from_maker(&maker, at, this->uniqueID());
+    }
+    SkBitmap bmp;
+    if (!this->asLegacyBitmap(&bmp, kRO_LegacyBitmapMode)) {
+        return nullptr;
+    }
+    GrBitmapTextureMaker maker(context, bmp);
+    return create_image_from_maker(&maker, at, this->uniqueID());
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrTexture* GrDeepCopyTexture(GrTexture* src, bool budgeted) {
