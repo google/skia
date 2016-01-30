@@ -91,7 +91,6 @@ public:
                                       GrBatchToXPOverrides* overrides) const override {
         color->setKnownFourComponents(fColor);
         coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = false;
     }
 
 private:

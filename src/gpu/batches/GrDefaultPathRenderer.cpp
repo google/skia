@@ -234,7 +234,6 @@ public:
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setKnownSingleComponent(this->coverage());
-        overrides->fUsePLSDstRead = false;
     }
 
 private:

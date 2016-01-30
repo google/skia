@@ -33,7 +33,8 @@ public:
      */
     enum GLSLFeature {
         kStandardDerivatives_GLSLFeature = 0,
-        kLastGLSLFeature = kStandardDerivatives_GLSLFeature
+        kPixelLocalStorage_GLSLFeature = 1,
+        kLastGLSLFeature = kPixelLocalStorage_GLSLFeature
     };
 
     /**
@@ -65,6 +66,8 @@ public:
 
     bool hasCustomColorOutput() const { return fHasCustomColorOutput; }
     bool hasSecondaryOutput() const { return fHasSecondaryOutput; }
+
+    void declAppendf(const char* fmt, ...);
 
 protected:
     bool fHasCustomColorOutput;

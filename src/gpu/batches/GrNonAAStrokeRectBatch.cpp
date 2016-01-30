@@ -60,7 +60,6 @@ public:
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     void append(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,

@@ -79,7 +79,6 @@ public:
                                       GrBatchToXPOverrides* overrides) const override {
         color->setUnknownFourComponents();
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

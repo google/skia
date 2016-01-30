@@ -366,6 +366,9 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     this->onResolveRenderTarget(target);
 }
 
+void GrGpu::performFlushWorkaround() {
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
@@ -381,3 +384,4 @@ void GrGpu::draw(const DrawArgs& args, const GrVertices& vertices) {
         fStats.incNumDraws();
     } while ((verts = iter.next()));
 }
+

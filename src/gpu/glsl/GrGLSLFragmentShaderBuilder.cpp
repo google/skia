@@ -7,6 +7,7 @@
 
 #include "GrGLSLFragmentShaderBuilder.h"
 #include "GrRenderTarget.h"
+#include "gl/GrGLGpu.h"
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramBuilder.h"
@@ -87,6 +88,14 @@ bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
             }
             return true;
         }
+        case kPixelLocalStorage_GLSLFeature: {
+            if (fProgramBuilder->glslCaps()->pixelLocalStorageSize() <= 0) {
+                return false;
+            }
+            this->addFeature(1 << kPixelLocalStorage_GLSLFeature,
+                             "GL_EXT_shader_pixel_local_storage");
+            return true;
+        }
         default:
             SkFAIL("Unexpected GLSLFeature requested.");
             return false;
@@ -160,6 +169,11 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
     fHasReadDstColor = true;
 
+    const char* override = fProgramBuilder->primitiveProcessor().getDestColorOverride();
+    if (override != nullptr) {
+        return override;
+    }
+
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     if (glslCaps->fbFetchSupport()) {
         this->addFeature(1 << (GrGLSLFragmentShaderBuilder::kLastGLSLPrivateFeature + 1),
@@ -225,6 +239,13 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
 
 const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
     return fHasCustomColorOutput ? DeclaredColorOutputName() : "gl_FragColor";
+}
+
+void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
+    va_list argp;
+    va_start(argp, fmt);
+    inputs().appendVAList(fmt, argp);
+    va_end(argp);    
 }
 
 const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {

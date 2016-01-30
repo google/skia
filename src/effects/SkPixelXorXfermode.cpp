@@ -344,7 +344,7 @@ private:
         return new PixelXorXP(dstTexture, hasMixedSamples, fOpColor);
     }
 
-    bool willReadDstColor(const GrCaps& caps,
+    bool onWillReadDstColor(const GrCaps& caps,
                           const GrPipelineOptimizations& optimizations,
                           bool hasMixedSamples) const override {
         return true;

@@ -54,12 +54,15 @@ static GrBlendEquation hw_blend_equation(SkXfermode::Mode mode) {
 }
 
 static bool can_use_hw_blend_equation(GrBlendEquation equation,
-                                      const GrProcOptInfo& coveragePOI,
+                                      const GrPipelineOptimizations& opt,
                                       const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
     }
-    if (coveragePOI.isFourChannelOutput()) {
+    if (opt.fOverrides.fUsePLSDstRead) {
+        return false;
+    }
+    if (opt.fCoveragePOI.isFourChannelOutput()) {
         return false; // LCD coverage must be applied after the blend equation.
     }
     if (caps.canUseAdvancedBlendEquation(equation)) {
@@ -334,7 +337,7 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstColor(const GrCaps& caps,
+    bool onWillReadDstColor(const GrCaps& caps,
                           const GrPipelineOptimizations& optimizations,
                           bool hasMixedSamples) const override;
 
@@ -362,17 +365,17 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         const GrPipelineOptimizations& opt,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
-    if (can_use_hw_blend_equation(fHWBlendEquation, opt.fCoveragePOI, caps)) {
+    if (can_use_hw_blend_equation(fHWBlendEquation, opt, caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }
     return new CustomXP(dstTexture, hasMixedSamples, fMode);
 }
 
-bool CustomXPFactory::willReadDstColor(const GrCaps& caps,
-                                       const GrPipelineOptimizations& optimizations,
-                                       bool hasMixedSamples) const {
-    return !can_use_hw_blend_equation(fHWBlendEquation, optimizations.fCoveragePOI, caps);
+bool CustomXPFactory::onWillReadDstColor(const GrCaps& caps,
+                                         const GrPipelineOptimizations& optimizations,
+                                         bool hasMixedSamples) const {
+    return !can_use_hw_blend_equation(fHWBlendEquation, optimizations, caps);
 }
 
 void CustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,

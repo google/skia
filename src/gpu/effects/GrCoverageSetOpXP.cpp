@@ -9,6 +9,7 @@
 #include "effects/GrCoverageSetOpXP.h"
 #include "GrCaps.h"
 #include "GrColor.h"
+#include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrProcOptInfo.h"
 #include "glsl/GrGLSLBlend.h"
@@ -151,7 +152,6 @@ class ShaderCSOXferProcessor : public GrXferProcessor {
 public:
     ShaderCSOXferProcessor(const DstTexture* dstTexture,
                            bool hasMixedSamples,
-                           SkXfermode::Mode xfermode,
                            SkRegion::Op regionOp,
                            bool invertCoverage)
         : INHERITED(dstTexture, true, hasMixedSamples)
@@ -323,6 +323,9 @@ GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
         return nullptr;
     }
 
+    if (optimizations.fOverrides.fUsePLSDstRead) {
+        return new ShaderCSOXferProcessor(dst, hasMixedSamples, fRegionOp, fInvertCoverage);
+    }
     return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);
 }
 

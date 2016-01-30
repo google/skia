@@ -24,7 +24,6 @@ public:
                                       GrBatchToXPOverrides* overrides) const override {
         color->setKnownFourComponents(fColor);
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     GrPathRendering::FillType fillType() const { return fFillType; }

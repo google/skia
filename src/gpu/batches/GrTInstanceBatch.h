@@ -65,7 +65,6 @@ public:
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
         Impl::InitInvariantOutputCoverage(coverage);
-        overrides->fUsePLSDstRead = false;
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {

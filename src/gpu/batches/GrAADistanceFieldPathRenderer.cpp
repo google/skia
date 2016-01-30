@@ -158,7 +158,6 @@ public:
                                       GrBatchToXPOverrides* overrides) const override {
         color->setKnownFourComponents(fGeoData[0].fColor);
         coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = false;
     }
 
 private:

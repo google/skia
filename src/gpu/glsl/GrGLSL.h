@@ -100,6 +100,10 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "samplerExternalOES";
         case kSampler2DRect_GrSLType:
             return "sampler2DRect";
+        case kBool_GrSLType:
+            return "bool";
+        case kInt_GrSLType:
+            return "int";
         default:
             SkFAIL("Unknown shader var type.");
             return ""; // suppress warning

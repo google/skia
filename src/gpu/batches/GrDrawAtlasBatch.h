@@ -39,7 +39,6 @@ public:
             color->setKnownFourComponents(fGeoData[0].fColor);
         }
         coverage->setKnownSingleComponent(0xff);
-        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }

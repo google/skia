@@ -193,4 +193,12 @@ typedef unsigned __int64 uint64_t;
 #if !defined(GR_BATCH_DEBUGGING_OUTPUT)
     #define GR_BATCH_DEBUGGING_OUTPUT 0
 #endif
+
+/**
+ * Set to 1 to enable pixel local storage path rendering on supported devices.
+ */
+#if !defined(GR_ENABLE_PLS_PATH_RENDERING)
+    #define GR_ENABLE_PLS_PATH_RENDERING 0
+#endif
+
 #endif

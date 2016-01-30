@@ -75,7 +75,6 @@ void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* co
         color->setKnownFourComponents(fGeoData[0].fColor);
     }
     coverage->setKnownSingleComponent(0xff);
-    overrides->fUsePLSDstRead = false;
 }
 
 void GrDrawVerticesBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
