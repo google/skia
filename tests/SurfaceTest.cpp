@@ -661,3 +661,44 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu, reporter, context) {
     }
 }
 #endif
+
+static void check_rowbytes_remain_consistent(SkSurface* surface, skiatest::Reporter* reporter) {
+    SkImageInfo info;
+    size_t rowBytes;
+    REPORTER_ASSERT(reporter, surface->peekPixels(&info, &rowBytes));
+
+    SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+    SkImageInfo im_info;
+    size_t im_rowbytes;
+    REPORTER_ASSERT(reporter, image->peekPixels(&im_info, &im_rowbytes));
+
+    REPORTER_ASSERT(reporter, rowBytes == im_rowbytes);
+
+    // trigger a copy-on-write
+    surface->getCanvas()->drawPaint(SkPaint());
+    SkAutoTUnref<SkImage> image2(surface->newImageSnapshot());
+    REPORTER_ASSERT(reporter, image->uniqueID() != image2->uniqueID());
+
+    SkImageInfo im_info2;
+    size_t im_rowbytes2;
+    REPORTER_ASSERT(reporter, image2->peekPixels(&im_info2, &im_rowbytes2));
+
+    REPORTER_ASSERT(reporter, im_rowbytes2 == im_rowbytes);
+}
+
+DEF_TEST(surface_rowbytes, reporter) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+
+    SkAutoTUnref<SkSurface> surf0(SkSurface::NewRaster(info));
+    check_rowbytes_remain_consistent(surf0, reporter);
+
+    // specify a larger rowbytes
+    SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info, 500, nullptr));
+    check_rowbytes_remain_consistent(surf1, reporter);
+
+    // Try some illegal rowByte values
+    SkSurface* s = SkSurface::NewRaster(info, 396, nullptr);    // needs to be at least 400
+    REPORTER_ASSERT(reporter, nullptr == s);
+    s = SkSurface::NewRaster(info, 1 << 30, nullptr); // allocation to large
+    REPORTER_ASSERT(reporter, nullptr == s);
+}

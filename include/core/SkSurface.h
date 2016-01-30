@@ -61,11 +61,18 @@ public:
                                                  void* context, const SkSurfaceProps* = NULL);
 
     /**
-     *  Return a new surface, with the memory for the pixels automatically
-     *  allocated.
+     *  Return a new surface, with the memory for the pixels automatically allocated, but respecting
+     *  the specified rowBytes. If rowBytes==0, then a default value will be chosen. If a non-zero
+     *  rowBytes is specified, then any images snapped off of this surface (via newImageSnapshot())
+     *  are guaranteed to have the same rowBytes.
      *
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
+     */
+    static SkSurface* NewRaster(const SkImageInfo&, size_t rowBytes, const SkSurfaceProps*);
+
+    /**
+     *  Allocate a new surface, automatically computing the rowBytes.
      */
     static SkSurface* NewRaster(const SkImageInfo&, const SkSurfaceProps* = NULL);
 
