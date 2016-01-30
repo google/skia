@@ -508,7 +508,7 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     buffer.fPlaneStep = 1;
     buffer.fPixelType = ttByte;
     buffer.fPixelSize = sizeof(uint8_t);
-    buffer.fRowStep = sizeof(srcRow);
+    buffer.fRowStep = width * 3;
 
     for (int i = 0; i < height; ++i) {
         buffer.fArea = dng_rect(i, 0, i + 1, width);
