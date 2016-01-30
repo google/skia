@@ -206,13 +206,27 @@ public:
         const SkFixed biasY = (s.fInvMatrix.getScaleY() > 0);
         fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(biasX);
         fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(biasY);
+
+        /*
+         *  (see SkBitmapProcState::setupForTranslate, which is the only user of this flag)
+         *
+         *  if the translate is larger than our ints, we can get random results, or
+         *  worse, we might get 0x80000000, which wreaks havoc on us, since we can't
+         *  negate it.
+         */
+        const SkScalar too_big = SkIntToScalar(1 << 30);
+        fOverflow = SkScalarAbs(pt.x() - SkFixedToScalar(biasX)) > too_big
+                 || SkScalarAbs(pt.y() - SkFixedToScalar(biasY)) > too_big;
     }
 
     SkFractionalInt x() const { return fX; }
     SkFractionalInt y() const { return fY; }
 
+    bool isOverflow() const { return fOverflow; }
+
 private:
     SkFractionalInt fX, fY;
+    bool            fOverflow;
 };
 
 #endif
