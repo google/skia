@@ -502,6 +502,32 @@ DEF_SIMPLE_GM(longpathdash, canvas, 512, 512) {
     canvas->drawPath(lines, p);
 }
 
+DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(80);
+
+    const SkScalar intervals[] = { 2, 2 };
+    p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), 0))->unref();
+    canvas->drawRect(SkRect::MakeXYWH(-10000, 100, 20000, 20), p);
+}
+
+DEF_SIMPLE_GM(longwavyline, canvas, 512, 512) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(2);
+
+    SkPath wavy;
+    wavy.moveTo(-10000, 100);
+    for (SkScalar i = -10000; i < 10000; i += 20) {
+        wavy.quadTo(i + 5, 95, i + 10, 100);
+        wavy.quadTo(i + 15, 105, i + 20, 100);
+    }
+    canvas->drawPath(wavy, p);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new DashingGM;)
