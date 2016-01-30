@@ -61,21 +61,7 @@ static void backward_insert_edge_based_on_x(SkEdge* edge SkDECLAREPARAM(int, cur
     }
 }
 
-#ifndef SK_SUPPORT_LEGACY_INSERT_NEW_EDGES
-// Start from the right side, searching backwards for the point to begin the new edge list
-// insertion, marching forwards from here. The implementation could have started from the left
-// of the prior insertion, and search to the right, or with some additional caching, binary
-// search the starting point. More work could be done to determine optimal new edge insertion.
-static SkEdge* backward_insert_start(SkEdge* prev, SkFixed x) {
-    while (prev->fX > x) {
-        prev = prev->fPrev;
-    }
-    return prev;
-}
-#endif
-
 static void insert_new_edges(SkEdge* newEdge, int curr_y) {
-#ifdef SK_SUPPORT_LEGACY_INSERT_NEW_EDGES
     SkASSERT(newEdge->fFirstY >= curr_y);
 
     while (newEdge->fFirstY == curr_y) {
@@ -83,37 +69,6 @@ static void insert_new_edges(SkEdge* newEdge, int curr_y) {
         backward_insert_edge_based_on_x(newEdge  SkPARAM(curr_y));
         newEdge = next;
     }
-}
-#else
-    if (newEdge->fFirstY != curr_y) {
-        return;
-    }
-    SkEdge* prev = newEdge->fPrev;
-    if (prev->fX <= newEdge->fX) {
-        return;
-    }
-    // find first x pos to insert
-    SkEdge* start = backward_insert_start(prev, newEdge->fX);
-    // insert the lot, fixing up the links as we go
-    do {
-        SkEdge* next = newEdge->fNext;
-        do {
-            if (start->fNext == newEdge) {
-                goto nextEdge;
-            }
-            SkEdge* after = start->fNext;
-            if (after->fX >= newEdge->fX) {
-                break;
-            }
-            start = after;
-        } while (true);
-        remove_edge(newEdge);
-        insert_edge_after(newEdge, start);
-nextEdge:
-        start = newEdge;
-        newEdge = next;
-    } while (newEdge->fFirstY == curr_y);
-#endif
 }
 
 #ifdef SK_DEBUG
