@@ -19,6 +19,15 @@
 #include "SkXfermode.h"
 #include "SkXfermodeInterpretation.h"
 
+// define this for testing srgb blits
+//#define SK_SUPPORT_SRGB_RASTER
+
+#ifdef SK_SUPPORT_SRGB_RASTER
+    #define ALLOW_SRGB  true
+#else
+    #define ALLOW_SRGB  false
+#endif
+
 SkBlitter::~SkBlitter() {}
 
 bool SkBlitter::isNullBlitter() const { return false; }
@@ -905,8 +914,13 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
         case kN32_SkColorType:
             if (shader) {
-                blitter = allocator->createT<SkARGB32_Shader_Blitter>(
-                        device, *paint, shaderContext);
+                if (shaderContext->supports4f() && ALLOW_SRGB) {
+                    blitter = allocator->createT<SkARGB32_Shader4f_Blitter>(
+                                                                  device, *paint, shaderContext);
+                } else {
+                    blitter = allocator->createT<SkARGB32_Shader_Blitter>(
+                            device, *paint, shaderContext);
+                }
             } else if (paint->getColor() == SK_ColorBLACK) {
                 blitter = allocator->createT<SkARGB32_Black_Blitter>(device, *paint);
             } else if (paint->getAlpha() == 0xFF) {

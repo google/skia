@@ -170,7 +170,7 @@ public:
     void blitRect(int x, int y, int width, int height) override;
     void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) override;
     void blitMask(const SkMask&, const SkIRect&) override;
-
+    
 private:
     SkXfermode*         fXfermode;
     SkPMColor*          fBuffer;
@@ -178,11 +178,35 @@ private:
     SkBlitRow::Proc32   fProc32Blend;
     bool                fShadeDirectlyIntoDevice;
     bool                fConstInY;
-
+    
     // illegal
     SkARGB32_Shader_Blitter& operator=(const SkARGB32_Shader_Blitter&);
-
+    
     typedef SkShaderBlitter INHERITED;
+};
+
+class SkARGB32_Shader4f_Blitter : public SkARGB32_Shader_Blitter {
+public:
+    SkARGB32_Shader4f_Blitter(const SkPixmap& device, const SkPaint& paint,
+                              SkShader::Context* shaderContext);
+    virtual ~SkARGB32_Shader4f_Blitter();
+    void blitH(int x, int y, int width) override;
+    void blitV(int x, int y, int height, SkAlpha alpha) override;
+    void blitRect(int x, int y, int width, int height) override;
+    void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) override;
+    void blitMask(const SkMask&, const SkIRect&) override;
+    
+private:
+    SkXfermode::PM4fState   fState;
+    SkXfermode::PM4fProc1   fProc1;
+    SkXfermode::PM4fProcN   fProcN;
+    SkPM4f*                 fBuffer;
+    bool                    fConstInY;
+    
+    // illegal
+    SkARGB32_Shader4f_Blitter& operator=(const SkARGB32_Shader4f_Blitter&);
+    
+    typedef SkARGB32_Shader_Blitter INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

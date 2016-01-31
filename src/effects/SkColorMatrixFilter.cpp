@@ -68,16 +68,16 @@ uint32_t SkColorMatrixFilter::getFlags() const {
 }
 
 static Sk4f scale_rgb(float scale) {
-    static_assert(SK_A32_SHIFT == 24, "Alpha is lane 3");
+    static_assert(SkPM4f::A == 3, "Alpha is lane 3");
     return Sk4f(scale, scale, scale, 1);
 }
 
 static Sk4f premul(const Sk4f& x) {
-    return x * scale_rgb(x.kth<SK_A32_SHIFT/8>());
+    return x * scale_rgb(x.kth<SkPM4f::A>());
 }
 
 static Sk4f unpremul(const Sk4f& x) {
-    return x * scale_rgb(1 / x.kth<SK_A32_SHIFT/8>());  // TODO: fast/approx invert?
+    return x * scale_rgb(1 / x.kth<SkPM4f::A>());  // TODO: fast/approx invert?
 }
 
 static Sk4f clamp_0_1(const Sk4f& x) {
@@ -105,7 +105,7 @@ void filter_span(const float array[], const T src[], int count, T dst[]) {
 
     for (int i = 0; i < count; i++) {
         Sk4f srcf = Adaptor::To4f(src[i]);
-        float srcA = srcf.kth<SK_A32_SHIFT/8>();
+        float srcA = srcf.kth<SkPM4f::A>();
 
         if (0 == srcA) {
             dst[i] = matrix_translate_pmcolor;

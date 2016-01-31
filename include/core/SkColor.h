@@ -172,11 +172,15 @@ struct SkPM4f {
     };
     float fVec[4];
 
-    float a() const { return fVec[3]; }
+    float a() const { return fVec[A]; }
 
     static SkPM4f FromPMColor(SkPMColor);
 
-    bool isUnit() const;
+#ifdef SK_DEBUG
+    void assertIsUnit() const;
+#else
+    void assertIsUnit() const {}
+#endif
 };
 
 /*

@@ -142,7 +142,9 @@ SkPM4f SkColor4f::premul() const {
     return pm4;
 }
 
-bool SkPM4f::isUnit() const {
+#ifdef SK_DEBUG
+void SkPM4f::assertIsUnit() const {
     auto c4 = Sk4f::Load(fVec);
-    return (c4 >= Sk4f(0)).allTrue() && (c4 <= Sk4f(1)).allTrue();
+    SkASSERT((c4 >= Sk4f(0)).allTrue() && (c4 <= Sk4f(1)).allTrue());
 }
+#endif

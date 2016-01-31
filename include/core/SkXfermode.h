@@ -229,6 +229,23 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
     SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
 
+    enum PM4fFlags {
+        kSrcIsOpaque_PM4fFlag  = 1 << 0,
+        kDstIsSRGB_PM4fFlag    = 1 << 1,
+    };
+    struct PM4fState {
+        const SkXfermode* fXfer;
+        uint32_t          fFlags;
+    };
+    typedef void (*PM4fProc1)(const PM4fState&, uint32_t dst[], const SkPM4f& src,
+                              int count, const SkAlpha coverage[]);
+    typedef void (*PM4fProcN)(const PM4fState&, uint32_t dst[], const SkPM4f src[],
+                              int count, const SkAlpha coverage[]);
+    static PM4fProc1 GetPM4fProc1(Mode, uint32_t flags);
+    static PM4fProcN GetPM4fProcN(Mode, uint32_t flags);
+    virtual PM4fProc1 getPM4fProc1(uint32_t flags) const;
+    virtual PM4fProcN getPM4fProcN(uint32_t flags) const;
+
 protected:
     SkXfermode() {}
     /** The default implementation of xfer32/xfer16/xferA8 in turn call this

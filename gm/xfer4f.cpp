@@ -8,7 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkImageInfo.h"
-#include "SkXfer4f.h"
+#include "SkXfermode.h"
 
 static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfileType profile) {
     const SkIRect ir = r.round();
@@ -21,26 +21,28 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfi
 
     uint32_t flags = 0;
     if (SkColorGetA(c) == 0xFF) {
-        flags |= kSrcIsOpaque_SkXfer4fFlag;
+        flags |= SkXfermode::kSrcIsOpaque_PM4fFlag;
     }
     if (kSRGB_SkColorProfileType == profile) {
-        flags |= kDstIsSRGB_SkXfer4fFlag;
+        flags |= SkXfermode::kDstIsSRGB_PM4fFlag;
     }
 
-    const SkPM4f src = SkPM4f::FromPMColor(SkPreMultiplyColor(c));
-    auto proc1 = SkPM4fXfer1ProcFactory(SkXfermode::kSrcOver_Mode, flags);
+    const SkXfermode::PM4fState state { nullptr, flags };
+
+    const SkPM4f src = SkColor4f::FromColor(c).premul();
+    auto proc1 = SkXfermode::GetPM4fProc1(SkXfermode::kSrcOver_Mode, flags);
     for (int y = 0; y < ir.height()/2; ++y) {
-        proc1(pm.writable_addr32(0, y), src, ir.width());
+        proc1(state, pm.writable_addr32(0, y), src, ir.width(), nullptr);
     }
 
     SkPM4f srcRow[1000];
     for (int i = 0; i < ir.width(); ++i) {
         srcRow[i] = src;
     }
-    auto procN = SkPM4fXferNProcFactory(SkXfermode::kSrcOver_Mode, flags);
+    auto procN = SkXfermode::GetPM4fProcN(SkXfermode::kSrcOver_Mode, flags);
     // +1 to skip a row, so we can see the boundary between proc1 and procN
     for (int y = ir.height()/2 + 1; y < ir.height(); ++y) {
-        procN(pm.writable_addr32(0, y), srcRow, ir.width());
+        procN(state, pm.writable_addr32(0, y), srcRow, ir.width(), nullptr);
     }
 
     canvas->drawBitmap(bm, r.left(), r.top(), nullptr);
