@@ -233,7 +233,7 @@ static void hairquad(const SkPoint pts[3], const SkRegion* clip,
     Sk2s C = coeff.fC;
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
-        ((A * t + B) * t + C).store(&tmp[i].fX);
+        ((A * t + B) * t + C).store(&tmp[i]);
     }
     tmp[lines] = pts[2];
     lineproc(tmp, lines + 1, clip, blitter);
@@ -310,7 +310,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     Sk2s D = coeff.fD;
     for (int i = 1; i < lines; ++i) {
         t = t + dt;
-        (((A * t + B) * t + C) * t + D).store(&tmp[i].fX);
+        (((A * t + B) * t + C) * t + D).store(&tmp[i]);
     }
     tmp[lines] = pts[3];
     lineproc(tmp, lines + 1, clip, blitter);
@@ -319,10 +319,10 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
 static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
     SkASSERT(SkScalarsAreFinite(&pts[0].fX, 8));
 
-    Sk2s min = Sk2s::Load(&pts[0].fX);
+    Sk2s min = Sk2s::Load(pts);
     Sk2s max = min;
     for (int i = 1; i < 4; ++i) {
-        Sk2s pair = Sk2s::Load(&pts[i].fX);
+        Sk2s pair = Sk2s::Load(pts+i);
         min = Sk2s::Min(min, pair);
         max = Sk2s::Max(max, pair);
     }

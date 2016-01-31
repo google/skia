@@ -11,7 +11,7 @@
 
 static SkVector to_vector(const Sk2s& x) {
     SkVector vector;
-    x.store(&vector.fX);
+    x.store(&vector);
     return vector;
 }
 
@@ -1060,7 +1060,7 @@ SkVector SkConic::evalTangentAt(SkScalar t) const {
 
 void SkConic::evalAt(SkScalar t, SkPoint* pt, SkVector* tangent) const {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
-    
+
     if (pt) {
         *pt = this->evalAt(t);
     }

@@ -86,7 +86,7 @@ static Sk4f clamp_0_1(const Sk4f& x) {
 
 static SkPMColor round(const Sk4f& x) {
     SkPMColor c;
-    SkNx_cast<uint8_t>(x * Sk4f(255) + Sk4f(0.5f)).store((uint8_t*)&c);
+    SkNx_cast<uint8_t>(x * Sk4f(255) + Sk4f(0.5f)).store(&c);
     return c;
 }
 
@@ -132,7 +132,7 @@ struct SkPMColorAdaptor {
         return round(c4);
     }
     static Sk4f To4f(SkPMColor c) {
-        return SkNx_cast<float>(Sk4b::Load((const uint8_t*)&c)) * Sk4f(1.0f/255);
+        return SkNx_cast<float>(Sk4b::Load(&c)) * Sk4f(1.0f/255);
     }
 };
 void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
@@ -142,11 +142,11 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor
 struct SkPM4fAdaptor {
     static SkPM4f From4f(const Sk4f& c4) {
         SkPM4f c;
-        c4.store(c.fVec);
+        c4.store(&c);
         return c;
     }
     static Sk4f To4f(const SkPM4f& c) {
-        return Sk4f::Load(c.fVec);
+        return Sk4f::Load(&c);
     }
 };
 void SkColorMatrixFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {

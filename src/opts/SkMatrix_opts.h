@@ -27,14 +27,14 @@ static void matrix_translate(const SkMatrix& m, SkPoint* dst, const SkPoint* src
         Sk4s trans4(tx, ty, tx, ty);
         count >>= 1;
         if (count & 1) {
-            (Sk4s::Load(&src->fX) + trans4).store(&dst->fX);
+            (Sk4s::Load(src) + trans4).store(dst);
             src += 2;
             dst += 2;
         }
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            (Sk4s::Load(&src[0].fX) + trans4).store(&dst[0].fX);
-            (Sk4s::Load(&src[2].fX) + trans4).store(&dst[2].fX);
+            (Sk4s::Load(src+0) + trans4).store(dst+0);
+            (Sk4s::Load(src+2) + trans4).store(dst+2);
             src += 4;
             dst += 4;
         }
@@ -58,14 +58,14 @@ static void matrix_scale_translate(const SkMatrix& m, SkPoint* dst, const SkPoin
         Sk4s scale4(sx, sy, sx, sy);
         count >>= 1;
         if (count & 1) {
-            (Sk4s::Load(&src->fX) * scale4 + trans4).store(&dst->fX);
+            (Sk4s::Load(src) * scale4 + trans4).store(dst);
             src += 2;
             dst += 2;
         }
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            (Sk4s::Load(&src[0].fX) * scale4 + trans4).store(&dst[0].fX);
-            (Sk4s::Load(&src[2].fX) * scale4 + trans4).store(&dst[2].fX);
+            (Sk4s::Load(src+0) * scale4 + trans4).store(dst+0);
+            (Sk4s::Load(src+2) * scale4 + trans4).store(dst+2);
             src += 4;
             dst += 4;
         }
@@ -92,9 +92,9 @@ static void matrix_affine(const SkMatrix& m, SkPoint* dst, const SkPoint* src, i
         Sk4s  skew4(kx, ky, kx, ky);    // applied to swizzle of src4
         count >>= 1;
         for (int i = 0; i < count; ++i) {
-            Sk4s src4 = Sk4s::Load(&src->fX);
-            Sk4s swz4(src[0].fY, src[0].fX, src[1].fY, src[1].fX);  // need ABCD -> BADC
-            (src4 * scale4 + swz4 * skew4 + trans4).store(&dst->fX);
+            Sk4s src4 = Sk4s::Load(src);
+            Sk4s swz4 = SkNx_shuffle<1,0,3,2>(src4);  // y0 x0, y1 x1
+            (src4 * scale4 + swz4 * skew4 + trans4).store(dst);
             src += 2;
             dst += 2;
         }

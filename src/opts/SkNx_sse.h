@@ -22,12 +22,12 @@ public:
 
     SkNx() {}
     SkNx(float val) : fVec(_mm_set1_ps(val)) {}
-    static SkNx Load(const float vals[2]) {
-        return _mm_castsi128_ps(_mm_loadl_epi64((const __m128i*)vals));
+    static SkNx Load(const void* ptr) {
+        return _mm_castsi128_ps(_mm_loadl_epi64((const __m128i*)ptr));
     }
     SkNx(float a, float b) : fVec(_mm_setr_ps(a,b,0,0)) {}
 
-    void store(float vals[2]) const { _mm_storel_pi((__m64*)vals, fVec); }
+    void store(void* ptr) const { _mm_storel_pi((__m64*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_ps(fVec, o.fVec); }
@@ -71,10 +71,10 @@ public:
 
     SkNx() {}
     SkNx(double val) : fVec(_mm_set1_pd(val)) {}
-    static SkNx Load(const double vals[2]) { return _mm_loadu_pd(vals); }
+    static SkNx Load(const void* ptr) { return _mm_loadu_pd((const double*)ptr); }
     SkNx(double a, double b) : fVec(_mm_setr_pd(a,b)) {}
 
-    void store(double vals[2]) const { _mm_storeu_pd(vals, fVec); }
+    void store(void* ptr) const { _mm_storeu_pd((double*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_pd(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_pd(fVec, o.fVec); }
@@ -117,10 +117,10 @@ public:
 
     SkNx() {}
     SkNx(int val) : fVec(_mm_set1_epi32(val)) {}
-    static SkNx Load(const int vals[4]) { return _mm_loadu_si128((const __m128i*)vals); }
+    static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
     SkNx(int a, int b, int c, int d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
 
-    void store(int vals[4]) const { _mm_storeu_si128((__m128i*)vals, fVec); }
+    void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_epi32(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_epi32(fVec, o.fVec); }
@@ -155,11 +155,11 @@ public:
 
     SkNx() {}
     SkNx(float val)           : fVec( _mm_set1_ps(val) ) {}
-    static SkNx Load(const float vals[4]) { return _mm_loadu_ps(vals); }
+    static SkNx Load(const void* ptr) { return _mm_loadu_ps((const float*)ptr); }
 
     SkNx(float a, float b, float c, float d) : fVec(_mm_setr_ps(a,b,c,d)) {}
 
-    void store(float vals[4]) const { _mm_storeu_ps(vals, fVec); }
+    void store(void* ptr) const { _mm_storeu_ps((float*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_ps(fVec, o.fVec); }
@@ -210,10 +210,10 @@ public:
 
     SkNx() {}
     SkNx(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
-    static SkNx Load(const uint16_t vals[4]) { return _mm_loadl_epi64((const __m128i*)vals); }
+    static SkNx Load(const void* ptr) { return _mm_loadl_epi64((const __m128i*)ptr); }
     SkNx(uint16_t a, uint16_t b, uint16_t c, uint16_t d) : fVec(_mm_setr_epi16(a,b,c,d,0,0,0,0)) {}
 
-    void store(uint16_t vals[4]) const { _mm_storel_epi64((__m128i*)vals, fVec); }
+    void store(void* ptr) const { _mm_storel_epi64((__m128i*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_epi16(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_epi16(fVec, o.fVec); }
@@ -237,11 +237,11 @@ public:
 
     SkNx() {}
     SkNx(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
-    static SkNx Load(const uint16_t vals[8]) { return _mm_loadu_si128((const __m128i*)vals); }
+    static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
     SkNx(uint16_t a, uint16_t b, uint16_t c, uint16_t d,
          uint16_t e, uint16_t f, uint16_t g, uint16_t h) : fVec(_mm_setr_epi16(a,b,c,d,e,f,g,h)) {}
 
-    void store(uint16_t vals[8]) const { _mm_storeu_si128((__m128i*)vals, fVec); }
+    void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_epi16(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_epi16(fVec, o.fVec); }
@@ -278,8 +278,8 @@ public:
     SkNx(const __m128i& vec) : fVec(vec) {}
 
     SkNx() {}
-    static SkNx Load(const uint8_t vals[4]) { return _mm_cvtsi32_si128(*(const int*)vals); }
-    void store(uint8_t vals[4]) const { *(int*)vals = _mm_cvtsi128_si32(fVec); }
+    static SkNx Load(const void* ptr) { return _mm_cvtsi32_si128(*(const int*)ptr); }
+    void store(void* ptr) const { *(int*)ptr = _mm_cvtsi128_si32(fVec); }
 
     // TODO as needed
 
@@ -292,8 +292,8 @@ public:
     SkNx(const __m128i& vec) : fVec(vec) {}
 
     SkNx() {}
-    static SkNx Load(const uint8_t vals[8]) { return _mm_loadl_epi64((const __m128i*)vals); }
-    void store(uint8_t vals[8]) const { _mm_storel_epi64((__m128i*)vals, fVec); }
+    static SkNx Load(const void* ptr) { return _mm_loadl_epi64((const __m128i*)ptr); }
+    void store(void* ptr) const { _mm_storel_epi64((__m128i*)ptr, fVec); }
 
     // TODO as needed
 
@@ -307,14 +307,14 @@ public:
 
     SkNx() {}
     SkNx(uint8_t val) : fVec(_mm_set1_epi8(val)) {}
-    static SkNx Load(const uint8_t vals[16]) { return _mm_loadu_si128((const __m128i*)vals); }
+    static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
     SkNx(uint8_t a, uint8_t b, uint8_t c, uint8_t d,
          uint8_t e, uint8_t f, uint8_t g, uint8_t h,
          uint8_t i, uint8_t j, uint8_t k, uint8_t l,
          uint8_t m, uint8_t n, uint8_t o, uint8_t p)
         : fVec(_mm_setr_epi8(a,b,c,d, e,f,g,h, i,j,k,l, m,n,o,p)) {}
 
-    void store(uint8_t vals[16]) const { _mm_storeu_si128((__m128i*)vals, fVec); }
+    void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
 
     SkNx saturatedAdd(const SkNx& o) const { return _mm_adds_epu8(fVec, o.fVec); }
 

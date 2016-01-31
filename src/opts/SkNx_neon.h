@@ -41,10 +41,10 @@ public:
 
     SkNx() {}
     SkNx(float val)           : fVec(vdup_n_f32(val)) {}
-    static SkNx Load(const float vals[2]) { return vld1_f32(vals); }
+    static SkNx Load(const void* ptr) { return vld1_f32((const float*)ptr); }
     SkNx(float a, float b) { fVec = (float32x2_t) { a, b }; }
 
-    void store(float vals[2]) const { vst1_f32(vals, fVec); }
+    void store(void* ptr) const { vst1_f32((float*)ptr, fVec); }
 
     SkNx approxInvert() const {
         float32x2_t est0 = vrecpe_f32(fVec),
@@ -122,10 +122,10 @@ public:
 
     SkNx() {}
     SkNx(int val) : fVec(vdupq_n_s32(val)) {}
-    static SkNx Load(const int vals[4]) { return vld1q_s32(vals); }
+    static SkNx Load(const void* ptr) { return vld1q_s32((const int*)ptr); }
     SkNx(int a, int b, int c, int d) { fVec = (int32x4_t) { a, b, c, d }; }
 
-    void store(int vals[4]) const { vst1q_s32(vals, fVec); }
+    void store(void* ptr) const { vst1q_s32((int*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return vaddq_s32(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return vsubq_s32(fVec, o.fVec); }
@@ -149,10 +149,10 @@ public:
 
     SkNx() {}
     SkNx(float val)           : fVec(vdupq_n_f32(val)) {}
-    static SkNx Load(const float vals[4]) { return vld1q_f32(vals); }
+    static SkNx Load(const void* ptr) { return vld1q_f32((const float*)ptr); }
     SkNx(float a, float b, float c, float d) { fVec = (float32x4_t) { a, b, c, d }; }
 
-    void store(float vals[4]) const { vst1q_f32(vals, fVec); }
+    void store(void* ptr) const { vst1q_f32((float*)ptr, fVec); }
     SkNx approxInvert() const {
         float32x4_t est0 = vrecpeq_f32(fVec),
                     est1 = vmulq_f32(vrecpsq_f32(est0, fVec), est0);
@@ -240,13 +240,13 @@ public:
 
     SkNx() {}
     SkNx(uint16_t val) : fVec(vdup_n_u16(val)) {}
-    static SkNx Load(const uint16_t vals[4]) { return vld1_u16(vals); }
+    static SkNx Load(const void* ptr) { return vld1_u16((const uint16_t*)ptr); }
 
     SkNx(uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
         fVec = (uint16x4_t) { a,b,c,d };
     }
 
-    void store(uint16_t vals[4]) const { vst1_u16(vals, fVec); }
+    void store(void* ptr) const { vst1_u16((uint16_t*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return vadd_u16(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return vsub_u16(fVec, o.fVec); }
@@ -276,14 +276,14 @@ public:
 
     SkNx() {}
     SkNx(uint16_t val) : fVec(vdupq_n_u16(val)) {}
-    static SkNx Load(const uint16_t vals[8]) { return vld1q_u16(vals); }
+    static SkNx Load(const void* ptr) { return vld1q_u16((const uint16_t*)ptr); }
 
     SkNx(uint16_t a, uint16_t b, uint16_t c, uint16_t d,
          uint16_t e, uint16_t f, uint16_t g, uint16_t h) {
         fVec = (uint16x8_t) { a,b,c,d, e,f,g,h };
     }
 
-    void store(uint16_t vals[8]) const { vst1q_u16(vals, fVec); }
+    void store(void* ptr) const { vst1q_u16((uint16_t*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return vaddq_u16(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return vsubq_u16(fVec, o.fVec); }
@@ -312,11 +312,11 @@ public:
     SkNx(const uint8x8_t& vec) : fVec(vec) {}
 
     SkNx() {}
-    static SkNx Load(const uint8_t vals[4]) {
-        return (uint8x8_t)vld1_dup_u32((const uint32_t*)vals);
+    static SkNx Load(const void* ptr) {
+        return (uint8x8_t)vld1_dup_u32((const uint32_t*)ptr);
     }
-    void store(uint8_t vals[4]) const {
-        return vst1_lane_u32((uint32_t*)vals, (uint32x2_t)fVec, 0);
+    void store(void* ptr) const {
+        return vst1_lane_u32((uint32_t*)ptr, (uint32x2_t)fVec, 0);
     }
 
     // TODO as needed
@@ -331,7 +331,7 @@ public:
 
     SkNx() {}
     SkNx(uint8_t val) : fVec(vdupq_n_u8(val)) {}
-    static SkNx Load(const uint8_t vals[16]) { return vld1q_u8(vals); }
+    static SkNx Load(const void* ptr) { return vld1q_u8((const uint8_t*)ptr); }
 
     SkNx(uint8_t a, uint8_t b, uint8_t c, uint8_t d,
          uint8_t e, uint8_t f, uint8_t g, uint8_t h,
@@ -340,7 +340,7 @@ public:
         fVec = (uint8x16_t) { a,b,c,d, e,f,g,h, i,j,k,l, m,n,o,p };
     }
 
-    void store(uint8_t vals[16]) const { vst1q_u8(vals, fVec); }
+    void store(void* ptr) const { vst1q_u8((uint8_t*)ptr, fVec); }
 
     SkNx saturatedAdd(const SkNx& o) const { return vqaddq_u8(fVec, o.fVec); }
 

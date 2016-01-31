@@ -12,12 +12,12 @@
 #include "SkNx.h"
 
 static inline Sk2s from_point(const SkPoint& point) {
-    return Sk2s::Load(&point.fX);
+    return Sk2s::Load(&point);
 }
 
 static inline SkPoint to_point(const Sk2s& x) {
     SkPoint point;
-    x.store(&point.fX);
+    x.store(&point);
     return point;
 }
 

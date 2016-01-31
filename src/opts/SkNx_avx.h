@@ -24,12 +24,12 @@ public:
 
     SkNx() {}
     SkNx(float val) : fVec(_mm256_set1_ps(val)) {}
-    static SkNx Load(const float vals[8]) { return _mm256_loadu_ps(vals); }
+    static SkNx Load(const void* ptr) { return _mm256_loadu_ps((const float*)ptr); }
 
     SkNx(float a, float b, float c, float d,
          float e, float f, float g, float h) : fVec(_mm256_setr_ps(a,b,c,d,e,f,g,h)) {}
 
-    void store(float vals[8]) const { _mm256_storeu_ps(vals, fVec); }
+    void store(void* ptr) const { _mm256_storeu_ps((float*)ptr, fVec); }
 
     SkNx operator + (const SkNx& o) const { return _mm256_add_ps(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm256_sub_ps(fVec, o.fVec); }

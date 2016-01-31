@@ -33,8 +33,8 @@ struct Sk4fBytesRoundtripBench : public Benchmark {
         for (int i = 0; i < loops; i++) {
             uint32_t color = lcg_rand(&seed),
                      back;
-            auto f = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&color));
-            SkNx_cast<uint8_t>(f).store((uint8_t*)&back);
+            auto f = SkNx_cast<float>(Sk4b::Load(&color));
+            SkNx_cast<uint8_t>(f).store(&back);
             junk ^= back;
         }
         blackhole ^= junk;

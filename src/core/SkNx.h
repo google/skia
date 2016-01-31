@@ -32,7 +32,8 @@ public:
     SkNx() {}
     SkNx(const SkNx<N/2, T>& lo, const SkNx<N/2, T>& hi) : fLo(lo), fHi(hi) {}
     SkNx(T val) : fLo(val), fHi(val) {}
-    static SkNx Load(const T vals[N]) {
+    static SkNx Load(const void* ptr) {
+        auto vals = (const T*)ptr;
         return SkNx(SkNx<N/2,T>::Load(vals), SkNx<N/2,T>::Load(vals+N/2));
     }
 
@@ -43,7 +44,8 @@ public:
          T i, T j, T k, T l,  T m, T n, T o, T p)
         : fLo(a,b,c,d, e,f,g,h), fHi(i,j,k,l, m,n,o,p) { REQUIRE(N==16); }
 
-    void store(T vals[N]) const {
+    void store(void* ptr) const {
+        auto vals = (T*)ptr;
         fLo.store(vals);
         fHi.store(vals+N/2);
     }
@@ -108,9 +110,15 @@ class SkNx<1,T> {
 public:
     SkNx() {}
     SkNx(T val) : fVal(val) {}
-    static SkNx Load(const T vals[1]) { return SkNx(vals[0]); }
+    static SkNx Load(const void* ptr) {
+        auto vals = (const T*)ptr;
+        return SkNx(vals[0]);
+    }
 
-    void store(T vals[1]) const { vals[0] = fVal; }
+    void store(void* ptr) const {
+        auto vals = (T*) ptr;
+        vals[0] = fVal;
+    }
 
     SkNx saturatedAdd(const SkNx& o) const {
         SkASSERT((T)(~0) > 0); // TODO: support signed T

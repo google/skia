@@ -21,11 +21,11 @@ struct ColorTypeFilter_8888 {
     typedef uint32_t Type;
 #if defined(SKNX_IS_FAST)
     static Sk4h Expand(uint32_t x) {
-        return SkNx_cast<uint16_t>(Sk4b::Load((const uint8_t*)&x));
+        return SkNx_cast<uint16_t>(Sk4b::Load(&x));
     }
     static uint32_t Compact(const Sk4h& x) {
         uint32_t r;
-        SkNx_cast<uint8_t>(x).store((uint8_t*)&r);
+        SkNx_cast<uint8_t>(x).store(&r);
         return r;
     }
 #else

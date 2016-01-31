@@ -133,7 +133,7 @@ SkLinearGradient::LinearGradientContext::LinearGradientContext(
         const Sk4f scale(1, 1, 1, paintAlpha);
         for (int i = 0; i < count; ++i) {
             uint32_t c = SkSwizzle_Color_to_PMColor(shader.fOrigColors[i]);
-            rec[i].fColor = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&c)) * scale;
+            rec[i].fColor = SkNx_cast<float>(Sk4b::Load(&c)) * scale;
             if (i > 0) {
                 SkASSERT(rec[i - 1].fPos <= rec[i].fPos);
             }
@@ -145,7 +145,7 @@ SkLinearGradient::LinearGradientContext::LinearGradientContext(
         for (int i = 0; i < count; ++i) {
             SkPMColor pmc = SkPreMultiplyColor(shader.fOrigColors[i]);
             pmc = SkAlphaMulQ(pmc, alphaScale);
-            rec[i].fColor = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&pmc));
+            rec[i].fColor = SkNx_cast<float>(Sk4b::Load(&pmc));
             if (i > 0) {
                 SkASSERT(rec[i - 1].fPos <= rec[i].fPos);
             }
@@ -515,7 +515,7 @@ find_backward(const SkLinearGradient::LinearGradientContext::Rec rec[], float ti
 
 template <bool apply_alpha> SkPMColor trunc_from_255(const Sk4f& x) {
     SkPMColor c;
-    SkNx_cast<uint8_t>(x).store((uint8_t*)&c);
+    SkNx_cast<uint8_t>(x).store(&c);
     if (apply_alpha) {
         c = SkPreMultiplyARGB(SkGetPackedA32(c), SkGetPackedR32(c),
                               SkGetPackedG32(c), SkGetPackedB32(c));

@@ -105,16 +105,16 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
 #include "SkNx.h"
 
 SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
-    Sk4f value = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&c));
+    Sk4f value = SkNx_cast<float>(Sk4b::Load(&c));
     SkPM4f c4;
-    (value * Sk4f(1.0f / 255)).store(c4.fVec);
+    (value * Sk4f(1.0f / 255)).store(&c4);
     return c4;
 }
 
 SkColor4f SkColor4f::FromColor(SkColor c) {
-    Sk4f value = SkNx_shuffle<3,2,1,0>(SkNx_cast<float>(Sk4b::Load((const uint8_t*)&c)));
+    Sk4f value = SkNx_shuffle<3,2,1,0>(SkNx_cast<float>(Sk4b::Load(&c)));
     SkColor4f c4;
-    (value * Sk4f(1.0f / 255)).store(c4.vec());
+    (value * Sk4f(1.0f / 255)).store(&c4);
     return c4;
 }
 
@@ -138,7 +138,7 @@ SkPM4f SkColor4f::premul() const {
 #endif
 
     SkPM4f pm4;
-    dst.store(pm4.fVec);
+    dst.store(&pm4);
     return pm4;
 }
 
