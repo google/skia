@@ -192,7 +192,8 @@ void ClampX_ClampY_nofilter_affine(const SkBitmapProcState& s,
 // TODO: filtered version which applies a fFilterOne{X,Y}/2 bias instead of epsilon?
 class SkBitmapProcStateAutoMapper {
 public:
-    SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y) {
+    SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y,
+                                SkPoint* scalarPoint = nullptr) {
         SkPoint pt;
         s.fInvProc(s.fInvMatrix,
                    SkIntToScalar(x) + SK_ScalarHalf,
@@ -207,26 +208,17 @@ public:
         fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(biasX);
         fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(biasY);
 
-        /*
-         *  (see SkBitmapProcState::setupForTranslate, which is the only user of this flag)
-         *
-         *  if the translate is larger than our ints, we can get random results, or
-         *  worse, we might get 0x80000000, which wreaks havoc on us, since we can't
-         *  negate it.
-         */
-        const SkScalar too_big = SkIntToScalar(1 << 30);
-        fOverflow = SkScalarAbs(pt.x() - SkFixedToScalar(biasX)) > too_big
-                 || SkScalarAbs(pt.y() - SkFixedToScalar(biasY)) > too_big;
+        if (scalarPoint) {
+            scalarPoint->set(pt.x() - SkFixedToScalar(biasX),
+                             pt.y() - SkFixedToScalar(biasY));
+        }
     }
 
     SkFractionalInt x() const { return fX; }
     SkFractionalInt y() const { return fY; }
 
-    bool isOverflow() const { return fOverflow; }
-
 private:
     SkFractionalInt fX, fY;
-    bool            fOverflow;
 };
 
 #endif

@@ -586,29 +586,28 @@ static void DoNothing_shaderproc(const void*, int x, int y,
 }
 
 bool SkBitmapProcState::setupForTranslate() {
-#ifdef SK_SUPPORT_LEGACY_SAMPLER_BIAS
     SkPoint pt;
+
+#ifdef SK_SUPPORT_LEGACY_SAMPLER_BIAS
     fInvProc(fInvMatrix, SK_ScalarHalf, SK_ScalarHalf, &pt);
-
-    const SkScalar too_big = SkIntToScalar(1 << 30);
-    if (SkScalarAbs(pt.fX) > too_big || SkScalarAbs(pt.fY) > too_big) {
-        return false;
-    }
-
-    fFilterOneX = SkScalarFloorToInt(pt.fX);
-    fFilterOneY = SkScalarFloorToInt(pt.fY);
 #else
-    SkBitmapProcStateAutoMapper mapper(*this, 0, 0);
+    const SkBitmapProcStateAutoMapper mapper(*this, 0, 0, &pt);
+#endif
 
     /*
      *  if the translate is larger than our ints, we can get random results, or
      *  worse, we might get 0x80000000, which wreaks havoc on us, since we can't
      *  negate it.
      */
-    if (mapper.isOverflow()) {
+    const SkScalar too_big = SkIntToScalar(1 << 30);
+    if (SkScalarAbs(pt.fX) > too_big || SkScalarAbs(pt.fY) > too_big) {
         return false;
     }
 
+#ifdef SK_SUPPORT_LEGACY_SAMPLER_BIAS
+    fFilterOneX = SkScalarFloorToInt(pt.fX);
+    fFilterOneY = SkScalarFloorToInt(pt.fY);
+#else
     // Since we know we're not filtered, we re-purpose these fields allow
     // us to go from device -> src coordinates w/ just an integer add,
     // rather than running through the inverse-matrix
