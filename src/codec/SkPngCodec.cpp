@@ -10,6 +10,7 @@
 #include "SkColorTable.h"
 #include "SkBitmap.h"
 #include "SkMath.h"
+#include "SkOpts.h"
 #include "SkPngCodec.h"
 #include "SkPngFilters.h"
 #include "SkSize.h"
@@ -33,31 +34,6 @@
             png->read_filter[PNG_FILTER_VALUE_PAETH-1] = sk_paeth4_sse2;
         }
     }
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-// Helper macros
-///////////////////////////////////////////////////////////////////////////////
-
-#ifndef png_jmpbuf
-#  define png_jmpbuf(png_ptr) ((png_ptr)->jmpbuf)
-#endif
-
-/* These were dropped in libpng >= 1.4 */
-#ifndef png_infopp_NULL
-    #define png_infopp_NULL nullptr
-#endif
-
-#ifndef png_bytepp_NULL
-    #define png_bytepp_NULL nullptr
-#endif
-
-#ifndef int_p_NULL
-    #define int_p_NULL nullptr
-#endif
-
-#ifndef png_flush_ptr_NULL
-    #define png_flush_ptr_NULL nullptr
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +83,7 @@ public:
         // fInfo_ptr will never be non-nullptr unless fPng_ptr is.
         if (fPng_ptr) {
             png_infopp info_pp = fInfo_ptr ? &fInfo_ptr : nullptr;
-            png_destroy_read_struct(&fPng_ptr, info_pp, png_infopp_NULL);
+            png_destroy_read_struct(&fPng_ptr, info_pp, nullptr);
         }
     }
 
@@ -127,91 +103,75 @@ private:
 };
 #define AutoCleanPng(...) SK_REQUIRE_LOCAL_VAR(AutoCleanPng)
 
-//checks if there is transparency info in the tRNS chunk
-//image types which could have data in the tRNS chunk include: Index8, Gray8, RGB
-static bool has_transparency_in_tRNS(png_structp png_ptr,
-                                        png_infop info_ptr) {
-    if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-        return false;
-    }
-
-    png_bytep trans;
-    int num_trans;
-    png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, nullptr);
-    return num_trans > 0;
-}
-
 // Method for coverting to either an SkPMColor or a similarly packed
 // unpremultiplied color.
 typedef uint32_t (*PackColorProc)(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily
 // the case here.
+// TODO: If we add support for non-native swizzles, we'll need to handle that here.
 bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
-    int numPalette;
-    png_colorp palette;
-    png_bytep trans;
 
-    if (!png_get_PLTE(fPng_ptr, fInfo_ptr, &palette, &numPalette)) {
+    int numColors;
+    png_color* palette;
+    if (!png_get_PLTE(fPng_ptr, fInfo_ptr, &palette, &numColors)) {
         return false;
     }
 
-    // Note: These are not necessarily SkPMColors
-    SkPMColor colorStorage[256];    // worst-case storage
-    SkPMColor* colorPtr = colorStorage;
+    // Note: These are not necessarily SkPMColors.
+    SkPMColor colorPtr[256];
 
-    int numTrans;
-    if (png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS)) {
-        png_get_tRNS(fPng_ptr, fInfo_ptr, &trans, &numTrans, nullptr);
-    } else {
-        numTrans = 0;
+    png_bytep alphas;
+    int numColorsWithAlpha = 0;
+    if (png_get_tRNS(fPng_ptr, fInfo_ptr, &alphas, &numColorsWithAlpha, nullptr)) {
+        // Choose which function to use to create the color table. If the final destination's
+        // colortype is unpremultiplied, the color table will store unpremultiplied colors.
+        PackColorProc proc;
+        if (premultiply) {
+            proc = &SkPremultiplyARGBInline;
+        } else {
+            proc = &SkPackARGB32NoCheck;
+        }
+
+        for (int i = 0; i < numColorsWithAlpha; i++) {
+            // We don't have a function in SkOpts that combines a set of alphas with a set
+            // of RGBs.  We could write one, but it's hardly worth it, given that this
+            // is such a small fraction of the total decode time.
+            colorPtr[i] = proc(alphas[i], palette->red, palette->green, palette->blue);
+            palette++;
+        }
     }
 
-    // check for bad images that might make us crash
-    if (numTrans > numPalette) {
-        numTrans = numPalette;
+    if (numColorsWithAlpha < numColors) {
+        // The optimized code depends on a 3-byte png_color struct with the colors
+        // in RGB order.  These checks make sure it is safe to use.
+        static_assert(3 == sizeof(png_color), "png_color struct has changed.  Opts are broken.");
+#ifdef SK_DEBUG
+        SkASSERT(&palette->red < &palette->green);
+        SkASSERT(&palette->green < &palette->blue);
+#endif
+
+#ifdef SK_PMCOLOR_IS_RGBA
+        SkOpts::RGB_to_RGB1(colorPtr + numColorsWithAlpha, palette, numColors - numColorsWithAlpha);
+#else
+        SkOpts::RGB_to_BGR1(colorPtr + numColorsWithAlpha, palette, numColors - numColorsWithAlpha);
+#endif
     }
 
-    int index = 0;
-
-    // Choose which function to use to create the color table. If the final destination's
-    // colortype is unpremultiplied, the color table will store unpremultiplied colors.
-    PackColorProc proc;
-    if (premultiply) {
-        proc = &SkPreMultiplyARGB;
-    } else {
-        proc = &SkPackARGB32NoCheck;
-    }
-    for (; index < numTrans; index++) {
-        *colorPtr++ = proc(*trans++, palette->red, palette->green, palette->blue);
-        palette++;
+    // Pad the color table with the last color in the table (or black) in the case that
+    // invalid pixel indices exceed the number of colors in the table.
+    const int maxColors = 1 << fBitDepth;
+    if (numColors < maxColors) {
+        SkPMColor lastColor = numColors > 0 ? colorPtr[numColors - 1] : SK_ColorBLACK;
+        sk_memset32(colorPtr + numColors, lastColor, maxColors - numColors);
     }
 
-    for (; index < numPalette; index++) {
-        *colorPtr++ = SkPackARGB32(0xFF, palette->red, palette->green, palette->blue);
-        palette++;
-    }
-
-    /*  BUGGY IMAGE WORKAROUND
-        Invalid images could contain pixel values that are greater than the number of palette
-        entries. Since we use pixel values as indices into the palette this could result in reading
-        beyond the end of the palette which could leak the contents of uninitialized memory. To
-        ensure this doesn't happen, we grow the colortable to the maximum size that can be
-        addressed by the bitdepth of the image and fill it with the last palette color or black if
-        the palette is empty (really broken image).
-    */
-    int colorCount = SkTMax(numPalette, 1 << SkTMin(fBitDepth, 8));
-    SkPMColor lastColor = index > 0 ? colorPtr[-1] : SkPackARGB32(0xFF, 0, 0, 0);
-    for (; index < colorCount; index++) {
-        *colorPtr++ = lastColor;
-    }
-
-    // Set the new color count
+    // Set the new color count.
     if (ctableCount != nullptr) {
-        *ctableCount = colorCount;
+        *ctableCount = maxColors;
     }
 
-    fColorTable.reset(new SkColorTable(colorStorage, colorCount));
+    fColorTable.reset(new SkColorTable(colorPtr, maxColors));
     return true;
 }
 
@@ -284,84 +244,81 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
     // PNG file before the first IDAT (image data chunk).
     png_read_info(png_ptr, info_ptr);
     png_uint_32 origWidth, origHeight;
-    int bitDepth, colorType;
+    int bitDepth, encodedColorType;
     png_get_IHDR(png_ptr, info_ptr, &origWidth, &origHeight, &bitDepth,
-                 &colorType, int_p_NULL, int_p_NULL, int_p_NULL);
+                 &encodedColorType, nullptr, nullptr, nullptr);
 
     if (bitDepthPtr) {
         *bitDepthPtr = bitDepth;
     }
 
-    // sanity check for size
-    {
-        int64_t size = sk_64_mul(origWidth, origHeight);
-        // now check that if we are 4-bytes per pixel, we also don't overflow
-        if (size < 0 || size > (0x7FFFFFFF >> 2)) {
-            return false;
-        }
-    }
-
-    // Tell libpng to strip 16 bit/color files down to 8 bits/color
+    // Tell libpng to strip 16 bit/color files down to 8 bits/color.
+    // TODO: Should we handle this in SkSwizzler?  Could this also benefit
+    //       RAW decodes?
     if (bitDepth == 16) {
+        SkASSERT(PNG_COLOR_TYPE_PALETTE != encodedColorType);
         png_set_strip_16(png_ptr);
     }
-#ifdef PNG_READ_PACK_SUPPORTED
-    // Extract multiple pixels with bit depths of 1, 2, and 4 from a single
-    // byte into separate bytes (useful for paletted and grayscale images).
-    if (bitDepth < 8) {
-        png_set_packing(png_ptr);
-    }
-#endif
-    // Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel.
-    if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8) {
-        png_set_expand_gray_1_2_4_to_8(png_ptr);
-    }
 
-    // Now determine the default SkColorType and SkAlphaType and set required transforms
-    SkColorType skColorType = kUnknown_SkColorType;
-    SkAlphaType skAlphaType = kUnknown_SkAlphaType;
-    switch (colorType) {
+    // Now determine the default colorType and alphaType and set the required transforms.
+    // Often, we depend on SkSwizzler to perform any transforms that we need.  However, we
+    // still depend on libpng for many of the rare and PNG-specific cases.
+    SkColorType colorType = kUnknown_SkColorType;
+    SkAlphaType alphaType = kUnknown_SkAlphaType;
+    switch (encodedColorType) {
         case PNG_COLOR_TYPE_PALETTE:
-            skColorType = kIndex_8_SkColorType;
-            skAlphaType = has_transparency_in_tRNS(png_ptr, info_ptr) ?
+            // Extract multiple pixels with bit depths of 1, 2, and 4 from a single
+            // byte into separate bytes (useful for paletted and grayscale images).
+            if (bitDepth < 8) {
+                // TODO: Should we use SkSwizzler here?
+                png_set_packing(png_ptr);
+            }
+
+            colorType = kIndex_8_SkColorType;
+            // Set the alpha type depending on if a transparency chunk exists.
+            alphaType = png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ?
                     kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
             break;
         case PNG_COLOR_TYPE_RGB:
-            if (has_transparency_in_tRNS(png_ptr, info_ptr)) {
-                //convert to RGBA with tranparency information in tRNS chunk if it exists
+            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+                // Convert to RGBA if transparency chunk exists.
                 png_set_tRNS_to_alpha(png_ptr);
-                skAlphaType = kUnpremul_SkAlphaType;
+                alphaType = kUnpremul_SkAlphaType;
             } else {
-                skAlphaType = kOpaque_SkAlphaType;
+                alphaType = kOpaque_SkAlphaType;
             }
-            skColorType = kN32_SkColorType;
+            colorType = kN32_SkColorType;
             break;
         case PNG_COLOR_TYPE_GRAY:
-            if (has_transparency_in_tRNS(png_ptr, info_ptr)) {
-                //FIXME: support gray with alpha as a color type
-                //convert to RGBA if there is transparentcy info in the tRNS chunk
+            // Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel.
+            if (bitDepth < 8) {
+                // TODO: Should we use SkSwizzler here?
+                png_set_expand_gray_1_2_4_to_8(png_ptr);
+            }
+
+            if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+                // Convert to RGBA if there is a transparency chunk.
                 png_set_tRNS_to_alpha(png_ptr);
                 png_set_gray_to_rgb(png_ptr);
-                skColorType = kN32_SkColorType;
-                skAlphaType = kUnpremul_SkAlphaType;
+                colorType = kN32_SkColorType;
+                alphaType = kUnpremul_SkAlphaType;
             } else {
-                skColorType = kGray_8_SkColorType;
-                skAlphaType = kOpaque_SkAlphaType;
+                colorType = kGray_8_SkColorType;
+                alphaType = kOpaque_SkAlphaType;
             }
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            //FIXME: support gray with alpha as a color type
-            //convert to RGBA
+            // Convert to RGBA if the image has alpha.
             png_set_gray_to_rgb(png_ptr);
-            skColorType = kN32_SkColorType;
-            skAlphaType = kUnpremul_SkAlphaType;
+            colorType = kN32_SkColorType;
+            alphaType = kUnpremul_SkAlphaType;
             break;
         case PNG_COLOR_TYPE_RGBA:
-            skColorType = kN32_SkColorType;
-            skAlphaType = kUnpremul_SkAlphaType;
+            colorType = kN32_SkColorType;
+            alphaType = kUnpremul_SkAlphaType;
             break;
         default:
-            //all the color types have been covered above
+            // All the color types have been covered above.
             SkASSERT(false);
     }
 
@@ -373,7 +330,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
     // FIXME: Also need to check for sRGB ( https://bug.skia.org/3471 ).
 
     if (imageInfo) {
-        *imageInfo = SkImageInfo::Make(origWidth, origHeight, skColorType, skAlphaType);
+        *imageInfo = SkImageInfo::Make(origWidth, origHeight, colorType, alphaType);
     }
     autoClean.detach();
     if (png_ptrp) {
@@ -405,7 +362,7 @@ void SkPngCodec::destroyReadStruct() {
     if (fPng_ptr) {
         // We will never have a nullptr fInfo_ptr with a non-nullptr fPng_ptr
         SkASSERT(fInfo_ptr);
-        png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, png_infopp_NULL);
+        png_destroy_read_struct(&fPng_ptr, &fInfo_ptr, nullptr);
         fPng_ptr = nullptr;
         fInfo_ptr = nullptr;
     }
@@ -427,7 +384,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
-    //srcColorType was determined in read_header() which determined png color type
+    // srcColorType was determined in read_header() which determined png color type
     const SkColorType srcColorType = this->getInfo().colorType();
 
     switch (srcColorType) {
@@ -450,7 +407,7 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
             }
             break;
         default:
-            //would have exited before now if the colorType was supported by png
+            // We will always recommend one of the above colorTypes.
             SkASSERT(false);
     }
 
@@ -460,10 +417,8 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     // Create the swizzler.  SkPngCodec retains ownership of the color table.
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(fSrcConfig, colors, requestedInfo, options));
-    if (!fSwizzler) {
-        // FIXME: CreateSwizzler could fail for another reason.
-        return kUnimplemented;
-    }
+    SkASSERT(fSwizzler);
+
     return kSuccess;
 }
 
@@ -546,7 +501,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
             uint8_t* srcRow = base;
             for (int y = 0; y < height; y++) {
                 uint8_t* bmRow = srcRow;
-                png_read_rows(fPng_ptr, &bmRow, png_bytepp_NULL, 1);
+                png_read_rows(fPng_ptr, &bmRow, nullptr, 1);
                 srcRow += srcRowBytes;
             }
         }
@@ -562,16 +517,12 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         storage.reset(requestedInfo.width() * SkSwizzler::BytesPerPixel(fSrcConfig));
         uint8_t* srcRow = storage.get();
         for (; row < requestedInfo.height(); row++) {
-            png_read_rows(fPng_ptr, &srcRow, png_bytepp_NULL, 1);
+            png_read_rows(fPng_ptr, &srcRow, nullptr, 1);
             // FIXME: Only call IsOpaque once, outside the loop. Same for onGetScanlines.
             fSwizzler->swizzle(dstRow, srcRow);
             dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
         }
     }
-
-    // FIXME: do we need substituteTranspColor? Note that we cannot do it for
-    // scanline decoding, but we could do it here. Alternatively, we could do
-    // it as we go, instead of in post-processing like SkPNGImageDecoder.
 
     if (setjmp(png_jmpbuf(fPng_ptr))) {
         // We've already read all the scanlines. This is a success.
@@ -629,7 +580,7 @@ public:
 
         void* dstRow = dst;
         for (; row < count; row++) {
-            png_read_rows(this->png_ptr(), &fSrcRow, png_bytepp_NULL, 1);
+            png_read_rows(this->png_ptr(), &fSrcRow, nullptr, 1);
             this->swizzler()->swizzle(dstRow, fSrcRow);
             dstRow = SkTAddOffset<void>(dstRow, rowBytes);
         }
@@ -647,7 +598,7 @@ public:
         //calling png_read_rows in a loop is insignificantly slower than calling it once with count
         //as png_read_rows has it's own loop which calls png_read_row count times.
         for (int row = 0; row < count; row++) {
-            png_read_rows(this->png_ptr(), &fSrcRow, png_bytepp_NULL, 1);
+            png_read_rows(this->png_ptr(), &fSrcRow, nullptr, 1);
         }
         return true;
     }
@@ -731,17 +682,17 @@ public:
         for (int i = 0; i < this->numberPasses(); i++) {
             // read rows we planned to skip into garbage row
             for (int y = 0; y < startRow; y++){
-                png_read_rows(this->png_ptr(), &fGarbageRowPtr, png_bytepp_NULL, 1);
+                png_read_rows(this->png_ptr(), &fGarbageRowPtr, nullptr, 1);
             }
             // read rows we care about into buffer
             srcRow = storagePtr;
             for (int y = 0; y < count; y++) {
-                png_read_rows(this->png_ptr(), &srcRow, png_bytepp_NULL, 1);
+                png_read_rows(this->png_ptr(), &srcRow, nullptr, 1);
                 srcRow += fSrcRowBytes;
             }
             // read rows we don't want into garbage buffer
             for (int y = 0; y < fHeight - startRow - count; y++) {
-                png_read_rows(this->png_ptr(), &fGarbageRowPtr, png_bytepp_NULL, 1);
+                png_read_rows(this->png_ptr(), &fGarbageRowPtr, nullptr, 1);
             }
         }
         //swizzle the rows we care about
