@@ -335,6 +335,7 @@ BASE_DEPS_IOS = []
 INCLUDES = [
     "include/android",
     "include/c",
+    "include/client/android",
     "include/codec",
     "include/config",
     "include/core",

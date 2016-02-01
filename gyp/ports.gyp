@@ -15,6 +15,7 @@
       ],
       'include_dirs': [
         '../include/effects',
+        '../include/client/android',
         '../include/images',
         '../include/ports',
         '../include/private',

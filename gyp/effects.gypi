@@ -85,7 +85,6 @@
     '<(skia_include_path)/effects/Sk2DPathEffect.h',
     '<(skia_include_path)/effects/SkAlphaThresholdFilter.h',
     '<(skia_include_path)/effects/SkArithmeticMode.h',
-    '<(skia_include_path)/effects/SkAvoidXfermode.h',
     '<(skia_include_path)/effects/SkBlurDrawLooper.h',
     '<(skia_include_path)/effects/SkBlurImageFilter.h',
     '<(skia_include_path)/effects/SkBlurMaskFilter.h',
@@ -112,10 +111,12 @@
     '<(skia_include_path)/effects/SkPaintFlagsDrawFilter.h',
     '<(skia_include_path)/effects/SkPaintImageFilter.h',
     '<(skia_include_path)/effects/SkPerlinNoiseShader.h',
-    '<(skia_include_path)/effects/SkPixelXorXfermode.h',
     '<(skia_include_path)/effects/SkTableColorFilter.h',
     '<(skia_include_path)/effects/SkTableMaskFilter.h',
     '<(skia_include_path)/effects/SkTileImageFilter.h',
     '<(skia_include_path)/effects/SkXfermodeImageFilter.h',
+
+    '<(skia_include_path)/client/android/SkAvoidXfermode.h',
+    '<(skia_include_path)/client/android/SkPixelXorXfermode.h',
   ],
 }
