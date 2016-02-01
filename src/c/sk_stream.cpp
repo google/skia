@@ -36,6 +36,16 @@ void sk_memorystream_set_memory (sk_stream_memorystream_t* cmemorystream, const 
 	AsMemoryStream(cmemorystream)->setMemory(data, length, copyData);
 }
 
+size_t sk_stream_read (sk_stream_t* cstream, void* buffer, size_t size)
+{
+	return AsStream(cstream)->read(buffer, size);
+}
+
+size_t sk_stream_skip (sk_stream_t* cstream, size_t size)
+{
+	return AsStream(cstream)->skip(size);
+}
+
 bool sk_stream_is_at_end (sk_stream_t* cstream)
 {
 	return AsStream(cstream)->isAtEnd();
@@ -67,4 +77,39 @@ uint32_t sk_stream_read_u32 (sk_stream_t* cstream)
 bool sk_stream_read_bool (sk_stream_t* cstream)
 {
 	return AsStream(cstream)->readBool();
+}
+
+bool sk_stream_rewind (sk_stream_t* cstream)
+{
+	return AsStream(cstream)->rewind();
+}
+
+bool sk_stream_has_position (sk_stream_t* cstream)
+{
+	return AsStream(cstream)->hasPosition();
+}
+
+size_t sk_stream_get_position (sk_stream_t* cstream)
+{
+	return AsStream(cstream)->getPosition();
+}
+
+bool sk_stream_seek (sk_stream_t* cstream, size_t position)
+{
+	return AsStream(cstream)->seek(position);
+}
+
+bool sk_stream_move (sk_stream_t* cstream, long offset)
+{
+	return AsStream(cstream)->move(offset);
+}
+
+bool sk_stream_has_length (sk_stream_t* cstream)
+{
+	return AsStream(cstream)->hasLength();
+}
+
+size_t sk_stream_get_length (sk_stream_t* cstream)
+{
+	return AsStream(cstream)->getLength();
 }
