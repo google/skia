@@ -18,9 +18,6 @@
     '-w',
     '-Wframe-larger-than=20000',
     '-DUNIX_ENV=1',
-    
-    # FIXME: only disable ::posix_memalign() when needed.
-    '-DNO_POSIX_MEMALIGN',
   ],
   'headers': [
     '../third_party/externals/dng_sdk/source/RawEnvironment.h',
@@ -120,22 +117,30 @@
   'cflags_cc!': [ '-fno-rtti' ],
   'cflags': [ '<@(other_cflags)' ],
   'conditions': [
+    ['skia_os == "android"', {
+      'cflags': [
+        # FIXME: only disable ::posix_memalign() when needed.
+        '-DNO_POSIX_MEMALIGN',
+      ],
+    }],
     ['skia_os == "ios" or skia_os == "mac"', {
       'xcode_settings': {
         'OTHER_CFLAGS': [ '<@(other_cflags)' ],
         'OTHER_CPLUSPLUSFLAGS': [ '<@(other_cflags)' ],
       },
     }],
+    ['skia_os == "win"', {
+      'msvs_settings': {
+        'VCCLCompilerTool': {
+          'WarningLevel': '0',
+          'AdditionalOptions': ['/wd4189', ],
+        },
+      },
+    }],
     ['skia_os != "linux"', {
       'sources': ['<@(headers)'],
     }],
   ],
-  'msvs_settings': {
-    'VCCLCompilerTool': {
-      'WarningLevel': '0',
-      'AdditionalOptions': ['/wd4189', ],
-    },
-  },
   'dependencies': [
     'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
     'zlib.gyp:zlib',
