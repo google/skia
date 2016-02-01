@@ -1193,6 +1193,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
         GrPipelineOptimizations optimizations;
         optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c], 
                                                       false);
+        optimizations.fOverrides.fUsePLSDstRead = false;
         for (int f = 0; f <= 1; f++) {
             if (!f) {
                 optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, 
