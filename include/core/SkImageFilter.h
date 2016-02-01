@@ -9,11 +9,13 @@
 #define SkImageFilter_DEFINED
 
 #include "../private/SkTemplates.h"
+#include "../private/SkMutex.h"
 #include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkSurfaceProps.h"
+#include "SkTArray.h"
 
 class GrFragmentProcessor;
 class GrTexture;
@@ -42,7 +44,7 @@ public:
         virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
         virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
         virtual void purge() {}
-        virtual void purgeByImageFilterId(uint32_t) {}
+        virtual void purgeByKeys(const Key[], int) {}
     };
 
     class Context {
@@ -450,6 +452,8 @@ private:
     bool fUsesSrcInput;
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
+    mutable SkTArray<Cache::Key> fCacheKeys;
+    mutable SkMutex fMutex;
 };
 
 /**
