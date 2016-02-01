@@ -14,10 +14,10 @@
 class SK_API SkColorMatrixFilter : public SkColorFilter {
 public:
     static SkColorFilter* Create(const SkColorMatrix& cm) {
-        return new SkColorMatrixFilter(cm);
+        return SkColorFilter::CreateMatrixFilterRowMajor255(cm.fMat);
     }
     static SkColorFilter* Create(const SkScalar array[20]) {
-        return new SkColorMatrixFilter(array);
+        return SkColorFilter::CreateMatrixFilterRowMajor255(array);
     }
 
     /**
@@ -27,34 +27,6 @@ public:
      *  are ignored.
      */
     static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
-
-    void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f[]) const override;
-    uint32_t getFlags() const override;
-    bool asColorMatrix(SkScalar matrix[20]) const override;
-    SkColorFilter* newComposed(const SkColorFilter*) const override;
-
-#if SK_SUPPORT_GPU
-    const GrFragmentProcessor* asFragmentProcessor(GrContext*) const override;
-#endif
-
-    SK_TO_STRING_OVERRIDE()
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorMatrixFilter)
-
-protected:
-    explicit SkColorMatrixFilter(const SkColorMatrix&);
-    explicit SkColorMatrixFilter(const SkScalar array[20]);
-    void flatten(SkWriteBuffer&) const override;
-
-private:
-    SkColorMatrix   fMatrix;
-    float           fTranspose[SkColorMatrix::kCount]; // for Sk4s
-    uint32_t        fFlags;
-
-    void initState(const SkScalar array[20]);
-
-    typedef SkColorFilter INHERITED;
 };
 
 #endif

@@ -17,7 +17,7 @@
 #include "SkBlurMaskFilter.h"
 #include "SkColorCubeFilter.h"
 #include "SkColorFilterImageFilter.h"
-#include "SkColorMatrixFilter.h"
+#include "SkColorMatrixFilterRowMajor255.h"
 #include "SkComposeImageFilter.h"
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
@@ -70,7 +70,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
 
     // ColorFilter
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorCubeFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
     SkAlphaThresholdFilter::InitializeFlattenables();
     SkArithmeticMode::InitializeFlattenables();

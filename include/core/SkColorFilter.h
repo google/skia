@@ -122,6 +122,11 @@ public:
      */
     static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner);
 
+    /** Construct a color filter that transforms a color by a 4x5 matrix. The matrix is in row-
+     *  major order and the translation column is specified in unnormalized, 0...255, space.
+     */
+    static SkColorFilter* CreateMatrixFilterRowMajor255(const SkScalar array[20]);
+
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
      *  a GrFragmentProcessor that implemets the color filter in GPU shader code.

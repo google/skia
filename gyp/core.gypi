@@ -71,6 +71,8 @@
         '<(skia_src_path)/core/SkColor.cpp',
         '<(skia_src_path)/core/SkColorFilter.cpp',
         '<(skia_src_path)/core/SkColorFilterShader.cpp',
+        '<(skia_src_path)/core/SkColorMatrixFilterRowMajor255.cpp',
+        '<(skia_src_path)/core/SkColorMatrixFilterRowMajor255.h',
         '<(skia_src_path)/core/SkColorShader.h',
         '<(skia_src_path)/core/SkColorTable.cpp',
         '<(skia_src_path)/core/SkComposeShader.cpp',
