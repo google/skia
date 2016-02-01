@@ -2296,7 +2296,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height, renderTarget->origin());
 
-    size_t tightRowBytes = GrBytesPerPixel(config) * width;
+    size_t bytesPerPixel = GrBytesPerPixel(config);
+    size_t tightRowBytes = bytesPerPixel * width;
 
     size_t readDstRowBytes = tightRowBytes;
     void* readDst = buffer;
@@ -2305,10 +2306,9 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     // a scratch buffer.
     SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
     if (rowBytes != tightRowBytes) {
-        if (this->glCaps().packRowLengthSupport()) {
-            SkASSERT(!(rowBytes % sizeof(GrColor)));
+        if (this->glCaps().packRowLengthSupport() && !(rowBytes % bytesPerPixel)) {
             GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH,
-                                static_cast<GrGLint>(rowBytes / sizeof(GrColor))));
+                                static_cast<GrGLint>(rowBytes / bytesPerPixel)));
             readDstRowBytes = rowBytes;
         } else {
             scratch.reset(tightRowBytes * height);
@@ -2353,7 +2353,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
             }
         }
     } else {
-        SkASSERT(readDst != buffer);        SkASSERT(rowBytes != tightRowBytes);
+        SkASSERT(readDst != buffer);
+        SkASSERT(rowBytes != tightRowBytes);
         // copy from readDst to buffer while flipping y
         // const int halfY = height >> 1;
         const char* src = reinterpret_cast<const char*>(readDst);

@@ -224,8 +224,10 @@ enum BitmapInit {
     kNoPixels_BitmapInit = kFirstBitmapInit,
     kTight_BitmapInit,
     kRowBytes_BitmapInit,
+    kRowBytesOdd_BitmapInit,
 
-    kBitmapInitCnt
+    kLastAligned_BitmapInit = kRowBytes_BitmapInit,
+    kLast_BitmapInit = kRowBytesOdd_BitmapInit
 };
 
 static BitmapInit nextBMI(BitmapInit bmi) {
@@ -246,13 +248,16 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
         case kRowBytes_BitmapInit:
             rowBytes = (info.width() + 16) * sizeof(SkPMColor);
             break;
+        case kRowBytesOdd_BitmapInit:
+            rowBytes = (info.width() * sizeof(SkPMColor)) + 3;
+            break;
         default:
             SkASSERT(0);
             break;
     }
 
     if (alloc) {
-        bitmap->allocPixels(info);
+        bitmap->allocPixels(info, rowBytes);
     } else {
         bitmap->setInfo(info, rowBytes);
     }
@@ -314,12 +319,13 @@ const SkIRect gReadPixelsTestRects[] = {
     SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
 };
 
-static void test_readpixels(skiatest::Reporter* reporter, SkSurface* surface) {
+static void test_readpixels(skiatest::Reporter* reporter, SkSurface* surface,
+                            BitmapInit lastBitmapInit) {
     SkCanvas* canvas = surface->getCanvas();
     fill_src_canvas(canvas);
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
         const SkIRect& srcRect = gReadPixelsTestRects[rect];
-        for (BitmapInit bmi = kFirstBitmapInit; bmi < kBitmapInitCnt; bmi = nextBMI(bmi)) {
+        for (BitmapInit bmi = kFirstBitmapInit; bmi <= lastBitmapInit; bmi = nextBMI(bmi)) {
             for (size_t c = 0; c < SK_ARRAY_COUNT(gReadPixelsConfigs); ++c) {
                 SkBitmap bmp;
                 init_bitmap(&bmp, srcRect, bmi,
@@ -372,7 +378,8 @@ static void test_readpixels(skiatest::Reporter* reporter, SkSurface* surface) {
 DEF_TEST(ReadPixels, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
-    test_readpixels(reporter, surface);
+    // SW readback fails a premul check when reading back to an unaligned rowbytes.
+    test_readpixels(reporter, surface, kLastAligned_BitmapInit);
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, context) {
@@ -387,7 +394,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, context) {
             context->textureProvider()->createTexture(desc, false));
         SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(surfaceTexture->asRenderTarget()));
         desc.fFlags = kNone_GrSurfaceFlags;
-        test_readpixels(reporter, surface);
+        test_readpixels(reporter, surface, kLast_BitmapInit);
     }
 }
 #endif
@@ -397,7 +404,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
     fill_src_texture(texture);
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
         const SkIRect& srcRect = gReadPixelsTestRects[rect];
-        for (BitmapInit bmi = kFirstBitmapInit; bmi < kBitmapInitCnt; bmi = nextBMI(bmi)) {
+        for (BitmapInit bmi = kFirstBitmapInit; bmi <= kLast_BitmapInit; bmi = nextBMI(bmi)) {
             for (size_t c = 0; c < SK_ARRAY_COUNT(gReadPixelsConfigs); ++c) {
                 SkBitmap bmp;
                 init_bitmap(&bmp, srcRect, bmi,
