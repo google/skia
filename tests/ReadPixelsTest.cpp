@@ -227,7 +227,12 @@ enum BitmapInit {
     kRowBytesOdd_BitmapInit,
 
     kLastAligned_BitmapInit = kRowBytes_BitmapInit,
+
+#if 0  // THIS CAUSES ERRORS ON WINDOWS AND SOME ANDROID DEVICES
     kLast_BitmapInit = kRowBytesOdd_BitmapInit
+#else
+    kLast_BitmapInit = kLastAligned_BitmapInit
+#endif
 };
 
 static BitmapInit nextBMI(BitmapInit bmi) {
