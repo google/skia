@@ -25,6 +25,9 @@ class GrDeviceCoordTexture;
 class GrPipelineBuilder;
 
 struct GrBatchToXPOverrides {
+    GrBatchToXPOverrides()
+    : fUsePLSDstRead(false) {}
+
     bool fUsePLSDstRead;
 };
 

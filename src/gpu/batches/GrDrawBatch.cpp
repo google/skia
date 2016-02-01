@@ -18,7 +18,6 @@ GrDrawBatch::~GrDrawBatch() {
 void GrDrawBatch::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
     GrInitInvariantOutput color;
     GrInitInvariantOutput coverage;
-    opt->fOverrides.fUsePLSDstRead = false;
     this->computePipelineOptimizations(&color, &coverage, &opt->fOverrides);
     opt->fColorPOI.initUsingInvariantOutput(color);
     opt->fCoveragePOI.initUsingInvariantOutput(coverage);
