@@ -80,16 +80,27 @@
         }
     }
 
-    // Returns bytewise |x-y|.
-    static __m128i absdiff_u8(__m128i x, __m128i y) {
-        // One of these two saturated subtractions will be the answer, the other zero.
-        return _mm_or_si128(_mm_subs_epu8(x,y), _mm_subs_epu8(y,x));
+    // Returns |x| for 16-bit lanes.
+    static __m128i abs_i16(__m128i x) {
+    #if defined(__SSSE3__)
+        return _mm_abs_epi16(x);
+    #else
+        // Read this all as, return x<0 ? -x : x.
+        // To negate two's complement, you flip all the bits then add 1.
+        __m128i is_negative = _mm_cmplt_epi16(x, _mm_setzero_si128());
+        x = _mm_xor_si128(x, is_negative);                      // Flip negative lanes.
+        x = _mm_add_epi16(x, _mm_srli_epi16(is_negative, 15));  // +1 to negative lanes, else +0.
+        return x;
+    #endif
     }
 
     // Bytewise c ? t : e.
     static __m128i if_then_else(__m128i c, __m128i t, __m128i e) {
-        // SSE 4.1+ would be: return _mm_blendv_epi8(e,t,c);
+    #if 0 && defined(__SSE4_1__)  // Make sure we have a bot testing this before enabling.
+        return _mm_blendv_epi8(e,t,c);
+    #else
         return _mm_or_si128(_mm_and_si128(c, t), _mm_andnot_si128(c, e));
+    #endif
     }
 
     template <int bpp>
@@ -103,39 +114,33 @@
         // The first pixel has no left context, and so uses an Up filter, p = b.
         // This works naturally with our main loop's p = a+b-c if we force a and c to zero.
         // Here we zero b and d, which become c and a respectively at the start of the loop.
-        __m128i c, b = _mm_setzero_si128(),
-                a, d = _mm_setzero_si128();
+        const __m128i zero = _mm_setzero_si128();
+        __m128i c, b = zero,
+                a, d = zero;
 
         int rb = row_info->rowbytes;
         while (rb > 0) {
-            c = b; b = load<bpp>(prev);
-            a = d; d = load<bpp>(row );
+            // It's easiest to do this math (particularly, deal with pc) with 16-bit intermediates.
+            c = b; b = _mm_unpacklo_epi8(load<bpp>(prev), zero);
+            a = d; d = _mm_unpacklo_epi8(load<bpp>(row ), zero);
 
-            // We can't express p in 8 bits, but luckily we can use this faux p instead.
-            // (I have no deep insight here... I just proved this with brute force.)
-            __m128i min = _mm_min_epu8(a,b),
-                    max = _mm_max_epu8(a,b),
-                    faux_p = _mm_adds_epu8(min, _mm_subs_epu8(max, c));
+            __m128i pa = _mm_sub_epi16(b,c),   // (p-a) == (a+b-c - a) == (b-c)
+                    pb = _mm_sub_epi16(a,c),   // (p-b) == (a+b-c - b) == (a-c)
+                    pc = _mm_add_epi16(pa,pb); // (p-c) == (a+b-c - c) == (a+b-c-c) == (b-c)+(a-c)
 
-            // We could use faux_p for calculating all three of pa, pb, and pc,
-            // but it's a little quicker to calculate the correct pa and pb directly,
-            // and the predictor remains the same.  (Again, brute force.)
-            __m128i pa = absdiff_u8(b,c),             // |a+b-c - a| == |b-c|
-                    pb = absdiff_u8(a,c),             // |a+b-c - b| == |a-c|
-               faux_pc = absdiff_u8(faux_p, c);
+            pa = abs_i16(pa);  // |p-a|
+            pb = abs_i16(pb);  // |p-b|
+            pc = abs_i16(pc);  // |p-c|
 
-            // From here, things are straightforward.  Find the smallest distance to p...
-            __m128i smallest = _mm_min_epu8(_mm_min_epu8(pa, pb), faux_pc);
+            __m128i smallest = _mm_min_epi16(pc, _mm_min_epi16(pa, pb));
 
-            // ... then the predictor is the input corresponding to that smallest distance,
-            // breaking ties in favor of a over b over c.
-            __m128i nearest = if_then_else(_mm_cmpeq_epi8(smallest, pa), a,
-                              if_then_else(_mm_cmpeq_epi8(smallest, pb), b,
-                                                                         c));
+            // Paeth breaks ties favoring a over b over c.
+            __m128i nearest  = if_then_else(_mm_cmpeq_epi16(smallest, pa), a,
+                               if_then_else(_mm_cmpeq_epi16(smallest, pb), b,
+                                                                           c));
 
-            // We've reconstructed d!  Leave it for next round to become a, and write it out.
-            d = _mm_add_epi8(d, nearest);
-            store<bpp>(row, d);
+            d = _mm_add_epi8(d, nearest);  // Note `_epi8`: we need addition to wrap modulo 255.
+            store<bpp>(row, _mm_packus_epi16(d,d));
 
             prev += bpp;
             row  += bpp;
