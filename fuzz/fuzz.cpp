@@ -66,7 +66,7 @@ int fuzz_api(SkData* bytes) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
             Fuzz fuzz(bytes);
             fuzzable.fn(&fuzz);
-            SkDebugf("Success!");
+            SkDebugf("[terminated] Success!\n");
             return 0;
         }
     }
@@ -87,9 +87,10 @@ static void dump_png(SkBitmap bitmap) {
 }
 
 int fuzz_img(SkData* bytes) {
+    SkDebugf("Decoding\n");
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(bytes));
     if (nullptr == codec.get()) {
-        SkDebugf("Couldn't create codec.");
+        SkDebugf("[terminated] Couldn't create codec.\n");
         return 3;
     }
 
@@ -112,7 +113,7 @@ int fuzz_img(SkData* bytes) {
     options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
 
     if (!bitmap.tryAllocPixels(decodeInfo, &zeroFactory, nullptr)) {
-        SkDebugf("Could not allocate memory.  Image might be too large (%d x %d)",
+        SkDebugf("[terminated] Could not allocate memory.  Image might be too large (%d x %d)",
                     decodeInfo.width(), decodeInfo.height());
         return 4;
     }
@@ -120,17 +121,17 @@ int fuzz_img(SkData* bytes) {
     switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options,
             colorPtr, colorCountPtr)) {
         case SkCodec::kSuccess:
-            SkDebugf("Success!\n");
+            SkDebugf("[terminated] Success!\n");
             break;
         case SkCodec::kIncompleteInput:
-            SkDebugf("Partial Success\n");
+            SkDebugf("[terminated] Partial Success\n");
             break;
         case SkCodec::kInvalidConversion:
-            SkDebugf("Incompatible colortype conversion");
+            SkDebugf("[terminated] Incompatible colortype conversion\n");
             return 5;
         default:
             // Everything else is considered a failure.
-            SkDebugf("Couldn't getPixels.");
+            SkDebugf("[terminated] Couldn't getPixels.\n");
             return 6;
     }
 
@@ -143,7 +144,7 @@ int fuzz_skp(SkData* bytes) {
     SkDebugf("Decoding\n");
     SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(&stream));
     if (!pic) {
-        SkDebugf("Couldn't decode as a picture.\n");
+        SkDebugf("[terminated] Couldn't decode as a picture.\n");
         return 3;
     }
     SkDebugf("Rendering\n");
@@ -154,7 +155,7 @@ int fuzz_skp(SkData* bytes) {
     }
     SkCanvas canvas(bitmap);
     canvas.drawPicture(pic);
-    SkDebugf("Success! Decoded and rendered an SkPicture!\n");
+    SkDebugf("[terminated] Success! Decoded and rendered an SkPicture!\n");
     dump_png(bitmap);
     return 0;
 }
