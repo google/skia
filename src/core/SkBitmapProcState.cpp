@@ -492,6 +492,7 @@ static void S32_D32_constX_shaderproc(const void* sIn,
         int yTemp;
 
         if (s.fInvType > SkMatrix::kTranslate_Mask) {
+            // TODO(fmalita): looks like another SkBitmapProcStateAutoMapper customer
             SkPoint pt;
             s.fInvProc(s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
@@ -525,31 +526,35 @@ static void S32_D32_constX_shaderproc(const void* sIn,
                 break;
         }
 
-// http://code.google.com/p/skia/issues/detail?id=4874
-#ifdef DISABLED_SK_DEBUG
+#ifdef SK_DEBUG
         {
-            SkPoint pt;
-            s.fInvProc(s.fInvMatrix,
-                       SkIntToScalar(x) + SK_ScalarHalf,
-                       SkIntToScalar(y) + SK_ScalarHalf,
-                       &pt);
-            if (s.fInvType > SkMatrix::kTranslate_Mask &&
-                (SkShader::kClamp_TileMode != s.fTileModeX ||
-                 SkShader::kClamp_TileMode != s.fTileModeY)) {
-                pt.fY *= s.fPixmap.height();
-            }
             int iY2;
+            if (s.fInvType > SkMatrix::kTranslate_Mask) {
+                SkPoint pt;
+                s.fInvProc(s.fInvMatrix,
+                           SkIntToScalar(x) + SK_ScalarHalf,
+                           SkIntToScalar(y) + SK_ScalarHalf,
+                           &pt);
+                if (SkShader::kClamp_TileMode != s.fTileModeX ||
+                    SkShader::kClamp_TileMode != s.fTileModeY) {
+                    pt.fY *= s.fPixmap.height();
+                }
+                iY2 = SkScalarFloorToInt(pt.fY);
+            } else {
+                const SkBitmapProcStateAutoMapper mapper(s, x, y);
+                iY2 = SkFractionalIntToInt(mapper.y());
+            }
 
             switch (s.fTileModeY) {
             case SkShader::kClamp_TileMode:
-                iY2 = SkClampMax(SkScalarFloorToInt(pt.fY), stopY-1);
+                iY2 = SkClampMax(iY2, stopY-1);
                 break;
             case SkShader::kRepeat_TileMode:
-                iY2 = sk_int_mod(SkScalarFloorToInt(pt.fY), stopY);
+                iY2 = sk_int_mod(iY2, stopY);
                 break;
             case SkShader::kMirror_TileMode:
             default:
-                iY2 = sk_int_mirror(SkScalarFloorToInt(pt.fY), stopY);
+                iY2 = sk_int_mirror(iY2, stopY);
                 break;
             }
 
