@@ -154,6 +154,13 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
     virtual bool isOpaque() const { return false; }
 
+    /**
+     * Extracts YUV planes from the SkImage and stores them in client-provided memory. The sizes
+     * planes and rowBytes arrays are ordered [y, u, v].
+     */
+    bool readYUV8Planes(const SkISize[3], void* const planes[3], const size_t rowBytes[3],
+                        SkYUVColorSpace);
+
     virtual SkShader* newShader(SkShader::TileMode,
                                 SkShader::TileMode,
                                 const SkMatrix* localMatrix = NULL) const;

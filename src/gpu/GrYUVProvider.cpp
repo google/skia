@@ -8,7 +8,7 @@
 #include "GrContext.h"
 #include "GrDrawContext.h"
 #include "GrYUVProvider.h"
-#include "effects/GrYUVtoRGBEffect.h"
+#include "effects/GrYUVEffect.h"
 
 #include "SkCachedData.h"
 #include "SkRefCnt.h"
@@ -121,12 +121,12 @@ GrTexture* GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc
     SkASSERT(renderTarget);
 
     GrPaint paint;
-    SkAutoTUnref<GrFragmentProcessor> yuvToRgbProcessor(
-                                        GrYUVtoRGBEffect::Create(yuvTextures[0],
-                                                                 yuvTextures[1],
-                                                                 yuvTextures[2],
-                                                                 yuvInfo.fSize,
-                                                                 yuvInfo.fColorSpace));
+    SkAutoTUnref<const GrFragmentProcessor> yuvToRgbProcessor(
+                                        GrYUVEffect::CreateYUVToRGB(yuvTextures[0],
+                                                                    yuvTextures[1],
+                                                                    yuvTextures[2],
+                                                                    yuvInfo.fSize,
+                                                                    yuvInfo.fColorSpace));
     paint.addColorFragmentProcessor(yuvToRgbProcessor);
     paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSize[0].fWidth, yuvInfo.fSize[0].fHeight);

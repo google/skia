@@ -32,10 +32,8 @@ static void transpose_to_pmorder(float dst[20], const float src[20]) {
     }
 }
 
-// src is [20] but some compilers won't accept __restrict__ on anything
-// but an raw pointer or reference
-void SkColorMatrixFilterRowMajor255::initState(const SkScalar* SK_RESTRICT src) {
-    transpose_to_pmorder(fTranspose, src);
+void SkColorMatrixFilterRowMajor255::initState() {
+    transpose_to_pmorder(fTranspose, fMatrix);
 
     const float* array = fMatrix;
 
@@ -55,7 +53,7 @@ void SkColorMatrixFilterRowMajor255::initState(const SkScalar* SK_RESTRICT src) 
 
 SkColorMatrixFilterRowMajor255::SkColorMatrixFilterRowMajor255(const SkScalar array[20]) {
     memcpy(fMatrix, array, 20 * sizeof(SkScalar));
-    this->initState(array);
+    this->initState();
 }
 
 uint32_t SkColorMatrixFilterRowMajor255::getFlags() const {
@@ -419,4 +417,17 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
 
 SkColorFilter* SkColorFilter::CreateMatrixFilterRowMajor255(const SkScalar array[20]) {
     return new SkColorMatrixFilterRowMajor255(array);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkColorFilter* SkColorMatrixFilterRowMajor255::CreateSingleChannelOutput(const SkScalar row[5]) {
+    SkASSERT(row);
+    SkColorMatrixFilterRowMajor255* cf = new SkColorMatrixFilterRowMajor255();
+    static_assert(sizeof(SkScalar) * 5 * 4 == sizeof(cf->fMatrix), "sizes don't match");
+    for (int i = 0; i < 4; ++i) {
+        memcpy(cf->fMatrix + 5 * i, row, sizeof(SkScalar) * 5);
+    }
+    cf->initState();
+    return cf;
 }

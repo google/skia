@@ -258,6 +258,24 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint c
     return this->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), srcX, srcY, chint);
 }
 
+#if SK_SUPPORT_GPU
+#include "GrTextureToYUVPlanes.h"
+#endif
+
+#include "SkRGBAToYUV.h"
+
+bool SkImage::readYUV8Planes(const SkISize sizes[3], void* const planes[3],
+                             const size_t rowBytes[3], SkYUVColorSpace colorSpace) {
+#if SK_SUPPORT_GPU
+    if (GrTexture* texture = as_IB(this)->peekTexture()) {
+        if (GrTextureToYUVPlanes(texture, sizes, planes, rowBytes, colorSpace)) {
+            return true;
+        }
+    }
+#endif
+    return SkRGBAToYUV(this, sizes, planes, rowBytes, colorSpace);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {

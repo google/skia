@@ -182,6 +182,8 @@
       '<(skia_src_path)/gpu/GrTextureParamsAdjuster.cpp',
       '<(skia_src_path)/gpu/GrTextureProvider.cpp',
       '<(skia_src_path)/gpu/GrTexturePriv.h',
+      '<(skia_src_path)/gpu/GrTextureToYUVPlanes.cpp',
+      '<(skia_src_path)/gpu/GrTextureToYUVPlanes.h',
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
       '<(skia_src_path)/gpu/GrTransferBuffer.h',
       '<(skia_src_path)/gpu/GrTRecorder.h',
@@ -285,8 +287,8 @@
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.cpp',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.h',
       '<(skia_src_path)/gpu/effects/GrXfermodeFragmentProcessor.cpp',
-      '<(skia_src_path)/gpu/effects/GrYUVtoRGBEffect.cpp',
-      '<(skia_src_path)/gpu/effects/GrYUVtoRGBEffect.h',
+      '<(skia_src_path)/gpu/effects/GrYUVEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrYUVEffect.h',
 
       # text
       '<(skia_src_path)/gpu/text/GrAtlasTextBlob.cpp',
