@@ -525,7 +525,8 @@ static void S32_D32_constX_shaderproc(const void* sIn,
                 break;
         }
 
-#ifdef SK_DEBUG
+// http://code.google.com/p/skia/issues/detail?id=4874
+#ifdef DISABLED_SK_DEBUG
         {
             SkPoint pt;
             s.fInvProc(s.fInvMatrix,
