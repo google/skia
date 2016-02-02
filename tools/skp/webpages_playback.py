@@ -377,11 +377,10 @@ class SkPicturePlayback(object):
         partner_gs = GoogleStorageDataStore(PARTNERS_GS_BUCKET)
         partner_gs.upload_dir_contents(
             os.path.join(LOCAL_PLAYBACK_ROOT_DIR, SKPICTURES_DIR_NAME),
-            dest_dir=posixpath.join(SKPICTURES_DIR_NAME, dest_dir_name),
+            dest_dir=SKPICTURES_DIR_NAME,
             upload_if=gs_utils.GSUtils.UploadIf.IF_MODIFIED)
         print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
-            posixpath.join(partner_gs.target_name(), SKPICTURES_DIR_NAME,
-                           dest_dir_name))
+            posixpath.join(partner_gs.target_name(), SKPICTURES_DIR_NAME))
     else:
       print '\n\n=======Not Uploading to %s=======\n\n' % self.gs.target_type()
       print 'Generated resources are available in %s\n\n' % (
