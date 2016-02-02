@@ -37,11 +37,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
     unsigned char alphaData[X_SIZE * Y_SIZE];
 
     bool match;
-#ifdef SK_BUILD_FOR_WIN // TODO: Figure out why this breaks on Windows.
-    static const size_t kRowBytes[] = {0, X_SIZE};
-#else
     static const size_t kRowBytes[] = {0, X_SIZE, X_SIZE + 1, 2 * X_SIZE - 1};
-#endif
     for (int rt = 0; rt < 2; ++rt) {
         GrSurfaceDesc desc;
         // let Skia know we will be using this texture as a render target
@@ -85,7 +81,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
 
             // make sure the original & read back versions match
             SkString msg;
-            msg.printf("rt:%d, rb:%zd", rt, rowBytes);
+            msg.printf("rt:%d, rb:%d", rt, SkToU32(rowBytes));
             validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
                                 alphaData, msg);
 
@@ -115,7 +111,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
                         if (0xFF != rbValue) {
                             ERRORF(reporter,
                                    "Failed alpha readback after clear. Expected: 0xFF, Got: 0x%02x"
-                                   " at (%d,%d), rb:%zd", rbValue, x, y, rowBytes);
+                                   " at (%d,%d), rb:%d", rbValue, x, y, SkToU32(rowBytes));
                             match = false;
                         }
                     }
@@ -176,7 +172,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, context) {
 
                 // make sure the original & read back versions match
                 SkString msg;
-                msg.printf("rt:%d, rb:%zd", rt, rowBytes);
+                msg.printf("rt:%d, rb:%d", rt, SkToU32(rowBytes));
                 validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
                                     alphaData, msg);
             }
