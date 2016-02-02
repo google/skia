@@ -88,6 +88,16 @@ static void RGB_to_BGR1_portable(uint32_t dst[], const void* vsrc, int count) {
     }
 }
 
+static void gray_to_RGB1_portable(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        dst[i] = (uint32_t)0xFF   << 24
+               | (uint32_t)src[i] << 16
+               | (uint32_t)src[i] <<  8
+               | (uint32_t)src[i] <<  0;
+    }
+}
+
 #if defined(SK_ARM_HAS_NEON)
 
 // Rounded divide by 255, (x + 127) / 255
@@ -260,6 +270,47 @@ static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
     insert_alpha_should_swaprb<true>(dst, src, count);
 }
 
+static void gray_to_RGB1(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*) vsrc;
+    while (count >= 16) {
+        // Load 16 pixels.
+        uint8x16_t gray = vld1q_u8(src);
+
+        // Set each of the color channels.
+        uint8x16x4_t rgba;
+        rgba.val[0] = gray;
+        rgba.val[1] = gray;
+        rgba.val[2] = gray;
+        rgba.val[3] = vdupq_n_u8(0xFF);
+
+        // Store 16 pixels.
+        vst4q_u8((uint8_t*) dst, rgba);
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
+    if (count >= 8) {
+        // Load 8 pixels.
+        uint8x8_t gray = vld1_u8(src);
+
+        // Set each of the color channels.
+        uint8x8x4_t rgba;
+        rgba.val[0] = gray;
+        rgba.val[1] = gray;
+        rgba.val[2] = gray;
+        rgba.val[3] = vdup_n_u8(0xFF);
+
+        // Store 8 pixels.
+        vst4_u8((uint8_t*) dst, rgba);
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    gray_to_RGB1_portable(dst, src, count);
+}
+
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
 template <bool kSwapRB>
@@ -401,6 +452,10 @@ static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
     insert_alpha_should_swaprb<true>(dst, src, count);
 }
 
+static void gray_to_RGB1(uint32_t dst[], const void* src, int count) {
+    gray_to_RGB1_portable(dst, src, count);
+}
+
 #else
 
 static void RGBA_to_rgbA(uint32_t* dst, const void* src, int count) {
@@ -421,6 +476,10 @@ static void RGB_to_RGB1(uint32_t dst[], const void* src, int count) {
 
 static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
     RGB_to_BGR1_portable(dst, src, count);
+}
+
+static void gray_to_RGB1(uint32_t dst[], const void* src, int count) {
+    gray_to_RGB1_portable(dst, src, count);
 }
 
 #endif

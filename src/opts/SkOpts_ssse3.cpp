@@ -23,5 +23,6 @@ namespace SkOpts {
         RGBA_to_bgrA = sk_ssse3::RGBA_to_bgrA;
         RGB_to_RGB1  = sk_ssse3::RGB_to_RGB1;
         RGB_to_BGR1  = sk_ssse3::RGB_to_BGR1;
+        gray_to_RGB1 = sk_ssse3::gray_to_RGB1;
     }
 }

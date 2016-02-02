@@ -270,6 +270,19 @@ static void swizzle_gray_to_n32(
     }
 }
 
+static void fast_swizzle_gray_to_n32(
+        void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+
+    // This function must not be called if we are sampling.  If we are not
+    // sampling, deltaSrc should equal bpp.
+    SkASSERT(deltaSrc == bpp);
+
+    // Note that there is no need to distinguish between RGB and BGR.
+    // Each color channel will get the same value.
+    SkOpts::gray_to_RGB1((uint32_t*) dst, src + offset, width);
+}
+
 static void swizzle_gray_to_565(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
         int bytesPerPixel, int deltaSrc, int offset, const SkPMColor ctable[]) {
@@ -639,6 +652,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
                     proc = &swizzle_gray_to_n32;
+                    fastProc = &fast_swizzle_gray_to_n32;
                     break;
                 case kGray_8_SkColorType:
                     proc = &sample1;
