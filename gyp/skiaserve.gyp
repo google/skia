@@ -12,11 +12,23 @@
     {
       'target_name': 'skiaserve',
       'type': 'executable',
-      'sources': [ 
-        '<!@(python find.py ../tools/skiaserve "*.cpp")',
-      ],
       'include_dirs': [
+        '../src/core',
+        '../src/ports',
+        '../src/utils/debugger',
         '../tools/json',
+      ],
+      'sources': [ 
+        # Stuff for the debug canvas
+        '../src/utils/debugger/SkDrawCommand.h',
+        '../src/utils/debugger/SkDrawCommand.cpp',
+        '../src/utils/debugger/SkDebugCanvas.h',
+        '../src/utils/debugger/SkDebugCanvas.cpp',
+        '../src/utils/debugger/SkObjectParser.h',
+        '../src/utils/debugger/SkObjectParser.cpp',
+        '../src/utils/debugger/SkOverdrawMode.h',
+        '../src/utils/debugger/SkOverdrawMode.cpp',
+        '<!@(python find.py ../tools/skiaserve "*.cpp")',
       ],
       'dependencies': [
         'flags.gyp:flags',

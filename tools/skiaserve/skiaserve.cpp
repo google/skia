@@ -9,6 +9,7 @@
 #include "GrContextFactory.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
+#include "SkDebugCanvas.h"
 #include "SkJSONCanvas.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -61,15 +62,12 @@ struct UploadContext {
 struct Request {
     Request() : fUploadContext(nullptr) {}
     UploadContext* fUploadContext;
-    SkAutoTUnref<SkData> fPNG;
     SkAutoTUnref<SkPicture> fPicture;
+    SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
 };
 
 // TODO factor this out into functions, also handle CPU path
-bool setupAndDrawToCanvas(Request* request, SkString* error) {
-    GrContextOptions grContextOpts;
-    SkAutoTDelete<GrContextFactory> factory(new GrContextFactory(grContextOpts));
-
+SkSurface* setupSurface(GrContextFactory* factory) {
     GrContext* context = factory->get(GrContextFactory::kNative_GLContextType,
                                       GrContextFactory::kNone_GLContextOptions);
     int maxRTSize = context->caps()->maxRenderTargetSize();
@@ -78,41 +76,43 @@ bool setupAndDrawToCanvas(Request* request, SkString* error) {
                                          kN32_SkColorType, kPremul_SkAlphaType);
     uint32_t flags = 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context,
-                                                               SkSurface::kNo_Budgeted, info,
-                                                               0, &props));
-    SkASSERT(surface.get());
+    SkSurface* surface = SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0,
+                                                    &props);
+    SkASSERT(surface);
 
     SkGLContext* gl = factory->getContextInfo(GrContextFactory::kNative_GLContextType,
                                               GrContextFactory::kNone_GLContextOptions).fGLContext;
     gl->makeCurrent();
+    return surface;
+}
 
-    // draw
-    request->fPicture.reset(
-        SkPicture::CreateFromStream(request->fUploadContext->fStream.detachAsStream()));
-    if (!request->fPicture.get()) {
-        error->appendf("Could not create picture from stream.\n");
-        return false;
-    }
-
-    SkCanvas* canvas = surface->getCanvas();
-    canvas->drawPicture(request->fPicture);
-
+SkData* writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
     SkBitmap bmp;
     bmp.setInfo(canvas->imageInfo());
     if (!canvas->readPixels(&bmp, 0, 0)) {
-        error->appendf("Can't read canvas pixels.\n");
-        return false;
+        fprintf(stderr, "Can't read pixels\n");
+        return nullptr;
     }
 
     // write to png
-    request->fPNG.reset(SkImageEncoder::EncodeData(bmp, SkImageEncoder::kPNG_Type, 100));
-    if (!request->fPNG) {
-        error->appendf("Can't encode a PNG.\n");
-        return false;
+    SkData* png = SkImageEncoder::EncodeData(bmp, SkImageEncoder::kPNG_Type, 100);
+    if (!png) {
+        fprintf(stderr, "Can't encode to png\n");
+        return nullptr;
     }
-    return true;
+    return png;
+}
+
+SkData* setupAndDrawToCanvasReturnPng(SkDebugCanvas* debugCanvas, int n) {
+    GrContextOptions grContextOpts;
+    SkAutoTDelete<GrContextFactory> factory(new GrContextFactory(grContextOpts));
+    SkAutoTUnref<SkSurface> surface(setupSurface(factory.get()));
+
+    SkASSERT(debugCanvas);
+    SkCanvas* canvas = surface->getCanvas();
+    debugCanvas->drawTo(canvas, n);
+    return writeCanvasToPng(canvas);
 }
 
 static const size_t kBufferSize = 1024;
@@ -140,10 +140,10 @@ static int SendData(MHD_Connection* connection, const SkData* data, const char* 
     return ret;
 }
 
-static int SendJSON(MHD_Connection* connection, SkPicture* picture) {
+static int SendJSON(MHD_Connection* connection, SkDebugCanvas* debugCanvas, int n) {
     SkDynamicMemoryWStream stream;
     SkAutoTUnref<SkJSONCanvas> jsonCanvas(new SkJSONCanvas(kImageWidth, kImageHeight, stream));
-    jsonCanvas->drawPicture(picture);
+    debugCanvas->drawTo(jsonCanvas, n);
     jsonCanvas->finish();
 
     SkAutoTUnref<SkData> data(stream.copyToData());
@@ -177,21 +177,50 @@ public:
     virtual ~UrlHandler() {}
     virtual bool canHandle(const char* method, const char* url) = 0;
     virtual int handle(Request* request, MHD_Connection* connection,
+                       const char* url, const char* method,
                        const char* upload_data, size_t* upload_data_size) = 0;
 };
 
 class InfoHandler : public UrlHandler {
 public:
     bool canHandle(const char* method, const char* url) override {
-        return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
-               0 == strcmp(url, "/cmd");
+        const char* kBasePath = "/cmd";
+        return 0 == strncmp(url, kBasePath, strlen(kBasePath));
     }
 
     int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) override {
-        if (request->fPicture.get()) {
-            return SendJSON(connection, request->fPicture);
+        SkTArray<SkString> commands;
+        SkStrSplit(url, "/", &commands);
+
+        if (!request->fPicture.get() || commands.count() > 3) {
+            return MHD_NO;
         }
+
+        // /cmd or /cmd/N or /cmd/N/[0|1]
+        if (commands.count() == 1 && 0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
+            int n = request->fDebugCanvas->getSize() - 1;
+            return SendJSON(connection, request->fDebugCanvas, n);
+        }
+
+        // /cmd/N, for now only delete supported
+        if (commands.count() == 2 && 0 == strcmp(method, MHD_HTTP_METHOD_DELETE)) {
+            int n;
+            sscanf(commands[1].c_str(), "%d", &n);
+            request->fDebugCanvas->deleteDrawCommandAt(n);
+            return MHD_YES;
+        }
+
+        // /cmd/N/[0|1]
+        if (commands.count() == 3 && 0 == strcmp(method, MHD_HTTP_METHOD_POST))  {
+            int n, toggle;
+            sscanf(commands[1].c_str(), "%d", &n);
+            sscanf(commands[2].c_str(), "%d", &toggle);
+            request->fDebugCanvas->toggleCommand(n, toggle);
+            return MHD_YES;
+        }
+
         return MHD_NO;
     }
 };
@@ -205,13 +234,25 @@ public:
     }
 
     int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) override {
-        if (request->fPNG.get()) {
-            SkData* data = request->fPNG.get();
-            return SendData(connection, data, "image/png");
+        SkTArray<SkString> commands;
+        SkStrSplit(url, "/", &commands);
+
+        if (!request->fPicture.get() || commands.count() > 2) {
+            return MHD_NO;
         }
 
-        return MHD_NO;
+        int n;
+        // /img or /img/N
+        if (commands.count() == 1) {
+            n = request->fDebugCanvas->getSize() - 1;
+        } else {
+            sscanf(commands[1].c_str(), "%d", &n);
+        }
+
+        SkAutoTUnref<SkData> data(setupAndDrawToCanvasReturnPng(request->fDebugCanvas, n));
+        return SendData(connection, data, "image/png");
     }
 };
 
@@ -223,6 +264,7 @@ public:
     }
 
     int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) override {
         UploadContext* uc =  request->fUploadContext;
 
@@ -251,12 +293,17 @@ public:
         MHD_destroy_post_processor(uc->fPostProcessor);
         uc->fPostProcessor = nullptr;
 
-        // TODO response
-        SkString error;
-        if (!setupAndDrawToCanvas(request, &error)) {
-            // TODO send error
-            return MHD_YES;
+        // parse picture from stream
+        request->fPicture.reset(
+            SkPicture::CreateFromStream(request->fUploadContext->fStream.detachAsStream()));
+        if (!request->fPicture.get()) {
+            fprintf(stderr, "Could not create picture from stream.\n");
+            return MHD_NO;
         }
+
+        // pour picture into debug canvas
+        request->fDebugCanvas.reset(new SkDebugCanvas(kImageWidth, kImageHeight));
+        request->fDebugCanvas->drawPicture(request->fPicture);
 
         // clear upload context
         delete request->fUploadContext;
@@ -274,6 +321,7 @@ public:
     }
 
     int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) override {
         return SendTemplate(connection);
     }
@@ -298,7 +346,8 @@ public:
                const char* upload_data, size_t* upload_data_size) const {
         for (int i = 0; i < fHandlers.count(); i++) {
             if (fHandlers[i]->canHandle(method, url)) {
-                return fHandlers[i]->handle(request, connection, upload_data, upload_data_size);
+                return fHandlers[i]->handle(request, connection, url, method, upload_data,
+                                            upload_data_size);
             }
         }
         return MHD_NO;
