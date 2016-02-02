@@ -130,8 +130,8 @@ Build and run SampleApp in Visual Studio
 6.  Once the build is complete, you should see a window with various
     example graphics. To move through the sample app, use the
     following keypresses:
-    -    right-arrow key: cycle through different test pages
-    -    left-arrow key: cycle through rendering methods for each test page
+    -    right- and left-arrow key: cycle through different test pages
+    -    'D' key: cycle through rendering methods for each test page
     -    other keys are defined in SampleApp.cpp’s
          SampleWindow::onHandleKey() and SampleWindow::onHandleChar()
          methods
