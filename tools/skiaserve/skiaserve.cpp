@@ -12,6 +12,8 @@
 #include "SkDebugCanvas.h"
 #include "SkJSONCanvas.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
+#include "SkPixelSerializer.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 
@@ -129,11 +131,16 @@ static int process_upload_data(void* cls, enum MHD_ValueKind kind,
     return MHD_YES;
 }
 
-static int SendData(MHD_Connection* connection, const SkData* data, const char* type) {
+static int SendData(MHD_Connection* connection, const SkData* data, const char* type,
+                    bool setContentDisposition = false, const char* dispositionString = nullptr) {
     MHD_Response* response = MHD_create_response_from_buffer(data->size(),
                                                              const_cast<void*>(data->data()),
                                                              MHD_RESPMEM_MUST_COPY);
     MHD_add_response_header(response, "Content-Type", type);
+
+    if (setContentDisposition) {
+        MHD_add_response_header(response, "Content-Disposition", dispositionString);
+    }
 
     int ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
     MHD_destroy_response(response);
@@ -313,6 +320,42 @@ public:
     }
 };
 
+class DownloadHandler : public UrlHandler {
+public:
+    bool canHandle(const char* method, const char* url) override {
+        return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
+               0 == strcmp(url, "/download");
+    }
+
+    int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
+               const char* upload_data, size_t* upload_data_size) override {
+        if (!request->fPicture.get()) {
+            return MHD_NO;
+        }
+
+        // TODO move to a function
+        // Playback into picture recorder
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(kImageWidth, kImageHeight);
+
+        request->fDebugCanvas->draw(canvas);
+
+        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+        SkDynamicMemoryWStream outStream;
+
+        SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+        picture->serialize(&outStream, serializer);
+
+        SkAutoTUnref<SkData> data(outStream.copyToData());
+
+        // TODO fancier name handling
+        return SendData(connection, data, "application/octet-stream", true,
+                        "attachment; filename=something.skp;");
+    }
+};
+
 class RootHandler : public UrlHandler {
 public:
     bool canHandle(const char* method, const char* url) override {
@@ -335,6 +378,7 @@ public:
         fHandlers.push_back(new PostHandler);
         fHandlers.push_back(new ImgHandler);
         fHandlers.push_back(new InfoHandler);
+        fHandlers.push_back(new DownloadHandler);
     }
 
     ~UrlManager() {
