@@ -452,7 +452,33 @@ static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
     insert_alpha_should_swaprb<true>(dst, src, count);
 }
 
-static void gray_to_RGB1(uint32_t dst[], const void* src, int count) {
+static void gray_to_RGB1(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*) vsrc;
+
+    const __m128i alphas = _mm_set1_epi8((uint8_t) 0xFF);
+    while (count >= 16) {
+        __m128i grays = _mm_loadu_si128((const __m128i*) src);
+
+        __m128i gg_lo = _mm_unpacklo_epi8(grays, grays);
+        __m128i gg_hi = _mm_unpackhi_epi8(grays, grays);
+        __m128i ga_lo = _mm_unpacklo_epi8(grays, alphas);
+        __m128i ga_hi = _mm_unpackhi_epi8(grays, alphas);
+
+        __m128i ggga0 = _mm_unpacklo_epi16(gg_lo, ga_lo);
+        __m128i ggga1 = _mm_unpackhi_epi16(gg_lo, ga_lo);
+        __m128i ggga2 = _mm_unpacklo_epi16(gg_hi, ga_hi);
+        __m128i ggga3 = _mm_unpackhi_epi16(gg_hi, ga_hi);
+
+        _mm_storeu_si128((__m128i*) (dst +  0), ggga0);
+        _mm_storeu_si128((__m128i*) (dst +  4), ggga1);
+        _mm_storeu_si128((__m128i*) (dst +  8), ggga2);
+        _mm_storeu_si128((__m128i*) (dst + 12), ggga3);
+
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
     gray_to_RGB1_portable(dst, src, count);
 }
 
