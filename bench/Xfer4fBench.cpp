@@ -10,7 +10,7 @@
 #include "SkString.h"
 #include "SkXfermode.h"
 
-#define INNER_LOOPS 100
+#define INNER_LOOPS 1000
 
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class Xfer4fBench : public Benchmark {
