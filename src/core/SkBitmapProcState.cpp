@@ -583,12 +583,7 @@ static void DoNothing_shaderproc(const void*, int x, int y,
 
 bool SkBitmapProcState::setupForTranslate() {
     SkPoint pt;
-
-#ifdef SK_SUPPORT_LEGACY_SAMPLER_BIAS
-    fInvProc(fInvMatrix, SK_ScalarHalf, SK_ScalarHalf, &pt);
-#else
     const SkBitmapProcStateAutoMapper mapper(*this, 0, 0, &pt);
-#endif
 
     /*
      *  if the translate is larger than our ints, we can get random results, or
@@ -600,16 +595,11 @@ bool SkBitmapProcState::setupForTranslate() {
         return false;
     }
 
-#ifdef SK_SUPPORT_LEGACY_SAMPLER_BIAS
-    fFilterOneX = SkScalarFloorToInt(pt.fX);
-    fFilterOneY = SkScalarFloorToInt(pt.fY);
-#else
     // Since we know we're not filtered, we re-purpose these fields allow
     // us to go from device -> src coordinates w/ just an integer add,
     // rather than running through the inverse-matrix
     fFilterOneX = SkFractionalIntToInt(mapper.x());
     fFilterOneY = SkFractionalIntToInt(mapper.y());
-#endif
 
     return true;
 }
