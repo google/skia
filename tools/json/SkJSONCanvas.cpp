@@ -6,17 +6,20 @@
  */
 
 #include "SkJSONCanvas.h"
+#include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPaintDefaults.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkRRect.h"
+#include "SkWriteBuffer.h"
 
-SkJSONCanvas::SkJSONCanvas(int width, int height, SkWStream& out) 
+SkJSONCanvas::SkJSONCanvas(int width, int height, SkWStream& out, bool sendBinaries) 
     : INHERITED(width, height)
     , fOut(out)
     , fRoot(Json::objectValue)
-    , fCommands(Json::arrayValue) {
+    , fCommands(Json::arrayValue) 
+    , fSendBinaries(sendBinaries) {
     fRoot[SKJSONCANVAS_VERSION] = Json::Value(1);
 }
 
@@ -148,8 +151,62 @@ void store_bool(Json::Value* target, const char* key, bool value, bool defaultVa
     }
 }
 
-Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
-    Json::Value result(Json::objectValue);
+static void encode_data(const void* data, size_t count, Json::Value* target) {
+    // just use a brain-dead JSON array for now, switch to base64 or something else smarter down the
+    // road
+    for (size_t i = 0; i < count; i++) {
+        target->append(((const uint8_t*)data)[i]);
+    }
+}
+
+static void flatten(const SkFlattenable* flattenable, Json::Value* target, bool sendBinaries) {
+    if (sendBinaries) {
+        SkWriteBuffer buffer;
+        flattenable->flatten(buffer);
+        void* data = sk_malloc_throw(buffer.bytesWritten());
+        buffer.writeToMemory(data);
+        Json::Value bytes;
+        encode_data(data, buffer.bytesWritten(), &bytes);
+        Json::Value jsonFlattenable;
+        jsonFlattenable[SKJSONCANVAS_ATTRIBUTE_NAME] = Json::Value(flattenable->getTypeName());
+        jsonFlattenable[SKJSONCANVAS_ATTRIBUTE_BYTES] = bytes;
+        (*target) = jsonFlattenable;
+        free(data);
+    }
+    else {
+        (*target)[SKJSONCANVAS_ATTRIBUTE_DESCRIPTION] = Json::Value(flattenable->getTypeName());
+    }
+}
+
+static bool SK_WARN_UNUSED_RESULT flatten(const SkImage& image, Json::Value* target, 
+                                          bool sendBinaries) {
+    if (sendBinaries) {
+        SkData* png = image.encode(SkImageEncoder::kPNG_Type, 100);
+        if (png == nullptr) {
+            SkDebugf("could not encode image\n");
+            return false;
+        }
+        Json::Value bytes;
+        encode_data(png->data(), png->size(), &bytes);
+        (*target)[SKJSONCANVAS_ATTRIBUTE_BYTES] = bytes;
+        png->unref();
+    }
+    else {
+        SkString description = SkStringPrintf("%dx%d pixel image", image.width(), image.height());
+        (*target)[SKJSONCANVAS_ATTRIBUTE_DESCRIPTION] = Json::Value(description.c_str());
+    }
+    return true;
+}
+
+static bool SK_WARN_UNUSED_RESULT flatten(const SkBitmap& bitmap, Json::Value* target, 
+                                          bool sendBinaries) {
+    SkImage* image = SkImage::NewFromBitmap(bitmap);
+    bool success = flatten(*image, target, sendBinaries);
+    image->unref();
+    return success;
+}
+
+static void apply_paint_color(const SkPaint& paint, Json::Value* target) {
     SkColor color = paint.getColor();
     if (color != SK_ColorBLACK) {
         Json::Value colorValue(Json::arrayValue);
@@ -157,26 +214,50 @@ Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
         colorValue.append(Json::Value(SkColorGetR(color)));
         colorValue.append(Json::Value(SkColorGetG(color)));
         colorValue.append(Json::Value(SkColorGetB(color)));
-        result[SKJSONCANVAS_ATTRIBUTE_COLOR] = colorValue;;
+        (*target)[SKJSONCANVAS_ATTRIBUTE_COLOR] = colorValue;;
     }
+}
+
+static void apply_paint_style(const SkPaint& paint, Json::Value* target) {
     SkPaint::Style style = paint.getStyle();
     if (style != SkPaint::kFill_Style) {
         switch (style) {
             case SkPaint::kStroke_Style: {
                 Json::Value stroke(SKJSONCANVAS_STYLE_STROKE);
-                result[SKJSONCANVAS_ATTRIBUTE_STYLE] = stroke;
+                (*target)[SKJSONCANVAS_ATTRIBUTE_STYLE] = stroke;
                 break;
             }
             case SkPaint::kStrokeAndFill_Style: {
                 Json::Value strokeAndFill(SKJSONCANVAS_STYLE_STROKEANDFILL);
-                result[SKJSONCANVAS_ATTRIBUTE_STYLE] = strokeAndFill;
+                (*target)[SKJSONCANVAS_ATTRIBUTE_STYLE] = strokeAndFill;
                 break;
             }
             default: SkASSERT(false);
         }
     }
-    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH, paint.getStrokeWidth(), 0.0f);
-    store_bool(&result, SKJSONCANVAS_ATTRIBUTE_ANTIALIAS, paint.isAntiAlias(), false);
+}
+
+static void apply_paint_cap(const SkPaint& paint, Json::Value* target) {
+    SkPaint::Cap cap = paint.getStrokeCap();
+    if (cap != SkPaint::kDefault_Cap) {
+        switch (cap) {
+            case SkPaint::kButt_Cap: {
+                (*target)[SKJSONCANVAS_ATTRIBUTE_CAP] = Json::Value(SKJSONCANVAS_CAP_BUTT);
+                break;
+            }
+            case SkPaint::kRound_Cap: {
+                (*target)[SKJSONCANVAS_ATTRIBUTE_CAP] = Json::Value(SKJSONCANVAS_CAP_ROUND);
+                break;
+            }
+            case SkPaint::kSquare_Cap: {
+                (*target)[SKJSONCANVAS_ATTRIBUTE_CAP] = Json::Value(SKJSONCANVAS_CAP_SQUARE);
+                break;
+            }
+            default: SkASSERT(false);
+        }
+    }
+}
+static void apply_paint_maskfilter(const SkPaint& paint, Json::Value* target, bool sendBinaries) {
     SkMaskFilter* maskFilter = paint.getMaskFilter();
     if (maskFilter != nullptr) {
         SkMaskFilter::BlurRec blurRec;
@@ -209,13 +290,17 @@ Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
                 default:
                     SkASSERT(false);
             }
-            result[SKJSONCANVAS_ATTRIBUTE_BLUR] = blur;
+            (*target)[SKJSONCANVAS_ATTRIBUTE_BLUR] = blur;
         }
         else {
-            SkDebugf("unimplemented: non-blur maskfilter");
-            SkASSERT(false);
+            Json::Value jsonMaskFilter;
+            flatten(maskFilter, &jsonMaskFilter, sendBinaries);
+            (*target)[SKJSONCANVAS_ATTRIBUTE_MASKFILTER] = jsonMaskFilter;
         }
     }
+}
+
+static void apply_paint_patheffect(const SkPaint& paint, Json::Value* target, bool sendBinaries) {
     SkPathEffect* pathEffect = paint.getPathEffect();
     if (pathEffect != nullptr) {
         SkPathEffect::DashInfo dashInfo;
@@ -231,31 +316,69 @@ Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
             free(dashInfo.fIntervals);
             dashing[SKJSONCANVAS_ATTRIBUTE_INTERVALS] = intervals;
             dashing[SKJSONCANVAS_ATTRIBUTE_PHASE] = dashInfo.fPhase;
-            result[SKJSONCANVAS_ATTRIBUTE_DASHING] = dashing;
+            (*target)[SKJSONCANVAS_ATTRIBUTE_DASHING] = dashing;
         }
         else {
-            SkDebugf("unimplemented: non-dash patheffect");
-            SkASSERT(false);
+            Json::Value jsonPathEffect;
+            flatten(pathEffect, &jsonPathEffect, sendBinaries);
+            (*target)[SKJSONCANVAS_ATTRIBUTE_PATHEFFECT] = jsonPathEffect;
         }
     }
-    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSIZE, paint.getTextSize(), 
-                 SkPaintDefaults_TextSize);
-    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextScaleX(), SK_Scalar1);
-    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextSkewX(), 0.0f);
+}
+    
+static void apply_paint_textalign(const SkPaint& paint, Json::Value* target) {
     SkPaint::Align textAlign = paint.getTextAlign();
     if (textAlign != SkPaint::kLeft_Align) {
         switch (textAlign) {
             case SkPaint::kCenter_Align: {
-                result[SKJSONCANVAS_ATTRIBUTE_TEXTALIGN] = SKJSONCANVAS_ALIGN_CENTER;
+                (*target)[SKJSONCANVAS_ATTRIBUTE_TEXTALIGN] = SKJSONCANVAS_ALIGN_CENTER;
                 break;
             }
             case SkPaint::kRight_Align: {
-                result[SKJSONCANVAS_ATTRIBUTE_TEXTALIGN] = SKJSONCANVAS_ALIGN_RIGHT;
+                (*target)[SKJSONCANVAS_ATTRIBUTE_TEXTALIGN] = SKJSONCANVAS_ALIGN_RIGHT;
                 break;
             }
             default: SkASSERT(false);
         }
     }
+}
+
+static void apply_paint_shader(const SkPaint& paint, Json::Value* target, bool sendBinaries) {
+    SkFlattenable* shader = paint.getShader();
+    if (shader != nullptr) {
+        Json::Value jsonShader;
+        flatten(shader, &jsonShader, sendBinaries);
+        (*target)[SKJSONCANVAS_ATTRIBUTE_SHADER] = jsonShader;
+    }
+}
+
+static void apply_paint_xfermode(const SkPaint& paint, Json::Value* target, bool sendBinaries) {
+    SkFlattenable* xfermode = paint.getXfermode();
+    if (xfermode != nullptr) {
+        Json::Value jsonXfermode;
+        flatten(xfermode, &jsonXfermode, sendBinaries);
+        (*target)[SKJSONCANVAS_ATTRIBUTE_XFERMODE] = jsonXfermode;
+    }
+}
+
+Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
+    Json::Value result(Json::objectValue);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH, paint.getStrokeWidth(), 0.0f);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_STROKEMITER, paint.getStrokeMiter(), 
+                 SkPaintDefaults_MiterLimit);
+    store_bool(&result, SKJSONCANVAS_ATTRIBUTE_ANTIALIAS, paint.isAntiAlias(), false);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSIZE, paint.getTextSize(), 
+                 SkPaintDefaults_TextSize);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextScaleX(), SK_Scalar1);
+    store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextSkewX(), 0.0f);
+    apply_paint_color(paint, &result);
+    apply_paint_style(paint, &result);
+    apply_paint_cap(paint, &result);
+    apply_paint_textalign(paint, &result);
+    apply_paint_patheffect(paint, &result, fSendBinaries);
+    apply_paint_maskfilter(paint, &result, fSendBinaries);
+    apply_paint_shader(paint, &result, fSendBinaries);
+    apply_paint_xfermode(paint, &result, fSendBinaries);
     return result;
 }
 
@@ -403,13 +526,42 @@ void SkJSONCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     fCommands.append(command);
 }
 
-void SkJSONCanvas::onDrawImage(const SkImage*, SkScalar dx, SkScalar dy, const SkPaint*) {
-    SkDebugf("unsupported: drawImage\n");
+void SkJSONCanvas::onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, 
+                               const SkPaint* paint) {
+    Json::Value encoded;
+    if (flatten(*image, &encoded, fSendBinaries)) {
+        this->updateMatrix();
+        Json::Value command(Json::objectValue);
+        command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_IMAGE);
+        command[SKJSONCANVAS_ATTRIBUTE_IMAGE] = encoded;
+        command[SKJSONCANVAS_ATTRIBUTE_COORDS] = this->makePoint(dx, dy);
+        if (paint != nullptr) {
+            command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(*paint);
+        }
+        fCommands.append(command);
+    }
 }
 
-void SkJSONCanvas::onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
-                                   SkCanvas::SrcRectConstraint) {
-    SkDebugf("unsupported: drawImageRect\n");
+void SkJSONCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst, 
+                                   const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
+    Json::Value encoded;
+    if (flatten(*image, &encoded, fSendBinaries)) {
+        this->updateMatrix();
+        Json::Value command(Json::objectValue);
+        command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_IMAGERECT);
+        command[SKJSONCANVAS_ATTRIBUTE_IMAGE] = encoded;
+        if (src != nullptr) {
+            command[SKJSONCANVAS_ATTRIBUTE_SRC] = this->makeRect(*src);
+        }
+        command[SKJSONCANVAS_ATTRIBUTE_DST] = this->makeRect(dst);
+        if (paint != nullptr) {
+            command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(*paint);
+        }
+        if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+            command[SKJSONCANVAS_ATTRIBUTE_STRICT] = Json::Value(true);
+        }
+        fCommands.append(command);
+    }
 }
 
 void SkJSONCanvas::onDrawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
@@ -417,13 +569,42 @@ void SkJSONCanvas::onDrawImageNine(const SkImage*, const SkIRect& center, const 
     SkDebugf("unsupported: drawImageNine\n");
 }
 
-void SkJSONCanvas::onDrawBitmap(const SkBitmap&, SkScalar dx, SkScalar dy, const SkPaint*) {
-    SkDebugf("unsupported: drawBitmap\n");
+void SkJSONCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, 
+                                const SkPaint* paint) {
+    Json::Value encoded;
+    if (flatten(bitmap, &encoded, fSendBinaries)) {
+        this->updateMatrix();
+        Json::Value command(Json::objectValue);
+        command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_BITMAP);
+        command[SKJSONCANVAS_ATTRIBUTE_BITMAP] = encoded;
+        command[SKJSONCANVAS_ATTRIBUTE_COORDS] = this->makePoint(dx, dy);
+        if (paint != nullptr) {
+            command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(*paint);
+        }
+        fCommands.append(command);
+    }
 }
 
-void SkJSONCanvas::onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint*,
-                                    SkCanvas::SrcRectConstraint) {
-    SkDebugf("unsupported: drawBitmapRect\n");
+void SkJSONCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst, 
+                                   const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
+    Json::Value encoded;
+    if (flatten(bitmap, &encoded, fSendBinaries)) {
+        this->updateMatrix();
+        Json::Value command(Json::objectValue);
+        command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_BITMAPRECT);
+        command[SKJSONCANVAS_ATTRIBUTE_IMAGE] = encoded;
+        if (src != nullptr) {
+            command[SKJSONCANVAS_ATTRIBUTE_SRC] = this->makeRect(*src);
+        }
+        command[SKJSONCANVAS_ATTRIBUTE_DST] = this->makeRect(dst);
+        if (paint != nullptr) {
+            command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(*paint);
+        }
+        if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+            command[SKJSONCANVAS_ATTRIBUTE_STRICT] = Json::Value(true);
+        }
+        fCommands.append(command);
+    }
 }
 
 void SkJSONCanvas::onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
@@ -536,4 +717,25 @@ void SkJSONCanvas::willRestore() {
     Json::Value command(Json::objectValue);
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_RESTORE);
     fCommands.append(command);
+}
+
+SkCanvas::SaveLayerStrategy SkJSONCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    Json::Value command(Json::objectValue);
+    command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_SAVELAYER);
+    if (rec.fBounds != nullptr) {
+        command[SKJSONCANVAS_ATTRIBUTE_BOUNDS] = this->makeRect(*rec.fBounds);
+    }
+    if (rec.fPaint != nullptr) {
+        command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(*rec.fPaint);
+    }
+    if (rec.fBackdrop != nullptr) {
+        Json::Value backdrop;
+        flatten(rec.fBackdrop, &backdrop, fSendBinaries);
+        command[SKJSONCANVAS_ATTRIBUTE_BACKDROP] = backdrop;
+    }
+    if (rec.fSaveLayerFlags != 0) {
+        SkDebugf("unsupported: saveLayer flags\n");
+    }
+    fCommands.append(command);
+    return this->INHERITED::getSaveLayerStrategy(rec);
 }
