@@ -210,6 +210,7 @@ public:
             SkData* data = request->fPNG.get();
             return SendData(connection, data, "image/png");
         }
+
         return MHD_NO;
     }
 };
@@ -256,6 +257,10 @@ public:
             // TODO send error
             return MHD_YES;
         }
+
+        // clear upload context
+        delete request->fUploadContext;
+        request->fUploadContext = nullptr;
 
         return SendTemplate(connection, true, "/");
     }
