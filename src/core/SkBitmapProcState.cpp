@@ -492,21 +492,17 @@ static void S32_D32_constX_shaderproc(const void* sIn,
         int yTemp;
 
         if (s.fInvType > SkMatrix::kTranslate_Mask) {
-            // TODO(fmalita): looks like another SkBitmapProcStateAutoMapper customer
-            SkPoint pt;
-            s.fInvProc(s.fInvMatrix,
-                       SkIntToScalar(x) + SK_ScalarHalf,
-                       SkIntToScalar(y) + SK_ScalarHalf,
-                       &pt);
+            const SkBitmapProcStateAutoMapper mapper(s, x, y);
+
             // When the matrix has a scale component the setup code in
             // chooseProcs multiples the inverse matrix by the inverse of the
             // bitmap's width and height. Since this method is going to do
             // its own tiling and sampling we need to undo that here.
             if (SkShader::kClamp_TileMode != s.fTileModeX ||
                 SkShader::kClamp_TileMode != s.fTileModeY) {
-                yTemp = SkScalarFloorToInt(pt.fY * s.fPixmap.height());
+                yTemp = SkFractionalIntToInt(mapper.y() * s.fPixmap.height());
             } else {
-                yTemp = SkScalarFloorToInt(pt.fY);
+                yTemp = SkFractionalIntToInt(mapper.y());
             }
         } else {
             yTemp = s.fFilterOneY + y;
@@ -528,20 +524,14 @@ static void S32_D32_constX_shaderproc(const void* sIn,
 
 #ifdef SK_DEBUG
         {
+            const SkBitmapProcStateAutoMapper mapper(s, x, y);
             int iY2;
-            if (s.fInvType > SkMatrix::kTranslate_Mask) {
-                SkPoint pt;
-                s.fInvProc(s.fInvMatrix,
-                           SkIntToScalar(x) + SK_ScalarHalf,
-                           SkIntToScalar(y) + SK_ScalarHalf,
-                           &pt);
-                if (SkShader::kClamp_TileMode != s.fTileModeX ||
-                    SkShader::kClamp_TileMode != s.fTileModeY) {
-                    pt.fY *= s.fPixmap.height();
-                }
-                iY2 = SkScalarFloorToInt(pt.fY);
+
+            if (s.fInvType > SkMatrix::kTranslate_Mask &&
+                (SkShader::kClamp_TileMode != s.fTileModeX ||
+                 SkShader::kClamp_TileMode != s.fTileModeY)) {
+                iY2 = SkFractionalIntToInt(mapper.y() * s.fPixmap.height());
             } else {
-                const SkBitmapProcStateAutoMapper mapper(s, x, y);
                 iY2 = SkFractionalIntToInt(mapper.y());
             }
 

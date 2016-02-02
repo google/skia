@@ -374,14 +374,10 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
 
     // we store y, x, x, x, x, x
     const unsigned maxX = s.fPixmap.width() - 1;
-    SkFixed fx;
-    SkPoint pt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                             SkIntToScalar(y) + SK_ScalarHalf, &pt);
-    fx = SkScalarToFixed(pt.fY);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
     const unsigned maxY = s.fPixmap.height() - 1;
-    *xy++ = SkClampMax(fx >> 16, maxY);
-    fx = SkScalarToFixed(pt.fX);
+    *xy++ = SkClampMax(SkFractionalIntToInt(mapper.y()), maxY);
+    SkFixed fx = SkFractionalIntToFixed(mapper.x());
 
     if (0 == maxX) {
         // all of the following X values must be 0
@@ -565,13 +561,10 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
                              SkMatrix::kScale_Mask |
                              SkMatrix::kAffine_Mask)) == 0);
 
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
-    SkFixed fx = SkScalarToFixed(srcPt.fX);
-    SkFixed fy = SkScalarToFixed(srcPt.fY);
+    SkFixed fx = SkFractionalIntToFixed(mapper.x());
+    SkFixed fy = SkFractionalIntToFixed(mapper.y());
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     int maxX = s.fPixmap.width() - 1;

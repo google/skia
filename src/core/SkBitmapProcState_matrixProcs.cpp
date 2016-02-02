@@ -328,14 +328,11 @@ static void fill_sequential(uint16_t xptr[], int start, int count) {
 
 static int nofilter_trans_preamble(const SkBitmapProcState& s, uint32_t** xy,
                                    int x, int y) {
-    SkPoint pt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &pt);
-    **xy = s.fIntTileProcY(SkScalarToFixed(pt.fY) >> 16,
-                           s.fPixmap.height());
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
+    **xy = s.fIntTileProcY(SkFractionalIntToInt(mapper.y()), s.fPixmap.height());
     *xy += 1;   // bump the ptr
     // return our starting X position
-    return SkScalarToFixed(pt.fX) >> 16;
+    return SkFractionalIntToInt(mapper.x());
 }
 
 static void clampx_nofilter_trans(const SkBitmapProcState& s,
