@@ -537,8 +537,10 @@ static void gather_srcs() {
     static const char* const exts[] = {
         "bmp", "gif", "jpg", "jpeg", "png", "webp", "ktx", "astc", "wbmp", "ico",
         "BMP", "GIF", "JPG", "JPEG", "PNG", "WEBP", "KTX", "ASTC", "WBMP", "ICO",
+#ifdef SK_CODEC_DECODES_RAW
         "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
         "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
+#endif
     };
     for (int i = 0; i < FLAGS_images.count(); i++) {
         const char* flag = FLAGS_images[i];
