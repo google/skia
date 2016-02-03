@@ -60,7 +60,7 @@
           }],
           # RAW codec needs exceptions. Due to that, it is a separate target. Its usage can be
           # controlled by skia_codec_decodes_raw.
-          ['skia_os == "chromeos"', {
+          ['skia_os == "chromeos" or skia_os == "win"', {
             # FIXME: fix the support for ChromeOS [DNG SDK issue with clock_gettime()].
             'skia_codec_decodes_raw%' : 0,
           }, {
