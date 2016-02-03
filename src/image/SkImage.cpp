@@ -265,7 +265,7 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint c
 #include "SkRGBAToYUV.h"
 
 bool SkImage::readYUV8Planes(const SkISize sizes[3], void* const planes[3],
-                             const size_t rowBytes[3], SkYUVColorSpace colorSpace) {
+                             const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
 #if SK_SUPPORT_GPU
     if (GrTexture* texture = as_IB(this)->peekTexture()) {
         if (GrTextureToYUVPlanes(texture, sizes, planes, rowBytes, colorSpace)) {

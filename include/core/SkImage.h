@@ -159,7 +159,7 @@ public:
      * planes and rowBytes arrays are ordered [y, u, v].
      */
     bool readYUV8Planes(const SkISize[3], void* const planes[3], const size_t rowBytes[3],
-                        SkYUVColorSpace);
+                        SkYUVColorSpace) const;
 
     virtual SkShader* newShader(SkShader::TileMode,
                                 SkShader::TileMode,
