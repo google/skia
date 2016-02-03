@@ -53,10 +53,10 @@ class GrRenderTarget;
         return kClassID; \
     }
 
-class GrBatch : public GrNonAtomicRef {
+class GrBatch : public GrNonAtomicRef<GrBatch> {
 public:
     GrBatch(uint32_t classID);
-    ~GrBatch() override;
+    virtual ~GrBatch();
 
     virtual const char* name() const = 0;
 
@@ -159,7 +159,6 @@ private:
     static int32_t                      gCurrBatchUniqueID;
 #endif
     static int32_t                      gCurrBatchClassID;
-    typedef GrNonAtomicRef INHERITED;
 };
 
 #endif

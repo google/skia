@@ -41,7 +41,7 @@ struct GrPipelineOptimizations {
  * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
  * class, and contains all data needed to set the state for a gpu draw.
  */
-class GrPipeline : public GrNonAtomicRef {
+class GrPipeline : public GrNonAtomicRef<GrPipeline> {
 public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
