@@ -189,7 +189,6 @@ void ClampX_ClampY_nofilter_affine(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y);
 
 // Helper class for mapping the middle of pixel (x, y) into SkFractionalInt bitmap space.
-// TODO: filtered version which applies a fFilterOne{X,Y}/2 bias instead of epsilon?
 class SkBitmapProcStateAutoMapper {
 public:
     SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y,
@@ -199,12 +198,19 @@ public:
                    SkIntToScalar(x) + SK_ScalarHalf,
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
 
-        // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
-        // consistently WRT geometry.  Note that we only need the bias for positive scales:
-        // for negative scales, the rounding is intrinsically correct.
-        // We scale it to persist SkFractionalInt -> SkFixed conversions.
-        const SkFixed biasX = (s.fInvMatrix.getScaleX() > 0);
-        const SkFixed biasY = (s.fInvMatrix.getScaleY() > 0);
+        SkFixed biasX, biasY;
+        if (s.fFilterLevel == kNone_SkFilterQuality) {
+            // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
+            // consistently WRT geometry.  Note that we only need the bias for positive scales:
+            // for negative scales, the rounding is intrinsically correct.
+            // We scale it to persist SkFractionalInt -> SkFixed conversions.
+            biasX = (s.fInvMatrix.getScaleX() > 0);
+            biasY = (s.fInvMatrix.getScaleY() > 0);
+        } else {
+            biasX = s.fFilterOneX >> 1;
+            biasY = s.fFilterOneY >> 1;
+        }
+
         fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(biasX);
         fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(biasY);
 

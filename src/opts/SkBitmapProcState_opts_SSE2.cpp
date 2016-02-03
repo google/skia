@@ -252,17 +252,14 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
     const unsigned maxX = s.fPixmap.width() - 1;
     const SkFixed one = s.fFilterOneX;
     const SkFixed dx = s.fInvSx;
-    SkFixed fx;
 
-    SkPoint pt;
-    s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                             SkIntToScalar(y) + SK_ScalarHalf, &pt);
-    const SkFixed fy = SkScalarToFixed(pt.fY) - (s.fFilterOneY >> 1);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
+    const SkFixed fy = SkFractionalIntToFixed(mapper.y());
     const unsigned maxY = s.fPixmap.height() - 1;
     // compute our two Y values up front
     *xy++ = ClampX_ClampY_pack_filter(fy, maxY, s.fFilterOneY);
     // now initialize fx
-    fx = SkScalarToFixed(pt.fX) - (one >> 1);
+    SkFixed fx = SkFractionalIntToFixed(mapper.x());
 
     // test if we don't need to apply the tile proc
     if (dx > 0 && (unsigned)(fx >> 16) <= maxX &&
@@ -485,15 +482,12 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
  */
 void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
                                       uint32_t xy[], int count, int x, int y) {
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
-    SkFixed fx = SkScalarToFixed(srcPt.fX) - (oneX >> 1);
-    SkFixed fy = SkScalarToFixed(srcPt.fY) - (oneY >> 1);
+    SkFixed fx = SkFractionalIntToFixed(mapper.x());
+    SkFixed fy = SkFractionalIntToFixed(mapper.y());
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     unsigned maxX = s.fPixmap.width() - 1;
