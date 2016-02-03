@@ -33,3 +33,5 @@ DEF_BENCH(return new SwizzleBench("SkOpts::RGBA_to_BGRA", SkOpts::RGBA_to_BGRA))
 DEF_BENCH(return new SwizzleBench("SkOpts::RGB_to_RGB1",  SkOpts::RGB_to_RGB1));
 DEF_BENCH(return new SwizzleBench("SkOpts::RGB_to_BGR1",  SkOpts::RGB_to_BGR1));
 DEF_BENCH(return new SwizzleBench("SkOpts::gray_to_RGB1", SkOpts::gray_to_RGB1));
+DEF_BENCH(return new SwizzleBench("SkOpts::grayA_to_RGBA", SkOpts::grayA_to_RGBA));
+DEF_BENCH(return new SwizzleBench("SkOpts::grayA_to_rgbA", SkOpts::grayA_to_rgbA));
