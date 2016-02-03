@@ -495,7 +495,9 @@ class GoogleStorageDataStore(DataStore):
   def does_storage_object_exist(self, *args):
     return self.gs.does_storage_object_exist(self._bucket, *args)
   def delete_path(self, path):
-    return self.gs.delete_file(self._bucket, path)
+    _, files = self.gs.list_bucket_contents(self._bucket, subdir=path)
+    for f in files:
+      self.gs.delete_file(self._bucket, posixpath.join(path, f))
   def download_file(self, *args):
     self.gs.download_file(self._bucket, *args)
   def upload_dir_contents(self, source_dir, **kwargs):
