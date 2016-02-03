@@ -10,22 +10,16 @@
 #   http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
 
 set -e
+set -x
 
-sanitizer=$1
-shift
-args="$@"
-
-export CC="$(which clang)"
-export CXX="$(which clang++)"
-
-if [[ -z "${CC}" ]] || [[ -z "${CXX}" ]]; then
-  echo "Couldn't find Clang on this machine!"
-  exit 1
-fi
-
-echo "CC=$CC"
-echo "CXX=$CXX"
+export CC=clang
+export CXX=clang++
 $CC --version
 
-export GYP_DEFINES="skia_sanitizer=$sanitizer ${GYP_DEFINES}"
-make ${args}
+if [[ "$1" == "memory" ]]; then
+    export GYP_DEFINES="skia_gpu=0 skia_no_fontconfig=1 skia_freetype_static=1 ${GYP_DEFINES}"
+fi
+export GYP_DEFINES="skia_sanitizer=$1 ${GYP_DEFINES}"
+
+shift
+make $@

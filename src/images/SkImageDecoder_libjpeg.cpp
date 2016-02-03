@@ -11,6 +11,7 @@
 #include "SkJpegUtility.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
+#include "SkMSAN.h"
 #include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -523,6 +524,9 @@ SkImageDecoder::Result SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* 
         if (JCS_CMYK == cinfo.out_color_space) {
             convert_CMYK_to_RGB(srcRow, cinfo.output_width);
         }
+
+        sk_msan_mark_initialized(srcRow, srcRow + cinfo.output_width * srcBytesPerPixel,
+                                 "skbug.com/4550");
 
         sampler.next(srcRow);
         if (bm->height() - 1 == y) {
