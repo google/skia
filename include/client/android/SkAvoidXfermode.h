@@ -51,6 +51,12 @@ public:
     void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                 const SkAlpha aa[]) const override;
 
+#if SK_SUPPORT_GPU
+    bool asFragmentProcessor(const GrFragmentProcessor** output,
+                             const GrFragmentProcessor* dst) const override;
+    bool asXPFactory(GrXPFactory** xpf) const override;
+#endif
+
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(AvoidXfermode)
 
