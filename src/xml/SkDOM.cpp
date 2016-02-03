@@ -240,7 +240,7 @@ protected:
         }
         *fParentStack.push() = node;
 
-        memcpy(node->attrs(), fAttrs.begin(), attrCount * sizeof(SkDOM::Attr));
+        sk_careful_memcpy(node->attrs(), fAttrs.begin(), attrCount * sizeof(SkDOM::Attr));
         fAttrs.reset();
 
     }

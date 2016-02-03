@@ -55,7 +55,7 @@ private:
  */
 class GrClipMaskManager : SkNoncopyable {
 public:
-    GrClipMaskManager(GrDrawTarget* owner);
+    GrClipMaskManager(GrDrawTarget* owner, bool debugClipBatchToBounds);
 
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
@@ -171,6 +171,7 @@ private:
 
     GrDrawTarget*   fDrawTarget;    // This is our owning draw target.
     StencilClipMode fClipMode;
+    bool            fDebugClipBatchToBounds;
 
     typedef SkNoncopyable INHERITED;
 };

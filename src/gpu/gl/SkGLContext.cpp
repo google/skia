@@ -152,3 +152,26 @@ void SkGLContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {
     GLsync glsync = static_cast<GLsync>(fence);
     fGLDeleteSync(glsync);
 }
+
+GrGLint SkGLContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
+                                            GrGLenum externalFormat, GrGLenum externalType,
+                                            GrGLvoid* data) {
+    if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL) >= GR_GL_VER(3, 2)) &&
+        !fGL->fExtensions.has("GL_ARB_texture_rectangle")) {
+        return 0;
+    }
+    GrGLuint id;
+    GR_GL_CALL(fGL, GenTextures(1, &id));
+    GR_GL_CALL(fGL, BindTexture(GR_GL_TEXTURE_RECTANGLE, id));
+    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MAG_FILTER,
+                                  GR_GL_NEAREST));
+    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MIN_FILTER,
+                                  GR_GL_NEAREST));
+    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_S,
+                                  GR_GL_CLAMP_TO_EDGE));    
+    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_T,
+                                  GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(fGL, TexImage2D(GR_GL_TEXTURE_RECTANGLE, 0, internalFormat, width, height, 0,
+                               externalFormat, externalType, data));
+    return id;
+}

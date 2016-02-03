@@ -343,15 +343,10 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
     int dataWidth = width + 2*pad;
     int dataHeight = height + 2*pad;
 
-    // create temp data
-    size_t dataSize = dataWidth*dataHeight*sizeof(DFData);
-    SkAutoSMalloc<1024> dfStorage(dataSize);
-    DFData* dataPtr = (DFData*) dfStorage.get();
-    sk_bzero(dataPtr, dataSize);
-
-    SkAutoSMalloc<1024> edgeStorage(dataWidth*dataHeight*sizeof(char));
-    unsigned char* edgePtr = (unsigned char*) edgeStorage.get();
-    sk_bzero(edgePtr, dataWidth*dataHeight*sizeof(char));
+    // create zeroed temp DFData+edge storage
+    SkAutoFree storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
+    DFData*        dataPtr = (DFData*)storage.get();
+    unsigned char* edgePtr = (unsigned char*)storage.get() + dataWidth*dataHeight*sizeof(DFData);
 
     // copy glyph into distance field storage
     init_glyph_data(dataPtr, edgePtr, copyPtr,

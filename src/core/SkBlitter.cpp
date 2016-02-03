@@ -9,7 +9,6 @@
 #include "SkAntiRun.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
-#include "SkFilterShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMask.h"
@@ -83,18 +82,18 @@ void SkBlitter::blitAntiRect(int x, int y, int width, int height,
 
 static inline void bits_to_runs(SkBlitter* blitter, int x, int y,
                                 const uint8_t bits[],
-                                U8CPU left_mask, int rowBytes,
-                                U8CPU right_mask) {
+                                uint8_t left_mask, ptrdiff_t rowBytes,
+                                uint8_t right_mask) {
     int inFill = 0;
     int pos = 0;
 
     while (--rowBytes >= 0) {
-        unsigned b = *bits++ & left_mask;
+        uint8_t b = *bits++ & left_mask;
         if (rowBytes == 0) {
             b &= right_mask;
         }
 
-        for (unsigned test = 0x80; test != 0; test >>= 1) {
+        for (uint8_t test = 0x80U; test != 0; test >>= 1) {
             if (b & test) {
                 if (!inFill) {
                     pos = x;
@@ -108,13 +107,18 @@ static inline void bits_to_runs(SkBlitter* blitter, int x, int y,
             }
             x += 1;
         }
-        left_mask = 0xFF;
+        left_mask = 0xFFU;
     }
 
     // final cleanup
     if (inFill) {
         blitter->blitH(pos, y, x - pos);
     }
+}
+
+// maskBitCount is the number of 1's to place in the mask. It must be in the range between 1 and 8.
+static uint8_t generate_right_mask(int maskBitCount) {
+    return static_cast<uint8_t>(0xFF00U >> maskBitCount);
 }
 
 void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
@@ -124,54 +128,55 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         int cx = clip.fLeft;
         int cy = clip.fTop;
         int maskLeft = mask.fBounds.fLeft;
-        int mask_rowBytes = mask.fRowBytes;
+        int maskRowBytes = mask.fRowBytes;
         int height = clip.height();
 
         const uint8_t* bits = mask.getAddr1(cx, cy);
 
+        SkDEBUGCODE(const uint8_t* endOfImage =
+            mask.fImage + (mask.fBounds.height() - 1) * maskRowBytes
+            + ((mask.fBounds.width() + 7) >> 3));
+
         if (cx == maskLeft && clip.fRight == mask.fBounds.fRight) {
             while (--height >= 0) {
-                bits_to_runs(this, cx, cy, bits, 0xFF, mask_rowBytes, 0xFF);
-                bits += mask_rowBytes;
+                int affectedRightBit = mask.fBounds.width() - 1;
+                ptrdiff_t rowBytes = (affectedRightBit >> 3) + 1;
+                SkASSERT(bits + rowBytes <= endOfImage);
+                U8CPU rightMask = generate_right_mask((affectedRightBit & 7) + 1);
+                bits_to_runs(this, cx, cy, bits, 0xFF, rowBytes, rightMask);
+                bits += maskRowBytes;
                 cy += 1;
             }
         } else {
-            int left_edge = cx - maskLeft;
-            SkASSERT(left_edge >= 0);
-            int rite_edge = clip.fRight - maskLeft;
-            SkASSERT(rite_edge > left_edge);
+            // Bits is calculated as the offset into the mask at the point {cx, cy} therfore, all
+            // addressing into the bit mask is relative to that point. Since this is an address
+            // calculated from a arbitrary bit in that byte, calculate the left most bit.
+            int bitsLeft = cx - ((cx - maskLeft) & 7);
 
-            int left_mask = 0xFF >> (left_edge & 7);
-            int rite_mask = 0xFF << (8 - (rite_edge & 7));
-            int full_runs = (rite_edge >> 3) - ((left_edge + 7) >> 3);
+            // Everything is relative to the bitsLeft.
+            int leftEdge = cx - bitsLeft;
+            SkASSERT(leftEdge >= 0);
+            int rightEdge = clip.fRight - bitsLeft;
+            SkASSERT(rightEdge > leftEdge);
 
-            // check for empty right mask, so we don't read off the end (or go slower than we need to)
-            if (rite_mask == 0) {
-                SkASSERT(full_runs >= 0);
-                full_runs -= 1;
-                rite_mask = 0xFF;
-            }
-            if (left_mask == 0xFF) {
-                full_runs -= 1;
-            }
+            // Calculate left byte and mask
+            const uint8_t* leftByte = bits;
+            U8CPU leftMask = 0xFFU >> (leftEdge & 7);
 
-            // back up manually so we can keep in sync with our byte-aligned src
-            // have cx reflect our actual starting x-coord
-            cx -= left_edge & 7;
+            // Calculate right byte and mask
+            int affectedRightBit = rightEdge - 1;
+            const uint8_t* rightByte = bits + (affectedRightBit >> 3);
+            U8CPU rightMask = generate_right_mask((affectedRightBit & 7) + 1);
 
-            if (full_runs < 0) {
-                SkASSERT((left_mask & rite_mask) != 0);
-                while (--height >= 0) {
-                    bits_to_runs(this, cx, cy, bits, left_mask, 1, rite_mask);
-                    bits += mask_rowBytes;
-                    cy += 1;
-                }
-            } else {
-                while (--height >= 0) {
-                    bits_to_runs(this, cx, cy, bits, left_mask, full_runs + 2, rite_mask);
-                    bits += mask_rowBytes;
-                    cy += 1;
-                }
+            // leftByte and rightByte are byte locations therefore, to get a count of bytes the
+            // code must add one.
+            ptrdiff_t rowBytes = rightByte - leftByte + 1;
+
+            while (--height >= 0) {
+                SkASSERT(bits + rowBytes <= endOfImage);
+                bits_to_runs(this, bitsLeft, cy, bits, leftMask, rowBytes, rightMask);
+                bits += maskRowBytes;
+                cy += 1;
             }
         }
     } else {
@@ -852,7 +857,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     if (cf) {
         SkASSERT(shader);
-        shader = new SkFilterShader(shader, cf);
+        shader = shader->newWithColorFilter(cf);
         paint.writable()->setShader(shader)->unref();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.

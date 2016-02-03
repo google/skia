@@ -27,4 +27,18 @@ inline const char* color_type_to_str(SkColorType colorType) {
     }
 }
 
+inline const char* alpha_type_to_str(SkAlphaType alphaType) {
+    switch (alphaType) {
+        case kOpaque_SkAlphaType:
+            return "";
+        case kPremul_SkAlphaType:
+            return "Premul";
+        case kUnpremul_SkAlphaType:
+            return "Unpremul";
+        default:
+            SkASSERT(false);
+            return "Unknown";
+    }
+}
+
 #endif // CodecBenchPriv_DEFINED

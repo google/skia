@@ -23,8 +23,9 @@
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
+#include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -268,12 +269,13 @@ public:
 
     const char* name() const override { return "DashBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -299,21 +301,29 @@ private:
         combinedMatrix.mapRect(&fBounds);
     }
 
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
     struct DashDraw {
+        DashDraw(const Geometry& geo) {
+            memcpy(fPtsRot, geo.fPtsRot, sizeof(geo.fPtsRot));
+            memcpy(fIntervals, geo.fIntervals, sizeof(geo.fIntervals));
+            fPhase = geo.fPhase;
+        }
+        SkPoint fPtsRot[2];
+        SkScalar fIntervals[2];
+        SkScalar fPhase;
         SkScalar fStartOffset;
         SkScalar fStrokeWidth;
         SkScalar fLineLength;
@@ -325,7 +335,7 @@ private:
         bool fHasEndRect;
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         int instanceCount = fGeoData.count();
         SkPaint::Cap cap = this->cap();
         bool isRoundCap = SkPaint::kRound_Cap == cap;
@@ -360,14 +370,17 @@ private:
         // We do two passes over all of the dashes.  First we setup the start, end, and bounds,
         // rectangles.  We preserve all of this work in the rects / draws arrays below.  Then we
         // iterate again over these decomposed dashes to generate vertices
-        SkSTArray<128, SkRect, true> rects;
-        SkSTArray<128, DashDraw, true> draws;
+        static const int kNumStackDashes = 128;
+        SkSTArray<kNumStackDashes, SkRect, true> rects;
+        SkSTArray<kNumStackDashes, DashDraw, true> draws;
 
         int totalRectCount = 0;
         int rectOffset = 0;
         rects.push_back_n(3 * instanceCount);
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
+
+            DashDraw& draw = draws.push_back(args);
 
             bool hasCap = SkPaint::kButt_Cap != cap && 0 != args.fSrcStrokeWidth;
 
@@ -397,32 +410,32 @@ private:
             // If we are using AA, check to see if we are drawing a partial dash at the start. If so
             // draw it separately here and adjust our start point accordingly
             if (useAA) {
-                if (args.fPhase > 0 && args.fPhase < args.fIntervals[0]) {
+                if (draw.fPhase > 0 && draw.fPhase < draw.fIntervals[0]) {
                     SkPoint startPts[2];
-                    startPts[0] = args.fPtsRot[0];
+                    startPts[0] = draw.fPtsRot[0];
                     startPts[1].fY = startPts[0].fY;
-                    startPts[1].fX = SkMinScalar(startPts[0].fX + args.fIntervals[0] - args.fPhase,
-                                                 args.fPtsRot[1].fX);
+                    startPts[1].fX = SkMinScalar(startPts[0].fX + draw.fIntervals[0] - draw.fPhase,
+                                                 draw.fPtsRot[1].fX);
                     startRect.set(startPts, 2);
                     startRect.outset(strokeAdj, halfSrcStroke);
 
                     hasStartRect = true;
-                    startAdj = args.fIntervals[0] + args.fIntervals[1] - args.fPhase;
+                    startAdj = draw.fIntervals[0] + draw.fIntervals[1] - draw.fPhase;
                 }
             }
 
             // adjustments for start and end of bounding rect so we only draw dash intervals
             // contained in the original line segment.
-            startAdj += calc_start_adjustment(args.fIntervals, args.fPhase);
+            startAdj += calc_start_adjustment(draw.fIntervals, draw.fPhase);
             if (startAdj != 0) {
-                args.fPtsRot[0].fX += startAdj;
-                args.fPhase = 0;
+                draw.fPtsRot[0].fX += startAdj;
+                draw.fPhase = 0;
             }
             SkScalar endingInterval = 0;
-            SkScalar endAdj = calc_end_adjustment(args.fIntervals, args.fPtsRot, args.fPhase,
+            SkScalar endAdj = calc_end_adjustment(draw.fIntervals, draw.fPtsRot, draw.fPhase,
                                                   &endingInterval);
-            args.fPtsRot[1].fX -= endAdj;
-            if (args.fPtsRot[0].fX >= args.fPtsRot[1].fX) {
+            draw.fPtsRot[1].fX -= endAdj;
+            if (draw.fPtsRot[0].fX >= draw.fPtsRot[1].fX) {
                 lineDone = true;
             }
 
@@ -433,9 +446,9 @@ private:
                 // If we adjusted the end then we will not be drawing a partial dash at the end.
                 // If we didn't adjust the end point then we just need to make sure the ending
                 // dash isn't a full dash
-                if (0 == endAdj && endingInterval != args.fIntervals[0]) {
+                if (0 == endAdj && endingInterval != draw.fIntervals[0]) {
                     SkPoint endPts[2];
-                    endPts[1] = args.fPtsRot[1];
+                    endPts[1] = draw.fPtsRot[1];
                     endPts[0].fY = endPts[1].fY;
                     endPts[0].fX = endPts[1].fX - endingInterval;
 
@@ -443,24 +456,24 @@ private:
                     endRect.outset(strokeAdj, halfSrcStroke);
 
                     hasEndRect = true;
-                    endAdj = endingInterval + args.fIntervals[1];
+                    endAdj = endingInterval + draw.fIntervals[1];
 
-                    args.fPtsRot[1].fX -= endAdj;
-                    if (args.fPtsRot[0].fX >= args.fPtsRot[1].fX) {
+                    draw.fPtsRot[1].fX -= endAdj;
+                    if (draw.fPtsRot[0].fX >= draw.fPtsRot[1].fX) {
                         lineDone = true;
                     }
                 }
             }
 
             if (startAdj != 0) {
-                args.fPhase = 0;
+                draw.fPhase = 0;
             }
 
             // Change the dashing info from src space into device space
-            SkScalar* devIntervals = args.fIntervals;
-            devIntervals[0] = args.fIntervals[0] * args.fParallelScale;
-            devIntervals[1] = args.fIntervals[1] * args.fParallelScale;
-            SkScalar devPhase = args.fPhase * args.fParallelScale;
+            SkScalar* devIntervals = draw.fIntervals;
+            devIntervals[0] = draw.fIntervals[0] * args.fParallelScale;
+            devIntervals[1] = draw.fIntervals[1] * args.fParallelScale;
+            SkScalar devPhase = draw.fPhase * args.fParallelScale;
             SkScalar strokeWidth = args.fSrcStrokeWidth * args.fPerpendicularScale;
 
             if ((strokeWidth < 1.f && useAA) || 0.f == strokeWidth) {
@@ -490,16 +503,16 @@ private:
                 // Reset the start rect to draw this single solid rect
                 // but it requires to upload a new intervals uniform so we can mimic
                 // one giant dash
-                args.fPtsRot[0].fX -= hasStartRect ? startAdj : 0;
-                args.fPtsRot[1].fX += hasEndRect ? endAdj : 0;
-                startRect.set(args.fPtsRot, 2);
+                draw.fPtsRot[0].fX -= hasStartRect ? startAdj : 0;
+                draw.fPtsRot[1].fX += hasEndRect ? endAdj : 0;
+                startRect.set(draw.fPtsRot, 2);
                 startRect.outset(strokeAdj, halfSrcStroke);
                 hasStartRect = true;
                 hasEndRect = false;
                 lineDone = true;
 
                 SkPoint devicePts[2];
-                args.fViewMatrix.mapPoints(devicePts, args.fPtsRot, 2);
+                args.fViewMatrix.mapPoints(devicePts, draw.fPtsRot, 2);
                 SkScalar lineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
                 if (hasCap) {
                     lineLength += 2.f * halfDevStroke;
@@ -517,17 +530,16 @@ private:
                 startOffset -= halfDevStroke;
             }
 
-            DashDraw& draw = draws.push_back();
             if (!lineDone) {
                 SkPoint devicePts[2];
-                args.fViewMatrix.mapPoints(devicePts, args.fPtsRot, 2);
+                args.fViewMatrix.mapPoints(devicePts, draw.fPtsRot, 2);
                 draw.fLineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
                 if (hasCap) {
                     draw.fLineLength += 2.f * halfDevStroke;
                 }
 
-                bounds.set(args.fPtsRot[0].fX, args.fPtsRot[0].fY,
-                           args.fPtsRot[1].fX, args.fPtsRot[1].fY);
+                bounds.set(draw.fPtsRot[0].fX, draw.fPtsRot[0].fY,
+                           draw.fPtsRot[1].fX, draw.fPtsRot[1].fY);
                 bounds.outset(bloatX + strokeAdj, bloatY + halfSrcStroke);
             }
 
@@ -564,15 +576,15 @@ private:
         int curVIdx = 0;
         int rectIndex = 0;
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             if (!draws[i].fLineDone) {
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
                                       draws[i].fDevBloatY, draws[i].fLineLength,
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth,
+                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth,
                                       capType, gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
@@ -587,9 +599,9 @@ private:
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, geom.fIntervals[0],
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth, capType,
+                                      draws[i].fDevBloatY, draws[i].fIntervals[0],
+                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
@@ -604,9 +616,9 @@ private:
                 if (fullDash) {
                     setup_dashed_rect(rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
                                       draws[i].fStartOffset, draws[i].fDevBloatX,
-                                      draws[i].fDevBloatY, geom.fIntervals[0],
-                                      draws[i].fHalfDevStroke, geom.fIntervals[0],
-                                      geom.fIntervals[1], draws[i].fStrokeWidth, capType,
+                                      draws[i].fDevBloatY, draws[i].fIntervals[0],
+                                      draws[i].fHalfDevStroke, draws[i].fIntervals[0],
+                                      draws[i].fIntervals[1], draws[i].fStrokeWidth, capType,
                                       gp->getVertexStride());
                 } else {
                     SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
@@ -851,51 +863,58 @@ GLDashingCircleEffect::GLDashingCircleEffect() {
 
 void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
-    GrGLSLGPBuilder* pb = args.fPB;
-    GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     // emit attributes
-    vsBuilder->emitAttributes(dce);
+    varyingHandler->emitAttributes(dce);
 
     // XY are dashPos, Z is dashInterval
     GrGLSLVertToFrag dashParams(kVec3f_GrSLType);
-    args.fPB->addVarying("DashParam", &dashParams);
-    vsBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
+    varyingHandler->addVarying("DashParam", &dashParams);
+    vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
 
     // x refers to circle radius - 0.5, y refers to cicle's center x coord
     GrGLSLVertToFrag circleParams(kVec2f_GrSLType);
-    args.fPB->addVarying("CircleParams", &circleParams);
-    vsBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
+    varyingHandler->addVarying("CircleParams", &circleParams);
+    vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
 
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!dce.colorIgnored()) {
-        this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
     }
 
     // Setup position
-    this->setupPosition(pb, gpArgs, dce.inPosition()->fName);
+    this->setupPosition(vertBuilder, gpArgs, dce.inPosition()->fName);
 
     // emit transforms
-    this->emitTransforms(args.fPB, gpArgs->fPositionVar, dce.inPosition()->fName, dce.localMatrix(),
-                         args.fTransformsIn, args.fTransformsOut);
+    this->emitTransforms(vertBuilder,
+                         varyingHandler,
+                         uniformHandler,
+                         gpArgs->fPositionVar,
+                         dce.inPosition()->fName,
+                         dce.localMatrix(),
+                         args.fTransformsIn,
+                         args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test circle
-    GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-    fsBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
-                           dashParams.fsIn(), dashParams.fsIn(), dashParams.fsIn(),
-                           dashParams.fsIn());
-    fsBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", dashParams.fsIn());
-    fsBuilder->codeAppendf("vec2 center = vec2(%s.y, 0.0);", circleParams.fsIn());
-    fsBuilder->codeAppend("float dist = length(center - fragPosShifted);");
+    fragBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
+                             dashParams.fsIn(), dashParams.fsIn(), dashParams.fsIn(),
+                             dashParams.fsIn());
+    fragBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", dashParams.fsIn());
+    fragBuilder->codeAppendf("vec2 center = vec2(%s.y, 0.0);", circleParams.fsIn());
+    fragBuilder->codeAppend("float dist = length(center - fragPosShifted);");
     if (dce.aaMode() != kBW_DashAAMode) {
-        fsBuilder->codeAppendf("float diff = dist - %s.x;", circleParams.fsIn());
-        fsBuilder->codeAppend("diff = 1.0 - diff;");
-        fsBuilder->codeAppend("float alpha = clamp(diff, 0.0, 1.0);");
+        fragBuilder->codeAppendf("float diff = dist - %s.x;", circleParams.fsIn());
+        fragBuilder->codeAppend("diff = 1.0 - diff;");
+        fragBuilder->codeAppend("float alpha = clamp(diff, 0.0, 1.0);");
     } else {
-        fsBuilder->codeAppendf("float alpha = 1.0;");
-        fsBuilder->codeAppendf("alpha *=  dist < %s.x + 0.5 ? 1.0 : 0.0;", circleParams.fsIn());
+        fragBuilder->codeAppendf("float alpha = 1.0;");
+        fragBuilder->codeAppendf("alpha *=  dist < %s.x + 0.5 ? 1.0 : 0.0;", circleParams.fsIn());
     }
-    fsBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+    fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
 }
 
 void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
@@ -1056,71 +1075,78 @@ GLDashingLineEffect::GLDashingLineEffect() {
 
 void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
-    GrGLSLGPBuilder* pb = args.fPB;
 
-    GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+    GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+    GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     // emit attributes
-    vsBuilder->emitAttributes(de);
+    varyingHandler->emitAttributes(de);
 
     // XY refers to dashPos, Z is the dash interval length
     GrGLSLVertToFrag inDashParams(kVec3f_GrSLType);
-    args.fPB->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
-    vsBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
+    varyingHandler->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
+    vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     GrGLSLVertToFrag inRectParams(kVec4f_GrSLType);
-    args.fPB->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
-    vsBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
+    varyingHandler->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
+    vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!de.colorIgnored()) {
-        this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
     }
 
-
     // Setup position
-    this->setupPosition(pb, gpArgs, de.inPosition()->fName);
+    this->setupPosition(vertBuilder, gpArgs, de.inPosition()->fName);
 
     // emit transforms
-    this->emitTransforms(args.fPB, gpArgs->fPositionVar, de.inPosition()->fName, de.localMatrix(),
-                         args.fTransformsIn, args.fTransformsOut);
+    this->emitTransforms(vertBuilder,
+                         varyingHandler,
+                         uniformHandler,
+                         gpArgs->fPositionVar,
+                         de.inPosition()->fName,
+                         de.localMatrix(),
+                         args.fTransformsIn,
+                         args.fTransformsOut);
 
     // transforms all points so that we can compare them to our test rect
-    GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-    fsBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
-                           inDashParams.fsIn(), inDashParams.fsIn(), inDashParams.fsIn(),
-                           inDashParams.fsIn());
-    fsBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", inDashParams.fsIn());
+    fragBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
+                             inDashParams.fsIn(), inDashParams.fsIn(), inDashParams.fsIn(),
+                             inDashParams.fsIn());
+    fragBuilder->codeAppendf("vec2 fragPosShifted = vec2(xShifted, %s.y);", inDashParams.fsIn());
     if (de.aaMode() == kEdgeAA_DashAAMode) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
-        fsBuilder->codeAppend("float xSub, ySub;");
-        fsBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("ySub = min(fragPosShifted.y - %s.y, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("ySub += min(%s.w - fragPosShifted.y, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppend("float xSub, ySub;");
+        fragBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("ySub = min(fragPosShifted.y - %s.y, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("ySub += min(%s.w - fragPosShifted.y, 0.0);", inRectParams.fsIn());
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
-        fsBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));");
+        fragBuilder->codeAppendf(
+            "float alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));");
     } else if (de.aaMode() == kMSAA_DashAAMode) {
         // For MSAA, we don't modulate the alpha by the Y distance, since MSAA coverage will handle
         // AA on the the top and bottom edges. The shader is only responsible for intra-dash alpha.
-        fsBuilder->codeAppend("float xSub;");
-        fsBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
-        fsBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppend("float xSub;");
+        fragBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
         // Now compute coverage in x to get the fraction of the pixel covered.
-        fsBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0));");
+        fragBuilder->codeAppendf("float alpha = (1.0 + max(xSub, -1.0));");
     } else {
         // Assuming the bounding geometry is tight so no need to check y values
-        fsBuilder->codeAppendf("float alpha = 1.0;");
-        fsBuilder->codeAppendf("alpha *= (fragPosShifted.x - %s.x) > -0.5 ? 1.0 : 0.0;",
-                               inRectParams.fsIn());
-        fsBuilder->codeAppendf("alpha *= (%s.z - fragPosShifted.x) >= -0.5 ? 1.0 : 0.0;",
-                               inRectParams.fsIn());
+        fragBuilder->codeAppendf("float alpha = 1.0;");
+        fragBuilder->codeAppendf("alpha *= (fragPosShifted.x - %s.x) > -0.5 ? 1.0 : 0.0;",
+                                 inRectParams.fsIn());
+        fragBuilder->codeAppendf("alpha *= (%s.z - fragPosShifted.x) >= -0.5 ? 1.0 : 0.0;",
+                                 inRectParams.fsIn());
     }
-    fsBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+    fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
 }
 
 void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,

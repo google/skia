@@ -13,6 +13,7 @@
 #include "SkJpegDecoderMgr.h"
 #include "SkJpegUtility_codec.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
 
 extern "C" {
     #include "jpeglib.h"
@@ -25,12 +26,7 @@ extern "C" {
  */
 class SkJpegCodec : public SkCodec {
 public:
-
-    /*
-     * Checks the start of the stream to see if the image is a jpeg
-     * Does not take ownership of the stream
-     */
-    static bool IsJpeg(SkStream*);
+    static bool IsJpeg(const void*, size_t);
 
     /*
      * Assumes IsJpeg was called and returned true
@@ -116,7 +112,7 @@ private:
     const int                     fReadyState;
 
     // scanline decoding
-    SkAutoMalloc               fStorage;    // Only used if sampling is needed
+    SkAutoTMalloc<uint8_t>     fStorage;    // Only used if sampling is needed
     uint8_t*                   fSrcRow;     // Only used if sampling is needed
     SkAutoTDelete<SkSwizzler>  fSwizzler;
     

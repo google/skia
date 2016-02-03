@@ -22,7 +22,7 @@ class SkPDFFormXObject;
     be installed. So that a given dictionary is only output to the pdf file
     once, we want to canonicalize them.
 */
-class SkPDFGraphicState : public SkPDFObject {
+class SkPDFGraphicState final : public SkPDFObject {
     
 public:
     enum SkPDFSMaskMode {

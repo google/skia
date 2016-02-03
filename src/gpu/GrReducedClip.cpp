@@ -206,9 +206,7 @@ static void reduced_stack_walker(const SkClipStack& stack,
             if (isFlip) {
                 SkASSERT(SkRegion::kXOR_Op == element->getOp() ||
                          SkRegion::kReverseDifference_Op == element->getOp());
-                SkNEW_INSERT_AT_LLIST_HEAD(result,
-                                           Element,
-                                           (queryBounds, SkRegion::kReverseDifference_Op, false));
+                result->addToHead(queryBounds, SkRegion::kReverseDifference_Op, false);
             } else {
                 Element* newElement = result->addToHead(*element);
                 if (newElement->isAA()) {
@@ -386,7 +384,7 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
             // iior should only be true if aa/non-aa status matches among all elements.
             SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
             bool doAA = iter.prev()->isAA();
-            SkNEW_INSERT_AT_LLIST_HEAD(result, Element, (isectRect, SkRegion::kReplace_Op, doAA));
+            result->addToHead(isectRect, SkRegion::kReplace_Op, doAA);
             if (requiresAA) {
                 *requiresAA = doAA;
             }
@@ -418,10 +416,9 @@ void GrReducedClip::ReduceClipStack(const SkClipStack& stack,
         } else {
             if (stackBounds.contains(scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
-                if (requiresAA) {
-                   *requiresAA = false;
-                }
-                return;
+                // We know that the bounding box contains all the pixels that are outside the clip,
+                // but we don't know that *all* the pixels in the box are outside the clip. So
+                // proceed to walking the stack.
             }
             if (tighterBounds) {
                 *tighterBounds = queryBounds;

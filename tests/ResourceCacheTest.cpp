@@ -30,7 +30,17 @@ static const int gWidth = 640;
 static const int gHeight = 480;
 
 ////////////////////////////////////////////////////////////////////////////////
-static void test_cache(skiatest::Reporter* reporter, GrContext* context, SkCanvas* canvas) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, context) {
+    GrSurfaceDesc desc;
+    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = gWidth;
+    desc.fHeight = gHeight;
+    SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context,
+                                                               SkSurface::kNo_Budgeted, info));
+    SkCanvas* canvas = surface->getCanvas();
+
     const SkIRect size = SkIRect::MakeWH(gWidth, gHeight);
 
     SkBitmap src;
@@ -70,7 +80,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context, SkCanva
     context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
-static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, context) {
     GrSurfaceDesc smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     smallDesc.fConfig = kSkia8888_GrPixelConfig;
@@ -176,7 +186,7 @@ static void test_stencil_buffers(skiatest::Reporter* reporter, GrContext* contex
     }
 }
 
-static void test_wrapped_resources(skiatest::Reporter* reporter, GrContext* context) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, context) {
     const GrGpu* gpu = context->getGpu();
     // this test is only valid for GL
     if (!gpu || !gpu->glContextForTesting()) {
@@ -1284,30 +1294,7 @@ static void test_abandoned(skiatest::Reporter* reporter) {
     resource->resourcePriv().removeUniqueKey();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-DEF_GPUTEST(ResourceCache, reporter, factory) {
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
-        if (!GrContextFactory::IsRenderingGLContext(glType)) {
-            continue;
-        }
-        GrContext* context = factory->get(glType);
-        if (nullptr == context) {
-            continue;
-        }
-        GrSurfaceDesc desc;
-        desc.fConfig = kSkia8888_GrPixelConfig;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = gWidth;
-        desc.fHeight = gHeight;
-        SkImageInfo info = SkImageInfo::MakeN32Premul(gWidth, gHeight);
-        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(context,
-                                                                   SkSurface::kNo_Budgeted, info));
-        test_cache(reporter, context, surface->getCanvas());
-        test_stencil_buffers(reporter, context);
-        test_wrapped_resources(reporter, context);
-    }
-
+DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     // The below tests create their own mock contexts.
     test_no_key(reporter);
     test_budgeting(reporter);

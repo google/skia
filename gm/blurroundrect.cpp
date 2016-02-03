@@ -22,24 +22,9 @@
 // This GM mimics a blurred RR seen in the wild.
 class BlurRoundRectGM : public skiagm::GM {
 public:
-    BlurRoundRectGM(int width, int height, int radius)
-        : fName("blurroundrect")
-    {
-        SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-        fRRect.setRectXY(r, SkIntToScalar(radius), SkIntToScalar(radius));
-        fName.appendf("-WH-%ix%i-corner-%i", width, height, radius);
-    }
-
     BlurRoundRectGM(int width, int height)
-        : fName("blurroundrect") {
+        : fName("blurroundrect"), fWidth(width), fHeight(height) {
         fName.appendf("-WH-%ix%i-unevenCorners", width,  height);
-        SkVector radii[4];
-        radii[0].set(SkIntToScalar(30), SkIntToScalar(30));
-        radii[1].set(SkIntToScalar(10), SkIntToScalar(10));
-        radii[2].set(SkIntToScalar(30), SkIntToScalar(30));
-        radii[3].set(SkIntToScalar(10), SkIntToScalar(10));
-        SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-        fRRect.setRectRadii(r, radii);
     }
 
     SkString onShortName() override {
@@ -47,8 +32,17 @@ public:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(SkScalarCeilToInt(fRRect.rect().width()),
-                             SkScalarCeilToInt(fRRect.rect().height()));
+        return SkISize::Make(fWidth, fHeight);
+    }
+
+    void onOnceBeforeDraw() override {
+        SkVector radii[4];
+        radii[0].set(SkIntToScalar(30), SkIntToScalar(30));
+        radii[1].set(SkIntToScalar(10), SkIntToScalar(10));
+        radii[2].set(SkIntToScalar(30), SkIntToScalar(30));
+        radii[3].set(SkIntToScalar(10), SkIntToScalar(10));
+        SkRect r = SkRect::MakeWH(SkIntToScalar(fWidth), SkIntToScalar(fHeight));
+        fRRect.setRectRadii(r, radii);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -89,6 +83,7 @@ public:
 private:
     SkString        fName;
     SkRRect         fRRect;
+    int             fWidth, fHeight;
 
     typedef skiagm::GM INHERITED;
 };

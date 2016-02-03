@@ -70,14 +70,16 @@ public:
     }
 
     struct KeyHeader {
-        uint8_t                     fFragPosKey;   // set by GrGLShaderBuilder if there are
-                                                   // effects that read the fragment position.
-                                                   // Otherwise, 0.
+        // Set by GrGLShaderBuilder if there are effects that read the fragment position. Otherwise,
+        // 0.
+        uint8_t                     fFragPosKey;
+        // Set to uniquely idenitify any swizzling of the shader's output color(s).
+        uint8_t                     fOutputSwizzle;
         uint8_t                     fSnapVerticesToPixelCenters;
         int8_t                      fColorEffectCnt;
         int8_t                      fCoverageEffectCnt;
+        uint8_t                     fIgnoresCoverage;
     };
-    GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
 
     int numColorEffects() const {
         return this->header().fColorEffectCnt;
@@ -107,8 +109,8 @@ protected:
         *(this->atOffset<uint32_t, GrProgramDesc::kLengthOffset>()) = SkToU32(keyLength);
 
         uint32_t* checksum = this->atOffset<uint32_t, GrProgramDesc::kChecksumOffset>();
-        *checksum = 0;
-        *checksum = SkChecksum::Compute(reinterpret_cast<uint32_t*>(fKey.begin()), keyLength);
+        *checksum = 0;  // We'll hash through these bytes, so make sure they're initialized.
+        *checksum = SkChecksum::Murmur3(fKey.begin(), keyLength);
     }
 
     // The key, stored in fKey, is composed of four parts:

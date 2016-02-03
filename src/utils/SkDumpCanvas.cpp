@@ -199,14 +199,14 @@ void SkDumpCanvas::willSave() {
     this->INHERITED::willSave();
 }
 
-SkCanvas::SaveLayerStrategy SkDumpCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                                        SaveFlags flags) {
+SkCanvas::SaveLayerStrategy SkDumpCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     SkString str;
-    str.printf("saveLayer(0x%X)", flags);
-    if (bounds) {
+    str.printf("saveLayer(0x%X)", rec.fSaveLayerFlags);
+    if (rec.fBounds) {
         str.append(" bounds");
-        toString(*bounds, &str);
+        toString(*rec.fBounds, &str);
     }
+    const SkPaint* paint = rec.fPaint;
     if (paint) {
         if (paint->getAlpha() != 0xFF) {
             str.appendf(" alpha:0x%02X", paint->getAlpha());
@@ -216,7 +216,7 @@ SkCanvas::SaveLayerStrategy SkDumpCanvas::willSaveLayer(const SkRect* bounds, co
         }
     }
     this->dump(kSave_Verb, paint, str.c_str());
-    return this->INHERITED::willSaveLayer(bounds, paint, flags);
+    return this->INHERITED::getSaveLayerStrategy(rec);
 }
 
 void SkDumpCanvas::willRestore() {
@@ -395,13 +395,6 @@ void SkDumpCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, cons
     
     this->dump(kDrawBitmap_Verb, paint, "drawImageRectToRect(%s %s)",
                bs.c_str(), rs.c_str());
-}
-
-void SkDumpCanvas::onDrawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint* paint) {
-    SkString str;
-    bitmap.toString(&str);
-    this->dump(kDrawBitmap_Verb, paint, "drawSprite(%s %d %d)", str.c_str(),
-               x, y);
 }
 
 void SkDumpCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,

@@ -49,7 +49,7 @@ class SkPrivateEffectInitializer;
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
     private:                                                                \
     static SkFlattenable* CreateProc(SkReadBuffer&);                        \
-    friend class ::SkPrivateEffectInitializer;                              \
+    friend class SkFlattenable::PrivateInitializer;                         \
     public:                                                                 \
     Factory getFactory() const override { return CreateProc; }
 
@@ -107,6 +107,13 @@ public:
      *  from its CreateProc (returned by getFactory()).
      */
     virtual void flatten(SkWriteBuffer&) const {}
+
+protected:
+    class PrivateInitializer {
+    public:
+        static void InitCore();
+        static void InitEffects();
+    };
 
 private:
     static void InitializeFlattenablesIfNeeded();

@@ -95,6 +95,18 @@ public:
     virtual SkStreamAsset* openStream(const FontIdentity&) = 0;
 
     /**
+     *  Return an SkTypeface for the given FontIdentity.
+     *
+     *  The default implementation simply returns a new typeface built using data obtained from
+     *  openStream(), but derived classes may implement more complex caching schemes.
+     *
+     *  Callers are responsible for unref-ing the result.
+     */
+    virtual SkTypeface* createTypeface(const FontIdentity& identity) {
+        return SkTypeface::CreateFromStream(this->openStream(identity), identity.fTTCIndex);
+    }
+
+    /**
      *  Return a singleton instance of a direct subclass that calls into
      *  libfontconfig. This does not affect the refcnt of the returned instance.
      *  The mutex may be used to guarantee the singleton is only constructed once.

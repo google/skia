@@ -55,7 +55,8 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
                                                          TileUsage tileUsage,
-                                                         SkPixelGeometry geo) {
+                                                         SkPixelGeometry geo,
+                                                         bool preserveLCDText) {
     switch (tileUsage) {
         case kPossible_TileUsage:
             // (we think) for compatibility with old clients, we assume this layer can support LCD
@@ -63,7 +64,7 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
             // our callers (reed/robertphilips).
             break;
         case kNever_TileUsage:
-            if (info.alphaType() != kOpaque_SkAlphaType) {
+            if (!preserveLCDText) {
                 geo = kUnknown_SkPixelGeometry;
             }
             break;
@@ -401,6 +402,32 @@ void SkBaseDevice::drawTextOnPath(const SkDraw& draw, const void* text, size_t b
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+
+void SkBaseDevice::drawBitmapAsSprite(const SkDraw& draw, const SkBitmap& bitmap, int x, int y,
+                                      const SkPaint& paint) {
+    SkImageFilter* filter = paint.getImageFilter();
+    if (filter && !this->canHandleImageFilter(filter)) {
+        SkImageFilter::DeviceProxy proxy(this);
+        SkBitmap dst;
+        SkIPoint offset = SkIPoint::Make(0, 0);
+        SkMatrix matrix = *draw.fMatrix;
+        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+#ifdef SK_SUPPORT_SRC_BOUNDS_BLOAT_FOR_IMAGEFILTERS
+        const SkIRect clipBounds = bitmap.bounds();
+#else
+        const SkIRect clipBounds = draw.fClip->getBounds().makeOffset(-x, -y);
+#endif
+        SkAutoTUnref<SkImageFilter::Cache> cache(this->getImageFilterCache());
+        SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+        if (filter->filterImage(&proxy, bitmap, ctx, &dst, &offset)) {
+            SkPaint tmpUnfiltered(paint);
+            tmpUnfiltered.setImageFilter(nullptr);
+            this->drawSprite(draw, dst, x + offset.x(), y + offset.y(), tmpUnfiltered);
+        }
+    } else {
+        this->drawSprite(draw, bitmap, x, y, paint);
+    }
+}
 
 uint32_t SkBaseDevice::filterTextFlags(const SkPaint& paint) const {
     uint32_t flags = paint.getFlags();

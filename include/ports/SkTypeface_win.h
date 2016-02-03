@@ -10,6 +10,8 @@
 
 #include "SkTypeface.h"
 
+#ifdef SK_BUILD_FOR_WIN
+
 /**
  *  Like the other Typeface create methods, this returns a new reference to the
  *  corresponding typeface for the specified logfont. The caller is responsible
@@ -58,4 +60,5 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr*);
  */
 SK_API SkRemotableFontMgr* SkRemotableFontMgr_New_DirectWrite();
 
-#endif
+#endif  // SK_BUILD_FOR_WIN
+#endif  // SkTypeface_win_DEFINED

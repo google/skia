@@ -17,7 +17,6 @@
         '../src/effects',
         '../src/lazy',
         '../src/pathops',
-        '../src/pipe/utils',
         '../src/utils',
       ],
       'dependencies': [

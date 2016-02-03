@@ -7,40 +7,23 @@
 
 #include "SkUtils.h"
 
-#if DSTSIZE==32
-    #define DSTTYPE SkPMColor
-#elif DSTSIZE==16
-    #define DSTTYPE uint16_t
-#else
-    #error "need DSTSIZE to be 32 or 16"
-#endif
-
-#if (DSTSIZE == 32)
-    #define BITMAPPROC_MEMSET(ptr, value, n) sk_memset32(ptr, value, n)
-#elif (DSTSIZE == 16)
-    #define BITMAPPROC_MEMSET(ptr, value, n) sk_memset16(ptr, value, n)
-#else
-    #error "unsupported DSTSIZE"
-#endif
-
-
 // declare functions externally to suppress warnings.
 void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
                               const uint32_t* SK_RESTRICT xy,
-                              int count, DSTTYPE* SK_RESTRICT colors);
+                              int count, SkPMColor* SK_RESTRICT colors);
 void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
-                            int count, DSTTYPE* SK_RESTRICT colors);
+                            int count, SkPMColor* SK_RESTRICT colors);
 void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
                           const uint32_t* SK_RESTRICT xy,
-                           int count, DSTTYPE* SK_RESTRICT colors);
+                           int count, SkPMColor* SK_RESTRICT colors);
 void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
-                            int count, DSTTYPE* SK_RESTRICT colors);
+                            int count, SkPMColor* SK_RESTRICT colors);
 
 void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
                               const uint32_t* SK_RESTRICT xy,
-                              int count, DSTTYPE* SK_RESTRICT colors) {
+                              int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
     SkDEBUGCODE(CHECKSTATE(s);)
@@ -82,7 +65,7 @@ void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
 
 void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
-                            int count, DSTTYPE* SK_RESTRICT colors) {
+                            int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(kNone_SkFilterQuality == s.fFilterLevel);
@@ -104,8 +87,8 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
 
     if (1 == s.fPixmap.width()) {
         src = srcAddr[0];
-        DSTTYPE dstValue = RETURNDST(src);
-        BITMAPPROC_MEMSET(colors, dstValue, count);
+        SkPMColor dstValue = RETURNDST(src);
+        sk_memset32(colors, dstValue, count);
     } else {
         int i;
         for (i = (count >> 2); i > 0; --i) {
@@ -137,7 +120,7 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
 
 void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
                           const uint32_t* SK_RESTRICT xy,
-                           int count, DSTTYPE* SK_RESTRICT colors) {
+                           int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
@@ -183,7 +166,7 @@ void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
 }
 void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
-                            int count, DSTTYPE* SK_RESTRICT colors) {
+                            int count, SkPMColor* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fFilterLevel != kNone_SkFilterQuality);
     SkDEBUGCODE(CHECKSTATE(s);)
@@ -225,8 +208,6 @@ void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
 }
 
 #undef MAKENAME
-#undef DSTSIZE
-#undef DSTTYPE
 #undef SRCTYPE
 #undef CHECKSTATE
 #undef RETURNDST
@@ -245,4 +226,3 @@ void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
 #undef GET_FILTER_ROW
 #undef GET_FILTER_ROW_PROC
 #undef GET_FILTER_PROC
-#undef BITMAPPROC_MEMSET

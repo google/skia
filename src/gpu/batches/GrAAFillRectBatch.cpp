@@ -46,7 +46,7 @@ const GrIndexBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
 
 static const GrGeometryProcessor* create_fill_rect_gp(
                                        const SkMatrix& viewMatrix,
-                                       const GrPipelineOptimizations& opts,
+                                       const GrXPOverridesForBatch& overrides,
                                        GrDefaultGeoProcFactory::LocalCoords::Type localCoordsType) {
     using namespace GrDefaultGeoProcFactory;
 
@@ -55,7 +55,7 @@ static const GrGeometryProcessor* create_fill_rect_gp(
     // TODO remove coverage if coverage is ignored
     /*if (coverageIgnored) {
         coverageType = Coverage::kNone_Type;
-    } else*/ if (opts.canTweakAlphaForCoverage()) {
+    } else*/ if (overrides.canTweakAlphaForCoverage()) {
         coverageType = Coverage::kSolid_Type;
     } else {
         coverageType = Coverage::kAttribute_Type;
@@ -67,8 +67,8 @@ static const GrGeometryProcessor* create_fill_rect_gp(
         LocalCoords localCoords(localCoordsType);
         return GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I());
     } else {
-        LocalCoords localCoords(opts.readsLocalCoords() ? localCoordsType :
-                                                          LocalCoords::kUnused_Type);
+        LocalCoords localCoords(overrides.readsLocalCoords() ? localCoordsType :
+                                                               LocalCoords::kUnused_Type);
         return CreateForDeviceSpace(color, coverage, localCoords, viewMatrix);
     }
 }
@@ -79,7 +79,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkRect& devRect,
-                                           const GrPipelineOptimizations& opts,
+                                           const GrXPOverridesForBatch& overrides,
                                            const SkMatrix* localMatrix) {
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
     SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
@@ -140,7 +140,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
     }
 
-    bool tweakAlphaForCoverage = opts.canTweakAlphaForCoverage();
+    bool tweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
 
     // Make verts point to vertex color and then set all the color and coverage vertex attrs
     // values.
@@ -217,21 +217,30 @@ public:
 
     static const char* Name() { return "AAFillRectBatchNoLocalMatrix"; }
 
+    static SkString DumpInfo(const Geometry& geo, int index) {
+        SkString str;
+        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    index,
+                    geo.fColor,
+                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
+        return str;
+    }
+
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations& opts) {
+                           const GrXPOverridesForBatch& overrides) {
         // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
         // local coords then we won't be able to batch.  We could actually upload the viewmatrix
         // using vertex attributes in these cases, but haven't investigated that
-        return !opts.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
+        return !overrides.readsLocalCoords() || mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix);
     }
 
     static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
+                                               const GrXPOverridesForBatch& overrides) {
         const GrGeometryProcessor* gp =
-                create_fill_rect_gp(geo.fViewMatrix, opts,
+                create_fill_rect_gp(geo.fViewMatrix, overrides,
                                     GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type);
 
-        SkASSERT(opts.canTweakAlphaForCoverage() ?
+        SkASSERT(overrides.canTweakAlphaForCoverage() ?
                  gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
                  gp->getVertexStride() ==
                          sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
@@ -239,10 +248,10 @@ public:
     }
 
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
+                          const GrXPOverridesForBatch& overrides) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
-                                       nullptr);
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, 
+                                       overrides, nullptr);
     }
 };
 
@@ -258,18 +267,27 @@ public:
 
     static const char* Name() { return "AAFillRectBatchLocalMatrix"; }
 
+    static SkString DumpInfo(const Geometry& geo, int index) {
+        SkString str;
+        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    index,
+                    geo.fColor,
+                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
+        return str;
+    }
+
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations&) {
+                           const GrXPOverridesForBatch& overrides) {
         return true;
     }
 
     static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
+                                               const GrXPOverridesForBatch& overrides) {
         const GrGeometryProcessor* gp =
-                create_fill_rect_gp(geo.fViewMatrix, opts,
+                create_fill_rect_gp(geo.fViewMatrix, overrides,
                                     GrDefaultGeoProcFactory::LocalCoords::kHasExplicit_Type);
 
-        SkASSERT(opts.canTweakAlphaForCoverage() ?
+        SkASSERT(overrides.canTweakAlphaForCoverage() ?
                  gp->getVertexStride() ==
                          sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr) :
                  gp->getVertexStride() ==
@@ -278,10 +296,10 @@ public:
     }
 
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
+                          const GrXPOverridesForBatch& overrides) {
         generate_aa_fill_rect_geometry(vertices, vertexStride,
-                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, opts,
-                                       &geo.fLocalMatrix);
+                                       geo.fColor, geo.fViewMatrix, geo.fRect, geo.fDevRect, 
+                                       overrides, &geo.fLocalMatrix);
     }
 };
 

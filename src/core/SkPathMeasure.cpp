@@ -20,11 +20,20 @@ enum {
     kConic_SegType,
 };
 
+#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
 #define kMaxTValue  32767
+#else
+#define kMaxTValue  0x3FFFFFFF
+#endif
 
 static inline SkScalar tValue2Scalar(int t) {
     SkASSERT((unsigned)t <= kMaxTValue);
+#ifdef SK_SUPPORT_LEGACY_PATH_MEASURE_TVALUE
     return t * 3.05185e-5f; // t / 32767
+#else
+    const SkScalar kMaxTReciprocal = 1.0f / kMaxTValue;
+    return t * kMaxTReciprocal;
+#endif
 }
 
 SkScalar SkPathMeasure::Segment::getScalarT() const {
@@ -80,6 +89,28 @@ static bool cubic_too_curvy(const SkPoint pts[4]) {
                          SkScalarInterp(pts[0].fX, pts[3].fX, SK_Scalar1*2/3),
                          SkScalarInterp(pts[0].fY, pts[3].fY, SK_Scalar1*2/3));
 }
+
+/* from http://www.malczak.linuxpl.com/blog/quadratic-bezier-curve-length/ */
+static SkScalar compute_quad_len(const SkPoint pts[3]) {
+     SkPoint a,b;
+     a.fX = pts[0].fX - 2 * pts[1].fX + pts[2].fX;
+     a.fY = pts[0].fY - 2 * pts[1].fY + pts[2].fY;
+     b.fX = 2 * (pts[1].fX - pts[0].fX);
+     b.fY = 2 * (pts[1].fY - pts[0].fY);
+     SkScalar A = 4 * (a.fX * a.fX + a.fY * a.fY);
+     SkScalar B = 4 * (a.fX * b.fX + a.fY * b.fY);
+     SkScalar C =      b.fX * b.fX + b.fY * b.fY;
+
+     SkScalar Sabc = 2 * SkScalarSqrt(A + B + C);
+     SkScalar A_2  = SkScalarSqrt(A);
+     SkScalar A_32 = 2 * A * A_2;
+     SkScalar C_2  = 2 * SkScalarSqrt(C);
+     SkScalar BA   = B / A_2;
+
+     return (A_32 * Sabc + A_2 * B * (Sabc - C_2) +
+            (4 * C * A - B * B) * SkScalarLog((2 * A_2 + BA + Sabc) / (BA + C_2))) / (4 * A_32);
+}
+
 
 SkScalar SkPathMeasure::compute_quad_segs(const SkPoint pts[3],
                           SkScalar distance, int mint, int maxt, int ptIndex) {
@@ -200,7 +231,19 @@ void SkPathMeasure::buildSegments() {
 
             case SkPath::kQuad_Verb: {
                 SkScalar prevD = distance;
-                distance = this->compute_quad_segs(pts, distance, 0, kMaxTValue, ptIndex);
+                if (false) {
+                    SkScalar length = compute_quad_len(pts);
+                    if (length) {
+                        distance += length;
+                        Segment* seg = fSegments.append();
+                        seg->fDistance = distance;
+                        seg->fPtIndex = ptIndex;
+                        seg->fType = kQuad_SegType;
+                        seg->fTValue = kMaxTValue;
+                    }
+                } else {
+                    distance = this->compute_quad_segs(pts, distance, 0, kMaxTValue, ptIndex);
+                }
                 if (distance > prevD) {
                     fPts.append(2, pts + 1);
                     ptIndex += 2;

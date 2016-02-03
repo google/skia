@@ -16,6 +16,8 @@ class SkCanvas;
 class SkPaint;
 
 /**
+ *  DEPRECATED - use SkPaintFilterCanvas instead.
+ *
  *  Right before something is being draw, filter() is called with the
  *  paint. The filter may modify the paint as it wishes, which will then be
  *  used for the actual drawing. Note: this modification only lasts for the

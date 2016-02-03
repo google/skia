@@ -45,7 +45,7 @@ public:
                 SkTDArray<T> tmp(src.fArray, src.fCount);
                 this->swap(tmp);
             } else {
-                memcpy(fArray, src.fArray, sizeof(T) * src.fCount);
+                sk_careful_memcpy(fArray, src.fArray, sizeof(T) * src.fCount);
                 fCount = src.fCount;
             }
         }

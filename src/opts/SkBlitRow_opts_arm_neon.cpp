@@ -390,7 +390,7 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
             "movi    v4.8h, #0x80                   \t\n"
 
             "1:                                     \t\n"
-            "sub     %[count], %[count], #16        \t\n"
+            "sub     %w[count], %w[count], #16      \t\n"
             "ld1     {v16.8h-v17.8h}, [%[dst]]      \t\n"
             "ld4     {v0.16b-v3.16b}, [%[src]], #64 \t\n"
             "prfm    pldl1keep, [%[src],#512]       \t\n"
@@ -416,7 +416,7 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
             "umlal   v22.8h, v3.8b, v18.8b          \t\n"
             "ushr    v20.8h, v22.8h, #5             \t\n"
             "addhn   v20.8b, v22.8h, v20.8h         \t\n"
-            "cmp     %[count], #16                  \t\n"
+            "cmp     %w[count], #16                 \t\n"
             "mov     v6.16b, v4.16b                 \t\n"
             "mov     v5.16b, v4.16b                 \t\n"
             "umlal   v6.8h, v3.8b, v16.8b           \t\n"

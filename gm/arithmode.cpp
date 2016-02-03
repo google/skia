@@ -164,5 +164,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new ArithmodeGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new ArithmodeGM; )

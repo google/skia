@@ -12,7 +12,6 @@
     '../src/effects',
     '../src/images',
     '../src/lazy',
-    '../src/pipe/utils/',
     '../src/utils',
     '../src/utils/debugger',
     '../tests',
@@ -42,7 +41,6 @@
     '../dm/DMJsonWriter.cpp',
     '../gm/gm.cpp',
 
-    '../src/pipe/utils/SamplePipeControllers.cpp',
     '../src/utils/debugger/SkDebugCanvas.cpp',
     '../src/utils/debugger/SkDrawCommand.cpp',
     '../src/utils/debugger/SkObjectParser.cpp',

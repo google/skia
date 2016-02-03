@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkOperandInterpolator.h"
 #include "SkScript.h"
@@ -60,7 +58,7 @@ SkInterpolatorBase::Result SkOperandInterpolator::timeToValues(SkMSec time, SkOp
 {
     SkScalar T;
     int index;
-    SkBool exact;
+    bool exact;
     Result result = timeToT(time, &T, &index, &exact);
     if (values)
     {

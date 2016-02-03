@@ -9,6 +9,7 @@
 #define SkPixmap_DEFINED
 
 #include "SkColor.h"
+#include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 
 class SkColorTable;
@@ -133,6 +134,15 @@ public:
     bool readPixels(const SkPixmap& dst) const {
         return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), 0, 0);
     }
+
+    /**
+     *  Copy the pixels from this pixmap into the dst pixmap, converting as needed into dst's
+     *  colortype/alphatype. If the conversion cannot be performed, false is returned.
+     *
+     *  If dst's dimensions differ from the src dimension, the image will be scaled, applying the
+     *  specified filter-quality.
+     */
+    bool scalePixels(const SkPixmap& dst, SkFilterQuality) const;
 
     /**
      *  Returns true if pixels were written to (e.g. if colorType is kUnknown_SkColorType, this

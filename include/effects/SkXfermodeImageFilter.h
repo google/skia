@@ -23,9 +23,9 @@ class SK_API SkXfermodeImageFilter : public SkImageFilter {
 public:
     virtual ~SkXfermodeImageFilter();
 
-    static SkXfermodeImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
-                                         SkImageFilter* foreground = NULL,
-                                         const CropRect* cropRect = NULL) {
+    static SkImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
+                                 SkImageFilter* foreground = NULL,
+                                 const CropRect* cropRect = NULL) {
         SkImageFilter* inputs[2] = { background, foreground };
         return new SkXfermodeImageFilter(mode, inputs, cropRect);
     }

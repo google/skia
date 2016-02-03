@@ -39,6 +39,9 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     GrGLInterface* newInterface = GrGLInterface::NewClone(interface);
 
     newInterface->fExtensions.remove("GL_NV_path_rendering");
+    newInterface->fExtensions.remove("GL_CHROMIUM_path_rendering");
+    newInterface->fFunctions.fMatrixLoadf = nullptr;
+    newInterface->fFunctions.fMatrixLoadIdentity = nullptr;
     newInterface->fFunctions.fPathCommands = nullptr;
     newInterface->fFunctions.fPathParameteri = nullptr;
     newInterface->fFunctions.fPathParameterf = nullptr;
@@ -538,7 +541,8 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (fExtensions.has("GL_NV_framebuffer_mixed_samples")) {
+    if (fExtensions.has("GL_NV_framebuffer_mixed_samples") ||
+        fExtensions.has("GL_CHROMIUM_framebuffer_mixed_samples")) {
         if (nullptr == fFunctions.fCoverageModulation) {
             RETURN_FALSE_INTERFACE
         }
@@ -722,6 +726,13 @@ bool GrGLInterface::validate() const {
             nullptr == fFunctions.fPushDebugGroup ||
             nullptr == fFunctions.fPopDebugGroup ||
             nullptr == fFunctions.fObjectLabel) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    if (fExtensions.has("EGL_KHR_image") || fExtensions.has("EGL_KHR_image_base")) {
+        if (nullptr == fFunctions.fEGLCreateImage ||
+            nullptr == fFunctions.fEGLDestroyImage) {
             RETURN_FALSE_INTERFACE
         }
     }

@@ -56,7 +56,7 @@
             'type': 'none',
             'direct_dependent_settings': {
               'libraries' : [
-                '-ljpeg-turbo',
+                '-ljpeg',
               ],
               'include_dirs': [
                 'external/libjpeg-turbo',

@@ -35,7 +35,7 @@ protected:
         return SkString("imagefilterscropexpand");
     }
 
-    SkISize onISize() override { return SkISize::Make(570, 650); }
+    SkISize onISize() override { return SkISize::Make(650, 650); }
 
     void onDraw(SkCanvas* canvas) override {
         SkAutoTUnref<SkColorFilter> cf(
@@ -76,6 +76,9 @@ protected:
 
             Draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Create(
                 cfAlphaTrans, noopCropped.get(), &big_rect));
+
+            Draw(canvas, checkerboard, rect, SkBlurImageFilter::Create(
+                0.3f, 0.3f, noopCropped.get(), &big_rect));
 
             Draw(canvas, checkerboard, rect, SkBlurImageFilter::Create(
                 8.0f, 8.0f, noopCropped.get(), &big_rect));
@@ -170,5 +173,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new ImageFiltersCropExpandGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new ImageFiltersCropExpandGM; )

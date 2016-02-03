@@ -17,30 +17,41 @@
 #include "batches/GrBatch.h"
 
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
-                                 GrPipelineOptimizations* opts) {
+                                 GrXPOverridesForBatch* overrides) {
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
 
     // Create XferProcessor from DS's XPFactory
-    SkAutoTUnref<GrXferProcessor> xferProcessor(
-        builder.getXPFactory()->createXferProcessor(args.fColorPOI, args.fCoveragePOI,
-                                                    builder.hasMixedSamples(), &args.fDstTexture,
-                                                    *args.fCaps));
-    if (!xferProcessor) {
-        return nullptr;
+    const GrXPFactory* xpFactory = builder.getXPFactory();
+    SkAutoTUnref<GrXferProcessor> xferProcessor;
+    if (xpFactory) {
+        xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts,
+                                                           builder.hasMixedSamples(),
+                                                           &args.fDstTexture,
+                                                           *args.fCaps));
+        if (!xferProcessor) {
+            return nullptr;
+        }
+    } else {
+        // This may return nullptr in the common case of src-over implemented using hw blending.
+        xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
+                                                                        *args.fCaps,
+                                                                        args.fOpts,
+                                                                        builder.hasMixedSamples(),
+                                                                        &args.fDstTexture));
     }
-
-    GrColor overrideColor = GrColor_ILLEGAL;
-    if (args.fColorPOI.firstEffectiveProcessorIndex() != 0) {
-        overrideColor = args.fColorPOI.inputColorToFirstEffectiveProccesor();
+   GrColor overrideColor = GrColor_ILLEGAL;
+    if (args.fOpts.fColorPOI.firstEffectiveProcessorIndex() != 0) {
+        overrideColor = args.fOpts.fColorPOI.inputColorToFirstEffectiveProccesor();
     }
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
-    optFlags = xferProcessor->getOptimizations(args.fColorPOI,
-                                                args.fCoveragePOI,
-                                                builder.getStencil().doesWrite(),
-                                                &overrideColor,
-                                                *args.fCaps);
+    const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() : 
+                                                       &GrPorterDuffXPFactory::SimpleSrcOverXP();
+    optFlags = xpForOpts->getOptimizations(args.fOpts,
+                                           builder.getStencil().doesWrite(),
+                                           &overrideColor,
+                                           *args.fCaps);
 
     // When path rendering the stencil settings are not always set on the GrPipelineBuilder
     // so we must check the draw type. In cases where we will skip drawing we simply return a
@@ -55,7 +66,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     GrPipeline* pipeline = new (memory) GrPipeline;
-    pipeline->fXferProcessor.reset(xferProcessor.get());
+    pipeline->fXferProcessor.reset(xferProcessor);
 
     pipeline->fRenderTarget.reset(builder.fRenderTarget.get());
     SkASSERT(pipeline->fRenderTarget);
@@ -71,15 +82,16 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         pipeline->fFlags |= kSnapVertices_Flag;
     }
 
-    int firstColorProcessorIdx = args.fColorPOI.firstEffectiveProcessorIndex();
+    int firstColorProcessorIdx = args.fOpts.fColorPOI.firstEffectiveProcessorIndex();
 
     // TODO: Once we can handle single or four channel input into coverage GrFragmentProcessors
     // then we can use GrPipelineBuilder's coverageProcInfo (like color above) to set this initial
     // information.
     int firstCoverageProcessorIdx = 0;
 
-    pipeline->adjustProgramFromOptimizations(builder, optFlags, args.fColorPOI, args.fCoveragePOI,
-                                             &firstColorProcessorIdx, &firstCoverageProcessorIdx);
+    pipeline->adjustProgramFromOptimizations(builder, optFlags, args.fOpts.fColorPOI, 
+                                             args.fOpts.fCoveragePOI, &firstColorProcessorIdx, 
+                                             &firstCoverageProcessorIdx);
 
     bool usesLocalCoords = false;
 
@@ -104,28 +116,35 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
-    opts->fFlags = 0;
+    overrides->fFlags = 0;
     if (!SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag)) {
-        opts->fFlags |= GrPipelineOptimizations::kReadsColor_Flag;
+        overrides->fFlags |= GrXPOverridesForBatch::kReadsColor_Flag;
     }
     if (GrColor_ILLEGAL != overrideColor) {
-        opts->fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
-        opts->fOverrideColor = overrideColor;
+        overrides->fFlags |= GrXPOverridesForBatch::kUseOverrideColor_Flag;
+        overrides->fOverrideColor = overrideColor;
     }
     if (!SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag)) {
-        opts->fFlags |= GrPipelineOptimizations::kReadsCoverage_Flag;
+        overrides->fFlags |= GrXPOverridesForBatch::kReadsCoverage_Flag;
     }
     if (usesLocalCoords) {
-        opts->fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
+        overrides->fFlags |= GrXPOverridesForBatch::kReadsLocalCoords_Flag;
     }
     if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
-        opts->fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag; 
+        overrides->fFlags |= GrXPOverridesForBatch::kCanTweakAlphaForCoverage_Flag; 
     }
 
     GrXPFactory::InvariantBlendedColor blendedColor;
-    builder.fXPFactory->getInvariantBlendedColor(args.fColorPOI, &blendedColor);
+    if (xpFactory) {
+        xpFactory->getInvariantBlendedColor(args.fOpts.fColorPOI, &blendedColor);
+    } else {
+        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fOpts.fColorPOI.color(),
+                                                            args.fOpts.fColorPOI.validFlags(),
+                                                            args.fOpts.fColorPOI.isOpaque(),
+                                                            &blendedColor); 
+    }
     if (blendedColor.fWillBlendWithDst) {
-        opts->fFlags |= GrPipelineOptimizations::kWillColorBlendWithDst_Flag;
+        overrides->fFlags |= GrXPOverridesForBatch::kWillColorBlendWithDst_Flag;
     }
 
     return pipeline;
@@ -149,14 +168,12 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
         add_dependencies_for_processor(fFragmentProcessors[i].get(), rt);
     }
 
-    if (fXferProcessor.get()) {
-        const GrXferProcessor* xfer = fXferProcessor.get();
+    const GrXferProcessor& xfer = this->getXferProcessor();
 
-        for (int i = 0; i < xfer->numTextures(); ++i) {
-            GrTexture* texture = xfer->textureAccess(i).getTexture();   
-            SkASSERT(rt->getLastDrawTarget());
-            rt->getLastDrawTarget()->addDependency(texture);
-        }
+    for (int i = 0; i < xfer.numTextures(); ++i) {
+        GrTexture* texture = xfer.textureAccess(i).getTexture();   
+        SkASSERT(rt->getLastDrawTarget());
+        rt->getLastDrawTarget()->addDependency(texture);
     }
 }
 
@@ -166,13 +183,14 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 const GrProcOptInfo& coveragePOI,
                                                 int* firstColorProcessorIdx,
                                                 int* firstCoverageProcessorIdx) {
-    fReadsFragPosition = fXferProcessor->willReadFragmentPosition();
+    fIgnoresCoverage = SkToBool(flags & GrXferProcessor::kIgnoreCoverage_OptFlag);
+    fReadsFragPosition = this->getXferProcessor().willReadFragmentPosition();
 
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorProcessorIdx = pipelineBuilder.numColorFragmentProcessors();
     } else {
-        if (coveragePOI.readsFragPosition()) {
+        if (colorPOI.readsFragPosition()) {
             fReadsFragPosition = true;
         }
     }
@@ -202,8 +220,11 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
         return false;
     }
 
-    if (!a.getXferProcessor()->isEqual(*b.getXferProcessor())) {
-        return false;
+    // Most of the time both are nullptr
+    if (a.fXferProcessor.get() || b.fXferProcessor.get()) {
+        if (!a.getXferProcessor().isEqual(b.getXferProcessor())) {
+            return false;
+        }
     }
 
     for (int i = 0; i < a.numFragmentProcessors(); i++) {

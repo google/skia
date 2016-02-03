@@ -21,6 +21,7 @@
         '../include/utils',
         '../include/utils/win',
         '../src/core',
+        '../src/image',
         '../src/lazy',
         '../src/ports',
         '../src/sfnt',
@@ -48,6 +49,8 @@
 
         '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkMemory_malloc.cpp',
+        '../src/ports/SkOSEnvironment.h',
+        '../src/ports/SkOSEnvironment.cpp',
         '../src/ports/SkOSFile_posix.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkOSFile_win.cpp',
@@ -139,6 +142,7 @@
                 '../src/ports/SkFontMgr_fontconfig.cpp',
                 '../src/ports/SkFontHost_fontconfig.cpp',
                 '../src/ports/SkFontConfigInterface_direct.cpp',
+                '../src/ports/SkFontConfigInterface_direct_factory.cpp',
               ],
               'sources/': [['include', '../src/ports/SkFontMgr_fontconfig_factory.cpp']],
             }]

@@ -15,14 +15,14 @@
 
 class SkBlurMask {
 public:
-    static bool BlurRect(SkScalar sigma, SkMask *dst, const SkRect &src, SkBlurStyle,
-                         SkIPoint *margin = nullptr,
-                         SkMask::CreateMode createMode =
-                                                SkMask::kComputeBoundsAndRenderImage_CreateMode);
-    static bool BlurRRect(SkScalar sigma, SkMask *dst, const SkRRect &src, SkBlurStyle,
-                         SkIPoint *margin = nullptr,
-                         SkMask::CreateMode createMode =
-                                                SkMask::kComputeBoundsAndRenderImage_CreateMode);
+    static bool SK_WARN_UNUSED_RESULT BlurRect(SkScalar sigma, SkMask *dst, const SkRect &src,
+                                               SkBlurStyle, SkIPoint *margin = nullptr,
+                                               SkMask::CreateMode createMode =
+                                                  SkMask::kComputeBoundsAndRenderImage_CreateMode);
+    static bool SK_WARN_UNUSED_RESULT BlurRRect(SkScalar sigma, SkMask *dst, const SkRRect &src,
+                                                SkBlurStyle, SkIPoint *margin = nullptr,
+                                                SkMask::CreateMode createMode =
+                                                  SkMask::kComputeBoundsAndRenderImage_CreateMode);
 
     // forceQuality will prevent BoxBlur from falling back to the low quality approach when sigma
     // is very small -- this can be used predict the margin bump ahead of time without completely
@@ -30,14 +30,16 @@ public:
     // but also being able to predict precisely at what pixels the blurred profile of e.g. a
     // rectangle will lie.
 
-    static bool BoxBlur(SkMask* dst, const SkMask& src,
-                        SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
-                        SkIPoint* margin = nullptr, bool force_quality=false);
+    static bool SK_WARN_UNUSED_RESULT BoxBlur(SkMask* dst, const SkMask& src,
+                                              SkScalar sigma, SkBlurStyle style, SkBlurQuality,
+                                              SkIPoint* margin = nullptr,
+                                              bool forceQuality = false);
 
     // the "ground truth" blur does a gaussian convolution; it's slow
     // but useful for comparison purposes.
-    static bool BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src, SkBlurStyle,
-                                SkIPoint* margin = nullptr);
+    static bool SK_WARN_UNUSED_RESULT BlurGroundTruth(SkScalar sigma, SkMask* dst,
+                                                      const SkMask& src,
+                                                      SkBlurStyle, SkIPoint* margin = nullptr);
 
     // If radius > 0, return the corresponding sigma, else return 0
     static SkScalar ConvertRadiusToSigma(SkScalar radius);

@@ -16,7 +16,7 @@ enum {
     kShapeSize = 22,
     kShapeSpacing = 36,
     kShapeTypeSpacing = 4 * kShapeSpacing / 3,
-    kPaintSpacing = 3 * kShapeTypeSpacing,
+    kPaintSpacing = 4 * kShapeTypeSpacing,
     kLabelSpacing = 3 * kShapeSize,
     kMargin = kShapeSpacing / 2,
     kXfermodeTypeSpacing = kLabelSpacing + 2 * kPaintSpacing + kShapeTypeSpacing,
@@ -35,8 +35,9 @@ enum Shape {
     kSquare_Shape,
     kDiamond_Shape,
     kOval_Shape,
+    kConcave_Shape,
 
-    kLast_Shape = kOval_Shape
+    kLast_Shape = kConcave_Shape
 };
 
 namespace skiagm {
@@ -80,9 +81,16 @@ protected:
             {radius, 0},
             {0, 1.33f * radius}
         };
-        fPath.moveTo(pts[0]);
-        fPath.quadTo(pts[1], pts[2]);
-        fPath.quadTo(pts[3], pts[0]);
+        fOval.moveTo(pts[0]);
+        fOval.quadTo(pts[1], pts[2]);
+        fOval.quadTo(pts[3], pts[0]);
+
+        fConcave.moveTo(-radius, 0);
+        fConcave.quadTo(0, 0, 0, -radius);
+        fConcave.quadTo(0, 0, radius, 0);
+        fConcave.quadTo(0, 0, 0, radius);
+        fConcave.quadTo(0, 0, -radius, 0);
+        fConcave.close();
     }
 
     void draw_pass(SkCanvas* canvas, DrawingPass drawingPass) {
@@ -102,11 +110,12 @@ protected:
             if (kShape_Pass == drawingPass) {
                 fLabelPaint.setTextAlign(SkPaint::kCenter_Align);
                 canvas->drawText("Src Unknown", sizeof("Src Unknown") - 1,
-                        kLabelSpacing + kShapeSpacing / 2 + kShapeTypeSpacing,
+                        kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2,
                         kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
                 canvas->drawText("Src Opaque", sizeof("Src Opaque") - 1,
-                        kLabelSpacing + kShapeSpacing / 2 + kShapeTypeSpacing + kPaintSpacing,
-                        kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint);
+                        kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 + 
+                        kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, 
+                        fLabelPaint);
             }
 
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
@@ -171,10 +180,10 @@ protected:
         titlePaint.setFakeBoldText(true);
         titlePaint.setTextAlign(SkPaint::kCenter_Align);
         canvas->drawText("Porter Duff", sizeof("Porter Duff") - 1,
-                         kLabelSpacing + 3 * kShapeTypeSpacing,
+                         kLabelSpacing + 4 * kShapeTypeSpacing,
                          kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
         canvas->drawText("Advanced", sizeof("Advanced") - 1,
-                         kXfermodeTypeSpacing + kLabelSpacing + 3 * kShapeTypeSpacing,
+                         kXfermodeTypeSpacing + kLabelSpacing + 4 * kShapeTypeSpacing,
                          kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint);
 
         draw_pass(canvas, kShape_Pass);
@@ -186,7 +195,7 @@ protected:
                                                              : "Arithmetic";
         fLabelPaint.setTextAlign(SkPaint::kRight_Align);
         canvas->drawText(modeName, strlen(modeName), kLabelSpacing - kShapeSize / 4,
-                         fLabelPaint.getTextSize() / 3, fLabelPaint);
+                         fLabelPaint.getTextSize() / 4, fLabelPaint);
     }
 
     void setupShapePaint(SkCanvas* canvas, GrColor color, SkXfermode::Mode mode, SkPaint* paint) {
@@ -212,7 +221,7 @@ protected:
                     dimPaint.setARGB(0, 0, 0, 0);
                 }
                 canvas->drawRectCoords(-kShapeSpacing/2, -kShapeSpacing/2,
-                                       kShapeSpacing/2 + 2 * kShapeTypeSpacing,
+                                       kShapeSpacing/2 + 3 * kShapeTypeSpacing,
                                        kShapeSpacing/2, dimPaint);
             }
         }
@@ -247,8 +256,12 @@ protected:
             case kOval_Shape:
                 canvas->save();
                 canvas->rotate(static_cast<SkScalar>((511 * mode + 257) % 360));
-                canvas->drawPath(fPath, shapePaint);
+                canvas->drawPath(fOval, shapePaint);
                 canvas->restore();
+                break;
+
+            case kConcave_Shape:
+                canvas->drawPath(fConcave, shapePaint);
                 break;
 
             default:
@@ -258,7 +271,8 @@ protected:
 
 private:
     SkPaint   fLabelPaint;
-    SkPath    fPath;
+    SkPath    fOval;
+    SkPath    fConcave;
 
     typedef GM INHERITED;
 };

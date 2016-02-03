@@ -35,20 +35,20 @@ public:
         }
     }
 
-    bool getROPixels(SkBitmap*) const override;
+    bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext* ctx, const GrTextureParams& params) const override;
     SkImage* onNewSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture; }
     bool isOpaque() const override;
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
-                      int srcX, int srcY) const override;
-    SkImage* onApplyFilter(SkImageFilter*, SkIPoint* offset,
-                           bool forceResultToOriginalSize) const override;
+                      int srcX, int srcY, CachingHint) const override;
 
     SkSurface* onNewSurface(const SkImageInfo& info) const override {
         return SkSurface::NewRenderTarget(fTexture->getContext(), SkSurface::kNo_Budgeted, info);
     }
+
+    bool asBitmapForImageFilters(SkBitmap* bitmap) const override;
 
 private:
     SkAutoTUnref<GrTexture>     fTexture;

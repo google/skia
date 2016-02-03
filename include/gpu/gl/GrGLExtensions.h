@@ -17,7 +17,8 @@ struct GrGLInterface;
 /**
  * This helper queries the current GL context for its extensions, remembers them, and can be
  * queried. It supports both glGetString- and glGetStringi-style extension string APIs and will
- * use the latter if it is available.
+ * use the latter if it is available. It also will query for EGL extensions if a eglQueryString
+ * implementation is provided.
  */
 class SK_API GrGLExtensions {
 public:
@@ -40,7 +41,9 @@ public:
     bool init(GrGLStandard standard,
               GrGLGetStringProc getString,
               GrGLGetStringiProc getStringi,
-              GrGLGetIntegervProc getIntegerv);
+              GrGLGetIntegervProc getIntegerv,
+              GrEGLQueryStringProc queryString = nullptr,
+              GrEGLDisplay eglDisplay = nullptr);
 
     bool isInitialized() const { return fInitialized; }
 

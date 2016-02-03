@@ -68,7 +68,7 @@ SkScalar SkInterpolatorBase::ComputeRelativeT(SkMSec time, SkMSec prevTime,
 }
 
 SkInterpolatorBase::Result SkInterpolatorBase::timeToT(SkMSec time, SkScalar* T,
-                                        int* indexPtr, SkBool* exactPtr) const {
+                                        int* indexPtr, bool* exactPtr) const {
     SkASSERT(fFrameCount > 0);
     Result  result = kNormal_Result;
     if (fRepeat != SK_Scalar1) {
@@ -182,7 +182,7 @@ SkInterpolator::Result SkInterpolator::timeToValues(SkMSec time,
                                                     SkScalar values[]) const {
     SkScalar T;
     int index;
-    SkBool exact;
+    bool exact;
     Result result = timeToT(time, &T, &index, &exact);
     if (values) {
         const SkScalar* nextSrc = &fValues[index * fElemCount];

@@ -14,6 +14,7 @@
 
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawContext.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
 #include "SkColorPriv.h"
@@ -32,7 +33,9 @@ class ConvexPolyTestBatch : public GrTestBatch {
 public:
     DEFINE_BATCH_CLASS_ID
     struct Geometry : public GrTestBatch::Geometry {
-        SkRect fBounds;
+        SkRect fRect;
+        SkRect fBounds; // This will be == fRect, except fBounds must be sorted, whereas fRect can
+                        // be inverted
     };
 
     const char* name() const override { return "ConvexPolyTestBatch"; }
@@ -45,6 +48,10 @@ private:
     ConvexPolyTestBatch(const GrGeometryProcessor* gp, const Geometry& geo)
         : INHERITED(ClassID(), gp, geo.fBounds)
         , fGeometry(geo) {
+        // Make sure any artifacts around the exterior of path are visible by using overly
+        // conservative bounding geometry.
+        fGeometry.fBounds.outset(5.f, 5.f);
+        fGeometry.fRect.outset(5.f, 5.f);
     }
 
     Geometry* geoData(int index) override {
@@ -57,7 +64,7 @@ private:
         return &fGeometry;
     }
 
-    void generateGeometry(Target* target) override {
+    void generateGeometry(Target* target) const override {
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
         QuadHelper helper;
@@ -66,10 +73,7 @@ private:
             return;
         }
 
-        // Make sure any artifacts around the exterior of path are visible by using overly
-        // conservative bounding geometry.
-        fGeometry.fBounds.outset(5.f, 5.f);
-        fGeometry.fBounds.toQuad(verts);
+        fGeometry.fRect.toQuad(verts);
 
         helper.recordDraw(target);
     }
@@ -159,6 +163,11 @@ protected:
             return;
         }
 
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            return;
+        }
+
         Color color(0xff000000);
         Coverage coverage(Coverage::kSolid_Type);
         LocalCoords localCoords(LocalCoords::kUnused_Type);
@@ -166,19 +175,13 @@ protected:
                 GrDefaultGeoProcFactory::Create(color, coverage, localCoords, SkMatrix::I()));
 
         SkScalar y = 0;
-        for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
+        for (PathList::Iter iter(fPaths, PathList::Iter::kHead_IterStart);
              iter.get();
              iter.next()) {
             const SkPath* path = iter.get();
             SkScalar x = 0;
 
             for (int et = 0; et < kGrProcessorEdgeTypeCnt; ++et) {
-                GrTestTarget tt;
-                context->getTestTarget(&tt);
-                if (nullptr == tt.target()) {
-                    SkDEBUGFAIL("Couldn't get Gr test target.");
-                    return;
-                }
                 const SkMatrix m = SkMatrix::MakeTrans(x, y);
                 SkPath p;
                 path->transform(m, &p);
@@ -190,16 +193,19 @@ protected:
                 }
 
                 GrPipelineBuilder pipelineBuilder;
+                pipelineBuilder.setXPFactory(
+                    GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                 pipelineBuilder.addCoverageFragmentProcessor(fp);
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
                 geometry.fColor = color.fColor;
+                geometry.fRect = p.getBounds();
                 geometry.fBounds = p.getBounds();
 
                 SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
-                tt.target()->drawBatch(pipelineBuilder, batch);
+                drawContext->internal_drawBatch(pipelineBuilder, batch);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
             }
@@ -217,19 +223,13 @@ protected:
             y += SkScalarCeilToScalar(path->getBounds().height() + 20.f);
         }
 
-        for (SkTLList<SkRect>::Iter iter(fRects, SkTLList<SkRect>::Iter::kHead_IterStart);
+        for (RectList::Iter iter(fRects, RectList::Iter::kHead_IterStart);
              iter.get();
              iter.next()) {
 
             SkScalar x = 0;
 
             for (int et = 0; et < kGrProcessorEdgeTypeCnt; ++et) {
-                GrTestTarget tt;
-                context->getTestTarget(&tt);
-                if (nullptr == tt.target()) {
-                    SkDEBUGFAIL("Couldn't get Gr test target.");
-                    return;
-                }
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
                 GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
@@ -239,16 +239,20 @@ protected:
                 }
 
                 GrPipelineBuilder pipelineBuilder;
+                pipelineBuilder.setXPFactory(
+                    GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                 pipelineBuilder.addCoverageFragmentProcessor(fp);
                 pipelineBuilder.setRenderTarget(rt);
 
                 ConvexPolyTestBatch::Geometry geometry;
                 geometry.fColor = color.fColor;
+                geometry.fRect = rect;
                 geometry.fBounds = rect;
+                geometry.fBounds.sort();
 
                 SkAutoTUnref<GrDrawBatch> batch(ConvexPolyTestBatch::Create(gp, geometry));
 
-                tt.target()->drawBatch(pipelineBuilder, batch);
+                drawContext->internal_drawBatch(pipelineBuilder, batch);
 
                 x += SkScalarCeilToScalar(rect.width() + 10.f);
             }
@@ -268,8 +272,10 @@ protected:
     }
 
 private:
-    SkTLList<SkPath> fPaths;
-    SkTLList<SkRect> fRects;
+    typedef SkTLList<SkPath, 1> PathList;
+    typedef SkTLList<SkRect, 1> RectList;
+    PathList fPaths;
+    RectList fRects;
 
     typedef GM INHERITED;
 };

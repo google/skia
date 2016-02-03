@@ -285,63 +285,12 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     pixelRef->addGenIDChangeListener(new Invalidator(key));
 }
 
-class RasterBitmap_GrTextureMaker : public GrTextureMaker {
-public:
-    RasterBitmap_GrTextureMaker(const SkBitmap& bitmap)
-        : INHERITED(bitmap.width(), bitmap.height())
-        , fBitmap(bitmap)
-    {
-        SkASSERT(!bitmap.getTexture());
-        if (!bitmap.isVolatile()) {
-            SkIPoint origin = bitmap.pixelRefOrigin();
-            SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
-                                               bitmap.height());
-            GrMakeKeyFromImageID(&fOriginalKey, bitmap.pixelRef()->getGenerationID(), subset);
-        }
-    }
-
-protected:
-    GrTexture* refOriginalTexture(GrContext* ctx) override {
-        GrTexture* tex;
-
-        if (fOriginalKey.isValid()) {
-            tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
-            if (tex) {
-                return tex;
-            }
-        }
-
-        tex = GrUploadBitmapToTexture(ctx, fBitmap);
-        if (tex && fOriginalKey.isValid()) {
-            tex->resourcePriv().setUniqueKey(fOriginalKey);
-            GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
-        }
-        return tex;
-    }
-
-    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override {
-        if (fOriginalKey.isValid()) {
-            MakeCopyKeyFromOrigKey(fOriginalKey, copyParams, copyKey);
-        }
-    }
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override {
-        GrInstallBitmapUniqueKeyInvalidator(copyKey, fBitmap.pixelRef());
-    }
-
-private:
-    const SkBitmap  fBitmap;
-    GrUniqueKey     fOriginalKey;
-
-    typedef GrTextureMaker INHERITED;
-};
-
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrTextureParams& params) {
     if (bitmap.getTexture()) {
         return GrBitmapTextureAdjuster(&bitmap).refTextureSafeForParams(params, nullptr);
     }
-    return RasterBitmap_GrTextureMaker(bitmap).refTextureForParams(ctx, params);
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -540,13 +489,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
     SkXfermode* mode = skPaint.getXfermode();
     GrXPFactory* xpFactory = nullptr;
-    if (!SkXfermode::AsXPFactory(mode, &xpFactory)) {
-        // Fall back to src-over
-        // return false here?
-        xpFactory = GrPorterDuffXPFactory::Create(SkXfermode::kSrcOver_Mode);
-    }
-    SkASSERT(xpFactory);
-    grPaint->setXPFactory(xpFactory)->unref();
+    SkXfermode::AsXPFactory(mode, &xpFactory);
+    SkSafeUnref(grPaint->setXPFactory(xpFactory));
 
 #ifndef SK_IGNORE_GPU_DITHER
     if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0) {
@@ -594,6 +538,34 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, skPaint, viewM, nullptr, &primColorMode, primitiveIsSrc,
                                    grPaint);
+}
+
+bool SkPaintToGrPaintWithTexture(GrContext* context,
+                                 const SkPaint& paint,
+                                 const SkMatrix& viewM,
+                                 const GrFragmentProcessor* fp,
+                                 bool textureIsAlphaOnly,
+                                 GrPaint* grPaint) {
+    SkAutoTUnref<const GrFragmentProcessor> shaderFP;
+    if (textureIsAlphaOnly) {
+        if (const SkShader* shader = paint.getShader()) {
+            shaderFP.reset(shader->asFragmentProcessor(context,
+                                                       viewM,
+                                                       nullptr,
+                                                       paint.getFilterQuality()));
+            if (!shaderFP) {
+                return false;
+            }
+            const GrFragmentProcessor* fpSeries[] = { shaderFP.get(), fp };
+            shaderFP.reset(GrFragmentProcessor::RunInSeries(fpSeries, 2));
+        } else {
+            shaderFP.reset(GrFragmentProcessor::MulOutputByInputUnpremulColor(fp));
+        }
+    } else {
+        shaderFP.reset(GrFragmentProcessor::MulOutputByInputAlpha(fp));
+    }
+
+    return SkPaintToGrPaintReplaceShader(context, paint, shaderFP.get(), grPaint);
 }
 
 

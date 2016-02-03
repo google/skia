@@ -122,3 +122,49 @@ DEF_TEST(Bitmap, reporter) {
     test_bigalloc(reporter);
     test_peekpixels(reporter);
 }
+
+/**
+ *  This test checks that getColor works for both swizzles.
+ */
+DEF_TEST(Bitmap_getColor_Swizzle, r) {
+    SkBitmap source;
+    source.allocN32Pixels(1,1);
+    source.eraseColor(SK_ColorRED);
+    SkColorType colorTypes[] = {
+        kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType,
+    };
+    for (SkColorType ct : colorTypes) {
+        SkBitmap copy;
+        if (!source.copyTo(&copy, ct)) {
+            ERRORF(r, "SkBitmap::copy failed %d", (int)ct);
+            continue;
+        }
+        SkAutoLockPixels autoLockPixels1(copy);
+        SkAutoLockPixels autoLockPixels2(source);
+        REPORTER_ASSERT(r, source.getColor(0, 0) == copy.getColor(0, 0));
+    }
+}
+
+static void test_erasecolor_premul(skiatest::Reporter* reporter, SkColorType ct, SkColor input,
+                                   SkColor expected) {
+  SkBitmap bm;
+  bm.allocPixels(SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType));
+  bm.eraseColor(input);
+  if (reporter->verbose()) {
+      SkDebugf("expected: %x actual: %x\n", expected, bm.getColor(0, 0));
+  }
+  REPORTER_ASSERT(reporter, bm.getColor(0, 0) == expected);
+}
+
+/**
+ *  This test checks that eraseColor premultiplies the color correctly.
+ */
+DEF_TEST(Bitmap_eraseColor_Premul, r) {
+    SkColor color = 0x80FF0080;
+    test_erasecolor_premul(r, kAlpha_8_SkColorType, color, 0x80000000);
+    test_erasecolor_premul(r, kRGB_565_SkColorType, color, 0xFF840042);
+    test_erasecolor_premul(r, kARGB_4444_SkColorType, color, 0x88FF0080);
+    test_erasecolor_premul(r, kRGBA_8888_SkColorType, color, color);
+    test_erasecolor_premul(r, kBGRA_8888_SkColorType, color, color);
+}

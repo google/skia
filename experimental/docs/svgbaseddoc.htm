@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+<style>
+html {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 100%;
+}
+
+.controls {
+  margin: 1em 0;
+}
+
+button {
+  display: inline-block;
+  border-radius: 3px;
+  border: none;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8em;
+  background: #69c773;
+  border-bottom: 1px solid #498b50;
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  font-weight: bold;
+  margin: 0 0.25rem;
+  text-align: center;
+}
+
+button:hover, button:focus {
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+button:active {
+  opacity: 1;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1) inset;
+}
+
+</style>
+
+<! set height back to 500 />
+<svg id="svg" width="800" height="500"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<defs>
+    <radialGradient id="grad1" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(0,0,255); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(0,0,255); stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="grad2" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(0,255,0); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(0,255,0); stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="grad3" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(255,0,0); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(255,0,0); stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="grad4" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(192,63,192); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(192,63,192); stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="grad5" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(127,127,0); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(127,127,0); stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="grad6" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(127,0,127); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(127,0,127); stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="grad7" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(0,127,127); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(0,127,127); stop-opacity:0" />
+    </radialGradient>
+    <radialGradient id="grad8" cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   style="stop-color:rgb(63,192,63); stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:rgb(63,192,63); stop-opacity:0" />
+    </radialGradient>
+</defs>
+
+<path id="circleFill" d="M300,200 A 100,100 0,0,0 300,200" fill="#777" fill-opacity="0" />
+<path id="circle" d="M300,200 A 100,100 0,0,0 300,200" fill="none" stroke="black" />
+
+<! elements for keyframe 1 />
+<text id="spanWedgeDesc" fill-opacity="0" >
+All spans are contained by a wedge.
+</text>
+<path id="span1" d="M200,200 Q300,300 200,300" fill="none" stroke="black" stroke-opacity="0"/>
+<path id="span2" d="M200,200 C100,300 100,400 200,300" fill="none" stroke="black" stroke-opacity="0"/>
+<path id="span3" d="M200,200 C300,100 100,400 300,200" fill="none" stroke="black" stroke-opacity="0"/>
+<path id="wedge1" d="M200,200 L500,500 A 424.26,424.26 0,0,1 200,624.26 z" fill="url(#grad1)" fill-opacity="0"/>
+<path id="wedge2" d="M200,200 L200,624.26 A 424.26,424.26 0,0,1 -100,500 z" fill="url(#grad2)" fill-opacity="0"/>
+<path id="wedge3" d="M200,200 L500,-100 A 424.26,424.26 0,0,1 240,622.5 z" fill="url(#grad3)" fill-opacity="0"/>
+
+<! keyframe 2 />
+<text id="trivialWedgeDesc1" fill-opacity="0" >
+Wedges that don't overlap can be
+</text>
+<text id="trivialWedgeDesc2" y="240" fill-opacity="0" >
+easily sorted.
+</text>
+<path id="span4" d="M200,200 Q300,300 400,300" fill="none" stroke="black" stroke-opacity="0"/>
+<path id="span5" d="M200,200 Q280,320 200,400" fill="none" stroke="black" stroke-opacity="0"/>
+<path id="span6" d="M200,200 Q60,340 100,400" fill="none" stroke="black" stroke-opacity="0"/>
+<path id="wedge4" d="M200,200 L500,500 A 424.26,424.26 0,0,1 579.47,389.74 z" fill="url(#grad1)" fill-opacity="0"/>
+<path id="wedge5" d="M200,200 L389.74,579.47 A 424.26,424.26 0,0,1 200,500 z" fill="url(#grad2)" fill-opacity="0"/>
+<path id="wedge6" d="M200,200 L10.26,579.47 A 424.26,424.26 0,0,1 -100,500 z" fill="url(#grad3)" fill-opacity="0"/>
+
+
+<! keyframe 3 />
+<text id="sectorDesc1" fill-opacity="0" >
+A sector is a wedge of a circle
+</text>
+<text id="sectorDesc2" y="240" fill-opacity="0" >
+containing a range of points.
+</text>
+<g id="xaxis" stroke-opacity="0" fill-opacity="0">
+    <path d="M100,200 L300,200" fill="none" stroke="rgb(191,191,191)"/>
+    <text x="100" y="220" fill="rgb(191,191,191)">-X</text>
+    <text x="300" y="220" text-anchor="end" fill="rgb(191,191,191)">+X</text>
+</g>
+<g id="yaxis" stroke-opacity="0" fill-opacity="0">
+    <path d="M200,100 L200,300" fill="none" stroke="rgb(191,191,191)"/>
+    <text x="205" y="100" alignment-baseline="hanging" fill="rgb(191,191,191)">-Y</text>
+    <text x="205" y="300" fill="rgb(191,191,191)">+Y</text>
+</g>
+<text id="sectorDescXYA" x="500" y="310" fill="rgb(0,0,255)" fill-opacity="0">
+X &gt; 0>&nbsp;&nbsp;Y &gt; 0&nbsp;&nbsp;&nbsp;&nbsp;Y &lt; X</text>
+<text id="sectorDescXYB" x="500" y="360" fill="rgb(0,127,0)" fill-opacity="0">
+X &lt; 0&nbsp;&nbsp;&nbsp;Y &gt; 0&nbsp;&nbsp;&nbsp;-Y &lt; X</text>
+<text id="sectorDescXYC" x="500" y="410" fill="rgb(255,0,0)" fill-opacity="0">
+X &lt; 0&nbsp;&nbsp;&nbsp;Y &lt; 0&nbsp;&nbsp;&nbsp;&nbsp;Y &lt; X</text>
+<path id="wedgeXY8" d="M200,200 L500,500 A 424.26,424.26 0,0,1 624.26,200 z" fill="url(#grad1)" fill-opacity="0"/>
+<path id="wedgeXY6" d="M200,200 L-100,500 A 424.26,424.26 0,0,1 200,624.26 z" fill="url(#grad2)" fill-opacity="0"/>
+<path id="wedgeXY3" d="M200,200 L-100,-100 A 424.26,424.26 0,0,1 200,-175.74 z" fill="url(#grad3)" fill-opacity="0"/>
+
+<! keyframe 4 />
+<text id="lineSingleDesc" fill-opacity="0" >
+Line spans are contained by a single sector.
+</text>
+<text id="sectorDescXY1" x="500" y="460" fill="rgb(192,63,192)" fill-opacity="0">
+X &gt; 0&nbsp;&nbsp;&nbsp;Y &lt; 0&nbsp;&nbsp;&nbsp;-Y &lt; X</text>
+<text id="sectorDescXY2" x="500" y="460" fill="rgb(127,127,0)" fill-opacity="0">
+X &gt; 0&nbsp;&nbsp;&nbsp;Y &lt; 0&nbsp;&nbsp;&nbsp;-Y &gt; X</text>
+<text id="sectorDescXY3" x="500" y="460" fill="rgb(255,0,0)" fill-opacity="0">
+X &lt; 0&nbsp;&nbsp;&nbsp;Y &lt; 0&nbsp;&nbsp;&nbsp;&nbsp;Y &lt; X</text>
+<text id="sectorDescXY4" x="500" y="460" fill="rgb(127,0,127)" fill-opacity="0">
+X &lt; 0&nbsp;&nbsp;&nbsp;Y &lt; 0&nbsp;&nbsp;&nbsp;&nbsp;Y &gt; X</text>
+<text id="sectorDescXY5" x="500" y="460" fill="rgb(0,127,127)" fill-opacity="0">
+X &lt; 0&nbsp;&nbsp;&nbsp;Y &gt; 0&nbsp;&nbsp;&nbsp;-Y &lt; X</text>
+<text id="sectorDescXY6" x="500" y="460" fill="rgb(0,127,0)" fill-opacity="0">
+X &lt; 0&nbsp;&nbsp;&nbsp;Y &gt; 0&nbsp;&nbsp;&nbsp;-Y &lt; X</text>
+<text id="sectorDescXY7" x="500" y="460" fill="rgb(63,192,63)" fill-opacity="0">
+X &gt; 0&nbsp;&nbsp;&nbsp;Y &gt; 0&nbsp;&nbsp;&nbsp;&nbsp;Y &gt; X</text>
+<text id="sectorDescXY8" x="500" y="460" fill="rgb(0,0,255)" fill-opacity="0">
+X &gt; 0&nbsp;&nbsp;&nbsp;Y &gt; 0&nbsp;&nbsp;&nbsp;&nbsp;Y &lt; X</text>
+<path id="wedgeXY1" d="M200,200 L500,-100 A 424.26,424.26 0,0,1 624.26,200 z" fill="url(#grad4)" fill-opacity="0"/>
+<path id="wedgeXY2" d="M200,200 L200,-175.74 A 424.26,424.26 0,0,1 500,-100 z" fill="url(#grad5)" fill-opacity="0"/>
+<path id="wedgeXY4" d="M200,200 L-175.74,200 A 424.26,424.26 0,0,1 -100,-100 z" fill="url(#grad6)" fill-opacity="0"/>
+<path id="wedgeXY5" d="M200,200 L-100,500 A 424.26,424.26 0,0,1 -175.74,200 z" fill="url(#grad7)" fill-opacity="0"/>
+<path id="wedgeXY7" d="M200,200 L200,624.26 A 424.26,424.26 0,0,1 500,500 z" fill="url(#grad8)" fill-opacity="0"/>
+<path id="lineSegment" d="M200,200 L200,624.26" fill="none" stroke="black" stroke-opacity="0"/>
+
+<! keyframe 5 />
+<text id="curveMultipleDesc1" fill-opacity="0" >
+A curve span may cover more
+</text>
+<text id="curveMultipleDesc2" y="240" fill-opacity="0" >
+than one sector.
+</text>
+<path id="curveSegment" d="M200,200 C250,200 300,150 300,100" fill="none" stroke="black" stroke-opacity="0"/>
+<path id="curveSegment1" d="M200,200 C250,200 300,150 300,100" fill="none"/>
+<path id="curveSegment2" d="M200,200 C250,200 300,150 200,100" fill="none"/>
+<path id="curveSegment3" d="M200,200 C350,200 250,-150 170,300" fill="none"/>
+
+<! keyframe 6 />
+<text id="line1DDest1" fill-opacity="0" >
+Some lines occupy one-dimensional
+</text>
+<text id="line1DDest2" y="240" fill-opacity="0" >
+sectors.
+</text>
+<text id="sectorDescXY9" x="500" y="460" fill="rgb(192,92,31)" fill-opacity="0">
+X &gt; 0&nbsp;&nbsp;&nbsp;Y == 0</text>
+<text id="sectorDescXY10" x="500" y="460" fill="rgb(31,92,192)" fill-opacity="0">
+Y &gt; 0&nbsp;&nbsp;&nbsp;0 == X</text>
+<text id="sectorDescXY11" x="500" y="460" fill="rgb(127,63,127)" fill-opacity="0">
+X &lt; 0&nbsp;&nbsp;&nbsp;Y == X</text>
+<path id="horzSegment" d="M200,200 L341.4,200" fill="none" stroke="rgb(192,92,31)" stroke-width="2" stroke-opacity="0"/>
+<path id="vertSegment" d="M200,200 L200,341.4" fill="none" stroke="rgb(31,92,192)" stroke-width="2" stroke-opacity="0"/>
+<path id="diagSegment" d="M200,200 L100,100"   fill="none" stroke="rgb(127,63,127)" stroke-width="2" stroke-opacity="0"/>
+
+<! keyframe 7 />
+<text id="curve1dDesc1" fill-opacity="0" >
+Some curves initially occupy
+</text>
+<text id="curve1dDesc2" y="240" fill-opacity="0" >
+one-dimensional sectors, then diverge.
+</text>
+<path id="cubicSegment" fill="none" stroke="black" />
+<path id="cubicSegment1" d="M200,200 C200,200 200,200 200,200" fill="none" />
+<path id="cubicSegment2" d="M200,200 C250,200 300,200 300,100" fill="none"/>
+
+<text id="sectorNumberDesc" fill-opacity="0" >
+Each sector is assigned a number.
+</text>
+<text id="spanSectorDesc" fill-opacity="0" >
+Each span has a bit set for one or more sectors.
+</text>
+<text id="bitOverDesc" fill-opacity="0" >
+Span sets allow rough sorting without angle computation.
+</text>
+
+</svg>
+
+<! canvas support />
+<script>
+
+var keyFrameQueue = [];
+var animationsPending = [];
+var animationsActive = [];
+var displayList = [];
+var visibleFinished = [];
+
+var animationState = {};
+animationState.reset = function () {
+    this.start = null;
+    this.time = 0;
+    this.requestID = null;
+    this.paused = false;
+    this.displayEngine = 'Canvas';
+}
+
+circle.center = { x: 200, y: 200 }
+circle.radius = 100;
+
+function assert(condition) {
+    if (!condition) debugger;
+}
+
+function CanvasGrads(ctx) {
+    var grad1 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad1.addColorStop(0, "rgba(0,0,255, 0.3)");
+    grad1.addColorStop(1, "rgba(0,0,255, 0)");
+    var grad2 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad2.addColorStop(0, "rgba(0,255,0, 0.3)");
+    grad2.addColorStop(1, "rgba(0,255,0, 0)");
+    var grad3 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad3.addColorStop(0, "rgba(255,0,0, 0.3)");
+    grad3.addColorStop(1, "rgba(255,0,0, 0)");
+    var grad4 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad4.addColorStop(0, "rgba(192,63,192, 0.3)");
+    grad4.addColorStop(1, "rgba(192,63,192, 0)");
+    var grad5 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad5.addColorStop(0, "rgba(127,127,0, 0.3)");
+    grad5.addColorStop(1, "rgba(127,127,0, 0)");
+    var grad6 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad6.addColorStop(0, "rgba(127,0,127, 0.3)");
+    grad6.addColorStop(1, "rgba(127,0,127, 0)");
+    var grad7 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad7.addColorStop(0, "rgba(0,127,127, 0.3)");
+    grad7.addColorStop(1, "rgba(0,127,127, 0)");
+    var grad8 = ctx.createRadialGradient(200, 200, 0, 200, 200, 300);
+    grad8.addColorStop(0, "rgba(63,192,63, 0.3)");
+    grad8.addColorStop(1, "rgba(63,192,63, 0)");
+    var data = {
+        grad1: grad1,
+        grad2: grad2,
+        grad3: grad3,
+        grad4: grad4,
+        grad5: grad5,
+        grad6: grad6,
+        grad7: grad7,
+        grad8: grad8,
+    };
+    return data;
+}
+
+function skip_sep(data) {
+    if (!data.length) {
+        return data;
+    }
+    while (data[0] == ' ' || data[0] == ',') {
+        data = data.substring(1);
+    }
+    return data;
+}
+
+function find_points(str, value, count, isRelative, relative) {
+    var numRegEx = /-?\d+\.?\d*(?:e-?\d+)?/g;
+    var match;
+    for (var index = 0; index < count; ++index) {
+        str = skip_sep(str);
+        match = numRegEx.exec(str);
+        assert(match);
+        var x = Number(match[0]);
+        str = skip_sep(str);
+        match = numRegEx.exec(str);
+        assert(match);
+        var y = Number(match[0]);
+        value[index] = { x: x, y : y };
+    }
+    if (isRelative) {
+        for (var index = 0; index < count; index++) {
+            value[index].x += relative.x;
+            value[index].y += relative.y;
+        }
+    }
+    return str.substring(match.index + match[0].length);
+}
+
+function find_scalar(str, obj, isRelative, relative) {
+    var numRegEx = /-?\d+\.?\d*(?:e-?\d+)?/g;
+    str = skip_sep(str);
+    var match = numRegEx.exec(str);
+    obj.value = Number(match[0]);
+    if (isRelative) {
+        obj.value += relative;
+    }
+    return str.substring(match.index + match[0].length);
+}
+
+function parse_path(data) {
+    var path = "ctx.beginPath();\n";
+    var f = {x:0, y:0};
+    var c = {x:0, y:0};
+    var lastc = {x:0, y:0};
+    var points = [];
+    var op = '\0';
+    var previousOp = '\0';
+    var relative = false;
+    for (;;) {
+        data = skip_sep(data);
+        if (!data.length) {
+            break;
+        }
+        var ch = data[0];
+        if (('0' <= ch && ch <= '9') || ch == '-' || ch == '+') {
+            assert(op != '\0');
+        } else if (ch == ' ' || ch == ',') {
+            data = skip_sep(data);
+        } else {
+            op = ch;
+            relative = false;
+            if ('a' <= op && op <= 'z') {
+                op = op.toUpperCase();
+                relative = true;
+            }
+            data = data.substring(1);
+            data = skip_sep(data);
+        }
+        switch (op) {
+            case 'A':
+                var radii = [];
+                data = find_points(data, radii, 1, false, null);
+                var xaxisObj = {};
+                data = find_scalar(data, xaxisObj, false, null);
+                var largeArcObj = {};
+                data = find_scalar(data, largeArcObj, false, null);
+                var sweepObj = {};
+                data = find_scalar(data, sweepObj, false, null);
+                data = find_points(data, points, 1, relative, c);
+                var mid = { x: (c.x + points[0].x) / 2, y: (c.y + points[0].y) / 2 };
+                var midVec = { x: mid.x - c.x, y: mid.y - c.y };
+                var midLenSqr = midVec.x * midVec.x + midVec.y * midVec.y;
+                var radius = radii[0].x;
+                var scale = Math.sqrt(midLenSqr) / Math.sqrt(radius * radius - midLenSqr);
+                var tangentPt = { x: mid.x + midVec.y * scale,
+                                  y: mid.y - midVec.x * scale };
+                path += "ctx.arcTo(" + tangentPt.x + "," + tangentPt.y + ","
+                    + points[0].x + "," + points[0].y + "," + radius + ");\n";
+                c = points[0];
+                break;
+            case 'M':
+                data = find_points(data, points, 1, relative, c);
+                path += "ctx.moveTo(" + points[0].x + "," + points[0].y + ");\n";
+                op = 'L';
+                c = points[0];
+                break;
+            case 'L':
+                data = find_points(data, points, 1, relative, c);
+                path += "ctx.lineTo(" + points[0].x + "," + points[0].y + ");\n";
+                c = points[0];
+                break;
+            case 'H': {
+                var xObj = {};
+                data = find_scalar(data, xObj, relative, c.x);
+                path += "ctx.lineTo(" + xObj.value + "," + c.y + ");\n";
+                c.x = xObj.value;
+            } break;
+            case 'V': {
+                var yObj = {};
+                data = find_scalar(data, y, relative, c.y);
+                path += "ctx.lineTo(" + c.x + "," + yObj.value+ ");\n";
+                c.y = yObj.value;
+            } break;
+            case 'C':
+                data = find_points(data, points, 3, relative, c);
+                path += "ctx.bezierCurveTo(" + points[0].x + "," + points[0].y + ","
+                    + points[1].x + "," + points[1].y + ","
+                    + points[2].x + "," + points[2].y + ");\n";
+                lastc = points[1];
+                c = points[2];
+                break;
+            case 'S':
+                var pts2_3 = [];
+                data = find_points(data, pts2_3, 2, relative, c);
+                points[0] = c;
+                points[1] = pts2_3[0];
+                points[2] = pts2_3[1];
+                if (previousOp == 'C' || previousOp == 'S') {
+                    points[0].x -= lastc.x - c.x;
+                    points[0].y -= lastc.y - c.y;
+                }
+                path += "ctx.bezierCurveTo(" + points[0].x + "," + points[0].y + ","
+                    + points[1].x + "," + points[1].y + ","
+                    + points[2].x + "," + points[2].y + ");\n";
+                lastc = points[1];
+                c = points[2];
+                break;
+            case 'Q':  // Quadratic Bezier Curve
+                data = find_points(data, points, 2, relative, c);
+                path += "ctx.quadraticCurveTo(" + points[0].x + "," + points[0].y + ","
+                    + points[1].x + "," + points[1].y + ");\n";
+                lastc = points[0];
+                c = points[1];
+                break;
+            case 'T':
+                var pts2 = [];
+                data = find_points(data, pts2, 1, relative, c);
+                points[0] = pts2[0];
+                points[1] = pts2[0];
+                if (previousOp == 'Q' || previousOp == 'T') {
+                    points[0].x = c.x * 2 - lastc.x;
+                    points[0].y = c.y * 2 - lastc.y;
+                }
+                path += "ctx.quadraticCurveTo(" + points[0].x + "," + points[0].y + ","
+                    + points[1].x + "," + points[1].y + ");\n";
+                path.quadTo(points[0], points[1]);
+                lastc = points[0];
+                c = points[1];
+                break;
+            case 'Z':
+                path += "ctx.closePath();\n";
+                c = f;
+                op = '\0';
+                break;
+            case '~':
+                var args = [];
+                data = find_points(data, args, 2, false, null);
+                path += "moveTo(" + args[0].x + "," + args[0].y + ");\n";
+                path += "lineTo(" + args[1].x + "," + args[1].y + ");\n";
+                break;
+            default:
+                return false;
+        }
+        if (previousOp == 0) {
+            f = c;
+        }
+        previousOp = op;
+    }
+    return path;
+}
+
+function CanvasPaths(ctx) {
+    var svgStrs = {
+    // keyframe 1
+        span1:   "M200,200 Q300,300 200,300",
+        span2:   "M200,200 C100,300 100,400 200,300",
+        span3:   "M200,200 C300,100 100,400 300,200",
+        wedge1:  "M200,200 L500,500 A 424.26,424.26 0,0,1 200,624.26 z",
+        wedge2:  "M200,200 L200,624.26 A 424.26,424.26 0,0,1 -100,500 z",
+        wedge3:  "M200,200 L500,-100 A 424.26,424.26 0,0,1 240,622.5 z",
+    // keyframe 2
+        span4:   "M200,200 Q300,300 400,300",
+        span5:   "M200,200 Q280,320 200,400",
+        span6:   "M200,200 Q60,340 100,400",
+        wedge4:  "M200,200 L500,500 A 424.26,424.26 0,0,1 579.47,389.74 z",
+        wedge5:  "M200,200 L389.74,579.47 A 424.26,424.26 0,0,1 200,500 z",
+        wedge6:  "M200,200 L10.26,579.47 A 424.26,424.26 0,0,1 -100,500 z",
+    // keyframe 3
+        xaxis:    "M100,200 L300,200",
+        yaxis:    "M200,100 L200,300",
+        wedgeXY8: "M200,200 L500,500 A 424.26,424.26 0,0,1 624.26,200 z",
+        wedgeXY6: "M200,200 L-100,500 A 424.26,424.26 0,0,1 200,624.26 z",
+        wedgeXY3: "M200,200 L-100,-100 A 424.26,424.26 0,0,1 200,-175.74 z",
+    // keyframe 4
+        wedgeXY1: "M200,200 L500,-100 A 424.26,424.26 0,0,1 624.26,200 z",
+        wedgeXY2: "M200,200 L200,-175.74 A 424.26,424.26 0,0,1 500,-100 z",
+        wedgeXY4: "M200,200 L-175.74,200 A 424.26,424.26 0,0,1 -100,-100 z",
+        wedgeXY5: "M200,200 L-100,500 A 424.26,424.26 0,0,1 -175.74,200 z",
+        wedgeXY7: "M200,200 L200,624.26 A 424.26,424.26 0,0,1 500,500 z",
+        lineSegment: "M200,200 L200,624.26",
+    // keyframe 5
+        curveSegment:  "M200,200 C250,200 300,150 300,100",
+        curveSegment1: "M200,200 C250,200 300,150 300,100",
+        curveSegment2: "M200,200 C250,200 300,150 200,100",
+        curveSegment3: "M200,200 C350,200 250,-150 170,300",
+    // keyframe 6
+        horzSegment: "M200,200 L341.4,200",
+        vertSegment: "M200,200 L200,341.4",
+        diagSegment: "M200,200 L100,100",
+    // keyframe 7
+        cubicSegment:  "M200,200 C200,200 200,200 200,200",
+        cubicSegment1: "M200,200 C200,200 200,200 200,200",
+        cubicSegment2: "M200,200 C250,200 300,200 300,100",
+    };
+    var paths = [];
+    var keys = Object.keys(svgStrs);
+    for (var index in keys) {
+        var key = keys[index];
+        var str = svgStrs[key];
+        var path = parse_path(str);
+        var record = [];
+        paths[key] = {
+            str: str,
+            funcBody: path,
+        };
+    }
+    return paths;
+}
+
+function canvas_fill_font(record) {
+    assert(record);
+    var str = 'ctx.font = "normal 1.3rem Helvetica,Arial";\n';
+    if (record.fillStyle) {
+        str += 'ctx.fillStyle = ' + record.fillStyle + ';\n';
+    }
+    return str;
+}
+
+function canvas_fill_text(record) {
+    assert(record);
+    assert(typeof record.fillText == 'string');
+    return 'ctx.fillText("' + record.fillText + '"';
+}
+
+function canvas_xy(record) {
+    var x = typeof record.x == "number" ? record.x : 400;
+    var y = typeof record.y == "number" ? record.y : 200;
+    return ', ' + x + ', ' + y + ');\n';
+}
+
+function canvas_text_xy(record) {
+    return canvas_fill_text(record) + canvas_xy(record);
+}
+
+function add_canvas_stroke(paths, data, id, strokeStyle) {
+    var record = {};
+    record.data = paths[id].funcBody;
+    record.style = 'ctx.strokeStyle = ' + (strokeStyle ? strokeStyle : '"black"') + ';\n';
+    record.draw = 'ctx.stroke();\n';
+    record.func = new Function('ctx', record.data + record.style + record.draw);
+    return data[id] = record;
+}
+
+function add_canvas_style(record, style) {
+    record.style += style;
+    record.func = new Function('ctx', record.data + record.style + record.draw);
+}
+
+function add_canvas_fill(paths, data, id, fillStyle) {
+    var record = {};
+    record.data = paths[id].funcBody;
+    record.style = 'ctx.fillStyle = ' + (fillStyle ? fillStyle : '"black"') + ';\n';
+    record.draw = 'ctx.fill();\n';
+    record.func = new Function('ctx', record.data + record.style + record.draw);
+    return data[id] = record;
+}
+
+function add_canvas_text(data, id, params) {
+    var record = {};
+    record.style = canvas_fill_font(params);
+    record.draw = canvas_fill_text(params);
+    record.position = canvas_xy(params);
+    record.x = params.x;
+    record.y = params.y;
+    record.func = new Function('ctx', record.style + record.draw + record.position);
+    return data[id] = record;
+}
+
+function keyframe1(grads, paths) {
+    var data = [];
+    add_canvas_text(data, "spanWedgeDesc", { fillText:"All spans are contained by a wedge" } );
+    add_canvas_stroke(paths, data, "span1");
+    add_canvas_stroke(paths, data, "span2");
+    add_canvas_stroke(paths, data, "span3");
+    add_canvas_fill(paths, data, "wedge1", "grads.grad1");
+    add_canvas_fill(paths, data, "wedge2", "grads.grad2");
+    add_canvas_fill(paths, data, "wedge3", "grads.grad3");
+    return data;
+}
+
+function keyframe2(grads, paths) {
+    var data = [];
+    add_canvas_text(data, "trivialWedgeDesc1", { fillText:"Wedges that don't overlap can be" } );
+    add_canvas_text(data, "trivialWedgeDesc2", { fillText:"easily sorted.", y:240 } );
+    add_canvas_stroke(paths, data, "span4").debug = true;
+    add_canvas_stroke(paths, data, "span5");
+    add_canvas_stroke(paths, data, "span6");
+    add_canvas_fill(paths, data, "wedge4", "grads.grad1");
+    add_canvas_fill(paths, data, "wedge5", "grads.grad2");
+    add_canvas_fill(paths, data, "wedge6", "grads.grad3");
+    return data;
+}
+
+function setup_axes(paths, data) {
+    var color = '"rgb(191,191,191)"';
+    var xaxis = add_canvas_stroke(paths, data, "xaxis", color);
+    xaxis.funcBody = canvas_fill_font( { fillStyle:color } );
+    xaxis.funcBody += canvas_text_xy( { fillText:"-X", x:100, y:220 } );
+    xaxis.funcBody += "ctx.textAlign = 'right';\n";
+    xaxis.funcBody += canvas_text_xy( { fillText:"+X", x:300, y:220 } );
+    xaxis.func = new Function('ctx', xaxis.data + xaxis.style + xaxis.draw + xaxis.funcBody);
+    var yaxis = add_canvas_stroke(paths, data, "yaxis", color);
+    yaxis.funcBody = canvas_fill_font( { fillStyle:color } );
+    yaxis.funcBody += "ctx.textBaseline = 'hanging';\n";
+    yaxis.funcBody += canvas_text_xy( { fillText:"-Y", x:205, y:100 } );
+    yaxis.funcBody += "ctx.textBaseline = 'alphabetic';\n";
+    yaxis.funcBody += canvas_text_xy( { fillText:"+Y", x:205, y:300 } );
+    yaxis.func = new Function('ctx', yaxis.data + yaxis.style + yaxis.draw + yaxis.funcBody);
+}
+
+function keyframe3(grads, paths) {
+    var data = [];
+    add_canvas_text(data, "sectorDesc1", { fillText:"A sector is a wedge of a circle" } );
+    add_canvas_text(data, "sectorDesc2", { fillText:"containing a range of points.", y:240 } );
+    setup_axes(paths, data);
+    add_canvas_text(data, "sectorDescXYA",
+        { fillText:"X > 0   Y > 0    Y < X", x:500, y:310, fillStyle:'"rgb(0,0,255)"'} );
+    add_canvas_text(data, "sectorDescXYB",
+        { fillText:"X < 0   Y > 0   -Y < X", x:500, y:360, fillStyle:'"rgb(0,127,0)"'} );
+    add_canvas_text(data, "sectorDescXYC",
+        { fillText:"X < 0   Y < 0    Y < X", x:500, y:410, fillStyle:'"rgb(255,0,0)"'} );
+    add_canvas_fill(paths, data, "wedgeXY8", "grads.grad1");
+    add_canvas_fill(paths, data, "wedgeXY6", "grads.grad2");
+    add_canvas_fill(paths, data, "wedgeXY3", "grads.grad3");
+    return data;
+}
+
+function keyframe4(grads, paths) {
+    var data = [];
+    setup_axes(paths, data);
+    add_canvas_text(data, "lineSingleDesc",
+        { fillText:"Line spans are contained by a single sector." } );
+    add_canvas_text(data, "sectorDescXY1",
+        { fillText:"X > 0   Y < 0   -Y < X", x:500, y:460, fillStyle:'"rgb(192,63,192)"'} );
+    add_canvas_text(data, "sectorDescXY2",
+        { fillText:"X > 0   Y < 0   -Y > X", x:500, y:460, fillStyle:'"rgb(127,127,0)"'} );
+    add_canvas_text(data, "sectorDescXY3",
+        { fillText:"X < 0   Y < 0    Y < X", x:500, y:460, fillStyle:'"rgb(255,0,0)"'} );
+    add_canvas_text(data, "sectorDescXY4",
+        { fillText:"X < 0   Y < 0    Y > X", x:500, y:460, fillStyle:'"rgb(127,0,127)"'} );
+    add_canvas_text(data, "sectorDescXY5",
+        { fillText:"X < 0   Y > 0   -Y < X", x:500, y:460, fillStyle:'"rgb(0,127,127)"'} );
+    add_canvas_text(data, "sectorDescXY6",
+        { fillText:"X < 0   Y > 0   -Y < X", x:500, y:460, fillStyle:'"rgb(0,127,0)"'} );
+    add_canvas_text(data, "sectorDescXY7",
+        { fillText:"X > 0   Y > 0    Y > X", x:500, y:460, fillStyle:'"rgb(63,192,63)"'} );
+    add_canvas_text(data, "sectorDescXY8",
+        { fillText:"X > 0   Y > 0    Y < X", x:500, y:460, fillStyle:'"rgb(0,0,255)"'} );
+    add_canvas_fill(paths, data, "wedgeXY1", "grads.grad4");
+    add_canvas_fill(paths, data, "wedgeXY2", "grads.grad5");
+    add_canvas_fill(paths, data, "wedgeXY3", "grads.grad3");
+    add_canvas_fill(paths, data, "wedgeXY4", "grads.grad6");
+    add_canvas_fill(paths, data, "wedgeXY5", "grads.grad7");
+    add_canvas_fill(paths, data, "wedgeXY6", "grads.grad2");
+    add_canvas_fill(paths, data, "wedgeXY7", "grads.grad8");
+    add_canvas_fill(paths, data, "wedgeXY8", "grads.grad1");
+    add_canvas_stroke(paths, data, "lineSegment");
+    return data;
+}
+
+function keyframe5(grads, paths) {
+    var data = [];
+    setup_axes(paths, data);
+    add_canvas_text(data, "curveMultipleDesc1",
+        { fillText:"A curve span may cover more" } );
+    add_canvas_text(data, "curveMultipleDesc2",
+        { fillText:"than one sector.", y:240 } );
+    add_canvas_stroke(paths, data, "curveSegment");
+    add_canvas_text(data, "sectorDescXY1",
+        { fillText:"X > 0   Y < 0   -Y < X", x:500, y:460, fillStyle:'"rgb(192,63,192)"'} );
+    add_canvas_text(data, "sectorDescXY2",
+        { fillText:"X > 0   Y < 0   -Y > X", x:500, y:460, fillStyle:'"rgb(127,127,0)"'} );
+    add_canvas_text(data, "sectorDescXY3",
+        { fillText:"X < 0   Y < 0    Y < X", x:500, y:460, fillStyle:'"rgb(255,0,0)"'} );
+    add_canvas_text(data, "sectorDescXY4",
+        { fillText:"X < 0   Y < 0    Y > X", x:500, y:460, fillStyle:'"rgb(127,0,127)"'} );
+    add_canvas_text(data, "sectorDescXY5",
+        { fillText:"X < 0   Y > 0   -Y < X", x:500, y:460, fillStyle:'"rgb(0,127,127)"'} );
+    add_canvas_text(data, "sectorDescXY6",
+        { fillText:"X < 0   Y > 0   -Y < X", x:500, y:460, fillStyle:'"rgb(0,127,0)"'} );
+    add_canvas_fill(paths, data, "wedgeXY1", "grads.grad4");
+    add_canvas_fill(paths, data, "wedgeXY2", "grads.grad5");
+    add_canvas_fill(paths, data, "wedgeXY3", "grads.grad3");
+    add_canvas_fill(paths, data, "wedgeXY4", "grads.grad6");
+    add_canvas_fill(paths, data, "wedgeXY5", "grads.grad7");
+    add_canvas_fill(paths, data, "wedgeXY6", "grads.grad2");
+    return data;
+}
+
+function keyframe6(grads, paths) {
+    var data = [];
+    setup_axes(paths, data);
+
+    add_canvas_text(data, "line1DDest1",
+        { fillText:"Some lines occupy one-dimensional" } );
+    add_canvas_text(data, "line1DDest2",
+        { fillText:"sectors.", y:240 } );
+    add_canvas_text(data, "sectorDescXY9",
+        { fillText:"X > 0   Y == 0", x:500, y:460, fillStyle:'"rgb(192,92,31)"' } );
+    add_canvas_text(data, "sectorDescXY10",
+        { fillText:"Y > 0   0 == X", x:500, y:460, fillStyle:'"rgb(31,92,192)"' } );
+    add_canvas_text(data, "sectorDescXY11",
+        { fillText:"X < 0   Y == X", x:500, y:460, fillStyle:'"rgb(127,63,127)"' } );
+    var horz = add_canvas_stroke(paths, data, "horzSegment", '"rgb(192,92,31)"');
+    add_canvas_style(horz, "ctx.lineWidth = " + 2 * animationState.resScale + ";\n");
+    var vert = add_canvas_stroke(paths, data, "vertSegment", '"rgb(31,92,192)"');
+    add_canvas_style(vert, "ctx.lineWidth = " + 2 * animationState.resScale + ";\n");
+    var diag = add_canvas_stroke(paths, data, "diagSegment", '"rgb(127,63,127)"');
+    add_canvas_style(diag, "ctx.lineWidth = " + 2 * animationState.resScale + ";\n");
+    return data;
+}
+
+function keyframe7(grads, paths) {
+    var data = [];
+    setup_axes(paths, data);
+    add_canvas_text(data, "curve1dDesc1",
+        { fillText:"Some curves initially occupy" } );
+    add_canvas_text(data, "curve1dDesc2",
+        { fillText:"one-dimensional sectors, then diverge.", y:240 } );
+    add_canvas_stroke(paths, data, "cubicSegment");
+    add_canvas_text(data, "sectorDescXY1",
+        { fillText:"X > 0   Y < 0   -Y < X", x:500, y:460, fillStyle:'"rgb(192,63,192)"'} );
+    add_canvas_text(data, "sectorDescXY9",
+        { fillText:"X > 0   Y == 0", x:500, y:460, fillStyle:'"rgb(192,92,31)"' } );
+    var horz = add_canvas_stroke(paths, data, "horzSegment", '"rgb(192,92,31)"');
+    add_canvas_style(horz, "ctx.lineWidth = " + 2 * animationState.resScale + ";\n");
+    add_canvas_fill(paths, data, "wedgeXY1", "grads.grad4");
+    return data;
+}
+
+var canvasData = null;
+
+function CanvasInit(keyframe) {
+    canvasData = window[keyframe](grads, paths);
+}
+
+</script>
+
+<script>
+
+function interp(A, B, t) {
+    return A + (B - A) * t;
+}
+
+function interp_cubic_coords(x1, x2, x3, x4, t)
+{
+    var ab = interp(x1, x2, t);
+    var bc = interp(x2, x3, t);
+    var cd = interp(x3, x4, t);
+    var abc = interp(ab, bc, t);
+    var bcd = interp(bc, cd, t);
+    var abcd = interp(abc, bcd, t);
+    return abcd;
+}
+
+function cubic_partial(value, p) {
+    var x1 = p[0], y1 = p[1], x2 = p[2], y2 = p[3];
+    var x3 = p[4], y3 = p[5], x4 = p[6], y4 = p[7];
+    var t1 = 0, t2 = value;
+    var ax = interp_cubic_coords(x1, x2, x3, x4, t1);
+    var ay = interp_cubic_coords(y1, y2, y3, y4, t1);
+    var ex = interp_cubic_coords(x1, x2, x3, x4, (t1*2+t2)/3);
+    var ey = interp_cubic_coords(y1, y2, y3, y4, (t1*2+t2)/3);
+    var fx = interp_cubic_coords(x1, x2, x3, x4, (t1+t2*2)/3);
+    var fy = interp_cubic_coords(y1, y2, y3, y4, (t1+t2*2)/3);
+    var dx = interp_cubic_coords(x1, x2, x3, x4, t2);
+    var dy = interp_cubic_coords(y1, y2, y3, y4, t2);
+    var mx = ex * 27 - ax * 8 - dx;
+    var my = ey * 27 - ay * 8 - dy;
+    var nx = fx * 27 - ax - dx * 8;
+    var ny = fy * 27 - ay - dy * 8;
+    var bx = (mx * 2 - nx) / 18;
+    var by = (my * 2 - ny) / 18;
+    var cx = (nx * 2 - mx) / 18;
+    var cy = (ny * 2 - my) / 18;
+    var array = [
+        ax, ay, bx, by, cx, cy, dx, dy
+    ];
+    return array;
+}
+
+function evaluate_at(value, p) {
+    var array = [];
+    for (var index = 0; index < p.length; ++index) {
+        var func = new Function('value', 'return ' + p[index] + ';');
+        array[index] = func(value);
+    }
+    return array;
+}
+
+function interpolate_at(value, p) {
+    var array = [];
+    var start = p[0];
+    var end = p[1];
+    assert(typeof end == typeof start);
+    switch (typeof start) {
+        case 'object':
+            for (var index = 0; index < start.length; ++index) {
+                array[index] = interp(start[index], end[index], value);
+            }
+            break;
+        case 'number':
+            array[index] = interp(start, end, value);
+            break;
+        default:
+            debugger;
+    }
+    return array;
+}
+
+function AnimationAddCommon(timing, range, attr, inParams) {
+    var animation = {
+        timing: timing,
+        range: range,
+        attr: attr,
+        inParams: inParams,
+        duration: timing[1] - timing[0],
+        remaining: timing[1] - timing[0],
+        firstStep: true,
+    }
+    animationsPending.push(animation);
+    return animation;
+}
+
+function AnimationAddSVG(timing, element, range, attr, inParams) {
+    var animation = AnimationAddCommon(timing, range, attr, inParams);
+    animation.element = element;
+    return animation;
+}
+
+function AnimationAddCanvas(timing, element, range, attr, inParams) {
+    var animation = AnimationAddCommon(timing, range, attr, inParams);
+    animation.element = canvasData[element];
+    assert(animation.element);
+    animation.firstElement = null;
+    return animation;
+}
+
+function AnimationAdd(timing, e, range, attr, funct, inParams) {
+    if (!range) {
+        range = [0, 1];
+    }
+    if (!attr) {
+        attr = 'opacity';
+    }
+    if (!funct) {
+        funct = interpolate_at;
+    }
+    var element;
+    switch (animationState.displayEngine) {
+        case 'SVG':
+            element = typeof e == 'string' ? document.getElementById(e) : e;
+            break;
+        case 'Canvas':
+            element = typeof e == 'string' ? e : e.id;
+            break;
+        default:
+            debugger;
+    }
+    assert(element);
+    switch (attr) {
+        case 'path':
+            if (!inParams) {
+                inParams = PathDataArray(element);
+            }
+            break;
+        case 'opacity':
+            if (!inParams) {
+                inParams = [0, 1];
+            }
+            break;
+        default:
+            debugger;
+    }
+    var funcBody = 'var outParams = '  + funct.name + '(value, inParams);\n';
+    switch (animationState.displayEngine) {
+        case 'SVG':
+            switch (attr) {
+                case 'path':
+                    var verbArray = PathVerbArray(element);
+                    funcBody += 'return ';
+                    for (var index = 0; index < inParams.length; ++index) {
+                        funcBody += '"' + verbArray[index] + '"';
+                        funcBody += 'outParams[' + index + '];\n';
+                    }
+                    if (verbArray.length > inParams.length) {
+                        funcBody += '"' + verbArray[verbArray.length - 1] + '"';
+                    }
+                    funcBody += ';\n';
+                    var animation = AnimationAddSVG(timing, element, range, "d", inParams);
+                    animation.func = new Function('value', 'inParams', funcBody);
+                    break;
+               case 'opacity':
+                    if (animation.element.getAttribute("stroke-opacity")) {
+                        animation = AnimationAddSVG(timing, element, range, "stroke-opacity", inParams);
+                    }
+                    if (animation.element.getAttribute("fill-opacity")) {
+                        animation = AnimationAddSVG(timing, element, range, "fill-opacity", inParams);
+                    }
+                    break;
+                default:
+                    debugger;
+            }
+        case 'Canvas':
+            switch (attr) {
+                case 'path':
+                    var verbArray = PathVerbArray(element);
+                    for (var index = 0; index < inParams.length; ++index) {
+                        funcBody += verbArray[index];
+                        funcBody += 'outParams[' + index + ']';
+                    }
+                    if (verbArray.length > inParams.length) {
+                        funcBody += verbArray[verbArray.length - 1];
+                    }
+                    animation = AnimationAddCanvas(timing, element, range, attr, inParams);
+                    funcBody += animation.element.style + animation.element.draw;
+                    animation.func = new Function('ctx', 'value', 'inParams', funcBody);
+                    break;
+               case 'opacity':
+                    animation = AnimationAddCanvas(timing, element, range, attr, inParams);
+                    break;
+                default:
+                    debugger;
+            }
+            break;
+        default:
+            debugger;
+    }
+    return animation;
+}
+
+function path_data_common(element, getValues) {
+    var numRegEx = /-?\d+\.?\d*(?:e-?\d+)?/g;
+    var data = [];
+    var match;
+    var path;
+    switch (animationState.displayEngine) {
+        case 'SVG': path = element.getAttribute("d"); break;
+        case 'Canvas': path = paths[element].funcBody; break;
+        default: debugger;
+    }
+    if (getValues) {
+        while ((match = numRegEx.exec(path))) {
+            data.push(Number(match[0]));
+        }
+    } else {
+        var sIndex = 0;
+        while ((match = numRegEx.exec(path))) {
+            if (sIndex < match.index) {
+                data.push(path.substring(sIndex, match.index));
+            }
+            sIndex = match.index + match[0].length;
+        }
+        if (sIndex < path.length) {
+            data.push(path.substring(sIndex, path.length));
+        }
+    }
+    return data;
+}
+
+function PathDataArray(element) {
+    return path_data_common(element, true);
+}
+
+function PathVerbArray(element) {
+    return path_data_common(element, false);
+}
+
+function PathSet(element, funct, value, params) {
+    var pathVerbs = PathVerbArray(element);
+    if (funct) {
+        params = funct(value, params);
+    }
+   var setValue = '';
+    for (var index = 0; index < params.length; ++index) {
+        setValue += pathVerbs[index];
+        setValue += params[index];
+    }
+    if (pathVerbs.length > params.length) {
+        setValue += pathVerbs[pathVerbs.length - 1];
+    }
+    switch (animationState.displayEngine) {
+        case 'SVG':
+            element.setAttribute('d', setValue);
+            break;
+        case 'Canvas':
+            element.func = new Function('ctx', setValue + element.style + element.draw);
+            break;
+        default:
+            debugger;
+    }
+}
+
+function RemoveFromArray(array, element) {
+    for (var index in array) {
+        var record = array[index];
+        if (record.element == element) {
+            array.splice(index, 1);
+            break;
+        }
+    }
+}
+
+function EndAnimationCanvas(animation, visibleFinished) {
+    var changeAlpha = "opacity" == animation.attr;
+    if (!changeAlpha || animation.range[1] > 0) {
+        if (changeAlpha) {
+            ctx.save();
+            ctx.globalAlpha = animation.range[1];
+        }
+        if (animation.func) {
+            animation.func(ctx, animation.range[animation.range.length - 1], animation.inParams);
+        } else {
+            animation.element.func(ctx);
+        }
+        if (changeAlpha) {
+            ctx.restore();
+        }
+//        if (visibleFinished) {
+//            visibleFinished.push(animation);
+//        }
+    } else {
+ //       if (visibleFinished) {
+ //           RemoveFromArray(visibleFinished, animation.element);
+ //       }
+    }
+}
+
+/* start here
+canvas:
+
+display list :
+    for each element (canvas)
+        save
+        set global alpha (override)
+        create geometry (override)
+        create style (override)
+        draw
+        restore
+        
+maybe each action should have an override slot
+animations write to the slot
+each element in display list then iterates overrides once the animations complete the frame
+
+so, first -- 
+    active animations update the display list
+    
+next --
+    active animations install themselves in override slots
+    
+finally
+    display list is iterated, calling override slots
+
+----------------
+    
+svg:
+    display list is implicit
+    
+    active animations write element attributes
+ */
+
+function EndAnimationSVG(animation, visibleFinished) {
+    switch (animation.attr) {
+        case "opacity":
+            animation.element.setAttribute(animation.attribute, animation.range[1]);
+            if (animation.range[1] > 0) {
+                visibleFinished.push(animation);
+            } else {
+                RemoveFromArray(visibleFinished, animation.element);
+            }
+            break;
+        case "path":
+            var attrStr = animation.func(animation.range[1], animation.inParams);
+            animation.element.setAttribute(animation.attribute, attrStr);
+            break;
+        default:
+            debugger;
+    }
+}
+
+function StepAnimationCanvas(animation, value) {
+    var endValue = animation.range[animation.range.length - 1];
+    var interp = animation.range[0] + (endValue - animation.range[0]) * (1 - value);
+    if (animation.firstStep) {
+        RemoveFromArray(visibleFinished, animation.element);
+        animation.firstStep = false;
+    }
+    var changeAlpha = "opacity" == animation.attr;
+    if (changeAlpha) {
+        ctx.save();
+        ctx.globalAlpha = interp;
+    }
+    if (animation.func) {
+        animation.func(ctx, interp, animation.inParams);
+    } else {
+        animation.element.func(ctx);
+    }
+    if (changeAlpha) {
+        ctx.restore();
+    }
+}
+
+function StepAnimationSVG(animation, value) {
+    var interp = animation.range[0] + (animation.range[1] - animation.range[0]) * (1 - value);
+    switch (animation.attr) {
+        case "opacity":
+            animation.element.setAttribute(animation.attribute, interp);
+            break;
+        case "path":
+            var attrStr = animation.func(interp, animation.inParams);
+            animation.element.setAttribute(animation.attribute, attrStr);
+            break;
+        default:
+            debugger;
+    }
+}
+
+var animate_frame = 0;
+
+function AnimateList(now) {
+    ++animate_frame;
+    if (animationState.paused) {
+        return;
+    }
+    if (animationState.start == null) {
+        animationState.start = now - animationState.time;
+    }
+    animationState.time = now - animationState.start;
+    var stillPending = [];
+    for (var index in animationsPending) {
+        var animation = animationsPending[index];
+        var interval = animationState.time - animation.timing[0];
+        if (interval <= 0) {
+            stillPending.push(animation);
+            continue;
+        }
+        animationsActive.push(animation);
+        var inList = false;
+        for (var dlIndex in displayList) {
+            var displayable = displayList[dlIndex];
+            if (displayable == animation.element) {
+                inList = true;
+                break;
+            }
+        }
+        if (!inList) {
+            displayList.push(animation.element);
+        }
+    }
+    animationsPending = stillPending;
+    var stillAnimating = [];
+    if ('Canvas' == animationState.displayEngine) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+//        for (var index in visibleFinished) {
+//           var animation = visibleFinished[index];
+//           animation.endAnimation = false;
+//        }
+    }
+    for (var index in animationsActive) {
+        var animation = animationsActive[index];
+        var interval = animationState.time - animation.timing[0];
+        animation.remaining = animation.duration > interval ? animation.duration - interval : 0;
+        animation.endAnimation = animation.remaining <= 0;
+        if (animation.endAnimation) {
+            switch (animationState.displayEngine) {
+                case 'SVG':  EndAnimationSVG(animation, visibleFinished); break;
+                case 'Canvas': EndAnimationCanvas(animation, visibleFinished); break;
+                default: debugger;
+            }
+            continue;
+        }
+        var value = animation.remaining / animation.duration;
+        switch (animationState.displayEngine) {
+            case 'SVG': StepAnimationSVG(animation, value); break;
+            case 'Canvas':
+                if (!animation.firstElement || !animation.firstElement.endAnimation) {
+                    StepAnimationCanvas(animation, value);
+                }
+            break;
+            default: debugger;
+        }
+        stillAnimating.push(animation);
+    }
+    if ('Canvas' == animationState.displayEngine) {
+        for (var index in visibleFinished) {
+            var animation = visibleFinished[index];
+            if (!animation.endAnimation) {
+                EndAnimationCanvas(animation, null);
+            }
+        }
+    }
+    animationsActive = stillAnimating;
+    if (animationsPending.length || animationsActive.length) {
+        animationState.requestID = requestAnimationFrame(AnimateList);
+    }
+}
+
+function CancelAnimate(now) {
+    if (animationState.start == null) {
+        animationState.start = now;
+    }
+    var time = now - animationState.start;
+    var stillAnimating = [];
+    for (var index in animationsActive) {
+        var animation = animationsActive[index];
+        var remaining = animation.remaining - time;
+        var value = remaining / animation.duration;
+        switch (animationState.displayEngine) {
+            case 'SVG': animation.element.setAttribute(animation.attribute, value); break;
+            case 'Canvas': break;
+        }
+        if (remaining <= 0) {
+            continue;
+        }
+        stillAnimating.push(animation);
+    }
+    animationsActive = stillAnimating;
+    if (animationsActive.length) {
+        animationState.requestID = requestAnimationFrame(CancelAnimate);
+        return;
+    }
+    animationsPending = [];
+    animationState.reset();
+    if (keyFrameQueue.length > 0) {
+        var animationFunc = keyFrameQueue.pop();
+        animationFunc();
+    }
+}
+
+function CancelAnimation() {
+    cancelAnimationFrame(animationState.requestID);
+    for (var index in animationsActive) {
+        var animation = animationsActive[index];
+        switch (animation.attr) {
+            case "opacity":
+                var tmp = animation.range[0]; animation.range[0] = animation.range[1]; animation[1] = tmp;
+                animation.remaining = animation.duration - animation.remaining;
+                animation.remaining /= animation.duration / 1000;
+                animation.duration = 1000;
+                break;
+            case "fadeOut":
+                RemoveFromArray(visibleFinished, animation.element);
+                break;
+            case "path":
+                break;
+            default:
+                debugger;
+
+        }
+    }
+    for (var index in visibleFinished) {
+        var animation = visibleFinished[index];
+        animation.action = "fadeOut";
+        animation.remaining = animation.duration = 1000;
+        animationsActive.push(animation);
+    }
+    visibleFinished = [];
+    animationState.reset();
+    animationState.requestID = requestAnimationFrame(CancelAnimate);
+}
+
+function PauseAnimation() {
+    animationState.paused = true;
+}
+
+function QueueAnimation(animationFunc) {
+    if (null == animationState.requestID) {
+        animationFunc();
+        return;
+    }
+    keyFrameQueue.push(animationFunc);
+}
+
+function UnpauseAnimation() {
+    animationState.paused = false;
+    animationState.start = performance.now() - animationState.time;
+    animationState.requestID = requestAnimationFrame(AnimateList);
+}
+
+function SetupTextSVG(t, x, y) {
+    var text;
+    if (typeof t == "string") {
+        text = document.getElementById(t);
+    } else {
+        text = t;
+    }
+    text.setAttribute("font-family", "Helvetica,Arial");
+    text.setAttribute("font-size", "1.3rem");
+    if (typeof x == 'number') {
+        text.setAttribute("x", x);
+    } else if (null == text.getAttribute("x")) {
+        text.setAttribute("x", 400);
+    }
+    if (typeof y == 'number') {
+        text.setAttribute("y", y);
+    } else if (null == text.getAttribute("y")) {
+        text.setAttribute("y", 200);
+    }
+}
+
+function SetupTextCanvas(t, x, y) {
+    var text = typeof t == 'string' ? t : t.id;
+    var record = canvasData[text];
+    if (typeof x == 'number') {
+        record.x = x;
+    }
+    if (typeof y == 'number') {
+        record.y = y;
+    }
+    record.position = canvas_xy(record);
+    record.func = new Function('ctx', record.style + record.draw + record.position);
+}
+
+function SetupText(t, x, y) {
+    switch (animationState.displayEngine) {
+        case 'SVG':
+            SetupTextSVG(t, x, y);
+            break;
+        case 'Canvas':
+            SetupTextCanvas(t, x, y);
+            break;
+        default:
+            debugger;
+    }
+}
+
+function FirstText(text) {
+    SetupText(text);
+    AnimationAdd([0, 1000], text);
+}
+
+
+function EngineInit(keyframe) {
+    displayList = [];
+    switch (animationState.displayEngine) {
+        case 'SVG': break;
+        case 'Canvas': CanvasInit(keyframe); break;
+        default: debugger;
+    }
+}
+
+function EngineStart() {
+    switch (animationState.displayEngine) {
+        case 'SVG': break;
+        case 'Canvas':
+            // associate fadeIn and fadeOut
+            for (var outerIndex in animationsPending) {
+                var outer = animationsPending[outerIndex];
+                for (var innerIndex in animationsPending) {
+                    if (outerIndex == innerIndex) {
+                        continue;
+                    }
+                    var inner = animationsPending[innerIndex];
+                    if (inner.element == outer.element) {
+                        inner.firstElement = outer;
+                        continue;
+                    }
+                }
+            }
+            break;
+        default: debugger;
+    }
+    animationState.reset();
+    animationState.requestID = requestAnimationFrame(AnimateList);
+}
+
+function AnimateSpanWedge() {
+    EngineInit('keyframe1');
+    FirstText(spanWedgeDesc);
+    AnimationAdd([1000, 2000], span1);
+    AnimationAdd([1500, 3000], wedge1);
+    AnimationAdd([3500, 4000], span1,  [1, 0]);
+    AnimationAdd([3500, 4000], wedge1, [1, 0]);
+    AnimationAdd([4000, 5000], span2);
+    AnimationAdd([4500, 6000], wedge2);
+    AnimationAdd([6500, 7000], span2,  [1, 0]);
+    AnimationAdd([6500, 7000], wedge2, [1, 0]);
+    AnimationAdd([7000, 8000], span3);
+    AnimationAdd([7500, 9000], wedge3);
+    EngineStart();
+}
+
+function AnimateTrivialWedge() {
+    EngineInit('keyframe2');
+    FirstText(trivialWedgeDesc1);
+    FirstText(trivialWedgeDesc2);
+    AnimationAdd([2000, 3500], span4);
+    AnimationAdd([2000, 3500], wedge4);
+    AnimationAdd([2000, 3500], span5);
+    AnimationAdd([2000, 3500], wedge5);
+    AnimationAdd([2000, 3500], span6);
+    AnimationAdd([2000, 3500], wedge6);
+    EngineStart();
+}
+
+function AnimateSectorDesc() {
+    EngineInit('keyframe3');
+    FirstText(sectorDesc1);
+    FirstText(sectorDesc2);
+    AnimationAdd([   0, 1000], xaxis);
+    AnimationAdd([ 500, 1500], yaxis);
+    AnimationAdd([2000, 3500], sectorDescXYA);
+    AnimationAdd([2000, 3500], wedgeXY8);
+    AnimationAdd([3000, 4500], sectorDescXYB);
+    AnimationAdd([3000, 4500], wedgeXY6);
+    AnimationAdd([4000, 5500], sectorDescXYC);
+    AnimationAdd([4000, 5500], wedgeXY3);
+    EngineStart();
+}
+
+function AnimateLineSingle() {
+    EngineInit('keyframe4');
+    FirstText(lineSingleDesc);
+    for (var i = 1; i <= 8; ++i) {
+        SetupText("sectorDescXY" + i, 500, 260);
+    }
+    AnimationAdd([   0, 1000], xaxis);
+    AnimationAdd([   0, 1000], yaxis);
+    AnimationAdd([1000, 2000], lineSegment);
+    AnimationAdd([1000, 3000], lineSegment, [-22.5 * Math.PI / 180], "path", evaluate_at,
+            [ circle.center.x, circle.center.y,
+              circle.center.x + " + " + circle.radius + " * Math.cos(value)",
+              circle.center.y + " + " + circle.radius + " * Math.sin(value)",
+            ]);
+    AnimationAdd([2000, 3000], sectorDescXY1);
+    AnimationAdd([2000, 3000], wedgeXY1);
+    AnimationAdd([3000, 7000], lineSegment, [-22.5 * Math.PI / 180, (-22.5 - 360) * Math.PI / 180],
+            "path", evaluate_at,
+            [ circle.center.x, circle.center.y,
+              circle.center.x + " + " + circle.radius + " * Math.cos(value)",
+              circle.center.y + " + " + circle.radius + " * Math.sin(value)",
+            ]);
+    for (var i = 1; i < 8; ++i) {
+        AnimationAdd([2500 + 500 * i, 3000 + 500 * i], "sectorDescXY" + (i + 1));
+        AnimationAdd([2500 + 500 * i, 3000 + 500 * i], "wedgeXY" + (i + 1));
+        AnimationAdd([2500 + 500 * i, 3000 + 500 * i], "sectorDescXY" + i,       [1, 0]);
+        AnimationAdd([2500 + 500 * i, 3000 + 500 * i], "wedgeXY" + i,            [1, 0]);
+    }
+    AnimationAdd([2500 + 500 * 8, 3000 + 500 * 8], sectorDescXY1);
+    AnimationAdd([2500 + 500 * 8, 3000 + 500 * 8], wedgeXY1);
+    AnimationAdd([2500 + 500 * 8, 3000 + 500 * 8], sectorDescXY8, [1, 0]);
+    AnimationAdd([2500 + 500 * 8, 3000 + 500 * 8], wedgeXY8,      [1, 0]);
+    EngineStart();
+}
+
+function AnimateCurveMultiple() {
+    EngineInit('keyframe5');
+    var cubicStart = PathDataArray(curveSegment1);
+    var cubicMid = PathDataArray(curveSegment2);
+    var cubicEnd = PathDataArray(curveSegment3);
+    FirstText(curveMultipleDesc1);
+    FirstText(curveMultipleDesc2);
+    for (var i = 1; i <= 6; ++i) {
+        SetupText("sectorDescXY" + i, 500, 260 + i * 25);
+    }
+    AnimationAdd([   0, 1000], xaxis);
+    AnimationAdd([   0, 1000], yaxis);
+    AnimationAdd([1000, 2000], curveSegment);
+    AnimationAdd([2000, 3000], sectorDescXY1);
+    AnimationAdd([2000, 3000], wedgeXY1);
+    AnimationAdd([3000, 4000], curveSegment, [0, 1], "path", interpolate_at, [cubicStart, cubicMid]);
+    AnimationAdd([4000, 5000], sectorDescXY2);
+    AnimationAdd([4000, 5000], wedgeXY2);
+    AnimationAdd([5000, 6000], curveSegment, [0, 1], "path", interpolate_at, [cubicMid, cubicEnd]);
+    AnimationAdd([6000, 7000], sectorDescXY3);
+    AnimationAdd([6000, 7000], wedgeXY3);
+    AnimationAdd([6000, 7000], sectorDescXY4);
+    AnimationAdd([6000, 7000], wedgeXY4);
+    AnimationAdd([6000, 7000], sectorDescXY5);
+    AnimationAdd([6000, 7000], wedgeXY5);
+    AnimationAdd([6000, 7000], sectorDescXY6);
+    AnimationAdd([6000, 7000], wedgeXY6);
+    EngineStart();
+}
+
+function AnimateOneDLines() {
+    EngineInit('keyframe6');
+    FirstText(line1DDest1);
+    FirstText(line1DDest2);
+    for (var i = 9; i <= 11; ++i) {
+        SetupText("sectorDescXY" + i, 500, 260 + (i - 8) * 25);
+    }
+    AnimationAdd([   0, 1000], xaxis);
+    AnimationAdd([   0, 1000], yaxis);
+    AnimationAdd([2000, 3000], sectorDescXY9);
+    AnimationAdd([2000, 3000], horzSegment);
+    AnimationAdd([3000, 4000], sectorDescXY10);
+    AnimationAdd([3000, 4000], vertSegment);
+    AnimationAdd([4000, 5000], sectorDescXY11);
+    AnimationAdd([4000, 5000], diagSegment);
+    EngineStart();
+}
+
+function AnimateDiverging() {
+    EngineInit('keyframe7');
+    var cubicData = PathDataArray(cubicSegment2);
+    FirstText(curve1dDesc1);
+    FirstText(curve1dDesc2);
+    SetupText("sectorDescXY9", 500, 285);
+    SetupText("sectorDescXY1", 500, 320);
+    AnimationAdd([   0, 1000], xaxis);
+    AnimationAdd([   0, 1000], yaxis);
+    AnimationAdd([1900, 1900], cubicSegment);
+    AnimationAdd([2000, 3000], cubicSegment, [0, 1], "path", cubic_partial, cubicData);
+    AnimationAdd([2000, 3000], sectorDescXY9);
+    AnimationAdd([2000, 3000], horzSegment);
+    AnimationAdd([3000, 4000], sectorDescXY1);
+    AnimationAdd([3000, 4000], wedgeXY1);
+    EngineStart();
+}
+
+circle.animate = AnimateCircle;
+circle.start = null;
+
+function AngleToPt(center, radius, degrees) {
+    var radians = degrees * Math.PI / 180.0;
+    return {
+        x: center.x + (radius * Math.cos(radians)),
+        y: center.y - (radius * Math.sin(radians))
+    };
+}
+
+function PtsToSweep(pt1, pt2, center) {  // unused
+    return {
+     start: 180 / Math.PI * Math.atan2(pt1.y - center.y, pt1.x - center.x),
+     end:   180 / Math.PI * Math.atan2(pt2.y - center.y, pt2.x - center.x)
+    };
+}
+
+
+function ArcStr(center, radius, startAngle, endAngle) {
+    var endPt = AngleToPt(center, radius, endAngle);
+    var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+    return ["A", radius, radius, 0, arcSweep, 0, endPt.x, endPt.y].join(" ");
+}
+
+function ArcStart(center, radius, startAngle, endAngle) {
+    var startPt = AngleToPt(center, radius, startAngle);
+    return [ startPt.x, startPt.y, ArcStr(center, radius, startAngle, endAngle) ].join(" ");
+}
+
+function MakeArc(arcStart) {
+    return "M" + arcStart;
+}
+
+function MakeWedge(center, arcStart) {
+    return ["M", center.x, center.y, "L", arcStart, "z"].join(" ");
+}
+
+function Animate(path, now, dur) {
+    if (path.start == null) {
+        path.start = now;
+//        console.log("start=" + now);
+    }
+    if (now - path.start < dur) {
+        requestAnimationFrame(path.animate);
+        return true;
+    }
+    return false;
+}
+
+function AnimateCircle(now) {
+    if (circle.start == null) {
+        circleFill.setAttribute("fill-opacity", "0.3");
+    }
+    var dur = 2 * 1000;
+    var animating = Animate(circle, now, dur);
+//    console.log("now=" + now + "circle.start=" + circle.start )
+    var pathStr = ArcStart(circle.center, circle.radius, 0, (now - circle.start) / (dur / 359.9));
+
+    circle.setAttribute("d", MakeArc(pathStr));
+    circleFill.setAttribute("d", MakeWedge(circle.center, pathStr));
+    if (!animating) {
+        var delay = dur - (now - circle.start);
+        setTimeout(CircleFinal, delay);
+    }
+}
+
+function CircleFinal() {
+    var firstHalf = ArcStart(circle.center, circle.radius, 0, 180);
+    var secondHalf = ArcStr(circle.center, circle.radius, 180, 360);
+    circle.setAttribute("d", "M" + firstHalf + secondHalf + "z");
+    circleFill.setAttribute("d", "M" + firstHalf + secondHalf + "z");
+}
+
+var svgNS = "http://www.w3.org/2000/svg";
+
+function CreateTextLabels()
+{
+    for (var i = 0; i < 32; ++i) {
+        var text = document.createElementNS(svgNS, "text");
+        var pt = AngleToPt(circle.center, circle.radius + 80, i * 360 / 32);
+        text.setAttribute("id", "t" + i);
+        text.setAttribute("x", pt.x);
+        text.setAttribute("y", pt.y);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("alignment-baseline", "mathematical");
+        var textNode = document.createTextNode(i);
+        text.appendChild(textNode);
+        document.getElementById("svg").appendChild(text);
+    }
+}
+
+// CreateTextLabels();
+
+var keyframeArray = [
+    AnimateSpanWedge,
+    AnimateTrivialWedge,
+    AnimateSectorDesc,
+    AnimateLineSingle,
+    AnimateCurveMultiple,
+    AnimateOneDLines,
+    AnimateDiverging,
+];
+
+var keyframeIndex = 3; // keyframeArray.length - 1;  // normally 0 ; set to debug a particular frame
+
+function QueueKeyframe() {
+    QueueAnimation(keyframeArray[keyframeIndex]);
+    if (keyframeIndex < keyframeArray.length - 1) {
+        ++keyframeIndex;
+    }
+}
+
+var grads;
+var paths;
+var canvas;
+var ctx;
+
+function canvasSetup() {
+    canvas = document.getElementById("canvas");
+    ctx = canvas ? canvas.getContext("2d") : null;
+    assert(ctx);
+    var resScale = animationState.resScale = window.devicePixelRatio ? window.devicePixelRatio : 1;
+    var unscaledWidth = canvas.width;
+    var unscaledHeight = canvas.height;
+    canvas.width = unscaledWidth * resScale;
+    canvas.height = unscaledHeight * resScale;
+    canvas.style.width = unscaledWidth + 'px';
+    canvas.style.height = unscaledHeight + 'px';
+    if (resScale != 1) {
+        ctx.scale(resScale, resScale);
+    }
+
+    grads = CanvasGrads(ctx);
+    paths = CanvasPaths(ctx);
+}
+
+function Onload() {
+    canvasSetup();
+    var startBtn = document.getElementById('startBtn');
+    var stopBtn = document.getElementById('stopBtn');
+    var resetBtn = document.getElementById('resetBtn');
+
+    startBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.srcElement.innerText = "Next";
+        CancelAnimation();
+        QueueKeyframe();
+    });
+
+    stopBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      if (!animationState.paused) {
+        PauseAnimation();
+        e.srcElement.innerText = "Resume";
+      } else {
+        UnpauseAnimation();
+        e.srcElement.innerText = "Pause";
+      }
+    });
+
+    resetBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        CancelAnimation();
+        keyframeIndex = 0;
+        startBtn.innerText = "Start";
+        QueueKeyframe();
+    });
+}
+
+</script>
+
+</head>
+
+<body onLoad="Onload()">
+
+<div class="controls">
+      <button type="button" id="startBtn">Start</button>
+      <button type="button" id="stopBtn">Pause</button>
+      <button type="button" id="resetBtn">Restart</button>
+</div>
+
+<canvas id="canvas" width="800" height="500" />
+
+</body>
+</html>

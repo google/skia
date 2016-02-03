@@ -95,7 +95,7 @@ protected:
              sk_tool_utils::create_portable_typeface("sans-serif", SkTypeface::kItalic)};
 
         for (int work = 0; work < loops; work++) {
-            sk_parallel_for(16, [&](int threadIndex) {
+            SkTaskGroup().batch(16, [&](int threadIndex) {
                 SkPaint paint;
                 paint.setAntiAlias(true);
                 paint.setSubpixelText(true);

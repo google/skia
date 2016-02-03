@@ -14,6 +14,7 @@
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
+#include "SkTemplates.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper macros
@@ -64,6 +65,14 @@ static void sk_read_fn(png_structp png_ptr, png_bytep data,
         png_error(png_ptr, "Read Error!");
     }
 }
+
+#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
+    SkPngChunkReader* chunkReader = (SkPngChunkReader*)png_get_user_chunk_ptr(png_ptr);
+    // readChunk() returning true means continue decoding
+    return chunkReader->readChunk((const char*)chunk->name, chunk->data, chunk->size) ? 1 : -1;
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helpers
@@ -145,7 +154,6 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
     }
 
     int index = 0;
-    int transLessThanFF = 0;
 
     // Choose which function to use to create the color table. If the final destination's
     // colortype is unpremultiplied, the color table will store unpremultiplied colors.
@@ -156,14 +164,8 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
         proc = &SkPackARGB32NoCheck;
     }
     for (; index < numTrans; index++) {
-        transLessThanFF |= (int)*trans - 0xFF;
         *colorPtr++ = proc(*trans++, palette->red, palette->green, palette->blue);
         palette++;
-    }
-
-    if (transLessThanFF >= 0) {
-        // No transparent colors were found.
-        fAlphaState = kOpaque_AlphaState;
     }
 
     for (; index < numPalette; index++) {
@@ -198,27 +200,33 @@ bool SkPngCodec::decodePalette(bool premultiply, int* ctableCount) {
 // Creation
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PNG_BYTES_TO_CHECK 4
-
-bool SkPngCodec::IsPng(SkStream* stream) {
-    char buf[PNG_BYTES_TO_CHECK];
-    if (stream->read(buf, PNG_BYTES_TO_CHECK) != PNG_BYTES_TO_CHECK) {
-        return false;
-    }
-    if (png_sig_cmp((png_bytep) buf, (png_size_t)0, PNG_BYTES_TO_CHECK)) {
-        return false;
-    }
-    return true;
+bool SkPngCodec::IsPng(const char* buf, size_t bytesRead) {
+    return !png_sig_cmp((png_bytep) buf, (png_size_t)0, bytesRead);
 }
 
-// Reads the header, and initializes the passed in fields, if not nullptr (except
-// stream, which is passed to the read function).
-// Returns true on success, in which case the caller is responsible for calling
-// png_destroy_read_struct. If it returns false, the passed in fields (except
-// stream) are unchanged.
-static bool read_header(SkStream* stream, png_structp* png_ptrp,
-                        png_infop* info_ptrp, SkImageInfo* imageInfo,
-                        int* bitDepthPtr, int* numberPassesPtr) {
+// Reads the header and initializes the output fields, if not NULL.
+//
+// @param stream Input data. Will be read to get enough information to properly
+//      setup the codec.
+// @param chunkReader SkPngChunkReader, for reading unknown chunks. May be NULL.
+//      If not NULL, png_ptr will hold an *unowned* pointer to it. The caller is
+//      expected to continue to own it for the lifetime of the png_ptr.
+// @param png_ptrp Optional output variable. If non-NULL, will be set to a new
+//      png_structp on success.
+// @param info_ptrp Optional output variable. If non-NULL, will be set to a new
+//      png_infop on success;
+// @param imageInfo Optional output variable. If non-NULL, will be set to
+//      reflect the properties of the encoded image on success.
+// @param bitDepthPtr Optional output variable. If non-NULL, will be set to the
+//      bit depth of the encoded image on success.
+// @param numberPassesPtr Optional output variable. If non-NULL, will be set to
+//      the number_passes of the encoded image on success.
+// @return true on success, in which case the caller is responsible for calling
+//      png_destroy_read_struct(png_ptrp, info_ptrp).
+//      If it returns false, the passed in fields (except stream) are unchanged.
+static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
+                        png_structp* png_ptrp, png_infop* info_ptrp,
+                        SkImageInfo* imageInfo, int* bitDepthPtr, int* numberPassesPtr) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                                  sk_error_fn, sk_warning_fn);
@@ -243,10 +251,15 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
 
     png_set_read_fn(png_ptr, static_cast<void*>(stream), sk_read_fn);
 
-    // FIXME: This is where the old code hooks up the Peeker. Does it need to
-    // be set this early? (i.e. where are the user chunks? early in the stream,
-    // potentially?)
-    // If it does, we need to figure out a way to set it here.
+#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+    // Hookup our chunkReader so we can see any user-chunks the caller may be interested in.
+    // This needs to be installed before we read the png header.  Android may store ninepatch
+    // chunks in the header.
+    if (chunkReader) {
+        png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"", 0);
+        png_set_read_user_chunk_fn(png_ptr, (png_voidp) chunkReader, sk_read_user_chunk);
+    }
+#endif
 
     // The call to png_read_info() gives us all of the information from the
     // PNG file before the first IDAT (image data chunk).
@@ -356,21 +369,16 @@ static bool read_header(SkStream* stream, png_structp* png_ptrp,
     return true;
 }
 
-SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream,
+SkPngCodec::SkPngCodec(const SkImageInfo& info, SkStream* stream, SkPngChunkReader* chunkReader,
                        png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses)
     : INHERITED(info, stream)
+    , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
     , fSrcConfig(SkSwizzler::kUnknown)
     , fNumberPasses(numberPasses)
     , fBitDepth(bitDepth)
-{
-    if (info.alphaType() == kOpaque_SkAlphaType) {
-        fAlphaState = kOpaque_AlphaState;
-    } else {
-        fAlphaState = kUnknown_AlphaState;
-    }
-}
+{}
 
 SkPngCodec::~SkPngCodec() {
     this->destroyReadStruct();
@@ -453,7 +461,8 @@ bool SkPngCodec::onRewind() {
 
     png_structp png_ptr;
     png_infop info_ptr;
-    if (!read_header(this->stream(), &png_ptr, &info_ptr, nullptr, nullptr, nullptr)) {
+    if (!read_header(this->stream(), fPngChunkReader.get(), &png_ptr, &info_ptr,
+                     nullptr, nullptr, nullptr)) {
         return false;
     }
 
@@ -483,7 +492,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     // error?
     int row = 0;
     // This must be declared above the call to setjmp to avoid memory leaks on incomplete images.
-    SkAutoMalloc storage;
+    SkAutoTMalloc<uint8_t> storage;
     if (setjmp(png_jmpbuf(fPng_ptr))) {
         // Assume that any error that occurs while reading rows is caused by an incomplete input.
         if (fNumberPasses > 1) {
@@ -505,7 +514,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         return kIncompleteInput;
     }
 
-    bool hasAlpha = false;
     // FIXME: We could split these out based on subclass.
     void* dstRow = dst;
     if (fNumberPasses > 1) {
@@ -515,7 +523,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         const size_t srcRowBytes = width * bpp;
 
         storage.reset(width * height * bpp);
-        uint8_t* const base = static_cast<uint8_t*>(storage.get());
+        uint8_t* const base = storage.get();
 
         for (int i = 0; i < fNumberPasses; i++) {
             uint8_t* srcRow = base;
@@ -529,25 +537,19 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         // Now swizzle it.
         uint8_t* srcRow = base;
         for (int y = 0; y < height; y++) {
-            hasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->swizzle(dstRow, srcRow));
+            fSwizzler->swizzle(dstRow, srcRow);
             dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
             srcRow += srcRowBytes;
         }
     } else {
         storage.reset(requestedInfo.width() * SkSwizzler::BytesPerPixel(fSrcConfig));
-        uint8_t* srcRow = static_cast<uint8_t*>(storage.get());
+        uint8_t* srcRow = storage.get();
         for (; row < requestedInfo.height(); row++) {
             png_read_rows(fPng_ptr, &srcRow, png_bytepp_NULL, 1);
             // FIXME: Only call IsOpaque once, outside the loop. Same for onGetScanlines.
-            hasAlpha |= !SkSwizzler::IsOpaque(fSwizzler->swizzle(dstRow, srcRow));
+            fSwizzler->swizzle(dstRow, srcRow);
             dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
         }
-    }
-
-    if (hasAlpha) {
-        fAlphaState = kHasAlpha_AlphaState;
-    } else {
-        fAlphaState = kOpaque_AlphaState;
     }
 
     // FIXME: do we need substituteTranspColor? Note that we cannot do it for
@@ -573,38 +575,12 @@ uint32_t SkPngCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType
     return INHERITED::onGetFillValue(colorType, alphaType);
 }
 
-bool SkPngCodec::onReallyHasAlpha() const {
-    switch (fAlphaState) {
-        case kOpaque_AlphaState:
-            return false;
-        case kUnknown_AlphaState:
-            // Maybe the subclass knows?
-            return this->alphaInScanlineDecode() == kHasAlpha_AlphaState;
-        case kHasAlpha_AlphaState:
-            switch (this->alphaInScanlineDecode()) {
-                case kUnknown_AlphaState:
-                    // Scanline decoder must not have been used. Return our knowledge.
-                    return true;
-                case kOpaque_AlphaState:
-                    // Scanline decoder was used, and did not find alpha in its subset.
-                    return false;
-                case kHasAlpha_AlphaState:
-                    return true;
-            }
-    }
-
-    // All valid AlphaStates have been covered, so this should not be reached.
-    SkASSERT(false);
-    return true;
-}
-
 // Subclass of SkPngCodec which supports scanline decoding
 class SkPngScanlineDecoder : public SkPngCodec {
 public:
     SkPngScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
-            png_structp png_ptr, png_infop info_ptr, int bitDepth)
-        : INHERITED(srcInfo, stream, png_ptr, info_ptr, bitDepth, 1)
-        , fAlphaState(kUnknown_AlphaState)
+            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
+        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, 1)
         , fSrcRow(nullptr)
     {}
 
@@ -620,9 +596,8 @@ public:
             return result;
         }
 
-        fAlphaState = kUnknown_AlphaState;
         fStorage.reset(this->getInfo().width() * SkSwizzler::BytesPerPixel(this->srcConfig()));
-        fSrcRow = static_cast<uint8_t*>(fStorage.get());
+        fSrcRow = fStorage.get();
 
         return kSuccess;
     }
@@ -636,20 +611,10 @@ public:
         }
 
         void* dstRow = dst;
-        bool hasAlpha = false;
         for (; row < count; row++) {
             png_read_rows(this->png_ptr(), &fSrcRow, png_bytepp_NULL, 1);
-            hasAlpha |= !SkSwizzler::IsOpaque(this->swizzler()->swizzle(dstRow, fSrcRow));
+            this->swizzler()->swizzle(dstRow, fSrcRow);
             dstRow = SkTAddOffset<void>(dstRow, rowBytes);
-        }
-
-        if (hasAlpha) {
-            fAlphaState = kHasAlpha_AlphaState;
-        } else {
-            if (kUnknown_AlphaState == fAlphaState) {
-                fAlphaState = kOpaque_AlphaState;
-            }
-            // Otherwise, the AlphaState is unchanged.
         }
 
         return row;
@@ -670,13 +635,8 @@ public:
         return true;
     }
 
-    AlphaState alphaInScanlineDecode() const override {
-        return fAlphaState;
-    }
-
 private:
-    AlphaState                  fAlphaState;
-    SkAutoMalloc                fStorage;
+    SkAutoTMalloc<uint8_t>      fStorage;
     uint8_t*                    fSrcRow;
 
     typedef SkPngCodec INHERITED;
@@ -686,9 +646,9 @@ private:
 class SkPngInterlacedScanlineDecoder : public SkPngCodec {
 public:
     SkPngInterlacedScanlineDecoder(const SkImageInfo& srcInfo, SkStream* stream,
-            png_structp png_ptr, png_infop info_ptr, int bitDepth, int numberPasses)
-        : INHERITED(srcInfo, stream, png_ptr, info_ptr, bitDepth, numberPasses)
-        , fAlphaState(kUnknown_AlphaState)
+            SkPngChunkReader* chunkReader, png_structp png_ptr, png_infop info_ptr,
+            int bitDepth, int numberPasses)
+        : INHERITED(srcInfo, stream, chunkReader, png_ptr, info_ptr, bitDepth, numberPasses)
         , fHeight(-1)
         , fCanSkipRewind(false)
     {
@@ -707,7 +667,6 @@ public:
             return result;
         }
 
-        fAlphaState = kUnknown_AlphaState;
         fHeight = dstInfo.height();
         // FIXME: This need not be called on a second call to onStartScanlineDecode.
         fSrcRowBytes = this->getInfo().width() * SkSwizzler::BytesPerPixel(this->srcConfig());
@@ -738,7 +697,7 @@ public:
             if (!this->rewindIfNeeded()) {
                 return kCouldNotRewind;
             }
-            this->updateNextScanline(currScanline);
+            this->updateCurrScanline(currScanline);
         }
 
         if (setjmp(png_jmpbuf(this->png_ptr()))) {
@@ -748,8 +707,8 @@ public:
             // fail on the first pass, we can still report than some scanlines are initialized.
             return 0;
         }
-        SkAutoMalloc storage(count * fSrcRowBytes);
-        uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
+        SkAutoTMalloc<uint8_t> storage(count * fSrcRowBytes);
+        uint8_t* storagePtr = storage.get();
         uint8_t* srcRow;
         const int startRow = this->nextScanline();
         for (int i = 0; i < this->numberPasses(); i++) {
@@ -771,20 +730,10 @@ public:
         //swizzle the rows we care about
         srcRow = storagePtr;
         void* dstRow = dst;
-        bool hasAlpha = false;
         for (int y = 0; y < count; y++) {
-            hasAlpha |= !SkSwizzler::IsOpaque(this->swizzler()->swizzle(dstRow, srcRow));
+            this->swizzler()->swizzle(dstRow, srcRow);
             dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
             srcRow += fSrcRowBytes;
-        }
-
-        if (hasAlpha) {
-            fAlphaState = kHasAlpha_AlphaState;
-        } else {
-            if (kUnknown_AlphaState == fAlphaState) {
-                fAlphaState = kOpaque_AlphaState;
-            }
-            // Otherwise, the AlphaState is unchanged.
         }
 
         return count;
@@ -795,16 +744,11 @@ public:
         return true;
     }
 
-    AlphaState alphaInScanlineDecode() const override {
-        return fAlphaState;
-    }
-
     SkScanlineOrder onGetScanlineOrder() const override {
         return kNone_SkScanlineOrder;
     }
 
 private:
-    AlphaState                  fAlphaState;
     int                         fHeight;
     size_t                      fSrcRowBytes;
     SkAutoMalloc                fGarbageRow;
@@ -822,7 +766,7 @@ private:
     typedef SkPngCodec INHERITED;
 };
 
-SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
     png_structp png_ptr;
     png_infop info_ptr;
@@ -830,15 +774,16 @@ SkCodec* SkPngCodec::NewFromStream(SkStream* stream) {
     int bitDepth;
     int numberPasses;
 
-    if (!read_header(stream, &png_ptr, &info_ptr, &imageInfo, &bitDepth, &numberPasses)) {
+    if (!read_header(stream, chunkReader, &png_ptr, &info_ptr, &imageInfo, &bitDepth,
+                     &numberPasses)) {
         return nullptr;
     }
 
     if (1 == numberPasses) {
-        return new SkPngScanlineDecoder(imageInfo, streamDeleter.detach(), png_ptr, info_ptr,
-                                        bitDepth);
+        return new SkPngScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
+                                        png_ptr, info_ptr, bitDepth);
     }
 
-    return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.detach(), png_ptr,
-                                              info_ptr, bitDepth, numberPasses);
+    return new SkPngInterlacedScanlineDecoder(imageInfo, streamDeleter.detach(), chunkReader,
+                                              png_ptr, info_ptr, bitDepth, numberPasses);
 }

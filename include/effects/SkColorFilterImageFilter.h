@@ -25,7 +25,7 @@ protected:
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
                        SkIPoint* loc) const override;
     bool onIsColorFilterNode(SkColorFilter**) const override;
-    bool affectsTransparentBlack() const override;
+    bool canComputeFastBounds() const override;
 
 private:
     SkColorFilterImageFilter(SkColorFilter* cf,

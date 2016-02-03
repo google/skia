@@ -55,7 +55,7 @@ private:
 
 class SK_API SkLine2DPathEffect : public Sk2DPathEffect {
 public:
-    static SkLine2DPathEffect* Create(SkScalar width, const SkMatrix& matrix) {
+    static SkPathEffect* Create(SkScalar width, const SkMatrix& matrix) {
         return new SkLine2DPathEffect(width, matrix);
     }
 
@@ -84,7 +84,7 @@ public:
      *  Stamp the specified path to fill the shape, using the matrix to define
      *  the latice.
      */
-    static SkPath2DPathEffect* Create(const SkMatrix& matrix, const SkPath& path) {
+    static SkPathEffect* Create(const SkMatrix& matrix, const SkPath& path) {
         return new SkPath2DPathEffect(matrix, path);
     }
 

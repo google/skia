@@ -22,13 +22,10 @@ void NoFilterProc_Scale(const SkBitmapProcState& s, uint32_t xy[],
     const unsigned maxX = s.fPixmap.width() - 1;
     SkFractionalInt fx;
     {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                                  SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        fx = SkScalarToFractionalInt(pt.fY);
+        const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
-        *xy++ = TileProc::Y(s, SkFractionalIntToFixed(fx), maxY);
-        fx = SkScalarToFractionalInt(pt.fX);
+        *xy++ = TileProc::Y(s, SkFractionalIntToFixed(mapper.y()), maxY);
+        fx = mapper.x();
     }
 
     if (0 == maxX) {
@@ -80,13 +77,10 @@ void NoFilterProc_Affine(const SkBitmapProcState& s, uint32_t xy[],
                              SkMatrix::kScale_Mask |
                              SkMatrix::kAffine_Mask)) == 0);
 
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
-    SkFractionalInt fx = SkScalarToFractionalInt(srcPt.fX);
-    SkFractionalInt fy = SkScalarToFractionalInt(srcPt.fY);
+    SkFractionalInt fx = mapper.x();
+    SkFractionalInt fy = mapper.y();
     SkFractionalInt dx = s.fInvSxFractionalInt;
     SkFractionalInt dy = s.fInvKyFractionalInt;
     int maxX = s.fPixmap.width() - 1;

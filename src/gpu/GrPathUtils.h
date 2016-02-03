@@ -74,7 +74,7 @@ namespace GrPathUtils {
          * vertices is a pointer to the first vertex.
          */
         template <int N, size_t STRIDE, size_t UV_OFFSET>
-        void apply(const void* vertices) {
+        void apply(const void* vertices) const {
             intptr_t xyPtr = reinterpret_cast<intptr_t>(vertices);
             intptr_t uvPtr = reinterpret_cast<intptr_t>(vertices) + UV_OFFSET;
             float sx = fM[0];

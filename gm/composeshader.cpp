@@ -162,7 +162,15 @@ static SkShader* make_linear_gradient_shader(int length) {
 
 class ComposeShaderBitmapGM : public skiagm::GM {
 public:
-    ComposeShaderBitmapGM() {
+    ComposeShaderBitmapGM() {}
+    ~ComposeShaderBitmapGM() {
+        SkSafeUnref(fColorBitmapShader);
+        SkSafeUnref(fAlpha8BitmapShader);
+        SkSafeUnref(fLinearGradientShader);
+    }
+
+protected:
+    void onOnceBeforeDraw() override {
         draw_color_bm(&fColorBitmap, squareLength);
         draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
         SkMatrix s;
@@ -173,13 +181,7 @@ public:
                                                      SkShader::kRepeat_TileMode, &s);
         fLinearGradientShader = make_linear_gradient_shader(squareLength);
     }
-    ~ComposeShaderBitmapGM() {
-        SkSafeUnref(fColorBitmapShader);
-        SkSafeUnref(fAlpha8BitmapShader);
-        SkSafeUnref(fLinearGradientShader);
-    }
 
-protected:
     SkString onShortName() override {
         return SkString("composeshader_bitmap");
     }
@@ -222,6 +224,7 @@ protected:
             canvas->translate(0, r.height() + 5);
         }
     }
+    
 private:
     /** This determines the length and width of the bitmaps used in the SkComposeShaders.  Values
      *  above 20 may cause an SkASSERT to fail in SkSmallAllocator. However, larger values will
@@ -232,9 +235,9 @@ private:
 
     SkBitmap fColorBitmap;
     SkBitmap fAlpha8Bitmap;
-    SkShader* fColorBitmapShader;
-    SkShader* fAlpha8BitmapShader;
-    SkShader* fLinearGradientShader;
+    SkShader* fColorBitmapShader{nullptr};
+    SkShader* fAlpha8BitmapShader{nullptr};
+    SkShader* fLinearGradientShader{nullptr};
 
     typedef GM INHERITED;
 };

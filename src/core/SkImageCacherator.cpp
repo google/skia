@@ -17,6 +17,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
+#include "GrImageIDTextureAdjuster.h"
 #include "GrResourceKey.h"
 #include "GrTextureParams.h"
 #include "GrYUVProvider.h"
@@ -68,9 +69,9 @@ SkImageCacherator::SkImageCacherator(SkImageGenerator* gen, const SkImageInfo& i
     , fUniqueID(uniqueID)
 {}
 
-SkData* SkImageCacherator::refEncoded() {
+SkData* SkImageCacherator::refEncoded(GrContext* ctx) {
     ScopedGenerator generator(this);
-    return generator->refEncodedData();
+    return generator->refEncodedData(ctx);
 }
 
 static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
@@ -108,28 +109,45 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
     }
 }
 
+bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixels, size_t rb,
+                                             int srcX, int srcY) {
+    ScopedGenerator generator(this);
+    const SkImageInfo& genInfo = generator->getInfo();
+    // Currently generators do not natively handle subsets, so check that first.
+    if (srcX || srcY || genInfo.width() != info.width() || genInfo.height() != info.height()) {
+        return false;
+    }
+    return generator->getPixels(info, pixels, rb);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
-    if (SkBitmapCache::Find(fUniqueID, bitmap)) {
-        return check_output_bitmap(*bitmap, fUniqueID);
-    }
+bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap) {
+    return SkBitmapCache::Find(fUniqueID, bitmap) && check_output_bitmap(*bitmap, fUniqueID);
+}
 
+bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
+                                        SkImage::CachingHint chint) {
+    if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap)) {
+        return true;
+    }
     if (!this->generateBitmap(bitmap)) {
         return false;
     }
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueID);
-    SkBitmapCache::Add(fUniqueID, *bitmap);
-    if (client) {
-        as_IB(client)->notifyAddedToCache();
+    if (SkImage::kAllow_CachingHint == chint) {
+        SkBitmapCache::Add(fUniqueID, *bitmap);
+        if (client) {
+            as_IB(client)->notifyAddedToCache();
+        }
     }
-
     return true;
 }
 
-bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
-    if (this->tryLockAsBitmap(bitmap, client)) {
+bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
+                                     SkImage::CachingHint chint) {
+    if (this->tryLockAsBitmap(bitmap, client, chint)) {
         return check_output_bitmap(*bitmap, fUniqueID);
     }
 
@@ -160,11 +178,12 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client) {
     }
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueID);
-    SkBitmapCache::Add(fUniqueID, *bitmap);
-    if (client) {
-        as_IB(client)->notifyAddedToCache();
+    if (SkImage::kAllow_CachingHint == chint) {
+        SkBitmapCache::Add(fUniqueID, *bitmap);
+        if (client) {
+            as_IB(client)->notifyAddedToCache();
+        }
     }
-
     return check_output_bitmap(*bitmap, fUniqueID);
 #else
     return false;
@@ -220,7 +239,7 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
  *  5. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key,
-                                          const SkImage* client) {
+                                          const SkImage* client, SkImage::CachingHint chint) {
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
         if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
@@ -240,7 +259,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo);
 
     // 3. Ask the generator to return a compressed form that the GPU might support
-    SkAutoTUnref<SkData> data(this->refEncoded());
+    SkAutoTUnref<SkData> data(this->refEncoded(ctx));
     if (data) {
         GrTexture* tex = load_compressed_into_texture(ctx, data, desc);
         if (tex) {
@@ -260,7 +279,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (this->tryLockAsBitmap(&bitmap, client)) {
+    if (this->tryLockAsBitmap(&bitmap, client, chint)) {
         GrTexture* tex = GrUploadBitmapToTexture(ctx, bitmap);
         if (tex) {
             return set_key_and_return(tex, key);
@@ -271,63 +290,19 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GrTextureParamsAdjuster.h"
-
-class Cacherator_GrTextureMaker : public GrTextureMaker {
-public:
-    Cacherator_GrTextureMaker(SkImageCacherator* cacher, const SkImage* client)
-        : INHERITED(cacher->info().width(), cacher->info().height())
-        , fCacher(cacher)
-        , fClient(client)
-    {
-        if (client) {
-            GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
-                                 SkIRect::MakeWH(this->width(), this->height()));
-        }
-    }
-
-protected:
-    // TODO: consider overriding this, for the case where the underlying generator might be
-    //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
-    //    GrTexture* generateTextureForParams(GrContext*, const SkGrStretch&) override;
-
-    GrTexture* refOriginalTexture(GrContext* ctx) override {
-        return fCacher->lockTexture(ctx, fOriginalKey, fClient);
-    }
-
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override {
-        if (fOriginalKey.isValid()) {
-            MakeCopyKeyFromOrigKey(fOriginalKey, stretch, paramsCopyKey);
-        }
-    }
-
-    void didCacheCopy(const GrUniqueKey& copyKey) override {
-        if (fClient) {
-            as_IB(fClient)->notifyAddedToCache();
-        }
-    }
-
-private:
-    SkImageCacherator*      fCacher;
-    const SkImage*          fClient;
-    GrUniqueKey             fOriginalKey;
-
-    typedef GrTextureMaker INHERITED;
-};
-
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams& params,
-                                            const SkImage* client) {
+                                            const SkImage* client, SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
 
-    return Cacherator_GrTextureMaker(this, client).refTextureForParams(ctx, params);
+    return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params);
 }
 
 #else
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams&,
-                                            const SkImage* client) {
+                                            const SkImage* client, SkImage::CachingHint) {
     return nullptr;
 }
 

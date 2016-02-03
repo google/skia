@@ -108,8 +108,8 @@ bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
     }
 
     SkStroke stroker;
-    stroker.setCap(fCap);
-    stroker.setJoin(fJoin);
+    stroker.setCap((SkPaint::Cap)fCap);
+    stroker.setJoin((SkPaint::Join)fJoin);
     stroker.setMiterLimit(fMiterLimit);
     stroker.setWidth(fWidth);
     stroker.setDoFill(fStrokeAndFill);
@@ -131,6 +131,6 @@ void SkStrokeRec::applyToPaint(SkPaint* paint) const {
     paint->setStyle(fStrokeAndFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style);
     paint->setStrokeWidth(fWidth);
     paint->setStrokeMiter(fMiterLimit);
-    paint->setStrokeCap(fCap);
-    paint->setStrokeJoin(fJoin);
+    paint->setStrokeCap((SkPaint::Cap)fCap);
+    paint->setStrokeJoin((SkPaint::Join)fJoin);
 }

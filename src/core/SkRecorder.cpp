@@ -158,11 +158,16 @@ void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const 
 }
 
 void SkRecorder::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
-    if (!fDrawableList) {
-        fDrawableList.reset(new SkDrawableList);
+    if (fDrawPictureMode == Record_DrawPictureMode) {
+        if (!fDrawableList) {
+            fDrawableList.reset(new SkDrawableList);
+        }
+        fDrawableList->append(drawable);
+        APPEND(DrawDrawable, this->copy(matrix), drawable->getBounds(), fDrawableList->count() - 1);
+    } else {
+        SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
+        drawable->draw(this, matrix);
     }
-    fDrawableList->append(drawable);
-    APPEND(DrawDrawable, this->copy(matrix), drawable->getBounds(), fDrawableList->count() - 1);
 }
 
 void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
@@ -233,10 +238,6 @@ void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const 
 void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
                                  const SkRect& dst, const SkPaint* paint) {
     APPEND(DrawImageNine, this->copy(paint), image, center, dst);
-}
-
-void SkRecorder::onDrawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
-    APPEND(DrawSprite, this->copy(paint), bitmap, left, top);
 }
 
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
@@ -335,10 +336,9 @@ void SkRecorder::willSave() {
     APPEND(Save);
 }
 
-SkCanvas::SaveLayerStrategy SkRecorder::willSaveLayer(const SkRect* bounds,
-                                                      const SkPaint* paint,
-                                                      SkCanvas::SaveFlags flags) {
-    APPEND(SaveLayer, this->copy(bounds), this->copy(paint), flags);
+SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    APPEND(SaveLayer,
+           this->copy(rec.fBounds), this->copy(rec.fPaint), rec.fBackdrop, rec.fSaveLayerFlags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
@@ -347,15 +347,10 @@ void SkRecorder::didRestore() {
 }
 
 void SkRecorder::didConcat(const SkMatrix& matrix) {
-    this->didSetMatrix(this->getTotalMatrix());
+    APPEND(Concat, matrix);
 }
 
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
-    SkDEVCODE(if (matrix != this->getTotalMatrix()) {
-        matrix.dump();
-        this->getTotalMatrix().dump();
-        SkASSERT(matrix == this->getTotalMatrix());
-    })
     APPEND(SetMatrix, matrix);
 }
 

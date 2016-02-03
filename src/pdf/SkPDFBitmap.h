@@ -16,6 +16,6 @@ class SkImage;
  * It is designed to use a minimal amout of memory, aside from refing
  * the image, and its emitObject() does not cache any data.
  */
-SkPDFObject* SkPDFCreateBitmapObject(const SkImage*);
+SkPDFObject* SkPDFCreateBitmapObject(const SkImage*, SkPixelSerializer*);
 
 #endif  // SkPDFBitmap_DEFINED

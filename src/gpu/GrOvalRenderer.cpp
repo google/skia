@@ -19,13 +19,15 @@
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
+#include "batches/GrRectBatchFactory.h"
 #include "batches/GrVertexBatch.h"
 #include "effects/GrRRectEffect.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
 
 // TODO(joshualitt) - Break this file up during GrBatch post implementation cleanup
@@ -97,38 +99,47 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const CircleEdgeEffect& ce = args.fGP.cast<CircleEdgeEffect>();
-            GrGLSLGPBuilder* pb = args.fPB;
-            GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
-            vsBuilder->emitAttributes(ce);
+            varyingHandler->emitAttributes(ce);
 
             GrGLSLVertToFrag v(kVec4f_GrSLType);
-            args.fPB->addVarying("CircleEdge", &v);
-            vsBuilder->codeAppendf("%s = %s;", v.vsOut(), ce.inCircleEdge()->fName);
+            varyingHandler->addVarying("CircleEdge", &v);
+            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), ce.inCircleEdge()->fName);
 
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ce.colorIgnored()) {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb, gpArgs, ce.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, ce.inPosition()->fName);
 
             // emit transforms
-            this->emitTransforms(args.fPB, gpArgs->fPositionVar, ce.inPosition()->fName,
-                                 ce.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+            this->emitTransforms(vertBuilder,
+                                 varyingHandler,
+                                 uniformHandler,
+                                 gpArgs->fPositionVar,
+                                 ce.inPosition()->fName,
+                                 ce.localMatrix(),
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
-            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-            fsBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
-            fsBuilder->codeAppendf("float edgeAlpha = clamp(%s.z * (1.0 - d), 0.0, 1.0);", v.fsIn());
+            fragBuilder->codeAppendf("float d = length(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("float edgeAlpha = clamp(%s.z * (1.0 - d), 0.0, 1.0);",
+                                     v.fsIn());
             if (ce.isStroked()) {
-                fsBuilder->codeAppendf("float innerAlpha = clamp(%s.z * (d - %s.w), 0.0, 1.0);",
-                                       v.fsIn(), v.fsIn());
-                fsBuilder->codeAppend("edgeAlpha *= innerAlpha;");
+                fragBuilder->codeAppendf("float innerAlpha = clamp(%s.z * (d - %s.w), 0.0, 1.0);",
+                                         v.fsIn(), v.fsIn());
+                fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
-            fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -245,59 +256,67 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
             const EllipseEdgeEffect& ee = args.fGP.cast<EllipseEdgeEffect>();
-            GrGLSLGPBuilder* pb = args.fPB;
-            GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
-            vsBuilder->emitAttributes(ee);
+            varyingHandler->emitAttributes(ee);
 
             GrGLSLVertToFrag ellipseOffsets(kVec2f_GrSLType);
-            args.fPB->addVarying("EllipseOffsets", &ellipseOffsets);
-            vsBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
+            varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
+            vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                    ee.inEllipseOffset()->fName);
 
             GrGLSLVertToFrag ellipseRadii(kVec4f_GrSLType);
-            args.fPB->addVarying("EllipseRadii", &ellipseRadii);
-            vsBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
+            varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
+            vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(),
                                    ee.inEllipseRadii()->fName);
 
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb, gpArgs, ee.inPosition()->fName);
+            this->setupPosition(vertBuilder, gpArgs, ee.inPosition()->fName);
 
             // emit transforms
-            this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
-                                 ee.localMatrix(), args.fTransformsIn, args.fTransformsOut);
+            this->emitTransforms(vertBuilder,
+                                 varyingHandler,
+                                 uniformHandler,
+                                 gpArgs->fPositionVar,
+                                 ee.inPosition()->fName,
+                                 ee.localMatrix(),
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
             // for outer curve
-            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-            fsBuilder->codeAppendf("vec2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
-                                   ellipseRadii.fsIn());
-            fsBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fsBuilder->codeAppendf("vec2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
-            fsBuilder->codeAppend("float grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppendf("vec2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
+                                     ellipseRadii.fsIn());
+            fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fragBuilder->codeAppendf("vec2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
+            fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
-            fsBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fsBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
-            fsBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+            fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (ee.isStroked()) {
-                fsBuilder->codeAppendf("scaledOffset = %s*%s.zw;",
-                                       ellipseOffsets.fsIn(), ellipseRadii.fsIn());
-                fsBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
-                fsBuilder->codeAppendf("grad = 2.0*scaledOffset*%s.zw;",
-                                       ellipseRadii.fsIn());
-                fsBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
-                fsBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppendf("scaledOffset = %s*%s.zw;",
+                                         ellipseOffsets.fsIn(), ellipseRadii.fsIn());
+                fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
+                fragBuilder->codeAppendf("grad = 2.0*scaledOffset*%s.zw;",
+                                         ellipseRadii.fsIn());
+                fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
+                fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -420,74 +439,85 @@ public:
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DIEllipseEdgeEffect& ee = args.fGP.cast<DIEllipseEdgeEffect>();
-            GrGLSLGPBuilder* pb = args.fPB;
-            GrGLSLVertexBuilder* vsBuilder = args.fPB->getVertexShaderBuilder();
+            GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+            GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             // emit attributes
-            vsBuilder->emitAttributes(ee);
+            varyingHandler->emitAttributes(ee);
 
             GrGLSLVertToFrag offsets0(kVec2f_GrSLType);
-            args.fPB->addVarying("EllipseOffsets0", &offsets0);
-            vsBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
+            varyingHandler->addVarying("EllipseOffsets0", &offsets0);
+            vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(),
                                    ee.inEllipseOffsets0()->fName);
 
             GrGLSLVertToFrag offsets1(kVec2f_GrSLType);
-            args.fPB->addVarying("EllipseOffsets1", &offsets1);
-            vsBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
+            varyingHandler->addVarying("EllipseOffsets1", &offsets1);
+            vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(),
                                    ee.inEllipseOffsets1()->fName);
 
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             if (!ee.colorIgnored()) {
-                this->setupUniformColor(pb, args.fOutputColor, &fColorUniform);
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
-            this->setupPosition(pb, gpArgs, ee.inPosition()->fName, ee.viewMatrix(),
+            this->setupPosition(vertBuilder,
+                                uniformHandler,
+                                gpArgs,
+                                ee.inPosition()->fName,
+                                ee.viewMatrix(),
                                 &fViewMatrixUniform);
 
             // emit transforms
-            this->emitTransforms(args.fPB, gpArgs->fPositionVar, ee.inPosition()->fName,
-                                 args.fTransformsIn, args.fTransformsOut);
+            this->emitTransforms(vertBuilder,
+                                 varyingHandler,
+                                 uniformHandler,
+                                 gpArgs->fPositionVar,
+                                 ee.inPosition()->fName,
+                                 args.fTransformsIn,
+                                 args.fTransformsOut);
 
-            GrGLSLFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-            SkAssertResult(fsBuilder->enableFeature(
+            SkAssertResult(fragBuilder->enableFeature(
                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             // for outer curve
-            fsBuilder->codeAppendf("vec2 scaledOffset = %s.xy;", offsets0.fsIn());
-            fsBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fsBuilder->codeAppendf("vec2 duvdx = dFdx(%s);", offsets0.fsIn());
-            fsBuilder->codeAppendf("vec2 duvdy = dFdy(%s);", offsets0.fsIn());
-            fsBuilder->codeAppendf("vec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                                   "                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
-                                   offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn());
+            fragBuilder->codeAppendf("vec2 scaledOffset = %s.xy;", offsets0.fsIn());
+            fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fragBuilder->codeAppendf("vec2 duvdx = dFdx(%s);", offsets0.fsIn());
+            fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s);", offsets0.fsIn());
+            fragBuilder->codeAppendf("vec2 grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                                     "                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                                     offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn());
 
-            fsBuilder->codeAppend("float grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
-            fsBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fsBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+            fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
             if (kHairline == ee.getMode()) {
                 // can probably do this with one step
-                fsBuilder->codeAppend("float edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
-                fsBuilder->codeAppend("edgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("float edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("edgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);");
             } else {
-                fsBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
             }
 
             // for inner curve
             if (kStroke == ee.getMode()) {
-                fsBuilder->codeAppendf("scaledOffset = %s.xy;", offsets1.fsIn());
-                fsBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
-                fsBuilder->codeAppendf("duvdx = dFdx(%s);", offsets1.fsIn());
-                fsBuilder->codeAppendf("duvdy = dFdy(%s);", offsets1.fsIn());
-                fsBuilder->codeAppendf("grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                                       "            2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
-                                       offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(),
-                                       offsets1.fsIn());
-                fsBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
-                fsBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppendf("scaledOffset = %s.xy;", offsets1.fsIn());
+                fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
+                fragBuilder->codeAppendf("duvdx = dFdx(%s);", offsets1.fsIn());
+                fragBuilder->codeAppendf("duvdy = dFdy(%s);", offsets1.fsIn());
+                fragBuilder->codeAppendf("grad = vec2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                                         "            2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                                         offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(),
+                                         offsets1.fsIn());
+                fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
+                fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fsBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -626,32 +656,47 @@ public:
 
     const char* name() const override { return "CircleBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
+    SkString dumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                           "InnerRad: %.2f, OuterRad: %.2f\n",
+                           fGeoData[i].fColor,
+                           fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
+                           fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
+                           fGeoData[i].fInnerRadius,
+                           fGeoData[i].fOuterRadius);
+        }
+        string.append(INHERITED::dumpInfo());
+        return string;
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
+        // When this is called on a batch, there is only one geometry bundle
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -676,7 +721,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             SkScalar innerRadius = geom.fInnerRadius;
             SkScalar outerRadius = geom.fOuterRadius;
@@ -846,31 +891,32 @@ public:
 
     const char* name() const override { return "EllipseBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsCoverage()) {
+        if (!overrides.readsCoverage()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
             return;
@@ -895,7 +941,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             SkScalar xRadius = geom.fXRadius;
             SkScalar yRadius = geom.fYRadius;
@@ -1117,32 +1163,33 @@ public:
 
     const char* name() const override { return "DIEllipseBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
 private:
 
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fMode = fGeoData[0].fMode;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         // Setup geometry processor
         SkAutoTUnref<GrGeometryProcessor> gp(DIEllipseEdgeEffect::Create(this->color(),
                                                                          this->viewMatrix(),
@@ -1162,7 +1209,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& geom = fGeoData[i];
+            const Geometry& geom = fGeoData[i];
 
             SkScalar xRadius = geom.fXRadius;
             SkScalar yRadius = geom.fYRadius;
@@ -1447,7 +1494,9 @@ bool GrOvalRenderer::DrawDRRect(GrDrawTarget* target,
     if (applyAA) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
-    target->drawNonAARect(pipelineBuilder, color, SkMatrix::I(), bounds, invert);
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
+                                                                        bounds, nullptr, &invert));
+    target->drawBatch(pipelineBuilder, batch);
     return true;
 }
 
@@ -1472,31 +1521,32 @@ public:
 
     const char* name() const override { return "RRectCircleBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1531,7 +1581,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             SkScalar outerRadius = args.fOuterRadius;
 
@@ -1651,31 +1701,32 @@ public:
 
     const char* name() const override { return "RRectEllipseRendererBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
         fBatch.fStroke = fGeoData[0].fStroke;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         // reset to device coordinates
         SkMatrix invert;
         if (!this->viewMatrix().invert(&invert)) {
@@ -1710,7 +1761,7 @@ private:
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
 
             // Compute the reciprocals of the radii here to save time in the shader
             SkScalar xRadRecip = SkScalarInvert(args.fXRadius);

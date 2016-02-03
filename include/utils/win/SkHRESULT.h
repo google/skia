@@ -9,6 +9,7 @@
 #define SkHRESULT_DEFINED
 
 #include "SkTypes.h"
+#ifdef SK_BUILD_FOR_WIN
 
 void SkTraceHR(const char* file, unsigned long line,
                HRESULT hr, const char* msg);
@@ -16,7 +17,7 @@ void SkTraceHR(const char* file, unsigned long line,
 #ifdef SK_DEBUG
 #define SK_TRACEHR(_hr, _msg) SkTraceHR(__FILE__, __LINE__, _hr, _msg)
 #else
-#define SK_TRACEHR(_hr, _msg) _hr
+#define SK_TRACEHR(_hr, _msg) sk_ignore_unused_variable(_hr)
 #endif
 
 #define HR_GENERAL(_ex, _msg, _ret) {\
@@ -55,4 +56,5 @@ The HRZ variants will return 0 when FAILED.
 #define HRZ(ex) HR_GENERAL(ex, NULL, 0)
 #define HRZM(ex, msg) HR_GENERAL(ex, msg, 0)
 //@}
-#endif
+#endif  // SK_BUILD_FOR_WIN
+#endif  // SkHRESULT_DEFINED

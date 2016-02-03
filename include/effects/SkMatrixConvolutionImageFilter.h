@@ -52,15 +52,15 @@ public:
                               passed to filterImage() is used instead.
         @param cropRect       The rectangle to which the output processing will be limited.
     */
-    static SkMatrixConvolutionImageFilter* Create(const SkISize& kernelSize,
-                                                  const SkScalar* kernel,
-                                                  SkScalar gain,
-                                                  SkScalar bias,
-                                                  const SkIPoint& kernelOffset,
-                                                  TileMode tileMode,
-                                                  bool convolveAlpha,
-                                                  SkImageFilter* input = NULL,
-                                                  const CropRect* cropRect = NULL);
+    static SkImageFilter* Create(const SkISize& kernelSize,
+                                 const SkScalar* kernel,
+                                 SkScalar gain,
+                                 SkScalar bias,
+                                 const SkIPoint& kernelOffset,
+                                 TileMode tileMode,
+                                 bool convolveAlpha,
+                                 SkImageFilter* input = NULL,
+                                 const CropRect* cropRect = NULL);
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
@@ -79,8 +79,8 @@ protected:
 
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                        SkBitmap* result, SkIPoint* loc) const override;
-    bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const override;
-
+    void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
+    bool canComputeFastBounds() const override;
 
 #if SK_SUPPORT_GPU
     bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix&,

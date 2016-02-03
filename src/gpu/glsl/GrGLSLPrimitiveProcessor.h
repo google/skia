@@ -15,7 +15,12 @@
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
+class GrGLSLCaps;
+class GrGLSLFragmentBuilder;
 class GrGLSLGPBuilder;
+class GrGLSLUniformHandler;
+class GrGLSLVaryingHandler;
+class GrGLSLVertexBuilder;
 
 class GrGLSLPrimitiveProcessor {
 public:
@@ -29,21 +34,33 @@ public:
     typedef SkSTArray<8, GrGLSLTransformedCoordsArray> TransformsOut;
 
     struct EmitArgs {
-        EmitArgs(GrGLSLGPBuilder* pb,
+        EmitArgs(GrGLSLVertexBuilder* vertBuilder,
+                 GrGLSLFragmentBuilder* fragBuilder,
+                 GrGLSLVaryingHandler* varyingHandler,
+                 GrGLSLUniformHandler* uniformHandler,
+                 const GrGLSLCaps* caps,
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
                  const TextureSamplerArray& samplers,
                  const TransformsIn& transformsIn,
                  TransformsOut* transformsOut)
-            : fPB(pb)
+            : fVertBuilder(vertBuilder)
+            , fFragBuilder(fragBuilder)
+            , fVaryingHandler(varyingHandler)
+            , fUniformHandler(uniformHandler)
+            , fGLSLCaps(caps)
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
             , fSamplers(samplers)
             , fTransformsIn(transformsIn)
             , fTransformsOut(transformsOut) {}
-        GrGLSLGPBuilder* fPB;
+        GrGLSLVertexBuilder* fVertBuilder;
+        GrGLSLFragmentBuilder* fFragBuilder;
+        GrGLSLVaryingHandler* fVaryingHandler;
+        GrGLSLUniformHandler* fUniformHandler;
+        const GrGLSLCaps* fGLSLCaps;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
@@ -75,7 +92,8 @@ public:
                                   const SkTArray<const GrCoordTransform*, true>& transforms) = 0;
 
 protected:
-    void setupUniformColor(GrGLSLGPBuilder* pb,
+    void setupUniformColor(GrGLSLFragmentBuilder* fragBuilder,
+                           GrGLSLUniformHandler* uniformHandler,
                            const char* outputName,
                            UniformHandle* colorUniform);
 

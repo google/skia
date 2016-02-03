@@ -1467,11 +1467,17 @@ int SkTSect<TCurve, OppCurve>::linesIntersect(SkTSpan<TCurve, OppCurve>* span,
         workT += tStep;
         workPt = fCurve.ptAtT(workT);
         coinW.setPerp(fCurve, workT, workPt, opp->fCurve);
+        if (coinW.perpT() < 0) {
+            continue;
+        }
         SkDVector perpW = workPt - coinW.perpPt();
         if ((perpS.dot(perpW) >= 0) == (tStep < 0)) {
             tStep = -tStep;
         }
-    } while (!workPt.approximatelyEqual(coinW.perpPt()));
+        if (workPt.approximatelyEqual(coinW.perpPt())) {
+            break;
+        }
+    } while (true);
     double oppTTest = coinW.perpT();
     if (!opp->fHead->contains(oppTTest)) {
         return 0;

@@ -13,7 +13,7 @@
 #include "SkEventSink.h"
 #include "SkRect.h"
 #include "SkDOM.h"
-#include "SkTDict.h"
+#include "../private/SkTDict.h"
 #include "SkMatrix.h"
 #include "SkMetaData.h"
 

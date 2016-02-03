@@ -9,7 +9,6 @@
 #define GrClip_DEFINED
 
 #include "SkClipStack.h"
-#include "GrSurface.h"
 
 struct SkIRect;
 
@@ -86,6 +85,8 @@ public:
                 return this->irect() == other.irect();
                 break;
         }
+        SkFAIL("This should not occur\n");
+        return false;
     }
 
     bool operator!=(const GrClip& other) const {
@@ -155,13 +156,6 @@ public:
         return (kWideOpen_ClipType == fClipType) ||
                (kClipStack_ClipType == fClipType && this->clipStack()->quickContains(rect)) ||
                (kIRect_ClipType == fClipType && this->irect().contains(rect));
-    }
-
-    void getConservativeBounds(const GrSurface* surface,
-                               SkIRect* devResult,
-                               bool* isIntersectionOfRects = NULL) const {
-        this->getConservativeBounds(surface->width(), surface->height(),
-                                    devResult, isIntersectionOfRects);
     }
 
     void getConservativeBounds(int width, int height,

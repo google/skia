@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrDrawContext.h"
 #include "GrContext.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
@@ -70,7 +71,7 @@ private:
         return &fGeometry;
     }
 
-    void generateGeometry(Target* target) override {
+    void generateGeometry(Target* target) const override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
@@ -129,6 +130,11 @@ protected:
             return;
         }
 
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            return;
+        }
+
         struct Vertex {
             SkPoint fPosition;
             float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
@@ -155,20 +161,12 @@ protected:
             };
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
                 SkAutoTUnref<GrGeometryProcessor> gp;
-                {   // scope to contain GrTestTarget
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    if (nullptr == tt.target()) {
-                        continue;
-                    }
-                    GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrCubicEffect::Create(color, SkMatrix::I(), et,
-                                                   *tt.target()->caps()));
-                    if (!gp) {
-                        continue;
-                    }
+                GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
+                gp.reset(GrCubicEffect::Create(color, SkMatrix::I(), et,
+                                               *context->caps()));
+                if (!gp) {
+                    continue;
                 }
-
                 SkScalar x = SkScalarMul(col, w);
                 SkScalar y = SkScalarMul(row, h);
                 SkPoint controlPts[] = {
@@ -216,11 +214,9 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    SkASSERT(tt.target());
-
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
                     BezierCubicOrConicTestBatch::Geometry geometry;
@@ -230,7 +226,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, klmSigns[c]));
 
-                    tt.target()->drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -277,6 +273,11 @@ protected:
             return;
         }
 
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            return;
+        }
+
         struct Vertex {
             SkPoint fPosition;
             float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
@@ -303,18 +304,11 @@ protected:
             SkScalar weight = rand.nextRangeF(0.f, 2.f);
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
                 SkAutoTUnref<GrGeometryProcessor> gp;
-                {   // scope to contain GrTestTarget
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    if (nullptr == tt.target()) {
-                        continue;
-                    }
-                    GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrConicEffect::Create(color, SkMatrix::I(), et,
-                                                   *tt.target()->caps(), SkMatrix::I(), false));
-                    if (!gp) {
-                        continue;
-                    }
+                GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
+                gp.reset(GrConicEffect::Create(color, SkMatrix::I(), et,
+                                               *context->caps(), SkMatrix::I(), false));
+                if (!gp) {
+                    continue;
                 }
 
                 SkScalar x = SkScalarMul(col, w);
@@ -361,11 +355,9 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    SkASSERT(tt.target());
-
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
                     BezierCubicOrConicTestBatch::Geometry geometry;
@@ -375,7 +367,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             BezierCubicOrConicTestBatch::Create(gp, geometry, klmEqs, 1.f));
 
-                    tt.target()->drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -466,7 +458,7 @@ private:
         return &fGeometry;
     }
 
-    void generateGeometry(Target* target) override {
+    void generateGeometry(Target* target) const override {
         QuadHelper helper;
         size_t vertexStride = this->geometryProcessor()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
@@ -520,6 +512,11 @@ protected:
             return;
         }
 
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            return;
+        }
+
         struct Vertex {
             SkPoint fPosition;
             float   fUV[4]; // The last two values are ignored. The effect expects a vec4f.
@@ -544,18 +541,11 @@ protected:
             };
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
                 SkAutoTUnref<GrGeometryProcessor> gp;
-                {   // scope to contain GrTestTarget
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    if (nullptr == tt.target()) {
-                        continue;
-                    }
-                    GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                    gp.reset(GrQuadEffect::Create(color, SkMatrix::I(), et,
-                                                  *tt.target()->caps(), SkMatrix::I(), false));
-                    if (!gp) {
-                        continue;
-                    }
+                GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
+                gp.reset(GrQuadEffect::Create(color, SkMatrix::I(), et,
+                                              *context->caps(), SkMatrix::I(), false));
+                if (!gp) {
+                    continue;
                 }
 
                 SkScalar x = SkScalarMul(col, w);
@@ -599,11 +589,9 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    SkASSERT(tt.target());
-
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     pipelineBuilder.setRenderTarget(rt);
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
@@ -615,7 +603,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(BezierQuadTestBatch::Create(gp, geometry,
                                                                                 DevToUV));
 
-                    tt.target()->drawBatch(pipelineBuilder, batch);
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                 }
                 ++col;
                 if (numCols == col) {

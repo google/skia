@@ -9,7 +9,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
                                       const GrFragmentProcessor& processor) {
@@ -25,20 +25,20 @@ void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor, 
 }
 
 void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
-                                      SkString* outputColor, EmitArgs& args) {
+                                        SkString* outputColor, EmitArgs& args) {
 
     SkASSERT(outputColor);
-    GrGLSLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
-    outputColor->append(fb->getMangleString());
-    fb->codeAppendf("vec4 %s;", outputColor->c_str());
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    outputColor->append(fragBuilder->getMangleString());
+    fragBuilder->codeAppendf("vec4 %s;", outputColor->c_str());
     this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
 }
 
 void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
                                                 const char* outputColor, EmitArgs& args) {
-    GrGLSLFragmentBuilder* fb = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-    fb->onBeforeChildProcEmitCode();  // call first so mangleString is updated
+    fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
 
@@ -90,17 +90,19 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
     }
 
     // emit the code for the child in its own scope
-    fb->codeAppend("{\n");
-    fb->codeAppendf("// Child Index %d (mangle: %s): %s\n", childIndex,
-                    fb->getMangleString().c_str(), childProc.name());
-    EmitArgs childArgs(args.fBuilder,
+    fragBuilder->codeAppend("{\n");
+    fragBuilder->codeAppendf("// Child Index %d (mangle: %s): %s\n", childIndex,
+                             fragBuilder->getMangleString().c_str(), childProc.name());
+    EmitArgs childArgs(fragBuilder,
+                       args.fUniformHandler,
+                       args.fGLSLCaps,
                        childProc,
                        outputColor,
                        inputColor,
                        childCoords,
                        childSamplers);
     this->childProcessor(childIndex)->emitCode(childArgs);
-    fb->codeAppend("}\n");
+    fragBuilder->codeAppend("}\n");
 
-    fb->onAfterChildProcEmitCode();
+    fragBuilder->onAfterChildProcEmitCode();
 }

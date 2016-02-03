@@ -60,7 +60,7 @@ public:
     // purged. Large values disable the feature (as the ring buffer of flush timestamps would be
     // large). This is currently the default until we decide to enable this feature
     // of the cache by default.
-    static const int    kDefaultMaxUnusedFlushes    = 1024;
+    static const int    kDefaultMaxUnusedFlushes    = 64;
 
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;
@@ -229,6 +229,8 @@ public:
     void getStats(Stats*) const;
 
     void dumpStats(SkString*) const;
+
+    void dumpStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* value) const;
 #endif
 
     // This function is for unit testing and is only defined in test tools.

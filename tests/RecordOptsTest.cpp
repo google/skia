@@ -107,6 +107,20 @@ static void assert_savelayer_restore(skiatest::Reporter* r,
     SkRecordNoopSaveLayerDrawRestores(record);
     if (shouldBeNoOped) {
         assert_type<SkRecords::NoOp>(r, *record, i);
+        assert_type<SkRecords::NoOp>(r, *record, i+1);
+    } else {
+        assert_type<SkRecords::SaveLayer>(r, *record, i);
+        assert_type<SkRecords::Restore>(r, *record, i+1);
+    }
+}
+
+static void assert_savelayer_draw_restore(skiatest::Reporter* r,
+                                          SkRecord* record,
+                                          int i,
+                                          bool shouldBeNoOped) {
+    SkRecordNoopSaveLayerDrawRestores(record);
+    if (shouldBeNoOped) {
+        assert_type<SkRecords::NoOp>(r, *record, i);
         assert_type<SkRecords::NoOp>(r, *record, i+2);
     } else {
         assert_type<SkRecords::SaveLayer>(r, *record, i);
@@ -114,6 +128,7 @@ static void assert_savelayer_restore(skiatest::Reporter* r,
     }
 }
 
+#include "SkBlurImageFilter.h"
 DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     SkRecord record;
     SkRecorder recorder(&record, W, H);
@@ -134,13 +149,13 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     recorder.saveLayer(nullptr, nullptr);
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 0, true);
+    assert_savelayer_draw_restore(r, &record, 0, true);
 
     // Bounds don't matter.
     recorder.saveLayer(&bounds, nullptr);
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 3, true);
+    assert_savelayer_draw_restore(r, &record, 3, true);
 
     // TODO(mtklein): test case with null draw paint
 
@@ -148,29 +163,36 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     recorder.saveLayer(nullptr, &translucentLayerPaint);
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 6, false);
+    assert_savelayer_draw_restore(r, &record, 6, false);
 
     // No change: layer paint has an effect.
     recorder.saveLayer(nullptr, &xfermodeLayerPaint);
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 9, false);
+    assert_savelayer_draw_restore(r, &record, 9, false);
 
     // SaveLayer/Restore removed: we can fold in the alpha!
     recorder.saveLayer(nullptr, &alphaOnlyLayerPaint);
         recorder.drawRect(draw, translucentDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 12, true);
+    assert_savelayer_draw_restore(r, &record, 12, true);
 
     // SaveLayer/Restore removed: we can fold in the alpha!
     recorder.saveLayer(nullptr, &alphaOnlyLayerPaint);
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
-    assert_savelayer_restore(r, &record, 15, true);
+    assert_savelayer_draw_restore(r, &record, 15, true);
 
     const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, record, 16);
     REPORTER_ASSERT(r, drawRect != nullptr);
     REPORTER_ASSERT(r, drawRect->paint.getColor() == 0x03020202);
+
+    // saveLayer w/ backdrop should NOT go away
+    SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(3, 3));
+    recorder.saveLayer({ nullptr, nullptr, filter, 0});
+        recorder.drawRect(draw, opaqueDrawPaint);
+    recorder.restore();
+    assert_savelayer_draw_restore(r, &record, 18, false);
 }
 
 static void assert_merge_svg_opacity_and_filter_layers(skiatest::Reporter* r,
@@ -222,25 +244,38 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
     int index = 0;
 
     {
+        SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(3, 3));
+        // first (null) should be optimized, 2nd should not
+        SkImageFilter* filters[] = { nullptr, filter.get() };
+
         // Any combination of these should cause the pattern to be optimized.
         SkRect* firstBounds[] = { nullptr, &bounds };
         SkPaint* firstPaints[] = { nullptr, &alphaOnlyLayerPaint };
         SkRect* secondBounds[] = { nullptr, &bounds };
         SkPaint* secondPaints[] = { &opaqueFilterLayerPaint, &translucentFilterLayerPaint };
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(firstBounds); ++ i) {
-            for (size_t j = 0; j < SK_ARRAY_COUNT(firstPaints); ++j) {
-                for (size_t k = 0; k < SK_ARRAY_COUNT(secondBounds); ++k) {
-                    for (size_t m = 0; m < SK_ARRAY_COUNT(secondPaints); ++m) {
-                        recorder.saveLayer(firstBounds[i], firstPaints[j]);
-                        recorder.save();
-                        recorder.clipRect(clip);
-                        recorder.saveLayer(secondBounds[k], secondPaints[m]);
-                        recorder.restore();
-                        recorder.restore();
-                        recorder.restore();
-                        assert_merge_svg_opacity_and_filter_layers(r, &record, index, true);
-                        index += 7;
+        for (auto outerF : filters) {
+            bool outerNoOped = !outerF;
+            for (auto innerF : filters) {
+                for (size_t i = 0; i < SK_ARRAY_COUNT(firstBounds); ++ i) {
+                    for (size_t j = 0; j < SK_ARRAY_COUNT(firstPaints); ++j) {
+                        for (size_t k = 0; k < SK_ARRAY_COUNT(secondBounds); ++k) {
+                            for (size_t m = 0; m < SK_ARRAY_COUNT(secondPaints); ++m) {
+                                bool innerNoOped = !secondBounds[k] && !secondPaints[m] && !innerF;
+
+                                recorder.saveLayer({firstBounds[i], firstPaints[j], outerF, 0});
+                                recorder.save();
+                                recorder.clipRect(clip);
+                                recorder.saveLayer({secondBounds[k], secondPaints[m], innerF, 0});
+                                recorder.restore();
+                                recorder.restore();
+                                recorder.restore();
+                                assert_merge_svg_opacity_and_filter_layers(r, &record, index,
+                                                                           outerNoOped);
+                                assert_savelayer_restore(r, &record, index + 3, innerNoOped);
+                                index += 7;
+                            }
+                        }
                     }
                 }
             }

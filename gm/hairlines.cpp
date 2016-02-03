@@ -218,6 +218,44 @@ private:
     typedef GM INHERITED;
 };
 
+static void draw_squarehair_tests(SkCanvas* canvas, SkScalar width, SkPaint::Cap cap, bool aa) {
+    SkPaint paint;
+    paint.setStrokeCap(cap);
+    paint.setStrokeWidth(width);
+    paint.setAntiAlias(aa);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawLine(10, 10, 20, 10, paint);
+    canvas->drawLine(30, 10, 30, 20, paint);
+    canvas->drawLine(40, 10, 50, 20, paint);
+    SkPath path;
+    path.moveTo(60, 10);
+    path.quadTo(60, 20, 70, 20);
+    path.conicTo(70, 10, 80, 10, 0.707f);
+    canvas->drawPath(path, paint);
+    path.reset();
+    path.moveTo(90, 10);
+    path.cubicTo(90, 20, 100, 20, 100, 10);
+    path.lineTo(110, 10);
+    canvas->drawPath(path, paint);
+    canvas->translate(0, 30);
+}
+
+DEF_SIMPLE_GM(squarehair, canvas, 240, 360) {
+    const bool aliases[] = { false, true };
+    const SkScalar widths[] = { 0, 0.999f, 1, 1.001f };
+    const SkPaint::Cap caps[] = { SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap };
+    for (auto alias : aliases) {
+        canvas->save();
+        for (auto width : widths) {
+            for (auto cap : caps) {
+                draw_squarehair_tests(canvas, width, cap, alias);
+            }
+        }
+        canvas->restore();
+        canvas->translate(120, 0);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 static GM* MyFactory(void*) { return new HairlinesGM; }

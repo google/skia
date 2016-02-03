@@ -31,7 +31,7 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
         fCoverageFragmentProcessors.push_back(SkRef(paint.getCoverageFragmentProcessor(i)));
     }
 
-    fXPFactory.reset(SkRef(paint.getXPFactory()));
+    fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
     this->setRenderTarget(rt);
 
@@ -49,10 +49,13 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrRenderTarget* rt, c
 //////////////////////////////////////////////////////////////////////////////s
 
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
-                                             const GrProcOptInfo& colorPOI,
-                                             const GrProcOptInfo& coveragePOI) const {
-    return this->getXPFactory()->willNeedDstTexture(caps, colorPOI, coveragePOI,
-                                                    this->hasMixedSamples());
+                                             const GrPipelineOptimizations& optimizations) const {
+    if (this->getXPFactory()) {
+        return this->getXPFactory()->willNeedDstTexture(caps, optimizations, 
+                                                        this->hasMixedSamples());
+    }
+    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, optimizations,
+                                                            this->hasMixedSamples());
 }
 
 void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
@@ -92,16 +95,3 @@ GrPipelineBuilder::~GrPipelineBuilder() {
         fCoverageFragmentProcessors[i]->unref();
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrPipelineBuilder::calcColorInvariantOutput(const GrDrawBatch* batch) const {
-    fColorProcInfo.calcColorWithBatch(batch, fColorFragmentProcessors.begin(),
-                                      this->numColorFragmentProcessors());
-}
-
-void GrPipelineBuilder::calcCoverageInvariantOutput(const GrDrawBatch* batch) const {
-    fCoverageProcInfo.calcCoverageWithBatch(batch, fCoverageFragmentProcessors.begin(),
-                                            this->numCoverageFragmentProcessors());
-}
-

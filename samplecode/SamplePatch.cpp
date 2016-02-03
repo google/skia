@@ -306,13 +306,13 @@ protected:
         if (true) {
             SkMatrix m;
             m.setSkew(1, 0);
-            SkShader* s = SkShader::CreateLocalMatrixShader(paint.getShader(), m);
+            SkShader* s = paint.getShader()->newWithLocalMatrix(m);
             paint.setShader(s)->unref();
         }
         if (true) {
             SkMatrix m;
             m.setRotate(fAngle);
-            SkShader* s = SkShader::CreateLocalMatrixShader(paint.getShader(), m);
+            SkShader* s = paint.getShader()->newWithLocalMatrix(m);
             paint.setShader(s)->unref();
         }
         patch.setBounds(fSize1.fX, fSize1.fY);

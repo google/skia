@@ -62,13 +62,13 @@ public:
 
     const char* name() const override { return "AAStrokeRect"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -107,8 +107,8 @@ private:
         bounds->join(geo.fDevOutsideAssist);
     }
 
-    void onPrepareDraws(Target*) override;
-    void initBatchTracker(const GrPipelineOptimizations&) override;
+    void onPrepareDraws(Target*) const override;
+    void initBatchTracker(const GrXPOverridesForBatch&) override;
 
     AAStrokeRectBatch(const SkMatrix& viewMatrix,bool miterStroke)
         : INHERITED(ClassID()) {
@@ -167,22 +167,22 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-void AAStrokeRectBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
+void AAStrokeRectBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     // Handle any color overrides
-    if (!opt.readsColor()) {
+    if (!overrides.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+    overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
     // setup batch properties
-    fBatch.fColorIgnored = !opt.readsColor();
+    fBatch.fColorIgnored = !overrides.readsColor();
     fBatch.fColor = fGeoData[0].fColor;
-    fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-    fBatch.fCoverageIgnored = !opt.readsCoverage();
-    fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
+    fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+    fBatch.fCoverageIgnored = !overrides.readsCoverage();
+    fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
 }
 
-void AAStrokeRectBatch::onPrepareDraws(Target* target) {
+void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
     SkAutoTUnref<const GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,

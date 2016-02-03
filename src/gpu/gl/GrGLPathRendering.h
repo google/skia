@@ -111,7 +111,8 @@ private:
     };
     GrGLGpu* gpu();
 
-    SkAutoTDelete<GrGLNameAllocator> fPathNameAllocator;
+    GrGLuint fFirstPreallocatedPathID;
+    GrGLsizei fPreallocatedPathCount;
     MatrixState fHWProjectionMatrixState;
     GrStencilSettings fHWPathStencilSettings;
     Caps fCaps;

@@ -142,8 +142,11 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
 
   subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
 
-  subprocess.check_call(
-    [git, 'checkout', '--quiet', checkoutable], cwd=directory)
+  if 0 != subprocess.call(
+      [git, 'checkout', '--quiet', checkoutable], cwd=directory):
+      subprocess.check_call([git, 'remote', 'set-url', repo], cwd=directory)
+      subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
+      subprocess.check_call([git, 'checkout', '--quiet'], cwd=directory)
 
   if verbose:
     sys.stdout.write('%s\n  @ %s\n' % (directory, checkoutable))  # Success.

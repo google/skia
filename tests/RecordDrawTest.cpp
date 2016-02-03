@@ -46,7 +46,7 @@ DEF_TEST(RecordDraw_LazySaves, r) {
 
     assert_type<SkRecords::DrawPaint>(r, record, 0);
     assert_type<SkRecords::Save>     (r, record, 1);
-    assert_type<SkRecords::SetMatrix>(r, record, 2);
+    assert_type<SkRecords::Concat>   (r, record, 2);
     assert_type<SkRecords::Restore>  (r, record, 3);
 
     recorder.save();

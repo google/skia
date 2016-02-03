@@ -52,6 +52,14 @@ SkImageInfo SkBitmapProvider::info() const {
     }
 }
 
+bool SkBitmapProvider::isVolatile() const {
+    if (fImage) {
+        return false;   // add flag to images?
+    } else {
+        return fBitmap.isVolatile();
+    }
+}
+
 SkBitmapCacheDesc SkBitmapProvider::makeCacheDesc(int w, int h) const {
     return fImage ? SkBitmapCacheDesc::Make(fImage, w, h) : SkBitmapCacheDesc::Make(fBitmap, w, h);
 }
@@ -70,7 +78,7 @@ void SkBitmapProvider::notifyAddedToCache() const {
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
     if (fImage) {
-        return as_IB(fImage)->getROPixels(bm);
+        return as_IB(fImage)->getROPixels(bm, SkImage::kAllow_CachingHint);
     } else {
         *bm = fBitmap;
         return true;

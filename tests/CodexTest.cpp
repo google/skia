@@ -9,10 +9,17 @@
 #include "SkAndroidCodec.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
+#include "SkCodecImageGenerator.h"
 #include "SkData.h"
+#include "SkImageDecoder.h"
 #include "SkMD5.h"
 #include "SkRandom.h"
+#include "SkStream.h"
+#include "SkStreamPriv.h"
+#include "SkPngChunkReader.h"
 #include "Test.h"
+
+#include "png.h"
 
 static SkStreamAsset* resource(const char path[]) {
     SkString fullPath = GetResourcePath(path);
@@ -373,6 +380,18 @@ static void check(skiatest::Reporter* r,
                 &scaledCodecDigest, &codecDigest);
     }
 
+    // Test SkCodecImageGenerator
+    if (!isIncomplete) {
+        SkAutoTDelete<SkStream> stream(resource(path));
+        SkAutoTUnref<SkData> fullData(SkData::NewFromStream(stream, stream->getLength()));
+        SkAutoTDelete<SkImageGenerator> gen(SkCodecImageGenerator::NewFromEncodedCodec(fullData));
+        SkBitmap bm;
+        bm.allocPixels(info);
+        SkAutoLockPixels autoLockPixels(bm);
+        REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
+        compare_to_good_digest(r, codecDigest, bm);
+    }
+
     // If we've just tested incomplete decodes, let's run the same test again on full decodes.
     if (isIncomplete) {
         check(r, path, size, supportsScanlineDecoding, supportsSubsetDecoding, false);
@@ -395,9 +414,9 @@ DEF_TEST(Codec, r) {
     // FIXME: We are not ready to test incomplete ICOs
     // These two tests examine interestingly different behavior:
     // Decodes an embedded BMP image
-    check(r, "color_wheel.ico", SkISize::Make(128, 128), false, false, false);
+    check(r, "color_wheel.ico", SkISize::Make(128, 128), true, false, false);
     // Decodes an embedded PNG image
-    check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false, false);
+    check(r, "google_chrome.ico", SkISize::Make(256, 256), true, false, false);
 
     // GIF
     // FIXME: We are not ready to test incomplete GIFs
@@ -684,4 +703,267 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
 DEF_TEST(Codec_Params, r) {
     test_invalid_parameters(r, "index8.png");
     test_invalid_parameters(r, "mandrill.wbmp");
+}
+
+static void codex_test_write_fn(png_structp png_ptr, png_bytep data, png_size_t len) {
+    SkWStream* sk_stream = (SkWStream*)png_get_io_ptr(png_ptr);
+    if (!sk_stream->write(data, len)) {
+        png_error(png_ptr, "sk_write_fn Error!");
+    }
+}
+
+#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+DEF_TEST(Codec_pngChunkReader, r) {
+    // Create a dummy bitmap. Use unpremul RGBA for libpng.
+    SkBitmap bm;
+    const int w = 1;
+    const int h = 1;
+    const SkImageInfo bmInfo = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType,
+                                                 kUnpremul_SkAlphaType);
+    bm.setInfo(bmInfo);
+    bm.allocPixels();
+    bm.eraseColor(SK_ColorBLUE);
+    SkMD5::Digest goodDigest;
+    md5(bm, &goodDigest);
+
+    // Write to a png file.
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    REPORTER_ASSERT(r, png);
+    if (!png) {
+        return;
+    }
+
+    png_infop info = png_create_info_struct(png);
+    REPORTER_ASSERT(r, info);
+    if (!info) {
+        png_destroy_write_struct(&png, nullptr);
+        return;
+    }
+
+    if (setjmp(png_jmpbuf(png))) {
+        ERRORF(r, "failed writing png");
+        png_destroy_write_struct(&png, &info);
+        return;
+    }
+
+    SkDynamicMemoryWStream wStream;
+    png_set_write_fn(png, (void*) (&wStream), codex_test_write_fn, nullptr);
+
+    png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8,
+                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    // Create some chunks that match the Android framework's use.
+    static png_unknown_chunk gUnknowns[] = {
+        { "npOl", (png_byte*)"outline", sizeof("outline"), PNG_HAVE_IHDR },
+        { "npLb", (png_byte*)"layoutBounds", sizeof("layoutBounds"), PNG_HAVE_IHDR },
+        { "npTc", (png_byte*)"ninePatchData", sizeof("ninePatchData"), PNG_HAVE_IHDR },
+    };
+
+    png_set_keep_unknown_chunks(png, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"npOl\0npLb\0npTc\0", 3);
+    png_set_unknown_chunks(png, info, gUnknowns, SK_ARRAY_COUNT(gUnknowns));
+#if PNG_LIBPNG_VER < 10600
+    /* Deal with unknown chunk location bug in 1.5.x and earlier */
+    png_set_unknown_chunk_location(png, info, 0, PNG_HAVE_IHDR);
+    png_set_unknown_chunk_location(png, info, 1, PNG_HAVE_IHDR);
+#endif
+
+    png_write_info(png, info);
+
+    for (int j = 0; j < h; j++) {
+        png_bytep row = (png_bytep)(bm.getAddr(0, j));
+        png_write_rows(png, &row, 1);
+    }
+    png_write_end(png, info);
+    png_destroy_write_struct(&png, &info);
+
+    class ChunkReader : public SkPngChunkReader {
+    public:
+        ChunkReader(skiatest::Reporter* r)
+            : fReporter(r)
+        {
+            this->reset();
+        }
+
+        bool readChunk(const char tag[], const void* data, size_t length) override {
+            for (size_t i = 0; i < SK_ARRAY_COUNT(gUnknowns); ++i) {
+                if (!strcmp(tag, (const char*) gUnknowns[i].name)) {
+                    // Tag matches. This should have been the first time we see it.
+                    REPORTER_ASSERT(fReporter, !fSeen[i]);
+                    fSeen[i] = true;
+
+                    // Data and length should match
+                    REPORTER_ASSERT(fReporter, length == gUnknowns[i].size);
+                    REPORTER_ASSERT(fReporter, !strcmp((const char*) data,
+                                                       (const char*) gUnknowns[i].data));
+                    return true;
+                }
+            }
+            ERRORF(fReporter, "Saw an unexpected unknown chunk.");
+            return true;
+        }
+
+        bool allHaveBeenSeen() {
+            bool ret = true;
+            for (auto seen : fSeen) {
+                ret &= seen;
+            }
+            return ret;
+        }
+
+        void reset() {
+            sk_bzero(fSeen, sizeof(fSeen));
+        }
+
+    private:
+        skiatest::Reporter* fReporter;  // Unowned
+        bool fSeen[3];
+    };
+
+    ChunkReader chunkReader(r);
+
+    // Now read the file with SkCodec.
+    SkAutoTUnref<SkData> data(wStream.copyToData());
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data, &chunkReader));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    // Now compare to the original.
+    SkBitmap decodedBm;
+    decodedBm.setInfo(codec->getInfo());
+    decodedBm.allocPixels();
+    SkCodec::Result result = codec->getPixels(codec->getInfo(), decodedBm.getPixels(),
+                                              decodedBm.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+    if (decodedBm.colorType() != bm.colorType()) {
+        SkBitmap tmp;
+        bool success = decodedBm.copyTo(&tmp, bm.colorType());
+        REPORTER_ASSERT(r, success);
+        if (!success) {
+            return;
+        }
+
+        tmp.swap(decodedBm);
+    }
+
+    compare_to_good_digest(r, goodDigest, decodedBm);
+    REPORTER_ASSERT(r, chunkReader.allHaveBeenSeen());
+
+    // Decoding again will read the chunks again.
+    chunkReader.reset();
+    REPORTER_ASSERT(r, !chunkReader.allHaveBeenSeen());
+    result = codec->getPixels(codec->getInfo(), decodedBm.getPixels(), decodedBm.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    REPORTER_ASSERT(r, chunkReader.allHaveBeenSeen());
+}
+#endif // PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+
+// Stream that can only peek up to a limit
+class LimitedPeekingMemStream : public SkStream {
+public:
+    LimitedPeekingMemStream(SkData* data, size_t limit)
+        : fStream(data)
+        , fLimit(limit) {}
+
+    size_t peek(void* buf, size_t bytes) const override {
+        return fStream.peek(buf, SkTMin(bytes, fLimit));
+    }
+    size_t read(void* buf, size_t bytes) override {
+        return fStream.read(buf, bytes);
+    }
+    bool rewind() override {
+        return fStream.rewind();
+    }
+    bool isAtEnd() const override {
+        return false;
+    }
+private:
+    SkMemoryStream fStream;
+    const size_t   fLimit;
+};
+
+// Test that even if webp_parse_header fails to peek enough, it will fall back to read()
+// + rewind() and succeed.
+DEF_TEST(Codec_webp_peek, r) {
+    const char* path = "baby_tux.webp";
+    SkString fullPath(GetResourcePath(path));
+    SkAutoTUnref<SkData> data(SkData::NewFromFileName(fullPath.c_str()));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    // The limit is less than webp needs to peek or read.
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 25)));
+    REPORTER_ASSERT(r, codec);
+
+    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+
+    // Similarly, a stream which does not peek should still succeed.
+    codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 0)));
+    REPORTER_ASSERT(r, codec);
+
+    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+}
+
+// SkCodec's wbmp decoder was initially more restrictive than SkImageDecoder.
+// It required the second byte to be zero. But SkImageDecoder allowed a couple
+// of bits to be 1 (so long as they do not overlap with 0x9F). Test that
+// SkCodec now supports an image with these bits set.
+DEF_TEST(Codec_wbmp, r) {
+    const char* path = "mandrill.wbmp";
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    // Modify the stream to contain a second byte with some bits set.
+    SkAutoTUnref<SkData> data(SkCopyStreamToData(stream));
+    uint8_t* writeableData = static_cast<uint8_t*>(data->writable_data());
+    writeableData[1] = static_cast<uint8_t>(~0x9F);
+
+    // SkImageDecoder supports this.
+    SkBitmap bitmap;
+    REPORTER_ASSERT(r, SkImageDecoder::DecodeMemory(data->data(), data->size(), &bitmap));
+
+    // So SkCodec should, too.
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+}
+
+// wbmp images have a header that can be arbitrarily large, depending on the
+// size of the image. We cap the size at 65535, meaning we only need to look at
+// 8 bytes to determine whether we can read the image. This is important
+// because SkCodec only passes 14 bytes to SkWbmpCodec to determine whether the
+// image is a wbmp.
+DEF_TEST(Codec_wbmp_max_size, r) {
+    const unsigned char maxSizeWbmp[] = { 0x00, 0x00,           // Header
+                                          0x83, 0xFF, 0x7F,     // W: 65535
+                                          0x83, 0xFF, 0x7F };   // H: 65535
+    SkAutoTDelete<SkStream> stream(new SkMemoryStream(maxSizeWbmp, sizeof(maxSizeWbmp), false));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.detach()));
+
+    REPORTER_ASSERT(r, codec);
+    if (!codec) return;
+
+    REPORTER_ASSERT(r, codec->getInfo().width() == 65535);
+    REPORTER_ASSERT(r, codec->getInfo().height() == 65535);
+
+    // Now test an image which is too big. Any image with a larger header (i.e.
+    // has bigger width/height) is also too big.
+    const unsigned char tooBigWbmp[] = { 0x00, 0x00,           // Header
+                                         0x84, 0x80, 0x00,     // W: 65536
+                                         0x84, 0x80, 0x00 };   // H: 65536
+    stream.reset(new SkMemoryStream(tooBigWbmp, sizeof(tooBigWbmp), false));
+    codec.reset(SkCodec::NewFromStream(stream.detach()));
+
+    REPORTER_ASSERT(r, !codec);
 }

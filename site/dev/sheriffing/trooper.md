@@ -48,7 +48,7 @@ Tips for troopers
   - Monitoring alerts, including prober, collectd, and others
   - Disconnected build slaves
 
-- These alerts generally do not auto-dismiss ([issue here](https://code.google.com/p/skia/issues/detail?id=4292)):
+- These alerts generally do not auto-dismiss ([issue here](https://bug.skia.org/4292)):
   - Build slaves that failed a step
   - Disconnected devices (these are detected as the "wait for device" step failing)
 

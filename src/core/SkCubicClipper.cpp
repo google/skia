@@ -20,7 +20,7 @@ void SkCubicClipper::setClip(const SkIRect& clip) {
 }
 
 
-static bool chopMonoCubicAtY(SkPoint pts[4], SkScalar y, SkScalar* t) {
+bool SkCubicClipper::ChopMonoAtY(const SkPoint pts[4], SkScalar y, SkScalar* t) {
     SkScalar ycrv[4];
     ycrv[0] = pts[0].fY - y;
     ycrv[1] = pts[1].fY - y;
@@ -131,7 +131,7 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
     SkPoint tmp[7]; // for SkChopCubicAt
 
     // are we partially above
-    if (dst[0].fY < ctop && chopMonoCubicAtY(dst, ctop, &t)) {
+    if (dst[0].fY < ctop && ChopMonoAtY(dst, ctop, &t)) {
         SkChopCubicAt(dst, tmp, t);
         dst[0] = tmp[3];
         dst[1] = tmp[4];
@@ -139,7 +139,7 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
     }
 
     // are we partially below
-    if (dst[3].fY > cbot && chopMonoCubicAtY(dst, cbot, &t)) {
+    if (dst[3].fY > cbot && ChopMonoAtY(dst, cbot, &t)) {
         SkChopCubicAt(dst, tmp, t);
         dst[1] = tmp[1];
         dst[2] = tmp[2];

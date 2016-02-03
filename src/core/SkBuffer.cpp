@@ -35,7 +35,7 @@ size_t SkRBuffer::skipToAlign4()
 }
 
 bool SkRBufferWithSizeCheck::read(void* buffer, size_t size) {
-    fError = fError || (fPos + size > fStop);
+    fError = fError || (size > static_cast<size_t>(fStop - fPos));
     if (!fError && (size > 0)) {
         readNoSizeCheck(buffer, size);
     }

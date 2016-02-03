@@ -1016,7 +1016,7 @@ deferTilLater:
     if (!crossesZero) {
         fSectorMask = (unsigned) -1 >> (31 - end + start) << start;
     } else {
-        fSectorMask = (unsigned) -1 >> (31 - start) | (-1 << end);
+        fSectorMask = (unsigned) -1 >> (31 - start) | ((unsigned) -1 << end);
     }
 }
 

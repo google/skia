@@ -43,8 +43,10 @@ public:
     GrDrawBatch(uint32_t classID);
     ~GrDrawBatch() override;
 
-    virtual void getInvariantOutputColor(GrInitInvariantOutput* out) const = 0;
-    virtual void getInvariantOutputCoverage(GrInitInvariantOutput* out) const = 0;
+    /**
+     * Fills in a structure informing the XP of overrides to its normal behavior.
+     */
+    void getPipelineOptimizations(GrPipelineOptimizations* override) const;
 
     const GrPipeline* pipeline() const {
         SkASSERT(fPipelineInstalled);
@@ -61,26 +63,41 @@ public:
         return this->pipeline()->getRenderTarget()->getUniqueID();
     }
 
+    GrRenderTarget* renderTarget() const final {
+        SkASSERT(fPipelineInstalled);
+        return this->pipeline()->getRenderTarget();
+    }
+
     SkString dumpInfo() const override {
         SkString string;
+        string.appendf("RT: %d\n", this->renderTargetUniqueID());
         string.append("ColorStages:\n");
         for (int i = 0; i < this->pipeline()->numColorFragmentProcessors(); i++) {
-            string.appendf("\t\t%s\n", this->pipeline()->getColorFragmentProcessor(i).name());
+            string.appendf("\t\t%s\n\t\t%s\n",
+                           this->pipeline()->getColorFragmentProcessor(i).name(),
+                           this->pipeline()->getColorFragmentProcessor(i).dumpInfo().c_str());
         }
         string.append("CoverageStages:\n");
         for (int i = 0; i < this->pipeline()->numCoverageFragmentProcessors(); i++) {
-            string.appendf("\t%s\n", this->pipeline()->getCoverageFragmentProcessor(i).name());
+            string.appendf("\t\t%s\n\t\t%s\n",
+                           this->pipeline()->getCoverageFragmentProcessor(i).name(),
+                           this->pipeline()->getCoverageFragmentProcessor(i).dumpInfo().c_str());
         }
-        string.appendf("XP: %s\n", this->pipeline()->getXferProcessor()->name());
+        string.appendf("XP: %s\n", this->pipeline()->getXferProcessor().name());
         return string;
     }
+
+protected:
+    virtual void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                              GrInitInvariantOutput* coverage,
+                                              GrBatchToXPOverrides* overrides) const = 0;
 
 private:
     /**
      * initBatchTracker is a hook for the some additional overrides / optimization possibilities
      * from the GrXferProcessor.
      */
-    virtual void initBatchTracker(const GrPipelineOptimizations&) = 0;
+    virtual void initBatchTracker(const GrXPOverridesForBatch&) = 0;
 
 protected:
     SkTArray<SkAutoTUnref<GrBatchUploader>, true>   fInlineUploads;

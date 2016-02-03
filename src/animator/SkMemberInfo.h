@@ -18,6 +18,7 @@
 #include "SkScript.h"
 #include "SkString.h"
 #include "SkIntArray.h"
+#include <utility>
 
 class SkAnimateMaker;
 class SkDisplayable;
@@ -111,11 +112,11 @@ struct SkMemberInfo {
 
 #define SK_MEMBER(_member, _type) \
     { #_member, SK_OFFSETOF(BASE_CLASS, _member), SkType_##_type, \
-    sizeof(skstd::declval<BASE_CLASS>()._member) / sizeof(SkScalar) }
+    sizeof(std::declval<BASE_CLASS>()._member) / sizeof(SkScalar) }
 
 #define SK_MEMBER_ALIAS(_member, _alias, _type) \
     { #_member, SK_OFFSETOF(BASE_CLASS, _alias), SkType_##_type, \
-    sizeof(skstd::declval<BASE_CLASS>()._alias) / sizeof(SkScalar) }
+    sizeof(std::declval<BASE_CLASS>()._alias) / sizeof(SkScalar) }
 
 #define SK_MEMBER_ARRAY(_member, _type) \
     { #_member, SK_OFFSETOF(BASE_CLASS, _member), SkType_Array, \

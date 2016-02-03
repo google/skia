@@ -46,8 +46,8 @@ VisualLightweightBenchModule::VisualLightweightBenchModule(VisualBench* owner)
     , fCurrentSample(0)
     , fResults(new ResultsWriter) {
     // Print header
-    SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tbench\n", FLAGS_samples,
-             "samples");
+    SkDebugf("curr/maxrss\tloops\tmin\tmedian\tmean\tmax\tstddev\t%-*s\tconfig\tbench\n",
+             FLAGS_samples, "samples");
 
     // setup json logging if required
     if (!FLAGS_outResultsFile.isEmpty()) {
@@ -86,10 +86,26 @@ void VisualLightweightBenchModule::printStats(Benchmark* benchmark, int loops) {
     // update log
     // Note: We currently log only the minimum.  It would be interesting to log more information
     SkString configName;
-    if (FLAGS_msaa > 0) {
-        configName.appendf("msaa_%d", FLAGS_msaa);
+    if (FLAGS_cpu) {
+        configName.append("cpu");
+    } else if (FLAGS_nvpr) {
+        if (FLAGS_offscreen) {
+            configName.appendf("nvpr_%d", FLAGS_msaa);
+        } else {
+            configName.appendf("nvpr_msaa_%d", FLAGS_msaa);
+        }
+    } else if (FLAGS_msaa > 0) {
+        if (FLAGS_offscreen) {
+            configName.appendf("offscreen_msaa_%d", FLAGS_msaa);
+        } else {
+            configName.appendf("msaa_%d", FLAGS_msaa);
+        }
     } else {
-        configName.appendf("gpu");
+        if (FLAGS_offscreen) {
+            configName.append("offscreen");
+        } else {
+            configName.append("gpu");
+        }
     }
     // Log bench name
     fResults->bench(shortName, benchmark->getSize().fX, benchmark->getSize().fY);
@@ -108,7 +124,7 @@ void VisualLightweightBenchModule::printStats(Benchmark* benchmark, int loops) {
         SkDebugf("%s\n", shortName);
     } else {
         const double stdDevPercent = 100 * sqrt(stats.var) / stats.mean;
-        SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\n",
+        SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n",
                  sk_tools::getCurrResidentSetSizeMB(),
                  sk_tools::getMaxResidentSetSizeMB(),
                  loops,
@@ -118,6 +134,7 @@ void VisualLightweightBenchModule::printStats(Benchmark* benchmark, int loops) {
                  HUMANIZE(stats.max),
                  stdDevPercent,
                  stats.plot.c_str(),
+                 configName.c_str(),
                  shortName);
     }
 }

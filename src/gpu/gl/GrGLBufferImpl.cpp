@@ -65,7 +65,7 @@ void* GrGLBufferImpl::map(GrGLGpu* gpu) {
     if (0 == fDesc.fID) {
         fMapPtr = fCPUData;
     } else {
-        fMapPtr = gpu->mapBuffer(fDesc.fID, fBufferType, fDesc.fDynamic, fGLSizeInBytes,
+        fMapPtr = gpu->mapBuffer(fDesc.fID, fBufferType, fDesc.fUsage, fGLSizeInBytes,
                                  fDesc.fSizeInBytes);
         fGLSizeInBytes = fDesc.fSizeInBytes;
     }
@@ -89,6 +89,7 @@ bool GrGLBufferImpl::isMapped() const {
 
 bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInBytes) {
     SkASSERT(!this->isMapped());
+    SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
     VALIDATE();
     if (srcSizeInBytes > fDesc.fSizeInBytes) {
         return false;
@@ -97,7 +98,7 @@ bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInB
         memcpy(fCPUData, src, srcSizeInBytes);
         return true;
     }
-    gpu->bufferData(fDesc.fID, fBufferType, fDesc.fDynamic, fDesc.fSizeInBytes, src,
+    gpu->bufferData(fDesc.fID, fBufferType, fDesc.fUsage, fDesc.fSizeInBytes, src,
                     srcSizeInBytes);
 #if GR_GL_USE_BUFFER_DATA_NULL_HINT
     fGLSizeInBytes = fDesc.fSizeInBytes;
@@ -109,7 +110,10 @@ bool GrGLBufferImpl::updateData(GrGLGpu* gpu, const void* src, size_t srcSizeInB
 }
 
 void GrGLBufferImpl::validate() const {
-    SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
+    SkASSERT(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType ||
+             GR_GL_PIXEL_PACK_BUFFER == fBufferType || GR_GL_PIXEL_UNPACK_BUFFER == fBufferType ||
+             GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM == fBufferType ||
+             GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM == fBufferType);
     // The following assert isn't valid when the buffer has been abandoned:
     // SkASSERT((0 == fDesc.fID) == (fCPUData));
     SkASSERT(nullptr == fCPUData || 0 == fGLSizeInBytes);

@@ -11,24 +11,6 @@
 
 #include "batches/GrDrawBatch.h"
 
-void GrProcOptInfo::calcColorWithBatch(const GrDrawBatch* batch,
-                                       const GrFragmentProcessor* const processors[],
-                                       int cnt) {
-    GrInitInvariantOutput out;
-    batch->getInvariantOutputColor(&out);
-    fInOut.reset(out);
-    this->internalCalc(processors, cnt, batch->willReadFragmentPosition());
-}
-
-void GrProcOptInfo::calcCoverageWithBatch(const GrDrawBatch* batch,
-                                          const GrFragmentProcessor* const processors[],
-                                          int cnt) {
-    GrInitInvariantOutput out;
-    batch->getInvariantOutputCoverage(&out);
-    fInOut.reset(out);
-    this->internalCalc(processors, cnt, batch->willReadFragmentPosition());
-}
-
 void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const processors[],
                                           int cnt,
                                           GrColor startColor,
@@ -41,6 +23,14 @@ void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const proc
     out.fValidFlags = flags;
     out.fIsLCDCoverage = isLCD;
     fInOut.reset(out);
+    this->internalCalc(processors, cnt, false);
+}
+
+void GrProcOptInfo::initUsingInvariantOutput(GrInitInvariantOutput invOutput) {
+    fInOut.reset(invOutput);
+}
+
+void GrProcOptInfo::completeCalculations(const GrFragmentProcessor * const processors[], int cnt) {
     this->internalCalc(processors, cnt, false);
 }
 

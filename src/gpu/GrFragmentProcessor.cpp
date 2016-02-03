@@ -8,10 +8,12 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrInvariantOutput.h"
+#include "GrProcOptInfo.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
@@ -153,11 +155,11 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
                 GLFP() {}
 
                 void emitCode(EmitArgs& args) override {
-                    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+                    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
                     this->emitChild(0, nullptr, args);
-                    fsBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
+                    fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
                                                                 args.fInputColor);
-                    fsBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
+                    fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
                 }
             };
             return new GLFP;
@@ -226,9 +228,10 @@ const GrFragmentProcessor* GrFragmentProcessor::OverrideInput(const GrFragmentPr
                 GLFP() : fHaveSetColor(false) {}
                 void emitCode(EmitArgs& args) override {
                     const char* colorName;
-                    fColorUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                          kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                          "Color", &colorName);
+                    fColorUni = args.fUniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
+                                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                         "Color", &colorName);
                     this->emitChild(0, colorName, args);
                 }
 

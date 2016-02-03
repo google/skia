@@ -12,9 +12,9 @@
 #ifndef SkOSFile_DEFINED
 #define SkOSFile_DEFINED
 
-#include "SkString.h"
+#include <stdio.h>
 
-struct SkFILE;
+#include "SkString.h"
 
 enum SkFILE_Flags {
     kRead_SkFILE_Flag   = 0x01,
@@ -27,30 +27,31 @@ const static char SkPATH_SEPARATOR = '\\';
 const static char SkPATH_SEPARATOR = '/';
 #endif
 
-SkFILE* sk_fopen(const char path[], SkFILE_Flags);
-void    sk_fclose(SkFILE*);
+FILE* sk_fopen(const char path[], SkFILE_Flags);
+void    sk_fclose(FILE*);
 
-size_t  sk_fgetsize(SkFILE*);
+size_t  sk_fgetsize(FILE*);
 /** Return true if the file could seek back to the beginning
 */
-bool    sk_frewind(SkFILE*);
+bool    sk_frewind(FILE*);
 
-size_t  sk_fread(void* buffer, size_t byteCount, SkFILE*);
-size_t  sk_fwrite(const void* buffer, size_t byteCount, SkFILE*);
+size_t  sk_fread(void* buffer, size_t byteCount, FILE*);
+size_t  sk_fwrite(const void* buffer, size_t byteCount, FILE*);
 
-char*   sk_fgets(char* str, int size, SkFILE* f);
+char*   sk_fgets(char* str, int size, FILE* f);
 
-void    sk_fflush(SkFILE*);
+void    sk_fflush(FILE*);
+void    sk_fsync(FILE*);
 
-bool    sk_fseek(SkFILE*, size_t);
-bool    sk_fmove(SkFILE*, long);
-size_t  sk_ftell(SkFILE*);
+bool    sk_fseek(FILE*, size_t);
+bool    sk_fmove(FILE*, long);
+size_t  sk_ftell(FILE*);
 
 /** Maps a file into memory. Returns the address and length on success, NULL otherwise.
  *  The mapping is read only.
  *  When finished with the mapping, free the returned pointer with sk_fmunmap.
  */
-void*   sk_fmmap(SkFILE* f, size_t* length);
+void*   sk_fmmap(FILE* f, size_t* length);
 
 /** Maps a file descriptor into memory. Returns the address and length on success, NULL otherwise.
  *  The mapping is read only.
@@ -64,12 +65,12 @@ void*   sk_fdmmap(int fd, size_t* length);
 void    sk_fmunmap(const void* addr, size_t length);
 
 /** Returns true if the two point at the exact same filesystem object. */
-bool    sk_fidentical(SkFILE* a, SkFILE* b);
+bool    sk_fidentical(FILE* a, FILE* b);
 
 /** Returns the underlying file descriptor for the given file.
  *  The return value will be < 0 on failure.
  */
-int     sk_fileno(SkFILE* f);
+int     sk_fileno(FILE* f);
 
 /** Returns true if something (file, directory, ???) exists at this path,
  *  and has the specified access flags.
@@ -80,7 +81,7 @@ bool    sk_exists(const char *path, SkFILE_Flags = (SkFILE_Flags)0);
 bool    sk_isdir(const char *path);
 
 // Have we reached the end of the file?
-int sk_feof(SkFILE *);
+int sk_feof(FILE *);
 
 
 // Create a new directory at this path; returns true if successful.

@@ -18,9 +18,6 @@ IOS_DOCS_DIR="Documents"
 # Temporary location to assemble the app into an .ipa package.
 IOS_PCKG_DIR="/tmp/ios_pckg"
 
-# Bundle id of the app that runs the tests.
-TEST_RUNNER_BUNDLE_ID="com.google.iOSShell"
-
 # Directory with the Skia source.
 SKIA_SRC_DIR=$(cd "${SCRIPT_DIR}/../../.."; pwd)
 
@@ -30,7 +27,7 @@ PROVISIONING_PROFILE=""
 # Code Signing identity - this needs to be set up on the local machine.
 CODE_SIGN_IDENTITY="iPhone Developer"
 
-IOS_BUNDLE_ID="com.google.iOSShell"
+IOS_BUNDLE_ID="com.google.iOSShell.`hostname | md5`"
 
 IOS_RESULTS_DIR="results"
 
@@ -94,7 +91,7 @@ ios_mount() {
   if [[ ! -d "$IOS_MOUNT_POINT" ]]; then
     mkdir -p $IOS_MOUNT_POINT
   fi
-  ifuse --container $TEST_RUNNER_BUNDLE_ID $IOS_MOUNT_POINT
+  ifuse --container $IOS_BUNDLE_ID $IOS_MOUNT_POINT
   sleep 1
   >&2 echo "Successfully mounted device."
 }

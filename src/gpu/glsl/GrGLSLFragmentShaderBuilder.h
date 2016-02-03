@@ -172,6 +172,7 @@ private:
         kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1,
         kBlendEquationAdvanced_GLSLPrivateFeature,
         kBlendFuncExtended_GLSLPrivateFeature,
+        kExternalTexture_GLSLPrivateFeature,
         kLastGLSLPrivateFeature = kBlendFuncExtended_GLSLPrivateFeature
     };
 
@@ -193,6 +194,7 @@ private:
     bool fHasReadDstColor;
     bool fHasReadFragmentPosition;
 
+    friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
 
     typedef GrGLSLXPFragmentBuilder INHERITED;

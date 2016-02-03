@@ -7,25 +7,24 @@
 
 #include "SkBmpCodec.h"
 #include "SkCodec.h"
-#include "SkData.h"
-#include "SkCodec_libgif.h"
-#include "SkCodec_libico.h"
 #include "SkCodec_libpng.h"
-#include "SkCodec_wbmp.h"
 #include "SkCodecPriv.h"
+#include "SkData.h"
+#include "SkGifCodec.h"
+#include "SkIcoCodec.h"
 #if !defined(GOOGLE3)
 #include "SkJpegCodec.h"
 #endif
 #include "SkStream.h"
+#include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
 
 struct DecoderProc {
-    bool (*IsFormat)(SkStream*);
+    bool (*IsFormat)(const void*, size_t);
     SkCodec* (*NewFromStream)(SkStream*);
 };
 
 static const DecoderProc gDecoderProcs[] = {
-    { SkPngCodec::IsPng, SkPngCodec::NewFromStream },
 #if !defined(GOOGLE3)
     { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
 #endif
@@ -36,43 +35,67 @@ static const DecoderProc gDecoderProcs[] = {
     { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream }
 };
 
-SkCodec* SkCodec::NewFromStream(SkStream* stream) {
+size_t SkCodec::MinBufferedBytesNeeded() {
+    return WEBP_VP8_HEADER_SIZE;
+}
+
+SkCodec* SkCodec::NewFromStream(SkStream* stream,
+                                SkPngChunkReader* chunkReader) {
     if (!stream) {
         return nullptr;
     }
 
     SkAutoTDelete<SkStream> streamDeleter(stream);
-    
-    SkAutoTDelete<SkCodec> codec(nullptr);
-    for (uint32_t i = 0; i < SK_ARRAY_COUNT(gDecoderProcs); i++) {
-        DecoderProc proc = gDecoderProcs[i];
-        const bool correctFormat = proc.IsFormat(stream);
+
+    // 14 is enough to read all of the supported types.
+    const size_t bytesToRead = 14;
+    SkASSERT(bytesToRead <= MinBufferedBytesNeeded());
+
+    char buffer[bytesToRead];
+    size_t bytesRead = stream->peek(buffer, bytesToRead);
+
+    // It is also possible to have a complete image less than bytesToRead bytes
+    // (e.g. a 1 x 1 wbmp), meaning peek() would return less than bytesToRead.
+    // Assume that if bytesRead < bytesToRead, but > 0, the stream is shorter
+    // than bytesToRead, so pass that directly to the decoder.
+    // It also is possible the stream uses too small a buffer for peeking, but
+    // we trust the caller to use a large enough buffer.
+
+    if (0 == bytesRead) {
+        // TODO: After implementing peek in CreateJavaOutputStreamAdaptor.cpp, this
+        // printf could be useful to notice failures.
+        // SkCodecPrintf("Encoded image data failed to peek!\n");
+
+        // It is possible the stream does not support peeking, but does support
+        // rewinding.
+        // Attempt to read() and pass the actual amount read to the decoder.
+        bytesRead = stream->read(buffer, bytesToRead);
         if (!stream->rewind()) {
+            SkCodecPrintf("Encoded image data could not peek or rewind to determine format!\n");
             return nullptr;
         }
-        if (correctFormat) {
-            codec.reset(proc.NewFromStream(streamDeleter.detach()));
-            break;
+    }
+
+    // PNG is special, since we want to be able to supply an SkPngChunkReader.
+    // But this code follows the same pattern as the loop.
+    if (SkPngCodec::IsPng(buffer, bytesRead)) {
+        return SkPngCodec::NewFromStream(streamDeleter.detach(), chunkReader);
+    } else {
+        for (DecoderProc proc : gDecoderProcs) {
+            if (proc.IsFormat(buffer, bytesRead)) {
+                return proc.NewFromStream(streamDeleter.detach());
+            }
         }
     }
 
-    // Set the max size at 128 megapixels (512 MB for kN32).
-    // This is about 4x smaller than a test image that takes a few minutes for
-    // dm to decode and draw.
-    const int32_t maxSize = 1 << 27;
-    if (codec && codec->getInfo().width() * codec->getInfo().height() > maxSize) {
-        SkCodecPrintf("Error: Image size too large, cannot decode.\n");
-        return nullptr;
-    } else {
-        return codec.detach();
-    }
+    return nullptr;
 }
 
-SkCodec* SkCodec::NewFromData(SkData* data) {
+SkCodec* SkCodec::NewFromData(SkData* data, SkPngChunkReader* reader) {
     if (!data) {
         return nullptr;
     }
-    return NewFromStream(new SkMemoryStream(data));
+    return NewFromStream(new SkMemoryStream(data), reader);
 }
 
 SkCodec::SkCodec(const SkImageInfo& info, SkStream* stream)

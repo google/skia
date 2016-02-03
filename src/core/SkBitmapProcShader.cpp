@@ -68,11 +68,6 @@ void SkBitmapProcShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fTileModeY);
 }
 
-static bool only_scale_and_translate(const SkMatrix& matrix) {
-    unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
-    return (matrix.getType() & ~mask) == 0;
-}
-
 bool SkBitmapProcShader::isOpaque() const {
     return fRawBitmap.isOpaque();
 }
@@ -104,53 +99,25 @@ SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, vo
                        SkBitmapProvider(fRawBitmap), rec, storage);
 }
 
+static bool only_scale_and_translate(const SkMatrix& matrix) {
+    unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
+    return (matrix.getType() & ~mask) == 0;
+}
+
 SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(const SkShader& shader,
                                                                      const ContextRec& rec,
                                                                      SkBitmapProcState* state)
     : INHERITED(shader, rec)
     , fState(state)
 {
-    const SkPixmap& pixmap = fState->fPixmap;
-    bool isOpaque = pixmap.isOpaque();
-
-    // update fFlags
-    uint32_t flags = 0;
-    if (isOpaque && (255 == this->getPaintAlpha())) {
-        flags |= kOpaqueAlpha_Flag;
+    fFlags = 0;
+    if (fState->fPixmap.isOpaque() && (255 == this->getPaintAlpha())) {
+        fFlags |= kOpaqueAlpha_Flag;
     }
 
-    switch (pixmap.colorType()) {
-        case kRGB_565_SkColorType:
-            flags |= (kHasSpan16_Flag | kIntrinsicly16_Flag);
-            break;
-        case kIndex_8_SkColorType:
-        case kN32_SkColorType:
-            if (isOpaque) {
-                flags |= kHasSpan16_Flag;
-            }
-            break;
-        case kAlpha_8_SkColorType:
-            break;  // never set kHasSpan16_Flag
-        default:
-            break;
+    if (1 == fState->fPixmap.height() && only_scale_and_translate(this->getTotalInverse())) {
+        fFlags |= kConstInY32_Flag;
     }
-
-    if (rec.fPaint->isDither() && pixmap.colorType() != kRGB_565_SkColorType) {
-        // gradients can auto-dither in their 16bit sampler, but we don't so
-        // we clear the flag here.
-        flags &= ~kHasSpan16_Flag;
-    }
-
-    // if we're only 1-pixel high, and we don't rotate, then we can claim this
-    if (1 == pixmap.height() &&
-            only_scale_and_translate(this->getTotalInverse())) {
-        flags |= kConstInY32_Flag;
-        if (flags & kHasSpan16_Flag) {
-            flags |= kConstInY16_Flag;
-        }
-    }
-
-    fFlags = flags;
 }
 
 SkBitmapProcShader::BitmapProcShaderContext::~BitmapProcShaderContext() {
@@ -174,7 +141,7 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan(int x, int y, SkPMCo
                                                             int count) {
     const SkBitmapProcState& state = *fState;
     if (state.getShaderProc32()) {
-        state.getShaderProc32()(state, x, y, dstC, count);
+        state.getShaderProc32()(&state, x, y, dstC, count);
         return;
     }
 
@@ -219,37 +186,6 @@ SkShader::Context::ShadeProc SkBitmapProcShader::BitmapProcShaderContext::asASha
         return (ShadeProc)fState->getShaderProc32();
     }
     return nullptr;
-}
-
-void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint16_t dstC[],
-                                                              int count) {
-    const SkBitmapProcState& state = *fState;
-    if (state.getShaderProc16()) {
-        state.getShaderProc16()(state, x, y, dstC, count);
-        return;
-    }
-
-    uint32_t buffer[BUF_MAX];
-    SkBitmapProcState::MatrixProc   mproc = state.getMatrixProc();
-    SkBitmapProcState::SampleProc16 sproc = state.getSampleProc16();
-    int max = state.maxCountForBufferSize(sizeof(buffer));
-
-    SkASSERT(state.fPixmap.addr());
-
-    for (;;) {
-        int n = count;
-        if (n > max) {
-            n = max;
-        }
-        mproc(state, buffer, n, x, y);
-        sproc(state, buffer, n, dstC);
-
-        if ((count -= n) == 0) {
-            break;
-        }
-        x += n;
-        dstC += n;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

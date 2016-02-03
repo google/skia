@@ -106,9 +106,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxTextureSize = 1;
     fMaxSampleCount = 0;
 
-    memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
-    memset(fConfigTextureSupport, 0, sizeof(fConfigTextureSupport));
-
     fSuppressPrints = options.fSuppressPrints;
     fImmediateFlush = options.fImmediateMode;
     fDrawPathMasksToCompressedTextureSupport = options.fDrawPathToCompressedTexture;
@@ -229,22 +226,24 @@ SkString GrCaps::dump() const {
     GR_STATIC_ASSERT(14 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
 
-    SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig][0]);
-    SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig][1]);
+    SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));
+    SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, true));
 
     for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+        GrPixelConfig config = static_cast<GrPixelConfig>(i);
         r.appendf("%s is renderable: %s, with MSAA: %s\n",
                   kConfigNames[i],
-                  gNY[fConfigRenderSupport[i][0]],
-                  gNY[fConfigRenderSupport[i][1]]);
+                  gNY[this->isConfigRenderable(config, false)],
+                  gNY[this->isConfigRenderable(config, true)]);
     }
 
-    SkASSERT(!fConfigTextureSupport[kUnknown_GrPixelConfig]);
+    SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
     for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+        GrPixelConfig config = static_cast<GrPixelConfig>(i);
         r.appendf("%s is uploadable to a texture: %s\n",
                   kConfigNames[i],
-                  gNY[fConfigTextureSupport[i]]);
+                  gNY[this->isConfigTexturable(config)]);
     }
 
     return r;

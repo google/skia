@@ -18,7 +18,7 @@ DECLARE_string(match);
 
 class VisualBenchmarkStream {
 public:
-    VisualBenchmarkStream(const SkSurfaceProps&);
+    VisualBenchmarkStream(const SkSurfaceProps&, bool justSKP = false);
 
     static bool ReadPicture(const char* path, SkAutoTUnref<SkPicture>* pic);
 

@@ -59,7 +59,7 @@ public:
         fFlags = SkToU8((fFlags & ~kReset) | (int)reset);
     }
 
-    Result  timeToT(SkMSec time, SkScalar* T, int* index, SkBool* exact) const;
+    Result  timeToT(SkMSec time, SkScalar* T, int* index, bool* exact) const;
 
 protected:
     enum Flags {
@@ -121,8 +121,15 @@ private:
     typedef SkInterpolatorBase INHERITED;
 };
 
-/** Given all the parameters are [0...1], apply the cubic specified by (0,0)
-    (bx,by) (cx,cy) (1,1) to value, returning the answer, also [0...1].
+/** Interpolate a cubic curve, typically to provide an ease-in ease-out transition.
+    All the parameters are in the range of [0...1].
+    The input value is treated as the x-coordinate of the cubic.
+    The output value is the y-coordinate on the cubic at the x-coordinate.
+
+    @param value        The x-coordinate pinned between [0..1].
+    @param bx,by,cx,cy  The cubic control points where the cubic is specified
+                        as (0,0) (bx,by) (cx,cy) (1,1)
+    @return             the corresponding y-coordinate value, from [0..1].
 */
 SkScalar SkUnitCubicInterp(SkScalar value, SkScalar bx, SkScalar by,
                            SkScalar cx, SkScalar cy);

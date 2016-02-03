@@ -12,6 +12,7 @@
 #include "SkTypes.h"
 
 #include <new>
+#include <utility>
 
 template <typename T, bool MEM_COPY = false> class SkTArray;
 
@@ -23,11 +24,11 @@ inline void copy(SkTArray<T, true>* self, int dst, int src) {
 }
 template<typename T>
 inline void copy(SkTArray<T, true>* self, const T* array) {
-    memcpy(self->fMemArray, array, self->fCount * sizeof(T));
+    sk_careful_memcpy(self->fMemArray, array, self->fCount * sizeof(T));
 }
 template<typename T>
 inline void copyAndDelete(SkTArray<T, true>* self, char* newMemArray) {
-    memcpy(newMemArray, self->fMemArray, self->fCount * sizeof(T));
+    sk_careful_memcpy(newMemArray, self->fMemArray, self->fCount * sizeof(T));
 }
 
 template<typename T>
@@ -198,7 +199,7 @@ public:
      */
     template<class... Args> T& emplace_back(Args&&... args) {
         T* newT = reinterpret_cast<T*>(this->push_back_raw(1));
-        return *new (newT) T(skstd::forward<Args>(args)...);
+        return *new (newT) T(std::forward<Args>(args)...);
     }
 
     /**

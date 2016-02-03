@@ -16,9 +16,9 @@
 #include "SkLightingImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPoint3.h"
-#include "SkRectShaderImageFilter.h"
 #include "SkScalar.h"
 #include "SkSurface.h"
 #include "gm.h"
@@ -56,6 +56,8 @@ protected:
         SkAutoTUnref<SkImageFilter> checkerboard(SkImageSource::Create(fCheckerboard));
         SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
+        SkPaint noisePaint;
+        noisePaint.setShader(noise);
 
         SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
         SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10), 
@@ -84,7 +86,7 @@ protected:
             SkErodeImageFilter::Create(1, 1, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(32), 0),
             SkImageFilter::CreateMatrixFilter(resizeMatrix, kNone_SkFilterQuality),
-            SkRectShaderImageFilter::Create(noise),
+            SkPaintImageFilter::Create(noisePaint),
             SkLightingImageFilter::CreatePointLitDiffuse(pointLocation, white, surfaceScale, kd),
             SkLightingImageFilter::CreateSpotLitDiffuse(spotLocation, spotTarget, spotExponent,
                                                         cutoffAngle, white, surfaceScale, kd),

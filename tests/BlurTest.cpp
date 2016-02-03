@@ -99,8 +99,7 @@ static bool compare(const SkBitmap& ref, const SkIRect& iref,
     return true;
 }
 
-static void test_blur_drawing(skiatest::Reporter* reporter) {
-
+DEF_TEST(BlurDrawing, reporter) {
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
     paint.setStyle(SkPaint::kStroke_Style);
@@ -171,8 +170,9 @@ static void ground_truth_2d(int width, int height,
 
     memset(src.fImage, 0xff, src.computeTotalImageSize());
 
-    dst.fImage = nullptr;
-    SkBlurMask::BlurGroundTruth(sigma, &dst, src, kNormal_SkBlurStyle);
+    if (!SkBlurMask::BlurGroundTruth(sigma, &dst, src, kNormal_SkBlurStyle)) {
+        return;
+    }
 
     int midX = dst.fBounds.centerX();
     int midY = dst.fBounds.centerY();
@@ -276,15 +276,9 @@ static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
 #if SK_SUPPORT_GPU
 #if 0
 // temporary disable; see below for explanation
-static bool gpu_blur_path(GrContextFactory* factory, const SkPath& path,
+static bool gpu_blur_path(GrContext* context, const SkPath& path,
                           SkScalar gaussianSigma,
                           int* result, int resultCount) {
-
-    GrContext* grContext = factory->get(GrContextFactory::kNative_GLContextType);
-    if (nullptr == grContext) {
-        return false;
-    }
-
     GrSurfaceDesc desc;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -326,8 +320,7 @@ static bool match(int* first, int* second, int count, int tol) {
 }
 
 // Test out the normal blur style with a wide range of sigmas
-static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* factory) {
-
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurSigmaRange, reporter, context) {
     static const int kSize = 100;
 
     // The geometry is offset a smidge to trigger:
@@ -365,7 +358,7 @@ static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* fac
 #if SK_SUPPORT_GPU
 #if 0
         int gpuResult[kSize];
-        bool haveGPUResult = gpu_blur_path(factory, rectPath, sigma, gpuResult, kSize);
+        bool haveGPUResult = gpu_blur_path(context, rectPath, sigma, gpuResult, kSize);
         // Disabling this test for now -- I don't think it's a legit comparison.
         // Will continue to investigate this.
         if (haveGPUResult) {
@@ -507,7 +500,7 @@ static void test_layerDrawLooper(skiatest::Reporter* reporter, SkMaskFilter* mf,
     test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, false);
 }
 
-static void test_asABlur(skiatest::Reporter* reporter) {
+DEF_TEST(BlurAsABlur, reporter) {
     const SkBlurStyle styles[] = {
         kNormal_SkBlurStyle, kSolid_SkBlurStyle, kOuter_SkBlurStyle, kInner_SkBlurStyle
     };
@@ -565,10 +558,25 @@ static void test_asABlur(skiatest::Reporter* reporter) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+#if SK_SUPPORT_GPU
 
-DEF_GPUTEST(Blur, reporter, factory) {
-    test_blur_drawing(reporter);
-    test_sigma_range(reporter, factory);
-    test_asABlur(reporter);
+// This exercises the problem discovered in crbug.com/570232. The return value from 
+// SkBlurMask::BoxBlur wasn't being checked in SkBlurMaskFilter.cpp::GrRRectBlurEffect::Create
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctx) {
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info));
+    SkCanvas* canvas = surface->getCanvas();
+
+    SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);
+    SkRRect rr = SkRRect::MakeRectXY(r, 10, 10);
+
+    SkPaint p;
+    p.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle, 0.01f))->unref();
+
+    canvas->drawRRect(rr, p);
 }
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////

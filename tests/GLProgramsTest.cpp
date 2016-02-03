@@ -15,6 +15,7 @@
 #include "GrAutoLocaleSetter.h"
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
+#include "GrDrawContext.h"
 #include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
@@ -48,11 +49,11 @@ public:
 
     virtual void emitCode(EmitArgs& args) override {
         // pass through
-        GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         if (args.fInputColor) {
-            fsBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
+            fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         } else {
-            fsBuilder->codeAppendf("%s = vec4(1.0);\n", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = vec4(1.0);\n", args.fOutputColor);
         }
     }
 
@@ -301,9 +302,7 @@ static void set_random_stencil(GrPipelineBuilder* pipelineBuilder, SkRandom* ran
     }
 }
 
-bool GrDrawingManager::ProgramUnitTest(GrContext* context,
-                                       GrDrawTarget* drawTarget,
-                                       int maxStages) {
+bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     GrDrawingManager* drawingManager = context->drawingManager();
 
     // setup dummy textures
@@ -358,7 +357,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context,
         set_random_state(&pipelineBuilder, &random);
         set_random_stencil(&pipelineBuilder, &random);
 
-        drawTarget->drawBatch(pipelineBuilder, batch);
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            SkDebugf("Could not allocate drawContext");
+            return false;
+        }
+
+        drawContext->internal_drawBatch(pipelineBuilder, batch);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -389,7 +394,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context,
                 BlockInputFragmentProcessor::Create(fp));
             builder.addColorFragmentProcessor(blockFP);
 
-            drawTarget->drawBatch(builder, batch);
+            SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+            if (!drawContext) {
+                SkDebugf("Could not allocate a drawcontext");
+                return false;
+            }
+
+            drawContext->internal_drawBatch(builder, batch);
             drawingManager->flush();
         }
     }
@@ -397,7 +408,45 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context,
     return true;
 }
 
-DEF_GPUTEST(GLPrograms, reporter, factory) {
+static int get_glprograms_max_stages(GrContext* context) {
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
+    /*
+     * For the time being, we only support the test with desktop GL or for android on
+     * ARM platforms
+     * TODO When we run ES 3.00 GLSL in more places, test again
+     */
+    if (kGL_GrGLStandard == gpu->glStandard() ||
+        kARM_GrGLVendor == gpu->ctxInfo().vendor()) {
+        return 6;
+    } else if (kTegra3_GrGLRenderer == gpu->ctxInfo().renderer() ||
+               kOther_GrGLRenderer == gpu->ctxInfo().renderer()) {
+        return 1;
+    }
+    return 0;
+}
+
+static void test_glprograms_native(skiatest::Reporter* reporter, GrContext* context) {
+    int maxStages = get_glprograms_max_stages(context);
+    if (maxStages == 0) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+}
+
+static void test_glprograms_other_contexts(skiatest::Reporter* reporter, GrContext* context) {
+    int maxStages = get_glprograms_max_stages(context);
+#ifdef SK_BUILD_FOR_WIN
+    // Some long shaders run out of temporary registers in the D3D compiler on ANGLE and
+    // command buffer.
+    maxStages = SkTMin(maxStages, 2);
+#endif
+    if (maxStages == 0) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(context, maxStages));
+}
+
+DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
     // Set a locale that would cause shader compilation to fail because of , as decimal separator.
     // skbug 3330
 #ifdef SK_BUILD_FOR_WIN
@@ -410,45 +459,10 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
     GrContextOptions opts;
     opts.fSuppressPrints = true;
     GrContextFactory debugFactory(opts);
-    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
-        GrContext* context = debugFactory.get(static_cast<GrContextFactory::GLContextType>(type));
-        if (context) {
-            GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
-
-            /*
-             * For the time being, we only support the test with desktop GL or for android on
-             * ARM platforms
-             * TODO When we run ES 3.00 GLSL in more places, test again
-             */
-            int maxStages;
-            if (kGL_GrGLStandard == gpu->glStandard() ||
-                kARM_GrGLVendor == gpu->ctxInfo().vendor()) {
-                maxStages = 6;
-            } else if (kTegra3_GrGLRenderer == gpu->ctxInfo().renderer() ||
-                       kOther_GrGLRenderer == gpu->ctxInfo().renderer()) {
-                maxStages = 1;
-            } else {
-                return;
-            }
-#if SK_ANGLE
-            // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
-            if (type == GrContextFactory::kANGLE_GLContextType) {
-                maxStages = 2;
-            }
-#endif
-#if SK_COMMAND_BUFFER
-            // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
-            // TODO(hendrikw): This only needs to happen with the ANGLE comand buffer backend.
-            if (type == GrContextFactory::kCommandBuffer_GLContextType) {
-                maxStages = 2;
-            }
-#endif
-            GrTestTarget testTarget;
-            context->getTestTarget(&testTarget);
-            REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(
-                                            context, testTarget.target(), maxStages));
-        }
-    }
+    skiatest::RunWithGPUTestContexts(test_glprograms_native, skiatest::kNative_GPUTestContexts,
+                                     reporter, &debugFactory);
+    skiatest::RunWithGPUTestContexts(test_glprograms_other_contexts,
+                                     skiatest::kOther_GPUTestContexts, reporter, &debugFactory);
 }
 
 #endif

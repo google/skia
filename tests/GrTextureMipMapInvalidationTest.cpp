@@ -10,7 +10,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrContextFactory.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "SkCanvas.h"
@@ -20,47 +19,44 @@
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
-DEF_GPUTEST(GrTextureMipMapInvalidationTest, reporter, factory) {
-    GrContext* context = factory->get(GrContextFactory::kNull_GLContextType);
-    if (context) {
-        GrSurfaceDesc desc;
-        desc.fConfig = kSkia8888_GrPixelConfig;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fWidth = 256;
-        desc.fHeight = 256;
-        desc.fSampleCnt = 0;
-        GrSurface* texRT1 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
-        GrSurface* texRT2 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
-        REPORTER_ASSERT(reporter, nullptr != texRT1);
-        REPORTER_ASSERT(reporter, nullptr != texRT2);
-        GrTexture* tex = texRT1->asTexture();
-        REPORTER_ASSERT(reporter, nullptr != tex);
-        SkBitmap bitmap;
-        GrWrapTextureInBitmap(tex, 256, 256, false, &bitmap);
+DEF_GPUTEST_FOR_NULL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, context) {
+    GrSurfaceDesc desc;
+    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = 256;
+    desc.fHeight = 256;
+    desc.fSampleCnt = 0;
+    GrSurface* texRT1 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+    GrSurface* texRT2 = context->textureProvider()->createTexture(desc, false, nullptr, 0);
+    REPORTER_ASSERT(reporter, nullptr != texRT1);
+    REPORTER_ASSERT(reporter, nullptr != texRT2);
+    GrTexture* tex = texRT1->asTexture();
+    REPORTER_ASSERT(reporter, nullptr != tex);
+    SkBitmap bitmap;
+    GrWrapTextureInBitmap(tex, 256, 256, false, &bitmap);
 
-        // No mipmaps initially
-        REPORTER_ASSERT(reporter, false == tex->texturePriv().hasMipMaps());
+    // No mipmaps initially
+    REPORTER_ASSERT(reporter, false == tex->texturePriv().hasMipMaps());
 
-        // Painting with downscale and medium filter quality should result in mipmap creation
-        SkSurface* surface = SkSurface::NewRenderTargetDirect(texRT2->asRenderTarget());
-        SkPaint paint;
-        paint.setFilterQuality(kMedium_SkFilterQuality);
-        surface->getCanvas()->scale(0.2f, 0.2f);
-        surface->getCanvas()->drawBitmap(bitmap, 0, 0, &paint);
-        context->flush();
+    // Painting with downscale and medium filter quality should result in mipmap creation
+    SkSurface* surface = SkSurface::NewRenderTargetDirect(texRT2->asRenderTarget());
+    SkPaint paint;
+    paint.setFilterQuality(kMedium_SkFilterQuality);
+    surface->getCanvas()->scale(0.2f, 0.2f);
+    surface->getCanvas()->drawBitmap(bitmap, 0, 0, &paint);
+    context->flush();
 
-        REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
-        REPORTER_ASSERT(reporter, false == tex->texturePriv().mipMapsAreDirty());
+    REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
+    REPORTER_ASSERT(reporter, false == tex->texturePriv().mipMapsAreDirty());
 
-        // Invalidating the contents of the bitmap should invalidate the mipmap, but not de-allocate
-        bitmap.notifyPixelsChanged();
-        REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
-        REPORTER_ASSERT(reporter, true == tex->texturePriv().mipMapsAreDirty());
+    // Invalidating the contents of the bitmap should invalidate the mipmap, but not de-allocate
+    bitmap.notifyPixelsChanged();
+    REPORTER_ASSERT(reporter, true == tex->texturePriv().hasMipMaps());
+    REPORTER_ASSERT(reporter, true == tex->texturePriv().mipMapsAreDirty());
 
-        surface->unref();
-        texRT1->unref();
-        texRT2->unref();
-    }
+    surface->unref();
+    texRT1->unref();
+    texRT2->unref();
 }
 
 #endif

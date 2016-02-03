@@ -215,8 +215,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new PathFillGM; }
-static skiagm::GMRegistry reg(MyFactory);
-
-static skiagm::GM* F1(void*) { return new PathInverseFillGM; }
-static skiagm::GMRegistry gR1(F1);
+DEF_GM( return new PathFillGM; )
+DEF_GM( return new PathInverseFillGM; )

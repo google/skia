@@ -15,7 +15,6 @@
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkGPipe.h"
 #include "SkPicture.h"
 #include "gm.h"
 
@@ -105,8 +104,11 @@ class CodecSrc : public Src {
 public:
     enum Mode {
         kCodec_Mode,
+        // We choose to test only one mode with zero initialized memory.
+        // This will exercise all of the interesting cases in SkSwizzler
+        // without doubling the size of our test suite.
+        kCodecZeroInit_Mode,
         kScanline_Mode,
-        kScanline_Subset_Mode,
         kStripe_Mode, // Tests the skipping of scanlines
         kSubset_Mode, // For codecs that support subsets directly.
     };
@@ -215,18 +217,19 @@ public:
 
 class GPUSink : public Sink {
 public:
-    GPUSink(GrContextFactory::GLContextType, GrGLStandard, int samples, bool diText, bool threaded);
+    GPUSink(GrContextFactory::GLContextType, GrContextFactory::GLContextOptions,
+            int samples, bool diText, bool threaded);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     int enclave() const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
 private:
-    GrContextFactory::GLContextType fContextType;
-    GrGLStandard                    fGpuAPI;
-    int                             fSampleCount;
-    bool                            fUseDIText;
-    bool                            fThreaded;
+    GrContextFactory::GLContextType    fContextType;
+    GrContextFactory::GLContextOptions fContextOptions;
+    int                                fSampleCount;
+    bool                               fUseDIText;
+    bool                               fThreaded;
 };
 
 class PDFSink : public Sink {
@@ -316,12 +319,6 @@ private:
     const SkMatrix fMatrix;
 };
 
-class ViaPipe : public Via {
-public:
-    explicit ViaPipe(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
 class ViaRemote : public Via {
 public:
     ViaRemote(bool cache, Sink* sink) : Via(sink), fCache(cache) {}
@@ -333,6 +330,12 @@ private:
 class ViaSerialization : public Via {
 public:
     explicit ViaSerialization(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaPicture : public Via {
+public:
+    explicit ViaPicture(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 

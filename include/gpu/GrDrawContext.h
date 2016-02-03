@@ -9,18 +9,20 @@
 #define GrDrawContext_DEFINED
 
 #include "GrColor.h"
+#include "GrRenderTarget.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
+#include "../private/GrSingleOwner.h"
 
+class GrAuditTrail;
 class GrClip;
 class GrContext;
 class GrDrawBatch;
+class GrDrawPathBatchBase;
 class GrDrawingManager;
 class GrDrawTarget;
 class GrPaint;
 class GrPathProcessor;
-class GrPathRange;
-class GrPathRangeDraw;
 class GrPipelineBuilder;
 class GrRenderTarget;
 class GrStrokeInfo;
@@ -61,16 +63,6 @@ public:
                       const SkMatrix& viewMatrix, const SkTextBlob*,
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds);
-
-    // drawPathsFromRange is thanks to GrStencilAndCoverTextContext
-    // TODO: remove once path batches can be created external to GrDrawTarget.
-    void drawPathsFromRange(const GrPipelineBuilder*,
-                            const SkMatrix& viewMatrix,
-                            const SkMatrix& localMatrix,
-                            GrColor color,
-                            GrPathRange* range,
-                            GrPathRangeDraw* draw,
-                            int /*GrPathRendering::FillType*/ fill);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -242,6 +234,27 @@ public:
                   const SkRect& oval,
                   const GrStrokeInfo& strokeInfo);
 
+    /**
+     *  Draw the image stretched differentially to fit into dst.
+     *  center is a rect within the image, and logically divides the image
+     *  into 9 sections (3x3). For example, if the middle pixel of a [5x5]
+     *  image is the "center", then the center-rect should be [2, 2, 3, 3].
+     *
+     *  If the dst is >= the image size, then...
+     *  - The 4 corners are not stretched at all.
+     *  - The sides are stretched in only one axis.
+     *  - The center is stretched in both axes.
+     * Else, for each axis where dst < image,
+     *  - The corners shrink proportionally
+     *  - The sides (along the shrink axis) and center are not drawn
+     */
+    void drawImageNine(const GrClip&,
+                       const GrPaint& paint,
+                       const SkMatrix& viewMatrix,
+                       int imageWidth,
+                       int imageHeight,
+                       const SkIRect& center,
+                       const SkRect& dst);
 
     /**
      * Draws a batch
@@ -251,13 +264,32 @@ public:
      */
     void drawBatch(const GrClip&, const GrPaint&, GrDrawBatch*);
 
+    /**
+     * Draws a path batch. This needs to be separate from drawBatch because we install path stencil
+     * settings late.
+     *
+     * TODO: Figure out a better model that allows us to roll this method into drawBatch.
+     */
+    void drawPathBatch(const GrPipelineBuilder&, GrDrawPathBatchBase*);
+
+    int width() const { return fRenderTarget->width(); }
+    int height() const { return fRenderTarget->height(); }
+    int numColorSamples() const { return fRenderTarget->numColorSamples(); }
+
+    GrRenderTarget* accessRenderTarget() { return fRenderTarget; }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Functions intended for internal use only.
+    void internal_drawBatch(const GrPipelineBuilder& pipelineBuilder, GrDrawBatch* batch);
+
 private:
-    friend class GrAtlasTextContext; // for access to drawBatch
+    friend class GrAtlasTextBlob; // for access to drawBatch
     friend class GrDrawingManager; // for ctor
 
     SkDEBUGCODE(void validate() const;)
 
-    GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps);
+    GrDrawContext(GrDrawingManager*, GrRenderTarget*, const SkSurfaceProps* surfaceProps,
+                  GrAuditTrail*, GrSingleOwner*);
 
     void internalDrawPath(GrPipelineBuilder*,
                           const SkMatrix& viewMatrix,
@@ -281,6 +313,10 @@ private:
     GrTextContext*    fTextContext; // lazily gotten from GrContext::DrawingManager
 
     SkSurfaceProps    fSurfaceProps;
+    GrAuditTrail*     fAuditTrail;
+
+    // In debug builds we guard against improper thread handling
+    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
 
 #endif

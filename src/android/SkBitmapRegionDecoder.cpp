@@ -30,29 +30,43 @@ SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
                 return nullptr;
             }
 
-            if (SkEncodedFormat::kWEBP_SkEncodedFormat == codec->getEncodedFormat()) {
-                // FIXME: Support webp using a special case.  Webp does not support
-                //        scanline decoding.
-                return nullptr;
-            }
-
-            switch (codec->getScanlineOrder()) {
-                case SkCodec::kTopDown_SkScanlineOrder:
-                case SkCodec::kNone_SkScanlineOrder:
+            SkEncodedFormat format = codec->getEncodedFormat();
+            switch (format) {
+                case SkEncodedFormat::kJPEG_SkEncodedFormat:
+                case SkEncodedFormat::kPNG_SkEncodedFormat:
                     break;
                 default:
-                    SkCodecPrintf("Error: Scanline ordering not supported.\n");
+                    // FIXME: Support webp using a special case.  Webp does not support
+                    //        scanline decoding.
                     return nullptr;
             }
+
+            // If the image is a jpeg or a png, the scanline ordering should always be
+            // kTopDown or kNone.  It is relevant to check because this implementation
+            // only supports these two scanline orderings.
+            SkASSERT(SkCodec::kTopDown_SkScanlineOrder == codec->getScanlineOrder() ||
+                    SkCodec::kNone_SkScanlineOrder == codec->getScanlineOrder());
+
             return new SkBitmapRegionCanvas(codec.detach());
         }
         case kAndroidCodec_Strategy: {
             SkAutoTDelete<SkAndroidCodec> codec =
                     SkAndroidCodec::NewFromStream(streamDeleter.detach());
-            if (NULL == codec) {
+            if (nullptr == codec) {
                 SkCodecPrintf("Error: Failed to create codec.\n");
                 return NULL;
             }
+
+            SkEncodedFormat format = codec->getEncodedFormat();
+            switch (format) {
+                case SkEncodedFormat::kJPEG_SkEncodedFormat:
+                case SkEncodedFormat::kPNG_SkEncodedFormat:
+                case SkEncodedFormat::kWEBP_SkEncodedFormat:
+                    break;
+                default:
+                    return nullptr;
+            }
+
             return new SkBitmapRegionCodec(codec.detach());
         }
         default:

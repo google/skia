@@ -56,6 +56,10 @@ public:
     static void AntiHairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void HairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiHairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void HairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void HairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
 
 private:
     friend class SkAAClip;

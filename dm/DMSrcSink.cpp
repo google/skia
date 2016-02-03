@@ -6,7 +6,6 @@
  */
 
 #include "DMSrcSink.h"
-#include "SamplePipeControllers.h"
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
@@ -14,6 +13,7 @@
 #include "SkDocument.h"
 #include "SkError.h"
 #include "SkImageGenerator.h"
+#include "SkMallocPixelRef.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
@@ -113,7 +113,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
     }
 
     if (!brd->conversionSupported(colorType)) {
-        return Error::Nonfatal("Cannot convert to color type.\n");
+        return Error::Nonfatal("Cannot convert to color type.");
     }
 
     const uint32_t width = brd->width();
@@ -127,10 +127,10 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             SkBitmap bitmap;
             if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, width, height),
                     fSampleSize, colorType, false)) {
-                return "Cannot decode (full) region.\n";
+                return "Cannot decode (full) region.";
             }
             if (colorType != bitmap.colorType()) {
-                return Error::Nonfatal("Cannot convert to color type.\n");
+                return Error::Nonfatal("Cannot convert to color type.");
             }
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
@@ -138,7 +138,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         case kDivisor_Mode: {
             const uint32_t divisor = 2;
             if (width < divisor || height < divisor) {
-                return Error::Nonfatal("Divisor is larger than image dimension.\n");
+                return Error::Nonfatal("Divisor is larger than image dimension.");
             }
 
             // Use a border to test subsets that extend outside the image.
@@ -183,10 +183,10 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     SkBitmap bitmap;
                     if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(decodeLeft,
                             decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false)) {
-                        return "Cannot decode region.\n";
+                        return "Cannot decode region.";
                     }
                     if (colorType != bitmap.colorType()) {
-                        return Error::Nonfatal("Cannot convert to color type.\n");
+                        return Error::Nonfatal("Cannot convert to color type.");
                     }
 
                     canvas->drawBitmapRect(bitmap,
@@ -204,7 +204,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         }
         default:
             SkASSERT(false);
-            return "Error: Should not be reached.\n";
+            return "Error: Should not be reached.";
     }
 }
 
@@ -316,14 +316,22 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
 
     SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
+    SkPixelRefFactory* factory = nullptr;
+    SkMallocPixelRef::ZeroedPRFactory zeroFactory;
+    SkCodec::Options options;
+    if (kCodecZeroInit_Mode == fMode) {
+        factory = &zeroFactory;
+        options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+    }
+    if (!bitmap.tryAllocPixels(decodeInfo, factory, colorTable.get())) {
+        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
 
     switch (fMode) {
+        case kCodecZeroInit_Mode:
         case kCodec_Mode: {
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), nullptr,
+            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options,
                     colorPtr, colorCountPtr)) {
                 case SkCodec::kSuccess:
                     // We consider incomplete to be valid, since we should still decode what is
@@ -370,82 +378,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             canvas->drawBitmap(bitmap, 0, 0);
-            break;
-        }
-        case kScanline_Subset_Mode: {
-            //this mode decodes the image in divisor*divisor subsets, using a scanline decoder
-            const int divisor = 2;
-            const int w = decodeInfo.width();
-            const int h = decodeInfo.height();
-            if (divisor > w || divisor > h) {
-                return Error::Nonfatal(SkStringPrintf("Cannot decode subset: divisor %d is too big"
-                        "for %s with dimensions (%d x %d)", divisor, fPath.c_str(), w, h));
-            }
-            const int subsetWidth = w/divisor;
-            const int subsetHeight = h/divisor;
-            // One of our subsets will be larger to contain any pixels that do not divide evenly.
-            const int extraX = w % divisor;
-            const int extraY = h % divisor;
-            /*
-            * if w or h are not evenly divided by divisor need to adjust width and height of end
-            * subsets to cover entire image.
-            * Add extraX and extraY to largestSubsetBm's width and height to adjust width
-            * and height of end subsets.
-            * subsetBm is extracted from largestSubsetBm.
-            * subsetBm's size is determined based on the current subset and may be larger for end
-            * subsets.
-            */
-            SkImageInfo largestSubsetDecodeInfo =
-                    decodeInfo.makeWH(subsetWidth + extraX, subsetHeight + extraY);
-            SkBitmap largestSubsetBm;
-            if (!largestSubsetBm.tryAllocPixels(largestSubsetDecodeInfo, nullptr,
-                    colorTable.get())) {
-                return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
-                        largestSubsetDecodeInfo.width(), largestSubsetDecodeInfo.height());
-            }
-            for (int col = 0; col < divisor; col++) {
-                //currentSubsetWidth may be larger than subsetWidth for rightmost subsets
-                const int currentSubsetWidth = (col + 1 == divisor) ?
-                        subsetWidth + extraX : subsetWidth;
-                const int x = col * subsetWidth;
-                for (int row = 0; row < divisor; row++) {
-                    //currentSubsetHeight may be larger than subsetHeight for bottom subsets
-                    const int currentSubsetHeight = (row + 1 == divisor) ?
-                            subsetHeight + extraY : subsetHeight;
-                    const int y = row * subsetHeight;
-                    //create scanline decoder for each subset
-                    SkCodec::Options options;
-                    SkIRect subset = SkIRect::MakeXYWH(x, 0, currentSubsetWidth, h);
-                    options.fSubset = &subset;
-                    // TODO (msarett): Support this mode for all scanline orderings.
-                    if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options,
-                            colorPtr, colorCountPtr) ||
-                            SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
-                        if (x == 0 && y == 0) {
-                            //first try, image may not be compatible
-                            return Error::Nonfatal("Could not start top-down scanline decoder");
-                        } else {
-                            return "Error scanline decoder is nullptr";
-                        }
-                    }
-                    // Skip to the first line of subset.  We ignore the result value here.
-                    // If the skip value fails, this will indicate an incomplete image.
-                    // This means that the call to getScanlines() will also fail, but it
-                    // will fill the buffer with a default value, so we can still draw the
-                    // image.
-                    codec->skipScanlines(y);
-
-                    //create and set size of subsetBm
-                    SkBitmap subsetBm;
-                    SkIRect bounds = SkIRect::MakeWH(currentSubsetWidth, currentSubsetHeight);
-                    SkAssertResult(largestSubsetBm.extractSubset(&subsetBm, bounds));
-                    SkAutoLockPixels autolock(subsetBm, true);
-                    codec->getScanlines(subsetBm.getAddr(0, 0), currentSubsetHeight,
-                            subsetBm.rowBytes());
-                    subsetBm.notifyPixelsChanged();
-                    canvas->drawBitmap(subsetBm, SkIntToScalar(x), SkIntToScalar(y));
-                }
-            }
             break;
         }
         case kStripe_Mode: {
@@ -655,7 +587,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
     SkBitmap bitmap;
     if (!bitmap.tryAllocPixels(decodeInfo, nullptr, colorTable.get())) {
-        return SkStringPrintf("Image(%s) is too large (%d x %d)\n", fPath.c_str(),
+        return SkStringPrintf("Image(%s) is too large (%d x %d)", fPath.c_str(),
                               decodeInfo.width(), decodeInfo.height());
     }
 
@@ -673,7 +605,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                 case SkCodec::kIncompleteInput:
                     break;
                 case SkCodec::kInvalidConversion:
-                    return Error::Nonfatal("Cannot convert to requested color type.\n");
+                    return Error::Nonfatal("Cannot convert to requested color type.");
                 default:
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
@@ -685,7 +617,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
             const int height = codec->getInfo().height();
             const int divisor = 2;
             if (width < divisor || height < divisor) {
-                return Error::Nonfatal("Divisor is larger than image dimension.\n");
+                return Error::Nonfatal("Divisor is larger than image dimension.");
             }
 
             // Keep track of the final decoded dimensions.
@@ -705,7 +637,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                     subsetHeight += (y + 1 == divisor) ? (height % divisor) : 0;
                     SkIRect subset = SkIRect::MakeXYWH(left, top, subsetWidth, subsetHeight);
                     if (!codec->getSupportedSubset(&subset)) {
-                        return "Could not get supported subset to decode.\n";
+                        return "Could not get supported subset to decode.";
                     }
                     options.fSubset = &subset;
                     const int scaledWidthOffset = subset.left() / fSampleSize;
@@ -727,7 +659,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                         case SkCodec::kIncompleteInput:
                             break;
                         case SkCodec::kInvalidConversion:
-                            return Error::Nonfatal("Cannot convert to requested color type.\n");
+                            return Error::Nonfatal("Cannot convert to requested color type.");
                         default:
                             return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
                     }
@@ -741,7 +673,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
         }
         default:
             SkASSERT(false);
-            return "Error: Should not be reached.\n";
+            return "Error: Should not be reached.";
     }
 }
 
@@ -865,12 +797,12 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::GLContextType ct,
-                 GrGLStandard api,
+                 GrContextFactory::GLContextOptions options,
                  int samples,
                  bool diText,
                  bool threaded)
     : fContextType(ct)
-    , fGpuAPI(api)
+    , fContextOptions(options)
     , fSampleCount(samples)
     , fUseDIText(diText)
     , fThreaded(threaded) {}
@@ -882,20 +814,25 @@ int GPUSink::enclave() const {
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
 
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
+DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
+DEFINE_bool(batchBounds, false, "Draw a wireframe bounds of each GrBatch.");
+DEFINE_int32(batchLookback, -1, "Maximum GrBatch lookback for combining, negative means default.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
-    GrContextOptions options;
-    if (FLAGS_imm) {
-        options.fImmediateMode = true;
-    }
-    src.modifyGrContextOptions(&options);
+    GrContextOptions grOptions;
+    grOptions.fImmediateMode = FLAGS_imm;
+    grOptions.fClipBatchToBounds = FLAGS_batchClip;
+    grOptions.fDrawBatchBounds = FLAGS_batchBounds;
+    grOptions.fMaxBatchLookback = FLAGS_batchLookback;
 
-    GrContextFactory factory(options);
+    src.modifyGrContextOptions(&grOptions);
+
+    GrContextFactory factory(grOptions);
     const SkISize size = src.size();
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(
-            NewGpuSurface(&factory, fContextType, fGpuAPI, info, fSampleCount, fUseDIText));
+            NewGpuSurface(&factory, fContextType, fContextOptions, info, fSampleCount, fUseDIText));
     if (!surface) {
         return "Could not create a surface.";
     }
@@ -1044,8 +981,10 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
     SkAlphaType alphaType = kPremul_SkAlphaType;
     (void)SkColorTypeValidateAlphaType(fColorType, alphaType, &alphaType);
 
-    dst->allocPixels(SkImageInfo::Make(size.width(), size.height(), fColorType, alphaType));
-    dst->eraseColor(SK_ColorTRANSPARENT);
+    SkMallocPixelRef::ZeroedPRFactory factory;
+    dst->allocPixels(SkImageInfo::Make(size.width(), size.height(), fColorType, alphaType),
+                     &factory,
+                     nullptr/*colortable*/);
     SkCanvas canvas(*dst);
     return src.draw(&canvas);
 }
@@ -1069,6 +1008,36 @@ static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkS
         std::function<Error(SkCanvas*)> fDraw;
     };
     return sink->draw(ProxySrc(size, draw), bitmap, stream, log);
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+DEFINE_bool(check, true, "If true, have most Via- modes fail if they affect the output.");
+
+// Is *bitmap identical to what you get drawing src into sink?
+static Error check_against_reference(const SkBitmap* bitmap, const Src& src, Sink* sink) {
+    // We can only check raster outputs.
+    // (Non-raster outputs like .pdf, .skp, .svg may differ but still draw identically.)
+    if (FLAGS_check && bitmap) {
+        SkBitmap reference;
+        SkString log;
+        Error err = sink->draw(src, &reference, nullptr, &log);
+        // If we can draw into this Sink via some pipeline, we should be able to draw directly.
+        SkASSERT(err.isEmpty());
+        if (!err.isEmpty()) {
+            return err;
+        }
+        // The dimensions are a property of the Src only, and so should be identical.
+        SkASSERT(reference.getSize() == bitmap->getSize());
+        if (reference.getSize() != bitmap->getSize()) {
+            return "Dimensions don't match reference";
+        }
+        // All SkBitmaps in DM are pre-locked and tight, so this comparison is easy.
+        if (0 != memcmp(reference.getPixels(), bitmap->getPixels(), reference.getSize())) {
+            return "Pixels don't match reference";
+        }
+    }
+    return "";
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1128,16 +1097,6 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
-        PipeController controller(canvas, &SkImageDecoder::DecodeMemory);
-        SkGPipeWriter pipe;
-        const uint32_t kFlags = 0;
-        return src.draw(pipe.startRecording(&controller, kFlags, size.width(), size.height()));
-    });
-}
-
 Error ViaRemote::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* target) {
         SkAutoTDelete<SkRemote::Encoder> decoder(SkRemote::NewDecoder(target));
@@ -1170,7 +1129,7 @@ Error ViaSerialization::draw(
 
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 
@@ -1230,6 +1189,24 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        SkPictureRecorder recorder;
+        SkAutoTUnref<SkPicture> pic;
+        Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
+                                                     SkIntToScalar(size.height())));
+        if (!err.isEmpty()) {
+            return err;
+        }
+        pic.reset(recorder.endRecordingAsPicture());
+        canvas->drawPicture(pic);
+        return check_against_reference(bitmap, src, fSink);
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 // Draw the Src into two pictures, then draw the second picture into the wrapped Sink.
 // This tests that any shortcuts we may take while recording that second picture are legal.
 Error ViaSecondPicture::draw(
@@ -1247,7 +1224,7 @@ Error ViaSecondPicture::draw(
             pic.reset(recorder.endRecordingAsPicture());
         }
         canvas->drawPicture(pic);
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 
@@ -1264,7 +1241,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
                 return err;
             }
         }
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 
@@ -1334,7 +1311,7 @@ Error ViaSingletonPictures::draw(
         SkAutoTUnref<SkPicture> macroPic(macroRec.endRecordingAsPicture());
 
         canvas->drawPicture(macroPic);
-        return "";
+        return check_against_reference(bitmap, src, fSink);
     });
 }
 

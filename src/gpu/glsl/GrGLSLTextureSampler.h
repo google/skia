@@ -21,17 +21,13 @@ public:
         : fSamplerUniform(uniform)
         , fConfig(access.getTexture()->config()) {
         SkASSERT(kUnknown_GrPixelConfig != fConfig);
-        memcpy(fSwizzle, access.getSwizzle(), 5);
     }
 
     GrPixelConfig config() const { return fConfig; }
-    // this is .abcd
-    const char* swizzle() const { return fSwizzle; }
 
 private:
     UniformHandle fSamplerUniform;
     GrPixelConfig fConfig;
-    char          fSwizzle[5];
 
     friend class GrGLSLShaderBuilder;
 };

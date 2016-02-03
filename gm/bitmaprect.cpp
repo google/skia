@@ -273,23 +273,12 @@ DEF_GM( return new BitmapRectRounding; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory0(void*) { return new DrawBitmapRect2(false); }
-static skiagm::GM* MyFactory1(void*) { return new DrawBitmapRect2(true); }
-
-static skiagm::GM* MyFactory2(void*) { return new DrawBitmapRect3(); }
-
-#ifndef SK_BUILD_FOR_ANDROID
-static skiagm::GM* MyFactory3(void*) { return new DrawBitmapRect4(false); }
-static skiagm::GM* MyFactory4(void*) { return new DrawBitmapRect4(true); }
-#endif
-
-static skiagm::GMRegistry reg0(MyFactory0);
-static skiagm::GMRegistry reg1(MyFactory1);
-
-static skiagm::GMRegistry reg2(MyFactory2);
+DEF_GM( return new DrawBitmapRect2(false); )
+DEF_GM( return new DrawBitmapRect2(true); )
+DEF_GM( return new DrawBitmapRect3(); )
 
 #ifndef SK_BUILD_FOR_ANDROID
-static skiagm::GMRegistry reg3(MyFactory3);
-static skiagm::GMRegistry reg4(MyFactory4);
+DEF_GM( return new DrawBitmapRect4(false); )
+DEF_GM( return new DrawBitmapRect4(true); )
 #endif
 

@@ -78,8 +78,9 @@ template <> void Draw::draw(const NoOp&) {}
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
 DRAW(Restore, restore());
 DRAW(Save, save());
-DRAW(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
+DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds, r.paint, r.backdrop, r.saveLayerFlags)));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
+DRAW(Concat, concat(r.matrix));
 
 DRAW(ClipPath, clipPath(r.path, r.opAA.op, r.opAA.aa));
 DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
@@ -110,7 +111,6 @@ DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
-DRAW(DrawSprite, drawSprite(r.bitmap.shallowCopy(), r.left, r.top, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob, r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
@@ -154,7 +154,7 @@ public:
         : fNumRecords(record.count())
         , fCullRect(cullRect)
         , fBounds(bounds) {
-        fCTM = &SkMatrix::I();
+        fCTM = SkMatrix::I();
         fCurrentClipBounds = fCullRect;
     }
 
@@ -184,7 +184,7 @@ public:
     typedef SkRect Bounds;
 
     int currentOp() const { return fCurrentOp; }
-    const SkMatrix& ctm() const { return *fCTM; }
+    const SkMatrix& ctm() const { return fCTM; }
     const Bounds& getBounds(int index) const { return fBounds[index]; }
 
     // Adjust rect for all paints that may affect its geometry, then map it to identity space.
@@ -205,7 +205,7 @@ public:
         }
 
         // Map the rect back to identity space.
-        fCTM->mapRect(&rect);
+        fCTM.mapRect(&rect);
 
         // Nothing can draw outside the current clip.
         if (!rect.intersect(fCurrentClipBounds)) {
@@ -220,12 +220,14 @@ private:
         int controlOps;        // Number of control ops in this Save block, including the Save.
         Bounds bounds;         // Bounds of everything in the block.
         const SkPaint* paint;  // Unowned.  If set, adjusts the bounds of all ops in this block.
+        SkMatrix ctm;
     };
 
-    // Only Restore and SetMatrix change the CTM.
+    // Only Restore, SetMatrix, and Concat change the CTM.
     template <typename T> void updateCTM(const T&) {}
-    void updateCTM(const Restore& op)   { fCTM = &op.matrix; }
-    void updateCTM(const SetMatrix& op) { fCTM = &op.matrix; }
+    void updateCTM(const Restore& op)   { fCTM = op.matrix; }
+    void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
+    void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
 
     // Most ops don't change the clip.
     template <typename T> void updateClipBounds(const T&) {}
@@ -278,6 +280,7 @@ private:
     void trackBounds(const Restore&) { fBounds[fCurrentOp] = this->popSaveBlock(); }
 
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
+    void trackBounds(const Concat&)            { this->pushControl(); }
     void trackBounds(const ClipRect&)          { this->pushControl(); }
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
@@ -298,6 +301,7 @@ private:
         sb.bounds =
             PaintMayAffectTransparentBlack(paint) ? fCurrentClipBounds : Bounds::MakeEmpty();
         sb.paint = paint;
+        sb.ctm = this->fCTM;
 
         fSaveStack.push(sb);
         this->pushControl();
@@ -383,14 +387,6 @@ private:
 
     Bounds bounds(const DrawPaint&) const { return fCurrentClipBounds; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
-
-    Bounds bounds(const DrawSprite& op) const {  // Ignores the matrix, but respects the clip.
-        SkRect rect = Bounds::MakeXYWH(op.left, op.top, op.bitmap.width(), op.bitmap.height());
-        if (!rect.intersect(fCurrentClipBounds)) {
-            return Bounds::MakeEmpty();
-        }
-        return rect;
-    }
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
     Bounds bounds(const DrawOval& op) const { return this->adjustAndMap(op.oval, &op.paint); }
@@ -560,9 +556,15 @@ private:
 
     bool adjustForSaveLayerPaints(SkRect* rect, int savesToIgnore = 0) const {
         for (int i = fSaveStack.count() - 1 - savesToIgnore; i >= 0; i--) {
+            SkMatrix inverse;
+            if (!fSaveStack[i].ctm.invert(&inverse)) {
+                return false;
+            }
+            inverse.mapRect(rect);
             if (!AdjustForPaint(fSaveStack[i].paint, rect)) {
                 return false;
             }
+            fSaveStack[i].ctm.mapRect(rect);
         }
         return true;
     }
@@ -579,7 +581,7 @@ private:
     // and updateClipBounds() to maintain the exact CTM (fCTM) and conservative
     // identity-space bounds of the current clip (fCurrentClipBounds).
     int fCurrentOp;
-    const SkMatrix* fCTM;
+    SkMatrix fCTM;
     Bounds fCurrentClipBounds;
 
     // Used to track the bounds of Save/Restore blocks and the control ops inside them.
@@ -690,7 +692,8 @@ private:
             // Store 'saveLayer ops from enclosing picture' + drawPict op + 'ops from sub-picture'
             dst.fKeySize = fSaveLayerOpStack.count() + src.fKeySize + 1;
             dst.fKey = new int[dst.fKeySize];
-            memcpy(dst.fKey, fSaveLayerOpStack.begin(), fSaveLayerOpStack.count() * sizeof(int));
+            sk_careful_memcpy(dst.fKey, fSaveLayerOpStack.begin(),
+                              fSaveLayerOpStack.count() * sizeof(int));
             dst.fKey[fSaveLayerOpStack.count()] = fFillBounds.currentOp();
             memcpy(&dst.fKey[fSaveLayerOpStack.count()+1], src.fKey, src.fKeySize * sizeof(int));
         }

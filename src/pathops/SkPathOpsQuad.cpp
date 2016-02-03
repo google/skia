@@ -119,7 +119,8 @@ and using the roots
 int SkDQuad::RootsReal(const double A, const double B, const double C, double s[2]) {
     const double p = B / (2 * A);
     const double q = C / A;
-    if (approximately_zero(A) && (approximately_zero_inverse(p) || approximately_zero_inverse(q))) {
+    if (!A || (approximately_zero(A) && (approximately_zero_inverse(p)
+            || approximately_zero_inverse(q)))) {
         if (approximately_zero(B)) {
             s[0] = 0;
             return C == 0;

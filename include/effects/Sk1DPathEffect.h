@@ -56,8 +56,7 @@ public:
         @param style how to transform path at each point (based on the current
                      position and tangent)
     */
-    static SkPath1DPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase,
-                                      Style style) {
+    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style style) {
         return new SkPath1DPathEffect(path, advance, phase, style);
     }
 

@@ -11,183 +11,113 @@
 #include "GrTracing.h"
 #include "GrVertexBuffer.h"
 
-// The backing GrTexture for a GrBatchAtlas is broken into a spatial grid of BatchPlots.
-// The BatchPlots keep track of subimage placement via their GrRectanizer. A BatchPlot
-// manages the lifetime of its data using two tokens, a last use token and a last upload token.
-// Once a BatchPlot is "full" (i.e. there is no room for the new subimage according to the
-// GrRectanizer), it can no longer be used unless the last use of the GrPlot has already been
-// flushed through to the gpu.
+////////////////////////////////////////////////////////////////////////////////
 
-class BatchPlot : public SkRefCnt {
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(BatchPlot);
+GrBatchAtlas::BatchPlot::BatchPlot(int index, uint64_t genID, int offX, int offY, int width,
+                                   int height, GrPixelConfig config)
+    : fLastUpload(0)
+    , fLastUse(0)
+    , fIndex(index)
+    , fGenID(genID)
+    , fID(CreateId(fIndex, fGenID))
+    , fData(nullptr)
+    , fWidth(width)
+    , fHeight(height)
+    , fX(offX)
+    , fY(offY)
+    , fRects(nullptr)
+    , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
+    , fConfig(config)
+    , fBytesPerPixel(GrBytesPerPixel(config))
+#ifdef SK_DEBUG
+    , fDirty(false)
+#endif
+{
+    fDirtyRect.setEmpty();
+}
 
-public:
-    // index() is a unique id for the plot relative to the owning GrAtlas.  genID() is a
-    // monotonically incremented number which is bumped every time this plot is 
-    // evicted from the cache (i.e., there is continuity in genID() across atlas spills).
-    uint32_t index() const { return fIndex; }
-    uint64_t genID() const { return fGenID; }
-    GrBatchAtlas::AtlasID id() const {
-        SkASSERT(GrBatchAtlas::kInvalidAtlasID != fID);
-        return fID;
-    }
-    SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
+GrBatchAtlas::BatchPlot::~BatchPlot() {
+    sk_free(fData);
+    delete fRects;
+}
 
-    bool addSubImage(int width, int height, const void* image, SkIPoint16* loc)  {
-        SkASSERT(width <= fWidth && height <= fHeight);
+bool GrBatchAtlas::BatchPlot::addSubImage(int width, int height, const void* image,
+                                          SkIPoint16* loc) {
+    SkASSERT(width <= fWidth && height <= fHeight);
 
-        if (!fRects) {
-            fRects = GrRectanizer::Factory(fWidth, fHeight);
-        }
-
-        if (!fRects->addRect(width, height, loc)) {
-            return false;
-        }
-
-        if (!fData) {
-            fData = reinterpret_cast<unsigned char*>(sk_calloc_throw(fBytesPerPixel * fWidth *
-                                                                     fHeight));
-        }
-        size_t rowBytes = width * fBytesPerPixel;
-        const unsigned char* imagePtr = (const unsigned char*)image;
-        // point ourselves at the right starting spot
-        unsigned char* dataPtr = fData;
-        dataPtr += fBytesPerPixel * fWidth * loc->fY;
-        dataPtr += fBytesPerPixel * loc->fX;
-        // copy into the data buffer
-        for (int i = 0; i < height; ++i) {
-            memcpy(dataPtr, imagePtr, rowBytes);
-            dataPtr += fBytesPerPixel * fWidth;
-            imagePtr += rowBytes;
-        }
-
-        fDirtyRect.join(loc->fX, loc->fY, loc->fX + width, loc->fY + height);
-
-        loc->fX += fOffset.fX;
-        loc->fY += fOffset.fY;
-        SkDEBUGCODE(fDirty = true;)
-
-        return true;
+    if (!fRects) {
+        fRects = GrRectanizer::Factory(fWidth, fHeight);
     }
 
-    // To manage the lifetime of a plot, we use two tokens.  We use the last upload token to know
-    // when we can 'piggy back' uploads, ie if the last upload hasn't been flushed to gpu, we don't
-    // need to issue a new upload even if we update the cpu backing store.  We use lastUse to
-    // determine when we can evict a plot from the cache, ie if the last use has already flushed
-    // through the gpu then we can reuse the plot.
-    GrBatchToken lastUploadToken() const { return fLastUpload; }
-    GrBatchToken lastUseToken() const { return fLastUse; }
-    void setLastUploadToken(GrBatchToken batchToken) {
-        SkASSERT(batchToken >= fLastUpload);
-        fLastUpload = batchToken;
-    }
-    void setLastUseToken(GrBatchToken batchToken) {
-        SkASSERT(batchToken >= fLastUse);
-        fLastUse = batchToken;
+    if (!fRects->addRect(width, height, loc)) {
+        return false;
     }
 
-    void uploadToTexture(GrBatchUploader::TextureUploader* uploader, GrTexture* texture)  {
-        // We should only be issuing uploads if we are in fact dirty
-        SkASSERT(fDirty && fData && texture);
-        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrBatchPlot::uploadToTexture");
-        size_t rowBytes = fBytesPerPixel * fWidth;
-        const unsigned char* dataPtr = fData;
-        dataPtr += rowBytes * fDirtyRect.fTop;
-        dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
-        uploader->writeTexturePixels(texture,
-                                     fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
-                                     fDirtyRect.width(), fDirtyRect.height(),
-                                     fConfig, dataPtr, rowBytes);
-        fDirtyRect.setEmpty();
-        SkDEBUGCODE(fDirty = false;)
+    if (!fData) {
+        fData = reinterpret_cast<unsigned char*>(sk_calloc_throw(fBytesPerPixel * fWidth *
+                                                                 fHeight));
+    }
+    size_t rowBytes = width * fBytesPerPixel;
+    const unsigned char* imagePtr = (const unsigned char*)image;
+    // point ourselves at the right starting spot
+    unsigned char* dataPtr = fData;
+    dataPtr += fBytesPerPixel * fWidth * loc->fY;
+    dataPtr += fBytesPerPixel * loc->fX;
+    // copy into the data buffer
+    for (int i = 0; i < height; ++i) {
+        memcpy(dataPtr, imagePtr, rowBytes);
+        dataPtr += fBytesPerPixel * fWidth;
+        imagePtr += rowBytes;
     }
 
-    void resetRects() {
-        if (fRects) {
-            fRects->reset();
-        }
+    fDirtyRect.join(loc->fX, loc->fY, loc->fX + width, loc->fY + height);
 
-        fGenID++;
-        fID = CreateId(fIndex, fGenID);
+    loc->fX += fOffset.fX;
+    loc->fY += fOffset.fY;
+    SkDEBUGCODE(fDirty = true;)
 
-        // zero out the plot
-        if (fData) {
-            sk_bzero(fData, fBytesPerPixel * fWidth * fHeight);
-        }
+    return true;
+}
 
-        fDirtyRect.setEmpty();
-        SkDEBUGCODE(fDirty = false;)
+void GrBatchAtlas::BatchPlot::uploadToTexture(GrBatchUploader::TextureUploader* uploader,
+                                              GrTexture* texture) {
+    // We should only be issuing uploads if we are in fact dirty
+    SkASSERT(fDirty && fData && texture);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrBatchPlot::uploadToTexture");
+    size_t rowBytes = fBytesPerPixel * fWidth;
+    const unsigned char* dataPtr = fData;
+    dataPtr += rowBytes * fDirtyRect.fTop;
+    dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
+    uploader->writeTexturePixels(texture,
+                                 fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
+                                 fDirtyRect.width(), fDirtyRect.height(),
+                                 fConfig, dataPtr, rowBytes);
+    fDirtyRect.setEmpty();
+    SkDEBUGCODE(fDirty = false;)
+}
+
+void GrBatchAtlas::BatchPlot::resetRects() {
+    if (fRects) {
+        fRects->reset();
     }
 
-private:
-    BatchPlot(int index, uint64_t genID, int offX, int offY, int width, int height, 
-              GrPixelConfig config)
-        : fLastUpload(0)
-        , fLastUse(0)
-        , fIndex(index)
-        , fGenID(genID)
-        , fID(CreateId(fIndex, fGenID))
-        , fData(nullptr)
-        , fWidth(width)
-        , fHeight(height)
-        , fX(offX)
-        , fY(offY)
-        , fRects(nullptr)
-        , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
-        , fConfig(config)
-        , fBytesPerPixel(GrBytesPerPixel(config))
-    #ifdef SK_DEBUG
-        , fDirty(false)
-    #endif
-    {
-        fDirtyRect.setEmpty();
+    fGenID++;
+    fID = CreateId(fIndex, fGenID);
+
+    // zero out the plot
+    if (fData) {
+        sk_bzero(fData, fBytesPerPixel * fWidth * fHeight);
     }
 
-    ~BatchPlot() override {
-        sk_free(fData);
-        delete fRects;
-    }
-
-    // Create a clone of this plot. The cloned plot will take the place of the
-    // current plot in the atlas.
-    BatchPlot* clone() const {
-        return new BatchPlot(fIndex, fGenID+1, fX, fY, fWidth, fHeight, fConfig);
-    }
-
-    static GrBatchAtlas::AtlasID CreateId(uint32_t index, uint64_t generation) {
-        SkASSERT(index < (1 << 16));
-        SkASSERT(generation < ((uint64_t)1 << 48));
-        return generation << 16 | index;
-    }
-
-    GrBatchToken          fLastUpload;
-    GrBatchToken          fLastUse;
-
-    const uint32_t        fIndex;
-    uint64_t              fGenID;
-    GrBatchAtlas::AtlasID fID;
-    unsigned char*        fData;
-    const int             fWidth;
-    const int             fHeight;
-    const int             fX;
-    const int             fY;
-    GrRectanizer*         fRects;
-    const SkIPoint16      fOffset;        // the offset of the plot in the backing texture
-    const GrPixelConfig   fConfig;
-    const size_t          fBytesPerPixel;
-    SkIRect               fDirtyRect;
-    SkDEBUGCODE(bool      fDirty;)
-
-    friend class GrBatchAtlas;
-
-    typedef SkRefCnt INHERITED;
-};
+    fDirtyRect.setEmpty();
+    SkDEBUGCODE(fDirty = false;)
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 class GrPlotUploader : public GrBatchUploader {
 public:
-    GrPlotUploader(BatchPlot* plot, GrTexture* texture)
+    GrPlotUploader(GrBatchAtlas::BatchPlot* plot, GrTexture* texture)
         : INHERITED(plot->lastUploadToken())
         , fPlot(SkRef(plot))
         , fTexture(texture) {
@@ -199,8 +129,8 @@ public:
     }
 
 private:
-    SkAutoTUnref<BatchPlot> fPlot;
-    GrTexture*              fTexture;
+    SkAutoTUnref<GrBatchAtlas::BatchPlot> fPlot;
+    GrTexture* fTexture;
 
     typedef GrBatchUploader INHERITED;
 };
@@ -248,15 +178,6 @@ void GrBatchAtlas::processEviction(AtlasID id) {
     for (int i = 0; i < fEvictionCallbacks.count(); i++) {
         (*fEvictionCallbacks[i].fFunc)(id, fEvictionCallbacks[i].fData);
     }
-}
-
-void GrBatchAtlas::makeMRU(BatchPlot* plot) {
-    if (fPlotList.head() == plot) {
-        return;
-    }
-
-    fPlotList.remove(plot);
-    fPlotList.addToHead(plot);
 }
 
 inline void GrBatchAtlas::updatePlot(GrDrawBatch::Target* target, AtlasID* id, BatchPlot* plot) {
@@ -340,28 +261,4 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* batchTarget,
 
     fAtlasGeneration++;
     return true;
-}
-
-bool GrBatchAtlas::hasID(AtlasID id) {
-    uint32_t index = GetIndexFromID(id);
-    SkASSERT(index < fNumPlots);
-    return fPlotArray[index]->genID() == GetGenerationFromID(id);
-}
-
-void GrBatchAtlas::setLastUseToken(AtlasID id, GrBatchToken batchToken) {
-    SkASSERT(this->hasID(id));
-    uint32_t index = GetIndexFromID(id);
-    SkASSERT(index < fNumPlots);
-    this->makeMRU(fPlotArray[index]);
-    fPlotArray[index]->setLastUseToken(batchToken);
-}
-
-void GrBatchAtlas::setLastUseTokenBulk(const BulkUseTokenUpdater& updater,
-                                       GrBatchToken batchToken) {
-    int count = updater.fPlotsToUpdate.count();
-    for (int i = 0; i < count; i++) {
-        BatchPlot* plot = fPlotArray[updater.fPlotsToUpdate[i]];
-        this->makeMRU(plot);
-        plot->setLastUseToken(batchToken);
-    }
 }

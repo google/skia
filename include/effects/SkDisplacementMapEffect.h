@@ -23,11 +23,11 @@ public:
 
     ~SkDisplacementMapEffect();
 
-    static SkDisplacementMapEffect* Create(ChannelSelectorType xChannelSelector,
-                                           ChannelSelectorType yChannelSelector,
-                                           SkScalar scale, SkImageFilter* displacement,
-                                           SkImageFilter* color = NULL,
-                                           const CropRect* cropRect = NULL);
+    static SkImageFilter* Create(ChannelSelectorType xChannelSelector,
+                                 ChannelSelectorType yChannelSelector,
+                                 SkScalar scale, SkImageFilter* displacement,
+                                 SkImageFilter* color = NULL,
+                                 const CropRect* cropRect = NULL);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDisplacementMapEffect)
 
@@ -40,6 +40,7 @@ public:
 
     virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
                                 SkIRect* dst) const override;
+    void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const override;
 
 #if SK_SUPPORT_GPU
     bool canFilterImageGPU() const override { return true; }

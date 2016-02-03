@@ -8,7 +8,6 @@
 #include "effects/GrDisableColorXP.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
@@ -29,11 +28,10 @@ public:
 private:
     DisableColorXP();
 
-    GrXferProcessor::OptFlags onGetOptimizations(const GrProcOptInfo& colorPOI,
-                                                 const GrProcOptInfo& coveragePOI,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
-                                                 const GrCaps& caps) override {
+                                                 const GrCaps& caps) const override {
         return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
     }
 
@@ -63,8 +61,8 @@ private:
         // This emit code should be empty. However, on the nexus 6 there is a driver bug where if
         // you do not give gl_FragColor a value, the gl context is lost and we end up drawing
         // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
-        GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-        fsBuilder->codeAppendf("%s = vec4(0);", args.fOutputPrimary);
+        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+        fragBuilder->codeAppendf("%s = vec4(0);", args.fOutputPrimary);
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
@@ -96,8 +94,7 @@ GrDisableColorXPFactory::GrDisableColorXPFactory() {
 
 GrXferProcessor*
 GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                               const GrProcOptInfo& colorPOI,
-                                               const GrProcOptInfo& covPOI,
+                                               const GrPipelineOptimizations& optimizations,
                                                bool hasMixedSamples,
                                                const DstTexture* dst) const {
     return DisableColorXP::Create();

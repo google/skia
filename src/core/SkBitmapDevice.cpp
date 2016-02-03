@@ -95,7 +95,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         if (!bitmap.setInfo(info)) {
             return nullptr;
         }
-    } else if (bitmap.info().isOpaque()) {
+    } else if (info.isOpaque()) {
         // If this bitmap is opaque, we don't have any sensible default color,
         // so we just return uninitialized pixels.
         if (!bitmap.tryAllocPixels(info)) {
@@ -286,7 +286,7 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         if(bitmap.pixelRef()->getTexture()) {
             // Accelerated source canvas, don't use extractSubset but readPixels to get the subset.
             // This way, the pixels are copied in CPU memory instead of GPU memory.
-            bitmap.pixelRef()->readPixels(&tmpBitmap, &srcIR);
+            bitmap.pixelRef()->readPixels(&tmpBitmap, kN32_SkColorType, &srcIR);
         } else {
             if (!bitmap.extractSubset(&tmpBitmap, srcIR)) {
                 return;

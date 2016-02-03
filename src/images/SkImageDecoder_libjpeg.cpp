@@ -37,13 +37,8 @@ extern "C" {
 // If ANDROID_RGB is defined by in the jpeg headers it indicates that jpeg offers
 // support for two additional formats (1) JCS_RGBA_8888 and (2) JCS_RGB_565.
 
-#if defined(SK_DEBUG)
-#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS false
-#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_ERRORS false
-#else  // !defined(SK_DEBUG)
 #define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS true
 #define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_ERRORS true
-#endif  // defined(SK_DEBUG)
 SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderWarnings,
                 "images.jpeg.suppressDecoderWarnings",
                 DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS,
@@ -501,8 +496,8 @@ SkImageDecoder::Result SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* 
         return return_failure(cinfo, *bm, "sampler.begin");
     }
 
-    SkAutoMalloc srcStorage(cinfo.output_width * srcBytesPerPixel);
-    uint8_t* srcRow = (uint8_t*)srcStorage.get();
+    SkAutoTMalloc<uint8_t> srcStorage(cinfo.output_width * srcBytesPerPixel);
+    uint8_t* srcRow = srcStorage.get();
 
     //  Possibly skip initial rows [sampler.srcY0]
     if (!skip_src_rows(&cinfo, srcRow, sampler.srcY0())) {
@@ -936,7 +931,7 @@ protected:
         skjpeg_destination_mgr  sk_wstream(stream);
 
         // allocate these before set call setjmp
-        SkAutoMalloc    oneRow;
+        SkAutoTMalloc<uint8_t>  oneRow;
 
         cinfo.err = jpeg_std_error(&sk_err);
         sk_err.error_exit = skjpeg_error_exit;
@@ -971,7 +966,7 @@ protected:
         jpeg_start_compress(&cinfo, TRUE);
 
         const int       width = bm.width();
-        uint8_t*        oneRowP = (uint8_t*)oneRow.reset(width * 3);
+        uint8_t*        oneRowP = oneRow.reset(width * 3);
 
         const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : nullptr;
         const void*      srcRow = bm.getPixels();

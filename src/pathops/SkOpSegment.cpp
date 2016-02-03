@@ -362,6 +362,9 @@ SkOpPtT* SkOpSegment::addT(double t, AllowAlias allowAlias, SkChunkAlloc* alloca
         }
         if (t < result->fT) {
             SkOpSpan* prev = result->span()->prev();
+            if (!prev) {
+                return nullptr;
+            }
             SkOpSpan* span = insert(prev, allocator);
             span->init(this, prev, t, pt);
             this->debugValidate();
@@ -1680,7 +1683,8 @@ bool SkOpSegment::testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT
         coincident = false;
         SkIntersections i;
         SkVector dxdy = (*CurveSlopeAtT[fVerb])(this->pts(), this->weight(), midT);
-        SkDLine ray = {{{midPt.fX, midPt.fY}, {midPt.fX + dxdy.fY, midPt.fY - dxdy.fX}}};
+        SkDLine ray = {{{midPt.fX, midPt.fY},
+                {(double) midPt.fX + dxdy.fY, (double) midPt.fY - dxdy.fX}}};
         (*CurveIntersectRay[opp->verb()])(opp->pts(), opp->weight(), ray, &i);
         // measure distance and see if it's small enough to denote coincidence
         for (int index = 0; index < i.used(); ++index) {

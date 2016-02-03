@@ -12,7 +12,6 @@
 #include "SkBigPicture.h"
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
-#include "SkGrPixelRef.h"
 #include "SkLayerInfo.h"
 #include "SkRecordDraw.h"
 #include "SkSurface.h"
@@ -277,15 +276,6 @@ void GrLayerHoister::DrawLayersToAtlas(GrContext* context,
     }
 }
 
-SkBitmap wrap_texture(GrTexture* texture) {
-    SkASSERT(texture);
-
-    SkBitmap result;
-    result.setInfo(texture->surfacePriv().info(kPremul_SkAlphaType));
-    result.setPixelRef(new SkGrPixelRef(result.info(), texture))->unref();
-    return result;
-}
-
 void GrLayerHoister::FilterLayer(GrContext* context,
                                  SkGpuDevice* device,
                                  const GrHoistedLayer& info) {
@@ -311,10 +301,12 @@ void GrLayerHoister::FilterLayer(GrContext* context,
     // This cache is transient, and is freed (along with all its contained
     // textures) when it goes out of scope.
     SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(kDefaultCacheSize));
-    SkImageFilter::Context filterContext(totMat, clipBounds, cache, SkImageFilter::kApprox_SizeConstraint);
+    SkImageFilter::Context filterContext(totMat, clipBounds, cache);
 
     SkImageFilter::DeviceProxy proxy(device);
-    const SkBitmap src = wrap_texture(layer->texture());
+    SkBitmap src;
+    GrWrapTextureInBitmap(layer->texture(), layer->texture()->width(), layer->texture()->height(),
+                          false, &src);
 
     if (!layer->filter()->filterImage(&proxy, src, filterContext, &filteredBitmap, &offset)) {
         // Filtering failed. Press on with the unfiltered version.

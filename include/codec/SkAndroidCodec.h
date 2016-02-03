@@ -23,18 +23,24 @@ public:
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkAndroidCodec that can decode it. Otherwise return NULL.
      *
+     *  The SkPngChunkReader handles unknown chunks in PNGs.
+     *  See SkCodec.h for more details.
+     *
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkAndroidCodec* NewFromStream(SkStream*);
+    static SkAndroidCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
      *  return an SkAndroidCodec that can decode it. Otherwise return NULL.
      *
+     *  The SkPngChunkReader handles unknown chunks in PNGs.
+     *  See SkCodec.h for more details.
+     *
      *  Will take a ref if it returns a codec, else will not affect the data.
      */
-    static SkAndroidCodec* NewFromData(SkData*);
+    static SkAndroidCodec* NewFromData(SkData*, SkPngChunkReader* = NULL);
 
     virtual ~SkAndroidCodec() {}
 
@@ -44,7 +50,25 @@ public:
     /**
      *  Format of the encoded data.
      */
-    SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
+    SkEncodedFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }
+
+    /**
+     *  @param requestedColorType Color type requested by the client
+     *
+     *  If it is possible to decode to requestedColorType, this returns
+     *  requestedColorType.  Otherwise, this returns whichever color type
+     *  is suggested by the codec as the best match for the encoded data.
+     */
+    SkColorType computeOutputColorType(SkColorType requestedColorType);
+
+    /**
+     *  @param requestedUnpremul  Indicates if the client requested
+     *                            unpremultiplied output
+     *
+     *  Returns the appropriate alpha type to decode to.  If the image
+     *  has alpha, the value of requestedUnpremul will be honored.
+     */
+    SkAlphaType computeOutputAlphaType(bool requestedUnpremul);
 
     /**
      *  Returns the dimensions of the scaled output image, for an input
@@ -204,9 +228,9 @@ public:
 
 protected:
 
-    SkAndroidCodec(const SkImageInfo&);
+    SkAndroidCodec(SkCodec*);
 
-    virtual SkEncodedFormat onGetEncodedFormat() const = 0;
+    SkCodec* codec() const { return fCodec.get(); }
 
     virtual SkISize onGetSampledDimensions(int sampleSize) const = 0;
 
@@ -220,5 +244,7 @@ private:
     // This will always be a reference to the info that is contained by the
     // embedded SkCodec.
     const SkImageInfo& fInfo;
+
+    SkAutoTDelete<SkCodec> fCodec;
 };
 #endif // SkAndroidCodec_DEFINED

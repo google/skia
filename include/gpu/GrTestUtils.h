@@ -91,6 +91,7 @@ static inline uint8_t GrRandomCoverage(SkRandom* random) {
     switch (colorMode) {
         case kZero_CoverageMode:
             coverage = 0;
+            break;
         case kAllOnes_CoverageMode:
             coverage = 0xff;
             break;

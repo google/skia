@@ -32,10 +32,9 @@ public:
 
     void calcWithInitialValues(const GrFragmentProcessor* const *, int cnt, GrColor startColor,
                                GrColorComponentFlags, bool areCoverageStages, bool isLCD = false);
-
-    void calcColorWithBatch(const GrDrawBatch*, const GrFragmentProcessor* const[], int cnt);
-    void calcCoverageWithBatch(const GrDrawBatch*, const GrFragmentProcessor* const[], int cnt);
-
+    void initUsingInvariantOutput(GrInitInvariantOutput invOutput);
+    void completeCalculations(const GrFragmentProcessor * const processors[], int cnt);
+    
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
     bool isSingleComponent() const { return fInOut.isSingleComponent(); }

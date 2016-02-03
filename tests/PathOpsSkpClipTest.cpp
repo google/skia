@@ -307,7 +307,7 @@ TestRunner::~TestRunner() {
 void TestRunner::render() {
     // TODO: this doesn't really need to use SkRunnables any more.
     // We can just write the code to run in the for-loop directly.
-    sk_parallel_for(fRunnables.count(), [&](int i) {
+    SkTaskGroup().batch(fRunnables.count(), [&](int i) {
         fRunnables[i]->run();
     });
 }
@@ -683,7 +683,7 @@ static void testSkpClip(TestState* data) {
         return;
     }
     statusFile.appendf("%s%s", PATH_SLASH, statName.c_str());
-    SkFILE* file = sk_fopen(statusFile.c_str(), kWrite_SkFILE_Flag);
+    FILE* file = sk_fopen(statusFile.c_str(), kWrite_SkFILE_Flag);
     if (!file) {
             SkDebugf("failed to create %s", statusFile.c_str());
             return;

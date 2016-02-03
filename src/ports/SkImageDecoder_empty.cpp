@@ -11,9 +11,11 @@
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkMovie.h"
+#include "SkPixelSerializer.h"
 #include "SkStream.h"
 
 class SkColorTable;
+class SkPngChunkReader;
 
 // Empty implementations for SkImageDecoder.
 
@@ -43,6 +45,11 @@ bool SkImageDecoder::DecodeMemory(const void*, size_t, SkBitmap*, SkColorType, M
     return false;
 }
 
+bool SkImageDecoder::decodeYUV8Planes(SkStream*, SkISize[3], void*[3],
+                                      size_t[3], SkYUVColorSpace*) {
+    return false;
+}
+
 SkImageDecoder::Format SkImageDecoder::getFormat() const {
     return kUnknown_Format;
 }
@@ -55,7 +62,7 @@ const char* SkImageDecoder::GetFormatName(Format) {
     return nullptr;
 }
 
-SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker*) {
+SkPngChunkReader* SkImageDecoder::setPeeker(SkPngChunkReader*) {
     return nullptr;
 }
 
@@ -102,6 +109,10 @@ SkData* SkImageEncoder::EncodeData(const SkImageInfo&, const void* pixels, size_
     return nullptr;
 }
 
+SkData* SkImageEncoder::EncodeData(const SkPixmap&, Type, int) {
+    return nullptr;
+}
+
 bool SkImageEncoder::encodeStream(SkWStream*, const SkBitmap&, int) {
     return false;
 }
@@ -113,4 +124,17 @@ SkData* SkImageEncoder::encodeData(const SkBitmap&, int) {
 bool SkImageEncoder::encodeFile(const char file[], const SkBitmap& bm, int quality) {
     return false;
 }
+
+namespace {
+class ImageEncoderPixelSerializer final : public SkPixelSerializer {
+protected:
+    bool onUseEncodedData(const void*, size_t) override { return true; }
+    SkData* onEncode(const SkPixmap&) override { return nullptr; }
+};
+}  // namespace
+
+SkPixelSerializer* SkImageEncoder::CreatePixelSerializer() {
+    return new ImageEncoderPixelSerializer;
+}
+
 /////////////////////////////////////////////////////////////////////////

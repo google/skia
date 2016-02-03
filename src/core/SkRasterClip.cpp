@@ -161,10 +161,19 @@ bool SkRasterClip::setPath(const SkPath& path, const SkRegion& clip, bool doAA) 
     return this->updateCacheAndReturnNonEmpty();
 }
 
+bool SkRasterClip::op(const SkRRect& rrect, const SkISize& size, SkRegion::Op op, bool doAA) {
+    if (fForceConservativeRects) {
+        return this->op(rrect.getBounds(), size, op, doAA);
+    }
+
+    SkPath path;
+    path.addRRect(rrect);
+
+    return this->op(path, size, op, doAA);
+}
+
 bool SkRasterClip::op(const SkPath& path, const SkISize& size, SkRegion::Op op, bool doAA) {
-    // base is used to limit the size (and therefore memory allocation) of the
-    // region that results from scan converting devPath.
-    SkRegion base;
+    AUTO_RASTERCLIP_VALIDATE(*this);
 
     if (fForceConservativeRects) {
         SkIRect ir;
@@ -180,6 +189,10 @@ bool SkRasterClip::op(const SkPath& path, const SkISize& size, SkRegion::Op op, 
         }
         return this->op(ir, op);
     }
+
+    // base is used to limit the size (and therefore memory allocation) of the
+    // region that results from scan converting devPath.
+    SkRegion base;
 
     if (SkRegion::kIntersect_Op == op) {
         // since we are intersect, we can do better (tighter) with currRgn's

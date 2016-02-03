@@ -3,9 +3,7 @@
 // found in the LICENSE file.
 
 #include "SkConvolver.h"
-#include "SkMath.h"
-#include "SkSize.h"
-#include "SkTypes.h"
+#include "SkTArray.h"
 
 namespace {
 
@@ -285,21 +283,6 @@ SkConvolutionFilter1D::~SkConvolutionFilter1D() {
 }
 
 void SkConvolutionFilter1D::AddFilter(int filterOffset,
-                                      const float* filterValues,
-                                      int filterLength) {
-    SkASSERT(filterLength > 0);
-
-    SkTArray<ConvolutionFixed> fixedValues;
-    fixedValues.reset(filterLength);
-
-    for (int i = 0; i < filterLength; ++i) {
-        fixedValues.push_back(FloatToFixed(filterValues[i]));
-    }
-
-    AddFilter(filterOffset, &fixedValues[0], filterLength);
-}
-
-void SkConvolutionFilter1D::AddFilter(int filterOffset,
                                       const ConvolutionFixed* filterValues,
                                       int filterLength) {
     // It is common for leading/trailing filter values to be zeros. In such
@@ -323,9 +306,7 @@ void SkConvolutionFilter1D::AddFilter(int filterOffset,
         filterLength = lastNonZero + 1 - firstNonZero;
         SkASSERT(filterLength > 0);
 
-        for (int i = firstNonZero; i <= lastNonZero; i++) {
-            fFilterValues.push_back(filterValues[i]);
-        }
+        fFilterValues.append(filterLength, &filterValues[firstNonZero]);
     } else {
         // Here all the factors were zeroes.
         filterLength = 0;
@@ -339,7 +320,7 @@ void SkConvolutionFilter1D::AddFilter(int filterOffset,
     instance.fOffset = filterOffset;
     instance.fTrimmedLength = filterLength;
     instance.fLength = filterSize;
-    fFilters.push_back(instance);
+    fFilters.push(instance);
 
     fMaxFilter = SkTMax(fMaxFilter, filterLength);
 }

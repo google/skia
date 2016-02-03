@@ -46,8 +46,8 @@ protected:
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const override;
-    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
-                                SkIRect* dst) const override;
+    virtual void onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
+                                    SkIRect* dst, MapDirection) const override;
 
 private:
     SkMatrix              fTransform;

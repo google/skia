@@ -686,33 +686,34 @@ public:
 
     const char* name() const override { return "AAHairlineBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = true;
     }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
         fBatch.fCoverage = fGeoData[0].fCoverage;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(Target*) const override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
@@ -790,7 +791,7 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-void AAHairlineBatch::onPrepareDraws(Target* target) {
+void AAHairlineBatch::onPrepareDraws(Target* target) const {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {
@@ -973,9 +974,10 @@ static GrDrawBatch* create_hairline_batch(GrColor color,
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),"GrAAHairlinePathRenderer::onDrawPath");
     SkIRect devClipBounds;
-    args.fPipelineBuilder->clip().getConservativeBounds(args.fPipelineBuilder->getRenderTarget(),
-                                                        &devClipBounds);
+    GrRenderTarget* rt = args.fPipelineBuilder->getRenderTarget();
+    args.fPipelineBuilder->clip().getConservativeBounds(rt->width(), rt->height(), &devClipBounds);
 
     SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fColor, *args.fViewMatrix, *args.fPath,
                                                           *args.fStroke, devClipBounds));

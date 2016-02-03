@@ -57,6 +57,11 @@ namespace SkOpts {
                                           const SkColor*);
 
     extern SkMatrix::MapPtsProc matrix_translate, matrix_scale_translate, matrix_affine;
+
+    typedef void (*Swizzle_8888_8888)(uint32_t[], const uint32_t[], int);
+    extern Swizzle_8888_8888 premul_xxxa,  // BGRA -> bgrA or RGBA -> rgbA
+                             swaprb_xxxa,  // BGRA -> RGBA or RGBA -> BGRA
+                      premul_swaprb_xxxa;  // BGRA -> rgbA or RGBA -> bgrA
 }
 
 #endif//SkOpts_DEFINED

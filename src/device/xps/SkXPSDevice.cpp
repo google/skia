@@ -23,8 +23,8 @@
 #include "SkConstexprMath.h"
 #include "SkData.h"
 #include "SkDraw.h"
-#include "SkDrawProcs.h"
 #include "SkEndian.h"
+#include "SkFindAndPlaceGlyph.h"
 #include "SkGeometry.h"
 #include "SkGlyphCache.h"
 #include "SkHRESULT.h"
@@ -1628,12 +1628,8 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
             //[Mask -> Mask]
             SkMask filteredMask;
-            if (filter &&
-                filter->filterMask(&filteredMask, *mask, *d.fMatrix, nullptr)) {
-
+            if (filter && filter->filterMask(&filteredMask, *mask, *d.fMatrix, nullptr)) {
                 mask = &filteredMask;
-            } else {
-                filteredMask.fImage = nullptr;
             }
             SkAutoMaskFreeImage filteredAmi(filteredMask.fImage);
 
@@ -1675,13 +1671,8 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
             //[Mask -> Mask]
             SkMask filteredMask;
-            if (filter->filterMask(&filteredMask,
-                                   rasteredMask,
-                                   matrix,
-                                   nullptr)) {
+            if (filter->filterMask(&filteredMask, rasteredMask, matrix, nullptr)) {
                 mask = &filteredMask;
-            } else {
-                filteredMask.fImage = nullptr;
             }
             SkAutoMaskFreeImage filteredAmi(filteredMask.fImage);
 
@@ -2044,74 +2035,18 @@ HRESULT SkXPSDevice::AddGlyphs(const SkDraw& d,
     return S_OK;
 }
 
-struct SkXPSDrawProcs : public SkDrawProcs {
-public:
-    /** [in] Advance width and offsets for glyphs measured in
-    hundredths of the font em size (XPS Spec 5.1.3). */
-    FLOAT centemPerUnit;
-    /** [in,out] The accumulated glyphs used in the current typeface. */
-    SkBitSet* glyphUse;
-    /** [out] The glyphs to draw. */
-    SkTDArray<XPS_GLYPH_INDEX> xpsGlyphs;
-};
-
-static void xps_draw_1_glyph(const SkDraw1Glyph& state,
-                             Sk48Dot16 fx, Sk48Dot16 fy,
-                             const SkGlyph& skGlyph) {
-    SkASSERT(skGlyph.fWidth > 0 && skGlyph.fHeight > 0);
-
-    SkXPSDrawProcs* procs = static_cast<SkXPSDrawProcs*>(state.fDraw->fProcs);
-
-    //Draw pre-adds half the sampling frequency for floor rounding.
-    SkScalar x = Sk48Dot16ToScalar(fx) - state.fHalfSampleX;
-    SkScalar y = Sk48Dot16ToScalar(fy) - state.fHalfSampleY;
-
-    XPS_GLYPH_INDEX* xpsGlyph = procs->xpsGlyphs.append();
-    uint16_t glyphID = skGlyph.getGlyphID();
-    procs->glyphUse->setBit(glyphID, true);
-    xpsGlyph->index = glyphID;
-    if (1 == procs->xpsGlyphs.count()) {
-        xpsGlyph->advanceWidth = 0.0f;
-        xpsGlyph->horizontalOffset = SkScalarToFloat(x) * procs->centemPerUnit;
-        xpsGlyph->verticalOffset = SkScalarToFloat(y) * -procs->centemPerUnit;
-    } else {
-        const XPS_GLYPH_INDEX& first = procs->xpsGlyphs[0];
-        xpsGlyph->advanceWidth = 0.0f;
-        xpsGlyph->horizontalOffset = (SkScalarToFloat(x) * procs->centemPerUnit)
-                                     - first.horizontalOffset;
-        xpsGlyph->verticalOffset = (SkScalarToFloat(y) * -procs->centemPerUnit)
-                                   - first.verticalOffset;
+static int num_glyph_guess(SkPaint::TextEncoding encoding, const void* text, size_t byteLength) {
+    switch (encoding) {
+    case SkPaint::kUTF8_TextEncoding:
+        return SkUTF8_CountUnichars(static_cast<const char *>(text), byteLength);
+    case SkPaint::kUTF16_TextEncoding:
+        return SkUTF16_CountUnichars(static_cast<const uint16_t *>(text), SkToInt(byteLength));
+    case SkPaint::kGlyphID_TextEncoding:
+        return SkToInt(byteLength / 2);
+    default:
+        SK_ALWAYSBREAK(true);
     }
-}
-
-static void text_draw_init(const SkPaint& paint,
-                           const void* text, size_t byteLength,
-                           SkBitSet& glyphsUsed,
-                           SkDraw& myDraw, SkXPSDrawProcs& procs) {
-    procs.fD1GProc = xps_draw_1_glyph;
-    int numGlyphGuess;
-    switch (paint.getTextEncoding()) {
-        case SkPaint::kUTF8_TextEncoding:
-            numGlyphGuess = SkUTF8_CountUnichars(
-                static_cast<const char *>(text),
-                byteLength);
-            break;
-        case SkPaint::kUTF16_TextEncoding:
-            numGlyphGuess = SkUTF16_CountUnichars(
-                static_cast<const uint16_t *>(text),
-                SkToInt(byteLength));
-            break;
-        case SkPaint::kGlyphID_TextEncoding:
-            numGlyphGuess = SkToInt(byteLength / 2);
-            break;
-        default:
-            SK_ALWAYSBREAK(true);
-    }
-    procs.xpsGlyphs.setReserve(numGlyphGuess);
-    procs.glyphUse = &glyphsUsed;
-    procs.centemPerUnit = 100.0f / SkScalarToFLOAT(paint.getTextSize());
-
-    myDraw.fProcs = &procs;
+    return 0;
 }
 
 static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
@@ -2123,6 +2058,50 @@ static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
         || paint.getRasterizer()
     ;
 }
+
+typedef SkTDArray<XPS_GLYPH_INDEX> GlyphRun;
+
+class ProcessOneGlyph {
+public:
+    ProcessOneGlyph(FLOAT centemPerUnit, SkBitSet* glyphUse, GlyphRun* xpsGlyphs)
+        : fCentemPerUnit(centemPerUnit)
+        , fGlyphUse(glyphUse)
+        , fXpsGlyphs(xpsGlyphs) { }
+
+    void operator()(const SkGlyph& glyph, SkPoint position, SkPoint) {
+        SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
+
+        SkScalar x = position.fX;
+        SkScalar y = position.fY;
+
+        XPS_GLYPH_INDEX* xpsGlyph = fXpsGlyphs->append();
+        uint16_t glyphID = glyph.getGlyphID();
+        fGlyphUse->setBit(glyphID, true);
+        xpsGlyph->index = glyphID;
+        if (1 == fXpsGlyphs->count()) {
+            xpsGlyph->advanceWidth = 0.0f;
+            xpsGlyph->horizontalOffset = SkScalarToFloat(x) * fCentemPerUnit;
+            xpsGlyph->verticalOffset = SkScalarToFloat(y) * -fCentemPerUnit;
+        }
+        else {
+            const XPS_GLYPH_INDEX& first = (*fXpsGlyphs)[0];
+            xpsGlyph->advanceWidth = 0.0f;
+            xpsGlyph->horizontalOffset = (SkScalarToFloat(x) * fCentemPerUnit)
+                - first.horizontalOffset;
+            xpsGlyph->verticalOffset = (SkScalarToFloat(y) * -fCentemPerUnit)
+                - first.verticalOffset;
+        }
+    }
+
+private:
+    /** [in] Advance width and offsets for glyphs measured in
+    hundredths of the font em size (XPS Spec 5.1.3). */
+    const FLOAT fCentemPerUnit;
+    /** [in,out] The accumulated glyphs used in the current typeface. */
+    SkBitSet* const fGlyphUse;
+    /** [out] The glyphs to draw. */
+    GlyphRun* const fXpsGlyphs;
+};
 
 void SkXPSDevice::drawText(const SkDraw& d,
                            const void* text, size_t byteLen,
@@ -2141,31 +2120,41 @@ void SkXPSDevice::drawText(const SkDraw& d,
     TypefaceUse* typeface;
     HRV(CreateTypefaceUse(paint, &typeface));
 
-    SkDraw myDraw(d);
-    myDraw.fMatrix = &SkMatrix::I();
-    SkXPSDrawProcs procs;
-    text_draw_init(paint, text, byteLen, *typeface->glyphsUsed, myDraw, procs);
+    const SkMatrix& matrix = SkMatrix::I();
 
-    myDraw.drawText(static_cast<const char*>(text), byteLen, x, y, paint);
+    SkAutoGlyphCache    autoCache(paint, &this->surfaceProps(), &matrix);
+    SkGlyphCache*       cache = autoCache.getCache();
 
-    // SkDraw may have clipped out the glyphs, so we need to check
-    if (procs.xpsGlyphs.count() == 0) {
+    // Advance width and offsets for glyphs measured in hundredths of the font em size
+    // (XPS Spec 5.1.3).
+    FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(paint.getTextSize());
+    GlyphRun xpsGlyphs;
+    xpsGlyphs.setReserve(num_glyph_guess(paint.getTextEncoding(),
+        static_cast<const char*>(text), byteLen));
+
+    ProcessOneGlyph processOneGlyph(centemPerUnit, typeface->glyphsUsed, &xpsGlyphs);
+
+    SkFindAndPlaceGlyph::ProcessText(
+        paint.getTextEncoding(), static_cast<const char*>(text), byteLen,
+        SkPoint{ x, y }, matrix, paint.getTextAlign(), cache, processOneGlyph);
+
+    if (xpsGlyphs.count() == 0) {
         return;
     }
 
     XPS_POINT origin = {
-        procs.xpsGlyphs[0].horizontalOffset / procs.centemPerUnit,
-        procs.xpsGlyphs[0].verticalOffset / -procs.centemPerUnit,
+        xpsGlyphs[0].horizontalOffset / centemPerUnit,
+        xpsGlyphs[0].verticalOffset / -centemPerUnit,
     };
-    procs.xpsGlyphs[0].horizontalOffset = 0.0f;
-    procs.xpsGlyphs[0].verticalOffset = 0.0f;
+    xpsGlyphs[0].horizontalOffset = 0.0f;
+    xpsGlyphs[0].verticalOffset = 0.0f;
 
     HRV(AddGlyphs(d,
                   this->fXpsFactory.get(),
                   this->fCurrentXpsCanvas.get(),
                   typeface,
                   nullptr,
-                  procs.xpsGlyphs.begin(), procs.xpsGlyphs.count(),
+                  xpsGlyphs.begin(), xpsGlyphs.count(),
                   &origin,
                   SkScalarToFLOAT(paint.getTextSize()),
                   XPS_STYLE_SIMULATION_NONE,
@@ -2191,31 +2180,41 @@ void SkXPSDevice::drawPosText(const SkDraw& d,
     TypefaceUse* typeface;
     HRV(CreateTypefaceUse(paint, &typeface));
 
-    SkDraw myDraw(d);
-    myDraw.fMatrix = &SkMatrix::I();
-    SkXPSDrawProcs procs;
-    text_draw_init(paint, text, byteLen, *typeface->glyphsUsed, myDraw, procs);
+    const SkMatrix& matrix = SkMatrix::I();
 
-    myDraw.drawPosText(static_cast<const char*>(text), byteLen, pos, scalarsPerPos, offset, paint);
+    SkAutoGlyphCache    autoCache(paint, &this->surfaceProps(), &matrix);
+    SkGlyphCache*       cache = autoCache.getCache();
 
-    // SkDraw may have clipped out the glyphs, so we need to check
-    if (procs.xpsGlyphs.count() == 0) {
+    // Advance width and offsets for glyphs measured in hundredths of the font em size
+    // (XPS Spec 5.1.3).
+    FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(paint.getTextSize());
+    GlyphRun xpsGlyphs;
+    xpsGlyphs.setReserve(num_glyph_guess(paint.getTextEncoding(),
+        static_cast<const char*>(text), byteLen));
+
+    ProcessOneGlyph processOneGlyph(centemPerUnit, typeface->glyphsUsed, &xpsGlyphs);
+
+    SkFindAndPlaceGlyph::ProcessPosText(
+        paint.getTextEncoding(), static_cast<const char*>(text), byteLen,
+        offset, matrix, pos, scalarsPerPos, paint.getTextAlign(), cache, processOneGlyph);
+
+    if (xpsGlyphs.count() == 0) {
         return;
     }
 
     XPS_POINT origin = {
-        procs.xpsGlyphs[0].horizontalOffset / procs.centemPerUnit,
-        procs.xpsGlyphs[0].verticalOffset / -procs.centemPerUnit,
+        xpsGlyphs[0].horizontalOffset / centemPerUnit,
+        xpsGlyphs[0].verticalOffset / -centemPerUnit,
     };
-    procs.xpsGlyphs[0].horizontalOffset = 0.0f;
-    procs.xpsGlyphs[0].verticalOffset = 0.0f;
+    xpsGlyphs[0].horizontalOffset = 0.0f;
+    xpsGlyphs[0].verticalOffset = 0.0f;
 
     HRV(AddGlyphs(d,
                   this->fXpsFactory.get(),
                   this->fCurrentXpsCanvas.get(),
                   typeface,
                   nullptr,
-                  procs.xpsGlyphs.begin(), procs.xpsGlyphs.count(),
+                  xpsGlyphs.begin(), xpsGlyphs.count(),
                   &origin,
                   SkScalarToFLOAT(paint.getTextSize()),
                   XPS_STYLE_SIMULATION_NONE,

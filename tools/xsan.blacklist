@@ -1,0 +1,12 @@
+#if 0
+
+#  This file must be a no-op C #include header, and a valid *SAN blacklist file.
+#  Luckily, anything starting with # is a comment to *SAN blacklist files,
+#  and anything inside #if 0 is ignored by C.  Yippee!
+#
+#  If you want to type '*', type '.*' instead.  Don't make C comments!
+
+# Suppress third_party/externals.  We mostly care about our own code.
+src:.*third_party/externals.*
+
+#endif

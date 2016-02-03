@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkCullPoints.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 

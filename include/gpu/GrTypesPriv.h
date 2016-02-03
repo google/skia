@@ -12,10 +12,10 @@
 #include "SkTArray.h"
 #include "SkRect.h"
 
-/**
- * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
- * but should be applicable to other shader languages.)
- */
+ /**
+  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
+  * but should be applicable to other shader languages.)
+  */
 enum GrSLType {
     kVoid_GrSLType,
     kFloat_GrSLType,
@@ -25,8 +25,10 @@ enum GrSLType {
     kMat33f_GrSLType,
     kMat44f_GrSLType,
     kSampler2D_GrSLType,
+    kSamplerExternal_GrSLType,
+    kSampler2DRect_GrSLType,
 
-    kLast_GrSLType = kSampler2D_GrSLType
+    kLast_GrSLType = kSampler2DRect_GrSLType
 };
 static const int kGrSLTypeCount = kLast_GrSLType + 1;
 
@@ -63,7 +65,7 @@ static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {
     SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
-    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1 };
+    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1, -1 };
     return kCounts[type];
 
     GR_STATIC_ASSERT(0 == kVoid_GrSLType);
@@ -74,6 +76,8 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
     GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
 }
 
@@ -102,8 +106,50 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
     GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
-    GR_STATIC_ASSERT(8 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
+    GR_STATIC_ASSERT(10 == kGrSLTypeCount);
 }
+
+/** Returns the size in bytes for floating point GrSLTypes. For non floating point type returns 0 */
+static inline size_t GrSLTypeSize(GrSLType type) {
+    SkASSERT(GrSLTypeIsFloatType(type));
+    static const size_t kSizes[] = {
+        0,                        // kVoid_GrSLType
+        sizeof(float),            // kFloat_GrSLType
+        2 * sizeof(float),        // kVec2f_GrSLType
+        3 * sizeof(float),        // kVec3f_GrSLType
+        4 * sizeof(float),        // kVec4f_GrSLType
+        9 * sizeof(float),        // kMat33f_GrSLType
+        16 * sizeof(float),       // kMat44f_GrSLType
+        0,                        // kSampler2D_GrSLType
+        0,                         // kSamplerExternal_GrSLType
+        0                         // kSampler2DRect_GrSLType
+    };
+    return kSizes[type];
+
+    GR_STATIC_ASSERT(0 == kVoid_GrSLType);
+    GR_STATIC_ASSERT(1 == kFloat_GrSLType);
+    GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
+    GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
+    GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
+    GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
+    GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
+    GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
+    GR_STATIC_ASSERT(10 == kGrSLTypeCount);
+}
+
+static inline bool GrSLTypeIsSamplerType(GrSLType type) {
+    SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
+    return type >= 7 && type <= 9;
+
+    GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
+    GR_STATIC_ASSERT(8 == kSamplerExternal_GrSLType);
+    GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -175,6 +221,7 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
     switch (type) {
         default:
             SkFAIL("Unsupported type conversion");
+            return kVoid_GrSLType;
         case kUByte_GrVertexAttribType:
         case kFloat_GrVertexAttribType:
             return kFloat_GrSLType;
@@ -263,6 +310,17 @@ private:
     bool    fEnabled;
     SkIRect fRect;
 };
+
+/**
+ * Indicates the transfer direction for a transfer buffer
+ */
+enum TransferType {
+    /** Caller intends to use the buffer to transfer data to the GPU */
+    kCpuToGpu_TransferType,
+    /** Caller intends to use the buffer to transfer data from the GPU */
+    kGpuToCpu_TransferType
+};
+
 
 #ifdef SK_DEBUG
 // Takes a pointer to a GrCaps, and will suppress prints if required

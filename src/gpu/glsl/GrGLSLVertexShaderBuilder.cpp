@@ -7,43 +7,21 @@
 
 #include "GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
+#include "glsl/GrGLSLVarying.h"
 
 GrGLSLVertexBuilder::GrGLSLVertexBuilder(GrGLSLProgramBuilder* program)
     : INHERITED(program)
     , fRtAdjustName(nullptr) {
 }
 
-void GrGLSLVertexBuilder::addVarying(const char* name, GrSLPrecision precision, GrGLSLVarying* v) {
-    fOutputs.push_back();
-    fOutputs.back().setType(v->fType);
-    fOutputs.back().setTypeModifier(GrGLSLShaderVar::kVaryingOut_TypeModifier);
-    fOutputs.back().setPrecision(precision);
-    fProgramBuilder->nameVariable(fOutputs.back().accessName(), 'v', name);
-    v->fVsOut = fOutputs.back().getName().c_str();
-}
-
-void GrGLSLVertexBuilder::emitAttributes(const GrGeometryProcessor& gp) {
-    int vaCount = gp.numAttribs();
-    for (int i = 0; i < vaCount; i++) {
-        this->addAttribute(&gp.getAttrib(i));
-    }
-    return;
-}
-
 void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
     SkASSERT(!fRtAdjustName);
 
-    GrSLPrecision precision = kDefault_GrSLPrecision;
-    if (fProgramBuilder->glslCaps()->forceHighPrecisionNDSTransform()) {
-        precision = kHigh_GrSLPrecision;
-    }
-
     // setup RT Uniform
-    fProgramBuilder->fUniformHandles.fRTAdjustmentUni =
-            fProgramBuilder->addUniform(GrGLSLProgramBuilder::kVertex_Visibility,
-                                        kVec4f_GrSLType, precision,
-                                        fProgramBuilder->rtAdjustment(),
-                                        &fRtAdjustName);
+    fProgramBuilder->addRTAdjustmentUniform(kHigh_GrSLPrecision,
+                                            fProgramBuilder->rtAdjustment(),
+                                            &fRtAdjustName);
     if (this->getProgramBuilder()->desc().header().fSnapVerticesToPixelCenters) {
         if (kVec3f_GrSLType == posVar.getType()) {
             const char* p = posVar.c_str();
@@ -72,16 +50,7 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
     this->codeAppend("gl_PointSize = 1.0;");
 }
 
-bool GrGLSLVertexBuilder::addAttribute(const GrShaderVar& var) {
-    SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
-    for (int i = 0; i < fInputs.count(); ++i) {
-        const GrGLSLShaderVar& attr = fInputs[i];
-        // if attribute already added, don't add it again
-        if (attr.getName().equals(var.getName())) {
-            return false;
-        }
-    }
-    fInputs.push_back(var);
-    return true;
+void GrGLSLVertexBuilder::onFinalize() {
+    fProgramBuilder->varyingHandler()->getVertexDecls(&this->inputs(), &this->outputs());
 }
 

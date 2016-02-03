@@ -124,14 +124,23 @@ public:
 
     static const char* Name() { return "NonAAFillRectBatch"; }
 
+    static SkString DumpInfo(const Geometry& geo, int index) {
+        SkString str;
+        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    index,
+                    geo.fColor,
+                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
+        return str;
+    }
+
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations& opts) {
+                           const GrXPOverridesForBatch& overrides) {
         return true;
     }
 
     static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
-        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, opts.readsCoverage(), true,
+                                               const GrXPOverridesForBatch& overrides) {
+        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, overrides.readsCoverage(), true,
                                                   nullptr);
 
         SkASSERT(gp->getVertexStride() ==
@@ -140,7 +149,7 @@ public:
     }
 
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
+                          const GrXPOverridesForBatch& overrides) {
         tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, &geo.fLocalQuad);
     }
 };
@@ -160,8 +169,17 @@ public:
 
     static const char* Name() { return "NonAAFillRectBatchPerspective"; }
 
+    static SkString DumpInfo(const Geometry& geo, int index) {
+        SkString str;
+        str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                    index,
+                    geo.fColor,
+                    geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
+        return str;
+    }
+
     static bool CanCombine(const Geometry& mine, const Geometry& theirs,
-                           const GrPipelineOptimizations& opts) {
+                           const GrXPOverridesForBatch& overrides) {
         // We could batch across perspective vm changes if we really wanted to
         return mine.fViewMatrix.cheapEqualTo(theirs.fViewMatrix) &&
                mine.fHasLocalRect == theirs.fHasLocalRect &&
@@ -169,8 +187,8 @@ public:
     }
 
     static const GrGeometryProcessor* CreateGP(const Geometry& geo,
-                                               const GrPipelineOptimizations& opts) {
-        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, opts.readsCoverage(),
+                                               const GrXPOverridesForBatch& overrides) {
+        const GrGeometryProcessor* gp = create_gp(geo.fViewMatrix, overrides.readsCoverage(),
                                                   geo.fHasLocalRect,
                                                   geo.fHasLocalMatrix ? &geo.fLocalMatrix :
                                                                         nullptr);
@@ -182,7 +200,7 @@ public:
     }
 
     static void Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
-                          const GrPipelineOptimizations& opts) {
+                          const GrXPOverridesForBatch& overrides) {
         if (geo.fHasLocalRect) {
             GrQuad quad(geo.fLocalRect);
             tesselate(vertices, vertexStride, geo.fColor, geo.fViewMatrix, geo.fRect, &quad);

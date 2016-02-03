@@ -15,6 +15,7 @@
 #include "SkPaint.h"
 #include "../gpu/GrColor.h"
 
+class SkColorFilter;
 class SkPath;
 class SkPicture;
 class SkXfermode;
@@ -72,31 +73,14 @@ public:
 
     enum Flags {
         //!< set if all of the colors will be opaque
-        kOpaqueAlpha_Flag  = 0x01,
-
-        //! set if this shader's shadeSpan16() method can be called
-        kHasSpan16_Flag = 0x02,
-
-        /** Set this bit if the shader's native data type is instrinsically 16
-            bit, meaning that calling the 32bit shadeSpan() entry point will
-            mean the the impl has to up-sample 16bit data into 32bit. Used as a
-            a means of clearing a dither request if the it will have no effect
-        */
-        kIntrinsicly16_Flag = 0x04,
+        kOpaqueAlpha_Flag = 1 << 0,
 
         /** set if the spans only vary in X (const in Y).
             e.g. an Nx1 bitmap that is being tiled in Y, or a linear-gradient
             that varies from left-to-right. This flag specifies this for
             shadeSpan().
          */
-        kConstInY32_Flag = 0x08,
-
-        /** same as kConstInY32_Flag, but is set if this is true for shadeSpan16
-            which may not always be the case, since shadeSpan16 may be
-            predithered, which would mean it was not const in Y, even though
-            the 32bit shadeSpan() would be const.
-         */
-        kConstInY16_Flag = 0x10
+        kConstInY32_Flag = 1 << 1,
     };
 
     /**
@@ -137,26 +121,18 @@ public:
         virtual uint32_t getFlags() const { return 0; }
 
         /**
-         *  Return the alpha associated with the data returned by shadeSpan16(). If
-         *  kHasSpan16_Flag is not set, this value is meaningless.
-         */
-        virtual uint8_t getSpan16Alpha() const { return fPaintAlpha; }
-
-        /**
          *  Called for each span of the object being drawn. Your subclass should
          *  set the appropriate colors (with premultiplied alpha) that correspond
          *  to the specified device coordinates.
          */
         virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
 
-        typedef void (*ShadeProc)(void* ctx, int x, int y, SkPMColor[], int count);
-        virtual ShadeProc asAShadeProc(void** ctx);
-
         /**
-         *  Called only for 16bit devices when getFlags() returns
-         *  kOpaqueAlphaFlag | kHasSpan16_Flag
+         * The const void* ctx is only const because all the implementations are const.
+         * This can be changed to non-const if a new shade proc needs to change the ctx.
          */
-        virtual void shadeSpan16(int x, int y, uint16_t[], int count);
+        typedef void (*ShadeProc)(const void* ctx, int x, int y, SkPMColor[], int count);
+        virtual ShadeProc asAShadeProc(void** ctx);
 
         /**
          *  Similar to shadeSpan, but only returns the alpha-channel for a span.
@@ -164,14 +140,6 @@ public:
          *  values from the returned colors.
          */
         virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
-
-        /**
-         *  Helper function that returns true if this shader's shadeSpan16() method
-         *  can be called.
-         */
-        bool canCallShadeSpan16() {
-            return SkShader::CanCallShadeSpan16(this->getFlags());
-        }
 
         // Notification from blitter::blitMask in case we need to see the non-alpha channels
         virtual void set3DMask(const SkMask*) {}
@@ -214,13 +182,6 @@ public:
      *  your subclass' context.
      */
     virtual size_t contextSize() const;
-
-    /**
-     *  Helper to check the flags to know if it is legal to call shadeSpan16()
-     */
-    static bool CanCallShadeSpan16(uint32_t flags) {
-        return (flags & kHasSpan16_Flag) != 0;
-    }
 
     /**
      *  Returns true if this shader is just a bitmap, and if not null, returns the bitmap,
@@ -342,8 +303,23 @@ public:
 #endif
 
     //////////////////////////////////////////////////////////////////////////
-    //  Factory methods for stock shaders
+    //  Methods to create combinations or variants of shaders
 
+    /**
+     *  Return a shader that will apply the specified localMatrix to this shader.
+     *  The specified matrix will be applied before any matrix associated with this shader.
+     */
+    SkShader* newWithLocalMatrix(const SkMatrix&) const;
+
+    /**
+     *  Create a new shader that produces the same colors as invoking this shader and then applying
+     *  the colorfilter.
+     */
+    SkShader* newWithColorFilter(SkColorFilter*) const;
+    
+    //////////////////////////////////////////////////////////////////////////
+    //  Factory methods for stock shaders
+    
     /**
      *  Call this to create a new "empty" shader, that will not draw anything.
      */
@@ -393,14 +369,6 @@ public:
                                          TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix,
                                          const SkRect* tile);
-
-    /**
-     *  Return a shader that will apply the specified localMatrix to the proxy shader.
-     *  The specified matrix will be applied before any matrix associated with the proxy.
-     *
-     *  Note: ownership of the proxy is not transferred (though a ref is taken).
-     */
-    static SkShader* CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix);
 
     /**
      *  If this shader can be represented by another shader + a localMatrix, return that shader

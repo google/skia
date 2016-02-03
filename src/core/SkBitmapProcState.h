@@ -12,6 +12,7 @@
 #include "SkBitmapController.h"
 #include "SkBitmapFilter.h"
 #include "SkBitmapProvider.h"
+#include "SkFloatBits.h"
 #include "SkMatrix.h"
 #include "SkMipMap.h"
 #include "SkPaint.h"
@@ -31,11 +32,9 @@ struct SkBitmapProcState {
     SkBitmapProcState(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy);
     ~SkBitmapProcState();
 
-    typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
-                                 SkPMColor[], int count);
+    typedef void (*ShaderProc32)(const void* ctx, int x, int y, SkPMColor[], int count);
 
-    typedef void (*ShaderProc16)(const SkBitmapProcState&, int x, int y,
-                                 uint16_t[], int count);
+    typedef void (*ShaderProc16)(const void* ctx, int x, int y, uint16_t[], int count);
 
     typedef void (*MatrixProc)(const SkBitmapProcState&,
                                uint32_t bitmapXY[],
@@ -46,11 +45,6 @@ struct SkBitmapProcState {
                                  const uint32_t[],
                                  int count,
                                  SkPMColor colors[]);
-
-    typedef void (*SampleProc16)(const SkBitmapProcState&,
-                                 const uint32_t[],
-                                 int count,
-                                 uint16_t colors[]);
 
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
     typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
@@ -118,7 +112,6 @@ struct SkBitmapProcState {
     MatrixProc getMatrixProc() const { return fMatrixProc; }
 #endif
     SampleProc32 getSampleProc32() const { return fSampleProc32; }
-    SampleProc16 getSampleProc16() const { return fSampleProc16; }
 
 private:
     friend class SkBitmapProcShader;
@@ -129,7 +122,6 @@ private:
     // These are used if the shaderproc is nullptr
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
-    SampleProc16        fSampleProc16;      // chooseProcs
 
     const SkBitmapProvider fProvider;
 
@@ -195,9 +187,32 @@ void ClampX_ClampY_filter_affine(const SkBitmapProcState& s,
                                  uint32_t xy[], int count, int x, int y);
 void ClampX_ClampY_nofilter_affine(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y);
-void S32_D16_filter_DX(const SkBitmapProcState& s,
-                       const uint32_t* xy, int count, uint16_t* colors);
-void S32_D16_filter_DXDY(const SkBitmapProcState& s,
-                         const uint32_t* xy, int count, uint16_t* colors);
+
+// Helper class for mapping the middle of pixel (x, y) into SkFractionalInt bitmap space.
+// TODO: filtered version which applies a fFilterOne{X,Y}/2 bias instead of epsilon?
+class SkBitmapProcStateAutoMapper {
+public:
+    SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y) {
+        SkPoint pt;
+        s.fInvProc(s.fInvMatrix,
+                   SkIntToScalar(x) + SK_ScalarHalf,
+                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
+
+        // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
+        // consistently WRT geometry.  Note that we only need the bias for positive scales:
+        // for negative scales, the rounding is intrinsically correct.
+        // We scale it to persist SkFractionalInt -> SkFixed conversions.
+        const SkFixed biasX = (s.fInvMatrix.getScaleX() > 0);
+        const SkFixed biasY = (s.fInvMatrix.getScaleY() > 0);
+        fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(biasX);
+        fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(biasY);
+    }
+
+    SkFractionalInt x() const { return fX; }
+    SkFractionalInt y() const { return fY; }
+
+private:
+    SkFractionalInt fX, fY;
+};
 
 #endif

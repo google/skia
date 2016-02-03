@@ -47,7 +47,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     SkASSERT(kernelOffset.fY >= 0 && kernelOffset.fY < kernelSize.fHeight);
 }
 
-SkMatrixConvolutionImageFilter* SkMatrixConvolutionImageFilter::Create(
+SkImageFilter* SkMatrixConvolutionImageFilter::Create(
     const SkISize& kernelSize,
     const SkScalar* kernel,
     SkScalar gain,
@@ -280,7 +280,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    if (!this->applyCropRect(this->mapContext(ctx), proxy, src, &srcOffset, &bounds, &src)) {
         return false;
     }
 
@@ -322,17 +322,23 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     return true;
 }
 
-bool SkMatrixConvolutionImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    SkIRect* dst) const {
-    SkIRect bounds = src;
-    bounds.fRight += fKernelSize.width() - 1;
-    bounds.fBottom += fKernelSize.height() - 1;
-    bounds.offset(-fKernelOffset);
-    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
-        return false;
+void SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                    SkIRect* dst, MapDirection direction) const {
+    *dst = src;
+    int w = fKernelSize.width() - 1, h = fKernelSize.height() - 1;
+    dst->fRight += w;
+    dst->fBottom += h;
+    if (kReverse_MapDirection == direction) {
+        dst->offset(-fKernelOffset);
+    } else {
+        dst->offset(fKernelOffset - SkIPoint::Make(w, h));
     }
-    *dst = bounds;
-    return true;
+}
+
+bool SkMatrixConvolutionImageFilter::canComputeFastBounds() const {
+    // Because the kernel is applied in device-space, we have no idea what
+    // pixels it will affect in object-space.
+    return false;
 }
 
 #if SK_SUPPORT_GPU

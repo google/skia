@@ -10,27 +10,13 @@
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrDrawPathBatch.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrStrokeInfo.h"
-
-/*
- * For now paths only natively support winding and even odd fill types
- */
-static GrPathRendering::FillType convert_skpath_filltype(SkPath::FillType fill) {
-    switch (fill) {
-        default:
-            SkFAIL("Incomplete Switch\n");
-        case SkPath::kWinding_FillType:
-        case SkPath::kInverseWinding_FillType:
-            return GrPathRendering::kWinding_FillType;
-        case SkPath::kEvenOdd_FillType:
-        case SkPath::kInverseEvenOdd_FillType:
-            return GrPathRendering::kEvenOdd_FillType;
-    }
-}
+#include "batches/GrRectBatchFactory.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
@@ -78,13 +64,16 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const SkPath& s
 }
 
 void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+                              "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fPath->isInverseFillType());
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fPath, *args.fStroke));
-    args.fTarget->stencilPath(*args.fPipelineBuilder, *args.fViewMatrix, p,
-                              convert_skpath_filltype(args.fPath->getFillType()));
+    args.fTarget->stencilPath(*args.fPipelineBuilder, *args.fViewMatrix, p, p->getFillType());
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+                              "GrStencilAndCoverPathRenderer::onDrawPath");
     SkASSERT(!args.fStroke->isHairlineStyle());
     const SkPath& path = *args.fPath;
     GrPipelineBuilder* pipelineBuilder = args.fPipelineBuilder;
@@ -114,8 +103,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         pipelineBuilder->setStencil(kInvertedStencilPass);
 
         // fake inverse with a stencil and cover
-        args.fTarget->stencilPath(*pipelineBuilder, viewMatrix, p,
-                                  convert_skpath_filltype(path.getFillType()));
+        args.fTarget->stencilPath(*pipelineBuilder, viewMatrix, p, p->getFillType());
 
         SkMatrix invert = SkMatrix::I();
         SkRect bounds =
@@ -138,7 +126,11 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         if (pipelineBuilder->getRenderTarget()->hasMixedSamples()) {
             pipelineBuilder->disableState(GrPipelineBuilder::kHWAntialias_Flag);
         }
-        args.fTarget->drawNonAARect(*pipelineBuilder, args.fColor, viewM, bounds, invert);
+
+        SkAutoTUnref<GrDrawBatch> batch(
+                GrRectBatchFactory::CreateNonAAFill(args.fColor, viewM, bounds, nullptr,
+                                                    &invert));
+        args.fTarget->drawBatch(*pipelineBuilder, batch);
     } else {
         GR_STATIC_CONST_SAME_STENCIL(kStencilPass,
             kZero_StencilOp,
@@ -149,8 +141,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             0xffff);
 
         pipelineBuilder->setStencil(kStencilPass);
-        args.fTarget->drawPath(*pipelineBuilder, viewMatrix, args.fColor, p,
-                               convert_skpath_filltype(path.getFillType()));
+        SkAutoTUnref<GrDrawPathBatchBase> batch(
+                GrDrawPathBatch::Create(viewMatrix, args.fColor, p->getFillType(), p));
+        args.fTarget->drawPathBatch(*pipelineBuilder, batch);
     }
 
     pipelineBuilder->stencil()->setDisabled();

@@ -31,10 +31,6 @@
 #include "SkStream.h"
 #include "sk_tool_utils.h"
 
-#if SK_SUPPORT_GPU
-#include "SkSurface.h"
-#include "GrContextFactory.h"
-#endif
 #include "Test.h"
 
 #include "SkLumaColorFilter.h"
@@ -50,14 +46,13 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
 
 // For a while willPlayBackBitmaps() ignored SkImages and just looked for SkBitmaps.
 static void test_images_are_found_by_willPlayBackBitmaps(skiatest::Reporter* reporter) {
-    // We just need _some_ SkImage.
-    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(SkBitmap()));
+    // We just need _some_ SkImage
+    const SkPMColor pixel = 0;
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    SkAutoTUnref<SkImage> image(SkImage::NewRasterCopy(info, &pixel, sizeof(pixel)));
 
     SkPictureRecorder recorder;
-    {
-        auto canvas = recorder.beginRecording(100,100);
-        canvas->drawImage(image, 0,0);
-    }
+    recorder.beginRecording(100,100)->drawImage(image, 0,0);
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     REPORTER_ASSERT(reporter, picture->willPlayBackBitmaps());
@@ -150,7 +145,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         path.lineTo(50, 50);
 
         SkScalar intervals[] = { 1.0f, 1.0f };
-        SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+        SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -563,10 +558,9 @@ public:
         , fRestoreCount(0){
     }
 
-    virtual SaveLayerStrategy willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                            SaveFlags flags) override {
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
         ++fSaveLayerCount;
-        return this->INHERITED::willSaveLayer(bounds, paint, flags);
+        return this->INHERITED::getSaveLayerStrategy(rec);
     }
 
     void willSave() override {
@@ -855,8 +849,9 @@ static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     SkDynamicMemoryWStream wStream;
-    sk_tool_utils::PngPixelSerializer serializer;
-    picture->serialize(&wStream, &serializer);
+    SkAutoTUnref<SkPixelSerializer> serializer(
+            SkImageEncoder::CreatePixelSerializer());
+    picture->serialize(&wStream, serializer);
     return wStream.copyToData();
 }
 
@@ -1197,7 +1192,7 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
     canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
     canvas->drawBitmapRect(bitmap, rect, rect, &paint, SkCanvas::kStrict_SrcRectConstraint);
     canvas->drawBitmapNine(bitmap, irect, rect, &paint);
-    canvas->drawSprite(bitmap, 1, 1);
+    canvas->drawBitmap(bitmap, 1, 1);   // drawSprite
 }
 
 static void test_draw_bitmaps(SkCanvas* canvas) {

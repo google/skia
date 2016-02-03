@@ -7,17 +7,16 @@
 
 #include "GrSWMaskHelper.h"
 
-#include "GrPipelineBuilder.h"
 #include "GrCaps.h"
 #include "GrDrawTarget.h"
 #include "GrGpu.h"
+#include "GrPipelineBuilder.h"
 
 #include "SkData.h"
 #include "SkDistanceFieldGen.h"
 #include "SkStrokeRec.h"
 
-// TODO: try to remove this #include
-#include "GrContext.h"
+#include "batches/GrRectBatchFactory.h"
 
 namespace {
 
@@ -372,5 +371,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                                        GrTextureParams::kNone_FilterMode,
                                                        kDevice_GrCoordSet))->unref();
 
-    target->drawNonAARect(*pipelineBuilder, color, SkMatrix::I(), dstRect, invert);
+    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(color, SkMatrix::I(),
+                                                                        dstRect, nullptr, &invert));
+    target->drawBatch(*pipelineBuilder, batch);
 }

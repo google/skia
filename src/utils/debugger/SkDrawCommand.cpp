@@ -11,6 +11,7 @@
 #include "SkObjectParser.h"
 #include "SkPicture.h"
 #include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
 
 // TODO(chudy): Refactor into non subclass model.
 
@@ -47,7 +48,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawPosTextH_OpType: return "DrawPosTextH";
         case kDrawRect_OpType: return "DrawRect";
         case kDrawRRect_OpType: return "DrawRRect";
-        case kDrawSprite_OpType: return "DrawSprite";
         case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextOnPath_OpType: return "DrawTextOnPath";
@@ -336,7 +336,8 @@ void SkDrawBitmapNineCommand::execute(SkCanvas* canvas) const {
 }
 
 bool SkDrawBitmapNineCommand::render(SkCanvas* canvas) const {
-    render_bitmap(canvas, fBitmap);
+    SkRect tmp = SkRect::Make(fCenter);
+    render_bitmap(canvas, fBitmap, &tmp);
     return true;
 }
 
@@ -674,21 +675,49 @@ void SkDrawPosTextHCommand::execute(SkCanvas* canvas) const {
     canvas->drawPosTextH(fText, fByteLength, fXpos, fConstY, fPaint);
 }
 
+static const char* gPositioningLabels[] = {
+    "kDefault_Positioning",
+    "kHorizontal_Positioning",
+    "kFull_Positioning",
+};
+
 SkDrawTextBlobCommand::SkDrawTextBlobCommand(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                              const SkPaint& paint)
     : INHERITED(kDrawTextBlob_OpType)
-    , fBlob(blob)
+    , fBlob(SkRef(blob))
     , fXPos(x)
     , fYPos(y)
     , fPaint(paint) {
 
-    blob->ref();
-
-    // FIXME: push blob info
+    SkAutoTDelete<SkString> runsStr(new SkString);
     fInfo.push(SkObjectParser::ScalarToString(x, "XPOS: "));
     fInfo.push(SkObjectParser::ScalarToString(y, "YPOS: "));
     fInfo.push(SkObjectParser::RectToString(fBlob->bounds(), "Bounds: "));
+    fInfo.push(runsStr);
     fInfo.push(SkObjectParser::PaintToString(paint));
+
+    unsigned runs = 0;
+    SkPaint runPaint(paint);
+    SkTextBlobRunIterator iter(blob);
+    while (!iter.done()) {
+        SkAutoTDelete<SkString> tmpStr(new SkString);
+        tmpStr->printf("==== Run [%d] ====", runs++);
+        fInfo.push(tmpStr.release());
+
+        fInfo.push(SkObjectParser::IntToString(iter.glyphCount(), "GlyphCount: "));
+        tmpStr.reset(new SkString("GlyphPositioning: "));
+        tmpStr->append(gPositioningLabels[iter.positioning()]);
+        fInfo.push(tmpStr.release());
+
+        iter.applyFontToPaint(&runPaint);
+        fInfo.push(SkObjectParser::PaintToString(runPaint));
+
+        iter.next();
+    }
+
+    runsStr->printf("Runs: %d", runs);
+    // runStr is owned by fInfo at this point.
+    runsStr.release();
 }
 
 void SkDrawTextBlobCommand::execute(SkCanvas* canvas) const {
@@ -776,36 +805,6 @@ void SkDrawDRRectCommand::execute(SkCanvas* canvas) const {
 
 bool SkDrawDRRectCommand::render(SkCanvas* canvas) const {
     render_drrect(canvas, fOuter, fInner);
-    return true;
-}
-
-SkDrawSpriteCommand::SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int top,
-                                         const SkPaint* paint)
-    : INHERITED(kDrawSprite_OpType) {
-    fBitmap = bitmap;
-    fLeft = left;
-    fTop = top;
-    if (paint) {
-        fPaint = *paint;
-        fPaintPtr = &fPaint;
-    } else {
-        fPaintPtr = nullptr;
-    }
-
-    fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    fInfo.push(SkObjectParser::IntToString(left, "Left: "));
-    fInfo.push(SkObjectParser::IntToString(top, "Top: "));
-    if (paint) {
-        fInfo.push(SkObjectParser::PaintToString(*paint));
-    }
-}
-
-void SkDrawSpriteCommand::execute(SkCanvas* canvas) const {
-    canvas->drawSprite(fBitmap, fLeft, fTop, fPaintPtr);
-}
-
-bool SkDrawSpriteCommand::render(SkCanvas* canvas) const {
-    render_bitmap(canvas, fBitmap);
     return true;
 }
 
@@ -936,36 +935,35 @@ void SkSaveCommand::execute(SkCanvas* canvas) const {
     canvas->save();
 }
 
-SkSaveLayerCommand::SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
-                                       SkCanvas::SaveFlags flags)
+SkSaveLayerCommand::SkSaveLayerCommand(const SkCanvas::SaveLayerRec& rec)
     : INHERITED(kSaveLayer_OpType) {
-    if (bounds) {
-        fBounds = *bounds;
+    if (rec.fBounds) {
+        fBounds = *rec.fBounds;
     } else {
         fBounds.setEmpty();
     }
 
-    if (paint) {
-        fPaint = *paint;
+    if (rec.fPaint) {
+        fPaint = *rec.fPaint;
         fPaintPtr = &fPaint;
     } else {
         fPaintPtr = nullptr;
     }
-    fFlags = flags;
+    fSaveLayerFlags = rec.fSaveLayerFlags;
 
-    if (bounds) {
-        fInfo.push(SkObjectParser::RectToString(*bounds, "Bounds: "));
+    if (rec.fBounds) {
+        fInfo.push(SkObjectParser::RectToString(*rec.fBounds, "Bounds: "));
     }
-    if (paint) {
-        fInfo.push(SkObjectParser::PaintToString(*paint));
+    if (rec.fPaint) {
+        fInfo.push(SkObjectParser::PaintToString(*rec.fPaint));
     }
-    fInfo.push(SkObjectParser::SaveFlagsToString(flags));
+    fInfo.push(SkObjectParser::SaveLayerFlagsToString(fSaveLayerFlags));
 }
 
 void SkSaveLayerCommand::execute(SkCanvas* canvas) const {
-    canvas->saveLayer(fBounds.isEmpty() ? nullptr : &fBounds,
-                      fPaintPtr,
-                      fFlags);
+    canvas->saveLayer(SkCanvas::SaveLayerRec(fBounds.isEmpty() ? nullptr : &fBounds,
+                                             fPaintPtr,
+                                             fSaveLayerFlags));
 }
 
 void SkSaveLayerCommand::vizExecute(SkCanvas* canvas) const {

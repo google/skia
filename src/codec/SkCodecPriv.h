@@ -11,25 +11,8 @@
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
-#include "SkSwizzler.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
-
-/*
- *
- * Helper routine for alpha result codes
- *
- */
-#define INIT_RESULT_ALPHA                       \
-    uint8_t zeroAlpha = 0;                      \
-    uint8_t maxAlpha = 0xFF;
-
-#define UPDATE_RESULT_ALPHA(alpha)              \
-    zeroAlpha |= (alpha);                       \
-    maxAlpha  &= (alpha);
-
-#define COMPUTE_RESULT_ALPHA                    \
-    SkSwizzler::GetResult(zeroAlpha, maxAlpha);
 
 // FIXME: Consider sharing with dm, nanbench, and tools.
 inline float get_scale_from_sample_size(int sampleSize) {

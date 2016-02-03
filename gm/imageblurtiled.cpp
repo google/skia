@@ -31,7 +31,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
+        SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(fSigmaX, fSigmaY));
+        paint.setImageFilter(blur);
         const SkScalar tile_size = SkIntToScalar(128);
         SkRect bounds;
         if (!canvas->getClipBounds(&bounds)) {

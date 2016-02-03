@@ -12,8 +12,8 @@
 #include "SkRect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -119,13 +119,13 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
     const char *circleName;
     // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
     // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
-    fCircleUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                         "circle",
-                                         &circleName);
+    fCircleUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                      kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                      "circle",
+                                                      &circleName);
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const char* fragmentPos = fsBuilder->fragmentPosition();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    const char* fragmentPos = fragBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
     // TODO: Right now the distance to circle caclulation is performed in a space normalized to the
@@ -133,20 +133,20 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
     // mediump. It'd be nice to only to this on mediump devices but we currently don't have the
     // caps here.
     if (GrProcessorEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        fsBuilder->codeAppendf("\t\tfloat d = (length((%s.xy - %s.xy) * %s.w) - 1.0) * %s.z;\n",
-                                circleName, fragmentPos, circleName, circleName);
+        fragBuilder->codeAppendf("float d = (length((%s.xy - %s.xy) * %s.w) - 1.0) * %s.z;",
+                                 circleName, fragmentPos, circleName, circleName);
     } else {
-        fsBuilder->codeAppendf("\t\tfloat d = (1.0 - length((%s.xy - %s.xy) *  %s.w)) * %s.z;\n",
-                               circleName, fragmentPos, circleName, circleName);
+        fragBuilder->codeAppendf("float d = (1.0 - length((%s.xy - %s.xy) *  %s.w)) * %s.z;",
+                                 circleName, fragmentPos, circleName, circleName);
     }
     if (GrProcessorEdgeTypeIsAA(ce.getEdgeType())) {
-        fsBuilder->codeAppend("\t\td = clamp(d, 0.0, 1.0);\n");
+        fragBuilder->codeAppend("d = clamp(d, 0.0, 1.0);");
     } else {
-        fsBuilder->codeAppend("\t\td = d > 0.5 ? 1.0 : 0.0;\n");
+        fragBuilder->codeAppend("d = d > 0.5 ? 1.0 : 0.0;");
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
-                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("d")).c_str());
+    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("d")).c_str());
 }
 
 void GLCircleEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
@@ -276,6 +276,7 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fEllipseUniform;
+    GrGLSLProgramDataManager::UniformHandle fScaleUniform;
     SkPoint                                 fPrevCenter;
     SkVector                                fPrevRadii;
 
@@ -291,44 +292,60 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
     const char *ellipseName;
     // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
     // The last two terms can underflow on mediump, so we use highp.
-    fEllipseUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                         kVec4f_GrSLType, kHigh_GrSLPrecision,
-                                         "ellipse",
-                                         &ellipseName);
+    fEllipseUniform = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                       kVec4f_GrSLType, kHigh_GrSLPrecision,
+                                                       "ellipse",
+                                                       &ellipseName);
+    // If we're on a device with a "real" mediump then we'll do the distance computation in a space
+    // that is normalized by the larger radius. The scale uniform will be scale, 1/scale. The
+    // inverse squared radii uniform values are already in this normalized space. The center is
+    // not.
+    const char* scaleName = nullptr;
+    if (args.fGLSLCaps->floatPrecisionVaries()) {
+        fScaleUniform = args.fUniformHandler->addUniform(
+            GrGLSLUniformHandler::kFragment_Visibility, kVec2f_GrSLType, kDefault_GrSLPrecision,
+            "scale", &scaleName);
+    }
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const char* fragmentPos = fsBuilder->fragmentPosition();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    const char* fragmentPos = fragBuilder->fragmentPosition();
 
     // d is the offset to the ellipse center
-    fsBuilder->codeAppendf("\t\tvec2 d = %s.xy - %s.xy;\n", fragmentPos, ellipseName);
-    fsBuilder->codeAppendf("\t\tvec2 Z = d * %s.zw;\n", ellipseName);
+    fragBuilder->codeAppendf("vec2 d = %s.xy - %s.xy;", fragmentPos, ellipseName);
+    if (scaleName) {
+        fragBuilder->codeAppendf("d *= %s.y;", scaleName);
+    }
+    fragBuilder->codeAppendf("vec2 Z = d * %s.zw;", ellipseName);
     // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
-    fsBuilder->codeAppend("\t\tfloat implicit = dot(Z, d) - 1.0;\n");
+    fragBuilder->codeAppend("float implicit = dot(Z, d) - 1.0;");
     // grad_dot is the squared length of the gradient of the implicit.
-    fsBuilder->codeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
-    // avoid calling inversesqrt on zero.
-    fsBuilder->codeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-    fsBuilder->codeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
+    fragBuilder->codeAppendf("float grad_dot = 4.0 * dot(Z, Z);");
+    // Avoid calling inversesqrt on zero.
+    fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+    fragBuilder->codeAppendf("float approx_dist = implicit * inversesqrt(grad_dot);");
+    if (scaleName) {
+        fragBuilder->codeAppendf("approx_dist *= %s.x;", scaleName);
+    }
 
     switch (ee.getEdgeType()) {
         case kFillAA_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
+            fragBuilder->codeAppend("float alpha = clamp(0.5 - approx_dist, 0.0, 1.0);");
             break;
         case kInverseFillAA_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
+            fragBuilder->codeAppend("float alpha = clamp(0.5 + approx_dist, 0.0, 1.0);");
             break;
         case kFillBW_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n");
+            fragBuilder->codeAppend("float alpha = approx_dist > 0.0 ? 0.0 : 1.0;");
             break;
         case kInverseFillBW_GrProcessorEdgeType:
-            fsBuilder->codeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n");
+            fragBuilder->codeAppend("float alpha = approx_dist > 0.0 ? 1.0 : 0.0;");
             break;
         case kHairlineAA_GrProcessorEdgeType:
             SkFAIL("Hairline not expected here.");
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
-                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
+    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,
@@ -341,8 +358,26 @@ void GLEllipseEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                 const GrProcessor& effect) {
     const EllipseEffect& ee = effect.cast<EllipseEffect>();
     if (ee.getRadii() != fPrevRadii || ee.getCenter() != fPrevCenter) {
-        SkScalar invRXSqd = 1.f / (ee.getRadii().fX * ee.getRadii().fX);
-        SkScalar invRYSqd = 1.f / (ee.getRadii().fY * ee.getRadii().fY);
+        float invRXSqd;
+        float invRYSqd;
+        // If we're using a scale factor to work around precision issues, choose the larger radius
+        // as the scale factor. The inv radii need to be pre-adjusted by the scale factor.
+        if (fScaleUniform.isValid()) {
+            if (ee.getRadii().fX > ee.getRadii().fY) {
+                invRXSqd = 1.f;
+                invRYSqd = (ee.getRadii().fX * ee.getRadii().fX) /
+                           (ee.getRadii().fY * ee.getRadii().fY);
+                pdman.set2f(fScaleUniform, ee.getRadii().fX, 1.f / ee.getRadii().fX);
+            } else {
+                invRXSqd = (ee.getRadii().fY * ee.getRadii().fY) /
+                           (ee.getRadii().fX * ee.getRadii().fX);
+                invRYSqd = 1.f;
+                pdman.set2f(fScaleUniform, ee.getRadii().fY, 1.f / ee.getRadii().fY);
+            }
+        } else {
+            invRXSqd = 1.f / (ee.getRadii().fX * ee.getRadii().fX);
+            invRYSqd = 1.f / (ee.getRadii().fY * ee.getRadii().fY);
+        }
         pdman.set4f(fEllipseUniform, ee.getCenter().fX, ee.getCenter().fY, invRXSqd, invRYSqd);
         fPrevCenter = ee.getCenter();
         fPrevRadii = ee.getRadii();

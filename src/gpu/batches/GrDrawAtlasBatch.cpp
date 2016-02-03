@@ -12,13 +12,13 @@
 #include "SkRandom.h"
 #include "SkRSXform.h"
 
-void GrDrawAtlasBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
+void GrDrawAtlasBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     SkASSERT(fGeoData.count() == 1);
     // Handle any color overrides
-    if (!opt.readsColor()) {
+    if (!overrides.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    if (opt.getOverrideColorIfSet(&fGeoData[0].fColor) && fHasColors) {
+    if (overrides.getOverrideColorIfSet(&fGeoData[0].fColor) && fHasColors) {
         size_t vertexStride = sizeof(SkPoint) + sizeof(SkPoint) +
                              (this->hasColors() ? sizeof(GrColor) : 0);
         uint8_t* currVertex = fGeoData[0].fVerts.begin();
@@ -29,11 +29,11 @@ void GrDrawAtlasBatch::initBatchTracker(const GrPipelineOptimizations& opt) {
     }
 
     // setup batch properties
-    fColorIgnored = !opt.readsColor();
+    fColorIgnored = !overrides.readsColor();
     fColor = fGeoData[0].fColor;
     // We'd like to assert this, but we can't because of GLPrograms test
     //SkASSERT(init.readsLocalCoords());
-    fCoverageIgnored = !opt.readsCoverage();
+    fCoverageIgnored = !overrides.readsCoverage();
 }
 
 static const GrGeometryProcessor* set_vertex_attributes(bool hasColors,
@@ -51,7 +51,7 @@ static const GrGeometryProcessor* set_vertex_attributes(bool hasColors,
     return GrDefaultGeoProcFactory::Create(gpColor, coverage, localCoords, viewMatrix);
 }
 
-void GrDrawAtlasBatch::onPrepareDraws(Target* target) {
+void GrDrawAtlasBatch::onPrepareDraws(Target* target) const {
     // Setup geometry processor
     SkAutoTUnref<const GrGeometryProcessor> gp(set_vertex_attributes(this->hasColors(),
                                                                      this->color(),

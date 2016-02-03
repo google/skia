@@ -12,6 +12,7 @@
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 #include "SkTemplates.h"
+#include "SkTLogic.h"
 
 #include <dirent.h>
 #include <expat.h>
@@ -579,9 +580,6 @@ static const XML_Memory_Handling_Suite sk_XML_alloc = {
     sk_free
 };
 
-template<typename T> struct remove_ptr {typedef T type;};
-template<typename T> struct remove_ptr<T*> {typedef T type;};
-
 /**
  * This function parses the given filename and stores the results in the given
  * families array. Returns the version of the file, negative if the file does not exist.
@@ -598,7 +596,7 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
         return -1;
     }
 
-    SkAutoTCallVProc<remove_ptr<XML_Parser>::type, XML_ParserFree> parser(
+    SkAutoTCallVProc<skstd::remove_pointer_t<XML_Parser>, XML_ParserFree> parser(
         XML_ParserCreate_MM(nullptr, &sk_XML_alloc, nullptr));
     if (!parser) {
         SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "could not create XML parser\n");
@@ -665,11 +663,6 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
                                                      const char* dir,
                                                      const SkString& basePath)
 {
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // The framework is beyond Android 4.2 and can therefore skip this function
-    return;
-#endif
-
     SkAutoTCallIProc<DIR, closedir> fontDirectory(opendir(dir));
     if (nullptr == fontDirectory) {
         return;

@@ -39,6 +39,13 @@ protected:
         fRasterSurface.reset(SkSurface::NewRaster(info));
     }
 
+    void onPerCanvasPostDraw(SkCanvas*) override {
+        // Release the image and raster surface here to prevent out of order destruction
+        // between these and the gpu interface.
+        fRasterSurface.reset(nullptr);
+        fImage.reset(nullptr);
+    }
+
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             for (int inner = 0; inner < 10; ++inner) {
@@ -54,6 +61,4 @@ private:
 
     typedef Benchmark INHERITED;
 };
-
-
 DEF_BENCH( return new Image2RasterBench; )

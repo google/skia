@@ -18,25 +18,50 @@ class GrPorterDuffXPFactory : public GrXPFactory {
 public:
     static GrXPFactory* Create(SkXfermode::Mode mode); 
 
-    bool supportsRGBCoverage(GrColor /*knownColor*/, uint32_t /*knownColorFlags*/) const override {
-        return true;
-    }
-
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
+
+
+    /** Because src-over is so common we special case it for performance reasons. If this returns
+        null then the SimpleSrcOverXP() below should be used. */
+    static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
+                                                       const GrPipelineOptimizations& optimizations,
+                                                       bool hasMixedSamples,
+                                                       const GrXferProcessor::DstTexture*);
+    /** This XP implements non-LCD src-over using hw blend with no optimizations. It is returned
+        by reference because it is global and its ref-cnting methods are not thread safe. */
+    static const GrXferProcessor& SimpleSrcOverXP();
+
+    static inline void SrcOverInvariantBlendedColor(
+                                                GrColor inputColor,
+                                                GrColorComponentFlags validColorFlags,
+                                                bool isOpaque,
+                                                GrXPFactory::InvariantBlendedColor* blendedColor) {
+        if (!isOpaque) {
+            blendedColor->fWillBlendWithDst = true;
+            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+            return;
+        }
+        blendedColor->fWillBlendWithDst = false;
+
+        blendedColor->fKnownColor = inputColor;
+        blendedColor->fKnownColorFlags = validColorFlags;
+    }
+
+    static bool SrcOverWillNeedDstTexture(const GrCaps& caps,
+                                          const GrPipelineOptimizations& optimizations,
+                                          bool hasMixedSamples);
 
 private:
     GrPorterDuffXPFactory(SkXfermode::Mode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrProcOptInfo& colorPOI,
-                                           const GrProcOptInfo& coveragePOI,
+                                           const GrPipelineOptimizations& optimizations,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
     bool willReadDstColor(const GrCaps& caps,
-                          const GrProcOptInfo& colorPOI,
-                          const GrProcOptInfo& coveragePOI,
+                          const GrPipelineOptimizations& optimizations,
                           bool hasMixedSamples) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {

@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# android_install_app: installs the skia sampleApp on the device.
+# android_install_app: installs the Skia development apps on the device.
 
 function print_usage {
-  echo "USAGE: android_install_app [options]"
+  echo "USAGE: android_install_app [options] AppName"
   echo " Options:         -f  Forces the package to be installed by removing any"
   echo "                      previously installed packages"
   echo "                  -h  Prints this help message"
   echo "            --release Install the release build of Skia"
   echo "      -s [device_s/n] Serial number of the device to be used"
-  echo "              AppName Can be either sample_app or VisualBench"
+  echo "              AppName Can be either SampleApp or VisualBench"
 }
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -43,8 +43,8 @@ for arg in ${APP_ARGS[@]}; do
 done
 
 if [[ ${app} == "" ]]; then
-  echo "defaulting to installing sample_app."
-  app="sample_app"
+  echo "Defaulting to installing SampleApp."
+  app="SampleApp"
 fi
 
 
@@ -61,6 +61,9 @@ else
     apk_suffix="debug.apk"
 fi
 
+if [[ ${app} == 'SampleApp' ]]; then
+    app="sample_app"
+fi
 
 APP_LC=$(echo $app | tr "[:upper:]" "[:lower:]")
 

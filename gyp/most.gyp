@@ -27,12 +27,15 @@
         'pathops_skpclip.gyp:*',
         'dm.gyp:dm',
         'visualbench.gyp:visualbench',
+        'fuzz.gyp:fuzz',
+        'kilobench.gyp:kilobench',
       ],
       'conditions': [
-        [ 'skia_gpu == 0', { 
-          'dependencies!': [ 
-            'visualbench.gyp:visualbench' 
-          ] 
+        [ 'skia_gpu == 0', {
+          'dependencies!': [
+            'visualbench.gyp:visualbench',
+            'kilobench.gyp:kilobench',
+          ]
         }],
         [ 'skia_gpu == 0 or skia_os == "android"', {
           'dependencies!': [
@@ -40,13 +43,13 @@
           ],
         }],
         ['skia_os == "android"', {
-          'dependencies': [ 
-            'android_system.gyp:SampleApp_APK', 
+          'dependencies': [
+            'android_system.gyp:SampleApp_APK',
           ],
           'conditions': [
             [ 'skia_gpu == 1', {
               'dependencies': [
-                'android_system.gyp:VisualBench_APK', 
+                'android_system.gyp:VisualBench_APK',
               ],
             }],
           ],

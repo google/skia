@@ -192,7 +192,7 @@ static void test_crbug_140642() {
      */
 
     const SkScalar vals[] = { 27734, 35660, 2157846850.0f, 247 };
-    SkAutoTUnref<SkDashPathEffect> dontAssert(SkDashPathEffect::Create(vals, 4, -248.135982067f));
+    SkAutoTUnref<SkPathEffect> dontAssert(SkDashPathEffect::Create(vals, 4, -248.135982067f));
 }
 
 static void test_crbug_124652() {
@@ -202,7 +202,7 @@ static void test_crbug_124652() {
         large values can "swamp" small ones.
      */
     SkScalar intervals[2] = {837099584, 33450};
-    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, -10));
+    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, -10));
 }
 
 static void test_bigcubic() {
@@ -215,6 +215,45 @@ static void test_bigcubic() {
 
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
     surface->getCanvas()->drawPath(path, paint);
+}
+
+// asserts if halfway case is not handled
+static void test_halfway() {
+    SkPaint paint;
+    SkPath path;
+    path.moveTo(16365.5f, 1394);
+    path.lineTo(16365.5f, 1387.5f);
+    path.quadTo(16365.5f, 1385.43f, 16367, 1383.96f);
+    path.quadTo(16368.4f, 1382.5f, 16370.5f, 1382.5f);
+    path.lineTo(16465.5f, 1382.5f);
+    path.quadTo(16467.6f, 1382.5f, 16469, 1383.96f);
+    path.quadTo(16470.5f, 1385.43f, 16470.5f, 1387.5f);
+    path.lineTo(16470.5f, 1394);
+    path.quadTo(16470.5f, 1396.07f, 16469, 1397.54f);
+    path.quadTo(16467.6f, 1399, 16465.5f, 1399);
+    path.lineTo(16370.5f, 1399);
+    path.quadTo(16368.4f, 1399, 16367, 1397.54f);
+    path.quadTo(16365.5f, 1396.07f, 16365.5f, 1394);
+    path.close();
+    SkPath p2;
+    SkMatrix m;
+    m.reset();
+    m.postTranslate(0.001f, 0.001f);
+    path.transform(m, &p2);
+
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(640, 480));
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->translate(-16366, -1383);
+    canvas->drawPath(p2, paint);
+
+    m.reset();
+    m.postTranslate(-0.001f, -0.001f);
+    path.transform(m, &p2);
+    canvas->drawPath(p2, paint);
+
+    m.reset();
+    path.transform(m, &p2);
+    canvas->drawPath(p2, paint);
 }
 
 // we used to assert if the bounds of the device (clip) was larger than 32K
@@ -242,7 +281,7 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     path.lineTo(5000000, 0);
 
     SkScalar intervals[] = { 0.2f, 0.2f };
-    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
 
     SkPath filteredPath;
     SkPaint paint;
@@ -262,7 +301,7 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     path.lineTo(10000000, 0);
 
     SkScalar intervals[] = { 0.5f, 0.5f };
-    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+    SkAutoTUnref<SkPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
@@ -272,6 +311,39 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     SkStrokeRec rec(paint);
     REPORTER_ASSERT(reporter, !dash->filterPath(&filteredPath, path, &rec, nullptr));
     REPORTER_ASSERT(reporter, filteredPath.isEmpty());
+}
+
+// http://crbug.com/472147
+// This is a simplified version from the bug. RRect radii not properly scaled.
+static void test_crbug_472147_simple(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint p;
+    SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);
+    SkVector radii[4] = {
+        { 13.0f, 8.0f }, { 170.0f, 2.0 }, { 256.0f, 33554430.0f }, { 120.0f, 5.0f }
+    };
+    SkRRect rr;
+    rr.setRectRadii(r, radii);
+    canvas->drawRRect(rr, p);
+}
+
+// http://crbug.com/472147
+// RRect radii not properly scaled.
+static void test_crbug_472147_actual(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterN32Premul(1000, 1000));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint p;
+    SkRect r = SkRect::MakeLTRB(-246.0f, 33.0f, 848.0f, 33554464.0f);
+    SkVector radii[4] = {
+        { 13.0f, 8.0f }, { 170.0f, 2.0 }, { 256.0f, 33554430.0f }, { 120.0f, 5.0f }
+    };
+    SkRRect rr;
+    rr.setRectRadii(r, radii);
+    canvas->clipRRect(rr, SkRegion::kIntersect_Op, false);
+
+    SkRect r2 = SkRect::MakeLTRB(0, 33, 1102, 33554464);
+    canvas->drawRect(r2, p);
 }
 
 DEF_TEST(DrawPath, reporter) {
@@ -286,5 +358,8 @@ DEF_TEST(DrawPath, reporter) {
     if (false) test_crbug131181();
     test_infinite_dash(reporter);
     test_crbug_165432(reporter);
+    test_crbug_472147_simple(reporter);
+    test_crbug_472147_actual(reporter);
     test_big_aa_rect(reporter);
+    test_halfway();
 }

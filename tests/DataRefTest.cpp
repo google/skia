@@ -191,7 +191,7 @@ static void test_files(skiatest::Reporter* reporter) {
         writer.write(s, 26);
     }
 
-    SkFILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
+    FILE* file = sk_fopen(path.c_str(), kRead_SkFILE_Flag);
     SkAutoTUnref<SkData> r1(SkData::NewFromFILE(file));
     REPORTER_ASSERT(reporter, r1.get() != nullptr);
     REPORTER_ASSERT(reporter, r1->size() == 26);
@@ -312,4 +312,19 @@ DEF_TEST(RWBuffer, reporter) {
         readers[i]->unref();
         delete streams[i];
     }
+}
+
+// Tests that it is safe to call SkROBuffer::Iter::size() when exhausted.
+DEF_TEST(RWBuffer_size, r) {
+    SkRWBuffer buffer;
+    buffer.append(gABC, 26);
+
+    SkAutoTUnref<SkROBuffer> roBuffer(buffer.newRBufferSnapshot());
+    SkROBuffer::Iter iter(roBuffer);
+    REPORTER_ASSERT(r, iter.data());
+    REPORTER_ASSERT(r, iter.size() == 26);
+
+    // There is only one block in this buffer.
+    REPORTER_ASSERT(r, !iter.next());
+    REPORTER_ASSERT(r, 0 == iter.size());
 }

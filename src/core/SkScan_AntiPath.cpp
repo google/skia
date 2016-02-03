@@ -91,11 +91,11 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlit, const SkIRect& ir, const
     const int right = sectBounds.right();
 
     fLeft = left;
-    fSuperLeft = left << SHIFT;
+    fSuperLeft = SkLeftShift(left, SHIFT);
     fWidth = right - left;
     fTop = sectBounds.top();
     fCurrIY = fTop - 1;
-    fCurrY = (fTop << SHIFT) - 1;
+    fCurrY = SkLeftShift(fTop, SHIFT) - 1;
 
     SkDEBUGCODE(fCurrX = -1;)
 }
@@ -545,7 +545,7 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
     }
 #endif
 
-    x -= (fMask.fBounds.fLeft << SHIFT);
+    x -= SkLeftShift(fMask.fBounds.fLeft, SHIFT);
 
     // hack, until I figure out why my cubics (I think) go beyond the bounds
     if (x < 0) {
@@ -592,7 +592,7 @@ static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
 
 static int overflows_short_shift(int value, int shift) {
     const int s = 16 + shift;
-    return (value << s >> s) - value;
+    return (SkLeftShift(value, s) >> s) - value;
 }
 
 /**

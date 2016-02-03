@@ -37,11 +37,7 @@
 #define png_flush_ptr_NULL nullptr
 #endif
 
-#if defined(SK_DEBUG)
-#define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS false
-#else  // !defined(SK_DEBUG)
 #define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS true
-#endif  // defined(SK_DEBUG)
 SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
                 "images.png.suppressDecoderWarnings",
                 DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS,
@@ -124,16 +120,17 @@ static void sk_read_fn(png_structp png_ptr, png_bytep data, png_size_t length) {
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
 static int sk_read_user_chunk(png_structp png_ptr, png_unknown_chunkp chunk) {
-    SkImageDecoder::Peeker* peeker =
-                    (SkImageDecoder::Peeker*)png_get_user_chunk_ptr(png_ptr);
-    // peek() returning true means continue decoding
-    return peeker->peek((const char*)chunk->name, chunk->data, chunk->size) ?
+    SkPngChunkReader* peeker = (SkPngChunkReader*)png_get_user_chunk_ptr(png_ptr);
+    // readChunk() returning true means continue decoding
+    return peeker->readChunk((const char*)chunk->name, chunk->data, chunk->size) ?
             1 : -1;
 }
 #endif
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
-    SkDEBUGF(("------ png error %s\n", msg));
+    if (!c_suppressPNGImageDecoderWarnings) {
+        SkDEBUGF(("------ png error %s\n", msg));
+    }
     longjmp(png_jmpbuf(png_ptr), 1);
 }
 
@@ -404,8 +401,8 @@ SkImageDecoder::Result SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
         const int height = decodedBitmap->height();
 
         if (number_passes > 1) {
-            SkAutoMalloc storage(origWidth * origHeight * srcBytesPerPixel);
-            uint8_t* base = (uint8_t*)storage.get();
+            SkAutoTMalloc<uint8_t> storage(origWidth * origHeight * srcBytesPerPixel);
+            uint8_t* base = storage.get();
             size_t rowBytes = origWidth * srcBytesPerPixel;
 
             for (int i = 0; i < number_passes; i++) {
@@ -423,8 +420,8 @@ SkImageDecoder::Result SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap
                 base += sampler.srcDY() * rowBytes;
             }
         } else {
-            SkAutoMalloc storage(origWidth * srcBytesPerPixel);
-            uint8_t* srcRow = (uint8_t*)storage.get();
+            SkAutoTMalloc<uint8_t> storage(origWidth * srcBytesPerPixel);
+            uint8_t* srcRow = storage.get();
             skip_src_rows(png_ptr, srcRow, sampler.srcY0());
 
             for (int y = 0; y < height; y++) {
@@ -828,10 +825,28 @@ private:
     typedef SkImageEncoder INHERITED;
 };
 
-bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int /*quality*/) {
-    SkColorType ct = bitmap.colorType();
+bool SkPNGImageEncoder::onEncode(SkWStream* stream,
+                                 const SkBitmap& originalBitmap,
+                                 int /*quality*/) {
+    SkBitmap copy;
+    const SkBitmap* bitmap = &originalBitmap;
+    switch (originalBitmap.colorType()) {
+        case kIndex_8_SkColorType:
+        case kN32_SkColorType:
+        case kARGB_4444_SkColorType:
+        case kRGB_565_SkColorType:
+            break;
+        default:
+            // TODO(scroggo): support 8888-but-not-N32 natively.
+            // TODO(scroggo): support kGray_8 directly.
+            // TODO(scroggo): support Alpha_8 as Grayscale(black)+Alpha
+            if (originalBitmap.copyTo(&copy, kN32_SkColorType)) {
+                bitmap = &copy;
+            }
+    }
+    SkColorType ct = bitmap->colorType();
 
-    const bool hasAlpha = !bitmap.isOpaque();
+    const bool hasAlpha = !bitmap->isOpaque();
     int colorType = PNG_COLOR_MASK_COLOR;
     int bitDepth = 8;   // default for color
     png_color_8 sig_bit;
@@ -871,14 +886,14 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int 
         sig_bit.alpha = 0;
     }
 
-    SkAutoLockPixels alp(bitmap);
+    SkAutoLockPixels alp(*bitmap);
     // readyToDraw checks for pixels (and colortable if that is required)
-    if (!bitmap.readyToDraw()) {
+    if (!bitmap->readyToDraw()) {
         return false;
     }
 
     // we must do this after we have locked the pixels
-    SkColorTable* ctable = bitmap.getColorTable();
+    SkColorTable* ctable = bitmap->getColorTable();
     if (ctable) {
         if (ctable->count() == 0) {
             return false;
@@ -887,7 +902,7 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int 
         bitDepth = computeBitDepth(ctable->count());
     }
 
-    return doEncode(stream, bitmap, hasAlpha, colorType, bitDepth, ct, sig_bit);
+    return doEncode(stream, *bitmap, hasAlpha, colorType, bitDepth, ct, sig_bit);
 }
 
 bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
@@ -951,8 +966,8 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
     png_write_info(png_ptr, info_ptr);
 
     const char* srcImage = (const char*)bitmap.getPixels();
-    SkAutoSMalloc<1024> rowStorage(bitmap.width() << 2);
-    char* storage = (char*)rowStorage.get();
+    SkAutoSTMalloc<1024, char> rowStorage(bitmap.width() << 2);
+    char* storage = rowStorage.get();
     transform_scanline_proc proc = choose_proc(ct, hasAlpha);
 
     for (int y = 0; y < bitmap.height(); y++) {

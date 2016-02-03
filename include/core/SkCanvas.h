@@ -37,6 +37,16 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
+/*
+ *  If you want the legacy cliptolayer flag (i.e. android), then you must have the new
+ *  legacy saveflags.
+ */
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+#ifndef SK_SUPPORT_LEGACY_SAVEFLAGS
+    #define SK_SUPPORT_LEGACY_SAVEFLAGS
+#endif
+#endif
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -53,6 +63,10 @@ class SkTextBlob;
     etc.
 */
 class SK_API SkCanvas : public SkRefCnt {
+    enum PrivateSaveLayerFlags {
+        kDontClipToLayer_PrivateSaveLayerFlag   = 1 << 31,
+    };
+    
 public:
     /**
      *  Attempt to allocate raster canvas, matching the ImageInfo, that will draw directly into the
@@ -281,6 +295,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
     enum SaveFlags {
         /** save the matrix state, restoring it on restore() */
         // [deprecated] kMatrix_SaveFlag            = 0x01,
@@ -307,6 +322,7 @@ public:
 #endif
         kARGB_ClipLayer_SaveFlag    = 0x1F
     };
+#endif
 
     /** This call saves the current matrix, clip, and drawFilter, and pushes a
         copy onto a private stack. Subsequent calls to translate, scale,
@@ -336,6 +352,14 @@ public:
         return this->saveLayer(&bounds, paint);
     }
 
+    /**
+     *  Temporary name.
+     *  Will allow any requests for LCD text to be respected, so the caller must be careful to
+     *  only draw on top of opaque sections of the layer to get good results.
+     */
+    int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
+
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
     /** DEPRECATED - use saveLayer(const SkRect*, const SkPaint*) instead.
 
         This behaves the same as saveLayer(const SkRect*, const SkPaint*),
@@ -353,6 +377,7 @@ public:
     */
     SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
     int saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
+#endif
 
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
@@ -367,6 +392,7 @@ public:
     */
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
     /** DEPRECATED - use saveLayerAlpha(const SkRect*, U8CPU) instead.
 
         This behaves the same as saveLayerAlpha(const SkRect*, U8CPU),
@@ -383,6 +409,43 @@ public:
     */
     SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha, SaveFlags flags);
+#endif
+
+    enum {
+        kIsOpaque_SaveLayerFlag         = 1 << 0,
+        kPreserveLCDText_SaveLayerFlag  = 1 << 1,
+
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+        kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
+#endif
+    };
+    typedef uint32_t SaveLayerFlags;
+
+    struct SaveLayerRec {
+        SaveLayerRec()
+            : fBounds(nullptr), fPaint(nullptr), fBackdrop(nullptr), fSaveLayerFlags(0)
+        {}
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
+            : fBounds(bounds)
+            , fPaint(paint)
+            , fBackdrop(nullptr)
+            , fSaveLayerFlags(saveLayerFlags)
+        {}
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                     SaveLayerFlags saveLayerFlags)
+            : fBounds(bounds)
+            , fPaint(paint)
+            , fBackdrop(backdrop)
+            , fSaveLayerFlags(saveLayerFlags)
+        {}
+
+        const SkRect*           fBounds;    // optional
+        const SkPaint*          fPaint;     // optional
+        const SkImageFilter*    fBackdrop;  // optional
+        SaveLayerFlags          fSaveLayerFlags;
+    };
+
+    int saveLayer(const SaveLayerRec&);
 
     /** This call balances a previous call to save(), and is used to remove all
         modifications to the matrix/clip/drawFilter state since the last save
@@ -606,8 +669,8 @@ public:
      * This makes the contents of the canvas undefined. Subsequent calls that
      * require reading the canvas contents will produce undefined results. Examples
      * include blending and readPixels. The actual implementation is backend-
-     * dependent and one legal implementation is to do nothing. Like clear(), this
-     * ignores the clip.
+     * dependent and one legal implementation is to do nothing. This method
+     * ignores the current clip.
      *
      * This function should only be called if the caller intends to subsequently
      * draw to the canvas. The canvas may do real work at discard() time in order
@@ -617,7 +680,7 @@ public:
     void discard() { this->onDiscard(); }
 
     /**
-     *  Fill the entire canvas' bitmap (restricted to the current clip) with the
+     *  Fill the entire canvas (restricted to the current clip) with the
      *  specified paint.
      *  @param paint    The paint used to fill the canvas
      */
@@ -903,19 +966,6 @@ public:
      */
     void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = NULL);
-
-    /** Draw the specified bitmap, with its top/left corner at (x,y),
-        NOT transformed by the current matrix. Note: if the paint
-        contains a maskfilter that generates a mask which extends beyond the
-        bitmap's original width/height, then the bitmap will be drawn as if it
-        were in a Shader with CLAMP mode. Thus the color outside of the original
-        width/height will be the edge color replicated.
-        @param bitmap   The bitmap to be drawn
-        @param left     The position of the left side of the bitmap being drawn
-        @param top      The position of the top side of the bitmap being drawn
-        @param paint    The paint used to draw the bitmap, or NULL
-    */
-    void drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint = NULL);
 
     /** Draw the text, with origin at (x,y), using the specified paint.
         The origin is interpreted based on the Align setting in the paint.
@@ -1223,14 +1273,15 @@ protected:
 
     // Subclass save/restore notifiers.
     // Overriders should call the corresponding INHERITED method up the inheritance chain.
-    // willSaveLayer()'s return value may suppress full layer allocation.
+    // getSaveLayerStrategy()'s return value may suppress full layer allocation.
     enum SaveLayerStrategy {
         kFullLayer_SaveLayerStrategy,
-        kNoLayer_SaveLayerStrategy
+        kNoLayer_SaveLayerStrategy,
     };
 
     virtual void willSave() {}
-    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) {
+    // Overriders should call the corresponding INHERITED method up the inheritance chain.
+    virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) {
         return kFullLayer_SaveLayerStrategy;
     }
     virtual void willRestore() {}
@@ -1285,7 +1336,6 @@ protected:
                                   SrcRectConstraint);
     virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                                   const SkPaint*);
-    virtual void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
@@ -1311,11 +1361,21 @@ protected:
     // returns false if the entire rectangle is entirely clipped out
     // If non-NULL, The imageFilter parameter will be used to expand the clip
     // and offscreen bounds for any margin required by the filter DAG.
-    bool clipRectBounds(const SkRect* bounds, SaveFlags flags,
-                        SkIRect* intersection,
+    bool clipRectBounds(const SkRect* bounds, SaveLayerFlags, SkIRect* intersection,
                         const SkImageFilter* imageFilter = NULL);
 
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
+    // Needed by SkiaCanvasProxy in Android. Make sure that class is updated
+    // before removing this method.
+    static uint32_t SaveLayerFlagsToSaveFlags(SaveLayerFlags);
+#endif
 private:
+    static bool BoundsAffectsClip(SaveLayerFlags);
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
+    static uint32_t SaveFlagsToSaveLayerFlags(SaveFlags);
+#endif
+    static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
+
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
         kOpaque_ShaderOverrideOpacity,      //!< the overriding shader is opaque
@@ -1340,7 +1400,7 @@ private:
     // the first N recs that can fit here mean we won't call malloc
     enum {
         kMCRecSize      = 128,  // most recent measurement
-        kMCRecCount     = 8,    // common depth for save/restores
+        kMCRecCount     = 32,   // common depth for save/restores
         kDeviceCMSize   = 136,  // most recent measurement
     };
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
@@ -1375,6 +1435,7 @@ private:
     friend class SkNoSaveLayerCanvas;   // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
+    friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,
@@ -1406,7 +1467,7 @@ private:
                                 const SkRect& dst, const SkPaint* paint,
                                 SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
-    void internalSaveLayer(const SkRect* bounds, const SkPaint*, SaveFlags, SaveLayerStrategy);
+    void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, bool isBitmapDevice);
 
     // shared by save() and saveLayer()
@@ -1428,6 +1489,10 @@ private:
      */
     bool wouldOverwriteEntireSurface(const SkRect*, const SkPaint*, ShaderOverrideOpacity) const;
 
+    /**
+     *  Returns true if the paint's imagefilter can be invoked directly, without needed a layer.
+     */
+    bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint&);
 
     /*  These maintain a cache of the clip bounds in local coordinates,
         (converted to 2s-compliment if floats are slow).
@@ -1436,7 +1501,7 @@ private:
     mutable bool   fCachedLocalClipBoundsDirty;
     bool fAllowSoftClip;
     bool fAllowSimplifyClip;
-    bool fConservativeRasterClip;
+    const bool fConservativeRasterClip;
 
     const SkRect& getLocalClipBounds() const {
         if (fCachedLocalClipBoundsDirty) {
@@ -1505,49 +1570,7 @@ private:
 };
 #define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
 
-/**
- *  If the caller wants read-only access to the pixels in a canvas, it can just
- *  call canvas->peekPixels(), since that is the fastest way to "peek" at the
- *  pixels on a raster-backed canvas.
- *
- *  If the canvas has pixels, but they are not readily available to the CPU
- *  (e.g. gpu-backed), then peekPixels() will fail, but readPixels() will
- *  succeed (though be slower, since it will return a copy of the pixels).
- *
- *  SkAutoROCanvasPixels encapsulates these two techniques, trying first to call
- *  peekPixels() (for performance), but if that fails, calling readPixels() and
- *  storing the copy locally.
- *
- *  The caller must respect the restrictions associated with peekPixels(), since
- *  that may have been called: The returned information is invalidated if...
- *      - any API is called on the canvas (or its parent surface if present)
- *      - the canvas goes out of scope
- */
-class SkAutoROCanvasPixels : SkNoncopyable {
-public:
-    SkAutoROCanvasPixels(SkCanvas* canvas);
-
-    // returns NULL on failure
-    const void* addr() const { return fAddr; }
-
-    // undefined if addr() == NULL
-    size_t rowBytes() const { return fRowBytes; }
-
-    // undefined if addr() == NULL
-    const SkImageInfo& info() const { return fInfo; }
-
-    // helper that, if returns true, installs the pixels into the bitmap. Note
-    // that the bitmap may reference the address returned by peekPixels(), so
-    // the caller must respect the restrictions associated with peekPixels().
-    bool asROBitmap(SkBitmap*) const;
-
-private:
-    SkBitmap    fBitmap;    // used if peekPixels() fails
-    const void* fAddr;      // NULL on failure
-    SkImageInfo fInfo;
-    size_t      fRowBytes;
-};
-
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
 static inline SkCanvas::SaveFlags operator|(const SkCanvas::SaveFlags lhs,
                                             const SkCanvas::SaveFlags rhs) {
     return static_cast<SkCanvas::SaveFlags>(static_cast<int>(lhs) | static_cast<int>(rhs));
@@ -1558,6 +1581,7 @@ static inline SkCanvas::SaveFlags& operator|=(SkCanvas::SaveFlags& lhs,
     lhs = lhs | rhs;
     return lhs;
 }
+#endif
 
 class SkCanvasClipVisitor {
 public:

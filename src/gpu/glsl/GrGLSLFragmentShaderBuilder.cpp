@@ -10,6 +10,8 @@
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
+#include "glsl/GrGLSLVarying.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstTextureColorName = "_dstColor";
 
@@ -135,24 +137,19 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
         static const char* kTempName = "tmpXYFragCoord";
         static const char* kCoordName = "fragCoordYDown";
         if (!fSetupFragPosition) {
-            SkASSERT(!fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
             const char* rtHeightName;
 
-            fProgramBuilder->fUniformHandles.fRTHeightUni =
-                    fProgramBuilder->addFragPosUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                       kFloat_GrSLType,
-                                                       kDefault_GrSLPrecision,
-                                                       "RTHeight",
-                                                       &rtHeightName);
+            fProgramBuilder->addRTHeightUniform("RTHeight", &rtHeightName);
 
             // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
             // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,
             // depending on the surrounding code, accessing .xy with a uniform involved can
             // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand 
             // (and only accessing .xy) seems to "fix" things.
-            this->codePrependf("\tvec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n",
-                               kCoordName, kTempName, rtHeightName, kTempName);
-            this->codePrependf("vec2 %s = gl_FragCoord.xy;", kTempName);
+            const char* precision = glslCaps->usesPrecisionModifiers() ? "highp " : "";
+            this->codePrependf("\t%svec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n",
+                               precision, kCoordName, kTempName, rtHeightName, kTempName);
+            this->codePrependf("%svec2 %s = gl_FragCoord.xy;", precision, kTempName);
             fSetupFragPosition = true;
         }
         SkASSERT(fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
@@ -237,17 +234,10 @@ const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
+    fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
                                                  *fProgramBuilder->glslCaps(),
                                                  &this->precisionQualifier());
-}
-
-void GrGLSLFragmentShaderBuilder::addVarying(GrGLSLVarying* v, GrSLPrecision fsPrec) {
-    v->fFsIn = v->fVsOut;
-    if (v->fGsOut) {
-        v->fFsIn = v->fGsOut;
-    }
-    fInputs.push_back().set(v->fType, GrGLSLShaderVar::kVaryingIn_TypeModifier, v->fFsIn, fsPrec);
 }
 
 void GrGLSLFragmentBuilder::onBeforeChildProcEmitCode() {

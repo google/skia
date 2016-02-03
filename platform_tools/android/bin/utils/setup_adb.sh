@@ -1,5 +1,7 @@
-#!/bin/bash
+# Copyright 2015 Google Inc.
 #
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
 UTIL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -24,9 +26,10 @@ elif [ $(uname) == "Darwin" ]; then
   ADB_REQUIRED="1.0.31 or 1.0.32"
 fi
 
-# get the version and then truncate it to be just the version numbers
+# get the version string as an array, use just the version numbers
 ADB_VERSION="$($ADB version)"
-ADB_VERSION="${ADB_VERSION##* }"
+ADB_VERSION=($ADB_VERSION)
+ADB_VERSION=${ADB_VERSION[4]}
 
 if [[ "$ADB_REQUIRED" != *"$ADB_VERSION"* ]]; then
   echo "WARNING: Your ADB version is out of date!"

@@ -32,6 +32,12 @@ public:
 
     const char* name() const override { return "Color"; }
 
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Color: 0x%08x", fColor);
+        return str;
+    }
+
     GrColor color() const { return fColor; }
 
     InputMode inputMode() const { return fMode; }

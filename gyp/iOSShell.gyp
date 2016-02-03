@@ -68,6 +68,7 @@
             '../src/views/mac',
           ],
           'xcode_settings' : {
+            'PRODUCT_BUNDLE_IDENTIFIER' : '<!(echo com.google.iOSShell.`hostname | md5`)',
             'INFOPLIST_FILE' : '../experimental/iOSShell/iOSShell-Info.plist',
           },
           'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',

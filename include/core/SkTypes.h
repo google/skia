@@ -24,6 +24,28 @@
 
 #include <string.h>
 
+/**
+ *  sk_careful_memcpy() is just like memcpy(), but guards against undefined behavior.
+ *
+ * It is undefined behavior to call memcpy() with null dst or src, even if len is 0.
+ * If an optimizer is "smart" enough, it can exploit this to do unexpected things.
+ *     memcpy(dst, src, 0);
+ *     if (src) {
+ *         printf("%x\n", *src);
+ *     }
+ * In this code the compiler can assume src is not null and omit the if (src) {...} check,
+ * unconditionally running the printf, crashing the program if src really is null.
+ * Of the compilers we pay attention to only GCC performs this optimization in practice.
+ */
+static inline void* sk_careful_memcpy(void* dst, const void* src, size_t len) {
+    // When we pass >0 len we had better already be passing valid pointers.
+    // So we just need to skip calling memcpy when len == 0.
+    if (len) {
+        memcpy(dst,src,len);
+    }
+    return dst;
+}
+
 /** \file SkTypes.h
 */
 
@@ -78,7 +100,10 @@ SK_API extern void* sk_calloc_throw(size_t size);
 
 // bzero is safer than memset, but we can't rely on it, so... sk_bzero()
 static inline void sk_bzero(void* buffer, size_t size) {
-    memset(buffer, 0, size);
+    // Please c.f. sk_careful_memcpy.  It's undefined behavior to call memset(null, 0, 0).
+    if (size) {
+        memset(buffer, 0, size);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -223,12 +248,6 @@ typedef int S16CPU;
 typedef unsigned U16CPU;
 
 /**
- *  Meant to be faster than bool (doesn't promise to be 0 or 1,
- *  just 0 or non-zero
- */
-typedef int SkBool;
-
-/**
  *  Meant to be a small version of bool, for storage purposes. Will be 0 or 1
  */
 typedef uint8_t SkBool8;
@@ -281,11 +300,29 @@ static inline bool SkIsU16(long x) {
     return (uint16_t)x == x;
 }
 
+static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
+    return (int32_t) ((uint32_t) value << shift);
+}
+
+static inline int64_t SkLeftShift(int64_t value, int32_t shift) {
+    return (int64_t) ((uint64_t) value << shift);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 /** Returns the number of entries in an array (not a pointer) */
 template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
 #define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
+
+// Can be used to bracket data types that must be dense, e.g. hash keys.
+#if defined(__clang__)  // This should work on GCC too, but GCC diagnostic pop didn't seem to work!
+    #define SK_BEGIN_REQUIRE_DENSE _Pragma("GCC diagnostic push") \
+                                   _Pragma("GCC diagnostic error \"-Wpadded\"")
+    #define SK_END_REQUIRE_DENSE   _Pragma("GCC diagnostic pop")
+#else
+    #define SK_BEGIN_REQUIRE_DENSE
+    #define SK_END_REQUIRE_DENSE
+#endif
 
 #define SkAlign2(x)     (((x) + 1) >> 1 << 1)
 #define SkIsAlign2(x)   (0 == ((x) & 1))
@@ -396,17 +433,6 @@ static inline int32_t SkFastMin32(int32_t value, int32_t max) {
 /** Returns value pinned between min and max, inclusively. */
 template <typename T> static inline const T& SkTPin(const T& value, const T& min, const T& max) {
     return SkTMax(SkTMin(value, max), min);
-}
-
-static inline uint32_t SkSetClearShift(uint32_t bits, bool cond,
-                                       unsigned shift) {
-    SkASSERT((int)cond == 0 || (int)cond == 1);
-    return (bits & ~(1 << shift)) | ((int)cond << shift);
-}
-
-static inline uint32_t SkSetClearMask(uint32_t bits, bool cond,
-                                      uint32_t mask) {
-    return cond ? bits | mask : bits & ~mask;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

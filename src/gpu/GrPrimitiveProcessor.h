@@ -56,7 +56,7 @@ struct GrInitInvariantOutput;
  * computed optimizations. It is the batch-specific optimizations that allow the pipelines
  * to be equal.
  */
-class GrPipelineOptimizations {
+class GrXPOverridesForBatch {
 public:
     /** Does the pipeline require the GrPrimitiveProcessor's color? */
     bool readsColor() const { return SkToBool(kReadsColor_Flag & fFlags); }

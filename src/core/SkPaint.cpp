@@ -36,6 +36,10 @@
 #include "SkSurfacePriv.h"
 #include "SkXfermode.h"
 
+static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
+    return cond ? bits | mask : bits & ~mask;
+}
+
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
 //#define SK_REPORT_API_RANGE_CHECK
@@ -184,51 +188,51 @@ void SkPaint::setFlags(uint32_t flags) {
 }
 
 void SkPaint::setAntiAlias(bool doAA) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doAA, kAntiAlias_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doAA, kAntiAlias_Flag));
 }
 
 void SkPaint::setDither(bool doDither) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doDither, kDither_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doDither, kDither_Flag));
 }
 
 void SkPaint::setSubpixelText(bool doSubpixel) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doSubpixel, kSubpixelText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doSubpixel, kSubpixelText_Flag));
 }
 
 void SkPaint::setLCDRenderText(bool doLCDRender) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doLCDRender, kLCDRenderText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doLCDRender, kLCDRenderText_Flag));
 }
 
 void SkPaint::setEmbeddedBitmapText(bool doEmbeddedBitmapText) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doEmbeddedBitmapText, kEmbeddedBitmapText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doEmbeddedBitmapText, kEmbeddedBitmapText_Flag));
 }
 
 void SkPaint::setAutohinted(bool useAutohinter) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, useAutohinter, kAutoHinting_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, useAutohinter, kAutoHinting_Flag));
 }
 
 void SkPaint::setLinearText(bool doLinearText) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doLinearText, kLinearText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doLinearText, kLinearText_Flag));
 }
 
 void SkPaint::setVerticalText(bool doVertical) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doVertical, kVerticalText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doVertical, kVerticalText_Flag));
 }
 
 void SkPaint::setUnderlineText(bool doUnderline) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doUnderline, kUnderlineText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doUnderline, kUnderlineText_Flag));
 }
 
 void SkPaint::setStrikeThruText(bool doStrikeThru) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doStrikeThru, kStrikeThruText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doStrikeThru, kStrikeThruText_Flag));
 }
 
 void SkPaint::setFakeBoldText(bool doFakeBold) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doFakeBold, kFakeBoldText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doFakeBold, kFakeBoldText_Flag));
 }
 
 void SkPaint::setDevKernText(bool doDevKern) {
-    this->setFlags(SkSetClearMask(fBitfields.fFlags, doDevKern, kDevKernText_Flag));
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doDevKern, kDevKernText_Flag));
 }
 
 void SkPaint::setStyle(Style style) {
@@ -1942,6 +1946,9 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
 
 void SkPaint::unflatten(SkReadBuffer& buffer) {
     SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
+    if (!buffer.validateAvailable(kPODPaintSize)) {
+        return;
+    }
     const void* podData = buffer.skip(kPODPaintSize);
     const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
 

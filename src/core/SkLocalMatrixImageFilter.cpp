@@ -40,9 +40,8 @@ void SkLocalMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 bool SkLocalMatrixImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                              SkBitmap* result, SkIPoint* offset) const {
-    Context localCtx(SkMatrix::Concat(ctx.ctm(), fLocalM), ctx.clipBounds(), ctx.cache(),
-                     ctx.sizeConstraint());
-    return this->filterInput(0, proxy, src, localCtx, result, offset, false);
+    Context localCtx(SkMatrix::Concat(ctx.ctm(), fLocalM), ctx.clipBounds(), ctx.cache());
+    return this->filterInput(0, proxy, src, localCtx, result, offset);
 }
 
 bool SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& matrix,

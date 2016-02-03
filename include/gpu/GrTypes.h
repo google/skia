@@ -180,7 +180,7 @@ static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
  *  Return the number of bytes-per-pixel for the specified mask format.
  */
 static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
-    SkASSERT((unsigned)format < kMaskFormatCount);
+    SkASSERT(format < kMaskFormatCount);
     // kA8   (0) -> 1
     // kA565 (1) -> 2
     // kARGB (2) -> 4
@@ -358,26 +358,6 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
             return 8;
         case kRGBA_float_GrPixelConfig:
             return 16;
-        default:
-            return 0;
-    }
-}
-
-static inline size_t GrUnpackAlignment(GrPixelConfig config) {
-    SkASSERT(!GrPixelConfigIsCompressed(config));
-    switch (config) {
-        case kAlpha_8_GrPixelConfig:
-            return 1;
-        case kRGB_565_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kAlpha_half_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-            return 2;
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kSRGBA_8888_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
-            return 4;
         default:
             return 0;
     }

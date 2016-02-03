@@ -80,5 +80,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-static skiagm::GM* F0(void*) { return new BeziersGM; }
-static skiagm::GMRegistry R0(F0);
+DEF_GM( return new BeziersGM; )

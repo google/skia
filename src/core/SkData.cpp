@@ -113,7 +113,7 @@ static void sk_mmap_releaseproc(const void* addr, void* ctx) {
     sk_fmunmap(addr, length);
 }
 
-SkData* SkData::NewFromFILE(SkFILE* f) {
+SkData* SkData::NewFromFILE(FILE* f) {
     size_t size;
     void* addr = sk_fmmap(f, &size);
     if (nullptr == addr) {
@@ -124,7 +124,7 @@ SkData* SkData::NewFromFILE(SkFILE* f) {
 }
 
 SkData* SkData::NewFromFileName(const char path[]) {
-    SkFILE* f = path ? sk_fopen(path, kRead_SkFILE_Flag) : nullptr;
+    FILE* f = path ? sk_fopen(path, kRead_SkFILE_Flag) : nullptr;
     if (nullptr == f) {
         return nullptr;
     }

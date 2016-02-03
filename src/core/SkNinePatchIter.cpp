@@ -56,15 +56,15 @@ bool SkNinePatchIter::next(SkRect* src, SkRect* dst) {
 
     const int x = fCurrX;
     const int y = fCurrY;
-    SkASSERT(x >= 0 && x < 4);
-    SkASSERT(y >= 0 && y < 4);
+    SkASSERT(x >= 0 && x < 3);
+    SkASSERT(y >= 0 && y < 3);
 
     src->set(fSrcX[x], fSrcY[y], fSrcX[x + 1], fSrcY[y + 1]);
     dst->set(fDstX[x], fDstY[y], fDstX[x + 1], fDstY[y + 1]);
-    if (4 == ++fCurrX) {
+    if (3 == ++fCurrX) {
         fCurrX = 0;
         fCurrY += 1;
-        if (fCurrY >= 4) {
+        if (fCurrY >= 3) {
             fDone = true;
         }
     }

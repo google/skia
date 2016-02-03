@@ -10,6 +10,8 @@
 
 #include "SkTypes.h"
 
+#ifdef SK_BUILD_FOR_WIN
+
 /**
  * An instance of this class initializes COM on creation
  * and closes the COM library on destruction.
@@ -23,4 +25,5 @@ public:
     bool succeeded();
 };
 
-#endif
+#endif  // SK_BUILD_FOR_WIN
+#endif  // SkAutoCo_DEFINED

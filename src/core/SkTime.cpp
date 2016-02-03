@@ -8,6 +8,7 @@
 #include "SkOncePtr.h"
 #include "SkString.h"
 #include "SkTime.h"
+#include "SkTypes.h"
 
 void SkTime::DateTime::toISO8601(SkString* dst) const {
     if (dst) {
@@ -23,6 +24,46 @@ void SkTime::DateTime::toISO8601(SkString* dst) const {
                     timeZoneMinutes);
     }
 }
+
+
+#ifdef SK_BUILD_FOR_WIN32
+
+#include "Windows.h"
+void SkTime::GetDateTime(DateTime* dt) {
+    if (dt) {
+        SYSTEMTIME st;
+        GetSystemTime(&st);
+        dt->fTimeZoneMinutes = 0;
+        dt->fYear       = st.wYear;
+        dt->fMonth      = SkToU8(st.wMonth);
+        dt->fDayOfWeek  = SkToU8(st.wDayOfWeek);
+        dt->fDay        = SkToU8(st.wDay);
+        dt->fHour       = SkToU8(st.wHour);
+        dt->fMinute     = SkToU8(st.wMinute);
+        dt->fSecond     = SkToU8(st.wSecond);
+    }
+}
+
+#else // SK_BUILD_FOR_WIN32
+
+#include <time.h>
+void SkTime::GetDateTime(DateTime* dt) {
+    if (dt) {
+        time_t m_time;
+        time(&m_time);
+        struct tm* tstruct;
+        tstruct = gmtime(&m_time);
+        dt->fTimeZoneMinutes = 0;
+        dt->fYear       = tstruct->tm_year + 1900;
+        dt->fMonth      = SkToU8(tstruct->tm_mon + 1);
+        dt->fDayOfWeek  = SkToU8(tstruct->tm_wday);
+        dt->fDay        = SkToU8(tstruct->tm_mday);
+        dt->fHour       = SkToU8(tstruct->tm_hour);
+        dt->fMinute     = SkToU8(tstruct->tm_min);
+        dt->fSecond     = SkToU8(tstruct->tm_sec);
+    }
+}
+#endif // SK_BUILD_FOR_WIN32
 
 #if defined(_MSC_VER)
     // TODO: try std::chrono again with MSVC 2015?

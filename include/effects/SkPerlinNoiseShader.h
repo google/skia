@@ -80,7 +80,6 @@ public:
         virtual ~PerlinNoiseShaderContext();
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
-        void shadeSpan16(int x, int y, uint16_t[], int count) override;
 
     private:
         SkPMColor shade(const SkPoint& point, StitchData& stitchData) const;

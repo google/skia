@@ -147,7 +147,6 @@ public:
 
     const SkClipStack* fClipStack;  // optional
     SkBaseDevice*   fDevice;        // optional
-    SkDrawProcs*    fProcs;         // optional
 
 #ifdef SK_DEBUG
     void validate() const;

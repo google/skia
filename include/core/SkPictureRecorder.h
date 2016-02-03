@@ -35,8 +35,8 @@ public:
         // information should also be extracted at the same time.
         kComputeSaveLayerInfo_RecordFlag = 0x01,
 
-        // If you call drawPicture() on the recording canvas, this flag forces
-        // that to use SkPicture::playback() immediately rather than (e.g.) reffing the picture.
+        // If you call drawPicture() or drawDrawable() on the recording canvas, this flag forces
+        // that object to playback its contents immediately rather than reffing the object.
         kPlaybackDrawPicture_RecordFlag  = 0x02,
     };
 

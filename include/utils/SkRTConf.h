@@ -9,11 +9,10 @@
 #ifndef SkRTConf_DEFINED
 #define SkRTConf_DEFINED
 
+#include "SkTArray.h"
 #include "SkString.h"
 #include "SkStream.h"
-
-#include "SkTDict.h"
-#include "SkTArray.h"
+#include "../private/SkTDict.h"
 
 /** \class SkRTConfBase
     Non-templated base class for the runtime configs

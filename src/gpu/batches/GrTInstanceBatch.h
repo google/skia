@@ -29,15 +29,15 @@
  *     void UpdateBoundsAfterAppend(const Geometry& lastGeometry, SkRect* currentBounds)
  *
  *     bool CanCombine(const Geometry& mine, const Geometry& theirs,
- *                     const GrPipelineOptimizations&)
+ *                     const GrXPOverridesForBatch&)
  *
  *     const GrGeometryProcessor* CreateGP(const Geometry& seedGeometry,
- *                                         const GrPipelineOptimizations& opts)
+ *                                         const GrXPOverridesForBatch& overrides)
  *
  *     const GrIndexBuffer* GetIndexBuffer(GrResourceProvider*)
  *
  *     Tesselate(intptr_t vertices, size_t vertexStride, const Geometry& geo,
- *               const GrPipelineOptimizations& opts)
+ *               const GrXPOverridesForBatch& overrides)
  */
 template <typename Impl>
 class GrTInstanceBatch : public GrVertexBatch {
@@ -50,18 +50,27 @@ public:
 
     const char* name() const override { return Impl::Name(); }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    SkString dumpInfo() const override {
+        SkString str;
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            str.append(Impl::DumpInfo(fGeoData[i], i));
+        }
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
+
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        Impl::InitInvariantOutputCoverage(coverage);
+        overrides->fUsePLSDstRead = false;
     }
 
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        Impl::InitInvariantOutputCoverage(out);
-    }
-
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
-        fOpts = opt;
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        fOverrides = overrides;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
@@ -80,8 +89,9 @@ public:
 private:
     GrTInstanceBatch() : INHERITED(ClassID()) {}
 
-    void onPrepareDraws(Target* target) override {
-        SkAutoTUnref<const GrGeometryProcessor> gp(Impl::CreateGP(this->seedGeometry(), fOpts));
+    void onPrepareDraws(Target* target) const override {
+        SkAutoTUnref<const GrGeometryProcessor> gp(Impl::CreateGP(this->seedGeometry(), 
+                                                                  fOverrides));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -106,7 +116,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
                              i * Impl::kVertsPerInstance * vertexStride;
-            Impl::Tesselate(verts, vertexStride, fGeoData[i], fOpts);
+            Impl::Tesselate(verts, vertexStride, fGeoData[i], fOverrides);
         }
         helper.recordDraw(target);
     }
@@ -120,14 +130,14 @@ private:
             return false;
         }
 
-        if (!Impl::CanCombine(this->seedGeometry(), that->seedGeometry(), fOpts)) {
+        if (!Impl::CanCombine(this->seedGeometry(), that->seedGeometry(), fOverrides)) {
             return false;
         }
 
         // In the event of two batches, one who can tweak, one who cannot, we just fall back to
         // not tweaking
-        if (fOpts.canTweakAlphaForCoverage() && !that->fOpts.canTweakAlphaForCoverage()) {
-            fOpts = that->fOpts;
+        if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
+            fOverrides = that->fOverrides;
         }
 
         fGeoData.push_back_n(that->geoData()->count(), that->geoData()->begin());
@@ -135,7 +145,7 @@ private:
         return true;
     }
 
-    GrPipelineOptimizations fOpts;
+    GrXPOverridesForBatch fOverrides;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;

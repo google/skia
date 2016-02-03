@@ -183,7 +183,7 @@ private:
 
     bool hasSameTransforms(const GrFragmentProcessor&) const;
 
-    bool                                         fUsesLocalCoords;
+    bool                                            fUsesLocalCoords;
 
     /**
      * fCoordTransforms stores the transforms of this proc, followed by all the transforms of this
@@ -208,14 +208,10 @@ private:
      *
      * The same goes for fTextureAccesses with textures.
      */
-    SkSTArray<4, const GrCoordTransform*, true>  fCoordTransforms;
-
-    int                                          fNumTexturesExclChildren;
-    int                                          fNumTransformsExclChildren;
-
-    // TODO: These must convert their processors to pending-execution refs when the parent is
-    // converted (do this automatically in GrProgramElement?).
-    SkTArray<const GrFragmentProcessor*, true>   fChildProcessors;
+    SkSTArray<4, const GrCoordTransform*, true>     fCoordTransforms;
+    int                                             fNumTexturesExclChildren;
+    int                                             fNumTransformsExclChildren;
+    SkSTArray<1, const GrFragmentProcessor*, true>  fChildProcessors;
 
     typedef GrProcessor INHERITED;
 };

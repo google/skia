@@ -11,8 +11,11 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLTextureSampler.h"
 
-class GrGLSLXPBuilder;
 class GrXferProcessor;
+class GrGLSLCaps;
+class GrGLSLUniformHandler;
+class GrGLSLXPBuilder;
+class GrGLSLXPFragmentBuilder;
 
 class GrGLSLXferProcessor {
 public:
@@ -21,14 +24,18 @@ public:
 
     typedef GrGLSLTextureSampler::TextureSamplerArray TextureSamplerArray;
     struct EmitArgs {
-        EmitArgs(GrGLSLXPBuilder* pb,
+        EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
+                 GrGLSLUniformHandler* uniformHandler,
+                 const GrGLSLCaps* caps,
                  const GrXferProcessor& xp,
                  const char* inputColor,
                  const char* inputCoverage,
                  const char* outputPrimary,
                  const char* outputSecondary,
                  const TextureSamplerArray& samplers)
-            : fPB(pb)
+            : fXPFragBuilder(fragBuilder)
+            , fUniformHandler(uniformHandler)
+            , fGLSLCaps(caps)
             , fXP(xp)
             , fInputColor(inputColor)
             , fInputCoverage(inputCoverage)
@@ -36,7 +43,9 @@ public:
             , fOutputSecondary(outputSecondary)
             , fSamplers(samplers) {}
 
-        GrGLSLXPBuilder* fPB;
+        GrGLSLXPFragmentBuilder* fXPFragBuilder;
+        GrGLSLUniformHandler* fUniformHandler;
+        const GrGLSLCaps* fGLSLCaps;
         const GrXferProcessor& fXP;
         const char* fInputColor;
         const char* fInputCoverage;
@@ -74,10 +83,13 @@ private:
      * the blending logic. The base class applies coverage. A subclass only needs to implement this
      * method if it can construct a GrXferProcessor that reads the dst color.
      */
-    virtual void emitBlendCodeForDstRead(GrGLSLXPBuilder*,
+    virtual void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder*,
+                                         GrGLSLUniformHandler*,
                                          const char* srcColor,
+                                         const char* srcCoverage,
                                          const char* dstColor,
                                          const char* outColor,
+                                         const char* outColorSecondary,
                                          const GrXferProcessor&) {
         SkFAIL("emitBlendCodeForDstRead not implemented.");
     }

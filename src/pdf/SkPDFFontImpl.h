@@ -12,7 +12,7 @@
 
 #include "SkPDFFont.h"
 
-class SkPDFType0Font : public SkPDFFont {
+class SkPDFType0Font final : public SkPDFFont {
 public:
     virtual ~SkPDFType0Font();
     bool multiByteGlyphs() const override { return true; }
@@ -36,7 +36,7 @@ private:
     bool populate(const SkPDFGlyphSet* subset);
 };
 
-class SkPDFCIDFont : public SkPDFFont {
+class SkPDFCIDFont final : public SkPDFFont {
 public:
     virtual ~SkPDFCIDFont();
     virtual bool multiByteGlyphs() const { return true; }
@@ -53,7 +53,7 @@ private:
                            const SkTDArray<uint32_t>* subset);
 };
 
-class SkPDFType1Font : public SkPDFFont {
+class SkPDFType1Font final : public SkPDFFont {
 public:
     virtual ~SkPDFType1Font();
     virtual bool multiByteGlyphs() const { return false; }
@@ -72,7 +72,7 @@ private:
         const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry);
 };
 
-class SkPDFType3Font : public SkPDFFont {
+class SkPDFType3Font final : public SkPDFFont {
 public:
     virtual ~SkPDFType3Font();
     virtual bool multiByteGlyphs() const { return false; }

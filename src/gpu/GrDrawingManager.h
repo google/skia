@@ -16,6 +16,7 @@
 
 class GrContext;
 class GrDrawContext;
+class GrSingleOWner;
 class GrSoftwarePathRenderer;
 class GrTextContext;
 
@@ -50,16 +51,20 @@ public:
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = NULL);
 
-    static bool ProgramUnitTest(GrContext* context, GrDrawTarget* drawTarget, int maxStages);
+    static bool ProgramUnitTest(GrContext* context, int maxStages);
 
 private:
-    GrDrawingManager(GrContext* context)
+    GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets,
+                     GrSingleOwner* singleOwner)
         : fContext(context)
+        , fOptionsForDrawTargets(optionsForDrawTargets)
+        , fSingleOwner(singleOwner)
         , fAbandoned(false)
         , fNVPRTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
-        , fFlushState(context->getGpu(), context->resourceProvider()) {
+        , fFlushState(context->getGpu(), context->resourceProvider())
+        , fFlushing(false) {
         sk_bzero(fTextContexts, sizeof(fTextContexts));
     }
 
@@ -74,6 +79,10 @@ private:
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
     GrContext*                  fContext;
+    GrDrawTarget::Options       fOptionsForDrawTargets;
+
+    // In debug builds we guard against improper thread handling
+    GrSingleOwner*              fSingleOwner;
 
     bool                        fAbandoned;
     SkTDArray<GrDrawTarget*>    fDrawTargets;
@@ -85,6 +94,7 @@ private:
     GrSoftwarePathRenderer*     fSoftwarePathRenderer;
 
     GrBatchFlushState           fFlushState;
+    bool                        fFlushing;
 };
 
 #endif

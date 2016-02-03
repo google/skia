@@ -16,11 +16,12 @@
 #include "SkFloatingPoint_opts.h"
 #include "SkMatrix_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
-#if defined(SK_CPU_X86)
+#if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
     #if defined(SK_BUILD_FOR_WIN32)
         #include <intrin.h>
         static void cpuid (uint32_t abcd[4]) { __cpuid  ((int*)abcd, 1);    }
@@ -80,14 +81,17 @@ namespace SkOpts {
     decltype(matrix_scale_translate) matrix_scale_translate = sk_default::matrix_scale_translate;
     decltype(matrix_affine)          matrix_affine          = sk_default::matrix_affine;
 
+    decltype(       premul_xxxa)        premul_xxxa = sk_default::       premul_xxxa;
+    decltype(       swaprb_xxxa)        swaprb_xxxa = sk_default::       swaprb_xxxa;
+    decltype(premul_swaprb_xxxa) premul_swaprb_xxxa = sk_default::premul_swaprb_xxxa;
+
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
-    void Init_sse42() { SkDEBUGCODE( SkDebugf("sse 4.2 detected\n"); ) }
+    void Init_sse42() {}
     void Init_avx();
-    void Init_avx2() { SkDEBUGCODE( SkDebugf("avx2 detected\n"); ) }
+    void Init_avx2() {}
     void Init_neon();
-    //TODO: _dsp2, _armv7, _armv8, _x86, _x86_64, _sse42, ... ?
 
     static void init() {
         // TODO: Chrome's not linking _sse* opts on iOS simulator builds.  Bug or feature?

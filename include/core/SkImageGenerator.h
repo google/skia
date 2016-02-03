@@ -22,6 +22,12 @@ class SkMatrix;
 class SkPaint;
 class SkPicture;
 
+#ifdef SK_SUPPORT_LEGACY_REFENCODEDDATA_NOCTX
+    #define SK_REFENCODEDDATA_CTXPARAM
+#else
+    #define SK_REFENCODEDDATA_CTXPARAM  GrContext* ctx
+#endif
+
 /**
  *  Takes ownership of SkImageGenerator.  If this method fails for
  *  whatever reason, it will return false and immediatetely delete
@@ -64,12 +70,20 @@ public:
 
     /**
      *  Return a ref to the encoded (i.e. compressed) representation,
-     *  of this data.
+     *  of this data. If the GrContext is non-null, then the caller is only interested in
+     *  gpu-specific formats, so the impl may return null even if they have encoded data,
+     *  assuming they know it is not suitable for the gpu.
      *
      *  If non-NULL is returned, the caller is responsible for calling
      *  unref() on the data when it is finished.
      */
-    SkData* refEncodedData() { return this->onRefEncodedData(); }
+    SkData* refEncodedData(GrContext* ctx = nullptr) {
+#ifdef SK_SUPPORT_LEGACY_REFENCODEDDATA_NOCTX
+        return this->onRefEncodedData();
+#else
+        return this->onRefEncodedData(ctx);
+#endif
+    }
 
     /**
      *  Return the ImageInfo associated with this generator.
@@ -152,6 +166,49 @@ public:
      */
     GrTexture* generateTexture(GrContext*, const SkIRect* subset = nullptr);
 
+    struct SupportedSizes {
+        SkISize fSizes[2];
+    };
+
+    /**
+     *  Some generators can efficiently scale their contents. If this is supported, the generator
+     *  may only support certain scaled dimensions. Call this with the desired scale factor,
+     *  and it will return true if scaling is supported, and in supportedSizes[] it will return
+     *  the nearest supported dimensions.
+     *
+     *  If no native scaling is supported, or scale is invalid (e.g. scale <= 0 || scale > 1)
+     *  this will return false, and the supportedsizes will be undefined.
+     */
+    bool computeScaledDimensions(SkScalar scale, SupportedSizes*);
+
+    /**
+     *  Scale the generator's pixels to fit into scaledSize.
+     *  This routine also support retrieving only a subset of the pixels. That subset is specified
+     *  by the following rectangle (in the scaled space):
+     *
+     *      subset = SkIRect::MakeXYWH(subsetOrigin.x(), subsetOrigin.y(),
+     *                                 subsetPixels.width(), subsetPixels.height())
+     *
+     *  If subset is not contained inside the scaledSize, this returns false.
+     *
+     *      whole = SkIRect::MakeWH(scaledSize.width(), scaledSize.height())
+     *      if (!whole.contains(subset)) {
+     *          return false;
+     *      }
+     *
+     *  If the requested colortype/alphatype in pixels is not supported,
+     *  or the requested scaledSize is not supported, or the generator encounters an error,
+     *  this returns false.
+     */
+    bool generateScaledPixels(const SkISize& scaledSize, const SkIPoint& subsetOrigin,
+                              const SkPixmap& subsetPixels);
+
+    bool generateScaledPixels(const SkPixmap& scaledPixels) {
+        return this->generateScaledPixels(SkISize::Make(scaledPixels.width(),
+                                                        scaledPixels.height()),
+                                          SkIPoint::Make(0, 0), scaledPixels);
+    }
+
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
@@ -187,7 +244,7 @@ public:
 protected:
     SkImageGenerator(const SkImageInfo& info);
 
-    virtual SkData* onRefEncodedData();
+    virtual SkData* onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM);
 
     virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                              SkPMColor ctable[], int* ctableCount);
@@ -197,6 +254,13 @@ protected:
 
     virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect*) {
         return nullptr;
+    }
+
+    virtual bool onComputeScaledDimensions(SkScalar, SupportedSizes*) {
+        return false;
+    }
+    virtual bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) {
+        return false;
     }
 
     bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo* optionalInfo, SkBitmap::Allocator*);

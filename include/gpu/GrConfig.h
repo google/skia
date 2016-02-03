@@ -33,7 +33,7 @@
  */
 
 #if !defined(GR_CACHE_STATS)
-  #ifdef SK_DEVELOPER
+  #if defined(SK_DEVELOPER) || defined(SK_DUMP_STATS)
       #define GR_CACHE_STATS  1
   #else
       #define GR_CACHE_STATS  0
@@ -41,7 +41,7 @@
 #endif
 
 #if !defined(GR_GPU_STATS)
-  #ifdef SK_DEVELOPER
+  #if defined(SK_DEVELOPER) || defined(SK_DUMP_STATS)
       #define GR_GPU_STATS    1
   #else
       #define GR_GPU_STATS    0
@@ -186,11 +186,11 @@ typedef unsigned __int64 uint64_t;
 #endif
 
 /**
- * GR_FORCE_GPU_TRACE_DEBUGGING will force gpu tracing/debug markers to be turned on. The trace
- * markers will be printed out instead of making the backend calls to push and pop them.
+ * Enable batch debugging output as json.  The enabler of this flag is responsible for making sure
+ * GrAuditTrail is reset occasionally.
+ * TODO make this runtime configurable
  */
-#if !defined(GR_FORCE_GPU_TRACE_DEBUGGING)
-    #define GR_FORCE_GPU_TRACE_DEBUGGING 0
+#if !defined(GR_BATCH_DEBUGGING_OUTPUT)
+    #define GR_BATCH_DEBUGGING_OUTPUT 0
 #endif
-
 #endif

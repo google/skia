@@ -70,7 +70,7 @@ public:
     * called.
     */
     const PrecisionInfo& getFloatShaderPrecisionInfo(GrShaderType shaderType,
-        GrSLPrecision precision) const {
+                                                     GrSLPrecision precision) const {
         return fFloatPrecisions[shaderType][precision];
     };
 
@@ -118,11 +118,7 @@ public:
     bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
     bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
-#if GR_FORCE_GPU_TRACE_DEBUGGING
-    bool gpuTracingSupport() const { return true; }
-#else
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
-#endif
     bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
@@ -194,15 +190,8 @@ public:
     // Will be 0 if MSAA is not supported
     int maxSampleCount() const { return fMaxSampleCount; }
 
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
-        SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigRenderSupport[config][withMSAA];
-    }
-
-    bool isConfigTexturable(GrPixelConfig config) const {
-        SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigTextureSupport[config];
-    }
+    virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
+    virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -269,10 +258,6 @@ protected:
     int fMaxTextureSize;
     int fMaxTileSize;
     int fMaxSampleCount;
-
-    // The first entry for each config is without msaa and the second is with.
-    bool fConfigRenderSupport[kGrPixelConfigCnt][2];
-    bool fConfigTextureSupport[kGrPixelConfigCnt];
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {};

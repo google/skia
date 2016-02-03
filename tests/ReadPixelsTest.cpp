@@ -13,10 +13,11 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#include "SkGpuDevice.h"
+#include "GrContext.h"
 #include "SkGr.h"
 #endif
+
+#include <initializer_list>
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
@@ -257,190 +258,193 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
     }
 }
 
-DEF_GPUTEST(ReadPixels, reporter, factory) {
-    const SkIRect testRects[] = {
-        // entire thing
-        DEV_RECT,
-        // larger on all sides
-        SkIRect::MakeLTRB(-10, -10, DEV_W + 10, DEV_H + 10),
-        // fully contained
-        SkIRect::MakeLTRB(DEV_W / 4, DEV_H / 4, 3 * DEV_W / 4, 3 * DEV_H / 4),
-        // outside top left
-        SkIRect::MakeLTRB(-10, -10, -1, -1),
-        // touching top left corner
-        SkIRect::MakeLTRB(-10, -10, 0, 0),
-        // overlapping top left corner
-        SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H / 4),
-        // overlapping top left and top right corners
-        SkIRect::MakeLTRB(-10, -10, DEV_W  + 10, DEV_H / 4),
-        // touching entire top edge
-        SkIRect::MakeLTRB(-10, -10, DEV_W  + 10, 0),
-        // overlapping top right corner
-        SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W  + 10, DEV_H / 4),
-        // contained in x, overlapping top edge
-        SkIRect::MakeLTRB(DEV_W / 4, -10, 3 * DEV_W  / 4, DEV_H / 4),
-        // outside top right corner
-        SkIRect::MakeLTRB(DEV_W + 1, -10, DEV_W + 10, -1),
-        // touching top right corner
-        SkIRect::MakeLTRB(DEV_W, -10, DEV_W + 10, 0),
-        // overlapping top left and bottom left corners
-        SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H + 10),
-        // touching entire left edge
-        SkIRect::MakeLTRB(-10, -10, 0, DEV_H + 10),
-        // overlapping bottom left corner
-        SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W / 4, DEV_H + 10),
-        // contained in y, overlapping left edge
-        SkIRect::MakeLTRB(-10, DEV_H / 4, DEV_W / 4, 3 * DEV_H / 4),
-        // outside bottom left corner
-        SkIRect::MakeLTRB(-10, DEV_H + 1, -1, DEV_H + 10),
-        // touching bottom left corner
-        SkIRect::MakeLTRB(-10, DEV_H, 0, DEV_H + 10),
-        // overlapping bottom left and bottom right corners
-        SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
-        // touching entire left edge
-        SkIRect::MakeLTRB(0, DEV_H, DEV_W, DEV_H + 10),
-        // overlapping bottom right corner
-        SkIRect::MakeLTRB(3 * DEV_W / 4, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
-        // overlapping top right and bottom right corners
-        SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
-    };
+static const struct {
+    SkColorType fColorType;
+    SkAlphaType fAlphaType;
+} gReadPixelsConfigs[] = {
+    { kRGBA_8888_SkColorType,   kPremul_SkAlphaType },
+    { kRGBA_8888_SkColorType,   kUnpremul_SkAlphaType },
+    { kBGRA_8888_SkColorType,   kPremul_SkAlphaType },
+    { kBGRA_8888_SkColorType,   kUnpremul_SkAlphaType },
+};
+const SkIRect gReadPixelsTestRects[] = {
+    // entire thing
+    DEV_RECT,
+    // larger on all sides
+    SkIRect::MakeLTRB(-10, -10, DEV_W + 10, DEV_H + 10),
+    // fully contained
+    SkIRect::MakeLTRB(DEV_W / 4, DEV_H / 4, 3 * DEV_W / 4, 3 * DEV_H / 4),
+    // outside top left
+    SkIRect::MakeLTRB(-10, -10, -1, -1),
+    // touching top left corner
+    SkIRect::MakeLTRB(-10, -10, 0, 0),
+    // overlapping top left corner
+    SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H / 4),
+    // overlapping top left and top right corners
+    SkIRect::MakeLTRB(-10, -10, DEV_W  + 10, DEV_H / 4),
+    // touching entire top edge
+    SkIRect::MakeLTRB(-10, -10, DEV_W  + 10, 0),
+    // overlapping top right corner
+    SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W  + 10, DEV_H / 4),
+    // contained in x, overlapping top edge
+    SkIRect::MakeLTRB(DEV_W / 4, -10, 3 * DEV_W  / 4, DEV_H / 4),
+    // outside top right corner
+    SkIRect::MakeLTRB(DEV_W + 1, -10, DEV_W + 10, -1),
+    // touching top right corner
+    SkIRect::MakeLTRB(DEV_W, -10, DEV_W + 10, 0),
+    // overlapping top left and bottom left corners
+    SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H + 10),
+    // touching entire left edge
+    SkIRect::MakeLTRB(-10, -10, 0, DEV_H + 10),
+    // overlapping bottom left corner
+    SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W / 4, DEV_H + 10),
+    // contained in y, overlapping left edge
+    SkIRect::MakeLTRB(-10, DEV_H / 4, DEV_W / 4, 3 * DEV_H / 4),
+    // outside bottom left corner
+    SkIRect::MakeLTRB(-10, DEV_H + 1, -1, DEV_H + 10),
+    // touching bottom left corner
+    SkIRect::MakeLTRB(-10, DEV_H, 0, DEV_H + 10),
+    // overlapping bottom left and bottom right corners
+    SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
+    // touching entire left edge
+    SkIRect::MakeLTRB(0, DEV_H, DEV_W, DEV_H + 10),
+    // overlapping bottom right corner
+    SkIRect::MakeLTRB(3 * DEV_W / 4, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
+    // overlapping top right and bottom right corners
+    SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
+};
 
-    for (int dtype = 0; dtype < 3; ++dtype) {
-        int glCtxTypeCnt = 1;
-#if SK_SUPPORT_GPU
-        // On the GPU we will also try reading back from a non-renderable texture.
-        SkAutoTUnref<GrTexture> texture;
+static void test_readpixels(skiatest::Reporter* reporter, SkSurface* surface) {
+    SkCanvas* canvas = surface->getCanvas();
+    fill_src_canvas(canvas);
+    for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
+        const SkIRect& srcRect = gReadPixelsTestRects[rect];
+        for (BitmapInit bmi = kFirstBitmapInit; bmi < kBitmapInitCnt; bmi = nextBMI(bmi)) {
+            for (size_t c = 0; c < SK_ARRAY_COUNT(gReadPixelsConfigs); ++c) {
+                SkBitmap bmp;
+                init_bitmap(&bmp, srcRect, bmi,
+                            gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
 
-        if (0 != dtype)  {
-            glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
-        }
-#endif
-        const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
-        for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
-            SkAutoTUnref<SkSurface> surface;
-            if (0 == dtype) {
-                surface.reset(SkSurface::NewRaster(info));
+                // if the bitmap has pixels allocated before the readPixels,
+                // note that and fill them with pattern
+                bool startsWithPixels = !bmp.isNull();
+                if (startsWithPixels) {
+                    fill_dst_bmp_with_init_data(&bmp);
+                }
+                uint32_t idBefore = surface->generationID();
+                bool success = canvas->readPixels(&bmp, srcRect.fLeft, srcRect.fTop);
+                uint32_t idAfter = surface->generationID();
+
+                // we expect to succeed when the read isn't fully clipped
+                // out.
+                bool expectSuccess = SkIRect::Intersects(srcRect, DEV_RECT);
+                // determine whether we expected the read to succeed.
+                REPORTER_ASSERT(reporter, success == expectSuccess);
+                // read pixels should never change the gen id
+                REPORTER_ASSERT(reporter, idBefore == idAfter);
+
+                if (success || startsWithPixels) {
+                    check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
+                               success, startsWithPixels);
+                } else {
+                    // if we had no pixels beforehand and the readPixels
+                    // failed then our bitmap should still not have pixels
+                    REPORTER_ASSERT(reporter, bmp.isNull());
+                }
+            }
+            // check the old webkit version of readPixels that clips the
+            // bitmap size
+            SkBitmap wkbmp;
+            bool success = canvas->readPixels(srcRect, &wkbmp);
+            SkIRect clippedRect = DEV_RECT;
+            if (clippedRect.intersect(srcRect)) {
+                REPORTER_ASSERT(reporter, success);
+                REPORTER_ASSERT(reporter, kN32_SkColorType == wkbmp.colorType());
+                REPORTER_ASSERT(reporter, kPremul_SkAlphaType == wkbmp.alphaType());
+                check_read(reporter, wkbmp, clippedRect.fLeft,
+                           clippedRect.fTop, true, false);
             } else {
-#if SK_SUPPORT_GPU
-                GrContextFactory::GLContextType type =
-                    static_cast<GrContextFactory::GLContextType>(glCtxType);
-                if (!GrContextFactory::IsRenderingGLContext(type)) {
-                    continue;
-                }
-                GrContext* context = factory->get(type);
-                if (nullptr == context) {
-                    continue;
-                }
-                GrSurfaceDesc desc;
-                desc.fFlags = kRenderTarget_GrSurfaceFlag;
-                desc.fWidth = DEV_W;
-                desc.fHeight = DEV_H;
-                desc.fConfig = kSkia8888_GrPixelConfig;
-                desc.fOrigin = 1 == dtype ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-                SkAutoTUnref<GrTexture> surfaceTexture(
-                    context->textureProvider()->createTexture(desc, false));
-                surface.reset(SkSurface::NewRenderTargetDirect(surfaceTexture->asRenderTarget()));
-                desc.fFlags = kNone_GrSurfaceFlags;
-
-                texture.reset(context->textureProvider()->createTexture(desc, false));
-#else
-                continue;
-#endif
+                REPORTER_ASSERT(reporter, !success);
             }
-            SkCanvas& canvas = *surface->getCanvas();
-            fill_src_canvas(&canvas);
-
+        }
+    }
+}
+DEF_TEST(ReadPixels, reporter) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
+    test_readpixels(reporter, surface);
+}
 #if SK_SUPPORT_GPU
-            if (texture) {
-                fill_src_texture(texture);
-            }
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, context) {
+    for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
+        GrSurfaceDesc desc;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fWidth = DEV_W;
+        desc.fHeight = DEV_H;
+        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fOrigin = origin;
+        SkAutoTUnref<GrTexture> surfaceTexture(
+            context->textureProvider()->createTexture(desc, false));
+        SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(surfaceTexture->asRenderTarget()));
+        desc.fFlags = kNone_GrSurfaceFlags;
+        test_readpixels(reporter, surface);
+    }
+}
 #endif
 
-            static const struct {
-                SkColorType fColorType;
-                SkAlphaType fAlphaType;
-            } gReadConfigs[] = {
-                { kRGBA_8888_SkColorType,   kPremul_SkAlphaType },
-                { kRGBA_8888_SkColorType,   kUnpremul_SkAlphaType },
-                { kBGRA_8888_SkColorType,   kPremul_SkAlphaType },
-                { kBGRA_8888_SkColorType,   kUnpremul_SkAlphaType },
-            };
-            for (size_t rect = 0; rect < SK_ARRAY_COUNT(testRects); ++rect) {
-                const SkIRect& srcRect = testRects[rect];
-                for (BitmapInit bmi = kFirstBitmapInit; bmi < kBitmapInitCnt; bmi = nextBMI(bmi)) {
-                    for (size_t c = 0; c < SK_ARRAY_COUNT(gReadConfigs); ++c) {
-                        SkBitmap bmp;
-                        init_bitmap(&bmp, srcRect, bmi,
-                                    gReadConfigs[c].fColorType, gReadConfigs[c].fAlphaType);
-
-                        // if the bitmap has pixels allocated before the readPixels,
-                        // note that and fill them with pattern
-                        bool startsWithPixels = !bmp.isNull();
-                        if (startsWithPixels) {
-                            fill_dst_bmp_with_init_data(&bmp);
-                        }
-                        uint32_t idBefore = surface->generationID();
-                        bool success = canvas.readPixels(&bmp, srcRect.fLeft, srcRect.fTop);
-                        uint32_t idAfter = surface->generationID();
-
-                        // we expect to succeed when the read isn't fully clipped
-                        // out.
-                        bool expectSuccess = SkIRect::Intersects(srcRect, DEV_RECT);
-                        // determine whether we expected the read to succeed.
-                        REPORTER_ASSERT(reporter, success == expectSuccess);
-                        // read pixels should never change the gen id
-                        REPORTER_ASSERT(reporter, idBefore == idAfter);
-
-                        if (success || startsWithPixels) {
-                            check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
-                                       success, startsWithPixels);
-                        } else {
-                            // if we had no pixels beforehand and the readPixels
-                            // failed then our bitmap should still not have pixels
-                            REPORTER_ASSERT(reporter, bmp.isNull());
-                        }
 #if SK_SUPPORT_GPU
-                        // Try doing the read directly from a non-renderable texture
-                        if (texture && startsWithPixels) {
-                            fill_dst_bmp_with_init_data(&bmp);
-                            GrPixelConfig dstConfig =
-                                SkImageInfo2GrPixelConfig(gReadConfigs[c].fColorType,
-                                                          gReadConfigs[c].fAlphaType,
-                                                          kLinear_SkColorProfileType);
-                            uint32_t flags = 0;
-                            if (gReadConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
-                                flags = GrContext::kUnpremul_PixelOpsFlag;
-                            }
-                            bmp.lockPixels();
-                            success = texture->readPixels(srcRect.fLeft, srcRect.fTop, bmp.width(),
-                                                bmp.height(), dstConfig, bmp.getPixels(),
-                                                bmp.rowBytes(), flags);
-                            bmp.unlockPixels();
-                            check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
-                                       success, true);
-                        }
-#endif
+static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* texture) {
+    fill_src_texture(texture);
+    for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
+        const SkIRect& srcRect = gReadPixelsTestRects[rect];
+        for (BitmapInit bmi = kFirstBitmapInit; bmi < kBitmapInitCnt; bmi = nextBMI(bmi)) {
+            for (size_t c = 0; c < SK_ARRAY_COUNT(gReadPixelsConfigs); ++c) {
+                SkBitmap bmp;
+                init_bitmap(&bmp, srcRect, bmi,
+                            gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
+
+                // if the bitmap has pixels allocated before the readPixels,
+                // note that and fill them with pattern
+                bool startsWithPixels = !bmp.isNull();
+                // Try doing the read directly from a non-renderable texture
+                if (startsWithPixels) {
+                    fill_dst_bmp_with_init_data(&bmp);
+                    GrPixelConfig dstConfig =
+                            SkImageInfo2GrPixelConfig(gReadPixelsConfigs[c].fColorType,
+                                                      gReadPixelsConfigs[c].fAlphaType,
+                                                      kLinear_SkColorProfileType);
+                    uint32_t flags = 0;
+                    if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
+                        flags = GrContext::kUnpremul_PixelOpsFlag;
                     }
-                    // check the old webkit version of readPixels that clips the
-                    // bitmap size
-                    SkBitmap wkbmp;
-                    bool success = canvas.readPixels(srcRect, &wkbmp);
-                    SkIRect clippedRect = DEV_RECT;
-                    if (clippedRect.intersect(srcRect)) {
-                        REPORTER_ASSERT(reporter, success);
-                        REPORTER_ASSERT(reporter, kN32_SkColorType == wkbmp.colorType());
-                        REPORTER_ASSERT(reporter, kPremul_SkAlphaType == wkbmp.alphaType());
-                        check_read(reporter, wkbmp, clippedRect.fLeft,
-                                   clippedRect.fTop, true, false);
-                    } else {
-                        REPORTER_ASSERT(reporter, !success);
-                    }
+                    bmp.lockPixels();
+                    bool success = texture->readPixels(srcRect.fLeft, srcRect.fTop, bmp.width(),
+                                                       bmp.height(), dstConfig, bmp.getPixels(),
+                                                       bmp.rowBytes(), flags);
+                    bmp.unlockPixels();
+                    check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
+                               success, true);
                 }
             }
         }
     }
 }
-
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, context) {
+    // On the GPU we will also try reading back from a non-renderable texture.
+    for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
+        SkAutoTUnref<GrTexture> texture;
+        GrSurfaceDesc desc;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fWidth = DEV_W;
+        desc.fHeight = DEV_H;
+        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fOrigin = origin;
+        desc.fFlags = kNone_GrSurfaceFlags;
+        texture.reset(context->textureProvider()->createTexture(desc, false));
+        test_readpixels_texture(reporter, texture);
+    }
+}
+#endif
 /////////////////////
 #if SK_SUPPORT_GPU
 
@@ -560,13 +564,7 @@ static void dump_to_file(const char name[], SkData* data) {
  *
  *  https://bug.skia.org/4351
  */
-DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
-    GrContext* ctx = factory->get(GrContextFactory::kNative_GLContextType);
-    if (!ctx) {
-        REPORTER_ASSERT(reporter, false);
-        return;
-    }
-
+DEF_GPUTEST_FOR_NATIVE_CONTEXT(ReadPixels_Subset_Gpu, reporter, context) {
     SkBitmap bitmap;
     make_ringed_bitmap(&bitmap, 6, 6);
     const SkIRect subset = SkIRect::MakeLTRB(2, 2, 4, 4);
@@ -575,7 +573,7 @@ DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
     SkBitmap bm_subset, tx_subset;
 
     // ... one from a texture-subset
-    SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(ctx, bitmap,
+    SkAutoTUnref<GrTexture> fullTx(GrRefCachedBitmapTexture(context, bitmap,
                                                             GrTextureParams::ClampNoFilter()));
     SkBitmap tx_full;
     GrWrapTextureInBitmap(fullTx, bitmap.width(), bitmap.height(), true, &tx_full);
@@ -584,7 +582,7 @@ DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
     // ... one from a bitmap-subset
     SkBitmap tmp_subset;
     bitmap.extractSubset(&tmp_subset, subset);
-    SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(ctx, tmp_subset,
+    SkAutoTUnref<GrTexture> subsetTx(GrRefCachedBitmapTexture(context, tmp_subset,
                                                               GrTextureParams::ClampNoFilter()));
     GrWrapTextureInBitmap(subsetTx, tmp_subset.width(), tmp_subset.height(), true, &bm_subset);
 
@@ -593,8 +591,8 @@ DEF_GPUTEST(ReadPixels_Subset_Gpu, reporter, factory) {
 
     // do they draw the same?
     const SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    SkAutoTUnref<SkSurface> surfA(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0));
-    SkAutoTUnref<SkSurface> surfB(SkSurface::NewRenderTarget(ctx, SkSurface::kNo_Budgeted, info, 0));
+    SkAutoTUnref<SkSurface> surfA(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
+    SkAutoTUnref<SkSurface> surfB(SkSurface::NewRenderTarget(context, SkSurface::kNo_Budgeted, info, 0));
 
     if (false) {
         //

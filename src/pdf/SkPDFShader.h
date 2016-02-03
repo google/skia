@@ -50,7 +50,7 @@ public:
                                      SkScalar rasterScale);
 };
 
-class SkPDFFunctionShader : public SkPDFDict {
+class SkPDFFunctionShader final : public SkPDFDict {
     
 
 public:
@@ -70,7 +70,7 @@ private:
  * inside a tiling pattern while providing a common pattern interface.
  * The encapsulation allows the use of a SMask for transparency gradients.
  */
-class SkPDFAlphaFunctionShader : public SkPDFStream {
+class SkPDFAlphaFunctionShader final : public SkPDFStream {
 public:
     static SkPDFAlphaFunctionShader* Create(SkPDFCanon*,
                                             SkScalar dpi,
@@ -84,7 +84,7 @@ private:
     typedef SkPDFStream INHERITED;
 };
 
-class SkPDFImageShader : public SkPDFStream {
+class SkPDFImageShader final : public SkPDFStream {
 public:
     static SkPDFImageShader* Create(SkPDFCanon*,
                                     SkScalar dpi,

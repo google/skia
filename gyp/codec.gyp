@@ -25,13 +25,14 @@
       'cflags':[
         # FIXME: This gets around a longjmp warning. See
         # http://build.chromium.org/p/client.skia.compile/builders/Build-Ubuntu-GCC-x86_64-Release-Trybot/builds/113/steps/build%20most/logs/stdio
-        '-Wno-clobbered',
+        '-Wno-clobbered -Wno-error',
       ],
       'include_dirs': [
         '../include/codec',
         '../include/private',
         '../src/codec',
         '../src/core',
+        '../src/utils',
       ],
       'sources': [
         '../src/codec/SkAndroidCodec.cpp',
@@ -40,10 +41,9 @@
         '../src/codec/SkBmpRLECodec.cpp',
         '../src/codec/SkBmpStandardCodec.cpp',
         '../src/codec/SkCodec.cpp',
-        '../src/codec/SkCodec_libgif.cpp',
-        '../src/codec/SkCodec_libico.cpp',
         '../src/codec/SkCodec_libpng.cpp',
-        '../src/codec/SkCodec_wbmp.cpp',
+        '../src/codec/SkGifCodec.cpp',
+        '../src/codec/SkIcoCodec.cpp',
         '../src/codec/SkJpegCodec.cpp',
         '../src/codec/SkJpegDecoderMgr.cpp',
         '../src/codec/SkJpegUtility_codec.cpp',
@@ -52,8 +52,11 @@
         '../src/codec/SkSampler.cpp',
         '../src/codec/SkSampledCodec.cpp',
         '../src/codec/SkSwizzler.cpp',
+        '../src/codec/SkWbmpCodec.cpp',
         '../src/codec/SkWebpAdapterCodec.cpp',
         '../src/codec/SkWebpCodec.cpp',
+
+        '../src/codec/SkCodecImageGenerator.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

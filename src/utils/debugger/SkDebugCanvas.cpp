@@ -69,15 +69,18 @@ public:
         , fFilterQuality(quality) {}
 
 protected:
-    void onFilterPaint(SkPaint* paint, Type) const override {
-        if (nullptr != fOverdrawXfermode.get()) {
-            paint->setAntiAlias(false);
-            paint->setXfermode(fOverdrawXfermode.get());
-        }
+    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
+        if (*paint) {
+            if (nullptr != fOverdrawXfermode.get()) {
+                paint->writable()->setAntiAlias(false);
+                paint->writable()->setXfermode(fOverdrawXfermode.get());
+            }
 
-        if (fOverrideFilterQuality) {
-            paint->setFilterQuality(fFilterQuality);
+            if (fOverrideFilterQuality) {
+                paint->writable()->setFilterQuality(fFilterQuality);
+            }
         }
+        return true;
     }
 
     void onDrawPicture(const SkPicture* picture,
@@ -484,10 +487,6 @@ void SkDebugCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
     this->addDrawCommand(new SkDrawDRRectCommand(outer, inner, paint));
 }
 
-void SkDebugCanvas::onDrawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawSpriteCommand(bitmap, left, top, paint));
-}
-
 void SkDebugCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                const SkPaint& paint) {
     this->addDrawCommand(new SkDrawTextCommand(text, byteLength, x, y, paint));
@@ -528,10 +527,9 @@ void SkDebugCanvas::willSave() {
     this->INHERITED::willSave();
 }
 
-SkCanvas::SaveLayerStrategy SkDebugCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                                         SaveFlags flags) {
-    this->addDrawCommand(new SkSaveLayerCommand(bounds, paint, flags));
-    this->INHERITED::willSaveLayer(bounds, paint, flags);
+SkCanvas::SaveLayerStrategy SkDebugCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    this->addDrawCommand(new SkSaveLayerCommand(rec));
+    (void)this->INHERITED::getSaveLayerStrategy(rec);
     // No need for a full layer.
     return kNoLayer_SaveLayerStrategy;
 }

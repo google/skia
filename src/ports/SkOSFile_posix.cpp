@@ -35,8 +35,8 @@ typedef struct {
     ino_t ino;
 } SkFILEID;
 
-static bool sk_ino(SkFILE* a, SkFILEID* id) {
-    int fd = fileno((FILE*)a);
+static bool sk_ino(FILE* a, SkFILEID* id) {
+    int fd = fileno(a);
     if (fd < 0) {
         return 0;
     }
@@ -49,7 +49,7 @@ static bool sk_ino(SkFILE* a, SkFILEID* id) {
     return true;
 }
 
-bool sk_fidentical(SkFILE* a, SkFILE* b) {
+bool sk_fidentical(FILE* a, FILE* b) {
     SkFILEID aID, bID;
     return sk_ino(a, &aID) && sk_ino(b, &bID)
            && aID.ino == bID.ino
@@ -82,11 +82,11 @@ void* sk_fdmmap(int fd, size_t* size) {
     return addr;
 }
 
-int sk_fileno(SkFILE* f) {
-    return fileno((FILE*)f);
+int sk_fileno(FILE* f) {
+    return fileno(f);
 }
 
-void* sk_fmmap(SkFILE* f, size_t* size) {
+void* sk_fmmap(FILE* f, size_t* size) {
     int fd = sk_fileno(f);
     if (fd < 0) {
         return nullptr;

@@ -12,12 +12,14 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrDrawContext.h"
 #include "GrContext.h"
-#include "GrTest.h"
-#include "effects/GrTextureDomain.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
+#include "batches/GrDrawBatch.h"
+#include "batches/GrRectBatchFactory.h"
+#include "effects/GrTextureDomain.h"
 
 namespace skiagm {
 /**
@@ -79,10 +81,8 @@ protected:
             return;
         }
 
-        GrTestTarget tt;
-        context->getTestTarget(&tt);
-        if (nullptr == tt.target()) {
-            SkDEBUGFAIL("Couldn't get Gr test target.");
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
             return;
         }
 
@@ -117,6 +117,8 @@ protected:
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPipelineBuilder pipelineBuilder;
+                    pipelineBuilder.setXPFactory(
+                        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
                     SkAutoTUnref<const GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Create(texture, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,
@@ -130,10 +132,10 @@ protected:
                     pipelineBuilder.setRenderTarget(rt);
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
-                    tt.target()->drawNonAARect(pipelineBuilder,
-                                               GrColor_WHITE,
-                                               viewMatrix,
-                                               renderRect);
+                    SkAutoTUnref<GrDrawBatch> batch(
+                            GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
+                                                                renderRect, nullptr, nullptr));
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

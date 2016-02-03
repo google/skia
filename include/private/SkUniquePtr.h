@@ -9,7 +9,8 @@
 #define SkUniquePtr_DEFINED
 
 #include "SkTLogic.h"
-#include "SkUtility.h"
+#include <cstddef>
+#include <utility>
 
 namespace skstd {
 
@@ -47,11 +48,11 @@ public:
     using deleter_type = D;
 
 private:
-    template <typename B, bool = is_empty<B>::value /*&& !is_final<B>::value*/>
+    template <typename B, bool = std::is_empty<B>::value /*&& !is_final<B>::value*/>
     struct compressed_base : private B {
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : B(b) {}
-        /*constexpr*/ compressed_base(const B&& b) : B(move(b)) {}
+        /*constexpr*/ compressed_base(B&& b) : B(std::move(b)) {}
         /*constexpr*/ B& get() /*noexcept*/ { return *this; }
         /*constexpr*/ B const& get() const /*noexcept*/ { return *this; }
         void swap(compressed_base&) /*noexcept*/ { }
@@ -61,7 +62,7 @@ private:
         B fb;
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : fb(b) {}
-        /*constexpr*/ compressed_base(const B&& b) : fb(move(b)) {}
+        /*constexpr*/ compressed_base(B&& b) : fb(std::move(b)) {}
         /*constexpr*/ B& get() /*noexcept*/ { return fb; }
         /*constexpr*/ B const& get() const /*noexcept*/ { return fb; }
         void swap(compressed_base& that) /*noexcept*/ { SkTSwap(fb, that.fB); }
@@ -75,7 +76,7 @@ private:
         template <typename U1, typename U2, typename = enable_if_t<
             is_convertible<U1, pointer>::value && is_convertible<U2, deleter_type>::value
         >> /*constexpr*/ compressed_data(U1&& ptr, U2&& d)
-            : compressed_base<deleter_type>(skstd::forward<U2>(d)), fPtr(skstd::forward<U1>(ptr)) {}
+            : compressed_base<deleter_type>(std::forward<U2>(d)), fPtr(std::forward<U1>(ptr)) {}
         /*constexpr*/ pointer& getPointer() /*noexcept*/ { return fPtr; }
         /*constexpr*/ pointer const& getPointer() const /*noexcept*/ { return fPtr; }
         /*constexpr*/ deleter_type& getDeleter() /*noexcept*/ {
@@ -93,38 +94,41 @@ private:
 
 public:
     /*constexpr*/ unique_ptr() /*noexcept*/ : data() {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
-    /*constexpr*/ unique_ptr(skstd::nullptr_t) /*noexcept*/ : unique_ptr() { }
+    /*constexpr*/ unique_ptr(std::nullptr_t) /*noexcept*/ : unique_ptr() { }
 
     explicit unique_ptr(pointer ptr) /*noexcept*/ : data(ptr, deleter_type()) {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
     unique_ptr(pointer ptr,
-               conditional_t<is_reference<deleter_type>::value, deleter_type,const deleter_type&> d)
+               conditional_t<std::is_reference<deleter_type>::value,
+                             deleter_type, const deleter_type&> d)
     /*noexcept*/ : data(ptr, d)
     {}
 
     unique_ptr(pointer ptr, remove_reference_t<deleter_type>&& d) /*noexcept*/
-        : data(move(ptr), move(d))
+        : data(std::move(ptr), std::move(d))
     {
-        static_assert(!is_reference<deleter_type>::value,
+        static_assert(!std::is_reference<deleter_type>::value,
             "Binding an rvalue reference deleter as an lvalue reference deleter is not allowed.");
     }
 
 
     unique_ptr(unique_ptr&& that) /*noexcept*/
-        : data(that.release(), forward<deleter_type>(that.get_deleter()))
+        : data(that.release(), std::forward<deleter_type>(that.get_deleter()))
     {}
 
     template <typename U, typename ThatD, typename = enable_if_t<
         is_convertible<typename unique_ptr<U, ThatD>::pointer, pointer>::value &&
-        !is_array<U>::value &&
-        conditional_t<is_reference<D>::value, is_same<ThatD, D>, is_convertible<ThatD, D>>::value>>
+        !std::is_array<U>::value &&
+        conditional_t<std::is_reference<D>::value,
+                      std::is_same<ThatD, D>,
+                      is_convertible<ThatD, D>>::value>>
     unique_ptr(unique_ptr<U, ThatD>&& that) /*noexcept*/
-        : data(that.release(), forward<ThatD>(that.get_deleter()))
+        : data(that.release(), std::forward<ThatD>(that.get_deleter()))
     {}
 
     ~unique_ptr() /*noexcept*/ {
@@ -137,20 +141,20 @@ public:
 
     unique_ptr& operator=(unique_ptr&& that) /*noexcept*/ {
         reset(that.release());
-        get_deleter() = forward<deleter_type>(that.get_deleter());
+        get_deleter() = std::forward<deleter_type>(that.get_deleter());
         return *this;
     }
 
     template <typename U, typename ThatD> enable_if_t<
         is_convertible<typename unique_ptr<U, ThatD>::pointer, pointer>::value &&
-        !is_array<U>::value,
+        !std::is_array<U>::value,
     unique_ptr&> operator=(unique_ptr<U, ThatD>&& that) /*noexcept*/ {
         reset(that.release());
-        get_deleter() = forward<ThatD>(that.get_deleter());
+        get_deleter() = std::forward<ThatD>(that.get_deleter());
         return *this;
     }
 
-    unique_ptr& operator=(skstd::nullptr_t) /*noexcept*/ {
+    unique_ptr& operator=(std::nullptr_t) /*noexcept*/ {
         reset();
         return *this;
     }
@@ -217,11 +221,11 @@ public:
     using deleter_type = D;
 
 private:
-    template <typename B, bool = is_empty<B>::value /*&& !is_final<B>::value*/>
+    template <typename B, bool = std::is_empty<B>::value /*&& !is_final<B>::value*/>
     struct compressed_base : private B {
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : B(b) {}
-        /*constexpr*/ compressed_base(const B&& b) : B(move(b)) {}
+        /*constexpr*/ compressed_base(B&& b) : B(std::move(b)) {}
         /*constexpr*/ B& get() /*noexcept*/ { return *this; }
         /*constexpr*/ B const& get() const /*noexcept*/ { return *this; }
         void swap(compressed_base&) /*noexcept*/ { }
@@ -231,7 +235,7 @@ private:
         B fb;
         /*constexpr*/ compressed_base() : B() {}
         /*constexpr*/ compressed_base(const B& b) : fb(b) {}
-        /*constexpr*/ compressed_base(const B&& b) : fb(move(b)) {}
+        /*constexpr*/ compressed_base(B&& b) : fb(std::move(b)) {}
         /*constexpr*/ B& get() /*noexcept*/ { return fb; }
         /*constexpr*/ B const& get() const /*noexcept*/ { return fb; }
         void swap(compressed_base& that) /*noexcept*/ { SkTSwap(fb, that.fB); }
@@ -245,7 +249,7 @@ private:
         template <typename U1, typename U2, typename = enable_if_t<
             is_convertible<U1, pointer>::value && is_convertible<U2, deleter_type>::value
         >> /*constexpr*/ compressed_data(U1&& ptr, U2&& d)
-            : compressed_base<deleter_type>(skstd::forward<U2>(d)), fPtr(skstd::forward<U1>(ptr)) {}
+            : compressed_base<deleter_type>(std::forward<U2>(d)), fPtr(std::forward<U1>(ptr)) {}
         /*constexpr*/ pointer& getPointer() /*noexcept*/ { return fPtr; }
         /*constexpr*/ pointer const& getPointer() const /*noexcept*/ { return fPtr; }
         /*constexpr*/ deleter_type& getDeleter() /*noexcept*/ {
@@ -263,29 +267,30 @@ private:
 
 public:
     /*constexpr*/ unique_ptr() /*noexcept*/ : data() {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
-    /*constexpr*/ unique_ptr(skstd::nullptr_t) /*noexcept*/ : unique_ptr() { }
+    /*constexpr*/ unique_ptr(std::nullptr_t) /*noexcept*/ : unique_ptr() { }
 
     explicit unique_ptr(pointer ptr) /*noexcept*/ : data(ptr, deleter_type()) {
-        static_assert(!is_pointer<deleter_type>::value, "Deleter is nullptr function pointer!");
+        static_assert(!std::is_pointer<deleter_type>::value, "Deleter nullptr function pointer!");
     }
 
     unique_ptr(pointer ptr,
-               conditional_t<is_reference<deleter_type>::value, deleter_type,const deleter_type&> d)
+               conditional_t<std::is_reference<deleter_type>::value,
+                             deleter_type, const deleter_type&> d)
     /*noexcept*/ : data(ptr, d)
     {}
 
     unique_ptr(pointer ptr, remove_reference_t<deleter_type>&& d) /*noexcept*/
-        : data(move(ptr), move(d))
+        : data(std::move(ptr), std::move(d))
     {
-        static_assert(!is_reference<deleter_type>::value,
+        static_assert(!std::is_reference<deleter_type>::value,
             "Binding an rvalue reference deleter as an lvalue reference deleter is not allowed.");
     }
 
     unique_ptr(unique_ptr&& that) /*noexcept*/
-        : data(that.release(), forward<deleter_type>(that.get_deleter()))
+        : data(that.release(), std::forward<deleter_type>(that.get_deleter()))
     {}
 
     ~unique_ptr() {
@@ -298,11 +303,11 @@ public:
 
     unique_ptr& operator=(unique_ptr&& that) /*noexcept*/ {
         reset(that.release());
-        get_deleter() = forward<deleter_type>(that.get_deleter());
+        get_deleter() = std::forward<deleter_type>(that.get_deleter());
         return *this;
     }
 
-    unique_ptr& operator=(skstd::nullptr_t) /*noexcept*/ {
+    unique_ptr& operator=(std::nullptr_t) /*noexcept*/ {
         reset();
         return *this;
     }
@@ -363,13 +368,13 @@ inline bool operator==(const unique_ptr<T, D>& a, const unique_ptr<U, ThatD>& b)
 }
 
 template <typename T, typename D>
-inline bool operator==(const unique_ptr<T, D>& a, skstd::nullptr_t) /*noexcept*/ {
+inline bool operator==(const unique_ptr<T, D>& a, std::nullptr_t) /*noexcept*/ {
     //return !a;
     return !a.is_attached();
 }
 
 template <typename T, typename D>
-inline bool operator==(skstd::nullptr_t, const unique_ptr<T, D>& b) /*noexcept*/ {
+inline bool operator==(std::nullptr_t, const unique_ptr<T, D>& b) /*noexcept*/ {
     //return !b;
     return !b.is_attached();
 }
@@ -380,13 +385,13 @@ inline bool operator!=(const unique_ptr<T, D>& a, const unique_ptr<U, ThatD>& b)
 }
 
 template <typename T, typename D>
-inline bool operator!=(const unique_ptr<T, D>& a, skstd::nullptr_t) /*noexcept*/ {
+inline bool operator!=(const unique_ptr<T, D>& a, std::nullptr_t) /*noexcept*/ {
     //return (bool)a;
     return a.is_attached();
 }
 
 template <typename T, typename D>
-inline bool operator!=(skstd::nullptr_t, const unique_ptr<T, D>& b) /*noexcept*/ {
+inline bool operator!=(std::nullptr_t, const unique_ptr<T, D>& b) /*noexcept*/ {
     //return (bool)b;
     return b.is_attached();
 }

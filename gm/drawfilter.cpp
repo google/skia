@@ -68,6 +68,5 @@ private:
     typedef GM INHERITED;
 };
 
-static skiagm::GM* MyFactory(void*) { return new DrawFilterGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new DrawFilterGM; )
 

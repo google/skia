@@ -15,9 +15,11 @@
 #include "GrRenderTarget.h"
 #include "GrTextureProvider.h"
 #include "SkMatrix.h"
-#include "../private/SkMutex.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
+#include "../private/GrAuditTrail.h"
+#include "../private/GrSingleOwner.h"
+#include "../private/SkMutex.h"
 
 struct GrBatchAtlasConfig;
 class GrBatchFontCache;
@@ -328,14 +330,19 @@ public:
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
-    void getTestTarget(GrTestTarget*);
+    void getTestTarget(GrTestTarget*, GrRenderTarget* rt);
+
+    /** Reset GPU stats */
+    void resetGpuStats() const ;
 
     /** Prints cache stats to the string if GR_CACHE_STATS == 1. */
     void dumpCacheStats(SkString*) const;
+    void dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
     void printCacheStats() const;
 
     /** Prints GPU stats to the string if GR_GPU_STATS == 1. */
     void dumpGpuStats(SkString*) const;
+    void dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
     void printGpuStats() const;
 
     /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
@@ -349,9 +356,13 @@ public:
     /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    /** Draw font cache texture to render target */
-    void drawFontCache(const SkRect& rect, GrMaskFormat format, const SkPaint& paint,
-                       GrRenderTarget* target);
+    /** Get pointer to atlas texture for given mask format */
+    GrTexture* getFontAtlasTexture(GrMaskFormat format);
+
+    GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
+
+    /** This is only useful for debug purposes */
+    SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fSingleOwner; } )
 
 private:
     GrGpu*                          fGpu;
@@ -386,6 +397,11 @@ private:
     SkMutex                         fReadPixelsMutex;
     SkMutex                         fTestPMConversionsMutex;
 
+    // In debug builds we guard against improper thread handling
+    // This guard is passed to the GrDrawingManager and, from there to all the
+    // GrDrawContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
+    mutable GrSingleOwner fSingleOwner;
+
     struct CleanUpData {
         PFCleanUpFunc fFunc;
         void*         fInfo;
@@ -397,6 +413,8 @@ private:
 
     SkAutoTDelete<GrDrawingManager> fDrawingManager;
 
+    GrAuditTrail                    fAuditTrail;
+
     // TODO: have the CMM use drawContexts and rm this friending
     friend class GrClipMaskManager; // the CMM is friended just so it can call 'drawingManager'
     friend class GrDrawingManager;  // for access to drawingManager for ProgramUnitTest
@@ -406,7 +424,7 @@ private:
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
 
     void initMockContext();
-    void initCommon();
+    void initCommon(const GrContextOptions&);
 
     /**
      * These functions create premul <-> unpremul effects if it is possible to generate a pair

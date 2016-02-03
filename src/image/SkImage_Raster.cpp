@@ -48,7 +48,7 @@ public:
             return false;
         }
 
-        if (rowBytes < SkImageMinRowBytes(info)) {
+        if (rowBytes < info.minRowBytes()) {
             return false;
         }
 
@@ -66,10 +66,10 @@ public:
     SkImage_Raster(const SkImageInfo&, SkData*, size_t rb, SkColorTable*);
     virtual ~SkImage_Raster();
 
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY) const override;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     const void* onPeekPixels(SkImageInfo*, size_t* /*rowBytes*/) const override;
-    SkData* onRefEncoded() const override;
-    bool getROPixels(SkBitmap*) const override;
+    SkData* onRefEncoded(GrContext*) const override;
+    bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&) const override;
     SkImage* onNewSubset(const SkIRect&) const override;
 
@@ -135,7 +135,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint&
 SkImage_Raster::~SkImage_Raster() {}
 
 bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                                  int srcX, int srcY) const {
+                                  int srcX, int srcY, CachingHint) const {
     SkBitmap shallowCopy(fBitmap);
     return shallowCopy.readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
@@ -150,7 +150,7 @@ const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr, size_t* rowBytesP
     return fBitmap.getPixels();
 }
 
-SkData* SkImage_Raster::onRefEncoded() const {
+SkData* SkImage_Raster::onRefEncoded(GrContext*) const {
     SkPixelRef* pr = fBitmap.pixelRef();
     const SkImageInfo prInfo = pr->info();
     const SkImageInfo bmInfo = fBitmap.info();
@@ -162,7 +162,7 @@ SkData* SkImage_Raster::onRefEncoded() const {
     return nullptr;
 }
 
-bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
+bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
     *dst = fBitmap;
     return true;
 }

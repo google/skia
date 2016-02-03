@@ -42,33 +42,25 @@ public:
         virtual bool get(const Key& key, SkBitmap* result, SkIPoint* offset) const = 0;
         virtual void set(const Key& key, const SkBitmap& result, const SkIPoint& offset) = 0;
         virtual void purge() {}
-    };
-
-    enum SizeConstraint {
-        kExact_SizeConstraint,
-        kApprox_SizeConstraint,
+        virtual void purgeByImageFilterId(uint32_t) {}
     };
 
     class Context {
     public:
-        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache,
-                SizeConstraint constraint)
+        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache)
             : fCTM(ctm)
             , fClipBounds(clipBounds)
             , fCache(cache)
-            , fSizeConstraint(constraint)
         {}
 
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
         Cache* cache() const { return fCache; }
-        SizeConstraint sizeConstraint() const { return fSizeConstraint; }
 
     private:
         SkMatrix        fCTM;
         SkIRect         fClipBounds;
         Cache*          fCache;
-        SizeConstraint  fSizeConstraint;
     };
 
     class CropRect {
@@ -106,11 +98,17 @@ public:
         uint32_t fFlags;
     };
 
+    enum TileUsage {
+        kPossible_TileUsage,    //!< the created device may be drawn tiled
+        kNever_TileUsage,       //!< the created device will never be drawn tiled
+    };
+
     class Proxy {
     public:
         virtual ~Proxy() {}
 
-        virtual SkBaseDevice* createDevice(int width, int height) = 0;
+        virtual SkBaseDevice* createDevice(int width, int height,
+                                           TileUsage usage = kNever_TileUsage) = 0;
 
         // Returns true if the proxy handled the filter itself. If this returns
         // false then the filter's code will be called.
@@ -123,7 +121,8 @@ public:
     public:
         DeviceProxy(SkBaseDevice* device) : fDevice(device) {}
 
-        SkBaseDevice* createDevice(int width, int height) override;
+        SkBaseDevice* createDevice(int width, int height,
+                                   TileUsage usage = kNever_TileUsage) override;
 
         // Returns true if the proxy handled the filter itself. If this returns
         // false then the filter's code will be called.
@@ -199,12 +198,7 @@ public:
      *  replaced by the returned colorfilter. i.e. the two effects will affect drawing in the
      *  same way.
      */
-    bool asAColorFilter(SkColorFilter** filterPtr) const {
-        return this->countInputs() > 0 &&
-               NULL == this->getInput(0) &&
-               !this->affectsTransparentBlack() &&
-               this->isColorFilterNode(filterPtr);
-    }
+    bool asAColorFilter(SkColorFilter** filterPtr) const;
 
     /**
      *  Returns the number of inputs this filter will accept (some inputs can
@@ -240,7 +234,7 @@ public:
     virtual void computeFastBounds(const SkRect&, SkRect*) const;
 
     // Can this filter DAG compute the resulting bounds of an object-space rectangle?
-    bool canComputeFastBounds() const;
+    virtual bool canComputeFastBounds() const;
 
     /**
      *  If this filter can be represented by another filter + a localMatrix, return that filter,
@@ -256,11 +250,6 @@ public:
                                              SkImageFilter* input = NULL);
 
 #if SK_SUPPORT_GPU
-    /**
-     * Wrap the given texture in a texture-backed SkBitmap.
-     */
-    static void WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result);
-
     // Helper function which invokes GPU filter processing on the
     // input at the specified "index". If the input is null, it leaves
     // "result" and "offset" untouched, and returns true. If the input
@@ -268,7 +257,7 @@ public:
     // Otherwise, the filter will be processed in software and
     // uploaded to the GPU.
     bool filterInputGPU(int index, SkImageFilter::Proxy* proxy, const SkBitmap& src, const Context&,
-                        SkBitmap* result, SkIPoint* offset, bool relaxSizeConstraint = true) const;
+                        SkBitmap* result, SkIPoint* offset) const;
 #endif
 
     SK_TO_STRING_PUREVIRT()
@@ -351,6 +340,25 @@ protected:
     // implementation recursively unions all input bounds, or returns false if
     // no inputs.
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const;
+    enum MapDirection {
+        kForward_MapDirection,
+        kReverse_MapDirection
+    };
+
+    /**
+     * Performs a forwards or reverse mapping of the given rect to accommodate
+     * this filter's margin requirements. kForward_MapDirection is used to
+     * determine the destination pixels which would be touched by filtering
+     * the given given source rect (e.g., given source bitmap bounds,
+     * determine the optimal bounds of the filtered offscreen bitmap).
+     * kReverse_MapDirection is used to determine which pixels of the
+     * input(s) would be required to fill the given destination rect
+     * (e.g., clip bounds). NOTE: these operations may not be the
+     * inverse of the other. For example, blurring expands the given rect
+     * in both forward and reverse directions. Unlike
+     * onFilterBounds(), this function is non-recursive.
+     */
+    virtual void onFilterNodeBounds(const SkIRect&, const SkMatrix&, SkIRect*, MapDirection) const;
 
     // Helper function which invokes filter processing on the input at the
     // specified "index". If the input is null, it leaves "result" and
@@ -358,7 +366,7 @@ protected:
     // calls filterImage() on that input, and returns true on success.
     // i.e., return !getInput(index) || getInput(index)->filterImage(...);
     bool filterInput(int index, Proxy*, const SkBitmap& src, const Context&,
-                     SkBitmap* result, SkIPoint* offset, bool relaxSizeConstraint = true) const;
+                     SkBitmap* result, SkIPoint* offset) const;
 
     /**
      *  Return true (and return a ref'd colorfilter) if this node in the DAG is just a
@@ -411,12 +419,12 @@ protected:
                                      const SkIRect& bounds) const;
 
     /**
-     * Returns true if this filter can cause transparent black pixels to become
-     * visible (ie., alpha > 0). The default implementation returns false. This
-     * function is non-recursive, i.e., only queries this filter and not its
-     * inputs.
+     *  Creates a modified Context for use when recursing up the image filter DAG.
+     *  The clip bounds are adjusted to accommodate any margins that this
+     *  filter requires by calling this node's
+     *  onFilterNodeBounds(..., kReverse_MapDirection).
      */
-    virtual bool affectsTransparentBlack() const;
+    Context mapContext(const Context& ctx) const;
 
 private:
     friend class SkGraphics;

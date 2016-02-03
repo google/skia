@@ -15,6 +15,9 @@ class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
     static SkImageFilter* Create(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input = NULL,
                                  const CropRect* cropRect = NULL) {
+        if (0 == sigmaX && 0 == sigmaY && nullptr == cropRect) {
+            return SkSafeRef(input);
+        }
         return new SkBlurImageFilter(sigmaX, sigmaY, input, cropRect);
     }
 
@@ -27,7 +30,8 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterImage(Proxy*, const SkBitmap& src, const Context&, SkBitmap* result,
                        SkIPoint* offset) const override;
-    bool onFilterBounds(const SkIRect& src, const SkMatrix&, SkIRect* dst) const override;
+    void onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
+                            SkIRect* dst, MapDirection) const override;
     bool canFilterImageGPU() const override { return true; }
     bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx, SkBitmap* result,
                         SkIPoint* offset) const override;

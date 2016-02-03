@@ -34,7 +34,7 @@ public:
     /*
      * Swizzle a row
      */
-    SkSwizzler::ResultAlpha swizzle(void* dst, const uint8_t* SK_RESTRICT src);
+    void swizzle(void* dst, const uint8_t* SK_RESTRICT src);
 
     /**
      * Implement fill using a custom width.
@@ -50,7 +50,7 @@ private:
     /*
      * Row procedure used for swizzle
      */
-    typedef SkSwizzler::ResultAlpha (*RowProc)(void* dstRow, const uint8_t* srcRow, int width,
+    typedef void (*RowProc)(void* dstRow, const uint8_t* srcRow, int width,
             SkMasks* masks, uint32_t startX, uint32_t sampleX);
 
     SkMaskSwizzler(SkMasks* masks, RowProc proc, int subsetWidth, int srcOffset);

@@ -11,6 +11,7 @@
 
 #include "GrCaps.h"
 #include "GrGLSL.h"
+#include "GrSwizzle.h"
 
 class GrGLSLCaps : public GrShaderCaps {
 public:
@@ -72,8 +73,6 @@ public:
     // Returns whether we can use the glsl funciton any() in our shader code.
     bool canUseAnyFunctionInShader() const { return fCanUseAnyFunctionInShader; }
 
-    bool forceHighPrecisionNDSTransform() const { return fForceHighPrecisionNDSTransform; }
-
     bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
 
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
@@ -102,14 +101,23 @@ public:
         return fSecondaryOutputExtensionString;
     }
 
-    bool mustSwizzleInShader() const { return fMustSwizzleInShader; }
+    const char* externalTextureExtensionString() const {
+        return fExternalTextureExtensionString;
+    }
 
     /**
-     * Returns a string which represents how to map from an internal GLFormat to a given
-     * GrPixelConfig. The function mustSwizzleInShader determines whether this swizzle is applied
-     * in the generated shader code or using sample state in the 3D API.
+     * Given a texture's config, this determines what swizzle must be appended to accesses to the
+     * texture in generated shader code. Swizzling may be implemented in texture parameters or a
+     * sampler rather than in the shader. In this case the returned swizzle will always be "rgba".
      */
-    const char* getSwizzleMap(GrPixelConfig config) const { return fConfigSwizzle[config]; }
+    const GrSwizzle& configTextureSwizzle(GrPixelConfig config) const {
+        return fConfigTextureSwizzle[config];
+    }
+
+    /** Swizzle that should occur on the fragment shader outputs for a given config. */
+    const GrSwizzle& configOutputSwizzle(GrPixelConfig config) const {
+        return fConfigOutputSwizzle[config];
+    }
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
@@ -129,7 +137,6 @@ private:
     bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
     bool fCanUseAnyFunctionInShader : 1;
-    bool fForceHighPrecisionNDSTransform : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
@@ -140,19 +147,20 @@ private:
     const char* fShaderDerivativeExtensionString;
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
+    const char* fExternalTextureExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
-    bool        fMustSwizzleInShader;
-    const char* fConfigSwizzle[kGrPixelConfigCnt];
+    GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
+    GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
 
     friend class GrGLCaps;  // For initialization.
+    friend class GrVkCaps;
 
     typedef GrShaderCaps INHERITED;
 };
-
 
 #endif

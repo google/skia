@@ -228,7 +228,6 @@ static void test_empty(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, clip1 == clip0);
 
     SkMask mask;
-    mask.fImage = nullptr;
     clip0.copyToMask(&mask);
     REPORTER_ASSERT(reporter, nullptr == mask.fImage);
     REPORTER_ASSERT(reporter, mask.fBounds.isEmpty());

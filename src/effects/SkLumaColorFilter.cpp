@@ -15,7 +15,6 @@
 #include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #endif
 
 void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
@@ -72,14 +71,14 @@ public:
                 args.fInputColor = "vec4(1)";
             }
 
-            GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-            fsBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
-                                   SK_ITU_BT709_LUM_COEFF_R,
-                                   SK_ITU_BT709_LUM_COEFF_G,
-                                   SK_ITU_BT709_LUM_COEFF_B,
-                                   args.fInputColor);
-            fsBuilder->codeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
-                                   args.fOutputColor);
+            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            fragBuilder->codeAppendf("\tfloat luma = dot(vec3(%f, %f, %f), %s.rgb);\n",
+                                     SK_ITU_BT709_LUM_COEFF_R,
+                                     SK_ITU_BT709_LUM_COEFF_G,
+                                     SK_ITU_BT709_LUM_COEFF_B,
+                                     args.fInputColor);
+            fragBuilder->codeAppendf("\t%s = vec4(0, 0, 0, luma);\n",
+                                     args.fOutputColor);
 
         }
 

@@ -16,6 +16,28 @@
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
+// matches old SkCanvas::SaveFlags
+enum LegacySaveFlags {
+    kHasAlphaLayer_LegacySaveFlags    = 0x04,
+    kClipToLayer_LegacySaveFlags      = 0x10,
+};
+#ifdef SK_SUPPORT_LEGACY_SAVEFLAGS
+static_assert(kHasAlphaLayer_LegacySaveFlags == (int)SkCanvas::kHasAlphaLayer_SaveFlag, "");
+static_assert(kClipToLayer_LegacySaveFlags == (int)SkCanvas::kClipToLayer_SaveFlag, "");
+#endif
+
+SkCanvas::SaveLayerFlags SkCanvas::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
+    uint32_t layerFlags = 0;
+    
+    if (0 == (flags & kClipToLayer_LegacySaveFlags)) {
+        layerFlags |= SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
+    }
+    if (0 == (flags & kHasAlphaLayer_LegacySaveFlags)) {
+        layerFlags |= kIsOpaque_SaveLayerFlag;
+    }
+    return layerFlags;
+}
+
 /*
  * Read the next op code and chunk size from 'reader'. The returned size
  * is the entire size of the chunk (including the opcode). Thus, the
@@ -368,11 +390,11 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             canvas->drawRRect(rrect, paint);
         } break;
         case DRAW_SPRITE: {
-            const SkPaint* paint = fPictureData->getPaint(reader);
-            const SkBitmap bitmap = shallow_copy(fPictureData->getBitmap(reader));
-            int left = reader->readInt();
-            int top = reader->readInt();
-            canvas->drawSprite(bitmap, left, top, paint);
+            /* const SkPaint* paint = */ fPictureData->getPaint(reader);
+            /* const SkBitmap bitmap = */ shallow_copy(fPictureData->getBitmap(reader));
+            /* int left = */ reader->readInt();
+            /* int top = */ reader->readInt();
+            // drawSprite removed dec-2015
         } break;
         case DRAW_TEXT: {
             const SkPaint& paint = *fPictureData->getPaint(reader);
@@ -455,10 +477,34 @@ void SkPicturePlayback::handleOp(SkReader32* reader,
             }
             canvas->save();
             break;
-        case SAVE_LAYER: {
+        case SAVE_LAYER_SAVEFLAGS_DEPRECATED: {
             const SkRect* boundsPtr = get_rect_ptr(reader);
             const SkPaint* paint = fPictureData->getPaint(reader);
-            canvas->saveLayer(boundsPtr, paint, (SkCanvas::SaveFlags) reader->readInt());
+            auto flags = SkCanvas::LegacySaveFlagsToSaveLayerFlags(reader->readInt());
+            canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint, flags));
+        } break;
+        case SAVE_LAYER_SAVELAYERFLAGS_DEPRECATED_JAN_2016: {
+            const SkRect* boundsPtr = get_rect_ptr(reader);
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint, reader->readInt()));
+        } break;
+        case SAVE_LAYER_SAVELAYERREC: {
+            SkCanvas::SaveLayerRec rec(nullptr, nullptr, nullptr, 0);
+            const uint32_t flatFlags = reader->readInt();
+            if (flatFlags & SAVELAYERREC_HAS_BOUNDS) {
+                rec.fBounds = &reader->skipT<SkRect>();
+            }
+            if (flatFlags & SAVELAYERREC_HAS_PAINT) {
+                rec.fPaint = fPictureData->getPaint(reader);
+            }
+            if (flatFlags & SAVELAYERREC_HAS_BACKDROP) {
+                const SkPaint* paint = fPictureData->getPaint(reader);
+                rec.fBackdrop = paint->getImageFilter();
+            }
+            if (flatFlags & SAVELAYERREC_HAS_FLAGS) {
+                rec.fSaveLayerFlags = reader->readInt();
+            }
+            canvas->saveLayer(rec);
         } break;
         case SCALE: {
             SkScalar sx = reader->readScalar();

@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include "SkDrawable.h"
+#include "SkImageFilter.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -36,6 +37,7 @@ namespace SkRecords {
     M(Save)                                                         \
     M(SaveLayer)                                                    \
     M(SetMatrix)                                                    \
+    M(Concat)                                                       \
     M(ClipPath)                                                     \
     M(ClipRRect)                                                    \
     M(ClipRect)                                                     \
@@ -62,7 +64,6 @@ namespace SkRecords {
     M(DrawTextOnPath)                                               \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
-    M(DrawSprite)                                                   \
     M(DrawTextBlob)                                                 \
     M(DrawAtlas)                                                    \
     M(DrawVertices)
@@ -197,9 +198,12 @@ RECORD(Save, 0);
 RECORD(SaveLayer, 0,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
-       SkCanvas::SaveFlags flags);
+       RefBox<const SkImageFilter> backdrop;
+       SkCanvas::SaveLayerFlags saveLayerFlags);
 
 RECORD(SetMatrix, 0,
+        TypedMatrix matrix);
+RECORD(Concat, 0,
         TypedMatrix matrix);
 
 struct RegionOpAndAA {
@@ -312,11 +316,6 @@ RECORD(DrawRRect, kDraw_Tag,
 RECORD(DrawRect, kDraw_Tag,
         SkPaint paint;
         SkRect rect);
-RECORD(DrawSprite, kDraw_Tag|kHasImage_Tag,
-        Optional<SkPaint> paint;
-        ImmutableBitmap bitmap;
-        int left;
-        int top);
 RECORD(DrawText, kDraw_Tag|kHasText_Tag,
         SkPaint paint;
         PODArray<char> text;

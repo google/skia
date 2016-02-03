@@ -54,7 +54,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkBlurDrawLooper* shadowLoopers[5];
+        SkDrawLooper* shadowLoopers[5];
         shadowLoopers[0] =
             SkBlurDrawLooper::Create(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),

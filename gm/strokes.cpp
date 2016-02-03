@@ -193,6 +193,80 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+DEF_SIMPLE_GM(CubicStroke, canvas, 384, 384) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(1.0720f);
+	SkPath path;
+    path.moveTo(-6000,-6000);
+    path.cubicTo(-3500,5500,-500,5500,2500,-6500);
+    canvas->drawPath(path, p);
+    p.setStrokeWidth(1.0721f);
+    canvas->translate(10, 10);
+    canvas->drawPath(path, p);
+    p.setStrokeWidth(1.0722f);
+    canvas->translate(10, 10);
+    canvas->drawPath(path, p);
+}
+
+DEF_SIMPLE_GM(zerolinestroke, canvas, 90, 120) {
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(20);
+    paint.setAntiAlias(true);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+
+    SkPath path;
+    path.moveTo(30, 90);
+    path.lineTo(30, 90);
+    path.lineTo(60, 90);
+    path.lineTo(60, 90);
+    canvas->drawPath(path, paint);
+
+    path.reset();
+    path.moveTo(30, 30);
+    path.lineTo(60, 30);
+    canvas->drawPath(path, paint);
+
+    path.reset();
+    path.moveTo(30, 60);
+    path.lineTo(30, 60);
+    path.lineTo(60, 60);
+    canvas->drawPath(path, paint);
+}
+
+DEF_SIMPLE_GM(quadcap, canvas, 200, 200) {
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(0);
+    SkPath path;
+    SkPoint pts[] = {{105.738571f,13.126318f},
+            {105.738571f,13.126318f}, 
+            {123.753784f,1.f}};
+    SkVector tangent = pts[1] - pts[2];
+    tangent.normalize();
+    SkPoint pts2[3];
+    memcpy(pts2, pts, sizeof(pts));
+    const SkScalar capOutset = SK_ScalarPI / 8;
+    pts2[0].fX += tangent.fX * capOutset;
+    pts2[0].fY += tangent.fY * capOutset;
+    pts2[1].fX += tangent.fX * capOutset;
+    pts2[1].fY += tangent.fY * capOutset;
+    pts2[2].fX += -tangent.fX * capOutset;
+    pts2[2].fY += -tangent.fY * capOutset;
+    path.moveTo(pts2[0]);
+    path.quadTo(pts2[1], pts2[2]);
+    canvas->drawPath(path, p);
+
+    path.reset();
+    path.moveTo(pts[0]);
+    path.quadTo(pts[1], pts[2]);
+    p.setStrokeCap(SkPaint::kRound_Cap);
+    canvas->translate(30, 0);
+    canvas->drawPath(path, p);
+}
 
 class Strokes2GM : public skiagm::GM {
     SkPath fPath;
@@ -441,17 +515,11 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* F0(void*) { return new StrokesGM; }
-static skiagm::GM* F1(void*) { return new Strokes2GM; }
-static skiagm::GM* F2(void*) { return new Strokes3GM; }
-static skiagm::GM* F3(void*) { return new Strokes4GM; }
-static skiagm::GM* F4(void*) { return new Strokes5GM; }
-
-static skiagm::GMRegistry R0(F0);
-static skiagm::GMRegistry R1(F1);
-static skiagm::GMRegistry R2(F2);
-static skiagm::GMRegistry R3(F3);
-static skiagm::GMRegistry R4(F4);
+DEF_GM( return new StrokesGM; )
+DEF_GM( return new Strokes2GM; )
+DEF_GM( return new Strokes3GM; )
+DEF_GM( return new Strokes4GM; )
+DEF_GM( return new Strokes5GM; )
 
 DEF_GM( return new ZeroLenStrokesGM; )
 DEF_GM( return new TeenyStrokesGM; )

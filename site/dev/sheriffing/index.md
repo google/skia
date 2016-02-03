@@ -34,7 +34,7 @@ Below is a brief summary of what the sheriff does for each task:
 * Track down people responsible for breakages and revert broken changes if there is no easy fix.
 * Close and open the [tree](http://skia-tree-status.appspot.com).
 * Keep the builder comments on the [status page](https://status.skia.org) up to date.
-* File or follow up with [BreakingTheBuildbots bugs](https://code.google.com/p/skia/issues/list?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
+* File or follow up with [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
 
 <a name="deps_rolls"></a>
 ### DEPS rolls
@@ -75,7 +75,7 @@ Tips for sheriffs
 ### When to file bugs
 
 Pay close attention to the "Failures" view in the [status page](https://status.skia.org).
-Look at all existing [BreakingTheBuildbots bugs](https://code.google.com/p/skia/issues/list?q=label:BreakingTheBuildbots). If the list is kept up to date then it should accurately represent everything that is causing failures. If it does not, then please file/update bugs accordingly.
+Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:BreakingTheBuildbots). If the list is kept up to date then it should accurately represent everything that is causing failures. If it does not, then please file/update bugs accordingly.
 
 
 <a name="how_close_tree"></a>

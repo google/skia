@@ -10,6 +10,8 @@
 
 #include "SkTypes.h"
 
+#ifdef SK_BUILD_FOR_WIN
+
 template<typename T>
 class SkBlockComRef : public T {
 private:
@@ -71,4 +73,5 @@ public:
     }
 };
 
-#endif
+#endif  // SK_BUILD_FOR_WIN
+#endif  // SkTScopedComPtr_DEFINED

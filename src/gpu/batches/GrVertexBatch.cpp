@@ -9,7 +9,7 @@
 #include "GrBatchFlushState.h"
 #include "GrResourceProvider.h"
 
-GrVertexBatch::GrVertexBatch(uint32_t classID) : INHERITED(classID), fDrawArrays(1) {}
+GrVertexBatch::GrVertexBatch(uint32_t classID) : INHERITED(classID) {}
 
 void GrVertexBatch::onPrepare(GrBatchFlushState* state) {
     Target target(state, this);
@@ -65,7 +65,7 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state) {
 
     // Iterate of all the drawArrays. Before issuing the draws in each array, perform any inline
     // uploads.
-    for (SkTLList<DrawArray>::Iter da(fDrawArrays); da.get(); da.next()) {
+    for (DrawArrayList::Iter da(fDrawArrays); da.get(); da.next()) {
         state->advanceLastFlushedToken();
         while (currUpload < uploadCnt &&
                fInlineUploads[currUpload]->lastUploadToken() <= state->lastFlushedToken()) {

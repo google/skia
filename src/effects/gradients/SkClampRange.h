@@ -12,8 +12,8 @@
 #include "SkScalar.h"
 
 #define SkGradFixed             SkFixed3232
-#define SkScalarToGradFixed     SkScalarToFixed3232
-#define SkFixedToGradFixed      SkFixedToFixed3232
+#define SkScalarToGradFixed(x)  SkScalarToFixed3232(x)
+#define SkFixedToGradFixed(x)   SkFixedToFixed3232(x)
 #define SkGradFixedToFixed(x)   (SkFixed)((x) >> 16)
 #define kFracMax_SkGradFixed    0xFFFFFFFFLL
 

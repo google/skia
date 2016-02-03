@@ -22,10 +22,16 @@ class GrGLGpu;
 
 class GrGLPath : public GrPath {
 public:
-    static void InitPathObject(GrGLGpu*,
-                               GrGLuint pathID,
-                               const SkPath&,
-                               const GrStrokeInfo&);
+    static bool InitPathObjectPathDataCheckingDegenerates(GrGLGpu*,
+                                                          GrGLuint pathID,
+                                                          const SkPath&);
+    static void InitPathObjectPathData(GrGLGpu*,
+                                       GrGLuint pathID,
+                                       const SkPath&);
+    static void InitPathObjectStroke(GrGLGpu* gpu, GrGLuint pathID, const GrStrokeInfo& stroke);
+
+    static void InitPathObjectEmptyPath(GrGLGpu*, GrGLuint pathID);
+
 
     GrGLPath(GrGLGpu* gpu, const SkPath& path, const GrStrokeInfo& stroke);
     GrGLuint pathID() const { return fPathID; }

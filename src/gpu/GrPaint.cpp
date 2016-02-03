@@ -50,7 +50,14 @@ bool GrPaint::isConstantBlendedColor(GrColor* color) const {
                                         kRGBA_GrColorComponentFlags, false);
 
     GrXPFactory::InvariantBlendedColor blendedColor;
-    fXPFactory->getInvariantBlendedColor(colorProcInfo, &blendedColor);
+    if (fXPFactory) {
+        fXPFactory->getInvariantBlendedColor(colorProcInfo, &blendedColor);
+    } else {
+        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(colorProcInfo.color(),
+                                                            colorProcInfo.validFlags(),
+                                                            colorProcInfo.isOpaque(),
+                                                            &blendedColor); 
+    }
 
     if (kRGBA_GrColorComponentFlags == blendedColor.fKnownColorFlags) {
         *color = blendedColor.fKnownColor;

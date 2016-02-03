@@ -15,6 +15,7 @@
 #include <new>
 
 class GrTextureParams;
+class SkImageCacherator;
 
 enum {
     kNeedNewImageUniqueID = 0
@@ -29,16 +30,14 @@ public:
 
     // Default impl calls onDraw
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                              int srcX, int srcY) const;
+                              int srcX, int srcY, CachingHint) const;
 
     virtual GrTexture* peekTexture() const { return nullptr; }
+    virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*) const = 0;
-
-    virtual SkImage* onApplyFilter(SkImageFilter*, SkIPoint* offset,
-                                   bool forceResultToOriginalSize) const;
+    virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
     virtual SkSurface* onNewSurface(const SkImageInfo& info) const {
         return SkSurface::NewRaster(info);
@@ -49,11 +48,18 @@ public:
 
     virtual SkImage* onNewSubset(const SkIRect&) const = 0;
 
-    virtual SkData* onRefEncoded() const { return nullptr; }
+    // If a ctx is specified, then only gpu-specific formats are requested.
+    virtual SkData* onRefEncoded(GrContext*) const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
 
     virtual bool onIsLazyGenerated() const { return false; }
+
+    // Return a bitmap suitable for passing to image-filters
+    // For now, that means wrapping textures into SkGrPixelRefs...
+    virtual bool asBitmapForImageFilters(SkBitmap* bitmap) const {
+        return this->getROPixels(bitmap, kAllow_CachingHint);
+    }
 
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.

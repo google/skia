@@ -126,7 +126,7 @@ private:
 
 static inline float SkFastInvSqrt(float x) {
     float xhalf = 0.5f*x;
-    int i = *SkTCast<int*>(&x);
+    uint32_t i = *SkTCast<uint32_t*>(&x);
     i = 0x5f3759df - (i>>1);
     x = *SkTCast<float*>(&i);
     x = x*(1.5f-xhalf*x*x);

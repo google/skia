@@ -22,6 +22,7 @@ class SkString;
     using either reset() - to construct an identity matrix, or one of the set
     functions (e.g. setTranslate, setRotate, etc.).
 */
+SK_BEGIN_REQUIRE_DENSE
 class SK_API SkMatrix {
 public:
     static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
@@ -29,13 +30,13 @@ public:
         m.setScale(sx, sy);
         return m;
     }
-    
+
     static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
         SkMatrix m;
         m.setScale(scale, scale);
         return m;
     }
-    
+
     static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
         SkMatrix m;
         m.setTranslate(dx, dy);
@@ -634,15 +635,17 @@ public:
 
     /**
      * Calculates the minimum scaling factor of the matrix as computed from the SVD of the upper
-     * left 2x2. If the matrix has perspective -1 is returned.
+     * left 2x2. If the max scale factor cannot be computed (for example overflow or perspective)
+     * -1 is returned.
      *
-     * @return minumum scale factor
+     * @return minimum scale factor
      */
     SkScalar getMinScale() const;
 
     /**
      * Calculates the maximum scaling factor of the matrix as computed from the SVD of the upper
-     * left 2x2. If the matrix has perspective -1 is returned.
+     * left 2x2. If the max scale factor cannot be computed (for example overflow or perspective)
+     * -1 is returned.
      *
      * @return maximum scale factor
      */
@@ -650,10 +653,10 @@ public:
 
     /**
      * Gets both the min and max scale factors. The min scale factor is scaleFactors[0] and the max
-     * is scaleFactors[1]. If the matrix has perspective false will be returned and scaleFactors
-     * will be unchanged.
+     * is scaleFactors[1]. If the min/max scale factors cannot be computed false is returned and the
+     * values of scaleFactors[] are undefined.
      */
-    bool getMinMaxScales(SkScalar scaleFactors[2]) const;
+    bool SK_WARN_UNUSED_RESULT getMinMaxScales(SkScalar scaleFactors[2]) const;
 
     /**
      *  Attempt to decompose this matrix into a scale-only component and whatever remains, where
@@ -826,5 +829,6 @@ private:
 
     friend class SkPerspIter;
 };
+SK_END_REQUIRE_DENSE
 
 #endif

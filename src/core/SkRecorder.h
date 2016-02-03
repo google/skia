@@ -54,7 +54,7 @@ public:
     void forgetRecord();
 
     void willSave() override;
-    SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SkCanvas::SaveFlags) override;
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override {}
     void didRestore() override;
 
@@ -106,7 +106,6 @@ public:
                          const SkPaint*) override;
     void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
                           const SkPaint*) override;
-    void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                         const SkPoint vertices[], const SkPoint texs[],
                         const SkColor colors[], SkXfermode* xmode,

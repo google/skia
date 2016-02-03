@@ -14,7 +14,7 @@
 #include "SkXfermodeImageFilter.h"
 
 #define WIDTH 600
-#define HEIGHT 600
+#define HEIGHT 700
 #define MARGIN 12
 
 namespace skiagm {
@@ -168,6 +168,28 @@ protected:
                 x = 0;
                 y += fBitmap.height() + MARGIN;
             }
+        }
+        // Test small bg, large fg with Screen (uses shader blend)
+        mode.reset(SkXfermode::Create(SkXfermode::kScreen_Mode));
+        SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(10, 10, 60, 60));
+        SkAutoTUnref<SkImageFilter> cropped(
+            SkOffsetImageFilter::Create(0, 0, foreground, &cropRect));
+        filter.reset(SkXfermodeImageFilter::Create(mode, cropped, background));
+        paint.setImageFilter(filter);
+        DrawClippedPaint(canvas, clipRect, paint, x, y);
+        x += fBitmap.width() + MARGIN;
+        if (x + fBitmap.width() > WIDTH) {
+            x = 0;
+            y += fBitmap.height() + MARGIN;
+        }
+        // Test small fg, large bg with Screen (uses shader blend)
+        filter.reset(SkXfermodeImageFilter::Create(mode, background, cropped));
+        paint.setImageFilter(filter);
+        DrawClippedPaint(canvas, clipRect, paint, x, y);
+        x += fBitmap.width() + MARGIN;
+        if (x + fBitmap.width() > WIDTH) {
+            x = 0;
+            y += fBitmap.height() + MARGIN;
         }
     }
 

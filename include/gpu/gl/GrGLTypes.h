@@ -57,6 +57,18 @@ typedef signed long int GrGLsizeiptr;
 typedef signed long int GrGLintptr;
 typedef signed long int GrGLsizeiptr;
 #endif
+typedef void* GrGLeglImage;
+/**
+ * EGL types.
+ */
+
+typedef void* GrEGLImage;
+typedef void* GrEGLDisplay;
+typedef void* GrEGLContext;
+typedef void* GrEGLClientBuffer;
+typedef unsigned int GrEGLenum;
+typedef int32_t GrEGLint;
+typedef unsigned int GrEGLBoolean;
 
 ///////////////////////////////////////////////////////////////////////////////
 /**

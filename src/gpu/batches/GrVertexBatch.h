@@ -65,7 +65,7 @@ private:
     void onPrepare(GrBatchFlushState* state) final;
     void onDraw(GrBatchFlushState* state) final;
 
-    virtual void onPrepareDraws(Target*) = 0;
+    virtual void onPrepareDraws(Target*) const = 0;
 
     // A set of contiguous draws with no inline uploads between them that all use the same
     // primitive processor. All the draws in a DrawArray share a primitive processor and use the
@@ -77,7 +77,8 @@ private:
 
     // Array of DrawArray. There may be inline uploads between each DrawArray and each DrawArray
     // may use a different primitive processor.
-    SkTLList<DrawArray> fDrawArrays;
+    typedef SkTLList<DrawArray, 4> DrawArrayList;
+    DrawArrayList fDrawArrays;
 
     typedef GrDrawBatch INHERITED;
 };

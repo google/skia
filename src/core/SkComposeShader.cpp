@@ -137,10 +137,6 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
     SkXfermode*        mode = static_cast<const SkComposeShader&>(fShader).fMode;
     unsigned           scale = SkAlpha255To256(this->getPaintAlpha());
 
-#ifdef SK_BUILD_FOR_ANDROID
-    scale = 256;    // ugh -- maintain old bug/behavior for now
-#endif
-
     SkPMColor   tmp[TMP_COLOR_COUNT];
 
     if (nullptr == mode) {   // implied SRC_OVER

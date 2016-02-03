@@ -8,6 +8,7 @@
 #ifndef GrCircleBlurFragmentProcessor_DEFINED
 #define GrCircleBlurFragmentProcessor_DEFINED
 
+#include "SkString.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
@@ -24,6 +25,14 @@ public:
     ~GrCircleBlurFragmentProcessor() override {};
 
     const char* name() const override { return "CircleBlur"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], Sigma %.2f, Offset: %.2f",
+                    fCircle.fLeft, fCircle.fTop, fCircle.fRight, fCircle.fBottom,
+                    fSigma, fOffset);
+        return str;
+    }
 
     static const GrFragmentProcessor* Create(GrTextureProvider*textureProvider,
                                              const SkRect& circle, float sigma) {

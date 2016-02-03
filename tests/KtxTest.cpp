@@ -53,14 +53,21 @@ DEF_TEST(KtxReadWrite, reporter) {
     REPORTER_ASSERT(reporter, !(bm8888.empty()));
 
     SkAutoDataUnref encodedData(SkImageEncoder::EncodeData(bm8888, SkImageEncoder::kKTX_Type, 0));
-    REPORTER_ASSERT(reporter, encodedData);
+    if (nullptr == encodedData.get()) {
+        ERRORF(reporter, "failed to encode the bitmap to KTX");
+        return;
+    }
+
 
     SkAutoTDelete<SkMemoryStream> stream(new SkMemoryStream(encodedData));
     REPORTER_ASSERT(reporter, stream);
 
     SkBitmap decodedBitmap;
     bool imageDecodeSuccess = SkImageDecoder::DecodeStream(stream, &decodedBitmap);
-    REPORTER_ASSERT(reporter, imageDecodeSuccess);
+    if (!imageDecodeSuccess) {
+        ERRORF(reporter, "failed to decode the KTX stream");
+        return;
+    }
 
     REPORTER_ASSERT(reporter, decodedBitmap.colorType() == bm8888.colorType());
     REPORTER_ASSERT(reporter, decodedBitmap.alphaType() == bm8888.alphaType());
@@ -112,7 +119,10 @@ DEF_TEST(KtxReadUnpremul, reporter) {
 
     SkBitmap decodedBitmap;
     bool imageDecodeSuccess = SkImageDecoder::DecodeStream(stream, &decodedBitmap);
-    REPORTER_ASSERT(reporter, imageDecodeSuccess);
+    if (!imageDecodeSuccess) {
+        ERRORF(reporter, "failed to decode the KTX stream");
+        return;
+    }
 
     REPORTER_ASSERT(reporter, decodedBitmap.colorType() == kN32_SkColorType);
     REPORTER_ASSERT(reporter, decodedBitmap.alphaType() == kPremul_SkAlphaType);
@@ -151,7 +161,10 @@ DEF_TEST(KtxReexportPKM, reporter) {
 
     bool installDiscardablePixelRefSuccess =
         SkDEPRECATED_InstallDiscardablePixelRef(fileData, &etcBitmap);
-    REPORTER_ASSERT(reporter, installDiscardablePixelRefSuccess);
+    if (!installDiscardablePixelRefSuccess) {
+        ERRORF(reporter, "failed to create discardable pixelRef from KTX file");
+        return;
+    }
 
     // Write the bitmap out to a KTX file.
     SkData *ktxDataPtr = SkImageEncoder::EncodeData(etcBitmap, SkImageEncoder::kKTX_Type, 0);

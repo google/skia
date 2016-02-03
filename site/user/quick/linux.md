@@ -81,6 +81,8 @@ Notes
     <!--?prettify lang=sh?-->
 
         GYP_DEFINES='skia_arch_type=x86' python bin/sync-and-gyp
+2.  By default, many Linux systems use gcc by default.  To use clang you will
+need to [set the CC and CXX environment variables](/user/tips#gypdefines).
 
 Generate build files
 --------------------

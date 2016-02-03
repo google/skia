@@ -20,11 +20,7 @@
  */
 class SkBmpCodec : public SkCodec {
 public:
-
-    /*
-     * Checks the start of the stream to see if the image is a bmp
-     */
-    static bool IsBmp(SkStream*);
+    static bool IsBmp(const void*, size_t);
 
     /*
      * Assumes IsBmp was called and returned true
@@ -79,11 +75,6 @@ protected:
      *               sampling.
      */
     int32_t getDstRow(int32_t y, int32_t height) const;
-
-    /*
-     * Compute the number of colors in the color table
-     */
-    uint32_t computeNumColors(uint32_t numColors);
 
     /*
      * Accessors used by subclasses

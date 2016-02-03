@@ -14,6 +14,7 @@
 #include "GrGLTexture.h"
 #include "GrGLProgramDataManager.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 #include "SkString.h"
 #include "SkXfermode.h"
@@ -35,7 +36,7 @@ class GrPipeline;
  */
 class GrGLProgram : public SkRefCnt {
 public:
-    typedef GrGLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
+    typedef GrGLSLProgramBuilder::BuiltinUniformHandles BuiltinUniformHandles;
 
     ~GrGLProgram();
 
@@ -99,17 +100,17 @@ public:
 protected:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
-    typedef GrGLProgramDataManager::SeparableVaryingInfoArray SeparableVaryingInfoArray;
+    typedef GrGLProgramDataManager::VaryingInfoArray VaryingInfoArray;
 
     GrGLProgram(GrGLGpu*,
                 const GrProgramDesc&,
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray&,
-                const SeparableVaryingInfoArray&,
-                GrGLInstalledGeoProc* geometryProcessor,
-                GrGLInstalledXferProc* xferProcessor,
-                GrGLInstalledFragProcs* fragmentProcessors,
+                const VaryingInfoArray&, // used for NVPR only currently
+                GrGLSLPrimitiveProcessor* geometryProcessor,
+                GrGLSLXferProcessor* xferProcessor,
+                const GrGLSLFragProcs& fragmentProcessors,
                 SkTArray<UniformHandle>* passSamplerUniforms);
 
     // A templated helper to loop over effects, set the transforms(via subclass) and bind textures
@@ -117,8 +118,7 @@ protected:
                          SkTArray<const GrTextureAccess*>* textureBindings);
     void setTransformData(const GrPrimitiveProcessor&,
                           const GrFragmentProcessor&,
-                          int index,
-                          GrGLInstalledFragProc*);
+                          int index);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
@@ -129,9 +129,9 @@ protected:
     GrGLuint fProgramID;
 
     // the installed effects
-    SkAutoTDelete<GrGLInstalledGeoProc> fGeometryProcessor;
-    SkAutoTDelete<GrGLInstalledXferProc> fXferProcessor;
-    SkAutoTUnref<GrGLInstalledFragProcs> fFragmentProcessors;
+    SkAutoTDelete<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    SkAutoTDelete<GrGLSLXferProcessor> fXferProcessor;
+    GrGLSLFragProcs fFragmentProcessors;
 
     GrProgramDesc fDesc;
     GrGLGpu* fGpu;

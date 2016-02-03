@@ -23,8 +23,6 @@ public:
 
 protected:
 
-    SkEncodedFormat onGetEncodedFormat() const override { return fCodec->getEncodedFormat(); };
-
     SkISize onGetSampledDimensions(int sampleSize) const override;
 
     bool onGetSupportedSubset(SkIRect* desiredSubset) const override { return true; }
@@ -56,8 +54,6 @@ private:
      */
     SkCodec::Result sampledDecode(const SkImageInfo& info, void* pixels, size_t rowBytes,
             const AndroidOptions& options);
-
-    SkAutoTDelete<SkCodec> fCodec;
 
     typedef SkAndroidCodec INHERITED;
 };

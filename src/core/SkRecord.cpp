@@ -6,6 +6,7 @@
  */
 
 #include "SkRecord.h"
+#include <algorithm>
 
 SkRecord::~SkRecord() {
     Destroyer destroyer;
@@ -29,4 +30,13 @@ size_t SkRecord::bytesUsed() const {
         bytes += fReserved * sizeof(Record);
     }
     return bytes;
+}
+
+void SkRecord::defrag() {
+    // Remove all the NoOps, preserving the order of other ops, e.g.
+    //      Save, ClipRect, NoOp, DrawRect, NoOp, NoOp, Restore
+    //  ->  Save, ClipRect, DrawRect, Restore
+    Record* noops = std::remove_if(fRecords.get(), fRecords.get() + fCount,
+                                   [](Record op) { return op.type() == SkRecords::NoOp_Type; });
+    fCount = noops - fRecords.get();
 }

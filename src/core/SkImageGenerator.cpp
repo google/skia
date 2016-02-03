@@ -111,9 +111,33 @@ GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkIRect* subs
     return this->onGenerateTexture(ctx, subset);
 }
 
+bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
+    if (scale > 0 && scale <= 1) {
+        return this->onComputeScaledDimensions(scale, sizes);
+    }
+    return false;
+}
+
+bool SkImageGenerator::generateScaledPixels(const SkISize& scaledSize,
+                                            const SkIPoint& subsetOrigin,
+                                            const SkPixmap& subsetPixels) {
+    if (scaledSize.width() <= 0 || scaledSize.height() <= 0) {
+        return false;
+    }
+    if (subsetPixels.width() <= 0 || subsetPixels.height() <= 0) {
+        return false;
+    }
+    const SkIRect subset = SkIRect::MakeXYWH(subsetOrigin.x(), subsetOrigin.y(),
+                                             subsetPixels.width(), subsetPixels.height());
+    if (!SkIRect::MakeWH(scaledSize.width(), scaledSize.height()).contains(subset)) {
+        return false;
+    }
+    return this->onGenerateScaledPixels(scaledSize, subsetOrigin, subsetPixels);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-SkData* SkImageGenerator::onRefEncodedData() {
+SkData* SkImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
     return nullptr;
 }
 

@@ -25,7 +25,6 @@
 #include "SkPathPriv.h"
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 
 static const int DEFAULT_BUFFER_SIZE = 100;
 
@@ -54,7 +53,7 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * args.fStroke->getWidth();
         return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth && !args.fStroke->isDashed() &&
-                SkPathPriv::LastVerbIsClose(*args.fPath) &&
+                SkPathPriv::IsClosedSingleContour(*args.fPath) &&
                 args.fStroke->getJoin() != SkPaint::Join::kRound_Join;
     }
     return args.fStroke->getStyle() == SkStrokeRec::kFill_Style;
@@ -135,33 +134,34 @@ public:
 
     const char* name() const override { return "AAConvexBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setUnknownSingleComponent();
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setUnknownSingleComponent();
+        overrides->fUsePLSDstRead = false;
     }
 
 private:
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
         fBatch.fLinesOnly = SkPath::kLine_SegmentMask == fGeoData[0].fPath.getSegmentMasks();
-        fBatch.fCanTweakAlphaForCoverage = opt.canTweakAlphaForCoverage();
+        fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
     }
 
     void draw(GrVertexBatch::Target* target, const GrPipeline* pipeline, int vertexCount,
-            size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) {
+              size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
@@ -189,7 +189,7 @@ private:
         target->draw(info);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
@@ -219,7 +219,7 @@ private:
         uint8_t* vertices = (uint8_t*) sk_malloc_throw(maxVertices * vertexStride);
         uint16_t* indices = (uint16_t*) sk_malloc_throw(maxIndices * sizeof(uint16_t));
         for (int i = 0; i < instanceCount; i++) {
-            Geometry& args = fGeoData[i];
+            const Geometry& args = fGeoData[i];
             GrAAConvexTessellator tess(args.fStrokeWidth, args.fJoin, args.fMiterLimit);
 
             if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
@@ -231,8 +231,8 @@ private:
             if (indexCount + currentIndices > UINT16_MAX) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
-                     indices);
+                this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices,
+                           indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -251,8 +251,8 @@ private:
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
-        draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
-             indices);
+        this->draw(target, this->pipeline(), vertexCount, vertexStride, vertices, indexCount,
+                   indices);
         sk_free(vertices);
         sk_free(indices);
     }
@@ -264,6 +264,15 @@ private:
 
         // compute bounds
         fBounds = geometry.fPath.getBounds();
+        SkScalar w = geometry.fStrokeWidth;
+        if (w > 0) {
+            w /= 2;
+            // If the miter limit is < 1 then we effectively fallback to bevel joins.
+            if (SkPaint::kMiter_Join == geometry.fJoin && w > 1.f) {
+                w *= geometry.fMiterLimit;
+            }
+            fBounds.outset(w, w);
+        }
         geometry.fViewMatrix.mapRect(&fBounds);
     }
 
@@ -313,6 +322,8 @@ private:
 };
 
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fTarget->getAuditTrail(),
+                              "GrAALinearizingConvexPathRenderer::onDrawPath");
     if (args.fPath->isEmpty()) {
         return true;
     }

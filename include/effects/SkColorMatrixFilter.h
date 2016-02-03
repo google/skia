@@ -13,12 +13,20 @@
 
 class SK_API SkColorMatrixFilter : public SkColorFilter {
 public:
-    static SkColorMatrixFilter* Create(const SkColorMatrix& cm) {
+    static SkColorFilter* Create(const SkColorMatrix& cm) {
         return new SkColorMatrixFilter(cm);
     }
-    static SkColorMatrixFilter* Create(const SkScalar array[20]) {
+    static SkColorFilter* Create(const SkScalar array[20]) {
         return new SkColorMatrixFilter(array);
     }
+
+    /**
+     *  Create a colorfilter that multiplies the RGB channels by one color, and
+     *  then adds a second color, pinning the result for each component to
+     *  [0..255]. The alpha components of the mul and add arguments
+     *  are ignored.
+     */
+    static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
     uint32_t getFlags() const override;
@@ -28,11 +36,6 @@ public:
 #if SK_SUPPORT_GPU
     const GrFragmentProcessor* asFragmentProcessor(GrContext*) const override;
 #endif
-
-    struct State {
-        int32_t fArray[20];
-        int     fShift;
-    };
 
     SK_TO_STRING_OVERRIDE()
 
@@ -46,13 +49,7 @@ protected:
 private:
     SkColorMatrix   fMatrix;
     float           fTranspose[SkColorMatrix::kCount]; // for Sk4s
-
-    typedef void (*Proc)(const State&, unsigned r, unsigned g, unsigned b,
-                         unsigned a, int32_t result[4]);
-
-    Proc        fProc;
-    State       fState;
-    uint32_t    fFlags;
+    uint32_t        fFlags;
 
     void initState(const SkScalar array[20]);
 

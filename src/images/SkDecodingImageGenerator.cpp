@@ -37,7 +37,7 @@ public:
                            bool ditherImage);
 
 protected:
-    SkData* onRefEncodedData() override;
+    SkData* onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) override;
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                      SkPMColor ctable[], int* ctableCount) override;
     bool onGetYUV8Planes(SkISize sizes[3], void* planes[3], size_t rowBytes[3],
@@ -126,7 +126,7 @@ DecodingImageGenerator::~DecodingImageGenerator() {
     SkSafeUnref(fData);
 }
 
-SkData* DecodingImageGenerator::onRefEncodedData() {
+SkData* DecodingImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
     // This functionality is used in `gm --serialize`
     // Does not encode options.
     if (nullptr == fData) {

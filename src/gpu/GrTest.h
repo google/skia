@@ -21,21 +21,23 @@ namespace GrTest {
     void SetupAlwaysEvictAtlas(GrContext*);
 };
 
-/** Allows a test to temporarily draw to a GrDrawTarget owned by a GrContext. Tests that use this
+/** TODO Please do not use this if you can avoid it.  We are in the process of deleting it.
+    Allows a test to temporarily draw to a GrDrawTarget owned by a GrContext. Tests that use this
     should be careful not to mix using the GrDrawTarget directly and drawing via SkCanvas or
     GrContext. In the future this object may provide some guards to prevent this. */
 class GrTestTarget {
 public:
     GrTestTarget() {};
 
-    void init(GrContext*, GrDrawTarget*);
+    void init(GrContext*, GrDrawTarget*, GrRenderTarget*);
 
     GrDrawTarget* target() { return fDrawTarget.get(); }
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:
-    SkAutoTUnref<GrDrawTarget>              fDrawTarget;
     SkAutoTUnref<GrContext>                 fContext;
+    SkAutoTUnref<GrDrawTarget>              fDrawTarget;
+    SkAutoTUnref<GrRenderTarget>            fRenderTarget;
 };
 
 #endif

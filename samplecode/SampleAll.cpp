@@ -12,7 +12,7 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkBlurMaskFilter.h"
-#include "SkColorFilter.h"
+#include "SkColorMatrixFilter.h"
 #include "SkColorPriv.h"
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
@@ -382,10 +382,10 @@ protected:
         light.fAmbient        = 0x48;
         light.fSpecular        = 0x80;
         SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(12)/5);
-        SkEmbossMaskFilter* embossFilter = SkEmbossMaskFilter::Create(sigma, light);
+        SkMaskFilter* embossFilter = SkEmbossMaskFilter::Create(sigma, light);
 
         SkXfermode* xfermode = SkXfermode::Create(SkXfermode::kXor_Mode);
-        SkColorFilter* lightingFilter = SkColorFilter::CreateLightingFilter(
+        SkColorFilter* lightingFilter = SkColorMatrixFilter::CreateLightingFilter(
             0xff89bc45, 0xff112233);
 
         canvas->save();
@@ -551,7 +551,7 @@ protected:
 
 #if 01
             int index = i % SK_ARRAY_COUNT(gLightingColors);
-            paint.setColorFilter(SkColorFilter::CreateLightingFilter(
+            paint.setColorFilter(SkColorMatrixFilter::CreateLightingFilter(
                                     gLightingColors[index].fMul,
                                     gLightingColors[index].fAdd))->unref();
 #endif

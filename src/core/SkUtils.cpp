@@ -74,11 +74,11 @@ SkUnichar SkUTF8_ToUnichar(const char utf8[]) {
 
     if (hic < 0) {
         uint32_t mask = (uint32_t)~0x3F;
-        hic <<= 1;
+        hic = SkLeftShift(hic, 1);
         do {
             c = (c << 6) | (*++p & 0x3F);
             mask <<= 5;
-        } while ((hic <<= 1) < 0);
+        } while ((hic = SkLeftShift(hic, 1)) < 0);
         c &= ~mask;
     }
     return c;
@@ -95,11 +95,11 @@ SkUnichar SkUTF8_NextUnichar(const char** ptr) {
 
     if (hic < 0) {
         uint32_t mask = (uint32_t)~0x3F;
-        hic <<= 1;
+        hic = SkLeftShift(hic, 1);
         do {
             c = (c << 6) | (*++p & 0x3F);
             mask <<= 5;
-        } while ((hic <<= 1) < 0);
+        } while ((hic = SkLeftShift(hic, 1)) < 0);
         c &= ~mask;
     }
     *ptr = (char*)p + 1;

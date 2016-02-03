@@ -15,13 +15,21 @@ GrDrawBatch::~GrDrawBatch() {
     }
 }
 
+void GrDrawBatch::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
+    GrInitInvariantOutput color;
+    GrInitInvariantOutput coverage;
+    this->computePipelineOptimizations(&color, &coverage, &opt->fOverrides);
+    opt->fColorPOI.initUsingInvariantOutput(color);
+    opt->fCoveragePOI.initUsingInvariantOutput(coverage);
+}
+
 bool GrDrawBatch::installPipeline(const GrPipeline::CreateArgs& args) {
-    GrPipelineOptimizations opts;
+    GrXPOverridesForBatch overrides;
     void* location = fPipelineStorage.get();
-    if (!GrPipeline::CreateAt(location, args, &opts)) {
+    if (!GrPipeline::CreateAt(location, args, &overrides)) {
         return false;
     }
-    this->initBatchTracker(opts);
+    this->initBatchTracker(overrides);
     fPipelineInstalled = true;
     return true;
 }

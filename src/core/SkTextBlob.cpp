@@ -21,6 +21,7 @@ public:
         , fScaleX(paint.getTextScaleX())
         , fTypeface(SkSafeRef(paint.getTypeface()))
         , fSkewX(paint.getTextSkewX())
+        , fAlign(paint.getTextAlign())
         , fHinting(paint.getHinting())
         , fFlags(paint.getFlags() & kFlagsMask) { }
 
@@ -30,6 +31,7 @@ public:
         paint->setTextSize(fSize);
         paint->setTextScaleX(fScaleX);
         paint->setTextSkewX(fSkewX);
+        paint->setTextAlign(static_cast<SkPaint::Align>(fAlign));
         paint->setHinting(static_cast<SkPaint::Hinting>(fHinting));
 
         paint->setFlags((paint->getFlags() & ~kFlagsMask) | fFlags);
@@ -40,6 +42,7 @@ public:
             && fSize == other.fSize
             && fScaleX == other.fScaleX
             && fSkewX == other.fSkewX
+            && fAlign == other.fAlign
             && fHinting == other.fHinting
             && fFlags == other.fFlags;
     }
@@ -73,6 +76,8 @@ private:
     SkAutoTUnref<SkTypeface> fTypeface;
     SkScalar                 fSkewX;
 
+    static_assert(SkPaint::kAlignCount < 4, "insufficient_align_bits");
+    uint32_t                 fAlign : 2;
     static_assert(SkPaint::kFull_Hinting < 4, "insufficient_hinting_bits");
     uint32_t                 fHinting : 2;
     static_assert((kFlagsMask & 0xffff) == kFlagsMask, "insufficient_flags_bits");

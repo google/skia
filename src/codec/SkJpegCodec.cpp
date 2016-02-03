@@ -23,11 +23,9 @@ extern "C" {
     #include "jpeglib.h"
 }
 
-bool SkJpegCodec::IsJpeg(SkStream* stream) {
+bool SkJpegCodec::IsJpeg(const void* buffer, size_t bytesRead) {
     static const uint8_t jpegSig[] = { 0xFF, 0xD8, 0xFF };
-    char buffer[sizeof(jpegSig)];
-    return stream->read(buffer, sizeof(jpegSig)) == sizeof(jpegSig) &&
-            !memcmp(buffer, jpegSig, sizeof(jpegSig));
+    return bytesRead >= 3 && !memcmp(buffer, jpegSig, sizeof(jpegSig));
 }
 
 bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
@@ -352,12 +350,12 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
 
     fSwizzler.reset(SkSwizzler::CreateSwizzler(srcConfig, nullptr, dstInfo, options));
     fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
-    fSrcRow = static_cast<uint8_t*>(fStorage.get());
+    fSrcRow = fStorage.get();
 }
 
 SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
     if (!createIfNecessary || fSwizzler) {
-        SkASSERT(!fSwizzler || (fSrcRow && static_cast<uint8_t*>(fStorage.get()) == fSrcRow));
+        SkASSERT(!fSwizzler || (fSrcRow && fStorage.get() == fSrcRow));
         return fSwizzler;
     }
 
@@ -435,8 +433,8 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
 #ifndef TURBO_HAS_SKIP
 // TODO (msarett): Avoid reallocating the memory buffer on each call to skip.
 static uint32_t jpeg_skip_scanlines(jpeg_decompress_struct* dinfo, int count) {
-    SkAutoMalloc storage(get_row_bytes(dinfo));
-    uint8_t* storagePtr = static_cast<uint8_t*>(storage.get());
+    SkAutoTMalloc<uint8_t> storage(get_row_bytes(dinfo));
+    uint8_t* storagePtr = storage.get();
     for (int y = 0; y < count; y++) {
         if (1 != jpeg_read_scanlines(dinfo, &storagePtr, 1)) {
             return y;

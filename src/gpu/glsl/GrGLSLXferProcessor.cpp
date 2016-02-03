@@ -9,8 +9,8 @@
 
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     if (!args.fXP.willReadDstColor()) {
@@ -18,64 +18,57 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         return;
     }
 
-    GrGLSLXPFragmentBuilder* fsBuilder = args.fPB->getFragmentShaderBuilder();
-    const char* dstColor = fsBuilder->dstColor();
+    GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+    const char* dstColor = fragBuilder->dstColor();
 
     if (args.fXP.getDstTexture()) {
         bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstTexture()->origin();
 
-        if (args.fXP.readsCoverage()) {
+        if (args.fInputCoverage) {
             // We don't think any shaders actually output negative coverage, but just as a safety
             // check for floating point precision errors we compare with <= here
-            fsBuilder->codeAppendf("if (all(lessThanEqual(%s, vec4(0)))) {"
-                                   "    discard;"
-                                   "}", args.fInputCoverage);
+            fragBuilder->codeAppendf("if (all(lessThanEqual(%s, vec4(0)))) {"
+                                     "    discard;"
+                                     "}", args.fInputCoverage);
         }
 
         const char* dstTopLeftName;
         const char* dstCoordScaleName;
 
-        fDstTopLeftUni = args.fPB->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                              kVec2f_GrSLType,
-                                              kDefault_GrSLPrecision,
-                                              "DstTextureUpperLeft",
-                                              &dstTopLeftName);
-        fDstScaleUni = args.fPB->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kVec2f_GrSLType,
-                                            kDefault_GrSLPrecision,
-                                            "DstTextureCoordScale",
-                                            &dstCoordScaleName);
-        const char* fragPos = fsBuilder->fragmentPosition();
+        fDstTopLeftUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kVec2f_GrSLType,
+                                                    kDefault_GrSLPrecision,
+                                                    "DstTextureUpperLeft",
+                                                    &dstTopLeftName);
+        fDstScaleUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                  kVec2f_GrSLType,
+                                                  kDefault_GrSLPrecision,
+                                                  "DstTextureCoordScale",
+                                                  &dstCoordScaleName);
+        const char* fragPos = fragBuilder->fragmentPosition();
 
-        fsBuilder->codeAppend("// Read color from copy of the destination.\n");
-        fsBuilder->codeAppendf("vec2 _dstTexCoord = (%s.xy - %s) * %s;",
-                               fragPos, dstTopLeftName, dstCoordScaleName);
+        fragBuilder->codeAppend("// Read color from copy of the destination.\n");
+        fragBuilder->codeAppendf("vec2 _dstTexCoord = (%s.xy - %s) * %s;",
+                                 fragPos, dstTopLeftName, dstCoordScaleName);
 
         if (!topDown) {
-            fsBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
+            fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
         }
 
-        fsBuilder->codeAppendf("vec4 %s = ", dstColor);
-        fsBuilder->appendTextureLookup(args.fSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
-        fsBuilder->codeAppend(";");
+        fragBuilder->codeAppendf("vec4 %s = ", dstColor);
+        fragBuilder->appendTextureLookup(args.fSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
+        fragBuilder->codeAppend(";");
     }
 
-    this->emitBlendCodeForDstRead(args.fPB, args.fInputColor, dstColor, args.fOutputPrimary,
+    this->emitBlendCodeForDstRead(fragBuilder,
+                                  uniformHandler,
+                                  args.fInputColor,
+                                  args.fInputCoverage,
+                                  dstColor,
+                                  args.fOutputPrimary,
+                                  args.fOutputSecondary,
                                   args.fXP);
-
-    // Apply coverage.
-    if (args.fXP.dstReadUsesMixedSamples()) {
-        if (args.fXP.readsCoverage()) {
-            fsBuilder->codeAppendf("%s *= %s;", args.fOutputPrimary, args.fInputCoverage);
-            fsBuilder->codeAppendf("%s = %s;", args.fOutputSecondary, args.fInputCoverage);
-        } else {
-            fsBuilder->codeAppendf("%s = vec4(1.0);", args.fOutputSecondary);
-        }
-    } else if (args.fXP.readsCoverage()) {
-        fsBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
-                               args.fOutputPrimary, args.fInputCoverage,
-                               args.fOutputPrimary, args.fInputCoverage, dstColor);
-    }
 }
 
 void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {

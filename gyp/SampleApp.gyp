@@ -17,7 +17,6 @@
         '../src/lazy',
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
-        '../src/pipe/utils', # For TiledPipeController
         '../src/utils/debugger',
         '../tools',
         '../experimental',
@@ -38,7 +37,7 @@
         '../samplecode/SampleAARects.cpp',
         '../samplecode/SampleAARectModes.cpp',
         '../samplecode/SampleAll.cpp',
-	'../samplecode/SampleAnimatedText.cpp',
+        '../samplecode/SampleAnimatedText.cpp',
         '../samplecode/SampleAnimator.cpp',
         '../samplecode/SampleAnimBlur.cpp',
         '../samplecode/SampleApp.cpp',
@@ -58,7 +57,6 @@
         '../samplecode/SampleColorFilter.cpp',
         '../samplecode/SampleComplexClip.cpp',
         '../samplecode/SampleConcavePaths.cpp',
-        '../samplecode/SampleCull.cpp',
         '../samplecode/SampleDegenerateTwoPtRadials.cpp',
         '../samplecode/SampleDither.cpp',
         '../samplecode/SampleDitherBitmap.cpp',
@@ -135,10 +133,6 @@
         # PerlinNoise2
         '../experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.cpp',
         '../experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.h',
-
-        # TiledPipeController
-        '../src/pipe/utils/SamplePipeControllers.h',
-        '../src/pipe/utils/SamplePipeControllers.cpp',
 
         # Lua
         '../src/utils/SkLuaCanvas.cpp',
@@ -260,9 +254,9 @@
           'sources!': [
             '../samplecode/SampleLighting.cpp',  #doesn't compile due to gpu dependencies
           ],
- 	  'include_dirs' : [
-	    '../include/gpu',
-	  ],
+          'include_dirs' : [
+            '../include/gpu',
+          ],
         }],
         [ 'skia_gpu == 1', {
           'dependencies': [

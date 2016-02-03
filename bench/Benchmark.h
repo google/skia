@@ -124,6 +124,8 @@ public:
         this->perCanvasPostDraw(canvas);
     }
 
+    virtual void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) {}
+
 protected:
     virtual void setupPaint(SkPaint* paint);
 

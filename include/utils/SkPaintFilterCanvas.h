@@ -9,10 +9,11 @@
 #define SkPaintFilterCanvas_DEFINED
 
 #include "SkNWayCanvas.h"
+#include "SkTLazy.h"
 
 /** \class SkPaintFilterCanvas
 
-    A utility proxy base class for implementing paint filters.
+    A utility proxy base class for implementing draw/paint filters.
 */
 class SK_API SkPaintFilterCanvas : public SkNWayCanvas {
 public:
@@ -48,13 +49,16 @@ public:
 protected:
     /**
      *  Called with the paint that will be used to draw the specified type.
-     *  The implementation may modify the paint as they wish.
+     *  The implementation may modify the paint as they wish (using SkTCopyOnFirstWrite::writable).
      *
-     *  Note: The base implementation calls onFilterPaint() for top-level/explicit paints only.
+     *  The result bool is used to determine whether the draw op is to be
+     *  executed (true) or skipped (false).
+     *
+     *  Note: The base implementation calls onFilter() for top-level/explicit paints only.
      *        To also filter encapsulated paints (e.g. SkPicture, SkTextBlob), clients may need to
      *        override the relevant methods (i.e. drawPicture, drawTextBlob).
      */
-    virtual void onFilterPaint(SkPaint* paint, Type type) const = 0;
+    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const = 0;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
@@ -66,12 +70,13 @@ protected:
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
                           SrcRectConstraint) override;
+    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
+                          const SkPaint*) override;
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                          const SkPaint*, SrcRectConstraint) override;
-    void onDrawBitmapNine(const SkBitmap&, const SkIRect& center, const SkRect& dst,
-                          const SkPaint*) override;
-    void onDrawSprite(const SkBitmap&, int left, int top, const SkPaint*) override;
+    void onDrawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
+                         const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,

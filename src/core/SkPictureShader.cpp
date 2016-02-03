@@ -290,11 +290,6 @@ void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor ds
     fBitmapShaderContext->shadeSpan(x, y, dstC, count);
 }
 
-void SkPictureShader::PictureShaderContext::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
-    SkASSERT(fBitmapShaderContext);
-    fBitmapShaderContext->shadeSpan16(x, y, dstC, count);
-}
-
 #ifndef SK_IGNORE_TO_STRING
 void SkPictureShader::toString(SkString* str) const {
     static const char* gTileModeName[SkShader::kTileModeCount] = {

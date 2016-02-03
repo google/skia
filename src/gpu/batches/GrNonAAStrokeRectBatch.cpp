@@ -54,13 +54,13 @@ public:
 
     const char* name() const override { return "GrStrokeRectBatch"; }
 
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        out->setKnownFourComponents(fGeoData[0].fColor);
-    }
-
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setKnownSingleComponent(0xff);
+        color->setKnownFourComponents(fGeoData[0].fColor);
+        coverage->setKnownSingleComponent(0xff);
+        overrides->fUsePLSDstRead = false;
     }
 
     void append(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
@@ -70,6 +70,9 @@ public:
         geometry.fRect = rect;
         geometry.fStrokeWidth = strokeWidth;
         geometry.fColor = color;
+
+        // Sort the rect for hairlines
+        geometry.fRect.sort();
     }
 
     void appendAndUpdateBounds(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
@@ -102,7 +105,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(Target* target) const override {
         SkAutoTUnref<const GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -121,7 +124,7 @@ private:
 
         SkASSERT(vertexStride == sizeof(GrDefaultGeoProcFactory::PositionAttr));
 
-        Geometry& args = fGeoData[0];
+        const Geometry& args = fGeoData[0];
 
         int vertexCount = kVertsPerHairlineRect;
         if (args.fStrokeWidth > 0) {
@@ -142,10 +145,8 @@ private:
         SkPoint* vertex = reinterpret_cast<SkPoint*>(verts);
 
         GrPrimitiveType primType;
-
         if (args.fStrokeWidth > 0) {;
             primType = kTriangleStrip_GrPrimitiveType;
-            args.fRect.sort();
             init_stroke_rect_strip(vertex, args.fRect, args.fStrokeWidth);
         } else {
             // hairline
@@ -162,18 +163,18 @@ private:
         target->draw(vertices);
     }
 
-    void initBatchTracker(const GrPipelineOptimizations& opt) override {
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
-        if (!opt.readsColor()) {
+        if (!overrides.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        opt.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !opt.readsColor();
+        fBatch.fColorIgnored = !overrides.readsColor();
         fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = opt.readsLocalCoords();
-        fBatch.fCoverageIgnored = !opt.readsCoverage();
+        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
+        fBatch.fCoverageIgnored = !overrides.readsCoverage();
     }
 
     NonAAStrokeRectBatch() : INHERITED(ClassID()) {}

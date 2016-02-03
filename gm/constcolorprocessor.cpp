@@ -13,10 +13,13 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrTest.h"
-#include "effects/GrConstColorProcessor.h"
+#include "GrDrawContext.h"
+#include "GrPipelineBuilder.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
+#include "batches/GrDrawBatch.h"
+#include "batches/GrRectBatchFactory.h"
+#include "effects/GrConstColorProcessor.h"
 
 namespace skiagm {
 /**
@@ -55,6 +58,11 @@ protected:
             return;
         }
 
+        SkAutoTUnref<GrDrawContext> drawContext(context->drawContext(rt));
+        if (!drawContext) {
+            return;
+        }
+
         static const GrColor kColors[] = {
             0xFFFFFFFF,
             0xFFFF00FF,
@@ -90,13 +98,6 @@ protected:
                     // rect to draw
                     SkRect renderRect = SkRect::MakeXYWH(0, 0, kRectSize, kRectSize);
 
-                    GrTestTarget tt;
-                    context->getTestTarget(&tt);
-                    if (nullptr == tt.target()) {
-                        SkDEBUGFAIL("Couldn't get Gr test target.");
-                        return;
-                    }
-
                     GrPaint grPaint;
                     SkPaint skPaint;
                     if (paintType >= SK_ARRAY_COUNT(kPaintColors)) {
@@ -114,10 +115,10 @@ protected:
                     GrPipelineBuilder pipelineBuilder(grPaint, rt, clip);
                     pipelineBuilder.addColorFragmentProcessor(fp);
 
-                    tt.target()->drawNonAARect(pipelineBuilder,
-                                               grPaint.getColor(),
-                                               viewMatrix,
-                                               renderRect);
+                    SkAutoTUnref<GrDrawBatch> batch(
+                            GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
+                                                                renderRect, nullptr, nullptr));
+                    drawContext->internal_drawBatch(pipelineBuilder, batch);
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

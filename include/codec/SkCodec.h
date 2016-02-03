@@ -17,6 +17,7 @@
 #include "SkTypes.h"
 
 class SkData;
+class SkPngChunkReader;
 class SkSampler;
 
 /**
@@ -25,21 +26,70 @@ class SkSampler;
 class SkCodec : SkNoncopyable {
 public:
     /**
+     *  Minimum number of bytes that must be buffered in SkStream input.
+     *
+     *  An SkStream passed to NewFromStream must be able to use this many
+     *  bytes to determine the image type. Then the same SkStream must be
+     *  passed to the correct decoder to read from the beginning.
+     *
+     *  This can be accomplished by implementing peek() to support peeking
+     *  this many bytes, or by implementing rewind() to be able to rewind()
+     *  after reading this many bytes.
+     */
+    static size_t MinBufferedBytesNeeded();
+
+    /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
+     *
+     *  As stated above, this call must be able to peek or read
+     *  MinBufferedBytesNeeded to determine the correct format, and then start
+     *  reading from the beginning. First it will attempt to peek, and it
+     *  assumes that if less than MinBufferedBytesNeeded bytes (but more than
+     *  zero) are returned, this is because the stream is shorter than this,
+     *  so falling back to reading would not provide more data. If peek()
+     *  returns zero bytes, this call will instead attempt to read(). This
+     *  will require that the stream can be rewind()ed.
+     *
+     *  If SkPngChunkReader is not NULL, take a ref and pass it to libpng if
+     *  the image is a png.
+     *
+     *  If the SkPngChunkReader is not NULL then:
+     *      If the image is not a PNG, the SkPngChunkReader will be ignored.
+     *      If the image is a PNG, the SkPngChunkReader will be reffed.
+     *      If the PNG has unknown chunks, the SkPngChunkReader will be used
+     *      to handle these chunks.  SkPngChunkReader will be called to read
+     *      any unknown chunk at any point during the creation of the codec
+     *      or the decode.  Note that if SkPngChunkReader fails to read a
+     *      chunk, this could result in a failure to create the codec or a
+     *      failure to decode the image.
+     *      If the PNG does not contain unknown chunks, the SkPngChunkReader
+     *      will not be used or modified.
      *
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
      *
+     *  If the SkPngChunkReader is not NULL then:
+     *      If the image is not a PNG, the SkPngChunkReader will be ignored.
+     *      If the image is a PNG, the SkPngChunkReader will be reffed.
+     *      If the PNG has unknown chunks, the SkPngChunkReader will be used
+     *      to handle these chunks.  SkPngChunkReader will be called to read
+     *      any unknown chunk at any point during the creation of the codec
+     *      or the decode.  Note that if SkPngChunkReader fails to read a
+     *      chunk, this could result in a failure to create the codec or a
+     *      failure to decode the image.
+     *      If the PNG does not contain unknown chunks, the SkPngChunkReader
+     *      will not be used or modified.
+     *
      *  Will take a ref if it returns a codec, else will not affect the data.
      */
-    static SkCodec* NewFromData(SkData*);
+    static SkCodec* NewFromData(SkData*, SkPngChunkReader* = NULL);
 
     virtual ~SkCodec();
 
@@ -228,18 +278,6 @@ public:
     Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
-     *  Some images may initially report that they have alpha due to the format
-     *  of the encoded data, but then never use any colors which have alpha
-     *  less than 100%. This function can be called *after* decoding to
-     *  determine if such an image truly had alpha. Calling it before decoding
-     *  is undefined.
-     *  FIXME: see skbug.com/3582.
-     */
-    bool reallyHasAlpha() const {
-        return this->onReallyHasAlpha();
-    }
-
-    /**
      * The remaining functions revolve around decoding scanlines.
      */
 
@@ -375,6 +413,8 @@ public:
     /**
      *  An enum representing the order in which scanlines will be returned by
      *  the scanline decoder.
+     *
+     *  This is undefined before startScanlineDecode() is called.
      */
     SkScanlineOrder getScanlineOrder() const { return this->onGetScanlineOrder(); }
 
@@ -390,9 +430,9 @@ public:
     int nextScanline() const { return this->outputScanline(fCurrScanline); }
 
     /**
-     * Returns the output y-coordinate of the row that corresponds to an input
-     * y-coordinate.  The input y-coordinate represents where the scanline
-     * is located in the encoded data.
+     *  Returns the output y-coordinate of the row that corresponds to an input
+     *  y-coordinate.  The input y-coordinate represents where the scanline
+     *  is located in the encoded data.
      *
      *  This will equal inputScanline, except in the case of strangely
      *  encoded image types (bottom-up bmps, interlaced gifs).
@@ -433,8 +473,6 @@ protected:
         // By default, subsets are not supported.
         return false;
     }
-
-    virtual bool onReallyHasAlpha() const { return false; }
 
     /**
      *  If the stream was previously read, attempt to rewind.
@@ -504,13 +542,21 @@ protected:
     virtual SkScanlineOrder onGetScanlineOrder() const { return kTopDown_SkScanlineOrder; }
 
     /**
-     *  Update the next scanline. Used by interlaced png.
+     *  Update the current scanline. Used by interlaced png.
      */
-    void updateNextScanline(int newY) { fCurrScanline = newY; }
+    void updateCurrScanline(int newY) { fCurrScanline = newY; }
 
     const SkImageInfo& dstInfo() const { return fDstInfo; }
 
     const SkCodec::Options& options() const { return fOptions; }
+
+    /**
+     *  Returns the number of scanlines that have been decoded so far.
+     *  This is unaffected by the SkScanlineOrder.
+     *
+     *  Returns -1 if we have not started a scanline decode.
+     */
+    int currScanline() const { return fCurrScanline; }
 
     virtual int onOutputScanline(int inputScanline) const;
 
@@ -585,5 +631,6 @@ private:
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
 
     friend class SkSampledCodec;
+    friend class SkIcoCodec;
 };
 #endif // SkCodec_DEFINED

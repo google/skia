@@ -18,34 +18,82 @@
 #define FILTER_HEIGHT   SkIntToScalar(30)
 #define MARGIN          SkIntToScalar(10)
 
-static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
-    return SkBlurImageFilter::Create(amount, amount, input);
+static SkColorFilter* cf_make_brightness(float brightness) {
+    SkScalar amount255 = SkScalarMul(brightness, SkIntToScalar(255));
+    SkScalar matrix[20] = {
+        1, 0, 0, 0, amount255,
+        0, 1, 0, 0, amount255,
+        0, 0, 1, 0, amount255,
+        0, 0, 0, 1, 0 };
+    return SkColorMatrixFilter::Create(matrix);
 }
 
-static SkImageFilter* make_brightness(float amount, SkImageFilter* input = nullptr) {
-    SkScalar amount255 = SkScalarMul(amount, SkIntToScalar(255));
-    SkScalar matrix[20] = { 1, 0, 0, 0, amount255,
-                            0, 1, 0, 0, amount255,
-                            0, 0, 1, 0, amount255,
-                            0, 0, 0, 1, 0 };
-    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
-    return SkColorFilterImageFilter::Create(filter, input);
-}
-
-static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
+static SkColorFilter* cf_make_grayscale() {
     SkScalar matrix[20];
     memset(matrix, 0, 20 * sizeof(SkScalar));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
+    return SkColorMatrixFilter::Create(matrix);
+}
+
+static SkColorFilter* cf_make_colorize(SkColor color) {
+    return SkColorFilter::CreateModeFilter(color, SkXfermode::kSrc_Mode);
+}
+
+static void sk_gm_get_colorfilters(SkTDArray<SkColorFilter*>* array) {
+    *array->append() = cf_make_brightness(0.5f);
+    *array->append() = cf_make_grayscale();
+    *array->append() = cf_make_colorize(SK_ColorBLUE);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkGradientShader.h"
+#include "SkImage.h"
+#include "Resources.h"
+
+static SkShader* sh_make_lineargradient0() {
+    const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
+    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
+}
+
+static SkShader* sh_make_lineargradient1() {
+    const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
+    const SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
+    return SkGradientShader::CreateLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
+}
+
+static SkShader* sh_make_image() {
+    SkAutoTUnref<SkImage> image(GetResourceAsImage("mandrill_128.png"));
+    return image->newShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+}
+
+static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
+    *array->append() = sh_make_lineargradient0();
+    *array->append() = sh_make_lineargradient1();
+    *array->append() = sh_make_image();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static SkImageFilter* make_blur(float amount, SkImageFilter* input = nullptr) {
+    return SkBlurImageFilter::Create(amount, amount, input);
+}
+
+static SkImageFilter* make_brightness(float amount, SkImageFilter* input = nullptr) {
+    SkAutoTUnref<SkColorFilter> filter(cf_make_brightness(amount));
+    return SkColorFilterImageFilter::Create(filter, input);
+}
+
+static SkImageFilter* make_grayscale(SkImageFilter* input = nullptr) {
+    SkAutoTUnref<SkColorFilter> filter(cf_make_grayscale());
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
 static SkImageFilter* make_mode_blue(SkImageFilter* input = nullptr) {
-    SkAutoTUnref<SkColorFilter> filter(
-        SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrc_Mode));
+    SkAutoTUnref<SkColorFilter> filter(cf_make_colorize(SK_ColorBLUE));
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
@@ -128,4 +176,38 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     p.setImageFilter(imf);
     canvas->saveLayer(NULL, &p);
     canvas->clear(SK_ColorRED);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T> class SkTRefArray : public SkTDArray<T> {
+public:
+    ~SkTRefArray() { this->unrefAll(); }
+};
+
+DEF_SIMPLE_GM(colorfiltershader, canvas, 800, 800) {
+    SkTRefArray<SkColorFilter*> filters;
+    sk_gm_get_colorfilters(&filters);
+
+    SkTRefArray<SkShader*> shaders;
+    sk_gm_get_shaders(&shaders);
+
+    SkPaint paint;
+    SkRect r = SkRect::MakeWH(120, 120);
+
+    canvas->translate(20, 20);
+    for (int y = 0; y < shaders.count(); ++y) {
+        SkShader* shader = shaders[y];
+        
+        canvas->save();
+        for (int x = -1; x < filters.count(); ++x) {
+            SkColorFilter* filter = x >= 0 ? filters[x] : nullptr;
+
+            paint.setShader(shader->newWithColorFilter(filter))->unref();
+            canvas->drawRect(r, paint);
+            canvas->translate(150, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, 150);
+    }
 }

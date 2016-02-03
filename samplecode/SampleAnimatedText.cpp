@@ -11,9 +11,6 @@
 #include "SkUtils.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
-#if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
-#endif
 #include "SkRandom.h"
 #include "SkSystemEventTypes.h"
 #include "SkTime.h"
@@ -21,7 +18,10 @@
 #include "SkXfermode.h"
 #include "Timer.h"
 
+#if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "SkGpuDevice.h"
+#endif
 
 SkRandom gRand;
 
@@ -106,8 +106,9 @@ protected:
         SkBaseDevice* device = canvas->getDevice_just_for_deprecated_compatibility_testing();
         GrContext* grContext = canvas->getGrContext();
         if (grContext) {
-            grContext->drawFontCache(SkRect::MakeXYWH(512, 10, 512, 512), kA8_GrMaskFormat, paint,
-                                     reinterpret_cast<SkGpuDevice*>(device)->accessRenderTarget());
+            GrTexture* tex = grContext->getFontAtlasTexture(GrMaskFormat::kA8_GrMaskFormat);
+            reinterpret_cast<SkGpuDevice*>(device)->drawTexture(tex,
+                                                       SkRect::MakeXYWH(512, 10, 512, 512), paint);
         }
 #endif
         canvas->translate(180, 180);

@@ -12,10 +12,11 @@
 #include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
 #include "SkRRect.h"
+#include "SkTLazy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 // The effects defined here only handle rrect radii >= kRadiusMin.
 static const SkScalar kRadiusMin = SK_ScalarHalf;
@@ -150,23 +151,34 @@ GLCircularRRectEffect::GLCircularRRectEffect(const GrProcessor& ) {
 
 void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     const CircularRRectEffect& crre = args.fFp.cast<CircularRRectEffect>();
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char *rectName;
     const char *radiusPlusHalfName;
     // The inner rect is the rrect bounds inset by the radius. Its left, top, right, and bottom
     // edges correspond to components x, y, z, and w, respectively. When a side of the rrect has
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
-    fInnerRectUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                  kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                  "innerRect",
-                                                  &rectName);
-    fRadiusPlusHalfUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                                       kFloat_GrSLType, kDefault_GrSLPrecision,
-                                                       "radiusPlusHalf",
-                                                       &radiusPlusHalfName);
+    fInnerRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                   "innerRect",
+                                                   &rectName);
+    // x is (r + .5) and y is 1/(r + .5)
+    fRadiusPlusHalfUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                        kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                        "radiusPlusHalf",
+                                                        &radiusPlusHalfName);
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const char* fragmentPos = fsBuilder->fragmentPosition();
+    // If we're on a device with a "real" mediump then the length calculation could overflow.
+    SkString clampedCircleDistance;
+    if (args.fGLSLCaps->floatPrecisionVaries()) {
+        clampedCircleDistance.printf("clamp(%s.x * (1.0 - length(dxy * %s.y)), 0.0, 1.0);",
+                                     radiusPlusHalfName, radiusPlusHalfName);
+    } else {
+        clampedCircleDistance.printf("clamp(%s.x - length(dxy), 0.0, 1.0);", radiusPlusHalfName);
+    }
+
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    const char* fragmentPos = fragBuilder->fragmentPosition();
     // At each quarter-circle corner we compute a vector that is the offset of the fragment position
     // from the circle center. The vector is pinned in x and y to be in the quarter-plane relevant
     // to that corner. This means that points near the interior near the rrect top edge will have
@@ -184,96 +196,95 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     // alphas together.
     switch (crre.getCircularCornerFlags()) {
         case CircularRRectEffect::kAll_CornerFlags:
-            fsBuilder->codeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
-            fsBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
-            fsBuilder->codeAppendf("\t\tfloat alpha = clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("vec2 dxy0 = %s.xy - %s.xy;", rectName, fragmentPos);
+            fragBuilder->codeAppendf("vec2 dxy1 = %s.xy - %s.zw;", fragmentPos, rectName);
+            fragBuilder->codeAppend("vec2 dxy = max(max(dxy0, dxy1), 0.0);");
+            fragBuilder->codeAppendf("float alpha = %s;", clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopLeft_CornerFlag:
-            fsBuilder->codeAppendf("\t\tvec2 dxy = max(%s.xy - %s.xy, 0.0);\n",
-                                   rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);\n",
-                                    rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);\n",
-                                    rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat alpha = bottomAlpha * rightAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("vec2 dxy = max(%s.xy - %s.xy, 0.0);",
+                                     rectName, fragmentPos);
+            fragBuilder->codeAppendf("float rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);",
+                                     rectName, fragmentPos);
+            fragBuilder->codeAppendf("float bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);",
+                                     rectName, fragmentPos);
+            fragBuilder->codeAppendf("float alpha = bottomAlpha * rightAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopRight_CornerFlag:
-            fsBuilder->codeAppendf("\t\tvec2 dxy = max(vec2(%s.x - %s.z, %s.y - %s.y), 0.0);\n",
-                                   fragmentPos, rectName, rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);\n",
-                                   fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);\n",
-                                    rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat alpha = bottomAlpha * leftAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("vec2 dxy = max(vec2(%s.x - %s.z, %s.y - %s.y), 0.0);",
+                                     fragmentPos, rectName, rectName, fragmentPos);
+            fragBuilder->codeAppendf("float leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);",
+                                     fragmentPos, rectName);
+            fragBuilder->codeAppendf("float bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);",
+                                     rectName, fragmentPos);
+            fragBuilder->codeAppendf("float alpha = bottomAlpha * leftAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomRight_CornerFlag:
-            fsBuilder->codeAppendf("\t\tvec2 dxy = max(%s.xy - %s.zw, 0.0);\n",
-                                   fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);\n",
-                                   fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);\n",
-                                   fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat alpha = topAlpha * leftAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("vec2 dxy = max(%s.xy - %s.zw, 0.0);",
+                                     fragmentPos, rectName);
+            fragBuilder->codeAppendf("float leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);",
+                                     fragmentPos, rectName);
+            fragBuilder->codeAppendf("float topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);",
+                                     fragmentPos, rectName);
+            fragBuilder->codeAppendf("float alpha = topAlpha * leftAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomLeft_CornerFlag:
-            fsBuilder->codeAppendf("\t\tvec2 dxy = max(vec2(%s.x - %s.x, %s.y - %s.w), 0.0);\n",
-                                   rectName, fragmentPos, fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);\n",
-                                    rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);\n",
-                                   fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat alpha = topAlpha * rightAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("vec2 dxy = max(vec2(%s.x - %s.x, %s.y - %s.w), 0.0);",
+                                     rectName, fragmentPos, fragmentPos, rectName);
+            fragBuilder->codeAppendf("float rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);",
+                                     rectName, fragmentPos);
+            fragBuilder->codeAppendf("float topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);",
+                                     fragmentPos, rectName);
+            fragBuilder->codeAppendf("float alpha = topAlpha * rightAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kLeft_CornerFlags:
-            fsBuilder->codeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat dy1 = %s.y - %s.w;\n", fragmentPos, rectName);
-            fsBuilder->codeAppend("\t\tvec2 dxy = max(vec2(dxy0.x, max(dxy0.y, dy1)), 0.0);\n");
-            fsBuilder->codeAppendf("\t\tfloat rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);\n",
-                                    rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat alpha = rightAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("vec2 dxy0 = %s.xy - %s.xy;", rectName, fragmentPos);
+            fragBuilder->codeAppendf("float dy1 = %s.y - %s.w;", fragmentPos, rectName);
+            fragBuilder->codeAppend("vec2 dxy = max(vec2(dxy0.x, max(dxy0.y, dy1)), 0.0);");
+            fragBuilder->codeAppendf("float rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);",
+                                     rectName, fragmentPos);
+            fragBuilder->codeAppendf("float alpha = rightAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTop_CornerFlags:
-            fsBuilder->codeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat dx1 = %s.x - %s.z;\n", fragmentPos, rectName);
-            fsBuilder->codeAppend("\t\tvec2 dxy = max(vec2(max(dxy0.x, dx1), dxy0.y), 0.0);\n");
-            fsBuilder->codeAppendf("\t\tfloat bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);\n",
-                                   rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tfloat alpha = bottomAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("vec2 dxy0 = %s.xy - %s.xy;", rectName, fragmentPos);
+            fragBuilder->codeAppendf("float dx1 = %s.x - %s.z;", fragmentPos, rectName);
+            fragBuilder->codeAppend("vec2 dxy = max(vec2(max(dxy0.x, dx1), dxy0.y), 0.0);");
+            fragBuilder->codeAppendf("float bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);",
+                                     rectName, fragmentPos);
+            fragBuilder->codeAppendf("float alpha = bottomAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kRight_CornerFlags:
-            fsBuilder->codeAppendf("\t\tfloat dy0 = %s.y - %s.y;\n", rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
-            fsBuilder->codeAppend("\t\tvec2 dxy = max(vec2(dxy1.x, max(dy0, dxy1.y)), 0.0);\n");
-            fsBuilder->codeAppendf("\t\tfloat leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);\n",
-                                   fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat alpha = leftAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("float dy0 = %s.y - %s.y;", rectName, fragmentPos);
+            fragBuilder->codeAppendf("vec2 dxy1 = %s.xy - %s.zw;", fragmentPos, rectName);
+            fragBuilder->codeAppend("vec2 dxy = max(vec2(dxy1.x, max(dy0, dxy1.y)), 0.0);");
+            fragBuilder->codeAppendf("float leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);",
+                                     fragmentPos, rectName);
+            fragBuilder->codeAppendf("float alpha = leftAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottom_CornerFlags:
-            fsBuilder->codeAppendf("\t\tfloat dx0 = %s.x - %s.x;\n", rectName, fragmentPos);
-            fsBuilder->codeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
-            fsBuilder->codeAppend("\t\tvec2 dxy = max(vec2(max(dx0, dxy1.x), dxy1.y), 0.0);\n");
-            fsBuilder->codeAppendf("\t\tfloat topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);\n",
-                                   fragmentPos, rectName);
-            fsBuilder->codeAppendf("\t\tfloat alpha = topAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
-                                   radiusPlusHalfName);
+            fragBuilder->codeAppendf("float dx0 = %s.x - %s.x;", rectName, fragmentPos);
+            fragBuilder->codeAppendf("vec2 dxy1 = %s.xy - %s.zw;", fragmentPos, rectName);
+            fragBuilder->codeAppend("vec2 dxy = max(vec2(max(dx0, dxy1.x), dxy1.y), 0.0);");
+            fragBuilder->codeAppendf("float topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);",
+                                     fragmentPos, rectName);
+            fragBuilder->codeAppendf("float alpha = topAlpha * %s;",
+                                     clampedCircleDistance.c_str());
             break;
     }
 
     if (kInverseFillAA_GrProcessorEdgeType == crre.getEdgeType()) {
-        fsBuilder->codeAppend("\t\talpha = 1.0 - alpha;\n");
+        fragBuilder->codeAppend("alpha = 1.0 - alpha;");
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
-                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
+    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
@@ -357,7 +368,8 @@ void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                 SkFAIL("Should have been one of the above cases.");
         }
         pdman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
-        pdman.set1f(fRadiusPlusHalfUniform, radius + 0.5f);
+        radius += 0.5f;
+        pdman.set2f(fRadiusPlusHalfUniform, radius, 1.f / radius);
         fPrevRRect = rrect;
     }
 }
@@ -486,7 +498,8 @@ protected:
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
     GrGLSLProgramDataManager::UniformHandle fInvRadiiSqdUniform;
-    SkRRect                               fPrevRRect;
+    GrGLSLProgramDataManager::UniformHandle fScaleUniform;
+    SkRRect                                 fPrevRRect;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
@@ -496,15 +509,16 @@ GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrProcessor& effect) {
 
 void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     const EllipticalRRectEffect& erre = args.fFp.cast<EllipticalRRectEffect>();
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char *rectName;
     // The inner rect is the rrect bounds inset by the x/y radii
-    fInnerRectUniform = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                            "innerRect",
-                                            &rectName);
+    fInnerRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                   "innerRect",
+                                                   &rectName);
 
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
-    const char* fragmentPos = fsBuilder->fragmentPosition();
+    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    const char* fragmentPos = fragBuilder->fragmentPosition();
     // At each quarter-ellipse corner we compute a vector that is the offset of the fragment pos
     // to the ellipse center. The vector is pinned in x and y to be in the quarter-plane relevant
     // to that corner. This means that points near the interior near the rrect top edge will have
@@ -517,56 +531,78 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // The code below is a simplified version of the above that performs maxs on the vector
     // components before computing distances and alpha values so that only one distance computation
     // need be computed to determine the min alpha.
-    fsBuilder->codeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
-    fsBuilder->codeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
+    fragBuilder->codeAppendf("vec2 dxy0 = %s.xy - %s.xy;", rectName, fragmentPos);
+    fragBuilder->codeAppendf("vec2 dxy1 = %s.xy - %s.zw;", fragmentPos, rectName);
+
+    // If we're on a device with a "real" mediump then we'll do the distance computation in a space
+    // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
+    // radii uniform values are already in this normalized space.
+    const char* scaleName = nullptr;
+    if (args.fGLSLCaps->floatPrecisionVaries()) {
+        fScaleUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                   "scale", &scaleName);
+    }
+
     // The uniforms with the inv squared radii are highp to prevent underflow.
     switch (erre.getRRect().getType()) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
-            fInvRadiiSqdUniform = args.fBuilder->addUniform(
-                                                         GrGLSLProgramBuilder::kFragment_Visibility,
-                                                         kVec2f_GrSLType, kHigh_GrSLPrecision,
+            fInvRadiiSqdUniform = uniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
+                                                         kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                          "invRadiiXY",
                                                          &invRadiiXYSqdName);
-            fsBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
+            fragBuilder->codeAppend("vec2 dxy = max(max(dxy0, dxy1), 0.0);");
+            if (scaleName) {
+                fragBuilder->codeAppendf("dxy *= %s.y;", scaleName);
+            }
             // Z is the x/y offsets divided by squared radii.
-            fsBuilder->codeAppendf("\t\tvec2 Z = dxy * %s;\n", invRadiiXYSqdName);
+            fragBuilder->codeAppendf("vec2 Z = dxy * %s.xy;", invRadiiXYSqdName);
             break;
         }
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
-            fInvRadiiSqdUniform = args.fBuilder->addUniform(
-                                                         GrGLSLProgramBuilder::kFragment_Visibility,
-                                                         kVec4f_GrSLType, kHigh_GrSLPrecision,
+            fInvRadiiSqdUniform = uniformHandler->addUniform(
+                                                         GrGLSLUniformHandler::kFragment_Visibility,
+                                                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                          "invRadiiLTRB",
                                                          &invRadiiLTRBSqdName);
-            fsBuilder->codeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
+            if (scaleName) {
+                fragBuilder->codeAppendf("dxy0 *= %s.y;", scaleName);
+                fragBuilder->codeAppendf("dxy1 *= %s.y;", scaleName);
+            }
+            fragBuilder->codeAppend("vec2 dxy = max(max(dxy0, dxy1), 0.0);");
             // Z is the x/y offsets divided by squared radii. We only care about the (at most) one
             // corner where both the x and y offsets are positive, hence the maxes. (The inverse
             // squared radii will always be positive.)
-            fsBuilder->codeAppendf("\t\tvec2 Z = max(max(dxy0 * %s.xy, dxy1 * %s.zw), 0.0);\n",
-                                   invRadiiLTRBSqdName, invRadiiLTRBSqdName);
+            fragBuilder->codeAppendf("vec2 Z = max(max(dxy0 * %s.xy, dxy1 * %s.zw), 0.0);",
+                                     invRadiiLTRBSqdName, invRadiiLTRBSqdName);
+
             break;
         }
         default:
             SkFAIL("RRect should always be simple or nine-patch.");
     }
     // implicit is the evaluation of (x/a)^2 + (y/b)^2 - 1.
-    fsBuilder->codeAppend("\t\tfloat implicit = dot(Z, dxy) - 1.0;\n");
+    fragBuilder->codeAppend("float implicit = dot(Z, dxy) - 1.0;");
     // grad_dot is the squared length of the gradient of the implicit.
-    fsBuilder->codeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
+    fragBuilder->codeAppend("float grad_dot = 4.0 * dot(Z, Z);");
     // avoid calling inversesqrt on zero.
-    fsBuilder->codeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-    fsBuilder->codeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
-
-    if (kFillAA_GrProcessorEdgeType == erre.getEdgeType()) {
-        fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
-    } else {
-        fsBuilder->codeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
+    fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
+    fragBuilder->codeAppend("float approx_dist = implicit * inversesqrt(grad_dot);");
+    if (scaleName) {
+        fragBuilder->codeAppendf("approx_dist *= %s.x;", scaleName);
     }
 
-    fsBuilder->codeAppendf("\t\t%s = %s;\n", args.fOutputColor,
-                           (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
+    if (kFillAA_GrProcessorEdgeType == erre.getEdgeType()) {
+        fragBuilder->codeAppend("float alpha = clamp(0.5 - approx_dist, 0.0, 1.0);");
+    } else {
+        fragBuilder->codeAppend("float alpha = clamp(0.5 + approx_dist, 0.0, 1.0);");
+    }
+
+    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor,
+                             (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
 void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,
@@ -580,6 +616,8 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                         const GrProcessor& effect) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
     const SkRRect& rrect = erre.getRRect();
+    // If we're using a scale factor to work around precision issues, choose the largest radius
+    // as the scale factor. The inv radii need to be pre-adjusted by the scale factor.
     if (rrect != fPrevRRect) {
         SkRect rect = rrect.getBounds();
         const SkVector& r0 = rrect.radii(SkRRect::kUpperLeft_Corner);
@@ -588,8 +626,18 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
         switch (erre.getRRect().getType()) {
             case SkRRect::kSimple_Type:
                 rect.inset(r0.fX, r0.fY);
-                pdman.set2f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
-                                                1.f / (r0.fY * r0.fY));
+                if (fScaleUniform.isValid()) {
+                    if (r0.fX > r0.fY) {
+                        pdman.set2f(fInvRadiiSqdUniform, 1.f, (r0.fX * r0.fX) / (r0.fY * r0.fY));
+                        pdman.set2f(fScaleUniform, r0.fX, 1.f / r0.fX);
+                    } else {
+                        pdman.set2f(fInvRadiiSqdUniform, (r0.fY * r0.fY) / (r0.fX * r0.fX), 1.f);
+                        pdman.set2f(fScaleUniform, r0.fY, 1.f / r0.fY);
+                    }
+                } else {
+                    pdman.set2f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
+                                                     1.f / (r0.fY * r0.fY));
+                }
                 break;
             case SkRRect::kNinePatch_Type: {
                 const SkVector& r1 = rrect.radii(SkRRect::kLowerRight_Corner);
@@ -599,10 +647,20 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                 rect.fTop += r0.fY;
                 rect.fRight -= r1.fX;
                 rect.fBottom -= r1.fY;
-                pdman.set4f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
-                                                1.f / (r0.fY * r0.fY),
-                                                1.f / (r1.fX * r1.fX),
-                                                1.f / (r1.fY * r1.fY));
+                if (fScaleUniform.isValid()) {
+                    float scale = SkTMax(SkTMax(r0.fX, r0.fY), SkTMax(r1.fX, r1.fY));
+                    float scaleSqd = scale * scale;
+                    pdman.set4f(fInvRadiiSqdUniform, scaleSqd / (r0.fX * r0.fX),
+                                                     scaleSqd / (r0.fY * r0.fY),
+                                                     scaleSqd / (r1.fX * r1.fX),
+                                                     scaleSqd / (r1.fY * r1.fY));
+                    pdman.set2f(fScaleUniform, scale, 1.f / scale);
+                } else {
+                    pdman.set4f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
+                                                     1.f / (r0.fY * r0.fY),
+                                                     1.f / (r1.fX * r1.fX),
+                                                     1.f / (r1.fY * r1.fY));
+                }
                 break;
             }
         default:

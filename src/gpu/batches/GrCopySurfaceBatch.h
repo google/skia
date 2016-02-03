@@ -26,6 +26,7 @@ public:
         GrRenderTarget* rt = fDst.get()->asRenderTarget();
         return rt ? rt->getUniqueID() : 0;
     }
+    GrRenderTarget* renderTarget() const override { return fDst.get()->asRenderTarget(); }
 
     SkString dumpInfo() const override {
         SkString string;

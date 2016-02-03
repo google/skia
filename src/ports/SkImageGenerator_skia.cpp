@@ -43,7 +43,7 @@ public:
     {}
 
 protected:
-    SkData* onRefEncodedData() override {
+    SkData* onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) override {
         return SkRef(fData.get());
     }
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,

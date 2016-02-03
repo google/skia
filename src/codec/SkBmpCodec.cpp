@@ -56,12 +56,10 @@ enum BmpInputFormat {
 /*
  * Checks the start of the stream to see if the image is a bitmap
  */
-bool SkBmpCodec::IsBmp(SkStream* stream) {
+bool SkBmpCodec::IsBmp(const void* buffer, size_t bytesRead) {
     // TODO: Support "IC", "PT", "CI", "CP", "BA"
     const char bmpSig[] = { 'B', 'M' };
-    char buffer[sizeof(bmpSig)];
-    return stream->read(buffer, sizeof(bmpSig)) == sizeof(bmpSig) &&
-            !memcmp(buffer, bmpSig, sizeof(bmpSig));
+    return bytesRead >= sizeof(bmpSig) && !memcmp(buffer, bmpSig, sizeof(bmpSig));
 }
 
 /*
@@ -481,6 +479,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         // Return the codec
         switch (inputFormat) {
             case kStandard_BmpInputFormat:
+                // We require streams to have a memory base for Bmp-in-Ico decodes.
+                SkASSERT(!inIco || nullptr != stream->getMemoryBase());
                 *codecOut = new SkBmpStandardCodec(imageInfo, stream, bitsPerPixel, numColors,
                         bytesPerColor, offset - bytesRead, rowOrder, inIco);
                 return true;
@@ -546,19 +546,6 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
     }
     SkASSERT(SkCodec::kBottomUp_SkScanlineOrder == fRowOrder);
     return height - y - 1;
-}
-
-/*
- * Compute the number of colors in the color table
- */
-uint32_t SkBmpCodec::computeNumColors(uint32_t numColors) {
-    // Zero is a default for maxColors
-    // Also set numColors to maxColors when it is too large
-    uint32_t maxColors = 1 << fBitsPerPixel;
-    if (numColors == 0 || numColors >= maxColors) {
-        return maxColors;
-    }
-    return numColors;
 }
 
 SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,

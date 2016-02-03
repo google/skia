@@ -21,7 +21,13 @@ class GrTexture;
  */
 class GrSingleTextureEffect : public GrFragmentProcessor {
 public:
-    virtual ~GrSingleTextureEffect();
+    ~GrSingleTextureEffect() override;
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Texture: %d", fTextureAccess.getTexture()->getUniqueID());
+        return str;
+    }
 
 protected:
     /** unfiltered, clamp mode */

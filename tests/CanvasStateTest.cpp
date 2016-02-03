@@ -322,8 +322,14 @@ DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     SkRect clipStackBounds;
     SkClipStack::BoundsType boundsType;
     canvas.getClipStack()->getBounds(&clipStackBounds, &boundsType);
-    REPORTER_ASSERT(reporter, clipStackBounds.width() == WIDTH);
-    REPORTER_ASSERT(reporter, clipStackBounds.height() == HEIGHT);
+    // The clip stack will return its bounds, or it may be "full" : i.e. empty + inside_out.
+    // Either result is consistent with this test, since the canvas' size is WIDTH/HEIGHT
+    if (SkClipStack::kInsideOut_BoundsType == boundsType) {
+        REPORTER_ASSERT(reporter, clipStackBounds.isEmpty());
+    } else {
+        REPORTER_ASSERT(reporter, clipStackBounds.width() == WIDTH);
+        REPORTER_ASSERT(reporter, clipStackBounds.height() == HEIGHT);
+    }
     canvas.restore();
 
     // Check that saveLayer with the kClipToLayer_SaveFlag sets the clip

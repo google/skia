@@ -67,29 +67,6 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     canvas->restore();
 }
 
-static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
-    SkPaint paint;
-
-    SkIRect bounds;
-    r.roundOut(&bounds);
-
-    SkBitmap bm;
-    bm.allocN32Pixels(bounds.width(), bounds.height());
-    bm.eraseColor(SK_ColorRED);
-    SkCanvas c(bm);
-
-    SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
-    paint.setColor(SK_ColorGREEN);
-    c.drawRect(SkRect::Make(cropRect), paint);
-
-    paint.setImageFilter(imf);
-    SkPoint loc = { r.fLeft, r.fTop };
-    canvas->getTotalMatrix().mapPoints(&loc, 1);
-    canvas->drawSprite(bm,
-                       SkScalarRoundToInt(loc.fX), SkScalarRoundToInt(loc.fY),
-                       &paint);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class DropShadowImageFilterGM : public skiagm::GM {
@@ -113,7 +90,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         void (*drawProc[])(SkCanvas*, const SkRect&, SkImageFilter*) = {
-            draw_sprite, draw_bitmap, draw_path, draw_paint, draw_text
+            draw_bitmap, draw_path, draw_paint, draw_text
         };
 
         SkAutoTUnref<SkColorFilter> cf(
@@ -169,5 +146,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new DropShadowImageFilterGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new DropShadowImageFilterGM; )

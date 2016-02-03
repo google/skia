@@ -24,10 +24,12 @@ protected:
     const char* onGetName() override;
     const char* onGetUniqueName() override;
     bool isSuitableFor(Backend backend) override;
+    SkIPoint onGetSize() override;
     void onDraw(int loops, SkCanvas* canvas) override;
 
 private:
     SkAutoTUnref<const SkPicture> fPic;
+    SkIRect fCullRect;
     SkString fName;
     SkString fUniqueName;
 

@@ -22,8 +22,8 @@
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #endif
 
 static const int kBlockSize = 256;
@@ -603,19 +603,6 @@ void SkPerlinNoiseShader2::PerlinNoiseShaderContext::shadeSpan(
     }
 }
 
-void SkPerlinNoiseShader2::PerlinNoiseShaderContext::shadeSpan16(
-        int x, int y, uint16_t result[], int count) {
-    SkPoint point = SkPoint::Make(SkIntToScalar(x), SkIntToScalar(y));
-    StitchData stitchData;
-    DITHER_565_SCAN(y);
-    for (int i = 0; i < count; ++i) {
-        unsigned dither = DITHER_VALUE(x);
-        result[i] = SkDitherRGB32To565(shade(point, stitchData), dither);
-        DITHER_INC_X(x);
-        point.fX += SK_Scalar1;
-    }
-}
-
 /////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
@@ -757,20 +744,21 @@ GrGLPerlinNoise2::GrGLPerlinNoise2(const GrProcessor& processor)
 }
 
 void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fBaseFrequencyUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                            "baseFrequency");
-    const char* baseFrequencyUni = args.fBuilder->getUniformCStr(fBaseFrequencyUni);
+    fBaseFrequencyUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                   "baseFrequency");
+    const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
     const char* stitchDataUni = nullptr;
     if (fStitchTiles) {
-        fStitchDataUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                             "stitchData");
-        stitchDataUni = args.fBuilder->getUniformCStr(fStitchDataUni);
+        fStitchDataUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                    "stitchData");
+        stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
     }
 
     // There are 4 lines, so the center of each line is 1/8, 3/8, 5/8 and 7/8
@@ -1170,23 +1158,24 @@ GrGLImprovedPerlinNoise::GrGLImprovedPerlinNoise(const GrProcessor& processor)
 }
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
-    GrGLSLFragmentBuilder* fsBuilder = args.fBuilder->getFragmentShaderBuilder();
+    GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;
+    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fsBuilder->ensureFSCoords2D(args.fCoords, 0);
 
-    fBaseFrequencyUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                            kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                            "baseFrequency");
-    const char* baseFrequencyUni = args.fBuilder->getUniformCStr(fBaseFrequencyUni);
+    fBaseFrequencyUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                                   "baseFrequency");
+    const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
-    fOctavesUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                      kFloat_GrSLType, kDefault_GrSLPrecision,
-                                      "octaves");
-    const char* octavesUni = args.fBuilder->getUniformCStr(fOctavesUni);
+    fOctavesUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                             kFloat_GrSLType, kDefault_GrSLPrecision,
+                                             "octaves");
+    const char* octavesUni = uniformHandler->getUniformCStr(fOctavesUni);
 
-    fZUni = args.fBuilder->addUniform(GrGLSLProgramBuilder::kFragment_Visibility,
-                                      kFloat_GrSLType, kDefault_GrSLPrecision,
-                                      "z");
-    const char* zUni = args.fBuilder->getUniformCStr(fZUni);
+    fZUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                       kFloat_GrSLType, kDefault_GrSLPrecision,
+                                       "z");
+    const char* zUni = uniformHandler->getUniformCStr(fZUni);
 
     // fade function
     static const GrGLSLShaderVar fadeArgs[] =  {

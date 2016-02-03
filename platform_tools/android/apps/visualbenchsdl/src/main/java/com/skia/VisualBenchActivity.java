@@ -13,10 +13,10 @@ import android.content.Intent;
 
 public class VisualBenchActivity extends SDLActivity {
   protected String[] getArguments() {
-    // intent get intent extras if triggered from the command line
-    Intent intent = this.getIntent();
-    String flags = intent.getStringExtra("cmdLineFlags");
-    
-    return flags.split("\\s+");
+    String flags = this.getIntent().getStringExtra("cmdLineFlags");
+    if (flags != null && !flags.isEmpty()) {
+	return flags.split("\\s+");
+    }
+    return new String[0];
   }
 }

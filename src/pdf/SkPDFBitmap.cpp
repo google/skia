@@ -380,7 +380,7 @@ static void emit_image_xobject(SkWStream* stream,
 
 namespace {
 // This SkPDFObject only outputs the alpha layer of the given bitmap.
-class PDFAlphaBitmap : public SkPDFObject {
+class PDFAlphaBitmap final : public SkPDFObject {
 public:
     PDFAlphaBitmap(const SkImage* image) : fImage(SkRef(image)) {}
     ~PDFAlphaBitmap() {}
@@ -399,7 +399,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-class PDFDefaultBitmap : public SkPDFObject {
+class PDFDefaultBitmap final : public SkPDFObject {
 public:
     void emitObject(SkWStream* stream,
                     const SkPDFObjNumMap& objNumMap,
@@ -431,7 +431,7 @@ namespace {
  *  Grayscale JFIF Jpeg-encoded data that can be directly embedded
  *  into a PDF.
  */
-class PDFJpegBitmap : public SkPDFObject {
+class PDFJpegBitmap final : public SkPDFObject {
 public:
     SkISize fSize;
     SkAutoTUnref<SkData> fData;
@@ -468,7 +468,8 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image) {
+SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image,
+                                     SkPixelSerializer* pixelSerializer) {
     SkAutoTUnref<SkData> data(image->refEncoded());
     SkJFIFInfo info;
     if (data && SkIsJFIF(data, &info)) {
@@ -481,6 +482,21 @@ SkPDFObject* SkPDFCreateBitmapObject(const SkImage* image) {
             return new PDFJpegBitmap(info.fSize, data, yuv);
         }
     }
+
+    if (pixelSerializer) {
+        SkBitmap bm;
+        SkAutoPixmapUnlock apu;
+        if (as_IB(image)->getROPixels(&bm) && bm.requestLock(&apu)) {
+            data.reset(pixelSerializer->encode(apu.pixmap()));
+            if (data && SkIsJFIF(data, &info)) {
+                bool yuv = info.fType == SkJFIFInfo::kYCbCr;
+                if (info.fSize == image->dimensions()) {  // Sanity check.
+                    return new PDFJpegBitmap(info.fSize, data, yuv);
+                }
+            }
+        }
+    }
+
     SkPDFObject* smask =
             image_compute_is_opaque(image) ? nullptr : new PDFAlphaBitmap(image);
     #ifdef SK_PDF_IMAGE_STATS

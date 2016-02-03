@@ -201,8 +201,8 @@ static bool webp_idecode(SkStream* stream, WebPDecoderConfig* config) {
     }
     const size_t readBufferSize = stream->hasLength() ?
             SkTMin(stream->getLength(), WEBP_IDECODE_BUFFER_SZ) : WEBP_IDECODE_BUFFER_SZ;
-    SkAutoMalloc srcStorage(readBufferSize);
-    unsigned char* input = (uint8_t*)srcStorage.get();
+    SkAutoTMalloc<unsigned char> srcStorage(readBufferSize);
+    unsigned char* input = srcStorage.get();
     if (nullptr == input) {
         WebPIDelete(idec);
         WebPFreeDecBuffer(&config->output);

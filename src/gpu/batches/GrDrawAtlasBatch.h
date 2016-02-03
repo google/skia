@@ -29,25 +29,25 @@ public:
     
     const char* name() const override { return "DrawAtlasBatch"; }
     
-    void getInvariantOutputColor(GrInitInvariantOutput* out) const override {
+    void computePipelineOptimizations(GrInitInvariantOutput* color, 
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         if (this->hasColors()) {
-            out->setUnknownFourComponents();
+            color->setUnknownFourComponents();
         } else {
-            out->setKnownFourComponents(fGeoData[0].fColor);
+            color->setKnownFourComponents(fGeoData[0].fColor);
         }
-    }
-    
-    void getInvariantOutputCoverage(GrInitInvariantOutput* out) const override {
-        out->setKnownSingleComponent(0xff);
+        coverage->setKnownSingleComponent(0xff);
+        overrides->fUsePLSDstRead = false;
     }
 
     SkSTArray<1, Geometry, true>* geoData() { return &fGeoData; }
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(Target*) const override;
 
-    void initBatchTracker(const GrPipelineOptimizations&) override;
+    void initBatchTracker(const GrXPOverridesForBatch&) override;
 
     GrDrawAtlasBatch(const Geometry& geometry, const SkMatrix& viewMatrix, int spriteCount,
                      const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);

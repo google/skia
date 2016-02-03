@@ -110,8 +110,14 @@
 #define GR_GL_ELEMENT_ARRAY_BUFFER           0x8893
 #define GR_GL_ARRAY_BUFFER_BINDING           0x8894
 #define GR_GL_ELEMENT_ARRAY_BUFFER_BINDING   0x8895
+#define GR_GL_PIXEL_PACK_BUFFER              0x88EB
+#define GR_GL_PIXEL_UNPACK_BUFFER            0x88EC
+
+#define GR_GL_PIXEL_UNPACK_TRANSFER_BUFFER_CHROMIUM 0x78EC 
+#define GR_GL_PIXEL_PACK_TRANSFER_BUFFER_CHROMIUM   0x78ED
 
 #define GR_GL_STREAM_DRAW                    0x88E0
+#define GR_GL_STREAM_READ                    0x88E1
 #define GR_GL_STATIC_DRAW                    0x88E4
 #define GR_GL_DYNAMIC_DRAW                   0x88E8
 
@@ -279,35 +285,35 @@
 #define GR_GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT         0x8E8E
 #define GR_GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT       0x8E8F
 
-#define GR_GL_COMPRESSED_RGBA_ASTC_4x4_KHR             0x93B0
-#define GR_GL_COMPRESSED_RGBA_ASTC_5x4_KHR             0x93B1
-#define GR_GL_COMPRESSED_RGBA_ASTC_5x5_KHR             0x93B2
-#define GR_GL_COMPRESSED_RGBA_ASTC_6x5_KHR             0x93B3
-#define GR_GL_COMPRESSED_RGBA_ASTC_6x6_KHR             0x93B4
-#define GR_GL_COMPRESSED_RGBA_ASTC_8x5_KHR             0x93B5
-#define GR_GL_COMPRESSED_RGBA_ASTC_8x6_KHR             0x93B6
-#define GR_GL_COMPRESSED_RGBA_ASTC_8x8_KHR             0x93B7
-#define GR_GL_COMPRESSED_RGBA_ASTC_10x5_KHR            0x93B8
-#define GR_GL_COMPRESSED_RGBA_ASTC_10x6_KHR            0x93B9
-#define GR_GL_COMPRESSED_RGBA_ASTC_10x8_KHR            0x93BA
-#define GR_GL_COMPRESSED_RGBA_ASTC_10x10_KHR           0x93BB
-#define GR_GL_COMPRESSED_RGBA_ASTC_12x10_KHR           0x93BC
-#define GR_GL_COMPRESSED_RGBA_ASTC_12x12_KHR           0x93BD
+#define GR_GL_COMPRESSED_RGBA_ASTC_4x4                 0x93B0
+#define GR_GL_COMPRESSED_RGBA_ASTC_5x4                 0x93B1
+#define GR_GL_COMPRESSED_RGBA_ASTC_5x5                 0x93B2
+#define GR_GL_COMPRESSED_RGBA_ASTC_6x5                 0x93B3
+#define GR_GL_COMPRESSED_RGBA_ASTC_6x6                 0x93B4
+#define GR_GL_COMPRESSED_RGBA_ASTC_8x5                 0x93B5
+#define GR_GL_COMPRESSED_RGBA_ASTC_8x6                 0x93B6
+#define GR_GL_COMPRESSED_RGBA_ASTC_8x8                 0x93B7
+#define GR_GL_COMPRESSED_RGBA_ASTC_10x5                0x93B8
+#define GR_GL_COMPRESSED_RGBA_ASTC_10x6                0x93B9
+#define GR_GL_COMPRESSED_RGBA_ASTC_10x8                0x93BA
+#define GR_GL_COMPRESSED_RGBA_ASTC_10x10               0x93BB
+#define GR_GL_COMPRESSED_RGBA_ASTC_12x10               0x93BC
+#define GR_GL_COMPRESSED_RGBA_ASTC_12x12               0x93BD
 
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR     0x93D0
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR     0x93D1
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR     0x93D2
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR     0x93D3
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR     0x93D4
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR     0x93D5
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR     0x93D6
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR     0x93D7
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR    0x93D8
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR    0x93D9
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR    0x93DA
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR   0x93DB
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR   0x93DC
-#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR   0x93DD
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4         0x93D0
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4         0x93D1
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5         0x93D2
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5         0x93D3
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6         0x93D4
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5         0x93D5
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6         0x93D6
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8         0x93D7
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5        0x93D8
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6        0x93D9
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8        0x93DA
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10       0x93DB
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10       0x93DC
+#define GR_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12       0x93DD
 
 /* HintMode */
 #define GR_GL_DONT_CARE                      0x1100
@@ -702,7 +708,8 @@
 #define GR_GL_T2F_C4F_N3F_V3F                    0x2A2C
 #define GR_GL_T4F_C4F_N3F_V4F                    0x2A2D
 
-/* Vertex Buffer Object */
+/* Buffer Object */
+#define GR_GL_READ_ONLY                          0x88B8
 #define GR_GL_WRITE_ONLY                         0x88B9
 #define GR_GL_BUFFER_MAPPED                      0x88BC
 
@@ -813,6 +820,7 @@
 #define GR_GL_STENCIL                        0x1802
 
 #define GR_GL_NONE                           0
+#define GR_GL_FRAMEBUFFER_DEFAULT            0x8218
 
 #define GR_GL_FRAMEBUFFER_COMPLETE                      0x8CD5
 #define GR_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT         0x8CD6
@@ -927,5 +935,22 @@
 #define GR_GL_QUERY                                         0x82E3
 #define GR_GL_PROGRAM_PIPELINE                              0x82E4
 #define GR_GL_SAMPLER                                       0x82E6
+
+/* GL_OES_EGL_image_external */
+#define GR_GL_TEXTURE_EXTERNAL                              0x8D65
+
+/* GL_ARB_texture_rectangle */
+#define GR_GL_TEXTURE_RECTANGLE                             0x84F5
+
+/* EGL Defines */
+#define GR_EGL_NO_DISPLAY                                   ((GrEGLDisplay)0)
+#define GR_EGL_EXTENSIONS                                   0x3055
+#define GR_EGL_GL_TEXTURE_2D                                0x30B1
+#define GR_EGL_GL_TEXTURE_LEVEL                             0x30BC
+#define GR_EGL_IMAGE_PRESERVED                              0x30D2
+#define GR_EGL_FALSE                                        0x0
+#define GR_EGL_TRUE                                         0x1
+#define GR_EGL_NONE                                         0x3038
+#define GR_EGL_NO_IMAGE                                    ((GrEGLImage)0)
 
 #endif

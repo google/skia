@@ -163,18 +163,17 @@ namespace SkRemote {
 
         void   willSave() override { fEncoder->   save(); }
         void didRestore() override { fEncoder->restore(); }
-        SaveLayerStrategy willSaveLayer(const SkRect* bounds,
-                                        const SkPaint* paint,
-                                        SaveFlags flags) override {
+        SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
             SkPath path;
-            if (bounds) {
-                path.addRect(*bounds);
+            if (rec.fBounds) {
+                path.addRect(*rec.fBounds);
             }
             const SkPaint defaultPaint;
+            const SkPaint* paint = rec.fPaint;
             if (!paint) {
                 paint = &defaultPaint;
             }
-            fEncoder->saveLayer(this->id(path), this->commonIDs(*paint), flags);
+            fEncoder->saveLayer(this->id(path), this->commonIDs(*paint), rec.fSaveLayerFlags);
             return kNoLayer_SaveLayerStrategy;
         }
 
@@ -500,11 +499,13 @@ namespace SkRemote {
 
         void    save() override { fCanvas->save(); }
         void restore() override { fCanvas->restore(); }
-        void saveLayer(ID bounds, CommonIDs common, SkCanvas::SaveFlags flags) override {
+        void saveLayer(ID bounds, CommonIDs common, SkCanvas::SaveLayerFlags flags) override {
             SkPaint paint;
             this->applyCommon(common, &paint);
             SkRect rect;
-            fCanvas->saveLayer(fPath.find(bounds).isRect(&rect) ? &rect : nullptr, &paint, flags);
+
+            fCanvas->saveLayer({ fPath.find(bounds).isRect(&rect) ? &rect : nullptr,
+                                 &paint, flags });
         }
 
         void setMatrix(ID matrix) override { fCanvas->setMatrix(fMatrix.find(matrix)); }
@@ -684,7 +685,7 @@ namespace SkRemote {
 
         void    save() override { fWrapped->   save(); }
         void restore() override { fWrapped->restore(); }
-        void saveLayer(ID bounds, CommonIDs common, SkCanvas::SaveFlags flags) override {
+        void saveLayer(ID bounds, CommonIDs common, SkCanvas::SaveLayerFlags flags) override {
             fWrapped->saveLayer(bounds, common, flags);
         }
 

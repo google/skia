@@ -450,8 +450,8 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
 
     // now edge is the head of the sorted linklist
 
-    start_y <<= shiftEdgesUp;
-    stop_y <<= shiftEdgesUp;
+    start_y = SkLeftShift(start_y, shiftEdgesUp);
+    stop_y = SkLeftShift(stop_y, shiftEdgesUp);
     if (clipRect && start_y < clipRect->fTop) {
         start_y = clipRect->fTop;
     }
@@ -559,6 +559,42 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
     return true;
 }
 
+/**
+  * Variant of SkScalarRoundToInt, identical to SkDScalarRoundToInt except when the input fraction
+  * is 0.5. In this case only, round the value down. This is used to round the top and left
+  * of a rectangle, and corresponds to the way the scan converter treats the top and left edges.
+  */
+static inline int round_down_to_int(SkScalar x) {
+    double xx = x;
+    xx += 0.5;
+    double floorXX = floor(xx);
+    return (int)floorXX - (xx == floorXX);
+}
+
+/**
+  *  Variant of SkRect::round() that explicitly performs the rounding step (i.e. floor(x + 0.5))
+  *  using double instead of SkScalar (float). It does this by calling SkDScalarRoundToInt(),
+  *  which may be slower than calling SkScalarRountToInt(), but gives slightly more accurate
+  *  results. Also rounds top and left using double, flooring when the fraction is exactly 0.5f.
+  *
+  *  e.g.
+  *      SkScalar left = 0.5f;
+  *      int ileft = SkScalarRoundToInt(left);
+  *      SkASSERT(0 == ileft);  // <--- fails
+  *      int ileft = round_down_to_int(left);
+  *      SkASSERT(0 == ileft);  // <--- succeeds
+  *      SkScalar right = 0.49999997f;
+  *      int iright = SkScalarRoundToInt(right);
+  *      SkASSERT(0 == iright);  // <--- fails
+  *      iright = SkDScalarRoundToInt(right);
+  *      SkASSERT(0 == iright);  // <--- succeeds
+  */
+static void round_asymmetric_to_int(const SkRect& src, SkIRect* dst) {
+    SkASSERT(dst);
+    dst->set(round_down_to_int(src.fLeft), round_down_to_int(src.fTop),
+             SkDScalarRoundToInt(src.fRight), SkDScalarRoundToInt(src.fBottom));
+}
+
 void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
                       SkBlitter* blitter) {
     if (origClip.isEmpty()) {
@@ -578,11 +614,11 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         // don't reference "origClip" any more, just use clipPtr
 
     SkIRect ir;
-    // We deliberately call dround() instead of round(), since we can't afford to generate a
-    // bounds that is tighter than the corresponding SkEdges. The edge code basically converts
-    // the floats to fixed, and then "rounds". If we called round() instead of dround() here,
-    // we could generate the wrong ir for values like 0.4999997.
-    path.getBounds().dround(&ir);
+    // We deliberately call round_asymmetric_to_int() instead of round(), since we can't afford
+    // to generate a bounds that is tighter than the corresponding SkEdges. The edge code basically
+    // converts the floats to fixed, and then "rounds". If we called round() instead of
+    // round_asymmetric_to_int() here, we could generate the wrong ir for values like 0.4999997.
+    round_asymmetric_to_int(path.getBounds(), &ir);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(*clipPtr);

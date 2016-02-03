@@ -8,7 +8,7 @@
 #include "SkPath.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
+#include "GrContext.h"
 #include "GrTest.h"
 #include "Test.h"
 #include "batches/GrTessellatingPathRenderer.h"
@@ -236,6 +236,8 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
                       const SkPath& path) {
     GrTessellatingPathRenderer tess;
     GrPipelineBuilder pipelineBuilder;
+    pipelineBuilder.setXPFactory(
+        GrPorterDuffXPFactory::Create(SkXfermode::kSrc_Mode))->unref();
     pipelineBuilder.setRenderTarget(rt);
     GrStrokeInfo stroke(SkStrokeRec::kFill_InitStyle);
     GrPathRenderer::DrawPathArgs args;
@@ -250,11 +252,7 @@ static void test_path(GrDrawTarget* dt, GrRenderTarget* rt, GrResourceProvider* 
     tess.drawPath(args);
 }
 
-DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
-    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    if (nullptr == context) {
-        return;
-    }
+DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, context) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 800;
@@ -263,8 +261,8 @@ DEF_GPUTEST(TessellatingPathRendererTests, reporter, factory) {
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     SkAutoTUnref<GrTexture> texture(context->textureProvider()->createApproxTexture(desc));
     GrTestTarget tt;
-    context->getTestTarget(&tt);
     GrRenderTarget* rt = texture->asRenderTarget();
+    context->getTestTarget(&tt, rt);
     GrDrawTarget* dt = tt.target();
     GrResourceProvider* rp = tt.resourceProvider();
 

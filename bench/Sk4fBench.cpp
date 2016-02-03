@@ -33,8 +33,8 @@ struct Sk4fBytesRoundtripBench : public Benchmark {
         for (int i = 0; i < loops; i++) {
             uint32_t color = lcg_rand(&seed),
                      back;
-            auto f = Sk4f::FromBytes((const uint8_t*)&color);
-            f.toBytes((uint8_t*)&back);
+            auto f = SkNx_cast<float>(Sk4b::Load((const uint8_t*)&color));
+            SkNx_cast<uint8_t>(f).store((uint8_t*)&back);
             junk ^= back;
         }
         blackhole ^= junk;
@@ -62,10 +62,7 @@ struct Sk4fGradientBench : public Benchmark {
                  c = b + dcdx,
                  d = c + dcdx;
             for (size_t i = 0; i < SK_ARRAY_COUNT(fDevice); i += 4) {
-                a.toBytes((uint8_t*)(fDevice+i+0));
-                b.toBytes((uint8_t*)(fDevice+i+1));
-                c.toBytes((uint8_t*)(fDevice+i+2));
-                d.toBytes((uint8_t*)(fDevice+i+3));
+                Sk4f_ToBytes((uint8_t*)(fDevice+i), a, b, c, d);
                 a = a + dcdx4;
                 b = b + dcdx4;
                 c = c + dcdx4;
