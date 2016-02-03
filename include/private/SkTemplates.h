@@ -164,9 +164,9 @@ private:
     SkDEBUGCODE(int fCount;)
 };
 
-/** Wraps SkAutoTArray, with room for kCountRequested elements preallocated.
+/** Wraps SkAutoTArray, with room for up to N elements preallocated
  */
-template <int kCountRequested, typename T> class SkAutoSTArray : SkNoncopyable {
+template <int N, typename T> class SkAutoSTArray : SkNoncopyable {
 public:
     /** Initialize with no objects */
     SkAutoSTArray() {
@@ -195,13 +195,13 @@ public:
         }
 
         if (fCount != count) {
-            if (fCount > kCount) {
+            if (fCount > N) {
                 // 'fArray' was allocated last time so free it now
                 SkASSERT((T*) fStorage != fArray);
                 sk_free(fArray);
             }
 
-            if (count > kCount) {
+            if (count > N) {
                 const uint64_t size64 = sk_64_mul(count, sizeof(T));
                 const size_t size = static_cast<size_t>(size64);
                 if (size != size64) {
@@ -240,21 +240,10 @@ public:
     }
 
 private:
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
-    // have multiple large stack allocations.
-    static const int kMaxBytes = 4 * 1024;
-    static const int kCount = kCountRequested * sizeof(T) > kMaxBytes
-        ? kMaxBytes / sizeof(T)
-        : kCountRequested;
-#else
-    static const int kCount = kCountRequested;
-#endif
-
     int     fCount;
     T*      fArray;
     // since we come right after fArray, fStorage should be properly aligned
-    char    fStorage[kCount * sizeof(T)];
+    char    fStorage[N * sizeof(T)];
 };
 
 /** Manages an array of T elements, freeing the array in the destructor.
@@ -328,12 +317,12 @@ private:
     T* fPtr;
 };
 
-template <size_t kCountRequested, typename T> class SkAutoSTMalloc : SkNoncopyable {
+template <size_t N, typename T> class SkAutoSTMalloc : SkNoncopyable {
 public:
     SkAutoSTMalloc() : fPtr(fTStorage) {}
 
     SkAutoSTMalloc(size_t count) {
-        if (count > kCount) {
+        if (count > N) {
             fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
         } else {
             fPtr = fTStorage;
@@ -351,7 +340,7 @@ public:
         if (fPtr != fTStorage) {
             sk_free(fPtr);
         }
-        if (count > kCount) {
+        if (count > N) {
             fPtr = (T*)sk_malloc_throw(count * sizeof(T));
         } else {
             fPtr = fTStorage;
@@ -379,10 +368,10 @@ public:
 
     // Reallocs the array, can be used to shrink the allocation.  Makes no attempt to be intelligent
     void realloc(size_t count) {
-        if (count > kCount) {
+        if (count > N) {
             if (fPtr == fTStorage) {
                 fPtr = (T*)sk_malloc_throw(count * sizeof(T));
-                memcpy(fPtr, fTStorage, kCount * sizeof(T));
+                memcpy(fPtr, fTStorage, N * sizeof(T));
             } else {
                 fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
             }
@@ -392,22 +381,9 @@ public:
     }
 
 private:
-    // Since we use uint32_t storage, we might be able to get more elements for free.
-    static const size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
-    // have multiple large stack allocations.
-    static const size_t kMaxBytes = 4 * 1024;
-    static const size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
-        ? kMaxBytes / sizeof(T)
-        : kCountWithPadding;
-#else
-    static const size_t kCount = kCountWithPadding;
-#endif
-
     T*          fPtr;
     union {
-        uint32_t    fStorage32[SkAlign4(kCount*sizeof(T)) >> 2];
+        uint32_t    fStorage32[(N*sizeof(T) + 3) >> 2];
         T           fTStorage[1];   // do NOT want to invoke T::T()
     };
 };
