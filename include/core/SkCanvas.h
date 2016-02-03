@@ -1379,11 +1379,10 @@ private:
     SkBaseDevice* init(SkBaseDevice*, InitFlags);
 
     /**
-     * Gets the size/origin of the top level layer in global canvas coordinates. We don't want this
+     * Gets the bounds of the top level layer in global canvas coordinates. We don't want this
      * to be public because it exposes decisions about layer sizes that are internal to the canvas.
      */
-    SkISize getTopLayerSize() const;
-    SkIPoint getTopLayerOrigin() const;
+    SkIRect getTopLayerBounds() const;
 
     void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                 const SkRect& dst, const SkPaint* paint,

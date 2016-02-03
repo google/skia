@@ -632,10 +632,7 @@ static int lcanvas_getClipStack(lua_State* L) {
 int SkLua::lcanvas_getReducedClipStack(lua_State* L) {
 #if SK_SUPPORT_GPU
     const SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
-    SkISize layerSize = canvas->getTopLayerSize();
-    SkIPoint layerOrigin = canvas->getTopLayerOrigin();
-    SkIRect queryBounds = SkIRect::MakeXYWH(layerOrigin.fX, layerOrigin.fY,
-                                            layerSize.fWidth, layerSize.fHeight);
+    SkIRect queryBounds = canvas->getTopLayerBounds();
 
     GrReducedClip::ElementList elements;
     GrReducedClip::InitialState initialState;

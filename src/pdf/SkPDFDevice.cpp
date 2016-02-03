@@ -1708,7 +1708,8 @@ bool SkPDFDevice::handlePathAnnotation(const SkPath& path,
     SkPath transformedPath = path;
     transformedPath.transform(*d.fMatrix);
     SkRasterClip clip = *d.fRC;
-    clip.op(transformedPath, SkISize::Make(width(), height()), SkRegion::kIntersect_Op, false);
+    clip.op(transformedPath, SkIRect::MakeWH(width(), height()), SkRegion::kIntersect_Op,
+            false);
     SkRect transformedRect = SkRect::Make(clip.getBounds());
 
     SkData* urlData = annotation->find(SkAnnotationKeys::URL_Key());
