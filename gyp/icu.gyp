@@ -120,7 +120,7 @@
           'skia_os == "mac"', {
             'sources': [ '<(icu_directory)/mac/icudtl_dat.S', ],
             'xcode_settings': {
-              'OTHER_CPLUSPLUSFLAGS': [ '-frtti' ],
+              'GCC_ENABLE_CPP_RTTI': 'YES',  # -frtti
               'WARNING_CFLAGS': [ '-w' ],
             },
           }
