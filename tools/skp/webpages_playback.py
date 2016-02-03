@@ -375,6 +375,7 @@ class SkPicturePlayback(object):
         print '\n\n=======Uploading to Partner bucket %s =======\n\n' % (
             PARTNERS_GS_BUCKET)
         partner_gs = GoogleStorageDataStore(PARTNERS_GS_BUCKET)
+        partner_gs.delete_path(SKPICTURES_DIR_NAME)
         partner_gs.upload_dir_contents(
             os.path.join(LOCAL_PLAYBACK_ROOT_DIR, SKPICTURES_DIR_NAME),
             dest_dir=SKPICTURES_DIR_NAME,
@@ -493,6 +494,8 @@ class GoogleStorageDataStore(DataStore):
     return 'Google Storage'
   def does_storage_object_exist(self, *args):
     return self.gs.does_storage_object_exist(self._bucket, *args)
+  def delete_path(self, path):
+    return self.gs.delete_file(self._bucket, path)
   def download_file(self, *args):
     self.gs.download_file(self._bucket, *args)
   def upload_dir_contents(self, source_dir, **kwargs):
@@ -507,6 +510,8 @@ class LocalFileSystemDataStore(DataStore):
     return self._base_dir
   def does_storage_object_exist(self, name, *args):
     return os.path.isfile(os.path.join(self._base_dir, name))
+  def delete_path(self, path):
+    shutil.rmtree(path)
   def download_file(self, name, local_path, *args):
     shutil.copyfile(os.path.join(self._base_dir, name), local_path)
   def upload_dir_contents(self, source_dir, dest_dir, **kwargs):
