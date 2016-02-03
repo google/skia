@@ -309,6 +309,19 @@ static void swizzle_grayalpha_to_n32_unpremul(
     }
 }
 
+static void fast_swizzle_grayalpha_to_n32_unpremul(
+        void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+
+    // This function must not be called if we are sampling.  If we are not
+    // sampling, deltaSrc should equal bpp.
+    SkASSERT(deltaSrc == bpp);
+
+    // Note that there is no need to distinguish between RGB and BGR.
+    // Each color channel will get the same value.
+    SkOpts::grayA_to_RGBA((uint32_t*) dst, src + offset, width);
+}
+
 static void swizzle_grayalpha_to_n32_premul(
         void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
         const SkPMColor ctable[]) {
@@ -320,6 +333,19 @@ static void swizzle_grayalpha_to_n32_premul(
         dst32[x] = SkPackARGB32NoCheck(src[1], pmgray, pmgray, pmgray);
         src += deltaSrc;
     }
+}
+
+static void fast_swizzle_grayalpha_to_n32_premul(
+        void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+
+    // This function must not be called if we are sampling.  If we are not
+    // sampling, deltaSrc should equal bpp.
+    SkASSERT(deltaSrc == bpp);
+
+    // Note that there is no need to distinguish between rgb and bgr.
+    // Each color channel will get the same value.
+    SkOpts::grayA_to_rgbA((uint32_t*) dst, src + offset, width);
 }
 
 // kBGRX
@@ -718,14 +744,20 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                         if (SkCodec::kYes_ZeroInitialized == zeroInit) {
                             proc = &SkipLeadingGrayAlphaZerosThen
                                     <swizzle_grayalpha_to_n32_unpremul>;
+                            fastProc = &SkipLeadingGrayAlphaZerosThen
+                                    <fast_swizzle_grayalpha_to_n32_unpremul>;
                         } else {
                             proc = &swizzle_grayalpha_to_n32_unpremul;
+                            fastProc = &fast_swizzle_grayalpha_to_n32_unpremul;
                         }
                     } else {
                         if (SkCodec::kYes_ZeroInitialized == zeroInit) {
                             proc = &SkipLeadingGrayAlphaZerosThen<swizzle_grayalpha_to_n32_premul>;
+                            fastProc = &SkipLeadingGrayAlphaZerosThen
+                                    <fast_swizzle_grayalpha_to_n32_premul>;
                         } else {
                             proc = &swizzle_grayalpha_to_n32_premul;
+                            fastProc = &fast_swizzle_grayalpha_to_n32_premul;
                         }
                     }
                     break;

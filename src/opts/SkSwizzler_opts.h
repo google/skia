@@ -98,6 +98,33 @@ static void gray_to_RGB1_portable(uint32_t dst[], const void* vsrc, int count) {
     }
 }
 
+static void grayA_to_RGBA_portable(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        uint8_t g = src[0],
+                a = src[1];
+        src += 2;
+        dst[i] = (uint32_t)a << 24
+               | (uint32_t)g << 16
+               | (uint32_t)g <<  8
+               | (uint32_t)g <<  0;
+    }
+}
+
+static void grayA_to_rgbA_portable(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        uint8_t g = src[0],
+                a = src[1];
+        src += 2;
+        g = (g*a+127)/255;
+        dst[i] = (uint32_t)a << 24
+               | (uint32_t)g << 16
+               | (uint32_t)g <<  8
+               | (uint32_t)g <<  0;
+    }
+}
+
 #if defined(SK_ARM_HAS_NEON)
 
 // Rounded divide by 255, (x + 127) / 255
@@ -311,6 +338,69 @@ static void gray_to_RGB1(uint32_t dst[], const void* vsrc, int count) {
     gray_to_RGB1_portable(dst, src, count);
 }
 
+template <bool kPremul>
+static void expand_grayA(uint32_t dst[], const void* vsrc, int count) {
+    const uint8_t* src = (const uint8_t*) vsrc;
+    while (count >= 16) {
+        // Load 16 pixels.
+        uint8x16x2_t ga = vld2q_u8(src);
+
+        // Premultiply if requested.
+        if (kPremul) {
+            ga.val[0] = vcombine_u8(
+                    scale(vget_low_u8(ga.val[0]),  vget_low_u8(ga.val[1])),
+                    scale(vget_high_u8(ga.val[0]), vget_high_u8(ga.val[1])));
+        }
+
+        // Set each of the color channels.
+        uint8x16x4_t rgba;
+        rgba.val[0] = ga.val[0];
+        rgba.val[1] = ga.val[0];
+        rgba.val[2] = ga.val[0];
+        rgba.val[3] = ga.val[1];
+
+        // Store 16 pixels.
+        vst4q_u8((uint8_t*) dst, rgba);
+        src += 16*2;
+        dst += 16;
+        count -= 16;
+    }
+
+    if (count >= 8) {
+        // Load 8 pixels.
+        uint8x8x2_t ga = vld2_u8(src);
+
+        // Premultiply if requested.
+        if (kPremul) {
+            ga.val[0] = scale(ga.val[0], ga.val[1]);
+        }
+
+        // Set each of the color channels.
+        uint8x8x4_t rgba;
+        rgba.val[0] = ga.val[0];
+        rgba.val[1] = ga.val[0];
+        rgba.val[2] = ga.val[0];
+        rgba.val[3] = ga.val[1];
+
+        // Store 8 pixels.
+        vst4_u8((uint8_t*) dst, rgba);
+        src += 8*2;
+        dst += 8;
+        count -= 8;
+    }
+
+    auto proc = kPremul ? grayA_to_rgbA_portable : grayA_to_RGBA_portable;
+    proc(dst, src, count);
+}
+
+static void grayA_to_RGBA(uint32_t dst[], const void* src, int count) {
+    expand_grayA<false>(dst, src, count);
+}
+
+static void grayA_to_rgbA(uint32_t dst[], const void* src, int count) {
+    expand_grayA<true>(dst, src, count);
+}
+
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
 template <bool kSwapRB>
@@ -482,6 +572,14 @@ static void gray_to_RGB1(uint32_t dst[], const void* vsrc, int count) {
     gray_to_RGB1_portable(dst, src, count);
 }
 
+static void grayA_to_RGBA(uint32_t dst[], const void* src, int count) {
+    grayA_to_RGBA_portable(dst, src, count);
+}
+
+static void grayA_to_rgbA(uint32_t dst[], const void* src, int count) {
+    grayA_to_rgbA_portable(dst, src, count);
+}
+
 #else
 
 static void RGBA_to_rgbA(uint32_t* dst, const void* src, int count) {
@@ -506,6 +604,14 @@ static void RGB_to_BGR1(uint32_t dst[], const void* src, int count) {
 
 static void gray_to_RGB1(uint32_t dst[], const void* src, int count) {
     gray_to_RGB1_portable(dst, src, count);
+}
+
+static void grayA_to_RGBA(uint32_t dst[], const void* src, int count) {
+    grayA_to_RGBA_portable(dst, src, count);
+}
+
+static void grayA_to_rgbA(uint32_t dst[], const void* src, int count) {
+    grayA_to_rgbA_portable(dst, src, count);
 }
 
 #endif

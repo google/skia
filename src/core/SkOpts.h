@@ -62,7 +62,9 @@ namespace SkOpts {
                         RGBA_to_bgrA,  // i.e. swap RB and premultiply
                         RGB_to_RGB1,   // i.e. insert an opaque alpha
                         RGB_to_BGR1,   // i.e. swap RB and insert an opaque alpha
-                        gray_to_RGB1;  // i.e. set color channels to same value + an opaque alpha
+                        gray_to_RGB1,  // i.e. expand to color channels + an opaque alpha
+                        grayA_to_RGBA, // i.e. expand to color channels
+                        grayA_to_rgbA; // i.e. expand to color channels and premultiply
 }
 
 #endif//SkOpts_DEFINED

@@ -79,12 +79,14 @@ namespace SkOpts {
     decltype(matrix_scale_translate) matrix_scale_translate = sk_default::matrix_scale_translate;
     decltype(matrix_affine)          matrix_affine          = sk_default::matrix_affine;
 
-    decltype(RGBA_to_BGRA) RGBA_to_BGRA = sk_default::RGBA_to_BGRA;
-    decltype(RGBA_to_rgbA) RGBA_to_rgbA = sk_default::RGBA_to_rgbA;
-    decltype(RGBA_to_bgrA) RGBA_to_bgrA = sk_default::RGBA_to_bgrA;
-    decltype(RGB_to_RGB1)  RGB_to_RGB1  = sk_default::RGB_to_RGB1;
-    decltype(RGB_to_BGR1)  RGB_to_BGR1  = sk_default::RGB_to_BGR1;
-    decltype(gray_to_RGB1) gray_to_RGB1 = sk_default::gray_to_RGB1;
+    decltype(RGBA_to_BGRA)  RGBA_to_BGRA  = sk_default::RGBA_to_BGRA;
+    decltype(RGBA_to_rgbA)  RGBA_to_rgbA  = sk_default::RGBA_to_rgbA;
+    decltype(RGBA_to_bgrA)  RGBA_to_bgrA  = sk_default::RGBA_to_bgrA;
+    decltype(RGB_to_RGB1)   RGB_to_RGB1   = sk_default::RGB_to_RGB1;
+    decltype(RGB_to_BGR1)   RGB_to_BGR1   = sk_default::RGB_to_BGR1;
+    decltype(gray_to_RGB1)  gray_to_RGB1  = sk_default::gray_to_RGB1;
+    decltype(grayA_to_RGBA) grayA_to_RGBA = sk_default::grayA_to_RGBA;
+    decltype(grayA_to_rgbA) grayA_to_rgbA = sk_default::grayA_to_rgbA;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
