@@ -40,9 +40,11 @@ SK_API void SkTypeface_SetEnsureLOGFONTAccessibleProc(void (*)(const LOGFONT&));
 class SkFontMgr;
 class SkRemotableFontMgr;
 struct IDWriteFactory;
+struct IDWriteFontCollection;
 
 SK_API SkFontMgr* SkFontMgr_New_GDI();
-SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory = NULL);
+SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory = NULL,
+                                            IDWriteFontCollection* collection = NULL);
 
 /**
  *  Creates an SkFontMgr which renders using DirectWrite and obtains its data
