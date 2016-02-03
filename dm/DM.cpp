@@ -188,6 +188,8 @@ static void gather_uninteresting_hashes() {
         for (const SkString& hash : hashes) {
             gUninterestingHashes.add(hash);
         }
+        SkDebugf("FYI: loaded %d distinct uninteresting hashes from %d lines\n",
+                 gUninterestingHashes.count(), hashes.count());
     }
 }
 
