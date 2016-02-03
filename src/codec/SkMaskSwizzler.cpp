@@ -250,13 +250,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
                     }
                     break;
                 case kRGB_565_SkColorType:
-                    switch (dstInfo.alphaType()) {
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask16_to_565;
-                            break;
-                        default:
-                            break;
-                    }
+                    proc = &swizzle_mask16_to_565;
                     break;
                 default:
                     break;
@@ -280,13 +274,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
                     }
                     break;
                 case kRGB_565_SkColorType:
-                    switch (dstInfo.alphaType()) {
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask24_to_565;
-                            break;
-                        default:
-                            break;
-                    }
+                    proc = &swizzle_mask24_to_565;
                     break;
                 default:
                     break;
@@ -310,13 +298,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
                     }
                     break;
                 case kRGB_565_SkColorType:
-                    switch (dstInfo.alphaType()) {
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask32_to_565;
-                            break;
-                        default:
-                            break;
-                    }
+                    proc = &swizzle_mask32_to_565;
                     break;
                 default:
                     break;

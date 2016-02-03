@@ -182,7 +182,7 @@ bool SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
             config = SkSwizzler::kBGR;
             break;
         case 32:
-            if (kOpaque_SkAlphaType == dstInfo.alphaType()) {
+            if (kOpaque_SkAlphaType == this->getInfo().alphaType()) {
                 config = SkSwizzler::kBGRX;
             } else {
                 config = SkSwizzler::kBGRA;
@@ -337,10 +337,10 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
     }
 }
 
-uint32_t SkBmpStandardCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+uint32_t SkBmpStandardCodec::onGetFillValue(SkColorType colorType) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     if (colorPtr) {
         return get_color_table_fill_value(colorType, colorPtr, 0);
     }
-    return INHERITED::onGetFillValue(colorType, alphaType);
+    return INHERITED::onGetFillValue(colorType);
 }

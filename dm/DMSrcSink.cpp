@@ -233,10 +233,12 @@ Name BRDSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, float scale)
+CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, SkAlphaType dstAlphaType,
+                   float scale)
     : fPath(path)
     , fMode(mode)
     , fDstColorType(dstColorType)
+    , fDstAlphaType(dstAlphaType)
     , fScale(scale)
 {}
 
@@ -251,30 +253,26 @@ bool CodecSrc::veto(SinkFlags flags) const {
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
-bool get_decode_info(SkImageInfo* decodeInfo, const SkImageInfo& defaultInfo,
-        SkColorType canvasColorType, CodecSrc::DstColorType dstColorType) {
+bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
+                     CodecSrc::DstColorType dstColorType) {
     switch (dstColorType) {
         case CodecSrc::kIndex8_Always_DstColorType:
             if (kRGB_565_SkColorType == canvasColorType) {
                 return false;
             }
-            *decodeInfo = defaultInfo.makeColorType(kIndex_8_SkColorType);
+            *decodeInfo = decodeInfo->makeColorType(kIndex_8_SkColorType);
             break;
         case CodecSrc::kGrayscale_Always_DstColorType:
             if (kRGB_565_SkColorType == canvasColorType) {
                 return false;
             }
-            *decodeInfo = defaultInfo.makeColorType(kGray_8_SkColorType);
+            *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
             break;
         default:
-            *decodeInfo = defaultInfo.makeColorType(canvasColorType);
+            *decodeInfo = decodeInfo->makeColorType(canvasColorType);
             break;
     }
 
-    // FIXME: Currently we cannot draw unpremultiplied sources.
-    if (decodeInfo->alphaType() == kUnpremul_SkAlphaType) {
-        *decodeInfo = decodeInfo->makeAlphaType(kPremul_SkAlphaType);
-    }
     return true;
 }
 
@@ -319,9 +317,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo;
-    if (!get_decode_info(&decodeInfo, codec->getInfo(), canvas->imageInfo().colorType(),
-            fDstColorType)) {
+    SkImageInfo decodeInfo = codec->getInfo().makeAlphaType(fDstAlphaType);
+    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType)) {
         return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
     }
 
@@ -570,10 +567,11 @@ Name CodecSrc::name() const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 AndroidCodecSrc::AndroidCodecSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType,
-        int sampleSize)
+        SkAlphaType dstAlphaType, int sampleSize)
     : fPath(path)
     , fMode(mode)
     , fDstColorType(dstColorType)
+    , fDstAlphaType(dstAlphaType)
     , fSampleSize(sampleSize)
 {}
 
@@ -593,9 +591,8 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo;
-    if (!get_decode_info(&decodeInfo, codec->getInfo(), canvas->imageInfo().colorType(),
-            fDstColorType)) {
+    SkImageInfo decodeInfo = codec->getInfo().makeAlphaType(fDstAlphaType);
+    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType)) {
         return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
     }
 

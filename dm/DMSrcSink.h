@@ -118,7 +118,7 @@ public:
         kIndex8_Always_DstColorType,
         kGrayscale_Always_DstColorType,
     };
-    CodecSrc(Path, Mode, DstColorType, float);
+    CodecSrc(Path, Mode, DstColorType, SkAlphaType, float);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -128,6 +128,7 @@ private:
     Path                    fPath;
     Mode                    fMode;
     DstColorType            fDstColorType;
+    SkAlphaType             fDstAlphaType;
     float                   fScale;
 };
 
@@ -140,7 +141,7 @@ public:
         kDivisor_Mode,
     };
 
-    AndroidCodecSrc(Path, Mode, CodecSrc::DstColorType, int sampleSize);
+    AndroidCodecSrc(Path, Mode, CodecSrc::DstColorType, SkAlphaType, int sampleSize);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -150,6 +151,7 @@ private:
     Path                    fPath;
     Mode                    fMode;
     CodecSrc::DstColorType  fDstColorType;
+    SkAlphaType             fDstAlphaType;
     int                     fSampleSize;
 };
 

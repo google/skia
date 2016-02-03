@@ -570,15 +570,14 @@ protected:
      * scanlines.  This allows the subclass to indicate what value to fill with.
      *
      * @param colorType Destination color type.
-     * @param alphaType Destination alpha type.
      * @return          The value with which to fill uninitialized pixels.
      *
      * Note that we can interpret the return value as an SkPMColor, a 16-bit 565 color,
      * an 8-bit gray color, or an 8-bit index into a color table, depending on the color
      * type.
      */
-    uint32_t getFillValue(SkColorType colorType, SkAlphaType alphaType) const {
-        return this->onGetFillValue(colorType, alphaType);
+    uint32_t getFillValue(SkColorType colorType) const {
+        return this->onGetFillValue(colorType);
     }
 
     /**
@@ -586,13 +585,13 @@ protected:
      * types that we support.  Note that for color types that do not use the full 32-bits,
      * we will simply take the low bits of the fill value.
      *
-     * kN32_SkColorType: Transparent or Black
+     * kN32_SkColorType: Transparent or Black, depending on the src alpha type
      * kRGB_565_SkColorType: Black
      * kGray_8_SkColorType: Black
      * kIndex_8_SkColorType: First color in color table
      */
-    virtual uint32_t onGetFillValue(SkColorType /*colorType*/, SkAlphaType alphaType) const {
-        return kOpaque_SkAlphaType == alphaType ? SK_ColorBLACK : SK_ColorTRANSPARENT;
+    virtual uint32_t onGetFillValue(SkColorType /*colorType*/) const {
+        return kOpaque_SkAlphaType == fSrcInfo.alphaType() ? SK_ColorBLACK : SK_ColorTRANSPARENT;
     }
 
     /**

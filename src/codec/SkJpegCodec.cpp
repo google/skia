@@ -164,9 +164,13 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
         return false;
     }
 
-    // Ensure that the alpha type is opaque
-    if (kOpaque_SkAlphaType != dst.alphaType()) {
+    if (kUnknown_SkAlphaType == dst.alphaType()) {
         return false;
+    }
+
+    if (kOpaque_SkAlphaType != dst.alphaType()) {
+        SkCodecPrintf("Warning: an opaque image should be decoded as opaque "
+                      "- it is being decoded as non-opaque, which will draw slower\n");
     }
 
     // Check if we will decode to CMYK because a conversion to RGBA is not supported

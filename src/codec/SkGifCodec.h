@@ -64,7 +64,7 @@ protected:
 
     bool onRewind() override;
 
-    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
+    uint32_t onGetFillValue(SkColorType) const override;
 
     int onOutputScanline(int inputScanline) const override;
 

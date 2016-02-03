@@ -14,6 +14,12 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 
+#ifdef SK_PRINT_CODEC_MESSAGES
+    #define SkCodecPrintf SkDebugf
+#else
+    #define SkCodecPrintf(...)
+#endif
+
 // FIXME: Consider sharing with dm, nanbench, and tools.
 inline float get_scale_from_sample_size(int sampleSize) {
     return 1.0f / ((float) sampleSize);
@@ -75,11 +81,16 @@ inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaledDim) {
 }
 
 inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
-    // Check for supported alpha types
+    if (kUnknown_SkAlphaType == dstAlpha) {
+        return false;
+    }
+
     if (srcAlpha != dstAlpha) {
         if (kOpaque_SkAlphaType == srcAlpha) {
-            // If the source is opaque, we must decode to opaque
-            return false;
+            // If the source is opaque, we can support any.
+            SkCodecPrintf("Warning: an opaque image should be decoded as opaque "
+                          "- it is being decoded as non-opaque, which will draw slower\n");
+            return true;
         }
 
         // The source is not opaque
@@ -99,7 +110,8 @@ inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
 /*
  * Most of our codecs support the same conversions:
  * - profileType must be the same
- * - opaque only to opaque (and 565 only if opaque)
+ * - opaque to any alpha type
+ * - 565 only if opaque
  * - premul to unpremul and vice versa
  * - always support N32
  * - otherwise match the src color type
@@ -229,11 +241,5 @@ inline uint32_t get_int(uint8_t* buffer, uint32_t i) {
     return result;
 #endif
 }
-
-#ifdef SK_PRINT_CODEC_MESSAGES
-    #define SkCodecPrintf SkDebugf
-#else
-    #define SkCodecPrintf(...)
-#endif
 
 #endif // SkCodecPriv_DEFINED

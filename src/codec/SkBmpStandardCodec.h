@@ -55,7 +55,7 @@ protected:
             int* inputColorCount) override;
 
 
-    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
+    uint32_t onGetFillValue(SkColorType) const override;
 
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler);

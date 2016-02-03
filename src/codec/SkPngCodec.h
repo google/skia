@@ -31,7 +31,7 @@ protected:
             override;
     SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
     bool onRewind() override;
-    uint32_t onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const override;
+    uint32_t onGetFillValue(SkColorType) const override;
 
     // Helper to set up swizzler and color table. Also calls png_read_update_info.
     Result initializeSwizzler(const SkImageInfo& requestedInfo, const Options&,

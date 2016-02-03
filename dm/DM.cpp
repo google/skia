@@ -225,7 +225,7 @@ static void push_src(ImplicitString tag, ImplicitString options, Src* s) {
 }
 
 static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorType dstColorType,
-        float scale) {
+        SkAlphaType dstAlphaType, float scale) {
     SkString folder;
     switch (mode) {
         case CodecSrc::kCodec_Mode:
@@ -259,16 +259,30 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
             break;
     }
 
+    switch (dstAlphaType) {
+        case kOpaque_SkAlphaType:
+            folder.append("_opaque");
+            break;
+        case kPremul_SkAlphaType:
+            folder.append("_premul");
+            break;
+        case kUnpremul_SkAlphaType:
+            folder.append("_unpremul");
+            break;
+        default:
+            break;
+    }
+
     if (1.0f != scale) {
         folder.appendf("_%.3f", scale);
     }
 
-    CodecSrc* src = new CodecSrc(path, mode, dstColorType, scale);
+    CodecSrc* src = new CodecSrc(path, mode, dstColorType, dstAlphaType, scale);
     push_src("image", folder, src);
 }
 
 static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
-        CodecSrc::DstColorType dstColorType, int sampleSize) {
+        CodecSrc::DstColorType dstColorType, SkAlphaType dstAlphaType, int sampleSize) {
     SkString folder;
     switch (mode) {
         case AndroidCodecSrc::kFullImage_Mode:
@@ -290,11 +304,22 @@ static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
             break;
     }
 
+    switch (dstAlphaType) {
+        case kOpaque_SkAlphaType:
+            folder.append("_opaque");
+            break;
+        case kPremul_SkAlphaType:
+            folder.append("_premul");
+            break;
+        default:
+            break;
+    }
+
     if (1 != sampleSize) {
         folder.appendf("_%.3f", 1.0f / (float) sampleSize);
     }
 
-    AndroidCodecSrc* src = new AndroidCodecSrc(path, mode, dstColorType, sampleSize);
+    AndroidCodecSrc* src = new AndroidCodecSrc(path, mode, dstColorType, dstAlphaType, sampleSize);
     push_src("image", folder, src);
 }
 
@@ -344,6 +369,13 @@ static void push_codec_srcs(Path path) {
             break;
     }
 
+    SkTArray<SkAlphaType> alphaModes;
+    alphaModes.push_back(kPremul_SkAlphaType);
+    // FIXME: Currently we cannot draw unpremultiplied sources. skbug.com/3338 and skbug.com/3339
+    // alphaModes.push_back(kUnpremul_SkAlphaType);
+    if (codec->getInfo().alphaType() == kOpaque_SkAlphaType) {
+        alphaModes.push_back(kOpaque_SkAlphaType);
+    }
 
     for (CodecSrc::Mode mode : nativeModes) {
         // SkCodecImageGenerator only runs for the default colorType
@@ -353,14 +385,17 @@ static void push_codec_srcs(Path path) {
         if (CodecSrc::kGen_Mode == mode) {
             // FIXME: The gpu backend does not draw kGray sources correctly. (skbug.com/4822)
             if (kGray_8_SkColorType != codec->getInfo().colorType()) {
-                push_codec_src(path, mode, CodecSrc::kGetFromCanvas_DstColorType, 1.0f);
+                push_codec_src(path, mode, CodecSrc::kGetFromCanvas_DstColorType,
+                               codec->getInfo().alphaType(), 1.0f);
             }
             continue;
         }
 
         for (float scale : nativeScales) {
             for (uint32_t i = 0; i < numColorTypes; i++) {
-                push_codec_src(path, mode, colorTypes[i], scale);
+                for (SkAlphaType alphaType : alphaModes) {
+                    push_codec_src(path, mode, colorTypes[i], alphaType, scale);
+                }
             }
         }
     }
@@ -384,11 +419,13 @@ static void push_codec_srcs(Path path) {
 
     for (int sampleSize : sampleSizes) {
         for (uint32_t i = 0; i < numColorTypes; i++) {
-            push_android_codec_src(path, AndroidCodecSrc::kFullImage_Mode, colorTypes[i],
-                    sampleSize);
-            if (subset) {
-                push_android_codec_src(path, AndroidCodecSrc::kDivisor_Mode, colorTypes[i],
-                        sampleSize);
+            for (SkAlphaType alphaType : alphaModes) {
+                push_android_codec_src(path, AndroidCodecSrc::kFullImage_Mode, colorTypes[i],
+                        alphaType, sampleSize);
+                if (subset) {
+                    push_android_codec_src(path, AndroidCodecSrc::kDivisor_Mode, colorTypes[i],
+                            alphaType, sampleSize);
+                }
             }
         }
     }

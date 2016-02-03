@@ -130,9 +130,9 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
         // Check alpha type conversions
         if (info.alphaType() == kOpaque_SkAlphaType) {
             test_info(r, codec, info.makeAlphaType(kUnpremul_SkAlphaType),
-                      SkCodec::kInvalidConversion, nullptr);
+                      expectedResult, digest);
             test_info(r, codec, info.makeAlphaType(kPremul_SkAlphaType),
-                      SkCodec::kInvalidConversion, nullptr);
+                      expectedResult, digest);
         } else {
             // Decoding to opaque should fail
             test_info(r, codec, info.makeAlphaType(kOpaque_SkAlphaType),
@@ -183,9 +183,9 @@ static void test_android_codec(skiatest::Reporter* r, SkAndroidCodec* codec, SkB
         // Check alpha type conversions
         if (info.alphaType() == kOpaque_SkAlphaType) {
             test_android_info(r, codec, info.makeAlphaType(kUnpremul_SkAlphaType),
-                    SkCodec::kInvalidConversion, nullptr);
+                    expectedResult, digest);
             test_android_info(r, codec, info.makeAlphaType(kPremul_SkAlphaType),
-                    SkCodec::kInvalidConversion, nullptr);
+                    expectedResult, digest);
         } else {
             // Decoding to opaque should fail
             test_android_info(r, codec, info.makeAlphaType(kOpaque_SkAlphaType),

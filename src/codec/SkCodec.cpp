@@ -352,7 +352,7 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
         ZeroInitialized zeroInit, int linesRequested, int linesDecoded) {
 
     void* fillDst;
-    const uint32_t fillValue = this->getFillValue(info.colorType(), info.alphaType());
+    const uint32_t fillValue = this->getFillValue(info.colorType());
     const int linesRemaining = linesRequested - linesDecoded;
     SkSampler* sampler = this->getSampler(false);
 

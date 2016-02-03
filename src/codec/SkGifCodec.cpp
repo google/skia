@@ -476,8 +476,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     // Initialize the swizzler
     if (fFrameIsSubset) {
         // Fill the background
-        SkSampler::Fill(dstInfo, dst, dstRowBytes,
-                this->getFillValue(dstInfo.colorType(), dstInfo.alphaType()),
+        SkSampler::Fill(dstInfo, dst, dstRowBytes, this->getFillValue(dstInfo.colorType()),
                 opts.fZeroInitialized);
     }
 
@@ -495,7 +494,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 // FIXME: This is similar to the implementation for bmp and png.  Can we share more code or
 //        possibly make this non-virtual?
-uint32_t SkGifCodec::onGetFillValue(SkColorType colorType, SkAlphaType alphaType) const {
+uint32_t SkGifCodec::onGetFillValue(SkColorType colorType) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     return get_color_table_fill_value(colorType, colorPtr, fFillIndex);
 }
@@ -538,8 +537,7 @@ int SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
     if (fFrameIsSubset) {
         // Fill the requested rows
         SkImageInfo fillInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
-        uint32_t fillValue = this->onGetFillValue(this->dstInfo().colorType(),
-                this->dstInfo().alphaType());
+        uint32_t fillValue = this->onGetFillValue(this->dstInfo().colorType());
         fSwizzler->fill(fillInfo, dst, rowBytes, fillValue, this->options().fZeroInitialized);
 
         // Start to write pixels at the start of the image frame
