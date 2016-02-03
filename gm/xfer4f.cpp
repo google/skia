@@ -10,7 +10,8 @@
 #include "SkImageInfo.h"
 #include "SkXfermode.h"
 
-static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfileType profile) {
+static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfileType profile,
+                      const SkAlpha aa[]) {
     const SkIRect ir = r.round();
 
     SkBitmap bm;
@@ -32,7 +33,7 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfi
     const SkPM4f src = SkColor4f::FromColor(c).premul();
     auto proc1 = SkXfermode::GetPM4fProc1(SkXfermode::kSrcOver_Mode, flags);
     for (int y = 0; y < ir.height()/2; ++y) {
-        proc1(state, pm.writable_addr32(0, y), src, ir.width(), nullptr);
+        proc1(state, pm.writable_addr32(0, y), src, ir.width(), aa);
     }
 
     SkPM4f srcRow[1000];
@@ -42,7 +43,7 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfi
     auto procN = SkXfermode::GetPM4fProcN(SkXfermode::kSrcOver_Mode, flags);
     // +1 to skip a row, so we can see the boundary between proc1 and procN
     for (int y = ir.height()/2 + 1; y < ir.height(); ++y) {
-        procN(state, pm.writable_addr32(0, y), srcRow, ir.width(), nullptr);
+        procN(state, pm.writable_addr32(0, y), srcRow, ir.width(), aa);
     }
 
     canvas->drawBitmap(bm, r.left(), r.top(), nullptr);
@@ -51,8 +52,9 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, SkColor c, SkColorProfi
 /*
  *  Test SkXfer4fProcs directly for src-over, comparing them to current SkColor blits.
  */
-DEF_SIMPLE_GM(xfer4f_srcover, canvas, 580, 380) {
-    const SkScalar W = 50;
+DEF_SIMPLE_GM(xfer4f_srcover, canvas, 580, 760) {
+    const int IW = 50;
+    const SkScalar W = IW;
     const SkScalar H = 100;
 
     const int profiles[] = {
@@ -64,22 +66,41 @@ DEF_SIMPLE_GM(xfer4f_srcover, canvas, 580, 380) {
         SK_ColorBLACK, SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
         0x88000000, 0x88FF0000, 0x8800FF00, 0x880000FF
     };
+    
+    uint8_t aa_scanline[IW];
+    for (int i = 0; i < IW; ++i) {
+        aa_scanline[i] = i * 255 / (IW - 1);
+    }
+    uint8_t const* aa_table[] = { nullptr, aa_scanline };
+
+    SkBitmap mask;
+    mask.installPixels(SkImageInfo::MakeA8(IW, 1), aa_scanline, IW);
+
     canvas->translate(20, 20);
 
     const SkRect r = SkRect::MakeWH(W, H);
-    for (auto profile : profiles) {
+    for (const uint8_t* aa : aa_table) {
         canvas->save();
-        for (SkColor c : colors) {
-            if (profile < 0) {
-                SkPaint p;
-                p.setColor(c);
-                canvas->drawRect(r, p);
-            } else {
-                draw_rect(canvas, r, c, (SkColorProfileType)profile);
+        for (auto profile : profiles) {
+            canvas->save();
+            for (SkColor c : colors) {
+                if (profile < 0) {
+                    SkPaint p;
+                    p.setColor(c);
+                    if (aa) {
+                        canvas->drawBitmapRect(mask, r, &p);
+                    } else {
+                        canvas->drawRect(r, p);
+                    }
+                } else {
+                    draw_rect(canvas, r, c, (SkColorProfileType)profile, aa);
+                }
+                canvas->translate(W + 20, 0);
             }
-            canvas->translate(W + 20, 0);
+            canvas->restore();
+            canvas->translate(0, H + 20);
         }
         canvas->restore();
-        canvas->translate(0, H + 20);
+        canvas->translate(0, (H + 20) * SK_ARRAY_COUNT(profiles) + 20);
     }
 }
