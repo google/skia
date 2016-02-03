@@ -500,9 +500,9 @@ static void S32_D32_constX_shaderproc(const void* sIn,
             // its own tiling and sampling we need to undo that here.
             if (SkShader::kClamp_TileMode != s.fTileModeX ||
                 SkShader::kClamp_TileMode != s.fTileModeY) {
-                yTemp = SkFractionalIntToInt(mapper.y() * s.fPixmap.height());
+                yTemp = SkFractionalIntToInt(mapper.fractionalIntY() * s.fPixmap.height());
             } else {
-                yTemp = SkFractionalIntToInt(mapper.y());
+                yTemp = mapper.intY();
             }
         } else {
             yTemp = s.fFilterOneY + y;
@@ -530,9 +530,9 @@ static void S32_D32_constX_shaderproc(const void* sIn,
             if (s.fInvType > SkMatrix::kTranslate_Mask &&
                 (SkShader::kClamp_TileMode != s.fTileModeX ||
                  SkShader::kClamp_TileMode != s.fTileModeY)) {
-                iY2 = SkFractionalIntToInt(mapper.y() * s.fPixmap.height());
+                iY2 = SkFractionalIntToInt(mapper.fractionalIntY() * s.fPixmap.height());
             } else {
-                iY2 = SkFractionalIntToInt(mapper.y());
+                iY2 = mapper.intY();
             }
 
             switch (s.fTileModeY) {
@@ -598,8 +598,8 @@ bool SkBitmapProcState::setupForTranslate() {
     // Since we know we're not filtered, we re-purpose these fields allow
     // us to go from device -> src coordinates w/ just an integer add,
     // rather than running through the inverse-matrix
-    fFilterOneX = SkFractionalIntToInt(mapper.x());
-    fFilterOneY = SkFractionalIntToInt(mapper.y());
+    fFilterOneX = mapper.intX();
+    fFilterOneY = mapper.intY();
 
     return true;
 }
@@ -781,8 +781,8 @@ void  Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void* sIn, int x, int y,
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
-        dstY = SkClampMax(SkFractionalIntToInt(mapper.y()), maxY);
-        fx = mapper.x();
+        dstY = SkClampMax(mapper.intY(), maxY);
+        fx = mapper.fractionalIntX();
     }
 
     const SkPMColor* SK_RESTRICT src = s.fPixmap.addr32(0, dstY);

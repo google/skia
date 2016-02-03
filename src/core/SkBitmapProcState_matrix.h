@@ -62,12 +62,12 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
 
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
-        const SkFixed fy = SkFractionalIntToFixed(mapper.y());
+        const SkFixed fy = mapper.fixedY();
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
         *xy++ = PACK_FILTER_Y_NAME(fy, maxY, s.fFilterOneY PREAMBLE_ARG_Y);
         // now initialize fx
-        fx = mapper.x();
+        fx = mapper.fractionalIntX();
     }
 
 #ifdef CHECK_FOR_DECAL
@@ -97,8 +97,8 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
 
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
-    SkFixed fx = SkFractionalIntToFixed(mapper.x());
-    SkFixed fy = SkFractionalIntToFixed(mapper.y());
+    SkFixed fx = mapper.fixedX();
+    SkFixed fy = mapper.fixedY();
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     unsigned maxX = s.fPixmap.width() - 1;

@@ -32,7 +32,7 @@ void SCALE_FILTER_NAME(const void* sIn, int x, int y, SkPMColor* SK_RESTRICT col
 
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
-        SkFixed fy = SkFractionalIntToFixed(mapper.y());
+        SkFixed fy = mapper.fixedY();
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
         subY = TILEY_LOW_BITS(fy, maxY);
@@ -44,7 +44,7 @@ void SCALE_FILTER_NAME(const void* sIn, int x, int y, SkPMColor* SK_RESTRICT col
         row0 = (const SRCTYPE*)(srcAddr + y0 * rb);
         row1 = (const SRCTYPE*)(srcAddr + y1 * rb);
         // now initialize fx
-        fx = SkFractionalIntToFixed(mapper.x());
+        fx = mapper.fixedX();
     }
 
 #ifdef PREAMBLE

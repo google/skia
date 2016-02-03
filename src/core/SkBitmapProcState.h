@@ -220,8 +220,14 @@ public:
         }
     }
 
-    SkFractionalInt x() const { return fX; }
-    SkFractionalInt y() const { return fY; }
+    SkFractionalInt fractionalIntX() const { return fX; }
+    SkFractionalInt fractionalIntY() const { return fY; }
+
+    SkFixed fixedX() const { return SkFractionalIntToFixed(fX); }
+    SkFixed fixedY() const { return SkFractionalIntToFixed(fY); }
+
+    int intX() const { return SkFractionalIntToInt(fX); }
+    int intY() const { return SkFractionalIntToInt(fY); }
 
 private:
     SkFractionalInt fX, fY;

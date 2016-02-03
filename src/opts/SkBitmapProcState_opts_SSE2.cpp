@@ -254,12 +254,12 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
     const SkFixed dx = s.fInvSx;
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
-    const SkFixed fy = SkFractionalIntToFixed(mapper.y());
+    const SkFixed fy = mapper.fixedY();
     const unsigned maxY = s.fPixmap.height() - 1;
     // compute our two Y values up front
     *xy++ = ClampX_ClampY_pack_filter(fy, maxY, s.fFilterOneY);
     // now initialize fx
-    SkFixed fx = SkFractionalIntToFixed(mapper.x());
+    SkFixed fx = mapper.fixedX();
 
     // test if we don't need to apply the tile proc
     if (dx > 0 && (unsigned)(fx >> 16) <= maxX &&
@@ -373,8 +373,8 @@ void ClampX_ClampY_nofilter_scale_SSE2(const SkBitmapProcState& s,
     const unsigned maxX = s.fPixmap.width() - 1;
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
     const unsigned maxY = s.fPixmap.height() - 1;
-    *xy++ = SkClampMax(SkFractionalIntToInt(mapper.y()), maxY);
-    SkFixed fx = SkFractionalIntToFixed(mapper.x());
+    *xy++ = SkClampMax(mapper.intY(), maxY);
+    SkFixed fx = mapper.fixedX();
 
     if (0 == maxX) {
         // all of the following X values must be 0
@@ -486,8 +486,8 @@ void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
 
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
-    SkFixed fx = SkFractionalIntToFixed(mapper.x());
-    SkFixed fy = SkFractionalIntToFixed(mapper.y());
+    SkFixed fx = mapper.fixedX();
+    SkFixed fy = mapper.fixedY();
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     unsigned maxX = s.fPixmap.width() - 1;
@@ -557,8 +557,8 @@ void ClampX_ClampY_nofilter_affine_SSE2(const SkBitmapProcState& s,
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
-    SkFixed fx = SkFractionalIntToFixed(mapper.x());
-    SkFixed fy = SkFractionalIntToFixed(mapper.y());
+    SkFixed fx = mapper.fixedX();
+    SkFixed fy = mapper.fixedY();
     SkFixed dx = s.fInvSx;
     SkFixed dy = s.fInvKy;
     int maxX = s.fPixmap.width() - 1;

@@ -329,10 +329,10 @@ static void fill_sequential(uint16_t xptr[], int start, int count) {
 static int nofilter_trans_preamble(const SkBitmapProcState& s, uint32_t** xy,
                                    int x, int y) {
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
-    **xy = s.fIntTileProcY(SkFractionalIntToInt(mapper.y()), s.fPixmap.height());
+    **xy = s.fIntTileProcY(mapper.intY(), s.fPixmap.height());
     *xy += 1;   // bump the ptr
     // return our starting X position
-    return SkFractionalIntToInt(mapper.x());
+    return mapper.intX();
 }
 
 static void clampx_nofilter_trans(const SkBitmapProcState& s,

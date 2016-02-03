@@ -24,8 +24,8 @@ void NoFilterProc_Scale(const SkBitmapProcState& s, uint32_t xy[],
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
-        *xy++ = TileProc::Y(s, SkFractionalIntToFixed(mapper.y()), maxY);
-        fx = mapper.x();
+        *xy++ = TileProc::Y(s, mapper.fixedY(), maxY);
+        fx = mapper.fractionalIntX();
     }
 
     if (0 == maxX) {
@@ -79,8 +79,8 @@ void NoFilterProc_Affine(const SkBitmapProcState& s, uint32_t xy[],
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
 
-    SkFractionalInt fx = mapper.x();
-    SkFractionalInt fy = mapper.y();
+    SkFractionalInt fx = mapper.fractionalIntX();
+    SkFractionalInt fy = mapper.fractionalIntY();
     SkFractionalInt dx = s.fInvSxFractionalInt;
     SkFractionalInt dy = s.fInvKyFractionalInt;
     int maxX = s.fPixmap.width() - 1;
