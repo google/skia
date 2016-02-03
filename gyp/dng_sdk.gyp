@@ -117,12 +117,6 @@
   'cflags_cc!': [ '-fno-rtti' ],
   'cflags': [ '<@(other_cflags)' ],
   'conditions': [
-    ['skia_os == "android"', {
-      'cflags': [
-        # FIXME: only disable ::posix_memalign() when needed.
-        '-DNO_POSIX_MEMALIGN',
-      ],
-    }],
     ['skia_os == "ios" or skia_os == "mac"', {
       'xcode_settings': {
         'OTHER_CFLAGS': [ '<@(other_cflags)' ],
