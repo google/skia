@@ -22,6 +22,7 @@ public:
         kUnknown,  // Invalid type.
         kBit,      // A single bit to distinguish between white and black.
         kGray,
+        kGrayAlpha,
         kIndex1,
         kIndex2,
         kIndex4,
@@ -55,6 +56,7 @@ public:
             case kIndex:
             case kNoOp8:
                 return 8;
+            case kGrayAlpha:
             case kNoOp16:
                 return 16;
             case kRGB:
@@ -161,6 +163,10 @@ private:
                                          const uint8_t* SK_RESTRICT src,
                                          int dstWidth, int bpp, int deltaSrc, int offset,
                                          const SkPMColor ctable[]);
+
+    template <RowProc Proc>
+    static void SkipLeadingGrayAlphaZerosThen(void* dst, const uint8_t* src, int width, int bpp,
+                                              int deltaSrc, int offset, const SkPMColor ctable[]);
 
     // May be NULL.  We have not implemented optimized functions for all supported transforms.
     const RowProc       fFastProc;

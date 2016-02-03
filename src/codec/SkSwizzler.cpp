@@ -295,6 +295,33 @@ static void swizzle_gray_to_565(
     }
 }
 
+// kGrayAlpha
+
+static void swizzle_grayalpha_to_n32_unpremul(
+        void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+
+    src += offset;
+    SkPMColor* dst32 = (SkPMColor*) dst;
+    for (int x = 0; x < width; x++) {
+        dst32[x] = SkPackARGB32NoCheck(src[1], src[0], src[0], src[0]);
+        src += deltaSrc;
+    }
+}
+
+static void swizzle_grayalpha_to_n32_premul(
+        void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+
+    src += offset;
+    SkPMColor* dst32 = (SkPMColor*) dst;
+    for (int x = 0; x < width; x++) {
+        uint8_t pmgray = SkMulDiv255Round(src[1], src[0]);
+        dst32[x] = SkPackARGB32NoCheck(src[1], pmgray, pmgray, pmgray);
+        src += deltaSrc;
+    }
+}
+
 // kBGRX
 
 static void swizzle_bgrx_to_n32(
@@ -556,6 +583,25 @@ static void swizzle_cmyk_to_565(
 }
 
 template <SkSwizzler::RowProc proc>
+void SkSwizzler::SkipLeadingGrayAlphaZerosThen(
+        void* dst, const uint8_t* src, int width,
+        int bpp, int deltaSrc, int offset, const SkPMColor ctable[]) {
+    SkASSERT(!ctable);
+
+    const uint16_t* src16 = (const uint16_t*) (src + offset);
+    uint32_t* dst32 = (uint32_t*) dst;
+
+    // This may miss opportunities to skip when the output is premultiplied,
+    // e.g. for a src pixel 0x00FF which is not zero but becomes zero after premultiplication.
+    while (width > 0 && *src16 == 0x0000) {
+        width--;
+        dst32++;
+        src16 += deltaSrc / 2;
+    }
+    proc(dst32, (const uint8_t*)src16, width, bpp, deltaSrc, 0, ctable);
+}
+
+template <SkSwizzler::RowProc proc>
 void SkSwizzler::SkipLeading8888ZerosThen(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
         int bpp, int deltaSrc, int offset, const SkPMColor ctable[]) {
@@ -660,6 +706,28 @@ SkSwizzler* SkSwizzler::CreateSwizzler(SkSwizzler::SrcConfig sc,
                     break;
                 case kRGB_565_SkColorType:
                     proc = &swizzle_gray_to_565;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case kGrayAlpha:
+            switch (dstInfo.colorType()) {
+                case kN32_SkColorType:
+                    if (dstInfo.alphaType() == kUnpremul_SkAlphaType) {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeadingGrayAlphaZerosThen
+                                    <swizzle_grayalpha_to_n32_unpremul>;
+                        } else {
+                            proc = &swizzle_grayalpha_to_n32_unpremul;
+                        }
+                    } else {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeadingGrayAlphaZerosThen<swizzle_grayalpha_to_n32_premul>;
+                        } else {
+                            proc = &swizzle_grayalpha_to_n32_premul;
+                        }
+                    }
                     break;
                 default:
                     break;

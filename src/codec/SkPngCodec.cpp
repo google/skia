@@ -297,9 +297,10 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
             }
 
             if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-                // Convert to RGBA if there is a transparency chunk.
                 png_set_tRNS_to_alpha(png_ptr);
-                png_set_gray_to_rgb(png_ptr);
+
+                // We will recommend kN32 here since we do not support kGray
+                // with alpha.
                 colorType = kN32_SkColorType;
                 alphaType = kUnpremul_SkAlphaType;
             } else {
@@ -308,8 +309,8 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
             }
             break;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            // Convert to RGBA if the image has alpha.
-            png_set_gray_to_rgb(png_ptr);
+            // We will recommend kN32 here since we do not support anything
+            // similar to GRAY_ALPHA.
             colorType = kN32_SkColorType;
             alphaType = kUnpremul_SkAlphaType;
             break;
@@ -384,10 +385,10 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
-    // srcColorType was determined in read_header() which determined png color type
-    const SkColorType srcColorType = this->getInfo().colorType();
+    // suggestedColorType was determined in read_header() based on the encodedColorType
+    const SkColorType suggestedColorType = this->getInfo().colorType();
 
-    switch (srcColorType) {
+    switch (suggestedColorType) {
         case kIndex_8_SkColorType:
             //decode palette to Skia format
             fSrcConfig = SkSwizzler::kIndex;
@@ -399,13 +400,27 @@ SkCodec::Result SkPngCodec::initializeSwizzler(const SkImageInfo& requestedInfo,
         case kGray_8_SkColorType:
             fSrcConfig = SkSwizzler::kGray;
             break;
-        case kN32_SkColorType:
-            if (this->getInfo().alphaType() == kOpaque_SkAlphaType) {
+        case kN32_SkColorType: {
+            const uint8_t encodedColorType = png_get_color_type(fPng_ptr, fInfo_ptr);
+            if (PNG_COLOR_TYPE_GRAY_ALPHA == encodedColorType ||
+                    PNG_COLOR_TYPE_GRAY == encodedColorType) {
+                // If encodedColorType is GRAY, there must be a transparent chunk.
+                // Otherwise, suggestedColorType would be kGray.  We have already
+                // instructed libpng to convert the transparent chunk to alpha,
+                // so we can treat both GRAY and GRAY_ALPHA as kGrayAlpha.
+                SkASSERT(encodedColorType == PNG_COLOR_TYPE_GRAY_ALPHA ||
+                        png_get_valid(fPng_ptr, fInfo_ptr, PNG_INFO_tRNS));
+
+                fSrcConfig = SkSwizzler::kGrayAlpha;
+            } else {
+                if (this->getInfo().alphaType() == kOpaque_SkAlphaType) {
                     fSrcConfig = SkSwizzler::kRGB;
                 } else {
                     fSrcConfig = SkSwizzler::kRGBA;
+                }
             }
             break;
+        }
         default:
             // We will always recommend one of the above colorTypes.
             SkASSERT(false);
