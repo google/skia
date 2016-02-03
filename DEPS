@@ -11,7 +11,7 @@ deps = {
   "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@8182049470aa3ba0c9f7c54ef965bf1877df08cb",
   "third_party/externals/cmake"   : "https://cmake.googlesource.com/cmake.git@v3.3.1",
   "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@6a19a7d332c5446542196e5aeda0ede109ef097b",
-  "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@08429da7955a98ef764fafa223dd7de73f654b2d",
+  "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@87ac4d0e63fc7dd8152a350327fea8dcf031bf56",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@0.9.35",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.5.0",
