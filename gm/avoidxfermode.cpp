@@ -67,9 +67,9 @@ protected:
 
         r.offsetTo(0.0f, 64);
 
-        // LL corner: replace red with blue with a loose tolerance
+        // LL corner: replace red with transparent blue with a loose tolerance
         SkPaint p3;
-        p3.setColor(SK_ColorBLUE);
+        p3.setColor(0x7F0000FF);
         p3.setXfermode(SkAvoidXfermode::Create(SK_ColorRED,
                                                250,
                                                SkAvoidXfermode::kTargetColor_Mode))->unref();

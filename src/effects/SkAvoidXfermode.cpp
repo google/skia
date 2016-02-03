@@ -164,11 +164,384 @@ void SkAvoidXfermode::xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                              const SkAlpha aa[]) const {
 }
 
+
+#if SK_SUPPORT_GPU
+
+#include "GrFragmentProcessor.h"
+#include "GrInvariantOutput.h"
+#include "GrXferProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLUniformHandler.h"
+#include "glsl/GrGLSLXferProcessor.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Fragment Processor
+///////////////////////////////////////////////////////////////////////////////
+
+class GLAvoidFP;
+
+class AvoidFP : public GrFragmentProcessor {
+public:
+    static const GrFragmentProcessor* Create(SkColor opColor, uint8_t tolerance,
+                                             SkAvoidXfermode::Mode mode,
+                                             const GrFragmentProcessor* dst) {
+        return new AvoidFP(opColor, tolerance, mode, dst);
+    }
+
+    ~AvoidFP() override { }
+
+    const char* name() const override { return "Avoid"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Color: 0x%08x Tol: %d Mode: %s",
+                    fOpColor, fTolerance,
+                    fMode == SkAvoidXfermode::kAvoidColor_Mode ? "Avoid" : "Target");
+        return str;
+    }
+
+    SkColor opColor() const { return fOpColor; }
+    uint8_t tol() const { return fTolerance; }
+    SkAvoidXfermode::Mode mode() const { return fMode; }
+
+private:
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+
+    bool onIsEqual(const GrFragmentProcessor& fpBase) const override {
+        const AvoidFP& fp = fpBase.cast<AvoidFP>();
+
+        return fOpColor == fp.fOpColor &&
+               fTolerance == fp.fTolerance &&
+               fMode == fp.fMode;
+    }
+
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
+        inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+    }
+
+    AvoidFP(SkColor opColor, uint8_t tolerance,
+            SkAvoidXfermode::Mode mode, const GrFragmentProcessor* dst) 
+        : fOpColor(opColor), fTolerance(tolerance), fMode(mode) {
+        this->initClassID<AvoidFP>();
+
+        SkASSERT(dst);
+        SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(dst);
+        SkASSERT(0 == dstIndex);
+    }
+
+    SkColor               fOpColor;
+    uint8_t               fTolerance;
+    SkAvoidXfermode::Mode fMode;
+
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    typedef GrFragmentProcessor INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+// Add common code for calculating avoid's distance value
+static void add_avoid_code(GrGLSLFragmentBuilder* fragBuilder,
+                           const char* dstColor,
+                           const char* srcCoverage,
+                           const char* kColorAndTolUni,
+                           const char* kCoverageName,
+                           SkAvoidXfermode::Mode mode) {
+
+    fragBuilder->codeAppendf("vec3 temp = %s.rgb - %s.rgb;", dstColor, kColorAndTolUni);
+    fragBuilder->codeAppendf("float dist = max(max(abs(temp.r), abs(temp.g)), abs(temp.b));");
+
+    if (SkAvoidXfermode::kTargetColor_Mode == mode) {
+        fragBuilder->codeAppendf("dist = 1.0 - dist;");
+    }
+
+    // the 'a' portion of the uniform is the scaled and inverted tolerance
+    fragBuilder->codeAppendf("dist = dist * %s.a - (%s.a - 1.0);",
+                             kColorAndTolUni, kColorAndTolUni);
+
+    fragBuilder->codeAppendf("vec4 %s = vec4(dist);", kCoverageName);
+    if (srcCoverage) {
+        fragBuilder->codeAppendf("%s *= %s;", kCoverageName, srcCoverage);
+    }
+}
+
+class GLAvoidFP : public GrGLSLFragmentProcessor {
+public:
+    void emitCode(EmitArgs& args) override {
+        const AvoidFP& avoid = args.fFp.cast<AvoidFP>();
+
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        SkString dstColor("dstColor");
+        this->emitChild(0, nullptr, &dstColor, args);
+
+        fColorAndTolUni = args.fUniformHandler->addUniform(
+                                                 GrGLSLUniformHandler::kFragment_Visibility,
+                                                 kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                 "colorAndTol");
+        const char* kColorAndTolUni = args.fUniformHandler->getUniformCStr(fColorAndTolUni);
+
+        const char* kCoverageName = "newCoverage";
+
+        // add_avoid_code emits the code needed to compute the new coverage
+        add_avoid_code(fragBuilder,
+                       dstColor.c_str(), nullptr,
+                       kColorAndTolUni, kCoverageName, avoid.mode());
+
+        // The raster implementation's quantization and behavior yield a very noticeable
+        // effect near zero (0.0039 = 1/256).
+        fragBuilder->codeAppendf("if (%s.r < 0.0039) { %s = %s; } else {",
+                                 kCoverageName, args.fOutputColor, dstColor.c_str());
+        fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0)-%s) * %s;",
+                                 args.fOutputColor,
+                                 kCoverageName, args.fInputColor ? args.fInputColor : "vec4(1.0)",
+                                 kCoverageName, dstColor.c_str());
+        fragBuilder->codeAppend("}");
+    }
+
+    static void GenKey(const GrProcessor& proc, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        const AvoidFP& avoid = proc.cast<AvoidFP>();
+        uint32_t key = avoid.mode() == SkAvoidXfermode::kTargetColor_Mode ? 1 : 0;
+        b->add32(key);
+    }
+
+protected:
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
+        const AvoidFP& avoid = proc.cast<AvoidFP>();
+        pdman.set4f(fColorAndTolUni,
+                    SkColorGetR(avoid.opColor())/255.0f,
+                    SkColorGetG(avoid.opColor())/255.0f,
+                    SkColorGetB(avoid.opColor())/255.0f,
+                    256.0f/(avoid.tol()+1.0f));
+    }
+
+private:
+    GrGLSLProgramDataManager::UniformHandle fColorAndTolUni;
+
+    typedef GrGLSLFragmentProcessor INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrGLSLFragmentProcessor* AvoidFP::onCreateGLSLInstance() const {
+    return new GLAvoidFP;
+}
+
+void AvoidFP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+    GLAvoidFP::GenKey(*this, caps, b);
+}
+
+const GrFragmentProcessor* AvoidFP::TestCreate(GrProcessorTestData* d) {
+    SkColor opColor = d->fRandom->nextU();
+    uint8_t tolerance = d->fRandom->nextBits(8);
+    SkAvoidXfermode::Mode mode = d->fRandom->nextBool() ? SkAvoidXfermode::kAvoidColor_Mode
+                                                        : SkAvoidXfermode::kTargetColor_Mode;
+
+    SkAutoTUnref<const GrFragmentProcessor> dst(GrProcessorUnitTest::CreateChildFP(d));
+    return new AvoidFP(opColor, tolerance, mode, dst);
+}
+
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AvoidFP);
+
+///////////////////////////////////////////////////////////////////////////////
+// Xfer Processor
+///////////////////////////////////////////////////////////////////////////////
+
+class AvoidXP : public GrXferProcessor {
+public:
+    AvoidXP(const DstTexture* dstTexture, bool hasMixedSamples,
+            SkColor opColor, uint8_t tolerance, SkAvoidXfermode::Mode mode)
+        : INHERITED(dstTexture, true, hasMixedSamples)
+        , fOpColor(opColor)
+        , fTolerance(tolerance)
+        , fMode(mode) {
+        this->initClassID<AvoidXP>();
+    }
+
+    const char* name() const override { return "Avoid"; }
+
+    GrGLSLXferProcessor* createGLSLInstance() const override;
+
+    SkColor opColor() const { return fOpColor; }
+    uint8_t tol() const { return fTolerance; }
+    SkAvoidXfermode::Mode mode() const { return fMode; }
+
+private:
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+                                                 bool doesStencilWrite,
+                                                 GrColor* overrideColor,
+                                                 const GrCaps& caps) const override {
+        return GrXferProcessor::kNone_OptFlags;
+    }
+
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+
+    bool onIsEqual(const GrXferProcessor& xpBase) const override { 
+        const AvoidXP& xp = xpBase.cast<AvoidXP>();
+
+        return fOpColor == xp.fOpColor &&
+               fTolerance == xp.fTolerance &&
+               fMode == xp.fMode;
+    }
+
+    SkColor               fOpColor;
+    uint8_t               fTolerance;
+    SkAvoidXfermode::Mode fMode;
+
+    typedef GrXferProcessor INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GLAvoidXP : public GrGLSLXferProcessor {
+public:
+    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        const AvoidXP& avoid = processor.cast<AvoidXP>();
+        uint32_t key = SkAvoidXfermode::kTargetColor_Mode == avoid.mode() ? 1 : 0;
+        b->add32(key);
+    }
+
+private:
+    void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder* fragBuilder,
+                                 GrGLSLUniformHandler* uniformHandler,
+                                 const char* srcColor,
+                                 const char* srcCoverage,
+                                 const char* dstColor,
+                                 const char* outColor,
+                                 const char* outColorSecondary,
+                                 const GrXferProcessor& proc) override {
+        const AvoidXP& avoid = proc.cast<AvoidXP>();
+
+        fColorAndTolUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
+                                                     kVec4f_GrSLType, kDefault_GrSLPrecision,
+                                                     "colorAndTol");
+        const char* kColorandTolUni = uniformHandler->getUniformCStr(fColorAndTolUni);
+
+        const char* kCoverageName = "newCoverage";
+
+        // add_avoid_code emits the code needed to compute the new coverage
+        add_avoid_code(fragBuilder,
+                       dstColor, srcCoverage,
+                       kColorandTolUni, kCoverageName, avoid.mode());
+
+        // The raster implementation's quantization and behavior yield a very noticeable
+        // effect near zero (0.0039 = 1/256).
+        fragBuilder->codeAppendf("if (%s.r < 0.0039) { %s = %s; } else {",
+                                 kCoverageName, outColor, dstColor);
+        fragBuilder->codeAppendf("%s = %s;", outColor, srcColor ? srcColor : "vec4(1.0)");
+        INHERITED::DefaultCoverageModulation(fragBuilder, kCoverageName, dstColor, outColor,
+                                             outColorSecondary, proc);
+        fragBuilder->codeAppend("}");
+    }
+
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrXferProcessor& processor) override {
+        const AvoidXP& avoid = processor.cast<AvoidXP>();
+        pdman.set4f(fColorAndTolUni,
+                    SkColorGetR(avoid.opColor())/255.0f,
+                    SkColorGetG(avoid.opColor())/255.0f,
+                    SkColorGetB(avoid.opColor())/255.0f,
+                    256.0f/(avoid.tol()+1.0f));
+    };
+
+    GrGLSLProgramDataManager::UniformHandle fColorAndTolUni;
+
+    typedef GrGLSLXferProcessor INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+void AvoidXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+    GLAvoidXP::GenKey(*this, caps, b);
+}
+
+GrGLSLXferProcessor* AvoidXP::createGLSLInstance() const { return new GLAvoidXP; }
+
+///////////////////////////////////////////////////////////////////////////////
+class GrAvoidXPFactory : public GrXPFactory {
+public:
+    static GrXPFactory* Create(SkColor opColor, uint8_t tolerance,
+                               SkAvoidXfermode::Mode mode) {
+        return new GrAvoidXPFactory(opColor, tolerance, mode);
+    }
+
+    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
+                                  GrXPFactory::InvariantBlendedColor* blendedColor) const override {
+        blendedColor->fWillBlendWithDst = true;
+        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+    }
+
+private:
+    GrAvoidXPFactory(SkColor opColor, uint8_t tolerance, SkAvoidXfermode::Mode mode)
+        : fOpColor(opColor)
+        , fTolerance(tolerance)
+        , fMode(mode) {
+        this->initClassID<GrAvoidXPFactory>();
+    }
+
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
+                                           const GrPipelineOptimizations& optimizations,
+                                           bool hasMixedSamples,
+                                           const DstTexture* dstTexture) const override {
+        return new AvoidXP(dstTexture, hasMixedSamples, fOpColor, fTolerance, fMode);
+    }
+
+    bool onWillReadDstColor(const GrCaps& caps,
+                            const GrPipelineOptimizations& optimizations,
+                            bool hasMixedSamples) const override {
+        return true;
+    }
+
+    bool onIsEqual(const GrXPFactory& xpfBase) const override {
+        const GrAvoidXPFactory& xpf = xpfBase.cast<GrAvoidXPFactory>();
+        return fOpColor == xpf.fOpColor &&
+               fTolerance == xpf.fTolerance &&
+               fMode == xpf.fMode;
+    }
+
+    GR_DECLARE_XP_FACTORY_TEST;
+
+    SkColor               fOpColor;
+    uint8_t               fTolerance;
+    SkAvoidXfermode::Mode fMode;
+
+    typedef GrXPFactory INHERITED;
+};
+
+GR_DEFINE_XP_FACTORY_TEST(GrAvoidXPFactory);
+
+const GrXPFactory* GrAvoidXPFactory::TestCreate(GrProcessorTestData* d) {
+    SkColor opColor = d->fRandom->nextU();
+    uint8_t tolerance = d->fRandom->nextBits(8);
+    SkAvoidXfermode::Mode mode = d->fRandom->nextBool() ? SkAvoidXfermode::kAvoidColor_Mode
+                                                        : SkAvoidXfermode::kTargetColor_Mode;
+    return GrAvoidXPFactory::Create(opColor, tolerance, mode);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkAvoidXfermode::asFragmentProcessor(const GrFragmentProcessor** output,
+                                          const GrFragmentProcessor* dst) const {
+    if (output) {
+        *output = AvoidFP::Create(fOpColor, fTolerance, fMode, dst);
+    }
+    return true;
+}
+
+bool SkAvoidXfermode::asXPFactory(GrXPFactory** xpf) const {
+    if (xpf) {
+        *xpf = GrAvoidXPFactory::Create(fOpColor, fTolerance, fMode);
+    }
+    return true;
+}
+#endif
+
 #ifndef SK_IGNORE_TO_STRING
 void SkAvoidXfermode::toString(SkString* str) const {
     str->append("AvoidXfermode: opColor: ");
     str->appendHex(fOpColor);
-    str->appendf("distMul: %d ", fDistMul);
+    str->appendf("tolerance: %d ", fTolerance);
 
     static const char* gModeStrings[] = { "Avoid", "Target" };
 
