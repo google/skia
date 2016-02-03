@@ -155,7 +155,7 @@ public:
      * This is a safeguard to prevent GrPrimitiveProcessor's from going beyond platform specific
      * attribute limits. This number can almost certainly be raised if required.
      */
-    static const int kMaxVertexAttribs = 6;
+    static const int kMaxVertexAttribs = 8;
 
     struct Attribute {
         Attribute()
