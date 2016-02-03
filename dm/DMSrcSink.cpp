@@ -18,6 +18,7 @@
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
+#include "SkOpts.h"
 #include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkRandom.h"
@@ -257,6 +258,32 @@ bool CodecSrc::veto(SinkFlags flags) const {
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
+// FIXME: Currently we cannot draw unpremultiplied sources. skbug.com/3338 and skbug.com/3339.
+// This allows us to still test unpremultiplied decodes.
+void premultiply_if_necessary(SkBitmap& bitmap) {
+    if (kUnpremul_SkAlphaType != bitmap.alphaType()) {
+        return;
+    }
+
+    switch (bitmap.colorType()) {
+        case kN32_SkColorType:
+            for (int y = 0; y < bitmap.height(); y++) {
+                uint32_t* row = (uint32_t*) bitmap.getAddr(0, y);
+                SkOpts::RGBA_to_rgbA(row, row, bitmap.width());
+            }
+            break;
+        case kIndex_8_SkColorType: {
+            SkColorTable* colorTable = bitmap.getColorTable();
+            SkPMColor* colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
+            SkOpts::RGBA_to_rgbA(colorPtr, colorPtr, colorTable->count());
+            break;
+        }
+        default:
+            // No need to premultiply kGray or k565 outputs.
+            break;
+    }
+}
+
 bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
                      CodecSrc::DstColorType dstColorType) {
     switch (dstColorType) {
@@ -380,6 +407,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     // Everything else is considered a failure.
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
+            premultiply_if_necessary(bitmap);
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -413,6 +441,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 }
             }
 
+            premultiply_if_necessary(bitmap);
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -464,6 +493,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     codec->skipScanlines(linesToSkip);
                 }
             }
+            premultiply_if_necessary(bitmap);
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         }
@@ -536,6 +566,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                   x, y, decodeInfo.width(), decodeInfo.height(),
                                                   fPath.c_str(), W, H, result);
                     }
+                    premultiply_if_necessary(subsetBm);
                     canvas->drawBitmap(subsetBm, SkIntToScalar(left), SkIntToScalar(top));
                     // translate by the scaled height.
                     top += decodeInfo.height();
@@ -646,6 +677,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
                 default:
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
+            premultiply_if_necessary(bitmap);
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
@@ -705,6 +737,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
             SkRect rect = SkRect::MakeXYWH(0, 0, (SkScalar) finalScaledWidth,
                     (SkScalar) finalScaledHeight);
+            premultiply_if_necessary(bitmap);
             canvas->drawBitmapRect(bitmap, rect, rect, nullptr);
             return "";
         }

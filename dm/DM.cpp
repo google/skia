@@ -313,6 +313,9 @@ static void push_android_codec_src(Path path, AndroidCodecSrc::Mode mode,
         case kPremul_SkAlphaType:
             folder.append("_premul");
             break;
+        case kUnpremul_SkAlphaType:
+            folder.append("_unpremul");
+            break;
         default:
             break;
     }
@@ -373,8 +376,7 @@ static void push_codec_srcs(Path path) {
 
     SkTArray<SkAlphaType> alphaModes;
     alphaModes.push_back(kPremul_SkAlphaType);
-    // FIXME: Currently we cannot draw unpremultiplied sources. skbug.com/3338 and skbug.com/3339
-    // alphaModes.push_back(kUnpremul_SkAlphaType);
+    alphaModes.push_back(kUnpremul_SkAlphaType);
     if (codec->getInfo().alphaType() == kOpaque_SkAlphaType) {
         alphaModes.push_back(kOpaque_SkAlphaType);
     }
