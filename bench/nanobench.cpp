@@ -586,19 +586,8 @@ public:
         fUseMPDs.push_back() = false;
 
         // Prepare the images for decoding
-        for (int i = 0; i < FLAGS_images.count(); i++) {
-            const char* flag = FLAGS_images[i];
-            if (sk_isdir(flag)) {
-                // If the value passed in is a directory, add all the images
-                SkOSFile::Iter it(flag);
-                SkString file;
-                while (it.next(&file)) {
-                    fImages.push_back() = SkOSPath::Join(flag, file.c_str());
-                }
-            } else if (sk_exists(flag)) {
-                // Also add the value if it is a single image
-                fImages.push_back() = flag;
-            }
+        if (!CollectImages(&fImages)) {
+            exit(1);
         }
 
         // Choose the candidate color types for image decoding
