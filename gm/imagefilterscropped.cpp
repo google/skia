@@ -72,11 +72,11 @@ public:
     ImageFiltersCroppedGM () {}
 
 protected:
-    virtual SkString onShortName() override {
+    SkString onShortName() override {
         return SkString("imagefilterscropped");
     }
 
-    virtual SkISize onISize() override { return SkISize::Make(400, 880); }
+    SkISize onISize() override { return SkISize::Make(400, 960); }
 
     void make_checkerboard() {
         fCheckerboard.allocN32Pixels(80, 80);
@@ -131,6 +131,7 @@ protected:
         SkImageFilter* filters[] = {
             nullptr,
             SkColorFilterImageFilter::Create(cf.get(), nullptr, &cropRect),
+            SkBlurImageFilter::Create(0.0f, 0.0f, nullptr, &cropRect),
             SkBlurImageFilter::Create(1.0f, 1.0f, nullptr, &cropRect),
             SkBlurImageFilter::Create(8.0f, 0.0f, nullptr, &cropRect),
             SkBlurImageFilter::Create(0.0f, 8.0f, nullptr, &cropRect),

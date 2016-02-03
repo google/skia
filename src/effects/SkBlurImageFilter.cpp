@@ -25,7 +25,7 @@
 // raster paths.
 #define MAX_SIGMA SkIntToScalar(532)
 
-static SkVector mapSigma(const SkSize& localSigma, const SkMatrix& ctm) {
+static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
     SkVector sigma = SkVector::Make(localSigma.width(), localSigma.height());
     ctm.mapVectors(&sigma, 1);
     sigma.fX = SkMinScalar(SkScalarAbs(sigma.fX), MAX_SIGMA);
@@ -90,19 +90,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    SkAutoLockPixels alp(src);
-    if (!src.getPixels()) {
-        return false;
-    }
-
-    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstBounds.width(), dstBounds.height()));
-    if (!device) {
-        return false;
-    }
-    *dst = device->accessBitmap(false);
-    SkAutoLockPixels alp_dst(*dst);
-
-    SkVector sigma = mapSigma(fSigma, ctx.ctm());
+    SkVector sigma = map_sigma(fSigma, ctx.ctm());
 
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
     int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
@@ -114,11 +102,23 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
 
     if (kernelSizeX == 0 && kernelSizeY == 0) {
-        src.copyTo(dst, dst->colorType());
-        offset->fX = dstBounds.x() + srcOffset.x();
-        offset->fY = dstBounds.y() + srcOffset.y();
+        src.extractSubset(dst, srcBounds);
+        offset->fX = srcBounds.x();
+        offset->fY = srcBounds.y();
         return true;
     }
+
+    SkAutoLockPixels alp(src);
+    if (!src.getPixels()) {
+        return false;
+    }
+
+    SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstBounds.width(), dstBounds.height()));
+    if (!device) {
+        return false;
+    }
+    *dst = device->accessBitmap(false);
+    SkAutoLockPixels alp_dst(*dst);
 
     SkAutoTUnref<SkBaseDevice> tempDevice(proxy->createDevice(dst->width(), dst->height()));
     if (!tempDevice) {
@@ -191,7 +191,7 @@ void SkBlurImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const 
 void SkBlurImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                            SkIRect* dst, MapDirection) const {
     *dst = src;
-    SkVector sigma = mapSigma(fSigma, ctm);
+    SkVector sigma = map_sigma(fSigma, ctm);
     dst->outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
                 SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
 }
@@ -211,15 +211,21 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     if (!srcBounds.intersect(dstBounds)) {
         return false;
     }
-    GrTexture* source = input.getTexture();
-    SkVector sigma = mapSigma(fSigma, ctx.ctm());
+    SkVector sigma = map_sigma(fSigma, ctx.ctm());
+    if (sigma.x() == 0 && sigma.y() == 0) {
+        input.extractSubset(result, srcBounds);
+        offset->fX = srcBounds.x();
+        offset->fY = srcBounds.y();
+        return true;
+    }
     offset->fX = dstBounds.fLeft;
     offset->fY = dstBounds.fTop;
     srcBounds.offset(-srcOffset);
     dstBounds.offset(-srcOffset);
     SkRect srcBoundsF(SkRect::Make(srcBounds));
-    SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),
-                                                             source,
+    GrTexture* inputTexture = input.getTexture();
+    SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(inputTexture->getContext(),
+                                                             inputTexture,
                                                              false,
                                                              SkRect::Make(dstBounds),
                                                              &srcBoundsF,
