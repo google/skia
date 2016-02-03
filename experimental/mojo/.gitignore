@@ -1,0 +1,6 @@
+*.mojom-*
+*.mojom.*
+*_mojom.*
+dart-gen
+go
+

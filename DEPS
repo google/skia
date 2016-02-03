@@ -47,6 +47,9 @@ deps = {
 
   # microhttpd for skiaserve
   "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
+
+  # Mojo SDK for Mojo RPC experiments.
+  "third_party/externals/mojo/public" : "https://chromium.googlesource.com/external/github.com/domokit/mojo_sdk@172be18ea745ab29aea132e6cb952e726dc32543",
 }
 
 recursedeps = [ "common" ]

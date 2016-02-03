@@ -38,6 +38,8 @@
   'variables': {  # level 1
     'angle_path%': '../',
 
+    'skia_mojo%': '0',
+
     'variables': {  # level 2
 
       # Variables needed by conditions list within the level-2 variables dict.

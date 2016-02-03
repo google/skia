@@ -691,6 +691,7 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
     VIA("remote",       ViaRemote, false, wrapped);
     VIA("remote_cache", ViaRemote, true,  wrapped);
+    VIA("mojo",      ViaMojo,             wrapped);
 
     if (FLAGS_matrix.count() == 4) {
         SkMatrix m;

@@ -357,6 +357,12 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
+class ViaMojo : public Via {
+public:
+    explicit ViaMojo(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
 }  // namespace DM
 
 #endif//DMSrcSink_DEFINED
