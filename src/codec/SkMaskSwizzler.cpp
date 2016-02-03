@@ -235,18 +235,19 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
         case 16:
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
-                    switch (dstInfo.alphaType()) {
-                        case kUnpremul_SkAlphaType:
-                            proc = &swizzle_mask16_to_n32_unpremul;
-                            break;
-                        case kPremul_SkAlphaType:
-                            proc = &swizzle_mask16_to_n32_premul;
-                            break;
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask16_to_n32_opaque;
-                            break;
-                        default:
-                            break;
+                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                        proc = &swizzle_mask16_to_n32_opaque;
+                    } else {
+                        switch (dstInfo.alphaType()) {
+                            case kUnpremul_SkAlphaType:
+                                proc = &swizzle_mask16_to_n32_unpremul;
+                                break;
+                            case kPremul_SkAlphaType:
+                                proc = &swizzle_mask16_to_n32_premul;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     break;
                 case kRGB_565_SkColorType:
@@ -259,18 +260,19 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
         case 24:
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
-                    switch (dstInfo.alphaType()) {
-                        case kUnpremul_SkAlphaType:
-                            proc = &swizzle_mask24_to_n32_unpremul;
-                            break;
-                        case kPremul_SkAlphaType:
-                            proc = &swizzle_mask24_to_n32_premul;
-                            break;
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask24_to_n32_opaque;
-                            break;
-                        default:
-                            break;
+                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                        proc = &swizzle_mask24_to_n32_opaque;
+                    } else {
+                        switch (dstInfo.alphaType()) {
+                            case kUnpremul_SkAlphaType:
+                                proc = &swizzle_mask24_to_n32_unpremul;
+                                break;
+                            case kPremul_SkAlphaType:
+                                proc = &swizzle_mask24_to_n32_premul;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     break;
                 case kRGB_565_SkColorType:
@@ -283,18 +285,19 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
         case 32:
             switch (dstInfo.colorType()) {
                 case kN32_SkColorType:
-                    switch (dstInfo.alphaType()) {
-                        case kUnpremul_SkAlphaType:
-                            proc = &swizzle_mask32_to_n32_unpremul;
-                            break;
-                        case kPremul_SkAlphaType:
-                            proc = &swizzle_mask32_to_n32_premul;
-                            break;
-                        case kOpaque_SkAlphaType:
-                            proc = &swizzle_mask32_to_n32_opaque;
-                            break;
-                        default:
-                            break;
+                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                        proc = &swizzle_mask32_to_n32_opaque;
+                    } else {
+                        switch (dstInfo.alphaType()) {
+                            case kUnpremul_SkAlphaType:
+                                proc = &swizzle_mask32_to_n32_unpremul;
+                                break;
+                            case kPremul_SkAlphaType:
+                                proc = &swizzle_mask32_to_n32_premul;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     break;
                 case kRGB_565_SkColorType:
