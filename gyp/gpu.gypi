@@ -394,6 +394,7 @@
       '<(skia_src_path)/gpu/glsl/GrGLSLProcessorTypes.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramBuilder.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramBuilder.h',
+      '<(skia_src_path)/gpu/glsl/GrGLSLProgramDataManager.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLProgramDataManager.h',
       '<(skia_src_path)/gpu/glsl/GrGLSLShaderBuilder.cpp',
       '<(skia_src_path)/gpu/glsl/GrGLSLShaderBuilder.h',

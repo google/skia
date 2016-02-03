@@ -66,9 +66,6 @@ public:
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
-    // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
-    void setSkMatrix(UniformHandle, const SkMatrix&) const override;
-
     // for nvpr only
     void setPathFragmentInputTransform(VaryingHandle u, int components,
                                        const SkMatrix& matrix) const override;

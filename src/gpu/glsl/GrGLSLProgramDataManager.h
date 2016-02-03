@@ -62,7 +62,7 @@ public:
     virtual void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const = 0;
 
     // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
-    virtual void setSkMatrix(UniformHandle, const SkMatrix&) const = 0;
+    void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
     // for nvpr only
     typedef ShaderResourceHandle VaryingHandle;
