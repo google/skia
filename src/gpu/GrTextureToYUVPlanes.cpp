@@ -170,7 +170,12 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
             SkASSERT(sizes[0] == sizes[1] && sizes[1] == sizes[2]);
             SkISize yuvSize = sizes[0];
             // We have no kRGB_888 pixel format, so readback rgba and then copy three channels.
+#if defined(GOOGLE3)
+            // Stack frame size is limited in GOOGLE3.
+            SkAutoSTMalloc<48 * 48, uint32_t> tempYUV(yuvSize.fWidth * yuvSize.fHeight);
+#else
             SkAutoSTMalloc<128 * 128, uint32_t> tempYUV(yuvSize.fWidth * yuvSize.fHeight);
+#endif
             if (!yuvTex->readPixels(0, 0, yuvSize.fWidth, yuvSize.fHeight,
                                     kRGBA_8888_GrPixelConfig, tempYUV.get(), 0)) {
                 return false;
@@ -207,7 +212,12 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
                 SkASSERT(sizes[1].fWidth == sizes[2].fWidth);
                 SkISize uvSize = sizes[1];
                 // We have no kRG_88 pixel format, so readback rgba and then copy two channels.
+#if defined(GOOGLE3)
+                // Stack frame size is limited in GOOGLE3.
+                SkAutoSTMalloc<48 * 48, uint32_t> tempUV(uvSize.fWidth * uvSize.fHeight);
+#else
                 SkAutoSTMalloc<128 * 128, uint32_t> tempUV(uvSize.fWidth * uvSize.fHeight);
+#endif
                 if (!uvTex->readPixels(0, 0, uvSize.fWidth, uvSize.fHeight,
                                        kRGBA_8888_GrPixelConfig, tempUV.get(), 0)) {
                     return false;
