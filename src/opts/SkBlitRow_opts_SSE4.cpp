@@ -19,11 +19,14 @@ void S32A_Opaque_BlitRow32_SSE4(SkPMColor* SK_RESTRICT, const SkPMColor* SK_REST
 #include <smmintrin.h>      // SSE4.1 intrinsics
 #include "SkColorPriv.h"
 #include "SkColor_opts_SSE2.h"
+#include "SkMSAN.h"
 
 void S32A_Opaque_BlitRow32_SSE4(SkPMColor* SK_RESTRICT dst,
                                 const SkPMColor* SK_RESTRICT src,
                                 int count,
                                 U8CPU alpha) {
+    sk_msan_assert_initialized(src, src+count);
+
     SkASSERT(alpha == 255);
     // As long as we can, we'll work on 16 pixel pairs at once.
     int count16 = count / 16;

@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkColor_opts_SSE2.h"
 #include "SkDither.h"
+#include "SkMSAN.h"
 #include "SkUtils.h"
 
 /* SSE2 version of S32_Blend_BlitRow32()
@@ -69,6 +70,8 @@ void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
                                 const SkPMColor* SK_RESTRICT src,
                                 int count, U8CPU alpha) {
+    sk_msan_assert_initialized(src, src+count);
+
     SkASSERT(alpha == 255);
     if (count <= 0) {
         return;
