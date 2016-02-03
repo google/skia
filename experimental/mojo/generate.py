@@ -7,9 +7,11 @@
 
 import hashlib
 import os
-import subprocess
-import urllib2
+import platform
 import stat
+import subprocess
+import sys
+import urllib2
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 MOJO_DIR = os.path.abspath(os.path.join(THIS_DIR, '../../third_party/externals/mojo'))
@@ -35,9 +37,16 @@ def GetFile(filename, bucket_directory):
     assert sha1hash(filename) == sha
 
 def GenerateBindings(path, cdir=None):
-    GetFile(os.path.join(MOJO_DIR,
-                         'public/tools/bindings/mojom_parser/bin/linux64/mojom_parser'),
-            'mojo/mojom_parser/linux64')
+    system = (platform.machine(), platform.system())
+    if ('x86_64', 'Darwin') == system:
+        parser = 'public/tools/bindings/mojom_parser/bin/mac64/mojom_parser'
+        bucket_directory = 'mojo/mojom_parser/mac64'
+    elif ('x86_64', 'Linux') == system:
+        parser = 'public/tools/bindings/mojom_parser/bin/linux64/mojom_parser'
+        bucket_directory = 'mojo/mojom_parser/linux64'
+    else:
+        assert False
+    GetFile(os.path.join(MOJO_DIR, parser), bucket_directory)
     assert os.path.isfile(path)
     path = os.path.abspath(path)
     exe = os.path.join(
@@ -51,12 +60,15 @@ def GenerateBindings(path, cdir=None):
     subprocess.check_call([exe, os.path.relpath(path, cdir)])
     os.chdir(cwd)
 
-for f in [
-    'public/interfaces/bindings/interface_control_messages.mojom',
-    'public/interfaces/application/service_provider.mojom',
-    'public/interfaces/bindings/tests/ping_service.mojom',
-    'public/interfaces/application/application.mojom',
-    ]:
-    GenerateBindings(os.path.join(MOJO_DIR, f), os.path.join(MOJO_DIR, os.pardir))
-
-GenerateBindings(os.path.join(THIS_DIR, 'SkMojo.mojom'))
+if __name__ == '__main__':
+    if 1 == len(sys.argv):
+        for f in [
+            'public/interfaces/bindings/interface_control_messages.mojom',
+            'public/interfaces/application/service_provider.mojom',
+            'public/interfaces/bindings/tests/ping_service.mojom',
+            'public/interfaces/application/application.mojom',
+            ]:
+            GenerateBindings(os.path.join(MOJO_DIR, f), os.path.join(MOJO_DIR, os.pardir))
+    else:
+        for arg in sys.argv[1:]:
+            GenerateBindings(arg)
