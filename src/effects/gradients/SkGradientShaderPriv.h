@@ -404,7 +404,6 @@ private:
 class GrGLGradientEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLGradientEffect();
-    virtual ~GrGLGradientEffect();
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;

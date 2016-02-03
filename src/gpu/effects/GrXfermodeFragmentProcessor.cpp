@@ -59,8 +59,6 @@ private:
 
 class GLComposeTwoFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLComposeTwoFragmentProcessor(const GrProcessor& processor) {}
-
     void emitCode(EmitArgs&) override;
 
 private:
@@ -82,7 +80,7 @@ const GrFragmentProcessor* ComposeTwoFragmentProcessor::TestCreate(GrProcessorTe
 }
 
 GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLSLInstance() const{
-    return new GLComposeTwoFragmentProcessor(*this);
+    return new GLComposeTwoFragmentProcessor;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -229,8 +227,6 @@ private:
 
 class GLComposeOneFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLComposeOneFragmentProcessor(const GrProcessor& processor) {}
-
     void emitCode(EmitArgs& args) override {
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkXfermode::Mode mode = args.fFp.cast<ComposeOneFragmentProcessor>().mode();
@@ -278,7 +274,7 @@ const GrFragmentProcessor* ComposeOneFragmentProcessor::TestCreate(GrProcessorTe
 }
 
 GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLSLInstance() const {
-    return new GLComposeOneFragmentProcessor(*this);
+    return new GLComposeOneFragmentProcessor;
 }
 
 //////////////////////////////////////////////////////////////////////////////

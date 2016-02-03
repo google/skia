@@ -23,9 +23,7 @@ const SkScalar GrBicubicEffect::gMitchellCoefficients[16] = {
 
 class GrGLBicubicEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLBicubicEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
                               GrProcessorKeyBuilder* b) {
@@ -45,9 +43,6 @@ private:
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GrGLBicubicEffect::GrGLBicubicEffect(const GrProcessor&) {
-}
 
 void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     const GrTextureDomain& domain = args.fFp.cast<GrBicubicEffect>().domain();
@@ -168,7 +163,7 @@ void GrBicubicEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const  {
-    return new GrGLBicubicEffect(*this);
+    return new GrGLBicubicEffect;
 }
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

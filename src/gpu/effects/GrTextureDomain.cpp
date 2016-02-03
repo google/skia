@@ -176,9 +176,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
 
 class GrGLTextureDomainEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLTextureDomainEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -189,9 +187,6 @@ private:
     GrTextureDomain::GLDomain         fGLDomain;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProcessor&) {
-}
 
 void GrGLTextureDomainEffect::emitCode(EmitArgs& args) {
     const GrTextureDomainEffect& textureDomainEffect = args.fFp.cast<GrTextureDomainEffect>();
@@ -261,7 +256,7 @@ void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
-    return new GrGLTextureDomainEffect(*this);
+    return new GrGLTextureDomainEffect;
 }
 
 bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

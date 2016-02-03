@@ -913,8 +913,6 @@ GrGLGradientEffect::GrGLGradientEffect()
     : fCachedYCoord(SK_ScalarMax) {
 }
 
-GrGLGradientEffect::~GrGLGradientEffect() { }
-
 void GrGLGradientEffect::emitUniforms(GrGLSLUniformHandler* uniformHandler,
                                       const GrGradientEffect& ge) {
 

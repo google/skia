@@ -473,9 +473,8 @@ void SkPerlinNoiseShader::PerlinNoiseShaderContext::shadeSpan(
 class GrGLPerlinNoise : public GrGLSLFragmentProcessor {
 public:
     GrGLPerlinNoise(const GrProcessor&);
-    virtual ~GrGLPerlinNoise() {}
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
@@ -490,7 +489,6 @@ private:
     int                                     fNumOctaves;
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
-private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 

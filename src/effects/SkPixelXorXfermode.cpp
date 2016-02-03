@@ -171,10 +171,6 @@ private:
 
 class GLPixelXorFP : public GrGLSLFragmentProcessor {
 public:
-    GLPixelXorFP(const PixelXorFP&) {}
-
-    ~GLPixelXorFP() override {}
-
     void emitCode(EmitArgs& args) override {
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString dstColor("dstColor");
@@ -209,7 +205,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLSLFragmentProcessor* PixelXorFP::onCreateGLSLInstance() const {
-    return new GLPixelXorFP(*this);
+    return new GLPixelXorFP;
 }
 
 void PixelXorFP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {

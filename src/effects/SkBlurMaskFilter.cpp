@@ -1043,9 +1043,7 @@ const GrFragmentProcessor* GrRRectBlurEffect::TestCreate(GrProcessorTestData* d)
 
 class GrGLRRectBlurEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLRRectBlurEffect(const GrProcessor&) {}
-
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -1138,7 +1136,7 @@ void GrRRectBlurEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLSLInstance() const {
-    return new GrGLRRectBlurEffect(*this);
+    return new GrGLRRectBlurEffect;
 }
 
 bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrTextureProvider* texProvider,

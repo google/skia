@@ -377,9 +377,7 @@ private:
 
 class GLColorTableEffect : public GrGLSLFragmentProcessor {
 public:
-    GLColorTableEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
 
@@ -390,9 +388,6 @@ private:
     UniformHandle fRGBAYValuesUni;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLColorTableEffect::GLColorTableEffect(const GrProcessor&) {
-}
 
 void GLColorTableEffect::onSetData(const GrGLSLProgramDataManager& pdm, const GrProcessor& proc) {
     // The textures are organized in a strip where the rows are ordered a, r, g, b.
@@ -507,7 +502,7 @@ void ColorTableEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
-    return new GLColorTableEffect(*this);
+    return new GLColorTableEffect;
 }
 
 bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& other) const {

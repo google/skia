@@ -313,9 +313,8 @@ void SkDisplacementMapEffect::toString(SkString* str) const {
 class GrGLDisplacementMapEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLDisplacementMapEffect(const GrProcessor&);
-    virtual ~GrGLDisplacementMapEffect();
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -546,9 +545,6 @@ const GrFragmentProcessor* GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
 GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrProcessor& proc)
     : fXChannelSelector(proc.cast<GrDisplacementMapEffect>().xChannelSelector())
     , fYChannelSelector(proc.cast<GrDisplacementMapEffect>().yChannelSelector()) {
-}
-
-GrGLDisplacementMapEffect::~GrGLDisplacementMapEffect() {
 }
 
 void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {

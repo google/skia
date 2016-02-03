@@ -105,10 +105,6 @@ static void add_overdraw_code(GrGLSLFragmentBuilder* fragBuilder,
 
 class GLOverdrawFP : public GrGLSLFragmentProcessor {
 public:
-    GLOverdrawFP(const GrOverdrawFP&) {}
-
-    ~GLOverdrawFP() override {}
-
     void emitCode(EmitArgs& args) override {
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString dstColor("dstColor");
@@ -126,7 +122,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLSLFragmentProcessor* GrOverdrawFP::onCreateGLSLInstance() const {
-    return new GLOverdrawFP(*this);
+    return new GLOverdrawFP;
 }
 
 void GrOverdrawFP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {

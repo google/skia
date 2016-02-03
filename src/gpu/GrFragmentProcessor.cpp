@@ -152,8 +152,6 @@ const GrFragmentProcessor* GrFragmentProcessor::MulOutputByInputUnpremulColor(
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
-                GLFP() {}
-
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
                     this->emitChild(0, nullptr, args);
@@ -304,7 +302,6 @@ const GrFragmentProcessor* GrFragmentProcessor::RunInSeries(const GrFragmentProc
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
-                GLFP() {}
                 void emitCode(EmitArgs& args) override {
                     SkString input(args.fInputColor);
                     for (int i = 0; i < this->numChildProcessors() - 1; ++i) {

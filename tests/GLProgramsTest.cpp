@@ -45,9 +45,7 @@ static const uint32_t kMaxKeySize = 1024;
 
 class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLBigKeyProcessor(const GrProcessor&) {}
-
-    virtual void emitCode(EmitArgs& args) override {
+    void emitCode(EmitArgs& args) override {
         // pass through
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         if (args.fInputColor) {
@@ -76,7 +74,7 @@ public:
     const char* name() const override { return "Big Ole Key"; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLBigKeyProcessor(*this);
+        return new GLBigKeyProcessor;
     }
 
 private:

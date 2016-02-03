@@ -18,7 +18,7 @@ class GrGLConvolutionEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLConvolutionEffect(const GrProcessor&);
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 

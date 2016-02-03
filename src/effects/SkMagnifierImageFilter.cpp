@@ -100,9 +100,7 @@ typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLMagnifierEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -115,9 +113,6 @@ private:
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProcessor&) {
-}
 
 void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
@@ -187,7 +182,7 @@ void GrMagnifierEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
-    return new GrGLMagnifierEffect(*this);
+    return new GrGLMagnifierEffect;
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);

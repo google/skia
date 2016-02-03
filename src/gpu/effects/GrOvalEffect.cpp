@@ -93,7 +93,7 @@ const GrFragmentProcessor* CircleEffect::TestCreate(GrProcessorTestData* d) {
 
 class GLCircleEffect : public GrGLSLFragmentProcessor {
 public:
-    GLCircleEffect(const GrProcessor&);
+    GLCircleEffect() : fPrevRadius(-1.0f) { }
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -109,10 +109,6 @@ private:
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLCircleEffect::GLCircleEffect(const GrProcessor&) {
-    fPrevRadius = -1.f;
-}
 
 void GLCircleEffect::emitCode(EmitArgs& args) {
     const CircleEffect& ce = args.fFp.cast<CircleEffect>();
@@ -180,7 +176,7 @@ void CircleEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* CircleEffect::onCreateGLSLInstance() const  {
-    return new GLCircleEffect(*this);
+    return new GLCircleEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -265,9 +261,11 @@ const GrFragmentProcessor* EllipseEffect::TestCreate(GrProcessorTestData* d) {
 
 class GLEllipseEffect : public GrGLSLFragmentProcessor {
 public:
-    GLEllipseEffect(const GrProcessor&);
+    GLEllipseEffect() {
+        fPrevRadii.fX = -1.0f;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -282,10 +280,6 @@ private:
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLEllipseEffect::GLEllipseEffect(const GrProcessor& effect) {
-    fPrevRadii.fX = -1.f;
-}
 
 void GLEllipseEffect::emitCode(EmitArgs& args) {
     const EllipseEffect& ee = args.fFp.cast<EllipseEffect>();
@@ -392,7 +386,7 @@ void EllipseEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* EllipseEffect::onCreateGLSLInstance() const  {
-    return new GLEllipseEffect(*this);
+    return new GLEllipseEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////

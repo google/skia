@@ -55,12 +55,9 @@ static void add_arithmetic_code(GrGLSLFragmentBuilder* fragBuilder,
 
 class GLArithmeticFP : public GrGLSLFragmentProcessor {
 public:
-    GLArithmeticFP(const GrArithmeticFP& arithmeticFP)
-        : fEnforcePMColor(arithmeticFP.enforcePMColor()) {}
-
-    ~GLArithmeticFP() override {}
-
     void emitCode(EmitArgs& args) override {
+        const GrArithmeticFP& arith = args.fFp.cast<GrArithmeticFP>();
+
         GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString dstColor("dstColor");
         this->emitChild(0, nullptr, &dstColor, args);
@@ -75,7 +72,7 @@ public:
                             dstColor.c_str(),
                             args.fOutputColor,
                             kUni,
-                            fEnforcePMColor);
+                            arith.enforcePMColor());
     }
 
     static void GenKey(const GrProcessor& proc, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) {
@@ -88,12 +85,10 @@ protected:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
         const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
         pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
-        fEnforcePMColor = arith.enforcePMColor();
     }
 
 private:
     GrGLSLProgramDataManager::UniformHandle fKUni;
-    bool fEnforcePMColor;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
@@ -115,7 +110,7 @@ void GrArithmeticFP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKe
 }
 
 GrGLSLFragmentProcessor* GrArithmeticFP::onCreateGLSLInstance() const {
-    return new GLArithmeticFP(*this);
+    return new GLArithmeticFP;
 }
 
 bool GrArithmeticFP::onIsEqual(const GrFragmentProcessor& fpBase) const {

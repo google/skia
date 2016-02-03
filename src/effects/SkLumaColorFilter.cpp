@@ -62,11 +62,9 @@ public:
 
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        GLSLProcessor(const GrProcessor&) {}
-
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
 
-        virtual void emitCode(EmitArgs& args) override {
+        void emitCode(EmitArgs& args) override {
             if (nullptr == args.fInputColor) {
                 args.fInputColor = "vec4(1)";
             }
@@ -92,7 +90,7 @@ private:
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLProcessor(*this);
+        return new GLSLProcessor;
     }
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,

@@ -255,7 +255,7 @@ class GrGLMorphologyEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLMorphologyEffect(const GrProcessor&);
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 

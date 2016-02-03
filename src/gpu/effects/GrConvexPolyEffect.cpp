@@ -81,9 +81,11 @@ const GrFragmentProcessor* AARectEffect::TestCreate(GrProcessorTestData* d) {
 
 class GLAARectEffect : public GrGLSLFragmentProcessor {
 public:
-    GLAARectEffect(const GrProcessor&);
+    GLAARectEffect() {
+        fPrevRect.fLeft = SK_ScalarNaN;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -95,10 +97,6 @@ private:
     SkRect                                fPrevRect;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLAARectEffect::GLAARectEffect(const GrProcessor& effect) {
-    fPrevRect.fLeft = SK_ScalarNaN;
-}
 
 void GLAARectEffect::emitCode(EmitArgs& args) {
     const AARectEffect& aare = args.fFp.cast<AARectEffect>();
@@ -161,16 +159,18 @@ void AARectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyB
 }
 
 GrGLSLFragmentProcessor* AARectEffect::onCreateGLSLInstance() const  {
-    return new GLAARectEffect(*this);
+    return new GLAARectEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 class GrGLConvexPolyEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLConvexPolyEffect(const GrProcessor&);
+    GrGLConvexPolyEffect() {
+        fPrevEdges[0] = SK_ScalarNaN;
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -182,10 +182,6 @@ private:
     SkScalar                              fPrevEdges[3 * GrConvexPolyEffect::kMaxEdges];
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GrGLConvexPolyEffect::GrGLConvexPolyEffect(const GrProcessor&) {
-    fPrevEdges[0] = SK_ScalarNaN;
-}
 
 void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     const GrConvexPolyEffect& cpe = args.fFp.cast<GrConvexPolyEffect>();
@@ -309,7 +305,7 @@ void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrConvexPolyEffect::onCreateGLSLInstance() const  {
-    return new GrGLConvexPolyEffect(*this);
+    return new GrGLConvexPolyEffect;
 }
 
 GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[])

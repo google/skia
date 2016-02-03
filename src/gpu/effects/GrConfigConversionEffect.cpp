@@ -16,9 +16,7 @@
 
 class GrGLConfigConversionEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLConfigConversionEffect() {}
-
-    virtual void emitCode(EmitArgs& args) override {
+    void emitCode(EmitArgs& args) override {
         const GrConfigConversionEffect& cce = args.fFp.cast<GrConfigConversionEffect>();
         const GrSwizzle& swizzle = cce.swizzle();
         GrConfigConversionEffect::PMConversion pmConversion = cce.pmConversion();

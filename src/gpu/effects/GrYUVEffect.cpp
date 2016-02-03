@@ -98,8 +98,6 @@ public:
         // this class always generates the same code.
         static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
-        GLSLProcessor(const GrProcessor&) {}
-
         void emitCode(EmitArgs& args) override {
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
 
@@ -164,7 +162,7 @@ private:
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLProcessor(*this);
+        return new GLSLProcessor;
     }
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
@@ -225,7 +223,7 @@ public:
 
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        GLSLProcessor(const GrProcessor&) : fLastColorSpace(-1), fLastOutputChannels(-1) {}
+        GLSLProcessor() : fLastColorSpace(-1), fLastOutputChannels(-1) {}
 
         void emitCode(EmitArgs& args) override {
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -320,7 +318,7 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLProcessor(*this);
+        return new GLSLProcessor;
     }
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {

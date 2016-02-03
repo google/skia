@@ -21,7 +21,6 @@
 
 class GrGLCircleBlurFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
-    GrGLCircleBlurFragmentProcessor(const GrProcessor&) {}
     void emitCode(EmitArgs&) override;
 
 protected:
@@ -100,7 +99,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circl
 }
 
 GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLSLInstance() const {
-    return new GrGLCircleBlurFragmentProcessor(*this);
+    return new GrGLCircleBlurFragmentProcessor;
 }
 
 void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrGLSLCaps& caps,

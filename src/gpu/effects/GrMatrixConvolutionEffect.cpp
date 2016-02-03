@@ -13,7 +13,7 @@
 class GrGLMatrixConvolutionEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLMatrixConvolutionEffect(const GrProcessor&);
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 

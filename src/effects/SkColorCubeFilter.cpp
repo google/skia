@@ -177,10 +177,7 @@ public:
 
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        GLSLProcessor(const GrProcessor&);
-        virtual ~GLSLProcessor();
-
-        virtual void emitCode(EmitArgs&) override;
+        void emitCode(EmitArgs&) override;
 
         static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -226,7 +223,7 @@ void GrColorCubeEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrColorCubeEffect::onCreateGLSLInstance() const {
-    return new GLSLProcessor(*this);
+    return new GLSLProcessor;
 }
 
 void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -234,12 +231,6 @@ void GrColorCubeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrColorCubeEffect::GLSLProcessor::GLSLProcessor(const GrProcessor&) {
-}
-
-GrColorCubeEffect::GLSLProcessor::~GLSLProcessor() {
-}
 
 void GrColorCubeEffect::GLSLProcessor::emitCode(EmitArgs& args) {
     if (nullptr == args.fInputColor) {

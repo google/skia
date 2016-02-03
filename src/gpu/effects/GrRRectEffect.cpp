@@ -129,7 +129,9 @@ const GrFragmentProcessor* CircularRRectEffect::TestCreate(GrProcessorTestData* 
 
 class GLCircularRRectEffect : public GrGLSLFragmentProcessor {
 public:
-    GLCircularRRectEffect(const GrProcessor&);
+    GLCircularRRectEffect() {
+        fPrevRRect.setEmpty();
+    }
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -144,10 +146,6 @@ private:
     SkRRect                               fPrevRRect;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLCircularRRectEffect::GLCircularRRectEffect(const GrProcessor& ) {
-    fPrevRRect.setEmpty();
-}
 
 void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     const CircularRRectEffect& crre = args.fFp.cast<CircularRRectEffect>();
@@ -382,7 +380,7 @@ void CircularRRectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* CircularRRectEffect::onCreateGLSLInstance() const  {
-    return new GLCircularRRectEffect(*this);
+    return new GLCircularRRectEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -486,9 +484,11 @@ const GrFragmentProcessor* EllipticalRRectEffect::TestCreate(GrProcessorTestData
 
 class GLEllipticalRRectEffect : public GrGLSLFragmentProcessor {
 public:
-    GLEllipticalRRectEffect(const GrProcessor&);
+    GLEllipticalRRectEffect() {
+        fPrevRRect.setEmpty();
+    }
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
@@ -502,10 +502,6 @@ private:
     SkRRect                                 fPrevRRect;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLEllipticalRRectEffect::GLEllipticalRRectEffect(const GrProcessor& effect) {
-    fPrevRRect.setEmpty();
-}
 
 void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     const EllipticalRRectEffect& erre = args.fFp.cast<EllipticalRRectEffect>();
@@ -679,7 +675,7 @@ void EllipticalRRectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* EllipticalRRectEffect::onCreateGLSLInstance() const  {
-    return new GLEllipticalRRectEffect(*this);
+    return new GLEllipticalRRectEffect;
 }
 
 //////////////////////////////////////////////////////////////////////////////

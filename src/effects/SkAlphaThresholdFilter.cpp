@@ -143,9 +143,7 @@ private:
 
 class GrGLAlphaThresholdEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLAlphaThresholdEffect(const GrFragmentProcessor&) {}
-
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -237,7 +235,7 @@ void AlphaThresholdEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* AlphaThresholdEffect::onCreateGLSLInstance() const {
-    return new GrGLAlphaThresholdEffect(*this);
+    return new GrGLAlphaThresholdEffect;
 }
 
 bool AlphaThresholdEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

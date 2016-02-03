@@ -253,11 +253,9 @@ public:
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
         // this class always generates the same code.
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
+        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
-        GLSLProcessor(const GrProcessor&) {}
-
-        virtual void emitCode(EmitArgs& args) override {
+        void emitCode(EmitArgs& args) override {
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
             fMatrixHandle = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
                                                        kMat44f_GrSLType, kDefault_GrSLPrecision,
@@ -286,8 +284,8 @@ public:
         }
 
     protected:
-        virtual void onSetData(const GrGLSLProgramDataManager& uniManager,
-                               const GrProcessor& proc) override {
+        void onSetData(const GrGLSLProgramDataManager& uniManager,
+                       const GrProcessor& proc) override {
             const ColorMatrixEffect& cme = proc.cast<ColorMatrixEffect>();
             const float* m = cme.fMatrix;
             // The GL matrix is transposed from SkColorMatrix.
@@ -319,7 +317,7 @@ private:
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLProcessor(*this);
+        return new GLSLProcessor;
     }
 
     virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,

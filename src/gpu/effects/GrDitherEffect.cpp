@@ -60,16 +60,11 @@ const GrFragmentProcessor* DitherEffect::TestCreate(GrProcessorTestData*) {
 
 class GLDitherEffect : public GrGLSLFragmentProcessor {
 public:
-    GLDitherEffect(const GrProcessor&);
-
-    virtual void emitCode(EmitArgs& args) override;
+    void emitCode(EmitArgs& args) override;
 
 private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
-
-GLDitherEffect::GLDitherEffect(const GrProcessor&) {
-}
 
 void GLDitherEffect::emitCode(EmitArgs& args) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -97,7 +92,7 @@ void DitherEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* DitherEffect::onCreateGLSLInstance() const  {
-    return new GLDitherEffect(*this);
+    return new GLDitherEffect;
 }
 
 GrFragmentProcessor* GrDitherEffect::Create() { return DitherEffect::Create(); }
