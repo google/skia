@@ -80,9 +80,13 @@ def get_args(bot):
   args.append('--config')
   args.extend(configs)
 
-  # Run tests, gms, and image decoding tests everywhere.
+  # Run tests and gms everywhere,
+  # and image decoding tests everywhere except GPU bots.
   # TODO: remove skp from default --src list?
-  args.extend('--src tests gm image'.split(' '))
+  if 'GPU' in bot:
+    args.extend('--src tests gm'.split(' '))
+  else:
+    args.extend('--src tests gm image'.split(' '))
 
   if 'GalaxyS' in bot:
     args.extend(('--threads', '0'))
