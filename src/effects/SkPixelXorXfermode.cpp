@@ -345,8 +345,8 @@ private:
     }
 
     bool onWillReadDstColor(const GrCaps& caps,
-                            const GrPipelineOptimizations& optimizations,
-                            bool hasMixedSamples) const override {
+                          const GrPipelineOptimizations& optimizations,
+                          bool hasMixedSamples) const override {
         return true;
     }
 
