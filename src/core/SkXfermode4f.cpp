@@ -189,26 +189,60 @@ template <DstType D> void src_n(const SkXfermode::PM4fState& state, uint32_t dst
     }
 }
 
+static Sk4f lerp(const Sk4f& src, const Sk4f& dst, const Sk4f& src_scale) {
+    return dst + (src - dst) * src_scale;
+}
+
 template <DstType D> void src_1(const SkXfermode::PM4fState& state, uint32_t dst[],
                                 const SkPM4f& src, int count, const SkAlpha aa[]) {
-    const Sk4f r4 = Sk4f::Load(src.fVec);   // src always overrides dst
-    const uint32_t r32 = store_dst<D>(r4);
+    const Sk4f s4 = Sk4f::Load(src.fVec);
 
     if (aa) {
-        for (int i = 0; i < count; ++i) {
-            unsigned a = aa[i];
-            if (0 == a) {
-                continue;
+        if (D == kLinear_Dst) {
+            // operate in bias-255 space for src and dst
+            const Sk4f& s4_255 = s4 * Sk4f(255);
+            while (count >= 4) {
+                Sk4f aa4 = SkNx_cast<float>(Sk4b::Load(aa)) * Sk4f(1/255.f);
+                Sk4f r0 = lerp(s4_255, to_4f(dst[0]), Sk4f(aa4.kth<0>())) + Sk4f(0.5f);
+                Sk4f r1 = lerp(s4_255, to_4f(dst[1]), Sk4f(aa4.kth<1>())) + Sk4f(0.5f);
+                Sk4f r2 = lerp(s4_255, to_4f(dst[2]), Sk4f(aa4.kth<2>())) + Sk4f(0.5f);
+                Sk4f r3 = lerp(s4_255, to_4f(dst[3]), Sk4f(aa4.kth<3>())) + Sk4f(0.5f);
+                Sk4f_ToBytes((uint8_t*)dst, r0, r1, r2, r3);
+                
+                dst += 4;
+                aa += 4;
+                count -= 4;
             }
-            if (a != 0xFF) {
-                Sk4f d4 = load_dst<D>(dst[i]);
-                dst[i] = store_dst<D>(lerp(r4, d4, a));
-            } else {
-                dst[i] = r32;
+        } else {    // kSRGB
+            while (count >= 4) {
+                Sk4f aa4 = SkNx_cast<float>(Sk4b::Load(aa)) * Sk4f(1/255.0f);
+
+                /*  If we ever natively support convert 255_linear -> 255_srgb, then perhaps
+                 *  it would be faster (and possibly allow more code sharing with kLinear) to
+                 *  stay in that space.
+                 */
+                Sk4f r0 = lerp(s4, load_dst<D>(dst[0]), Sk4f(aa4.kth<0>()));
+                Sk4f r1 = lerp(s4, load_dst<D>(dst[1]), Sk4f(aa4.kth<1>()));
+                Sk4f r2 = lerp(s4, load_dst<D>(dst[2]), Sk4f(aa4.kth<2>()));
+                Sk4f r3 = lerp(s4, load_dst<D>(dst[3]), Sk4f(aa4.kth<3>()));
+                Sk4f_ToBytes((uint8_t*)dst,
+                             linear_unit_to_srgb_255f(r0),
+                             linear_unit_to_srgb_255f(r1),
+                             linear_unit_to_srgb_255f(r2),
+                             linear_unit_to_srgb_255f(r3));
+                
+                dst += 4;
+                aa += 4;
+                count -= 4;
             }
         }
+        for (int i = 0; i < count; ++i) {
+            unsigned a = aa[i];
+            Sk4f d4 = load_dst<D>(dst[i]);
+            dst[i] = store_dst<D>(lerp(s4, d4, a));
+        }
     } else {
-        sk_memset32(dst, r32, count);
+        sk_memset32(dst, store_dst<D>(s4), count);
     }
 }
 
