@@ -703,8 +703,10 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     SkIRect superRect, *superClipRect = nullptr;
 
     if (clipRect) {
-        superRect.set(  clipRect->fLeft << SHIFT, clipRect->fTop << SHIFT,
-                        clipRect->fRight << SHIFT, clipRect->fBottom << SHIFT);
+        superRect.set(SkLeftShift(clipRect->fLeft, SHIFT),
+                      SkLeftShift(clipRect->fTop, SHIFT),
+                      SkLeftShift(clipRect->fRight, SHIFT),
+                      SkLeftShift(clipRect->fBottom, SHIFT));
         superClipRect = &superRect;
     }
 
