@@ -9,6 +9,7 @@
 #include "SkOncePtr.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
+#include <limits>
 
 //////////////////////////////////////////////////////////////////////////////
 SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
@@ -136,11 +137,16 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     bool isRRect  = (packed >> kIsRRect_SerializationShift) & 1;
 
     int32_t verbCount, pointCount, conicCount;
+    ptrdiff_t maxPtrDiff = std::numeric_limits<ptrdiff_t>::max();
     if (!buffer->readU32(&(ref->fGenerationID)) ||
         !buffer->readS32(&verbCount) ||
         verbCount < 0 ||
+        static_cast<uint32_t>(verbCount) > maxPtrDiff/sizeof(uint8_t) ||
         !buffer->readS32(&pointCount) ||
         pointCount < 0 ||
+        static_cast<uint32_t>(pointCount) > maxPtrDiff/sizeof(SkPoint) ||
+        sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount >
+            static_cast<size_t>(maxPtrDiff) ||
         !buffer->readS32(&conicCount) ||
         conicCount < 0) {
         delete ref;
