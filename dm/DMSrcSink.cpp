@@ -282,6 +282,10 @@ void premultiply_if_necessary(SkBitmap& bitmap) {
             // No need to premultiply kGray or k565 outputs.
             break;
     }
+
+    // In the kIndex_8 case, the canvas won't even try to draw unless we mark the
+    // bitmap as kPremul.
+    bitmap.setAlphaType(kPremul_SkAlphaType);
 }
 
 bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
