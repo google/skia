@@ -112,6 +112,11 @@ DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
 DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
 
+DEFINE_string(sourceType, "",
+        "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
+DEFINE_string(benchType,  "",
+        "Apply usual --match rules to bench type: micro, recording, playback, skcodec, etc.");
+
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {
@@ -628,6 +633,18 @@ public:
     }
 
     Benchmark* next() {
+        SkAutoTDelete<Benchmark> bench;
+        do {
+            bench.reset(this->rawNext());
+            if (!bench) {
+                return nullptr;
+            }
+        } while(SkCommandLineFlags::ShouldSkip(FLAGS_sourceType, fSourceType) ||
+                SkCommandLineFlags::ShouldSkip(FLAGS_benchType,  fBenchType));
+        return bench.detach();
+    }
+
+    Benchmark* rawNext() {
         if (fBenches) {
             Benchmark* bench = fBenches->factory()(nullptr);
             fBenches = fBenches->next();
