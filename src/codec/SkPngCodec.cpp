@@ -328,10 +328,13 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader,
         *numberPassesPtr = numberPasses;
     }
 
-    // FIXME: Also need to check for sRGB ( https://bug.skia.org/3471 ).
+    SkColorProfileType profileType = kLinear_SkColorProfileType;
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_sRGB)) {
+        profileType = kSRGB_SkColorProfileType;
+    }
 
     if (imageInfo) {
-        *imageInfo = SkImageInfo::Make(origWidth, origHeight, colorType, alphaType);
+        *imageInfo = SkImageInfo::Make(origWidth, origHeight, colorType, alphaType, profileType);
     }
     autoClean.detach();
     if (png_ptrp) {
