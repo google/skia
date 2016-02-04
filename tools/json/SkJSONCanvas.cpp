@@ -382,7 +382,16 @@ Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
     return result;
 }
 
-Json::Value SkJSONCanvas::makeMatrix(const SkMatrix& matrix) {
+Json::Value SkJSONCanvas::MakeIRect(const SkIRect& rect) {
+    Json::Value result(Json::arrayValue);
+    result.append(Json::Value(rect.left()));
+    result.append(Json::Value(rect.top()));
+    result.append(Json::Value(rect.right()));
+    result.append(Json::Value(rect.bottom()));
+    return result;
+}
+
+Json::Value SkJSONCanvas::MakeMatrix(const SkMatrix& matrix) {
     Json::Value result(Json::arrayValue);
     Json::Value row1(Json::arrayValue);
     row1.append(Json::Value(matrix[0]));
@@ -441,7 +450,7 @@ void SkJSONCanvas::updateMatrix() {
     if (matrix != fLastMatrix) {
         Json::Value command(Json::objectValue);
         command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_MATRIX);
-        command[SKJSONCANVAS_ATTRIBUTE_MATRIX] = this->makeMatrix(matrix);
+        command[SKJSONCANVAS_ATTRIBUTE_MATRIX] = MakeMatrix(matrix);
         fCommands.append(command);
         fLastMatrix = matrix;
     }

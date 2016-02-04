@@ -149,6 +149,10 @@ public:
     /* Complete the JSON document. */
     void finish();
 
+    static Json::Value MakeMatrix(const SkMatrix& matrix);
+
+    static Json::Value MakeIRect(const SkIRect& irect);
+
     // overridden SkCanvas API
 
     void onDrawPaint(const SkPaint&) override;
@@ -226,6 +230,7 @@ public:
     SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
 
 private:
+    // Helpers to turn values into JSON, these could probably be static
     Json::Value makePoint(const SkPoint& point);
 
     Json::Value makePoint(SkScalar x, SkScalar y);
@@ -245,9 +250,7 @@ private:
     Json::Value makeEdgeStyle(SkCanvas::ClipEdgeStyle edgeStyle);
   
     Json::Value makePointMode(SkCanvas::PointMode mode);
-  
-    Json::Value makeMatrix(const SkMatrix& matrix);
-  
+
     void updateMatrix();
 
     SkWStream&  fOut;
