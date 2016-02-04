@@ -460,6 +460,12 @@ sk_shader_t* sk_shader_new_picture(const sk_picture_t* src,
     return (sk_shader_t*)s;
 }
 
+sk_shader_t* sk_shader_new_color_filter(sk_shader_t* proxy,
+                                        sk_colorfilter_t* filter) {
+    SkShader* s = AsShader(proxy)->newWithColorFilter(AsColorFilter(filter));
+    return (sk_shader_t*)s;
+}
+
 sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
                                         const sk_matrix_t* localMatrix) {
     SkMatrix matrix;
@@ -468,7 +474,7 @@ sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
     } else {
         matrix.setIdentity();
     }
-    SkShader* s = SkShader::CreateLocalMatrixShader(AsShader(proxy), matrix);
+    SkShader* s = AsShader(proxy)->newWithLocalMatrix(matrix);
     return (sk_shader_t*)s;
 }
 
@@ -708,7 +714,6 @@ uint32_t sk_imagefilter_croprect_get_flags(sk_imagefilter_croprect_t* cropRect) 
 #include "../../include/effects/SkMorphologyImageFilter.h"
 #include "../../include/effects/SkOffsetImageFilter.h"
 #include "../../include/effects/SkPictureImageFilter.h"
-#include "../../include/effects/SkRectShaderImageFilter.h"
 #include "../../include/effects/SkTestImageFilters.h"
 #include "../../include/effects/SkTileImageFilter.h"
 #include "../../include/effects/SkXfermodeImageFilter.h"
@@ -1107,16 +1112,6 @@ sk_imagefilter_t* sk_imagefilter_new_picture_for_localspace(
     return ToImageFilter(filter);
 }
 
-sk_imagefilter_t* sk_imagefilter_new_rect_shader(
-    sk_shader_t* shader,
-    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
-
-    SkImageFilter* filter = SkRectShaderImageFilter::Create(
-        AsShader(shader),
-        AsImageFilterCropRect(cropRect));
-    return ToImageFilter(filter);
-}
-
 sk_imagefilter_t* sk_imagefilter_new_tile(
     const sk_rect_t* src,
     const sk_rect_t* dst,
@@ -1150,7 +1145,6 @@ sk_imagefilter_t* sk_imagefilter_new_xfermode(
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../../include/effects/SkModeColorFilter.h"
 #include "../../include/effects/SkColorCubeFilter.h"
 #include "../../include/effects/SkColorMatrixFilter.h"
 #include "../../include/effects/SkLumaColorFilter.h"
@@ -1176,7 +1170,7 @@ sk_colorfilter_t* sk_colorfilter_new_mode(sk_color_t c, sk_xfermode_mode_t cmode
 
 sk_colorfilter_t* sk_colorfilter_new_lighting(sk_color_t mul, sk_color_t add) {
 
-    SkColorFilter* filter = SkColorFilter::CreateLightingFilter(
+    SkColorFilter* filter = SkColorMatrixFilter::CreateLightingFilter(
         mul,
         add);
     return ToColorFilter(filter);

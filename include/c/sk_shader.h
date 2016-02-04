@@ -60,6 +60,9 @@ SK_API sk_shader_t* sk_shader_new_picture(const sk_picture_t* src,
 SK_API sk_shader_t* sk_shader_new_local_matrix(sk_shader_t* proxy,
                                                const sk_matrix_t* localMatrix);
 
+SK_API sk_shader_t* sk_shader_new_color_filter(sk_shader_t* proxy,
+                                               sk_colorfilter_t* filter);
+
 /**
     Returns a shader that generates a linear gradient between the two
     specified points.
