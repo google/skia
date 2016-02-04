@@ -610,9 +610,8 @@ void SkPerlinNoiseShader2::PerlinNoiseShaderContext::shadeSpan(
 class GrGLPerlinNoise2 : public GrGLSLFragmentProcessor {
 public:
     GrGLPerlinNoise2(const GrProcessor&);
-    virtual ~GrGLPerlinNoise2() {}
 
-    virtual void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
@@ -1040,24 +1039,18 @@ void GrGLPerlinNoise2::onSetData(const GrGLSLProgramDataManager& pdman,
 
 class GrGLImprovedPerlinNoise : public GrGLSLFragmentProcessor {
 public:
-    GrGLImprovedPerlinNoise(const GrProcessor&);
-    virtual ~GrGLImprovedPerlinNoise() {}
+    void emitCode(EmitArgs&) override;
 
-    virtual void emitCode(EmitArgs&) override;
-
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-
-    SkScalar fZ;
     GrGLSLProgramDataManager::UniformHandle fZUni;
     GrGLSLProgramDataManager::UniformHandle fOctavesUni;
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
-private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
@@ -1084,11 +1077,10 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GrGLImprovedPerlinNoise(*this);
+        return new GrGLImprovedPerlinNoise;
     }
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GrGLImprovedPerlinNoise::GenKey(*this, caps, b);
     }
 
@@ -1151,10 +1143,6 @@ const GrFragmentProcessor* GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
     return shader->asFragmentProcessor(d->fContext,
                                        GrTest::TestMatrix(d->fRandom), nullptr,
                                        kNone_SkFilterQuality);
-}
-
-GrGLImprovedPerlinNoise::GrGLImprovedPerlinNoise(const GrProcessor& processor)
-  : fZ(processor.cast<GrImprovedPerlinNoiseEffect>().z()) {
 }
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {

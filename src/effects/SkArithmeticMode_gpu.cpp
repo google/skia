@@ -75,7 +75,7 @@ public:
                             arith.enforcePMColor());
     }
 
-    static void GenKey(const GrProcessor& proc, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& proc, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
         const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
         uint32_t key = arith.enforcePMColor() ? 1 : 0;
         b->add32(key);

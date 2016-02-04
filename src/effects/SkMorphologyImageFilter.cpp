@@ -253,37 +253,23 @@ private:
 
 class GrGLMorphologyEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLMorphologyEffect(const GrProcessor&);
-
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
+    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
-
-    int                                   fRadius;
-    Gr1DKernelEffect::Direction           fDirection;
-    bool                                  fUseRange;
-    GrMorphologyEffect::MorphologyType    fType;
     GrGLSLProgramDataManager::UniformHandle fPixelSizeUni;
     GrGLSLProgramDataManager::UniformHandle fRangeUni;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProcessor& proc) {
-    const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
-    fRadius = m.radius();
-    fDirection = m.direction();
-    fUseRange = m.useRange();
-    fType = m.type();
-}
-
 void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
+    const GrMorphologyEffect& me = args.fFp.cast<GrMorphologyEffect>();
+
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     fPixelSizeUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
                                                kFloat_GrSLType, kDefault_GrSLPrecision,
@@ -297,7 +283,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
     const char* func;
-    switch (fType) {
+    switch (me.type()) {
         case GrMorphologyEffect::kErode_MorphologyType:
             fragBuilder->codeAppendf("\t\t%s = vec4(1, 1, 1, 1);\n", args.fOutputColor);
             func = "min";
@@ -313,7 +299,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     }
 
     const char* dir;
-    switch (fDirection) {
+    switch (me.direction()) {
         case Gr1DKernelEffect::kX_Direction:
             dir = "x";
             break;
@@ -325,24 +311,26 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
             dir = ""; // suppress warning
     }
 
+    int width = GrMorphologyEffect::WidthFromRadius(me.radius());
+
     // vec2 coord = coord2D;
     fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     // coord.x -= radius * pixelSize;
-    fragBuilder->codeAppendf("\t\tcoord.%s -= %d.0 * %s; \n", dir, fRadius, pixelSizeInc);
-    if (fUseRange) {
+    fragBuilder->codeAppendf("\t\tcoord.%s -= %d.0 * %s; \n", dir, me.radius(), pixelSizeInc);
+    if (me.useRange()) {
         // highBound = min(highBound, coord.x + (width-1) * pixelSize);
         fragBuilder->codeAppendf("\t\tfloat highBound = min(%s.y, coord.%s + %f * %s);",
-                                 range, dir, float(width() - 1), pixelSizeInc);
+                                 range, dir, float(width - 1), pixelSizeInc);
         // coord.x = max(lowBound, coord.x);
         fragBuilder->codeAppendf("\t\tcoord.%s = max(%s.x, coord.%s);", dir, range, dir);
     }
-    fragBuilder->codeAppendf("\t\tfor (int i = 0; i < %d; i++) {\n", width());
+    fragBuilder->codeAppendf("\t\tfor (int i = 0; i < %d; i++) {\n", width);
     fragBuilder->codeAppendf("\t\t\t%s = %s(%s, ", args.fOutputColor, func, args.fOutputColor);
     fragBuilder->appendTextureLookup(args.fSamplers[0], "coord");
     fragBuilder->codeAppend(");\n");
     // coord.x += pixelSize;
     fragBuilder->codeAppendf("\t\t\tcoord.%s += %s;\n", dir, pixelSizeInc);
-    if (fUseRange) {
+    if (me.useRange()) {
         // coord.x = min(highBound, coord.x);
         fragBuilder->codeAppendf("\t\t\tcoord.%s = min(highBound, coord.%s);", dir, dir);
     }
@@ -358,21 +346,19 @@ void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
     uint32_t key = static_cast<uint32_t>(m.radius());
     key |= (m.type() << 8);
     key |= (m.direction() << 9);
-    if (m.useRange()) key |= 1 << 10;
+    if (m.useRange()) {
+        key |= 1 << 10;
+    }
     b->add32(key);
 }
 
 void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                   const GrProcessor& proc) {
+                                     const GrProcessor& proc) {
     const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
     GrTexture& texture = *m.texture(0);
-    // the code we generated was for a specific kernel radius, direction and bound usage
-    SkASSERT(m.radius() == fRadius);
-    SkASSERT(m.direction() == fDirection);
-    SkASSERT(m.useRange() == fUseRange);
 
     float pixelSize = 0.0f;
-    switch (fDirection) {
+    switch (m.direction()) {
         case Gr1DKernelEffect::kX_Direction:
             pixelSize = 1.0f / texture.width();
             break;
@@ -384,9 +370,9 @@ void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
     pdman.set1f(fPixelSizeUni, pixelSize);
 
-    if (fUseRange) {
+    if (m.useRange()) {
         const float* range = m.range();
-        if (fDirection && texture.origin() == kBottomLeft_GrSurfaceOrigin) {
+        if (m.direction() && texture.origin() == kBottomLeft_GrSurfaceOrigin) {
             pdman.set2f(fRangeUni, 1.0f - range[1], 1.0f - range[0]);
         } else {
             pdman.set2f(fRangeUni, range[0], range[1]);
@@ -426,7 +412,7 @@ void GrMorphologyEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
-    return new GrGLMorphologyEffect(*this);
+    return new GrGLMorphologyEffect;
 }
 bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMorphologyEffect& s = sBase.cast<GrMorphologyEffect>();

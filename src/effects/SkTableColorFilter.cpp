@@ -379,7 +379,7 @@ class GLColorTableEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
+    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;

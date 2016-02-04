@@ -149,7 +149,6 @@ protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-
     GrGLSLProgramDataManager::UniformHandle fInnerThresholdVar;
     GrGLSLProgramDataManager::UniformHandle fOuterThresholdVar;
 

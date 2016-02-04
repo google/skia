@@ -646,6 +646,7 @@ public:
 
     const SkRect& getRect() const { return fRect; }
     float getSigma() const { return fSigma; }
+    GrSLPrecision precision() const { return fPrecision; }
 
 private:
     GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile,
@@ -673,12 +674,9 @@ private:
 
 class GrGLRectBlurEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLRectBlurEffect(const GrProcessor&, GrSLPrecision precision) 
-    : fPrecision(precision) {
-    }
     void emitCode(EmitArgs&) override;
 
-    static void GenKey(GrSLPrecision precision, GrProcessorKeyBuilder* b);
+    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -688,7 +686,6 @@ private:
 
     UniformHandle       fProxyRectUniform;
     UniformHandle       fProfileSizeUniform;
-    GrSLPrecision       fPrecision;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
@@ -710,21 +707,26 @@ void OutputRectBlurProfileLookup(GrGLSLFragmentBuilder* fragBuilder,
 }
 
 
-void GrGLRectBlurEffect::GenKey(GrSLPrecision precision, GrProcessorKeyBuilder* b) {
-    b->add32(precision);
+void GrGLRectBlurEffect::GenKey(const GrProcessor& proc, const GrGLSLCaps&,
+                                GrProcessorKeyBuilder* b) {
+    const GrRectBlurEffect& rbe = proc.cast<GrRectBlurEffect>();
+
+    b->add32(rbe.precision());
 }
 
 
 void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
+    const GrRectBlurEffect& rbe = args.fFp.cast<GrRectBlurEffect>();
+
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
     const char *rectName;
     const char *profileSizeName;
 
-    const char* precisionString = GrGLSLShaderVar::PrecisionString(args.fGLSLCaps, fPrecision);
+    const char* precisionString = GrGLSLShaderVar::PrecisionString(args.fGLSLCaps, rbe.precision());
     fProxyRectUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
                                                    kVec4f_GrSLType,
-                                                   fPrecision,
+                                                   rbe.precision(),
                                                    "proxyRect",
                                                    &rectName);
     fProfileSizeUniform = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
@@ -814,11 +816,11 @@ GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *b
 
 void GrRectBlurEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
-    GrGLRectBlurEffect::GenKey(fPrecision, b);
+    GrGLRectBlurEffect::GenKey(*this, caps, b);
 }
 
 GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
-    return new GrGLRectBlurEffect(*this, fPrecision);
+    return new GrGLRectBlurEffect;
 }
 
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

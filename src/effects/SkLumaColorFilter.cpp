@@ -62,7 +62,7 @@ public:
 
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {}
+        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
 
         void emitCode(EmitArgs& args) override {
             if (nullptr == args.fInputColor) {

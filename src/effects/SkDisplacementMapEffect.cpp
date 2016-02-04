@@ -312,20 +312,14 @@ void SkDisplacementMapEffect::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 class GrGLDisplacementMapEffect : public GrGLSLFragmentProcessor {
 public:
-    GrGLDisplacementMapEffect(const GrProcessor&);
-
     void emitCode(EmitArgs&) override;
 
     static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
-
-    const GrTextureDomain::GLDomain& glDomain() const { return fGLDomain; }
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
-    SkDisplacementMapEffect::ChannelSelectorType fXChannelSelector;
-    SkDisplacementMapEffect::ChannelSelectorType fYChannelSelector;
     GrGLSLProgramDataManager::UniformHandle fScaleUni;
     GrTextureDomain::GLDomain fGLDomain;
 
@@ -358,11 +352,10 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GrGLDisplacementMapEffect(*this);
+        return new GrGLDisplacementMapEffect;
     }
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
         GrGLDisplacementMapEffect::GenKey(*this, caps, b);
     }
 
@@ -542,13 +535,9 @@ const GrFragmentProcessor* GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrProcessor& proc)
-    : fXChannelSelector(proc.cast<GrDisplacementMapEffect>().xChannelSelector())
-    , fYChannelSelector(proc.cast<GrDisplacementMapEffect>().yChannelSelector()) {
-}
-
 void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
-    const GrTextureDomain& domain = args.fFp.cast<GrDisplacementMapEffect>().domain();
+    const GrDisplacementMapEffect& displacementMap = args.fFp.cast<GrDisplacementMapEffect>();
+    const GrTextureDomain& domain = displacementMap.domain();
 
     fScaleUni = args.fUniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
                                                  kVec2f_GrSLType, kDefault_GrSLPrecision, "Scale");
@@ -573,7 +562,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("\t\tvec2 %s = %s + %s*(%s.",
                              cCoords, coords2D.c_str(), scaleUni, dColor);
 
-    switch (fXChannelSelector) {
+    switch (displacementMap.xChannelSelector()) {
       case SkDisplacementMapEffect::kR_ChannelSelectorType:
         fragBuilder->codeAppend("r");
         break;
@@ -591,7 +580,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
         SkDEBUGFAIL("Unknown X channel selector");
     }
 
-    switch (fYChannelSelector) {
+    switch (displacementMap.yChannelSelector()) {
       case SkDisplacementMapEffect::kR_ChannelSelectorType:
         fragBuilder->codeAppend("r");
         break;

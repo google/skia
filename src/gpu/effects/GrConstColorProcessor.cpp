@@ -63,7 +63,7 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fColorUniform;
-    GrColor                               fPrevColor;
+    GrColor                                 fPrevColor;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };

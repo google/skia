@@ -143,7 +143,7 @@ protected:
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
     GrGLSLProgramDataManager::UniformHandle fRadiusPlusHalfUniform;
-    SkRRect                               fPrevRRect;
+    SkRRect                                 fPrevRRect;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
