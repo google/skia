@@ -111,6 +111,16 @@ SkPM4f SkPM4f::FromPMColor(SkPMColor c) {
     return c4;
 }
 
+SkColor4f SkPM4f::unpremul() const {
+    float alpha = fVec[A];
+    if (0 == alpha) {
+        return { 0, 0, 0, 0 };
+    } else {
+        float invAlpha = 1 / alpha;
+        return { alpha, fVec[R] * invAlpha, fVec[G] * invAlpha, fVec[B] * invAlpha };
+    }
+}
+
 SkColor4f SkColor4f::FromColor(SkColor c) {
     Sk4f value = SkNx_shuffle<3,2,1,0>(SkNx_cast<float>(Sk4b::Load(&c)));
     SkColor4f c4;

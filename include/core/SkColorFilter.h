@@ -102,6 +102,11 @@ public:
      */
     SkColor filterColor(SkColor) const;
 
+    /**
+     *  Filters a single color.
+     */
+    SkColor4f filterColor4f(const SkColor4f&) const;
+
     /** Create a colorfilter that uses the specified color and mode.
         If the Mode is DST, this function will return NULL (since that
         mode will have no effect on the result).

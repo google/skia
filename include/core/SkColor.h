@@ -160,6 +160,8 @@ typedef SkPMColor (*SkXfermodeProc)(SkPMColor src, SkPMColor dst);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct SkColor4f;
+
 /*
  *  The float values are 0...1 premultiplied
  */
@@ -173,6 +175,8 @@ struct SkPM4f {
     float fVec[4];
 
     float a() const { return fVec[A]; }
+
+    SkColor4f unpremul() const;
 
     static SkPM4f FromPMColor(SkPMColor);
 

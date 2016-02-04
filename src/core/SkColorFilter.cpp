@@ -29,14 +29,24 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
     return false;
 }
 
+void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f[]) const {
+    if (this->supports4f()) {
+        SkASSERT(false && "colorfilter supports4f but didn't override");
+    } else {
+        SkASSERT(false && "filterSpan4f called but not supported");
+    }
+}
+
 SkColor SkColorFilter::filterColor(SkColor c) const {
     SkPMColor dst, src = SkPreMultiplyColor(c);
     this->filterSpan(&src, 1, &dst);
     return SkUnPreMultiply::PMColorToColor(dst);
 }
 
-void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f[]) const {
-    SkASSERT(false && "filterSpan4f called but not implemented");
+SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c) const {
+    SkPM4f dst, src = c.premul();
+    this->filterSpan4f(&src, 1, &dst);
+    return dst.unpremul();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,13 +64,20 @@ void SkColorFilter::filterSpan4f(const SkPM4f[], int count, SkPM4f[]) const {
 class SkComposeColorFilter : public SkColorFilter {
 public:
     uint32_t getFlags() const override {
-        // Can only claim alphaunchanged and 16bit support if both our proxys do.
+        // Can only claim alphaunchanged and SkPM4f support if both our proxys do.
         return fOuter->getFlags() & fInner->getFlags();
     }
     
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
         fInner->filterSpan(shader, count, result);
         fOuter->filterSpan(result, count, result);
+    }
+    
+    void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override {
+        SkASSERT(fInner->supports4f());
+        SkASSERT(fOuter->supports4f());
+        fInner->filterSpan4f(shader, count, result);
+        fOuter->filterSpan4f(result, count, result);
     }
     
 #ifndef SK_IGNORE_TO_STRING
