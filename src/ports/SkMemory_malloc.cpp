@@ -27,6 +27,10 @@ static inline void* throw_on_failure(size_t size, void* p) {
 }
 
 void sk_abort_no_print() {
+#ifdef SK_BUILD_FOR_WIN
+    // do not display a system dialog before aborting the process
+    _set_abort_behavior(0, _WRITE_ABORT_MSG);
+#endif
     abort();
 }
 
