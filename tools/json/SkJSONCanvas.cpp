@@ -181,15 +181,31 @@ static void flatten(const SkFlattenable* flattenable, Json::Value* target, bool 
 static bool SK_WARN_UNUSED_RESULT flatten(const SkImage& image, Json::Value* target, 
                                           bool sendBinaries) {
     if (sendBinaries) {
-        SkData* png = image.encode(SkImageEncoder::kPNG_Type, 100);
-        if (png == nullptr) {
-            SkDebugf("could not encode image\n");
-            return false;
+        SkData* encoded = image.encode(SkImageEncoder::kPNG_Type, 100);
+        if (encoded == nullptr) {
+            // PNG encode doesn't necessarily support all color formats, convert to a different
+            // format
+            size_t rowBytes = 4 * image.width();
+            void* buffer = sk_malloc_throw(rowBytes * image.height());
+            SkImageInfo dstInfo = SkImageInfo::Make(image.width(), image.height(), 
+                                                    kN32_SkColorType, kPremul_SkAlphaType);
+            if (!image.readPixels(dstInfo, buffer, rowBytes, 0, 0)) {
+                SkDebugf("readPixels failed\n");
+                return false;
+            }
+            SkImage* converted = SkImage::NewRasterCopy(dstInfo, buffer, rowBytes);
+            encoded = converted->encode(SkImageEncoder::kPNG_Type, 100);
+            if (encoded == nullptr) {
+                SkDebugf("image encode failed\n");
+                return false;
+            }
+            free(converted);
+            free(buffer);
         }
         Json::Value bytes;
-        encode_data(png->data(), png->size(), &bytes);
+        encode_data(encoded->data(), encoded->size(), &bytes);
         (*target)[SKJSONCANVAS_ATTRIBUTE_BYTES] = bytes;
-        png->unref();
+        encoded->unref();
     }
     else {
         SkString description = SkStringPrintf("%dx%d pixel image", image.width(), image.height());
@@ -198,11 +214,50 @@ static bool SK_WARN_UNUSED_RESULT flatten(const SkImage& image, Json::Value* tar
     return true;
 }
 
+static const char* color_type_name(SkColorType colorType) {
+    switch (colorType) {
+        case kARGB_4444_SkColorType:
+            return SKJSONCANVAS_COLORTYPE_ARGB4444;
+        case kRGBA_8888_SkColorType:
+            return SKJSONCANVAS_COLORTYPE_RGBA8888;
+        case kBGRA_8888_SkColorType:
+            return SKJSONCANVAS_COLORTYPE_BGRA8888;
+        case kRGB_565_SkColorType:
+            return SKJSONCANVAS_COLORTYPE_565;
+        case kGray_8_SkColorType:
+            return SKJSONCANVAS_COLORTYPE_GRAY8;
+        case kIndex_8_SkColorType:
+            return SKJSONCANVAS_COLORTYPE_INDEX8;
+        case kAlpha_8_SkColorType:
+            return SKJSONCANVAS_COLORTYPE_ALPHA8;
+        default:
+            SkASSERT(false);
+            return SKJSONCANVAS_COLORTYPE_RGBA8888;
+    }
+}
+
+static const char* alpha_type_name(SkAlphaType alphaType) {
+    switch (alphaType) {
+        case kOpaque_SkAlphaType:
+            return SKJSONCANVAS_ALPHATYPE_OPAQUE;
+        case kPremul_SkAlphaType:
+            return SKJSONCANVAS_ALPHATYPE_PREMUL;
+        case kUnpremul_SkAlphaType:
+            return SKJSONCANVAS_ALPHATYPE_UNPREMUL;
+        default:
+            SkASSERT(false);
+            return SKJSONCANVAS_ALPHATYPE_OPAQUE;
+    }
+}
+
 static bool SK_WARN_UNUSED_RESULT flatten(const SkBitmap& bitmap, Json::Value* target, 
                                           bool sendBinaries) {
-    SkImage* image = SkImage::NewFromBitmap(bitmap);
+    bitmap.lockPixels();
+    SkAutoTUnref<SkImage> image(SkImage::NewFromBitmap(bitmap));
+    bitmap.unlockPixels();
+    (*target)[SKJSONCANVAS_ATTRIBUTE_COLOR] = Json::Value(color_type_name(bitmap.colorType()));
+    (*target)[SKJSONCANVAS_ATTRIBUTE_ALPHA] = Json::Value(alpha_type_name(bitmap.alphaType()));
     bool success = flatten(*image, target, sendBinaries);
-    image->unref();
     return success;
 }
 
@@ -361,6 +416,15 @@ static void apply_paint_xfermode(const SkPaint& paint, Json::Value* target, bool
     }
 }
 
+static void apply_paint_imagefilter(const SkPaint& paint, Json::Value* target, bool sendBinaries) {
+    SkFlattenable* imageFilter = paint.getImageFilter();
+    if (imageFilter != nullptr) {
+        Json::Value jsonImageFilter;
+        flatten(imageFilter, &jsonImageFilter, sendBinaries);
+        (*target)[SKJSONCANVAS_ATTRIBUTE_IMAGEFILTER] = jsonImageFilter;
+    }
+}
+
 Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
     Json::Value result(Json::objectValue);
     store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH, paint.getStrokeWidth(), 0.0f);
@@ -379,6 +443,7 @@ Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
     apply_paint_maskfilter(paint, &result, fSendBinaries);
     apply_paint_shader(paint, &result, fSendBinaries);
     apply_paint_xfermode(paint, &result, fSendBinaries);
+    apply_paint_imagefilter(paint, &result, fSendBinaries);
     return result;
 }
 
@@ -601,7 +666,7 @@ void SkJSONCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, c
         this->updateMatrix();
         Json::Value command(Json::objectValue);
         command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_BITMAPRECT);
-        command[SKJSONCANVAS_ATTRIBUTE_IMAGE] = encoded;
+        command[SKJSONCANVAS_ATTRIBUTE_BITMAP] = encoded;
         if (src != nullptr) {
             command[SKJSONCANVAS_ATTRIBUTE_SRC] = this->makeRect(*src);
         }
@@ -729,6 +794,7 @@ void SkJSONCanvas::willRestore() {
 }
 
 SkCanvas::SaveLayerStrategy SkJSONCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    this->updateMatrix();
     Json::Value command(Json::objectValue);
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_SAVELAYER);
     if (rec.fBounds != nullptr) {

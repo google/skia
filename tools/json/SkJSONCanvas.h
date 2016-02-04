@@ -58,6 +58,7 @@
 #define SKJSONCANVAS_ATTRIBUTE_PATH              "path"
 #define SKJSONCANVAS_ATTRIBUTE_TEXT              "text"
 #define SKJSONCANVAS_ATTRIBUTE_COLOR             "color"
+#define SKJSONCANVAS_ATTRIBUTE_ALPHA             "alpha"
 #define SKJSONCANVAS_ATTRIBUTE_STYLE             "style"
 #define SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH       "strokeWidth"
 #define SKJSONCANVAS_ATTRIBUTE_STROKEMITER       "strokeMiter"
@@ -86,6 +87,7 @@
 #define SKJSONCANVAS_ATTRIBUTE_MASKFILTER        "maskFilter"
 #define SKJSONCANVAS_ATTRIBUTE_XFERMODE          "xfermode"
 #define SKJSONCANVAS_ATTRIBUTE_BACKDROP          "backdrop"
+#define SKJSONCANVAS_ATTRIBUTE_IMAGEFILTER       "imagefilter"
 #define SKJSONCANVAS_ATTRIBUTE_IMAGE             "image"
 #define SKJSONCANVAS_ATTRIBUTE_BITMAP            "bitmap"
 #define SKJSONCANVAS_ATTRIBUTE_SRC               "src"
@@ -135,6 +137,18 @@
 #define SKJSONCANVAS_CAP_BUTT                    "butt"
 #define SKJSONCANVAS_CAP_ROUND                   "round"
 #define SKJSONCANVAS_CAP_SQUARE                  "square"
+
+#define SKJSONCANVAS_COLORTYPE_ARGB4444          "ARGB4444"
+#define SKJSONCANVAS_COLORTYPE_RGBA8888          "RGBA8888"
+#define SKJSONCANVAS_COLORTYPE_BGRA8888          "BGRA8888"
+#define SKJSONCANVAS_COLORTYPE_565               "565"
+#define SKJSONCANVAS_COLORTYPE_GRAY8             "Gray8"
+#define SKJSONCANVAS_COLORTYPE_INDEX8            "Index8"
+#define SKJSONCANVAS_COLORTYPE_ALPHA8            "Alpha8"
+
+#define SKJSONCANVAS_ALPHATYPE_OPAQUE            "opaque"
+#define SKJSONCANVAS_ALPHATYPE_PREMUL            "premul"
+#define SKJSONCANVAS_ALPHATYPE_UNPREMUL          "unpremul"
 
 /* 
  * Implementation of SkCanvas which writes JSON when drawn to. The JSON describes all of the draw

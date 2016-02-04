@@ -159,6 +159,7 @@ static SkFlattenable* load_flattenable(Json::Value jsonFlattenable) {
     const char* name = jsonFlattenable[SKJSONCANVAS_ATTRIBUTE_NAME].asCString();
     SkFlattenable::Factory factory = SkFlattenable::NameToFactory(name);
     if (factory == nullptr) {
+        SkDebugf("no factory for loading '%s'\n", name);
         return nullptr;
     }
     void* data;
@@ -167,14 +168,56 @@ static SkFlattenable* load_flattenable(Json::Value jsonFlattenable) {
     SkFlattenable* result = factory(buffer);
     free(data);
     if (!buffer.isValid()) {
+        SkDebugf("invalid buffer loading flattenable\n");
         return nullptr;
     }
     return result;
 }
 
+static SkColorType colortype_from_name(const char* name) {
+    if (!strcmp(name, SKJSONCANVAS_COLORTYPE_ARGB4444)) {
+        return kARGB_4444_SkColorType;
+    }
+    else if (!strcmp(name, SKJSONCANVAS_COLORTYPE_RGBA8888)) {
+        return kRGBA_8888_SkColorType;
+    }
+    else if (!strcmp(name, SKJSONCANVAS_COLORTYPE_BGRA8888)) {
+        return kBGRA_8888_SkColorType;
+    }
+    else if (!strcmp(name, SKJSONCANVAS_COLORTYPE_565)) {
+        return kRGB_565_SkColorType;
+    }
+    else if (!strcmp(name, SKJSONCANVAS_COLORTYPE_GRAY8)) {
+        return kGray_8_SkColorType;
+    }
+    else if (!strcmp(name, SKJSONCANVAS_COLORTYPE_INDEX8)) {
+        return kIndex_8_SkColorType;
+    }
+    else if (!strcmp(name, SKJSONCANVAS_COLORTYPE_ALPHA8)) {
+        return kAlpha_8_SkColorType;
+    }
+    SkASSERT(false);
+    return kN32_SkColorType;
+}
+
+static SkBitmap* convert_colortype(SkBitmap* bitmap, SkColorType colorType) {
+    if (bitmap->colorType() == colorType  ) {
+        return bitmap;
+    }
+    SkBitmap* dst = new SkBitmap();
+    if (bitmap->copyTo(dst, colorType)) {
+        delete bitmap;
+        return dst;
+    }
+    SkASSERT(false);
+    delete dst;
+    return bitmap;
+}
+
 // caller is responsible for freeing return value
-static SkBitmap* load_bitmap(Json::Value jsonBitmap) {
+static SkBitmap* load_bitmap(const Json::Value& jsonBitmap) {
     if (!jsonBitmap.isMember(SKJSONCANVAS_ATTRIBUTE_BYTES)) {
+        SkDebugf("invalid bitmap\n");
         return nullptr;
     }
     void* data;
@@ -187,20 +230,27 @@ static SkBitmap* load_bitmap(Json::Value jsonBitmap) {
     free(decoder);
     if (result != SkImageDecoder::kFailure) {
         free(data);
+        if (jsonBitmap.isMember(SKJSONCANVAS_ATTRIBUTE_COLOR)) {
+            const char* ctName = jsonBitmap[SKJSONCANVAS_ATTRIBUTE_COLOR].asCString();
+            SkColorType ct = colortype_from_name(ctName);
+            if (ct != kIndex_8_SkColorType) {
+                bitmap = convert_colortype(bitmap, ct);
+            }
+        }
         return bitmap;
     }
-    SkDebugf("image decode failed");
+    SkDebugf("image decode failed\n");
     free(data);
     return nullptr;
 }
 
-static SkImage* load_image(Json::Value jsonImage) {
+static SkImage* load_image(const Json::Value& jsonImage) {
     SkBitmap* bitmap = load_bitmap(jsonImage);
     if (bitmap == nullptr) {
         return nullptr;
     }
     SkImage* result = SkImage::NewFromBitmap(*bitmap);
-    free(bitmap);
+    delete bitmap;
     return result;
 }
 
@@ -244,6 +294,17 @@ static void apply_paint_xfermode(Json::Value& jsonPaint, SkPaint* target) {
         if (xfermode != nullptr) {
             target->setXfermode(xfermode);
             xfermode->unref();
+        }
+    }
+}
+
+static void apply_paint_imagefilter(Json::Value& jsonPaint, SkPaint* target) {
+    if (jsonPaint.isMember(SKJSONCANVAS_ATTRIBUTE_IMAGEFILTER)) {
+        Json::Value jsonImageFilter = jsonPaint[SKJSONCANVAS_ATTRIBUTE_IMAGEFILTER];
+        SkImageFilter* imageFilter = (SkImageFilter*) load_flattenable(jsonImageFilter);
+        if (imageFilter != nullptr) {
+            target->setImageFilter(imageFilter);
+            imageFilter->unref();
         }
     }
 }
@@ -400,6 +461,7 @@ void Renderer::getPaint(Json::Value& command, SkPaint* result) {
     apply_paint_patheffect(jsonPaint, result);
     apply_paint_maskfilter(jsonPaint, result);
     apply_paint_xfermode(jsonPaint, result);
+    apply_paint_imagefilter(jsonPaint, result);
     apply_paint_style(jsonPaint, result);
     apply_paint_strokewidth(jsonPaint, result);
     apply_paint_strokemiter(jsonPaint, result);
