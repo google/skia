@@ -16,6 +16,8 @@
 #define SKJSONCANVAS_COMMANDS                    "commands"
 #define SKJSONCANVAS_COMMAND                     "command"
 
+#define SKJSONCANVAS_COMMAND_TRANSLATE           "Translate"
+#define SKJSONCANVAS_COMMAND_SCALE               "Scale"
 #define SKJSONCANVAS_COMMAND_MATRIX              "Matrix"
 #define SKJSONCANVAS_COMMAND_PAINT               "Paint"
 #define SKJSONCANVAS_COMMAND_RECT                "Rect"
@@ -94,6 +96,8 @@
 #define SKJSONCANVAS_ATTRIBUTE_DST               "dst"
 #define SKJSONCANVAS_ATTRIBUTE_STRICT            "strict"
 #define SKJSONCANVAS_ATTRIBUTE_DESCRIPTION       "description"
+#define SKJSONCANVAS_ATTRIBUTE_X                 "x"
+#define SKJSONCANVAS_ATTRIBUTE_Y                 "y"
 
 #define SKJSONCANVAS_VERB_MOVE                   "move"
 #define SKJSONCANVAS_VERB_LINE                   "line"
@@ -168,6 +172,10 @@ public:
     static Json::Value MakeIRect(const SkIRect& irect);
 
     // overridden SkCanvas API
+
+    void didConcat(const SkMatrix&) override;
+
+    void didSetMatrix(const SkMatrix&) override;
 
     void onDrawPaint(const SkPaint&) override;
 
@@ -268,7 +276,6 @@ private:
     void updateMatrix();
 
     SkWStream&  fOut;
-    SkMatrix    fLastMatrix;
     Json::Value fRoot;
     Json::Value fCommands;
     bool        fSendBinaries;
