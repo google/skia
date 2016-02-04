@@ -56,27 +56,14 @@ static void compare_to_good_digest(skiatest::Reporter* r, const SkMD5::Digest& g
  *  Calling getPixels(info) should return expectedResult, and if goodDigest is non nullptr,
  *  the resulting decode should match.
  */
-static void test_info(skiatest::Reporter* r, SkCodec* codec, const SkImageInfo& info,
+template<typename Codec>
+static void test_info(skiatest::Reporter* r, Codec* codec, const SkImageInfo& info,
                       SkCodec::Result expectedResult, const SkMD5::Digest* goodDigest) {
     SkBitmap bm;
     bm.allocPixels(info);
     SkAutoLockPixels autoLockPixels(bm);
 
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
-    REPORTER_ASSERT(r, result == expectedResult);
-
-    if (goodDigest) {
-        compare_to_good_digest(r, *goodDigest, bm);
-    }
-}
-
-static void test_android_info(skiatest::Reporter* r, SkAndroidCodec* codec, const SkImageInfo& info,
-                              SkCodec::Result expectedResult, const SkMD5::Digest* goodDigest) {
-    SkBitmap bm;
-    bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
-
-    SkCodec::Result result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == expectedResult);
 
     if (goodDigest) {
@@ -96,7 +83,8 @@ SkIRect generate_random_subset(SkRandom* rand, int w, int h) {
     return rect;
 }
 
-static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, const SkImageInfo& info,
+template<typename Codec>
+static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const SkImageInfo& info,
         const SkISize& size, SkCodec::Result expectedResult, SkMD5::Digest* digest,
         const SkMD5::Digest* goodDigest) {
 
@@ -149,59 +137,6 @@ static void test_codec(skiatest::Reporter* r, SkCodec* codec, SkBitmap& bm, cons
     }
 }
 
-static void test_android_codec(skiatest::Reporter* r, SkAndroidCodec* codec, SkBitmap& bm,
-        const SkImageInfo& info, const SkISize& size, SkCodec::Result expectedResult,
-        SkMD5::Digest* digest, const SkMD5::Digest* goodDigest) {
-
-    REPORTER_ASSERT(r, info.dimensions() == size);
-    bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
-
-    SkCodec::Result result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes());
-    REPORTER_ASSERT(r, result == expectedResult);
-
-    md5(bm, digest);
-    if (goodDigest) {
-        REPORTER_ASSERT(r, *digest == *goodDigest);
-    }
-
-    {
-        // Test decoding to 565
-        SkImageInfo info565 = info.makeColorType(kRGB_565_SkColorType);
-        SkCodec::Result expected565 = info.alphaType() == kOpaque_SkAlphaType ?
-                expectedResult : SkCodec::kInvalidConversion;
-        test_android_info(r, codec, info565, expected565, nullptr);
-    }
-
-    // Verify that re-decoding gives the same result.  It is interesting to check this after
-    // a decode to 565, since choosing to decode to 565 may result in some of the decode
-    // options being modified.  These options should return to their defaults on another
-    // decode to kN32, so the new digest should match the old digest.
-    test_android_info(r, codec, info, expectedResult, digest);
-
-    {
-        // Check alpha type conversions
-        if (info.alphaType() == kOpaque_SkAlphaType) {
-            test_android_info(r, codec, info.makeAlphaType(kUnpremul_SkAlphaType),
-                    expectedResult, digest);
-            test_android_info(r, codec, info.makeAlphaType(kPremul_SkAlphaType),
-                    expectedResult, digest);
-        } else {
-            // Decoding to opaque should fail
-            test_android_info(r, codec, info.makeAlphaType(kOpaque_SkAlphaType),
-                    SkCodec::kInvalidConversion, nullptr);
-            SkAlphaType otherAt = info.alphaType();
-            if (kPremul_SkAlphaType == otherAt) {
-                otherAt = kUnpremul_SkAlphaType;
-            } else {
-                otherAt = kPremul_SkAlphaType;
-            }
-            // The other non-opaque alpha type should always succeed, but not match.
-            test_android_info(r, codec, info.makeAlphaType(otherAt), expectedResult, nullptr);
-        }
-    }
-}
-
 // FIXME: SkScaledCodec is currently only supported for types used by BRD
 // https://bug.skia.org/4428
 static bool supports_scaled_codec(const char path[]) {
@@ -250,7 +185,7 @@ static void check(skiatest::Reporter* r,
     SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     SkBitmap bm;
     SkCodec::Result expectedResult = isIncomplete ? SkCodec::kIncompleteInput : SkCodec::kSuccess;
-    test_codec(r, codec, bm, info, size, expectedResult, &codecDigest, nullptr);
+    test_codec(r, codec.get(), bm, info, size, expectedResult, &codecDigest, nullptr);
 
     // Scanline decoding follows.
     // Need to call startScanlineDecode() first.
@@ -361,23 +296,23 @@ static void check(skiatest::Reporter* r,
             return;
         }
 
-        SkAutoTDelete<SkAndroidCodec> codec(nullptr);
+        SkAutoTDelete<SkAndroidCodec> androidCodec(nullptr);
         if (isIncomplete) {
             size_t size = stream->getLength();
             SkAutoTUnref<SkData> data((SkData::NewFromStream(stream, 2 * size / 3)));
-            codec.reset(SkAndroidCodec::NewFromData(data));
+            androidCodec.reset(SkAndroidCodec::NewFromData(data));
         } else {
-            codec.reset(SkAndroidCodec::NewFromStream(stream.detach()));
+            androidCodec.reset(SkAndroidCodec::NewFromStream(stream.detach()));
         }
-        if (!codec) {
+        if (!androidCodec) {
             ERRORF(r, "Unable to decode '%s'", path);
             return;
         }
 
         SkBitmap bm;
         SkMD5::Digest scaledCodecDigest;
-        test_android_codec(r, codec, bm, info, size, expectedResult,
-                &scaledCodecDigest, &codecDigest);
+        test_codec(r, androidCodec.get(), bm, info, size, expectedResult, &scaledCodecDigest,
+                   &codecDigest);
     }
 
     // Test SkCodecImageGenerator
@@ -909,13 +844,13 @@ DEF_TEST(Codec_webp_peek, r) {
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 25)));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 
     // Similarly, a stream which does not peek should still succeed.
     codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 0)));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 }
 
 // SkCodec's wbmp decoder was initially more restrictive than SkImageDecoder.
@@ -945,7 +880,7 @@ DEF_TEST(Codec_wbmp, r) {
     if (!codec) {
         return;
     }
-    test_info(r, codec, codec->getInfo(), SkCodec::kSuccess, nullptr);
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
 }
 
 // wbmp images have a header that can be arbitrarily large, depending on the
