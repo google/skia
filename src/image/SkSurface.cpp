@@ -204,7 +204,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget*, const SkSurfaceProp
 }
 
 SkSurface* SkSurface::NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int,
-                                      const SkSurfaceProps*) {
+                                      const SkSurfaceProps*, GrTextureStorageAllocator) {
     return nullptr;
 }
 
