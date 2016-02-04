@@ -13,6 +13,7 @@
 #include "SkImageInfo.h"
 
 class SkColorTable;
+class SkData;
 struct SkMask;
 
 /**
@@ -184,6 +185,12 @@ public:
      */
     void alloc(const SkImageInfo&);
 
+    /**
+     *  Returns an SkData object wrapping the allocated pixels memory, and resets the pixmap.
+     *  If the storage hasn't been allocated, the result is NULL.
+     */
+    const SkData* SK_WARN_UNUSED_RESULT detachPixelsAsData();
+
     // We wrap these so we can clear our internal storage
 
     void reset() {
@@ -208,7 +215,7 @@ private:
 
     void freeStorage() {
         sk_free(fStorage);
-        fStorage = NULL;
+        fStorage = nullptr;
     }
 
     typedef SkPixmap INHERITED;

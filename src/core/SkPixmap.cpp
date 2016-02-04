@@ -7,6 +7,7 @@
 
 #include "SkColorPriv.h"
 #include "SkConfig8888.h"
+#include "SkData.h"
 #include "SkMask.h"
 #include "SkPixmap.h"
 #include "SkUtils.h"
@@ -271,4 +272,16 @@ void SkAutoPixmapStorage::alloc(const SkImageInfo& info) {
     if (!this->tryAlloc(info)) {
         sk_throw();
     }
+}
+
+const SkData* SkAutoPixmapStorage::detachPixelsAsData() {
+    if (!fStorage) {
+        return nullptr;
+    }
+
+    const SkData* data = SkData::NewFromMalloc(fStorage, this->getSafeSize());
+    fStorage = nullptr;
+    this->INHERITED::reset();
+
+    return data;
 }
