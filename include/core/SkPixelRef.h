@@ -381,6 +381,7 @@ private:
 
     bool isPreLocked() const { return fPreLocked; }
     friend class SkImage_Raster;
+    friend class SkSpecialImage_Raster;
 
     // When copying a bitmap to another with the same shape and config, we can safely
     // clone the pixelref generation ID too, which makes them equivalent under caching.
