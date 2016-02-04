@@ -533,7 +533,7 @@ void SkJSONCanvas::didConcat(const SkMatrix& matrix) {
 void SkJSONCanvas::didSetMatrix(const SkMatrix& matrix) {
     Json::Value command(Json::objectValue);
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_MATRIX);
-    command[SKJSONCANVAS_ATTRIBUTE_MATRIX] = this->makeMatrix(matrix);
+    command[SKJSONCANVAS_ATTRIBUTE_MATRIX] = this->MakeMatrix(matrix);
     fCommands.append(command);
 }
 
@@ -748,7 +748,7 @@ void SkJSONCanvas::onDrawTextOnPath(const void* text, size_t byteLength,
                                                        ((const char*) text) + byteLength);
     command[SKJSONCANVAS_ATTRIBUTE_PATH] = this->makePath(path);
     if (matrix != nullptr) {
-        command[SKJSONCANVAS_ATTRIBUTE_MATRIX] = this->makeMatrix(*matrix);
+        command[SKJSONCANVAS_ATTRIBUTE_MATRIX] = this->MakeMatrix(*matrix);
     }
     command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(paint);
     fCommands.append(command);
