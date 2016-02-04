@@ -287,7 +287,9 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     SkASSERT(!pathIsMutable || origSrcPath.isVolatile());
 
     GrStrokeInfo strokeInfo(paint);
-    strokeInfo.setResScale(SkDraw::ComputeResScaleForStroking(origViewMatrix));
+    // comment out the line below to determine if it is the reason that the chrome mac perf bot
+    // has begun crashing
+    // strokeInfo.setResScale(SkDraw::ComputeResScaleForStroking(origViewMatrix));
 
     // If we have a prematrix, apply it to the path, optimizing for the case
     // where the original path can in fact be modified in place (even though
