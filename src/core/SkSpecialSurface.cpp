@@ -54,7 +54,7 @@ SkCanvas* SkSpecialSurface::getCanvas() {
 SkSpecialImage* SkSpecialSurface::newImageSnapshot() {
     SkSpecialImage* image = as_SB(this)->onNewImageSnapshot();
     as_SB(this)->reset();
-    return SkSafeRef(image);   // the caller will call unref() to balance this
+    return image;   // the caller gets the creation ref
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
     SkSpecialSurface_Gpu(GrTexture* texture, const SkIRect& subset, const SkSurfaceProps* props)
         : INHERITED(subset, props)
-        , fTexture(texture) {
+        , fTexture(SkRef(texture)) {
 
         SkASSERT(fTexture->asRenderTarget());
 
@@ -151,7 +151,7 @@ SkSpecialSurface* SkSpecialSurface::NewRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    GrTexture* temp = context->textureProvider()->createApproxTexture(desc);
+    SkAutoTUnref<GrTexture> temp(context->textureProvider()->createApproxTexture(desc));
     if (!temp) {
         return nullptr;
     }
