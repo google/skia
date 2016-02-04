@@ -1070,5 +1070,3 @@ bool SkXfermode::IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType) {
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
-
-void SkXfermode::doNothing() const {}
