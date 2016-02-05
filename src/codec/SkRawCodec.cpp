@@ -157,23 +157,66 @@ public:
     }
 };
 
+bool is_asset_stream(const SkStream& stream) {
+    return stream.hasLength() && stream.hasPosition();
+}
+
 }  // namespace
 
-// Note: this class could throw exception if it is used as dng_stream.
-class SkRawStream : public ::piex::StreamInterface {
+class SkRawStream {
 public:
-    // Note that this call will take the ownership of stream.
-    explicit SkRawStream(SkStream* stream)
-        : fStream(stream), fWholeStreamRead(false) {}
+    virtual ~SkRawStream() {}
 
-    ~SkRawStream() override {}
+   /* 
+    * Gets the length of the stream. Depending on the type of stream, this may require reading to
+    * the end of the stream.
+    */
+   virtual uint64 getLength() = 0;
+
+   virtual bool read(void* data, size_t offset, size_t length) = 0;
 
     /*
      * Creates an SkMemoryStream from the offset with size.
      * Note: for performance reason, this function is destructive to the SkRawStream. One should
      *       abandon current object after the function call.
      */
-    SkMemoryStream* transferBuffer(size_t offset, size_t size) {
+   virtual SkMemoryStream* transferBuffer(size_t offset, size_t size) = 0;
+};
+
+class SkRawBufferedStream : public SkRawStream {
+public:
+    // Will take the ownership of the stream.
+    explicit SkRawBufferedStream(SkStream* stream)
+        : fStream(stream)
+        , fWholeStreamRead(false)
+    {
+        // Only use SkRawBufferedStream when the stream is not an asset stream.
+        SkASSERT(!is_asset_stream(*stream));
+    }
+
+    ~SkRawBufferedStream() override {}
+
+    uint64 getLength() override {
+        if (!this->bufferMoreData(kReadToEnd)) {  // read whole stream
+            ThrowReadFile();
+        }
+        return fStreamBuffer.bytesWritten();
+    }
+
+    bool read(void* data, size_t offset, size_t length) override {
+        if (length == 0) {
+            return true;
+        }
+
+        size_t sum;
+        if (!safe_add_to_size_t(offset, length, &sum)) {
+            return false;
+        }
+
+        return this->bufferMoreData(sum) && fStreamBuffer.read(data, offset, length);
+    }
+
+    SkMemoryStream* transferBuffer(size_t offset, size_t size) override {
         SkAutoTUnref<SkData> data(SkData::NewUninitialized(size));
         if (offset > fStreamBuffer.bytesWritten()) {
             // If the offset is not buffered, read from fStream directly and skip the buffering.
@@ -206,46 +249,6 @@ public:
             }
         }
         return new SkMemoryStream(data);
-    }
-
-    // For PIEX
-    ::piex::Error GetData(const size_t offset, const size_t length,
-                          uint8* data) override {
-        if (offset == 0 && length == 0) {
-            return ::piex::Error::kOk;
-        }
-        size_t sum;
-        if (!safe_add_to_size_t(offset, length, &sum) || !this->bufferMoreData(sum)) {
-            return ::piex::Error::kFail;
-        }
-        if (!fStreamBuffer.read(data, offset, length)) {
-            return ::piex::Error::kFail;
-        }
-        return ::piex::Error::kOk;
-    }
-
-    // For dng_stream
-    uint64 getLength() {
-        if (!this->bufferMoreData(kReadToEnd)) {  // read whole stream
-            ThrowReadFile();
-        }
-        return fStreamBuffer.bytesWritten();
-    }
-
-    // For dng_stream
-    void read(void* data, uint32 count, uint64 offset) {
-        if (count == 0 && offset == 0) {
-            return;
-        }
-        size_t sum;
-        if (!safe_add_to_size_t(static_cast<uint64>(count), offset, &sum) ||
-            !this->bufferMoreData(sum)) {
-            ThrowReadFile();
-        }
-
-        if (!fStreamBuffer.read(data, static_cast<size_t>(offset), count)) {
-            ThrowReadFile();
-        }
     }
 
 private:
@@ -287,22 +290,115 @@ private:
     const size_t kReadToEnd = 0;
 };
 
-class SkDngStream : public dng_stream {
+class SkRawAssetStream : public SkRawStream {
 public:
-    SkDngStream(SkRawStream* rawStream) : fRawStream(rawStream) {}
+    // Will take the ownership of the stream.
+    explicit SkRawAssetStream(SkStream* stream)
+        : fStream(stream)
+    {
+        // Only use SkRawAssetStream when the stream is an asset stream.
+        SkASSERT(is_asset_stream(*stream));
+    }
 
-    uint64 DoGetLength() override { return fRawStream->getLength(); }
+    ~SkRawAssetStream() override {}
 
-    void DoRead(void* data, uint32 count, uint64 offset) override {
-        fRawStream->read(data, count, offset);
+    uint64 getLength() override {
+        return fStream->getLength();
+    }
+
+
+    bool read(void* data, size_t offset, size_t length) override {
+        if (length == 0) {
+            return true;
+        }
+
+        size_t sum;
+        if (!safe_add_to_size_t(offset, length, &sum)) {
+            return false;
+        }
+
+        return fStream->seek(offset) && (fStream->read(data, length) == length);
+    }
+
+    SkMemoryStream* transferBuffer(size_t offset, size_t size) override {
+        if (fStream->getLength() < offset) {
+            return nullptr;
+        }
+
+        size_t sum;
+        if (!safe_add_to_size_t(offset, size, &sum)) {
+            return nullptr;
+        }
+
+        // This will allow read less than the requested "size", because the JPEG codec wants to
+        // handle also a partial JPEG file.
+        const size_t bytesToRead = SkTMin(sum, fStream->getLength()) - offset;
+        if (bytesToRead == 0) {
+            return nullptr;
+        }
+
+        if (fStream->getMemoryBase()) {  // directly copy if getMemoryBase() is available.
+            SkAutoTUnref<SkData> data(SkData::NewWithCopy(
+                static_cast<const uint8_t*>(fStream->getMemoryBase()) + offset, bytesToRead));
+            fStream.free();
+            return new SkMemoryStream(data);
+        } else {
+            SkAutoTUnref<SkData> data(SkData::NewUninitialized(bytesToRead));
+            if (!fStream->seek(offset)) {
+                return nullptr;
+            }
+            const size_t bytesRead = fStream->read(data->writable_data(), bytesToRead);
+            if (bytesRead < bytesToRead) {
+                data.reset(SkData::NewSubset(data.get(), 0, bytesRead));
+            }
+            return new SkMemoryStream(data);
+        }
+    }
+private:
+    SkAutoTDelete<SkStream> fStream;
+};
+
+class SkPiexStream : public ::piex::StreamInterface {
+public:
+    // Will NOT take the ownership of the stream.
+    explicit SkPiexStream(SkRawStream* stream) : fStream(stream) {}
+
+    ~SkPiexStream() override {}
+
+    ::piex::Error GetData(const size_t offset, const size_t length,
+                          uint8* data) override {
+        return fStream->read(static_cast<void*>(data), offset, length) ?
+            ::piex::Error::kOk : ::piex::Error::kFail;
     }
 
 private:
-    SkRawStream* fRawStream;
+    SkRawStream* fStream;
+};
+
+class SkDngStream : public dng_stream {
+public:
+    // Will NOT take the ownership of the stream.
+    SkDngStream(SkRawStream* stream) : fStream(stream) {}
+
+    ~SkDngStream() override {}
+
+    uint64 DoGetLength() override { return fStream->getLength(); }
+
+    void DoRead(void* data, uint32 count, uint64 offset) override {
+        size_t sum;
+        if (!safe_add_to_size_t(static_cast<uint64>(count), offset, &sum) ||
+            !fStream->read(data, static_cast<size_t>(offset), static_cast<size_t>(count))) {
+            ThrowReadFile();
+        }
+    }
+
+private:
+    SkRawStream* fStream;
 };
 
 class SkDngImage {
 public:
+    // Will take the ownership of the stream.
     static SkDngImage* NewFromStream(SkRawStream* stream) {
         SkAutoTDelete<SkDngImage> dngImage(new SkDngImage(stream));
         if (!dngImage->readDng()) {
@@ -439,10 +535,18 @@ private:
  * fallback to create SkRawCodec for DNG images.
  */
 SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkRawStream> rawStream(new SkRawStream(stream));
+    SkAutoTDelete<SkRawStream> rawStream;
+    if (is_asset_stream(*stream)) {
+        rawStream.reset(new SkRawAssetStream(stream));
+    } else {
+        rawStream.reset(new SkRawBufferedStream(stream));
+    }
+
+    // Does not take the ownership of rawStream.
+    SkPiexStream piexStream(rawStream.get());
     ::piex::PreviewImageData imageData;
-    if (::piex::IsRaw(rawStream.get())) {
-        ::piex::Error error = ::piex::GetPreviewImageData(rawStream.get(), &imageData);
+    if (::piex::IsRaw(&piexStream)) {
+        ::piex::Error error = ::piex::GetPreviewImageData(&piexStream, &imageData);
 
         if (error == ::piex::Error::kOk && imageData.preview_length > 0) {
 #if !defined(GOOGLE3)
@@ -450,7 +554,7 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
             // function call.
             // FIXME: one may avoid the copy of memoryStream and use the buffered rawStream.
             SkMemoryStream* memoryStream =
-                    rawStream->transferBuffer(imageData.preview_offset, imageData.preview_length);
+                rawStream->transferBuffer(imageData.preview_offset, imageData.preview_length);
             return memoryStream ? SkJpegCodec::NewFromStream(memoryStream) : nullptr;
 #else
             return nullptr;
@@ -460,6 +564,7 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
         }
     }
 
+    // Takes the ownership of the rawStream.
     SkAutoTDelete<SkDngImage> dngImage(SkDngImage::NewFromStream(rawStream.release()));
     if (!dngImage) {
         return nullptr;

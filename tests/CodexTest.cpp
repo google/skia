@@ -389,6 +389,7 @@ DEF_TEST(Codec, r) {
     // RAW
 #if defined(SK_CODEC_DECODES_RAW)
     check(r, "sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
+    check(r, "dng_with_preview.dng", SkISize::Make(600, 338), true, false, false);
 #endif
 }
 
@@ -586,6 +587,7 @@ DEF_TEST(Codec_Dimensions, r) {
     // RAW
 #if defined(SK_CODEC_DECODES_RAW)
     test_dimensions(r, "sample_1mp.dng");
+    test_dimensions(r, "dng_with_preview.dng");
 #endif
 }
 
@@ -828,6 +830,54 @@ private:
     SkMemoryStream fStream;
     const size_t   fLimit;
 };
+
+// Stream that is not an asset stream (!hasPosition() or !hasLength())
+class NotAssetMemStream : public SkStream {
+public:
+    NotAssetMemStream(SkData* data) : fStream(data) {}
+
+    bool hasPosition() const override {
+        return false;
+    }
+
+    bool hasLength() const override {
+        return false;
+    }
+
+    size_t peek(void* buf, size_t bytes) const override {
+        return fStream.peek(buf, bytes);
+    }
+    size_t read(void* buf, size_t bytes) override {
+        return fStream.read(buf, bytes);
+    }
+    bool rewind() override {
+        return fStream.rewind();
+    }
+    bool isAtEnd() const override {
+        return fStream.isAtEnd();
+    }
+private:
+    SkMemoryStream fStream;
+};
+
+// Test that the RawCodec works also for not asset stream. This will test the code path using
+// SkRawBufferedStream instead of SkRawAssetStream.
+#if defined(SK_CODEC_DECODES_RAW)
+DEF_TEST(Codec_raw_notseekable, r) {
+    const char* path = "dng_with_preview.dng";
+    SkString fullPath(GetResourcePath(path));
+    SkAutoTUnref<SkData> data(SkData::NewFromFileName(fullPath.c_str()));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(data)));
+    REPORTER_ASSERT(r, codec);
+
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
+}
+#endif
 
 // Test that even if webp_parse_header fails to peek enough, it will fall back to read()
 // + rewind() and succeed.
