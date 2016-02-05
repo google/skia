@@ -286,12 +286,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     }
 
     // temp buffer for doing sw premul conversion, if needed.
-#if defined(GOOGLE3)
-    // Stack frame size is limited in GOOGLE3.
-    SkAutoSTMalloc<48 * 48, uint32_t> tmpPixels(0);
-#else
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
-#endif
     if (tempTexture) {
         SkAutoTUnref<const GrFragmentProcessor> fp;
         SkMatrix textureMatrix;

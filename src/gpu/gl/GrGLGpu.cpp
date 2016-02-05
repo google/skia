@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrGLGpu.h"
 #include "GrGLGLSL.h"
 #include "GrGLStencilAttachment.h"
@@ -857,12 +856,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
     size_t trimRowBytes = width * bpp;
 
     // in case we need a temporary, trimmed copy of the src pixels
-#if defined(GOOGLE3)
-    // Stack frame size is limited in GOOGLE3.
-    SkAutoSMalloc<64 * 128> tempStorage;
-#else
     SkAutoSMalloc<128 * 128> tempStorage;
-#endif
 
     // Internal format comes from the texture desc.
     GrGLenum internalFormat;

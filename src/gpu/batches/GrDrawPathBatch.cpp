@@ -137,14 +137,8 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
                                                  instances.count());
     } else {
         int floatsPerTransform = GrPathRendering::PathTransformSize(this->transformType());
-#if defined(GOOGLE3)
-        //Stack frame size is limited in GOOGLE3.
-        SkAutoSTMalloc<512, float> transformStorage(floatsPerTransform * fTotalPathCount);
-        SkAutoSTMalloc<256, uint16_t> indexStorage(fTotalPathCount);
-#else
         SkAutoSTMalloc<4096, float> transformStorage(floatsPerTransform * fTotalPathCount);
         SkAutoSTMalloc<2048, uint16_t> indexStorage(fTotalPathCount);
-#endif
         int idx = 0;
         for (DrawList::Iter iter(fDraws); iter.get(); iter.next()) {
             const Draw& draw = *iter.get();
