@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <functional>
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDevice.h"
@@ -82,7 +83,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceEmpty_Gpu, reporter, context) {
 
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedTexture, reporter, context) {
-    const GrGpu* gpu = context->getGpu();
+    GrGpu* gpu = context->getGpu();
     if (!gpu) {
         return;
     }
@@ -702,3 +703,85 @@ DEF_TEST(surface_rowbytes, reporter) {
     s = SkSurface::NewRaster(info, 1 << 30, nullptr); // allocation to large
     REPORTER_ASSERT(reporter, nullptr == s);
 }
+
+#if SK_SUPPORT_GPU
+
+void test_surface_clear(skiatest::Reporter* reporter, SkSurface* surface,
+                        std::function<GrSurface*(SkSurface*)> grSurfaceGetter,
+                        uint32_t expectedValue) {
+    if (!surface) {
+        ERRORF(reporter, "Could not create GPU SkSurface.");
+        return;
+    }
+    int w = surface->width();
+    int h = surface->height();
+    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[w * h]);
+    memset(pixels.get(), ~expectedValue, sizeof(uint32_t) * w * h);
+
+    SkAutoTUnref<GrSurface> grSurface(SkSafeRef(grSurfaceGetter(surface)));
+    if (!grSurface) {
+        ERRORF(reporter, "Could access render target of GPU SkSurface.");
+        return;
+    }
+    SkASSERT(surface->unique());
+    surface->unref();
+    grSurface->readPixels(0, 0, w, h, kRGBA_8888_GrPixelConfig, pixels.get());
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            uint32_t pixel = pixels.get()[y * w + x];
+            if (pixel != expectedValue) {
+                SkString msg;
+                if (expectedValue) {
+                    msg = "SkSurface should have left render target unmodified";
+                } else {
+                    msg = "SkSurface should have cleared the render target";
+                }
+                ERRORF(reporter,
+                       "%s but read 0x%08x (instead of 0x%08x) at %x,%d", msg.c_str(), pixel,
+                       expectedValue, x, y);
+                return;
+            }
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, context) {
+    std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
+        [] (SkSurface* s){ return s->getCanvas()->internal_private_accessTopLayerRenderTarget();},
+        [] (SkSurface* s){
+            SkBaseDevice* d =
+                s->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
+            return d->accessRenderTarget(); },
+        [] (SkSurface* s){ SkImage* i = s->newImageSnapshot();
+                           return i->getTexture(); },
+        [] (SkSurface* s){ SkImage* i = s->newImageSnapshot();
+                           return as_IB(i)->peekTexture(); },
+    };
+    for (auto grSurfaceGetter : grSurfaceGetters) {
+        for (auto& surface_func : {&create_gpu_surface, &create_gpu_scratch_surface}) {
+            SkSurface* surface(surface_func(context, kPremul_SkAlphaType, nullptr));
+            test_surface_clear(reporter, surface, grSurfaceGetter, 0x0);
+        }
+        // Wrapped RTs are *not* supposed to clear (to allow client to partially update a surface).
+        static const int kWidth = 10;
+        static const int kHeight = 10;
+        SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[kWidth * kHeight]);
+        memset(pixels.get(), 0xAB, sizeof(uint32_t) * kWidth * kHeight);
+
+        GrBackendObject textureObject =
+                context->getGpu()->createTestingOnlyBackendTexture(pixels.get(), kWidth, kHeight,
+                                                                   kRGBA_8888_GrPixelConfig);
+
+        GrBackendTextureDesc desc;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        desc.fWidth = kWidth;
+        desc.fHeight = kHeight;
+        desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+        desc.fTextureHandle = textureObject;
+
+        SkSurface* surface = SkSurface::NewFromBackendTexture(context, desc, nullptr);
+        test_surface_clear(reporter, surface, grSurfaceGetter, 0xABABABAB);
+        context->getGpu()->deleteTestingOnlyBackendTexture(textureObject);
+    }
+}
+#endif

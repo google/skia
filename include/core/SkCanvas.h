@@ -124,7 +124,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     *  Trigger the immediate execution of all pending draw operations.
+     *  Trigger the immediate execution of all pending draw operations. For the GPU
+     *  backend this will resolve all rendering to the GPU surface backing the
+     *  SkSurface that owns this canvas.
      */
     void flush();
 

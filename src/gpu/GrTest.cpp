@@ -384,11 +384,11 @@ private:
     void clearStencil(GrRenderTarget* target) override  {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config) const override {
+                                                    GrPixelConfig config) override {
         return 0;
     }
     bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) const override {}
+    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override {}
 
     typedef GrGpu INHERITED;
 };

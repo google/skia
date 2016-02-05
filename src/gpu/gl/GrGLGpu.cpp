@@ -2153,7 +2153,6 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         // RT. We may add additional transformations below.
         ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
-
     if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig &&
         this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
@@ -2773,8 +2772,7 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
         return;
     }
 
-    if (fHWBlendState.fSrcCoeff != srcCoeff ||
-        fHWBlendState.fDstCoeff != dstCoeff) {
+    if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
         GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
                           gXfermodeCoeff2Blend[dstCoeff]));
         fHWBlendState.fSrcCoeff = srcCoeff;
@@ -3675,7 +3673,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 }
 
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                         GrPixelConfig config) const {
+                                                         GrPixelConfig config) {
     if (!this->caps()->isConfigTexturable(config)) {
         return false;
     }
@@ -3686,6 +3684,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     GL_CALL(ActiveTexture(GR_GL_TEXTURE0));
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
     GL_CALL(BindTexture(info->fTarget, info->fID));
+    fHWBoundTextureUniqueIDs[0] = 0;
     GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
     GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
     GL_CALL(TexParameteri(info->fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
@@ -3730,7 +3729,7 @@ bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
     return (GR_GL_TRUE == result);
 }
 
-void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) const {
+void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) {
 #ifdef SK_IGNORE_GL_TEXTURE_TARGET
     GrGLuint texID = (GrGLuint)id;
 #else

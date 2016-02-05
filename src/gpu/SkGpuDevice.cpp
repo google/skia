@@ -66,13 +66,6 @@ enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
     #define CHECK_SHOULD_DRAW(draw) this->prepareDraw(draw)
 #endif
 
-#define DO_DEFERRED_CLEAR()             \
-    do {                                \
-        if (fNeedClear) {               \
-            this->clearAll();           \
-        }                               \
-    } while (false)                     \
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define CHECK_FOR_ANNOTATION(paint) \
@@ -175,7 +168,6 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     : INHERITED(SkSurfacePropsCopyOrDefault(props))
     , fContext(SkRef(rt->getContext()))
     , fRenderTarget(SkRef(rt)) {
-    fNeedClear = SkToBool(flags & kNeedClear_Flag);
     fOpaque = SkToBool(flags & kIsOpaque_Flag);
 
     SkAlphaType at = fOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
@@ -185,6 +177,9 @@ SkGpuDevice::SkGpuDevice(GrRenderTarget* rt, int width, int height,
     fLegacyBitmap.setPixelRef(pr)->unref();
 
     fDrawContext.reset(this->context()->drawContext(rt, &this->surfaceProps()));
+    if (flags & kNeedClear_Flag) {
+        this->clearAll();
+    }
 }
 
 GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::Budgeted budgeted,
@@ -231,7 +226,6 @@ GrRenderTarget* SkGpuDevice::CreateRenderTarget(GrContext* context, SkSurface::B
 bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                int x, int y) {
     ASSERT_SINGLE_OWNER
-    DO_DEFERRED_CLEAR();
 
     // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
     GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo);
@@ -269,13 +263,11 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, siz
 
 const SkBitmap& SkGpuDevice::onAccessBitmap() {
     ASSERT_SINGLE_OWNER
-    DO_DEFERRED_CLEAR();
     return fLegacyBitmap;
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
     ASSERT_SINGLE_OWNER
-    DO_DEFERRED_CLEAR();
     // For compatibility with clients the know we're backed w/ a bitmap, and want to inspect its
     // genID. When we can hide/remove that fact, we can eliminate this call to notify.
     // ... ugh.
@@ -307,13 +299,10 @@ void SkGpuDevice::prepareDraw(const SkDraw& draw) {
     SkASSERT(draw.fClipStack && draw.fClipStack == fClipStack);
 
     fClip.setClipStack(fClipStack, &this->getOrigin());
-
-    DO_DEFERRED_CLEAR();
 }
 
 GrRenderTarget* SkGpuDevice::accessRenderTarget() {
     ASSERT_SINGLE_OWNER
-    DO_DEFERRED_CLEAR();
     return fRenderTarget;
 }
 
@@ -323,13 +312,10 @@ void SkGpuDevice::clearAll() {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "clearAll", fContext);
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fDrawContext->clear(&rect, color, true);
-    fNeedClear = false;
 }
 
 void SkGpuDevice::replaceRenderTarget(bool shouldRetainContent) {
     ASSERT_SINGLE_OWNER
-    // Caller must have accessed the render target, because it knows the rt must be replaced.
-    SkASSERT(!fNeedClear);
 
     SkSurface::Budgeted budgeted =
             fRenderTarget->resourcePriv().isBudgeted() ? SkSurface::kYes_Budgeted
@@ -1310,10 +1296,6 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDevice", fContext);
     SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
 
-    // TODO: If the source device covers the whole of this device, we could
-    // omit fNeedsClear -related flushing.
-    // TODO: if source needs clear, we could maybe omit the draw fully.
-
     // drawDevice is defined to be in device coords.
     CHECK_SHOULD_DRAW(draw);
 
@@ -1769,7 +1751,6 @@ bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
 
 void SkGpuDevice::flush() {
     ASSERT_SINGLE_OWNER
-    DO_DEFERRED_CLEAR();
 
     // Clear batch debugging output
     // TODO not exactly sure where this should live

@@ -412,14 +412,14 @@ public:
         only to be used for testing (particularly for testing the methods that import an externally
         created texture into Skia. Must be matched with a call to deleteTestingOnlyTexture(). */
     virtual GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                            GrPixelConfig config) const = 0;
+                                                            GrPixelConfig config) = 0;
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(GrBackendObject) const = 0;
     /** If ownership of the backend texture has been transferred pass true for abandonTexture. This
         will do any necessary cleanup of the handle without freeing the texture in the backend
         API. */
     virtual void deleteTestingOnlyBackendTexture(GrBackendObject,
-                                                 bool abandonTexture = false) const = 0;
+                                                 bool abandonTexture = false) = 0;
 
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on

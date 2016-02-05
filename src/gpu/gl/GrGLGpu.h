@@ -126,9 +126,9 @@ public:
                                                                 int height) override;
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config) const override;
+                                                    GrPixelConfig config) override;
     bool isTestingOnlyBackendTexture(GrBackendObject) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) const override;
+    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override;
 
     void resetShaderCacheForTesting() const override;
 

@@ -187,7 +187,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, contex
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, context) {
-    const GrGpu* gpu = context->getGpu();
+    GrGpu* gpu = context->getGpu();
     // this test is only valid for GL
     if (!gpu || !gpu->glContextForTesting()) {
         return;

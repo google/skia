@@ -94,7 +94,7 @@ protected:
     }
 
     void createYUVTextures(GrContext* context, GrBackendObject yuvHandles[3]) {
-        const GrGpu* gpu = context->getGpu();
+        GrGpu* gpu = context->getGpu();
         if (!gpu) {
             return;
         }
@@ -111,7 +111,7 @@ protected:
 
     void deleteYUVTextures(GrContext* context, const GrBackendObject yuvHandles[3]) {
 
-        const GrGpu* gpu = context->getGpu();
+        GrGpu* gpu = context->getGpu();
         if (!gpu) {
             return;
         }

@@ -164,7 +164,6 @@ private:
     GrClip                          fClip;;
     // remove when our clients don't rely on accessBitmap()
     SkBitmap                        fLegacyBitmap;
-    bool                            fNeedClear;
     bool                            fOpaque;
 
     enum Flags {
