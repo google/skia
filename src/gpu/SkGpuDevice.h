@@ -18,7 +18,6 @@
 #include "GrDrawContext.h"
 #include "GrContext.h"
 #include "GrSurfacePriv.h"
-#include "GrTypes.h"
 
 class GrAccelData;
 class GrTextureProducer;
@@ -53,8 +52,7 @@ public:
      * the resource cache budget. On failure, returns nullptr.
      */
     static SkGpuDevice* Create(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
-                               int sampleCount, const SkSurfaceProps*,
-                               InitContents, GrTextureStorageAllocator = GrTextureStorageAllocator());
+                               int sampleCount, const SkSurfaceProps*, InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -258,7 +256,7 @@ private:
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
 
     static GrRenderTarget* CreateRenderTarget(GrContext*, SkSurface::Budgeted, const SkImageInfo&,
-                                              int sampleCount, GrTextureStorageAllocator);
+                                              int sampleCount);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

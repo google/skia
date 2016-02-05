@@ -755,11 +755,8 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
         success = this->uploadCompressedTexData(glTex->desc(), glTex->target(), buffer, 
                                                 kWrite_UploadType, left, top, width, height);
     } else {
-      success = this->uploadTexData(
-          glTex->desc(),
-          reinterpret_cast<GrGLTextureInfo*>(glTex->getTextureHandle()),
-          kWrite_UploadType, left, top, width, height, config, buffer,
-          rowBytes);
+        success = this->uploadTexData(glTex->desc(), glTex->target(), kWrite_UploadType,
+                                      left, top, width, height, config, buffer, rowBytes);
     }
 
     if (success) {
@@ -796,11 +793,8 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
     GL_CALL(BindBuffer(glBuffer->bufferType(), glBuffer->bufferID()));
 
     bool success = false;
-    success = this->uploadTexData(
-        glTex->desc(),
-        reinterpret_cast<GrGLTextureInfo*>(glTex->getTextureHandle()),
-        kTransfer_UploadType, left, top, width, height, config, buffer,
-        rowBytes);
+    success = this->uploadTexData(glTex->desc(), glTex->target(), kTransfer_UploadType,
+                                  left, top, width, height, config, buffer, rowBytes);
 
     if (success) {
         glTex->texturePriv().dirtyMipMaps(true);
@@ -841,7 +835,7 @@ static inline GrGLenum check_alloc_error(const GrSurfaceDesc& desc,
 }
 
 bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
-                            GrGLTextureInfo* info,
+                            GrGLenum target,
                             UploadType uploadType,
                             int left, int top, int width, int height,
                             GrPixelConfig dataConfig,
@@ -938,30 +932,20 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
             !(0 == left && 0 == top && desc.fWidth == width && desc.fHeight == height)) {
             succeeded = false;
         } else {
-            if (desc.fTextureStorageAllocator.fAllocateTextureStorage) {
-                if (dataOrOffset) {
-                    GL_CALL(TexSubImage2D(info->fTarget,
-                                          0, // level
-                                          left, top,
-                                          width, height,
-                                          externalFormat, externalType, dataOrOffset));
-                }
-            } else {                                                              
-                CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());                    
-                GL_ALLOC_CALL(this->glInterface(), TexImage2D(                    
-                    info->fTarget, 0, internalFormat, desc.fWidth, desc.fHeight, 0, externalFormat,
-                    externalType, dataOrOffset));                                 
-                GrGLenum error = check_alloc_error(desc, this->glInterface()); 
-                if (error != GR_GL_NO_ERROR) {                                    
-                    succeeded = false;                                            
-                }
-            }  
+            CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
+            GL_ALLOC_CALL(this->glInterface(), TexImage2D(target, 0, internalFormat, desc.fWidth,
+                                                          desc.fHeight, 0, externalFormat,
+                                                          externalType, dataOrOffset));
+            GrGLenum error = check_alloc_error(desc, this->glInterface());
+            if (error != GR_GL_NO_ERROR) {
+                succeeded = false;
+            }
         }
     } else {
         if (swFlipY || glFlipY) {
             top = desc.fHeight - (top + height);
         }
-        GL_CALL(TexSubImage2D(info->fTarget,
+        GL_CALL(TexSubImage2D(target,
                               0, // level
                               left, top,
                               width, height,
@@ -1224,10 +1208,52 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     GrGLTexture::IDDesc idDesc;
+    idDesc.fInfo.fID = 0;
+    GL_CALL(GenTextures(1, &idDesc.fInfo.fID));
     idDesc.fLifeCycle = lifeCycle;
+    // We only support GL_TEXTURE_2D at the moment.
+    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
+
+    if (!idDesc.fInfo.fID) {
+        return return_null_texture();
+    }
+
+    this->setScratchTextureUnit();
+    GL_CALL(BindTexture(idDesc.fInfo.fTarget, idDesc.fInfo.fID));
+
+    if (renderTarget && this->glCaps().textureUsageSupport()) {
+        // provides a hint about how this texture will be used
+        GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
+                              GR_GL_TEXTURE_USAGE,
+                              GR_GL_FRAMEBUFFER_ATTACHMENT));
+    }
+
+    // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
+    // drivers have a bug where an FBO won't be complete if it includes a
+    // texture that is not mipmap complete (considering the filter in use).
     GrGLTexture::TexParams initialTexParams;
-    if (!this->createTextureImpl(desc, &idDesc.fInfo, renderTarget, srcData,
-                                 &initialTexParams, rowBytes)) {
+    // we only set a subset here so invalidate first
+    initialTexParams.invalidate();
+    initialTexParams.fMinFilter = GR_GL_NEAREST;
+    initialTexParams.fMagFilter = GR_GL_NEAREST;
+    initialTexParams.fWrapS = GR_GL_CLAMP_TO_EDGE;
+    initialTexParams.fWrapT = GR_GL_CLAMP_TO_EDGE;
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
+                          GR_GL_TEXTURE_MAG_FILTER,
+                          initialTexParams.fMagFilter));
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
+                          GR_GL_TEXTURE_MIN_FILTER,
+                          initialTexParams.fMinFilter));
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
+                          GR_GL_TEXTURE_WRAP_S,
+                          initialTexParams.fWrapS));
+    GL_CALL(TexParameteri(idDesc.fInfo.fTarget,
+                          GR_GL_TEXTURE_WRAP_T,
+                          initialTexParams.fWrapT));
+    if (!this->uploadTexData(desc, idDesc.fInfo.fTarget, kNewTexture_UploadType, 0, 0,
+                             desc.fWidth, desc.fHeight,
+                             desc.fConfig, srcData, rowBytes)) {
+        GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
         return return_null_texture();
     }
 
@@ -1448,86 +1474,6 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         fGLContext->caps()->setStencilFormatIndexForConfig(config, firstWorkingStencilFormatIndex);
     }
     return this->glCaps().getStencilFormatIndexForConfig(config);
-}
-
-bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
-                                bool renderTarget, const void* srcData,
-                                GrGLTexture::TexParams* initialTexParams, size_t rowBytes) {
-    // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
-    // drivers have a bug where an FBO won't be complete if it includes a
-    // texture that is not mipmap complete (considering the filter in use).
-
-    // we only set a subset here so invalidate first
-    initialTexParams->invalidate();
-    initialTexParams->fMinFilter = GR_GL_NEAREST;
-    initialTexParams->fMagFilter = GR_GL_NEAREST;
-    initialTexParams->fWrapS = GR_GL_CLAMP_TO_EDGE;
-    initialTexParams->fWrapT = GR_GL_CLAMP_TO_EDGE;
-
-    if (desc.fTextureStorageAllocator.fAllocateTextureStorage) {
-        return this->createTextureExternalAllocatorImpl(desc, info, srcData, rowBytes);
-    }
-
-    info->fID = 0;
-    info->fTarget = GR_GL_TEXTURE_2D;
-    GL_CALL(GenTextures(1, &(info->fID)));
-
-    if (!info->fID) {
-        return false;
-    }
-
-    this->setScratchTextureUnit();
-    GL_CALL(BindTexture(info->fTarget, info->fID));
-
-    if (renderTarget && this->glCaps().textureUsageSupport()) {
-        // provides a hint about how this texture will be used
-        GL_CALL(TexParameteri(info->fTarget,
-                              GR_GL_TEXTURE_USAGE,
-                              GR_GL_FRAMEBUFFER_ATTACHMENT));
-    }
-
-    GL_CALL(TexParameteri(info->fTarget,
-                          GR_GL_TEXTURE_MAG_FILTER,
-                          initialTexParams->fMagFilter));
-    GL_CALL(TexParameteri(info->fTarget,
-                          GR_GL_TEXTURE_MIN_FILTER,
-                          initialTexParams->fMinFilter));
-    GL_CALL(TexParameteri(info->fTarget,
-                          GR_GL_TEXTURE_WRAP_S,
-                          initialTexParams->fWrapS));
-    GL_CALL(TexParameteri(info->fTarget,
-                          GR_GL_TEXTURE_WRAP_T,
-                          initialTexParams->fWrapT));
-    if (!this->uploadTexData(desc, info, kNewTexture_UploadType, 0, 0,
-                             desc.fWidth, desc.fHeight,
-                             desc.fConfig, srcData, rowBytes)) {
-        GL_CALL(DeleteTextures(1, &(info->fID)));
-        return false;
-    }
-    return true;
-}
-
-bool GrGLGpu::createTextureExternalAllocatorImpl(
-        const GrSurfaceDesc& desc, GrGLTextureInfo* info, const void* srcData, size_t rowBytes) {
-    switch (desc.fTextureStorageAllocator.fAllocateTextureStorage(
-                    desc.fTextureStorageAllocator.fCtx, reinterpret_cast<GrBackendObject>(info),
-                    desc.fWidth, desc.fHeight, desc.fConfig, srcData, desc.fOrigin)) {
-        case GrTextureStorageAllocator::Result::kSucceededAndUploaded:
-            return true;
-        case GrTextureStorageAllocator::Result::kFailed:
-            return false;
-        case GrTextureStorageAllocator::Result::kSucceededWithoutUpload:
-            break;
-    }
-
-    if (!this->uploadTexData(desc, info, kNewTexture_UploadType, 0, 0,
-                             desc.fWidth, desc.fHeight,
-                             desc.fConfig, srcData, rowBytes)) {
-        desc.fTextureStorageAllocator.fDeallocateTextureStorage(
-                desc.fTextureStorageAllocator.fCtx, reinterpret_cast<GrBackendObject>(info));
-        return false;
-    }
-    return true;
 }
 
 GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
