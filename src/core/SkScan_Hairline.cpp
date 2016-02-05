@@ -192,7 +192,7 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip,
 #include "SkGeometry.h"
 #include "SkNx.h"
 
-#define kMaxCubicSubdivideLevel 6
+#define kMaxCubicSubdivideLevel 9
 #define kMaxQuadSubdivideLevel  5
 
 static int compute_int_quad_dist(const SkPoint pts[3]) {
