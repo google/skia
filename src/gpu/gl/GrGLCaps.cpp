@@ -423,11 +423,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // initFSAASupport() must have been called before this point
     if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxColorSampleCount);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxStencilSampleCount);
     } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxColorSampleCount);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxStencilSampleCount);
     }
-    fMaxStencilSampleCount = fMaxColorSampleCount;
+    // We only have a use for raster multisample if there is coverage modulation from mixed samples.
+    if (fUsesMixedSamples && ctxInfo.hasExtension("GL_EXT_raster_multisample")) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_RASTER_SAMPLES, &fMaxRasterSamples);
+        // This is to guard against platforms that may not support as many samples for
+        // glRasterSamples as they do for framebuffers.
+        fMaxStencilSampleCount = SkTMin(fMaxStencilSampleCount, fMaxRasterSamples);
+    }
+    fMaxColorSampleCount = fMaxStencilSampleCount;
 
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||

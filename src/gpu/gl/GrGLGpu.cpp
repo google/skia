@@ -442,11 +442,14 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     if (resetBits & kMSAAEnable_GrGLBackendState) {
         fMSAAEnabled = kUnknown_TriState;
 
-        // In mixed samples mode coverage modulation allows the coverage to be converted to
-        // "opacity", which can then be blended into the color buffer to accomplish antialiasing.
-        // Enable coverage modulation suitable for premultiplied alpha colors.
-        // This state has no effect when not rendering to a mixed sampled target.
         if (this->caps()->usesMixedSamples()) {
+            if (0 != this->caps()->maxRasterSamples()) {
+                fHWRasterMultisampleEnabled = kUnknown_TriState;
+                fHWNumRasterSamples = 0;
+            }
+
+            // The skia blend modes all use premultiplied alpha and therefore expect RGBA coverage
+            // modulation. This state has no effect when not rendering to a mixed sampled target.
             GL_CALL(CoverageModulation(GR_GL_RGBA));
         }
     }
@@ -1705,7 +1708,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
     this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushHWAAState(glRT, pipeline.isHWAntialiasState());
+    this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !pipeline.getStencil().isDisabled());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -2377,7 +2380,7 @@ void GrGLGpu::performFlushWorkaround() {
          */
         this->disableScissor();
         // using PLS in the presence of MSAA results in GL_INVALID_OPERATION
-        this->flushHWAAState(nullptr, false);
+        this->flushHWAAState(nullptr, false, false);
         SkASSERT(!fHWPLSEnabled);
         SkASSERT(fMSAAEnabled != kYes_TriState);
         GL_CALL(Enable(GR_GL_SHADER_PIXEL_LOCAL_STORAGE));
@@ -2709,7 +2712,7 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
     }
 }
 
-void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
+void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled) {
     SkASSERT(!useHWAA || rt->isStencilBufferMultisampled());
 
     if (this->glCaps().multisampleDisableSupport()) {
@@ -2724,6 +2727,29 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
                 fMSAAEnabled = kNo_TriState;
             }
         }
+    }
+
+    if (0 != this->caps()->maxRasterSamples()) {
+        if (useHWAA && rt->hasMixedSamples() && !stencilEnabled) {
+            // Since stencil is disabled and we want more samples than are in the color buffer, we
+            // need to tell the rasterizer explicitly how many to run.
+            if (kYes_TriState != fHWRasterMultisampleEnabled) {
+                GL_CALL(Enable(GR_GL_RASTER_MULTISAMPLE));
+                fHWRasterMultisampleEnabled = kYes_TriState;
+            }
+            if (rt->numStencilSamples() != fHWNumRasterSamples) {
+                SkASSERT(rt->numStencilSamples() <= this->caps()->maxRasterSamples());
+                GL_CALL(RasterSamples(rt->numStencilSamples(), GR_GL_TRUE));
+                fHWNumRasterSamples = rt->numStencilSamples();
+            }
+        } else {
+            if (kNo_TriState != fHWRasterMultisampleEnabled) {
+                GL_CALL(Disable(GR_GL_RASTER_MULTISAMPLE));
+                fHWRasterMultisampleEnabled = kNo_TriState;
+            }
+        }
+    } else {
+        SkASSERT(!useHWAA || !rt->hasMixedSamples() || stencilEnabled);
     }
 }
 
@@ -3466,7 +3492,7 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
     this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
-    this->flushHWAAState(glRT, false);
+    this->flushHWAAState(glRT, false, false);
     this->disableScissor();
     GrStencilSettings stencil;
     stencil.setDisabled();
@@ -3544,7 +3570,7 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(true);
     this->flushDrawFace(GrPipelineBuilder::kBoth_DrawFace);
-    this->flushHWAAState(dstRT, false);
+    this->flushHWAAState(dstRT, false, false);
     this->disableScissor();
     GrStencilSettings stencil;
     stencil.setDisabled();

@@ -310,7 +310,7 @@ private:
     void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds);
 
     void flushStencil(const GrStencilSettings&);
-    void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
+    void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled);
 
     // helper for onCreateTexture and writeTexturePixels
     enum UploadType {
@@ -542,6 +542,10 @@ private:
     uint32_t                    fHWBoundRenderTargetUniqueID;
     TriState                    fHWSRGBFramebuffer;
     SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
+
+    // EXT_raster_multisample.
+    TriState                    fHWRasterMultisampleEnabled;
+    int                         fHWNumRasterSamples;
     ///@}
 
     /** IDs for copy surface program. */
