@@ -478,6 +478,12 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
     if (result != kSuccess) {
         return result;
     }
+
+    const int width = requestedInfo.width();
+    const int height = requestedInfo.height();
+    const int bpp = SkSwizzler::BytesPerPixel(fSrcConfig);
+    const size_t srcRowBytes = width * bpp;
+
     // FIXME: Could we use the return value of setjmp to specify the type of
     // error?
     int row = 0;
@@ -487,7 +493,7 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         // Assume that any error that occurs while reading rows is caused by an incomplete input.
         if (fNumberPasses > 1) {
             // FIXME (msarett): Handle incomplete interlaced pngs.
-            return kInvalidInput;
+            return (row == height) ? kSuccess : kInvalidInput;
         }
         // FIXME: We do a poor job on incomplete pngs compared to other decoders (ex: Chromium,
         // Ubuntu Image Viewer).  This is because we use the default buffer size in libpng (8192
@@ -499,52 +505,40 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         // made a partial read.
         // Making our buffer size smaller improves our incomplete decodes, but what impact does
         // it have on regular decode performance?  Should we investigate using a different API
-        // instead of png_read_row(s)?  Chromium uses png_process_data.
+        // instead of png_read_row?  Chromium uses png_process_data.
         *rowsDecoded = row;
-        return kIncompleteInput;
+        return (row == height) ? kSuccess : kIncompleteInput;
     }
 
     // FIXME: We could split these out based on subclass.
     void* dstRow = dst;
     if (fNumberPasses > 1) {
-        const int width = requestedInfo.width();
-        const int height = requestedInfo.height();
-        const int bpp = SkSwizzler::BytesPerPixel(fSrcConfig);
-        const size_t srcRowBytes = width * bpp;
-
-        storage.reset(width * height * bpp);
+        storage.reset(height * srcRowBytes);
         uint8_t* const base = storage.get();
 
         for (int i = 0; i < fNumberPasses; i++) {
             uint8_t* srcRow = base;
             for (int y = 0; y < height; y++) {
-                uint8_t* bmRow = srcRow;
-                png_read_rows(fPng_ptr, &bmRow, nullptr, 1);
+                png_read_row(fPng_ptr, srcRow, nullptr);
                 srcRow += srcRowBytes;
             }
         }
 
         // Now swizzle it.
         uint8_t* srcRow = base;
-        for (int y = 0; y < height; y++) {
+        for (; row < height; row++) {
             fSwizzler->swizzle(dstRow, srcRow);
             dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
             srcRow += srcRowBytes;
         }
     } else {
-        storage.reset(requestedInfo.width() * SkSwizzler::BytesPerPixel(fSrcConfig));
+        storage.reset(srcRowBytes);
         uint8_t* srcRow = storage.get();
-        for (; row < requestedInfo.height(); row++) {
-            png_read_rows(fPng_ptr, &srcRow, nullptr, 1);
-            // FIXME: Only call IsOpaque once, outside the loop. Same for onGetScanlines.
+        for (; row < height; row++) {
+            png_read_row(fPng_ptr, srcRow, nullptr);
             fSwizzler->swizzle(dstRow, srcRow);
             dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
         }
-    }
-
-    if (setjmp(png_jmpbuf(fPng_ptr))) {
-        // We've already read all the scanlines. This is a success.
-        return kSuccess;
     }
 
     // read rest of file, and get additional comment and time chunks in info_ptr
@@ -598,7 +592,7 @@ public:
 
         void* dstRow = dst;
         for (; row < count; row++) {
-            png_read_rows(this->png_ptr(), &fSrcRow, nullptr, 1);
+            png_read_row(this->png_ptr(), fSrcRow, nullptr);
             this->swizzler()->swizzle(dstRow, fSrcRow);
             dstRow = SkTAddOffset<void>(dstRow, rowBytes);
         }
@@ -612,11 +606,9 @@ public:
             SkCodecPrintf("setjmp long jump!\n");
             return false;
         }
-        //there is a potential tradeoff of memory vs speed created by putting this in a loop.
-        //calling png_read_rows in a loop is insignificantly slower than calling it once with count
-        //as png_read_rows has it's own loop which calls png_read_row count times.
+
         for (int row = 0; row < count; row++) {
-            png_read_rows(this->png_ptr(), &fSrcRow, nullptr, 1);
+            png_read_row(this->png_ptr(), fSrcRow, nullptr);
         }
         return true;
     }
@@ -700,17 +692,17 @@ public:
         for (int i = 0; i < this->numberPasses(); i++) {
             // read rows we planned to skip into garbage row
             for (int y = 0; y < startRow; y++){
-                png_read_rows(this->png_ptr(), &fGarbageRowPtr, nullptr, 1);
+                png_read_row(this->png_ptr(), fGarbageRowPtr, nullptr);
             }
             // read rows we care about into buffer
             srcRow = storagePtr;
             for (int y = 0; y < count; y++) {
-                png_read_rows(this->png_ptr(), &srcRow, nullptr, 1);
+                png_read_row(this->png_ptr(), srcRow, nullptr);
                 srcRow += fSrcRowBytes;
             }
             // read rows we don't want into garbage buffer
             for (int y = 0; y < fHeight - startRow - count; y++) {
-                png_read_rows(this->png_ptr(), &fGarbageRowPtr, nullptr, 1);
+                png_read_row(this->png_ptr(), fGarbageRowPtr, nullptr);
             }
         }
         //swizzle the rows we care about
