@@ -292,6 +292,7 @@ def get_builder_spec(builder_name):
   skip_upload_bots = [
     'ASAN',
     'Coverage',
+    'MSAN',
     'TSAN',
     'UBSAN',
     'Valgrind',
