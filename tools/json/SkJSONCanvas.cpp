@@ -6,12 +6,16 @@
  */
 
 #include "SkJSONCanvas.h"
+#include "SkColorFilter.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPaintDefaults.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkRRect.h"
+#include "SkTextBlob.h"
+#include "SkTextBlobRunIterator.h"
+#include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
 SkJSONCanvas::SkJSONCanvas(int width, int height, SkWStream& out, bool sendBinaries) 
@@ -398,6 +402,25 @@ static void apply_paint_textalign(const SkPaint& paint, Json::Value* target) {
     }
 }
 
+static void apply_paint_typeface(const SkPaint& paint, Json::Value* target, 
+                                 bool sendBinaries) {
+    SkTypeface* typeface = paint.getTypeface();
+    if (typeface != nullptr) {
+        if (sendBinaries) {
+            Json::Value jsonTypeface;
+            SkDynamicMemoryWStream buffer;
+            typeface->serialize(&buffer);
+            void* data = sk_malloc_throw(buffer.bytesWritten());
+            buffer.copyTo(data);
+            Json::Value bytes;
+            encode_data(data, buffer.bytesWritten(), &bytes);
+            jsonTypeface[SKJSONCANVAS_ATTRIBUTE_BYTES] = bytes;
+            free(data);
+            (*target)[SKJSONCANVAS_ATTRIBUTE_TYPEFACE] = jsonTypeface;
+        }
+    }
+}
+
 static void apply_paint_shader(const SkPaint& paint, Json::Value* target, bool sendBinaries) {
     SkFlattenable* shader = paint.getShader();
     if (shader != nullptr) {
@@ -425,6 +448,15 @@ static void apply_paint_imagefilter(const SkPaint& paint, Json::Value* target, b
     }
 }
 
+static void apply_paint_colorfilter(const SkPaint& paint, Json::Value* target, bool sendBinaries) {
+    SkFlattenable* colorFilter = paint.getColorFilter();
+    if (colorFilter != nullptr) {
+        Json::Value jsonColorFilter;
+        flatten(colorFilter, &jsonColorFilter, sendBinaries);
+        (*target)[SKJSONCANVAS_ATTRIBUTE_COLORFILTER] = jsonColorFilter;
+    }
+}
+
 Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
     Json::Value result(Json::objectValue);
     store_scalar(&result, SKJSONCANVAS_ATTRIBUTE_STROKEWIDTH, paint.getStrokeWidth(), 0.0f);
@@ -444,6 +476,8 @@ Json::Value SkJSONCanvas::makePaint(const SkPaint& paint) {
     apply_paint_shader(paint, &result, fSendBinaries);
     apply_paint_xfermode(paint, &result, fSendBinaries);
     apply_paint_imagefilter(paint, &result, fSendBinaries);
+    apply_paint_colorfilter(paint, &result, fSendBinaries);
+    apply_paint_typeface(paint, &result, fSendBinaries);
     return result;
 }
 
@@ -756,9 +790,45 @@ void SkJSONCanvas::onDrawTextOnPath(const void* text, size_t byteLength,
 
 void SkJSONCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                   const SkPaint& paint) {
-    SkDebugf("unsupported: drawTextBlob\n");
     Json::Value command(Json::objectValue);
     command[SKJSONCANVAS_COMMAND] = Json::Value(SKJSONCANVAS_COMMAND_TEXTBLOB);
+    Json::Value runs(Json::arrayValue);
+    SkTextBlobRunIterator iter(blob);
+    while (!iter.done()) {
+        Json::Value run(Json::objectValue);
+        Json::Value jsonPositions(Json::arrayValue);
+        Json::Value jsonGlyphs(Json::arrayValue);
+        const SkScalar* iterPositions = iter.pos();
+        const uint16_t* iterGlyphs = iter.glyphs();
+        for (uint32_t i = 0; i < iter.glyphCount(); i++) {
+            switch (iter.positioning()) {
+                case SkTextBlob::kFull_Positioning:
+                    jsonPositions.append(this->makePoint(iterPositions[i * 2],
+                                                         iterPositions[i * 2 + 1]));
+                    break;
+                case SkTextBlob::kHorizontal_Positioning:
+                    jsonPositions.append(Json::Value(iterPositions[i]));
+                    break;
+                case SkTextBlob::kDefault_Positioning:
+                    break;
+            }
+            jsonGlyphs.append(Json::Value(iterGlyphs[i]));
+        }
+        if (iter.positioning() != SkTextBlob::kDefault_Positioning) {
+            run[SKJSONCANVAS_ATTRIBUTE_POSITIONS] = jsonPositions;
+        }
+        run[SKJSONCANVAS_ATTRIBUTE_GLYPHS] = jsonGlyphs;
+        SkPaint fontPaint;
+        iter.applyFontToPaint(&fontPaint);
+        run[SKJSONCANVAS_ATTRIBUTE_FONT] = this->makePaint(fontPaint);
+        run[SKJSONCANVAS_ATTRIBUTE_COORDS] = this->makePoint(iter.offset());
+        runs.append(run);
+        iter.next();
+    }
+    command[SKJSONCANVAS_ATTRIBUTE_RUNS] = runs;
+    command[SKJSONCANVAS_ATTRIBUTE_X] = Json::Value(x);
+    command[SKJSONCANVAS_ATTRIBUTE_Y] = Json::Value(y);
+    command[SKJSONCANVAS_ATTRIBUTE_PAINT] = this->makePaint(paint);
     fCommands.append(command);
 }
 
