@@ -207,6 +207,41 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
     return true;
 }
 
+#include "SkNx.h"
+#include "SkHalf.h"
+
+static void sk_memset64(uint64_t dst[], uint64_t value, int count) {
+    for (int i = 0; i < count; ++i) {
+        dst[i] = value;
+    }
+}
+
+bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
+    SkPixmap pm;
+    if (subset) {
+        if (!this->extractSubset(&pm, *subset)) {
+            return false;
+        }
+    } else {
+        pm = *this;
+    }
+
+    const SkColor4f color = origColor.pin();
+
+    if (kRGBA_F16_SkColorType != pm.colorType()) {
+        Sk4f c4 = Sk4f::Load(color.vec());
+        SkColor c;
+        (c4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
+        return pm.erase(c);
+    }
+
+    const uint64_t half4 = color.premul().toF16();
+    for (int y = 0; y < pm.height(); ++y) {
+        sk_memset64(pm.writable_addr64(0, y), half4, pm.width());
+    }
+    return true;
+}
+
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"

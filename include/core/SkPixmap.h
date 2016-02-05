@@ -75,51 +75,75 @@ public:
     uint64_t getSafeSize64() const { return fInfo.getSafeSize64(fRowBytes); }
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
 
-    const uint32_t* addr32() const {
-        SkASSERT(4 == SkColorTypeBytesPerPixel(fInfo.colorType()));
-        return reinterpret_cast<const uint32_t*>(fPixels);
+    const void* addr(int x, int y) const {
+        return (const char*)fPixels + fInfo.computeOffset(x, y, fRowBytes);
     }
-
-    const uint16_t* addr16() const {
-        SkASSERT(2 == SkColorTypeBytesPerPixel(fInfo.colorType()));
-        return reinterpret_cast<const uint16_t*>(fPixels);
-    }
-
     const uint8_t* addr8() const {
         SkASSERT(1 == SkColorTypeBytesPerPixel(fInfo.colorType()));
         return reinterpret_cast<const uint8_t*>(fPixels);
     }
+    const uint16_t* addr16() const {
+        SkASSERT(2 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        return reinterpret_cast<const uint16_t*>(fPixels);
+    }
+    const uint32_t* addr32() const {
+        SkASSERT(4 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        return reinterpret_cast<const uint32_t*>(fPixels);
+    }
+    const uint64_t* addr64() const {
+        SkASSERT(8 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        return reinterpret_cast<const uint64_t*>(fPixels);
+    }
+    const uint16_t* addrF16() const {
+        SkASSERT(8 == SkColorTypeBytesPerPixel(fInfo.colorType()));
+        SkASSERT(kRGBA_F16_SkColorType == fInfo.colorType());
+        return reinterpret_cast<const uint16_t*>(fPixels);
+    }
 
-    const uint32_t* addr32(int x, int y) const {
+    // Offset by the specified x,y coordinates
+
+    const uint8_t* addr8(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint32_t*)((const char*)this->addr32() + y * fRowBytes + (x << 2));
+        return (const uint8_t*)((const char*)this->addr8() + y * fRowBytes + (x << 0));
     }
     const uint16_t* addr16(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
         return (const uint16_t*)((const char*)this->addr16() + y * fRowBytes + (x << 1));
     }
-    const uint8_t* addr8(int x, int y) const {
+    const uint32_t* addr32(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
         SkASSERT((unsigned)y < (unsigned)fInfo.height());
-        return (const uint8_t*)((const char*)this->addr8() + y * fRowBytes + (x << 0));
+        return (const uint32_t*)((const char*)this->addr32() + y * fRowBytes + (x << 2));
     }
-    const void* addr(int x, int y) const {
-        return (const char*)fPixels + fInfo.computeOffset(x, y, fRowBytes);
+    const uint64_t* addr64(int x, int y) const {
+        SkASSERT((unsigned)x < (unsigned)fInfo.width());
+        SkASSERT((unsigned)y < (unsigned)fInfo.height());
+        return (const uint64_t*)((const char*)this->addr64() + y * fRowBytes + (x << 3));
+    }
+    const uint16_t* addrF16(int x, int y) const {
+        SkASSERT(kRGBA_F16_SkColorType == fInfo.colorType());
+        return reinterpret_cast<const uint16_t*>(this->addr64(x, y));
     }
 
     // Writable versions
 
     void* writable_addr() const { return const_cast<void*>(fPixels); }
-    uint32_t* writable_addr32(int x, int y) const {
-        return const_cast<uint32_t*>(this->addr32(x, y));
+    uint8_t* writable_addr8(int x, int y) const {
+        return const_cast<uint8_t*>(this->addr8(x, y));
     }
     uint16_t* writable_addr16(int x, int y) const {
         return const_cast<uint16_t*>(this->addr16(x, y));
     }
-    uint8_t* writable_addr8(int x, int y) const {
-        return const_cast<uint8_t*>(this->addr8(x, y));
+    uint32_t* writable_addr32(int x, int y) const {
+        return const_cast<uint32_t*>(this->addr32(x, y));
+    }
+    uint64_t* writable_addr64(int x, int y) const {
+        return const_cast<uint64_t*>(this->addr64(x, y));
+    }
+    uint16_t* writable_addrF16(int x, int y) const {
+        return reinterpret_cast<uint16_t*>(writable_addr64(x, y));
     }
 
     // copy methods
@@ -152,6 +176,7 @@ public:
     bool erase(SkColor, const SkIRect& subset) const;
 
     bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
+    bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const;
 
 private:
     const void*     fPixels;

@@ -180,6 +180,11 @@ struct SkPM4f {
 
     static SkPM4f FromPMColor(SkPMColor);
 
+    // half-float routines
+    void toF16(uint16_t[4]) const;
+    uint64_t toF16() const; // 4 float16 values packed into uint64_t
+    static SkPM4f FromF16(const uint16_t[4]);
+
 #ifdef SK_DEBUG
     void assertIsUnit() const;
 #else

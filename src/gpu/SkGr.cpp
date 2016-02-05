@@ -318,6 +318,8 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, SkColorProf
             return kIndex_8_GrPixelConfig;
         case kGray_8_SkColorType:
             return kAlpha_8_GrPixelConfig; // TODO: gray8 support on gpu
+        case kRGBA_F16_SkColorType:
+            return kRGBA_half_GrPixelConfig;
     }
     SkASSERT(0);    // shouldn't get here
     return kUnknown_GrPixelConfig;
