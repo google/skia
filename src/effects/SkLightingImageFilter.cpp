@@ -1517,8 +1517,8 @@ SkString emitNormalFunc(BoundaryMode mode,
 
 class GrGLLightingEffect  : public GrGLSLFragmentProcessor {
 public:
-    GrGLLightingEffect(const GrProcessor&);
-    virtual ~GrGLLightingEffect();
+    GrGLLightingEffect() : fLight(nullptr) { }
+    virtual ~GrGLLightingEffect() { delete fLight; }
 
     void emitCode(EmitArgs&) override;
 
@@ -1540,14 +1540,12 @@ private:
     UniformHandle       fImageIncrementUni;
     UniformHandle       fSurfaceScaleUni;
     GrGLLight*          fLight;
-    BoundaryMode        fBoundaryMode;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
-    GrGLDiffuseLightingEffect(const GrProcessor&);
     void emitLightFunc(GrGLSLUniformHandler*, GrGLSLFragmentBuilder*, SkString* funcName) override;
 
 protected:
@@ -1563,7 +1561,6 @@ private:
 
 class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
-    GrGLSpecularLightingEffect(const GrProcessor&);
     void emitLightFunc(GrGLSLUniformHandler*, GrGLSLFragmentBuilder*, SkString* funcName) override;
 
 protected:
@@ -1619,8 +1616,7 @@ GrDiffuseLightingEffect::GrDiffuseLightingEffect(GrTexture* texture,
 
 bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrDiffuseLightingEffect& s = sBase.cast<GrDiffuseLightingEffect>();
-    return INHERITED::onIsEqual(sBase) &&
-            this->kd() == s.kd();
+    return INHERITED::onIsEqual(sBase) && this->kd() == s.kd();
 }
 
 void GrDiffuseLightingEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
@@ -1629,7 +1625,7 @@ void GrDiffuseLightingEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLSLInstance() const {
-    return new GrGLDiffuseLightingEffect(*this);
+    return new GrGLDiffuseLightingEffect;
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDiffuseLightingEffect);
@@ -1650,17 +1646,12 @@ const GrFragmentProcessor* GrDiffuseLightingEffect::TestCreate(GrProcessorTestDa
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLLightingEffect::GrGLLightingEffect(const GrProcessor& fp) {
-    const GrLightingEffect& m = fp.cast<GrLightingEffect>();
-    fLight = m.light()->createGLLight();
-    fBoundaryMode = m.boundaryMode();
-}
-
-GrGLLightingEffect::~GrGLLightingEffect() {
-    delete fLight;
-}
-
 void GrGLLightingEffect::emitCode(EmitArgs& args) {
+    const GrLightingEffect& le = args.fFp.cast<GrLightingEffect>();
+    if (!fLight) {
+        fLight = le.light()->createGLLight();
+    }
+
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     fImageIncrementUni = uniformHandler->addUniform(GrGLSLUniformHandler::kFragment_Visibility,
                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
@@ -1707,7 +1698,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
         GrGLSLShaderVar("m", kFloat_GrSLType, 9),
         GrGLSLShaderVar("surfaceScale", kFloat_GrSLType),
     };
-    SkString normalBody = emitNormalFunc(fBoundaryMode,
+    SkString normalBody = emitNormalFunc(le.boundaryMode(),
                                          pointToNormalName.c_str(),
                                          sobelFuncName.c_str());
     SkString normalName;
@@ -1757,6 +1748,10 @@ void GrGLLightingEffect::GenKey(const GrProcessor& proc,
 void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                    const GrProcessor& proc) {
     const GrLightingEffect& lighting = proc.cast<GrLightingEffect>();
+    if (!fLight) {
+        fLight = lighting.light()->createGLLight();
+    }
+
     GrTexture* texture = lighting.texture(0);
     float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
     pdman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
@@ -1769,10 +1764,6 @@ void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrProcessor& proc)
-    : INHERITED(proc) {
-}
 
 void GrGLDiffuseLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHandler,
                                               GrGLSLFragmentBuilder* fragBuilder,
@@ -1833,7 +1824,7 @@ void GrSpecularLightingEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrSpecularLightingEffect::onCreateGLSLInstance() const {
-    return new GrGLSpecularLightingEffect(*this);
+    return new GrGLSpecularLightingEffect;
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
@@ -1853,10 +1844,6 @@ const GrFragmentProcessor* GrSpecularLightingEffect::TestCreate(GrProcessorTestD
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrProcessor& proc)
-    : INHERITED(proc) {
-}
 
 void GrGLSpecularLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHandler,
                                                GrGLSLFragmentBuilder* fragBuilder,
