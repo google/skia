@@ -196,9 +196,13 @@ public:
         GLPtr<GrGLDisableProc> fDisable;
         GLPtr<GrGLDisableVertexAttribArrayProc> fDisableVertexAttribArray;
         GLPtr<GrGLDrawArraysProc> fDrawArrays;
+        GLPtr<GrGLDrawArraysIndirectProc> fDrawArraysIndirect;
+        GLPtr<GrGLDrawArraysInstancedProc> fDrawArraysInstanced;
         GLPtr<GrGLDrawBufferProc> fDrawBuffer;
         GLPtr<GrGLDrawBuffersProc> fDrawBuffers;
         GLPtr<GrGLDrawElementsProc> fDrawElements;
+        GLPtr<GrGLDrawElementsIndirectProc> fDrawElementsIndirect;
+        GLPtr<GrGLDrawElementsInstancedProc> fDrawElementsInstanced;
         GLPtr<GrGLEnableProc> fEnable;
         GLPtr<GrGLEnableVertexAttribArrayProc> fEnableVertexAttribArray;
         GLPtr<GrGLEndQueryProc> fEndQuery;
@@ -327,6 +331,7 @@ public:
         GLPtr<GrGLVertexAttrib2fvProc> fVertexAttrib2fv;
         GLPtr<GrGLVertexAttrib3fvProc> fVertexAttrib3fv;
         GLPtr<GrGLVertexAttrib4fvProc> fVertexAttrib4fv;
+        GLPtr<GrGLVertexAttribDivisorProc> fVertexAttribDivisor;
         GLPtr<GrGLVertexAttribPointerProc> fVertexAttribPointer;
         GLPtr<GrGLViewportProc> fViewport;
 
@@ -362,12 +367,9 @@ public:
         /* NV_framebuffer_mixed_samples */
         GLPtr<GrGLCoverageModulationProc> fCoverageModulation;
 
-        /* ARB_draw_instanced */
-        GLPtr<GrGLDrawArraysInstancedProc> fDrawArraysInstanced;
-        GLPtr<GrGLDrawElementsInstancedProc> fDrawElementsInstanced;
-
-        /* ARB_instanced_arrays */
-        GLPtr<GrGLVertexAttribDivisorProc> fVertexAttribDivisor;
+        /* EXT_multi_draw_indirect */
+        GLPtr<GrGLMultiDrawArraysIndirectProc> fMultiDrawArraysIndirect;
+        GLPtr<GrGLMultiDrawElementsIndirectProc> fMultiDrawElementsIndirect;
 
         /* NV_bindless_texture */
         // We use the NVIDIA verson for now because it does not require dynamically uniform handles.

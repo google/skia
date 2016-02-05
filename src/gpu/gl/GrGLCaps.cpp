@@ -41,6 +41,9 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
     fMultisampleDisableSupport = false;
+    fDrawIndirectSupport = false;
+    fMultiDrawIndirectSupport = false;
+    fBaseInstanceSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
@@ -480,6 +483,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                 version >= GR_GL_VER(3, 0) ||
                 (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
                  ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        // We don't use ARB_draw_indirect because it does not support a base instance.
+        // We don't use ARB_multi_draw_indirect because it does not support GL_DRAW_INDIRECT_BUFFER.
+        fDrawIndirectSupport =
+            fMultiDrawIndirectSupport = fBaseInstanceSupport = version >= GR_GL_VER(4,3);
+    } else {
+        fDrawIndirectSupport = version >= GR_GL_VER(3,1);
+        fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
+        fBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
     }
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
@@ -936,6 +950,9 @@ SkString GrGLCaps::dump() const {
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
     r.appendf("Multisample disable support: %s\n", (fMultisampleDisableSupport ? "YES" : "NO"));
+    r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
+    r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
+    r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("SRGB write contol: %s\n", (fSRGBWriteControl ? "YES" : "NO"));

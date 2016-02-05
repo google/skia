@@ -58,10 +58,40 @@ typedef signed long int GrGLintptr;
 typedef signed long int GrGLsizeiptr;
 #endif
 typedef void* GrGLeglImage;
+
+struct GrGLDrawArraysIndirectCommand {
+    GrGLuint fCount;
+    GrGLuint fInstanceCount;
+    GrGLuint fFirst;
+    GrGLuint fBaseInstance;  // Requires EXT_base_instance on ES.
+};
+
+GR_STATIC_ASSERT(16 == sizeof(GrGLDrawArraysIndirectCommand));
+
+struct GrGLDrawElementsIndirectCommand {
+    GrGLuint fCount;
+    GrGLuint fInstanceCount;
+    GrGLuint fFirstIndex;
+    GrGLuint fBaseVertex;
+    GrGLuint fBaseInstance;  // Requires EXT_base_instance on ES.
+};
+
+GR_STATIC_ASSERT(20 == sizeof(GrGLDrawElementsIndirectCommand));
+
+/**
+ * KHR_debug
+ */
+typedef void (GR_GL_FUNCTION_TYPE* GRGLDEBUGPROC)(GrGLenum source,
+                                                  GrGLenum type,
+                                                  GrGLuint id,
+                                                  GrGLenum severity,
+                                                  GrGLsizei length,
+                                                  const GrGLchar* message,
+                                                  const void* userParam);
+
 /**
  * EGL types.
  */
-
 typedef void* GrEGLImage;
 typedef void* GrEGLDisplay;
 typedef void* GrEGLContext;

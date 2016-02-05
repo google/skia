@@ -108,8 +108,10 @@
 /* Buffer Objects */
 #define GR_GL_ARRAY_BUFFER                   0x8892
 #define GR_GL_ELEMENT_ARRAY_BUFFER           0x8893
+#define GR_GL_DRAW_INDIRECT_BUFFER           0x8F3F
 #define GR_GL_ARRAY_BUFFER_BINDING           0x8894
 #define GR_GL_ELEMENT_ARRAY_BUFFER_BINDING   0x8895
+#define GR_GL_DRAW_INDIRECT_BUFFER_BINDING   0x8F43
 #define GR_GL_PIXEL_PACK_BUFFER              0x88EB
 #define GR_GL_PIXEL_UNPACK_BUFFER            0x88EC
 
