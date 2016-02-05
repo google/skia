@@ -706,9 +706,10 @@ DEF_TEST(surface_rowbytes, reporter) {
 
 #if SK_SUPPORT_GPU
 
-void test_surface_clear(skiatest::Reporter* reporter, SkSurface* surface,
+void test_surface_clear(skiatest::Reporter* reporter, SkSurface* surfacePtr,
                         std::function<GrSurface*(SkSurface*)> grSurfaceGetter,
                         uint32_t expectedValue) {
+    SkAutoTUnref<SkSurface> surface(surfacePtr);
     if (!surface) {
         ERRORF(reporter, "Could not create GPU SkSurface.");
         return;
@@ -724,7 +725,7 @@ void test_surface_clear(skiatest::Reporter* reporter, SkSurface* surface,
         return;
     }
     SkASSERT(surface->unique());
-    surface->unref();
+    surface.reset();
     grSurface->readPixels(0, 0, w, h, kRGBA_8888_GrPixelConfig, pixels.get());
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
@@ -747,19 +748,19 @@ void test_surface_clear(skiatest::Reporter* reporter, SkSurface* surface,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, context) {
     std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
-        [] (SkSurface* s){ return s->getCanvas()->internal_private_accessTopLayerRenderTarget();},
+        [] (SkSurface* s){ return s->getCanvas()->internal_private_accessTopLayerRenderTarget(); },
         [] (SkSurface* s){
             SkBaseDevice* d =
                 s->getCanvas()->getDevice_just_for_deprecated_compatibility_testing();
             return d->accessRenderTarget(); },
-        [] (SkSurface* s){ SkImage* i = s->newImageSnapshot();
+        [] (SkSurface* s){ SkAutoTUnref<SkImage> i(s->newImageSnapshot());
                            return i->getTexture(); },
-        [] (SkSurface* s){ SkImage* i = s->newImageSnapshot();
+        [] (SkSurface* s){ SkAutoTUnref<SkImage> i(s->newImageSnapshot());
                            return as_IB(i)->peekTexture(); },
     };
     for (auto grSurfaceGetter : grSurfaceGetters) {
         for (auto& surface_func : {&create_gpu_surface, &create_gpu_scratch_surface}) {
-            SkSurface* surface(surface_func(context, kPremul_SkAlphaType, nullptr));
+            SkSurface* surface = surface_func(context, kPremul_SkAlphaType, nullptr);
             test_surface_clear(reporter, surface, grSurfaceGetter, 0x0);
         }
         // Wrapped RTs are *not* supposed to clear (to allow client to partially update a surface).
