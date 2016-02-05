@@ -240,9 +240,24 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
  */
 GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key,
                                           const SkImage* client, SkImage::CachingHint chint) {
+    // Values representing the various texture lock paths we can take. Used for logging the path
+    // taken to a histogram.
+    enum LockTexturePath {
+        kFailure_LockTexturePath,
+        kPreExisting_LockTexturePath,
+        kNative_LockTexturePath,
+        kCompressed_LockTexturePath,
+        kYUV_LockTexturePath,
+        kRGBA_LockTexturePath,
+    };
+
+    enum { kLockTexturePathCount = kRGBA_LockTexturePath + 1 };
+
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
         if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
+                                     kLockTexturePathCount);
             return tex;
         }
     }
@@ -252,6 +267,8 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
         ScopedGenerator generator(this);
         SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
         if (GrTexture* tex = generator->generateTexture(ctx, &subset)) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
+                                     kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
@@ -263,6 +280,8 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     if (data) {
         GrTexture* tex = load_compressed_into_texture(ctx, data, desc);
         if (tex) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kCompressed_LockTexturePath,
+                                     kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
@@ -273,6 +292,8 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
         Generator_GrYUVProvider provider(generator);
         GrTexture* tex = provider.refAsTexture(ctx, desc, true);
         if (tex) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
+                                     kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
@@ -282,9 +303,13 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     if (this->tryLockAsBitmap(&bitmap, client, chint)) {
         GrTexture* tex = GrUploadBitmapToTexture(ctx, bitmap);
         if (tex) {
+            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
+                                     kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
+    SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,
+                             kLockTexturePathCount);
     return nullptr;
 }
 

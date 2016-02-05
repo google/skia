@@ -344,4 +344,14 @@
 #  define GR_TEST_UTILS 1
 #endif
 
+//////////////////////////////////////////////////////////////////////
+
+#ifndef SK_HISTOGRAM_BOOLEAN
+#  define SK_HISTOGRAM_BOOLEAN(name, value)
+#endif
+
+#ifndef SK_HISTOGRAM_ENUMERATION
+#  define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
+#endif
+
 #endif // SkPostConfig_DEFINED

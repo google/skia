@@ -94,6 +94,9 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
                                       const SkMatrix& viewMatrix,
                                       const GrClip& clip,
                                       const SkPaint& paint) {
+    // This is the funnel for all non-tiled bitmap/image draw calls. Log a histogram entry.
+    SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
+
     // Figure out the actual dst and src rect by clipping the src rect to the bounds of the
     // adjuster. If the src rect is clipped then the dst rect must be recomputed. Also determine
     // the matrix that maps the src rect to the dst rect.

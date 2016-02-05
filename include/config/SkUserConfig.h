@@ -146,4 +146,12 @@
  */
 //#define SK_PDF_USE_PATHOPS_CLIPPING
 
+/* Skia makes use of histogram logging macros to trace the frequency of
+ * events. By default, Skia provides no-op versions of these macros.
+ * Skia consumers can provide their own definitions of these macros to
+ * integrate with their histogram collection backend.
+ */
+//#define SK_HISTOGRAM_BOOLEAN(name, value)
+//#define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
+
 #endif
