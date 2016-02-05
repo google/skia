@@ -239,9 +239,9 @@ SK_API void sk_canvas_draw_pos_text (sk_canvas_t*, const char *text, size_t byte
 
 SK_API void sk_canvas_draw_text_on_path (sk_canvas_t*, const char *text, size_t byteLength, const sk_path_t*path, float hOffset, float vOffset, const sk_paint_t* paint);
 
-SK_API void sk_canvas_draw_bitmap(sk_canvas_t* ccanvas, const sk_bitmap_t& cbitmap, float x, float y, const sk_paint_t* cpaint);
+SK_API void sk_canvas_draw_bitmap(sk_canvas_t* ccanvas, const sk_bitmap_t* cbitmap, float x, float y, const sk_paint_t* cpaint);
 
-SK_API void sk_canvas_draw_bitmap_rect(sk_canvas_t* ccanvas, const sk_bitmap_t& cbitmap, const sk_rect_t* csrcR, const sk_rect_t* cdstR, const sk_paint_t* cpaint);
+SK_API void sk_canvas_draw_bitmap_rect(sk_canvas_t* ccanvas, const sk_bitmap_t* cbitmap, const sk_rect_t* csrcR, const sk_rect_t* cdstR, const sk_paint_t* cpaint);
 
 SK_C_PLUS_PLUS_END_GUARD
 

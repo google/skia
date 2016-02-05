@@ -40,7 +40,7 @@ SK_API sk_shader_t* sk_shader_new_color(sk_color_t color);
     @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
     @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
 */
-SK_API sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t& src,
+SK_API sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src,
                                          sk_shader_tilemode_t tmx,
                                          sk_shader_tilemode_t tmy,
                                          const sk_matrix_t* localMatrix);
