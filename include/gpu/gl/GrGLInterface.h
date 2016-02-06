@@ -332,6 +332,7 @@ public:
         GLPtr<GrGLVertexAttrib3fvProc> fVertexAttrib3fv;
         GLPtr<GrGLVertexAttrib4fvProc> fVertexAttrib4fv;
         GLPtr<GrGLVertexAttribDivisorProc> fVertexAttribDivisor;
+        GLPtr<GrGLVertexAttribIPointerProc> fVertexAttribIPointer;
         GLPtr<GrGLVertexAttribPointerProc> fVertexAttribPointer;
         GLPtr<GrGLViewportProc> fViewport;
 

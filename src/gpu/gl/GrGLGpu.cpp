@@ -1807,9 +1807,7 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
             attribState->set(this,
                              attribIndex,
                              vbuf->bufferID(),
-                             GrGLAttribTypeToLayout(attribType).fCount,
-                             GrGLAttribTypeToLayout(attribType).fType,
-                             GrGLAttribTypeToLayout(attribType).fNormalized,
+                             attribType,
                              stride,
                              reinterpret_cast<GrGLvoid*>(vertexOffsetInBytes + offset));
             offset += attrib.fOffset;
@@ -2588,7 +2586,7 @@ void GrGLGpu::stampRectUsingProgram(GrGLuint program, const SkRect& bounds, GrGL
 
     GrGLAttribArrayState* attribs =
             this->fHWGeometryState.bindArrayAndBufferToDraw(this, arrayBuffer);
-    attribs->set(this, 0, arrayBuffer, 2, GR_GL_FLOAT, false, 2 * sizeof(GrGLfloat), 0);
+    attribs->set(this, 0, arrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
     GL_CALL(Uniform4f(posXformUniform, bounds.width(), bounds.height(), bounds.left(), 
@@ -3529,7 +3527,8 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
 
     GrGLAttribArrayState* attribs =
         fHWGeometryState.bindArrayAndBufferToDraw(this, fWireRectArrayBuffer);
-    attribs->set(this, 0, fWireRectArrayBuffer, 2, GR_GL_FLOAT, false, 2 * sizeof(GrGLfloat), 0);
+    attribs->set(this, 0, fWireRectArrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat),
+                 0);
     attribs->disableUnusedArrays(this, 0x1);
 
     GL_CALL(Uniform4fv(fWireRectProgram.fRectUniform, 1, edges));
@@ -3574,7 +3573,8 @@ void GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
 
     GrGLAttribArrayState* attribs =
         fHWGeometryState.bindArrayAndBufferToDraw(this, fCopyProgramArrayBuffer);
-    attribs->set(this, 0, fCopyProgramArrayBuffer, 2, GR_GL_FLOAT, false, 2 * sizeof(GrGLfloat), 0);
+    attribs->set(this, 0, fCopyProgramArrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat),
+                 0);
     attribs->disableUnusedArrays(this, 0x1);
 
     // dst rect edges in NDC (-1 to 1)
