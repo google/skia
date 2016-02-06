@@ -84,8 +84,8 @@ SkJpegCodec::SkJpegCodec(const SkImageInfo& srcInfo, SkStream* stream,
 /*
  * Return the row bytes of a particular image type and width
  */
-static int get_row_bytes(const j_decompress_ptr dinfo) {
-    int colorBytes = (dinfo->out_color_space == JCS_RGB565) ? 2 : dinfo->out_color_components;
+static size_t get_row_bytes(const j_decompress_ptr dinfo) {
+    size_t colorBytes = (dinfo->out_color_space == JCS_RGB565) ? 2 : dinfo->out_color_components;
     return dinfo->output_width * colorBytes;
 
 }
