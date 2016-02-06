@@ -104,8 +104,6 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "bool";
         case kInt_GrSLType:
             return "int";
-        case kUint_GrSLType:
-            return "uint";
         default:
             SkFAIL("Unknown shader var type.");
             return ""; // suppress warning

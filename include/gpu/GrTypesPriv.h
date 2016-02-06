@@ -29,9 +29,8 @@ enum GrSLType {
     kSampler2DRect_GrSLType,
     kBool_GrSLType,
     kInt_GrSLType,
-    kUint_GrSLType,
 
-    kLast_GrSLType = kUint_GrSLType
+    kLast_GrSLType = kInt_GrSLType
 };
 static const int kGrSLTypeCount = kLast_GrSLType + 1;
 
@@ -68,7 +67,7 @@ static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {
     SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
-    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1, -1, 1, 1, 1 };
+    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1, -1, -1, -1 };
     return kCounts[type];
 
     GR_STATIC_ASSERT(0 == kVoid_GrSLType);
@@ -83,7 +82,6 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
     GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
     GR_STATIC_ASSERT(10 == kBool_GrSLType);
     GR_STATIC_ASSERT(11 == kInt_GrSLType);
-    GR_STATIC_ASSERT(12 == kUint_GrSLType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
 }
 
@@ -116,14 +114,13 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
     GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
     GR_STATIC_ASSERT(10 == kBool_GrSLType);
     GR_STATIC_ASSERT(11 == kInt_GrSLType);
-    GR_STATIC_ASSERT(12 == kUint_GrSLType);
-    GR_STATIC_ASSERT(13 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(12 == kGrSLTypeCount);
 }
 
 /** Is the shading language type integral (including vectors/matrices)? */
 static inline bool GrSLTypeIsIntType(GrSLType type) {
     SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
-    return type >= kInt_GrSLType;
+    return type == kInt_GrSLType;
 
     GR_STATIC_ASSERT(0 == kVoid_GrSLType);
     GR_STATIC_ASSERT(1 == kFloat_GrSLType);
@@ -137,8 +134,7 @@ static inline bool GrSLTypeIsIntType(GrSLType type) {
     GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
     GR_STATIC_ASSERT(10 == kBool_GrSLType);
     GR_STATIC_ASSERT(11 == kInt_GrSLType);
-    GR_STATIC_ASSERT(12 == kUint_GrSLType);
-    GR_STATIC_ASSERT(13 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(12 == kGrSLTypeCount);
 }
 
 /** Is the shading language type numeric (including vectors/matrices)? */
@@ -162,7 +158,6 @@ static inline size_t GrSLTypeSize(GrSLType type) {
         0,                        // kSampler2DRect_GrSLType
         0,                        // kBool_GrSLType
         0,                        // kInt_GrSLType
-        0,                        // kUint_GrSLType
     };
     return kSizes[type];
 
@@ -178,8 +173,7 @@ static inline size_t GrSLTypeSize(GrSLType type) {
     GR_STATIC_ASSERT(9 == kSampler2DRect_GrSLType);
     GR_STATIC_ASSERT(10 == kBool_GrSLType);
     GR_STATIC_ASSERT(11 == kInt_GrSLType);
-    GR_STATIC_ASSERT(12 == kUint_GrSLType);
-    GR_STATIC_ASSERT(13 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(12 == kGrSLTypeCount);
 }
 
 static inline bool GrSLTypeIsSamplerType(GrSLType type) {
@@ -208,9 +202,8 @@ enum GrVertexAttribType {
     kVec2s_GrVertexAttribType,   // vector of 2 shorts, e.g. texture coordinates
 
     kInt_GrVertexAttribType,
-    kUint_GrVertexAttribType,
     
-    kLast_GrVertexAttribType = kUint_GrVertexAttribType
+    kLast_GrVertexAttribType = kInt_GrVertexAttribType
 };
 static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 
@@ -218,8 +211,7 @@ static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
  * Returns the vector size of the type.
  */
 static inline int GrVertexAttribTypeVectorCount(GrVertexAttribType type) {
-    SkASSERT(type >= 0 && type < kGrVertexAttribTypeCount);
-    static const int kCounts[] = { 1, 2, 3, 4, 1, 4, 2, 1, 1 };
+    static const int kCounts[] = { 1, 2, 3, 4, 1, 4, 2, 1 };
     return kCounts[type];
 
     GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
@@ -230,7 +222,6 @@ static inline int GrVertexAttribTypeVectorCount(GrVertexAttribType type) {
     GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
     GR_STATIC_ASSERT(6 == kVec2s_GrVertexAttribType);
     GR_STATIC_ASSERT(7 == kInt_GrVertexAttribType);
-    GR_STATIC_ASSERT(8 == kUint_GrVertexAttribType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrVertexAttribTypeCount);
 }
 
@@ -246,8 +237,7 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
         1*sizeof(char),         // kUByte_GrVertexAttribType
         4*sizeof(char),         // kVec4ub_GrVertexAttribType
         2*sizeof(int16_t),      // kVec2s_GrVertexAttribType
-        sizeof(int32_t),        // kInt_GrVertexAttribType
-        sizeof(uint32_t)        // kUint_GrVertexAttribType
+        sizeof(int32_t)         // kInt_GrVertexAttribType
     };
     return kSizes[type];
 
@@ -259,27 +249,7 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
     GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
     GR_STATIC_ASSERT(6 == kVec2s_GrVertexAttribType);
     GR_STATIC_ASSERT(7 == kInt_GrVertexAttribType);
-    GR_STATIC_ASSERT(8 == kUint_GrVertexAttribType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kSizes) == kGrVertexAttribTypeCount);
-}
-
-/**
- * Is the attrib type integral?
- */
-static inline bool GrVertexAttribTypeIsIntType(GrVertexAttribType type) {
-    SkASSERT(type >= 0 && type < static_cast<GrVertexAttribType>(kGrVertexAttribTypeCount));
-    return type >= kInt_GrVertexAttribType;
-
-    GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
-    GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
-    GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
-    GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
-    GR_STATIC_ASSERT(4 == kUByte_GrVertexAttribType);
-    GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
-    GR_STATIC_ASSERT(6 == kVec2s_GrVertexAttribType);
-    GR_STATIC_ASSERT(7 == kInt_GrVertexAttribType);
-    GR_STATIC_ASSERT(8 == kUint_GrVertexAttribType);
-    GR_STATIC_ASSERT(9 == kGrVertexAttribTypeCount);
 }
 
 /**
@@ -303,8 +273,6 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
             return kVec4f_GrSLType;
         case kInt_GrVertexAttribType:
             return kInt_GrSLType;
-        case kUint_GrVertexAttribType:
-            return kUint_GrSLType;
     }
 }
 

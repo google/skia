@@ -394,13 +394,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLUniformMatrix4fv(GrGLint location,
  GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttrib4fv(GrGLuint indx, const GrGLfloat* values) {
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttribIPointer(GrGLuint indx,
-                                                        GrGLint size,
-                                                        GrGLenum type,
-                                                        GrGLsizei stride,
-                                                        const GrGLvoid* ptr) {
-}
-
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttribPointer(GrGLuint indx,
                                                        GrGLint size,
                                                        GrGLenum type,

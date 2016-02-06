@@ -15,7 +15,6 @@ GrShaderCaps::GrShaderCaps() {
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
-    fIntegerSupport = false;
     fShaderPrecisionVaries = false;
 }
 
@@ -51,7 +50,6 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
     r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
-    r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
 
     r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 

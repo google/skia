@@ -279,17 +279,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
         glslCaps->fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&
             ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
-        glslCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
-            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
     }
     else {
         glslCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
 
         glslCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
-
-        glslCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
-            ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
     }
 
     if (ctxInfo.hasExtension("GL_EXT_shader_pixel_local_storage")) {

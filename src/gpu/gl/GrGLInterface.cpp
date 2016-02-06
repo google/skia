@@ -416,13 +416,6 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    // glVertexAttribIPointer was added in version 3.0 of both desktop and ES.
-    if (glVer >= GR_GL_VER(3, 0)) {
-        if (NULL == fFunctions.fVertexAttribIPointer) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_ARB_vertex_array_object")) {
             if (nullptr == fFunctions.fBindVertexArray ||
