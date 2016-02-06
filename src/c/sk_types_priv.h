@@ -599,4 +599,8 @@ static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
         cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
 }
 
+static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
+    matrix->get9(cmatrix->mat);
+}
+
 #endif

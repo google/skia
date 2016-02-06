@@ -309,6 +309,26 @@ void sk_canvas_draw_bitmap_rect(sk_canvas_t* ccanvas, const sk_bitmap_t* cbitmap
     }
 }
 
+void sk_canvas_reset_matrix(sk_canvas_t* ccanvas)
+{
+    AsCanvas(ccanvas)->resetMatrix();
+}
+
+void sk_canvas_set_matrix(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix)
+{
+    SkMatrix matrix;
+    if (cmatrix) {
+        from_c(cmatrix, &matrix);
+    }
+    AsCanvas(ccanvas)->setMatrix(matrix);
+}
+
+void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatrix)
+{
+    SkMatrix matrix = AsCanvas(ccanvas)->getTotalMatrix();
+    from_sk(&matrix, cmatrix);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,

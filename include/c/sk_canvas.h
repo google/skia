@@ -243,6 +243,12 @@ SK_API void sk_canvas_draw_bitmap(sk_canvas_t* ccanvas, const sk_bitmap_t* cbitm
 
 SK_API void sk_canvas_draw_bitmap_rect(sk_canvas_t* ccanvas, const sk_bitmap_t* cbitmap, const sk_rect_t* csrcR, const sk_rect_t* cdstR, const sk_paint_t* cpaint);
 
+SK_API void sk_canvas_reset_matrix(sk_canvas_t* ccanvas);
+
+SK_API void sk_canvas_set_matrix(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix);
+
+SK_API void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatrix);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
