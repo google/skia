@@ -121,11 +121,9 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target, const SkSurf
 }
 
 SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, Budgeted budgeted, const SkImageInfo& info,
-                                      int sampleCount, const SkSurfaceProps* props,
-                                      GrTextureStorageAllocator customAllocator) {
-    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(
-            ctx, budgeted, info, sampleCount, props, SkGpuDevice::kClear_InitContents,
-            customAllocator));
+                                      int sampleCount, const SkSurfaceProps* props) {
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(ctx, budgeted, info, sampleCount, props,
+                                                         SkGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
     }
