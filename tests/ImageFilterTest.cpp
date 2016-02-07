@@ -185,7 +185,7 @@ DEF_TEST(ImageFilter, reporter) {
         SkAutoTUnref<SkImageFilter> gray(make_grayscale(nullptr, nullptr));
         REPORTER_ASSERT(reporter, true == gray->asColorFilter(nullptr));
     }
-    
+
     {
         // Check that a colorfilterimage filter without a crop rect but with an input
         // that is another colorfilterimage can be expressed as a colorfilter (composed).
@@ -887,7 +887,7 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     pixel = *bitmap.getAddr32(0, 0);
     // If the security precautions are enabled, the result here should not be green, since the
     // filter draws nothing.
-    REPORTER_ASSERT(reporter, SkPicture::PictureIOSecurityPrecautionsEnabled() 
+    REPORTER_ASSERT(reporter, SkPicture::PictureIOSecurityPrecautionsEnabled()
         ? pixel != SK_ColorGREEN : pixel == SK_ColorGREEN);
 }
 
@@ -1274,6 +1274,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
 #endif
 
     largeBmp.allocN32Pixels(largeW, largeH);
+    largeBmp.eraseColor(0);
     if (!largeBmp.getPixels()) {
         ERRORF(reporter, "Failed to allocate large bmp.");
         return;

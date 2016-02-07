@@ -1977,7 +1977,6 @@
     "_", 
     ".bmp", 
     "--match", 
-    "~BlurLargeImage", 
     "~FontMgrAndroidParser"
   ], 
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN": [
