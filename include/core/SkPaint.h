@@ -52,9 +52,11 @@ class SK_API SkPaint {
 public:
     SkPaint();
     SkPaint(const SkPaint& paint);
+    SkPaint(SkPaint&& paint);
     ~SkPaint();
 
     SkPaint& operator=(const SkPaint&);
+    SkPaint& operator=(SkPaint&&);
 
     /** operator== may give false negatives: two paints that draw equivalently
         may return false.  It will never give false positives: two paints that

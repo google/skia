@@ -101,6 +101,33 @@ SkPaint::SkPaint(const SkPaint& src) {
 #undef REF_COPY
 }
 
+SkPaint::SkPaint(SkPaint&& src) {
+#define MOVE(field) field = std::move(src.field)
+#define REF_MOVE(field) field = src.field; src.field = nullptr
+
+    REF_MOVE(fTypeface);
+    REF_MOVE(fPathEffect);
+    REF_MOVE(fShader);
+    REF_MOVE(fXfermode);
+    REF_MOVE(fMaskFilter);
+    REF_MOVE(fColorFilter);
+    REF_MOVE(fRasterizer);
+    REF_MOVE(fLooper);
+    REF_MOVE(fImageFilter);
+    REF_MOVE(fAnnotation);
+
+    MOVE(fTextSize);
+    MOVE(fTextScaleX);
+    MOVE(fTextSkewX);
+    MOVE(fColor);
+    MOVE(fWidth);
+    MOVE(fMiterLimit);
+    MOVE(fBitfields);
+
+#undef MOVE
+#undef REF_MOVE
+}
+
 SkPaint::~SkPaint() {
     SkSafeUnref(fTypeface);
     SkSafeUnref(fPathEffect);
@@ -145,6 +172,39 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
 
 #undef COPY
 #undef REF_COPY
+}
+
+SkPaint& SkPaint::operator=(SkPaint&& src) {
+    if (this == &src) {
+        return *this;
+    }
+
+#define MOVE(field) field = std::move(src.field)
+#define REF_MOVE(field) SkSafeUnref(field); field = src.field; src.field = nullptr
+
+    REF_MOVE(fTypeface);
+    REF_MOVE(fPathEffect);
+    REF_MOVE(fShader);
+    REF_MOVE(fXfermode);
+    REF_MOVE(fMaskFilter);
+    REF_MOVE(fColorFilter);
+    REF_MOVE(fRasterizer);
+    REF_MOVE(fLooper);
+    REF_MOVE(fImageFilter);
+    REF_MOVE(fAnnotation);
+
+    MOVE(fTextSize);
+    MOVE(fTextScaleX);
+    MOVE(fTextSkewX);
+    MOVE(fColor);
+    MOVE(fWidth);
+    MOVE(fMiterLimit);
+    MOVE(fBitfields);
+
+    return *this;
+
+#undef MOVE
+#undef REF_MOVE
 }
 
 bool operator==(const SkPaint& a, const SkPaint& b) {
