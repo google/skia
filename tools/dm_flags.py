@@ -191,17 +191,10 @@ def get_args(bot):
 
   # Hacking around trying to get the MSAN bot green.
   if 'MSAN' in bot:
-    # S32A_Opaque_BlitRow32_SSE4's sk_msan_assert_initialized failing on .SRW.
-    r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
-         "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
-    for raw_ext in r:
-      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
-
     blacklist.extend(('_ image _ .wbmp').split(' '))  # skia:4900
     blacklist.extend(('_ image _ .png').split(' '))  # I8 .png color tables
     blacklist.extend(('_ image _ .bmp').split(' '))  # I8 .bmp color tables
 
-    match.append('~Codec')                 # Uninitialzied memory used in PIEX.
     match.append('~BlurLargeImage')        # Bug in the GM?
     match.append('~FontMgrAndroidParser')  # expat currently uninstrumented.
 
