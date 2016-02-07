@@ -33,7 +33,7 @@
       'cflags': [
         '-w',
       ],
-    }, 
+    },
     {
       'target_name': 'cpu_features',
       'type': 'static_library',
@@ -62,31 +62,6 @@
           '../third_party/ashmem',
         ]
       },
-    },
-    {
-      'target_name': 'expat',
-      'type': 'static_library',
-      'sources': [
-        '../third_party/externals/expat/lib/xmlparse.c',
-        '../third_party/externals/expat/lib/xmlrole.c',
-        '../third_party/externals/expat/lib/xmltok.c',
-      ],
-      'include_dirs': [
-        '../third_party/externals/expat',
-        '../third_party/externals/expat/lib',
-      ],
-      'cflags': [
-        '-w',
-        '-fexceptions',
-      ],
-      'defines': [
-        'HAVE_EXPAT_CONFIG_H',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '../third_party/externals/expat/lib',  # For expat.h
-        ],
-      }
     },
     {
       # This target is a dependency for all console-type Skia applications which

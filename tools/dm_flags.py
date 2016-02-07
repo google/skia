@@ -195,8 +195,6 @@ def get_args(bot):
     blacklist.extend(('_ image _ .png').split(' '))  # I8 .png color tables
     blacklist.extend(('_ image _ .bmp').split(' '))  # I8 .bmp color tables
 
-    match.append('~FontMgrAndroidParser')  # expat currently uninstrumented.
-
   if blacklist:
     args.append('--blacklist')
     args.extend(blacklist)
