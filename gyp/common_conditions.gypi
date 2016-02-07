@@ -452,7 +452,10 @@
                 'defines': [ 'THREAD_SANITIZER' ],
               }],
               [ 'skia_sanitizer == "memory"', {
-                'cflags': [ '-fsanitize-memory-track-origins' ],
+                'cflags': [
+                    '-O1',
+                    '-fsanitize-memory-track-origins',
+                ],
               }],
             ],
           }],
