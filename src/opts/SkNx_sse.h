@@ -348,6 +348,11 @@ template<> inline Sk4i SkNx_cast<int, float, 4>(const Sk4f& src) {
     return _mm_cvttps_epi32(src.fVec);
 }
 
+template<> inline Sk4h SkNx_cast<uint16_t, float, 4>(const Sk4f& src) {
+    auto _32 = _mm_cvttps_epi32(src.fVec);
+    return _mm_packus_epi16(_32, _32);
+}
+
 template<> inline Sk4b SkNx_cast<uint8_t, float, 4>(const Sk4f& src) {
     auto _32 = _mm_cvttps_epi32(src.fVec);
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
@@ -367,6 +372,11 @@ template<> inline Sk4f SkNx_cast<float, uint8_t, 4>(const Sk4b& src) {
     auto _16 = _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128()),
          _32 = _mm_unpacklo_epi16(_16,     _mm_setzero_si128());
 #endif
+    return _mm_cvtepi32_ps(_32);
+}
+
+template<> inline Sk4f SkNx_cast<float, uint16_t, 4>(const Sk4h& src) {
+    auto _32 = _mm_unpacklo_epi16(src.fVec, _mm_setzero_si128());
     return _mm_cvtepi32_ps(_32);
 }
 
