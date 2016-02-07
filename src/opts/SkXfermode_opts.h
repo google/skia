@@ -9,6 +9,7 @@
 #define Sk4pxXfermode_DEFINED
 
 #include "Sk4px.h"
+#include "SkMSAN.h"
 #include "SkNx.h"
 #include "SkXfermode_proccoeff.h"
 
@@ -202,6 +203,17 @@ XFERMODE_AA(Plus) {  // [ clamp( (1-AA)D + (AA)(S+D) ) == clamp(D + AA*S) ]
 
 #undef XFERMODE_AA
 
+// Src and Clear modes are safe to use with unitialized dst buffers,
+// even if the implementation branches based on bytes from dst (e.g. asserts in Debug mode).
+// For those modes, just lie to MSAN that dst is always intialized.
+template <typename Xfermode> static void mark_dst_initialized_if_safe(void*, void*) {}
+template <> void mark_dst_initialized_if_safe<Src>(void* dst, void* end) {
+    sk_msan_mark_initialized(dst, end, "Src doesn't read dst.");
+}
+template <> void mark_dst_initialized_if_safe<Clear>(void* dst, void* end) {
+    sk_msan_mark_initialized(dst, end, "Clear doesn't read dst.");
+}
+
 template <typename Xfermode>
 class Sk4pxXfermode : public SkProcCoeffXfermode {
 public:
@@ -209,6 +221,7 @@ public:
         : INHERITED(rec, mode) {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
         if (nullptr == aa) {
             Sk4px::MapDstSrc(n, dst, src, Xfermode());
         } else {
@@ -217,6 +230,7 @@ public:
     }
 
     void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
+        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
         SkPMColor dst32[4];
         while (n >= 4) {
             dst32[0] = SkPixel16ToPixel32(dst[0]);

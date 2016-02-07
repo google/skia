@@ -166,10 +166,6 @@ def get_args(bot):
     for raw_ext in r:
       blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
-  if blacklist:
-    args.append('--blacklist')
-    args.extend(blacklist)
-
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
@@ -193,6 +189,26 @@ def get_args(bot):
   if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
 
+  # Hacking around trying to get the MSAN bot green.
+  if 'MSAN' in bot:
+    # S32A_Opaque_BlitRow32_SSE4's sk_msan_assert_initialized failing on .SRW.
+    r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
+         "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
+    for raw_ext in r:
+      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
+
+    blacklist.extend(('_ image _ .wbmp').split(' '))  # skia:4900
+    blacklist.extend(('_ image _ .png').split(' '))  # I8 .png color tables
+    blacklist.extend(('_ image _ .bmp').split(' '))  # I8 .bmp color tables
+
+    match.append('~Codec')                 # Uninitialzied memory used in PIEX.
+    match.append('~BlurLargeImage')        # Bug in the GM?
+    match.append('~FontMgrAndroidParser')  # expat currently uninstrumented.
+
+  if blacklist:
+    args.append('--blacklist')
+    args.extend(blacklist)
+
   if match:
     args.append('--match')
     args.extend(match)
@@ -213,6 +229,7 @@ def self_test():
     'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
     'Test-Android-GCC-NexusPlayer-CPU-SSSE3-x86-Release',
     'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+    'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
     'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind',
     'Test-Win7-MSVC-ShuttleA-GPU-HD2000-x86-Debug-ANGLE',

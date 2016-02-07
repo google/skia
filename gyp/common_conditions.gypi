@@ -451,6 +451,9 @@
               [ 'skia_sanitizer == "thread"', {
                 'defines': [ 'THREAD_SANITIZER' ],
               }],
+              [ 'skia_sanitizer == "memory"', {
+                'cflags': [ '-fsanitize-memory-track-origins' ],
+              }],
             ],
           }],
           [ 'skia_clang_build', {

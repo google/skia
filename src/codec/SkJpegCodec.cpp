@@ -6,6 +6,7 @@
  */
 
 #include "SkCodec.h"
+#include "SkMSAN.h"
 #include "SkJpegCodec.h"
 #include "SkJpegDecoderMgr.h"
 #include "SkJpegUtility_codec.h"
@@ -215,7 +216,7 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dst) {
 }
 
 /*
- * Checks if we can natively scale to the requested dimensions and natively scales the 
+ * Checks if we can natively scale to the requested dimensions and natively scales the
  * dimensions if possible
  */
 bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
@@ -308,6 +309,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     for (uint32_t y = 0; y < dstHeight; y++) {
         // Read rows of the image
         uint32_t lines = jpeg_read_scanlines(dinfo, &dstRow, 1);
+        sk_msan_mark_initialized(dstRow, dstRow + dstRowBytes, "skbug.com/4550");
 
         // If we cannot read enough rows, assume the input is incomplete
         if (lines != 1) {
@@ -399,24 +401,27 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     return kSuccess;
 }
 
-int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
+int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
     // Set the jump location for libjpeg errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
     // Read rows one at a time
     JSAMPLE* dstRow;
+    size_t srcRowBytes = get_row_bytes(fDecoderMgr->dinfo());
     if (fSwizzler) {
         // write data to storage row, then sample using swizzler
         dstRow = fSrcRow;
     } else {
         // write data directly to dst
+        SkASSERT(count == 1 || dstRowBytes >= srcRowBytes);
         dstRow = (JSAMPLE*) dst;
     }
 
     for (int y = 0; y < count; y++) {
         // Read row of the image
         uint32_t rowsDecoded = jpeg_read_scanlines(fDecoderMgr->dinfo(), &dstRow, 1);
+        sk_msan_mark_initialized(dstRow, dstRow + srcRowBytes, "skbug.com/4550");
         if (rowsDecoded != 1) {
             fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();
             return y;
@@ -425,9 +430,9 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
         if (fSwizzler) {
             // use swizzler to sample row
             fSwizzler->swizzle(dst, dstRow);
-            dst = SkTAddOffset<JSAMPLE>(dst, rowBytes);
+            dst = SkTAddOffset<JSAMPLE>(dst, dstRowBytes);
         } else {
-            dstRow = SkTAddOffset<JSAMPLE>(dstRow, rowBytes);
+            dstRow = SkTAddOffset<JSAMPLE>(dstRow, dstRowBytes);
         }
     }
     return count;
