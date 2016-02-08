@@ -583,12 +583,8 @@ static bool gather_srcs() {
 
     for (auto image : images) {
         push_codec_srcs(image);
-        const char* ext = "";
-        int index = image.findLastOf('.');
-        if (index >= 0 && (size_t) ++index < image.size()) {
-            ext = &image.c_str()[index];
-        }
-        if (brd_supported(ext)) {
+        const char* ext = strrchr(image.c_str(), '.');
+        if (ext && brd_supported(ext+1)) {
             push_brd_srcs(image);
         }
     }
@@ -842,16 +838,16 @@ struct Task {
     const TaggedSrc&  src;
     const TaggedSink& sink;
 
-    static void Run(Task* task) {
-        SkString name = task->src->name();
+    static void Run(const Task& task) {
+        SkString name = task.src->name();
 
         // We'll skip drawing this Src/Sink pair if:
         //   - the Src vetoes the Sink;
         //   - this Src / Sink combination is on the blacklist;
         //   - it's a dry run.
-        SkString note(task->src->veto(task->sink->flags()) ? " (veto)" : "");
-        SkString whyBlacklisted = is_blacklisted(task->sink.tag.c_str(), task->src.tag.c_str(),
-                                                 task->src.options.c_str(), name.c_str());
+        SkString note(task.src->veto(task.sink->flags()) ? " (veto)" : "");
+        SkString whyBlacklisted = is_blacklisted(task.sink.tag.c_str(), task.src.tag.c_str(),
+                                                 task.src.options.c_str(), name.c_str());
         if (!whyBlacklisted.isEmpty()) {
             note.appendf(" (--blacklist %s)", whyBlacklisted.c_str());
         }
@@ -862,22 +858,22 @@ struct Task {
             SkBitmap bitmap;
             SkDynamicMemoryWStream stream;
             if (FLAGS_pre_log) {
-                SkDebugf("\nRunning %s->%s", name.c_str(), task->sink.tag.c_str());
+                SkDebugf("\nRunning %s->%s", name.c_str(), task.sink.tag.c_str());
             }
-            start(task->sink.tag.c_str(), task->src.tag, task->src.options, name.c_str());
-            Error err = task->sink->draw(*task->src, &bitmap, &stream, &log);
+            start(task.sink.tag.c_str(), task.src.tag, task.src.options, name.c_str());
+            Error err = task.sink->draw(*task.src, &bitmap, &stream, &log);
             if (!err.isEmpty()) {
                 if (err.isFatal()) {
                     fail(SkStringPrintf("%s %s %s %s: %s",
-                                        task->sink.tag.c_str(),
-                                        task->src.tag.c_str(),
-                                        task->src.options.c_str(),
+                                        task.sink.tag.c_str(),
+                                        task.src.tag.c_str(),
+                                        task.src.options.c_str(),
                                         name.c_str(),
                                         err.c_str()));
                 } else {
                     note.appendf(" (skipped: %s)", err.c_str());
                     auto elapsed = now_ms() - timerStart;
-                    done(elapsed, task->sink.tag.c_str(), task->src.tag, task->src.options,
+                    done(elapsed, task.sink.tag.c_str(), task.src.tag, task.src.options,
                          name, note, log);
                     return;
                 }
@@ -918,30 +914,30 @@ struct Task {
                 }
 
                 if (!FLAGS_readPath.isEmpty() &&
-                    !gGold.contains(Gold(task->sink.tag.c_str(), task->src.tag.c_str(),
-                                         task->src.options.c_str(), name, md5))) {
+                    !gGold.contains(Gold(task.sink.tag.c_str(), task.src.tag.c_str(),
+                                         task.src.options.c_str(), name, md5))) {
                     fail(SkStringPrintf("%s not found for %s %s %s %s in %s",
                                         md5.c_str(),
-                                        task->sink.tag.c_str(),
-                                        task->src.tag.c_str(),
-                                        task->src.options.c_str(),
+                                        task.sink.tag.c_str(),
+                                        task.src.tag.c_str(),
+                                        task.src.options.c_str(),
                                         name.c_str(),
                                         FLAGS_readPath[0]));
                 }
 
                 if (!FLAGS_writePath.isEmpty()) {
-                    const char* ext = task->sink->fileExtension();
+                    const char* ext = task.sink->fileExtension();
                     if (data->getLength()) {
-                        WriteToDisk(*task, md5, ext, data, data->getLength(), nullptr);
+                        WriteToDisk(task, md5, ext, data, data->getLength(), nullptr);
                         SkASSERT(bitmap.drawsNothing());
                     } else if (!bitmap.drawsNothing()) {
-                        WriteToDisk(*task, md5, ext, nullptr, 0, &bitmap);
+                        WriteToDisk(task, md5, ext, nullptr, 0, &bitmap);
                     }
                 }
             });
         }
         auto elapsed = now_ms() - timerStart;
-        done(elapsed, task->sink.tag.c_str(), task->src.tag.c_str(), task->src.options.c_str(),
+        done(elapsed, task.sink.tag.c_str(), task.src.tag.c_str(), task.src.options.c_str(),
              name, note, log);
     }
 
@@ -1012,19 +1008,11 @@ struct Task {
     }
 };
 
-// Run all tasks in the same enclave serially on the same thread.
-// They can't possibly run concurrently with each other.
-static void run_enclave(SkTArray<Task>* tasks) {
-    for (int i = 0; i < tasks->count(); i++) {
-        Task::Run(tasks->begin() + i);
-    }
-}
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 // Unit tests don't fit so well into the Src/Sink model, so we give them special treatment.
 
-static SkTDArray<skiatest::Test> gThreadedTests, gGPUTests;
+static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
 static void gather_tests() {
     if (!FLAGS_src.contains("tests")) {
@@ -1041,14 +1029,14 @@ static void gather_tests() {
             continue;
         }
         if (test.needsGpu && gpu_supported()) {
-            (FLAGS_gpu_threading ? gThreadedTests : gGPUTests).push(test);
+            (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
-            gThreadedTests.push(test);
+            gParallelTests.push(test);
         }
     }
 }
 
-static void run_test(skiatest::Test* test) {
+static void run_test(skiatest::Test test) {
     struct : public skiatest::Reporter {
         void reportFailed(const skiatest::Failure& failure) override {
             fail(failure.toString());
@@ -1061,32 +1049,24 @@ static void run_test(skiatest::Test* test) {
     } reporter;
 
     SkString note;
-    SkString whyBlacklisted = is_blacklisted("_", "tests", "_", test->name);
+    SkString whyBlacklisted = is_blacklisted("_", "tests", "_", test.name);
     if (!whyBlacklisted.isEmpty()) {
         note.appendf(" (--blacklist %s)", whyBlacklisted.c_str());
     }
 
     auto timerStart = now_ms();
     if (!FLAGS_dryRun && whyBlacklisted.isEmpty()) {
-        start("unit", "test", "", test->name);
+        start("unit", "test", "", test.name);
         GrContextFactory factory;
         if (FLAGS_pre_log) {
-            SkDebugf("\nRunning test %s", test->name);
+            SkDebugf("\nRunning test %s", test.name);
         }
-        test->proc(&reporter, &factory);
+        test.proc(&reporter, &factory);
     }
-    done(now_ms()-timerStart, "unit", "test", "", test->name, note, "");
+    done(now_ms()-timerStart, "unit", "test", "", test.name, note, "");
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-// If we're isolating all GPU-bound work to one thread (the default), this function runs all that.
-static void run_enclave_and_gpu_tests(SkTArray<Task>* tasks) {
-    run_enclave(tasks);
-    for (int i = 0; i < gGPUTests.count(); i++) {
-        run_test(&gGPUTests[i]);
-    }
-}
 
 // Some runs (mostly, Valgrind) are so slow that the bot framework thinks we've hung.
 // This prints something every once in a while so that it knows we're still working.
@@ -1148,39 +1128,33 @@ int dm_main() {
     gather_sinks();
     gather_tests();
 
-    gPending = gSrcs.count() * gSinks.count() + gThreadedTests.count() + gGPUTests.count();
+    gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
     SkDebugf("%d srcs * %d sinks + %d tests == %d tasks\n",
-             gSrcs.count(), gSinks.count(), gThreadedTests.count() + gGPUTests.count(), gPending);
+             gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
 
-    // We try to exploit as much parallelism as is safe.  Most Src/Sink pairs run on any thread,
-    // but Sinks that identify as part of a particular enclave run serially on a single thread.
-    // CPU tests run on any thread.  GPU tests depend on --gpu_threading.
-    SkTArray<Task> enclaves[kNumEnclaves];
-    for (int j = 0; j < gSinks.count(); j++) {
-        SkTArray<Task>& tasks = enclaves[gSinks[j]->enclave()];
-        for (int i = 0; i < gSrcs.count(); i++) {
-            tasks.push_back(Task(gSrcs[i], gSinks[j]));
+    // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
+    SkTaskGroup parallel;
+    SkTArray<Task> serial;
+
+    for (auto& sink : gSinks)
+    for (auto&  src : gSrcs) {
+        Task task(src, sink);
+        if (src->serial() || sink->serial()) {
+            serial.push_back(task);
+        } else {
+            parallel.add([task] { Task::Run(task); });
         }
     }
-
-    SkTaskGroup tg;
-    tg.batch(gThreadedTests.count(), [](int i){ run_test(&gThreadedTests[i]); });
-    for (int i = 0; i < kNumEnclaves; i++) {
-        SkTArray<Task>* currentEnclave = &enclaves[i];
-        switch(i) {
-            case kAnyThread_Enclave:
-                tg.batch(currentEnclave->count(),
-                         [currentEnclave](int j) { Task::Run(&(*currentEnclave)[j]); });
-                break;
-            case kGPU_Enclave:
-                tg.add([currentEnclave](){ run_enclave_and_gpu_tests(currentEnclave); });
-                break;
-            default:
-                tg.add([currentEnclave](){ run_enclave(currentEnclave); });
-                break;
-        }
+    for (auto test : gParallelTests) {
+        parallel.add([test] { run_test(test); });
     }
-    tg.wait();
+
+    // With the parallel work running, run serial tasks and tests here on main thread.
+    for (auto task : serial) { Task::Run(task); }
+    for (auto test : gSerialTests) { run_test(test); }
+
+    // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
+    parallel.wait();
     gDefinitelyThreadSafeWork.wait();
 
     // At this point we're back in single-threaded land.

@@ -831,10 +831,6 @@ GPUSink::GPUSink(GrContextFactory::GLContextType ct,
     , fUseDIText(diText)
     , fThreaded(threaded) {}
 
-int GPUSink::enclave() const {
-    return fThreaded ? kAnyThread_Enclave : kGPU_Enclave;
-}
-
 void PreAbandonGpuContextErrorHandler(SkError, void*) {}
 
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
