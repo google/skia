@@ -35,6 +35,7 @@
     '../third_party/externals/piex/src/tiff_directory/tiff_directory.cc',
     '../third_party/externals/piex/src/tiff_parser.cc',
   ],
+  'defines': [ 'BREAK_IF_DEBUGGING_AND_OUT_OF_RANGE' ],
   'include_dirs': [ '../third_party/externals/piex' ],
   'direct_dependent_settings': {
     'include_dirs': [ '../third_party/externals/piex' ],
