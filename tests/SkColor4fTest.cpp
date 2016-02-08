@@ -168,9 +168,9 @@ DEF_TEST(Color4f_colorfilter, reporter) {
         SkColorFilter* (*fFact)();
         bool           fSupports4f;
     } recs[] = {
-        { make_mode_cf,     false },
+        { make_mode_cf,     true },
         { make_mx_cf,       true },
-        { make_compose_cf,  false },
+        { make_compose_cf,  true },
     };
 
     // prepare the src
@@ -195,5 +195,47 @@ DEF_TEST(Color4f_colorfilter, reporter) {
             filter->filterSpan4f(src4f, N, dst4f);
             compare_spans(dst4f, dst4b, N, reporter);
         }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef SkPM4f (*SkXfermodeProc4f)(const SkPM4f& src, const SkPM4f& dst);
+
+static bool compare_procs(SkXfermodeProc proc32, SkXfermodeProc4f proc4f) {
+    const float kTolerance = 1.0f / 255;
+
+    const SkColor colors[] = {
+        0, 0xFF000000, 0xFFFFFFFF, 0x80FF0000
+    };
+
+    for (auto s32 : colors) {
+        SkPMColor s_pm32 = SkPreMultiplyColor(s32);
+        SkPM4f    s_pm4f = SkColor4f::FromColor(s32).premul();
+        for (auto d32 : colors) {
+            SkPMColor d_pm32 = SkPreMultiplyColor(d32);
+            SkPM4f    d_pm4f = SkColor4f::FromColor(d32).premul();
+
+            SkPMColor r32 = proc32(s_pm32, d_pm32);
+            SkPM4f    r4f = proc4f(s_pm4f, d_pm4f);
+
+            SkPM4f r32_4f = SkPM4f::FromPMColor(r32);
+            if (!nearly_equal(r4f, r32_4f, kTolerance)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Check that our Proc and Proc4f return (nearly) the same results
+//
+DEF_TEST(Color4f_xfermode_proc4f, reporter) {
+    // TODO: extend xfermodes so that all cases can be tested.
+    //
+    for (int mode = SkXfermode::kClear_Mode; mode <= SkXfermode::kScreen_Mode; ++mode) {
+        SkXfermodeProc   proc32 = SkXfermode::GetProc((SkXfermode::Mode)mode);
+        SkXfermodeProc4f proc4f = SkXfermode::GetProc4f((SkXfermode::Mode)mode);
+        REPORTER_ASSERT(reporter, compare_procs(proc32, proc4f));
     }
 }

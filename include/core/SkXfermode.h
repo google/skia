@@ -144,6 +144,7 @@ public:
         porter-duff transfer mode.
      */
     static SkXfermodeProc GetProc(Mode mode);
+    static SkXfermodeProc4f GetProc4f(Mode);
 
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
@@ -241,6 +242,7 @@ public:
                               int count, const SkAlpha coverage[]);
     typedef void (*PM4fProcN)(const PM4fState&, uint32_t dst[], const SkPM4f src[],
                               int count, const SkAlpha coverage[]);
+
     static PM4fProc1 GetPM4fProc1(Mode, uint32_t flags);
     static PM4fProcN GetPM4fProcN(Mode, uint32_t flags);
     virtual PM4fProc1 getPM4fProc1(uint32_t flags) const;

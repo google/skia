@@ -192,6 +192,8 @@ struct SkPM4f {
 #endif
 };
 
+typedef SkPM4f (*SkXfermodeProc4f)(const SkPM4f& src, const SkPM4f& dst);
+
 /*
  *  The float values are 0...1 unpremultiplied
  */

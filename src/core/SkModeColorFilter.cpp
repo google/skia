@@ -37,20 +37,30 @@ bool SkModeColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) cons
 }
 
 uint32_t SkModeColorFilter::getFlags() const {
+    uint32_t flags = kSupports4f_Flag;
     switch (fMode) {
         case SkXfermode::kDst_Mode:      //!< [Da, Dc]
         case SkXfermode::kSrcATop_Mode:  //!< [Da, Sc * Da + (1 - Sa) * Dc]
-            return kAlphaUnchanged_Flag;
+            flags |= kAlphaUnchanged_Flag;
         default:
             break;
     }
-    return 0;
+    return flags;
 }
 
 void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const {
     SkPMColor       color = fPMColor;
     SkXfermodeProc  proc = fProc;
+    
+    for (int i = 0; i < count; i++) {
+        result[i] = proc(color, shader[i]);
+    }
+}
 
+void SkModeColorFilter::filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const {
+    SkPM4f            color = SkPM4f::FromPMColor(fPMColor);
+    SkXfermodeProc4f  proc = SkXfermode::GetProc4f(fMode);
+    
     for (int i = 0; i < count; i++) {
         result[i] = proc(color, shader[i]);
     }

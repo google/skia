@@ -14,6 +14,7 @@
 
 struct ProcCoeff {
     SkXfermodeProc      fProc;
+    SkXfermodeProc4f    fProc4f;
     SkXfermode::Coeff   fSC;
     SkXfermode::Coeff   fDC;
 };

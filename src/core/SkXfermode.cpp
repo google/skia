@@ -47,6 +47,54 @@ static inline int clamp_div255round(int prod) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#include "SkNx.h"
+
+static Sk4f     alpha(const Sk4f& color) { return Sk4f(color.kth<3>()); }
+static Sk4f inv_alpha(const Sk4f& color) { return Sk4f(1 - color.kth<3>()); }
+static Sk4f     pin_1(const Sk4f& value) { return Sk4f::Min(value, Sk4f(1)); }
+
+static Sk4f    clear_4f(const Sk4f& s, const Sk4f& d) { return Sk4f(0); }
+static Sk4f      src_4f(const Sk4f& s, const Sk4f& d) { return s; }
+static Sk4f      dst_4f(const Sk4f& s, const Sk4f& d) { return d; }
+static Sk4f  srcover_4f(const Sk4f& s, const Sk4f& d) { return s + inv_alpha(s) * d; }
+static Sk4f  dstover_4f(const Sk4f& s, const Sk4f& d) { return d + inv_alpha(d) * s; }
+static Sk4f    srcin_4f(const Sk4f& s, const Sk4f& d) { return s * alpha(d); }
+static Sk4f    dstin_4f(const Sk4f& s, const Sk4f& d) { return d * alpha(s); }
+static Sk4f   srcout_4f(const Sk4f& s, const Sk4f& d) { return s * inv_alpha(d); }
+static Sk4f   dstout_4f(const Sk4f& s, const Sk4f& d) { return d * inv_alpha(s); }
+static Sk4f  srcatop_4f(const Sk4f& s, const Sk4f& d) { return s * alpha(d) + d * inv_alpha(s); }
+static Sk4f  dstatop_4f(const Sk4f& s, const Sk4f& d) { return d * alpha(s) + s * inv_alpha(d); }
+static Sk4f      xor_4f(const Sk4f& s, const Sk4f& d) { return s * inv_alpha(d) + d * inv_alpha(s);}
+static Sk4f     plus_4f(const Sk4f& s, const Sk4f& d) { return pin_1(s + d); }
+static Sk4f modulate_4f(const Sk4f& s, const Sk4f& d) { return s * d; }
+static Sk4f   screen_4f(const Sk4f& s, const Sk4f& d) { return s + d - s * d; }
+
+static Sk4f multiply_4f(const Sk4f& s, const Sk4f& d) {
+    return s * inv_alpha(d) + d * inv_alpha(s) + s * d;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static SkPM4f as_pm4f(const Sk4f& x) {
+    SkPM4f pm4;
+    x.store(pm4.fVec);
+    return pm4;
+}
+
+static Sk4f as_4f(const SkPM4f& pm4) {
+    return Sk4f::Load(pm4.fVec);
+}
+
+template <Sk4f (blend)(const Sk4f&, const Sk4f&)>
+SkPM4f proc_4f(const SkPM4f& src, const SkPM4f& dst) {
+    return as_pm4f(blend(as_4f(src), as_4f(dst)));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static SkPM4f not_implemented_yet_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return {{ 0.5f, 1.0f, 0.25f, 0.5f }};
+}
 
 //  kClear_Mode,    //!< [0, 0]
 static SkPMColor clear_modeproc(SkPMColor src, SkPMColor dst) {
@@ -219,6 +267,9 @@ static SkPMColor overlay_modeproc(SkPMColor src, SkPMColor dst) {
     int b = overlay_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f overlay_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 // kDarken_Mode
 static inline int darken_byte(int sc, int dc, int sa, int da) {
@@ -241,6 +292,9 @@ static SkPMColor darken_modeproc(SkPMColor src, SkPMColor dst) {
     int b = darken_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f darken_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 // kLighten_Mode
 static inline int lighten_byte(int sc, int dc, int sa, int da) {
@@ -262,6 +316,9 @@ static SkPMColor lighten_modeproc(SkPMColor src, SkPMColor dst) {
     int g = lighten_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = lighten_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
+}
+static SkPM4f lighten_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
 }
 
 // kColorDodge_Mode
@@ -287,6 +344,9 @@ static SkPMColor colordodge_modeproc(SkPMColor src, SkPMColor dst) {
     int b = colordodge_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f colordodge_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 // kColorBurn_Mode
 static inline int colorburn_byte(int sc, int dc, int sa, int da) {
@@ -311,6 +371,9 @@ static SkPMColor colorburn_modeproc(SkPMColor src, SkPMColor dst) {
     int b = colorburn_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f colorburn_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 // kHardLight_Mode
 static inline int hardlight_byte(int sc, int dc, int sa, int da) {
@@ -330,6 +393,9 @@ static SkPMColor hardlight_modeproc(SkPMColor src, SkPMColor dst) {
     int g = hardlight_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = hardlight_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
+}
+static SkPM4f hardlight_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
 }
 
 // returns 255 * sqrt(n/255)
@@ -361,6 +427,9 @@ static SkPMColor softlight_modeproc(SkPMColor src, SkPMColor dst) {
     int b = softlight_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f softlight_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 // kDifference_Mode
 static inline int difference_byte(int sc, int dc, int sa, int da) {
@@ -375,6 +444,9 @@ static SkPMColor difference_modeproc(SkPMColor src, SkPMColor dst) {
     int g = difference_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = difference_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
+}
+static SkPM4f difference_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
 }
 
 // kExclusion_Mode
@@ -394,6 +466,9 @@ static SkPMColor exclusion_modeproc(SkPMColor src, SkPMColor dst) {
     int g = exclusion_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = exclusion_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
+}
+static SkPM4f exclusion_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
 }
 
 // The CSS compositing spec introduces the following formulas:
@@ -510,6 +585,9 @@ static SkPMColor hue_modeproc(SkPMColor src, SkPMColor dst) {
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Sb);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f hue_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 // kSaturation_Mode
 // B(Cb, Cs) = SetLum(SetSat(Cb, Sat(Cs)), Lum(Cb))
@@ -544,6 +622,9 @@ static SkPMColor saturation_modeproc(SkPMColor src, SkPMColor dst) {
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Db);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f saturation_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 // kColor_Mode
 // B(Cb, Cs) = SetLum(Cs, Lum(Cb))
@@ -576,6 +657,9 @@ static SkPMColor color_modeproc(SkPMColor src, SkPMColor dst) {
     int g = blendfunc_nonsep_byte(sg, dg, sa, da, Sg);
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Sb);
     return SkPackARGB32(a, r, g, b);
+}
+static SkPM4f color_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
 }
 
 // kLuminosity_Mode
@@ -610,38 +694,41 @@ static SkPMColor luminosity_modeproc(SkPMColor src, SkPMColor dst) {
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Db);
     return SkPackARGB32(a, r, g, b);
 }
+static SkPM4f luminosity_proc4f(const SkPM4f& src, const SkPM4f& dst) {
+    return not_implemented_yet_proc4f(src, dst);
+}
 
 const ProcCoeff gProcCoeffs[] = {
-    { clear_modeproc,   SkXfermode::kZero_Coeff,    SkXfermode::kZero_Coeff },
-    { src_modeproc,     SkXfermode::kOne_Coeff,     SkXfermode::kZero_Coeff },
-    { dst_modeproc,     SkXfermode::kZero_Coeff,    SkXfermode::kOne_Coeff },
-    { srcover_modeproc, SkXfermode::kOne_Coeff,     SkXfermode::kISA_Coeff },
-    { dstover_modeproc, SkXfermode::kIDA_Coeff,     SkXfermode::kOne_Coeff },
-    { srcin_modeproc,   SkXfermode::kDA_Coeff,      SkXfermode::kZero_Coeff },
-    { dstin_modeproc,   SkXfermode::kZero_Coeff,    SkXfermode::kSA_Coeff },
-    { srcout_modeproc,  SkXfermode::kIDA_Coeff,     SkXfermode::kZero_Coeff },
-    { dstout_modeproc,  SkXfermode::kZero_Coeff,    SkXfermode::kISA_Coeff },
-    { srcatop_modeproc, SkXfermode::kDA_Coeff,      SkXfermode::kISA_Coeff },
-    { dstatop_modeproc, SkXfermode::kIDA_Coeff,     SkXfermode::kSA_Coeff },
-    { xor_modeproc,     SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff },
+    { clear_modeproc,       proc_4f<clear_4f>,      SkXfermode::kZero_Coeff,    SkXfermode::kZero_Coeff },
+    { src_modeproc,         proc_4f<src_4f>,        SkXfermode::kOne_Coeff,     SkXfermode::kZero_Coeff },
+    { dst_modeproc,         proc_4f<dst_4f>,        SkXfermode::kZero_Coeff,    SkXfermode::kOne_Coeff  },
+    { srcover_modeproc,     proc_4f<srcover_4f>,    SkXfermode::kOne_Coeff,     SkXfermode::kISA_Coeff  },
+    { dstover_modeproc,     proc_4f<dstover_4f>,    SkXfermode::kIDA_Coeff,     SkXfermode::kOne_Coeff  },
+    { srcin_modeproc,       proc_4f<srcin_4f>,      SkXfermode::kDA_Coeff,      SkXfermode::kZero_Coeff },
+    { dstin_modeproc,       proc_4f<dstin_4f>,      SkXfermode::kZero_Coeff,    SkXfermode::kSA_Coeff   },
+    { srcout_modeproc,      proc_4f<srcout_4f>,     SkXfermode::kIDA_Coeff,     SkXfermode::kZero_Coeff },
+    { dstout_modeproc,      proc_4f<dstout_4f>,     SkXfermode::kZero_Coeff,    SkXfermode::kISA_Coeff  },
+    { srcatop_modeproc,     proc_4f<srcatop_4f>,    SkXfermode::kDA_Coeff,      SkXfermode::kISA_Coeff  },
+    { dstatop_modeproc,     proc_4f<dstatop_4f>,    SkXfermode::kIDA_Coeff,     SkXfermode::kSA_Coeff   },
+    { xor_modeproc,         proc_4f<xor_4f>,        SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff  },
 
-    { plus_modeproc,    SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff },
-    { modulate_modeproc,SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff },
-    { screen_modeproc,  SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff },
-    { overlay_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { darken_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { lighten_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colordodge_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colorburn_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hardlight_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { softlight_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { difference_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { exclusion_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { multiply_modeproc,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hue_modeproc,         CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { saturation_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { color_modeproc,       CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { luminosity_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { plus_modeproc,        proc_4f<plus_4f>,       SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff  },
+    { modulate_modeproc,    proc_4f<modulate_4f>,   SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff   },
+    { screen_modeproc,      proc_4f<screen_4f>,     SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff  },
+    { overlay_modeproc,     overlay_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { darken_modeproc,      darken_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { lighten_modeproc,     lighten_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colordodge_modeproc,  colordodge_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colorburn_modeproc,   colorburn_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { hardlight_modeproc,   hardlight_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { softlight_modeproc,   softlight_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { difference_modeproc,  difference_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { exclusion_modeproc,   exclusion_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { multiply_modeproc,    proc_4f<multiply_4f>,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { hue_modeproc,         hue_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { saturation_modeproc,  saturation_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { color_modeproc,       color_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { luminosity_modeproc,  luminosity_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1002,6 +1089,14 @@ SkXfermodeProc SkXfermode::GetProc(Mode mode) {
     SkXfermodeProc  proc = nullptr;
     if ((unsigned)mode < kModeCount) {
         proc = gProcCoeffs[mode].fProc;
+    }
+    return proc;
+}
+
+SkXfermodeProc4f SkXfermode::GetProc4f(Mode mode) {
+    SkXfermodeProc4f  proc = nullptr;
+    if ((unsigned)mode < kModeCount) {
+        proc = gProcCoeffs[mode].fProc4f;
     }
     return proc;
 }

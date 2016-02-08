@@ -24,6 +24,7 @@ public:
     bool asColorMode(SkColor*, SkXfermode::Mode*) const override;
     uint32_t getFlags() const override;
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override;
+    void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override;
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override;
