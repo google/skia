@@ -40,6 +40,7 @@
         'tools.gyp:crash_handler',
         'tools.gyp:proc_stats',
         'tools.gyp:resources',
+        'tools.gyp:url_data_manager',
       ],
     },
   ],

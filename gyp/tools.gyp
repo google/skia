@@ -404,6 +404,27 @@
       },
     },
     {
+      'target_name': 'url_data_manager',
+      'type': 'static_library',
+      'sources': [
+        '../tools/UrlDataManager.h',
+        '../tools/UrlDataManager.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
+      'include_dirs': [
+         '../include/private',
+         '../src/core',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../include/private',
+          '../tools', 
+        ],
+      },
+    },
+    {
       'target_name': 'whitelist_typefaces',
       'type': 'executable',
       'sources': [
