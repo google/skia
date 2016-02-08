@@ -125,6 +125,41 @@ static void grayA_to_rgbA_portable(uint32_t dst[], const void* vsrc, int count) 
     }
 }
 
+static void inverted_CMYK_to_RGB1_portable(uint32_t* dst, const void* vsrc, int count) {
+    const uint32_t* src = (const uint32_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        uint8_t k = src[i] >> 24,
+                y = src[i] >> 16,
+                m = src[i] >>  8,
+                c = src[i] >>  0;
+        // See comments in SkSwizzler.cpp for details on the conversion formula.
+        uint8_t b = (y*k+127)/255,
+                g = (m*k+127)/255,
+                r = (c*k+127)/255;
+        dst[i] = (uint32_t)0xFF << 24
+               | (uint32_t)   b << 16
+               | (uint32_t)   g <<  8
+               | (uint32_t)   r <<  0;
+    }
+}
+
+static void inverted_CMYK_to_BGR1_portable(uint32_t* dst, const void* vsrc, int count) {
+    const uint32_t* src = (const uint32_t*)vsrc;
+    for (int i = 0; i < count; i++) {
+        uint8_t k = src[i] >> 24,
+                y = src[i] >> 16,
+                m = src[i] >>  8,
+                c = src[i] >>  0;
+        uint8_t b = (y*k+127)/255,
+                g = (m*k+127)/255,
+                r = (c*k+127)/255;
+        dst[i] = (uint32_t)0xFF << 24
+               | (uint32_t)   r << 16
+               | (uint32_t)   g <<  8
+               | (uint32_t)   b <<  0;
+    }
+}
+
 #if defined(SK_ARM_HAS_NEON)
 
 // Rounded divide by 255, (x + 127) / 255
@@ -401,6 +436,54 @@ static void grayA_to_rgbA(uint32_t dst[], const void* src, int count) {
     expand_grayA<true>(dst, src, count);
 }
 
+enum Format { kRGB1, kBGR1 };
+template <Format format>
+static void inverted_cmyk_to(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
+    while (count >= 8) {
+        // Load 8 cmyk pixels.
+        uint8x8x4_t pixels = vld4_u8((const uint8_t*) src);
+
+        uint8x8_t k = pixels.val[3],
+                  y = pixels.val[2],
+                  m = pixels.val[1],
+                  c = pixels.val[0];
+
+        // Scale to r, g, b.
+        uint8x8_t b = scale(y, k);
+        uint8x8_t g = scale(m, k);
+        uint8x8_t r = scale(c, k);
+
+        // Store 8 rgba pixels.
+        if (kBGR1 == format) {
+            pixels.val[3] = vdup_n_u8(0xFF);
+            pixels.val[2] = r;
+            pixels.val[1] = g;
+            pixels.val[0] = b;
+        } else {
+            pixels.val[3] = vdup_n_u8(0xFF);
+            pixels.val[2] = b;
+            pixels.val[1] = g;
+            pixels.val[0] = r;
+        }
+        vst4_u8((uint8_t*) dst, pixels);
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    auto proc = (kBGR1 == format) ? inverted_CMYK_to_BGR1_portable : inverted_CMYK_to_RGB1_portable;
+    proc(dst, src, count);
+}
+
+static void inverted_CMYK_to_RGB1(uint32_t dst[], const void* src, int count) {
+    inverted_cmyk_to<kRGB1>(dst, src, count);
+}
+
+static void inverted_CMYK_to_BGR1(uint32_t dst[], const void* src, int count) {
+    inverted_cmyk_to<kBGR1>(dst, src, count);
+}
+
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
 // Scale a byte by another.
@@ -631,6 +714,83 @@ static void grayA_to_rgbA(uint32_t dst[], const void* vsrc, int count) {
     grayA_to_rgbA_portable(dst, src, count);
 }
 
+enum Format { kRGB1, kBGR1 };
+template <Format format>
+static void inverted_cmyk_to(uint32_t* dst, const void* vsrc, int count) {
+    auto src = (const uint32_t*)vsrc;
+
+    auto convert8 = [](__m128i* lo, __m128i* hi) {
+        const __m128i zeros = _mm_setzero_si128();
+        __m128i planar;
+        if (kBGR1 == format) {
+            planar = _mm_setr_epi8(2,6,10,14, 1,5,9,13, 0,4,8,12, 3,7,11,15);
+        } else {
+            planar = _mm_setr_epi8(0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15);
+        }
+
+        // Swizzle the pixels to 8-bit planar.
+        *lo = _mm_shuffle_epi8(*lo, planar);                                 // ccccmmmm yyyykkkk
+        *hi = _mm_shuffle_epi8(*hi, planar);                                 // CCCCMMMM YYYYKKKK
+        __m128i cm = _mm_unpacklo_epi32(*lo, *hi),                           // ccccCCCC mmmmMMMM
+                yk = _mm_unpackhi_epi32(*lo, *hi);                           // yyyyYYYY kkkkKKKK
+
+        // Unpack to 16-bit planar.
+        __m128i c = _mm_unpacklo_epi8(cm, zeros),                            // c_c_c_c_ C_C_C_C_
+                m = _mm_unpackhi_epi8(cm, zeros),                            // m_m_m_m_ M_M_M_M_
+                y = _mm_unpacklo_epi8(yk, zeros),                            // y_y_y_y_ Y_Y_Y_Y_
+                k = _mm_unpackhi_epi8(yk, zeros);                            // k_k_k_k_ K_K_K_K_
+
+        // Scale to r, g, b.
+        __m128i r = scale(c, k),
+                g = scale(m, k),
+                b = scale(y, k);
+
+        // Repack into interlaced pixels.
+        __m128i rg = _mm_or_si128(r, _mm_slli_epi16(g, 8)),                  // rgrgrgrg RGRGRGRG
+                ba = _mm_or_si128(b, _mm_set1_epi16((uint16_t) 0xFF00));     // b1b1b1b1 B1B1B1B1
+        *lo = _mm_unpacklo_epi16(rg, ba);                                    // rgbargba rgbargba
+        *hi = _mm_unpackhi_epi16(rg, ba);                                    // RGB1RGB1 RGB1RGB1
+    };
+
+    while (count >= 8) {
+        __m128i lo = _mm_loadu_si128((const __m128i*) (src + 0)),
+                hi = _mm_loadu_si128((const __m128i*) (src + 4));
+
+        convert8(&lo, &hi);
+
+        _mm_storeu_si128((__m128i*) (dst + 0), lo);
+        _mm_storeu_si128((__m128i*) (dst + 4), hi);
+
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    if (count >= 4) {
+        __m128i lo = _mm_loadu_si128((const __m128i*) src),
+                hi = _mm_setzero_si128();
+
+        convert8(&lo, &hi);
+
+        _mm_storeu_si128((__m128i*) dst, lo);
+
+        src += 4;
+        dst += 4;
+        count -= 4;
+    }
+
+    auto proc = (kBGR1 == format) ? inverted_CMYK_to_BGR1_portable : inverted_CMYK_to_RGB1_portable;
+    proc(dst, src, count);
+}
+
+static void inverted_CMYK_to_RGB1(uint32_t dst[], const void* src, int count) {
+    inverted_cmyk_to<kRGB1>(dst, src, count);
+}
+
+static void inverted_CMYK_to_BGR1(uint32_t dst[], const void* src, int count) {
+    inverted_cmyk_to<kBGR1>(dst, src, count);
+}
+
 #else
 
 static void RGBA_to_rgbA(uint32_t* dst, const void* src, int count) {
@@ -663,6 +823,14 @@ static void grayA_to_RGBA(uint32_t dst[], const void* src, int count) {
 
 static void grayA_to_rgbA(uint32_t dst[], const void* src, int count) {
     grayA_to_rgbA_portable(dst, src, count);
+}
+
+static void inverted_CMYK_to_RGB1(uint32_t dst[], const void* src, int count) {
+    inverted_CMYK_to_RGB1_portable(dst, src, count);
+}
+
+static void inverted_CMYK_to_BGR1(uint32_t dst[], const void* src, int count) {
+    inverted_CMYK_to_BGR1_portable(dst, src, count);
 }
 
 #endif
