@@ -855,6 +855,14 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     const SkISize size = src.size();
     const SkImageInfo info =
         SkImageInfo::Make(size.width(), size.height(), kN32_SkColorType, kPremul_SkAlphaType);
+#if SK_SUPPORT_GPU
+    const int maxDimension = factory.getContextInfo(fContextType, fContextOptions).
+            fGrContext->caps()->maxTextureSize();
+    if (maxDimension < SkTMax(size.width(), size.height())) {
+        return Error::Nonfatal("Src too large to create a texture.\n");
+    }
+#endif
+
     SkAutoTUnref<SkSurface> surface(
             NewGpuSurface(&factory, fContextType, fContextOptions, info, fSampleCount, fUseDIText));
     if (!surface) {
