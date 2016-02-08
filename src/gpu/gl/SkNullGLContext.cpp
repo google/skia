@@ -514,8 +514,9 @@ static GrGLInterface* create_null_interface(State* state) {
     functions->fVertexAttrib2fv = noOpGLVertexAttrib2fv;
     functions->fVertexAttrib3fv = noOpGLVertexAttrib3fv;
     functions->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
-    functions->fVertexAttribPointer = noOpGLVertexAttribPointer;
     functions->fVertexAttribDivisor = noOpGLVertexAttribDivisor;
+    functions->fVertexAttribIPointer = noOpGLVertexAttribIPointer;
+    functions->fVertexAttribPointer = noOpGLVertexAttribPointer;
     functions->fViewport = nullGLViewport;
     functions->fBindFramebuffer = nullGLBindFramebuffer;
     functions->fBindRenderbuffer = nullGLBindRenderbuffer;

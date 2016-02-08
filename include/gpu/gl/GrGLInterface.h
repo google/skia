@@ -310,6 +310,7 @@ public:
         GrGLFunction<GrGLVertexAttrib3fvProc> fVertexAttrib3fv;
         GrGLFunction<GrGLVertexAttrib4fvProc> fVertexAttrib4fv;
         GrGLFunction<GrGLVertexAttribDivisorProc> fVertexAttribDivisor;
+        GrGLFunction<GrGLVertexAttribIPointerProc> fVertexAttribIPointer;
         GrGLFunction<GrGLVertexAttribPointerProc> fVertexAttribPointer;
         GrGLFunction<GrGLViewportProc> fViewport;
 

@@ -246,6 +246,10 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(VertexAttribDivisor);
     }
 
+    if (glVer >= GR_GL_VER(3,0)) {
+        GET_PROC(VertexAttribIPointer);
+    }
+
     GET_PROC(VertexAttribPointer);
     GET_PROC(Viewport);
     GET_PROC(BindFragDataLocationIndexed);
@@ -676,6 +680,10 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(VertexAttribDivisor);
     } else if (extensions.has("GL_EXT_instanced_arrays")) {
         GET_PROC_SUFFIX(VertexAttribDivisor, EXT);
+    }
+
+    if (version >= GR_GL_VER(3,0)) {
+        GET_PROC(VertexAttribIPointer);
     }
 
     GET_PROC(VertexAttribPointer);
