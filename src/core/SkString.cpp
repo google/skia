@@ -275,6 +275,13 @@ SkString::SkString(const SkString& src) {
     fRec = RefRec(src.fRec);
 }
 
+SkString::SkString(SkString&& src) {
+    src.validate();
+
+    fRec = src.fRec;
+    src.fRec = const_cast<Rec*>(&gEmptyRec);
+}
+
 SkString::~SkString() {
     this->validate();
 
@@ -306,6 +313,15 @@ SkString& SkString::operator=(const SkString& src) {
     if (fRec != src.fRec) {
         SkString    tmp(src);
         this->swap(tmp);
+    }
+    return *this;
+}
+
+SkString& SkString::operator=(SkString&& src) {
+    this->validate();
+
+    if (fRec != src.fRec) {
+        this->swap(src);
     }
     return *this;
 }

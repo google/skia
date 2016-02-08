@@ -126,6 +126,7 @@ public:
     explicit    SkString(const char text[]);
                 SkString(const char text[], size_t len);
                 SkString(const SkString&);
+                SkString(SkString&&);
                 ~SkString();
 
     bool        isEmpty() const { return 0 == fRec->fLength; }
@@ -172,6 +173,7 @@ public:
     // these methods edit the string
 
     SkString& operator=(const SkString&);
+    SkString& operator=(SkString&&);
     SkString& operator=(const char text[]);
 
     char* writable_str();
