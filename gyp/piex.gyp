@@ -28,76 +28,19 @@
   'target_name': 'piex',
   'type': 'static_library',
   'sources': [
+    '../third_party/externals/piex/src/binary_parse/cached_paged_byte_array.cc',
+    '../third_party/externals/piex/src/binary_parse/range_checked_byte_ptr.cc',
+    '../third_party/externals/piex/src/image_type_recognition/image_type_recognition_lite.cc',
     '../third_party/externals/piex/src/piex.cc',
+    '../third_party/externals/piex/src/tiff_directory/tiff_directory.cc',
     '../third_party/externals/piex/src/tiff_parser.cc',
   ],
-  'variables': {
-    'headers': [
-      '../third_party/externals/piex/src/piex.h',
-      '../third_party/externals/piex/src/piex_types.h',
-      '../third_party/externals/piex/src/tiff_parser.h',
-    ],
-  },
-  'include_dirs': ['../third_party/externals/piex'],
-  'cflags': [
-    '-Wsign-compare',
-    '-w',
-  ],
-  'msvs_settings': {
-    'VCCLCompilerTool': {
-      'WarningLevel': '0',
-    },
-  },
-  'xcode_settings': {
-    'WARNING_CFLAGS': ['-w'],
-  },
-  'dependencies': [
-    'binary_parse',
-    'image_type_recognition',
-    'tiff_directory',
-  ],
+  'include_dirs': [ '../third_party/externals/piex' ],
   'direct_dependent_settings': {
-    'include_dirs': [
-      '../third_party/externals/piex',
-    ],
+    'include_dirs': [ '../third_party/externals/piex' ],
   },
-}, {
-  'target_name': 'binary_parse',
-  'type': 'static_library',
-  'sources': [
-      '../third_party/externals/piex/src/binary_parse/cached_paged_byte_array.cc',
-      '../third_party/externals/piex/src/binary_parse/range_checked_byte_ptr.cc',
-  ],
-  'variables': {
-    'headers': [
-      '../third_party/externals/piex/src/binary_parse/cached_paged_byte_array.h',
-      '../third_party/externals/piex/src/binary_parse/range_checked_byte_ptr.h',
-    ],
-  },
-  'include_dirs': ['../third_party/externals/piex'],
-  'cflags': ['-Wsign-compare'],
-}, {
-  'target_name': 'image_type_recognition',
-  'type': 'static_library',
-  'sources': [
-    '../third_party/externals/piex/src/image_type_recognition/image_type_recognition_lite.cc',
-  ],
-  'variables': {
-    'headers': ['../third_party/externals/piex/src/image_type_recognition/image_type_recognition_lite.h'],
-  },
-  'include_dirs': ['../third_party/externals/piex'],
-  'cflags': ['-Wsign-compare'],
-  'dependencies': ['binary_parse'],
-}, {
-  'target_name': 'tiff_directory',
-  'type': 'static_library',
-  'sources': [
-    '../third_party/externals/piex/src/tiff_directory/tiff_directory.cc',
-  ],
-  'variables': {
-    'headers': ['../third_party/externals/piex/src/tiff_directory/tiff_directory.h'],
-  },
-  'include_dirs': ['../third_party/externals/piex'],
-  'dependencies': ['binary_parse'],
+  'cflags': [ '-w' ],
+  'msvs_settings': { 'VCCLCompilerTool': { 'WarningLevel': '0' } },
+  'xcode_settings': { 'WARNING_CFLAGS': ['-w'] },
 }],
 }
