@@ -70,7 +70,8 @@ private:
 
         DataEntry() { }
 
-        DataEntry(DataEntry&& that)
+        // This is a move!!!
+        DataEntry(DataEntry& that)
             : fDataId(that.fDataId)
             , fTtcIndex(that.fTtcIndex)
             , fTypeface(that.fTypeface)
