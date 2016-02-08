@@ -224,3 +224,50 @@ DEF_TEST(SkNx_abs, r) {
     REPORTER_ASSERT(r, fs.kth<2>() == 2.0f);
     REPORTER_ASSERT(r, fs.kth<3>() == 4.0f);
 }
+
+#include "SkRandom.h"
+
+static void dump(const Sk4f& f4, const Sk4h& h4) {
+    SkDebugf("%g %g %g %g --> %d %d %d %d\n",
+             f4.kth<0>(), f4.kth<1>(), f4.kth<2>(), f4.kth<3>(),
+             h4.kth<0>(), h4.kth<1>(), h4.kth<2>(), h4.kth<3>());
+}
+
+DEF_TEST(SkNx_u16_float, r) {
+    {
+        // u16 --> float
+        auto h4 = Sk4h(15, 17, 257, 65535);
+        auto f4 = SkNx_cast<float>(h4);
+        dump(f4, h4);
+        REPORTER_ASSERT(r, f4.kth<0>() == 15.0f);
+        REPORTER_ASSERT(r, f4.kth<1>() == 17.0f);
+        REPORTER_ASSERT(r, f4.kth<2>() == 257.0f);
+        REPORTER_ASSERT(r, f4.kth<3>() == 65535.0f);
+    }
+    {
+        // float -> u16
+        auto f4 = Sk4f(15, 17, 257, 65535);
+        auto h4 = SkNx_cast<uint16_t>(f4);
+        dump(f4, h4);
+        REPORTER_ASSERT(r, h4.kth<0>() == 15);
+        REPORTER_ASSERT(r, h4.kth<1>() == 17);
+        REPORTER_ASSERT(r, h4.kth<2>() == 257);
+        REPORTER_ASSERT(r, h4.kth<3>() == 65535);
+    }
+
+    // starting with any u16 value, we should be able to have a perfect round-trip in/out of floats
+    //
+    SkRandom rand;
+    for (int i = 0; i < 0; ++i) {
+        const uint16_t s16[4] {
+            (uint16_t)rand.nextU16(), (uint16_t)rand.nextU16(),
+            (uint16_t)rand.nextU16(), (uint16_t)rand.nextU16(),
+        };
+        auto u4_0 = Sk4h::Load(s16);
+        auto f4 = SkNx_cast<float>(u4_0);
+        auto u4_1 = SkNx_cast<uint16_t>(f4);
+        uint16_t d16[4];
+        u4_1.store(d16);
+        REPORTER_ASSERT(r, !memcmp(s16, d16, sizeof(s16)));
+    }
+}

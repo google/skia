@@ -350,7 +350,16 @@ template<> inline Sk4i SkNx_cast<int, float, 4>(const Sk4f& src) {
 
 template<> inline Sk4h SkNx_cast<uint16_t, float, 4>(const Sk4f& src) {
     auto _32 = _mm_cvttps_epi32(src.fVec);
-    return _mm_packus_epi16(_32, _32);
+    // Ideally we'd use _mm_packus_epi32 here.  But that's SSE4.1+.
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    // With SSSE3, we can just shuffle the low 2 bytes from each lane right into place.
+    const int _ = ~0;
+    return _mm_shuffle_epi8(_32, _mm_setr_epi8(0,1, 4,5, 8,9, 12,13, _,_,_,_,_,_,_,_));
+#else
+    // With SSE2, we have to emulate _mm_packus_epi32 with _mm_packs_epi32:
+    _32 = _mm_sub_epi32(_32, _mm_set1_epi32((int)0x00008000));
+    return _mm_add_epi16(_mm_packs_epi32(_32, _32), _mm_set1_epi16((short)0x8000));
+#endif
 }
 
 template<> inline Sk4b SkNx_cast<uint8_t, float, 4>(const Sk4f& src) {
