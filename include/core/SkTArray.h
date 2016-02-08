@@ -8,6 +8,7 @@
 #ifndef SkTArray_DEFINED
 #define SkTArray_DEFINED
 
+#include "../private/SkTLogic.h"
 #include "../private/SkTemplates.h"
 #include "SkTypes.h"
 
@@ -15,42 +16,6 @@
 #include <utility>
 
 template <typename T, bool MEM_COPY = false> class SkTArray;
-
-namespace SkTArrayExt {
-
-template<typename T>
-inline void copy(SkTArray<T, true>* self, int dst, int src) {
-    memcpy(&self->fItemArray[dst], &self->fItemArray[src], sizeof(T));
-}
-template<typename T>
-inline void copy(SkTArray<T, true>* self, const T* array) {
-    sk_careful_memcpy(self->fMemArray, array, self->fCount * sizeof(T));
-}
-template<typename T>
-inline void copyAndDelete(SkTArray<T, true>* self, char* newMemArray) {
-    sk_careful_memcpy(newMemArray, self->fMemArray, self->fCount * sizeof(T));
-}
-
-template<typename T>
-inline void copy(SkTArray<T, false>* self, int dst, int src) {
-    new (&self->fItemArray[dst]) T(self->fItemArray[src]);
-}
-template<typename T>
-inline void copy(SkTArray<T, false>* self, const T* array) {
-    for (int i = 0; i < self->fCount; ++i) {
-        new (self->fItemArray + i) T(array[i]);
-    }
-}
-template<typename T>
-inline void copyAndDelete(SkTArray<T, false>* self, char* newMemArray) {
-    for (int i = 0; i < self->fCount; ++i) {
-        new (newMemArray + sizeof(T) * i) T(self->fItemArray[i]);
-        self->fItemArray[i].~T();
-    }
-}
-
-}
-
 template <typename T, bool MEM_COPY> void* operator new(size_t, SkTArray<T, MEM_COPY>*, int);
 
 /** When MEM_COPY is true T will be bit copied when moved.
@@ -105,7 +70,7 @@ public:
         fCount = 0;
         this->checkRealloc((int)array.count());
         fCount = array.count();
-        SkTArrayExt::copy(this, static_cast<const T*>(array.fMemArray));
+        this->copy(static_cast<const T*>(array.fMemArray));
         return *this;
     }
 
@@ -150,7 +115,7 @@ public:
         int delta = count - fCount;
         this->checkRealloc(delta);
         fCount = count;
-        SkTArrayExt::copy(this, array);
+        this->copy(array);
     }
 
     void removeShuffle(int n) {
@@ -159,8 +124,7 @@ public:
         fCount = newCount;
         fItemArray[n].~T();
         if (n != newCount) {
-            SkTArrayExt::copy(this, n, newCount);
-            fItemArray[newCount].~T();
+            this->move(n, newCount);
         }
     }
 
@@ -422,10 +386,38 @@ protected:
             fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
         }
 
-        SkTArrayExt::copy(this, array);
+        this->copy(array);
     }
 
 private:
+    /** In the following move and copy methods, 'dst' is assumed to be uninitialized raw storage.
+     *  In the following move methods, 'src' is destroyed leaving behind uninitialized raw storage.
+     */
+    template <bool E = MEM_COPY> SK_WHEN(E, void) copy(const T* src) {
+        sk_careful_memcpy(fMemArray, src, fCount * sizeof(T));
+    }
+    template <bool E = MEM_COPY> SK_WHEN(E, void) move(int dst, int src) {
+        memcpy(&fItemArray[dst], &fItemArray[src], sizeof(T));
+    }
+    template <bool E = MEM_COPY> SK_WHEN(E, void) move(char* dst) {
+        sk_careful_memcpy(dst, fMemArray, fCount * sizeof(T));
+    }
+
+    template <bool E = MEM_COPY> SK_WHEN(!E, void) copy(const T* src) {
+        for (int i = 0; i < fCount; ++i) {
+            new (fItemArray + i) T(src[i]);
+        }
+    }
+    template <bool E = MEM_COPY> SK_WHEN(!E, void) move(int dst, int src) {
+        new (&fItemArray[dst]) T(std::move(fItemArray[src]));
+        fItemArray[src].~T();
+    }
+    template <bool E = MEM_COPY> SK_WHEN(!E, void) move(char* dst) {
+        for (int i = 0; i < fCount; ++i) {
+            new (dst + sizeof(T) * i) T(std::move(fItemArray[i]));
+            fItemArray[i].~T();
+        }
+    }
 
     static const int gMIN_ALLOC_COUNT = 8;
 
@@ -463,7 +455,7 @@ private:
                 newMemArray = (char*) sk_malloc_throw(fAllocCount*sizeof(T));
             }
 
-            SkTArrayExt::copyAndDelete<T>(this, newMemArray);
+            this->move(newMemArray);
 
             if (fMemArray != fPreAllocMemArray) {
                 sk_free(fMemArray);
@@ -473,14 +465,6 @@ private:
     }
 
     friend void* operator new<T>(size_t, SkTArray*, int);
-
-    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, true>* that, int dst, int src);
-    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, true>* that, const X*);
-    template<typename X> friend void SkTArrayExt::copyAndDelete(SkTArray<X, true>* that, char*);
-
-    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, false>* that, int dst, int src);
-    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, false>* that, const X*);
-    template<typename X> friend void SkTArrayExt::copyAndDelete(SkTArray<X, false>* that, char*);
 
     int     fReserveCount;
     int     fCount;
