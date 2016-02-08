@@ -664,11 +664,11 @@ bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrG
     // additions are detected by checking the existence of the function.
     // We also use *Then* functions that not all drivers might have. Check
     // them for consistency.
-    if (nullptr == gli->fFunctions.fStencilThenCoverFillPath ||
-        nullptr == gli->fFunctions.fStencilThenCoverStrokePath ||
-        nullptr == gli->fFunctions.fStencilThenCoverFillPathInstanced ||
-        nullptr == gli->fFunctions.fStencilThenCoverStrokePathInstanced ||
-        nullptr == gli->fFunctions.fProgramPathFragmentInputGen) {
+    if (!gli->fFunctions.fStencilThenCoverFillPath ||
+        !gli->fFunctions.fStencilThenCoverStrokePath ||
+        !gli->fFunctions.fStencilThenCoverFillPathInstanced ||
+        !gli->fFunctions.fStencilThenCoverStrokePathInstanced ||
+        !gli->fFunctions.fProgramPathFragmentInputGen) {
         return false;
     }
     return true;

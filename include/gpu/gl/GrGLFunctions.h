@@ -9,7 +9,9 @@
 #ifndef GrGLFunctions_DEFINED
 #define GrGLFunctions_DEFINED
 
+#include <functional>
 #include "GrGLTypes.h"
+#include "../private/SkTLogic.h"
 
 extern "C" {
 
@@ -350,5 +352,8 @@ typedef GrEGLDisplay (GR_GL_FUNCTION_TYPE* GrEGLGetCurrentDisplayProc)();
 typedef GrEGLImage (GR_GL_FUNCTION_TYPE* GrEGLCreateImageProc)(GrEGLDisplay dpy, GrEGLContext ctx, GrEGLenum target, GrEGLClientBuffer buffer, const GrEGLint *attrib_list);
 typedef GrEGLBoolean (GR_GL_FUNCTION_TYPE* GrEGLDestroyImageProc)(GrEGLDisplay dpy, GrEGLImage image);
 }  // extern "C"
+
+template <typename GLPTR> using GrGLFunction =
+    std::function<typename std::remove_pointer<GLPTR>::type>;
 
 #endif
