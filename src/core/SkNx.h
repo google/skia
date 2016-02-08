@@ -237,9 +237,7 @@ typedef SkNx<16, uint8_t>  Sk16b;
 typedef SkNx<4, int> Sk4i;
 
 // Include platform specific specializations if available.
-#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
-    #include "../opts/SkNx_avx.h"
-#elif !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include "../opts/SkNx_sse.h"
 #elif !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
     #include "../opts/SkNx_neon.h"

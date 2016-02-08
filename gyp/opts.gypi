@@ -57,7 +57,7 @@
             '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
         ],
         'avx_sources': [
-            '<(skia_src_path)/opts/SkOpts_avx.cpp',
+            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
         ],
         'avx2_sources': [
             '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',

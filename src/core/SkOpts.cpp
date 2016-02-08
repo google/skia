@@ -94,7 +94,7 @@ namespace SkOpts {
     void Init_ssse3();
     void Init_sse41();
     void Init_sse42() {}
-    void Init_avx();
+    void Init_avx() {}
     void Init_avx2() {}
     void Init_neon();
 
