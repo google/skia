@@ -38,6 +38,7 @@
 
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
+DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
 
 static bool lazy_decode_bitmap(const void* src, size_t size, SkBitmap* dst) {
     SkAutoTUnref<SkData> encoded(SkData::NewWithCopy(src, size));
@@ -238,6 +239,25 @@ Name BRDSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static bool serial_from_path_name(const SkString& path) {
+    if (!FLAGS_RAW_threading) {
+        static const char* const exts[] = {
+            "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
+            "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
+        };
+        const char* actualExt = strrchr(path.c_str(), '.');
+        if (actualExt) {
+            actualExt++;
+            for (auto* ext : exts) {
+                if (0 == strcmp(ext, actualExt)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, SkAlphaType dstAlphaType,
                    float scale)
     : fPath(path)
@@ -245,6 +265,7 @@ CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, SkAlphaType 
     , fDstColorType(dstColorType)
     , fDstAlphaType(dstAlphaType)
     , fScale(scale)
+    , fRunSerially(serial_from_path_name(path))
 {}
 
 bool CodecSrc::veto(SinkFlags flags) const {
@@ -612,6 +633,7 @@ AndroidCodecSrc::AndroidCodecSrc(Path path, Mode mode, CodecSrc::DstColorType ds
     , fDstColorType(dstColorType)
     , fDstAlphaType(dstAlphaType)
     , fSampleSize(sampleSize)
+    , fRunSerially(serial_from_path_name(path))
 {}
 
 bool AndroidCodecSrc::veto(SinkFlags flags) const {

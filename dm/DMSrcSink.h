@@ -124,12 +124,14 @@ public:
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
+    bool serial() const override { return fRunSerially; }
 private:
     Path                    fPath;
     Mode                    fMode;
     DstColorType            fDstColorType;
     SkAlphaType             fDstAlphaType;
     float                   fScale;
+    bool                    fRunSerially;
 };
 
 class AndroidCodecSrc : public Src {
@@ -147,12 +149,14 @@ public:
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
+    bool serial() const override { return fRunSerially; }
 private:
     Path                    fPath;
     Mode                    fMode;
     CodecSrc::DstColorType  fDstColorType;
     SkAlphaType             fDstAlphaType;
     int                     fSampleSize;
+    bool                    fRunSerially;
 };
 
 // Allows for testing of various implementations of Android's BitmapRegionDecoder

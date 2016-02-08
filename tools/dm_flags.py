@@ -155,13 +155,9 @@ def get_args(bot):
     blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
     blacklist.extend(['serialize-8888', 'gm', '_', test])
 
+  # Extensions for RAW images
   r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
-
-  # NexusPlayer runs out of memory running RAW codec tests
-  if 'NexusPlayer' in bot:
-    for raw_ext in r:
-      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
 
   # skbug.com/4888
   # Blacklist RAW images on GPU tests until we can resolve failures
@@ -205,6 +201,11 @@ def get_args(bot):
   if match:
     args.append('--match')
     args.extend(match)
+
+  # These bots run out of memory running RAW codec tests. Do not run them in
+  # parallel
+  if 'NexusPlayer' in bot or 'Nexus5' in bot or 'Nexus9' in bot:
+    args.append('--noRAW_threading')
 
   return args
 cov_end = lineno()   # Don't care about code coverage past here.
