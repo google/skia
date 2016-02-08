@@ -66,10 +66,7 @@ static inline bool cache_size_okay(const SkBitmapProvider& provider, const SkMat
     // Skip the division step:
     const size_t size = provider.info().getSafeSize(provider.info().minRowBytes());
     SkScalar invScaleSqr = invMat.getScaleX() * invMat.getScaleY();
-#ifndef SK_SUPPORT_LEGACY_NEG_SCALE_HQ
-    invScaleSqr = SkScalarAbs(invScaleSqr);
-#endif
-    return size < (maximumAllocation * invScaleSqr);
+    return size < (maximumAllocation * SkScalarAbs(invScaleSqr));
 }
 
 /*
@@ -101,10 +98,8 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         invScaleX = scale.width();
         invScaleY = scale.height();
     }
-#ifndef SK_SUPPORT_LEGACY_NEG_SCALE_HQ
     invScaleX = SkScalarAbs(invScaleX);
     invScaleY = SkScalarAbs(invScaleY);
-#endif
 
     if (SkScalarNearlyEqual(invScaleX, 1) && SkScalarNearlyEqual(invScaleY, 1)) {
         return false; // no need for HQ
