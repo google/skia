@@ -29,6 +29,7 @@
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(source, "https://debugger.skia.org", "Where to load the web UI from.");
+DEFINE_string(faviconDir, "tools/skiaserve", "The directory of the favicon");
 DEFINE_int32(port, 8888, "The port to listen on.");
 
 // TODO probably want to make this configurable
@@ -443,6 +444,28 @@ public:
     }
 };
 
+class FaviconHandler : public UrlHandler {
+public:
+    bool canHandle(const char* method, const char* url) override {
+        return 0 == strcmp(method, MHD_HTTP_METHOD_GET) &&
+               0 == strcmp(url, "/favicon.ico");
+    }
+
+    int handle(Request* request, MHD_Connection* connection,
+               const char* url, const char* method,
+               const char* upload_data, size_t* upload_data_size) override {
+        SkString dir(FLAGS_faviconDir[0]);
+        dir.append("/favicon.ico");
+        FILE* ico = fopen(dir.c_str(), "r");
+
+        SkAutoTUnref<SkData> data(SkData::NewFromFILE(ico));
+        int ret = SendData(connection, data, "image/vnd.microsoft.icon");
+        fclose(ico);
+        return ret;
+    }
+};
+
+
 class RootHandler : public UrlHandler {
 public:
     bool canHandle(const char* method, const char* url) override {
@@ -468,6 +491,7 @@ public:
         fHandlers.push_back(new InfoHandler);
         fHandlers.push_back(new DownloadHandler);
         fHandlers.push_back(new DataHandler);
+        fHandlers.push_back(new FaviconHandler);
     }
 
     ~UrlManager() {
@@ -502,7 +526,7 @@ int answer_to_connection(void* cls, struct MHD_Connection* connection,
     int result = kUrlManager.invoke(request, connection, url, method, upload_data,
                                     upload_data_size);
     if (MHD_NO == result) {
-        fprintf(stderr, "Invalid method and / or url: %s %s)\n", method, url);
+        fprintf(stderr, "Invalid method and / or url: %s %s\n", method, url);
     }
     return result;
 }
