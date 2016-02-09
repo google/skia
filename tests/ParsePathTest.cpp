@@ -71,3 +71,20 @@ DEF_TEST(ParsePath_invalid, r) {
     bool success = SkParsePath::FromSVGString("M 5", &path);
     REPORTER_ASSERT(r, !success);
 }
+
+#include "random_parse_path.h"
+#include "SkRandom.h"
+
+DEF_TEST(ParsePathRandom, r) {
+    SkRandom rand;
+    for (int index = 0; index < 1000; ++index) {
+        SkPath path, path2;
+        SkString spec;
+        uint32_t count = rand.nextRangeU(0, 10);
+        for (uint32_t i = 0; i < count; ++i) {
+            spec.append(MakeRandomParsePathPiece(&rand));
+        }
+        bool success = SkParsePath::FromSVGString(spec.c_str(), &path);
+        REPORTER_ASSERT(r, success);
+    }
+}

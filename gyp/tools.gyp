@@ -136,6 +136,7 @@
       'sources': [
         '../tools/sk_tool_utils.cpp',
         '../tools/sk_tool_utils_font.cpp',
+        '../tools/random_parse_path.cpp',
       ],
       'include_dirs': [
         '../include/private',

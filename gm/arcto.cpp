@@ -102,3 +102,86 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
     path.arcTo(80, 80, 0, SkPath::kLarge_ArcSize, SkPath::kCW_Direction, 200, 100);
     canvas->drawPath(path, paint);
 }
+
+#include "random_parse_path.h"
+#include "SkRandom.h"
+
+/* The test below generates a reference image using SVG. To compare the result for correctness,
+   enable the define below and then view the generated SVG in a browser.
+ */
+#define GENERATE_SVG_REFERENCE 0
+
+#if GENERATE_SVG_REFERENCE
+#include "SkOSFile.h"
+#endif
+
+enum {
+    kParsePathTestDimension = 500
+};
+
+DEF_SIMPLE_GM(parsedpaths, canvas, kParsePathTestDimension, kParsePathTestDimension) {
+#if GENERATE_SVG_REFERENCE
+    FILE* file = sk_fopen("svgout.htm", kWrite_SkFILE_Flag);
+    SkString str;
+    str.printf("<svg width=\"%d\" height=\"%d\">\n", kParsePathTestDimension,
+            kParsePathTestDimension);
+    sk_fwrite(str.c_str(), str.size(), file);
+#endif
+    SkRandom rand;
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    for (int xStart = 0; xStart < kParsePathTestDimension; xStart +=  100) {
+        canvas->save();
+        for (int yStart = 0; yStart < kParsePathTestDimension; yStart += 100) {
+#if GENERATE_SVG_REFERENCE
+            str.printf("<g transform='translate(%d,%d) scale(%d,%d)'>\n", xStart, yStart,
+                1, 1);
+            sk_fwrite(str.c_str(), str.size(), file);
+            str.printf("<clipPath id='clip_%d_%d'>\n", xStart, yStart);
+            sk_fwrite(str.c_str(), str.size(), file);
+            str.printf("<rect width='100' height='100' x='0' y='0'></rect>\n");
+            sk_fwrite(str.c_str(), str.size(), file);
+            str.printf("</clipPath>\n");
+            sk_fwrite(str.c_str(), str.size(), file);
+#endif
+            int count = 3;
+            do {
+                SkPath path;
+                SkString spec;
+                spec.printf("M %d,%d\n", rand.nextRangeU(30, 70), rand.nextRangeU(30, 70));
+                uint32_t count = rand.nextRangeU(0, 10);
+                for (uint32_t i = 0; i < count; ++i) {
+                    spec.append(MakeRandomParsePathPiece(&rand));
+                }
+                SkAssertResult(SkParsePath::FromSVGString(spec.c_str(), &path));
+                paint.setColor(rand.nextU());
+                canvas->save();
+                canvas->clipRect(SkRect::MakeIWH(100, 100));
+                canvas->drawPath(path, paint);
+                canvas->restore();
+#if GENERATE_SVG_REFERENCE
+                str.printf("<path d='\n");
+                sk_fwrite(str.c_str(), str.size(), file);
+                sk_fwrite(spec.c_str(), spec.size(), file);
+                str.printf("\n' fill='#%06x' fill-opacity='%g'", paint.getColor() & 0xFFFFFF,
+                        paint.getAlpha() / 255.f);
+                sk_fwrite(str.c_str(), str.size(), file);
+                str.printf(" clip-path='url(#clip_%d_%d)'/>\n", xStart, yStart);
+                sk_fwrite(str.c_str(), str.size(), file);
+#endif
+            } while (--count > 0);
+#if GENERATE_SVG_REFERENCE
+            str.printf("</g>\n");
+            sk_fwrite(str.c_str(), str.size(), file);
+#endif
+            canvas->translate(0, 100);
+        }
+        canvas->restore();
+        canvas->translate(100, 0);
+    }
+#if GENERATE_SVG_REFERENCE
+    const char trailer[] = "</svg>\n";
+    sk_fwrite(trailer, sizeof(trailer) - 1, file);
+    sk_fclose(file);
+#endif
+}

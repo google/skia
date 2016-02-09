@@ -1265,6 +1265,7 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
 // Note that arcSweep bool value is flipped from the original implementation.
 void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arcLarge,
                    SkPath::Direction arcSweep, SkScalar x, SkScalar y) {
+    this->injectMoveToIfNeeded();
     SkPoint srcPts[2];
     this->getLastPt(&srcPts[0]);
     // If rx = 0 or ry = 0 then this arc is treated as a straight line segment (a "lineto")
