@@ -150,7 +150,7 @@ protected:
         int index = 0;
         SkMipMap::Level level;
         SkScalar scale = 0.5f;
-        while (mm->extractLevel(scale, &level)) {
+        while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
             SkBitmap bm = func(prevPM, level.fPixmap);
             DrawAndFrame(canvas, bm, x, y);
 
@@ -258,7 +258,7 @@ protected:
         int index = 0;
         SkMipMap::Level level;
         SkScalar scale = 0.5f;
-        while (mm->extractLevel(scale, &level)) {
+        while (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
             SkBitmap bm;
             bm.installPixels(level.fPixmap);
             DrawAndFrame(canvas, bm, x, y);

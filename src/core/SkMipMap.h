@@ -28,7 +28,7 @@ public:
         SkSize      fScale; // < 1.0
     };
 
-    bool extractLevel(SkScalar scale, Level*) const;
+    bool extractLevel(const SkSize& scale, Level*) const;
 
 protected:
     void onDataChange(void* oldData, void* newData) override {

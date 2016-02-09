@@ -27,8 +27,10 @@ DEF_TEST(MipMap, reporter) {
         make_bitmap(&bm, rand);
         SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
 
-        REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1, nullptr));
-        REPORTER_ASSERT(reporter, !mm->extractLevel(SK_Scalar1 * 2, nullptr));
+        REPORTER_ASSERT(reporter, !mm->extractLevel(SkSize::Make(SK_Scalar1, SK_Scalar1),
+                                                    nullptr));
+        REPORTER_ASSERT(reporter, !mm->extractLevel(SkSize::Make(SK_Scalar1 * 2, SK_Scalar1 * 2),
+                                                    nullptr));
 
         SkMipMap::Level prevLevel;
         sk_bzero(&prevLevel, sizeof(prevLevel));
@@ -38,7 +40,7 @@ DEF_TEST(MipMap, reporter) {
             scale = scale * 2 / 3;
 
             SkMipMap::Level level;
-            if (mm->extractLevel(scale, &level)) {
+            if (mm->extractLevel(SkSize::Make(scale, scale), &level)) {
                 REPORTER_ASSERT(reporter, level.fPixmap.addr());
                 REPORTER_ASSERT(reporter, level.fPixmap.width() > 0);
                 REPORTER_ASSERT(reporter, level.fPixmap.height() > 0);

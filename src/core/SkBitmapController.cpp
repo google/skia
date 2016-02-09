@@ -165,11 +165,7 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
         return false;
     }
 
-    // Use the smallest (non-inverse) scale to match the GPU impl.
-    SkASSERT(invScaleSize.width() >= 0 && invScaleSize.height() >= 0);
-    const SkScalar invScale = SkTMax(invScaleSize.width(), invScaleSize.height());
-
-    if (invScale > SK_Scalar1) {
+    if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc()));
         if (nullptr == fCurrMip.get()) {
             SkBitmap orig;
@@ -186,9 +182,10 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
             sk_throw();
         }
         
-        SkScalar levelScale = SkScalarInvert(invScale);
+        const SkSize scale = SkSize::Make(SkScalarInvert(invScaleSize.width()),
+                                          SkScalarInvert(invScaleSize.height()));
         SkMipMap::Level level;
-        if (fCurrMip->extractLevel(levelScale, &level)) {
+        if (fCurrMip->extractLevel(scale, &level)) {
             const SkSize& invScaleFixup = level.fScale;
             fInvMatrix.postScale(invScaleFixup.width(), invScaleFixup.height());
 

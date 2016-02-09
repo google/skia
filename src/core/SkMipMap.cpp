@@ -320,10 +320,14 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMipMap::extractLevel(SkScalar scale, Level* levelPtr) const {
+bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
     if (nullptr == fLevels) {
         return false;
     }
+
+    SkASSERT(scaleSize.width() >= 0 && scaleSize.height() >= 0);
+    // Use the smallest scale to match the GPU impl.
+    const SkScalar scale = SkTMin(scaleSize.width(), scaleSize.height());
 
     if (scale >= SK_Scalar1 || scale <= 0 || !SkScalarIsFinite(scale)) {
         return false;
