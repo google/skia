@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkHalf.h"
 #include "SkOnce.h"
 #include "SkOpts.h"
 
@@ -19,6 +20,19 @@
 #include "SkTextureCompressor_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
+
+namespace SK_OPTS_NS {
+    static void float_to_half(uint16_t dst[], const float src[], int n) {
+        while (n-->0) {
+            *dst++ = SkFloatToHalf(*src++);
+        }
+    }
+    static void half_to_float(float dst[], const uint16_t src[], int n) {
+        while (n-->0) {
+            *dst++ = SkHalfToFloat(*src++);
+        }
+    }
+}
 
 #if defined(SK_CPU_X86) && !defined(SK_BUILD_FOR_IOS)
     #if defined(SK_BUILD_FOR_WIN32)
@@ -89,6 +103,9 @@ namespace SkOpts {
     decltype(grayA_to_rgbA)         grayA_to_rgbA         = sk_default::grayA_to_rgbA;
     decltype(inverted_CMYK_to_RGB1) inverted_CMYK_to_RGB1 = sk_default::inverted_CMYK_to_RGB1;
     decltype(inverted_CMYK_to_BGR1) inverted_CMYK_to_BGR1 = sk_default::inverted_CMYK_to_BGR1;
+
+    decltype(half_to_float) half_to_float = sk_default::half_to_float;
+    decltype(float_to_half) float_to_half = sk_default::float_to_half;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

@@ -67,6 +67,9 @@ namespace SkOpts {
                         grayA_to_rgbA,         // i.e. expand to color channels and premultiply
                         inverted_CMYK_to_RGB1, // i.e. convert color space
                         inverted_CMYK_to_BGR1; // i.e. convert color space
+
+    extern void (*half_to_float)(float[], const uint16_t[], int);
+    extern void (*float_to_half)(uint16_t[], const float[], int);
 }
 
 #endif//SkOpts_DEFINED
