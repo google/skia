@@ -165,9 +165,9 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
         return false;
     }
 
-    // Use the largest (non-inverse) scale, to ensure anisotropic consistency.
+    // Use the smallest (non-inverse) scale to match the GPU impl.
     SkASSERT(invScaleSize.width() >= 0 && invScaleSize.height() >= 0);
-    const SkScalar invScale = SkTMin(invScaleSize.width(), invScaleSize.height());
+    const SkScalar invScale = SkTMax(invScaleSize.width(), invScaleSize.height());
 
     if (invScale > SK_Scalar1) {
         fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc()));
