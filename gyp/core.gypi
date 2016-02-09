@@ -302,6 +302,7 @@
         '<(skia_src_path)/core/SkWriter32.cpp',
         '<(skia_src_path)/core/SkXfermode.cpp',
         '<(skia_src_path)/core/SkXfermode4f.cpp',
+        '<(skia_src_path)/core/SkXfermodeU64.cpp',
         '<(skia_src_path)/core/SkXfermode_proccoeff.h',
         '<(skia_src_path)/core/SkXfermodeInterpretation.cpp',
         '<(skia_src_path)/core/SkXfermodeInterpretation.h',

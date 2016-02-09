@@ -233,6 +233,21 @@ public:
     virtual PM4fProc1 getPM4fProc1(uint32_t flags) const;
     virtual PM4fProcN getPM4fProcN(uint32_t flags) const;
 
+    enum U64Flags {
+        kSrcIsOpaque_U64Flag  = 1 << 0,
+        kDstIsFloat16_U64Flag = 1 << 1, // else U16 bit components
+    };
+    struct U64State {
+        const SkXfermode* fXfer;
+        uint32_t          fFlags;
+    };
+    typedef void (*U64Proc1)(const U64State&, uint64_t dst[], const SkPM4f& src, int count,
+                             const SkAlpha coverage[]);
+    typedef void (*U64ProcN)(const U64State&, uint64_t dst[], const SkPM4f src[], int count,
+                             const SkAlpha coverage[]);
+    static U64Proc1 GetU64Proc1(Mode, uint32_t flags);
+    static U64ProcN GetU64ProcN(Mode, uint32_t flags);
+
 protected:
     SkXfermode() {}
     /** The default implementation of xfer32/xfer16/xferA8 in turn call this
