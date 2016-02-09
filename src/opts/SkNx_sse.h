@@ -13,17 +13,6 @@
 
 #define SKNX_IS_FAST
 
-// SSE 4.1 has _mm_floor_ps to floor 4 floats.  We emulate it:
-//   - round by adding (1<<23) with our sign, then subtracting it;
-//   - if that rounded value is bigger than our input, subtract 1.
-static inline __m128 sse2_mm_floor_ps(__m128 v) {
-    __m128 sign = _mm_and_ps(v, _mm_set1_ps(-0.0f));
-    __m128 bias = _mm_or_ps(sign, _mm_set1_ps(1<<23));
-    __m128 rounded = _mm_sub_ps(_mm_add_ps(v, bias), bias);
-    __m128 too_big = _mm_cmpgt_ps(rounded, v);
-    return _mm_sub_ps(rounded, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
-}
-
 template <>
 class SkNx<2, float> {
 public:
@@ -103,7 +92,6 @@ public:
     static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
     SkNx abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
-    SkNx floor() const { return sse2_mm_floor_ps(fVec); }
 
     SkNx  sqrt () const { return _mm_sqrt_ps (fVec);  }
     SkNx rsqrt0() const { return _mm_rsqrt_ps(fVec); }

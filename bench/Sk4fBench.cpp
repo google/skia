@@ -40,22 +40,6 @@ DEF_BENCH(return new Sk4fRoundtripBench<uint8_t>;)
 DEF_BENCH(return new Sk4fRoundtripBench<uint16_t>;)
 DEF_BENCH(return new Sk4fRoundtripBench<int>;)
 
-struct Sk4fFloorBench : public Benchmark {
-    Sk4fFloorBench() {}
-
-    const char* onGetName() override { return "Sk4f_floor"; }
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
-
-    void onDraw(int loops, SkCanvas* canvas) override {
-        Sk4f fs(1,2,3,4);
-        while (loops --> 0) {
-            fs = fs.floor();
-        }
-        fs.store((float*)blackhole);
-    }
-};
-DEF_BENCH(return new Sk4fFloorBench;)
-
 struct Sk4fGradientBench : public Benchmark {
     const char* onGetName() override { return "Sk4f_gradient"; }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }

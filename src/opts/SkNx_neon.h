@@ -10,17 +10,6 @@
 
 #define SKNX_IS_FAST
 
-// ARMv8 has vrndmq_f32 to floor 4 floats.  Here we emulate it:
-//   - round by adding (1<<23) with our sign, then subtracting it;
-//   - if that rounded value is bigger than our input, subtract 1.
-static inline float32x4_t armv7_vrndmq_f32(float32x4_t v) {
-    auto sign = vandq_u32((uint32x4_t)v, vdupq_n_u32(1<<31));
-    auto bias = (float32x4_t)(vorrq_u32((uint32x4_t)vdupq_n_f32(1<<23), sign));
-    auto rounded = vsubq_f32(vaddq_f32(v, bias), bias);
-    auto too_big = vcgtq_f32(rounded, v);
-    return vsubq_f32(rounded, (float32x4_t)vandq_u32(too_big, (uint32x4_t)vdupq_n_f32(1)));
-}
-
 // Well, this is absurd.  The shifts require compile-time constant arguments.
 
 #define SHIFT8(op, v, bits) switch(bits) { \
@@ -172,14 +161,6 @@ public:
     static SkNx Max(const SkNx& l, const SkNx& r) { return vmaxq_f32(l.fVec, r.fVec); }
 
     SkNx abs() const { return vabsq_f32(fVec); }
-    SkNx floor() const {
-    #if defined(SK_CPU_ARM64)
-        return vrndmq_f32(fVec);
-    #else
-        return armv7_vrndmq_f32(fVec);
-    #endif
-    }
-
 
     SkNx rsqrt0() const { return vrsqrteq_f32(fVec); }
     SkNx rsqrt1() const {

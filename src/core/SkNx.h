@@ -50,7 +50,7 @@ public:
 #undef OP
 
 #define OP(op) SkNx op() const { return {fLo.op(), fHi.op()}; }
-    OP(abs) OP(floor)
+    OP(abs)
     OP(sqrt) OP(rsqrt0) OP(rsqrt1) OP(rsqrt2)
     OP(invert) OP(approxInvert)
 #undef OP
@@ -124,7 +124,6 @@ public:
     static SkNx Max(const SkNx& a, const SkNx& b) { return SkTMax(a.fVal, b.fVal); }
 
     SkNx abs() const { return SkTAbs(fVal); }
-    SkNx floor() const { return Floor(fVal); }
 
     SkNx  sqrt () const { return Sqrt(fVal); }
     SkNx rsqrt0() const { return this->sqrt().invert(); }
@@ -146,8 +145,6 @@ public:
     SkNx thenElse(const SkNx& t, const SkNx& e) const { return fVal != 0 ? t : e; }
 
 protected:
-    static double Floor(double val) { return ::floor (val); }
-    static float  Floor(float  val) { return ::floorf(val); }
     static double Sqrt(double val) { return ::sqrt (val); }
     static float  Sqrt(float  val) { return ::sqrtf(val); }
 
