@@ -9,16 +9,8 @@
 #include "SkColor.h"
 #include "SkNx.h"
 
-// Used to prevent the compiler from optimizing away the whole loop.
-volatile uint64_t blackhole = 0;
-
-// Not a great random number generator, but it's very fast.
-// The code we're measuring is quite fast, so low overhead is essential.
-static uint64_t lcg_rand(uint64_t* seed) {
-    *seed *= 1664525;
-    *seed += 1013904223;
-    return *seed;
-}
+// Writing into this array prevents the loops from being compiled away.
+static volatile float blackhole[4];
 
 template <typename T>
 struct Sk4fRoundtripBench : public Benchmark {
@@ -28,6 +20,7 @@ struct Sk4fRoundtripBench : public Benchmark {
         switch (sizeof(T)) {
             case 1: return "Sk4f_roundtrip_u8";
             case 2: return "Sk4f_roundtrip_u16";
+            case 4: return "Sk4f_roundtrip_int";
         }
         SkASSERT(false);
         return "";
@@ -36,21 +29,16 @@ struct Sk4fRoundtripBench : public Benchmark {
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        // Unlike blackhole, junk can and probably will be a register.
-        uint64_t junk = 0;
-        uint64_t seed = 0;
-        for (int i = 0; i < loops; i++) {
-            uint64_t src = lcg_rand(&seed),
-                     back;
-            auto f = SkNx_cast<float>(SkNx<4,T>::Load(&src));
-            SkNx_cast<T>(f).store(&back);
-            junk ^= back;
+        Sk4f fs(1,2,3,4);
+        while (loops --> 0) {
+            fs = SkNx_cast<float>(SkNx_cast<T>(fs));
         }
-        blackhole ^= junk;
+        fs.store((float*)blackhole);
     }
 };
 DEF_BENCH(return new Sk4fRoundtripBench<uint8_t>;)
 DEF_BENCH(return new Sk4fRoundtripBench<uint16_t>;)
+DEF_BENCH(return new Sk4fRoundtripBench<int>;)
 
 struct Sk4fGradientBench : public Benchmark {
     const char* onGetName() override { return "Sk4f_gradient"; }
