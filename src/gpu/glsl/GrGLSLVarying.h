@@ -79,6 +79,8 @@ public:
         , fFragOutputs(kVaryingsPerBlock)
         , fProgramBuilder(program) {}
 
+    virtual ~GrGLSLVaryingHandler() {}
+
     typedef GrTAllocator<GrGLSLShaderVar> VarArray;
     typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
 
@@ -106,6 +108,10 @@ public:
 
     void emitAttributes(const GrGeometryProcessor& gp);
 
+    // This should be called once all attributes and varyings have been added to the
+    // GrGLSLVaryingHanlder and before getting/adding any of the declarations to the shaders.
+    void finalize();
+
     void getVertexDecls(SkString* inputDecls, SkString* outputDecls) const;
     void getGeomDecls(SkString* inputDecls, SkString* outputDecls) const;
     void getFragDecls(SkString* inputDecls, SkString* outputDecls) const;
@@ -126,6 +132,8 @@ private:
     void addFragVarying(GrSLPrecision precision, GrGLSLVarying* v);
 
     void addAttribute(const GrShaderVar& var);
+
+    virtual void onFinalize() = 0;
 
     // helper function for get*Decls
     void appendDecls(const VarArray& vars, SkString* out) const;

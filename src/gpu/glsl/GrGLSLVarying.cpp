@@ -105,6 +105,10 @@ void GrGLSLVaryingHandler::addAttribute(const GrShaderVar& var) {
     fVertexInputs.push_back(var);
 }
 
+void GrGLSLVaryingHandler::finalize() {
+    this->onFinalize();
+}
+
 void GrGLSLVaryingHandler::appendDecls(const VarArray& vars, SkString* out) const {
     for (int i = 0; i < vars.count(); ++i) {
         vars[i].appendDecl(fProgramBuilder->glslCaps(), out);

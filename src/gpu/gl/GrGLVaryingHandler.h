@@ -24,6 +24,8 @@ public:
                                            GrSLPrecision fsPrecision = kDefault_GrSLPrecision);
 
 private:
+    void onFinalize() override {}
+
     typedef GrGLProgramDataManager::VaryingInfo VaryingInfo;
     typedef GrGLProgramDataManager::VaryingInfoArray VaryingInfoArray;
 

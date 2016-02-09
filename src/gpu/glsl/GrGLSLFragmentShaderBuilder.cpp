@@ -216,6 +216,7 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
         fOutputs.push_back().set(kVec4f_GrSLType,
                                  GrGLSLShaderVar::kOut_TypeModifier,
                                  DeclaredColorOutputName());
+        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
 
@@ -234,6 +235,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
     if (caps.mustDeclareFragmentShaderOutput()) {
         fOutputs.push_back().set(kVec4f_GrSLType, GrGLSLShaderVar::kOut_TypeModifier,
                                  DeclaredSecondaryColorOutputName());
+        fProgramBuilder->finalizeFragmentSecondaryColor(fOutputs.back());
     }
 }
 
