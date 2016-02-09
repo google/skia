@@ -10,8 +10,6 @@
 
 #define SKNX_IS_FAST
 
-namespace {  // See SkNx.h
-
 // Well, this is absurd.  The shifts require compile-time constant arguments.
 
 #define SHIFT8(op, v, bits) switch(bits) { \
@@ -98,10 +96,12 @@ public:
     #endif
     }
 
-    template <int k> float kth() const {
+    float operator[](int k) const {
         SkASSERT(0 <= k && k < 2);
-        return vget_lane_f32(fVec, k&1);
+        union { float32x2_t v; float fs[2]; } pun = {fVec};
+        return pun.fs[k&1];
     }
+    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const {
         auto v = vreinterpret_u32_f32(fVec);
@@ -113,33 +113,6 @@ public:
     }
 
     float32x2_t fVec;
-};
-
-template <>
-class SkNx<4, int> {
-public:
-    SkNx(const int32x4_t& vec) : fVec(vec) {}
-
-    SkNx() {}
-    SkNx(int val) : fVec(vdupq_n_s32(val)) {}
-    static SkNx Load(const void* ptr) { return vld1q_s32((const int*)ptr); }
-    SkNx(int a, int b, int c, int d) { fVec = (int32x4_t) { a, b, c, d }; }
-
-    void store(void* ptr) const { vst1q_s32((int*)ptr, fVec); }
-
-    SkNx operator + (const SkNx& o) const { return vaddq_s32(fVec, o.fVec); }
-    SkNx operator - (const SkNx& o) const { return vsubq_s32(fVec, o.fVec); }
-    SkNx operator * (const SkNx& o) const { return vmulq_s32(fVec, o.fVec); }
-
-    SkNx operator << (int bits) const { SHIFT32(vshlq_n_s32, fVec, bits); }
-    SkNx operator >> (int bits) const { SHIFT32(vshrq_n_s32, fVec, bits); }
-
-    template <int k> int kth() const {
-        SkASSERT(0 <= k && k < 4);
-        return vgetq_lane_s32(fVec, k&3);
-    }
-
-    int32x4_t fVec;
 };
 
 template <>
@@ -207,10 +180,12 @@ public:
     #endif
     }
 
-    template <int k> float kth() const {
+    float operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
-        return vgetq_lane_f32(fVec, k&3);
+        union { float32x4_t v; float fs[4]; } pun = {fVec};
+        return pun.fs[k&3];
     }
+    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const {
         auto v = vreinterpretq_u32_f32(fVec);
@@ -257,10 +232,12 @@ public:
 
     static SkNx Min(const SkNx& a, const SkNx& b) { return vmin_u16(a.fVec, b.fVec); }
 
-    template <int k> uint16_t kth() const {
+    uint16_t operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
-        return vget_lane_u16(fVec, k&3);
+        union { uint16x4_t v; uint16_t us[4]; } pun = {fVec};
+        return pun.us[k&3];
     }
+    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbsl_u16(fVec, t.fVec, e.fVec);
@@ -294,10 +271,12 @@ public:
 
     static SkNx Min(const SkNx& a, const SkNx& b) { return vminq_u16(a.fVec, b.fVec); }
 
-    template <int k> uint16_t kth() const {
+    uint16_t operator[](int k) const {
         SkASSERT(0 <= k && k < 8);
-        return vgetq_lane_u16(fVec, k&7);
+        union { uint16x8_t v; uint16_t us[8]; } pun = {fVec};
+        return pun.us[k&7];
     }
+    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbslq_u16(fVec, t.fVec, e.fVec);
@@ -350,10 +329,12 @@ public:
     static SkNx Min(const SkNx& a, const SkNx& b) { return vminq_u8(a.fVec, b.fVec); }
     SkNx operator < (const SkNx& o) const { return vcltq_u8(fVec, o.fVec); }
 
-    template <int k> uint8_t kth() const {
-        SkASSERT(0 <= k && k < 15);
-        return vgetq_lane_u8(fVec, k&16);
+    uint8_t operator[](int k) const {
+        SkASSERT(0 <= k && k < 16);
+        union { uint8x16_t v; uint8_t us[16]; } pun = {fVec};
+        return pun.us[k&15];
     }
+    template <int k> uint8_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbslq_u8(fVec, t.fVec, e.fVec);
@@ -366,17 +347,13 @@ public:
 #undef SHIFT16
 #undef SHIFT8
 
-template<> inline Sk4i SkNx_cast<int, float, 4>(const Sk4f& src) {
-    return vcvtq_s32_f32(src.fVec);
-}
-
-template<> inline Sk4b SkNx_cast<uint8_t, float, 4>(const Sk4f& src) {
+template<> inline Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
     uint32x4_t _32 = vcvtq_u32_f32(src.fVec);
     uint16x4_t _16 = vqmovn_u32(_32);
     return vqmovn_u16(vcombine_u16(_16, _16));
 }
 
-template<> inline Sk4f SkNx_cast<float, uint8_t, 4>(const Sk4b& src) {
+template<> inline Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
     uint16x8_t _16 = vmovl_u8 (src.fVec) ;
     uint32x4_t _32 = vmovl_u16(vget_low_u16(_16));
     return vcvtq_f32_u32(_32);
@@ -390,14 +367,12 @@ static inline void Sk4f_ToBytes(uint8_t bytes[16],
                                       (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0]);
 }
 
-template<> inline Sk4h SkNx_cast<uint16_t, uint8_t, 4>(const Sk4b& src) {
+template<> inline Sk4h SkNx_cast<uint16_t, uint8_t>(const Sk4b& src) {
     return vget_low_u16(vmovl_u8(src.fVec));
 }
 
-template<> inline Sk4b SkNx_cast<uint8_t, uint16_t, 4>(const Sk4h& src) {
+template<> inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
     return vmovn_u16(vcombine_u16(src.fVec, src.fVec));
 }
-
-}  // namespace
 
 #endif//SkNx_neon_DEFINED

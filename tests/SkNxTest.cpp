@@ -146,12 +146,12 @@ DEF_TEST(SkNi_min_lt, r) {
     for (int i = 0; i < (1<<16); i++) {
         uint16_t a = rand.nextU() >> 16,
                  b = rand.nextU() >> 16;
-        REPORTER_ASSERT(r, Sk8h::Min(Sk8h(a), Sk8h(b)).kth<0>() == SkTMin(a, b));
+        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b)).kth<0>() == SkTMin(a, b));
     }
 #else
     for (int a = 0; a < (1<<16); a++) {
     for (int b = 0; b < (1<<16); b++) {
-        REPORTER_ASSERT(r, Sk8h::Min(Sk8h(a), Sk8h(b)).kth<0>() == SkTMin(a, b));
+        REPORTER_ASSERT(r, Sk16h::Min(Sk16h(a), Sk16h(b)).kth<0>() == SkTMin(a, b));
     }}
 #endif
 }
@@ -207,16 +207,6 @@ DEF_TEST(Sk4px_widening, r) {
     REPORTER_ASSERT(r, 0 == memcmp(&wideLoHi, &wideLoHiAlt, sizeof(wideLoHi)));
 }
 
-DEF_TEST(SkNx_cast, r) {
-    Sk4f fs(-1.7f, -1.4f, 0.5f, 1.9f);
-    Sk4i is = SkNx_cast<int>(fs);
-
-    REPORTER_ASSERT(r, is.kth<0>() == -1);
-    REPORTER_ASSERT(r, is.kth<1>() == -1);
-    REPORTER_ASSERT(r, is.kth<2>() ==  0);
-    REPORTER_ASSERT(r, is.kth<3>() ==  1);
-}
-
 DEF_TEST(SkNx_abs, r) {
     auto fs = Sk4f(0.0f, -0.0f, 2.0f, -4.0f).abs();
     REPORTER_ASSERT(r, fs.kth<0>() == 0.0f);
@@ -225,20 +215,27 @@ DEF_TEST(SkNx_abs, r) {
     REPORTER_ASSERT(r, fs.kth<3>() == 4.0f);
 }
 
-#include "SkRandom.h"
+DEF_TEST(SkNx_shuffle, r) {
+    Sk4f f4(0,10,20,30);
 
-static void dump(const Sk4f& f4, const Sk4h& h4) {
-    SkDebugf("%g %g %g %g --> %d %d %d %d\n",
-             f4.kth<0>(), f4.kth<1>(), f4.kth<2>(), f4.kth<3>(),
-             h4.kth<0>(), h4.kth<1>(), h4.kth<2>(), h4.kth<3>());
+    Sk2f f2 = SkNx_shuffle<2,1>(f4);
+    REPORTER_ASSERT(r, f2[0] == 20);
+    REPORTER_ASSERT(r, f2[1] == 10);
+
+    f4 = SkNx_shuffle<0,1,1,0>(f2);
+    REPORTER_ASSERT(r, f4[0] == 20);
+    REPORTER_ASSERT(r, f4[1] == 10);
+    REPORTER_ASSERT(r, f4[2] == 10);
+    REPORTER_ASSERT(r, f4[3] == 20);
 }
+
+#include "SkRandom.h"
 
 DEF_TEST(SkNx_u16_float, r) {
     {
         // u16 --> float
         auto h4 = Sk4h(15, 17, 257, 65535);
         auto f4 = SkNx_cast<float>(h4);
-        dump(f4, h4);
         REPORTER_ASSERT(r, f4.kth<0>() == 15.0f);
         REPORTER_ASSERT(r, f4.kth<1>() == 17.0f);
         REPORTER_ASSERT(r, f4.kth<2>() == 257.0f);
@@ -248,7 +245,6 @@ DEF_TEST(SkNx_u16_float, r) {
         // float -> u16
         auto f4 = Sk4f(15, 17, 257, 65535);
         auto h4 = SkNx_cast<uint16_t>(f4);
-        dump(f4, h4);
         REPORTER_ASSERT(r, h4.kth<0>() == 15);
         REPORTER_ASSERT(r, h4.kth<1>() == 17);
         REPORTER_ASSERT(r, h4.kth<2>() == 257);
@@ -258,7 +254,7 @@ DEF_TEST(SkNx_u16_float, r) {
     // starting with any u16 value, we should be able to have a perfect round-trip in/out of floats
     //
     SkRandom rand;
-    for (int i = 0; i < 0; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         const uint16_t s16[4] {
             (uint16_t)rand.nextU16(), (uint16_t)rand.nextU16(),
             (uint16_t)rand.nextU16(), (uint16_t)rand.nextU16(),

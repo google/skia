@@ -9,11 +9,9 @@
 #define SkNx_sse_DEFINED
 
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
+// If you do, make sure this is in a static inline function... anywhere else risks violating ODR.
 
 #define SKNX_IS_FAST
-
-namespace {  // See SkNx.h
-
 
 template <>
 class SkNx<2, float> {
@@ -44,7 +42,7 @@ public:
     static SkNx Min(const SkNx& l, const SkNx& r) { return _mm_min_ps(l.fVec, r.fVec); }
     static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
-    SkNx  sqrt() const { return _mm_sqrt_ps (fVec);  }
+    SkNx  sqrt () const { return _mm_sqrt_ps (fVec);  }
     SkNx rsqrt0() const { return _mm_rsqrt_ps(fVec); }
     SkNx rsqrt1() const { return this->rsqrt0(); }
     SkNx rsqrt2() const { return this->rsqrt1(); }
@@ -52,100 +50,17 @@ public:
     SkNx       invert() const { return SkNx(1) / *this; }
     SkNx approxInvert() const { return _mm_rcp_ps(fVec); }
 
-    template <int k> float kth() const {
+    float operator[](int k) const {
         SkASSERT(0 <= k && k < 2);
         union { __m128 v; float fs[4]; } pun = {fVec};
         return pun.fs[k&1];
     }
+    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const { return 0xff == (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
     bool anyTrue() const { return 0x00 != (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
 
     __m128 fVec;
-};
-
-template <>
-class SkNx<2, double> {
-public:
-    SkNx(const __m128d& vec) : fVec(vec) {}
-
-    SkNx() {}
-    SkNx(double val) : fVec(_mm_set1_pd(val)) {}
-    static SkNx Load(const void* ptr) { return _mm_loadu_pd((const double*)ptr); }
-    SkNx(double a, double b) : fVec(_mm_setr_pd(a,b)) {}
-
-    void store(void* ptr) const { _mm_storeu_pd((double*)ptr, fVec); }
-
-    SkNx operator + (const SkNx& o) const { return _mm_add_pd(fVec, o.fVec); }
-    SkNx operator - (const SkNx& o) const { return _mm_sub_pd(fVec, o.fVec); }
-    SkNx operator * (const SkNx& o) const { return _mm_mul_pd(fVec, o.fVec); }
-    SkNx operator / (const SkNx& o) const { return _mm_div_pd(fVec, o.fVec); }
-
-    SkNx operator == (const SkNx& o) const { return _mm_cmpeq_pd (fVec, o.fVec); }
-    SkNx operator != (const SkNx& o) const { return _mm_cmpneq_pd(fVec, o.fVec); }
-    SkNx operator  < (const SkNx& o) const { return _mm_cmplt_pd (fVec, o.fVec); }
-    SkNx operator  > (const SkNx& o) const { return _mm_cmpgt_pd (fVec, o.fVec); }
-    SkNx operator <= (const SkNx& o) const { return _mm_cmple_pd (fVec, o.fVec); }
-    SkNx operator >= (const SkNx& o) const { return _mm_cmpge_pd (fVec, o.fVec); }
-
-    static SkNx Min(const SkNx& l, const SkNx& r) { return _mm_min_pd(l.fVec, r.fVec); }
-    static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_pd(l.fVec, r.fVec); }
-
-    SkNx sqrt() const { return _mm_sqrt_pd(fVec);  }
-
-    template <int k> double kth() const {
-        SkASSERT(0 <= k && k < 2);
-        union { __m128d v; double fs[2]; } pun = {fVec};
-        return pun.fs[k&1];
-    }
-
-    bool allTrue() const { return 0x3 == _mm_movemask_pd(fVec); }
-    bool anyTrue() const { return 0x0 != _mm_movemask_pd(fVec); }
-
-    SkNx thenElse(const SkNx& t, const SkNx& e) const {
-        return _mm_or_pd(_mm_and_pd   (fVec, t.fVec),
-                         _mm_andnot_pd(fVec, e.fVec));
-    }
-
-    __m128d fVec;
-};
-
-template <>
-class SkNx<4, int> {
-public:
-    SkNx(const __m128i& vec) : fVec(vec) {}
-
-    SkNx() {}
-    SkNx(int val) : fVec(_mm_set1_epi32(val)) {}
-    static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
-    SkNx(int a, int b, int c, int d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
-
-    void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
-
-    SkNx operator + (const SkNx& o) const { return _mm_add_epi32(fVec, o.fVec); }
-    SkNx operator - (const SkNx& o) const { return _mm_sub_epi32(fVec, o.fVec); }
-    SkNx operator * (const SkNx& o) const {
-        __m128i mul20 = _mm_mul_epu32(fVec, o.fVec),
-                mul31 = _mm_mul_epu32(_mm_srli_si128(fVec, 4), _mm_srli_si128(o.fVec, 4));
-        return _mm_unpacklo_epi32(_mm_shuffle_epi32(mul20, _MM_SHUFFLE(0,0,2,0)),
-                                  _mm_shuffle_epi32(mul31, _MM_SHUFFLE(0,0,2,0)));
-    }
-
-    SkNx operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
-    SkNx operator >> (int bits) const { return _mm_srai_epi32(fVec, bits); }
-
-    template <int k> int kth() const {
-        SkASSERT(0 <= k && k < 4);
-        switch (k) {
-            case 0: return _mm_cvtsi128_si32(fVec);
-            case 1: return _mm_cvtsi128_si32(_mm_srli_si128(fVec,  4));
-            case 2: return _mm_cvtsi128_si32(_mm_srli_si128(fVec,  8));
-            case 3: return _mm_cvtsi128_si32(_mm_srli_si128(fVec, 12));
-            default: SkASSERT(false); return 0;
-        }
-    }
-
-    __m128i fVec;
 };
 
 template <>
@@ -178,7 +93,7 @@ public:
 
     SkNx abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
 
-    SkNx  sqrt() const { return _mm_sqrt_ps (fVec);  }
+    SkNx  sqrt () const { return _mm_sqrt_ps (fVec);  }
     SkNx rsqrt0() const { return _mm_rsqrt_ps(fVec); }
     SkNx rsqrt1() const { return this->rsqrt0(); }
     SkNx rsqrt2() const { return this->rsqrt1(); }
@@ -186,11 +101,12 @@ public:
     SkNx       invert() const { return SkNx(1) / *this; }
     SkNx approxInvert() const { return _mm_rcp_ps(fVec); }
 
-    template <int k> float kth() const {
+    float operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
         union { __m128 v; float fs[4]; } pun = {fVec};
         return pun.fs[k&3];
     }
+    template <int k> float kth() const { return (*this)[k]; }
 
     bool allTrue() const { return 0xffff == _mm_movemask_epi8(_mm_castps_si128(fVec)); }
     bool anyTrue() const { return 0x0000 != _mm_movemask_epi8(_mm_castps_si128(fVec)); }
@@ -222,10 +138,12 @@ public:
     SkNx operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
     SkNx operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
 
-    template <int k> uint16_t kth() const {
+    uint16_t operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
-        return _mm_extract_epi16(fVec, k);
+        union { __m128i v; uint16_t us[8]; } pun = {fVec};
+        return pun.us[k&3];
     }
+    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     __m128i fVec;
 };
@@ -264,10 +182,12 @@ public:
                             _mm_andnot_si128(fVec, e.fVec));
     }
 
-    template <int k> uint16_t kth() const {
+    uint16_t operator[](int k) const {
         SkASSERT(0 <= k && k < 8);
-        return _mm_extract_epi16(fVec, k);
+        union { __m128i v; uint16_t us[8]; } pun = {fVec};
+        return pun.us[k&7];
     }
+    template <int k> uint16_t kth() const { return (*this)[k]; }
 
     __m128i fVec;
 };
@@ -280,20 +200,6 @@ public:
     SkNx() {}
     static SkNx Load(const void* ptr) { return _mm_cvtsi32_si128(*(const int*)ptr); }
     void store(void* ptr) const { *(int*)ptr = _mm_cvtsi128_si32(fVec); }
-
-    // TODO as needed
-
-    __m128i fVec;
-};
-
-template <>
-class SkNx<8, uint8_t> {
-public:
-    SkNx(const __m128i& vec) : fVec(vec) {}
-
-    SkNx() {}
-    static SkNx Load(const void* ptr) { return _mm_loadl_epi64((const __m128i*)ptr); }
-    void store(void* ptr) const { _mm_storel_epi64((__m128i*)ptr, fVec); }
 
     // TODO as needed
 
@@ -328,12 +234,12 @@ public:
         return _mm_cmplt_epi8(_mm_xor_si128(flip, fVec), _mm_xor_si128(flip, o.fVec));
     }
 
-    template <int k> uint8_t kth() const {
+    uint8_t operator[](int k) const {
         SkASSERT(0 <= k && k < 16);
-        // SSE4.1 would just `return _mm_extract_epi8(fVec, k)`.  We have to read 16-bits instead.
-        int pair = _mm_extract_epi16(fVec, k/2);
-        return k % 2 == 0 ? pair : (pair >> 8);
+        union { __m128i v; uint8_t us[16]; } pun = {fVec};
+        return pun.us[k&15];
     }
+    template <int k> uint8_t kth() const { return (*this)[k]; }
 
     SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return _mm_or_si128(_mm_and_si128   (fVec, t.fVec),
@@ -344,11 +250,7 @@ public:
 };
 
 
-template<> inline Sk4i SkNx_cast<int, float, 4>(const Sk4f& src) {
-    return _mm_cvttps_epi32(src.fVec);
-}
-
-template<> inline Sk4h SkNx_cast<uint16_t, float, 4>(const Sk4f& src) {
+template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
     auto _32 = _mm_cvttps_epi32(src.fVec);
     // Ideally we'd use _mm_packus_epi32 here.  But that's SSE4.1+.
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
@@ -362,7 +264,7 @@ template<> inline Sk4h SkNx_cast<uint16_t, float, 4>(const Sk4f& src) {
 #endif
 }
 
-template<> inline Sk4b SkNx_cast<uint8_t, float, 4>(const Sk4f& src) {
+template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
     auto _32 = _mm_cvttps_epi32(src.fVec);
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     const int _ = ~0;
@@ -373,7 +275,7 @@ template<> inline Sk4b SkNx_cast<uint8_t, float, 4>(const Sk4f& src) {
 #endif
 }
 
-template<> inline Sk4f SkNx_cast<float, uint8_t, 4>(const Sk4b& src) {
+template<> /*static*/ inline Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     const int _ = ~0;
     auto _32 = _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
@@ -384,7 +286,7 @@ template<> inline Sk4f SkNx_cast<float, uint8_t, 4>(const Sk4b& src) {
     return _mm_cvtepi32_ps(_32);
 }
 
-template<> inline Sk4f SkNx_cast<float, uint16_t, 4>(const Sk4h& src) {
+template<> /*static*/ inline Sk4f SkNx_cast<float, uint16_t>(const Sk4h& src) {
     auto _32 = _mm_unpacklo_epi16(src.fVec, _mm_setzero_si128());
     return _mm_cvtepi32_ps(_32);
 }
@@ -398,15 +300,12 @@ static inline void Sk4f_ToBytes(uint8_t bytes[16],
                                                        _mm_cvttps_epi32(d.fVec))));
 }
 
-template<> inline Sk4h SkNx_cast<uint16_t, uint8_t, 4>(const Sk4b& src) {
+template<> /*static*/ inline Sk4h SkNx_cast<uint16_t, uint8_t>(const Sk4b& src) {
     return _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128());
 }
 
-template<> inline Sk4b SkNx_cast<uint8_t, uint16_t, 4>(const Sk4h& src) {
+template<> /*static*/ inline Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
     return _mm_packus_epi16(src.fVec, src.fVec);
 }
-
-
-}  // namespace
 
 #endif//SkNx_sse_DEFINED
