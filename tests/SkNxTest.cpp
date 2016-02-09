@@ -215,6 +215,14 @@ DEF_TEST(SkNx_abs, r) {
     REPORTER_ASSERT(r, fs.kth<3>() == 4.0f);
 }
 
+DEF_TEST(SkNx_floor, r) {
+    auto fs = Sk4f(0.4f, -0.4f, 0.6f, -0.6f).floor();
+    REPORTER_ASSERT(r, fs.kth<0>() ==  0.0f);
+    REPORTER_ASSERT(r, fs.kth<1>() == -1.0f);
+    REPORTER_ASSERT(r, fs.kth<2>() ==  0.0f);
+    REPORTER_ASSERT(r, fs.kth<3>() == -1.0f);
+}
+
 DEF_TEST(SkNx_shuffle, r) {
     Sk4f f4(0,10,20,30);
 
