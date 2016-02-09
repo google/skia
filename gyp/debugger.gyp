@@ -84,7 +84,7 @@
       'include_dirs' : [
         '../include/private',
         '../src/core',
-        '../src/utils/debugger',
+        '../tools/debugger',
         '../debugger',      # To pull SkDebugger.h
         '../src/gpu',       # To pull gl/GrGLUtil.h
         '../src/ports',     # To pull SkFontDescriptor.h
@@ -95,14 +95,14 @@
       ],
       'sources': [
         '../debugger/SkDebugger.cpp',
-        '../src/utils/debugger/SkDebugCanvas.h',
-        '../src/utils/debugger/SkDebugCanvas.cpp',
-        '../src/utils/debugger/SkDrawCommand.h',
-        '../src/utils/debugger/SkDrawCommand.cpp',
-        '../src/utils/debugger/SkObjectParser.h',
-        '../src/utils/debugger/SkObjectParser.cpp',
-        '../src/utils/debugger/SkOverdrawMode.h',
-        '../src/utils/debugger/SkOverdrawMode.cpp',
+        '../tools/debugger/SkDebugCanvas.h',
+        '../tools/debugger/SkDebugCanvas.cpp',
+        '../tools/debugger/SkDrawCommand.h',
+        '../tools/debugger/SkDrawCommand.cpp',
+        '../tools/debugger/SkObjectParser.h',
+        '../tools/debugger/SkObjectParser.cpp',
+        '../tools/debugger/SkOverdrawMode.h',
+        '../tools/debugger/SkOverdrawMode.cpp',
         '../debugger/debuggermain.cpp',
         '../debugger/QT/SkDebuggerGUI.cpp',
         '../debugger/QT/SkDebuggerGUI.h',

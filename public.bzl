@@ -440,7 +440,7 @@ DM_INCLUDES = [
     "src/pathops",
     "src/pipe/utils",
     "src/ports",
-    "src/utils/debugger",
+    "tools/debugger",
     "tests",
     "tools",
     "tools/flags",

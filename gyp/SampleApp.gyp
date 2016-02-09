@@ -17,7 +17,7 @@
         '../src/lazy',
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
-        '../src/utils/debugger',
+        '../tools/debugger',
         '../tools',
         '../experimental',
       ],

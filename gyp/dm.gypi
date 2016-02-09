@@ -13,7 +13,7 @@
     '../src/images',
     '../src/lazy',
     '../src/utils',
-    '../src/utils/debugger',
+    '../tools/debugger',
     '../tests',
   ],
   'dependencies': [
@@ -41,11 +41,11 @@
     '../dm/DMJsonWriter.cpp',
     '../gm/gm.cpp',
 
-    '../src/utils/debugger/SkDebugCanvas.cpp',
-    '../src/utils/debugger/SkDrawCommand.cpp',
-    '../src/utils/debugger/SkObjectParser.cpp',
-    '../src/utils/debugger/SkOverdrawMode.h',
-    '../src/utils/debugger/SkOverdrawMode.cpp',
+    '../tools/debugger/SkDebugCanvas.cpp',
+    '../tools/debugger/SkDrawCommand.cpp',
+    '../tools/debugger/SkObjectParser.cpp',
+    '../tools/debugger/SkOverdrawMode.h',
+    '../tools/debugger/SkOverdrawMode.cpp',
   ],
   'conditions': [
     [ 'skia_gpu == 1', {

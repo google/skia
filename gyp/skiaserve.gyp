@@ -15,19 +15,19 @@
       'include_dirs': [
         '../src/core',
         '../src/ports',
-        '../src/utils/debugger',
+        '../tools/debugger',
         '../tools/json',
       ],
       'sources': [ 
         # Stuff for the debug canvas
-        '../src/utils/debugger/SkDrawCommand.h',
-        '../src/utils/debugger/SkDrawCommand.cpp',
-        '../src/utils/debugger/SkDebugCanvas.h',
-        '../src/utils/debugger/SkDebugCanvas.cpp',
-        '../src/utils/debugger/SkObjectParser.h',
-        '../src/utils/debugger/SkObjectParser.cpp',
-        '../src/utils/debugger/SkOverdrawMode.h',
-        '../src/utils/debugger/SkOverdrawMode.cpp',
+        '../tools/debugger/SkDrawCommand.h',
+        '../tools/debugger/SkDrawCommand.cpp',
+        '../tools/debugger/SkDebugCanvas.h',
+        '../tools/debugger/SkDebugCanvas.cpp',
+        '../tools/debugger/SkObjectParser.h',
+        '../tools/debugger/SkObjectParser.cpp',
+        '../tools/debugger/SkOverdrawMode.h',
+        '../tools/debugger/SkOverdrawMode.cpp',
         '<!@(python find.py ../tools/skiaserve "*.cpp")',
       ],
       'dependencies': [
