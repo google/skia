@@ -53,6 +53,21 @@ static Sk4f     alpha(const Sk4f& color) { return Sk4f(color.kth<3>()); }
 static Sk4f inv_alpha(const Sk4f& color) { return Sk4f(1 - color.kth<3>()); }
 static Sk4f     pin_1(const Sk4f& value) { return Sk4f::Min(value, Sk4f(1)); }
 
+static Sk4f color_alpha(const Sk4f& color, float newAlpha) {
+    return Sk4f(color.kth<0>(), color.kth<1>(), color.kth<2>(), newAlpha);
+}
+static Sk4f color_alpha(const Sk4f& color, const Sk4f& newAlpha) {
+    return color_alpha(color, newAlpha.kth<3>());
+}
+
+static Sk4f set_argb(float a, float r, float g, float b) {
+    if (0 == SkPM4f::R) {
+        return Sk4f(r, g, b, a);
+    } else {
+        return Sk4f(b, g, r, a);
+    }
+}
+
 static Sk4f    clear_4f(const Sk4f& s, const Sk4f& d) { return Sk4f(0); }
 static Sk4f      src_4f(const Sk4f& s, const Sk4f& d) { return s; }
 static Sk4f      dst_4f(const Sk4f& s, const Sk4f& d) { return d; }
@@ -73,28 +88,263 @@ static Sk4f multiply_4f(const Sk4f& s, const Sk4f& d) {
     return s * inv_alpha(d) + d * inv_alpha(s) + s * d;
 }
 
+static Sk4f overlay_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    Sk4f two = Sk4f(2);
+    Sk4f rc = (two * d <= da).thenElse(two * s * d,
+                                       sa * da - two * (da - d) * (sa - s));
+    return s + d - s * da + color_alpha(rc - d * sa, 0);
+}
+
+static Sk4f hardlight_4f(const Sk4f& s, const Sk4f& d) {
+    return overlay_4f(d, s);
+}
+
+static Sk4f darken_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    return s + d - Sk4f::Max(s * da, d * sa);
+}
+
+static Sk4f lighten_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    return s + d - Sk4f::Min(s * da, d * sa);
+}
+
+static Sk4f colordodge_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa = alpha(s);
+    Sk4f da = alpha(d);
+    Sk4f isa = Sk4f(1) - sa;
+    Sk4f ida = Sk4f(1) - da;
+
+    Sk4f srcover = s + d * isa;
+    Sk4f dstover = d + s * ida;
+    Sk4f otherwise = sa * Sk4f::Min(da, (d * sa) / (sa - s)) + s * ida + d * isa;
+
+    // Order matters here, preferring d==0 over s==sa.
+    auto colors = (d == Sk4f(0)).thenElse(dstover,
+                                          (s == sa).thenElse(srcover,
+                                                             otherwise));
+    return color_alpha(colors, srcover);
+}
+
+static Sk4f colorburn_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa  = alpha(s);
+    Sk4f da  = alpha(d);
+    Sk4f isa = Sk4f(1) - sa;
+    Sk4f ida = Sk4f(1) - da;
+
+    Sk4f srcover = s + d * isa;
+    Sk4f dstover = d + s * ida;
+    Sk4f otherwise = sa * (da - Sk4f::Min(da, (da - d) * sa / s)) + s * ida + d * isa;
+
+    // Order matters here, preferring d==da over s==0.
+    auto colors = (d == da).thenElse(dstover,
+                                     (s == Sk4f(0)).thenElse(srcover,
+                                                             otherwise));
+    return color_alpha(colors, srcover);
+}
+
+static Sk4f softlight_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f sa  = alpha(s);
+    Sk4f da  = alpha(d);
+    Sk4f isa = Sk4f(1) - sa;
+    Sk4f ida = Sk4f(1) - da;
+
+    // Some common terms.
+    Sk4f m  = (da > Sk4f(0)).thenElse(d / da, Sk4f(0));
+    Sk4f s2 = Sk4f(2) * s;
+    Sk4f m4 = Sk4f(4) * m;
+
+    // The logic forks three ways:
+    //    1. dark src?
+    //    2. light src, dark dst?
+    //    3. light src, light dst?
+    Sk4f darkSrc = d * (sa + (s2 - sa) * (Sk4f(1) - m));            // Used in case 1.
+    Sk4f darkDst = (m4 * m4 + m4) * (m - Sk4f(1)) + Sk4f(7) * m;    // Used in case 2.
+    Sk4f liteDst = m.sqrt() - m;                                    // Used in case 3.
+    Sk4f liteSrc = d * sa + da * (s2 - sa) * (Sk4f(4) * d <= da).thenElse(darkDst,
+                                                                          liteDst); // Case 2 or 3?
+
+    return color_alpha(s * ida + d * isa + (s2 <= sa).thenElse(darkSrc, liteSrc), // Case 1 or 2/3?
+                       s + d * isa);
+}
+
+static Sk4f difference_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f min = Sk4f::Min(s * alpha(d), d * alpha(s));
+    return s + d - min - color_alpha(min, 0);
+}
+
+static Sk4f exclusion_4f(const Sk4f& s, const Sk4f& d) {
+    Sk4f product = s * d;
+    return s + d - product - color_alpha(product, 0);
+}
+
+////////////////////////////////////////////////////
+
+// The CSS compositing spec introduces the following formulas:
+// (See https://dvcs.w3.org/hg/FXTF/rawfile/tip/compositing/index.html#blendingnonseparable)
+// SkComputeLuminance is similar to this formula but it uses the new definition from Rec. 709
+// while PDF and CG uses the one from Rec. Rec. 601
+// See http://www.glennchan.info/articles/technical/hd-versus-sd-color-space/hd-versus-sd-color-space.htm
+static inline float Lum(float r, float g, float b) {
+    return r * 0.2126f + g * 0.7152f + b * 0.0722f;
+}
+
+static inline float max(float a, float b, float c) {
+    return SkTMax(a, SkTMax(b, c));
+}
+
+static inline float min(float a, float b, float c) {
+    return SkTMin(a, SkTMin(b, c));
+}
+
+static inline float Sat(float r, float g, float b) {
+    return max(r, g, b) - min(r, g, b);
+}
+
+static inline void setSaturationComponents(float* Cmin, float* Cmid, float* Cmax, float s) {
+    if(*Cmax > *Cmin) {
+        *Cmid = (*Cmid - *Cmin) * s / (*Cmax - *Cmin);
+        *Cmax = s;
+    } else {
+        *Cmax = 0;
+        *Cmid = 0;
+    }
+    *Cmin = 0;
+}
+
+static inline void SetSat(float* r, float* g, float* b, float s) {
+    if(*r <= *g) {
+        if(*g <= *b) {
+            setSaturationComponents(r, g, b, s);
+        } else if(*r <= *b) {
+            setSaturationComponents(r, b, g, s);
+        } else {
+            setSaturationComponents(b, r, g, s);
+        }
+    } else if(*r <= *b) {
+        setSaturationComponents(g, r, b, s);
+    } else if(*g <= *b) {
+        setSaturationComponents(g, b, r, s);
+    } else {
+        setSaturationComponents(b, g, r, s);
+    }
+}
+
+static inline void clipColor(float* r, float* g, float* b, float a) {
+    float L = Lum(*r, *g, *b);
+    float n = min(*r, *g, *b);
+    float x = max(*r, *g, *b);
+    float denom;
+    if ((n < 0) && (denom = L - n)) { // Compute denom and make sure it's non zero
+        float scale = L / denom;
+        *r = L + (*r - L) * scale;
+        *g = L + (*g - L) * scale;
+        *b = L + (*b - L) * scale;
+    }
+    
+    if ((x > a) && (denom = x - L)) { // Compute denom and make sure it's non zero
+        float scale = (a - L) / denom;
+        *r = L + (*r - L) * scale;
+        *g = L + (*g - L) * scale;
+        *b = L + (*b - L) * scale;
+    }
+}
+
+static inline void SetLum(float* r, float* g, float* b, float a, float l) {
+    float d = l - Lum(*r, *g, *b);
+    *r += d;
+    *g += d;
+    *b += d;
+    clipColor(r, g, b, a);
+}
+
+static Sk4f hue_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s.kth<SkPM4f::A>();
+    float sr = s.kth<SkPM4f::R>();
+    float sg = s.kth<SkPM4f::G>();
+    float sb = s.kth<SkPM4f::B>();
+    
+    float da = d.kth<SkPM4f::A>();
+    float dr = d.kth<SkPM4f::R>();
+    float dg = d.kth<SkPM4f::G>();
+    float db = d.kth<SkPM4f::B>();
+
+    float Sr = sr;
+    float Sg = sg;
+    float Sb = sb;
+    SetSat(&Sr, &Sg, &Sb, Sat(dr, dg, db) * sa);
+    SetLum(&Sr, &Sg, &Sb, sa * da, Lum(dr, dg, db) * sa);
+
+    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Sr, Sg, Sb),
+                       sa + da - sa * da);
+}
+
+static Sk4f saturation_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s.kth<SkPM4f::A>();
+    float sr = s.kth<SkPM4f::R>();
+    float sg = s.kth<SkPM4f::G>();
+    float sb = s.kth<SkPM4f::B>();
+    
+    float da = d.kth<SkPM4f::A>();
+    float dr = d.kth<SkPM4f::R>();
+    float dg = d.kth<SkPM4f::G>();
+    float db = d.kth<SkPM4f::B>();
+    
+    float Dr = dr;
+    float Dg = dg;
+    float Db = db;
+    SetSat(&Dr, &Dg, &Db, Sat(sr, sg, sb) * da);
+    SetLum(&Dr, &Dg, &Db, sa * da, Lum(dr, dg, db) * sa);
+    
+    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Dr, Dg, Db),
+                       sa + da - sa * da);
+}
+
+static Sk4f color_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s.kth<SkPM4f::A>();
+    float sr = s.kth<SkPM4f::R>();
+    float sg = s.kth<SkPM4f::G>();
+    float sb = s.kth<SkPM4f::B>();
+    
+    float da = d.kth<SkPM4f::A>();
+    float dr = d.kth<SkPM4f::R>();
+    float dg = d.kth<SkPM4f::G>();
+    float db = d.kth<SkPM4f::B>();
+
+    float Sr = sr;
+    float Sg = sg;
+    float Sb = sb;
+    SetLum(&Sr, &Sg, &Sb, sa * da, Lum(dr, dg, db) * sa);
+    
+    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Sr, Sg, Sb),
+                       sa + da - sa * da);
+}
+
+static Sk4f luminosity_4f(const Sk4f& s, const Sk4f& d) {
+    float sa = s.kth<SkPM4f::A>();
+    float sr = s.kth<SkPM4f::R>();
+    float sg = s.kth<SkPM4f::G>();
+    float sb = s.kth<SkPM4f::B>();
+    
+    float da = d.kth<SkPM4f::A>();
+    float dr = d.kth<SkPM4f::R>();
+    float dg = d.kth<SkPM4f::G>();
+    float db = d.kth<SkPM4f::B>();
+    
+    float Dr = dr;
+    float Dg = dg;
+    float Db = db;
+    SetLum(&Dr, &Dg, &Db, sa * da, Lum(sr, sg, sb) * da);
+    
+    return color_alpha(s * inv_alpha(d) + d * inv_alpha(s) + set_argb(0, Dr, Dg, Db),
+                       sa + da - sa * da);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
-
-static SkPM4f as_pm4f(const Sk4f& x) {
-    SkPM4f pm4;
-    x.store(pm4.fVec);
-    return pm4;
-}
-
-static Sk4f as_4f(const SkPM4f& pm4) {
-    return Sk4f::Load(pm4.fVec);
-}
-
-template <Sk4f (blend)(const Sk4f&, const Sk4f&)>
-SkPM4f proc_4f(const SkPM4f& src, const SkPM4f& dst) {
-    return as_pm4f(blend(as_4f(src), as_4f(dst)));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-static SkPM4f not_implemented_yet_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return {{ 0.5f, 1.0f, 0.25f, 0.5f }};
-}
 
 //  kClear_Mode,    //!< [0, 0]
 static SkPMColor clear_modeproc(SkPMColor src, SkPMColor dst) {
@@ -267,9 +517,6 @@ static SkPMColor overlay_modeproc(SkPMColor src, SkPMColor dst) {
     int b = overlay_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f overlay_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
-}
 
 // kDarken_Mode
 static inline int darken_byte(int sc, int dc, int sa, int da) {
@@ -292,9 +539,6 @@ static SkPMColor darken_modeproc(SkPMColor src, SkPMColor dst) {
     int b = darken_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f darken_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
-}
 
 // kLighten_Mode
 static inline int lighten_byte(int sc, int dc, int sa, int da) {
@@ -316,9 +560,6 @@ static SkPMColor lighten_modeproc(SkPMColor src, SkPMColor dst) {
     int g = lighten_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = lighten_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
-}
-static SkPM4f lighten_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
 }
 
 // kColorDodge_Mode
@@ -344,9 +585,6 @@ static SkPMColor colordodge_modeproc(SkPMColor src, SkPMColor dst) {
     int b = colordodge_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f colordodge_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
-}
 
 // kColorBurn_Mode
 static inline int colorburn_byte(int sc, int dc, int sa, int da) {
@@ -371,9 +609,6 @@ static SkPMColor colorburn_modeproc(SkPMColor src, SkPMColor dst) {
     int b = colorburn_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f colorburn_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
-}
 
 // kHardLight_Mode
 static inline int hardlight_byte(int sc, int dc, int sa, int da) {
@@ -393,9 +628,6 @@ static SkPMColor hardlight_modeproc(SkPMColor src, SkPMColor dst) {
     int g = hardlight_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = hardlight_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
-}
-static SkPM4f hardlight_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
 }
 
 // returns 255 * sqrt(n/255)
@@ -427,9 +659,6 @@ static SkPMColor softlight_modeproc(SkPMColor src, SkPMColor dst) {
     int b = softlight_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f softlight_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
-}
 
 // kDifference_Mode
 static inline int difference_byte(int sc, int dc, int sa, int da) {
@@ -444,9 +673,6 @@ static SkPMColor difference_modeproc(SkPMColor src, SkPMColor dst) {
     int g = difference_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = difference_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
-}
-static SkPM4f difference_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
 }
 
 // kExclusion_Mode
@@ -466,9 +692,6 @@ static SkPMColor exclusion_modeproc(SkPMColor src, SkPMColor dst) {
     int g = exclusion_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
     int b = exclusion_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
-}
-static SkPM4f exclusion_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
 }
 
 // The CSS compositing spec introduces the following formulas:
@@ -585,9 +808,6 @@ static SkPMColor hue_modeproc(SkPMColor src, SkPMColor dst) {
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Sb);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f hue_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
-}
 
 // kSaturation_Mode
 // B(Cb, Cs) = SetLum(SetSat(Cb, Sat(Cs)), Lum(Cb))
@@ -622,9 +842,6 @@ static SkPMColor saturation_modeproc(SkPMColor src, SkPMColor dst) {
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Db);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f saturation_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
-}
 
 // kColor_Mode
 // B(Cb, Cs) = SetLum(Cs, Lum(Cb))
@@ -657,9 +874,6 @@ static SkPMColor color_modeproc(SkPMColor src, SkPMColor dst) {
     int g = blendfunc_nonsep_byte(sg, dg, sa, da, Sg);
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Sb);
     return SkPackARGB32(a, r, g, b);
-}
-static SkPM4f color_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
 }
 
 // kLuminosity_Mode
@@ -694,8 +908,29 @@ static SkPMColor luminosity_modeproc(SkPMColor src, SkPMColor dst) {
     int b = blendfunc_nonsep_byte(sb, db, sa, da, Db);
     return SkPackARGB32(a, r, g, b);
 }
-static SkPM4f luminosity_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return not_implemented_yet_proc4f(src, dst);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static SkPM4f as_pm4f(const Sk4f& x) {
+    SkPM4f pm4;
+    x.store(pm4.fVec);
+    return pm4;
+}
+
+static Sk4f as_4f(const SkPM4f& pm4) {
+    return Sk4f::Load(pm4.fVec);
+}
+
+template <Sk4f (blend)(const Sk4f&, const Sk4f&)> SkPM4f proc_4f(const SkPM4f& s, const SkPM4f& d) {
+    SkPM4f r = as_pm4f(blend(as_4f(s), as_4f(d)));
+#ifdef SK_DEBUG
+    const float min = 0;
+    const float max = 1;
+    for (int i = 0; i < 4; ++i) {
+        SkASSERT(r.fVec[i] >= min && r.fVec[i] <= max);
+    }
+#endif
+    return r;
 }
 
 const ProcCoeff gProcCoeffs[] = {
@@ -715,20 +950,20 @@ const ProcCoeff gProcCoeffs[] = {
     { plus_modeproc,        proc_4f<plus_4f>,       SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff  },
     { modulate_modeproc,    proc_4f<modulate_4f>,   SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff   },
     { screen_modeproc,      proc_4f<screen_4f>,     SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff  },
-    { overlay_modeproc,     overlay_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { darken_modeproc,      darken_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { lighten_modeproc,     lighten_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colordodge_modeproc,  colordodge_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colorburn_modeproc,   colorburn_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hardlight_modeproc,   hardlight_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { softlight_modeproc,   softlight_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { difference_modeproc,  difference_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { exclusion_modeproc,   exclusion_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { overlay_modeproc,     proc_4f<overlay_4f>,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { darken_modeproc,      proc_4f<darken_4f>,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { lighten_modeproc,     proc_4f<lighten_4f>,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colordodge_modeproc,  proc_4f<colordodge_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colorburn_modeproc,   proc_4f<colorburn_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { hardlight_modeproc,   proc_4f<hardlight_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { softlight_modeproc,   proc_4f<softlight_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { difference_modeproc,  proc_4f<difference_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { exclusion_modeproc,   proc_4f<exclusion_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
     { multiply_modeproc,    proc_4f<multiply_4f>,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hue_modeproc,         hue_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { saturation_modeproc,  saturation_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { color_modeproc,       color_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { luminosity_modeproc,  luminosity_proc4f,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { hue_modeproc,         proc_4f<hue_4f>,        CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { saturation_modeproc,  proc_4f<saturation_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { color_modeproc,       proc_4f<color_4f>,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { luminosity_modeproc,  proc_4f<luminosity_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
