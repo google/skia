@@ -435,6 +435,19 @@
       ],
     },
     {
+      'target_name': 'thermal_manager',
+      'type': 'static_library',
+      'sources': [
+        '../tools/ThermalManager.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [ '../tools', ],
+      },
+    },
+    {
       'target_name': 'test_public_includes',
       'type': 'static_library',
       # Ensure that our public headers don't have unused params so that clients

@@ -26,6 +26,7 @@
         'tools.gyp:crash_handler',
         'tools.gyp:proc_stats',
         'tools.gyp:timer',
+        'tools.gyp:thermal_manager',
       ],
       'conditions': [
         ['skia_android_framework', {

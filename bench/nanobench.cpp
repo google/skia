@@ -38,6 +38,7 @@
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
+#include "ThermalManager.h"
 
 #include <stdlib.h>
 
@@ -111,6 +112,8 @@ DEFINE_bool(resetGpuContext, true, "Reset the GrContext before running each test
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
 DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
+DEFINE_string(useThermalManager, "0,1,10,1000", "enabled,threshold,sleepTimeMs,TimeoutMs for "
+                                                "thermalManager\n");
 
 DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
@@ -1056,6 +1059,16 @@ int nanobench_main() {
     SkTArray<Config> configs;
     create_configs(&configs);
 
+#ifdef THERMAL_MANAGER_SUPPORTED
+    int tmEnabled, tmThreshold, tmSleepTimeMs, tmTimeoutMs;
+    if (4 != sscanf(FLAGS_useThermalManager[0], "%d,%d,%d,%d",
+                    &tmEnabled, &tmThreshold, &tmSleepTimeMs, &tmTimeoutMs)) {
+        SkDebugf("Can't parse %s from --useThermalManager.\n", FLAGS_useThermalManager[0]);
+        exit(1);
+    }
+    ThermalManager tm(tmThreshold, tmSleepTimeMs, tmTimeoutMs);
+#endif
+
     if (FLAGS_keepAlive) {
         start_keepalive();
     }
@@ -1073,6 +1086,11 @@ int nanobench_main() {
             bench->delayedSetup();
         }
         for (int i = 0; i < configs.count(); ++i) {
+#ifdef THERMAL_MANAGER_SUPPORTED
+            if (tmEnabled && !tm.coolOffIfNecessary()) {
+                SkDebugf("Could not cool off, timings will be throttled\n");
+            }
+#endif
             Target* target = is_enabled(b, configs[i]);
             if (!target) {
                 continue;
