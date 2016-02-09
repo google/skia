@@ -157,6 +157,7 @@
         'views.gyp:views',
         'views_animated.gyp:views_animated',
         'xml.gyp:xml',
+        'jsoncpp.gyp:jsoncpp',
       ],
       'msvs_settings': {
         'VCLinkerTool': {
