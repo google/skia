@@ -67,7 +67,7 @@ void GrDrawingManager::reset() {
 }
 
 void GrDrawingManager::flush() {
-    if (fFlushing) {
+    if (fFlushing || this->abandoned()) {
         return;
     }
     fFlushing = true;
