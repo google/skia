@@ -62,8 +62,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             varyingHandler->addVarying(strVaryingName.c_str(), &v, precision);
 
             SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
-            SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLSLTransformedCoords,
-                                   (SkString(v.fsIn()), varyingType));
+            (*tout)[i].emplace_back(SkString(v.fsIn()), varyingType);
 
             // varying = matrix * coords (logically)
             if (kDevice_GrCoordSet == coordType) {
@@ -117,9 +116,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
             varyingHandler->addVarying(strVaryingName.c_str(), &v, precision);
             vb->codeAppendf("%s = %s;", v.vsOut(), localCoords);
 
-            SkNEW_APPEND_TO_TARRAY(&(*tout)[i],
-                                   GrGLSLTransformedCoords,
-                                   (SkString(v.fsIn()), varyingType));
+            (*tout)[i].emplace_back(SkString(v.fsIn()), varyingType);
         }
     }
 }

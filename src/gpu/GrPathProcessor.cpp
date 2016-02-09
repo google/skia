@@ -72,8 +72,7 @@ public:
                                                                    &v).toIndex();
                 fInstalledTransforms[i][t].fType = varyingType;
 
-                SkNEW_APPEND_TO_TARRAY(&(*tout)[i], GrGLSLTransformedCoords,
-                                       (SkString(v.fsIn()), varyingType));
+                (*tout)[i].emplace_back(SkString(v.fsIn()), varyingType);
             }
         }
     }

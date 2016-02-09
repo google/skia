@@ -126,7 +126,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
                     }
                 }
             }
-            SkNEW_APPEND_TO_TARRAY(&blobs, TextBlobWrapper, (builder.build()));
+            blobs.emplace_back(builder.build());
         }
     }
 

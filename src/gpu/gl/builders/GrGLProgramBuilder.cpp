@@ -92,8 +92,7 @@ void GrGLProgramBuilder::emitSamplers(const GrProcessor& processor,
             fUniformHandler.addUniform(GrGLSLUniformHandler::kFragment_Visibility,
                                        samplerType, kDefault_GrSLPrecision,
                                        name.c_str());
-        SkNEW_APPEND_TO_TARRAY(outSamplers, GrGLSLTextureSampler,
-                               (localSamplerUniforms[t], processor.textureAccess(t)));
+        outSamplers->emplace_back(localSamplerUniforms[t], processor.textureAccess(t));
         if (kSamplerExternal_GrSLType == samplerType) {
             const char* externalFeatureString = this->glslCaps()->externalTextureExtensionString();
             // We shouldn't ever create a GrGLTexture that requires external sampler type 

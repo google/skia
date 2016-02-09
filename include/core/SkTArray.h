@@ -15,15 +15,12 @@
 #include <new>
 #include <utility>
 
-template <typename T, bool MEM_COPY = false> class SkTArray;
-template <typename T, bool MEM_COPY> void* operator new(size_t, SkTArray<T, MEM_COPY>*, int);
-
 /** When MEM_COPY is true T will be bit copied when moved.
     When MEM_COPY is false, T will be copy constructed / destructed.
     In all cases T will be default-initialized on allocation,
     and its destructor will be called from this object's destructor.
 */
-template <typename T, bool MEM_COPY> class SkTArray {
+template <typename T, bool MEM_COPY = false> class SkTArray {
 public:
     /**
      * Creates an empty array with no initial storage
@@ -464,8 +461,6 @@ private:
         }
     }
 
-    friend void* operator new<T>(size_t, SkTArray*, int);
-
     int     fReserveCount;
     int     fCount;
     int     fAllocCount;
@@ -475,29 +470,6 @@ private:
         void*    fMemArray;
     };
 };
-
-// Use the below macro (SkNEW_APPEND_TO_TARRAY) rather than calling this directly
-template <typename T, bool MEM_COPY>
-void* operator new(size_t, SkTArray<T, MEM_COPY>* array, int SkDEBUGCODE(atIndex)) {
-    // Currently, we only support adding to the end of the array. When the array class itself
-    // supports random insertion then this should be updated.
-    // SkASSERT(atIndex >= 0 && atIndex <= array->count());
-    SkASSERT(atIndex == array->count());
-    return array->push_back_raw(1);
-}
-
-// Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
-// to match the op new silences warnings about missing op delete when a constructor throws an
-// exception.
-template <typename T, bool MEM_COPY>
-void operator delete(void*, SkTArray<T, MEM_COPY>* /*array*/, int /*atIndex*/) {
-    SK_ABORT("Invalid Operation");
-}
-
-// Constructs a new object as the last element of an SkTArray.
-#define SkNEW_APPEND_TO_TARRAY(array_ptr, type_name, args)  \
-    (new ((array_ptr), (array_ptr)->count()) type_name args)
-
 
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
