@@ -120,12 +120,16 @@ public:
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
+     *
+     *  The GrTextureStorageAllocator will be reused if SkImage snapshots create
+     *  additional textures.
      */
-    static SkSurface* NewRenderTarget(GrContext*, Budgeted, const SkImageInfo&, int sampleCount,
-                                      const SkSurfaceProps* = NULL);
+    static SkSurface* NewRenderTarget(
+            GrContext*, Budgeted, const SkImageInfo&, int sampleCount, const SkSurfaceProps* = NULL,
+            GrTextureStorageAllocator = GrTextureStorageAllocator());
 
     static SkSurface* NewRenderTarget(GrContext* gr, Budgeted b, const SkImageInfo& info) {
-        return NewRenderTarget(gr, b, info, 0, NULL);
+        return NewRenderTarget(gr, b, info, 0);
     }
 
     int width() const { return fWidth; }

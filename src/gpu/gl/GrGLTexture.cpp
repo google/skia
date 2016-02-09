@@ -37,7 +37,13 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
 void GrGLTexture::onRelease() {
     if (fInfo.fID) {
         if (GrGpuResource::kBorrowed_LifeCycle != fTextureIDLifecycle) {
-            GL_CALL(DeleteTextures(1, &fInfo.fID));
+            if (this->desc().fTextureStorageAllocator.fDeallocateTextureStorage) {
+                this->desc().fTextureStorageAllocator.fDeallocateTextureStorage(
+                        this->desc().fTextureStorageAllocator.fCtx,
+                        reinterpret_cast<GrBackendObject>(&fInfo));
+            } else {
+                GL_CALL(DeleteTextures(1, &fInfo.fID));
+            }
         }
         fInfo.fID = 0;
     }

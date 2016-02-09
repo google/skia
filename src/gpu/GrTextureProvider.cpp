@@ -39,7 +39,8 @@ GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, bool budg
         !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
-    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
+    if (!GrPixelConfigIsCompressed(desc.fConfig) &&
+        !desc.fTextureStorageAllocator.fAllocateTextureStorage) {
         static const uint32_t kFlags = kExact_ScratchTextureFlag |
                                        kNoCreate_ScratchTextureFlag;
         if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
