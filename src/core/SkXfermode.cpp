@@ -737,14 +737,22 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asFragmentProcessor(const GrFragmentProcessor**,
-                                     const GrFragmentProcessor*) const {
-    return false;
+#if SK_SUPPORT_GPU
+const GrFragmentProcessor* SkXfermode::getFragmentProcessorForImageFilter(
+                                                                const GrFragmentProcessor*) const {
+    // This should never be called.
+    // TODO: make pure virtual in SkXfermode once Android update lands
+    SkASSERT(0);
+    return nullptr;
 }
 
-bool SkXfermode::asXPFactory(GrXPFactory**) const {
-    return false;
+GrXPFactory* SkXfermode::asXPFactory() const {
+    // This should never be called.
+    // TODO: make pure virtual in SkXfermode once Android update lands
+    SkASSERT(0);
+    return nullptr;
 }
+#endif
 
 SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) const{
     // no-op. subclasses should override this
@@ -989,33 +997,21 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
-bool SkProcCoeffXfermode::asFragmentProcessor(const GrFragmentProcessor** fp,
-                                              const GrFragmentProcessor* dst) const {
-    if (fp) {
-        SkASSERT(dst);
-        *fp = GrXfermodeFragmentProcessor::CreateFromDstProcessor(dst, fMode);
-        SkASSERT(*fp || kSrc_Mode == fMode);
-    }
-    return true;
+const GrFragmentProcessor* SkProcCoeffXfermode::getFragmentProcessorForImageFilter(
+                                                            const GrFragmentProcessor* dst) const {
+    SkASSERT(dst);
+    return GrXfermodeFragmentProcessor::CreateFromDstProcessor(dst, fMode);
 }
 
-bool SkProcCoeffXfermode::asXPFactory(GrXPFactory** xp) const {
+GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
     if (CANNOT_USE_COEFF != fSrcCoeff) {
-        if (xp) {
-            *xp = GrPorterDuffXPFactory::Create(fMode);
-            SkASSERT(*xp);
-        }
-        return true;
+        GrXPFactory* result = GrPorterDuffXPFactory::Create(fMode);
+        SkASSERT(result);
+        return result;
     }
 
-    if (GrCustomXfermode::IsSupportedMode(fMode)) {
-        if (xp) {
-            *xp = GrCustomXfermode::CreateXPFactory(fMode);
-            SkASSERT(*xp);
-        }
-        return true;
-    }
-    return false;
+    SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
+    return GrCustomXfermode::CreateXPFactory(fMode);
 }
 #endif
 

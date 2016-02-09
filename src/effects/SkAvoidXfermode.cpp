@@ -521,19 +521,13 @@ const GrXPFactory* GrAvoidXPFactory::TestCreate(GrProcessorTestData* d) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkAvoidXfermode::asFragmentProcessor(const GrFragmentProcessor** output,
-                                          const GrFragmentProcessor* dst) const {
-    if (output) {
-        *output = AvoidFP::Create(fOpColor, fTolerance, fMode, dst);
-    }
-    return true;
+const GrFragmentProcessor* SkAvoidXfermode::getFragmentProcessorForImageFilter(
+                                                            const GrFragmentProcessor* dst) const {
+    return AvoidFP::Create(fOpColor, fTolerance, fMode, dst);
 }
 
-bool SkAvoidXfermode::asXPFactory(GrXPFactory** xpf) const {
-    if (xpf) {
-        *xpf = GrAvoidXPFactory::Create(fOpColor, fTolerance, fMode);
-    }
-    return true;
+GrXPFactory* SkAvoidXfermode::asXPFactory() const {
+    return GrAvoidXPFactory::Create(fOpColor, fTolerance, fMode);
 }
 #endif
 

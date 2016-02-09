@@ -368,19 +368,13 @@ const GrXPFactory* GrPixelXorXPFactory::TestCreate(GrProcessorTestData* d) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPixelXorXfermode::asFragmentProcessor(const GrFragmentProcessor** output,
-                                             const GrFragmentProcessor* dst) const {
-    if (output) {
-        *output = PixelXorFP::Create(fOpColor, dst);
-    }
-    return true;
+const GrFragmentProcessor* SkPixelXorXfermode::getFragmentProcessorForImageFilter(
+                                                        const GrFragmentProcessor* dst) const {
+    return PixelXorFP::Create(fOpColor, dst);
 }
 
-bool SkPixelXorXfermode::asXPFactory(GrXPFactory** xpf) const {
-    if (xpf) {
-        *xpf = GrPixelXorXPFactory::Create(fOpColor);
-    }
-    return true;
+GrXPFactory* SkPixelXorXfermode::asXPFactory() const {
+    return GrPixelXorXPFactory::Create(fOpColor);
 }
 
 #endif

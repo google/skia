@@ -291,19 +291,13 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOverdrawXfermode)
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(const GrFragmentProcessor** output,
-                             const GrFragmentProcessor* dst) const override {
-        if (output) {
-            *output = GrOverdrawFP::Create(dst);
-        }
-        return true;
+    const GrFragmentProcessor* getFragmentProcessorForImageFilter(
+                                                const GrFragmentProcessor* dst) const override {
+        return GrOverdrawFP::Create(dst);
     }
 
-    bool asXPFactory(GrXPFactory** xpf) const override {
-        if (xpf) {
-            *xpf = GrOverdrawXPFactory::Create();
-        }
-        return true;
+    GrXPFactory* asXPFactory() const override {
+        return GrOverdrawXPFactory::Create();
     }
 #endif
 

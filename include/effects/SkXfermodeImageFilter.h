@@ -21,8 +21,6 @@ class SK_API SkXfermodeImageFilter : public SkImageFilter {
       */
 
 public:
-    virtual ~SkXfermodeImageFilter();
-
     static SkImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
                                  SkImageFilter* foreground = NULL,
                                  const CropRect* cropRect = NULL) {
@@ -50,7 +48,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    SkXfermode* fMode;
+    SkAutoTUnref<SkXfermode> fMode;
     typedef SkImageFilter INHERITED;
 };
 

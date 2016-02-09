@@ -194,37 +194,22 @@ public:
      */
     static bool IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType);
 
-    /** Used to do in-shader blending between two colors computed in the shader via a
-        GrFragmentProcessor. The input to the returned FP is the src color. The dst color is
-        provided by the dst param which becomes a child FP of the returned FP. If the params are
-        null then this is just a query of whether the SkXfermode could support this functionality.
-        It is legal for the function to succeed but return a null output. This indicates that
+#if SK_SUPPORT_GPU
+    /** Used by the SkXfermodeImageFilter to blend two colors via a GrFragmentProcessor.
+        The input to the returned FP is the src color. The dst color is
+        provided by the dst param which becomes a child FP of the returned FP. 
+        It is legal for the function to return a null output. This indicates that
         the output of the blend is simply the src color.
      */
-    virtual bool asFragmentProcessor(const GrFragmentProcessor** output,
-                                     const GrFragmentProcessor* dst) const;
+    virtual const GrFragmentProcessor* getFragmentProcessorForImageFilter(
+                                                            const GrFragmentProcessor* dst) const;
 
-    /** A subclass may implement this factory function to work with the GPU backend. It is legal
-      to call this with xpf NULL to simply test the return value. If xpf is non-NULL then the
-      xfermode may optionally allocate a factory to return to the caller as *xpf. The caller
-      will install it and own a ref to it. Since the xfermode may or may not assign *xpf, the
-      caller should set *xpf to NULL beforehand. XferProcessors cannot use a background texture.
+    /** A subclass must implement this factory function to work with the GPU backend. 
+        The xfermode will return a factory for which the caller will get a ref. It is up 
+        to the caller to install it. XferProcessors cannot use a background texture.
       */
-    virtual bool asXPFactory(GrXPFactory** xpf) const;
-
-    /** Returns true if the xfermode can be expressed as an xfer processor factory (xpFactory).
-      This helper calls the asXPFactory() virtual. If the xfermode is NULL, it is treated as
-      kSrcOver_Mode. It is legal to call this with xpf param NULL to simply test the return value.
-      */
-    static inline bool AsXPFactory(SkXfermode* xfermode, GrXPFactory** xpf) {
-        if (nullptr == xfermode) {
-            if (xpf) {
-                *xpf = nullptr;
-            }
-            return true;
-        }
-        return xfermode->asXPFactory(xpf);
-    }
+    virtual GrXPFactory* asXPFactory() const;
+#endif
 
     SK_TO_STRING_PUREVIRT()
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

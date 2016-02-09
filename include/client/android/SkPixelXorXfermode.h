@@ -22,10 +22,9 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(const GrFragmentProcessor** output,
-                             const GrFragmentProcessor* dst) const override;
-
-    bool asXPFactory(GrXPFactory**) const override;
+    const GrFragmentProcessor* getFragmentProcessorForImageFilter(
+                                                    const GrFragmentProcessor* dst) const override;
+    GrXPFactory* asXPFactory() const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
