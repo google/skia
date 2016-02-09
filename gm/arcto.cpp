@@ -109,7 +109,7 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
 /* The test below generates a reference image using SVG. To compare the result for correctness,
    enable the define below and then view the generated SVG in a browser.
  */
-#define GENERATE_SVG_REFERENCE 0
+#define GENERATE_SVG_REFERENCE 01
 
 #if GENERATE_SVG_REFERENCE
 #include "SkOSFile.h"
@@ -148,7 +148,9 @@ DEF_SIMPLE_GM(parsedpaths, canvas, kParsePathTestDimension, kParsePathTestDimens
             do {
                 SkPath path;
                 SkString spec;
-                spec.printf("M %d,%d\n", rand.nextRangeU(30, 70), rand.nextRangeU(30, 70));
+                uint32_t y = rand.nextRangeU(30, 70);
+                uint32_t x = rand.nextRangeU(30, 70);
+                spec.printf("M %d,%d\n", x, y);
                 uint32_t count = rand.nextRangeU(0, 10);
                 for (uint32_t i = 0; i < count; ++i) {
                     spec.append(MakeRandomParsePathPiece(&rand));
