@@ -120,6 +120,40 @@ public:
 };
 
 template <>
+class SkNx<4, int> {
+public:
+    SkNx(const __m128i& vec) : fVec(vec) {}
+
+    SkNx() {}
+    SkNx(int val) : fVec(_mm_set1_epi32(val)) {}
+    static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
+    SkNx(int a, int b, int c, int d) : fVec(_mm_setr_epi32(a,b,c,d)) {}
+
+    void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
+
+    SkNx operator + (const SkNx& o) const { return _mm_add_epi32(fVec, o.fVec); }
+    SkNx operator - (const SkNx& o) const { return _mm_sub_epi32(fVec, o.fVec); }
+    SkNx operator * (const SkNx& o) const {
+        __m128i mul20 = _mm_mul_epu32(fVec, o.fVec),
+                mul31 = _mm_mul_epu32(_mm_srli_si128(fVec, 4), _mm_srli_si128(o.fVec, 4));
+        return _mm_unpacklo_epi32(_mm_shuffle_epi32(mul20, _MM_SHUFFLE(0,0,2,0)),
+                                  _mm_shuffle_epi32(mul31, _MM_SHUFFLE(0,0,2,0)));
+    }
+
+    SkNx operator << (int bits) const { return _mm_slli_epi32(fVec, bits); }
+    SkNx operator >> (int bits) const { return _mm_srai_epi32(fVec, bits); }
+
+    int operator[](int k) const {
+        SkASSERT(0 <= k && k < 4);
+        union { __m128i v; int is[4]; } pun = {fVec};
+        return pun.is[k&3];
+    }
+    template <int k> int kth() const { return (*this)[k]; }
+
+    __m128i fVec;
+};
+
+template <>
 class SkNx<4, uint16_t> {
 public:
     SkNx(const __m128i& vec) : fVec(vec) {}
