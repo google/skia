@@ -375,6 +375,11 @@ void sk_canvas_draw_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_
     AsCanvas(ccanvas)->drawRect(AsRect(*crect), AsPaint(*cpaint));
 }
 
+void sk_canvas_draw_circle(sk_canvas_t* ccanvas, float cx, float cy, float rad,
+                           const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawCircle(cx, cy, rad, AsPaint(*cpaint));
+}
+
 void sk_canvas_draw_oval(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawOval(AsRect(*crect), AsPaint(*cpaint));
 }
