@@ -885,14 +885,66 @@ public:
                       SkRect bounds[] = NULL) const;
 
     /** Return the path (outline) for the specified text.
-        Note: just like SkCanvas::drawText, this will respect the Align setting
-              in the paint.
-    */
+     *  Note: just like SkCanvas::drawText, this will respect the Align setting
+     *        in the paint.
+     *
+     *  @param text         the text
+     *  @param length       number of bytes of text
+     *  @param x            The x-coordinate of the origin of the text.
+     *  @param y            The y-coordinate of the origin of the text.
+     *  @param path         The outline of the text.
+     */
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
 
+    /** Return the path (outline) for the specified text.
+     *  Note: just like SkCanvas::drawText, this will respect the Align setting
+     *        in the paint.
+     *
+     *  @param text         the text
+     *  @param length       number of bytes of text
+     *  @param pos          array of positions, used to position each character
+     *  @param path         The outline of the text.
+     */
     void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;
+
+    /** Return the number of intervals that intersect the intercept along the axis of the advance.
+     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+     *  the string. The caller may pass nullptr for intervals to determine the size of the interval
+     *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
+     *  intervals are cached by glyph to improve performance for multiple calls.
+     *  This permits constructing an underline that skips the descenders. 
+     *
+     *  @param text         the text
+     *  @param length       number of bytes of text
+     *  @param x            The x-coordinate of the origin of the text.
+     *  @param y            The y-coordinate of the origin of the text.
+     *  @param bounds       The lower and upper line parallel to the advance.
+     *  @param array        If not null, the found intersections.
+     *
+     *  @return             The number of intersections, which may be zero.
+     */
+    int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
+                          const SkScalar bounds[2], SkScalar* intervals) const;
+
+    /** Return the number of intervals that intersect the intercept along the axis of the advance.
+     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+     *  string. The caller may pass nullptr for intervals to determine the size of the interval
+     *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
+     *  intervals are cached by glyph to improve performance for multiple calls.
+     *  This permits constructing an underline that skips the descenders. 
+     *
+     *  @param text         the text
+     *  @param length       number of bytes of text
+     *  @param pos          array of positions, used to position each character
+     *  @param bounds       The lower and upper line parallel to the advance.
+     *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
+     *
+     *  @return             The number of intersections, which may be zero.
+     */
+    int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
+                             const SkScalar bounds[2], SkScalar* intervals) const;
 
     /**
      *  Return a rectangle that represents the union of the bounds of all
@@ -1091,7 +1143,7 @@ private:
     friend class GrTextUtils;
     friend class GrGLPathRendering;
     friend class SkScalerContext;
-    friend class SkTextToPathIter;
+    friend class SkTextBaseIter;
     friend class SkCanonicalizePaint;
 };
 

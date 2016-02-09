@@ -62,6 +62,13 @@ struct SkDQuad {
     SkDQuadPair chopAt(double t) const;
     SkDVector dxdyAtT(double t) const;
     static int FindExtrema(const double src[], double tValue[1]);
+
+    /**
+     *  Return the number of valid roots (0 < root < 1) for this cubic intersecting the
+     *  specified horizontal line.
+     */
+    int horizontalIntersect(double yIntercept, double roots[2]) const;
+
     bool hullIntersects(const SkDQuad& , bool* isLinear) const;
     bool hullIntersects(const SkDConic& , bool* isLinear) const;
     bool hullIntersects(const SkDCubic& , bool* isLinear) const;
@@ -86,6 +93,12 @@ struct SkDQuad {
         quad.set(pts);
         return quad.subDivide(a, c, t1, t2);
     }
+
+    /**
+     *  Return the number of valid roots (0 < root < 1) for this cubic intersecting the
+     *  specified vertical line.
+     */
+    int verticalIntersect(double xIntercept, double roots[2]) const;
 
     SkDCubic debugToCubic() const;
     // utilities callable by the user from the debugger when the implementation code is linked in

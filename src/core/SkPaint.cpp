@@ -1259,6 +1259,23 @@ void SkPaint::getTextPath(const void* textData, size_t length,
     }
 }
 
+int SkPaint::getTextIntercepts(const void* textData, size_t length,
+                               SkScalar x, SkScalar y, const SkScalar bounds[2], 
+                               SkScalar* array) const {
+    SkASSERT(length == 0 || textData != nullptr);
+    if (!length) {
+        return 0;
+    }
+
+    const char* text = (const char*) textData;
+    SkTextInterceptsIter iter(text, length, *this, bounds, x, y,
+            SkTextInterceptsIter::TextType::kText);
+    int count = 0;
+    while (iter.next(array, &count)) {
+    }
+    return count;
+}
+
 void SkPaint::getPosTextPath(const void* textData, size_t length,
                              const SkPoint pos[], SkPath* path) const {
     SkASSERT(length == 0 || textData != nullptr);
@@ -1286,6 +1303,25 @@ void SkPaint::getPosTextPath(const void* textData, size_t length,
         prevPos = pos[i];
         i++;
     }
+}
+
+int SkPaint::getPosTextIntercepts(const void* textData, size_t length, const SkPoint pos[],
+                                  const SkScalar bounds[2], SkScalar* array) const {
+    SkASSERT(length == 0 || textData != nullptr);
+    if (!length) {
+        return 0;
+    }
+
+    const char* text = (const char*) textData;
+    SkTextInterceptsIter iter(text, length, *this, bounds, pos[0].fX, pos[0].fY,
+            SkTextInterceptsIter::TextType::kPosText);
+    int i = 0;
+    int count = 0;
+    while (iter.next(array, &count)) {
+        i++;
+        iter.setPosition(pos[i].fX, pos[i].fY);
+    }
+    return count;
 }
 
 SkRect SkPaint::getFontBounds() const {
@@ -2352,7 +2388,7 @@ static bool has_thick_frame(const SkPaint& paint) {
             paint.getStyle() != SkPaint::kFill_Style;
 }
 
-SkTextToPathIter::SkTextToPathIter(const char text[], size_t length,
+SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
                                    const SkPaint& paint,
                                    bool applyStrokeAndPathEffects)
     : fPaint(paint) {
@@ -2415,7 +2451,7 @@ SkTextToPathIter::SkTextToPathIter(const char text[], size_t length,
     fXYIndex = paint.isVerticalText() ? 1 : 0;
 }
 
-SkTextToPathIter::~SkTextToPathIter() {
+SkTextBaseIter::~SkTextBaseIter() {
     SkGlyphCache::AttachCache(fCache);
 }
 
@@ -2441,6 +2477,17 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
         return true;
     }
     return false;
+}
+
+bool SkTextInterceptsIter::next(SkScalar* array, int* count) {
+    const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
+    fXPos += SkScalarMul(SkFixedToScalar(fPrevAdvance + fAutoKern.adjust(glyph)), fScale);
+    fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
+    if (fCache->findPath(glyph)) {
+        fCache->findIntercepts(fBounds, fScale, fXPos, SkToBool(fXYIndex),
+                const_cast<SkGlyph*>(&glyph), array, count);
+    }
+    return fText < fStop;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

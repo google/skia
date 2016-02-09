@@ -228,3 +228,163 @@ DEF_SIMPLE_GM(textunderstrike, canvas, 460, 680) {
     paint.setStyle(SkPaint::kFill_Style);
     canvas->drawText("Hello", 5, 100, 50, paint);
 }
+
+static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
+        SkScalar last, SkScalar finalPos,
+        SkScalar uPos, SkScalar uWidth, SkScalar textSize) {
+    SkPath underline;
+    SkScalar end = last;
+    for (int index = 0; index < intersections.count(); index += 2) {
+        SkScalar start = intersections[index] - uWidth;;
+        end = intersections[index + 1] + uWidth;
+        if (start > last && last + textSize / 12 < start) {
+            underline.moveTo(last, uPos);
+            underline.lineTo(start, uPos);
+        }
+        last = end;
+    }
+    if (end < finalPos) {
+        underline.moveTo(end, uPos);
+        underline.lineTo(finalPos, uPos);
+    }
+    return underline;
+}
+
+static void find_intercepts(const char* test, size_t len, SkScalar x, SkScalar y,
+        const SkPaint& paint, SkScalar uWidth, SkTDArray<SkScalar>* intersections) {
+    SkScalar uPos = y + uWidth;
+    SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
+    int count = paint.getTextIntercepts(test, len, x, y, bounds, nullptr);
+    SkASSERT(!(count % 2));
+    if (count) {
+        intersections->setCount(count);
+        paint.getTextIntercepts(test, len, x, y, bounds, intersections->begin());
+    }
+}
+
+DEF_SIMPLE_GM(fancyunderline, canvas, 900, 1350) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const char* fam[] = { "sans-serif", "serif", "monospace" };
+    const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
+    SkPoint textPt = { 10, 80 };
+    for (int font = 0; font < 3; ++font) {
+        sk_tool_utils::set_portable_typeface(&paint, fam[font], SkTypeface::kNormal);
+        for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
+            paint.setTextSize(textSize);
+            const SkScalar uWidth = textSize / 15;
+            paint.setStrokeWidth(uWidth);
+            paint.setStyle(SkPaint::kFill_Style);
+            canvas->drawText(test, sizeof(test) - 1, textPt.fX, textPt.fY, paint);
+
+            SkTDArray<SkScalar> intersections;
+            find_intercepts(test, sizeof(test) - 1, textPt.fX, textPt.fY, paint, uWidth,
+                &intersections);
+
+            SkScalar start = textPt.fX;
+            SkScalar end = paint.measureText(test, sizeof(test) - 1) + textPt.fX;
+            SkScalar uPos = textPt.fY + uWidth;
+            SkPath underline = create_underline(intersections, start, end, uPos, uWidth, textSize);
+            paint.setStyle(SkPaint::kStroke_Style);
+            canvas->drawPath(underline, paint);
+
+            canvas->translate(0, textSize * 1.3f);
+        }
+        canvas->translate(0, 60);
+    }
+}
+
+static void find_intercepts(const char* test, size_t len, const SkPoint* pos, const SkPaint& paint,
+        SkScalar uWidth, SkTDArray<SkScalar>* intersections) {
+    SkScalar uPos = pos[0].fY + uWidth;
+    SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
+    int count = paint.getPosTextIntercepts(test, len, pos, bounds, nullptr);
+    SkASSERT(!(count % 2));
+    if (count) {
+        intersections->setCount(count);
+        paint.getPosTextIntercepts(test, len, pos, bounds, intersections->begin());
+    }
+}
+
+DEF_SIMPLE_GM(fancyposunderline, canvas, 900, 1350) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const char* fam[] = { "sans-serif", "serif", "monospace" };
+    const char test[] = "aAjJgGyY_|{-(~[,]qQ}pP}zZ";
+    SkPoint textPt = { 10, 80 };
+    for (int font = 0; font < 3; ++font) {
+        sk_tool_utils::set_portable_typeface(&paint, fam[font], SkTypeface::kNormal);
+        for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
+            paint.setTextSize(textSize);
+            const SkScalar uWidth = textSize / 15;
+            paint.setStrokeWidth(uWidth);
+            paint.setStyle(SkPaint::kFill_Style);
+            int widthCount = paint.getTextWidths(test, sizeof(test) - 1, nullptr);
+            SkTDArray<SkScalar> widths;
+            widths.setCount(widthCount);
+            (void) paint.getTextWidths(test, sizeof(test) - 1, widths.begin());
+            SkTDArray<SkPoint> pos;
+            pos.setCount(widthCount);
+            SkScalar posX = textPt.fX;
+            for (int index = 0; index < widthCount; ++index) {
+                pos[index].fX = posX;
+                posX += widths[index];
+                pos[index].fY = textPt.fY + (textSize / 25) * (index % 4);
+            }
+            canvas->drawPosText(test, sizeof(test) - 1, pos.begin(), paint);
+
+            SkTDArray<SkScalar> intersections;
+            find_intercepts(test, sizeof(test) - 1, pos.begin(), paint, uWidth, &intersections);
+
+            SkScalar start = textPt.fX;
+            SkScalar end = posX;
+            SkScalar uPos = textPt.fY + uWidth;
+            SkPath underline = create_underline(intersections, start, end, uPos, uWidth, textSize);
+            paint.setStyle(SkPaint::kStroke_Style);
+            canvas->drawPath(underline, paint);
+
+            canvas->translate(0, textSize * 1.3f);
+        }
+        canvas->translate(0, 60);
+    }
+}
+
+DEF_SIMPLE_GM(fancyunderlinebars, canvas, 1500, 460) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const char test[] = " .}]_ .}]_ .}]_ .}]_ .}]_ .}]_ .}]_ .}]_ .}]_ .}]_ .}]_ .}]_ .}]_";
+    SkPoint textPt = { 10, 80 };
+    sk_tool_utils::set_portable_typeface(&paint, "serif");
+    for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
+        paint.setTextSize(textSize);
+        SkScalar uWidth = textSize / 15;
+        paint.setStrokeWidth(uWidth);
+        paint.setStyle(SkPaint::kFill_Style);
+        int widthCount = paint.getTextWidths(test, sizeof(test) - 1, nullptr);
+        SkTDArray<SkScalar> widths;
+        widths.setCount(widthCount);
+        (void) paint.getTextWidths(test, sizeof(test) - 1, widths.begin());
+        SkTDArray<SkPoint> pos;
+        pos.setCount(widthCount);
+        SkScalar posX = textPt.fX;
+        pos[0] = textPt;
+        posX += widths[0];
+        for (int index = 1; index < widthCount; ++index) {
+            pos[index].fX = posX;
+            posX += widths[index];
+            pos[index].fY = textPt.fY - (textSize / 50) * (index / 5) + textSize / 50 * 4;
+        }
+        canvas->drawPosText(test, sizeof(test) - 1, pos.begin(), paint);
+
+        SkTDArray<SkScalar> intersections;
+        find_intercepts(test, sizeof(test) - 1, pos.begin(), paint, uWidth, &intersections);
+
+        SkScalar start = textPt.fX;
+        SkScalar end = posX;
+        SkScalar uPos = pos[0].fY + uWidth;
+        SkPath underline = create_underline(intersections, start, end, uPos, uWidth, textSize);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawPath(underline, paint);
+        canvas->translate(0, textSize * 1.3f);
+    }
+}
