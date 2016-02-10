@@ -143,9 +143,6 @@ DEF_TEST(KtxReadUnpremul, reporter) {
     }
 }
 
-// For KtxReexportPKM, below. Defined in SkImageDecoder_ktx.cpp
-extern SkImageGenerator* decoder_image_generator(SkData*);
-
 /**
  * Finally, make sure that if we get ETC1 data from a PKM file that we can then
  * accurately write it out into a KTX file (i.e. transferring the ETC1 data from
@@ -163,7 +160,7 @@ DEF_TEST(KtxReexportPKM, reporter) {
     }
 
     bool installDiscardablePixelRefSuccess =
-        SkDEPRECATED_InstallDiscardablePixelRef(decoder_image_generator(fileData), &etcBitmap);
+        SkDEPRECATED_InstallDiscardablePixelRef(fileData, &etcBitmap);
     if (!installDiscardablePixelRefSuccess) {
         ERRORF(reporter, "failed to create discardable pixelRef from KTX file");
         return;

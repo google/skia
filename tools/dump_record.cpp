@@ -6,6 +6,7 @@
  */
 
 #include "DumpRecord.h"
+#include "LazyDecodeBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -49,7 +50,8 @@ int tool_main(int argc, char** argv) {
             SkDebugf("Could not read %s.\n", FLAGS_skps[i]);
             return 1;
         }
-        SkAutoTUnref<SkPicture> src(SkPicture::CreateFromStream(stream));
+        SkAutoTUnref<SkPicture> src(
+                SkPicture::CreateFromStream(stream, sk_tools::LazyDecodeBitmap));
         if (!src) {
             SkDebugf("Could not read %s as an SkPicture.\n", FLAGS_skps[i]);
             return 1;

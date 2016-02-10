@@ -17,7 +17,6 @@
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkLayerInfo.h"
-#include "SkMD5.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -872,18 +871,7 @@ static void assert_one_parse_error_cb(SkError error, void* context) {
                             SkGetLastErrorString());
 }
 
-static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
-    SkAutoLockPixels autoLockPixels(bm);
-    SkASSERT(bm.getPixels());
-    SkMD5 md5;
-    size_t rowLen = bm.info().bytesPerPixel() * bm.width();
-    for (int y = 0; y < bm.height(); ++y) {
-        md5.update(static_cast<uint8_t*>(bm.getAddr(0, y)), rowLen);
-    }
-    md5.finish(*digest);
-}
-
-DEF_TEST(Picture_EncodedData, reporter) {
+static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     // Create a bitmap that will be encoded.
     SkBitmap original;
     make_bm(&original, 100, 100, SK_ColorBLUE, true);
@@ -903,7 +891,6 @@ DEF_TEST(Picture_EncodedData, reporter) {
     SkAutoDataUnref picture1(serialized_picture_from_bitmap(original));
     SkAutoDataUnref picture2(serialized_picture_from_bitmap(bm));
     REPORTER_ASSERT(reporter, picture1->equals(picture2));
-
     // Now test that a parse error was generated when trying to create a new SkPicture without
     // providing a function to decode the bitmap.
     ErrorContext context;
@@ -916,24 +903,6 @@ DEF_TEST(Picture_EncodedData, reporter) {
     REPORTER_ASSERT(reporter, pictureFromStream.get() != nullptr);
     SkClearLastError();
     SkSetErrorCallback(nullptr, nullptr);
-
-    // Test that using the version of CreateFromStream that just takes a stream also decodes the
-    // bitmap. Drawing this picture should look exactly like the original bitmap.
-    SkMD5::Digest referenceDigest;
-    md5(original, &referenceDigest);
-
-    SkBitmap dst;
-    dst.allocPixels(original.info());
-    dst.eraseColor(SK_ColorRED);
-    SkCanvas canvas(dst);
-
-    pictureStream.rewind();
-    pictureFromStream.reset(SkPicture::CreateFromStream(&pictureStream));
-    canvas.drawPicture(pictureFromStream.get());
-
-    SkMD5::Digest digest2;
-    md5(dst, &digest2);
-    REPORTER_ASSERT(reporter, referenceDigest == digest2);
 }
 
 static void test_clip_bound_opt(skiatest::Reporter* reporter) {
@@ -1205,6 +1174,7 @@ DEF_TEST(Picture, reporter) {
     test_has_text(reporter);
     test_images_are_found_by_willPlayBackBitmaps(reporter);
     test_analysis(reporter);
+    test_bitmap_with_encoded_data(reporter);
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);
     test_hierarchical(reporter);

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "LazyDecodeBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -41,7 +42,9 @@ int tool_main(int argc, char** argv) {
         return kError;
     }
 
-    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream));
+    SkPicture::InstallPixelRefProc proc = &sk_tools::LazyDecodeBitmap;
+
+    SkAutoTUnref<SkPicture> picture(SkPicture::CreateFromStream(&inputStream, proc));
     if (nullptr == picture.get()) {
         if (!FLAGS_quiet) {
             SkDebugf("Could not read the SkPicture\n");

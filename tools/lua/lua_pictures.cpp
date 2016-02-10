@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "LazyDecodeBitmap.h"
 #include "SkLua.h"
 #include "SkLuaCanvas.h"
 #include "SkPicture.h"
@@ -43,7 +44,7 @@ static SkPicture* load_picture(const char path[]) {
     SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
     SkPicture* pic = nullptr;
     if (stream.get()) {
-        pic = SkPicture::CreateFromStream(stream.get());
+        pic = SkPicture::CreateFromStream(stream.get(), &sk_tools::LazyDecodeBitmap);
     }
     return pic;
 }

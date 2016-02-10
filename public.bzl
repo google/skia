@@ -380,6 +380,8 @@ DM_SRCS_ALL = struct(
         "tests/*.h",
         "tools/CrashHandler.cpp",
         "tools/CrashHandler.h",
+        "tools/LazyDecodeBitmap.cpp",
+        "tools/LazyDecodeBitmap.h",
         "tools/ProcStats.cpp",
         "tools/ProcStats.h",
         "tools/Resources.cpp",

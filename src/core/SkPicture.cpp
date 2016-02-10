@@ -6,7 +6,6 @@
  */
 
 #include "SkAtomics.h"
-#include "SkImageGenerator.h"
 #include "SkMessageBus.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -137,16 +136,6 @@ SkPicture* SkPicture::Forwardport(const SkPictInfo& info, const SkPictureData* d
     SkPictureRecorder r;
     playback.draw(r.beginRecording(info.fCullRect), nullptr/*no callback*/);
     return r.endRecording();
-}
-
-static bool default_install(const void* src, size_t length, SkBitmap* dst) {
-    SkAutoTUnref<SkData> encoded(SkData::NewWithCopy(src, length));
-    return encoded && SkDEPRECATED_InstallDiscardablePixelRef(
-            SkImageGenerator::NewFromEncoded(encoded), dst);
-}
-
-SkPicture* SkPicture::CreateFromStream(SkStream* stream) {
-    return CreateFromStream(stream, &default_install, nullptr);
 }
 
 SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
