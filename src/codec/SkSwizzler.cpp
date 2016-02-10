@@ -929,15 +929,17 @@ SkSwizzler::SkSwizzler(RowProc fastProc, RowProc proc, const SkPMColor* ctable, 
 {}
 
 int SkSwizzler::onSetSampleX(int sampleX) {
-    SkASSERT(sampleX > 0); // Surely there is an upper limit? Should there be
-                           // way to report failure?
+    SkASSERT(sampleX > 0);
+
     fSampleX = sampleX;
     fSrcOffsetUnits = (get_start_coord(sampleX) + fSrcOffset) * fSrcBPP;
     fDstOffsetBytes = (fDstOffset / sampleX) * fDstBPP;
     fSwizzleWidth = get_scaled_dimension(fSrcWidth, sampleX);
     fAllocatedWidth = get_scaled_dimension(fDstWidth, sampleX);
 
-    // The optimized swizzler routines do not (yet) support sampling.
+    // The optimized swizzler functions do not support sampling.  Sampled swizzles
+    // are already fast because they skip pixels.  We haven't seen a situation
+    // where speeding up sampling has a significant impact on total decode time.
     if (1 == fSampleX && fFastProc) {
         fActualProc = fFastProc;
     } else {
