@@ -438,27 +438,27 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
     return count;
 }
 
-#ifndef TURBO_HAS_SKIP
-// TODO (msarett): Avoid reallocating the memory buffer on each call to skip.
-static uint32_t jpeg_skip_scanlines(jpeg_decompress_struct* dinfo, int count) {
-    SkAutoTMalloc<uint8_t> storage(get_row_bytes(dinfo));
-    uint8_t* storagePtr = storage.get();
-    for (int y = 0; y < count; y++) {
-        if (1 != jpeg_read_scanlines(dinfo, &storagePtr, 1)) {
-            return y;
-        }
-    }
-    return count;
-}
-#endif
-
 bool SkJpegCodec::onSkipScanlines(int count) {
     // Set the jump location for libjpeg errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
         return fDecoderMgr->returnFalse("setjmp");
     }
 
+#ifdef TURBO_HAS_SKIP
     return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
+#else
+    if (!fSrcRow) {
+        fStorage.reset(get_row_bytes(fDecoderMgr->dinfo()));
+        fSrcRow = fStorage.get();
+    }
+
+    for (int y = 0; y < count; y++) {
+        if (1 != jpeg_read_scanlines(fDecoderMgr->dinfo(), &fSrcRow, 1)) {
+            return false;
+        }
+    }
+    return true;
+#endif
 }
 
 static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
