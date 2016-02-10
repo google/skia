@@ -134,9 +134,10 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         return nullptr;
     }
 
+    this->finalizeShaders();
+
     // compile shaders and bind attributes / uniforms
     SkTDArray<GrGLuint> shadersToDelete;
-    fVS.finalize(GrGLSLUniformHandler::kVertex_Visibility);
     if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
@@ -153,7 +154,6 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         }
     }
 
-    fFS.finalize(GrGLSLUniformHandler::kFragment_Visibility);
     if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;

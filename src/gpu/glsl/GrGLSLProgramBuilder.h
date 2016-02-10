@@ -98,6 +98,8 @@ protected:
 
     void cleanupFragmentProcessors();
 
+    void finalizeShaders();
+
 private:
     // reset is called by program creator between each processor's emit code.  It increments the
     // stage offset for variable name mangling, and also ensures verfication variables in the

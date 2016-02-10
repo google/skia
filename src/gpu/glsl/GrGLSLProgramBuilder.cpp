@@ -10,6 +10,7 @@
 #include "GrPipeline.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
+#include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
@@ -286,3 +287,9 @@ void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
     }
 }
 
+void GrGLSLProgramBuilder::finalizeShaders() {
+    this->varyingHandler()->finalize();
+    fVS.finalize(GrGLSLUniformHandler::kVertex_Visibility);
+    fFS.finalize(GrGLSLUniformHandler::kFragment_Visibility);
+
+}
