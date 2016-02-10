@@ -109,7 +109,7 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
 /* The test below generates a reference image using SVG. To compare the result for correctness,
    enable the define below and then view the generated SVG in a browser.
  */
-#define GENERATE_SVG_REFERENCE 01
+#define GENERATE_SVG_REFERENCE 0
 
 #if GENERATE_SVG_REFERENCE
 #include "SkOSFile.h"
