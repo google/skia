@@ -62,8 +62,7 @@ bool SkSurface_Gpu::onGetRenderTargetHandle(GrBackendObject* obj, BackendHandleA
 
 SkCanvas* SkSurface_Gpu::onNewCanvas() {
     SkCanvas::InitFlags flags = SkCanvas::kDefault_InitFlags;
-    // When we think this works...
-//    flags |= SkCanvas::kConservativeRasterClip_InitFlag;
+    flags = static_cast<SkCanvas::InitFlags>(flags | SkCanvas::kConservativeRasterClip_InitFlag);
 
     return new SkCanvas(fDevice, flags);
 }
