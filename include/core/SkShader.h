@@ -323,7 +323,7 @@ public:
      *  the colorfilter.
      */
     SkShader* newWithColorFilter(SkColorFilter*) const;
-    
+
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders
     
@@ -337,6 +337,18 @@ public:
      *  draw the same as a paint with this color (and no shader).
      */
     static SkShader* CreateColorShader(SkColor);
+
+    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode);
+
+    /**
+     *  Create a new compose shader, given shaders dst, src, and a combining xfermode mode.
+     *  The xfermode is called with the output of the two shaders, and its output is returned.
+     *  If xfer is null, SkXfermode::kSrcOver_Mode is assumed.
+     *
+     *  Ownership of the shaders, and the xfermode if not null, is not transfered, so the caller
+     *  is still responsible for managing its reference-count for those objects.
+     */
+    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer);
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *

@@ -252,3 +252,17 @@ void SkComposeShader::toString(SkString* str) const {
     str->append(")");
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer) {
+    if (!dst || !src) {
+        return nullptr;
+    }
+    return new SkComposeShader(dst, src, xfer);
+}
+
+SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode mode) {
+    SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
+    return CreateComposeShader(dst, src, xfer);
+}
