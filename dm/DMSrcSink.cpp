@@ -271,7 +271,9 @@ CodecSrc::CodecSrc(Path path, Mode mode, DstColorType dstColorType, SkAlphaType 
 bool CodecSrc::veto(SinkFlags flags) const {
     // Test CodecImageGenerator on 8888, 565, and gpu
     if (kGen_Mode == fMode) {
-        return flags.type != SinkFlags::kRaster || flags.type != SinkFlags::kGPU ||
+        // For image generator, we want to test kDirect approaches for kRaster and kGPU,
+        // while skipping everything else.
+        return (flags.type != SinkFlags::kRaster && flags.type != SinkFlags::kGPU) ||
                 flags.approach != SinkFlags::kDirect;
     }
 
