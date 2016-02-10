@@ -528,11 +528,15 @@ public:
                        const SkPoint texCoords[4], SkXfermode* xmode,
                        const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
+    Json::Value toJSON() const override;
+    static SkDrawPatchCommand* fromJSON(Json::Value& command);
 
 private:
     SkPoint fCubics[12];
-    SkColor fColors[4];
-    SkPoint fTexCoords[4];
+    SkColor* fColorsPtr;
+    SkColor  fColors[4];
+    SkPoint* fTexCoordsPtr;
+    SkPoint  fTexCoords[4];
     SkAutoTUnref<SkXfermode> fXfermode;
     SkPaint fPaint;
 
