@@ -23,14 +23,12 @@ GrAtlasTextBlob* GrTextBlobCache::createBlob(int glyphCount, int runCount, size_
                   sizeof(GrAtlasTextBlob::Run) * runCount;
 
     void* allocation = fPool.allocate(size);
-#ifdef CACHE_SANITY_CHECK
-    sk_bzero(allocation, size);
-#endif
+    if (CACHE_SANITY_CHECK) {
+        sk_bzero(allocation, size);
+    }
 
     GrAtlasTextBlob* cacheBlob = new (allocation) GrAtlasTextBlob;
-#ifdef CACHE_SANITY_CHECK
     cacheBlob->fSize = size;
-#endif
 
     // setup offsets for vertices / glyphs
     cacheBlob->fVertices = sizeof(GrAtlasTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);

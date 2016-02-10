@@ -25,7 +25,7 @@ class SkTextBlobRunIterator;
 
 // With this flag enabled, the GrAtlasTextContext will, as a sanity check, regenerate every blob
 // that comes in to verify the integrity of its cache
-//#define CACHE_SANITY_CHECK // VERY SLOW
+#define CACHE_SANITY_CHECK 0
 
 /*
  * A GrAtlasTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
@@ -200,10 +200,7 @@ public:
     static const size_t kLCDTextVASize = kGrayTextVASize;
     static const int kVerticesPerGlyph = 4;
 
-#ifdef CACHE_SANITY_CHECK
     static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
-    size_t fSize;
-#endif
 
     // The color here is the GrPaint color, and it is used to determine whether we
     // have to regenerate LCD text blobs.
@@ -443,6 +440,7 @@ private:
     Key fKey;
     SkMatrix fViewMatrix;
     SkMatrix fInitialViewMatrixInverse;
+    size_t fSize;
     GrColor fPaintColor;
     SkScalar fInitialX;
     SkScalar fInitialY;

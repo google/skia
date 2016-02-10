@@ -156,20 +156,18 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
                                      blob, x, y, drawFilter);
         } else {
             fCache->makeMRU(cacheBlob);
-#ifdef CACHE_SANITY_CHECK
-            {
+
+            if (CACHE_SANITY_CHECK) {
                 int glyphCount = 0;
                 int runCount = 0;
                 GrTextBlobCache::BlobGlyphCount(&glyphCount, &runCount, blob);
-                SkAutoTUnref<GrAtlasTextBlob> sanityBlob(fCache->createBlob(glyphCount, runCount,
-                                                                            kGrayTextVASize));
+                SkAutoTUnref<GrAtlasTextBlob> sanityBlob(
+                    fCache->createBlob(glyphCount, runCount, GrAtlasTextBlob::kGrayTextVASize));
                 GrTextBlobCache::SetupCacheBlobKey(sanityBlob, key, blurRec, skPaint);
                 this->regenerateTextBlob(sanityBlob, skPaint, grPaint.getColor(), viewMatrix,
                                          blob, x, y, drawFilter);
                 GrAtlasTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
             }
-
-#endif
         }
     } else {
         if (canCache) {

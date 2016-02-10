@@ -422,104 +422,89 @@ GrDrawBatch* GrAtlasTextBlob::test_createBatch(
                              props, distanceAdjustTable, cache);
 }
 
-// TODO get this code building again
-#ifdef CACHE_SANITY_CHECK
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {
-    SkASSERT(l.fSize == r.fSize);
-    SkASSERT(l.fPool == r.fPool);
+    SkASSERT_RELEASE(l.fSize == r.fSize);
+    SkASSERT_RELEASE(l.fPool == r.fPool);
 
-    SkASSERT(l.fBlurRec.fSigma == r.fBlurRec.fSigma);
-    SkASSERT(l.fBlurRec.fStyle == r.fBlurRec.fStyle);
-    SkASSERT(l.fBlurRec.fQuality == r.fBlurRec.fQuality);
+    SkASSERT_RELEASE(l.fBlurRec.fSigma == r.fBlurRec.fSigma);
+    SkASSERT_RELEASE(l.fBlurRec.fStyle == r.fBlurRec.fStyle);
+    SkASSERT_RELEASE(l.fBlurRec.fQuality == r.fBlurRec.fQuality);
 
-    SkASSERT(l.fStrokeInfo.fFrameWidth == r.fStrokeInfo.fFrameWidth);
-    SkASSERT(l.fStrokeInfo.fMiterLimit == r.fStrokeInfo.fMiterLimit);
-    SkASSERT(l.fStrokeInfo.fJoin == r.fStrokeInfo.fJoin);
+    SkASSERT_RELEASE(l.fStrokeInfo.fFrameWidth == r.fStrokeInfo.fFrameWidth);
+    SkASSERT_RELEASE(l.fStrokeInfo.fMiterLimit == r.fStrokeInfo.fMiterLimit);
+    SkASSERT_RELEASE(l.fStrokeInfo.fJoin == r.fStrokeInfo.fJoin);
 
-    SkASSERT(l.fBigGlyphs.count() == r.fBigGlyphs.count());
+    SkASSERT_RELEASE(l.fBigGlyphs.count() == r.fBigGlyphs.count());
     for (int i = 0; i < l.fBigGlyphs.count(); i++) {
         const BigGlyph& lBigGlyph = l.fBigGlyphs[i];
         const BigGlyph& rBigGlyph = r.fBigGlyphs[i];
 
-        SkASSERT(lBigGlyph.fPath == rBigGlyph.fPath);
+        SkASSERT_RELEASE(lBigGlyph.fPath == rBigGlyph.fPath);
         // We can't assert that these have the same translations
     }
 
-    SkASSERT(l.fKey == r.fKey);
-    SkASSERT(l.fViewMatrix.cheapEqualTo(r.fViewMatrix));
-    SkASSERT(l.fPaintColor == r.fPaintColor);
-    SkASSERT(l.fMaxMinScale == r.fMaxMinScale);
-    SkASSERT(l.fMinMaxScale == r.fMinMaxScale);
-    SkASSERT(l.fTextType == r.fTextType);
+    SkASSERT_RELEASE(l.fKey == r.fKey);
+    SkASSERT_RELEASE(l.fViewMatrix.cheapEqualTo(r.fViewMatrix));
+    //SkASSERT_RELEASE(l.fPaintColor == r.fPaintColor); // Colors might not actually be identical
+    SkASSERT_RELEASE(l.fMaxMinScale == r.fMaxMinScale);
+    SkASSERT_RELEASE(l.fMinMaxScale == r.fMinMaxScale);
+    SkASSERT_RELEASE(l.fTextType == r.fTextType);
 
-    SkASSERT(l.fRunCount == r.fRunCount);
+    SkASSERT_RELEASE(l.fRunCount == r.fRunCount);
     for (int i = 0; i < l.fRunCount; i++) {
         const Run& lRun = l.fRuns[i];
         const Run& rRun = r.fRuns[i];
 
-        if (lRun.fStrike.get()) {
-            SkASSERT(rRun.fStrike.get());
-            SkASSERT(GrBatchTextStrike::GetKey(*lRun.fStrike) ==
-                     GrBatchTextStrike::GetKey(*rRun.fStrike));
-
-        } else {
-            SkASSERT(!rRun.fStrike.get());
-        }
-
         if (lRun.fTypeface.get()) {
-            SkASSERT(rRun.fTypeface.get());
-            SkASSERT(SkTypeface::Equal(lRun.fTypeface, rRun.fTypeface));
+            SkASSERT_RELEASE(rRun.fTypeface.get());
+            SkASSERT_RELEASE(SkTypeface::Equal(lRun.fTypeface, rRun.fTypeface));
         } else {
-            SkASSERT(!rRun.fTypeface.get());
+            SkASSERT_RELEASE(!rRun.fTypeface.get());
         }
 
-        // We offset bounds right before flush time so they will not be correct here
-        //SkASSERT(lRun.fVertexBounds == rRun.fVertexBounds);
 
-        SkASSERT(lRun.fDescriptor.getDesc());
-        SkASSERT(rRun.fDescriptor.getDesc());
-        SkASSERT(lRun.fDescriptor.getDesc()->equals(*rRun.fDescriptor.getDesc()));
+        SkASSERT_RELEASE(lRun.fDescriptor.getDesc());
+        SkASSERT_RELEASE(rRun.fDescriptor.getDesc());
+        SkASSERT_RELEASE(lRun.fDescriptor.getDesc()->equals(*rRun.fDescriptor.getDesc()));
 
         if (lRun.fOverrideDescriptor.get()) {
-            SkASSERT(lRun.fOverrideDescriptor->getDesc());
-            SkASSERT(rRun.fOverrideDescriptor.get() && rRun.fOverrideDescriptor->getDesc());;
-            SkASSERT(lRun.fOverrideDescriptor->getDesc()->equals(
+            SkASSERT_RELEASE(lRun.fOverrideDescriptor->getDesc());
+            SkASSERT_RELEASE(rRun.fOverrideDescriptor.get() && rRun.fOverrideDescriptor->getDesc());
+            SkASSERT_RELEASE(lRun.fOverrideDescriptor->getDesc()->equals(
                     *rRun.fOverrideDescriptor->getDesc()));
         } else {
-            SkASSERT(!rRun.fOverrideDescriptor.get());
+            SkASSERT_RELEASE(!rRun.fOverrideDescriptor.get());
         }
 
         // color can be changed
         //SkASSERT(lRun.fColor == rRun.fColor);
-        SkASSERT(lRun.fInitialized == rRun.fInitialized);
-        SkASSERT(lRun.fDrawAsPaths == rRun.fDrawAsPaths);
+        SkASSERT_RELEASE(lRun.fInitialized == rRun.fInitialized);
+        SkASSERT_RELEASE(lRun.fDrawAsPaths == rRun.fDrawAsPaths);
 
-        SkASSERT(lRun.fSubRunInfo.count() == rRun.fSubRunInfo.count());
+        SkASSERT_RELEASE(lRun.fSubRunInfo.count() == rRun.fSubRunInfo.count());
         for(int j = 0; j < lRun.fSubRunInfo.count(); j++) {
             const Run::SubRunInfo& lSubRun = lRun.fSubRunInfo[j];
             const Run::SubRunInfo& rSubRun = rRun.fSubRunInfo[j];
 
-            SkASSERT(lSubRun.fVertexStartIndex == rSubRun.fVertexStartIndex);
-            SkASSERT(lSubRun.fVertexEndIndex == rSubRun.fVertexEndIndex);
-            SkASSERT(lSubRun.fGlyphStartIndex == rSubRun.fGlyphStartIndex);
-            SkASSERT(lSubRun.fGlyphEndIndex == rSubRun.fGlyphEndIndex);
-            SkASSERT(lSubRun.fTextRatio == rSubRun.fTextRatio);
-            SkASSERT(lSubRun.fMaskFormat == rSubRun.fMaskFormat);
-            SkASSERT(lSubRun.fDrawAsDistanceFields == rSubRun.fDrawAsDistanceFields);
-            SkASSERT(lSubRun.fUseLCDText == rSubRun.fUseLCDText);
+            // TODO we can do this check, but we have to apply the VM to the old vertex bounds
+            //SkASSERT_RELEASE(lSubRun.vertexBounds() == rSubRun.vertexBounds());
 
-            //We can't compare the bulk use tokens with this method
-            /*
-            SkASSERT(lSubRun.fBulkUseToken.fPlotsToUpdate.count() ==
-                     rSubRun.fBulkUseToken.fPlotsToUpdate.count());
-            SkASSERT(lSubRun.fBulkUseToken.fPlotAlreadyUpdated ==
-                     rSubRun.fBulkUseToken.fPlotAlreadyUpdated);
-            for (int k = 0; k < lSubRun.fBulkUseToken.fPlotsToUpdate.count(); k++) {
-                SkASSERT(lSubRun.fBulkUseToken.fPlotsToUpdate[k] ==
-                         rSubRun.fBulkUseToken.fPlotsToUpdate[k]);
-            }*/
+            if (lSubRun.strike()) {
+                SkASSERT_RELEASE(rSubRun.strike());
+                SkASSERT_RELEASE(GrBatchTextStrike::GetKey(*lSubRun.strike()) ==
+                                 GrBatchTextStrike::GetKey(*rSubRun.strike()));
+
+            } else {
+                SkASSERT_RELEASE(!rSubRun.strike());
+            }
+
+            SkASSERT_RELEASE(lSubRun.vertexStartIndex() == rSubRun.vertexStartIndex());
+            SkASSERT_RELEASE(lSubRun.vertexEndIndex() == rSubRun.vertexEndIndex());
+            SkASSERT_RELEASE(lSubRun.glyphStartIndex() == rSubRun.glyphStartIndex());
+            SkASSERT_RELEASE(lSubRun.glyphEndIndex() == rSubRun.glyphEndIndex());
+            SkASSERT_RELEASE(lSubRun.maskFormat() == rSubRun.maskFormat());
+            SkASSERT_RELEASE(lSubRun.drawAsDistanceFields() == rSubRun.drawAsDistanceFields());
+            SkASSERT_RELEASE(lSubRun.hasUseLCDText() == rSubRun.hasUseLCDText());
         }
     }
 }
-
-#endif
