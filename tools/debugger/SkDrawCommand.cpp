@@ -567,13 +567,14 @@ static Json::Value make_json_pointmode(SkCanvas::PointMode mode) {
     };
 }
 
-void store_scalar(Json::Value* target, const char* key, SkScalar value, SkScalar defaultValue) {
+static void store_scalar(Json::Value* target, const char* key, SkScalar value, 
+                         SkScalar defaultValue) {
     if (value != defaultValue) {
         (*target)[key] = Json::Value(value);
     }
 }
 
-void store_bool(Json::Value* target, const char* key, bool value, bool defaultValue) {
+static void store_bool(Json::Value* target, const char* key, bool value, bool defaultValue) {
     if (value != defaultValue) {
         (*target)[key] = Json::Value(value);
     }
