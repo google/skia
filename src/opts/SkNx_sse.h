@@ -14,14 +14,13 @@
 #define SKNX_IS_FAST
 
 // SSE 4.1 has _mm_floor_ps to floor 4 floats.  We emulate it:
-//   - round by adding (1<<23) with our sign, then subtracting it;
-//   - if that rounded value is bigger than our input, subtract 1.
+//   - roundtrip through integers via truncation
+//   - subtract 1 if that's too big (possible for negative values).
+// This restricts the domain of our inputs to a maximum somehwere around 2^31.  Seems plenty big.
 static inline __m128 sse2_mm_floor_ps(__m128 v) {
-    __m128 sign = _mm_and_ps(v, _mm_set1_ps(-0.0f));
-    __m128 bias = _mm_or_ps(sign, _mm_set1_ps(1<<23));
-    __m128 rounded = _mm_sub_ps(_mm_add_ps(v, bias), bias);
-    __m128 too_big = _mm_cmpgt_ps(rounded, v);
-    return _mm_sub_ps(rounded, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
+    __m128 roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
+    __m128 too_big = _mm_cmpgt_ps(roundtrip, v);
+    return _mm_sub_ps(roundtrip, _mm_and_ps(too_big, _mm_set1_ps(1.0f)));
 }
 
 template <>
