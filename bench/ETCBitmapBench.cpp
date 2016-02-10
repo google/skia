@@ -73,6 +73,9 @@ static etc1_byte* create_expanded_etc1_bitmap(const uint8_t* orig, int factor) {
     return newData;
 }
 
+// Defined in SkImageDecoder_ktx.cpp
+extern SkImageGenerator* decoder_image_generator(SkData*);
+
 // This is the base class for all of the benches in this file. In general
 // the ETC1 benches should all be working on the same data. Due to the
 // simplicity of the PKM file, that data is the 128x128 mandrill etc1
@@ -151,10 +154,10 @@ protected:
         }
 
         if (fDecompress) {
-            SkAutoTDelete<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(fPKMData));
+            SkAutoTDelete<SkImageGenerator> gen(decoder_image_generator(fPKMData));
             gen->generateBitmap(&fBitmap);
         } else {
-            fImage.reset(SkImage::NewFromEncoded(fPKMData));
+            fImage.reset(SkImage::NewFromGenerator(decoder_image_generator(fPKMData)));
         }
     }
 

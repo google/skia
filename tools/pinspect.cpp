@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "LazyDecodeBitmap.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
@@ -35,7 +34,7 @@ static SkPicture* inspect(const char path[]) {
     }
 
     stream.rewind();
-    SkPicture* pic = SkPicture::CreateFromStream(&stream, &sk_tools::LazyDecodeBitmap);
+    SkPicture* pic = SkPicture::CreateFromStream(&stream);
     if (nullptr == pic) {
         SkDebugf("Could not create SkPicture: %s\n", path);
         return nullptr;

@@ -54,8 +54,19 @@ public:
      *  @return A new SkPicture representing the serialized data, or NULL if the stream is
      *          invalid.
      */
-    static SkPicture* CreateFromStream(SkStream*,
-                                       InstallPixelRefProc proc = &SkImageDecoder::DecodeMemory);
+    static SkPicture* CreateFromStream(SkStream*, InstallPixelRefProc proc);
+
+    /**
+     *  Recreate a picture that was serialized into a stream.
+     *
+     *  Any serialized images in the stream will be passed to
+     *  SkImageGenerator::NewFromEncoded.
+     *
+     *  @param SkStream Serialized picture data. Ownership is unchanged by this call.
+     *  @return A new SkPicture representing the serialized data, or NULL if the stream is
+     *          invalid.
+     */
+    static SkPicture* CreateFromStream(SkStream*);
 
     /**
      *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap

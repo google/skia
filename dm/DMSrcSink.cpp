@@ -40,11 +40,6 @@ DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
 DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
 
-static bool lazy_decode_bitmap(const void* src, size_t size, SkBitmap* dst) {
-    SkAutoTUnref<SkData> encoded(SkData::NewWithCopy(src, size));
-    return encoded && SkDEPRECATED_InstallDiscardablePixelRef(encoded, dst);
-}
-
 namespace DM {
 
 GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
@@ -804,7 +799,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream, &lazy_decode_bitmap));
+    SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream));
     if (!pic) {
         return SkStringPrintf("Couldn't decode %s as a picture.", fPath.c_str());
     }
@@ -1177,7 +1172,7 @@ Error ViaSerialization::draw(
     SkDynamicMemoryWStream wStream;
     pic->serialize(&wStream);
     SkAutoTDelete<SkStream> rStream(wStream.detachAsStream());
-    SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream, &lazy_decode_bitmap));
+    SkAutoTUnref<SkPicture> deserialized(SkPicture::CreateFromStream(rStream));
 
     return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);
