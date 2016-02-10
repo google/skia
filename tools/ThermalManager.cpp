@@ -11,6 +11,10 @@
 
 #include <stdio.h>
 
+#ifndef SK_BUILD_FOR_WIN32
+    #include <unistd.h>
+#endif
+
 #ifdef THERMAL_MANAGER_SUPPORTED
 
 /*
