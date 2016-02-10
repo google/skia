@@ -16,6 +16,7 @@
 #include "SkTLList.h"
 #include "batches/GrDrawPathBatch.h"
 
+class GrAtlasTextContext;
 class GrTextStrike;
 class GrPath;
 class SkSurfaceProps;
@@ -29,30 +30,38 @@ class GrStencilAndCoverTextContext : public GrTextContext {
 public:
     static GrStencilAndCoverTextContext* Create(GrContext*, const SkSurfaceProps&);
 
+    void drawText(GrDrawContext* dc,
+                  const GrClip&,  const GrPaint&, const SkPaint&,
+                  const SkMatrix& viewMatrix, const char text[], size_t byteLength, SkScalar x,
+                  SkScalar y, const SkIRect& clipBounds) override;
+    void drawPosText(GrDrawContext*,
+                     const GrClip&, const GrPaint&, const SkPaint&,
+                     const SkMatrix& viewMatrix,
+                     const char text[], size_t byteLength,
+                     const SkScalar pos[], int scalarsPerPosition,
+                     const SkPoint& offset, const SkIRect& clipBounds) override;
+    void drawTextBlob(GrDrawContext*, const GrClip&, const SkPaint&,
+                      const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
+                      SkDrawFilter*, const SkIRect& clipBounds) override;
+
     virtual ~GrStencilAndCoverTextContext();
 
 private:
     GrStencilAndCoverTextContext(GrContext*, const SkSurfaceProps&);
 
-    bool canDraw(const SkPaint& skPaint, const SkMatrix&) override {
+    bool canDraw(const SkPaint& skPaint, const SkMatrix&) {
         return this->internalCanDraw(skPaint);
     }
 
     bool internalCanDraw(const SkPaint&);
 
-    void onDrawText(GrDrawContext*, const GrClip&, const GrPaint&, const SkPaint&,
-                    const SkMatrix& viewMatrix,
-                    const char text[], size_t byteLength,
-                    SkScalar x, SkScalar y, const SkIRect& clipBounds) override;
-    void onDrawPosText(GrDrawContext*,
-                       const GrClip&, const GrPaint&, const SkPaint&,
-                       const SkMatrix& viewMatrix,
-                       const char text[], size_t byteLength,
-                       const SkScalar pos[], int scalarsPerPosition,
-                       const SkPoint& offset, const SkIRect& clipBounds) override;
-    void drawTextBlob(GrDrawContext*, const GrClip&, const SkPaint&,
-                      const SkMatrix& viewMatrix, const SkTextBlob*, SkScalar x, SkScalar y,
-                      SkDrawFilter*, const SkIRect& clipBounds) override;
+    void uncachedDrawTextBlob(GrDrawContext* dc,
+                              const GrClip& clip, const SkPaint& skPaint,
+                              const SkMatrix& viewMatrix,
+                              const SkTextBlob* blob,
+                              SkScalar x, SkScalar y,
+                              SkDrawFilter* drawFilter,
+                              const SkIRect& clipBounds);
 
     class FallbackBlobBuilder;
 
@@ -134,6 +143,7 @@ private:
     const TextBlob& findOrCreateTextBlob(const SkTextBlob*, const SkPaint&);
     void purgeToFit(const TextBlob&);
 
+    GrAtlasTextContext*                                       fFallbackTextContext;
     SkTHashMap<uint32_t, TextBlob*>                           fBlobIdCache;
     SkTHashTable<TextBlob*, const TextBlob::Key&, TextBlob>   fBlobKeyCache;
     SkTInternalLList<TextBlob>                                fLRUList;

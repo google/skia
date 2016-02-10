@@ -42,7 +42,6 @@ GrAtlasTextContext::GrAtlasTextContext(GrContext* context, const SkSurfaceProps&
     static_assert(GrAtlasTextBlob::kGrayTextVASize >= GrAtlasTextBlob::kColorTextVASize &&
                   GrAtlasTextBlob::kGrayTextVASize >= GrAtlasTextBlob::kLCDTextVASize,
                   "vertex_attribute_changed");
-    fCurrStrike = nullptr;
     fCache = context->getTextBlobCache();
 }
 
@@ -314,33 +313,50 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrPaint& paint, const SkPaint& s
     return blob;
 }
 
-void GrAtlasTextContext::onDrawText(GrDrawContext* dc,
-                                    const GrClip& clip,
-                                    const GrPaint& paint, const SkPaint& skPaint,
-                                    const SkMatrix& viewMatrix,
-                                    const char text[], size_t byteLength,
-                                    SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
-    SkAutoTUnref<GrAtlasTextBlob> blob(
-        this->createDrawTextBlob(paint, skPaint, viewMatrix, text, byteLength, x, y));
-    blob->flushThrowaway(fContext, dc, fSurfaceProps, fDistanceAdjustTable, skPaint, paint,
-                         clip, regionClipBounds);
+void GrAtlasTextContext::drawText(GrDrawContext* dc,
+                                  const GrClip& clip,
+                                  const GrPaint& paint, const SkPaint& skPaint,
+                                  const SkMatrix& viewMatrix,
+                                  const char text[], size_t byteLength,
+                                  SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
+    if (fContext->abandoned()) {
+        return;
+    } else if (this->canDraw(skPaint, viewMatrix)) {
+        SkAutoTUnref<GrAtlasTextBlob> blob(
+            this->createDrawTextBlob(paint, skPaint, viewMatrix, text, byteLength, x, y));
+        blob->flushThrowaway(fContext, dc, fSurfaceProps, fDistanceAdjustTable, skPaint, paint,
+                             clip, regionClipBounds);
+        return;
+    }
+
+    // fall back to drawing as a path
+    GrTextUtils::DrawTextAsPath(fContext, dc, clip, skPaint, viewMatrix, text, byteLength, x, y,
+                                regionClipBounds);
 }
 
-void GrAtlasTextContext::onDrawPosText(GrDrawContext* dc,
-                                       const GrClip& clip,
-                                       const GrPaint& paint, const SkPaint& skPaint,
-                                       const SkMatrix& viewMatrix,
-                                       const char text[], size_t byteLength,
-                                       const SkScalar pos[], int scalarsPerPosition,
-                                       const SkPoint& offset, const SkIRect& regionClipBounds) {
-    SkAutoTUnref<GrAtlasTextBlob> blob(
-        this->createDrawPosTextBlob(paint, skPaint, viewMatrix,
-                                    text, byteLength,
-                                    pos, scalarsPerPosition,
-                                    offset));
+void GrAtlasTextContext::drawPosText(GrDrawContext* dc,
+                                     const GrClip& clip,
+                                     const GrPaint& paint, const SkPaint& skPaint,
+                                     const SkMatrix& viewMatrix,
+                                     const char text[], size_t byteLength,
+                                     const SkScalar pos[], int scalarsPerPosition,
+                                     const SkPoint& offset, const SkIRect& regionClipBounds) {
+    if (fContext->abandoned()) {
+        return;
+    } else if (this->canDraw(skPaint, viewMatrix)) {
+        SkAutoTUnref<GrAtlasTextBlob> blob(
+            this->createDrawPosTextBlob(paint, skPaint, viewMatrix,
+                                        text, byteLength,
+                                        pos, scalarsPerPosition,
+                                        offset));
+        blob->flushThrowaway(fContext, dc, fSurfaceProps, fDistanceAdjustTable, skPaint, paint,
+                             clip, regionClipBounds);
+        return;
+    }
 
-    blob->flushThrowaway(fContext, dc, fSurfaceProps, fDistanceAdjustTable, skPaint, paint, clip,
-                         regionClipBounds);
+    // fall back to drawing as a path
+    GrTextUtils::DrawPosTextAsPath(fContext, dc, fSurfaceProps, clip, skPaint, viewMatrix, text,
+                                   byteLength, pos, scalarsPerPosition, offset, regionClipBounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
