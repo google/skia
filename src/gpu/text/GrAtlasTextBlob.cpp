@@ -17,6 +17,38 @@
 #include "SkTextBlobRunIterator.h"
 #include "batches/GrAtlasTextBatch.h"
 
+GrAtlasTextBlob* GrAtlasTextBlob::Create(GrMemoryPool* pool, int glyphCount, int runCount) {
+    // We allocate size for the GrAtlasTextBlob itself, plus size for the vertices array,
+    // and size for the glyphIds array.
+    size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
+    size_t size = sizeof(GrAtlasTextBlob) +
+                  verticesCount +
+                  glyphCount * sizeof(GrGlyph**) +
+                  sizeof(GrAtlasTextBlob::Run) * runCount;
+
+    void* allocation = pool->allocate(size);
+    if (CACHE_SANITY_CHECK) {
+        sk_bzero(allocation, size);
+    }
+
+    GrAtlasTextBlob* cacheBlob = new (allocation) GrAtlasTextBlob;
+    cacheBlob->fSize = size;
+
+    // setup offsets for vertices / glyphs
+    cacheBlob->fVertices = sizeof(GrAtlasTextBlob) + reinterpret_cast<unsigned char*>(cacheBlob);
+    cacheBlob->fGlyphs = reinterpret_cast<GrGlyph**>(cacheBlob->fVertices + verticesCount);
+    cacheBlob->fRuns = reinterpret_cast<GrAtlasTextBlob::Run*>(cacheBlob->fGlyphs + glyphCount);
+
+    // Initialize runs
+    for (int i = 0; i < runCount; i++) {
+        new (&cacheBlob->fRuns[i]) GrAtlasTextBlob::Run;
+    }
+    cacheBlob->fRunCount = runCount;
+    cacheBlob->fPool = pool;
+    return cacheBlob;
+}
+
+
 SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
                                           const SkSurfaceProps& props,
                                           const SkPaint& skPaint,

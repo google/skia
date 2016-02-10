@@ -150,8 +150,7 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             fCache->remove(cacheBlob);
-            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
-                                                           GrAtlasTextBlob::kGrayTextVASize)));
+            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint)));
             this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
                                      blob, x, y, drawFilter);
         } else {
@@ -161,9 +160,8 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
                 int glyphCount = 0;
                 int runCount = 0;
                 GrTextBlobCache::BlobGlyphCount(&glyphCount, &runCount, blob);
-                SkAutoTUnref<GrAtlasTextBlob> sanityBlob(
-                    fCache->createBlob(glyphCount, runCount, GrAtlasTextBlob::kGrayTextVASize));
-                GrTextBlobCache::SetupCacheBlobKey(sanityBlob, key, blurRec, skPaint);
+                SkAutoTUnref<GrAtlasTextBlob> sanityBlob(fCache->createBlob(glyphCount, runCount));
+                sanityBlob->setupKey(key, blurRec, skPaint);
                 this->regenerateTextBlob(sanityBlob, skPaint, grPaint.getColor(), viewMatrix,
                                          blob, x, y, drawFilter);
                 GrAtlasTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
@@ -171,10 +169,9 @@ void GrAtlasTextContext::drawTextBlob(GrDrawContext* dc,
         }
     } else {
         if (canCache) {
-            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint,
-                                                           GrAtlasTextBlob::kGrayTextVASize)));
+            cacheBlob.reset(SkRef(fCache->createCachedBlob(blob, key, blurRec, skPaint)));
         } else {
-            cacheBlob.reset(fCache->createBlob(blob, GrAtlasTextBlob::kGrayTextVASize));
+            cacheBlob.reset(fCache->createBlob(blob));
         }
         this->regenerateTextBlob(cacheBlob, skPaint, grPaint.getColor(), viewMatrix,
                                  blob, x, y, drawFilter);
@@ -278,7 +275,7 @@ GrAtlasTextContext::createDrawTextBlob(const GrPaint& paint, const SkPaint& skPa
                                        SkScalar x, SkScalar y) {
     int glyphCount = skPaint.countText(text, byteLength);
 
-    GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
+    GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1);
     blob->initThrowawayBlob(viewMatrix, x, y);
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
@@ -301,7 +298,7 @@ GrAtlasTextContext::createDrawPosTextBlob(const GrPaint& paint, const SkPaint& s
                                           const SkPoint& offset) {
     int glyphCount = skPaint.countText(text, byteLength);
 
-    GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1, GrAtlasTextBlob::kGrayTextVASize);
+    GrAtlasTextBlob* blob = fCache->createBlob(glyphCount, 1);
     blob->initThrowawayBlob(viewMatrix, offset.x(), offset.y());
 
     if (GrTextUtils::CanDrawAsDistanceFields(skPaint, viewMatrix, fSurfaceProps,
