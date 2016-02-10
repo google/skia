@@ -143,6 +143,18 @@ static int process_upload_data(void* cls, enum MHD_ValueKind kind,
     return MHD_YES;
 }
 
+// SendOK just sends an empty response with a 200 OK status code.
+static int SendOK(MHD_Connection* connection) {
+    const char* data = "";
+
+    MHD_Response* response = MHD_create_response_from_buffer(strlen(data),
+                                                             (void*)data,
+                                                             MHD_RESPMEM_PERSISTENT);
+    int ret = MHD_queue_response(connection, 200, response);
+    MHD_destroy_response(response);
+    return ret;
+}
+
 static int SendData(MHD_Connection* connection, const SkData* data, const char* type,
                     bool setContentDisposition = false, const char* dispositionString = nullptr) {
     MHD_Response* response = MHD_create_response_from_buffer(data->size(),
@@ -228,7 +240,7 @@ public:
             int n;
             sscanf(commands[1].c_str(), "%d", &n);
             request->fDebugCanvas->deleteDrawCommandAt(n);
-            return MHD_YES;
+            return SendOK(connection);
         }
 
         // /cmd/N/[0|1]
@@ -237,7 +249,7 @@ public:
             sscanf(commands[1].c_str(), "%d", &n);
             sscanf(commands[2].c_str(), "%d", &toggle);
             request->fDebugCanvas->toggleCommand(n, toggle);
-            return MHD_YES;
+            return SendOK(connection);
         }
 
         return MHD_NO;
