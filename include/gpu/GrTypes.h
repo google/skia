@@ -409,9 +409,6 @@ enum GrSurfaceFlags {
 
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
 
-// opaque type for 3D API object handles
-typedef intptr_t GrBackendObject;
-
 /**
  * Some textures will be stored such that the upper and left edges of the content meet at the
  * the origin (in texture coord space) and for other textures the lower and left edges meet at
@@ -423,58 +420,6 @@ enum GrSurfaceOrigin {
     kDefault_GrSurfaceOrigin,         // DEPRECATED; to be removed
     kTopLeft_GrSurfaceOrigin,
     kBottomLeft_GrSurfaceOrigin,
-};
-
-/**
- * An container of function pointers which consumers of Skia can fill in and
- * pass to Skia. Skia will use these function pointers in place of its backend
- * API texture creation function. Either all of the function pointers should be
- * filled in, or they should all be nullptr.
- */
-struct GrTextureStorageAllocator {
-    GrTextureStorageAllocator()
-    : fAllocateTextureStorage(nullptr)
-    , fDeallocateTextureStorage(nullptr) {
-    }
-
-    enum class Result {
-        kSucceededAndUploaded,
-        kSucceededWithoutUpload,
-        kFailed
-    };
-    typedef Result (*AllocateTextureStorageProc)(
-            void* ctx, GrBackendObject texture, unsigned width,
-            unsigned height, GrPixelConfig config, const void* srcData, GrSurfaceOrigin);
-    typedef void (*DeallocateTextureStorageProc)(void* ctx, GrBackendObject texture);
-
-    /*
-     * Generates and binds a texture to |textureStorageTarget()|. Allocates
-     * storage for the texture.
-     *
-     * In OpenGL, the MIN and MAX filters for the created texture must be
-     * GL_LINEAR. The WRAP_S and WRAP_T must be GL_CLAMP_TO_EDGE.
-     *
-     * If |srcData| is not nullptr, then the implementation of this function
-     * may attempt to upload the data into the texture. On successful upload,
-     * or if |srcData| is nullptr, returns kSucceededAndUploaded.
-     */
-    AllocateTextureStorageProc fAllocateTextureStorage;
-
-    /*
-     * Deallocate the storage for the given texture.
-     *
-     * Skia does not always destroy its outstanding textures. See
-     * GrContext::abandonContext() for more details. The consumer of Skia is
-     * responsible for making sure that all textures are destroyed, even if this
-     * callback is not invoked.
-     */
-    DeallocateTextureStorageProc fDeallocateTextureStorage;
-
-    /*
-     * The context to use when invoking fAllocateTextureStorage and
-     * fDeallocateTextureStorage.
-     */
-    void* fCtx;
 };
 
 /**
@@ -509,12 +454,6 @@ struct GrSurfaceDesc {
      * max supported count.
      */
     int                    fSampleCnt;
-
-    /**
-     * A custom platform-specific allocator to use in place of the backend APIs
-     * usual texture creation method (e.g. TexImage2D in OpenGL).
-     */
-    GrTextureStorageAllocator fTextureStorageAllocator;
 };
 
 // Legacy alias
@@ -529,6 +468,9 @@ enum GrClipType {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+// opaque type for 3D API object handles
+typedef intptr_t GrBackendObject;
 
 
 /** Ownership rules for external GPU resources imported into Skia. */
