@@ -12,6 +12,10 @@
 #include "SkPaintFilterCanvas.h"
 #include "SkOverdrawMode.h"
 
+#define SKDEBUGCANVAS_VERSION            1
+#define SKDEBUGCANVAS_ATTRIBUTE_VERSION  "version"
+#define SKDEBUGCANVAS_ATTRIBUTE_COMMANDS "commands"
+
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
     DebugPaintFilterCanvas(int width,
@@ -312,6 +316,17 @@ const SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() const {
 
 SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
     return fCommandVector;
+}
+
+Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager) {
+    Json::Value result = Json::Value(Json::objectValue);
+    result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
+    Json::Value commands = Json::Value(Json::arrayValue);
+    for (int i = 0; i < this->getSize(); i++) {
+        commands[i] = this->getDrawCommandAt(i)->toJSON();
+    }
+    result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
+    return result;
 }
 
 void SkDebugCanvas::updatePaintFilterCanvas() {
