@@ -200,6 +200,40 @@ public:
                         const GrClip& clip,
                         const SkIRect& clipBounds);
 
+    void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex) {
+        // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
+        // into device space.
+        // We handle vertex bounds differently for distance field text and bitmap text because
+        // the vertex bounds of bitmap text are in device space.  If we are flushing multiple runs
+        // from one blob then we are going to pay the price here of mapping the rect for each run.
+        const Run& run = fRuns[runIndex];
+        const Run::SubRunInfo& subRun = run.fSubRunInfo[subRunIndex];
+        *outBounds = subRun.vertexBounds();
+        if (subRun.drawAsDistanceFields()) {
+            // Distance field text is positioned with the (X,Y) as part of the glyph position,
+            // and currently the view matrix is applied on the GPU
+            outBounds->offset(fX - fInitialX, fY - fInitialY);
+            fViewMatrix.mapRect(outBounds);
+        } else {
+            // Bitmap text is fully positioned on the CPU, and offset by an (X,Y) translate in
+            // device space.
+            SkMatrix boundsMatrix = fInitialViewMatrixInverse;
+
+            boundsMatrix.postTranslate(-fInitialX, -fInitialY);
+
+            boundsMatrix.postTranslate(fX, fY);
+
+            boundsMatrix.postConcat(fViewMatrix);
+            boundsMatrix.mapRect(outBounds);
+
+            // Due to floating point numerical inaccuracies, we have to round out here
+            outBounds->roundOut(outBounds);
+        }
+    }
+
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+
+
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
@@ -221,12 +255,6 @@ public:
         this->setupViewMatrix(viewMatrix, x, y);
     }
 
-    GrDrawBatch* test_createBatch(int glyphCount, int run, int subRun,
-                                  GrColor color, SkScalar transX, SkScalar transY,
-                                  const SkPaint& skPaint, const SkSurfaceProps& props,
-                                  const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                  GrBatchFontCache* cache);
-
     const Key& key() const { return fKey; }
 
     ~GrAtlasTextBlob() {
@@ -234,6 +262,14 @@ public:
             fRuns[i].~Run();
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Internal test methods
+    GrDrawBatch* test_createBatch(int glyphCount, int run, int subRun,
+                                  GrColor color, SkScalar transX, SkScalar transY,
+                                  const SkPaint& skPaint, const SkSurfaceProps& props,
+                                  const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                  GrBatchFontCache* cache);
 
 private:
     GrAtlasTextBlob()

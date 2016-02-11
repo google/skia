@@ -147,7 +147,6 @@ inline void GrAtlasTextBatch::regenBlob(Target* target, FlushInfo* flushInfo, Bl
             *desc = newDesc;
             *cache = SkGlyphCache::DetachCache(run->fTypeface, *desc);
             *scaler = GrTextContext::GetGrFontScaler(*cache);
-            strike = info->strike();
             *typeface = run->fTypeface;
         }
 
