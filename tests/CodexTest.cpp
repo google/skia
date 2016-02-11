@@ -137,9 +137,7 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
     }
 }
 
-// FIXME: SkScaledCodec is currently only supported for types used by BRD
-// https://bug.skia.org/4428
-static bool supports_scaled_codec(const char path[]) {
+static bool supports_partial_scanlines(const char path[]) {
     static const char* const exts[] = {
         "jpg", "jpeg", "png", "webp"
         "JPG", "JPEG", "PNG", "WEBP"
@@ -230,7 +228,7 @@ static void check(skiatest::Reporter* r,
                 == 0);
 
         // Test partial scanline decodes
-        if (supports_scaled_codec(path) && info.width() >= 3) {
+        if (supports_partial_scanlines(path) && info.width() >= 3) {
             SkCodec::Options options;
             int width = info.width();
             int height = info.height();
@@ -287,8 +285,8 @@ static void check(skiatest::Reporter* r,
         }
     }
 
-    // SkScaledCodec tests
-    if ((supportsScanlineDecoding || supportsSubsetDecoding) && supports_scaled_codec(path)) {
+    // SkAndroidCodec tests
+    if (supportsScanlineDecoding || supportsSubsetDecoding) {
 
         SkAutoTDelete<SkStream> stream(resource(path));
         if (!stream) {
@@ -310,8 +308,8 @@ static void check(skiatest::Reporter* r,
         }
 
         SkBitmap bm;
-        SkMD5::Digest scaledCodecDigest;
-        test_codec(r, androidCodec.get(), bm, info, size, expectedResult, &scaledCodecDigest,
+        SkMD5::Digest androidCodecDigest;
+        test_codec(r, androidCodec.get(), bm, info, size, expectedResult, &androidCodecDigest,
                    &codecDigest);
     }
 
@@ -519,7 +517,7 @@ DEF_TEST(Codec_leaks, r) {
 }
 
 DEF_TEST(Codec_null, r) {
-    // Attempting to create an SkCodec or an SkScaledCodec with null should not
+    // Attempting to create an SkCodec or an SkAndroidCodec with null should not
     // crash.
     SkCodec* codec = SkCodec::NewFromStream(nullptr);
     REPORTER_ASSERT(r, !codec);
