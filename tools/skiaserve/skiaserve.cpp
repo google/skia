@@ -233,7 +233,7 @@ public:
         if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
             int n;
             if (commands.count() == 1) {
-                n = request->fDebugCanvas->getSize() - 1;
+                n = request->fDebugCanvas->getSize();
             } else {
                 sscanf(commands[1].c_str(), "%d", &n);
             }

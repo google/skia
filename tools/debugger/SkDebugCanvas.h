@@ -141,7 +141,7 @@ public:
     SkString clipStackData() const { return fClipStackData; }
 
     /**
-        Returns a JSON object representing up to N draws, where N is < SkDebugCanvas::getSize().
+        Returns a JSON object representing up to N draws, where N is <= SkDebugCanvas::getSize().
         The encoder may use the UrlDataManager to store binary data such as images, referring to
         them via URLs embedded in the JSON.
      */
