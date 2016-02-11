@@ -30,7 +30,6 @@
         '../src/image/',
       ],
       'sources': [
-        '../include/images/SkDecodingImageGenerator.h',
         '../include/images/SkForceLinking.h',
         '../src/images/SkJpegUtility.h',
         '../include/images/SkMovie.h',
@@ -39,7 +38,6 @@
         '../src/images/bmpdecoderhelper.cpp',
         '../src/images/bmpdecoderhelper.h',
 
-        '../src/images/SkDecodingImageGenerator.cpp',
         '../src/images/SkForceLinking.cpp',
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_FactoryDefault.cpp',
