@@ -373,9 +373,13 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     // of the image to use the alpha channels.  However, many of these images
     // leave the alpha channel blank and expect to be rendered as opaque.  This
     // is the case for almost all V3 images, so we render these as opaque.  For
-    // V4+, we will use the alpha channel, and fix the image later if it turns
-    // out to be fully transparent.
-    // As an exception, V3 bmp-in-ico may use an alpha mask.
+    // V4+ images in kMask mode, we will use the alpha mask.
+    //
+    // skbug.com/4116: We should perhaps also apply the alpha mask in kStandard
+    //                 mode.  We just haven't seen any images that expect this
+    //                 behavior.
+    //
+    // Additionally, V3 bmp-in-ico may use the alpha mask.
     SkAlphaType alphaType = kOpaque_SkAlphaType;
     if ((kInfoV3_BmpHeaderType == headerType && inIco) ||
             kInfoV4_BmpHeaderType == headerType ||
