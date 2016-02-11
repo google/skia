@@ -171,11 +171,11 @@ static int SendData(MHD_Connection* connection, const SkData* data, const char* 
     return ret;
 }
 
-static int SendJSON(MHD_Connection* connection, SkDebugCanvas* debugCanvas, int n) {
+static int SendJSON(MHD_Connection* connection, SkDebugCanvas* debugCanvas,
+                    UrlDataManager* urlDataManager, int n) {
+    Json::Value root = debugCanvas->toJSON(*urlDataManager, n);
     SkDynamicMemoryWStream stream;
-    SkAutoTUnref<SkJSONCanvas> jsonCanvas(new SkJSONCanvas(kImageWidth, kImageHeight, stream));
-    debugCanvas->drawTo(jsonCanvas, n);
-    jsonCanvas->finish();
+    stream.writeText(Json::FastWriter().write(root).c_str());
 
     SkAutoTUnref<SkData> data(stream.copyToData());
     return SendData(connection, data, "application/json");
@@ -229,10 +229,15 @@ public:
             return MHD_NO;
         }
 
-        // /cmd or /cmd/N or /cmd/N/[0|1]
-        if (commands.count() == 1 && 0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
-            int n = request->fDebugCanvas->getSize() - 1;
-            return SendJSON(connection, request->fDebugCanvas, n);
+        // /cmd or /cmd/N
+        if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
+            int n;
+            if (commands.count() == 1) {
+                n = request->fDebugCanvas->getSize() - 1;
+            } else {
+                sscanf(commands[1].c_str(), "%d", &n);
+            }
+            return SendJSON(connection, request->fDebugCanvas, &request->fUrlDataManager, n);
         }
 
         // /cmd/N, for now only delete supported

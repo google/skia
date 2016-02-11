@@ -318,11 +318,11 @@ SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
     return fCommandVector;
 }
 
-Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager) {
+Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n) {
     Json::Value result = Json::Value(Json::objectValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
     Json::Value commands = Json::Value(Json::arrayValue);
-    for (int i = 0; i < this->getSize(); i++) {
+    for (int i = 0; i < this->getSize() && i < n; i++) {
         commands[i] = this->getDrawCommandAt(i)->toJSON();
     }
     result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
