@@ -18,7 +18,6 @@
 #include "SkConfig8888.h"
 #include "SkGrPriv.h"
 
-#include "batches/GrCopySurfaceBatch.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
 
@@ -510,42 +509,34 @@ void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     }
 }
 
-bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint) {
+void GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                            const SkIPoint& dstPoint, uint32_t pixelOpsFlags) {
     ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
+    RETURN_IF_ABANDONED
     GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::copySurface");
 
     if (!src || !dst) {
-        return false;
+        return;
     }
     ASSERT_OWNED_RESOURCE(src);
     ASSERT_OWNED_RESOURCE(dst);
 
+    // Since we're going to the draw target and not GPU, no need to check kNoFlush
+    // here.
     if (!dst->asRenderTarget()) {
-        SkIRect clippedSrcRect;
-        SkIPoint clippedDstPoint;
-        if (!GrCopySurfaceBatch::ClipSrcRectAndDstPoint(dst, src, srcRect, dstPoint,
-                                                        &clippedSrcRect, &clippedDstPoint)) {
-            return false;
-        }
-        // If we don't have an RT for the dst then we won't have a GrDrawContext to insert the
-        // the copy surface into. In the future we plan to have a more limited Context type
-        // (GrCopyContext?) that has the subset of GrDrawContext operations that should be
-        // allowed on textures that aren't render targets.
-        // For now we just flush any writes to the src and issue an immediate copy to the dst.
-        src->flushWrites();
-        return fGpu->copySurface(dst, src, clippedSrcRect, clippedDstPoint);
-    }
-    SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(dst->asRenderTarget()));
-    if (!drawContext) {
-        return false;
+        return;
     }
 
-    if (!drawContext->copySurface(src, srcRect, dstPoint)) {
-        return false;
+    SkAutoTUnref<GrDrawContext> drawContext(this->drawContext(dst->asRenderTarget()));
+    if (!drawContext) {
+        return;
     }
-    return true;
+
+    drawContext->copySurface(src, srcRect, dstPoint);
+
+    if (kFlushWrites_PixelOp & pixelOpsFlags) {
+        this->flush();
+    }
 }
 
 void GrContext::flushSurfaceWrites(GrSurface* surface) {

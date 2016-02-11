@@ -97,13 +97,13 @@ GrDrawTarget* GrDrawContext::getDrawTarget() {
     return fDrawTarget;
 }
 
-bool GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+void GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
+    RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::copySurface");
 
-    return this->getDrawTarget()->copySurface(fRenderTarget, src, srcRect, dstPoint);
+    this->getDrawTarget()->copySurface(fRenderTarget, src, srcRect, dstPoint);
 }
 
 void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,

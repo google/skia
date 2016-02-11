@@ -326,8 +326,7 @@ GrTexture* GrDeepCopyTexture(GrTexture* src, bool budgeted) {
 
     const SkIRect srcR = SkIRect::MakeWH(desc.fWidth, desc.fHeight);
     const SkIPoint dstP = SkIPoint::Make(0, 0);
-    ctx->copySurface(dst, src, srcR, dstP);
-    ctx->flushSurfaceWrites(dst);
+    ctx->copySurface(dst, src, srcR, dstP, GrContext::kFlushWrites_PixelOp);
     return dst;
 }
 
