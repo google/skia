@@ -46,15 +46,36 @@ static uint64_t store_to_u16(const Sk4f& x4) {
     return value;
 }
 
+static Sk4f load_from_f16(uint64_t value) {
+    const uint16_t* u16 = reinterpret_cast<const uint16_t*>(&value);
+    float f4[4];
+    for (int i = 0; i < 4; ++i) {
+        f4[i] = SkHalfToFloat(u16[i]);
+    }
+    return Sk4f::Load(f4);
+}
+
+static uint64_t store_to_f16(const Sk4f& x4) {
+    uint64_t value;
+    uint16_t* u16 = reinterpret_cast<uint16_t*>(&value);
+
+    float f4[4];
+    x4.store(f4);
+    for (int i = 0; i < 4; ++i) {
+        u16[i] = SkFloatToHalf(f4[i]);
+    }
+    return value;
+}
+
 // Returns dst in its "natural" bias (either unit-float or 16bit int)
 //
 template <DstType D> Sk4f load_from_dst(uint64_t dst) {
-    return (D == kU16_Dst) ? load_from_u16(dst) : SkHalfToFloat_01(dst);
+    return (D == kU16_Dst) ? load_from_u16(dst) : load_from_f16(dst);
 }
 
 // Assumes x4 is already in the "natural" bias (either unit-float or 16bit int)
 template <DstType D> uint64_t store_to_dst(const Sk4f& x4) {
-    return (D == kU16_Dst) ? store_to_u16(x4) : SkFloatToHalf_01(x4);
+    return (D == kU16_Dst) ? store_to_u16(x4) : store_to_f16(x4);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -10,7 +10,6 @@
 #include "SkHalf.h"
 #include "SkOpts.h"
 #include "SkPixmap.h"
-#include "SkRandom.h"
 
 static bool eq_within_half_float(float a, float b) {
     const float kTolerance = 1.0f / (1 << (8 + 10));
@@ -64,38 +63,4 @@ DEF_TEST(float_to_half, reporter) {
     float fscratch[7];
     SkOpts::half_to_float(fscratch, hs, 7);
     REPORTER_ASSERT(reporter, 0 == memcmp(fscratch, fs, sizeof(fs)));
-}
-
-DEF_TEST(HalfToFloat_01, r) {
-    for (uint16_t h = 0; h < 0x8000; h++) {
-        float f = SkHalfToFloat(h);
-        if (f >= 0 && f <= 1) {
-            REPORTER_ASSERT(r, SkHalfToFloat_01(h)[0] == f);
-            REPORTER_ASSERT(r, SkFloatToHalf_01(SkHalfToFloat_01(h)) == h);
-        }
-    }
-}
-
-DEF_TEST(FloatToHalf_01, r) {
-#if 0
-    for (uint32_t bits = 0; bits < 0x80000000; bits++) {
-#else
-    SkRandom rand;
-    for (int i = 0; i < 1000000; i++) {
-        uint32_t bits = rand.nextU();
-#endif
-        float f;
-        memcpy(&f, &bits, 4);
-        if (f >= 0 && f <= 1) {
-            uint16_t h1 = (uint16_t)SkFloatToHalf_01(Sk4f(f,0,0,0)),
-                     h2 = SkFloatToHalf(f);
-            bool ok = (h1 == h2 || h1 == h2-1);
-            REPORTER_ASSERT(r, ok);
-            if (!ok) {
-                SkDebugf("%08x (%d) -> %04x (%d), want %04x (%d)\n",
-                         bits, bits>>23, h1, h1>>10, h2, h2>>10);
-                break;
-            }
-        }
-    }
 }
