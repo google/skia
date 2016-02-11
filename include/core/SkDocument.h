@@ -131,7 +131,7 @@ public:
      *  nullptr.  For example:
      *
      *  SkDocument* make_doc(SkWStream* output) {
-     *      SkTArray<SkDocument::Attribute> info;
+     *      std::vector<SkDocument::Attribute> info;
      *      info.emplace_back(SkString("Title"), SkString("..."));
      *      info.emplace_back(SkString("Author"), SkString("..."));
      *      info.emplace_back(SkString("Subject"), SkString("..."));
@@ -140,7 +140,7 @@ public:
      *      SkTime::DateTime now;
      *      SkTime::GetDateTime(&now);
      *      SkDocument* doc = SkDocument::CreatePDF(output);
-     *      doc->setMetadata(info, &now, &now);
+     *      doc->setMetadata(&info[0], (int)info.size(), &now, &now);
      *      return doc;
      *  }
      */
@@ -148,9 +148,17 @@ public:
         SkString fKey, fValue;
         Attribute(const SkString& k, const SkString& v) : fKey(k), fValue(v) {}
     };
-    virtual void setMetadata(const SkTArray<SkDocument::Attribute>&,
+    virtual void setMetadata(const SkDocument::Attribute[],
+                             int /* attributeCount */,
                              const SkTime::DateTime* /* creationDate */,
                              const SkTime::DateTime* /* modifiedDate */) {}
+
+    // This version is deprecated.
+    void setMetadata(const SkTArray<SkDocument::Attribute>& att,
+                     const SkTime::DateTime* creation,
+                     const SkTime::DateTime* modified) {
+        this->setMetadata(&att[0], att.count(), creation, modified);
+    }
 
 protected:
     SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));

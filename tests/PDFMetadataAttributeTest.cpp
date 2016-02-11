@@ -21,7 +21,7 @@ DEF_TEST(SkPDF_MetadataAttribute, r) {
     info.emplace_back(SkString("Creator"), SkString("A5"));
     SkTime::DateTime now;
     SkTime::GetDateTime(&now);
-    doc->setMetadata(info, &now, &now);
+    doc->setMetadata(&info[0], info.count(), &now, &now);
     doc->beginPage(612.0f, 792.0f);
     doc->close();
     SkAutoTUnref<SkData> data(pdf.copyToData());

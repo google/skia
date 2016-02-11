@@ -370,10 +370,11 @@ protected:
         fCanon.reset();
     }
 
-    void setMetadata(const SkTArray<SkDocument::Attribute>& info,
+    void setMetadata(const SkDocument::Attribute info[],
+                     int infoCount,
                      const SkTime::DateTime* creationDate,
                      const SkTime::DateTime* modifiedDate) override {
-        fMetadata.fInfo = info;
+        fMetadata.fInfo.reset(info, infoCount);
         fMetadata.fCreation.reset(clone(creationDate));
         fMetadata.fModified.reset(clone(modifiedDate));
     }

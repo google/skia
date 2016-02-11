@@ -979,7 +979,7 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 
     info.emplace_back(SkString("Keywords"),
                       SkStringPrintf("Rasterizer:%s;", fRasterizer));
-    doc->setMetadata(info, nullptr, nullptr);
+    doc->setMetadata(&info[0], info.count(), nullptr, nullptr);
     return draw_skdocument(src, doc.get(), dst);
 }
 
