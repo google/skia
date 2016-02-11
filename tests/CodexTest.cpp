@@ -344,6 +344,7 @@ DEF_TEST(Codec, r) {
 
     // BMP
     check(r, "randPixels.bmp", SkISize::Make(8, 8), true, false);
+    check(r, "rle.bmp", SkISize::Make(320, 240), true, false);
 
     // ICO
     // FIXME: We are not ready to test incomplete ICOs

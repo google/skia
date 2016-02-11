@@ -96,9 +96,16 @@ private:
     const uint32_t                      fOffset;
     SkAutoTDeleteArray<uint8_t>         fStreamBuffer;
     size_t                              fRLEBytes;
+    const size_t                        fOrigRLEBytes;
     uint32_t                            fCurrRLEByte;
     int                                 fSampleX;
     SkAutoTDelete<SkSampler>            fSampler;
+
+    // Scanline decodes allow the client to ask for a single scanline at a time.
+    // This can be tricky when the RLE encoding instructs the decoder to jump down
+    // multiple lines.  This field keeps track of lines that need to be skipped
+    // on subsequent calls to decodeRows().
+    int                                 fLinesToSkip;
 
     typedef SkBmpCodec INHERITED;
 };
